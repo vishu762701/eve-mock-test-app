@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<com.eve.app.designsystem.DesignCardView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:ns1="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap" android:minHeight="@dimen/design_row_with_gap" style="@style/Widget.Eve.Token.Card">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <TextView android:id="@+id/tvActionBadge" style="@style/TextAppearance.Eve.Token.Body.blue" android:layout_width="wrap_content" android:layout_height="wrap_content" ns1:text="✨ New Exam" />
+            <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
+            <TextView android:id="@+id/tvTimestamp" style="@style/TextAppearance.Eve.Telegram.ListTime" android:layout_width="wrap_content" android:layout_height="wrap_content" ns1:text="27 Sep 2026, 05:00 PM"  android:tag="eve_telegram_type" />
+        </LinearLayout>
+        <TextView android:id="@+id/tvDescription" style="@style/TextAppearance.Eve.Telegram.ListTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" ns1:text="Deleted exam: SSC CGL Tier 1"  android:tag="eve_telegram_type" />
+        <TextView android:id="@+id/tvAdminEmail" style="@style/TextAppearance.Eve.Telegram.ListPreview" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" ns1:text="Performed by: pronlike9@gmail.com"  android:tag="eve_telegram_type" />
+    </LinearLayout>
+</com.eve.app.designsystem.DesignCardView>

@@ -1,0 +1,294 @@
+name: Build Eve APK
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
+      - '*.txt'
+      - '.github/workflows/docs.yml'
+      - '.github/scripts/verify-docs.mjs'
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
+      - '*.txt'
+      - '.github/workflows/docs.yml'
+      - '.github/scripts/verify-docs.mjs'
+  # Mission-final FULL gate: both emulator suites and one verified APK.
+  workflow_dispatch:
+
+# Preserve every triggered FULL run as mission-level evidence.
+# Intermediate FAST failures remain visible for root-cause diagnosis.
+
+env:
+  APP_VERSION_CODE: ${{ github.run_number }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      apk_sha256: ${{ steps.apk_digest.outputs.sha256 }}
+      test_apk_sha256: ${{ steps.apk_digest.outputs.test_sha256 }}
+      full: ${{ steps.verification_profile.outputs.full }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            /*
+            !/Telegram-master*.zip
+          sparse-checkout-cone-mode: false
+      - name: Prove unused Telegram ZIP blobs were not downloaded
+        run: bash .github/scripts/check_telegram_checkout_blobs.sh none
+
+      # FULL is a mission-final decision, not a recurring tax on small pushes.
+      - name: Resolve FAST or FULL verification profile
+        id: verification_profile
+        env:
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          set -euo pipefail
+          full=false
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]] || \
+             [[ "$COMMIT_MESSAGE" == *"[eve-full]"* ]]; then
+            full=true
+          fi
+          echo "full=$full" >> "$GITHUB_OUTPUT"
+          echo "Verification profile: $([[ "$full" == true ]] && echo FULL || echo FAST)"
+          echo "### EVE CI: $([[ "$full" == true ]] && echo FULL || echo FAST) verification" >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$full" == true ]]; then
+            echo "Final gate: build, unit tests, lint, both navigation emulators, backend and APK checksum." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Intermediate gate: debug APK, test-source compilation, JVM unit tests and backend; no emulator and no verified APK publication." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Verify retired feature has no active references
+        run: |
+          if git grep -Ein 'UiStudio|uistudio|ui-studio|studio_' -- app/src/main backend/src; then
+            echo "Retired UI Studio references remain in active source."
+            exit 1
+          fi
+
+      - name: Check google-services.json
+        run: |
+          if [ ! -f app/google-services.json ]; then
+            echo "ERROR: app/google-services.json missing. Firebase console se download karke app/ folder me daalo."
+            exit 1
+          fi
+
+      - name: Accept Android SDK licenses and install Platform 36
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;36.0.0"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.7
+
+      - name: Verify native UI runner and visual evidence contracts
+        run: python3 -B -m unittest discover -s .github/scripts/tests -v
+
+      # FAST: build + JVM tests + instrumentation SOURCE compilation; no emulator.
+      # FULL: also lint + device test runs. This catches test compile errors early.
+      - name: FAST compile debug APK and JVM test sources
+        run: |
+          set -euo pipefail
+          gradle :app:assembleDebug :app:compileDebugUnitTestKotlin :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin --stacktrace --console=plain 2>&1 | tee ci-fast-gradle.log
+
+      - name: FULL test lint and compile AndroidTest sources
+        if: ${{ steps.verification_profile.outputs.full == 'true' }}
+        run: |
+          set -euo pipefail
+          gradle :app:compileDebugAndroidTestKotlin :app:assembleDebugAndroidTest :app:lintDebug :app:testDebugUnitTest --stacktrace --console=plain 2>&1 | tee ci-full-gradle.log
+
+      - name: Verify missing release credentials are rejected
+        if: ${{ steps.verification_profile.outputs.full == 'true' }}
+        run: |
+          set -euo pipefail
+          if env -u RELEASE_STORE_FILE -u RELEASE_STORE_PASSWORD -u RELEASE_KEY_ALIAS -u RELEASE_KEY_PASSWORD gradle :app:assembleRelease --dry-run --console=plain > release-signing-preflight.log 2>&1; then
+            echo "::error::Release task accepted missing credentials."
+            exit 1
+          fi
+          if ! grep -Fq "Refusing release build: a real RELEASE_STORE_FILE" release-signing-preflight.log; then
+            echo "::error::Signing verification failed for an unexpected reason."
+            tail -n 60 release-signing-preflight.log
+            exit 1
+          fi
+
+      - name: Fingerprint built APK
+        if: ${{ steps.verification_profile.outputs.full == 'true' }}
+        id: apk_digest
+        run: |
+          set -euo pipefail
+          test -s app/build/outputs/apk/debug/app-debug.apk
+          test -s app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+          echo "sha256=$(sha256sum app/build/outputs/apk/debug/app-debug.apk | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+          echo "test_sha256=$(sha256sum app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+
+      # Internal immutable handoff, stable across rerun-failed-jobs attempts.
+      - name: Save candidate APK for gated publication
+        if: ${{ steps.verification_profile.outputs.full == 'true' }}
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            app/build/outputs/apk/debug/app-debug.apk
+            app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+          key: eve-apk-${{ github.run_id }}-${{ github.sha }}
+
+      - name: Explain Android build failure from first actionable log evidence
+        if: ${{ failure() }}
+        run: python3 .github/scripts/ci_failure_report.py ci-fast-gradle.log ci-full-gradle.log release-signing-preflight.log
+
+  native-ui:
+    name: Native UI (${{ matrix.navigation }})
+    # Keep both modes; skip expensive emulators if Android, backend or Functions gates fail.
+    needs: [build, backend, firebase-functions]
+    if: ${{ needs.build.outputs.full == 'true' && success() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        navigation: [gesture, three-button]
+    # Both navigation modes must pass before the verified APK can be published.
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            /*
+            !/Telegram-master*.zip
+          sparse-checkout-cone-mode: false
+      - name: Prove unused Telegram ZIP blobs were not downloaded
+        run: bash .github/scripts/check_telegram_checkout_blobs.sh none
+      - name: Restore prebuilt app and instrumentation APKs
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            app/build/outputs/apk/debug/app-debug.apk
+            app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+          key: eve-apk-${{ github.run_id }}-${{ github.sha }}
+          fail-on-cache-miss: true
+      - name: Verify original APK checksums
+        env:
+          APP_SHA256: ${{ needs.build.outputs.apk_sha256 }}
+          TEST_SHA256: ${{ needs.build.outputs.test_apk_sha256 }}
+        run: |
+          set -euo pipefail
+          test -n "$APP_SHA256"
+          test -n "$TEST_SHA256"
+          echo "$APP_SHA256  app/build/outputs/apk/debug/app-debug.apk" | sha256sum --check --status
+          echo "$TEST_SHA256  app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk" | sha256sum --check --status
+      - name: Enable KVM for native UI verification
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Verify approved native UI behavior
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          target: google_apis
+          profile: pixel_2
+          disable-animations: false
+          script: bash .github/scripts/verify-native-ui.sh ${{ matrix.navigation }}
+      - name: Generate visual gallery and XML review inventory
+        if: always()
+        run: |
+          python3 .github/scripts/eve_visual_review.py --captures ui-renderings --source app/src/main/res --output ui-renderings
+          echo "### Eve Visual Evidence" >> "$GITHUB_STEP_SUMMARY"
+          echo "The runner generates visual-review.html and visual-review.json; selected fixture PNGs are emitted in job logs. Only the verified APK is uploaded." >> "$GITHUB_STEP_SUMMARY"
+      - name: Enforce complete theme evidence when native tests pass
+        if: success()
+        run: python3 .github/scripts/eve_visual_review.py --captures ui-renderings --source app/src/main/res --output ui-renderings --enforce
+
+      - name: Summarize failing instrumentation assertions
+        if: ${{ failure() }}
+        run: python3 .github/scripts/ci_failure_report.py --native app/build/outputs/androidTest-results/connected
+
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            /*
+            !/Telegram-master*.zip
+          sparse-checkout-cone-mode: false
+      - name: Prove unused Telegram ZIP blobs were not downloaded
+        run: bash .github/scripts/check_telegram_checkout_blobs.sh none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm install --no-package-lock
+      - name: Check backend types and tests
+        working-directory: backend
+        run: |
+          npm run build
+          npm test
+
+  firebase-functions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            /*
+            !/Telegram-master*.zip
+          sparse-checkout-cone-mode: false
+      - name: Prove unused Telegram ZIP blobs were not downloaded
+        run: bash .github/scripts/check_telegram_checkout_blobs.sh none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate optional Firebase Functions and question parser
+        run: |
+          npm run build --prefix functions
+          npm test --prefix functions
+
+  publish-apk:
+    name: Publish verified debug APK
+    needs: [build, native-ui, backend, firebase-functions]
+    if: ${{ needs.build.outputs.full == 'true' && success() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore exact candidate APK without recompilation
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            app/build/outputs/apk/debug/app-debug.apk
+            app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+          key: eve-apk-${{ github.run_id }}-${{ github.sha }}
+          fail-on-cache-miss: true
+
+      - name: Verify same APK checksum before publication
+        env:
+          EXPECTED_SHA256: ${{ needs.build.outputs.apk_sha256 }}
+        run: |
+          set -euo pipefail
+          test -n "$EXPECTED_SHA256"
+          echo "$EXPECTED_SHA256  app/build/outputs/apk/debug/app-debug.apk" | sha256sum --check --status
+          echo "Publishing exact APK compiled for $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload verified debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Eve-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error

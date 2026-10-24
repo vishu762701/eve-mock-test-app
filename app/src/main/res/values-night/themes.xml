@@ -1,0 +1,6 @@
+<resources>
+    <!-- Shared component and typography decisions inherit from the day/night foundation. -->
+    <style name="Theme.Eve.Base" parent="Theme.Eve.Foundation">
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

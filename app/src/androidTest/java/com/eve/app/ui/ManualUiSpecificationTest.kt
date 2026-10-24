@@ -1,0 +1,360 @@
+package com.eve.app.ui
+
+import android.content.res.Configuration
+import android.graphics.Color
+import android.graphics.Outline
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.StateListDrawable
+import android.view.ContextThemeWrapper
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.TextView
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import com.eve.app.R
+import com.eve.app.data.model.Question
+import com.eve.app.databinding.ActivityMainBinding
+import com.eve.app.databinding.ActivityResultBinding
+import com.eve.app.databinding.ItemQuestionBinding
+import com.eve.app.ui.home.HomeAppearance
+import com.eve.app.ui.result.ResultTabs
+import com.eve.app.ui.test.QuestionAdapter
+import com.google.android.material.chip.Chip
+import com.google.android.material.textfield.TextInputLayout
+import org.junit.Assert.*
+import org.junit.Test
+import org.junit.runner.RunWith
+
+/** Production inflation and binding across phone/tablet widths and accessibility text. */
+@RunWith(AndroidJUnit4::class)
+class ManualUiSpecificationTest {
+    @androidx.test.filters.SdkSuppress(minSdkVersion = 29)
+    @Test fun expandedCategoryTouchRegionsActivatePillsInBothThemes() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val originalMode = androidx.appcompat.app.AppCompatDelegate.getDefaultNightMode()
+        try {
+            for (night in listOf(Configuration.UI_MODE_NIGHT_NO, Configuration.UI_MODE_NIGHT_YES)) {
+                instrumentation.runOnMainSync {
+                    androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(
+                        if (night == Configuration.UI_MODE_NIGHT_YES)
+                            androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
+                        else androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
+                    )
+                }
+                androidx.test.core.app.ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+                val clicked = java.util.concurrent.atomic.AtomicBoolean(false)
+                lateinit var home: ActivityMainBinding
+                scenario.onActivity { activity ->
+                    val config = Configuration(activity.resources.configuration).apply {
+                        uiMode = (uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or night
+                        fontScale = 1f
+                    }
+                    val context = ContextThemeWrapper(activity.createConfigurationContext(config), R.style.Theme_Eve)
+                    home = ActivityMainBinding.inflate(LayoutInflater.from(context))
+                    home.chipGroupCategory.addView(HomeAppearance.categoryChip(context, "All", "All") { clicked.set(true) })
+                    activity.setContentView(home.root)
+                }
+                instrumentation.waitForIdleSync()
+                scenario.onActivity {
+                    val actualNight = it.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+                    assertEquals("Attached screenshot must use the activity's REAL system-bar theme",
+                        night, actualNight)
+                    val group = home.chipGroupCategory
+                    val chip = group.getChildAt(0)
+                    val density = group.resources.displayMetrics.density
+                    assertTrue(chip.isAttachedToWindow)
+                    // Native attached screenshots revealed oversize artwork outside the bell.
+                    // Its immediate host clips stray Lottie pixels without altering the animation.
+                    assertTrue("Notification animation must not escape its 48dp icon host",
+                        (home.btnNotification.parent as ViewGroup).clipChildren)
+                    assertTrue(group.height >= Math.round(48f * density))
+                    assertTrue("Event must be outside the visible pill", chip.top > 1f)
+                    val x = (chip.left + chip.right) / 2f
+                    val y = chip.top.toFloat() + Math.round(4f * density)
+                    val now = android.os.SystemClock.uptimeMillis()
+                    for (action in listOf(android.view.MotionEvent.ACTION_DOWN, android.view.MotionEvent.ACTION_UP)) {
+                        val event = android.view.MotionEvent.obtain(now, now, action, x, y, 0)
+                        try { assertTrue(group.dispatchTouchEvent(event)) } finally { event.recycle() }
+                    }
+                }
+                // View posts performClick on the UI handler. Let the attached window process it.
+                instrumentation.waitForIdleSync()
+                assertTrue("48dp delegated target must activate the visible pill in theme $night", clicked.get())
+                lateinit var bounds: android.graphics.Rect
+                var ink = 0
+                scenario.onActivity {
+                    val chip = home.chipGroupCategory.getChildAt(0) as Chip
+                    val position = IntArray(2).also { chip.getLocationOnScreen(it) }
+                    // Check glyphs, not the white selected-check icon. Total padding
+                    // includes ChipDrawable's icon space and its real text insets.
+                    bounds = android.graphics.Rect(position[0] + chip.totalPaddingLeft,
+                        position[1] + chip.totalPaddingTop,
+                        position[0] + chip.width - chip.totalPaddingRight,
+                        position[1] + chip.height - chip.totalPaddingBottom)
+                    ink = chip.currentTextColor
+                }
+                val committed = java.util.concurrent.CountDownLatch(1)
+                scenario.onActivity {
+                    home.root.viewTreeObserver.registerFrameCommitCallback { committed.countDown() }
+                    home.root.invalidate()
+                }
+                assertTrue("Attached Home frame must commit", committed.await(5, java.util.concurrent.TimeUnit.SECONDS))
+                instrumentation.waitForIdleSync()
+                val screenshot = instrumentation.uiAutomation.takeScreenshot()
+                assertNotNull("Attached Home hardware screenshot must be available", screenshot)
+                screenshot!!.let { bitmap ->
+                    try {
+                        // This capture uses the actual Activity Day/Night mode (not just
+                        // a differently themed content context). Assert real status-bar
+                        // backing and safe bottom control bounds at the hardware frame.
+                        val canvas = home.root.context.getColor(R.color.bg_app)
+                        assertEquals("Attached Home status bar must match the active canvas",
+                            canvas, bitmap.getPixel(bitmap.width / 2, 2))
+                        assertTrue("Home exam list must remain attached without floating navigation",
+                            home.rvExams.isAttachedToWindow)
+                        var inkPixels = 0
+                        for (y in bounds.top until bounds.bottom) for (x in bounds.left until bounds.right) {
+                            if (bitmap.getPixel(x, y) == ink) inkPixels++
+                        }
+                        val values = android.content.ContentValues().apply {
+                            put(android.provider.MediaStore.Images.Media.DISPLAY_NAME, "home-attached-${if (night == Configuration.UI_MODE_NIGHT_YES) "dark" else "light"}.png")
+                            put(android.provider.MediaStore.Images.Media.MIME_TYPE, "image/png")
+                            put(android.provider.MediaStore.Images.Media.RELATIVE_PATH, "Pictures/eve-approved-ui")
+                        }
+                        val resolver = instrumentation.targetContext.contentResolver
+                        val uri = resolver.insert(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)!!
+                        resolver.openOutputStream(uri)!!.use { bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
+                        assertTrue("Category label must visibly render in theme $night (inkPixels=$inkPixels, bounds=$bounds)", inkPixels >= 10)
+                    } finally { bitmap.recycle() }
+                }
+                }
+            }
+        } finally {
+            instrumentation.runOnMainSync {
+                androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(originalMode)
+            }
+        }
+    }
+
+    @Test fun responsiveGeometryAndThemeReapplication() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        instrumentation.runOnMainSync {
+            for (night in listOf(Configuration.UI_MODE_NIGHT_NO, Configuration.UI_MODE_NIGHT_YES, Configuration.UI_MODE_NIGHT_NO)) {
+                for (font in listOf(1f, 1.5f, 2f)) for (width in listOf(320, 360, 393, 412, 800)) {
+                    val config = Configuration(instrumentation.targetContext.resources.configuration).apply {
+                        uiMode = (uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or night
+                        fontScale = font
+                        screenWidthDp = width
+                    }
+                    val context = ContextThemeWrapper(instrumentation.targetContext.createConfigurationContext(config), R.style.Theme_Eve)
+                    val density = context.resources.displayMetrics.density
+                    fun dp(v: Int) = Math.round(v * density)
+                    fun layout(view: View, height: Int = 1000) {
+                        repeat(2) {
+                            view.measure(View.MeasureSpec.makeMeasureSpec(dp(width), View.MeasureSpec.EXACTLY),
+                                View.MeasureSpec.makeMeasureSpec(dp(height), View.MeasureSpec.EXACTLY))
+                            view.layout(0, 0, view.measuredWidth, view.measuredHeight)
+                        }
+                    }
+                    val border = Color.parseColor(if (night == Configuration.UI_MODE_NIGHT_YES) "#2EFFFFFF" else "#1F000000")
+                    assertEquals(border, context.getColor(R.color.hairline))
+                    val home = ActivityMainBinding.inflate(LayoutInflater.from(context))
+                    home.panelHomeBanner.visibility = View.VISIBLE
+                    HomeAppearance.clipBanner(home.panelHomeBanner)
+                    val chips = listOf("All", "Other", "बहुत लंबी हिंदी श्रेणी का नाम", "A category with an exceptionally long accessible label").map {
+                        HomeAppearance.categoryChip(context, it, "All") {}
+                    }
+                    chips.forEach { home.chipGroupCategory.addView(it) }
+                    layout(home.root)
+                    assertEquals(dp(width) - 2 * dp(12), home.panelHomeBanner.width)
+                    assertEquals(dp(160), home.panelHomeBanner.height)
+                    val outline = Outline()
+                    home.panelHomeBanner.outlineProvider.getOutline(home.panelHomeBanner, outline)
+                    assertEquals(26f * density, outline.radius, 0.01f)
+                    assertTrue(home.panelHomeBanner.clipToOutline)
+                    if (font == 1f) {
+                        assertTrue(chips[0].width >= dp(48))
+                        assertEquals(dp(32).toFloat(), chips[0].chipMinHeight, .01f)
+                        assertEquals(dp(48), chips[0].height)
+                    }
+                    for (chip in chips) {
+                        assertEquals(0.5f, (chip.shapeAppearanceModel.topLeftCornerSize as com.google.android.material.shape.RelativeCornerSize).relativePercent, 0.01f)
+                        assertEquals(0f, chip.chipStrokeWidth, 0.01f)
+                        for (checked in listOf(false, true, false)) {
+                            chip.isChecked = checked
+                            // Category chips now use the selected Telegram palette, not the
+                            // retired monochrome XML accent. Preserve state and contrast checks.
+                            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
+                            assertEquals(palette.accent,
+                                chip.chipBackgroundColor!!.getColorForState(chip.drawableState, 0))
+                            assertEquals(palette.onAccent, chip.currentTextColor)
+                            assertTrue("Telegram chip label contrast must remain readable",
+                                androidx.core.graphics.ColorUtils.calculateContrast(chip.currentTextColor, palette.accent) >= 4.5)
+                        }
+                        assertTrue(chip.height >= dp(32))
+                        assertTrue("Chip must fit the locked screen margins at $width/$font",
+                            chip.width <= dp(width) - 2 * context.resources.getDimensionPixelSize(R.dimen.design_screen_margin))
+                        assertEquals(chip.text.toString(), chip.contentDescription.toString())
+                    }
+                    for (i in 1 until chips.size) assertEquals(dp(8), chips[i].left - chips[i-1].right)
+                    val result = ActivityResultBinding.inflate(LayoutInflater.from(context))
+                    ResultTabs.bind(result) {}
+                    layout(result.root)
+                    assertEquals(dp(width) - 2 * dp(12), result.tabLayoutResult.width)
+                    assertTrue(result.tabLayoutResult.height == dp(40))
+                    assertEquals(dp(3), result.tabLayoutResult.paddingTop)
+                    assertEquals(dp(3), result.tabLayoutResult.paddingStart)
+                    val tabStrip = result.tabLayoutResult.getChildAt(0) as ViewGroup
+                    fun tabText(index: Int): TextView {
+                        fun find(view: View): TextView? {
+                            if (view.visibility != View.VISIBLE) return null
+                            if (view is TextView) return view
+                            if (view is ViewGroup) for (i in 0 until view.childCount) find(view.getChildAt(i))?.let { return it }
+                            return null
+                        }
+                        return requireNotNull(find(tabStrip.getChildAt(index)))
+                    }
+                    val available = result.tabLayoutResult.width - result.tabLayoutResult.paddingLeft - result.tabLayoutResult.paddingRight
+                    if (font > 1.2f && width < 600) {
+                        assertEquals(com.google.android.material.tabs.TabLayout.MODE_SCROLLABLE, result.tabLayoutResult.tabMode)
+                        assertTrue("Enlarged labels must scroll without compressing", tabStrip.width >= available)
+                        assertTrue("Content-sized segments stay inside their strip", tabStrip.getChildAt(tabStrip.childCount - 1).right <= tabStrip.width)
+                        for (index in 0 until result.tabLayoutResult.tabCount) {
+                            val tabLabel = tabText(index)
+                            assertEquals(1, tabLabel.lineCount)
+                            assertEquals("Full enlarged label must fit", 0, tabLabel.layout.getEllipsisCount(0))
+                        }
+                    } else {
+                        assertEquals(com.google.android.material.tabs.TabLayout.MODE_FIXED, result.tabLayoutResult.tabMode)
+                        assertEquals(available, tabStrip.width)
+                        assertEquals(tabStrip.width, tabStrip.getChildAt(tabStrip.childCount - 1).right)
+                    }
+                    val grid = result.rowOverviewStatisticsTiles
+                    val minimum = Math.round(124f * density * font)
+                    val expectedColumns = when {
+                        grid.width >= minimum * 4 + dp(8) * 3 -> 4
+                        grid.width >= minimum * 2 + dp(8) -> 2
+                        else -> 1
+                    }
+                    assertEquals(expectedColumns, grid.columnCount)
+                    if (font == 1f && width <= 412) assertEquals(2, grid.columnCount)
+                    for (i in 0 until grid.childCount) {
+                        val tile = grid.getChildAt(i)
+                        assertTrue(kotlin.math.abs(tile.width * grid.columnCount + dp(8) * (grid.columnCount - 1) - grid.width) < grid.columnCount)
+                        assertTrue(tile.height >= dp(96))
+                        if (font == 1f) assertEquals(dp(96), tile.height)
+                        assertEquals(dp(10), tile.paddingStart)
+                        assertTrue(tile.right <= grid.width)
+                        if (i % grid.columnCount != 0) {
+                            assertEquals(dp(8), tile.left - grid.getChildAt(i - 1).right)
+                        } else if (i >= grid.columnCount) {
+                            assertEquals(dp(8), tile.top - grid.getChildAt(i - grid.columnCount).bottom)
+                        }
+                        val surface = tile.background as GradientDrawable
+                        assertEquals(dp(16).toFloat(), surface.cornerRadius, 0.01f)
+                    }
+                    repeat(12) { index ->
+                        result.tabLayoutResult.getTabAt(index % 3)!!.select()
+                        assertEquals(index % 3, result.tabLayoutResult.selectedTabPosition)
+                    }
+                    val label = tabText(0)
+                    // Telegram ScrollSlidingTextTabStrip.java:549: source-matched 15dp label, EVE sp accessibility.
+                    assertEquals(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP, 15f,
+                        context.resources.displayMetrics), label.textSize, 0.51f)
+                    val adapter = QuestionAdapter(listOf(Question(questionText = "हिंदी / English", optionA = "A long answer ".repeat(30))),
+                        { "B" }, { _, _ -> }, { false }, {}, { false }, {}, { 0L })
+                    val holder = adapter.onCreateViewHolder(FrameLayout(context), 0)
+                    adapter.onBindViewHolder(holder, 0)
+                    val question = ItemQuestionBinding.bind(holder.itemView)
+                    layout(question.root)
+                    val options = listOf(question.rbA, question.rbB, question.rbC, question.rbD)
+                    for (option in options) {
+                        assertEquals(dp(width) - 2 * dp(12), option.width)
+                        assertEquals(dp(48), option.minHeight)
+                        assertTrue(option.height >= dp(48))
+                        for (checked in listOf(false, true, false)) {
+                            option.isChecked = checked
+                            option.jumpDrawablesToCurrentState()
+                            val surface = (option.background as StateListDrawable).current as GradientDrawable
+                            assertEquals(16f * density, surface.cornerRadius, 0.01f)
+                        }
+                    }
+                    for (i in 1 until options.size) assertEquals(dp(6), options[i].top - options[i-1].bottom)
+                    // Existing inherited and stateful outlines, including disabled/focused controls.
+                    val styled = LayoutInflater.from(context).inflate(R.layout.activity_app_config, FrameLayout(context), false).apply { isFocusableInTouchMode = true }
+                    fun visit(view: View) {
+                        if (view is TextInputLayout) {
+                            assertEquals(context.resources.getDimensionPixelSize(R.dimen.design_focus_stroke), view.boxStrokeWidth)
+                            assertEquals(context.resources.getDimensionPixelSize(R.dimen.design_focus_stroke), view.boxStrokeWidthFocused)
+                            val actualBox = TextInputLayout::class.java.getDeclaredField("boxBackground").apply {
+                                isAccessible = true
+                            }.get(view) as com.google.android.material.shape.MaterialShapeDrawable
+                            for (enabled in listOf(true, false, true)) {
+                                view.isEnabled = enabled
+                                assertEquals(context.getColor(R.color.transparent), actualBox.strokeColor!!.defaultColor)
+                                assertEquals(context.resources.getDimension(R.dimen.design_focus_stroke), actualBox.strokeWidth, density / 2)
+                            }
+                            view.error = "Fixture error"
+                            assertEquals(context.getColor(R.color.system_red), actualBox.strokeColor!!.defaultColor)
+                            view.error = null
+                            view.editText?.requestFocus()
+                            assertEquals(context.getColor(R.color.accent), actualBox.strokeColor!!.defaultColor)
+                            assertTrue("Fixture focus sink must take focus", styled.requestFocus())
+                            assertEquals("Clearing focus removes the previous ring", context.getColor(R.color.transparent), actualBox.strokeColor!!.defaultColor)
+                        }
+                        if (view is ViewGroup) for (i in 0 until view.childCount) visit(view.getChildAt(i))
+                    }
+                    visit(styled)
+                    if (font == 1f && width == 360) {
+                        val replies = com.eve.app.ui.admin.PostRepliesAdapter({}, {})
+                        val replyHolder = replies.onCreateViewHolder(FrameLayout(context), 0)
+                        val button = com.eve.app.databinding.ItemPostReplyBinding.bind(replyHolder.itemView).btnMarkRead
+                        for (read in listOf(true, false, true)) {
+                            replyHolder.bind(com.eve.app.data.model.FeedbackPostReply(read = read))
+                            assertEquals(1f, button.alpha, 0f)
+                            assertEquals(!read, button.isEnabled)
+                            assertEquals(0, button.strokeWidth)
+                            // Material leaves an absent, zero-width stroke color unset.
+                            assertEquals(context.getColor(R.color.transparent), button.strokeColor?.getColorForState(button.drawableState, 0)
+                                ?: context.getColor(R.color.transparent))
+                            assertEquals(255, Color.alpha(button.currentTextColor))
+                            assertEquals(context.getColor(if (read) R.color.text_secondary else R.color.text_primary), button.currentTextColor)
+                            assertTrue(androidx.core.graphics.ColorUtils.calculateContrast(button.currentTextColor,
+                                context.getColor(R.color.surface)) >= 4.5)
+                        }
+                        val toggle = com.google.android.material.materialswitch.MaterialSwitch(context)
+                        for (enabled in listOf(true, false, true)) for (checked in listOf(false, true, false)) {
+                            toggle.isEnabled = enabled
+                            toggle.isChecked = checked
+                            assertNull("Locked switch has no decorative outline", toggle.trackDecorationDrawable)
+                            assertEquals(context.getColor(if (checked) R.color.system_green else R.color.track),
+                                toggle.trackTintList!!.getColorForState(toggle.drawableState, 0))
+                            assertEquals(context.getColor(R.color.solid_white), toggle.thumbTintList!!.defaultColor)
+                        }
+                    }
+                    val inheritedCard = com.google.android.material.card.MaterialCardView(context)
+                    assertEquals(0, inheritedCard.strokeWidth)
+                    assertEquals(context.getColor(R.color.transparent), inheritedCard.strokeColor)
+                    val inherited = Chip(context)
+                    assertEquals(0f, inherited.chipStrokeWidth, 0.01f)
+                    for (state in listOf(intArrayOf(), intArrayOf(android.R.attr.state_checked), intArrayOf(-android.R.attr.state_enabled))) {
+                        assertEquals(context.getColor(R.color.transparent), inherited.chipStrokeColor!!.getColorForState(state, 0))
+                    }
+                    // Offscreen fixtures never receive Android's detach callback. Release their
+                    // looping artwork before inflating the next configuration.
+                    fun release(view: View) {
+                        view.animate().cancel()
+                        if (view is com.airbnb.lottie.LottieAnimationView) view.cancelAnimation()
+                        if (view is ViewGroup) for (i in 0 until view.childCount) release(view.getChildAt(i))
+                    }
+                    release(home.root)
+                    release(result.root)
+                    release(question.root)
+                    release(styled)
+                }
+            }
+        }
+    }
+}

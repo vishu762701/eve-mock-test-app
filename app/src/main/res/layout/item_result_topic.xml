@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='utf-8'?>
+<com.eve.app.ui.result.ResponsiveResultRow xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="@dimen/design_row_with_gap" android:clipChildren="false" android:clipToPadding="false">
+    <TextView android:id="@+id/tvTopicName" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" />
+    <TextView android:id="@+id/tvTopicResult" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_screen_margin" />
+</com.eve.app.ui.result.ResponsiveResultRow>

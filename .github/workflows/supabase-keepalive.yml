@@ -1,0 +1,94 @@
+name: Supabase Activity Keepalive
+
+on:
+  schedule:
+    # Run every 2 days at 04:00 UTC to maintain database activity and prevent inactivity pausing
+    - cron: '0 4 */2 * *'
+  workflow_dispatch:
+
+jobs:
+  keepalive:
+    name: Supabase Database Keepalive Query
+    runs-on: ubuntu-latest
+    steps:
+      - name: Execute Lightweight Supabase Database Query
+        env:
+          SUPABASE_PROJECT_URL: ${{ secrets.SUPABASE_PROJECT_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          TARGET_URL="${SUPABASE_PROJECT_URL:-https://msfihtyllpodkfgxxxdd.supabase.co}"
+
+          # 1. Ensure secrets are masked in GitHub Actions log output
+          if [ -n "$SUPABASE_KEY" ]; then
+            echo "::add-mask::$SUPABASE_KEY"
+          fi
+          if [ -n "$SUPABASE_DB_URL" ]; then
+            echo "::add-mask::$SUPABASE_DB_URL"
+          fi
+
+          echo "=== Supabase Database Activity Keepalive ==="
+          echo "Timestamp: $(date -u '+%Y-%m-%d %H:%M:%SZ')"
+          echo "Target URL: $TARGET_URL"
+
+          # 2. Check if direct PostgreSQL connection is configured
+          if [ -n "$SUPABASE_DB_URL" ]; then
+            echo "Executing direct PostgreSQL keepalive query..."
+            if sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client > /dev/null 2>&1; then
+              if psql "$SUPABASE_DB_URL" -c "SELECT 1 AS keepalive_ping;" > /dev/null 2>&1; then
+                echo "::notice title=Supabase Keepalive::PASS (Direct PostgreSQL query 'SELECT 1' executed successfully)"
+                echo "Result: Database is online and query executed successfully."
+                exit 0
+              else
+                echo "Direct PostgreSQL connection failed. Falling back to PostgREST database query..."
+              fi
+            fi
+          fi
+
+          # 3. Authenticate and query Supabase Database via PostgREST
+          if [ -z "$SUPABASE_KEY" ]; then
+            echo "::error title=Supabase Keepalive::SUPABASE_SERVICE_ROLE_KEY or SUPABASE_ANON_KEY is not configured in GitHub Secrets."
+            exit 1
+          fi
+
+          echo "Executing lightweight database query via PostgREST..."
+          
+          # Query PostgREST schema catalog - this directly exercises the PostgreSQL catalog and connection pool
+          HTTP_RESPONSE=$(curl -s -S -w "\nHTTP_STATUS:%{http_code}" \
+            -X GET "${TARGET_URL}/rest/v1/" \
+            -H "apikey: ${SUPABASE_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_KEY}" \
+            -H "Accept: application/json" \
+            --connect-timeout 15 \
+            --max-time 30 || true)
+
+          HTTP_CODE=$(echo "$HTTP_RESPONSE" | grep -o 'HTTP_STATUS:[0-9]*' | cut -d: -f2)
+
+          echo "Response HTTP Status: $HTTP_CODE"
+
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "::notice title=Supabase Keepalive::PASS (HTTP 200 OK: Lightweight PostgreSQL database query executed successfully)"
+            echo "Result: Legitimate database activity registered. Supabase database is active."
+            exit 0
+          fi
+
+          # Try querying a keepalive table or health rpc if root returned non-200
+          ALT_RESPONSE=$(curl -s -S -w "\nHTTP_STATUS:%{http_code}" \
+            -X GET "${TARGET_URL}/rest/v1/keepalive?select=*" \
+            -H "apikey: ${SUPABASE_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_KEY}" \
+            -H "Accept: application/json" \
+            --connect-timeout 15 \
+            --max-time 30 || true)
+
+          ALT_CODE=$(echo "$ALT_RESPONSE" | grep -o 'HTTP_STATUS:[0-9]*' | cut -d: -f2)
+
+          if [ "$ALT_CODE" = "200" ] || [ "$ALT_CODE" = "206" ]; then
+            echo "::notice title=Supabase Keepalive::PASS (HTTP $ALT_CODE: Database query on keepalive table executed successfully)"
+            echo "Result: Legitimate database activity registered. Supabase database is active."
+            exit 0
+          fi
+
+          echo "::error title=Supabase Keepalive::FAIL (Supabase database query failed with HTTP $HTTP_CODE / $ALT_CODE)"
+          echo "Please ensure Supabase project is unpaused and credentials in GitHub Secrets are up to date."
+          exit 1

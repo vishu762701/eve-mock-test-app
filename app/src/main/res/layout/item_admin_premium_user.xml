@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<com.eve.app.designsystem.DesignCardView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:ns1="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap" android:minHeight="@dimen/design_row_with_gap" style="@style/Widget.Eve.Token.Card">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <TextView android:id="@+id/tvUserDisplayName" style="@style/TextAppearance.Eve.Telegram.ListTitle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" ns1:text="Student Name"  android:tag="eve_telegram_type" />
+            <TextView android:id="@+id/tvUserStatusBadge" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" ns1:text="ACTIVE" />
+        </LinearLayout>
+        <TextView android:id="@+id/tvUserEmail" style="@style/TextAppearance.Eve.Telegram.ListPreview" android:layout_width="wrap_content" android:layout_height="wrap_content" ns1:text="student@gmail.com"  android:tag="eve_telegram_type" />
+        <TextView android:id="@+id/tvPlanAndExpiry" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" ns1:text="Premium Pro • Expires: 29 Oct 2026 (Source: PAYMENT)" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:gravity="end" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnExtendUser" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:text="+30 Days" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnRevokeUser" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_card_gap" android:text="Revoke" />
+        </LinearLayout>
+    </LinearLayout>
+</com.eve.app.designsystem.DesignCardView>

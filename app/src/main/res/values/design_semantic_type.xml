@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+  <style name="TextAppearance.Eve.Token.Body.blue" parent="TextAppearance.Eve.Token.Body">
+    <item name="android:textColor">@color/system_blue</item>
+  </style>
+  <style name="TextAppearance.Eve.Token.Body.green" parent="TextAppearance.Eve.Token.Body">
+    <item name="android:textColor">@color/system_green</item>
+  </style>
+  <style name="TextAppearance.Eve.Token.Body.orange" parent="TextAppearance.Eve.Token.Body">
+    <item name="android:textColor">@color/system_orange</item>
+  </style>
+  <style name="TextAppearance.Eve.Token.Body.red" parent="TextAppearance.Eve.Token.Body">
+    <item name="android:textColor">@color/system_red</item>
+  </style>
+  <style name="TextAppearance.Eve.Token.Heading.blue" parent="TextAppearance.Eve.Token.Heading">
+    <item name="android:textColor">@color/system_blue</item>
+  </style>
+  <style name="TextAppearance.Eve.Token.Heading.green" parent="TextAppearance.Eve.Token.Heading">
+    <item name="android:textColor">@color/system_green</item>
+  </style>
+  <style name="TextAppearance.Eve.Token.Heading.orange" parent="TextAppearance.Eve.Token.Heading">
+    <item name="android:textColor">@color/system_orange</item>
+  </style>
+  <style name="TextAppearance.Eve.Token.Heading.red" parent="TextAppearance.Eve.Token.Heading">
+    <item name="android:textColor">@color/system_red</item>
+  </style>
+  <style name="TextAppearance.Eve.Token.Secondary.blue" parent="TextAppearance.Eve.Token.Secondary">
+    <item name="android:textColor">@color/system_blue</item>
+  </style>
+  <style name="TextAppearance.Eve.Token.Secondary.green" parent="TextAppearance.Eve.Token.Secondary">
+    <item name="android:textColor">@color/system_green</item>
+  </style>
+  <style name="TextAppearance.Eve.Token.Secondary.orange" parent="TextAppearance.Eve.Token.Secondary">
+    <item name="android:textColor">@color/system_orange</item>
+  </style>
+  <style name="TextAppearance.Eve.Token.Secondary.red" parent="TextAppearance.Eve.Token.Secondary">
+    <item name="android:textColor">@color/system_red</item>
+  </style>
+    <style name="TextAppearance.Eve.Token.Chip.OnAccent" parent="TextAppearance.Eve.Token.Chip"><item name="android:textColor">@color/on_accent</item></style>
+</resources>

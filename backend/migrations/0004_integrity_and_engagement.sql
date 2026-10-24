@@ -1,0 +1,12 @@
+ALTER TABLE attempts ADD COLUMN time_taken_seconds INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE attempts ADD COLUMN client_attempt_id TEXT NOT NULL DEFAULT '';
+ALTER TABLE attempts ADD COLUMN counted INTEGER NOT NULL DEFAULT 1;
+ALTER TABLE attempt_answers ADD COLUMN time_taken_seconds INTEGER NOT NULL DEFAULT 0;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_attempts_client_id ON attempts (user_id, client_attempt_id) WHERE client_attempt_id <> '';
+CREATE INDEX IF NOT EXISTS idx_attempts_user_exam ON attempts (user_id, exam_id);
+CREATE INDEX IF NOT EXISTS idx_attempt_answers_question ON attempt_answers (question_id);
+ALTER TABLE leaderboard ADD COLUMN time_taken_seconds INTEGER NOT NULL DEFAULT 0;
+CREATE TABLE IF NOT EXISTS attempt_sessions (id TEXT PRIMARY KEY, user_id TEXT NOT NULL, exam_key TEXT NOT NULL, started_at INTEGER NOT NULL, time_limit_seconds INTEGER NOT NULL);
+CREATE INDEX IF NOT EXISTS idx_attempt_sessions_started ON attempt_sessions (started_at);
+ALTER TABLE admin_analytics_questions ADD COLUMN total_time_seconds INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE generated_tests ADD COLUMN available_from INTEGER NOT NULL DEFAULT 0;

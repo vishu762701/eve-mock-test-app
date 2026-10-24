@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:ns1="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginVertical="4dp" android:orientation="vertical" android:minHeight="@dimen/design_row_with_gap" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <TextView android:id="@+id/tvOptionTitle" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" ns1:text="Option 1" />
+        <TextView android:id="@+id/tvOptionPercent" style="@style/TextAppearance.Eve.Token.Secondary.blue" android:layout_width="wrap_content" android:layout_height="wrap_content" ns1:text="45%" />
+    </LinearLayout>
+    <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@+id/pbOption" style="@style/Widget.Eve.Token.Ring" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_marginTop="4dp" android:max="100" ns1:progress="45" android:indeterminate="false" />
+    <TextView android:id="@+id/tvOptionVotes" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" ns1:text="23 votes" />
+</LinearLayout>

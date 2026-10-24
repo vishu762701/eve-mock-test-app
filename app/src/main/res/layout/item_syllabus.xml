@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8'?>
+<com.eve.app.designsystem.DesignCardView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:ns1="http://schemas.android.com/tools" style="@style/Widget.Eve.Token.Card" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginVertical="@dimen/design_zero" android:minHeight="@dimen/design_row_with_gap" android:layout_marginBottom="@dimen/design_card_gap">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <TextView android:id="@+id/tvCategory" style="@style/TextAppearance.Eve.Token.Secondary.blue" android:layout_width="wrap_content" android:layout_height="wrap_content" ns1:text="Banking" />
+            <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
+            <TextView android:id="@+id/tvFileSize" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:visibility="gone" ns1:text="PDF" />
+        </LinearLayout>
+        <TextView android:id="@+id/tvExamName" style="@style/TextAppearance.Eve.Telegram.ListTitle" android:tag="eve_telegram_type" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" ns1:text="SBI PO Prelims Exam" />
+        <TextView android:id="@+id/tvFileName" style="@style/TextAppearance.Eve.Telegram.ListPreview" android:tag="eve_telegram_type" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:ellipsize="middle" android:singleLine="true" ns1:text="sbi_po_syllabus_2026.pdf" />
+        <com.eve.app.ui.result.ResponsiveResultRow android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false">
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnDownload" style="@style/Widget.Eve.Token.Button" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:text="Download PDF" app:icon="@drawable/ic_download" />
+            <com.eve.app.designsystem.TelegramRadialProgressView android:id="@+id/pbDownloading" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_marginStart="@dimen/design_screen_margin" android:visibility="gone" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnOpen" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_card_gap" android:text="Open" android:visibility="gone" />
+        </com.eve.app.ui.result.ResponsiveResultRow>
+    </LinearLayout>
+</com.eve.app.designsystem.DesignCardView>

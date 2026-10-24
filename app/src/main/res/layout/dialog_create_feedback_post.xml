@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Modal">
+    <TextView style="@style/TextAppearance.Eve.Telegram.DialogTitle" android:tag="eve_telegram_type" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="📢 Create Feedback Post" />
+    <TextView style="@style/TextAppearance.Eve.Telegram.DialogMessage" android:tag="eve_telegram_type" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Publish a feedback inquiry or question for students on the Home screen." />
+    <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilPostTitle" style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_section_gap" android:hint="Post Title *">
+        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etPostTitle" style="@style/Widget.Eve.Token.Input" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="textCapSentences" android:maxLines="2" />
+    </com.eve.app.designsystem.DesignInputLayout>
+    <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilPostMessage" style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:hint="Message / Prompt *">
+        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etPostMessage" style="@style/Widget.Eve.Token.Input" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="top|start" android:inputType="textMultiLine|textCapSentences" android:minLines="3" />
+    </com.eve.app.designsystem.DesignInputLayout>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_icon_size" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnCancelPost" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="0dp" android:layout_height="@dimen/design_touch_min" android:layout_weight="1" android:text="Cancel" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnPublishPost" style="@style/Widget.Eve.Token.Button" android:layout_width="0dp" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_screen_margin" android:layout_weight="1.5" android:text="Publish Post" />
+    </LinearLayout>
+</LinearLayout>

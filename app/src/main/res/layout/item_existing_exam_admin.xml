@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?>
+<com.eve.app.designsystem.DesignCardView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginVertical="@dimen/design_zero" android:minHeight="@dimen/design_row_with_gap" style="@style/Widget.Eve.Token.Card" android:layout_marginBottom="@dimen/design_card_gap">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <TextView android:id="@+id/tvExamName" style="@style/TextAppearance.Eve.Telegram.ListTitle" android:tag="eve_telegram_type" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:ellipsize="end" android:maxLines="1" android:text="SSC CGL 2026 Tier-1" />
+            <ImageButton android:id="@+id/btnExpandExam" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Expand sub-exams" android:src="@drawable/ic_chevron_right" app:tint="@color/text_secondary" android:visibility="gone" style="@style/Widget.Eve.Token.IconButton" />
+            
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <TextView android:id="@+id/tvCategoryBadge" style="@style/TextAppearance.Eve.Token.Body.blue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="SSC" />
+            <TextView android:id="@+id/tvTimeLimit" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_screen_margin" android:text="⏱️ 60 mins" />
+            <TextView android:id="@+id/tvQuestionCount" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_screen_margin" android:text="📝 100 Qs" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <TextView android:id="@+id/tvAttemptCount" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:maxLines="2" android:text="📊 42 student attempts" />
+            </LinearLayout>
+        <LinearLayout android:id="@+id/layoutExamQuickActions" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:gravity="end|center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false">
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnQuickPreview" style="@style/Widget.Eve.Token.Button.Secondary" app:icon="@drawable/ic_visibility" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:text="Preview" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnQuickEdit" style="@style/Widget.Eve.Token.Button.Secondary" app:icon="@drawable/ic_edit" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="4dp" android:text="Edit" />
+                <TextView android:id="@+id/tvMoreLabel" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="0dp" android:layout_height="@dimen/design_touch_min" android:gravity="center_vertical" android:ellipsize="end" android:maxLines="1" android:text="More" android:importantForAccessibility="no" />
+                <ImageButton android:id="@+id/btnMoreOptions" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Options" android:src="@drawable/ic_more_vert" app:tint="@color/text_secondary" style="@style/Widget.Eve.Token.IconButton" />
+        </LinearLayout>
+    </LinearLayout>
+</com.eve.app.designsystem.DesignCardView>

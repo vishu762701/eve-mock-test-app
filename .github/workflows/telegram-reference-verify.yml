@@ -1,0 +1,60 @@
+name: Verify Telegram Reference Archives
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Telegram-master.zip'
+      - 'Telegram-master-rest-*.zip'
+      - 'docs/telegram-icon-source-registry.tsv'
+      - 'app/src/main/res/drawable-*/**'
+      - '.github/scripts/verify_telegram_archives.py'
+      - '.github/workflows/telegram-reference-verify.yml'
+  workflow_dispatch:
+    inputs:
+      source_scope:
+        description: 'Download only UI/core Telegram-master.zip, or all six ZIPs for full verification'
+        required: true
+        type: choice
+        default: ui
+        options:
+          - ui
+          - full
+
+permissions:
+  contents: read
+
+jobs:
+  telegram-reference:
+    name: Verify SHA-256, manifests, exclusions, license and icons
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact commit without submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout: |
+            /*
+            ${{ github.event_name == 'workflow_dispatch' && inputs.source_scope == 'ui' && '!/Telegram-master-rest-*.zip' || '/Telegram-master*.zip' }}
+          sparse-checkout-cone-mode: false
+      - name: Prove only requested Telegram ZIP blobs were downloaded
+        run: bash .github/scripts/check_telegram_checkout_blobs.sh "${{ github.event_name == 'workflow_dispatch' && inputs.source_scope == 'ui' && 'ui' || 'full' }}"
+
+      - name: Verify reference ZIPs against the manifests and bundled app assets
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch && "${{ inputs.source_scope }}" == ui ]]; then
+            python3 -B .github/scripts/verify_telegram_archives.py --ui-only
+          else
+            python3 -B .github/scripts/verify_telegram_archives.py
+          fi
+
+      - name: Upload verification report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: telegram-reference-verification
+          path: telegram-verification-result.json
+          if-no-files-found: warn

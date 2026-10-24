@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ResponsiveResultRow">
+        <attr name="eveHorizontalBreakpoint" format="dimension" />
+    </declare-styleable>
+    <!-- Eve Design System Locked Foundation Color Roles (App-Wide) -->
+    <!-- App-Wide Authoritative Palette Token Attributes -->
+    <attr name="bgApp" format="color" />
+    <attr name="systemRed" format="color" />
+    <attr name="systemGreen" format="color" />
+    <attr name="systemBlue" format="color" />
+    <attr name="systemIndigo" format="color" />
+    <attr name="systemOrange" format="color" />
+    <attr name="systemPurple" format="color" />
+    <attr name="systemYellow" format="color" />
+    <attr name="systemRedContainer" format="color" />
+    <attr name="systemGreenContainer" format="color" />
+    <attr name="systemBlueContainer" format="color" />
+    <attr name="systemIndigoContainer" format="color" />
+    <attr name="systemOrangeContainer" format="color" />
+    <attr name="systemPurpleContainer" format="color" />
+    <attr name="systemYellowContainer" format="color" />
+    <attr name="designSurfaceInset" format="color" />
+    <attr name="designTextPrimary" format="color" />
+    <attr name="designTextSecondary" format="color" />
+    <attr name="designHairline" format="color" />
+    <attr name="designTrack" format="color" />
+    <attr name="designAccent" format="color" />
+    <attr name="designOnAccent" format="color" />
+    <declare-styleable name="DesignGlassLayout">
+        <attr name="designGlassCapsule" format="boolean" />
+        <attr name="designGlassRadius" format="dimension" />
+    </declare-styleable>
+</resources>

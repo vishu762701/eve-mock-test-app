@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="design_touch_group" type="id" />
+    <item name="design_touch_target" type="id" />
+    <item name="design_input_helper_styled" type="id" />
+    <item name="design_popup_glass_installed" type="id" />
+</resources>

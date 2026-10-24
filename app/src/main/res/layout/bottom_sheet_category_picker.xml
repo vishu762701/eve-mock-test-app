@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Sheet">
+    <View android:layout_width="36dp" android:layout_height="5dp" android:layout_gravity="center_horizontal" android:layout_marginBottom="@dimen/design_section_gap" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Select Category" style="@style/TextAppearance.Eve.Token.Heading" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:layout_marginBottom="@dimen/design_section_gap" android:text="Compare your result against different cutoff thresholds" style="@style/TextAppearance.Eve.Token.Secondary" />
+    <LinearLayout android:id="@+id/rowSheetGeneral" android:layout_width="match_parent" android:layout_height="wrap_content" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:minHeight="52dp" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="General" />
+            <TextView android:id="@+id/tvSheetSubGeneral" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="No cutoff configured" />
+        </LinearLayout>
+        <ImageView android:id="@+id/ivSheetCheckGeneral" android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Selected category" android:src="@drawable/ic_check_circle" app:tint="@color/system_blue" />
+    </LinearLayout>
+    <LinearLayout android:id="@+id/rowSheetObc" android:layout_width="match_parent" android:layout_height="wrap_content" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:minHeight="52dp" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="OBC" />
+            <TextView android:id="@+id/tvSheetSubObc" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="No cutoff configured" />
+        </LinearLayout>
+        <ImageView android:id="@+id/ivSheetCheckObc" android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Selected category" android:src="@drawable/ic_check_circle" android:visibility="invisible" app:tint="@color/system_blue" />
+    </LinearLayout>
+    <LinearLayout android:id="@+id/rowSheetSc" android:layout_width="match_parent" android:layout_height="wrap_content" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:minHeight="52dp" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="SC" />
+            <TextView android:id="@+id/tvSheetSubSc" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="No cutoff configured" />
+        </LinearLayout>
+        <ImageView android:id="@+id/ivSheetCheckSc" android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Selected category" android:src="@drawable/ic_check_circle" android:visibility="invisible" app:tint="@color/system_blue" />
+    </LinearLayout>
+    <LinearLayout android:id="@+id/rowSheetSt" android:layout_width="match_parent" android:layout_height="wrap_content" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:minHeight="52dp" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="ST" />
+            <TextView android:id="@+id/tvSheetSubSt" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="No cutoff configured" />
+        </LinearLayout>
+        <ImageView android:id="@+id/ivSheetCheckSt" android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Selected category" android:src="@drawable/ic_check_circle" android:visibility="invisible" app:tint="@color/system_blue" />
+    </LinearLayout>
+    <LinearLayout android:id="@+id/rowSheetEws" android:layout_width="match_parent" android:layout_height="wrap_content" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:minHeight="52dp" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="EWS" />
+            <TextView android:id="@+id/tvSheetSubEws" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="No cutoff configured" />
+        </LinearLayout>
+        <ImageView android:id="@+id/ivSheetCheckEws" android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Selected category" android:src="@drawable/ic_check_circle" android:visibility="invisible" app:tint="@color/system_blue" />
+    </LinearLayout>
+</LinearLayout>

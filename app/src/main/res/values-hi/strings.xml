@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ईव</string>
+    <string name="theme_toggle_to_dark">डार्क मोड चालू करें</string>
+    <string name="theme_toggle_to_light">लाइट मोड चालू करें</string>
+    <string name="offline_banner_text">इंटरनेट कनेक्शन नहीं है — कैश्ड डेटा दिखाया जा रहा है</string>
+    <string name="reminder_toggle_off">दैनिक रिमाइंडर बंद करें</string>
+    <string name="reminder_toggle_on">दैनिक रिमाइंडर चालू करें</string>
+    <string name="home_menu">अधिक विकल्प</string>
+    <string name="home_menu_history">इतिहास</string>
+    <string name="home_menu_performance">प्रदर्शन</string>
+    <string name="home_menu_topic_test">विषयवार टेस्ट</string>
+    <string name="home_menu_pyq">पिछले वर्षों के प्रश्न</string>
+    <string name="home_menu_overall_leaderboard">समग्र लीडरबोर्ड</string>
+    <string name="home_menu_logout">लॉग आउट</string>
+    <string name="exam_completed_view_history">पूर्ण • इतिहास में परिणाम देखें</string>
+    <string name="exam_time_category">समय: %1$d मिनट • %2$s</string>
+    <string name="exam_already_attempted">आप यह टेस्ट पहले ही दे चुके हैं।</string>
+    <string name="exam_completed_badge">पूर्ण</string>
+    <string name="exam_completed_score">पूर्ण • अंक: %1$s/%2$d</string>
+    <string name="exam_submitted_tap_to_view">सबमिट किया गया • परिणाम देखने के लिए टैप करें</string>
+    <string name="view_my_result">मेरा परिणाम देखें</string>
+    <string name="reattempt">पुनः प्रयास करें</string>
+    <string name="reattempt_confirm_title">टेस्ट का पुनः प्रयास करें</string>
+    <string name="reattempt_warning_message">टेस्ट शुरू करने पर आपके पिछले परिणाम, अंक और उत्तर स्थायी रूप से हटा दिए जाएंगे। इसे वापस नहीं लाया जा सकता।</string>
+    <string name="cancel">रद्द करें</string>
+    <string name="delete_and_start">हटाएं और शुरू करें</string>
+    <string name="reset_attempt_failed">टेस्ट रीसेट करने में विफल। कृपया पुनः प्रयास करें।</string>
+    <string name="mark_for_review">समीक्षा के लिए चिह्नित करें</string>
+    <string name="unmark_review">चिह्न हटाएं</string>
+    <string name="mistake_notebook">गलतियों की नोटबुक</string>
+    <string name="select_target_exams">अपने लक्षित परीक्षा चुनें</string>
+    <string name="target_exams_subtitle">अपनी परीक्षा फ़ीड को अनुकूलित करने के लिए वे परीक्षाएं चुनें जिनकी आप तैयारी कर रहे हैं।</string>
+    <string name="daily_goal">दैनिक लक्ष्य</string>
+    <string name="continue_label">जारी रखें</string>
+    <string name="skip">छोड़ें</string>
+    <string name="close">बंद करें</string>
+    <string name="share">साझा करें</string>
+    <string name="review">समीक्षा</string>
+    <string name="overview">अवलोकन</string>
+    <string name="leaderboard">लीडरबोर्ड</string>
+    <string name="analysis">विश्लेषण</string>
+    <string name="all_caught_up">सब पूरा हो गया!</string>
+    <string name="learned">सीख लिया</string>
+    <string name="mark_as_learned">सीख लिया चिह्नित करें</string>
+</resources>

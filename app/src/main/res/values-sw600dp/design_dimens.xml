@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Locked dimensions: keep all breakpoint copies identical. -->
+    <dimen name="design_zero">0dp</dimen>
+    <dimen name="design_screen_margin">12dp</dimen>
+    <dimen name="design_card_padding">10dp</dimen>
+    <dimen name="design_card_gap">8dp</dimen>
+    <dimen name="design_section_gap">16dp</dimen>
+    <dimen name="design_chip_gap">8dp</dimen>
+    <dimen name="design_row_gap">6dp</dimen>
+    <dimen name="design_row_min">44dp</dimen>
+    <dimen name="design_radius_card">26dp</dimen>
+    <dimen name="design_radius_inner">16dp</dimen>
+    <dimen name="design_radius_multiline">20dp</dimen>
+    <dimen name="design_tab_height">40dp</dimen>
+    <dimen name="design_tab_padding">3dp</dimen>
+    <dimen name="design_tab_segment_height">34dp</dimen>
+    <dimen name="design_pill_height">32dp</dimen>
+    <dimen name="design_pill_padding">14dp</dimen>
+    <dimen name="design_button_height">44dp</dimen>
+    <dimen name="design_input_height">44dp</dimen>
+    <dimen name="design_input_padding">16dp</dimen>
+    <dimen name="design_icon_size">24dp</dimen>
+    <dimen name="design_bottom_bar_height">54dp</dimen>
+    <dimen name="design_switch_width">51dp</dimen>
+    <dimen name="design_switch_height">31dp</dimen>
+    <dimen name="design_switch_thumb">27dp</dimen>
+    <dimen name="design_ring_size">72dp</dimen>
+    <dimen name="design_ring_stroke">4dp</dimen>
+    <dimen name="design_touch_min">48dp</dimen>
+    <dimen name="design_card_elevation">9dp</dimen>
+    <dimen name="design_shadow_y">6dp</dimen>
+    <dimen name="design_shadow_blur">20dp</dimen>
+    <dimen name="design_shadow_room">20dp</dimen>
+    <dimen name="design_glass_blur">14dp</dimen>
+    <dimen name="design_hairline_width">0.5dp</dimen>
+    <dimen name="design_focus_stroke">1.5dp</dimen>
+    <dimen name="design_icon_stroke">2.75dp</dimen>
+
+    <!-- Official Apple iOS 26 Canonical Dynamic Type Scale -->
+    <dimen name="design_type_large_title">34sp</dimen>
+    <dimen name="design_line_large_title">41sp</dimen>
+    <dimen name="design_type_title1">20sp</dimen>
+    <dimen name="design_line_title1">26sp</dimen>
+    <dimen name="design_type_title2">20sp</dimen>
+    <dimen name="design_line_title2">26sp</dimen>
+    <dimen name="design_type_title3">20sp</dimen>
+    <dimen name="design_line_title3">25sp</dimen>
+    <dimen name="design_type_headline">17sp</dimen>
+    <dimen name="design_line_headline">22sp</dimen>
+    <dimen name="design_type_body">16sp</dimen>
+    <dimen name="design_line_body">22sp</dimen>
+    <dimen name="design_type_callout">16sp</dimen>
+    <dimen name="design_line_callout">21sp</dimen>
+    <dimen name="design_type_subheadline">15sp</dimen>
+    <dimen name="design_line_subheadline">20sp</dimen>
+    <dimen name="design_type_footnote">13sp</dimen>
+    <dimen name="design_line_footnote">18sp</dimen>
+    <dimen name="design_type_caption1">12sp</dimen>
+    <dimen name="design_line_caption1">16sp</dimen>
+    <dimen name="design_type_caption2">11sp</dimen>
+    <dimen name="design_line_caption2">13sp</dimen>
+
+    <!-- Unified Token Dimension Bridges -->
+    <dimen name="design_type_title">20sp</dimen>
+    <dimen name="design_line_title">26sp</dimen>
+    <dimen name="design_type_heading">17sp</dimen>
+    <dimen name="design_line_heading">22sp</dimen>
+    <dimen name="design_type_secondary">14sp</dimen>
+    <dimen name="design_line_secondary">20sp</dimen>
+    <dimen name="design_type_tab">15sp</dimen>
+    <dimen name="design_line_tab">20sp</dimen>
+    <dimen name="design_type_chip">14sp</dimen>
+    <dimen name="design_line_chip">20sp</dimen>
+    <dimen name="design_type_button">16sp</dimen>
+    <dimen name="design_line_button">22sp</dimen>
+
+    <dimen name="design_button_touch_inset">2dp</dimen>
+    <dimen name="design_scroll_clearance">76dp</dimen>
+    <dimen name="design_row_with_gap">50dp</dimen>
+    <dimen name="design_dropdown_end_padding">48dp</dimen>
+    <dimen name="design_capsule_radius">999dp</dimen>
+    <dimen name="design_compact_gap">4dp</dimen>
+    <dimen name="design_banner_height">160dp</dimen>
+    <dimen name="design_choice_key_min">28dp</dimen>
+</resources>

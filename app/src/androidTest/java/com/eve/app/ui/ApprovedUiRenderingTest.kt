@@ -1,0 +1,394 @@
+package com.eve.app.ui
+
+import android.content.ContentValues
+import android.provider.MediaStore
+import android.content.res.Configuration
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Outline
+import android.graphics.Paint
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.StateListDrawable
+import android.view.ContextThemeWrapper
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import com.eve.app.R
+import com.eve.app.data.model.Exam
+import com.eve.app.data.model.Question
+import com.eve.app.databinding.*
+import com.eve.app.ui.common.*
+import com.eve.app.ui.home.*
+import com.eve.app.ui.result.ResultTabs
+import com.eve.app.ui.test.QuestionAdapter
+import com.google.android.material.button.MaterialButton
+import org.junit.Assert.*
+import org.junit.Test
+import org.junit.runner.RunWith
+
+/** Renders production XML, custom views, and adapters; fixtures never access user data. */
+@RunWith(AndroidJUnit4::class)
+class ApprovedUiRenderingTest {
+    private lateinit var context: ContextThemeWrapper
+    private var dark = false
+    private val density get() = context.resources.displayMetrics.density
+    private fun dp(value: Int) = (value * density + 0.5f).toInt()
+    private fun sp(view: android.widget.TextView, value: Int) =
+        assertEquals(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP,
+            value.toFloat(), context.resources.displayMetrics), view.textSize, 0.51f)
+    private val foreground get() = if (dark) Color.WHITE else Color.BLACK
+    private val canvasBackground get() = if (dark) Color.BLACK else color("#F5F5F5")
+    private val appBackground get() = if (dark) Color.BLACK else color("#F5F5F5")
+    private val buttonText get() = if (dark) Color.BLACK else Color.WHITE
+    private fun color(value: String) = Color.parseColor(value)
+    private fun measure(view: View, width: Int = 360, height: Int = 844) {
+        repeat(2) {
+            view.measure(View.MeasureSpec.makeMeasureSpec(dp(width), View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(dp(height), View.MeasureSpec.EXACTLY))
+            view.layout(0, 0, dp(width), dp(height))
+        }
+    }
+    private fun bitmap(view: View): Bitmap = Bitmap.createBitmap(view.width, view.height,
+        Bitmap.Config.ARGB_8888).also { view.draw(Canvas(it)) }
+    private fun save(view: View, name: String) {
+        // Shared Pictures survives Gradle's automatic test APK uninstall.
+        val values = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, "$name-${if (dark) "dark" else "light"}.png")
+            put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/eve-approved-ui")
+        }
+        val uri = context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)!!
+        bitmap(view).useBitmap { image -> context.contentResolver.openOutputStream(uri)!!.use {
+            image.compress(Bitmap.CompressFormat.PNG, 100, it)
+        } }
+    }
+    private inline fun Bitmap.useBitmap(block: (Bitmap) -> Unit) { try { block(this) } finally { recycle() } }
+    private fun bare(view: View) {
+        assertTrue("Icon-only actions have no painted background",
+            view.background == null || (view.background is ColorDrawable && (view.background as ColorDrawable).color == Color.TRANSPARENT))
+        assertTrue(view.layoutParams.width >= dp(48))
+        assertTrue(view.layoutParams.height >= dp(48))
+    }
+
+    @Test fun approvedHomeRendersInBothThemes() = inBothThemes { verifyHome() }
+    @Test fun approvedMockRendersInBothThemes() = inBothThemes { verifyMock() }
+    @Test fun approvedResultRendersInBothThemes() = inBothThemes { verifyResult() }
+
+    @Test fun approvedPixelSizesAndGapsMatchXmlAtFractionalDensities() = inBothThemes {
+        for (dpi in listOf(420, 440, 480)) {
+            val config = Configuration(context.resources.configuration).apply { densityDpi = dpi }
+            val scaledContext = ContextThemeWrapper(context.createConfigurationContext(config), R.style.Theme_Eve)
+            assertEquals(dpi, scaledContext.resources.displayMetrics.densityDpi)
+            val scale = scaledContext.resources.displayMetrics.density
+            fun pixels(dp: Int) = Math.round(dp * scale)
+            val adapter = QuestionPaletteAdapter(approvedTestStyle = true) {}
+            adapter.submit(listOf(PaletteItem(1)))
+            val holder = adapter.onCreateViewHolder(FrameLayout(scaledContext), 0)
+            adapter.onBindViewHolder(holder, 0)
+            val p = ItemPaletteCircleBinding.bind(holder.itemView)
+            assertEquals(pixels(32), p.cardCircle.layoutParams.width)
+            assertEquals(pixels(32), p.cardCircle.layoutParams.height)
+            assertEquals(pixels(32) / 2f, p.cardCircle.radius, 0.01f)
+            assertEquals(0, p.cardCircle.strokeWidth)
+            assertEquals("Total palette gap must be rounded once, not each half", pixels(8), p.root.paddingLeft + p.root.paddingRight)
+            val qAdapter = QuestionAdapter(listOf(Question()), { "" }, { _, _ -> }, { false }, {}, { false }, {}, { 0L })
+            val qHolder = qAdapter.onCreateViewHolder(FrameLayout(scaledContext), 0)
+            qAdapter.onBindViewHolder(qHolder, 0)
+            val q = ItemQuestionBinding.bind(qHolder.itemView)
+            assertEquals(pixels(48), q.rbA.minHeight)
+            assertEquals(pixels(10), q.rbA.paddingTop)
+            assertEquals(pixels(10), q.rbA.paddingRight)
+            assertEquals(0, q.rbA.paddingLeft)
+            // XML resolves each 4dp/6dp margin separately at fractional density.
+            val footer = ActivityTestBinding.inflate(LayoutInflater.from(scaledContext))
+            fun margins(button: View) = (button.parent as View).layoutParams as ViewGroup.MarginLayoutParams
+            assertEquals(pixels(6), margins(footer.btnClear).marginEnd)
+            assertEquals(pixels(6), margins(footer.btnMarkReview).marginStart)
+            assertEquals(pixels(6), margins(footer.btnPrev).marginEnd)
+            assertEquals(pixels(6), margins(footer.btnNext).marginStart)
+        }
+    }
+
+    private fun inBothThemes(verify: () -> Unit) {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        instrumentation.runOnMainSync {
+            for (night in listOf(Configuration.UI_MODE_NIGHT_NO, Configuration.UI_MODE_NIGHT_YES)) {
+                dark = night == Configuration.UI_MODE_NIGHT_YES
+                val base = instrumentation.targetContext
+                val config = Configuration(base.resources.configuration).apply {
+                    uiMode = (uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or night
+                }
+                context = ContextThemeWrapper(base.createConfigurationContext(config), R.style.Theme_Eve)
+                verify()
+            }
+        }
+    }
+
+    private fun verifyHome() {
+        val b = ActivityMainBinding.inflate(LayoutInflater.from(context))
+        assertEquals(context.getColor(R.color.bg_app), (b.root.background as ColorDrawable).color)
+        assertEquals(appBackground, context.getColor(R.color.bg_app))
+        assertEquals(canvasBackground, context.getColor(R.color.bg_app))
+        listOf(b.btnSearch, b.btnNotification, b.btnOverflow).forEach { bare(it) }
+        assertNull((b.btnNotification.parent as View).background)
+        // The Telegram navigation migration replaces the old profile avatar with
+        // an accessible menu action. Preserve the 48dp touch-target contract.
+        assertEquals("Menu", b.btnMenu.contentDescription.toString())
+        assertEquals(dp(48), b.btnMenu.layoutParams.width)
+        assertEquals(dp(48), b.btnMenu.layoutParams.height)
+        assertEquals(View.GONE, b.cardFloatingAirplane.visibility)
+        b.tvWelcome.text = "Hi, Student"
+        b.panelHomeBanner.visibility = View.VISIBLE
+        HomeAppearance.clipBanner(b.panelHomeBanner)
+        b.vpHomeBanners.visibility = View.INVISIBLE // no network banner image in fixture
+        b.homeBannerMatte.setBackgroundColor(context.getColor(R.color.surface_inset))
+        val categories = HomeAppearance.categories(listOf("SSC", "Other", "Banking"))
+        assertEquals(listOf("All", "Other", "Banking", "SSC"), categories)
+        var clicked = false
+        categories.forEach { category ->
+            val chip = HomeAppearance.categoryChip(context, category, "All") { clicked = true }
+            assertEquals(0.5f, (chip.shapeAppearanceModel.topLeftCornerSize as com.google.android.material.shape.RelativeCornerSize).relativePercent, 0.01f)
+            b.chipGroupCategory.addView(chip)
+        }
+        b.chipGroupCategory.getChildAt(1).performClick()
+        assertTrue(clicked)
+        val adapter = ExamAdapter({ _, _, _ -> })
+        adapter.submit(listOf(HomeListItem.ExamRow(Exam(id = "fixture", examName = "Practice Test"), false)))
+        b.rvExams.layoutManager = LinearLayoutManager(context)
+        b.rvExams.adapter = adapter
+        val holder = adapter.onCreateViewHolder(FrameLayout(context), adapter.getItemViewType(0))
+        adapter.onBindViewHolder(holder, 0)
+        assertEquals(context.resources.getDimension(R.dimen.design_radius_card), ItemExamBinding.bind(holder.itemView).root.radius, 0.01f)
+        measure(b.root)
+        val outline = Outline()
+        b.panelHomeBanner.outlineProvider.getOutline(b.panelHomeBanner, outline)
+        assertEquals(26f * density, outline.radius, 0.01f)
+        assertTrue(b.panelHomeBanner.clipToOutline)
+        save(b.root, "home")
+    }
+
+    private fun button(view: MaterialButton, height: Int, font: Int, stroke: Int) {
+        assertEquals(dp(height), view.height)
+        sp(view, font)
+        assertEquals(dp(14), view.paddingStart)
+        assertEquals(dp(14), view.paddingEnd)
+        assertEquals(dp(stroke), view.strokeWidth)
+        val primary = view.id == R.id.btnNext
+        assertEquals(context.getColor(if (primary) R.color.accent else R.color.track), view.backgroundTintList!!.defaultColor)
+        assertEquals(context.getColor(if (primary) R.color.on_accent else R.color.text_primary), view.currentTextColor)
+        assertEquals(0f, view.elevation, 0.01f)
+        assertEquals(context.resources.getDimension(R.dimen.design_button_height) / 2,
+            view.shapeAppearanceModel.topLeftCornerSize.getCornerSize(android.graphics.RectF(0f, 0f, view.width.toFloat(), context.resources.getDimension(R.dimen.design_button_height))), 1f)
+    }
+
+    private fun verifyMock() {
+        val b = ActivityTestBinding.inflate(LayoutInflater.from(context))
+        assertEquals(appBackground, (b.root.background as ColorDrawable).color)
+        assertNull(b.rvQuestionPalette.background)
+        b.tvTestTitle.text = "Practice Test"
+        b.circularTimerView.setTime(1800, 1800)
+        val questions = List(60) { Question(questionText = "Which number is a prime number?",
+            optionA = "21", optionB = "29", optionC = "35", optionD = "49") }
+        var saved = "B"
+        var bookmark = false
+        var report = false
+        val adapter = QuestionAdapter(questions, { saved }, { _, answer -> saved = answer },
+            { bookmark }, { bookmark = !bookmark }, { false }, { report = true }, { 12L })
+        b.viewPager.adapter = adapter
+        val palette = QuestionPaletteAdapter(approvedTestStyle = true) { b.viewPager.setCurrentItem(it, false) }
+        palette.submit(List(60) { PaletteItem(it + 1, when (it) {
+            0 -> PaletteState.ANSWERED; 1 -> PaletteState.MARKED; else -> PaletteState.UNATTEMPTED }, it == 0) })
+        b.rvQuestionPalette.adapter = palette
+        measure(b.root)
+        button(b.btnClear, 48, 16, 0)
+        button(b.btnMarkReview, 48, 16, 0)
+        button(b.btnPrev, 48, 16, 0)
+        button(b.btnNext, 48, 16, 0)
+        // At the required 360dp viewport the weighted row can have an odd pixel
+        // available at 420dpi: preserve the total width and split it evenly.
+        val previousHost = b.btnPrev.parent as View
+        val nextHost = b.btnNext.parent as View
+        assertEquals(previousHost.width, b.btnPrev.width)
+        assertEquals(nextHost.width, b.btnNext.width)
+        assertTrue(kotlin.math.abs(previousHost.width - nextHost.width) <= 1)
+        assertEquals((previousHost.parent as View).width,
+            previousHost.width + nextHost.width + (nextHost.left - previousHost.right))
+        assertEquals(0, b.layoutBottomBar.paddingStart)
+        assertEquals(0, b.layoutBottomBar.paddingEnd)
+        assertEquals(0, b.layoutBottomBar.paddingTop)
+        fun gap(first: View, second: View): Int {
+            val a = first.parent as View; val c = second.parent as View
+            return c.left - a.right
+        }
+        // Two independently rounded XML margins, not one combined dimension.
+        assertEquals(dp(6) + dp(6), gap(b.btnClear, b.btnMarkReview))
+        assertEquals(dp(6) + dp(6), gap(b.btnPrev, b.btnNext))
+        val navigationRow = b.btnPrev.parent.parent as View
+        val actionRow = b.btnClear.parent.parent as View
+        assertEquals(dp(20), navigationRow.top - actionRow.bottom)
+        b.btnMarkReview.isSelected = true
+        assertEquals(context.getColor(R.color.system_yellow), b.btnMarkReview.backgroundTintList!!.getColorForState(b.btnMarkReview.drawableState, 0))
+        assertEquals(context.getColor(R.color.solid_black), b.btnMarkReview.currentTextColor)
+        b.btnMarkReview.isSelected = false
+        assertEquals(dp(72), b.circularTimerView.width)
+        assertEquals(b.circularTimerView.width, b.circularTimerView.height)
+        fun timerPaint(name: String) = CircularTimerView::class.java.getDeclaredField(name).apply { isAccessible = true }
+            .get(b.circularTimerView) as Paint
+        assertEquals(4f * density, timerPaint("progressPaint").strokeWidth, 0.01f)
+        assertEquals(foreground, timerPaint("progressPaint").color)
+        assertEquals(14f * context.resources.displayMetrics.scaledDensity, timerPaint("textPaint").textSize, 0.01f)
+        bitmap(b.circularTimerView).useBitmap { image ->
+            assertEquals(Color.TRANSPARENT, image.getPixel(dp(36), dp(8)))
+            assertEquals(foreground, image.getPixel(dp(36), dp(2)))
+        }
+        val holder = adapter.onCreateViewHolder(FrameLayout(context), 0)
+        adapter.onBindViewHolder(holder, 0)
+        val q = ItemQuestionBinding.bind(holder.itemView)
+        measure(q.root, 360, 590)
+        assertNull(q.questionContainer.background)
+        assertNull(q.tvQuestion.background)
+        sp(q.tvQuestion, 16) // Real mock question body uses the native 16sp shared role.
+        assertEquals(1f, q.tvQuestion.lineSpacingMultiplier, 0.01f)
+        assertEquals(Gravity.LEFT, q.tvQuestion.gravity and Gravity.HORIZONTAL_GRAVITY_MASK)
+        assertEquals(dp(16), q.optionsMaterialHost.top - q.questionContainer.bottom)
+        listOf(q.btnBookmark, q.btnReport).forEach { bare(it) }
+        q.btnBookmark.performClick(); assertTrue(bookmark)
+        q.btnReport.performClick(); assertTrue(report)
+        val options = listOf(q.rbA, q.rbB, q.rbC, q.rbD)
+        options.forEachIndexed { index, option ->
+            sp(option, 16) // Telegram-aligned shared body token replaces iOS 17sp.
+            assertEquals(dp(48), option.minHeight)
+            assertEquals(dp(10), option.paddingTop)
+            assertEquals(dp(10), option.paddingBottom)
+            assertEquals(dp(10), option.paddingRight)
+            assertEquals(0, option.paddingLeft)
+            if (index < 3) assertEquals(dp(6), options[index + 1].top - option.bottom)
+            val surface = (option.background as StateListDrawable).current as GradientDrawable
+            assertEquals(16f * density, surface.cornerRadius, 0.01f)
+            assertEquals(context.getColor(if (option.isChecked) R.color.accent else R.color.surface_inset), surface.color!!.defaultColor)
+            assertEquals(context.getColor(if (option.isChecked) R.color.on_accent else R.color.text_primary), option.currentTextColor)
+            assertNotNull(option.buttonDrawable)
+        }
+        assertEquals(60, palette.itemCount)
+        for (state in PaletteState.values()) {
+            palette.submit(listOf(PaletteItem(1, state, true)))
+            val ph = palette.onCreateViewHolder(FrameLayout(context), 0)
+            palette.onBindViewHolder(ph, 0)
+            val p = ItemPaletteCircleBinding.bind(ph.itemView)
+            assertEquals(dp(32), p.cardCircle.layoutParams.width)
+            assertEquals(dp(32), p.cardCircle.layoutParams.height)
+            assertEquals(dp(32) / 2f, p.cardCircle.radius, 0.01f)
+            assertEquals(0, p.cardCircle.strokeWidth)
+            assertEquals(context.getColor(R.color.hairline), p.cardCircle.strokeColor)
+            // Palette spacing rounds its total 8dp once, then distributes pixels.
+            assertEquals(dp(8) / 2, p.root.paddingLeft)
+            assertEquals(dp(8) - dp(8) / 2, p.root.paddingRight)
+            sp(p.tvCircleNumber, 14)
+            val expected = when (state) {
+                PaletteState.ANSWERED -> context.getColor(R.color.system_green)
+                PaletteState.MARKED, PaletteState.ANSWERED_MARKED -> context.getColor(R.color.system_yellow)
+                PaletteState.UNATTEMPTED, PaletteState.VISITED -> context.getColor(R.color.surface_inset)
+                PaletteState.CORRECT -> context.getColor(R.color.system_green_container)
+                PaletteState.WRONG -> context.getColor(R.color.system_red_container)
+            }
+            assertEquals(expected, p.cardCircle.cardBackgroundColor.defaultColor)
+        }
+        palette.submit(List(60) { PaletteItem(it + 1, if (it == 0) PaletteState.ANSWERED else PaletteState.UNATTEMPTED, it == 0) })
+        measure(b.root)
+        save(b.root, "mock-test")
+        // Verify remaining time visibly depletes; the full static track must not conceal it.
+        val half = CircularTimerView(context).apply { setTime(900, 1800) }
+        measure(half, 72, 72)
+        bitmap(half).useBitmap { image ->
+            // Native antialiasing blends the curved outer edge with the background.
+            // Paint color/stroke assertions above remain exact.
+            val pixel = image.getPixel(dp(70), dp(36))
+            assertTrue("The remaining half-ring must render", listOf(
+                Color.red(pixel) - Color.red(foreground), Color.green(pixel) - Color.green(foreground),
+                Color.blue(pixel) - Color.blue(foreground)).all { kotlin.math.abs(it) <= 16 })
+            val trackColor = context.getColor(R.color.track)
+            val trackPixel = image.getPixel(dp(2), dp(36))
+            // Premultiplied ARGB pixels quantize low-alpha RGB channels; the Paint stays exact.
+            assertEquals(trackColor, timerPaint("trackPaint").color)
+            assertEquals(Color.alpha(trackColor), Color.alpha(trackPixel))
+            assertTrue(listOf(Color.red(trackColor) - Color.red(trackPixel), Color.green(trackColor) - Color.green(trackPixel), Color.blue(trackColor) - Color.blue(trackPixel)).all { kotlin.math.abs(it) <= 3 })
+        }
+        b.viewPager.setCurrentItem(59, false)
+        assertEquals(59, b.viewPager.currentItem)
+    }
+
+    private fun assertPremultipliedPixel(message: String, expected: Int, actual: Int) {
+        if (Color.alpha(expected) in 1..254) {
+            assertEquals(message, Color.alpha(expected), Color.alpha(actual))
+            assertTrue("$message: only 8-bit alpha premultiplication rounding is allowed",
+                listOf(Color.red(expected) - Color.red(actual), Color.green(expected) - Color.green(actual),
+                    Color.blue(expected) - Color.blue(actual)).all { kotlin.math.abs(it) <= 3 })
+        } else assertEquals(message, expected, actual)
+    }
+
+    private fun verifyResult() {
+        val b = ActivityResultBinding.inflate(LayoutInflater.from(context))
+        ResultTabs.bind(b) {}
+        b.tvScore.text = "78 / 100"
+        b.tvScorePercentage.text = "78.0% Score"
+        b.tvCorrectCount.text = "82"
+        b.tvWrongCount.text = "16"
+        b.tvUnattemptedCount.text = "2"
+        b.tvAccuracy.text = "83.7%"
+        b.tvRank.text = "126 / 4,800"
+        b.tvPercentile.text = "97.4%"
+        b.tvLeaderboardTabRank.text = "126 / 4,800"
+        b.tvLeaderboardScoreChip.text = "Score: 78"
+        b.tvLeaderboardPercentileChip.text = "Percentile: 97.4%"
+        val margins = (b.tabLayoutResult.parent as View).layoutParams as ViewGroup.MarginLayoutParams
+        assertEquals(dp(12), margins.marginStart)
+        assertEquals(dp(12), margins.marginEnd)
+        assertEquals(0, margins.topMargin)
+        assertEquals(0, margins.bottomMargin)
+        assertEquals(0, b.tabLayoutResult.selectedTabPosition)
+        assertEquals(com.google.android.material.tabs.TabLayout.INDICATOR_GRAVITY_STRETCH,
+            b.tabLayoutResult.tabIndicatorGravity)
+        val sections = listOf(b.scrollResultContent, b.sectionReview, b.scrollLeaderboard)
+        for ((index, name) in listOf("Overview", "Review", "Leaderboard").withIndex()) {
+            b.tabLayoutResult.getTabAt(index)!!.select()
+            measure(b.root)
+            assertEquals(index, b.tabLayoutResult.selectedTabPosition)
+            sections.forEachIndexed { position, view -> assertEquals(if (position == index) View.VISIBLE else View.GONE, view.visibility) }
+            bitmap(b.tabLayoutResult).useBitmap { image ->
+                val strip = b.tabLayoutResult.getChildAt(0) as ViewGroup
+                assertEquals(image.width - b.tabLayoutResult.paddingLeft - b.tabLayoutResult.paddingRight, strip.width)
+                val x = ((index + 0.5f) * image.width / 3).toInt()
+                // The Telegram theme engine owns the runtime accent, which may differ
+                // from the legacy monochrome XML token. Assert the rendered fill and
+                // its selected foreground against the same resolved palette.
+                val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
+                assertEquals("Selected pill must render for $name in dark=$dark",
+                    palette.accent, image.getPixel(x, dp(8)))
+                val selectedLabel = b.tabLayoutResult.getTabAt(index)!!.customView as android.widget.TextView
+                assertEquals("Selected label must match Telegram onAccent",
+                    palette.onAccent, selectedLabel.currentTextColor)
+                assertTrue("Selected label must contrast with Telegram accent",
+                    androidx.core.graphics.ColorUtils.calculateContrast(
+                        selectedLabel.currentTextColor, palette.accent) >= 4.5)
+                assertEquals(context.getColor(R.color.track), (b.tabLayoutResult.background as GradientDrawable).color!!.defaultColor)
+                assertPremultipliedPixel("Track", context.getColor(R.color.track), image.getPixel(image.width / 2, dp(1)))
+                val cornerX = b.tabLayoutResult.paddingLeft + strip.getChildAt(index).right - dp(3) - dp(1)
+                val expectedCorner = if (index == 2) Color.TRANSPARENT else context.getColor(R.color.track)
+                assertPremultipliedPixel("Selected $name pill must retain its rounded right corner",
+                    expectedCorner,
+                    image.getPixel(cornerX, b.tabLayoutResult.paddingTop + dp(1)))
+            }
+            val colors = b.tabLayoutResult.tabTextColors!!
+            assertEquals(context.getColor(R.color.on_accent), colors.getColorForState(intArrayOf(android.R.attr.state_selected), 0))
+            assertEquals(context.getColor(R.color.text_primary), colors.defaultColor)
+            save(b.root, "result-${name.lowercase()}")
+        }
+    }
+}

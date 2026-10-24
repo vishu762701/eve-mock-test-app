@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" style="@style/Widget.Eve.Token.Screen" android:clipChildren="false" android:clipToPadding="false">
+    <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.ToolbarRow">
+            <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/telegram_type_primary" style="@style/Widget.Eve.Token.IconButton" />
+            <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
+        </LinearLayout>
+    </com.eve.app.ui.common.EveGlassToolbar>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.LargeTitleBlock">
+        <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Mistake Notebook"  android:tag="eve_telegram_type" />
+        <TextView android:id="@+id/tvSubtitle" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Review your incorrect and skipped questions" />
+    </LinearLayout>
+    <TextView android:id="@+id/tvOfflineBanner" style="@style/TextAppearance.Eve.Token.Body.orange" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="You are offline. Showing cached mistakes." android:visibility="gone" />
+    <com.google.android.material.chip.ChipGroup android:id="@+id/chipGroupFilters" android:layout_width="match_parent" android:layout_height="wrap_content" app:singleSelection="true">
+        <com.google.android.material.chip.Chip android:id="@+id/chipAll" style="@style/Widget.Eve.Token.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="All (0)" />
+        <com.google.android.material.chip.Chip android:id="@+id/chipWrong" style="@style/Widget.Eve.Token.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Wrong (0)" />
+        <com.google.android.material.chip.Chip android:id="@+id/chipSkipped" style="@style/Widget.Eve.Token.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Skipped (0)" />
+    </com.google.android.material.chip.ChipGroup>
+    <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+        <com.eve.app.designsystem.TelegramRadialProgressView android:id="@+id/progressBar" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center" android:visibility="gone" />
+        <LinearLayout android:id="@+id/messageGroup" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:orientation="vertical" android:visibility="gone" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <ImageView android:id="@+id/ivEmpty" android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="No mistakes" android:src="@drawable/illustration_empty_all_caught_up" />
+            <TextView android:id="@+id/tvEmptyTitle" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_shadow_room" android:text="All Caught Up!" />
+            <TextView android:id="@+id/tvEmptySubtitle" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center" android:text="No mistakes recorded. Questions you answer incorrectly or skip will automatically appear here." />
+        </LinearLayout>
+        <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvMistakes" android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll" />
+    </FrameLayout>
+</LinearLayout>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Phase 12: Android 13+ par notification dikhane se pehle yeh permission maangni padti hai -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <application
+        android:name=".EveApplication"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="false"
+        android:enableOnBackInvokedCallback="true"
+        android:localeConfig="@xml/locales_config"
+        android:icon="@drawable/ic_launcher"
+        android:roundIcon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Eve">
+
+        <!-- Notification tap karne par default activity (koi custom payload handling na ho tab) -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_notification" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/system_blue" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="new_exam_channel_v2" />
+
+        <service
+            android:name=".service.EveMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <activity
+            android:name=".ui.login.LoginActivity"
+            android:theme="@style/Theme.Eve.Starting"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ui.home.MainActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Eve.Home" />
+        <activity
+            android:name=".ui.profile.ProfileActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Eve.Profile" />
+        <activity android:name=".ui.history.HistoryActivity" android:exported="false" />
+        <activity android:name=".ui.bookmarks.BookmarksActivity" android:exported="false" />
+        <activity android:name=".ui.mistakes.MistakesActivity" android:exported="false" />
+        <activity android:name=".ui.test.TestActivity" android:exported="false" />
+        <activity android:name=".ui.home.ExamTestsActivity" android:exported="false" />
+        <activity android:name=".ui.result.ResultActivity" android:exported="false" />
+        <activity android:name=".ui.result.ResultDetailActivity" android:exported="false" />
+        <activity android:name=".ui.leaderboard.LeaderboardActivity" android:exported="false" />
+        <activity android:name=".ui.performance.PerformanceActivity" android:exported="false" />
+        <activity android:name=".ui.practice.PracticeActivity" android:exported="false" />
+        <activity android:name=".ui.pyq.PyqActivity" android:exported="false" />
+        <activity android:name=".ui.admin.AdminActivity" android:exported="false" />
+        <activity android:name=".ui.admin.SystemMonitorActivity" android:exported="false" />
+        <activity android:name=".ui.admin.AdminAnalyticsActivity" android:exported="false" />
+        <activity android:name=".ui.admin.SendNotificationActivity" android:exported="false" />
+        <activity
+            android:name=".ui.admin.ManageExamsActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".ui.admin.GeneratedTestsActivity" android:exported="false" />
+        <activity android:name=".ui.admin.ManagePollsActivity" android:exported="false" />
+        <activity android:name=".ui.about.AboutActivity" android:exported="false" />
+        <activity android:name=".ui.settings.SettingsActivity" android:exported="false" />
+        <activity android:name=".ui.settings.AppearanceActivity" android:exported="false" />
+        <activity android:name=".ui.about.ContentDisplayActivity" android:exported="false" />
+        <activity android:name=".ui.admin.EditAboutActivity" android:exported="false" />
+        <activity android:name=".ui.syllabus.SyllabusActivity" android:exported="false" />
+        <activity android:name=".ui.notifications.NotificationsActivity" android:exported="false" />
+        <activity android:name=".ui.feedback.FeedbackActivity" android:exported="false" />
+        <activity android:name=".ui.admin.FeedbackMessagesActivity" android:exported="false" />
+        <activity android:name=".ui.admin.ManageExistingExamsActivity" android:exported="false" />
+        <activity android:name=".ui.admin.EditExamActivity" android:exported="false" />
+        <activity android:name=".ui.admin.ManageUsersActivity" android:exported="false" />
+        <activity android:name=".ui.admin.AppConfigActivity" android:exported="false" />
+        <activity android:name=".ui.admin.ActivityLogActivity" android:exported="false" />
+        <activity android:name=".ui.admin.FlaggedQuestionsActivity" android:exported="false" />
+        <activity android:name=".ui.admin.ApiUsageActivity" android:exported="false" />
+        <activity android:name=".ui.admin.ManageSyllabusActivity" android:exported="false" />
+        <activity android:name=".ui.premium.PremiumActivity" android:exported="false" />
+        <activity android:name=".ui.premium.PaymentCheckoutActivity" android:exported="false" />
+        <activity android:name=".ui.admin.ManagePremiumActivity" android:exported="false" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+    </application>
+</manifest>

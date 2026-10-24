@@ -1,0 +1,198 @@
+// ============================================================================
+// Firebase ID Token Verification & Admin Authorization
+// ============================================================================
+
+import { AuthUser, Env } from "./types";
+
+export const HARDCODED_ADMIN_EMAILS = new Set([
+  "pronlike9@gmail.com",
+  "own.keni@gmail.com",
+  "anyqueairdrop@gmail.com",
+  "ghatisarkar56@gmail.com",
+]);
+
+interface JwkKey {
+  kty: string;
+  alg: string;
+  use: string;
+  kid: string;
+  n: string;
+  e: string;
+}
+
+interface JwksResponse {
+  keys: JwkKey[];
+}
+
+let cachedJwks: { keys: JwkKey[]; expiresAt: number } | null = null;
+
+async function fetchGoogleJwks(forceRefresh: boolean = false): Promise<JwkKey[]> {
+  const now = Date.now();
+  if (!forceRefresh && cachedJwks && cachedJwks.expiresAt > now) {
+    return cachedJwks.keys;
+  }
+
+  const res = await fetch(
+    "https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com",
+    { signal: AbortSignal.timeout(5000) }
+  );
+  if (!res.ok) {
+    throw new Error(`Failed to fetch Google JWKS: ${res.statusText}`);
+  }
+
+  const cacheControl = res.headers.get("cache-control") || "";
+  const maxAgeMatch = cacheControl.match(/max-age=(\d+)/);
+  const maxAgeSeconds = maxAgeMatch ? parseInt(maxAgeMatch[1], 10) : 3600;
+
+  const data = (await res.json()) as JwksResponse;
+  cachedJwks = {
+    keys: data.keys,
+    expiresAt: now + maxAgeSeconds * 1000,
+  };
+
+  return data.keys;
+}
+
+function base64UrlDecode(str: string): Uint8Array {
+  let base64 = str.replace(/-/g, "+").replace(/_/g, "/");
+  while (base64.length % 4) {
+    base64 += "=";
+  }
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
+function base64UrlDecodeJson<T = any>(str: string): T {
+  const bytes = base64UrlDecode(str);
+  const decoded = new TextDecoder().decode(bytes);
+  return JSON.parse(decoded);
+}
+
+export async function verifyFirebaseIdToken(token: string, projectId: string): Promise<AuthUser> {
+  const parts = token.split(".");
+  if (parts.length !== 3) {
+    throw new Error("Invalid token format");
+  }
+
+  const [headerB64, payloadB64, signatureB64] = parts;
+  const header = base64UrlDecodeJson<{ kid: string; alg: string }>(headerB64);
+  if (header.alg !== "RS256") {
+    throw new Error(`Unsupported algorithm: ${header.alg}`);
+  }
+  if (!header.kid) {
+    throw new Error("Token header missing kid");
+  }
+
+  let jwks = await fetchGoogleJwks();
+  let jwk = jwks.find((k) => k.kid === header.kid);
+  if (!jwk) {
+    jwks = await fetchGoogleJwks(true);
+    jwk = jwks.find((k) => k.kid === header.kid);
+  }
+  if (!jwk) {
+    throw new Error("Matching public key not found in Google JWKS");
+  }
+
+  // Import public key into Web Crypto API
+  const cryptoKey = await crypto.subtle.importKey(
+    "jwk",
+    jwk,
+    {
+      name: "RSASSA-PKCS1-v1_5",
+      hash: "SHA-256",
+    },
+    false,
+    ["verify"]
+  );
+
+  const dataToVerify = new TextEncoder().encode(`${headerB64}.${payloadB64}`);
+  const signature = base64UrlDecode(signatureB64);
+
+  const isValid = await crypto.subtle.verify(
+    "RSASSA-PKCS1-v1_5",
+    cryptoKey,
+    signature,
+    dataToVerify
+  );
+
+  if (!isValid) {
+    throw new Error("Token signature verification failed");
+  }
+
+  const payload = base64UrlDecodeJson<{
+    iss: string;
+    aud: string;
+    sub: string;
+    exp: number;
+    email?: string;
+    email_verified?: boolean;
+    name?: string;
+    firebase?: {
+      identities?: {
+        email?: string[];
+      };
+    };
+  }>(payloadB64);
+
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  // Allow 60 seconds of clock skew tolerance
+  if (!Number.isFinite(payload.exp) || payload.exp < nowSeconds - 60) {
+    throw new Error("Token expired");
+  }
+
+  const allowedProjectIds = (projectId || "eve-fb0e3")
+    .split(",")
+    .map((p) => p.trim())
+    .filter(Boolean);
+  if (!allowedProjectIds.includes("eve-fb0e3")) {
+    allowedProjectIds.push("eve-fb0e3");
+  }
+  if (!allowedProjectIds.includes("118032999217")) {
+    allowedProjectIds.push("118032999217");
+  }
+
+  if (!allowedProjectIds.includes(payload.aud)) {
+    throw new Error(`Invalid audience: expected one of [${allowedProjectIds.join(", ")}], got ${payload.aud}`);
+  }
+
+  const validIssuer = allowedProjectIds.some(
+    (pid) => payload.iss === `https://securetoken.google.com/${pid}`
+  );
+  if (!validIssuer) {
+    throw new Error(`Invalid issuer: got ${payload.iss}`);
+  }
+
+  if (!payload.sub || typeof payload.sub !== "string") {
+    throw new Error("Invalid subject in token");
+  }
+
+  const email = (payload.email || payload.firebase?.identities?.email?.[0] || "").toLowerCase().trim();
+
+  return {
+    uid: payload.sub,
+    email,
+    displayName: payload.name || "Student",
+    emailVerified: payload.email_verified === true,
+    isAdmin: payload.email_verified === true && HARDCODED_ADMIN_EMAILS.has(email),
+  };
+}
+
+export async function isUserAdmin(db: D1Database, email: string): Promise<boolean> {
+  const cleanEmail = email.toLowerCase().trim();
+  if (!cleanEmail) return false;
+  if (HARDCODED_ADMIN_EMAILS.has(cleanEmail)) return true;
+
+  try {
+    const res = await db
+      .prepare("SELECT 1 FROM admins WHERE LOWER(TRIM(email)) = ?")
+      .bind(cleanEmail)
+      .first();
+    return res !== null && res !== undefined;
+  } catch (_e) {
+    return false;
+  }
+}

@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='utf-8'?>
+<com.eve.app.designsystem.DesignCardView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:ns1="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap" android:minHeight="@dimen/design_row_with_gap" style="@style/Widget.Eve.Token.Card">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <TextView android:id="@+id/tvExamName" style="@style/TextAppearance.Eve.Token.Secondary.blue" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:ellipsize="end" android:maxLines="1" ns1:text="SSC CGL Tier 1" />
+            <TextView android:id="@+id/tvFlagCount" style="@style/TextAppearance.Eve.Token.Body.red" android:layout_width="wrap_content" android:layout_height="wrap_content" ns1:text="🚩 3 flags" />
+        </LinearLayout>
+        <TextView android:id="@+id/tvQuestionText" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" ns1:text="Which article of the Indian Constitution deals with the Right to Constitutional Remedies?" />
+        <TextView android:id="@+id/tvReasons" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" ns1:text="Reasons: Wrong answer marked correct, Typo/formatting issue" />
+        <TextView android:id="@+id/tvComments" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" ns1:text="Comments:\n• Option B says 32 but marked 31.\n• Check key." />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnEditQuestion" style="@style/Widget.Eve.Token.Button" android:layout_width="0dp" android:layout_height="@dimen/design_touch_min" android:layout_marginEnd="@dimen/design_row_gap" android:layout_weight="1" android:text="✏️ Edit Question" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnDismissFlag" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="0dp" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_row_gap" android:layout_weight="1" android:text="✓ Dismiss Flag" />
+        </LinearLayout>
+    </LinearLayout>
+</com.eve.app.designsystem.DesignCardView>

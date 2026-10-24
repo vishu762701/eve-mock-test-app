@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Telegram night.attheme:1,88,319. Secondary contrasts more than Telegram's translucent value. -->
+    <color name="telegram_type_primary">#FFFFFFFF</color>
+    <!-- Telegram night.attheme:324 actionBarDefaultSelector = 0x16FFFFFF. -->
+    <color name="telegram_action_selector">#16FFFFFF</color>
+    <color name="telegram_type_secondary">#FFA1A1A6</color>
+    <!-- Telegram night.attheme windowBackgroundWhiteBlueHeader=-9652488, #FF6CB6F8. -->
+    <color name="telegram_type_section">#FF6CB6F8</color>
+    <color name="telegram_type_dialog">#FFF6F6F6</color>
+    <!-- Telegram TMessagesProj/src/main/assets/night.attheme:292: chats_menuItemIcon = -8224126. -->
+    <color name="telegram_drawer_icon">#FF828282</color>
+</resources>

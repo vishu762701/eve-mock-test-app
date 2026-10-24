@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Sheet">
+    <View android:layout_width="36dp" android:layout_height="5dp" android:layout_gravity="center_horizontal" android:layout_marginBottom="@dimen/design_section_gap" />
+    <TextView android:id="@+id/tvCompletedTitle" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="match_parent" android:layout_height="wrap_content" />
+    <TextView android:id="@+id/tvCompletedScore" style="@style/TextAppearance.Eve.Token.Secondary.green" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" />
+    <com.google.android.material.button.MaterialButton android:id="@+id/btnViewResult" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_shadow_room" android:text="@string/view_my_result" app:icon="@drawable/ic_history" app:iconGravity="textStart" />
+    <com.google.android.material.button.MaterialButton android:id="@+id/btnReattempt" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_screen_margin" android:text="@string/reattempt" app:icon="@drawable/ic_refresh" app:iconGravity="textStart" />
+</LinearLayout>

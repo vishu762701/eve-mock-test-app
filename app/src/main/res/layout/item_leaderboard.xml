@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<com.eve.app.designsystem.DesignCardView xmlns:android="http://schemas.android.com/apk/res/android" style="@style/Widget.Eve.Token.Card" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginVertical="@dimen/design_zero" android:minHeight="@dimen/design_row_with_gap" android:layout_marginBottom="@dimen/design_card_gap">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <TextView android:id="@+id/tvRank" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="34dp" android:layout_height="wrap_content" android:gravity="center" />
+        <FrameLayout android:layout_width="36dp" android:layout_height="36dp" android:layout_marginStart="@dimen/design_row_gap" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <TextView android:id="@+id/tvAvatarInitial" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" />
+        </FrameLayout>
+        <TextView android:id="@+id/tvName" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_screen_margin" android:layout_weight="1" android:ellipsize="end" android:maxLines="1" />
+        <TextView android:id="@+id/tvScore" style="@style/TextAppearance.Eve.Token.Body.blue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_card_gap" />
+    </LinearLayout>
+</com.eve.app.designsystem.DesignCardView>

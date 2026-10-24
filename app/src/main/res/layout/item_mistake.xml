@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<com.eve.app.designsystem.DesignCardView xmlns:android="http://schemas.android.com/apk/res/android" style="@style/Widget.Eve.Token.Card" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginVertical="@dimen/design_zero" android:minHeight="@dimen/design_row_with_gap" android:layout_marginBottom="@dimen/design_card_gap">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <com.eve.app.ui.result.ResponsiveResultRow android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false">
+            <TextView android:id="@+id/tvMistakeType" style="@style/TextAppearance.Eve.Token.Secondary.red" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Wrong Answer" />
+            <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnMarkLearned" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:text="Mark as learned" />
+        </com.eve.app.ui.result.ResponsiveResultRow>
+        <TextView android:id="@+id/tvQuestionText" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" />
+        <LinearLayout android:id="@+id/layoutYourAnswer" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Tile">
+            <TextView style="@style/TextAppearance.Eve.Token.Secondary.red" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Your Answer:" />
+            <TextView android:id="@+id/tvYourAnswer" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" />
+        </LinearLayout>
+        <LinearLayout android:id="@+id/layoutCorrectAnswer" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Tile">
+            <TextView style="@style/TextAppearance.Eve.Token.Secondary.green" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Correct Answer:" />
+            <TextView android:id="@+id/tvCorrectAnswer" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" />
+        </LinearLayout>
+        <LinearLayout android:id="@+id/layoutExplanation" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:orientation="vertical" android:visibility="gone" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+            <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Explanation:" />
+            <TextView android:id="@+id/tvExplanation" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" />
+        </LinearLayout>
+    </LinearLayout>
+</com.eve.app.designsystem.DesignCardView>
