@@ -45,7 +45,7 @@ Required: make an intentional debug signer/Google OAuth migration plan, revise C
 
 ### P1 — Unresolved transitive and asset provenance
 
-Bundled static fonts include Inter, Noto Sans, Poppins and Telegram Roboto Medium. License notices found: `Inter-OFL.txt`, `NotoSans-OFL.txt`, `Poppins-OFL.txt`, `Roboto-APACHE-2.0.txt`, `Roboto-Medium-NOTICE.txt`. These notices are positive evidence, **not** an independently verified binary-to-upstream license match for every density/weight. App dependencies also include AndroidX, Material, Retrofit/OkHttp, Gson, Coil, Lottie and BlurView, for which a resolved release artifact-and-license list remains outstanding. Gradle build plugins, backend and Firebase Functions have separate licensing/deployment considerations; server dependencies do not automatically ship in an Android APK.
+Bundled static fonts include Inter, Noto Sans, Poppins and Telegram Roboto Medium. License notices found: `Inter-OFL.txt`, `NotoSans-OFL.txt`, `Poppins-OFL.txt`, `Roboto-APACHE-2.0.txt`, `Roboto-Medium-NOTICE.txt`. These notices are positive evidence, **not** an independently verified binary-to-upstream license match for every density/weight. App dependencies include AndroidX, Material, Retrofit/OkHttp, Gson, Coil, Lottie and BlurView. The resolved release-runtime configuration has now been captured separately; its POM tags are not an inventory of the actual shipped binary or a license-compatibility decision. Gradle build plugins, backend and Firebase Functions have separate licensing/deployment considerations; server dependencies do not automatically ship in an Android APK.
 
 Required: collect release artifact dependency metadata/SBOM and license evidence for all included runtime components and assets; verify attribution texts against exact revisions, and record any exclusions and independent server deployments.
 
@@ -58,11 +58,26 @@ Required: collect release artifact dependency metadata/SBOM and license evidence
 | Telegram license texts | Source ZIP and bundled `app/src/main/assets/licenses/Telegram-GPL2.txt` | FOUND; individual grants unresolved |
 | Release approval | `.github/workflows/release.yml` rejects release unless `EVE_GPL_RELEASE_APPROVED` is `true` | GUARD PRESENT; variable's configured value UNKNOWN |
 | Release signing | `app/build.gradle.kts` requires non-debug release credentials | GUARD PRESENT |
+| Resolved releaseRuntimeClasspath and tracked resource hashes | GitHub Actions run 40093036977, commit 8864397a | EVIDENCE CAPTURED; no exact signed release artifact |
 | Release runtime SBOM + combined-work terms | Not collected for exact release artifact | NOT FOUND |
 | Rights-holder/legal clearance | No attributable approval evidence | NOT FOUND |
 | Source package for recipient matching release digest | Not verified | NOT FOUND |
 
 **Decision:** Continue normal development and source-backed Telegram UI engineering, preserving upstream notices and doing per-component license checks. Do **not** mark a production APK/AAB as license-cleared or bypass the existing release gate. This audit documents blockers; it does not assert that use of Telegram code in the development repository is prohibited.
+
+
+## Follow-up: resolved dependency evidence — 2026-10-24
+
+For GitHub commit `8864397a2beecd4592f2fe67a54d69e60aec83b3`, [Android Dependency Evidence run 40093036977](https://github.com/vishu762701/eve-mock-test-app/actions/runs/40093036977) passed. Its [downloadable evidence artifact](https://github.com/vishu762701/eve-mock-test-app/actions/runs/40093036977/artifacts/12560235617) contains `gradle-all-configurations.txt`, `releaseRuntimeClasspath.txt`, `runtime-component-license-metadata.csv`, `tracked-resource-sha256.txt` and `summary.json`.
+
+- Actual Gradle release runtime configuration: **165 resolved coordinates**. This is dependency-graph evidence, not proof those exact components/versions appear in an as-yet-unbuilt signed distribution.
+- All **165 public POMs retrieved** (Maven Central / Google Maven / JitPack where applicable); **159** declare at least one license name and **6** omit a license name. A POM's declared label is metadata, not an independently reviewed legal grant.
+- Six components requiring a separate upstream license-text lookup: `com.github.Dimezis:BlurView:version-2.0.6`; `com.google.guava:failureaccess:1.0.1`; `com.google.guava:guava:32.0.1-android`; `com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava`; `com.google.protobuf:protobuf-javalite:3.22.3`; `org.codehaus.mojo:animal-sniffer-annotations:1.23`.
+- **406 tracked `app/src/main/res` and `app/src/main/assets` files hashed**, without exposing the contents of signing keys or secrets.
+- The POM data includes license-label types associated with Google SDK components; no assumption of universal Apache licensing or GPL compatibility is made from the counts.
+- Fail-closed production release approval and real release-signing requirements were **not changed**. The evidence job invokes Gradle's dependency report without starting release assembly.
+
+**Further disposition required only when preparing an actual production distribution:** license-text/per-file compatibility review, signed candidate digest and APK contents, matching corresponding-source recipient package, and authorized human review. This evidence materially advances the technical audit but does not clear those external steps.
 
 ## Pre-release closure checklist
 
