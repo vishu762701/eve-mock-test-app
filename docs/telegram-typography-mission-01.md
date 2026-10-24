@@ -6,9 +6,13 @@ The owner authorizes officially sourced Telegram components with proper GPL comp
 
 ## Official source
 
-Read-only source: `third_party/telegram-android`. The pinned commit is recorded in
-`THIRD_PARTY_NOTICES.md`. All source paths below are relative to that directory.
-Missing source counterparts must be recorded as NOT FOUND.
+Read-only source: repository-root `Telegram-master.zip` (UI/security core) and
+`Telegram-master-rest-1.zip` through `Telegram-master-rest-5.zip` (remaining official source).
+Extract required ZIPs into a temporary directory outside git; do not commit extracted source.
+Full-source work requires extracting all six ZIPs into one empty directory and checking
+`EVE_MANIFEST_FULL.sha256` from rest-1. For UI/security references, check
+`EVE_MANIFEST.sha256` inside `Telegram-master.zip`. Source paths below are relative
+to the extracted Telegram source root. Missing counterparts must be recorded as NOT FOUND.
 
 | Role | Official source and lines | Source values |
 |---|---|---|

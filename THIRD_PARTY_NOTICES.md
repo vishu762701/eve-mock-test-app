@@ -5,7 +5,9 @@ This repository contains third-party components and assets. Keep license obligat
 ## Telegram for Android
 
 - **Upstream:** https://github.com/DrKLO/Telegram
-- **Read-only source submodule:** `third_party/telegram-android`, pinned to `0aae959806c57be8ad457980f2a5c6277ff18635` (shallow checkout). Excluded from Gradle, lint, scanners and unit tests; CI does not fetch submodules.
+- **Read-only source archive set:** repository-root `Telegram-master.zip` (UI/security core), plus `Telegram-master-rest-1.zip` through `Telegram-master-rest-5.zip` (remaining source). The previous Git submodule is retired. Extract into a temporary directory outside git, never commit extracted sources, and verify against `EVE_MANIFEST.sha256` / `EVE_MANIFEST_FULL.sha256` before using it.
+- **Archive exclusion contract (owner-reported; contents not independently re-audited here):** `TMessagesProj/config/release.keystore`, `TMessagesProj/google-services.json`, `TMessagesProj_App/google-services.json`, `TMessagesProj_AppHockeyApp/google-services.json`, `TMessagesProj_AppHuawei/google-services.json`, `TMessagesProj_AppStandalone/google-services.json`, `TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java`. These signing/configuration sources must never be used as Eve credentials.
+- **Historical upstream provenance:** original Telegram Git reference `0aae959806c57be8ad457980f2a5c6277ff18635` remains a citation for previously imported icons, not an active submodule or an assertion that root archives contain that exact commit.
 - **Asset verification:** `docs/telegram-source-verification.tsv` records SHA-256 comparisons against that commit; candidate-only rows are not import claims.
 - **License:** GNU General Public License version 2 or later (GPL-2.0-or-later).
 - **Retained derived behavior:** `app/src/main/java/com/eve/app/util/ThemeManager.kt` (circular Day/Night reveal and transition layering) and `app/src/main/java/com/eve/app/util/TelegramThemeEasing.kt`.

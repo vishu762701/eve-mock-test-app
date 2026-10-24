@@ -11,7 +11,7 @@
 
 ## Official Telegram source
 
-Official Telegram Android source is at third_party/telegram-android (read-only, never modify, never in the Gradle build). For any Telegram-related change, read the real file there first, cite file path and line numbers, and copy exact values/assets. Never redraw or guess. Mark anything missing as NOT FOUND.
+Official Telegram Android source is the zip set in the repo root: `Telegram-master.zip` (UI + security core) and `Telegram-master-rest-*.zip`. Extract to a temp folder outside git, never commit it extracted. For any Telegram-related change read the real file there first, cite file path and line numbers, and copy exact values/assets. Never redraw or guess. Mark anything missing as NOT FOUND. For the full tree, extract all six ZIPs into the same empty temporary folder and validate against `EVE_MANIFEST_FULL.sha256` inside rest-1; for UI/security work use `Telegram-master.zip` and its `EVE_MANIFEST.sha256`.
 
 ## Current UI design authority
 

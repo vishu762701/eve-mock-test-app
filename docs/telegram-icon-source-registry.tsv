@@ -1,5 +1,5 @@
 # Official source commit: 0aae959806c57be8ad457980f2a5c6277ff18635
-# Telegram paths relative to TMessagesProj/src/main/. SHA-256 fields pin bundled assets without requiring the submodule in CI.
+# Telegram paths relative to TMessagesProj/src/main/. SHA-256 fields pin bundled assets without reading reference ZIPs in CI.
 # NOT_IMPORTED denotes a semantic mismatch or candidate; NOT FOUND denotes an absent upstream density.
 eve_icon	telegram_zip_asset	telegram_call_site	semantic_confidence	normal_pressed_disabled_checked_loading	motion	day_night_color	source_fidelity_status	sha256_mdpi	sha256_hdpi	sha256_xhdpi	sha256_xxhdpi
 ic_account_balance	NO_EXACT_TELEGRAM_COUNTERPART_FOR_EXAM_DOMAIN	NONE	EVE_EXAM_PAYMENT_ACCOUNT_DOMAIN	EVE_EXISTING_STATES	NO_TELEGRAM_ICON_MOTION_PROVEN	EVE_CALLSITE_TINT_PRESERVED_NOT_SOURCE_EXACT	SEMANTIC_MISMATCH	NOT_IMPORTED	NOT_IMPORTED	NOT_IMPORTED	NOT_IMPORTED
