@@ -252,4 +252,24 @@ class HomeSemanticColorsTest {
         assertEquals("#000000", dark["bg_app"])
         assertEquals("#1C1C1E", dark["surface"])
     }
+    @Test
+    fun segmentedTabSelectedTextPairsWithItsRealIndicatorInBothModes() {
+        fun source(path: String): String {
+            return listOf(File(path), File("app/$path"), File("../app/$path"))
+                .firstOrNull { it.isFile }?.readText()
+                ?: error("Missing segmented tab source: $path")
+        }
+        val style = source("src/main/res/values/design_widgets.xml")
+        val indicator = source("src/main/res/drawable/design_tab_segment.xml")
+        val implementation = source("src/main/java/com/eve/app/designsystem/DesignSegmentedTabs.kt")
+        assertTrue(style.contains("<item name=\\"tabIndicator\\">@drawable/design_tab_segment</item>".replace("\\\\", "\\")))
+        assertTrue(indicator.contains("<solid android:color=\\"@color/accent\\"".replace("\\\\", "\\")))
+        assertTrue(implementation.contains("if (selected) ContextCompat.getColor(context, R.color.on_accent)"))
+        for (folder in listOf("values", "values-night")) {
+            val colors = loadColors("src/main/res/$folder/design_colors.xml")
+            val contrast = contrastRatio(colors["on_accent"]!!, colors["accent"]!!)
+            assertTrue("$folder selected tab contrast: $contrast", contrast >= 4.5)
+        }
+    }
+
 }
