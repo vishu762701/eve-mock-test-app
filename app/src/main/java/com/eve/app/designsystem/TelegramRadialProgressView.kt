@@ -52,6 +52,23 @@ class TelegramRadialProgressView @JvmOverloads constructor(
     private var toCircle = false
     private var toCircleProgress = 0f
     private var noProgress = true
+    // Test-only capture opt-in. Real attached loading spinners retain upstream arc motion.
+    private var frozenForStaticSnapshot = false
+
+    fun freezeForStaticSnapshot() {
+        if (frozenForStaticSnapshot) return
+        // The source's 85-ms advance yields a visible arc at the first software capture.
+        updateAnimation(17L * 5L)
+        frozenForStaticSnapshot = true
+    }
+
+    fun resumeFromStaticSnapshot() {
+        frozenForStaticSnapshot = false
+        lastUpdateTime = System.currentTimeMillis()
+        invalidate()
+    }
+
+    fun isFrozenForStaticSnapshot(): Boolean = frozenForStaticSnapshot
 
     fun setUseSelfAlpha(value: Boolean) { useSelfAlpha = value }
 
@@ -154,7 +171,7 @@ class TelegramRadialProgressView @JvmOverloads constructor(
             }
             currentCircleLength = maxOf(4f, 360f * animatedProgress)
         }
-        invalidate()
+        if (!frozenForStaticSnapshot) invalidate()
     }
 
     fun setSize(value: Int) { size = value; invalidate() }
@@ -172,7 +189,7 @@ class TelegramRadialProgressView @JvmOverloads constructor(
         circleRect.set(x, y, x + size, y + size)
         drawingCircleLength = currentCircleLength
         canvas.drawArc(circleRect, radOffset, drawingCircleLength, false, progressPaint)
-        updateAnimation()
+        if (!frozenForStaticSnapshot) updateAnimation()
     }
 
     fun drawAt(canvas: Canvas, cx: Float, cy: Float) {

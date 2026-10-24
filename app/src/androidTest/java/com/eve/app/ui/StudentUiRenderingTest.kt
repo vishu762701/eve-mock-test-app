@@ -133,6 +133,17 @@ class StudentUiRenderingTest {
         assertTrue(failures.distinct().joinToString("\n"), failures.isEmpty())
     }
 
+    @Test fun radialLoaderSnapshotFreezeIsOptInAndReversible() {
+        val context = ContextThemeWrapper(instrumentation.targetContext, R.style.Theme_Eve)
+        val spinner = com.eve.app.designsystem.TelegramRadialProgressView(context)
+        assertFalse(spinner.isFrozenForStaticSnapshot())
+        spinner.freezeForStaticSnapshot()
+        assertTrue("Canvas snapshots freeze redraw while retaining the spinner", spinner.isFrozenForStaticSnapshot())
+        assertEquals(View.VISIBLE, spinner.visibility)
+        spinner.resumeFromStaticSnapshot()
+        assertFalse("Normal runtime animation is restored", spinner.isFrozenForStaticSnapshot())
+    }
+
     @Test fun avatarInitialsRemainReadableAcrossIdentityGradients() {
         val context = android.view.ContextThemeWrapper(InstrumentationRegistry.getInstrumentation().targetContext, R.style.Theme_Eve)
         for (index in -1..15) {
@@ -267,6 +278,10 @@ class StudentUiRenderingTest {
     private fun freezeFixtureAnimations(root: View) {
         // Deterministic stills; the existing native suite verifies actual playback/reveal.
         walk(root).filterIsInstance<com.airbnb.lottie.LottieAnimationView>().forEach { it.cancelAnimation(); it.progress = 1f }
+        // Newly ported continuous Telegram loaders must not invalidate the attached
+        // snapshot hierarchy during CPU Canvas capture. Preserve the visible arc.
+        walk(root).filterIsInstance<com.eve.app.designsystem.TelegramRadialProgressView>()
+            .forEach { it.freezeForStaticSnapshot() }
     }
 
     private fun recycler(root: View, id: Int, adapter: RecyclerView.Adapter<*>) {
