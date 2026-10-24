@@ -88,15 +88,84 @@ adb shell wm dismiss-keyguard
 # Install precompiled, checksum-verified binaries; do not run Gradle per emulator.
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+# The full student rendering matrix covers 44 fixtures x two themes x three
+# viewport/font configurations. Running it inside the 53-test command exceeded
+# the 660-second instrumentation bound in BOTH navigation modes (run 40107857698).
+# Shard ONLY that expensive test; preserve every fixture and all other tests.
+# Each invocation is independently checked for terminal completion and failures.
+run_instrumentation() {
+  local label="$1"
+  shift
+  local instrumentation_log="ui-renderings/instrumentation-${mode}-${label}.log"
+  local run_status=0
+  timeout 660s adb shell am instrument -w -r \
+    -e navigationMode "$mode" "$@" \
+    com.eve.app.test/androidx.test.runner.AndroidJUnitRunner \
+    | tee "$instrumentation_log" || run_status=$?
+  local report=""
+  if ! report="$(python3 "$(dirname "${BASH_SOURCE[0]}")/ci_instrumentation_report.py "$instrumentation_log")"; then
+    run_status=1
+  else
+    echo "$report"
+    # Fail closed if an exclusion accidentally drops another test, or if a
+    # visualCases shard executes zero/multiple test methods.
+    if [[ "$report" =~ ^NATIVE_PASS[[:space:]]([0-9]+)/([0-9]+) ]]; then
+      local completed="${BASH_REMATCH[1]}"
+      if [[ "$label" == core && "$completed" -lt 52 ]] || \
+         [[ "$label" != core && "$completed" -ne 1 ]]; then
+        echo "Unexpected instrumentation coverage for $label: $report" >&2
+        run_status=1
+      fi
+    else
+      echo "Unrecognized instrumentation report for $label: $report" >&2
+      run_status=1
+    fi
+  fi
+  return "$run_status"
+}
+
 status=0
-instrumentation_log="ui-renderings/instrumentation-${mode}.log"
-timeout 660s adb shell am instrument -w -r \
-  -e package com.eve.app.ui -e navigationMode "$mode" \
-  com.eve.app.test/androidx.test.runner.AndroidJUnitRunner \
-  | tee "$instrumentation_log" || status=$?
-# adb may return zero even when a test fails; parse each test and completion.
-if ! python3 "$(dirname "${BASH_SOURCE[0]}")/ci_instrumentation_report.py" "$instrumentation_log"; then
-  [[ "$status" != "0" ]] || status=1
+# Keep the full existing package suite, excluding exactly the long rendering
+# method. The 52-test minimum ensures the avatar contrast test is not lost.
+if ! run_instrumentation core -e package com.eve.app.ui \
+    -e notClass com.eve.app.ui.StudentUiRenderingTest#allStudentScreensRenderInBothThemesAndPhoneSizes; then
+  status=1
+fi
+
+# Derive shards from the production-layout fixture registry itself: no copied
+# case list can silently go stale when screens are added or renamed.
+if [[ "$status" == 0 ]]; then
+  case_batches="$(python3 - <<'PY'
+from pathlib import Path
+import re
+
+source = Path("app/src/androidTest/java/com/eve/app/ui/StudentUiRenderingTest.kt").read_text()
+match = re.search(r"private val cases = linkedMapOf\\((.*?)\\n    \\)", source, re.S)
+if not match:
+    raise SystemExit("Cannot locate native student fixture registry")
+names = re.findall(r'"([^"]+)"\\s+to\\s+R\\.layout\\.', match.group(1))
+if len(names) < 44 or len(names) != len(set(names)):
+    raise SystemExit(f"Invalid native student fixture inventory: {len(names)} cases")
+for start in range(0, len(names), 11):
+    print(",".join(names[start:start + 11]))
+PY
+  )"
+  shard=0
+  while IFS= read -r visual_cases; do
+    [[ -n "$visual_cases" ]] || continue
+    shard=$((shard + 1))
+    echo "Native visual shard $shard: $visual_cases"
+    if ! run_instrumentation "visual-$shard" \
+        -e class com.eve.app.ui.StudentUiRenderingTest#allStudentScreensRenderInBothThemesAndPhoneSizes \
+        -e visualCases "$visual_cases"; then
+      status=1
+      break
+    fi
+  done <<< "$case_batches"
+  if [[ "$shard" -lt 4 ]]; then
+    echo "Native visual fixture shards incomplete: $shard" >&2
+    status=1
+  fi
 fi
 if [[ "$status" != "0" ]]; then
   adb shell cmd overlay lookup com.android.systemui com.android.systemui:color/light_mode_icon_color_single_tone > ui-renderings/systemui-light-icon-color.log || true
