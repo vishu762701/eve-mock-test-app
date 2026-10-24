@@ -63,8 +63,7 @@ object TelegramThemeApplier {
                 val tagStr = view.tag?.toString() ?: ""
                 val isAccentButton = tagStr.contains("accent_button") ||
                         view.id == R.id.btnApply ||
-                        view.id == R.id.btnSubmit ||
-                        view.id == R.id.btnStartTest ||
+                        view.id == R.id.btnRetry ||
                         view.backgroundTintList?.defaultColor == palette.accent
 
                 if (isAccentButton) {
