@@ -206,25 +206,37 @@ object TelegramThemeEngine {
         committedNightThemeId = prefs.getString(KEY_NIGHT_THEME, "night") ?: "night"
         committedNightAccentId = prefs.getInt(KEY_NIGHT_ACCENT, 0)
 
-        // Deterministic migration from old ThemeManager preference if not yet stored
-        if (!prefs.contains(KEY_THEME_MODE)) {
-            val oldPrefs = context.getSharedPreferences(com.eve.app.util.ThemeManager.PREFS, Context.MODE_PRIVATE)
-            if (oldPrefs.contains(com.eve.app.util.ThemeManager.KEY_DARK_MODE)) {
-                val oldDark = oldPrefs.getBoolean(com.eve.app.util.ThemeManager.KEY_DARK_MODE, false)
-                committedMode = if (oldDark) ThemeMode.NIGHT else ThemeMode.DAY
-                prefs.edit().putString(KEY_THEME_MODE, committedMode.name).apply()
-            } else {
-                committedMode = ThemeMode.SYSTEM
-            }
-        } else {
-            val modeStr = prefs.getString(KEY_THEME_MODE, ThemeMode.SYSTEM.name) ?: ThemeMode.SYSTEM.name
-            committedMode = try { ThemeMode.valueOf(modeStr) } catch (_: Exception) { ThemeMode.SYSTEM }
-        }
+        // Persist the initial SYSTEM choice before mirroring it to the legacy preference.
+        // Otherwise a second cold start misreads that mirror as an explicit DAY/NIGHT choice.
+        val legacyPrefs = context.getSharedPreferences(com.eve.app.util.ThemeManager.PREFS, Context.MODE_PRIVATE)
+        committedMode = resolvePersistedMode(prefs, legacyPrefs)
 
         // Synchronize NightMode globally
         syncNightModeWithSystem(context)
         restoreCustomThemes(context)
         initialized = true
+    }
+
+    internal fun resolvePersistedMode(prefs: SharedPreferences, legacyPrefs: SharedPreferences): ThemeMode {
+        if (prefs.contains(KEY_THEME_MODE)) {
+            val stored = prefs.getString(KEY_THEME_MODE, ThemeMode.SYSTEM.name)
+            return try {
+                ThemeMode.valueOf(stored ?: ThemeMode.SYSTEM.name)
+            } catch (_: IllegalArgumentException) {
+                ThemeMode.SYSTEM
+            }
+        }
+        val migrated = if (legacyPrefs.contains(com.eve.app.util.ThemeManager.KEY_DARK_MODE)) {
+            if (legacyPrefs.getBoolean(com.eve.app.util.ThemeManager.KEY_DARK_MODE, false)) {
+                ThemeMode.NIGHT
+            } else {
+                ThemeMode.DAY
+            }
+        } else {
+            ThemeMode.SYSTEM
+        }
+        prefs.edit().putString(KEY_THEME_MODE, migrated.name).apply()
+        return migrated
     }
 
     private fun syncNightModeWithSystem(context: Context) {

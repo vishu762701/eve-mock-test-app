@@ -247,6 +247,50 @@ class TelegramThemeEngineTest {
     }
 
     @Test
+    fun freshSystemChoicePersistsBeforeLegacyNightMirror() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        val suffix = System.nanoTime()
+        val prefs = context.getSharedPreferences("telegram_mode_test_" + suffix, android.content.Context.MODE_PRIVATE)
+        val legacy = context.getSharedPreferences("legacy_mode_test_" + suffix, android.content.Context.MODE_PRIVATE)
+        try {
+            assertEquals(TelegramThemeEngine.ThemeMode.SYSTEM, TelegramThemeEngine.resolvePersistedMode(prefs, legacy))
+            assertEquals("SYSTEM", prefs.getString("theme_mode", null))
+
+            // The compatibility mirror is written after init; it must not change SYSTEM on restart.
+            legacy.edit().putBoolean(com.eve.app.util.ThemeManager.KEY_DARK_MODE, true).commit()
+            assertEquals(TelegramThemeEngine.ThemeMode.SYSTEM, TelegramThemeEngine.resolvePersistedMode(prefs, legacy))
+
+            val appSource = listOf(
+                java.io.File("src/main/java/com/eve/app/EveApplication.kt"),
+                java.io.File("app/src/main/java/com/eve/app/EveApplication.kt")
+            ).first { it.exists() }.readText()
+            assertTrue(appSource.contains("TelegramThemeEngine.init(this)"))
+            assertFalse(appSource.contains("ThemeManager.applySavedMode(this)"))
+        } finally {
+            prefs.edit().clear().commit()
+            legacy.edit().clear().commit()
+        }
+    }
+
+    @Test
+    fun legacyNightChoiceMigratesWithoutOverridingExplicitTelegramChoice() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        val suffix = System.nanoTime()
+        val prefs = context.getSharedPreferences("telegram_migrate_test_" + suffix, android.content.Context.MODE_PRIVATE)
+        val legacy = context.getSharedPreferences("legacy_migrate_test_" + suffix, android.content.Context.MODE_PRIVATE)
+        try {
+            legacy.edit().putBoolean(com.eve.app.util.ThemeManager.KEY_DARK_MODE, true).commit()
+            assertEquals(TelegramThemeEngine.ThemeMode.NIGHT, TelegramThemeEngine.resolvePersistedMode(prefs, legacy))
+            assertEquals("NIGHT", prefs.getString("theme_mode", null))
+            prefs.edit().putString("theme_mode", "SYSTEM").commit()
+            assertEquals(TelegramThemeEngine.ThemeMode.SYSTEM, TelegramThemeEngine.resolvePersistedMode(prefs, legacy))
+        } finally {
+            prefs.edit().clear().commit()
+            legacy.edit().clear().commit()
+        }
+    }
+
+    @Test
     fun testSingleModeAuthoritySync() {
         val context = org.robolectric.RuntimeEnvironment.getApplication()
         TelegramThemeEngine.init(context)

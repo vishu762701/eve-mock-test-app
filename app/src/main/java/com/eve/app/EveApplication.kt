@@ -2,7 +2,6 @@ package com.eve.app
 
 import kotlinx.coroutines.launch
 import android.app.Application
-import com.eve.app.util.ThemeManager
 
 class EveApplication : Application() {
 
@@ -17,7 +16,6 @@ class EveApplication : Application() {
 
         // Initialize TelegramThemeEngine as single authoritative theme engine before any Activity is created
         com.eve.app.theme.TelegramThemeEngine.init(this)
-        ThemeManager.applySavedMode(this)
         com.eve.app.util.DebugCrashReporter.init(this)
         com.eve.app.util.ThemeSwitchAnimator.ensureLifecycleRegistered(this)
         com.eve.app.util.SystemBarHelper.init(this)
