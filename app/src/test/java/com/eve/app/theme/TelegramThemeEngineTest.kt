@@ -140,7 +140,6 @@ class TelegramThemeEngineTest {
     }
 
     @Test
-    @Test
     fun resetPreviewCanBeCancelledWithoutPersistingDefaults() {
         val context = org.robolectric.RuntimeEnvironment.getApplication()
         TelegramThemeEngine.init(context)
