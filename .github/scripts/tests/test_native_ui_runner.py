@@ -74,9 +74,9 @@ esac
                 visual_lines = [line for line in commands.splitlines() if ' -e visualCases ' in line]
                 self.assertEqual(4, len(visual_lines))
                 source = (Path(__file__).resolve().parents[3] / 'app/src/androidTest/java/com/eve/app/ui/StudentUiRenderingTest.kt').read_text()
-                block = re.search(r"private val cases = linkedMapOf\\((.*?)\\n    \\)", source, re.S)
+                block = re.search(r"private val cases = linkedMapOf\((.*?)\n    \)", source, re.S)
                 self.assertIsNotNone(block)
-                expected = re.findall(r'"([^"]+)"\\s+to\\s+R\\.layout\\.', block.group(1))
+                expected = re.findall(r'"([^"]+)"\s+to\s+R\.layout\.', block.group(1))
                 actual = [case for line in visual_lines for case in line.split(' -e visualCases ', 1)[1].split(' ', 1)[0].split(',')]
                 self.assertCountEqual(expected, actual)
                 self.assertIn('adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk', commands)
