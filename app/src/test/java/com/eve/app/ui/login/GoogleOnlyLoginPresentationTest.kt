@@ -30,8 +30,8 @@ class GoogleOnlyLoginPresentationTest {
         assertEquals("com.eve.app.designsystem.TelegramRadialProgressView", find("progressGoogle").tagName)
     }
     @Test fun telegramFirstPageTypographyUsesEveBranding() {
-        assertEquals("18sp",find("tvTagline").getAttribute("android:textSize"))
-        assertEquals("14sp",find("tvSubtitle").getAttribute("android:textSize"))
+        assertEquals("@style/TextAppearance.Eve.Telegram.LoginTitle",find("tvTagline").getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Telegram.LoginSubtitle",find("tvSubtitle").getAttribute("style"))
         assertEquals("center",find("tvTagline").getAttribute("android:gravity"))
         assertEquals("center",find("tvSubtitle").getAttribute("android:gravity"))
     }

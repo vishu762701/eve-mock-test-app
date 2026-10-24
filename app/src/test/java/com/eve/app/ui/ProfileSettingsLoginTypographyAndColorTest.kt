@@ -152,11 +152,11 @@ class ProfileSettingsLoginTypographyAndColorTest {
 
         val tvTagline = findElementById(root, "tvTagline")
         assertNotNull("tvTagline must exist", tvTagline)
-        assertEquals("@style/TextAppearance.Eve.Token.Title", tvTagline?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Telegram.LoginTitle", tvTagline?.getAttribute("style"))
 
         val tvSubtitle = findElementById(root, "tvSubtitle")
         assertNotNull("tvSubtitle must exist", tvSubtitle)
-        assertEquals("@style/TextAppearance.Eve.Token.Body", tvSubtitle?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Telegram.LoginSubtitle", tvSubtitle?.getAttribute("style"))
 
         val etName = findElementById(root, "etName")
         assertNotNull("etName must exist", etName)
