@@ -153,12 +153,14 @@ class MainTabsLayoutSizingTest {
         val context = RuntimeEnvironment.getApplication()
         val tab = GlassTabView(context).apply { configureAsIcon(R.drawable.msg_home, "Home") }
         tab.setSelectedTab(false, false)
-        // Robolectric's font shadow is not an Android system-font weight oracle.
-        // Exact weight 700/800 is asserted by the native Android test below.
-        assertTrue("The unselected Telegram label stays bold", tab.textView.typeface.isBold)
+        // Robolectric's font shadow models weight as a style integer, so
+        // isBold()/getWeight() cannot prove Android's real 700/800 weights.
+        // Device instrumentation asserts those exact numeric weights.
+        val unselectedFace = tab.textView.typeface
         tab.setSelectedTab(true, false)
-        assertTrue("The selected Telegram label stays bold", tab.textView.typeface.isBold)
         assertTrue(tab.isTabSelected())
+        assertTrue("Selected Telegram tab must use a distinct heavier typeface",
+            unselectedFace != tab.textView.typeface)
     }
 
     @Test
