@@ -416,7 +416,7 @@ class TelegramThemeEngineTest {
         TelegramThemeEngine.init(context)
 
         // Custom theme where dialogBackground is provided, but glass_targetMainTabs is missing
-        val file = java.io.File(context.filesDir, "custom_dialog_test_${System.nanoTime()}.attheme")
+        val file = java.io.File(context.filesDir, "custom_${System.nanoTime()}.attheme")
         try {
             // dialogBackground = 0xFF334455 (-13417387)
             file.writeText(
