@@ -6,6 +6,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.ui.navigation.EveBottomPillBar
+import com.eve.app.ui.navigation.EveNavigationHost
+import android.view.Gravity
+import android.view.View
+import android.widget.FrameLayout
+import androidx.core.graphics.Insets
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.test.core.app.ActivityScenario
 import com.eve.app.ui.navigation.MainTabsLayout
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -58,6 +66,48 @@ class TelegramAppearanceAndThemeAuthorityNativeTest {
 
             TelegramThemeEngine.setCommittedMode(TelegramThemeEngine.ThemeMode.SYSTEM, context)
             assertEquals(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM, AppCompatDelegate.getDefaultNightMode())
+        }
+    }
+
+
+    @Test
+    fun actualNavigationHostKeepsBottomGravityAfterNavigationInsets() {
+        ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                val parent = activity.findViewById<FrameLayout>(android.R.id.content)
+                val pill = EveNavigationHost.attach(activity, EveBottomPillBar.TAB_HOME)
+                val lpBefore = pill.layoutParams as FrameLayout.LayoutParams
+                assertEquals("Primary pill must attach to the window bottom",
+                    Gravity.BOTTOM, lpBefore.gravity and Gravity.VERTICAL_GRAVITY_MASK)
+                assertEquals("Pill must remain horizontally centered",
+                    Gravity.CENTER_HORIZONTAL, lpBefore.gravity and Gravity.HORIZONTAL_GRAVITY_MASK)
+
+                val density = activity.resources.displayMetrics.density
+                val bottomSystemInsetPx = (24f * density).toInt()
+                val navigationInsets = WindowInsetsCompat.Builder()
+                    .setInsets(WindowInsetsCompat.Type.navigationBars(),
+                        Insets.of(0, 0, 0, bottomSystemInsetPx))
+                    .build()
+                ViewCompat.dispatchApplyWindowInsets(pill, navigationInsets)
+                val lpAfter = pill.layoutParams as FrameLayout.LayoutParams
+                assertEquals("Window inset dispatch must not reparent/reposition pill to TOP",
+                    Gravity.BOTTOM, lpAfter.gravity and Gravity.VERTICAL_GRAVITY_MASK)
+                assertEquals("Window inset dispatch must preserve horizontal centering",
+                    Gravity.CENTER_HORIZONTAL, lpAfter.gravity and Gravity.HORIZONTAL_GRAVITY_MASK)
+
+                val viewportWidth = (360f * density).toInt()
+                val viewportHeight = (720f * density).toInt()
+                parent.measure(
+                    View.MeasureSpec.makeMeasureSpec(viewportWidth, View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(viewportHeight, View.MeasureSpec.EXACTLY))
+                parent.layout(0, 0, viewportWidth, viewportHeight)
+                assertTrue("Floating bottom pill must have visible dimensions",
+                    pill.width > 0 && pill.height > 0)
+                assertTrue("Floating bottom pill must occupy the lower half of the content viewport",
+                    pill.top >= viewportHeight / 2)
+                assertTrue("Floating bottom pill must not overlap Android system navigation",
+                    pill.bottom <= viewportHeight - lpAfter.bottomMargin + (1f * density).toInt())
+            }
         }
     }
 
