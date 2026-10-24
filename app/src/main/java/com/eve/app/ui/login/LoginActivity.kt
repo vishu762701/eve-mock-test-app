@@ -111,7 +111,7 @@ class LoginActivity : EveBaseActivity() {
             DebugCrashReporter.showCrashDialog(this)
         }
 
-        if (savedInstanceState?.getBoolean("eve_login_signup_mode", false) == true) {
+        if (savedInstanceState?.getBoolean("eve_login_signup_mode", false) == true && binding.btnToggleMode.isShown) {
             toggleMode(animate = false)
         }
         binding.btnBack.setOnClickListener { finish() }
