@@ -87,4 +87,61 @@ class TelegramAppearanceAndThemeAuthorityNativeTest {
             assertFalse("Programmatic selection must not invoke onTabReselected", reselectedCalled)
         }
     }
+
+    @Test
+    fun bottomPillRendersGlassOnBackgroundLayerOnlyKeepingForegroundSharp() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val context = instrumentation.targetContext
+
+        instrumentation.runOnMainSync {
+            val pillBar = EveBottomPillBar(context)
+            // Ensure glassBackgroundView is first child and tabsLayout is in front
+            assertEquals("Glass background must be first child", pillBar.glassBackgroundView, pillBar.getChildAt(0))
+            assertEquals("Tabs layout must be foreground child", pillBar.tabsLayout, pillBar.getChildAt(1))
+
+            // Verify foreground tabs are unaffected by background effect
+            assertFalse("Foreground tabs must not be clipped", pillBar.tabsLayout.clipChildren)
+            assertTrue("Background drawable must be attached to background view", pillBar.glassBackgroundView.background != null)
+
+            val palette = TelegramThemeEngine.resolveCurrentPalette(context)
+            pillBar.updateThemePalette(palette)
+            assertEquals(palette, pillBar.currentPalette)
+        }
+    }
+
+    @Test
+    fun themeApplierBindsPaletteToChildViewsAndPreservesState() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val context = instrumentation.targetContext
+
+        instrumentation.runOnMainSync {
+            val layout = android.widget.LinearLayout(context)
+            val card = com.google.android.material.card.MaterialCardView(context)
+            val button = com.google.android.material.button.MaterialButton(context).apply {
+                tag = "accent_button"
+            }
+            val tabs = com.eve.app.designsystem.DesignSegmentedTabs(context)
+            val textView = android.widget.TextView(context).apply {
+                setTextColor(android.graphics.Color.BLACK)
+            }
+            val editText = android.widget.EditText(context).apply {
+                setText("Preserved user input")
+            }
+
+            layout.addView(card)
+            layout.addView(button)
+            layout.addView(tabs)
+            layout.addView(textView)
+            layout.addView(editText)
+
+            val palette = TelegramThemeEngine.resolveCurrentPalette(context)
+            com.eve.app.theme.TelegramThemeApplier.applyToViewTree(layout, palette)
+
+            assertEquals(palette.surface, card.cardBackgroundColor.defaultColor)
+            assertEquals(palette.accent, button.backgroundTintList?.defaultColor)
+            assertEquals(palette.onAccent, button.currentTextColor)
+            assertEquals(palette.textPrimary, textView.currentTextColor)
+            assertEquals("Preserved user input", editText.text.toString())
+        }
+    }
 }

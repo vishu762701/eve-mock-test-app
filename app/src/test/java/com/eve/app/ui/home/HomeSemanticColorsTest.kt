@@ -264,7 +264,7 @@ class HomeSemanticColorsTest {
         val implementation = source("src/main/java/com/eve/app/designsystem/DesignSegmentedTabs.kt")
         assertTrue(style.contains("@drawable/design_tab_segment"))
         assertTrue(indicator.contains("@color/accent"))
-        assertTrue(implementation.contains("if (selected) ContextCompat.getColor(context, R.color.on_accent)"))
+        assertTrue(implementation.contains("if (selected) palette.onAccent else palette.textPrimary"))
         for (folder in listOf("values", "values-night")) {
             val colors = loadColors("src/main/res/$folder/design_colors.xml")
             val contrast = contrastRatio(colors["on_accent"]!!, colors["accent"]!!)

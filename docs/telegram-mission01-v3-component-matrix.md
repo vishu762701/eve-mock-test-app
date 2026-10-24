@@ -40,10 +40,30 @@ The following source paths and Java call sites were searched and read from the s
 
 ## Source and compliance inventory
 
-- **Copied Telegram-owned icon artwork in EVE:** 27 tracked icon resource IDs use imported static Telegram GPL art. Existing derived theme behavior is separately attributed in `THIRD_PARTY_NOTICES.md`. This does **not** establish whole-APK legal compliance or permission to publish a production release.
-- **Separately licensed Google Roboto Medium:** present and attributed under Apache-2.0; source-matched font SHA pinned in `TelegramTypeSourceRolesTest`.
-- **Production distribution blocker:** Telegram artwork has already been imported under the repository's GPL-3 licensing plan. Complete corresponding-source availability, dependency/SDK compatibility, applicable copyright notices and production distribution obligations still require audit. A public repository and bundled license texts alone do not prove compliance. **Do not distribute a production GPL-derived APK until that audit passes.**
+- Copied Telegram-owned icon artwork in EVE: 29 tracked icon resource IDs use imported static Telegram GPL art (including ic_bell and ic_bell_off). Existing derived theme behavior is separately attributed in THIRD_PARTY_NOTICES.md. This does not establish whole-APK legal compliance or permission to publish a production release.
+- Separately licensed Google Roboto Medium: present and attributed under Apache-2.0; source-matched font SHA pinned in TelegramTypeSourceRolesTest.
+- Production distribution blocker: Telegram artwork has already been imported under the repository's GPL-3 licensing plan. Complete corresponding-source availability, dependency/SDK compatibility, applicable copyright notices and production distribution obligations still require audit. A public repository and bundled license texts alone do not prove compliance. Do not distribute a production GPL-derived APK until that audit passes.
 - Avoid Telegram launcher/logo, reuse only EVE-owned branding. Separate EVE dynamic / system icons and Firebase notification small icons from action icon surface inventory.
+
+## Theme Catalog Scope and Premium/Gift Classification
+
+- Client-Bundled Themes (VERIFIED - 5 complete assets):
+  - day.attheme (Day mode base, default accent ID 9)
+  - night.attheme (Night mode base, default accent ID 0)
+  - arctic.attheme (Arctic Blue preset)
+  - darkblue.attheme (Dark Blue preset)
+  - bluebubbles.attheme (Blue Bubbles preset)
+  All 5 themes are bundled in app/src/main/assets/, match upstream Telegram byte-for-byte, and are verified by TelegramBundledThemeAssetsTest.kt.
+
+- Theme Distinction and External Dependency Analysis:
+  1. Ordinary Remote Themes: In upstream Telegram, remote themes are fetched via MTProto RPC (account.getThemes). In EVE, ordinary external themes can be imported locally via .attheme file picker with full validation and stream boundary enforcement.
+  2. Telegram Premium Themes: Upstream Telegram requires an active Telegram Premium subscription validated server-side over MTProto session credentials before the theme files and associated assets are delivered to the client.
+  3. Telegram Gift Themes: Linked to specific unique user-owned digital collectibles (NFT gifts / Telegram Stars) tied to a specific Telegram user account.
+
+- Requirement Status: BLOCKED_EXTERNAL_ASSET:
+  - Neither Telegram Premium nor Gift theme definitions or associated wallpaper assets are bundled in the open-source Telegram repository or the reference archive.
+  - EVE does not connect to Telegram MTProto infrastructure, impersonate Telegram user sessions, or bypass upstream account subscription entitlements (per engineering standards).
+  - Smallest legitimate input needed: Static exported .attheme files (and optional background wallpaper assets) provided directly by the user/owner via asset catalog integration or the built-in imported theme mechanism.
 
 ## Mission status and CI prevention
 

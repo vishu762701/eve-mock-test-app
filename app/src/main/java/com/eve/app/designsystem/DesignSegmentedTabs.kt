@@ -23,11 +23,20 @@ class DesignSegmentedTabs @JvmOverloads constructor(
     init {
         clipChildren = false
         clipToPadding = false
+        val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
+        setSelectedTabIndicatorColor(palette.accent)
+        tabRippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
         addOnTabSelectedListener(object : OnTabSelectedListener {
             override fun onTabSelected(tab: Tab?) = applyTypography()
             override fun onTabUnselected(tab: Tab?) = Unit
             override fun onTabReselected(tab: Tab?) = Unit
         })
+    }
+
+    fun updatePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+        setSelectedTabIndicatorColor(palette.accent)
+        tabRippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
+        applyTypography()
     }
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         // Labels must be installed and sized before Material measures its strip.
@@ -70,11 +79,8 @@ class DesignSegmentedTabs @JvmOverloads constructor(
             val size = resources.getDimension(R.dimen.design_type_tab)
             if (view.textSize != size) view.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
             val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
-            // The current indicator drawable is filled with @color/accent. Pair its
-            // selected label with @color/on_accent until both are migrated together.
-            // Using glassTabSelectedText alone regresses Night selected-tab contrast.
-            val color = if (selected) ContextCompat.getColor(context, R.color.on_accent)
-                else palette.textPrimary
+            // Indicator fill and selected text migrated together to current active palette.
+            val color = if (selected) palette.onAccent else palette.textPrimary
             if (view.currentTextColor != color) view.setTextColor(color)
             view.isSelected = selected
             val line = resources.getDimensionPixelSize(R.dimen.design_line_tab)

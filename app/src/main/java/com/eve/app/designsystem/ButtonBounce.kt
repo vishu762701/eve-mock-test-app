@@ -18,6 +18,8 @@ class ButtonBounce constructor(
     private val durationReleaseMultiplier: Float = 1f,
     private val overshoot: Float = 5.0f
 ) {
+    constructor(viewToInvalidate: View?) : this(viewToInvalidate, 1f, 1f, 5.0f)
+
     constructor(viewToInvalidate: View?, durationMultiplier: Float, overshoot: Float) :
         this(viewToInvalidate, durationMultiplier, durationMultiplier, overshoot)
 

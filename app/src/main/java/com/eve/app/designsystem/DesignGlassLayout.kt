@@ -44,6 +44,11 @@ open class DesignGlassLayout @JvmOverloads constructor(context: Context, attrs: 
             configureBackdrop()
             invalidate()
         }
+
+    fun updatePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+        border.color = palette.hairline
+        invalidate()
+    }
     /** Popup chrome can point to its host window, rather than the popup's own tree. */
     var backdropRoot: ViewGroup? = null
         set(value) { field = value; if (isAttachedToWindow) configureBackdrop() }

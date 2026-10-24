@@ -114,7 +114,7 @@ class TelegramTypeSourceRolesTest {
         assertTrue(repo.contains("config.presetId == \"telegram_native\""))
         val font = File("src/main/java/com/eve/app/util/FontManager.kt").readText()
         assertTrue(font.contains("var activeFontFamily: FontFamily = FontFamily.ROBOTO"))
-        for (name in listOf("ic_bell")) {
+        for (name in listOf("ic_notification")) {
             val xml = File("src/main/res/drawable/" + name + ".xml").readText()
             assertTrue("Preserve EVE icon view resource " + name, xml.contains("<vector"))
             assertTrue("Preserve EVE icon dimensions " + name, xml.contains("@dimen/design_icon_size"))

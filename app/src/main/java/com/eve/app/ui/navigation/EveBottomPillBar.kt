@@ -38,6 +38,7 @@ class EveBottomPillBar @JvmOverloads constructor(
     val tabSettings: GlassTabView
     val tabProfile: GlassTabView
 
+    val glassBackgroundView: android.view.View
     private val backgroundDrawable: TelegramGlassBackgroundDrawable
 
     companion object {
@@ -47,14 +48,18 @@ class EveBottomPillBar @JvmOverloads constructor(
         const val TAB_PROFILE = 3
     }
 
-    private var currentPalette: TelegramThemeEngine.ResolvedPalette? = null
+    internal var currentPalette: TelegramThemeEngine.ResolvedPalette? = null
 
     init {
         clipChildren = false
         clipToPadding = false
 
         backgroundDrawable = TelegramGlassBackgroundDrawable(context)
-        background = backgroundDrawable
+        glassBackgroundView = android.view.View(context).apply {
+            layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+            background = backgroundDrawable
+        }
+        addView(glassBackgroundView)
 
         tabsLayout = MainTabsLayout(context).apply {
             layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, dp(56))
@@ -103,8 +108,41 @@ class EveBottomPillBar @JvmOverloads constructor(
 
     fun getSelectedTab(): Int = tabsLayout.getSelectedTabPosition()
 
+    private var currentTabListener: MainTabsLayout.TabSelectionListener? = null
+
     fun setTabSelectionListener(listener: MainTabsLayout.TabSelectionListener) {
+        currentTabListener = listener
         tabsLayout.setTabSelectionListener(listener)
+    }
+
+    fun setOnTabSelectedListener(listener: (Int) -> Unit) {
+        val prev = currentTabListener
+        val combined = object : MainTabsLayout.TabSelectionListener {
+            override fun onTabSelected(position: Int) {
+                listener(position)
+                prev?.onTabSelected(position)
+            }
+            override fun onTabReselected(position: Int) {
+                prev?.onTabReselected(position)
+            }
+        }
+        currentTabListener = combined
+        tabsLayout.setTabSelectionListener(combined)
+    }
+
+    fun setOnTabReselectedListener(listener: (Int) -> Unit) {
+        val prev = currentTabListener
+        val combined = object : MainTabsLayout.TabSelectionListener {
+            override fun onTabSelected(position: Int) {
+                prev?.onTabSelected(position)
+            }
+            override fun onTabReselected(position: Int) {
+                listener(position)
+                prev?.onTabReselected(position)
+            }
+        }
+        currentTabListener = combined
+        tabsLayout.setTabSelectionListener(combined)
     }
 
     fun setUserAvatar(photoUrl: String?) {
@@ -125,7 +163,7 @@ class EveBottomPillBar @JvmOverloads constructor(
         backgroundDrawable.setPalette(palette)
         tabsLayout.updatePalette(palette)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            LiquidGlassHelper.apply(this, context, palette)
+            LiquidGlassHelper.apply(glassBackgroundView, context, palette)
         }
         invalidate()
     }
@@ -133,7 +171,7 @@ class EveBottomPillBar @JvmOverloads constructor(
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && currentPalette != null) {
-            LiquidGlassHelper.apply(this, context, currentPalette!!)
+            LiquidGlassHelper.apply(glassBackgroundView, context, currentPalette!!)
         }
     }
 
@@ -278,18 +316,32 @@ class EveBottomPillBar @JvmOverloads constructor(
                     val code = context.resources.openRawResource(R.raw.liquid_glass_shader).bufferedReader().use { it.readText() }
                     runtimeShader = android.graphics.RuntimeShader(code)
                 }
-                val shader = runtimeShader ?: return
+                val shader = runtimeShader ?: run {
+                    view.setRenderEffect(null)
+                    return
+                }
                 val w = view.width.toFloat()
                 val h = view.height.toFloat()
-                if (w <= 0f || h <= 0f) return
+                if (w <= 0f || h <= 0f) {
+                    view.setRenderEffect(null)
+                    return
+                }
 
                 val density = context.resources.displayMetrics.density
                 val radius = 28f * density
+
+                // In Telegram's liquid_glass_shader.agsl:
+                // srcOver(foreground_color_premultiplied, img.eval(uv))
+                // outRGB = src.rgb + dst.rgb * (1.0 - src.a)
+                // A direct opaque palette target (alpha=1.0) zeroes out sampled backdrop.
+                // Translucent coating alpha (0.55f) ensures the backdrop is refracted and visible.
                 val bgTarget = palette.glassTargetMainTabs
-                val a = Color.alpha(bgTarget) / 255f
-                val r = Color.red(bgTarget) / 255f * a
-                val g = Color.green(bgTarget) / 255f * a
-                val b = Color.blue(bgTarget) / 255f * a
+                val bgSurface = palette.surface
+                val coating = TelegramThemeEngine.solveSrcColor(bgSurface, bgTarget, 0.55f)
+                val a = (Color.alpha(coating) / 255f).coerceIn(0.20f, 0.70f)
+                val r = Color.red(coating) / 255f * a
+                val g = Color.green(coating) / 255f * a
+                val b = Color.blue(coating) / 255f * a
 
                 shader.setFloatUniform("resolution", w, h)
                 shader.setFloatUniform("center", w / 2f, h / 2f)
@@ -303,7 +355,8 @@ class EveBottomPillBar @JvmOverloads constructor(
                 val effect = android.graphics.RenderEffect.createRuntimeShaderEffect(shader, "img")
                 view.setRenderEffect(effect)
             } catch (_: Throwable) {
-                // Fallback to coating fill without shader
+                // Supported fallback: clear render effect, backgroundDrawable draws solid coating & strokes
+                view.setRenderEffect(null)
             }
         }
     }

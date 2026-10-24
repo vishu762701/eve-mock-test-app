@@ -21,18 +21,21 @@ abstract class EveBaseActivity : AppCompatActivity() {
         super.setContentView(layoutResID)
         com.eve.app.util.SystemBarHelper.syncSystemBars(this)
         applyTypographyIfSafe()
+        onApplyThemePalette(com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(this))
     }
 
     override fun setContentView(view: View?) {
         super.setContentView(view)
         com.eve.app.util.SystemBarHelper.syncSystemBars(this)
         applyTypographyIfSafe()
+        onApplyThemePalette(com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(this))
     }
 
     override fun setContentView(view: View?, params: ViewGroup.LayoutParams?) {
         super.setContentView(view, params)
         com.eve.app.util.SystemBarHelper.syncSystemBars(this)
         applyTypographyIfSafe()
+        onApplyThemePalette(com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(this))
     }
 
     override fun onResume() {
@@ -66,8 +69,7 @@ abstract class EveBaseActivity : AppCompatActivity() {
     }
 
     protected open fun onApplyThemePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
-        val root = findViewById<View>(android.R.id.content)
-        root?.setBackgroundColor(palette.windowBackground)
+        com.eve.app.theme.TelegramThemeApplier.applyToActivity(this, palette)
         com.eve.app.util.SystemBarHelper.syncSystemBars(this)
     }
 
