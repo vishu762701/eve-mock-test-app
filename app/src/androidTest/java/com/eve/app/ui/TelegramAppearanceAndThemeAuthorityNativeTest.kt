@@ -112,6 +112,10 @@ class TelegramAppearanceAndThemeAuthorityNativeTest {
                     pill.width > 0 && pill.height > 0 && pill.isLaidOut)
                 assertEquals("A MATCH_PARENT glass child must never expand the 56dp navigation pill",
                     (56f * activity.resources.displayMetrics.density).toInt(), pill.height)
+                assertEquals("Glass coating must be confined to the 56dp bar, not the Home viewport",
+                    pill.height, pill.glassBackgroundView.height)
+                assertTrue("The complete glass pill must respect Telegram's 344dp maximum",
+                    pill.width <= (344f * activity.resources.displayMetrics.density).toInt())
                 assertEquals("Window traversal must preserve bottom gravity",
                     Gravity.BOTTOM, lp.gravity and Gravity.VERTICAL_GRAVITY_MASK)
                 assertEquals("Window traversal must preserve horizontal centering",
