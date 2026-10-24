@@ -103,7 +103,7 @@ run_instrumentation() {
     com.eve.app.test/androidx.test.runner.AndroidJUnitRunner \
     | tee "$instrumentation_log" || run_status=$?
   local report=""
-  if ! report="$(python3 "$(dirname "${BASH_SOURCE[0]}")/ci_instrumentation_report.py "$instrumentation_log")"; then
+  if ! report="$(python3 "$(dirname "${BASH_SOURCE[0]}")/ci_instrumentation_report.py" "$instrumentation_log")"; then
     run_status=1
   else
     echo "$report"
@@ -127,9 +127,11 @@ run_instrumentation() {
 status=0
 # Keep the full existing package suite, excluding exactly the long rendering
 # method. The 52-test minimum ensures the avatar contrast test is not lost.
-if ! run_instrumentation core -e package com.eve.app.ui \
+if run_instrumentation core -e package com.eve.app.ui \
     -e notClass com.eve.app.ui.StudentUiRenderingTest#allStudentScreensRenderInBothThemesAndPhoneSizes; then
-  status=1
+  :
+else
+  status=$?
 fi
 
 # Derive shards from the production-layout fixture registry itself: no copied
@@ -155,10 +157,12 @@ PY
     [[ -n "$visual_cases" ]] || continue
     shard=$((shard + 1))
     echo "Native visual shard $shard: $visual_cases"
-    if ! run_instrumentation "visual-$shard" \
+    if run_instrumentation "visual-$shard" \
         -e class com.eve.app.ui.StudentUiRenderingTest#allStudentScreensRenderInBothThemesAndPhoneSizes \
         -e visualCases "$visual_cases"; then
-      status=1
+      :
+    else
+      status=$?
       break
     fi
   done <<< "$case_batches"

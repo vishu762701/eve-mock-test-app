@@ -1,5 +1,6 @@
 """Host-side contract tests: UI failures must remain failures and retain evidence."""
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -15,6 +16,10 @@ class NativeUiRunnerTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             log = root / 'commands.log'
+            fixture_source = Path(__file__).resolve().parents[3] / 'app/src/androidTest/java/com/eve/app/ui/StudentUiRenderingTest.kt'
+            fixture_copy = root / 'app/src/androidTest/java/com/eve/app/ui/StudentUiRenderingTest.kt'
+            fixture_copy.parent.mkdir(parents=True)
+            fixture_copy.write_text(fixture_source.read_text())
             for name, body in {
                 'adb': f'''#!{BASH}
 printf 'adb %s\\n' "$*" >> "$COMMAND_LOG"
@@ -26,15 +31,19 @@ case "$*" in
     if (( count < PENDING_READS )); then echo 2; else echo "$OBSERVED_MODE"; fi ;;
   'shell pm path com.android.deskclock') exit 1 ;;
   'shell am instrument '*)
-    echo 'INSTRUMENTATION_STATUS: class=com.eve.app.ui.Fixture'
-    echo 'INSTRUMENTATION_STATUS: test=ok'
-    echo 'INSTRUMENTATION_STATUS: numtests=1'
-    echo 'INSTRUMENTATION_STATUS_CODE: 1'
-    if [[ "$INSTRUMENT_FAIL" == "1" ]]; then
-      echo 'INSTRUMENTATION_STATUS_CODE: -2'
-    else
-      echo 'INSTRUMENTATION_STATUS_CODE: 0'
-    fi
+    count=1
+    [[ "$*" != *" -e notClass "* ]] || count=52
+    for ((i=1; i<=count; i++)); do
+      echo 'INSTRUMENTATION_STATUS: class=com.eve.app.ui.Fixture'
+      echo "INSTRUMENTATION_STATUS: test=ok$i"
+      echo "INSTRUMENTATION_STATUS: numtests=$count"
+      echo 'INSTRUMENTATION_STATUS_CODE: 1'
+      if [[ "$INSTRUMENT_FAIL" == "1" ]]; then
+        echo 'INSTRUMENTATION_STATUS_CODE: -2'
+      else
+        echo 'INSTRUMENTATION_STATUS_CODE: 0'
+      fi
+    done
     echo 'INSTRUMENTATION_CODE: -1'
     exit "$GRADLE_STATUS" ;;
 esac
@@ -55,12 +64,21 @@ esac
             evidence = sorted(p.name for p in (root / 'ui-renderings').iterdir())
             return result, commands, evidence
 
-    def test_each_mode_runs_full_suite_once_and_retains_evidence(self):
+    def test_each_mode_runs_full_suite_and_all_rendering_shards(self):
         for mode, overlay in [('gesture', 'gestural'), ('three-button', 'threebutton')]:
             with self.subTest(mode=mode):
                 result, commands, evidence = self.run_script(mode)
                 self.assertEqual(0, result.returncode, result.stderr)
-                self.assertEqual(1, commands.count('adb shell am instrument -w -r'))
+                self.assertEqual(5, commands.count('adb shell am instrument -w -r'))
+                self.assertIn('-e notClass com.eve.app.ui.StudentUiRenderingTest#allStudentScreensRenderInBothThemesAndPhoneSizes', commands)
+                visual_lines = [line for line in commands.splitlines() if ' -e visualCases ' in line]
+                self.assertEqual(4, len(visual_lines))
+                source = (Path(__file__).resolve().parents[3] / 'app/src/androidTest/java/com/eve/app/ui/StudentUiRenderingTest.kt').read_text()
+                block = re.search(r"private val cases = linkedMapOf\\((.*?)\\n    \\)", source, re.S)
+                self.assertIsNotNone(block)
+                expected = re.findall(r'"([^"]+)"\\s+to\\s+R\\.layout\\.', block.group(1))
+                actual = [case for line in visual_lines for case in line.split(' -e visualCases ', 1)[1].split(' ', 1)[0].split(',')]
+                self.assertCountEqual(expected, actual)
                 self.assertIn('adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk', commands)
                 self.assertIn(f'-e navigationMode {mode}', commands)
                 self.assertIn('-e package com.eve.app.ui', commands)
