@@ -6,6 +6,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.ui.navigation.EveBottomPillBar
+import com.eve.app.ui.navigation.MainTabsLayout
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -75,8 +76,10 @@ class TelegramAppearanceAndThemeAuthorityNativeTest {
             // Select tab 1 without notifying listeners (lifecycle restore behavior)
             var selectedCalled = false
             var reselectedCalled = false
-            pillBar.setOnTabSelectedListener { selectedCalled = true }
-            pillBar.setOnTabReselectedListener { reselectedCalled = true }
+            pillBar.setTabSelectionListener(object : MainTabsLayout.TabSelectionListener {
+                override fun onTabSelected(position: Int) { selectedCalled = true }
+                override fun onTabReselected(position: Int) { reselectedCalled = true }
+            })
 
             pillBar.selectTab(1, animated = false, notify = false)
             assertEquals(1, pillBar.getSelectedTab())
