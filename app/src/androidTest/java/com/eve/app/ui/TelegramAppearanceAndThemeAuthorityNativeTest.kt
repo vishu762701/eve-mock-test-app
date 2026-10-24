@@ -171,6 +171,9 @@ class TelegramAppearanceAndThemeAuthorityNativeTest {
                     for (index in 0 until tabs.tabCount) {
                         val tab = requireNotNull(tabs.getTabAt(index))
                         tab.select()
+                        // The global palette traversal must not recolor selected
+                        // onAccent labels as ordinary primary TextViews.
+                        com.eve.app.theme.TelegramThemeApplier.applyToViewTree(tabs, palette)
                         val label = tab.customView as android.widget.TextView
                         val fill = (tabs.tabSelectedIndicator as android.graphics.drawable.GradientDrawable)
                             .color!!.getColorForState(tabs.drawableState, 0)

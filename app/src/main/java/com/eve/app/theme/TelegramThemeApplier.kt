@@ -54,7 +54,11 @@ object TelegramThemeApplier {
                 view.updateThemePalette(palette)
             }
             is DesignSegmentedTabs -> {
+                // TabLayout owns its selected/unselected label colors. Recursing into
+                // its child TextViews would classify onAccent BLACK/WHITE as a generic
+                // primary text role and overwrite it with textPrimary.
                 view.updatePalette(palette)
+                return
             }
             is DesignGlassLayout -> {
                 view.updatePalette(palette)
