@@ -129,6 +129,30 @@ class TelegramAppearanceAndThemeAuthorityNativeTest {
     }
 
     @Test
+    fun mainTabLabelWeightsMatchTelegramOnRealAndroidTypeface() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        instrumentation.runOnMainSync {
+            val context = instrumentation.targetContext
+            val tab = com.eve.app.ui.navigation.GlassTabView(context)
+            tab.configureAsIcon(com.eve.app.R.drawable.msg_home, "Home")
+            tab.setSelectedTab(false, false)
+            if (android.os.Build.VERSION.SDK_INT >= 28) {
+                assertEquals("Unselected tab must render at Android font weight 700",
+                    700, tab.textView.typeface.weight)
+            } else {
+                assertTrue(tab.textView.typeface.isBold)
+            }
+            tab.setSelectedTab(true, false)
+            if (android.os.Build.VERSION.SDK_INT >= 28) {
+                assertEquals("Selected tab must render at Telegram ExtraBold weight 800",
+                    800, tab.textView.typeface.weight)
+            } else {
+                assertTrue(tab.textView.typeface.isBold)
+            }
+        }
+    }
+
+    @Test
     fun bottomPillBarMeetsTouchTargetAndPreservesProgrammaticState() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = instrumentation.targetContext
