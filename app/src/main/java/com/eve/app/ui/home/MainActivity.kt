@@ -464,18 +464,6 @@ class MainActivity : EveBaseActivity() {
         if (::binding.isInitialized) {
             setupDrawerPremiumStar()
         }
-        // Debug source set owns the visible probe; release variant is a no-op.
-        HomeLayoutDiagnostic.report(
-            this, binding.drawerLayout, bottomPill,
-            listOf(
-                "maintenance" to binding.maintenanceOverlay,
-                "forceUpdate" to binding.forceUpdateOverlay,
-                "loadingHome" to binding.loadingHome,
-                "progressGroup" to binding.progressGroup,
-                "drawerBlur" to binding.ivDrawerGlassBlurBackground,
-                "mainContent" to binding.mainContentContainer
-            )
-        )
     }
 
     override fun onPause() {
