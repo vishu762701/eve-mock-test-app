@@ -56,4 +56,19 @@ class TelegramIconSourceRegistryTest {
             assertEquals("Unregistered or missing density for $icon", expectedPaths, actualPaths)
         }
     }
+
+    @Test fun homeNotificationFallbackUsesPinnedTelegramBell() {
+        val root = listOf(File(".."), File("."))
+            .first { File(it, "docs/telegram-icon-source-registry.tsv").isFile }
+        val registry = File(root, "docs/telegram-icon-source-registry.tsv").readLines()
+            .first { it.startsWith("ic_bell\t") }
+        assertTrue(registry.contains("OFFICIAL_TELEGRAM_GPL_ART_IMPORTED"))
+        assertTrue(registry.contains("res/drawable-hdpi/msg_notifications.webp"))
+        val home = File(root, "app/src/main/res/layout/activity_main.xml").readText()
+        assertTrue(home.contains("android:id=\"@+id/ivNotificationIdle\""))
+        val fallback = Regex("<ImageView[^>]*android:id=\"@\\+id/ivNotificationIdle\"[^>]*/>")
+            .find(home)?.value ?: throw AssertionError("Home bell fallback missing")
+        assertTrue("Use the already hash-verified source bell", fallback.contains("android:src=\"@drawable/ic_bell\""))
+        assertTrue("Preserve existing Lottie", home.contains("app:lottie_rawRes=\"@raw/notification_bell\""))
+    }
 }
