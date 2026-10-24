@@ -122,8 +122,14 @@ Two further original Telegram static RGBA icons from the owner-supplied official
 The EVE loading spinner in `app/src/main/java/com/eve/app/designsystem/TelegramRadialProgressView.kt`
 adapts the animation and stroke/arc calculations in Telegram Android
 `TMessagesProj/src/main/java/org/telegram/ui/Components/RadialProgressView.java`
-(Copyright Nikolai Kudashov, 2013–2018; GNU GPL version 2 or later).
+(Copyright Nikolai Kudashov, 2013–2018; GNU GPL version 2 or later,
+explicitly stated in the Java file header at upstream commit
+`0aae959806c57be8ad457980f2a5c6277ff18635`).
 EVE-specific modifications: AndroidUtilities dp calls replaced with local density
 calculation, Telegram Theme progressCircle replaced with the EVE resolved accent
-color, Java source translated to Kotlin, and XML-friendly constructor added.
-No Telegram service marks or strings are imported.
+color, Java source translated to Kotlin, XML-friendly constructor, and an EVE
+`TelegramRadialProgressIcon.kt` Drawable bridge. This is not verbatim source
+reuse and exact behavioural parity has not been independently established.
+No Telegram service marks or strings are imported. This file-specific license
+header does not establish compatibility for all other Telegram assets or the
+combined release binary; the production GPL release gate remains mandatory.

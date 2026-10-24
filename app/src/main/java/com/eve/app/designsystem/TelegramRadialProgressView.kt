@@ -11,13 +11,16 @@ import android.view.animation.DecelerateInterpolator
 import com.eve.app.theme.TelegramThemeEngine
 
 /**
- * EVE-branded Android adaptation of Telegram Android's RadialProgressView.java.
- * Source: TMessagesProj/src/main/java/org/telegram/ui/Components/RadialProgressView.java
- * Licensed under GNU GPL-2.0-or-later; see THIRD_PARTY_NOTICES.md.
+ * Kotlin adaptation of Telegram Android's RadialProgressView.java.
+ * Upstream: TMessagesProj/src/main/java/org/telegram/ui/Components/RadialProgressView.java
+ * Copyright Nikolai Kudashov, 2013-2018; GNU GPL v. 2 or later (upstream file header).
+ * Reference: DrKLO/Telegram at 0aae959806c57be8ad457980f2a5c6277ff18635.
  *
- * Original animation constants, arc maths, interpolation, time clamping and
- * progress-transition behaviour are retained. Only the dp and EVE palette
- * accessors replace the source application's AndroidUtilities / Theme APIs.
+ * Modified for EVE: Java-to-Kotlin translation, palette and density accessors,
+ * XML constructors, and drawAt() Drawable integration. This is NOT verbatim
+ * source reuse or independently verified exact runtime parity.
+ * Distribution still requires dependency compatibility and corresponding-source
+ * review; see THIRD_PARTY_NOTICES.md and docs/telegram-release-compliance-gate.md.
  */
 class TelegramRadialProgressView @JvmOverloads constructor(
     context: Context,
