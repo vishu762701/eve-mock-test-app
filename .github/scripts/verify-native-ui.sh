@@ -102,9 +102,11 @@ run_instrumentation() {
   shift
   local instrumentation_log="ui-renderings/instrumentation-${mode}-${label}.log"
   local run_status=0
+  # adb shell can consume the loop stdin that holds subsequent visual shard names.
+  # Disconnect stdin without altering test selection, timeout, or failure handling.
   timeout 660s adb shell am instrument -w -r \
     -e navigationMode "$mode" "$@" \
-    com.eve.app.test/androidx.test.runner.AndroidJUnitRunner \
+    com.eve.app.test/androidx.test.runner.AndroidJUnitRunner </dev/null \
     | tee "$instrumentation_log" || run_status=$?
   local report=""
   if ! report="$(python3 "$(dirname "${BASH_SOURCE[0]}")/ci_instrumentation_report.py" "$instrumentation_log")"; then

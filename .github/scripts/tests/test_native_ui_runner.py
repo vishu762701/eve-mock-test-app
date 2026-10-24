@@ -12,7 +12,8 @@ BASH = shutil.which('bash') or '/bin/bash'
 
 
 class NativeUiRunnerTest(unittest.TestCase):
-    def run_script(self, mode, status=0, observed=None, pending_reads=0, assertion_failure=False):
+    def run_script(self, mode, status=0, observed=None, pending_reads=0, assertion_failure=False,
+                   drain_instrument_stdin=False):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             log = root / 'commands.log'
@@ -31,6 +32,8 @@ case "$*" in
     if (( count < PENDING_READS )); then echo 2; else echo "$OBSERVED_MODE"; fi ;;
   'shell pm path com.android.deskclock') exit 1 ;;
   'shell am instrument '*)
+    # Simulate adb shell consuming all available stdin.
+    if [[ "$DRAIN_INSTRUMENT_STDIN" == "1" ]]; then cat >/dev/null; fi
     count=1
     [[ "$*" != *" -e notClass "* ]] || count=52
     for ((i=1; i<=count; i++)); do
@@ -57,6 +60,7 @@ esac
                        OBSERVED_MODE=str(observed if observed is not None else (2 if mode == 'gesture' else 0)),
                        GRADLE_STATUS=str(status), INSTRUMENT_FAIL='1' if assertion_failure else '0',
                        PENDING_READS=str(pending_reads),
+                       DRAIN_INSTRUMENT_STDIN='1' if drain_instrument_stdin else '0',
                        READ_COUNT=str(root / 'read-count'))
             result = subprocess.run(['bash', str(SCRIPT), mode], cwd=root, env=env,
                                     capture_output=True, text=True)
@@ -91,6 +95,14 @@ esac
                 self.assertNotIn('adb reboot', commands)
                 self.assertIn('adb pull /sdcard/Pictures/eve-approved-ui', commands)
                 self.assertIn('process-failures.log', evidence)
+
+    def test_adb_stdin_cannot_consume_remaining_visual_shards(self):
+        for mode in ['gesture', 'three-button']:
+            with self.subTest(mode=mode):
+                result, commands, _ = self.run_script(mode, drain_instrument_stdin=True)
+                self.assertEqual(0, result.returncode, result.stderr)
+                self.assertEqual(5, commands.count('adb shell am instrument -w -r'))
+                self.assertEqual(4, commands.count(' -e visualCases '))
 
     def test_instrumentation_failure_is_not_swallowed(self):
         for mode in ['gesture', 'three-button']:
