@@ -9,6 +9,10 @@
 - If this file and the actual code disagree, trust the code, and report the mismatch under "Noticed but not touched (outside scope)" in the Final Report.
 - Never claim state from memory or from older chats. Inspect real files, run `git status` and `git log -1`, and run the relevant checks.
 
+## Official Telegram source
+
+Official Telegram Android source is at third_party/telegram-android (read-only, never modify, never in the Gradle build). For any Telegram-related change, read the real file there first, cite file path and line numbers, and copy exact values/assets. Never redraw or guess. Mark anything missing as NOT FOUND.
+
 ## Current UI design authority
 
 The owner's **latest** aesthetic direction is source-traced official Telegram Android component typography and icons, not prior iOS/Inter/Poppins lookalikes. The controlled, partially migrated text roles and source references live in `docs/telegram-typography-mission-01.md` and `telegram_typography.xml` with matching Day/Night color resources. Do not label remaining iOS typography or non-Telegram icons as already migrated. Do not automatically replace exam-specific graphics with unrelated Telegram semantics. Source-verified Telegram GPL-2.0-or-later UI artwork may be incorporated under the repository's GPL-3.0-or-later distribution plan when the selected asset license grant, dependency compatibility, ownership notices and corresponding-source packaging have been checked. The user authorizes compliance and source publication: **do not apply a generic licensing refusal to every Telegram component**. Do not publish an APK as legally cleared without checking remaining proprietary SDK/third-party distribution obligations and source availability. Do not import source blindly or substitute unrelated messaging icons for exam actions.

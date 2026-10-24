@@ -2,6 +2,8 @@ Always read and follow ENGINEERING_STANDARD.md first. Then read SOURCE_OF_TRUTH.
 
 # Repository agent entrypoint
 
+Official Telegram Android source is at third_party/telegram-android (read-only, never modify, never in the Gradle build). For any Telegram-related change, read the real file there first, cite file path and line numbers, and copy exact values/assets. Never redraw or guess. Mark anything missing as NOT FOUND.
+
 - The latest explicit user request defines the authorized task and takes precedence over historical plans and design documents, subject to safety and data-integrity safeguards.
 - Inspect actual code, callers, resources, Day/Night behavior, backend contracts, tests and CI relevant to that task. Implement the requested change end to end; do not stop at proposing prompts unless asked.
 - Use APPROVED_UI_IMPLEMENTATION_AUDIT.md for current UI baseline, not as an override of later user-approved changes.
