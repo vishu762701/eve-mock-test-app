@@ -214,6 +214,13 @@ object ThemeManager {
         AppCompatDelegate.setDefaultNightMode(
             if (isDarkModeTarget) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
         )
+        try {
+            com.eve.app.theme.TelegramThemeEngine.setCommittedMode(
+                if (isDarkModeTarget) com.eve.app.theme.TelegramThemeEngine.ThemeMode.NIGHT
+                else com.eve.app.theme.TelegramThemeEngine.ThemeMode.DAY,
+                context
+            )
+        } catch (_: Throwable) {}
     }
 
     private fun areAnimationsEnabled(context: Context): Boolean {

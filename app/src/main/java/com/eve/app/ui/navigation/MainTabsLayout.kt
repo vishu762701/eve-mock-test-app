@@ -55,15 +55,11 @@ class MainTabsLayout @JvmOverloads constructor(
         }
     }
 
-    fun selectTab(position: Int, animated: Boolean = true) {
+    fun selectTab(position: Int, animated: Boolean = true, notify: Boolean = true) {
         val count = childCount
         if (position < 0 || position >= count) return
 
-        if (selectedTabPosition == position) {
-            tabSelectionListener?.onTabReselected(position)
-            return
-        }
-
+        val reselected = (selectedTabPosition == position)
         selectedTabPosition = position
         for (i in 0 until count) {
             val child = getChildAt(i)
@@ -71,7 +67,13 @@ class MainTabsLayout @JvmOverloads constructor(
                 child.setSelectedTab(i == position, animated)
             }
         }
-        tabSelectionListener?.onTabSelected(position)
+        if (notify) {
+            if (reselected) {
+                tabSelectionListener?.onTabReselected(position)
+            } else {
+                tabSelectionListener?.onTabSelected(position)
+            }
+        }
     }
 
     fun getSelectedTabPosition(): Int = selectedTabPosition

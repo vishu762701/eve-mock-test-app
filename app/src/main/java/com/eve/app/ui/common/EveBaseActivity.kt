@@ -50,6 +50,27 @@ abstract class EveBaseActivity : AppCompatActivity() {
         if (hasFocus) com.eve.app.util.SystemBarHelper.syncSystemBars(this)
     }
 
+    private val themePaletteListener: (com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) -> Unit = { palette ->
+        onApplyThemePalette(palette)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        com.eve.app.theme.TelegramThemeEngine.addThemeChangeListener(themePaletteListener)
+        onApplyThemePalette(com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(this))
+    }
+
+    override fun onStop() {
+        super.onStop()
+        com.eve.app.theme.TelegramThemeEngine.removeThemeChangeListener(themePaletteListener)
+    }
+
+    protected open fun onApplyThemePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+        val root = findViewById<View>(android.R.id.content)
+        root?.setBackgroundColor(palette.windowBackground)
+        com.eve.app.util.SystemBarHelper.syncSystemBars(this)
+    }
+
     private fun applyTypographyIfSafe() {
         try {
             com.eve.app.typography.TypographyApplier.applyToActivity(this)

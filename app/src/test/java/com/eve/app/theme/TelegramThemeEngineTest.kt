@@ -140,6 +140,7 @@ class TelegramThemeEngineTest {
     }
 
     @Test
+    @Test
     fun resetPreviewCanBeCancelledWithoutPersistingDefaults() {
         val context = org.robolectric.RuntimeEnvironment.getApplication()
         TelegramThemeEngine.init(context)
@@ -169,5 +170,104 @@ class TelegramThemeEngineTest {
             TelegramThemeEngine.setPreviewMode(previousMode, context)
             TelegramThemeEngine.applyChanges(context)
         }
+    }
+
+    @Test
+    fun testFallbackKeyResolution() {
+        val colors = mapOf(
+            "windowBackgroundWhite" to 0xFFEEDDCC.toInt()
+        )
+        // With only windowBackgroundWhite present:
+        // dialogBackground falls back to windowBackgroundWhite
+        // glass_targetMainTabs falls back to dialogBackground -> windowBackgroundWhite
+        val targetColor = TelegramThemeEngine.FALLBACK_KEYS["glass_targetMainTabs"]
+        assertEquals("dialogBackground", targetColor)
+        val dialogBgFallback = TelegramThemeEngine.FALLBACK_KEYS["dialogBackground"]
+        assertEquals("windowBackgroundWhite", dialogBgFallback)
+    }
+
+    @Test
+    fun testParseColorValueValidation() {
+        // Valid 32-bit hex
+        assertEquals(0xFF112233.toInt(), TelegramThemeEngine.parseColorValue("#FF112233"))
+        // Valid signed decimal
+        assertEquals(-1, TelegramThemeEngine.parseColorValue("-1"))
+        // Out of range (greater than 0xFFFFFFFF)
+        assertEquals(null, TelegramThemeEngine.parseColorValue("4294967296"))
+        // Invalid string
+        assertEquals(null, TelegramThemeEngine.parseColorValue("not_a_color"))
+    }
+
+    @Test
+    fun testRegisterCustomThemeRejectsUnrecognizedKeys() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        val file = java.io.File(context.filesDir, "custom_${System.nanoTime().toString().replace("-", "")}.attheme")
+        try {
+            file.writeText("unknown_arbitrary_key=12345\nother_bogus_key=67890\n")
+            val registered = TelegramThemeEngine.registerCustomTheme(context, file)
+            assertEquals("Theme without recognized keys must be rejected", null, registered)
+        } finally {
+            file.delete()
+        }
+    }
+
+    @Test
+    fun testTransactionalPreviewLifecycle() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        TelegramThemeEngine.init(context)
+
+        // Capture starting committed state
+        val initialDayTheme = TelegramThemeEngine.getDayThemeId()
+        val initialMode = TelegramThemeEngine.getThemeMode()
+
+        // Begin preview
+        TelegramThemeEngine.beginPreview()
+        TelegramThemeEngine.setPreviewDayTheme("arctic", 1, context)
+        TelegramThemeEngine.setPreviewMode(TelegramThemeEngine.ThemeMode.NIGHT, context)
+
+        assertEquals("arctic", TelegramThemeEngine.getDayThemeId())
+        assertEquals(TelegramThemeEngine.ThemeMode.NIGHT, TelegramThemeEngine.getThemeMode())
+
+        // Cancel preview restores initial committed values
+        TelegramThemeEngine.cancelPreview(context)
+        assertEquals(initialDayTheme, TelegramThemeEngine.getDayThemeId())
+        assertEquals(initialMode, TelegramThemeEngine.getThemeMode())
+
+        // Begin preview and resetPreviewToDefaults
+        TelegramThemeEngine.beginPreview()
+        TelegramThemeEngine.resetPreviewToDefaults(context)
+        assertEquals("day", TelegramThemeEngine.getDayThemeId())
+        assertEquals(9, TelegramThemeEngine.getDayAccentId())
+        assertEquals("night", TelegramThemeEngine.getNightThemeId())
+        assertEquals(0, TelegramThemeEngine.getNightAccentId())
+
+        // Cancel preview restores initial committed values even after resetPreviewToDefaults
+        TelegramThemeEngine.cancelPreview(context)
+        assertEquals(initialDayTheme, TelegramThemeEngine.getDayThemeId())
+        assertEquals(initialMode, TelegramThemeEngine.getThemeMode())
+    }
+
+    @Test
+    fun testSingleModeAuthoritySync() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        TelegramThemeEngine.init(context)
+
+        TelegramThemeEngine.setCommittedMode(TelegramThemeEngine.ThemeMode.NIGHT, context)
+        assertEquals(TelegramThemeEngine.ThemeMode.NIGHT, TelegramThemeEngine.getThemeMode())
+        assertEquals(
+            androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES,
+            androidx.appcompat.app.AppCompatDelegate.getDefaultNightMode()
+        )
+
+        val tmPrefs = context.getSharedPreferences(com.eve.app.util.ThemeManager.PREFS, android.content.Context.MODE_PRIVATE)
+        assertTrue(tmPrefs.getBoolean(com.eve.app.util.ThemeManager.KEY_DARK_MODE, false))
+
+        // Reset to system
+        TelegramThemeEngine.setCommittedMode(TelegramThemeEngine.ThemeMode.SYSTEM, context)
+        assertEquals(TelegramThemeEngine.ThemeMode.SYSTEM, TelegramThemeEngine.getThemeMode())
+        assertEquals(
+            androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM,
+            androidx.appcompat.app.AppCompatDelegate.getDefaultNightMode()
+        )
     }
 }

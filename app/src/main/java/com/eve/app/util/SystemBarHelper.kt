@@ -167,9 +167,9 @@ object SystemBarHelper {
         val window = activity.window ?: return
         val decorView = window.decorView
 
-        val isDarkAppearance = activity.resources.configuration.uiMode and
-            android.content.res.Configuration.UI_MODE_NIGHT_MASK == android.content.res.Configuration.UI_MODE_NIGHT_YES
-        val background = ContextCompat.getColor(activity, R.color.bg_app)
+        val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(activity)
+        val isDarkAppearance = palette.isDark
+        val background = palette.windowBackground
         window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(background))
         activity.findViewById<View>(android.R.id.content)?.setBackgroundColor(background)
         window.statusBarColor = ContextCompat.getColor(activity, R.color.transparent)

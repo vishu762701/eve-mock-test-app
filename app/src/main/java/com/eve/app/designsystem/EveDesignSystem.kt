@@ -53,14 +53,11 @@ object EveDesignSystem {
             isChecked = isSelected
             DesignType.apply(this, DesignType.Role.CHIP)
             chipStrokeWidth = 0f
-            // Preserve the approved adaptive monochrome category-chip contract.
-            // Telegram theme accents apply to opt-in surfaces, not locked Home chips.
-            val chipAccent = ContextCompat.getColor(context, R.color.accent)
-            val chipOnAccent = ContextCompat.getColor(context, R.color.on_accent)
-            chipBackgroundColor = android.content.res.ColorStateList.valueOf(chipAccent)
-            setTextColor(chipOnAccent)
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
+            chipBackgroundColor = android.content.res.ColorStateList.valueOf(palette.accent)
+            setTextColor(palette.onAccent)
             setCheckedIconResource(R.drawable.ic_target_exam_checked)
-            checkedIconTint = android.content.res.ColorStateList.valueOf(chipOnAccent)
+            checkedIconTint = android.content.res.ColorStateList.valueOf(palette.onAccent)
             isCheckedIconVisible = true
             setEnsureMinTouchTargetSize(true)
             chipMinHeight = resources.getDimension(R.dimen.design_pill_height)

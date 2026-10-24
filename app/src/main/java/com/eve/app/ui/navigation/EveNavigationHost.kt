@@ -46,7 +46,7 @@ object EveNavigationHost {
             root.addView(this)
         }
 
-        pill.selectTab(currentTab, false)
+        pill.selectTab(currentTab, animated = false, notify = false)
 
         // Load profile avatar
         val user = FirebaseAuth.getInstance().currentUser
@@ -90,7 +90,7 @@ object EveNavigationHost {
 
         activity.lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onResume(owner: LifecycleOwner) {
-                pill.selectTab(currentTab, false)
+                pill.selectTab(currentTab, animated = false, notify = false)
                 val currentUser = FirebaseAuth.getInstance().currentUser
                 pill.setUserAvatar(currentUser?.photoUrl?.toString())
             }

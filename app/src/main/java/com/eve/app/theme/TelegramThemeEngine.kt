@@ -161,7 +161,7 @@ object TelegramThemeEngine {
         )
     )
 
-    private const val MAX_CUSTOM_THEME_BYTES = 512 * 1024
+    private const val MAX_CUSTOM_THEME_BYTES = 256 * 1024
     private val customThemeFileName = Regex("^custom_[0-9]+\\.attheme$")
     private val customThemes = mutableListOf<ThemeDefinition>()
     private val listeners = mutableListOf<(ResolvedPalette) -> Unit>()
@@ -183,6 +183,21 @@ object TelegramThemeEngine {
 
     private var initialized = false
 
+    val FALLBACK_KEYS: Map<String, String> = mapOf(
+        "glass_targetMainTabs" to "dialogBackground",
+        "glass_targetMainTopPanel" to "dialogBackground",
+        "glass_tabSelected" to "chat_messagePanelSend",
+        "glass_tabSelectedText" to "chat_messagePanelSend",
+        "glass_tabUnselected" to "windowBackgroundWhiteBlackText",
+        "dialogBackground" to "windowBackgroundWhite",
+        "windowBackgroundWhiteGrayText" to "windowBackgroundWhiteBlackText"
+    )
+
+    private val RECOGNIZED_THEME_KEYS = setOf(
+        "windowBackgroundGray", "windowBackgroundWhite", "chat_messagePanelSend",
+        "dialogBackground", "windowBackgroundWhiteBlackText", "windowBackgroundWhiteGrayText"
+    )
+
     fun init(context: Context) {
         if (initialized) return
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -190,10 +205,40 @@ object TelegramThemeEngine {
         committedDayAccentId = prefs.getInt(KEY_DAY_ACCENT, 9)
         committedNightThemeId = prefs.getString(KEY_NIGHT_THEME, "night") ?: "night"
         committedNightAccentId = prefs.getInt(KEY_NIGHT_ACCENT, 0)
-        val modeStr = prefs.getString(KEY_THEME_MODE, ThemeMode.SYSTEM.name) ?: ThemeMode.SYSTEM.name
-        committedMode = try { ThemeMode.valueOf(modeStr) } catch (_: Exception) { ThemeMode.SYSTEM }
+
+        // Deterministic migration from old ThemeManager preference if not yet stored
+        if (!prefs.contains(KEY_THEME_MODE)) {
+            val oldPrefs = context.getSharedPreferences(com.eve.app.util.ThemeManager.PREFS, Context.MODE_PRIVATE)
+            if (oldPrefs.contains(com.eve.app.util.ThemeManager.KEY_DARK_MODE)) {
+                val oldDark = oldPrefs.getBoolean(com.eve.app.util.ThemeManager.KEY_DARK_MODE, false)
+                committedMode = if (oldDark) ThemeMode.NIGHT else ThemeMode.DAY
+                prefs.edit().putString(KEY_THEME_MODE, committedMode.name).apply()
+            } else {
+                committedMode = ThemeMode.SYSTEM
+            }
+        } else {
+            val modeStr = prefs.getString(KEY_THEME_MODE, ThemeMode.SYSTEM.name) ?: ThemeMode.SYSTEM.name
+            committedMode = try { ThemeMode.valueOf(modeStr) } catch (_: Exception) { ThemeMode.SYSTEM }
+        }
+
+        // Synchronize NightMode globally
+        syncNightModeWithSystem(context)
         restoreCustomThemes(context)
         initialized = true
+    }
+
+    private fun syncNightModeWithSystem(context: Context) {
+        val targetNightMode = when (committedMode) {
+            ThemeMode.DAY -> androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
+            ThemeMode.NIGHT -> androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
+            ThemeMode.SYSTEM -> androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        }
+        if (androidx.appcompat.app.AppCompatDelegate.getDefaultNightMode() != targetNightMode) {
+            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(targetNightMode)
+        }
+        context.getSharedPreferences(com.eve.app.util.ThemeManager.PREFS, Context.MODE_PRIVATE).edit()
+            .putBoolean(com.eve.app.util.ThemeManager.KEY_DARK_MODE, isDarkActive(context))
+            .apply()
     }
 
     /**
@@ -223,10 +268,11 @@ object TelegramThemeEngine {
         } catch (_: Exception) {
             return null
         }
-        if (colors.isEmpty()) return null
+        if (colors.isEmpty() || colors.none { it.key in RECOGNIZED_THEME_KEYS }) return null
 
         val accent = colors["chat_messagePanelSend"] ?: 0xFF56A2C9.toInt()
-        val isDark = colors["windowBackgroundGray"]?.let { Color.red(it) < 50 } ?: false
+        val bg = colors["windowBackgroundGray"] ?: colors["windowBackgroundWhite"]
+        val isDark = if (bg != null) computePerceivedBrightness(bg) < 0.45f else false
         val definition = ThemeDefinition(
             id = file.name.removeSuffix(".attheme"),
             name = "Imported Theme",
@@ -245,8 +291,10 @@ object TelegramThemeEngine {
 
     fun getAllThemes(): List<ThemeDefinition> = BUILT_IN_THEMES + customThemes
 
-    fun getTheme(id: String): ThemeDefinition {
-        return getAllThemes().firstOrNull { it.id == id } ?: BUILT_IN_THEMES[0]
+    fun getTheme(id: String, isDark: Boolean = false): ThemeDefinition {
+        return getAllThemes().firstOrNull { it.id == id }
+            ?: (if (isDark) getAllThemes().firstOrNull { it.id == "night" } ?: BUILT_IN_THEMES[1]
+                else getAllThemes().firstOrNull { it.id == "day" } ?: BUILT_IN_THEMES[0])
     }
 
     fun getDayThemeId(): String = if (previewActive) previewDayThemeId else committedDayThemeId
@@ -254,6 +302,25 @@ object TelegramThemeEngine {
     fun getNightThemeId(): String = if (previewActive) previewNightThemeId else committedNightThemeId
     fun getNightAccentId(): Int = if (previewActive) previewNightAccentId else committedNightAccentId
     fun getThemeMode(): ThemeMode = if (previewActive) previewMode else committedMode
+
+    fun isPreviewActive(): Boolean = previewActive
+
+    fun restorePreviewState(
+        dayTheme: String,
+        dayAccent: Int,
+        nightTheme: String,
+        nightAccent: Int,
+        mode: ThemeMode,
+        context: Context
+    ) {
+        previewActive = true
+        previewDayThemeId = dayTheme
+        previewDayAccentId = dayAccent
+        previewNightThemeId = nightTheme
+        previewNightAccentId = nightAccent
+        previewMode = mode
+        notifyPaletteChanged(context)
+    }
 
     fun beginPreview() {
         previewActive = true
@@ -284,6 +351,15 @@ object TelegramThemeEngine {
         notifyPaletteChanged(context)
     }
 
+    fun setCommittedMode(mode: ThemeMode, context: Context) {
+        committedMode = mode
+        previewActive = false
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putString(KEY_THEME_MODE, committedMode.name).apply()
+        syncNightModeWithSystem(context)
+        notifyPaletteChanged(context)
+    }
+
     fun applyChanges(context: Context) {
         committedDayThemeId = previewDayThemeId
         committedDayAccentId = previewDayAccentId
@@ -301,6 +377,7 @@ object TelegramThemeEngine {
             .putString(KEY_THEME_MODE, committedMode.name)
             .apply()
 
+        syncNightModeWithSystem(context)
         notifyPaletteChanged(context)
     }
 
@@ -314,7 +391,7 @@ object TelegramThemeEngine {
         notifyPaletteChanged(context)
     }
 
-    fun resetToDefaults(context: Context) {
+    fun resetPreviewToDefaults(context: Context) {
         // Reset is part of the preview transaction. Only Apply may persist it.
         previewActive = true
         previewDayThemeId = "day"
@@ -323,6 +400,10 @@ object TelegramThemeEngine {
         previewNightAccentId = 0
         previewMode = ThemeMode.SYSTEM
         notifyPaletteChanged(context)
+    }
+
+    fun resetToDefaults(context: Context) {
+        resetPreviewToDefaults(context)
     }
 
     fun addThemeChangeListener(listener: (ResolvedPalette) -> Unit) {
@@ -352,10 +433,11 @@ object TelegramThemeEngine {
     }
 
     fun resolveCurrentPalette(context: Context): ResolvedPalette {
+        if (!initialized) init(context)
         val isDark = isDarkActive(context)
         val themeId = if (isDark) getNightThemeId() else getDayThemeId()
         val accentId = if (isDark) getNightAccentId() else getDayAccentId()
-        val themeDef = getTheme(themeId)
+        val themeDef = getTheme(themeId, isDark)
         return resolvePalette(context, themeDef, accentId)
     }
 
@@ -458,7 +540,12 @@ object TelegramThemeEngine {
             if (valueStr.startsWith("#")) {
                 Color.parseColor(valueStr)
             } else {
-                valueStr.toLong().toInt()
+                val longVal = valueStr.toLong()
+                if (longVal < Int.MIN_VALUE || longVal > 0xFFFFFFFFL) {
+                    null
+                } else {
+                    longVal.toInt()
+                }
             }
         } catch (_: Exception) {
             null
@@ -466,7 +553,14 @@ object TelegramThemeEngine {
     }
 
     private fun resolveColor(colors: Map<String, Int>, key: String, default: Int): Int {
-        return colors[key] ?: default
+        var currentKey: String? = key
+        val visited = HashSet<String>()
+        while (currentKey != null && visited.add(currentKey)) {
+            val color = colors[currentKey]
+            if (color != null) return color
+            currentKey = FALLBACK_KEYS[currentKey]
+        }
+        return default
     }
 
     /**

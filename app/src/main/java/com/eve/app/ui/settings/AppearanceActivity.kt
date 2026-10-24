@@ -27,6 +27,7 @@ import com.google.android.material.card.MaterialCardView
 class AppearanceActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityAppearanceBinding
+    private var isApplied = false
 
     private val importThemeLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -41,7 +42,17 @@ class AppearanceActivity : EveBaseActivity() {
         setContentView(binding.root)
 
         TelegramThemeEngine.init(this)
-        TelegramThemeEngine.beginPreview()
+        if (savedInstanceState != null) {
+            val dayTheme = savedInstanceState.getString("preview_day_theme", "day")
+            val dayAccent = savedInstanceState.getInt("preview_day_accent", 9)
+            val nightTheme = savedInstanceState.getString("preview_night_theme", "night")
+            val nightAccent = savedInstanceState.getInt("preview_night_accent", 0)
+            val modeStr = savedInstanceState.getString("preview_mode", TelegramThemeEngine.ThemeMode.SYSTEM.name)
+            val mode = try { TelegramThemeEngine.ThemeMode.valueOf(modeStr) } catch (_: Exception) { TelegramThemeEngine.ThemeMode.SYSTEM }
+            TelegramThemeEngine.restorePreviewState(dayTheme, dayAccent, nightTheme, nightAccent, mode, this)
+        } else {
+            TelegramThemeEngine.beginPreview()
+        }
 
         binding.btnBack.setOnClickListener {
             TelegramThemeEngine.cancelPreview(this)
@@ -49,6 +60,7 @@ class AppearanceActivity : EveBaseActivity() {
         }
 
         binding.btnApply.setOnClickListener {
+            isApplied = true
             TelegramThemeEngine.applyChanges(this)
             AppBulletin.show(this, "Theme applied")
             finish()
@@ -62,12 +74,12 @@ class AppearanceActivity : EveBaseActivity() {
         })
 
         binding.btnResetDefault.setOnClickListener {
-            TelegramThemeEngine.resetToDefaults(this)
+            TelegramThemeEngine.resetPreviewToDefaults(this)
             updateModeButtons()
             rebuildThemesList()
             rebuildAccentsList()
             updatePreviewCard()
-            AppBulletin.show(this, "Reset to House theme default")
+            AppBulletin.show(this, "Reset preview to House theme default (tap Apply to save)")
         }
 
         binding.btnImportTheme.setOnClickListener {
@@ -82,6 +94,31 @@ class AppearanceActivity : EveBaseActivity() {
         rebuildThemesList()
         rebuildAccentsList()
         updatePreviewCard()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("preview_day_theme", TelegramThemeEngine.getDayThemeId())
+        outState.putInt("preview_day_accent", TelegramThemeEngine.getDayAccentId())
+        outState.putString("preview_night_theme", TelegramThemeEngine.getNightThemeId())
+        outState.putInt("preview_night_accent", TelegramThemeEngine.getNightAccentId())
+        outState.putString("preview_mode", TelegramThemeEngine.getThemeMode().name)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (isFinishing && !isApplied) {
+            TelegramThemeEngine.cancelPreview(this)
+        }
+    }
+
+    override fun onApplyThemePalette(palette: TelegramThemeEngine.ResolvedPalette) {
+        super.onApplyThemePalette(palette)
+        binding.root.setBackgroundColor(palette.windowBackground)
+        binding.btnApply.backgroundTintList = ColorStateList.valueOf(palette.accent)
+        binding.btnApply.setTextColor(palette.onAccent)
+        updatePreviewCard()
+        updateModeButtons()
     }
 
     private fun setupModeButtons() {
@@ -111,13 +148,17 @@ class AppearanceActivity : EveBaseActivity() {
 
     private fun updateModeButtons() {
         val currentMode = TelegramThemeEngine.getThemeMode()
-        val isDark = TelegramThemeEngine.isDarkActive(this)
-        val selectedBg = if (isDark) 0xFF3E88F7.toInt() else 0xFF56A2C9.toInt()
+        val palette = TelegramThemeEngine.resolveCurrentPalette(this)
+        val selectedBg = palette.accent
+        val selectedFg = palette.onAccent
         val defaultBg = ContextCompat.getColor(this, R.color.surface_inset)
+        val defaultFg = palette.textPrimary
 
         fun highlight(btn: MaterialButton, active: Boolean) {
-            btn.backgroundTintList = ColorStateList.valueOf(if (active) selectedBg else defaultBg)
-            btn.setTextColor(if (active) Color.WHITE else ContextCompat.getColor(this, R.color.text_primary))
+            val bg = if (active) selectedBg else defaultBg
+            val fg = if (active) selectedFg else defaultFg
+            btn.backgroundTintList = ColorStateList.valueOf(bg)
+            btn.setTextColor(fg)
         }
 
         highlight(binding.btnModeDay, currentMode == TelegramThemeEngine.ThemeMode.DAY)
@@ -202,19 +243,15 @@ class AppearanceActivity : EveBaseActivity() {
         val density = resources.displayMetrics.density
         for (accent in theme.accentOptions) {
             val isSelected = accent.id == activeAccentId
-            val swatch = MaterialCardView(this).apply {
-                radius = 20 * density
-                strokeWidth = if (isSelected) (2 * density).toInt() else 0
-                strokeColor = if (isSelected) ContextCompat.getColor(this@AppearanceActivity, R.color.text_primary) else Color.TRANSPARENT
-                setCardBackgroundColor(accent.color)
-                val size = (40 * density).toInt()
-                val lp = LinearLayout.LayoutParams(size, size).apply {
-                    marginEnd = (10 * density).toInt()
-                    topMargin = (4 * density).toInt()
-                    bottomMargin = (4 * density).toInt()
-                }
-                layoutParams = lp
+            val touchSize = (48 * density).toInt()
+            val visualSize = (40 * density).toInt()
 
+            val touchContainer = android.widget.FrameLayout(this).apply {
+                layoutParams = LinearLayout.LayoutParams(touchSize, touchSize).apply {
+                    marginEnd = (4 * density).toInt()
+                    topMargin = (2 * density).toInt()
+                    bottomMargin = (2 * density).toInt()
+                }
                 contentDescription = accent.name
                 setOnClickListener {
                     if (isDark) {
@@ -226,7 +263,17 @@ class AppearanceActivity : EveBaseActivity() {
                     updatePreviewCard()
                 }
             }
-            binding.layoutAccentsContainer.addView(swatch)
+
+            val swatch = MaterialCardView(this).apply {
+                radius = 20 * density
+                strokeWidth = if (isSelected) (2 * density).toInt() else 0
+                strokeColor = if (isSelected) ContextCompat.getColor(this@AppearanceActivity, R.color.text_primary) else Color.TRANSPARENT
+                setCardBackgroundColor(accent.color)
+                layoutParams = android.widget.FrameLayout.LayoutParams(visualSize, visualSize, Gravity.CENTER)
+                isClickable = false
+            }
+            touchContainer.addView(swatch)
+            binding.layoutAccentsContainer.addView(touchContainer)
         }
     }
 
@@ -251,8 +298,8 @@ class AppearanceActivity : EveBaseActivity() {
                     val read = stream.read(chunk)
                     if (read < 0) break
                     if (read == 0) continue
-                    if (output.size() + read > 512 * 1024) {
-                        AppBulletin.showError(this, "Theme file exceeds 512KB limit")
+                    if (output.size() + read > 256 * 1024) {
+                        AppBulletin.showError(this, "Theme file exceeds 256KB limit")
                         return
                     }
                     output.write(chunk, 0, read)

@@ -203,6 +203,7 @@ class GlassTabView @JvmOverloads constructor(
             return
         }
         isTabSelected = selected
+        isSelected = selected
         isSelectedAnimator?.cancel()
 
         if (animated) {
@@ -239,8 +240,22 @@ class GlassTabView @JvmOverloads constructor(
         val filter = PorterDuffColorFilter(colorIcon, PorterDuff.Mode.SRC_IN)
         if (!isAvatarTab) {
             iconView.colorFilter = filter
+            if (isLottieTab && lottieView.visibility == VISIBLE) {
+                lottieView.addValueCallback(
+                    com.airbnb.lottie.model.KeyPath("**"),
+                    com.airbnb.lottie.LottieProperty.COLOR_FILTER
+                ) { filter }
+            }
         }
         textView.setTextColor(colorText)
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        isSelectedAnimator?.cancel()
+        if (isLottieTab) {
+            lottieView.cancelAnimation()
+        }
     }
 
     override fun onDraw(canvas: Canvas) {

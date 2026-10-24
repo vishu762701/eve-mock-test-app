@@ -15,7 +15,8 @@ class EveApplication : Application() {
         super.onCreate()
         instance = this
 
-        // Saved dark/light choice sabse pehle apply karo, koi Activity dikhne se pehle
+        // Initialize TelegramThemeEngine as single authoritative theme engine before any Activity is created
+        com.eve.app.theme.TelegramThemeEngine.init(this)
         ThemeManager.applySavedMode(this)
         com.eve.app.util.DebugCrashReporter.init(this)
         com.eve.app.util.ThemeSwitchAnimator.ensureLifecycleRegistered(this)
