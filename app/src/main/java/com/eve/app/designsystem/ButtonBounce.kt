@@ -12,7 +12,7 @@ import com.eve.app.util.TelegramThemeEasing
  * Source reference: TMessagesProj/src/main/java/org/telegram/ui/Components/ButtonBounce.java
  * Provides the official Telegram press spring-back motion and scale calculations.
  */
-class ButtonBounce @JvmOverloads constructor(
+class ButtonBounce constructor(
     var view: View? = null,
     private val durationPressMultiplier: Float = 1f,
     private val durationReleaseMultiplier: Float = 1f,

@@ -15,6 +15,15 @@ import org.robolectric.annotation.Config
 class ButtonBounceTest {
 
     @Test
+    fun testThreeArgumentAndFourArgumentConstructorsKeepDistinctSemantics() {
+        val view = View(RuntimeEnvironment.getApplication())
+        val sourceStyleConstructor = ButtonBounce(view, 1f, 5f)
+        val fullConstructor = ButtonBounce(view, 1f, 1f, 5f)
+        assertEquals(1f, sourceStyleConstructor.getScale(0.04f), 0.001f)
+        assertEquals(1f, fullConstructor.getScale(0.04f), 0.001f)
+    }
+
+    @Test
     fun testInitialState() {
         val context = RuntimeEnvironment.getApplication()
         val view = View(context)
