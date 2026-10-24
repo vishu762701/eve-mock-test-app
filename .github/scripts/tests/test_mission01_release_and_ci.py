@@ -8,7 +8,7 @@ BUILD = ROOT / ".github/workflows/build.yml"
 GRADLE = ROOT / "app/build.gradle.kts"
 COLORS = ROOT / "app/src/main/res"
 SRC_RESULT = ROOT / "app/src/main/java/com/eve/app/ui/result/ResultActivity.kt"
-TEST_RESULT = ROOT / "app/src/test/java/com/eve/app/designsystem/TelegramResultSubtitleSourceTest.kt"
+TEST_RESULT = ROOT / "app/src/test/java/com/eve/app/designsystem/UiBehaviorRegressionTest.kt"
 NATIVE_TEST = ROOT / "app/src/androidTest/java/com/eve/app/ui/LockedFoundationTest.kt"
 
 

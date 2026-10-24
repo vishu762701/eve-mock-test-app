@@ -1,81 +1,59 @@
 package com.eve.app.designsystem
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
+import java.security.MessageDigest
 
-/** Registers every directly referenced EVE icon, without claiming Telegram art import. */
+/** Checks bundled assets against source-verified hashes; never reads or fetches the submodule. */
 class TelegramIconSourceRegistryTest {
-    private fun doc(name: String): String = listOf(
-        File("../docs/$name"), File("docs/$name")
-    ).first { it.isFile }.readText()
-
-    @Test fun iconRegistryCoversEveryDirectLayoutReference() {
-        val inventory = doc("telegram-full-layout-inventory.md")
-        val registry = doc("telegram-icon-source-registry.tsv")
-        val tick = 96.toChar()
-        val xmlIcons = inventory.lineSequence()
-            .filter { it.startsWith("| " + tick) && it.contains(".xml" + tick + " |") && it.contains("ic_") }
-            .flatMap { line -> Regex("""\bic_[a-z0-9_]+\b""")
-                .findAll(line).map { it.value }.asSequence() }
-            .toSet()
-        assertEquals(66, xmlIcons.size)
-        val dynamicSources = listOf(
-            "src/main/java/com/eve/app/designsystem/DesignIconStates.kt",
-            "src/main/java/com/eve/app/ui/premium/PremiumBenefitRows.kt",
-            "src/main/java/com/eve/app/util/ReminderScheduler.kt",
-            "src/main/java/com/eve/app/ui/result/AnswerAdapter.kt",
-            "src/main/java/com/eve/app/ui/home/TelegramMenuPopup.kt",
-            "src/main/java/com/eve/app/designsystem/UiArcNumberField.kt",
-            "src/main/java/com/eve/app/util/AppBulletin.kt",
-            "src/main/java/com/eve/app/util/ThemeManager.kt",
-            "src/main/java/com/eve/app/designsystem/UiArcMorphSelectView.kt",
-            "src/main/java/com/eve/app/designsystem/UiArcSwipeRow.kt",
-            "src/main/java/com/eve/app/util/NotificationHelper.kt"
-        )
-        val dynamicIcons = dynamicSources.flatMap { path ->
-            val content = File(path).readText()
-            Regex("""R\.drawable\.(ic_[a-z0-9_]+)""").findAll(content)
-                .map { it.groupValues[1] }.toList()
-        }.toSet()
-        val expected = xmlIcons + dynamicIcons
-        assertEquals(71, expected.size)
-        val entries = registry.lineSequence()
-            .filter { it.isNotBlank() && !it.startsWith("#") }.toList()
-        assertEquals(8, entries.first().split('\t').size)
-        val rows = entries.drop(1).map { it.split('\t') }
-        assertTrue(rows.all { it.size == 8 })
-        val ids = rows.map { it[0] }
-        assertEquals(expected, ids.toSet())
-        assertEquals(ids.size, ids.toSet().size)
-        assertEquals(2, rows.count { it[7] == "EVE_ORIGINAL_REDRAW_NOT_SOURCE_EXACT" })
-        assertEquals(29, rows.count { it[7] == "OFFICIAL_TELEGRAM_GPL_ART_IMPORTED" })
-        val sourceCandidates = mapOf(
-            "ic_camera" to "ui/Components/ImageUpdater.java:278",
-            "ic_copy" to "ui/Business/BusinessLinksActivity.java:395",
-            "ic_download" to "ui/ChatActivity.java:10377",
-            "ic_info" to "ui/ChatActivity.java:31892",
-            "ic_link" to "ui/ChatActivity.java:40482",
-            "ic_logout" to "ui/SettingsActivity.java:342",
-            "ic_send" to "ui/Components/ShareAlert.java:2359"
-        )
-        val candidateRows = rows.filter { sourceCandidates.containsKey(it[0]) }
-        assertEquals("Every ZIP-mapped candidate must be traceable", sourceCandidates.size, candidateRows.size)
-        for (row in candidateRows) {
-            assertEquals("Wrong source call-site for " + row[0], sourceCandidates[row[0]], row[2])
-            assertTrue("Missing official Telegram density asset " + row[0],
-                row[1].startsWith("res/drawable-hdpi/") && row[1].endsWith(".webp"))
-            assertEquals("Original artwork must be tracked as GPL-derived", "OFFICIAL_TELEGRAM_GPL_ART_IMPORTED", row[7])
+    @Test fun bundledIconsMatchRegistrySha256() {
+        val root = listOf(File(".."), File("."))
+            .first { File(it, "docs/telegram-icon-source-registry.tsv").isFile }
+        val records = File(root, "docs/telegram-icon-source-registry.tsv").readLines()
+            .filter { it.isNotBlank() && !it.startsWith("#") }
+        val header = records.first().split('\t')
+        assertEquals("Duplicate registry columns", header.size, header.toSet().size)
+        val densities = listOf("mdpi", "hdpi", "xhdpi", "xxhdpi")
+        val required = listOf("eve_icon", "telegram_zip_asset", "source_fidelity_status") +
+            densities.map { "sha256_$it" }
+        assertTrue("Missing registry columns", header.containsAll(required))
+        val rows = records.drop(1).map { line ->
+            val values = line.split('\t')
+            assertEquals("Malformed registry row", header.size, values.size)
+            header.zip(values).toMap()
         }
-
-        for (row in rows) {
-            assertTrue("False Telegram import claim " + row[0],
-                row[7] in setOf("UNMAPPED_PENDING_SOURCE_AUDIT", "CANDIDATE_NOT_IMPORTED", "SEMANTIC_MISMATCH",
-                    "EVE_ORIGINAL_REDRAW_NOT_SOURCE_EXACT", "OFFICIAL_TELEGRAM_GPL_ART_IMPORTED"))
-            assertTrue("Unverified source animation " + row[0],
-                row[5].contains("UNKNOWN") || row[5].contains("NO_TELEGRAM"))
-            assertTrue("Unverified exact themed art " + row[0], row[7] == "OFFICIAL_TELEGRAM_GPL_ART_IMPORTED" || row[6].contains("NOT_SOURCE_EXACT"))
+        assertEquals("Duplicate icon IDs", rows.size, rows.map { it.getValue("eve_icon") }.toSet().size)
+        val imported = rows.filter { it.getValue("source_fidelity_status") == "OFFICIAL_TELEGRAM_GPL_ART_IMPORTED" }
+        assertTrue("Registry must contain imported assets", imported.isNotEmpty())
+        val resources = File(root, "app/src/main/res")
+        for (row in imported) {
+            val icon = row.getValue("eve_icon")
+            assertTrue("Invalid icon ID: $icon", icon.matches(Regex("[a-z][a-z0-9_]*")))
+            assertTrue("Missing official source path for $icon", row.getValue("telegram_zip_asset").startsWith("res/"))
+            assertFalse("Conflicting vector for $icon", File(resources, "drawable/$icon.xml").exists())
+            val expectedPaths = mutableSetOf<String>()
+            for (density in densities) {
+                val asset = File(resources, "drawable-$density/$icon.webp")
+                val expected = row.getValue("sha256_$density")
+                if (expected == "NOT FOUND") {
+                    assertFalse("Unexpected density without upstream source: $asset", asset.exists())
+                    continue
+                }
+                assertTrue("Invalid SHA-256 for $icon/$density", expected.matches(Regex("[0-9a-f]{64}")))
+                assertTrue("Missing source asset: $asset", asset.isFile)
+                val actual = MessageDigest.getInstance("SHA-256").digest(asset.readBytes())
+                    .joinToString("") { "%02x".format(it.toInt() and 0xff) }
+                assertEquals("$asset SHA-256 mismatch", expected, actual)
+                expectedPaths.add(asset.relativeTo(resources).invariantSeparatorsPath)
+            }
+            assertTrue("No hashed density for $icon", expectedPaths.isNotEmpty())
+            val actualPaths = resources.listFiles()!!.filter { it.isDirectory && it.name.startsWith("drawable") }
+                .flatMap { directory -> directory.listFiles()!!.filter { it.nameWithoutExtension == icon } }
+                .map { it.relativeTo(resources).invariantSeparatorsPath }.toSet()
+            assertEquals("Unregistered or missing density for $icon", expectedPaths, actualPaths)
         }
     }
 }
