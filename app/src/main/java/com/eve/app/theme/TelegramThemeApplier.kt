@@ -148,7 +148,13 @@ object TelegramThemeApplier {
             appliedTextColors.remove(tv)
             return
         }
-        val resolved = if (role == TextColorRole.PRIMARY) palette.textPrimary else palette.textSecondary
+        val isDarkView = (tv.context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
+        val effectivePalette = if (isDarkView != palette.isDark) {
+            TelegramThemeEngine.resolveCurrentPalette(tv.context)
+        } else {
+            palette
+        }
+        val resolved = if (role == TextColorRole.PRIMARY) effectivePalette.textPrimary else effectivePalette.textSecondary
         if (current != resolved) tv.setTextColor(resolved)
         appliedTextColors[tv] = AppliedTextColor(role, resolved)
     }

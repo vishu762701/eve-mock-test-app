@@ -469,7 +469,12 @@ object TelegramThemeEngine {
         val surface = resolveColor(adjustedColors, "windowBackgroundWhite", if (isDark) 0xFF181819.toInt() else 0xFFFFFFFF.toInt())
         val surfaceInset = if (isDark) 0xFF2C2C2E.toInt() else 0xFFF5F5F5.toInt()
         val textPrimary = resolveColor(adjustedColors, "windowBackgroundWhiteBlackText", if (isDark) 0xFFFFFFFF.toInt() else 0xFF1A1D21.toInt())
-        val textSecondary = resolveColor(adjustedColors, "windowBackgroundWhiteGrayText", if (isDark) 0xFFA1A1A6.toInt() else 0xFF6C6C70.toInt())
+        val rawTextSecondary = resolveColor(adjustedColors, "windowBackgroundWhiteGrayText", if (isDark) 0xFFA1A1A6.toInt() else 0xFF6C6C70.toInt())
+        val textSecondary = if (ColorUtils.calculateContrast(rawTextSecondary, windowBg) >= 4.5) {
+            rawTextSecondary
+        } else {
+            if (isDark) 0xFFA1A1A6.toInt() else 0xFF6C6C70.toInt()
+        }
 
         // Chat panel send button color / tab selected
         val sendColor = resolveColor(adjustedColors, "chat_messagePanelSend", accentColor)

@@ -112,7 +112,7 @@ class TelegramAppearanceAndThemeAuthorityNativeTest {
     @Test
     fun themeApplierBindsPaletteToChildViewsAndPreservesState() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
-        val context = instrumentation.targetContext
+        val context = android.view.ContextThemeWrapper(instrumentation.targetContext, com.eve.app.R.style.Theme_Eve)
 
         instrumentation.runOnMainSync {
             val layout = android.widget.LinearLayout(context)
