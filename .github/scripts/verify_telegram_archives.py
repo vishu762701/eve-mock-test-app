@@ -31,6 +31,10 @@ EXCLUDED = [
     "TMessagesProj_AppStandalone/google-services.json",
     "TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java",
 ]
+UI_ONLY = sys.argv[1:] == ["--ui-only"]
+if sys.argv[1:] not in ([], ["--ui-only"]):
+    raise SystemExit("Usage: verify_telegram_archives.py [--ui-only]")
+SELECTED_ZIPS = NAMES[:1] if UI_ONLY else NAMES
 issues = []
 report = {"zip_sha256": {}, "excluded": EXCLUDED, "issues": issues}
 def sha(path):
@@ -128,7 +132,7 @@ def license_details(folder):
             "java_or_later_paths_sample": match_paths[:35],
             "note": "GPL-2 license text does not alone grant the later-version option for every file; file notices govern where that option applies."}
 def verify():
-    for name in NAMES:
+    for name in SELECTED_ZIPS:
         path = ROOT / name
         if not path.is_file():
             issues.append("ZIP MISSING " + name)
@@ -137,13 +141,13 @@ def verify():
             print(f"ZIP_SHA256 {name} {report['zip_sha256'][name]} ({path.stat().st_size} bytes)", flush=True)
             if report["zip_sha256"][name] != EXPECTED_ZIP_SHA256[name]:
                 issues.append("ZIP SHA MISMATCH " + name)
-    if len(report["zip_sha256"]) != 6:
+    if len(report["zip_sha256"]) != len(SELECTED_ZIPS):
         return
     with tempfile.TemporaryDirectory(prefix="eve-telegram-check-") as temp_path:
         folder = Path(temp_path)
         actual = {}
         partial = {}
-        for index, zipname in enumerate(NAMES):
+        for index, zipname in enumerate(SELECTED_ZIPS):
             count = 0
             with zipfile.ZipFile(ROOT / zipname) as archive:
                 for entry in archive.infolist():
@@ -178,10 +182,9 @@ def verify():
             if filename in actual:
                 issues.append("EXCLUDED FILE FOUND " + filename)
         report["file_count"] = len(actual)
-        report["manifests"] = [
-            compare_manifest(folder, partial, "EVE_MANIFEST.sha256"),
-            compare_manifest(folder, actual, "EVE_MANIFEST_FULL.sha256"),
-        ]
+        report["manifests"] = [compare_manifest(folder, partial, "EVE_MANIFEST.sha256")]
+        if not UI_ONLY:
+            report["manifests"].append(compare_manifest(folder, actual, "EVE_MANIFEST_FULL.sha256"))
         report["icons"] = verify_icons(folder)
         report["license"] = license_details(folder)
 try:
