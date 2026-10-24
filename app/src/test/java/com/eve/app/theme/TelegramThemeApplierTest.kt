@@ -1,8 +1,7 @@
 package com.eve.app.theme
 
-import android.app.Activity
 import android.graphics.Color
-import android.view.View
+import android.view.ContextThemeWrapper
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -11,15 +10,14 @@ import com.eve.app.R
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [33])
+@Config(sdk = [33], theme = R.style.Theme_Eve)
 class TelegramThemeApplierTest {
 
     private val testPalette = TelegramThemeEngine.ResolvedPalette(
@@ -43,23 +41,23 @@ class TelegramThemeApplierTest {
 
     @Test
     fun testApplyToViewTreeRecursivelyBindsPaletteAndPreservesInput() {
-        val activity = Robolectric.buildActivity(Activity::class.java).setup().get()
-        val root = LinearLayout(activity)
+        val context = ContextThemeWrapper(RuntimeEnvironment.getApplication(), R.style.Theme_Eve)
+        val root = LinearLayout(context)
 
-        val card = MaterialCardView(activity).apply {
+        val card = MaterialCardView(context).apply {
             strokeWidth = 2
         }
-        val button = MaterialButton(activity).apply {
+        val button = MaterialButton(context).apply {
             tag = "accent_button"
         }
-        val textView = TextView(activity).apply {
+        val textView = TextView(context).apply {
             setTextColor(Color.BLACK)
         }
-        val semanticTextView = TextView(activity).apply {
+        val semanticTextView = TextView(context).apply {
             tag = "status_correct"
             setTextColor(0xFF34C759.toInt())
         }
-        val editText = EditText(activity).apply {
+        val editText = EditText(context).apply {
             setText("Active exam response or user input")
         }
 
@@ -82,11 +80,11 @@ class TelegramThemeApplierTest {
 
     @Test
     fun testExemptViewsArePreservedWithoutModification() {
-        val activity = Robolectric.buildActivity(Activity::class.java).setup().get()
-        val exemptLayout = FrameLayout(activity).apply {
+        val context = ContextThemeWrapper(RuntimeEnvironment.getApplication(), R.style.Theme_Eve)
+        val exemptLayout = FrameLayout(context).apply {
             tag = "no_theme"
         }
-        val childCard = MaterialCardView(activity).apply {
+        val childCard = MaterialCardView(context).apply {
             setCardBackgroundColor(0xFFFF0000.toInt())
         }
         exemptLayout.addView(childCard)
