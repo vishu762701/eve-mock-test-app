@@ -17,7 +17,7 @@ import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [33], theme = R.style.Theme_Eve)
+@Config(sdk = [33])
 class TelegramThemeApplierTest {
 
     private val testPalette = TelegramThemeEngine.ResolvedPalette(
