@@ -107,9 +107,11 @@ class StudentUiRenderingTest {
                         }
                         assertTrue("$name has a usable native viewport", root.width > 0 && root.height > 0)
                         walk(root).filterIsInstance<com.eve.app.designsystem.UiArcInViewTitleView>().forEach { it.revealInstant() }
+                        android.util.Log.i("EveStudentUi", "Contrast stage $name ${if (dark) "night" else "day"} $width/$font")
                         if (!baseline && name != "mock-test") {
                             try { checkText(root, "$name $width/$font", root.context.getColor(R.color.bg_app)) }
                             catch (error: AssertionError) { failures.add(error.message.orEmpty()); android.util.Log.e("EveStudentUi", error.message.orEmpty()) }
+                            android.util.Log.i("EveStudentUi", "Contrast complete $name ${if (dark) "night" else "day"} $width/$font")
                         }
                         if (width == 360 || (width == 320 && name in listOf("login", "signup", "settings", "practice", "statistics", "bookmarks", "payment", "review"))) {
                             capture("${if (baseline) "baseline" else "student"}-$name${if (width == 320) "-large" else ""}-${if (dark) "dark" else "light"}", root)
@@ -345,9 +347,12 @@ class StudentUiRenderingTest {
         return color(view.background)
     }
     private fun capture(name: String, root: View) {
+        android.util.Log.i("EveStudentUi", "Snapshot begin $name")
         val bitmap = Bitmap.createBitmap(root.width, root.height, Bitmap.Config.ARGB_8888)
         try {
+            android.util.Log.i("EveStudentUi", "Snapshot draw begin $name")
             val canvas = Canvas(bitmap); canvas.drawColor(root.context.getColor(R.color.bg_app)); root.draw(canvas)
+            android.util.Log.i("EveStudentUi", "Snapshot draw complete $name")
             val values = android.content.ContentValues().apply {
                 put(android.provider.MediaStore.Images.Media.DISPLAY_NAME, "$name.png")
                 put(android.provider.MediaStore.Images.Media.MIME_TYPE, "image/png")
@@ -356,11 +361,14 @@ class StudentUiRenderingTest {
             val resolver = instrumentation.targetContext.contentResolver
             // Re-running a case must replace its disposable fixture, not leave
             // a stale image plus a numbered filename that escapes the CI gate.
+            android.util.Log.i("EveStudentUi", "Snapshot storage begin $name")
             resolver.delete(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 "${android.provider.MediaStore.Images.Media.DISPLAY_NAME} = ? AND ${android.provider.MediaStore.Images.Media.RELATIVE_PATH} = ?",
                 arrayOf("$name.png", "Pictures/eve-student-ui/"))
             val uri = resolver.insert(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)!!
+            android.util.Log.i("EveStudentUi", "Snapshot compress begin $name")
             resolver.openOutputStream(uri)!!.use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+            android.util.Log.i("EveStudentUi", "Snapshot complete $name")
         } finally { bitmap.recycle() }
     }
 }
