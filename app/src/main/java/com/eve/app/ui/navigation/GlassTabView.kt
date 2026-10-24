@@ -113,7 +113,11 @@ class GlassTabView @JvmOverloads constructor(
             isSingleLine = true
             maxLines = 1
             ellipsize = TextUtils.TruncateAt.END
-            typeface = Typeface.DEFAULT_BOLD
+            typeface = if (android.os.Build.VERSION.SDK_INT >= 28) {
+                Typeface.create(Typeface.DEFAULT, 700, false)
+            } else {
+                Typeface.DEFAULT_BOLD
+            }
             gravity = Gravity.CENTER
             includeFontPadding = false
         }
