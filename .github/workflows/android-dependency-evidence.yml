@@ -41,8 +41,20 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p license-evidence
-          gradle :app:dependencies --configuration releaseRuntimeClasspath --console=plain --stacktrace \
+          # Resolve the full graph without naming a release task in Gradle CLI.
+          # Preserve production release-signing requirements unchanged.
+          gradle :app:dependencies --console=plain --stacktrace \
+            > license-evidence/gradle-all-configurations.txt
+          awk '
+            /^releaseRuntimeClasspath[[:space:]]+-/ { capture = 1 }
+            capture { print }
+            capture && /^$/ { exit }
+          ' license-evidence/gradle-all-configurations.txt \
             > license-evidence/releaseRuntimeClasspath.txt
+          if ! grep -q '^releaseRuntimeClasspath[[:space:]]*-' license-evidence/releaseRuntimeClasspath.txt; then
+            echo "::error::Release runtime configuration not found in Gradle report."
+            exit 1
+          fi
           if grep -Eq -- '--- .*FAILED|Could not resolve' license-evidence/releaseRuntimeClasspath.txt; then
             echo "::error::Unresolved components in release runtime dependency graph."
             exit 1
