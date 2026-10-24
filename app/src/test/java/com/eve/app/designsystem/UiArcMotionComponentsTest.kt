@@ -428,7 +428,8 @@ class UiArcMotionComponentsTest {
 
         val pb = findElementById(root, "progressBarUpload")
         assertNotNull("progressBarUpload must exist in activity_manage_syllabus.xml", pb)
-        assertEquals("true", pb?.getAttribute("android:indeterminate"))
+        assertEquals("com.eve.app.designsystem.TelegramRadialProgressView", pb?.tagName)
+        // This control is an unbounded loading animation, not a percentage meter.
 
         val btnUpload = findElementById(root, "btnUploadSyllabus")
         assertNotNull("btnUploadSyllabus must exist in activity_manage_syllabus.xml", btnUpload)
