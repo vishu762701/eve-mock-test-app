@@ -369,4 +369,69 @@ class TelegramThemeEngineTest {
             assertTrue("Asset $asset must not be empty", file!!.length() > 0)
         }
     }
+
+    @Test
+    fun testExactSourceDerivedPaletteForDay9AndNight0() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        TelegramThemeEngine.init(context)
+
+        // Night theme: House preset (Night/0) source anchors
+        // windowBackgroundGray = #FF000000 [night.attheme:61]
+        // windowBackgroundWhite = #FF181819 [night.attheme:235]
+        // windowBackgroundWhiteBlackText = #FFFFFFFF [night.attheme:88]
+        // chat_messagePanelSend = #FF229AF0 [night.attheme:158]
+        // glass_targetMainTabs = #FF232324 [night.attheme:490]
+        // glass_targetMainTopPanel = #FF232324 [night.attheme:491]
+        val nightTheme = TelegramThemeEngine.BUILT_IN_THEMES.first { it.id == "night" }
+        val nightPalette = TelegramThemeEngine.resolvePalette(context, nightTheme, 0)
+
+        assertTrue(nightPalette.isDark)
+        assertEquals(0xFF000000.toInt(), nightPalette.windowBackground)
+        assertEquals(0xFF181819.toInt(), nightPalette.surface)
+        assertEquals(0xFFFFFFFF.toInt(), nightPalette.textPrimary)
+        assertEquals(0xFF3E88F7.toInt(), nightPalette.accent) // EmojiThemes.java:251 Night accent 0
+        assertEquals(0xFF232324.toInt(), nightPalette.glassTargetMainTabs)
+        assertEquals(0xFF232324.toInt(), nightPalette.glassTargetMainTopPanel)
+
+        // Day theme: House preset (Day/9) source anchors
+        // windowBackgroundWhite = #FFFFFFFF [ThemeColors.java:79]
+        // glass_targetMainTabs = #FFFFFFFF [ThemeColors.java:874]
+        // Day accent 9 = 0xFF56A2C9 [EmojiThemes.java:248]
+        val dayTheme = TelegramThemeEngine.BUILT_IN_THEMES.first { it.id == "day" }
+        val dayPalette = TelegramThemeEngine.resolvePalette(context, dayTheme, 9)
+
+        assertFalse(dayPalette.isDark)
+        assertEquals(0xFFFFFFFF.toInt(), dayPalette.surface)
+        assertEquals(0xFF56A2C9.toInt(), dayPalette.accent)
+        assertEquals(0xFFFFFFFF.toInt(), dayPalette.glassTargetMainTabs)
+        assertTrue(
+            "Day/9 onAccent contrast must satisfy WCAG",
+            androidx.core.graphics.ColorUtils.calculateContrast(dayPalette.onAccent, dayPalette.accent) >= 4.5
+        )
+    }
+
+    @Test
+    fun testThemeFallbackChainForGlassAndDialogBackground() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        TelegramThemeEngine.init(context)
+
+        // Custom theme where dialogBackground is provided, but glass_targetMainTabs is missing
+        val file = java.io.File(context.filesDir, "custom_dialog_test_${System.nanoTime()}.attheme")
+        try {
+            // dialogBackground = 0xFF334455 (-13417387)
+            file.writeText(
+                "dialogBackground=-13417387\n" +
+                    "windowBackgroundGray=-15658735\n" +
+                    "windowBackgroundWhite=-14540254\n" +
+                    "chat_messagePanelSend=-12678921\n"
+            )
+            val registered = TelegramThemeEngine.registerCustomTheme(context, file)
+            assertNotNull(registered)
+            val palette = TelegramThemeEngine.resolvePalette(context, registered!!, 0)
+            assertEquals(0xFF334455.toInt(), palette.glassTargetMainTabs)
+            assertEquals(0xFF334455.toInt(), palette.glassTargetMainTopPanel)
+        } finally {
+            file.delete()
+        }
+    }
 }

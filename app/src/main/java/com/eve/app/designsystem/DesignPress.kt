@@ -1,19 +1,29 @@
 package com.eve.app.designsystem
 
-import android.animation.AnimatorInflater
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
-import com.eve.app.R
 
-/** One pressed-state animator for XML and programmatic controls. Native click dispatch stays intact. */
+/**
+ * Pressed-state spring motion for XML and programmatic controls backed by Telegram's ButtonBounce.
+ * Native click dispatch and touch targets stay intact.
+ */
 object DesignPress {
     fun bind(view: View, onClick: (() -> Unit)? = null) {
-        view.stateListAnimator = AnimatorInflater.loadStateListAnimator(view.context, R.animator.design_press_scale)
+        val bounce = ButtonBounce(view)
+        view.stateListAnimator = null
         if (onClick != null) view.setOnClickListener { onClick() }
         view.setOnTouchListener { target, event ->
-            if (target.isEnabled && event.actionMasked == MotionEvent.ACTION_DOWN) {
-                target.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+            if (target.isEnabled) {
+                when (event.actionMasked) {
+                    MotionEvent.ACTION_DOWN -> {
+                        bounce.setPressed(true)
+                        target.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        bounce.setPressed(false)
+                    }
+                }
             }
             false
         }
