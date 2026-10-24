@@ -79,6 +79,7 @@ function findMarkdownFiles(dir) {
   const files = [];
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   for (const entry of entries) {
+    if (path.resolve(dir, entry.name) === path.join(REPO_ROOT, 'third_party', 'telegram-android')) continue;
     if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === 'build' || entry.name === '.gradle') {
       continue;
     }
