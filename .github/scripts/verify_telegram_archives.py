@@ -12,6 +12,16 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[2]
 NAMES = ["Telegram-master.zip"] + [f"Telegram-master-rest-{i}.zip" for i in range(1, 6)]
+# Pinned identity of the repacked reference archives, independent of manifests
+# stored inside those archives. These do not certify upstream authorship.
+EXPECTED_ZIP_SHA256 = {
+    "Telegram-master.zip": "fabf0b7370abf2ee5661063ea1c274cb3e537048f008a6871ff3169cbe89cb1e",
+    "Telegram-master-rest-1.zip": "fb4fdcde402b904e33635a96c7090b523f0c32d2e02ec6db47769889f9b6633c",
+    "Telegram-master-rest-2.zip": "af56e94af6a97287faf329d9422220f19bfe3d281cfcbc13efb4355a365f17b1",
+    "Telegram-master-rest-3.zip": "2e2f30a7e86530bf5e3c4256398ccdced45b3609ab675cfb380f83126c7db78a",
+    "Telegram-master-rest-4.zip": "44aae5a3d18d4d72091f69abcfafbf2e633b07150c6d07be701f3d2c9c5dcb91",
+    "Telegram-master-rest-5.zip": "c1ce238a7ab23b9a878d588b3e0f97cf43e3756992911897abf71785d5884308",
+}
 EXCLUDED = [
     "TMessagesProj/config/release.keystore",
     "TMessagesProj/google-services.json",
@@ -125,6 +135,8 @@ def verify():
         else:
             report["zip_sha256"][name] = sha(path)
             print(f"ZIP_SHA256 {name} {report['zip_sha256'][name]} ({path.stat().st_size} bytes)", flush=True)
+            if report["zip_sha256"][name] != EXPECTED_ZIP_SHA256[name]:
+                issues.append("ZIP SHA MISMATCH " + name)
     if len(report["zip_sha256"]) != 6:
         return
     with tempfile.TemporaryDirectory(prefix="eve-telegram-check-") as temp_path:
