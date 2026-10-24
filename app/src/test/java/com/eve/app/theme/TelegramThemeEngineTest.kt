@@ -348,7 +348,6 @@ class TelegramThemeEngineTest {
 
     @Test
     fun testCatalogHasFiveBundledThemesWithAssets() {
-        val context = org.robolectric.RuntimeEnvironment.getApplication()
         val themes = TelegramThemeEngine.BUILT_IN_THEMES
         assertEquals(5, themes.size)
 
@@ -362,9 +361,12 @@ class TelegramThemeEngineTest {
         for (theme in themes) {
             val asset = theme.assetName
             assertNotNull(asset)
-            context.assets.open("themes/$asset").use { stream ->
-                assertTrue("Asset $asset must not be empty", stream.available() > 0)
-            }
+            val file = listOf(
+                java.io.File("src/main/assets/themes/$asset"),
+                java.io.File("app/src/main/assets/themes/$asset")
+            ).firstOrNull { it.exists() }
+            assertNotNull("Asset file for $asset must exist on disk", file)
+            assertTrue("Asset $asset must not be empty", file!!.length() > 0)
         }
     }
 }
