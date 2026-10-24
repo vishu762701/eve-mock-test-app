@@ -1,0 +1,58 @@
+name: Android Dependency Evidence
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/android-dependency-evidence.yml'
+      - '.github/scripts/collect_android_dependency_evidence.py'
+      - 'app/build.gradle.kts'
+      - 'build.gradle.kts'
+      - 'settings.gradle.kts'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Install Android SDK Platform 36
+        run: |
+          set -euo pipefail
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.7
+      - name: Test dependency-evidence parser
+        run: python3 -B .github/scripts/collect_android_dependency_evidence.py --self-test
+      - name: Resolve release runtime dependency graph
+        run: |
+          set -euo pipefail
+          mkdir -p license-evidence
+          gradle :app:dependencies --configuration releaseRuntimeClasspath --console=plain --stacktrace \
+            > license-evidence/releaseRuntimeClasspath.txt
+          if grep -Eq -- '--- .*FAILED|Could not resolve' license-evidence/releaseRuntimeClasspath.txt; then
+            echo "::error::Unresolved components in release runtime dependency graph."
+            exit 1
+          fi
+      - name: Record resolved metadata and bundled source hashes
+        run: python3 -B .github/scripts/collect_android_dependency_evidence.py
+      - name: Upload commit-bound evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-runtime-dependency-evidence
+          path: license-evidence/
+          if-no-files-found: warn
