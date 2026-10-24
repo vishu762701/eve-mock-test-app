@@ -77,7 +77,9 @@ class StudentUiRenderingTest {
                             fontScale = font; screenWidthDp = width
                         }
                         val context = ContextThemeWrapper(activity.createConfigurationContext(config), R.style.Theme_Eve)
+                        android.util.Log.i("EveStudentUi", "Inflate begin $name ${if (dark) "night" else "day"} $width/$font")
                         root = activity.layoutInflater.cloneInContext(context).inflate(resource, FrameLayout(context), false)
+                        android.util.Log.i("EveStudentUi", "Inflate complete $name ${if (dark) "night" else "day"} $width/$font")
                         prepare(name, root)
                         // Canvas fixtures use fallback artwork; keep unattached GL
                         // surfaces out of this hierarchy (real GL/chrome tests remain).
@@ -93,7 +95,9 @@ class StudentUiRenderingTest {
                     }
                     // Widgets need an attached hierarchy and a free main looper: this
                     // delivers global-layout/font callbacks and settles floating labels.
-                    assertTrue("Two native frames must settle $name $width/$font", settled.await(45, java.util.concurrent.TimeUnit.SECONDS))
+                    val framesSettled = settled.await(45, java.util.concurrent.TimeUnit.SECONDS)
+                    android.util.Log.i("EveStudentUi", "Frames settled=$framesSettled $name ${if (dark) "night" else "day"} $width/$font")
+                    assertTrue("Two native frames must settle $name $width/$font", framesSettled)
                     scenario.onActivity {
                         val density = root.resources.displayMetrics.density
                         repeat(3) {
@@ -117,7 +121,9 @@ class StudentUiRenderingTest {
                         }
                         walk(root).filterIsInstance<com.airbnb.lottie.LottieAnimationView>().forEach { it.cancelAnimation() }
                     }
+                    android.util.Log.i("EveStudentUi", "Capture complete $name ${if (dark) "night" else "day"} $width/$font")
                     scenario.onActivity { it.setContentView(FrameLayout(it)) }
+                    android.util.Log.i("EveStudentUi", "Fixture complete $name ${if (dark) "night" else "day"} $width/$font")
 
                 }
             }
