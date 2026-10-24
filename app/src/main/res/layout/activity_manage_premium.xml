@@ -16,7 +16,7 @@
         <com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Users" />
     </com.eve.app.designsystem.DesignSegmentedTabs>
     <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-        <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@+id/progressAdmin" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center" android:visibility="gone" style="@style/Widget.Eve.Token.Ring" android:indeterminate="true" />
+        <com.eve.app.designsystem.TelegramRadialProgressView android:id="@+id/progressAdmin" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center" android:visibility="gone" />
         <androidx.core.widget.NestedScrollView android:id="@+id/containerSettings" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:visibility="visible" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
                 <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/Widget.Eve.Token.Card">

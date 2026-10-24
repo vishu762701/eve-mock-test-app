@@ -23,5 +23,5 @@
             <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:src="@drawable/ic_chevron_right" app:tint="@color/text_secondary" />
         </LinearLayout>
     </com.eve.app.designsystem.DesignCardView>
-    <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@+id/progressCreatingOrder" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center_horizontal" android:layout_marginTop="@dimen/design_section_gap" android:visibility="gone" style="@style/Widget.Eve.Token.Ring" android:indeterminate="true" />
+    <com.eve.app.designsystem.TelegramRadialProgressView android:id="@+id/progressCreatingOrder" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center_horizontal" android:layout_marginTop="@dimen/design_section_gap" android:visibility="gone" />
 </LinearLayout>

@@ -53,6 +53,6 @@
                 <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/tvEmpty" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_shadow_room" android:text="Analytics are not available yet. Data will appear after students submit tests." android:visibility="gone" />
             </LinearLayout>
         </ScrollView>
-        <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@+id/progress" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center" android:visibility="gone" style="@style/Widget.Eve.Token.Ring" android:indeterminate="true" />
+        <com.eve.app.designsystem.TelegramRadialProgressView android:id="@+id/progress" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center" android:visibility="gone" />
     </FrameLayout>
 </LinearLayout>

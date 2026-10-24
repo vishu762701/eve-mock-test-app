@@ -14,7 +14,7 @@
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout android:id="@+id/swipeRefresh" android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false">
             <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvPolls" android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-        <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@+id/progressBar" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center" android:indeterminate="true" android:visibility="gone" style="@style/Widget.Eve.Token.Ring" />
+        <com.eve.app.designsystem.TelegramRadialProgressView android:id="@+id/progressBar" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center" android:visibility="gone" />
         <com.eve.app.ui.common.EmptyStateView android:id="@+id/emptyStateView" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" />
         <com.eve.app.ui.common.ErrorStateView android:id="@+id/errorStateView" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" />
     </FrameLayout>

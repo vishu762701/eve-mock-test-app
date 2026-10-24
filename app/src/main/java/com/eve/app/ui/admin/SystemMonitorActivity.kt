@@ -26,7 +26,7 @@ class SystemMonitorActivity : EveBaseActivity() {
     private lateinit var overview: LinearLayout
     private lateinit var health: LinearLayout
     private lateinit var operations: LinearLayout
-    private lateinit var progress: ProgressBar
+    private lateinit var progress: com.eve.app.designsystem.TelegramRadialProgressView
     private lateinit var refresh: MaterialButton
     private lateinit var more: MaterialButton
     private var offset = 0
@@ -42,8 +42,7 @@ class SystemMonitorActivity : EveBaseActivity() {
         com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
         binding.btnBack.setOnClickListener { finish() }
         refresh = button(content, "Refresh / Retry") { offset = 0; load() }
-        progress = com.google.android.material.progressindicator.CircularProgressIndicator(this).also {
-            it.isIndeterminate = true
+        progress = com.eve.app.designsystem.TelegramRadialProgressView(this).also {
             val size = resources.getDimensionPixelSize(R.dimen.design_ring_size)
             content.addView(it, LinearLayout.LayoutParams(size, size))
         }

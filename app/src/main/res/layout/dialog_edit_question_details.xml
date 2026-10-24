@@ -27,7 +27,7 @@
             <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Explanation" />
             <com.google.android.material.button.MaterialButton android:id="@+id/btnReformatAi" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:minWidth="@dimen/design_zero" android:text="✨ Reformat with AI" />
         </LinearLayout>
-        <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@+id/pbReformat" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center" android:indeterminate="true" android:visibility="gone" style="@style/Widget.Eve.Token.Ring" />
+        <com.eve.app.designsystem.TelegramRadialProgressView android:id="@+id/pbReformat" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center" android:visibility="gone" />
         <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:hint="Explanation (Key Points format)">
             <com.google.android.material.textfield.TextInputEditText android:id="@+id/etExplanation" style="@style/Widget.Eve.Token.Input" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="top|start" android:inputType="textMultiLine" android:minLines="3" />
         </com.eve.app.designsystem.DesignInputLayout>

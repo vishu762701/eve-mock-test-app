@@ -116,3 +116,14 @@ Two further original Telegram static RGBA icons from the owner-supplied official
   - Floating bottom navigation pill (`MainTabsLayout`, `GlassTabView`, `EveBottomPillBar`, `EveNavigationHost`) with Telegram's 320ms decelerate capsule animation, 56dp height, 8dp margin, 344dp max width, and `BlurredBackgroundProviderImpl.mainTabs()` glass drawable with AGSL shader fallback.
   - Tab Settings animation (`tab_settings.json`) in `app/src/main/res/raw/`.
 - **Copyright & License:** Telegram FZ-LLC / Nikolai Kudashov and contributors; the reference archive's root `LICENSE` contains GNU GPL version 2. Per-file "or later" grants and GPLv3 compatibility remain under review. EVE-authored code uses GPL-3.0-or-later (root `LICENSE`), which does not relicense upstream assets.
+
+
+### Telegram RadialProgressView adaptation
+The EVE loading spinner in `app/src/main/java/com/eve/app/designsystem/TelegramRadialProgressView.kt`
+adapts the animation and stroke/arc calculations in Telegram Android
+`TMessagesProj/src/main/java/org/telegram/ui/Components/RadialProgressView.java`
+(Copyright Nikolai Kudashov, 2013–2018; GNU GPL version 2 or later).
+EVE-specific modifications: AndroidUtilities dp calls replaced with local density
+calculation, Telegram Theme progressCircle replaced with the EVE resolved accent
+color, Java source translated to Kotlin, and XML-friendly constructor added.
+No Telegram service marks or strings are imported.

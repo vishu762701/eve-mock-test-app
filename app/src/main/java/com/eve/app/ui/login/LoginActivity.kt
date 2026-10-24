@@ -100,6 +100,10 @@ class LoginActivity : EveBaseActivity() {
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        // Telegram LoginActivity.java:776-781 uses a 20dp arc in a 32dp container.
+        val loginArcSize = (20f * resources.displayMetrics.density).toInt()
+        binding.progressGoogle.setSize(loginArcSize)
+        binding.progressSubmit.setSize(loginArcSize)
         SystemBarHelper.syncSystemBars(this)
         isCheckingAuth = false
 

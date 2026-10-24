@@ -20,7 +20,7 @@
             </HorizontalScrollView>
             <TextView android:id="@+id/tvPapersLabel" android:visibility="gone" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_icon_size" android:text="Choose a paper or shift" />
             <com.google.android.material.chip.ChipGroup android:id="@+id/chipGroupPapers" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" app:chipSpacingVertical="@dimen/design_screen_margin" app:chipSpacingHorizontal="@dimen/design_card_gap" />
-            <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@+id/progress" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center" android:layout_marginVertical="@dimen/design_shadow_room" android:visibility="gone" style="@style/Widget.Eve.Token.Ring" android:indeterminate="true" />
+            <com.eve.app.designsystem.TelegramRadialProgressView android:id="@+id/progress" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center" android:layout_marginVertical="@dimen/design_shadow_room" android:visibility="gone" />
             <TextView android:id="@+id/tvMessage" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_shadow_room" android:gravity="center" android:visibility="gone" />
         </LinearLayout>
     </ScrollView>
