@@ -24,6 +24,7 @@ class DesignSegmentedTabs @JvmOverloads constructor(
         clipChildren = false
         clipToPadding = false
         val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
+        applyIndicatorColor(palette.accent)
         tabRippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
         addOnTabSelectedListener(object : OnTabSelectedListener {
             override fun onTabSelected(tab: Tab?) = applyTypography()
@@ -33,10 +34,17 @@ class DesignSegmentedTabs @JvmOverloads constructor(
     }
 
     fun updatePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
-        setSelectedTabIndicatorColor(palette.accent)
+        applyIndicatorColor(palette.accent)
         tabRippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
         applyTypography()
     }
+    private fun applyIndicatorColor(color: Int) {
+        // Pair the native fill with onAccent even before the first theme traversal.
+        // Keep the drawable's fill and Material's tint consistent for every state.
+        (tabSelectedIndicator?.mutate() as? android.graphics.drawable.GradientDrawable)?.setColor(color)
+        setSelectedTabIndicatorColor(color)
+    }
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         // Labels must be installed and sized before Material measures its strip.
         applyTypography()

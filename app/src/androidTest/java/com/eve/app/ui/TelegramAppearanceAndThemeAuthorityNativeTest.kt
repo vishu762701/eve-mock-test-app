@@ -144,4 +144,44 @@ class TelegramAppearanceAndThemeAuthorityNativeTest {
             assertEquals("Preserved user input", editText.text.toString())
         }
     }
+
+    @Test
+    fun inflatedResultTabsKeepSelectedLabelsReadableBeforeAndAfterPaletteUpdate() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        instrumentation.runOnMainSync {
+            val base = instrumentation.targetContext
+            TelegramThemeEngine.init(base)
+            for (dark in listOf(false, true)) {
+                val configuration = android.content.res.Configuration(base.resources.configuration).apply {
+                    uiMode = (uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK.inv()) or
+                        if (dark) android.content.res.Configuration.UI_MODE_NIGHT_YES
+                        else android.content.res.Configuration.UI_MODE_NIGHT_NO
+                }
+                val context = android.view.ContextThemeWrapper(base.createConfigurationContext(configuration),
+                    com.eve.app.R.style.Theme_Eve)
+                val binding = com.eve.app.databinding.ActivityResultBinding.inflate(android.view.LayoutInflater.from(context))
+                val tabs = binding.tabLayoutResult
+                val palette = TelegramThemeEngine.resolveCurrentPalette(context)
+                for (updated in listOf(false, true)) {
+                    if (updated) tabs.updatePalette(palette)
+                    binding.root.measure(
+                        android.view.View.MeasureSpec.makeMeasureSpec((360 * context.resources.displayMetrics.density).toInt(), android.view.View.MeasureSpec.EXACTLY),
+                        android.view.View.MeasureSpec.makeMeasureSpec((800 * context.resources.displayMetrics.density).toInt(), android.view.View.MeasureSpec.EXACTLY))
+                    binding.root.layout(0, 0, binding.root.measuredWidth, binding.root.measuredHeight)
+                    for (index in 0 until tabs.tabCount) {
+                        val tab = requireNotNull(tabs.getTabAt(index))
+                        tab.select()
+                        val label = tab.customView as android.widget.TextView
+                        val fill = (tabs.tabSelectedIndicator as android.graphics.drawable.GradientDrawable)
+                            .color!!.getColorForState(tabs.drawableState, 0)
+                        assertEquals("Selected indicator must share the label's palette", palette.accent, fill)
+                        assertEquals("Selected text must retain its matching foreground", palette.onAccent, label.currentTextColor)
+                        assertTrue("Readable selected tab (dark=$dark, updated=$updated, index=$index)",
+                            ColorUtils.calculateContrast(label.currentTextColor, fill) >= 4.5)
+                    }
+                }
+            }
+        }
+    }
+
 }
