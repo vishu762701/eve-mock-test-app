@@ -6,7 +6,7 @@ This repository contains third-party components and assets. Keep license obligat
 
 - **Upstream:** https://github.com/DrKLO/Telegram
 - **Read-only source archive set:** repository-root `Telegram-master.zip` (UI/security core), plus `Telegram-master-rest-1.zip` through `Telegram-master-rest-5.zip` (remaining source). The previous Git submodule is retired. Extract into a temporary directory outside git, never commit extracted sources, and verify against `EVE_MANIFEST.sha256` / `EVE_MANIFEST_FULL.sha256` before using it.
-- **Archive exclusion contract (owner-reported; contents not independently re-audited here):** `TMessagesProj/config/release.keystore`, `TMessagesProj/google-services.json`, `TMessagesProj_App/google-services.json`, `TMessagesProj_AppHockeyApp/google-services.json`, `TMessagesProj_AppHuawei/google-services.json`, `TMessagesProj_AppStandalone/google-services.json`, `TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java`. These signing/configuration sources must never be used as Eve credentials.
+- **Archive exclusions (confirmed absent by reference-verification run 40091599695; this checks the repacked archives, not every historical upstream revision):** `TMessagesProj/config/release.keystore`, `TMessagesProj/google-services.json`, `TMessagesProj_App/google-services.json`, `TMessagesProj_AppHockeyApp/google-services.json`, `TMessagesProj_AppHuawei/google-services.json`, `TMessagesProj_AppStandalone/google-services.json`, `TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java`. These signing/configuration sources must never be used as Eve credentials.
 - **Historical upstream provenance:** original Telegram Git reference `0aae959806c57be8ad457980f2a5c6277ff18635` remains a citation for previously imported icons, not an active submodule or an assertion that root archives contain that exact commit.
 
 ### Repository-root Telegram archive SHA-256 (2026-10-24)
@@ -26,7 +26,7 @@ Recorded from [GitHub Actions Telegram reference verifier (run 40091599695)](htt
 The UI/core manifest verified 7,575 file checks, the full manifest verified 13,976 file checks, and the icon registry verified 32 imported icon IDs with 254 source/app hash comparisons; all reported zero mismatches. The seven intentionally excluded files named above were confirmed absent in extracted source. Root LICENSE contained GNU GPL version 2 (June 1991); per-file "or later" grants depend on applicable notices and need separate licensing assessment.
 
 - **Asset verification:** `docs/telegram-source-verification.tsv` records SHA-256 comparisons against that commit; candidate-only rows are not import claims.
-- **License:** GNU General Public License version 2 or later (GPL-2.0-or-later).
+- **License evidence:** The extracted Telegram root `LICENSE` contains GNU GPL version 2 (June 1991). Any "or later" permission must be established for each imported asset or derived source file; this archive-level evidence alone does not establish GPLv3 compatibility. See `docs/telegram-gpl-audit-2026-10-24.md`.
 - **Retained derived behavior:** `app/src/main/java/com/eve/app/util/ThemeManager.kt` (circular Day/Night reveal and transition layering) and `app/src/main/java/com/eve/app/util/TelegramThemeEasing.kt`.
 - **Upstream snapshot:** `dc780e81ed1261c369c27870e8e0999a1eb0b600`; relevant origin: Telegram `LaunchActivity` / `DialogsActivity` transition handling.
 - **Credits:** Telegram FZ-LLC / DrKLO and Nikolai Kudashov. The derived theme code is subject to applicable GPL conditions; distributor obligations must be reviewed before publishing a binary.
@@ -37,8 +37,9 @@ Old Telegram premium GL renderer classes, models, textures and shaders were dele
 
 `app/src/main/java/com/eve/app/designsystem/ButtonBounce.kt` declares a Kotlin port
 of upstream `TMessagesProj/src/main/java/org/telegram/ui/Components/ButtonBounce.java`.
-The upstream Telegram Android project is GPL-2.0-or-later; this EVE adaptation
-is distributed under EVE's GPL-3.0-or-later plan. Preserve upstream
+The extracted Telegram root license is GPL v2; the applicable version grant
+for this specific derived component still requires per-file review. EVE plans
+GPL-3.0-or-later distribution, subject to license compatibility clearance. Preserve upstream
 attribution and provide this modified Kotlin source with corresponding-source
 deliverables. This attribution records provenance; it does **not** establish
 byte-for-byte source parity, complete dependency compatibility, or production
