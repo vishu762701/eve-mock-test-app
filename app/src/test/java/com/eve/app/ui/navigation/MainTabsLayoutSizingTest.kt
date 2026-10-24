@@ -149,6 +149,16 @@ class MainTabsLayoutSizingTest {
     }
 
     @Test
+    fun selectedTabUsesTelegramExtraBoldAndUnselectedStaysBold() {
+        val context = RuntimeEnvironment.getApplication()
+        val tab = GlassTabView(context).apply { configureAsIcon(R.drawable.msg_home, "Home") }
+        tab.setSelectedTab(false, false)
+        assertEquals(700, tab.textView.typeface.weight)
+        tab.setSelectedTab(true, false)
+        assertEquals(800, tab.textView.typeface.weight)
+    }
+
+    @Test
     fun updatePalettePropagatesToAllGlassTabs() {
         val context = RuntimeEnvironment.getApplication()
         val layout = MainTabsLayout(context)

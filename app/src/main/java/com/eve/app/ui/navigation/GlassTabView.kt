@@ -225,7 +225,13 @@ class GlassTabView @JvmOverloads constructor(
             invalidate()
         }
 
-        textView.typeface = if (selected) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
+        // Telegram GlassTabView.java:233-238: regular tabs are bold and
+        // the selected tab uses Roboto ExtraBold (800).
+        textView.typeface = if (android.os.Build.VERSION.SDK_INT >= 28) {
+            Typeface.create(Typeface.DEFAULT, if (selected) 800 else 700, false)
+        } else {
+            Typeface.DEFAULT_BOLD
+        }
         if (selected && isLottieTab && lottieView.visibility == VISIBLE) {
             lottieView.playAnimation()
         }
