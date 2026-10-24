@@ -4,7 +4,6 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.Context
-import android.content.res.ColorStateList
 import android.util.AttributeSet
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
@@ -13,8 +12,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import com.eve.app.R
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.progressindicator.CircularProgressIndicatorSpec
-import com.google.android.material.progressindicator.IndeterminateDrawable
 
 /**
  * UIArc Button — Feedback Submission Component.
@@ -38,7 +35,7 @@ class UiArcButton @JvmOverloads constructor(
     private var activePressAnimator: ValueAnimator? = null
     private var labelFadeAnimator: ValueAnimator? = null
 
-    private var progressDrawable: IndeterminateDrawable<CircularProgressIndicatorSpec>? = null
+    private var progressDrawable: TelegramRadialProgressIcon? = null
 
     var isLoading: Boolean
         get() = isBusy
@@ -113,17 +110,14 @@ class UiArcButton @JvmOverloads constructor(
         if (loading) {
             if (idleText.isEmpty()) idleText = text
             if (progressDrawable == null) {
-                val spec = CircularProgressIndicatorSpec(context, null).apply {
-                    indicatorColors = intArrayOf(currentTextColor)
-                    indicatorSize = (18f * density).toInt()
-                    trackThickness = (2.5f * density).toInt()
+                progressDrawable = TelegramRadialProgressIcon(context).apply {
+                    setProgressColor(currentTextColor)
                 }
-                progressDrawable = IndeterminateDrawable.createCircularDrawable(context, spec)
             }
             icon = progressDrawable
             iconGravity = ICON_GRAVITY_TEXT_START
             iconPadding = (8f * density).toInt()
-            iconTint = ColorStateList.valueOf(currentTextColor)
+            iconTint = null
             progressDrawable?.start()
             morphLabelTo(pendingLabel)
         } else {
