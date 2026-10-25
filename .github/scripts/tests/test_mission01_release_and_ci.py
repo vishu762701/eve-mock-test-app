@@ -68,6 +68,10 @@ class Mission01GateTest(unittest.TestCase):
                 path = f"app/src/main/res/drawable-{density}/{icon}.webp"
                 expected_sha = row[f"sha256_{density}"]
                 if expected_sha == "NOT FOUND":
+                    self.assertFalse(
+                        (ROOT / path).exists(),
+                        f"Unverified artwork bundled for absent Telegram density: {path}",
+                    )
                     self.assertNotIn(path, by_eve, f"Unexpected source match for {path}")
                     continue
                 self.assertRegex(expected_sha, r"^[0-9a-f]{64}$")
