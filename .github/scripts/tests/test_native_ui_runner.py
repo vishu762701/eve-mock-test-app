@@ -104,6 +104,20 @@ esac
                 self.assertEqual(5, commands.count('adb shell am instrument -w -r'))
                 self.assertEqual(4, commands.count(' -e visualCases '))
 
+    def test_stdin_isolated_visual_shards_still_fail_on_assertions(self):
+        # Verify stdin isolation never converts an on-device failure to PASS,
+        # including when the adb subprocess consumes all inherited stdin.
+        for mode in ['gesture', 'three-button']:
+            with self.subTest(mode=mode):
+                result, commands, evidence = self.run_script(
+                    mode, assertion_failure=True, drain_instrument_stdin=True
+                )
+                self.assertNotEqual(0, result.returncode)
+                self.assertIn('NATIVE_FAILURE', result.stderr)
+                self.assertIn('safe-runtime.log', evidence)
+                # Core failure must not silently advance to visual fixtures.
+                self.assertEqual(1, commands.count('adb shell am instrument -w -r'))
+
     def test_instrumentation_failure_is_not_swallowed(self):
         for mode in ['gesture', 'three-button']:
             result, commands, evidence = self.run_script(mode, status=7)
