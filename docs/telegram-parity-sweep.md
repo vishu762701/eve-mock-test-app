@@ -104,15 +104,24 @@ The complete 42-row table is in `docs/telegram-icon-candidates.md` with registry
 line references, actual Telegram resource paths, source-manifest lines, SHA-256
 and semantic reasons. Google sign-in art is NOT FOUND as a bundled static
 identity resource; the upstream Java references an external Google SDK resource.
-No icon imports or changes were made.
+At the time of the original candidate sweep, no icon assets were imported. The live
+registry now records **46 imported Telegram static icons**, **27 semantic mismatches**
+and **1 EVE-original non-source-exact redraw** across 74 mappings. This historical
+candidate table is not a current import checklist. Per-density asset hashes are
+checked against committed provenance records, but source-archive revalidation,
+interaction-state parity, motion fidelity and GPL redistribution clearance remain
+separate acceptance requirements. `ic_bookmark`, `ic_check_circle`,
+`ic_notification` and `ic_theme_sun` still require use-site/state verification.
 
 ## Needs my decision
 
 - Legacy email/password entry versus an existing-user/admin account-linking plan:
   code and views retained, as detailed under A2.
-- Approve/reject the individual icon candidates before any import. A literal
-  trophy and several exam-domain counterparts are NOT FOUND; semantic analogies
-  are explicitly marked and are not substitution recommendations.
+- Remaining non-imported icon candidates require source/semantic/state review and
+  explicit owner authorization before any import. A literal trophy and several
+  exam-domain counterparts remain NOT FOUND; semantic analogies are not
+  substitution recommendations. The 46 already imported icons are recorded in
+  the live registry and are not pending candidate approvals.
 - Selected-tab glyph fidelity: existing platform 800 (API 28+) / Bold fallback
   (API 24–27) differs from Telegram's bundled `fonts/rextrabold.ttf`. The numeric
   selected weight is retained; no new font asset or independent font-license
