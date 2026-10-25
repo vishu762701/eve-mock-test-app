@@ -150,3 +150,9 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 }
+
+// Print the actual assertion message (including asset path and expected/actual
+// SHA-256) for failing JVM tests. This does not change any test result or gate.
+tasks.withType<org.gradle.api.tasks.testing.Test>().configureEach {
+    testLogging.exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+}
