@@ -4,26 +4,26 @@ Source availability: Telegram source is not stored in this repository; the owner
 
 Source: original Telegram Android source ZIP SHA-256 `0785365538ce05cf5bdf44a15d8fd5f5219f8193db0a2d124af9665fc63fd7b3`, matching `EVE_PROVENANCE.md`. This report distinguishes source numeric parity from Android/EVE adaptations.
 
-| Property | Current EVE | Telegram (relative to `TMessagesProj/src/main/java/org/telegram/`) | Action |
-|---|---|---|---|
-| Height | **56dp**, fixed on outer `EveBottomPillBar` | `ui/DialogsActivity.java:291`, 56dp | Fixed outer height; previously `WRAP_CONTENT` expanded through the `MATCH_PARENT` glass child |
-| Outer margins | 8dp bottom + 8dp left/right, plus Android navigation inset | `ui/DialogsActivity.java:292–293`, 8dp and 72dp total allocation | Apply 8dp side margins, keep system bar inset |
-| Max width | 344dp **including the glass background** | `ui/MainTabsActivity.java:309–312`, 328 + 8×2 = 344dp; `ui/MainTabsLayout.java:64–66` | Cap outer pill and inner tabs; previously only inner tabs capped |
-| Dynamic widths | Text-measured, weighted widths; minimum available strip 320dp | `ui/MainTabsLayout.java:68–151` | Replace equal-width division with source's three-pass weighted sizing |
-| Text-size passes | 12 / 12 / 10dp | `ui/MainTabsLayout.java:46–47` | Preserve |
-| Per-tab width paddings | 16 / 8 / 4dp | `ui/MainTabsLayout.java:46–47,78` | Preserve |
-| Tab label weights | Default Medium 500; selected 800 | `ui/Components/glass/GlassTabView.java:87–96,233–238` | Correct prior 700 claim: bold() resolves to bundled Medium; selected system ExtraBold is a documented font substitute |
-| Label text position | 28.33dp from top | `ui/Components/glass/GlassTabView.java:95–96` | Preserve |
-| Main tab icon | 24×24dp at top 4dp | `ui/Components/glass/GlassTabView.java:400–407` | Preserve |
-| Avatar | 22×22dp, radius 11dp, top 5dp | `ui/Components/glass/GlassTabView.java:414–428` | Preserve |
-| Selected indicator | Capsule scale 0.6 to 1 and 0.09× alpha | `ui/Components/glass/GlassTabView.java:150–165` | Preserve source math |
-| Selection motion | 320ms decelerated | `ui/Components/glass/GlassTabView.java:65–67` | Preserve |
-| Press/reselect | Click selects; active click invokes scroll-to-top | `ui/MainTabsActivity.java:334–348` | Preserve four EVE destinations and reselect callback |
-| Color roles | `glassTabUnselected`, `glassTabSelected`, `glassTabSelectedText` from EVE's resolved palette | `ui/Components/glass/GlassTabView.java:407–409` | Keep semantic theme-dependent mapping in Day/Night; never hardcode Telegram's theme colors |
-| Liquid-glass API gate | API 33+; non-shader drawable fallback on earlier Android | `ui/Components/blur3/LiquidGlassEffect.java:14` | Preserve |
-| Glass radius | 28dp, based on 56dp height | `ui/MainTabsActivity.java:366–369` | Preserve |
-| Vertical padding | 0 inside 56dp tap targets | `ui/MainTabsActivity.java:311` uses 12dp top/bottom around its wrapper layout | Intentional Android accessibility adaptation: EVE retains ≥48dp actual touch height; copying 12dp internal padding would clip labels/taps |
-| Destination count | Four: Home, History, Settings, Profile | `ui/MainTabsActivity.java:314–319` uses five including Contacts/Calls | Intentional EVE-specific navigation requirement |
+| Property | EVE file:line | Telegram file:line | Value | Action |
+|---|---|---|---|---|
+| Height | `app/src/main/java/com/eve/app/ui/navigation/EveNavigationHost.kt:42` | `ui/DialogsActivity.java:291`, 56dp | **56dp**, fixed on outer `EveBottomPillBar` | Fixed outer height; previously `WRAP_CONTENT` expanded through the `MATCH_PARENT` glass child |
+| Outer margins | `app/src/main/java/com/eve/app/ui/navigation/EveBottomPillBar.kt:95` | `ui/DialogsActivity.java:292–293`, 8dp and 72dp total allocation | 8dp bottom + 8dp left/right, plus Android navigation inset | Apply 8dp side margins, keep system bar inset |
+| Max width | `app/src/main/java/com/eve/app/ui/navigation/EveBottomPillBar.kt:177` | `ui/MainTabsActivity.java:309–312`, 328 + 8×2 = 344dp; `ui/MainTabsLayout.java:64–66` | 344dp **including the glass background** | Cap outer pill and inner tabs; previously only inner tabs capped |
+| Dynamic widths | `app/src/main/java/com/eve/app/ui/navigation/MainTabsLayout.kt:114` | `ui/MainTabsLayout.java:68–151` | Text-measured, weighted widths; minimum available strip 320dp | Replace equal-width division with source's three-pass weighted sizing |
+| Text-size passes | `app/src/main/java/com/eve/app/ui/navigation/MainTabsLayout.kt:30` | `ui/MainTabsLayout.java:46–47` | 12 / 12 / 10dp | Preserve |
+| Per-tab width paddings | `app/src/main/java/com/eve/app/ui/navigation/MainTabsLayout.kt:31` | `ui/MainTabsLayout.java:46–47,78` | 16 / 8 / 4dp | Preserve |
+| Tab label weights | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:116` | `ui/Components/glass/GlassTabView.java:87–96,233–238` | Default Medium 500; selected 800 | Correct prior 700 claim: bold() resolves to bundled Medium; selected system ExtraBold is a documented font substitute |
+| Label text position | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:122` | `ui/Components/glass/GlassTabView.java:95–96` | 28.33dp from top | Preserve |
+| Main tab icon | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:78` | `ui/Components/glass/GlassTabView.java:400–407` | 24×24dp at top 4dp | Preserve |
+| Avatar | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:96` | `ui/Components/glass/GlassTabView.java:414–428` | 22×22dp, radius 11dp, top 5dp | Preserve |
+| Selected indicator | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:272` | `ui/Components/glass/GlassTabView.java:150–165` | Capsule scale 0.6 to 1 and 0.09× alpha | Preserve source math |
+| Selection motion | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:212` | `ui/Components/glass/GlassTabView.java:65–67` | 320ms decelerated | Preserve |
+| Press/reselect | `app/src/main/java/com/eve/app/ui/navigation/MainTabsLayout.kt:97` | `ui/MainTabsActivity.java:334–348` | Click selects; active click invokes scroll-to-top | Preserve four EVE destinations and reselect callback |
+| Color roles | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:193` | `ui/Components/glass/GlassTabView.java:407–409` | `glassTabUnselected`, `glassTabSelected`, `glassTabSelectedText` from EVE's resolved palette | Keep semantic theme-dependent mapping in Day/Night; never hardcode Telegram's theme colors |
+| Liquid-glass API gate | `app/src/main/java/com/eve/app/ui/navigation/EveBottomPillBar.kt:165` | `ui/Components/blur3/LiquidGlassEffect.java:14` | API 33+; non-shader drawable fallback on earlier Android | Preserve |
+| Glass radius | `app/src/main/java/com/eve/app/ui/navigation/EveBottomPillBar.kt:217` | `ui/MainTabsActivity.java:366–369` | 28dp, based on 56dp height | Preserve |
+| Vertical padding | `app/src/main/java/com/eve/app/ui/navigation/MainTabsLayout.kt:42` | `ui/MainTabsActivity.java:311` uses 12dp top/bottom around its wrapper layout | 0 inside 56dp tap targets | Intentional Android accessibility adaptation: EVE retains ≥48dp actual touch height; copying 12dp internal padding would clip labels/taps |
+| Destination count | `app/src/main/java/com/eve/app/ui/navigation/EveBottomPillBar.kt:45` | `ui/MainTabsActivity.java:314–319` uses five including Contacts/Calls | Four: Home, History, Settings, Profile | Intentional EVE-specific navigation requirement |
 
 Additional source corrections: `MainTabsLayout.java:141` uses `Math.round` for each
 weighted tab width; EVE now uses the same operation. `AndroidUtilities.java:2701–2705`

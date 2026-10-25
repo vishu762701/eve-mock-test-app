@@ -74,7 +74,7 @@ pending the email-login decision; it is not claimed as source-exact first-page m
 
 | Property | EVE file:line | Telegram file:line | Value | Action |
 |---|---|---|---|---|
-| Unselected tab font | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:116` | `Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/glass/GlassTabView.java:92,237; messenger/AndroidUtilities.java:262–270` | bundled Medium 500 | Fixed incorrect 700 and corrected comparison document |
+| Unselected tab font | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:116` | `Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/glass/GlassTabView.java:92,237`; `Telegram-master/TMessagesProj/src/main/java/org/telegram/messenger/AndroidUtilities.java:262–270` | bundled Medium 500 | Fixed incorrect 700 and corrected comparison document |
 | Selected tab font | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:232` | `Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/glass/GlassTabView.java:237` | 800 on API 28+ | Preserved numeric weight; platform glyph substitute remains an explicit deviation |
 | Weighted-width rounding | `app/src/main/java/com/eve/app/ui/navigation/MainTabsLayout.kt:180` | `Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/MainTabsLayout.java:141` | Math.round | Replaced truncation |
 | Density geometry | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:302` | `Telegram-master/TMessagesProj/src/main/java/org/telegram/messenger/AndroidUtilities.java:2701–2705` | ceil(density × dp) | Corrected per-density rounding in tab leaf and sizing helper |
