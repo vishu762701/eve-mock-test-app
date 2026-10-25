@@ -29,6 +29,8 @@ class HomeLayoutDiagnosticReachabilityTest {
         val release = source("src/release/java/com/eve/app/ui/home/HomeLayoutDiagnostic.kt")
         assertTrue(debug.contains("decor.addView(this"))
         assertTrue(debug.contains("EVE HOME DEBUG"))
+        assertTrue("Unknown full-screen layers must be observable", debug.contains("contentRoot?.let"))
+        assertTrue("Fullscreen layer data must include geometry", debug.contains("append(info("))
         assertFalse("Release may not add on-screen overlays", release.contains("addView("))
         assertFalse("Release may not log diagnostics", release.contains("Log."))
     }

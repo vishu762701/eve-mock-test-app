@@ -82,6 +82,26 @@ object HomeLayoutDiagnostic {
                 for ((name, view) in overlaysPlus) append(info(name, view)).append('\n')
                 append("decorChildCount=${decor.childCount}; ThemeTransition=")
                 append(com.eve.app.util.ThemeManager.isTransitioning)
+                append('\n')
+                // Enumerate any unrecognized fullscreen layer above the Home content.
+                // A stuck snapshot/dim view may have no known tag. Show draw order,
+                // bounds and alpha without collecting personal content or pixels.
+                val contentRoot = activity.findViewById<ViewGroup>(android.R.id.content)
+                for ((owner, group) in listOfNotNull(
+                    "decor" to decor,
+                    contentRoot?.let { "content" to it }
+                )) {
+                    val candidates = (0 until group.childCount).map { index ->
+                        index to group.getChildAt(index)
+                    }.filter { (_, child) ->
+                        child !== panel && child.visibility == View.VISIBLE &&
+                            child.width >= decor.width * 0.75f &&
+                            child.height >= decor.height * 0.75f
+                    }.takeLast(4)
+                    for ((index, layer) in candidates) {
+                        append(info("$owner[$index]", layer)).append('\n')
+                    }
+                }
             }
             android.util.Log.d("EveHomeLayoutDiag", snapshot)
             panel.text = snapshot
