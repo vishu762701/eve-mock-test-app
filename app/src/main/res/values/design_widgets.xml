@@ -103,9 +103,10 @@
         <item name="android:includeFontPadding">false</item>
         <item name="android:stateListAnimator">@animator/design_press_scale</item>
     </style>
-    <style name="Widget.Eve.Token.Progress" parent="Widget.AppCompat.ProgressBar">
-        <item name="android:indeterminateTint">@color/accent</item><item name="android:progressTint">@color/accent</item>
-        <item name="android:progressBackgroundTint">@color/track</item>
+    <!-- Loading styles carry sizing only; TelegramRadialProgressView owns its source arc and palette. -->
+    <style name="Widget.Eve.Token.Progress" parent="">
+        <item name="android:minWidth">@dimen/design_ring_size</item>
+        <item name="android:minHeight">@dimen/design_ring_size</item>
     </style>
     <style name="Widget.Eve.Token.Ring" parent="Widget.Material3.CircularProgressIndicator">
         <item name="indicatorColor">@color/accent</item><item name="trackColor">@color/track</item>

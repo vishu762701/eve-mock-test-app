@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 import com.eve.app.data.model.AdminAuditLog
 import com.eve.app.data.repository.AuditLogRepository
 import com.eve.app.data.repository.ApiUsageRepository
-import android.widget.ProgressBar
+import com.eve.app.designsystem.TelegramRadialProgressView
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.functions.FirebaseFunctions
 import kotlinx.coroutines.tasks.await
@@ -370,7 +370,7 @@ class EditExamActivity : EveBaseActivity() {
         val etOptionD = dialogView.findViewById<EditText>(R.id.etOptionD)
         val rgCorrectAnswer = dialogView.findViewById<RadioGroup>(R.id.rgCorrectAnswer)
         val btnReformatAi = dialogView.findViewById<MaterialButton>(R.id.btnReformatAi)
-        val pbReformat = dialogView.findViewById<ProgressBar>(R.id.pbReformat)
+        val pbReformat = dialogView.findViewById<TelegramRadialProgressView>(R.id.pbReformat)
         val etExplanation = dialogView.findViewById<EditText>(R.id.etExplanation)
         val etTopic = dialogView.findViewById<EditText>(R.id.etTopic)
 

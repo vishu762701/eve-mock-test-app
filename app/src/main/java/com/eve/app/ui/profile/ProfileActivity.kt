@@ -12,7 +12,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
-import android.widget.ProgressBar
+import com.eve.app.designsystem.TelegramRadialProgressView
 import android.widget.TextView
 import android.widget.Toast
 import com.eve.app.util.AppBulletin
@@ -324,7 +324,9 @@ class ProfileActivity : EveBaseActivity() {
             val space = resources.getDimensionPixelSize(R.dimen.design_card_padding)
             setPadding(space, space, space, space)
             gravity = android.view.Gravity.CENTER_VERTICAL
-            addView(ProgressBar(this@ProfileActivity))
+            addView(TelegramRadialProgressView(this@ProfileActivity), android.widget.LinearLayout.LayoutParams(
+                resources.getDimensionPixelSize(R.dimen.design_ring_size),
+                resources.getDimensionPixelSize(R.dimen.design_ring_size)))
             addView(TextView(this@ProfileActivity).apply {
                 text = msg
                 setPadding(resources.getDimensionPixelSize(R.dimen.design_section_gap), 0, 0, 0)
