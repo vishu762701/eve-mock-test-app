@@ -32,6 +32,56 @@ class Mission01GateTest(unittest.TestCase):
             self.assertIn(requirement, entry)
         self.assertIn("never block unrelated tasks", entry)
 
+    def test_imported_icon_hashes_match_source_evidence(self):
+        """Pin every imported density to the recorded upstream/EVE hash comparison.
+
+        This checks committed evidence consistency, not access to the original ZIP
+        or permission to redistribute Telegram artwork.
+        """
+        import csv
+
+        def read_tsv(name):
+            with (ROOT / "docs" / name).open(newline="") as stream:
+                return list(csv.DictReader(
+                    (line for line in stream if not line.startswith("#")),
+                    delimiter="\t",
+                ))
+
+        registry = read_tsv("telegram-icon-source-registry.tsv")
+        evidence = read_tsv("telegram-source-verification.tsv")
+        matches = [row for row in evidence if row["result"] == "MATCH"]
+        by_eve = {row["eve_asset"]: row for row in matches}
+        self.assertEqual(len(matches), len(by_eve), "Duplicate source verification paths")
+
+        expected_paths = set()
+        imported = [
+            row for row in registry
+            if row["source_fidelity_status"] == "OFFICIAL_TELEGRAM_GPL_ART_IMPORTED"
+        ]
+        self.assertTrue(imported, "No imported Telegram icons registered")
+        for row in imported:
+            icon = row["eve_icon"]
+            source_hdpi = row["telegram_zip_asset"]
+            self.assertIn("drawable-hdpi/", source_hdpi)
+            for density in ("mdpi", "hdpi", "xhdpi", "xxhdpi"):
+                path = f"app/src/main/res/drawable-{density}/{icon}.webp"
+                expected_sha = row[f"sha256_{density}"]
+                if expected_sha == "NOT FOUND":
+                    self.assertNotIn(path, by_eve, f"Unexpected source match for {path}")
+                    continue
+                self.assertRegex(expected_sha, r"^[0-9a-f]{64}$")
+                expected_paths.add(path)
+                self.assertIn(path, by_eve, f"Missing source evidence for {path}")
+                verified = by_eve[path]
+                self.assertEqual(
+                    source_hdpi.replace("drawable-hdpi/", f"drawable-{density}/"),
+                    verified["telegram_asset"],
+                    f"Wrong upstream path for {path}",
+                )
+                self.assertEqual(expected_sha, verified["upstream_sha256"], path)
+                self.assertEqual(expected_sha, verified["eve_sha256"], path)
+        self.assertEqual(expected_paths, set(by_eve), "Unregistered source MATCH rows")
+
     def test_compile_and_unit_assertions_gate_both_emulator_jobs(self):
         """Verify functional CI gates, not obsolete Gradle command spellings."""
         workflow = BUILD.read_text()
