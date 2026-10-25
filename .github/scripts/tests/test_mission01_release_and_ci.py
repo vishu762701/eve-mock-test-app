@@ -13,6 +13,25 @@ NATIVE_TEST = ROOT / "app/src/androidTest/java/com/eve/app/ui/LockedFoundationTe
 
 
 class Mission01GateTest(unittest.TestCase):
+    def test_official_telegram_fidelity_contract_survives_rule_cleanup(self):
+        """A source-exact mission needs per-role evidence beyond a green build."""
+        entry = (ROOT / "AGENTS.md").read_text()
+        for requirement in (
+            "Telegram Mission 01 fidelity contract",
+            "source-mapping table",
+            "EVE path:line",
+            "Telegram path:line",
+            "verified source value or asset SHA-256",
+            "Day/Night",
+            "normal/pressed/disabled/selected/loading",
+            "RTL",
+            "accessibility",
+            "NOT FOUND",
+            "Green CI",
+        ):
+            self.assertIn(requirement, entry)
+        self.assertIn("never block unrelated tasks", entry)
+
     def test_compile_and_unit_assertions_gate_both_emulator_jobs(self):
         """Verify functional CI gates, not obsolete Gradle command spellings."""
         workflow = BUILD.read_text()
