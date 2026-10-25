@@ -1,5 +1,6 @@
 """Host-side Mission 01 CI anti-regression checks: executed before Android builds."""
 from pathlib import Path
+import hashlib
 import re
 import unittest
 
@@ -71,6 +72,13 @@ class Mission01GateTest(unittest.TestCase):
                     continue
                 self.assertRegex(expected_sha, r"^[0-9a-f]{64}$")
                 expected_paths.add(path)
+                bundled = ROOT / path
+                self.assertTrue(bundled.is_file(), f"Missing imported artwork: {path}")
+                self.assertEqual(
+                    expected_sha,
+                    hashlib.sha256(bundled.read_bytes()).hexdigest(),
+                    f"Bundled artwork drift: {path}",
+                )
                 self.assertIn(path, by_eve, f"Missing source evidence for {path}")
                 verified = by_eve[path]
                 self.assertEqual(
