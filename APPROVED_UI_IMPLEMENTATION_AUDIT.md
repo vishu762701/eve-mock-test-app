@@ -1,22 +1,5 @@
-# Historical UI design-reset baseline (NOT a later Telegram migration override)
+# Historical UI baseline — not an active rule
 
-This document is a record of the prior UI design reset, not permission to reintroduce Inter/iOS styling into components subsequently approved for source-traced Telegram migration. The latest owner task, `SOURCE_OF_TRUTH.md`, and `docs/telegram-typography-mission-01.md` govern active typography/icon migrations. Not-yet-migrated roles remain transitional. Preserve working flows, Day/Night behavior, and required verification gates.
+This record is retained solely for historical engineering evidence. EVE is under active development: **none of the past UI/UX selections are locked**. Older colors, fonts, 26dp shapes, bottom navigation, Telegram/iOS appearance, blur, motion and feature choices may all be changed or deleted by a later explicit owner request.
 
-# Historical design-reset values (not overriding later Telegram work)
-
-The owner's locked root design-reset specification supersedes historical iOS 26
-numeric requirements, former approval boundaries, old icons, fonts and effects.
-Use the root day/night tokens, bundled Inter 400/500/600/700 with Hindi fallback, solid 26dp surfaces,
-capsule controls and Medium glass only on top bars, bottom bars and menus.
-The device-font choice is explicitly retired. API 24–25 retains the approved
-black navigation-area fallback in light mode.
-
-UI changes must retain data, business logic, navigation destinations and feature
-callbacks. The Telegram day/night reveal, toggle listeners, sun/moon resources
-and transition handoff remain protected. Existing Lottie motion, timing, assets
-and triggers are retained under the owner's later preservation instruction.
-
-Historical release evidence is recorded in `CODEX_STATE.md`. Native fixture verification is
-separate from authenticated production end-to-end verification. Do not reuse
-superseded task documents or historical numeric design decisions as current UI
-requirements.
+Use current code and SOURCE_OF_TRUTH.md to understand what exists; ENGINEERING_STANDARD.md defines the current development, cleanup, legal and validation process. Do not use this archive or CODEX_STATE.md to block a redesign or reimpose obsolete test values.

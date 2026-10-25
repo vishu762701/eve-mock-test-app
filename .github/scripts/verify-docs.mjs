@@ -13,9 +13,7 @@ const REQUIRED_FILES = [
   'GEMINI.md',
   'CLAUDE.md',
   'ENGINEERING_STANDARD.md',
-  'SOURCE_OF_TRUTH.md',
-  'APPROVED_UI_IMPLEMENTATION_AUDIT.md',
-  'CODEX_STATE.md'
+  'SOURCE_OF_TRUTH.md'
 ];
 
 let errorsCount = 0;
@@ -64,10 +62,7 @@ for (const relPath of ['AGENTS.md', 'GEMINI.md', 'CLAUDE.md']) {
   const fullPath = path.join(REPO_ROOT, relPath);
   if (!fs.existsSync(fullPath) || !fs.statSync(fullPath).isFile()) continue;
   const content = fs.readFileSync(fullPath, 'utf8');
-  const canonicalStart = relPath === 'AGENTS.md'
-    ? content.startsWith('# TELEGRAM FIDELITY CONTRACT\n') &&
-      content.slice(0, content.indexOf('# Repository agent entrypoint')).includes(ENTRYPOINT)
-    : content.startsWith(ENTRYPOINT);
+  const canonicalStart = content.startsWith(ENTRYPOINT);
   if (!canonicalStart) {
     error(`${relPath}: Agent entrypoint no longer begins with canonical engineering/source instructions`);
   } else {
@@ -76,6 +71,23 @@ for (const relPath of ['AGENTS.md', 'GEMINI.md', 'CLAUDE.md']) {
   if (relPath !== 'AGENTS.md' && !content.includes('Follow AGENTS.md')) {
     error(`${relPath}: Missing reference to shared AGENTS.md policy`);
   }
+}
+// Guard the active-development contract rather than a historical visual style.
+const agent = fs.readFileSync(path.join(REPO_ROOT, 'AGENTS.md'), 'utf8');
+const engineering = fs.readFileSync(path.join(REPO_ROOT, 'ENGINEERING_STANDARD.md'), 'utf8');
+const architecture = fs.readFileSync(path.join(REPO_ROOT, 'SOURCE_OF_TRUTH.md'), 'utf8');
+if (!agent.includes('not permanently locked') ||
+    !engineering.includes('No UI/UX choice is permanently locked') ||
+    !architecture.includes('not standing requirements')) {
+  error('Active-development design freedom missing from the canonical rules');
+}
+if (!agent.includes('Automatically delete proven-unused') ||
+    !engineering.includes('Automatic unused-file cleanup')) {
+  error('Evidence-based automatic unused-file cleanup contract is missing');
+}
+if (agent.includes('If Telegram source is unavailable in this session, STOP') ||
+    !agent.includes('never block unrelated tasks')) {
+  error('Telegram reference availability must not globally block Eve development');
 }
 
 // 2. Discover all markdown files

@@ -9,26 +9,18 @@
 - If this file and the actual code disagree, trust the code, and report the mismatch under "Noticed but not touched (outside scope)" in the Final Report.
 - Never claim state from memory or from older chats. Inspect real files, run `git status` and `git log -1`, and run the relevant checks.
 
-## Official Telegram source
+## Active-development product authority
+EVE is actively being developed: **No visual component, layout, color, blur, theme, typography, navigation, animation, icon, size or feature is permanently locked.** The owner's latest safe scoped requirement can add, replace or remove any UI/UX feature. Current code and historical Telegram/iOS audits are reference snapshots only. Update resources and regression tests alongside approved changes. Keep equivalent accessibility and data/security protections.
 
-Telegram source is NOT stored in this repository. The owner supplies
-`Telegram-master-core.zip` (default; SHA-256 `3ecbbeab06e0cafebd462721f048b637a454522167db94d26c52ccad10ea1db0`), `Telegram-master-extra.zip` (SHA-256 `ef00b8495bbd7775e5e9a9c2acecbf87b9ebac472a30651964fd38b833245517`), or the original complete `Telegram-master.zip` (SHA-256 `0785365538ce05cf5bdf44a15d8fd5f5219f8193db0a2d124af9665fc63fd7b3`).
-Verify the attached archive against its own `EVE_MANIFEST.sha256`; absent files are NOT FOUND (request the specific `extra` or `rest-1..5` archive). Extract outside git. If source is absent, follow the STOP-and-ask rule in the
-single fidelity contract at the top of `AGENTS.md`. Historical repacked-archive
-and asset provenance hashes remain in `THIRD_PARTY_NOTICES.md`.
+## Telegram reference only for source-exact tasks
+Telegram reference archives, approved SHA-256 values, internal manifests and GPL evidence are in `THIRD_PARTY_NOTICES.md`. Require and validate an actual source archive only when a task explicitly requires source-exact copying/comparison; absent source files are NOT FOUND. Never impose source ZIP verification on ordinary Eve fixes, original UI/UX work, backend tasks or repository cleanup.
 
-## Current UI design authority
-
-The owner's current aesthetic direction is source-traced official Telegram Android component typography and icons. Current source references live in `docs/telegram-typography-mission-01.md` and `docs/telegram-icon-source-registry.tsv`. Preserve production API compatibility, text content and exam-specific icon semantics.
-
-Telegram reuse and distribution follow `ENGINEERING_STANDARD.md` and `THIRD_PARTY_NOTICES.md`.
-
-Retain existing structural constraints until expressly replaced: 26dp solid cards, 12dp screen margins, 10dp card padding, 9dp elevation, no list dividers; glass limited to top/bottom bars and menus. A 4-destination Telegram-style floating bottom navigation pill bar (`EveBottomPillBar`) is the primary navigation across Home, History, Settings, and Profile (kept absent from active tests, payments, login, and subordinate flows); Saved/Bookmarks remain in the Drawer; preserve the Android system navigation bar.
-The device-font preference is retired. Preserve full Hindi/Devanagari fallback, accessibility, Telegram circular reveal and all existing Lottie timing/triggers. Never alter scoring, ranking or business flows for typography.
+## Current implementation, not frozen defaults
+Source-traced Telegram UI, theme reveal, Lottie animations, existing tokens, and the `EveBottomPillBar` are current implementation choices, **not standing requirements**. Their appearance or presence can be changed at the owner's direction; do not reinstate older styles from `docs/telegram-typography-mission-01.md`, source registries, old tests, or historical audits. Retain unaffected behaviors by default and maintain Hindi/Devanagari and assistive accessibility with replacements.
 
 ## 1. Repository identity
 - Remote origin: `git@github.com:vishu762701/eve-mock-test-app.git`
-- Branch: `main` only (see AGENTS.md "Repository workflow").
+- Branch: `main` only (see `ENGINEERING_STANDARD.md` repository workflow).
 - GitHub Actions workflow: "Build Eve APK".
 - Local Termux path (only when working inside Termux): `/data/data/com.termux/files/home/eve-mock-test-app`. This is the single authoritative local copy.
 
@@ -56,7 +48,7 @@ The device-font preference is retired. Preserve full Hindi/Devanagari fallback, 
 ### B. Cloudflare Worker backend (`backend/`)
 - Technology: TypeScript, Hono, Cloudflare Workers.
 - API base URL: `https://eve-backend.anyqueairdrop.workers.dev/`
-- Database: Cloudflare D1 (`schema.sql`, incremental migrations in `backend/migrations/`).
+- Database: Cloudflare D1 (incremental migrations in `backend/migrations/`).
 - Media storage: Supabase Storage (banner images, exam question media).
 - Authentication: Firebase Auth ID token verification via `/api/auth/me`.
 - Answer integrity: during active tests, answers are hidden for non-admin students (`hideAnswers`, checked via the `X-Eve-Client` header). Score evaluation, negative marking, attempt deduplication (`clientAttemptId`) and rank calculation happen on the server (`POST /api/attempts/submit`). Admin endpoints require an authenticated admin email.
@@ -66,14 +58,12 @@ The device-font preference is retired. Preserve full Hindi/Devanagari fallback, 
 - Admin email sync: the hardcoded admin emails must stay identical in `Constants.ADMIN_EMAILS` (`app/src/main/java/com/eve/app/util/Constants.kt`) and in `isHardcodedAdmin()` (`firestore.rules`). Those two files are the only source of the list. Do not copy the emails into docs.
 - Lockfile rule: `functions/package-lock.json` is untracked and ignored. Never stage, commit, overwrite or delete it.
 
-## 3. Permanent invariants (never break these)
-1. Colors: use the owner's locked `design_colors.xml` day/night tokens and
-   matching system hue tokens, preserving alpha and meaning. Only equal-value `eve_bg` / `eve_text` aliases remain for the protected theme
-   manager; other UI colors and dimensions use the root tokens.
-2. The Telegram-style circular reveal Day/Night transition must never be degraded.
-3. Server-side test timer, question layout fitting, and submit mechanics must never be replaced by client-only logic.
-4. Blur is applied only to top bars, bottom bars and menus, never over foreground text, images, icons or Lottie animations. Dialogs and sheets are solid surfaces.
-5. Test scoring, ranking, and answer visibility stay server-authoritative.
+## 3. Safety and functional invariants (not UI freezes)
+1. Scoring, rank, exam submission, authorization and answers remain server-authoritative. Changes must preserve these protections and safe data migration behavior.
+2. Preserve unrelated screens and effects by default, but the owner can explicitly change/remove the current Telegram theme reveal, Lottie motion, navigation layout and any other UI/UX feature.
+3. Validate Day/Night, contrast, readable font scaling, Hindi fallback, touch targets and supported Android API behavior for the chosen new design.
+4. `design_colors.xml` and other existing tokens describe the current theme only. Old hardcoded colors, dimensions and "locked" tests must be updated together when design changes.
+5. Automatically remove conclusively unused files during active tasks under the proof-based cleanup contract of `ENGINEERING_STANDARD.md`.
 
 ## 4. Verification (run for the layer you changed; both if the change spans both)
 - `Build Eve APK` runs FAST compilation, JVM tests and Android instrumentation **source compilation** for ALL intermediate mission pushes, without starting an emulator. Native UI/FULL runs ONLY on the final implementation commit of an actually completed user-defined mission (`[eve-full]`), or via explicit owner-requested manual `workflow_dispatch`. No automatic daily, push-count, high-risk or mid-mission FULL checkpoints. After failed FULL, use FAST to repair and rerun FULL on the repaired final commit. Both emulator modes, Light/Dark evidence, signing safeguards and gated `Eve-debug-apk` publication remain mandatory for mission completion. See `ENGINEERING_STANDARD.md`.

@@ -107,12 +107,15 @@ class Mission01GateTest(unittest.TestCase):
         self.assertIn("context.getColor(R.color.telegram_type_primary)", native)
         self.assertNotRegex(native, r"assertEquals\(\s*(?:Color\.BLACK|android\.graphics\.Color\.BLACK)")
         import xml.etree.ElementTree as ET
-        for folder, expected in (("values", "#FF1A1D21"),
-                                 ("values-night", "#FFFFFFFF")):
+        resolved = []
+        for folder in ("values", "values-night"):
             root = ET.parse(COLORS / folder / "telegram_colors.xml").getroot()
             matches = [c.text.strip() for c in root.findall("color")
                        if c.get("name") == "telegram_type_primary"]
-            self.assertEqual([expected], matches)
+            self.assertEqual(1, len(matches))
+            self.assertRegex(matches[0], r"^#[0-9A-Fa-f]{8}$")
+            resolved.append(matches[0])
+        self.assertNotEqual(*resolved)
 
 
 if __name__ == "__main__":

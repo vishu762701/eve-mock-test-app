@@ -11,7 +11,7 @@ Eve is an Android exam-practice application with a Kotlin/XML client, Firebase a
 - `.github/workflows/deploy-worker.yml`: Worker deployment and D1 migration workflow.
 
 ## Current engineering instructions
-Read `ENGINEERING_STANDARD.md`, `SOURCE_OF_TRUTH.md`, and `AGENTS.md` before editing. `GEMINI.md` and `CLAUDE.md` redirect to the same instructions. The user's latest explicit, safe, scoped requirement takes precedence over older design requests. Approved UI defaults are described in `APPROVED_UI_IMPLEMENTATION_AUDIT.md`.
+Read `ENGINEERING_STANDARD.md`, `SOURCE_OF_TRUTH.md`, and `AGENTS.md` before editing. `GEMINI.md`/`CLAUDE.md` are pointers. EVE is under active development: no visual/UX element is permanently locked; the owner may safely add, redesign or remove anything. Historical UI archives are not active rules. On each task agents remove conclusively unused files after cross-module/dynamic-reference checks; preserve uncertain assets, migrations, license provenance and production integrity.
 
 ## Downloading an installable Android APK
 - **FAST** (every intermediate source push): compiles the debug app and tests but intentionally does **not** publish an APK. A green FAST status is not an APK download link.
