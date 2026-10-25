@@ -1,6 +1,6 @@
 # TELEGRAM FIDELITY CONTRACT
 
-1. If Telegram source is unavailable in this session, STOP and ask the owner for `Telegram-master.zip`. Never redraw or guess; record missing counterparts as NOT FOUND.
+1. If Telegram source is unavailable in this session, STOP and ask the owner for `Telegram-master-core.zip` (default; SHA-256 `3ecbbeab06e0cafebd462721f048b637a454522167db94d26c52ccad10ea1db0`), `Telegram-master-extra.zip` (SHA-256 `ef00b8495bbd7775e5e9a9c2acecbf87b9ebac472a30651964fd38b833245517`), or the original complete `Telegram-master.zip` (SHA-256 `0785365538ce05cf5bdf44a15d8fd5f5219f8193db0a2d124af9665fc63fd7b3`). Accept only these archive SHA-256 values; verify the attached archive's `EVE_MANIFEST.sha256`. A file absent from the attached archive is NOT FOUND; request the specific `extra` or `rest-1..5` archive. Never redraw or guess.
 2. Port small leaf classes as-is (Java may stay Java), with only thin glue. Adapt screens using cited source values.
 3. Every Telegram task delivers a parity table: property | EVE file:line | Telegram file:line | value | action.
 4. A green build is never proof of fidelity.

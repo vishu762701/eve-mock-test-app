@@ -11,10 +11,9 @@
 
 ## Official Telegram source
 
-Telegram source is NOT stored in this repository. The owner attaches
-`Telegram-master.zip` in each session, with original-archive SHA-256
-`0785365538ce05cf5bdf44a15d8fd5f5219f8193db0a2d124af9665fc63fd7b3`.
-Extract outside git. If source is absent, follow the STOP-and-ask rule in the
+Telegram source is NOT stored in this repository. The owner supplies
+`Telegram-master-core.zip` (default; SHA-256 `3ecbbeab06e0cafebd462721f048b637a454522167db94d26c52ccad10ea1db0`), `Telegram-master-extra.zip` (SHA-256 `ef00b8495bbd7775e5e9a9c2acecbf87b9ebac472a30651964fd38b833245517`), or the original complete `Telegram-master.zip` (SHA-256 `0785365538ce05cf5bdf44a15d8fd5f5219f8193db0a2d124af9665fc63fd7b3`).
+Verify the attached archive against its own `EVE_MANIFEST.sha256`; absent files are NOT FOUND (request the specific `extra` or `rest-1..5` archive). Extract outside git. If source is absent, follow the STOP-and-ask rule in the
 single fidelity contract at the top of `AGENTS.md`. Historical repacked-archive
 and asset provenance hashes remain in `THIRD_PARTY_NOTICES.md`.
 
