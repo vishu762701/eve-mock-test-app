@@ -510,8 +510,14 @@ class UiArcMotionComponentsTest {
         val themeManager = File(getProjectDir(), "app/src/main/java/com/eve/app/util/ThemeManager.kt")
         assertTrue("ThemeManager must remain protected", themeManager.exists())
 
-        val sunIcon = File(getProjectDir(), "app/src/main/res/drawable/ic_theme_sun.xml")
-        assertTrue("ic_theme_sun must remain protected", sunIcon.exists())
+        // Telegram source imports may replace an EVE-authored vector with four
+        // pinned WebP densities. Keep the icon available without requiring stale XML.
+        val sunVector = File(getProjectDir(), "app/src/main/res/drawable/ic_theme_sun.xml")
+        val sunRasterDensities = listOf("mdpi", "hdpi", "xhdpi", "xxhdpi").map { density ->
+            File(getProjectDir(), "app/src/main/res/drawable-$density/ic_theme_sun.webp")
+        }
+        assertTrue("ic_theme_sun must remain available as vector or complete raster set",
+            sunVector.isFile || sunRasterDensities.all { it.isFile })
 
         val moonIcon = File(getProjectDir(), "app/src/main/res/drawable/ic_theme_moon.xml")
         assertTrue("ic_theme_moon must remain protected", moonIcon.exists())

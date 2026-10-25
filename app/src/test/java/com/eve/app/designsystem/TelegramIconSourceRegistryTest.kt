@@ -46,6 +46,9 @@ class TelegramIconSourceRegistryTest {
                 assertTrue("Missing source asset: $asset", asset.isFile)
                 val actual = MessageDigest.getInstance("SHA-256").digest(asset.readBytes())
                     .joinToString("") { "%02x".format(it.toInt() and 0xff) }
+                if (expected != actual) {
+                    System.err.println("Source icon digest mismatch: $asset expected=$expected actual=$actual")
+                }
                 assertEquals("$asset SHA-256 mismatch", expected, actual)
                 expectedPaths.add(asset.relativeTo(resources).invariantSeparatorsPath)
             }
