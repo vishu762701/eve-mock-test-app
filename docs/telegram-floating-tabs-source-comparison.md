@@ -13,13 +13,13 @@ Source: original Telegram Android source ZIP SHA-256 `0785365538ce05cf5bdf44a15d
 | Text-size passes | `app/src/main/java/com/eve/app/ui/navigation/MainTabsLayout.kt:30` | `ui/MainTabsLayout.java:46–47` | 12 / 12 / 10dp | Preserve |
 | Per-tab width paddings | `app/src/main/java/com/eve/app/ui/navigation/MainTabsLayout.kt:31` | `ui/MainTabsLayout.java:46–47,78` | 16 / 8 / 4dp | Preserve |
 | Tab label weights | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:116` | `ui/Components/glass/GlassTabView.java:87–96,233–238` | Default Medium 500; selected 800 | Correct prior 700 claim: bold() resolves to bundled Medium; selected system ExtraBold is a documented font substitute |
-| Label text position | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:122` | `ui/Components/glass/GlassTabView.java:95–96` | 28.33dp from top | Preserve |
+| Label text position | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:123` | `ui/Components/glass/GlassTabView.java:95–96` | 28.33dp from top | Preserve |
 | Main tab icon | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:78` | `ui/Components/glass/GlassTabView.java:400–407` | 24×24dp at top 4dp | Preserve |
 | Avatar | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:96` | `ui/Components/glass/GlassTabView.java:414–428` | 22×22dp, radius 11dp, top 5dp | Preserve |
-| Selected indicator | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:272` | `ui/Components/glass/GlassTabView.java:150–165` | Capsule scale 0.6 to 1 and 0.09× alpha | Preserve source math |
-| Selection motion | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:212` | `ui/Components/glass/GlassTabView.java:65–67` | 320ms decelerated | Preserve |
+| Selected indicator | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:273` | `ui/Components/glass/GlassTabView.java:150–165` | Capsule scale 0.6 to 1 and 0.09× alpha | Preserve source math |
+| Selection motion | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:213` | `ui/Components/glass/GlassTabView.java:65–67` | 320ms decelerated | Preserve |
 | Press/reselect | `app/src/main/java/com/eve/app/ui/navigation/MainTabsLayout.kt:97` | `ui/MainTabsActivity.java:334–348` | Click selects; active click invokes scroll-to-top | Preserve four EVE destinations and reselect callback |
-| Color roles | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:193` | `ui/Components/glass/GlassTabView.java:407–409` | `glassTabUnselected`, `glassTabSelected`, `glassTabSelectedText` from EVE's resolved palette | Keep semantic theme-dependent mapping in Day/Night; never hardcode Telegram's theme colors |
+| Color roles | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:194` | `ui/Components/glass/GlassTabView.java:407–409` | `glassTabUnselected`, `glassTabSelected`, `glassTabSelectedText` from EVE's resolved palette | Keep semantic theme-dependent mapping in Day/Night; never hardcode Telegram's theme colors |
 | Liquid-glass API gate | `app/src/main/java/com/eve/app/ui/navigation/EveBottomPillBar.kt:165` | `ui/Components/blur3/LiquidGlassEffect.java:14` | API 33+; non-shader drawable fallback on earlier Android | Preserve |
 | Glass radius | `app/src/main/java/com/eve/app/ui/navigation/EveBottomPillBar.kt:217` | `ui/MainTabsActivity.java:366–369` | 28dp, based on 56dp height | Preserve |
 | Vertical padding | `app/src/main/java/com/eve/app/ui/navigation/MainTabsLayout.kt:42` | `ui/MainTabsActivity.java:311` uses 12dp top/bottom around its wrapper layout | 0 inside 56dp tap targets | Intentional Android accessibility adaptation: EVE retains ≥48dp actual touch height; copying 12dp internal padding would clip labels/taps |
@@ -29,7 +29,9 @@ Additional source corrections: `MainTabsLayout.java:141` uses `Math.round` for e
 weighted tab width; EVE now uses the same operation. `AndroidUtilities.java:2701–2705`
 uses ceiling for density conversion, now matched by the tab leaf and sizing helper.
 `GlassTabView.java:152,158` uses visual width for the selector; EVE now does too.
-Source leaves TextView font padding at its default; EVE no longer disables it.
+Source leaves TextView font padding at its default; EVE explicitly enables it locally to override its global theme
+(`themes.xml:110`, `design_widgets.xml:6`). Source `res/values/styles.xml:88–90`
+inherits `android:Widget.Holo.Light.TextView` and does not disable font padding.
 
 ## Failure and proof
 

@@ -114,6 +114,7 @@ class GlassTabView @JvmOverloads constructor(
             maxLines = 1
             ellipsize = TextUtils.TruncateAt.END
             typeface = com.eve.app.util.FontManager.telegramMediumTypeface(context)
+            includeFontPadding = true // Match the source TextView default despite EVE theme overrides.
             gravity = Gravity.CENTER
         }
         defaultTextPaint = TextPaint(textView.paint)

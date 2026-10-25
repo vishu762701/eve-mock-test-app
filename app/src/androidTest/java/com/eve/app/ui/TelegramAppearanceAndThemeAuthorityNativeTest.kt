@@ -139,6 +139,8 @@ class TelegramAppearanceAndThemeAuthorityNativeTest {
             val context = instrumentation.targetContext
             val tab = com.eve.app.ui.navigation.GlassTabView(context)
             tab.configureAsIcon(com.eve.app.R.drawable.msg_home, "Home")
+            assertTrue("Telegram tab keeps platform TextView font padding despite EVE's global override",
+                tab.textView.includeFontPadding)
             tab.setSelectedTab(false, false)
             if (android.os.Build.VERSION.SDK_INT >= 28) {
                 assertEquals("Unselected tab must use the source Medium font weight 500",

@@ -156,6 +156,7 @@ class MainTabsLayoutSizingTest {
         // Robolectric's font shadow models weight as a style integer, so
         // isBold()/getWeight() cannot prove Android's real 700/800 weights.
         // Device instrumentation asserts those exact numeric weights.
+        assertTrue("The EVE theme must not remove source TextView font padding", tab.textView.includeFontPadding)
         val unselectedFace = tab.textView.typeface
         tab.setSelectedTab(true, false)
         assertTrue(tab.isTabSelected())
