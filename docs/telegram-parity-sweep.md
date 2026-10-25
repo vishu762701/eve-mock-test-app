@@ -32,3 +32,38 @@ poll percentage. No platform `ProgressBar(...)` loading constructors remain.
 horizontal progress bar was changed. The existing radial leaf has EVE XML,
 palette, drawable and static-capture glue; a green build does not prove exact
 runtime parity of that adaptation. Its source motion values remain unchanged.
+
+## A2 — Login
+
+| Property | EVE file:line | Telegram file:line | Value | Action |
+|---|---|---|---|---|
+| Login title | `app/src/main/res/values/telegram_typography.xml:119` | `Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/LoginActivity.java:2021–2027`; `Telegram-master/TMessagesProj/src/main/java/org/telegram/messenger/AndroidUtilities.java:262–270` | 18sp, bundled Medium, normal style | Removed synthetic bold; dp→sp is an accessibility deviation |
+| Subtitle | `app/src/main/res/layout/activity_login.xml:8` | `Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/LoginActivity.java:2050–2055` | 14sp, centered, 2dp line spacing, 32dp side insets, 8dp top gap | Preserved exact values; removed extra 28dp bottom gap |
+| Title placement | `app/src/main/res/layout/activity_login.xml:7` | `Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/LoginActivity.java:2021–2027` | 32dp inner insets, 2dp line spacing, no top margin | Removed invented 36dp title margin; moved EVE header outside centered content |
+| Phone/tablet outer insets | `app/src/main/res/values/telegram_login_dimens.xml:4` | `Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/LoginActivity.java:692` | 18dp phone / 26dp sw600dp; 30dp content top margin | Replaced shared 12dp screen insets locally; no global token changes |
+| Next-action bounds | `app/src/main/res/layout/activity_login.xml:27` | `Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/FragmentFloatingButton.java:166–170,188–192` | 56dp container; 48dp painted height from button insets; capsule radius 24dp | Corrected local button insets from 2dp to 4dp (48dp painted height); full-width Google action is EVE adaptation, not Telegram phone arrow |
+| Keyboard | `app/src/main/AndroidManifest.xml:44` | `Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/LoginActivity.java:3371–3397` | No initial IME for Google-only page; resize if legacy fields are revealed | Explicit adaptation: Telegram opens phone keyboard, EVE has no visible input |
+
+### Needs my decision — legacy email/password
+
+Email/password controls and all handlers remain intact. `app/src/main/java/com/eve/app/ui/login/LoginActivity.kt:118–128`
+binds submit, mode toggle and IME Done; `LoginActivity.kt:211–266` contains Firebase email sign-in
+and account creation; `LoginActivity.kt:282–297` shares post-auth admin lookup with Google.
+`AdminRepository.kt:14–59` authorizes by account identity/cache/API, not by a
+Google-only provider rule. Existing Firebase email users therefore cannot be
+assumed migrated to Google, and no account data or backend authorization changed.
+`ProfileSettingsLoginTypographyAndColorTest.kt:161–188` still requires the legacy
+fields/buttons; `StudentUiRenderingTest.kt:190` exercises the signup fixture.
+Owner decision: restore an accessible email-login route or define and validate
+an existing-user/admin account-linking migration. Until then those views stay
+hidden and their code is retained.
+
+### Explicit login deviations
+
+Google authentication, EVE branding/content and a full-width Google action replace
+Telegram phone entry and its floating arrow. EVE uses sp, accessible foregrounds,
+48dp back-button touch bounds, and a retained EVE header. Telegram's custom phone
+keyboard, passkey prompt, country-picker text animation and inter-fragment login
+animations have no counterpart on this Google-only first page (NOT FOUND).
+No animation was invented. Hidden legacy mode-switch motion remains unchanged
+pending the email-login decision; it is not claimed as source-exact first-page motion.

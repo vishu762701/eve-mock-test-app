@@ -115,10 +115,10 @@
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">@color/telegram_type_secondary</item>
     </style>
-    <!-- Telegram LoginActivity.java:2021-2027 (18dp/bold), 2050-2055 (14dp). EVE text stays own-brand. -->
+    <!-- LoginActivity.java:2021-2027,2050-2055; bold() is bundled Medium (AndroidUtilities.java:262-270). -->
     <style name="TextAppearance.Eve.Telegram.LoginTitle" parent="TextAppearance.Eve.Token.Title">
         <item name="android:textSize">18sp</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:textStyle">normal</item>
     </style>
     <style name="TextAppearance.Eve.Telegram.LoginSubtitle" parent="TextAppearance.Eve.Token.Body">
         <item name="android:textSize">14sp</item>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- LoginActivity.java:692: slide-view horizontal margins are phone 18dp / tablet 26dp. -->
+    <dimen name="telegram_login_outer_margin">18dp</dimen>
+</resources>

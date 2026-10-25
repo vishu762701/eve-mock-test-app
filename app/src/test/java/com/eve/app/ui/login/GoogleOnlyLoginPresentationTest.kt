@@ -27,6 +27,8 @@ class GoogleOnlyLoginPresentationTest {
         assertEquals("Continue with Google", google.getAttribute("android:text"))
         assertEquals("@style/Widget.Eve.Token.Button", google.getAttribute("style"))
         assertEquals("56dp", google.getAttribute("android:layout_height"))
+        assertEquals("4dp", google.getAttribute("android:insetTop"))
+        assertEquals("4dp", google.getAttribute("android:insetBottom"))
         assertEquals("com.eve.app.designsystem.TelegramRadialProgressView", find("progressGoogle").tagName)
     }
     @Test fun telegramFirstPageTypographyUsesEveBranding() {
@@ -34,5 +36,22 @@ class GoogleOnlyLoginPresentationTest {
         assertEquals("@style/TextAppearance.Eve.Telegram.LoginSubtitle",find("tvSubtitle").getAttribute("style"))
         assertEquals("center",find("tvTagline").getAttribute("android:gravity"))
         assertEquals("center",find("tvSubtitle").getAttribute("android:gravity"))
+    }
+    @Test fun firstPageSpacingAndTypefaceFollowPhoneViewSource() {
+        assertEquals("0dp", find("tvTagline").getAttribute("android:layout_marginTop"))
+        assertEquals("2dp", find("tvTagline").getAttribute("android:lineSpacingExtra"))
+        assertEquals("32dp", find("tvTagline").getAttribute("android:layout_marginHorizontal"))
+        assertEquals("32dp", find("tvSubtitle").getAttribute("android:layout_marginHorizontal"))
+        assertEquals("", find("tvSubtitle").getAttribute("android:layout_marginBottom"))
+        assertEquals("30dp", find("cardLogin").getAttribute("android:layout_marginTop"))
+        assertEquals("0dp", find("scrollView").getAttribute("android:paddingBottom"))
+        val styles = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+            .parse(File("src/main/res/values/telegram_typography.xml")).getElementsByTagName("style")
+        val title = (0 until styles.length).map { styles.item(it) as Element }
+            .single { it.getAttribute("name") == "TextAppearance.Eve.Telegram.LoginTitle" }
+        val items = title.getElementsByTagName("item")
+        val textStyle = (0 until items.length).map { items.item(it) as Element }
+            .single { it.getAttribute("name") == "android:textStyle" }
+        assertEquals("Source bold() already supplies Medium; do not synthesize Bold", "normal", textStyle.textContent)
     }
 }
