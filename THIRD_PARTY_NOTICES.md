@@ -2,7 +2,7 @@
 
 This repository contains third-party components and assets. Keep license obligations even when older files are retired.
 
-**Development-stage official-reference policy:** Public design principles and interaction patterns may inform original Eve UI/UX. Exact third-party assets/code require item-specific rights, provenance, notices and compatible distribution obligations. If rights are unclear, use independently authored or appropriately licensed replacements without blocking unrelated work. Do not treat a design reference as permission to copy official branding or bypass GPL/signing controls.
+**Development-stage official-reference policy:** Exact official code/art/assets require verified upstream source, identity and appropriate use permissions; public design guidance is not blanket copying permission. Never silently substitute independently authored or other assets unless the owner expressly authorizes them. If the exact source/rights are unavailable, report that item as BLOCKED, continue only other authorized work, and keep third-party attribution and production release obligations.
 
 ## Telegram for Android
 

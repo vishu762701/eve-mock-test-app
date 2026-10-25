@@ -15,6 +15,17 @@ class ActiveDevelopmentPolicyTest(unittest.TestCase):
         self.assertIn("Automatic unused-file cleanup", rules)
         self.assertIn("Official design / source reuse", rules)
 
+    def test_strict_owner_scope_and_official_only(self):
+        standard = read("ENGINEERING_STANDARD.md")
+        agent = read("AGENTS.md")
+        architecture = read("SOURCE_OF_TRUTH.md")
+        self.assertIn("Owner-authorized scope and exact official implementation", standard)
+        self.assertIn("Never use an alternative unless the owner explicitly authorizes it", standard)
+        self.assertIn("no unrelated", standard.lower())
+        self.assertIn("Never use or build an alternative", agent)
+        self.assertIn("Do not delete unrelated orphan files", agent)
+        self.assertIn("ONLY change scope", architecture)
+
     def test_no_blanket_source_requirement(self):
         entry = read("AGENTS.md")
         self.assertIn("Telegram ZIP is necessary ONLY", entry)

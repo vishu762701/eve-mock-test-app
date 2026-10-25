@@ -93,6 +93,12 @@ if (!engineering.includes('Accountable principal-engineer execution') ||
     !engineering.includes('Official design / source reuse')) {
   error('Principal-engineer ownership or official-reference policy is missing');
 }
+if (!engineering.includes('Owner-authorized scope and exact official implementation') ||
+    !engineering.includes('Never use an alternative unless the owner explicitly authorizes it') ||
+    !agent.includes('Never use or build an alternative') ||
+    !architecture.includes('ONLY change scope')) {
+  error('Strict owner-requested change scope or verified official-only policy is missing');
+}
 if (fs.readFileSync(path.join(REPO_ROOT, '.github/workflows/build.yml'), 'utf8').includes("Retired UI Studio references remain in active source")) {
   error('CI must not hard-ban a safely reintroduced UI feature');
 }

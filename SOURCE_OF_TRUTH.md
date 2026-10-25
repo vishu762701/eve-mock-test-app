@@ -5,7 +5,7 @@
 
 ## 0. How to use this file
 - Read this file before starting any task.
-- The latest explicit user-approved request defines current task scope; `ENGINEERING_STANDARD.md` and `AGENTS.md` define consistent workflow safeguards. `GEMINI.md` / `CLAUDE.md` are pointers, not additional policies. Default design choices here apply unless explicitly changed by the current task. Security and data-integrity safeguards must still hold.
+- The latest explicit owner request is the ONLY change scope: add/remove/edit requested features and minimum dependent code/tests, never unrelated work. `ENGINEERING_STANDARD.md` and `AGENTS.md` define workflow; `GEMINI.md` and `CLAUDE.md` are pointers. Security/data integrity and actual release obligations remain enforced.
 - If this file and the actual code disagree, trust the code, and report the mismatch under "Noticed but not touched (outside scope)" in the Final Report.
 - Never claim current state from memory or older chats. Inspect real files and current remote HEAD/CI; use `git status` and `git log -1` only when a local checkout is accessible.
 
@@ -16,7 +16,7 @@ EVE is actively being developed: **No visual component, layout, color, blur, the
 Telegram reference archives, approved SHA-256 values, internal manifests and GPL evidence are in `THIRD_PARTY_NOTICES.md`. Require and validate an actual source archive only when a task explicitly requires source-exact copying/comparison; absent source files are NOT FOUND. Never impose source ZIP verification on ordinary Eve fixes, original UI/UX work, backend tasks or repository cleanup.
 
 ## Current implementation, not frozen defaults
-Source-traced Telegram UI, theme reveal, Lottie animations, existing tokens, and the `EveBottomPillBar` are current implementation choices, **not standing requirements**. Their appearance or presence can be changed at the owner's direction; do not reinstate older styles from `docs/telegram-typography-mission-01.md`, source registries, old tests, or historical audits. Retain unaffected behaviors by default and maintain Hindi/Devanagari and assistive accessibility with replacements.
+Source-traced Telegram UI, theme reveal, Lottie animations, existing tokens and `EveBottomPillBar` are current implementations, **not standing requirements**. Edit them only when the owner asks. For owner-requested official components, use real verified upstream references; never use an alternative without explicit permission. Preserve all unrelated functionality, Hindi/Devanagari and accessibility.
 
 ## 1. Repository identity
 - Remote origin: `git@github.com:vishu762701/eve-mock-test-app.git`
@@ -63,7 +63,7 @@ Source-traced Telegram UI, theme reveal, Lottie animations, existing tokens, and
 2. Preserve unrelated screens and effects by default, but the owner can explicitly change/remove the current Telegram theme reveal, Lottie motion, navigation layout and any other UI/UX feature.
 3. Validate Day/Night, contrast, readable font scaling, Hindi fallback, touch targets and supported Android API behavior for the chosen new design.
 4. `design_colors.xml` and other existing tokens describe the current theme only. Old hardcoded colors, dimensions and "locked" tests must be updated together when design changes.
-5. Automatically remove conclusively unused files during active tasks under the proof-based cleanup contract of `ENGINEERING_STANDARD.md`.
+5. Automatically remove only files proven obsolete because of the current requested change; repository-wide cleanup requires a separate explicit owner request. Follow evidence rules in `ENGINEERING_STANDARD.md`.
 
 ## 4. Verification (run for the layer you changed; both if the change spans both)
 - `Build Eve APK` runs FAST compilation, JVM tests and Android instrumentation **source compilation** for ALL intermediate mission pushes, without starting an emulator. Native UI/FULL runs ONLY on the final implementation commit of an actually completed user-defined mission (`[eve-full]`), or via explicit owner-requested manual `workflow_dispatch`. No automatic daily, push-count, high-risk or mid-mission FULL checkpoints. After failed FULL, use FAST to repair and rerun FULL on the repaired final commit. Both emulator modes, Light/Dark evidence, signing safeguards and gated `Eve-debug-apk` publication remain mandatory for mission completion. See `ENGINEERING_STANDARD.md`.
