@@ -76,14 +76,14 @@ for (const relPath of ['AGENTS.md', 'GEMINI.md', 'CLAUDE.md']) {
 const agent = fs.readFileSync(path.join(REPO_ROOT, 'AGENTS.md'), 'utf8');
 const engineering = fs.readFileSync(path.join(REPO_ROOT, 'ENGINEERING_STANDARD.md'), 'utf8');
 const architecture = fs.readFileSync(path.join(REPO_ROOT, 'SOURCE_OF_TRUTH.md'), 'utf8');
-if (!agent.includes('not permanently locked') ||
+if (!agent.includes('Historical approvals do not lock UI') ||
     !engineering.includes('No UI/UX choice is permanently locked') ||
     !architecture.includes('not standing requirements')) {
   error('Active-development design freedom missing from the canonical rules');
 }
-if (!agent.includes('Automatically delete proven-unused') ||
-    !engineering.includes('Automatic unused-file cleanup')) {
-  error('Evidence-based automatic unused-file cleanup contract is missing');
+if (!agent.includes('Automatically delete only files rendered conclusively unused by the owner') ||
+    !engineering.includes('Automatic unused-file cleanup — restricted to the owner')) {
+  error('Strictly scoped evidence-based unused-file cleanup contract is missing');
 }
 if (agent.includes('If Telegram source is unavailable in this session, STOP') ||
     !agent.includes('never block unrelated tasks')) {

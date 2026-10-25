@@ -21,7 +21,7 @@ class ActiveDevelopmentPolicyTest(unittest.TestCase):
         architecture = read("SOURCE_OF_TRUTH.md")
         self.assertIn("Owner-authorized scope and exact official implementation", standard)
         self.assertIn("Never use an alternative unless the owner explicitly authorizes it", standard)
-        self.assertIn("no unrelated", standard.lower())
+        self.assertIn("without editing unrelated functionality", standard)
         self.assertIn("Never use or build an alternative", agent)
         self.assertIn("Do not delete unrelated orphan files", agent)
         self.assertIn("ONLY change scope", architecture)
