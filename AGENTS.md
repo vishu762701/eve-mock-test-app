@@ -1,8 +1,16 @@
+# TELEGRAM FIDELITY CONTRACT
+
+1. If Telegram source is unavailable in this session, STOP and ask the owner for `Telegram-master.zip`. Never redraw or guess; record missing counterparts as NOT FOUND.
+2. Port small leaf classes as-is (Java may stay Java), with only thin glue. Adapt screens using cited source values.
+3. Every Telegram task delivers a parity table: property | EVE file:line | Telegram file:line | value | action.
+4. A green build is never proof of fidelity.
+5. List every deviation explicitly.
+
 Always read and follow ENGINEERING_STANDARD.md first. Then read SOURCE_OF_TRUTH.md.
 
 # Repository agent entrypoint
 
-Official Telegram Android source is the zip set in the repo root: `Telegram-master.zip` (UI + security core) and `Telegram-master-rest-*.zip`. Extract to a temp folder outside git, never commit it extracted. For any Telegram-related change read the real file there first, cite file path and line numbers, and copy exact values/assets. Never redraw or guess. Mark anything missing as NOT FOUND. For the full tree, extract all six ZIPs into the same empty temporary folder and validate against `EVE_MANIFEST_FULL.sha256` inside rest-1; for UI/security work use `Telegram-master.zip` and its `EVE_MANIFEST.sha256`.
+Source location and provenance: see `SOURCE_OF_TRUTH.md`. Apply the fidelity contract above; never commit extracted reference source.
 
 - The latest explicit user request defines the authorized task and takes precedence over historical plans and design documents, subject to safety and data-integrity safeguards.
 - Inspect actual code, callers, resources, Day/Night behavior, backend contracts, tests and CI relevant to that task. Implement the requested change end to end; do not stop at proposing prompts unless asked.
