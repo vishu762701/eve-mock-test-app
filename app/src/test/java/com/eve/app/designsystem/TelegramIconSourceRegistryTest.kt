@@ -7,7 +7,7 @@ import org.junit.Test
 import java.io.File
 import java.security.MessageDigest
 
-/** Checks bundled assets against source-verified hashes; never reads or fetches the submodule. */
+/** Reads the committed registry and bundled res files; never reads or fetches reference ZIPs. */
 class TelegramIconSourceRegistryTest {
     @Test fun bundledIconsMatchRegistrySha256() {
         val root = listOf(File(".."), File("."))

@@ -1,5 +1,7 @@
 # Telegram Mission 01 — XML inventory (95 baseline + Appearance)
 
+Source availability: Telegram source is not stored in this repository; the owner supplies it per session. See `SOURCE_OF_TRUTH.md` for attachment/hash requirements and `AGENTS.md` for the missing-source STOP rule.
+
 **Repository source SHA:** `19c0d1135b6e8e797593b97022912e55ae5d230a` on `main`. All 95 layout XML files at that SHA were read using the connected GitHub repository. **Telegram reference**: uploaded `Telegram-master (1).zip` with verified SHA-256 `0785365538ce05cf5bdf44a15d8fd5f5219f8193db0a2d124af9665fc63fd7b3`. The archive lacks Git metadata: upstream commit **UNKNOWN**.
 
 The table counts literal `<TextView>` nodes and lexical `TextAppearance.Eve.Telegram.` / `TextAppearance.Eve.Token.` occurrences. **This is an XML inventory, NOT proof that all Kotlin/Java-generated text and images, inherited widget styles or indirect resource lookups are converted.** Referenced icons are direct `@drawable/ic_*` occurrences only; dynamic `setImageResource`, `setCompoundDrawables`, custom Paint/Canvas icons, and Lottie/mipmap/Android status icons require separate analysis.

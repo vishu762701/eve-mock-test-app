@@ -39,12 +39,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           filter: blob:none
-          sparse-checkout: |
-            /*
-            !/Telegram-master*.zip
-          sparse-checkout-cone-mode: false
-      - name: Prove unused Telegram ZIP blobs were not downloaded
-        run: bash .github/scripts/check_telegram_checkout_blobs.sh none
 
       # FULL is a mission-final decision, not a recurring tax on small pushes.
       - name: Resolve FAST or FULL verification profile
@@ -165,12 +159,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           filter: blob:none
-          sparse-checkout: |
-            /*
-            !/Telegram-master*.zip
-          sparse-checkout-cone-mode: false
-      - name: Prove unused Telegram ZIP blobs were not downloaded
-        run: bash .github/scripts/check_telegram_checkout_blobs.sh none
       - name: Restore prebuilt app and instrumentation APKs
         uses: actions/cache/restore@v4
         with:
@@ -224,12 +212,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           filter: blob:none
-          sparse-checkout: |
-            /*
-            !/Telegram-master*.zip
-          sparse-checkout-cone-mode: false
-      - name: Prove unused Telegram ZIP blobs were not downloaded
-        run: bash .github/scripts/check_telegram_checkout_blobs.sh none
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -248,12 +230,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           filter: blob:none
-          sparse-checkout: |
-            /*
-            !/Telegram-master*.zip
-          sparse-checkout-cone-mode: false
-      - name: Prove unused Telegram ZIP blobs were not downloaded
-        run: bash .github/scripts/check_telegram_checkout_blobs.sh none
       - uses: actions/setup-node@v4
         with:
           node-version: 22

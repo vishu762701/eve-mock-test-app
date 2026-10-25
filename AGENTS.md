@@ -10,7 +10,7 @@ Always read and follow ENGINEERING_STANDARD.md first. Then read SOURCE_OF_TRUTH.
 
 # Repository agent entrypoint
 
-Source location and provenance: see `SOURCE_OF_TRUTH.md`. Apply the fidelity contract above; never commit extracted reference source.
+Telegram source is supplied by the owner as a session attachment, not stored in this repository. Source identity/provenance: see `SOURCE_OF_TRUTH.md`; apply the fidelity contract above.
 
 - The latest explicit user request defines the authorized task and takes precedence over historical plans and design documents, subject to safety and data-integrity safeguards.
 - Inspect actual code, callers, resources, Day/Night behavior, backend contracts, tests and CI relevant to that task. Implement the requested change end to end; do not stop at proposing prompts unless asked.

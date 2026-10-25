@@ -5,13 +5,13 @@ This repository contains third-party components and assets. Keep license obligat
 ## Telegram for Android
 
 - **Upstream:** https://github.com/DrKLO/Telegram
-- **Read-only source archive set:** repository-root `Telegram-master.zip` (UI/security core), plus `Telegram-master-rest-1.zip` through `Telegram-master-rest-5.zip` (remaining source). The previous Git submodule is retired. Extract into a temporary directory outside git, never commit extracted sources, and verify against `EVE_MANIFEST.sha256` / `EVE_MANIFEST_FULL.sha256` before using it.
+- **Source delivery:** Telegram reference source is NOT stored in this repository. The owner attaches `Telegram-master.zip` in each session (original-archive SHA-256 `0785365538ce05cf5bdf44a15d8fd5f5219f8193db0a2d124af9665fc63fd7b3`). Extract outside git; source prerequisites and the missing-source STOP rule are defined by `AGENTS.md` and `SOURCE_OF_TRUTH.md`. Historical split archives and their manifests were verification references, not EVE build inputs.
 - **Archive exclusions (confirmed absent by reference-verification run 40091599695; this checks the repacked archives, not every historical upstream revision):** `TMessagesProj/config/release.keystore`, `TMessagesProj/google-services.json`, `TMessagesProj_App/google-services.json`, `TMessagesProj_AppHockeyApp/google-services.json`, `TMessagesProj_AppHuawei/google-services.json`, `TMessagesProj_AppStandalone/google-services.json`, `TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java`. These signing/configuration sources must never be used as Eve credentials.
 - **Historical upstream provenance:** original Telegram Git reference `0aae959806c57be8ad457980f2a5c6277ff18635` remains a citation for previously imported icons, not an active submodule or an assertion that root archives contain that exact commit.
 
-### Repository-root Telegram archive SHA-256 (2026-10-24)
+### Historical repacked Telegram archive SHA-256 (2026-10-24)
 
-Recorded from [GitHub Actions Telegram reference verifier (run 40091599695)](https://github.com/vishu762701/eve-mock-test-app/actions/runs/40091599695), commit a4be53c718a87357a4cf09935776624e237a85b2. These hashes describe the **split/repacked root archives**, not the earlier unsplit original archive.
+Recorded from [GitHub Actions Telegram reference verifier (run 40091599695)](https://github.com/vishu762701/eve-mock-test-app/actions/runs/40091599695), commit a4be53c718a87357a4cf09935776624e237a85b2. These hashes describe the **former split/repacked root archives**, not the earlier unsplit original archive.
 
 | Archive | SHA-256 |
 |---|---|

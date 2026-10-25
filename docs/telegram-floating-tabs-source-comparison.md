@@ -1,5 +1,7 @@
 # Floating tabs — source comparison and verified scope
 
+Source availability: Telegram source is not stored in this repository; the owner supplies it per session. See `SOURCE_OF_TRUTH.md` for attachment/hash requirements and `AGENTS.md` for the missing-source STOP rule.
+
 Source: original Telegram Android source ZIP SHA-256 `0785365538ce05cf5bdf44a15d8fd5f5219f8193db0a2d124af9665fc63fd7b3`, matching `EVE_PROVENANCE.md`. This report distinguishes source numeric parity from Android/EVE adaptations.
 
 | Property | Current EVE | Telegram (relative to `TMessagesProj/src/main/java/org/telegram/`) | Action |

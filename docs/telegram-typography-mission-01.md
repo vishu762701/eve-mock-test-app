@@ -1,18 +1,18 @@
 # Telegram Android typography and icon source register
 
+Source availability: Telegram source is not stored in this repository; the owner supplies it per session. See `SOURCE_OF_TRUTH.md` for attachment/hash requirements and `AGENTS.md` for the missing-source STOP rule.
+
 ## Telegram reuse policy
 
-The owner authorizes officially sourced Telegram components with proper GPL compliance under EVE’s GPL-3.0-or-later distribution plan. Verify selected source assets and licenses, preserve attributions and per-density geometry/motion, and review dependency and corresponding-source obligations; see `ENGINEERING_STANDARD.md` and `THIRD_PARTY_NOTICES.md`. Use independently authored equivalents only when source/art rights or counterparts are missing, and never claim release compliance without a real audit.
+Reuse and distribution follow `ENGINEERING_STANDARD.md` and `THIRD_PARTY_NOTICES.md`; the single fidelity contract is in `AGENTS.md`.
 
 ## Official source
 
-Read-only source: repository-root `Telegram-master.zip` (UI/security core) and
-`Telegram-master-rest-1.zip` through `Telegram-master-rest-5.zip` (remaining official source).
-Extract required ZIPs into a temporary directory outside git; do not commit extracted source.
-Full-source work requires extracting all six ZIPs into one empty directory and checking
-`EVE_MANIFEST_FULL.sha256` from rest-1. For UI/security references, check
-`EVE_MANIFEST.sha256` inside `Telegram-master.zip`. Source paths below are relative
-to the extracted Telegram source root. Missing counterparts must be recorded as NOT FOUND.
+Source paths below are relative to the owner-supplied archive extracted outside
+git. Telegram source is not stored in this repository. See `SOURCE_OF_TRUTH.md`
+for the required per-session attachment/hash and `AGENTS.md` for the missing-source
+STOP rule. Historical split-archive manifest results remain provenance evidence;
+they do not make source available in a new session.
 
 | Role | Official source and lines | Source values |
 |---|---|---|

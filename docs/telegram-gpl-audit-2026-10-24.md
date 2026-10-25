@@ -1,5 +1,7 @@
 # EVE Telegram GPL Distribution Audit — 2026-10-24
 
+Source availability: Telegram source is not stored in this repository; the owner supplies it per session. See `SOURCE_OF_TRUTH.md` for attachment/hash requirements and `AGENTS.md` for the missing-source STOP rule.
+
 **Status: SOURCE-LEVEL REVIEW COMPLETE; PRODUCTION RELEASE NOT CLEARED.**
 
 This is an engineering license/provenance risk assessment, not a qualified legal opinion or permission to release. Never set `EVE_GPL_RELEASE_APPROVED=true` from this report alone. Preserve the release fail-closed gate in `.github/workflows/release.yml`.
@@ -10,7 +12,7 @@ This is an engineering license/provenance risk assessment, not a qualified legal
 - Archive verification: [GitHub Actions run 40091599695](https://github.com/vishu762701/eve-mock-test-app/actions/runs/40091599695), 6 ZIP files, UI/core manifest 7,575 records, full manifest 13,976 records, 7 exclusions absent, 32 imported icon identifiers and 254 file hash comparisons, zero observed mismatches.
 - Exact SHA-256 for all 6 repacked archives and the earlier complete original archive: `THIRD_PARTY_NOTICES.md`.
 - Reviewed repository sources: root `LICENSE`, `README.md`, `app/build.gradle.kts`, `build.gradle.kts`, `settings.gradle.kts`, `app/src/main/java/com/eve/app/designsystem/ButtonBounce.kt`, `app/src/main/java/com/eve/app/util/ThemeManager.kt`, `app/src/main/assets/licenses/`, `docs/telegram-icon-source-registry.tsv`, `docs/telegram-release-compliance-gate.md`, `.github/workflows/release.yml`, `backend/package.json`, `functions/package.json`.
-- The earlier separately supplied complete Telegram ZIP's root `LICENSE` contains GNU GPL version 2, June 1991; its `TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java` includes a "GNU GPL v. 2 or later" header. The repacked in-repository ZIP verifier independently identifies the extracted GPL-2 license text. The mere presence of license text is **not** proof that every bundled file has the same version grant.
+- The earlier separately supplied complete Telegram ZIP's root `LICENSE` contains GNU GPL version 2, June 1991; its `TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java` includes a "GNU GPL v. 2 or later" header. The historical repacked-archive verification identified the extracted GPL-2 license text. The mere presence of license text is **not** proof that every bundled file has the same version grant.
 - Source archives are verification-only references; they are **not** registered as EVE Gradle modules and are **not** corresponding source automatically supplied alongside any future released APK/AAB.
 
 ## Findings, ranked by impact

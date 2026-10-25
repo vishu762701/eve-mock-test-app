@@ -1,5 +1,9 @@
 # Telegram icon candidates — owner review only
 
+Source availability: Telegram source is not stored in this repository; the owner supplies it per session. See `SOURCE_OF_TRUTH.md` for attachment/hash requirements and `AGENTS.md` for the missing-source STOP rule.
+
+The manifest line references below belong to the repacked UI archive used for this sweep, SHA-256 `fabf0b7370abf2ee5661063ea1c274cb3e537048f008a6871ff3169cbe89cb1e`. They are historical provenance, not assumed members of every future attachment.
+
 All 42 registry rows whose per-density hashes say `NOT_IMPORTED` are covered.
 `registry.tsv` below means `docs/telegram-icon-source-registry.tsv`. Source paths
 are relative to the extracted owner archive; manifest line numbers refer to

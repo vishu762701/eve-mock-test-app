@@ -1,5 +1,7 @@
 # Telegram parity sweep
 
+Source availability: Telegram source is not stored in this repository; the owner supplies it per session. See `SOURCE_OF_TRUTH.md` for attachment/hash requirements and `AGENTS.md` for the missing-source STOP rule.
+
 Source is the owner-supplied reference extracted outside git. Telegram paths below
 are paths inside that archive, not files committed to EVE. The original archive
 provenance SHA-256 is `0785365538ce05cf5bdf44a15d8fd5f5219f8193db0a2d124af9665fc63fd7b3`.

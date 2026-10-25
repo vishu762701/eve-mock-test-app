@@ -11,16 +11,18 @@
 
 ## Official Telegram source
 
-For Telegram work follow the fidelity contract in `AGENTS.md`. Current reference
-archives are `Telegram-master.zip` (UI/security) and `Telegram-master-rest-*.zip`
-at the repository root. Extract outside git; manifest and provenance details are
-in `THIRD_PARTY_NOTICES.md`.
+Telegram source is NOT stored in this repository. The owner attaches
+`Telegram-master.zip` in each session, with original-archive SHA-256
+`0785365538ce05cf5bdf44a15d8fd5f5219f8193db0a2d124af9665fc63fd7b3`.
+Extract outside git. If source is absent, follow the STOP-and-ask rule in the
+single fidelity contract at the top of `AGENTS.md`. Historical repacked-archive
+and asset provenance hashes remain in `THIRD_PARTY_NOTICES.md`.
 
 ## Current UI design authority
 
 The owner's current aesthetic direction is source-traced official Telegram Android component typography and icons. Current source references live in `docs/telegram-typography-mission-01.md` and `docs/telegram-icon-source-registry.tsv`. Preserve production API compatibility, text content and exam-specific icon semantics.
 
-The owner authorizes officially sourced Telegram components with proper GPL compliance under EVE’s GPL-3.0-or-later distribution plan. Verify selected source assets and licenses, preserve attributions and per-density geometry/motion, and review dependency and corresponding-source obligations; see `ENGINEERING_STANDARD.md` and `THIRD_PARTY_NOTICES.md`. Use independently authored equivalents only when source/art rights or counterparts are missing, and never claim release compliance without a real audit.
+Telegram reuse and distribution follow `ENGINEERING_STANDARD.md` and `THIRD_PARTY_NOTICES.md`.
 
 Retain existing structural constraints until expressly replaced: 26dp solid cards, 12dp screen margins, 10dp card padding, 9dp elevation, no list dividers; glass limited to top/bottom bars and menus. A 4-destination Telegram-style floating bottom navigation pill bar (`EveBottomPillBar`) is the primary navigation across Home, History, Settings, and Profile (kept absent from active tests, payments, login, and subordinate flows); Saved/Bookmarks remain in the Drawer; preserve the Android system navigation bar.
 The device-font preference is retired. Preserve full Hindi/Devanagari fallback, accessibility, Telegram circular reveal and all existing Lottie timing/triggers. Never alter scoring, ranking or business flows for typography.

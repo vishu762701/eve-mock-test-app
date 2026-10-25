@@ -1,8 +1,12 @@
 # Telegram icon source mapping — current EVE
 
+Source availability: Telegram source is not stored in this repository; the owner supplies it per session. See `SOURCE_OF_TRUTH.md` for attachment/hash requirements and `AGENTS.md` for the missing-source STOP rule.
+
 Source: `docs/telegram-icon-source-registry.tsv` and original-byte Telegram UI source evidence archive pinned to SHA-256 `fabf0b7370abf2ee5661063ea1c274cb3e537048f008a6871ff3169cbe89cb1e`.
 
 Existing imported source-exact icons are already verified by `TelegramIconSourceRegistryTest` (per-density SHA-256). Never re-encode or redraw these WEBP files.
+
+Review-only closest-meaning candidates with source hashes are in `docs/telegram-icon-candidates.md`; import approval is still required.
 
 Current registry: **74** icons; **32** already source-exact, **42** not currently source-exact.
 
