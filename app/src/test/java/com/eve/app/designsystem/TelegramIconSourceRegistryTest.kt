@@ -86,6 +86,37 @@ class TelegramIconSourceRegistryTest {
         }
     }
 
+
+    @Test fun approvedMediumOriginalsRemainPinned() {
+        val root = listOf(File(".."), File("."))
+            .first { File(it, "docs/telegram-icon-source-registry.tsv").isFile }
+        val lines = File(root, "docs/telegram-icon-source-registry.tsv").readLines()
+            .filter { it.isNotBlank() && !it.startsWith("#") }
+        val columns = lines.first().split('\t')
+        val registry = lines.drop(1).map { columns.zip(it.split('\t')).toMap() }
+        val pinned = mapOf(
+            "ic_broadcast" to ("res/drawable-hdpi/msg_channel.webp" to listOf("fd61bf8389bfe7951e359806ff85319c33a89416db8f52c53142035838aa3b56", "d812248c45c9436e150c9afb0d9be15ec2d20924b35e7307dee47b35270cc219", "3d166a373927296d29d13ffbcbbd926288273cbac11a89de6ea6f1a86608ec2a", "b66a756c5934877578e2e12cdabbc2722c01a8a3d2e04b03fb9060b887b365be")),
+            "ic_chevron_down" to ("res/drawable-hdpi/msg_go_down.webp" to listOf("c78cf2d8be63a9276738700d75b13403f82976118b14e76010b6fc81443bcb8d", "f6951cf210c2546de4cdf208a6b9229fe87bdfd837021151e4d5a0e7438fc251", "8a3bb721aafb8223fca9923b973d1f6ebde487bf5e35afb84217d31efd716225", "5ab35b8c006881f5206c379d93dce7f48961575cb87854ea8e1d4d25e99ab22a")),
+            "ic_pin" to ("res/drawable-hdpi/msg_pin.webp" to listOf("e8ef8bb01e95108ac9b7e38d15b933ca760a750b4d3b257e31692d978d788538", "aab11c0a64a29595738c1d4c8816b824f1994405470f3c34287fa573dd06bc1e", "d72e938b173f5f7094d84609b029d67a74c693a7a3c398885fec448027a80828", "f8fd0b6a5726647172d339c6e2d53a9f3b353eb905d2ac48d95b38bbe4bf3f8d")),
+            "ic_robot" to ("res/drawable-hdpi/msg_bot.webp" to listOf("16f5bad176bb0733d411df93537fb2342f01176d460021db9d95b36821de1ea7", "505e55410ac99dfcf47d91e67f10f3ae5b9b3750b8cb66180a6421cbfaec04fd", "adc620e50df78f06dbade917a3a87c2488065876425ae7f556429411d1b665e4", "f21773ed549c7500c2c2577a2d25d034fb40e8bbf9d8c09bc36b7333afa1a545")),
+            "ic_theme_sun" to ("res/drawable-hdpi/msg_brightness_high.webp" to listOf("37d188da5604ea934ea9db2cc5be03226fc81d62d182287faa198fddb254dbd8", "dbaaeddb4d1b2f8e9bebeba4f50f6c89ea870b084a14beef0e9f174680d01091", "7c01f92403026865eef6594a8ba41bf4048600f395b19a4a327d5202cf2f99c3", "f8805950ba92591beec9baeaaf85389a4c0961f660942af5af224a59ee38023a")),
+            "ic_upload" to ("res/drawable-hdpi/msg_mini_upload.webp" to listOf("eb784a0ac917a1e6d9d5aaef1133e1f916e567ad3c9bba02a36e08ad54cc3c2b", "a3264c25708d46cd703e5bb005a33620f10cb558780ece40c4b9a9d4b683dbb8", "48d0594e036162f2f0bb98a1d1f204da7f355cc009a845c51bfde53311c2ef7a", "ec6e203c3b358377426c1e2723746ea437ba490de32dca6791e3350a06ade794")),
+            "ic_star_filled" to ("res/drawable-hdpi/ic_rating_star_filled.webp" to listOf("99c36bd064b14508dbb93424c0fafc01a8965cdb4da6296bc2fbc421870dc341", "01e40b2cd170a9ee68f6bcd1e26e392332e775a1d1708d5a0e9954dda4e6c1fd", "501faa12fe3373819c34f437aea76cddac88659daf6a1d250c7e0ea46b6e1157", "7eebdb0a87e27a85c48973048017953ebb1d9f66939f714d34c87228b9774869")),
+            "ic_star_outline" to ("res/drawable-hdpi/ic_rating_star.webp" to listOf("34cefcee9d35cafd0ba8ec44200ff49bc41afd327f2f6db29151fe19b025229c", "b91738560fc3cd4cd54dfc11a48e6a3b06b444d57d00ce7019bd67eac249be25", "43720dab3945de7aab28755d0b24cb3d1d93c8a43b3b9cb7601b0677024b4269", "83f7161abddae21134666e0253b9b3972f2716266485d31b4b2cc4f5beb7caac")),
+            "ic_minus" to ("res/drawable-hdpi/msg_remove.webp" to listOf("d546c82a1fd40dea69bc105461a56df93a62d1c36eed72210b06fa71e4531035", "9f5896049eda1f265bd6f83362ff1ba342c22b357a1f40837c316788da72a409", "3a57b6078a9d581d82c3cfd5e3b13d370ca755819a028662a360b61af101fa07", "23e8ded3ad33d89d7d5c27a8dbd2f4820491d046e257e387da27be3da386d893"))
+        )
+        for ((icon, source) in pinned) {
+            val row = registry.single { it.getValue("eve_icon") == icon }
+            assertEquals("Wrong Telegram counterpart for $icon", source.first, row.getValue("telegram_zip_asset"))
+            assertEquals("Not imported: $icon", "OFFICIAL_TELEGRAM_GPL_ART_IMPORTED",
+                row.getValue("source_fidelity_status"))
+            for ((index, density) in listOf("mdpi", "hdpi", "xhdpi", "xxhdpi").withIndex()) {
+                assertEquals("$icon/$density does not match original bytes",
+                    source.second[index], row.getValue("sha256_$density"))
+            }
+        }
+    }
+
     @Test fun homeNotificationFallbackUsesPinnedTelegramBell() {
         val root = listOf(File(".."), File("."))
             .first { File(it, "docs/telegram-icon-source-registry.tsv").isFile }

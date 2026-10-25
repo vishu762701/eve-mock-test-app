@@ -45,6 +45,12 @@ deliverables. This attribution records provenance; it does **not** establish
 byte-for-byte source parity, complete dependency compatibility, or production
 release clearance. See `docs/telegram-release-compliance-gate.md`.
 
+### Owner-approved Telegram original icon imports — 2026-10-25
+
+- **Provenance:** owner-supplied `Telegram-master-core.zip`, verified SHA-256 `3ecbbeab06e0cafebd462721f048b637a454522167db94d26c52ccad10ea1db0`, internal `EVE_MANIFEST.sha256` valid for 6,942 files; Telegram `TMessagesProj/src/main/res/drawable-{mdpi,hdpi,xhdpi,xxhdpi}/` original bytes, upstream reference `0aae959806c57be8ad457980f2a5c6277ff18635`.
+- **Unmodified assets and EVE aliases:** `msg_channel` → `ic_broadcast`; `msg_go_down` → `ic_chevron_down`; `msg_pin` → `ic_pin`; `msg_bot` → `ic_robot`; `msg_brightness_high` → `ic_theme_sun`; `msg_mini_upload` → `ic_upload`; `ic_rating_star_filled` → `ic_star_filled`; `ic_rating_star` → `ic_star_outline`; `msg_remove` → `ic_minus` (all `.webp`). Original per-density file SHA-256 values are pinned in `docs/telegram-icon-source-registry.tsv` and `docs/telegram-icon-confidence-2026-10-25.md`.
+- **Attribution/licensing:** Telegram Android contributors and owners as applicable; root Telegram source archive bundles GPL version 2 text. The applicability of "or later" to individual icon files and combined-work compatibility is unresolved. Do not change the existing fail-closed production distribution guard; preserve notices and corresponding source obligations. No Telegram logos, launcher branding, Lottie, or other assets were imported.
+
 ## Inter (Official iOS 26 Typography Approximation)
 
 - Source: https://rsms.me/inter/ and https://github.com/rsms/inter

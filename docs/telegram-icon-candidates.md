@@ -4,7 +4,7 @@ Source availability: Telegram source is not stored in this repository; the owner
 
 The manifest line references below belong to the repacked UI archive used for this sweep, SHA-256 `fabf0b7370abf2ee5661063ea1c274cb3e537048f008a6871ff3169cbe89cb1e`. They are historical provenance, not assumed members of every future attachment.
 
-This is the historical list of all 42 rows that originally had `NOT_IMPORTED` hashes. Five HIGH candidates have now been imported; see `docs/telegram-icon-confidence-2026-10-25.md` for current status.
+This is the historical list of all 42 rows that originally had `NOT_IMPORTED` hashes. Five HIGH and nine owner-approved MEDIUM candidates have now been imported; see `docs/telegram-icon-confidence-2026-10-25.md` for current status.
 `registry.tsv` below means `docs/telegram-icon-source-registry.tsv`. Source paths
 are relative to the extracted owner archive; manifest line numbers refer to
 `EVE_MANIFEST.sha256` in that extracted tree. Hashes are computed from actual
@@ -12,7 +12,7 @@ hdpi bytes, not from names or remembered artwork. These choices rank semantic
 closeness and do not establish equivalent glyph geometry, licensing clearance,
 per-density/state/motion parity, or suitability for an exam-specific action.
 
-Historical status: no assets were imported during the original candidate sweep. Five HIGH rows were subsequently imported without redraw; all remaining candidates still require owner decisions. Original archive provenance:
+Historical status: no assets were imported during the original candidate sweep. Five HIGH and nine owner-approved compatible MEDIUM rows were subsequently imported without redraw. Twelve MEDIUM rows remain blocked on semantic/state/geometry parity, and LOW rows remain untouched. Original archive provenance:
 `0785365538ce05cf5bdf44a15d8fd5f5219f8193db0a2d124af9665fc63fd7b3`.
 
 | EVE icon | Closest Telegram file | SHA-256 | Reason |
