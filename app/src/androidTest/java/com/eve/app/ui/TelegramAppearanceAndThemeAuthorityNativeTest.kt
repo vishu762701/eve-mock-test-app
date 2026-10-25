@@ -106,6 +106,11 @@ class TelegramAppearanceAndThemeAuthorityNativeTest {
                 val parent = activity.findViewById<FrameLayout>(android.R.id.content)
                 val pill = requireNotNull(parent.findViewWithTag<EveBottomPillBar>("eve_bottom_pill_bar"))
                 val lp = pill.layoutParams as FrameLayout.LayoutParams
+                for (index in 0 until pill.tabsLayout.childCount) {
+                    val tab = pill.tabsLayout.getChildAt(index) as com.eve.app.ui.navigation.GlassTabView
+                    assertTrue("Real EVE host must retain the source tab label's font padding",
+                        tab.textView.includeFontPadding)
+                }
                 val tolerance = (1f * activity.resources.displayMetrics.density).toInt().coerceAtLeast(1)
                 assertTrue("Content viewport must be laid out", parent.width > 0 && parent.height > 0)
                 assertTrue("Floating bottom pill must have visible dimensions",

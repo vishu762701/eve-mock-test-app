@@ -117,3 +117,14 @@ No icon imports or changes were made.
   (API 24–27) differs from Telegram's bundled `fonts/rextrabold.ttf`. The numeric
   selected weight is retained; no new font asset or independent font-license
   claim was introduced in this sweep.
+
+## Final source/runtime contract
+
+The attached EVE navigation host also asserts source-default label font padding
+(`app/src/androidTest/java/com/eve/app/ui/TelegramAppearanceAndThemeAuthorityNativeTest.kt:111`), after the real window traversal.
+Source evidence is `Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/glass/GlassTabView.java:87–96`
+and `Telegram-master/TMessagesProj/src/main/res/values/styles.xml:88–90`.
+Candidate icons now include actual Java use-site citations as well as binary
+manifest references and hashes. Registry hash tests remain independent of
+source archives. The final native gate runs both system navigation modes;
+visual/glyph deviations and pending owner decisions above remain explicit.
