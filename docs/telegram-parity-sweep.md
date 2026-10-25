@@ -95,3 +95,23 @@ inset accounting, height and max width after window traversal.
 `.github/workflows/build.yml` runs the native suite with both `gesture` and
 `three-button` navigation modes at the final mission gate. A green compile alone
 does not prove these runtime or visual claims.
+
+## A4 — Icon candidates
+
+The complete 42-row table is in `docs/telegram-icon-candidates.md` with registry
+line references, actual Telegram resource paths, source-manifest lines, SHA-256
+and semantic reasons. Google sign-in art is NOT FOUND as a bundled static
+identity resource; the upstream Java references an external Google SDK resource.
+No icon imports or changes were made.
+
+## Needs my decision
+
+- Legacy email/password entry versus an existing-user/admin account-linking plan:
+  code and views retained, as detailed under A2.
+- Approve/reject the individual icon candidates before any import. A literal
+  trophy and several exam-domain counterparts are NOT FOUND; semantic analogies
+  are explicitly marked and are not substitution recommendations.
+- Selected-tab glyph fidelity: existing platform 800 (API 28+) / Bold fallback
+  (API 24–27) differs from Telegram's bundled `fonts/rextrabold.ttf`. The numeric
+  selected weight is retained; no new font asset or independent font-license
+  claim was introduced in this sweep.
