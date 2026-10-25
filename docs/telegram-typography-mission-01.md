@@ -1,6 +1,6 @@
 # Telegram Android typography and icon source register
 
-Source availability: Telegram source is not stored in this repository; the owner supplies it per session. See `SOURCE_OF_TRUTH.md` for attachment/hash requirements and `AGENTS.md` for the missing-source STOP rule.
+Source availability: Telegram source is not stored in this repository; the owner supplies it per session. See `SOURCE_OF_TRUTH.md` and `AGENTS.md` for source-exact archive/hash verification; absent archives do not block unrelated work.
 
 ## Telegram reuse policy
 
@@ -10,8 +10,9 @@ Reuse and distribution follow `ENGINEERING_STANDARD.md` and `THIRD_PARTY_NOTICES
 
 Source paths below are relative to the owner-supplied archive extracted outside
 git. Telegram source is not stored in this repository. See `SOURCE_OF_TRUTH.md`
-for the required per-session attachment/hash and `AGENTS.md` for the missing-source
-STOP rule. Historical split-archive manifest results remain provenance evidence;
+for the source-exact per-session archive/hash verification rule. Missing archives
+block only source-exact transplants and provenance checks, not unrelated tasks.
+Historical split-archive manifest results remain provenance evidence;
 they do not make source available in a new session.
 
 | Role | Official source and lines | Source values |
