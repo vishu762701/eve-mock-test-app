@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Locked dimensions: keep all breakpoint copies identical. -->
+    <!-- Editable design tokens; breakpoint values may differ to support responsive layouts. -->
     <dimen name="design_zero">0dp</dimen>
     <dimen name="design_screen_margin">12dp</dimen>
     <dimen name="design_card_padding">10dp</dimen>

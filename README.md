@@ -13,6 +13,9 @@ Eve is an Android exam-practice application with a Kotlin/XML client, Firebase a
 ## Current engineering instructions
 Read `ENGINEERING_STANDARD.md`, `SOURCE_OF_TRUTH.md`, and `AGENTS.md` before editing. `GEMINI.md`/`CLAUDE.md` are pointers. EVE is under active development: no visual/UX element is permanently locked; the owner may safely add, redesign or remove anything. Historical UI archives are not active rules. On each task agents remove conclusively unused files after cross-module/dynamic-reference checks; preserve uncertain assets, migrations, license provenance and production integrity.
 
+## Owner-led engineering and official references
+Eve is actively being developed; no historical UI/UX design is immutable. Implement requested changes with engineering judgment across every affected layer, not by blindly obeying old "locked" fixture values. Official UI design principles may inspire original Eve implementations; exact third-party artwork/code must have verified compatible permissions and notices. If that cannot be cleared, use an independently authored/licensed equivalent and continue unaffected work. Production GPL and signing checks are intentionally retained. Every task includes evidence-based orphan cleanup, without unsafe deletion of migrations, licenses or live data.
+
 ## Downloading an installable Android APK
 - **FAST** (every intermediate source push): compiles the debug app and tests but intentionally does **not** publish an APK. A green FAST status is not an APK download link.
 - **FULL** (mission-final `[eve-full]` commit, or explicit owner-requested verified delivery): runs Android lint, signing safeguards, both emulator navigation modes, theme evidence, backend and Functions checks. Only after all gates pass does GitHub Actions upload the **Eve-debug-apk** artifact.

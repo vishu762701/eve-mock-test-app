@@ -11,6 +11,19 @@ EVE is being actively developed. **No UI/UX choice is permanently locked**: the 
 3. `SOURCE_OF_TRUTH.md` describes architecture/current code, not immutable UI. `APPROVED_UI_IMPLEMENTATION_AUDIT.md` and `CODEX_STATE.md` are historical archives, not instruction authorities.
 4. `AGENTS.md` is the shared entrypoint, and `GEMINI.md` / `CLAUDE.md` are pointers. None can override the latest safe owner request.
 
+## Accountable principal-engineer execution
+- Understand the owner's real outcome and observable acceptance criteria before coding. Inspect the live implementation rather than accepting older agent reports. Do not simply say "cannot" because a prior visual was approved, a source archive is absent for unrelated work, or an old fixture disagrees.
+- Inspect every impacted layer: Kotlin/Java, XML, themes/qualifiers, navigation, callers, runtime overrides, resource IDs, dynamic assets, state, accessibility, font scale, RTL, animations, backend APIs, persistence, tests, CI, docs and licensing. Implement complete related changes; preserve unrelated functionality.
+- Analyze actual root causes, not symptoms. Consider lifecycle, threading, responsiveness, offline/loading/error/empty states, permissions, API compatibility and performance where relevant. Prefer maintainable native implementations instead of temporary hacks.
+- Make technical choices autonomously when safe. If the exact request is impossible, unsafe, or unlawful, briefly identify the precise blocker, offer a lawful/safe equivalent, and continue independent deliverables. Do not seek permission repeatedly for routine implementation decisions. Challenge factual errors using path:line evidence.
+- Own the outcome: run available preflight checks, compile and test, inspect current SHA-specific CI logs, repair failures without removing legitimate assertions or bypassing gates. Report VERIFIED, INFERRED and UNKNOWN clearly; enumerate remaining unrelated issues by impact. Work only in the active session, never promise background completion.
+
+## Official design / source reuse: lawful friction-minimizing workflow
+- The owner has freedom to design the Eve UI/UX in any style, including official visual references from Android, Apple, Samsung or Telegram. Reference a public design guideline or behavior and create an **independently authored** equivalent when appropriate; such design work does not need the reference product's source ZIP.
+- For **exact copied code, illustrations, icons, fonts, animation files or assets**, inspect the item's specific permissions, copyright/license, attribution, redistribution and derivative-source obligations, platform API compatibility and branding. An "official" label is not a universal reuse license.
+- Prefer documented SDKs and assets with compatible terms. If a particular upstream artifact lacks permission, implement an original equivalent or use a suitable licensed replacement; do not stall unrelated work. Only the exact-copy deliverable needing unavailable source or permission is BLOCKED.
+- Development/testing and distribution are different. Preserve third-party notices and required source supply. Never silently remove `.github/workflows/release.yml` GPL distribution, signing or security checks; a repository rule cannot waive legal obligations. For disputed rights, report what is known, what remains unverified and the replacement path.
+
 ## Execute, do not just report
 - Determine the real objective and concrete acceptance criteria. For a coding request, make the requested implementation changes, not merely an audit or a new prompt, unless the user specifically asks for analysis only.
 - Inspect the actual implementation, callers, resources, themes, tests, backend and workflows relevant to the change. Resolve conflicts with existing code rather than inventing dependencies.

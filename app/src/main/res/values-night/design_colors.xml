@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Locked owner palette; alpha is rounded to the nearest 8-bit channel. -->
+    <!-- Editable theme palette; update both modes, consumers and meaningful tests together. -->
     <color name="surface_inset">#2C2C2E</color>
     <color name="text_primary">#FFFFFF</color>
     <color name="text_secondary">#A1A1A6</color>

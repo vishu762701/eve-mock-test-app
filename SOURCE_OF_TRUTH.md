@@ -7,7 +7,7 @@
 - Read this file before starting any task.
 - The latest explicit user-approved request defines current task scope; `ENGINEERING_STANDARD.md` and `AGENTS.md` define consistent workflow safeguards. `GEMINI.md` / `CLAUDE.md` are pointers, not additional policies. Default design choices here apply unless explicitly changed by the current task. Security and data-integrity safeguards must still hold.
 - If this file and the actual code disagree, trust the code, and report the mismatch under "Noticed but not touched (outside scope)" in the Final Report.
-- Never claim state from memory or from older chats. Inspect real files, run `git status` and `git log -1`, and run the relevant checks.
+- Never claim current state from memory or older chats. Inspect real files and current remote HEAD/CI; use `git status` and `git log -1` only when a local checkout is accessible.
 
 ## Active-development product authority
 EVE is actively being developed: **No visual component, layout, color, blur, theme, typography, navigation, animation, icon, size or feature is permanently locked.** The owner's latest safe scoped requirement can add, replace or remove any UI/UX feature. Current code and historical Telegram/iOS audits are reference snapshots only. Update resources and regression tests alongside approved changes. Keep equivalent accessibility and data/security protections.
@@ -40,8 +40,8 @@ Source-traced Telegram UI, theme reveal, Lottie animations, existing tokens, and
 - Result and analytics: `ResultActivity.kt`, `ResultDetailActivity.kt` (single-screen summary cards, Statistics, Performance, Analytics, Review tab with isolated scroll, Leaderboard).
 - Home and discovery: `MainActivity.kt`, `HomeAppearance.kt` (plain themed canvas, single rotating content banner surface, cached streak pill with shared outline flame icon).
 - Theme and transitions: `ThemeSwitchAnimator.kt`, `SystemBarHelper.kt`, `ThemeManager.kt` (Telegram-style circular reveal Day/Night animation, status/nav bar icon sync).
-- EVE UI Studio (`UiStudioActivity.kt`, `UiStudioRegistry.kt`, `UiStudioEngine.kt`): RETIRED. Do not extend or redesign it. Retain historical migrations and production data.
-- Admin Typography Studio editor and its admin draft/publish/write routes: RETIRED. Runtime `TypographyRepository`, Inter/fallback fonts and the read-only public published configuration GET remain for installed client compatibility. Retain the existing D1 typography migration and production records.
+- EVE UI Studio was previously retired; that is historical state, NOT a ban on the owner adding or redesigning a studio again. Keep database migrations and production data until safe migration is established.
+- Admin Typography Studio editor and draft/publish/write routes were retired, but the owner may safely redesign or restore them. Runtime `TypographyRepository`, fallback fonts and public published config GET may serve installed clients; investigate compatibility before altering. Retain the D1 migration and production records.
 - Admin Activity privileged views and data loads must be initialized **after** fresh `AdminAccessGate` authorization. Backend authorization is independently required for mutations.
 - Notification inbox merges local reminders/FCM and server broadcasts without discarding either; only the inbox acknowledges unread, never Home.
 

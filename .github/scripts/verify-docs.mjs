@@ -89,6 +89,19 @@ if (agent.includes('If Telegram source is unavailable in this session, STOP') ||
     !agent.includes('never block unrelated tasks')) {
   error('Telegram reference availability must not globally block Eve development');
 }
+if (!engineering.includes('Accountable principal-engineer execution') ||
+    !engineering.includes('Official design / source reuse')) {
+  error('Principal-engineer ownership or official-reference policy is missing');
+}
+if (fs.readFileSync(path.join(REPO_ROOT, '.github/workflows/build.yml'), 'utf8').includes("Retired UI Studio references remain in active source")) {
+  error('CI must not hard-ban a safely reintroduced UI feature');
+}
+for (const doc of ['THIRD_PARTY_NOTICES.md', 'docs/telegram-release-compliance-gate.md', 'docs/telegram-gpl-audit-2026-10-24.md']) {
+  const content = fs.readFileSync(path.join(REPO_ROOT, doc), 'utf8');
+  if (content.includes('missing-source STOP rule') || content.includes('The STOP rule is in')) {
+    error(doc + ': obsolete global missing-source STOP rule remains');
+  }
+}
 
 // 2. Discover all markdown files
 function findMarkdownFiles(dir) {

@@ -1,6 +1,8 @@
 # EVE Telegram GPL production-release compliance gate
 
-Source availability: Telegram source is not stored in this repository; the owner supplies it per session. See `SOURCE_OF_TRUTH.md` for attachment/hash requirements and `AGENTS.md` for the missing-source STOP rule.
+Reference-source availability: Telegram source is supplied for explicit source-exact comparisons/copying; its absence never blocks independently authored Eve UI or unrelated development. See `THIRD_PARTY_NOTICES.md` for archive identity. Actual distribution permission remains a separate requirement.
+
+This is a production-distribution safeguard, not a restriction on development-stage redesign, testing or independently authored replacements. When a particular imported asset cannot be cleared, replace it with appropriately licensed original work, update notices and reevaluate the exact release dependency graph.
 
 The app currently includes original static Telegram Android artwork from a reference archive whose root `LICENSE` contains GPL version 2. Whether each imported file has an "or later" grant compatible with EVE's intended GPLv3 distribution remains unverified. The repository's GPL-3 licensing intent and bundled notices are **not** by themselves proof that a production APK/AAB may be distributed lawfully.
 

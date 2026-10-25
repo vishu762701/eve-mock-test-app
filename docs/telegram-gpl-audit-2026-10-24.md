@@ -1,6 +1,6 @@
 # EVE Telegram GPL Distribution Audit — 2026-10-24
 
-Source availability: Telegram source is not stored in this repository; the owner supplies it per session. See `SOURCE_OF_TRUTH.md` for attachment/hash requirements and `AGENTS.md` for the missing-source STOP rule.
+Reference-source availability: Telegram source is supplied for explicit source-exact comparisons/copying; its absence never blocks independently authored Eve UI or unrelated development. See `THIRD_PARTY_NOTICES.md` for archive identity. Actual distribution permission remains a separate requirement.
 
 **Status: SOURCE-LEVEL REVIEW COMPLETE; PRODUCTION RELEASE NOT CLEARED.**
 
