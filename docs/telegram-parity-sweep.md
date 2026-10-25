@@ -67,3 +67,31 @@ keyboard, passkey prompt, country-picker text animation and inter-fragment login
 animations have no counterpart on this Google-only first page (NOT FOUND).
 No animation was invented. Hidden legacy mode-switch motion remains unchanged
 pending the email-login decision; it is not claimed as source-exact first-page motion.
+
+## A3 — Floating tabs
+
+| Property | EVE file:line | Telegram file:line | Value | Action |
+|---|---|---|---|---|
+| Unselected tab font | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:116` | `Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/glass/GlassTabView.java:92,237; messenger/AndroidUtilities.java:262–270` | bundled Medium 500 | Fixed incorrect 700 and corrected comparison document |
+| Selected tab font | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:232` | `Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/glass/GlassTabView.java:237` | 800 on API 28+ | Preserved numeric weight; platform glyph substitute remains an explicit deviation |
+| Weighted-width rounding | `app/src/main/java/com/eve/app/ui/navigation/MainTabsLayout.kt:180` | `Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/MainTabsLayout.java:141` | Math.round | Replaced truncation |
+| Density geometry | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:302` | `Telegram-master/TMessagesProj/src/main/java/org/telegram/messenger/AndroidUtilities.java:2701–2705` | ceil(density × dp) | Corrected per-density rounding in tab leaf and sizing helper |
+| Selector visual width | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:273` | `Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/glass/GlassTabView.java:152–160` | visualWidth when supplied | Fixed use of measured width |
+| Label font padding | `app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt:111` | `Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/glass/GlassTabView.java:87–96` | Android default font padding | Removed unsupported false override |
+
+The complete geometry/property comparison remains in
+`docs/telegram-floating-tabs-source-comparison.md`, checked against extracted
+source rather than accepted as authority. Outer placement, 56dp height, 344dp cap,
+8dp margins + navigation inset, three 12/12/10dp text passes with 16/8/4dp padding,
+24dp icons, 22dp avatars, 28.33dp label position, 320ms selection and 0.09 alpha
+were rechecked. Existing 0dp vertical padding and four EVE destinations are
+explicit adaptations. Existing Lottie files and triggers are untouched.
+
+Bottom-placement regression:
+`app/src/androidTest/java/com/eve/app/ui/TelegramAppearanceAndThemeAuthorityNativeTest.kt:79`
+(`actualNavigationHostKeepsBottomGravityAfterNavigationInsets`) checks gravity,
+real lower-half placement, actual bottom coordinate, confined glass background,
+inset accounting, height and max width after window traversal.
+`.github/workflows/build.yml` runs the native suite with both `gesture` and
+`three-button` navigation modes at the final mission gate. A green compile alone
+does not prove these runtime or visual claims.

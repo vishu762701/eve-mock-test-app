@@ -141,10 +141,10 @@ class TelegramAppearanceAndThemeAuthorityNativeTest {
             tab.configureAsIcon(com.eve.app.R.drawable.msg_home, "Home")
             tab.setSelectedTab(false, false)
             if (android.os.Build.VERSION.SDK_INT >= 28) {
-                assertEquals("Unselected tab must render at Android font weight 700",
-                    700, tab.textView.typeface.weight)
+                assertEquals("Unselected tab must use the source Medium font weight 500",
+                    500, tab.textView.typeface.weight)
             } else {
-                assertTrue(tab.textView.typeface.isBold)
+                assertEquals(com.eve.app.util.FontManager.telegramMediumTypeface(context), tab.textView.typeface)
             }
             tab.setSelectedTab(true, false)
             if (android.os.Build.VERSION.SDK_INT >= 28) {

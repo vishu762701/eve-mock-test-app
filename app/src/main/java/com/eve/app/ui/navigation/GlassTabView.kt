@@ -113,13 +113,8 @@ class GlassTabView @JvmOverloads constructor(
             isSingleLine = true
             maxLines = 1
             ellipsize = TextUtils.TruncateAt.END
-            typeface = if (android.os.Build.VERSION.SDK_INT >= 28) {
-                Typeface.create(Typeface.DEFAULT, 700, false)
-            } else {
-                Typeface.DEFAULT_BOLD
-            }
+            typeface = com.eve.app.util.FontManager.telegramMediumTypeface(context)
             gravity = Gravity.CENTER
-            includeFontPadding = false
         }
         defaultTextPaint = TextPaint(textView.paint)
         val textLp = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply {
@@ -229,10 +224,12 @@ class GlassTabView @JvmOverloads constructor(
             invalidate()
         }
 
-        // Telegram GlassTabView.java:233-238: regular tabs are bold and
-        // the selected tab uses Roboto ExtraBold (800).
-        textView.typeface = if (android.os.Build.VERSION.SDK_INT >= 28) {
-            Typeface.create(Typeface.DEFAULT, if (selected) 800 else 700, false)
+        // GlassTabView.java:237 + AndroidUtilities.java:262-270: bold() is Medium (500).
+        // Selected weight is 800; EVE keeps the existing system ExtraBold substitute.
+        textView.typeface = if (!selected) {
+            com.eve.app.util.FontManager.telegramMediumTypeface(context)
+        } else if (android.os.Build.VERSION.SDK_INT >= 28) {
+            Typeface.create(Typeface.DEFAULT, 800, false)
         } else {
             Typeface.DEFAULT_BOLD
         }
@@ -269,11 +266,11 @@ class GlassTabView @JvmOverloads constructor(
     }
 
     override fun onDraw(canvas: Canvas) {
-        // Selection capsule drawing from Telegram GlassTabView.java:101-113
+        // Selection capsule drawing from Telegram GlassTabView.java:150-164
         if (selectedFactor > 0f) {
             val alpha = decelerateInterpolator.getInterpolation(selectedFactor)
             paintSelector.color = TelegramThemeEngine.multAlpha(colorSelected, 0.09f * alpha)
-            tmpRectF.set(0f, 0f, width.toFloat(), height.toFloat())
+            tmpRectF.set(0f, 0f, if (hasVisualWidth) visualWidth else width.toFloat(), height.toFloat())
             val r = Math.min(tmpRectF.width(), tmpRectF.height()) / 2f
             val s = lerp(0.6f, 1f, selectedFactor) * MathUtils.clamp(attachScale, 0f, 1f)
 
@@ -302,10 +299,10 @@ class GlassTabView @JvmOverloads constructor(
     }
 
     private fun dp(value: Float): Int {
-        return (value * resources.displayMetrics.density).toInt()
+        return kotlin.math.ceil((value * resources.displayMetrics.density).toDouble()).toInt()
     }
 
     private fun dp(value: Int): Int {
-        return (value * resources.displayMetrics.density).toInt()
+        return kotlin.math.ceil((value * resources.displayMetrics.density).toDouble()).toInt()
     }
 }

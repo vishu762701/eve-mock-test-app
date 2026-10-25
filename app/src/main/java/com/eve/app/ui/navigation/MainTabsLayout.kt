@@ -177,7 +177,7 @@ class MainTabsLayout @JvmOverloads constructor(
         val heightForTabs = (height - paddingTop - paddingBottom).coerceAtLeast(0)
         for (index in visible) {
             val child = getChildAt(index)
-            val childWidth = widths[index].toInt().coerceAtLeast(1)
+            val childWidth = Math.round(widths[index]).coerceAtLeast(1)
             child.measure(
                 MeasureSpec.makeMeasureSpec(childWidth, MeasureSpec.EXACTLY),
                 MeasureSpec.makeMeasureSpec(heightForTabs, MeasureSpec.EXACTLY))
@@ -194,6 +194,6 @@ class MainTabsLayout @JvmOverloads constructor(
     }
 
     private fun dp(value: Int): Int {
-        return (value * resources.displayMetrics.density).toInt()
+        return kotlin.math.ceil((value * resources.displayMetrics.density).toDouble()).toInt()
     }
 }
