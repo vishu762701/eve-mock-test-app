@@ -150,7 +150,7 @@ class TelegramThemeApplierTest {
     @Test
     fun testCategoryChipsDistinctStatefulColors() {
         val themed = ContextThemeWrapper(RuntimeEnvironment.getApplication(), R.style.Theme_Eve)
-        val chip = Chip(themed)
+        val chip = Chip(themed).apply { isCheckable = true }
 
         // Test in dark mode
         TelegramThemeApplier.applyToViewTree(chip, testPalette)

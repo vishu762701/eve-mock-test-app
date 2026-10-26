@@ -126,6 +126,7 @@ object EveDesignSystem {
         }
 
         fun applyAdminButtonPalette(button: MaterialButton, palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+            DesignType.apply(button, DesignType.Role.BUTTON)
             button.backgroundTintList = android.content.res.ColorStateList.valueOf(palette.actionSelector)
             button.setTextColor(
                 android.content.res.ColorStateList(
@@ -141,7 +142,6 @@ object EveDesignSystem {
             )
             button.strokeWidth = 0
             button.minHeight = button.resources.getDimensionPixelSize(R.dimen.design_touch_min)
-            DesignType.apply(button, DesignType.Role.BUTTON)
         }
 
         fun applyHomeBannerSurface(bannerContainer: View, matteView: View) {
