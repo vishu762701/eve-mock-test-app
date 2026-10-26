@@ -199,7 +199,7 @@ class ManualUiSpecificationTest {
                             assertEquals(expectedBg,
                                 chip.chipBackgroundColor!!.getColorForState(chip.drawableState, 0))
                             assertEquals(expectedText, chip.currentTextColor)
-                            val effectiveBg = androidx.core.graphics.ColorUtils.compositeColors(expectedBg, palette.background)
+                            val effectiveBg = androidx.core.graphics.ColorUtils.compositeColors(expectedBg, palette.windowBackground)
                             assertTrue("Telegram chip label contrast must remain readable",
                                 androidx.core.graphics.ColorUtils.calculateContrast(chip.currentTextColor, effectiveBg) >= 4.5)
                         }
