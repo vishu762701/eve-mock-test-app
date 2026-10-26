@@ -1,6 +1,7 @@
 package com.eve.app.theme
 
 import android.graphics.Color
+import android.view.ContextThemeWrapper
 import android.view.View
 import android.widget.EditText
 import android.widget.FrameLayout
@@ -148,8 +149,8 @@ class TelegramThemeApplierTest {
 
     @Test
     fun testCategoryChipsDistinctStatefulColors() {
-        val context = RuntimeEnvironment.getApplication()
-        val chip = Chip(context)
+        val themed = ContextThemeWrapper(RuntimeEnvironment.getApplication(), R.style.Theme_Eve)
+        val chip = Chip(themed)
 
         // Test in dark mode
         TelegramThemeApplier.applyToViewTree(chip, testPalette)
@@ -193,8 +194,8 @@ class TelegramThemeApplierTest {
 
     @Test
     fun testAdminDashboardActionContrast() {
-        val context = RuntimeEnvironment.getApplication()
-        val btnAdmin = MaterialButton(context).apply { id = R.id.btnAdmin }
+        val themed = ContextThemeWrapper(RuntimeEnvironment.getApplication(), R.style.Theme_Eve)
+        val btnAdmin = MaterialButton(themed).apply { id = R.id.btnAdmin }
 
         // Test in dark mode
         TelegramThemeApplier.applyToViewTree(btnAdmin, testPalette)
