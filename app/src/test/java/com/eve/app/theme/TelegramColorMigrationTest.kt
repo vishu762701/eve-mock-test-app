@@ -105,6 +105,52 @@ class TelegramColorMigrationTest {
         }
     }
 
+    @Test fun historyBookmarkAndAnalyticsBindAccessibleSemanticTextInBothModes() {
+        for (dark in listOf(false, true)) {
+            val config = Configuration(context.resources.configuration).apply {
+                uiMode = uiMode and Configuration.UI_MODE_NIGHT_MASK.inv() or
+                    if (dark) Configuration.UI_MODE_NIGHT_YES else Configuration.UI_MODE_NIGHT_NO
+            }
+            val themed = ContextThemeWrapper(context.createConfigurationContext(config), R.style.Theme_Eve)
+            fun readable(view: android.widget.TextView) {
+                for (bg in listOf(R.color.bg_app, R.color.surface, R.color.dialog_surface)) {
+                    val background = themed.getColor(bg)
+                    assertTrue("Bound semantic text ${view.text}, dark=$dark", ColorUtils.calculateContrast(
+                        ColorUtils.compositeColors(view.currentTextColor, background), background) >= 4.5)
+                }
+            }
+            val history = com.eve.app.ui.history.HistoryAdapter {}
+            for ((correct, total) in listOf(8 to 10, 2 to 10, 0 to 0)) {
+                history.submit(listOf(com.eve.app.data.model.TestAttempt(score = correct.toDouble(), correct = correct, total = total)))
+                val holder = history.onCreateViewHolder(android.widget.FrameLayout(themed), 0)
+                history.onBindViewHolder(holder, 0)
+                readable(holder.itemView.findViewById(R.id.tvScore))
+            }
+            val saved = com.eve.app.ui.bookmarks.BookmarkAdapter({}, {}, { false })
+                .onCreateViewHolder(android.widget.FrameLayout(themed), 0)
+            saved.bind(com.eve.app.data.model.BookmarkedQuestion(questionId = "saved", questionText = "Question",
+                optionA = "Other", optionB = "Other", optionC = "Correct", optionD = "Other", correctAnswer = "C"))
+            readable(saved.binding.tvOptionC)
+            val users = com.eve.app.ui.admin.UserAdminAdapter({}, { _, _ -> })
+            for (disabled in listOf(false, true)) {
+                val holder = users.onCreateViewHolder(android.widget.FrameLayout(themed), 0)
+                holder.bind(com.eve.app.data.model.AdminUser(id = "fixture", disabled = disabled))
+                readable(holder.itemView.findViewById(R.id.tvUserStatusBadge))
+            }
+            for (correct in listOf(3, 5, 9)) {
+                val row = com.eve.app.ui.result.ResultAnalysisRows.topic(themed,
+                    com.eve.app.util.TopicAccuracy("Topic", correct, 10, correct * 10.0))
+                readable(row.findViewById(R.id.tvTopicResult))
+            }
+            for (selected in listOf("A", "C", "")) {
+                val row = com.eve.app.ui.result.ResultAnalysisRows.slowest(themed,
+                    com.eve.app.data.model.AnswerItem(number = 1, questionText = "Question", selected = selected,
+                        selectedText = "", correct = "C", correctText = "Correct")) as android.widget.TextView
+                readable(row)
+            }
+        }
+    }
+
     @Test fun oldSelectionsMigrateAndImportedFilesSurviveColdStartsAndTransactions() {
         val prefs = context.getSharedPreferences(TelegramThemeEngine.PREFS_NAME, Context.MODE_PRIVATE)
         prefs.edit().clear().putString("day_theme_id", "arctic").putInt("day_accent_id", 9)

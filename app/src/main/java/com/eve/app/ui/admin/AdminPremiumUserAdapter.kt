@@ -61,9 +61,9 @@ class AdminPremiumUserAdapter(
             binding.tvPlanAndExpiry.text = "${item.planName} • Expires: $expiryText (Source: ${item.source})"
 
             val (statusText, colorRes) = when (item.status.uppercase()) {
-                "ACTIVE" -> "ACTIVE" to R.color.system_green
-                "EXPIRED" -> "EXPIRED" to R.color.system_red
-                "REVOKED" -> "REVOKED" to R.color.system_red
+                "ACTIVE" -> "ACTIVE" to R.color.system_green_text
+                "EXPIRED" -> "EXPIRED" to R.color.system_red_text
+                "REVOKED" -> "REVOKED" to R.color.system_red_text
                 else -> item.status.uppercase() to R.color.text_secondary
             }
 

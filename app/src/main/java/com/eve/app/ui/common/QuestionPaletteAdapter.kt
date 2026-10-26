@@ -90,18 +90,18 @@ class QuestionPaletteAdapter(
                     PaletteState.CORRECT,
                     PaletteState.ANSWERED -> {
                         bgColor = ContextCompat.getColor(ctx, R.color.system_green_container)
-                        textColor = ContextCompat.getColor(ctx, R.color.system_green)
+                        textColor = ContextCompat.getColor(ctx, R.color.system_green_text)
                         strokeColor = ContextCompat.getColor(ctx, R.color.hairline)
                     }
                     PaletteState.WRONG -> {
                         bgColor = ContextCompat.getColor(ctx, R.color.system_red_container)
-                        textColor = ContextCompat.getColor(ctx, R.color.system_red)
+                        textColor = ContextCompat.getColor(ctx, R.color.system_red_text)
                         strokeColor = ContextCompat.getColor(ctx, R.color.hairline)
                     }
                     PaletteState.MARKED,
                     PaletteState.ANSWERED_MARKED -> {
                         bgColor = ContextCompat.getColor(ctx, R.color.system_orange_container)
-                        textColor = ContextCompat.getColor(ctx, R.color.system_orange)
+                        textColor = ContextCompat.getColor(ctx, R.color.system_orange_text)
                         strokeColor = ContextCompat.getColor(ctx, R.color.hairline)
                     }
                     PaletteState.UNATTEMPTED,

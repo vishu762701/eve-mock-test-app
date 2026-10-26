@@ -59,7 +59,7 @@ class GeneratedTestAdapter(
             b.tvStatusBadge.setTextColor(
                 ContextCompat.getColor(
                     itemView.context,
-                    if (isLive) R.color.system_green else R.color.system_orange
+                    if (isLive) R.color.system_green_text else R.color.system_orange_text
                 )
             )
 

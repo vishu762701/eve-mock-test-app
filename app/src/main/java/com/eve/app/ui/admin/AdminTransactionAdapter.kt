@@ -49,10 +49,10 @@ class AdminTransactionAdapter(
             binding.tvOrderDate.text = "Created: ${dateFormat.format(Date(item.createdAt))}"
 
             val (statusText, colorRes) = when (item.status.uppercase()) {
-                "SUCCESS" -> "SUCCESS" to R.color.system_green
-                "CREATED", "PENDING" -> item.status.uppercase() to R.color.system_orange
-                "EXPIRED" -> "EXPIRED" to R.color.system_red
-                "REFUNDED" -> "REFUNDED" to R.color.system_blue
+                "SUCCESS" -> "SUCCESS" to R.color.system_green_text
+                "CREATED", "PENDING" -> item.status.uppercase() to R.color.system_orange_text
+                "EXPIRED" -> "EXPIRED" to R.color.system_red_text
+                "REFUNDED" -> "REFUNDED" to R.color.system_blue_text
                 else -> item.status.uppercase() to R.color.text_secondary
             }
 

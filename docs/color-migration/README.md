@@ -145,3 +145,8 @@ The native evidence gate also requires `source-main-tabs` Light/Night hardware
 PixelCopy captures over a two-tone source canvas/surface backdrop in both navigation
 jobs. These demonstrate the EVE non-liquid renderer in context, not Telegram
 liquid refraction or same-build screenshot parity.
+
+The rendering matrix exposed raw semantic fill hues still assigned to Analytics,
+History and Bookmarks text. Those runtime binders, related Admin status labels,
+and review-palette numerals now use the existing accessible semantic text roles.
+Status decisions, numeric scores, callbacks and fill colors are unchanged.
