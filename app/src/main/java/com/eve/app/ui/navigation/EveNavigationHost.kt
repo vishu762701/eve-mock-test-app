@@ -50,6 +50,11 @@ object EveNavigationHost {
             root.addView(this)
         }
 
+        // Capture the screen content, not the floating overlay's own tab labels/avatar.
+        (pill.glassBackgroundView as? com.eve.app.designsystem.DesignGlassLayout)?.backdropRoot =
+            (0 until root.childCount).map { root.getChildAt(it) }
+                .firstOrNull { it !== pill && it is ViewGroup } as? ViewGroup
+
         pill.selectTab(currentTab, animated = false, notify = false)
 
         // Load profile avatar

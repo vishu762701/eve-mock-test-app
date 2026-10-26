@@ -115,3 +115,13 @@ Primary content panels and modal panels use separate drawables with identical
 shape geometry; values-v31 dialog overrides are migrated with the base theme.
 
 Destructive labels now pair the retained semantic red fill with black, the higher-contrast endpoint. Numeric sizes, control geometry and callbacks are unchanged. The native shared-controls matrix enforces 4.5:1 without old exact-hue exceptions.
+
+Verified dependency limitation: LiquidGlassEffect.java:22 loads the original
+`R.raw.liquid_glass_shader` resource, which is NOT FOUND in this curated pack
+(the exact original filename extension is not established). LiteMode.java and
+messenger/postdrawcompat helpers used by the original capture pipeline are also
+absent. They were not guessed or fetched from another revision. Therefore the
+source liquid branch/refraction is not imported or claimed; the independently
+verified non-liquid provider/coating path is the supported implementation.
+The nav host explicitly captures the screen-content child rather than the floating
+overlay subtree, keeping tab labels/avatar out of the captured backdrop.

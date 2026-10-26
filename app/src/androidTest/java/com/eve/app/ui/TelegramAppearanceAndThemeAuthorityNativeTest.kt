@@ -76,6 +76,8 @@ class TelegramAppearanceAndThemeAuthorityNativeTest {
         ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
             scenario.onActivity { activity ->
                 val pill = EveNavigationHost.attach(activity, EveBottomPillBar.TAB_HOME)
+                assertTrue("Backdrop source excludes the floating foreground overlay",
+                    (pill.glassBackgroundView as com.eve.app.designsystem.DesignGlassLayout).backdropRoot !== pill.parent)
                 val lpBefore = pill.layoutParams as FrameLayout.LayoutParams
                 assertEquals("Primary pill must attach to the window bottom",
                     Gravity.BOTTOM, lpBefore.gravity and Gravity.VERTICAL_GRAVITY_MASK)
