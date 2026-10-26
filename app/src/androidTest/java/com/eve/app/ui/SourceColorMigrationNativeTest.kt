@@ -25,6 +25,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class SourceColorMigrationNativeTest {
+    /** Disposable EVE hardware evidence; the verified non-liquid inputs do not imply Telegram pixel parity. */
     @androidx.test.filters.SdkSuppress(minSdkVersion = 26)
     @androidx.annotation.RequiresApi(26)
     @Test fun floatingMainTabsCaptureBothSourceModesOverLiveTwoToneBackdrop() {
