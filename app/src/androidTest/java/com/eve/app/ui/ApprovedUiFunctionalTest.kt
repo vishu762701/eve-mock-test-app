@@ -135,9 +135,9 @@ class ApprovedUiFunctionalTest {
     }
 
     @Test fun rapidOptionsClearAndRecycledBindingKeepViewModelTruth() {
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        instrumentation.runOnMainSync {
-            val context = ContextThemeWrapper(instrumentation.targetContext, R.style.Theme_Eve)
+        androidx.test.core.app.ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+          scenario.onActivity { activity ->
+            val context = ContextThemeWrapper(activity, R.style.Theme_Eve)
             val vm = com.eve.app.ui.test.TestViewModel()
             val calls = mutableListOf<String>()
             val adapter = QuestionAdapter(List(2) { Question(id = "radio-$it", questionText = "Question $it") },
@@ -145,6 +145,7 @@ class ApprovedUiFunctionalTest {
                 { false }, {}, { false }, {}, { 0L })
             val holder = adapter.onCreateViewHolder(FrameLayout(context), 0)
             val b = ItemQuestionBinding.bind(holder.itemView)
+            activity.setContentView(holder.itemView)
             adapter.onBindViewHolder(holder, 0)
             val options = listOf(b.rbA, b.rbB, b.rbC, b.rbD)
             val sequence = listOf(0, 3, 3, 1, 2, 0, 3, 0, 2)
@@ -167,7 +168,51 @@ class ApprovedUiFunctionalTest {
             adapter.onBindViewHolder(recreated, 0)
             assertTrue(ItemQuestionBinding.bind(recreated.itemView).rbD.isChecked)
             assertEquals(count + 1, calls.size)
+          }
         }
+    }
+
+    @Test fun reducedMotionNativeIndicatorSettlesAndKeepsAccessibleCheckedState() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val resolver = instrumentation.targetContext.contentResolver
+        val key = android.provider.Settings.Global.ANIMATOR_DURATION_SCALE
+        val previous = android.provider.Settings.Global.getFloat(resolver, key, 1f)
+        fun shell(command: String) {
+            instrumentation.uiAutomation.executeShellCommand(command).use { descriptor ->
+                java.io.FileInputStream(descriptor.fileDescriptor).use { it.readBytes() }
+            }
+        }
+        try {
+            shell("settings put global animator_duration_scale 0")
+            androidx.test.core.app.ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+                scenario.onActivity { activity ->
+                    val radio = com.eve.app.ui.common.TelegramRadioButton(activity)
+                    activity.setContentView(radio)
+                    val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(activity)
+                    radio.updatePalette(palette)
+                    radio.performClick()
+                    assertTrue(radio.isChecked)
+                    val node = radio.createAccessibilityNodeInfo()
+                    assertTrue(node.isCheckable)
+                    assertTrue(node.isChecked)
+                    assertEquals("android.widget.RadioButton", node.className.toString())
+                    val width = (320 * radio.resources.displayMetrics.density).toInt()
+                    val height = (56 * radio.resources.displayMetrics.density).toInt()
+                    radio.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+                        View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY))
+                    radio.layout(0, 0, width, height)
+                    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                    radio.draw(Canvas(bitmap)) // No jump or wait: scale zero must already show the dot.
+                    val center = radio.resources.getDimensionPixelSize(R.dimen.design_card_padding) +
+                        radio.resources.getDimensionPixelSize(R.dimen.design_icon_size) / 2
+                    assertEquals(palette.onAccent, bitmap.getPixel(center, height / 2))
+                    radio.isChecked = false
+                    radio.draw(Canvas(bitmap))
+                    assertEquals(palette.surfaceInset, bitmap.getPixel(center, height / 2))
+                    bitmap.recycle()
+                }
+            }
+        } finally { shell("settings put global animator_duration_scale $previous") }
     }
 
     @Test fun activePaletteKeepsAnswerAndReviewStatesAndNavigation() {

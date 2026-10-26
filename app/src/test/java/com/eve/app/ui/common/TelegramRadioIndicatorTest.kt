@@ -18,11 +18,12 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 import org.robolectric.annotation.LooperMode
 import java.time.Duration
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
+@Config(sdk = [34], application = android.app.Application::class)
 @LooperMode(LooperMode.Mode.PAUSED)
 class TelegramRadioIndicatorTest {
     @Test fun sourceTransitionCancelsReversesAndRestoresImmediately() {
@@ -62,6 +63,7 @@ class TelegramRadioIndicatorTest {
         assertEquals(0f, indicator.progress, 0f)
     }
 
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     @Test fun renderingUsesSourceRingDotAndIsolatedClearLayer() {
         val a = TelegramRadioIndicator(1f, 24) { true }
         val b = TelegramRadioIndicator(1f, 24) { true }
