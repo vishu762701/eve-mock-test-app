@@ -1,4 +1,7 @@
 status	path	reason	diff
+M	.github/scripts/eve_visual_review.py	native floating-bar capture contract and mandatory Day/Night evidence gate	https://github.com/vishu762701/eve-mock-test-app/compare/486a0078bdf464faf7b6012c8d72b8f243492384...main
+M	.github/scripts/tests/test_visual_review.py	native floating-bar capture contract and mandatory Day/Night evidence gate	https://github.com/vishu762701/eve-mock-test-app/compare/486a0078bdf464faf7b6012c8d72b8f243492384...main
+M	.github/scripts/verify-native-ui.sh	native floating-bar capture contract and mandatory Day/Night evidence gate	https://github.com/vishu762701/eve-mock-test-app/compare/486a0078bdf464faf7b6012c8d72b8f243492384...main
 M	THIRD_PARTY_NOTICES.md	source identity, exact role/consumer mapping, values, deviations and cleanup evidence	https://github.com/vishu762701/eve-mock-test-app/compare/486a0078bdf464faf7b6012c8d72b8f243492384...main
 M	app/src/androidTest/java/com/eve/app/ui/ApprovedUiRenderingTest.kt	source/runtime/contrast test contract and native regression coverage	https://github.com/vishu762701/eve-mock-test-app/compare/486a0078bdf464faf7b6012c8d72b8f243492384...main
 M	app/src/androidTest/java/com/eve/app/ui/DesignRecoveryTest.kt	source/runtime/contrast test contract and native regression coverage	https://github.com/vishu762701/eve-mock-test-app/compare/486a0078bdf464faf7b6012c8d72b8f243492384...main

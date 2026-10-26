@@ -300,32 +300,32 @@ app/src/main/java/com/eve/app/ui/result/ResultCutoffPresentation.kt	49	text_seco
 app/src/main/java/com/eve/app/ui/result/QuestionTimeChartView.kt	38		runtime/component producer; source or EVE semantic role	private val barPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 app/src/main/java/com/eve/app/ui/result/QuestionTimeChartView.kt	39		runtime/component producer; source or EVE semantic role	private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
 app/src/main/java/com/eve/app/ui/result/QuestionTimeChartView.kt	43		runtime/component producer; source or EVE semantic role	private val valuePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	72	text_secondary	source role or alias consumer	!item.isAttempted -> Pair("Unattempted", R.color.text_secondary)
-app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	73	system_green_text	EVE semantic AA foreground accommodation	item.isCorrect -> Pair("Correct", R.color.system_green_text)
-app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	74	system_red_text	EVE semantic AA foreground accommodation	else -> Pair("Incorrect", R.color.system_red_text)
-app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	77		runtime/component producer; source or EVE semantic role	b.tvQuestionStatusLabel.setTextColor(ContextCompat.getColor(ctx, badgeColor))
-app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	111	system_green_text	EVE semantic AA foreground accommodation	badge.setTextColor(ContextCompat.getColor(ctx, R.color.system_green_text))
-app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	112	system_green_text	EVE semantic AA foreground accommodation	textView.setTextColor(ContextCompat.getColor(ctx, R.color.system_green_text))
-app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	115		runtime/component producer; source or EVE semantic role	statusIv.imageTintList = android.content.res.ColorStateList.valueOf(
-app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	116	system_green	EVE semantic/status/decoration exception; not Telegram claim	ContextCompat.getColor(ctx, R.color.system_green)
-app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	122	system_red_text	EVE semantic AA foreground accommodation	badge.setTextColor(ContextCompat.getColor(ctx, R.color.system_red_text))
-app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	123	system_red_text	EVE semantic AA foreground accommodation	textView.setTextColor(ContextCompat.getColor(ctx, R.color.system_red_text))
+app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	73	text_secondary	source role or alias consumer	!item.isAttempted -> Pair("Unattempted", R.color.text_secondary)
+app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	74	system_green_text	EVE semantic AA foreground accommodation	item.isCorrect -> Pair("Correct", R.color.system_green_text)
+app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	75	system_red_text	EVE semantic AA foreground accommodation	else -> Pair("Incorrect", R.color.system_red_text)
+app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	78		runtime/component producer; source or EVE semantic role	b.tvQuestionStatusLabel.setTextColor(ContextCompat.getColor(ctx, badgeColor))
+app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	122	system_green_text,system_green_container	EVE semantic AA foreground accommodation	badge.setTextColor(semanticForeground(R.color.system_green_text, R.color.system_green_container))
+app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	123	system_green_text	EVE semantic AA foreground accommodation	textView.setTextColor(ContextCompat.getColor(ctx, R.color.system_green_text))
 app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	126		runtime/component producer; source or EVE semantic role	statusIv.imageTintList = android.content.res.ColorStateList.valueOf(
-app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	127	system_red	EVE semantic/status/decoration exception; not Telegram claim	ContextCompat.getColor(ctx, R.color.system_red)
-app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	133	text_secondary	source role or alias consumer	badge.setTextColor(ContextCompat.getColor(ctx, R.color.text_secondary))
-app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	134	text_secondary	source role or alias consumer	textView.setTextColor(ContextCompat.getColor(ctx, R.color.text_secondary))
-app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	142	on_accent	source role or alias consumer	badge.setTextColor(ContextCompat.getColor(ctx, R.color.on_accent))
-app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	143	text_primary	source role or alias consumer	textView.setTextColor(ContextCompat.getColor(ctx, R.color.text_primary))
-app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	147	text_primary	source role or alias consumer	badge.setTextColor(ContextCompat.getColor(ctx, R.color.text_primary))
-app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	148	text_primary	source role or alias consumer	textView.setTextColor(ContextCompat.getColor(ctx, R.color.text_primary))
-app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	184	text_secondary	source role or alias consumer	b.tvYourAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.text_secondary))
-app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	188	system_green_text	EVE semantic AA foreground accommodation	b.tvYourAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.system_green_text))
-app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	192	system_red_text	EVE semantic AA foreground accommodation	b.tvYourAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.system_red_text))
-app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	196	system_green_text	EVE semantic AA foreground accommodation	b.tvCorrectAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.system_green_text))
-app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	234	system_green,system_green_text	EVE semantic AA foreground accommodation	R.color.system_green -> R.color.system_green_text
-app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	235	system_red,system_red_text	EVE semantic AA foreground accommodation	R.color.system_red -> R.color.system_red_text
-app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	236	system_orange_text	EVE semantic AA foreground accommodation	else -> R.color.system_orange_text
-app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	238		runtime/component producer; source or EVE semantic role	b.tvTimeInsightMessage.setTextColor(ContextCompat.getColor(ctx, messageColor))
+app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	127	system_green,system_green_container	EVE semantic/status/decoration exception; not Telegram claim	semanticForeground(R.color.system_green, R.color.system_green_container, 1, 3.0)
+app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	133	system_red_text,system_red_container	EVE semantic AA foreground accommodation	badge.setTextColor(semanticForeground(R.color.system_red_text, R.color.system_red_container))
+app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	134	system_red_text	EVE semantic AA foreground accommodation	textView.setTextColor(ContextCompat.getColor(ctx, R.color.system_red_text))
+app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	137		runtime/component producer; source or EVE semantic role	statusIv.imageTintList = android.content.res.ColorStateList.valueOf(
+app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	138	system_red,system_red_container	EVE semantic/status/decoration exception; not Telegram claim	semanticForeground(R.color.system_red, R.color.system_red_container, 1, 3.0)
+app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	144	text_secondary	source role or alias consumer	badge.setTextColor(ContextCompat.getColor(ctx, R.color.text_secondary))
+app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	145	text_secondary	source role or alias consumer	textView.setTextColor(ContextCompat.getColor(ctx, R.color.text_secondary))
+app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	153	on_accent	source role or alias consumer	badge.setTextColor(ContextCompat.getColor(ctx, R.color.on_accent))
+app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	154	text_primary	source role or alias consumer	textView.setTextColor(ContextCompat.getColor(ctx, R.color.text_primary))
+app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	158	text_primary	source role or alias consumer	badge.setTextColor(ContextCompat.getColor(ctx, R.color.text_primary))
+app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	159	text_primary	source role or alias consumer	textView.setTextColor(ContextCompat.getColor(ctx, R.color.text_primary))
+app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	195	text_secondary	source role or alias consumer	b.tvYourAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.text_secondary))
+app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	199	system_green_text	EVE semantic AA foreground accommodation	b.tvYourAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.system_green_text))
+app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	203	system_red_text	EVE semantic AA foreground accommodation	b.tvYourAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.system_red_text))
+app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	207	system_green_text	EVE semantic AA foreground accommodation	b.tvCorrectAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.system_green_text))
+app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	245	system_green,system_green_text	EVE semantic AA foreground accommodation	R.color.system_green -> R.color.system_green_text
+app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	246	system_red,system_red_text	EVE semantic AA foreground accommodation	R.color.system_red -> R.color.system_red_text
+app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	247	system_orange_text	EVE semantic AA foreground accommodation	else -> R.color.system_orange_text
+app/src/main/java/com/eve/app/ui/result/AnswerAdapter.kt	249		runtime/component producer; source or EVE semantic role	b.tvTimeInsightMessage.setTextColor(ContextCompat.getColor(ctx, messageColor))
 app/src/main/java/com/eve/app/ui/history/HistoryAdapter.kt	36	text_secondary	source role or alias consumer	attempt.total == 0 -> R.color.text_secondary
 app/src/main/java/com/eve/app/ui/history/HistoryAdapter.kt	37	system_green	EVE semantic/status/decoration exception; not Telegram claim	attempt.correct >= attempt.total / 2.0 -> R.color.system_green
 app/src/main/java/com/eve/app/ui/history/HistoryAdapter.kt	38	system_red	EVE semantic/status/decoration exception; not Telegram claim	else -> R.color.system_red

@@ -68,6 +68,43 @@ class TelegramColorMigrationTest {
         }
     }
 
+    @Test fun expandedReviewBadgesAndStatusIconsContrastAgainstTheirActualLayeredContainers() {
+        for (dark in listOf(false, true)) {
+            val config = Configuration(context.resources.configuration).apply {
+                uiMode = uiMode and Configuration.UI_MODE_NIGHT_MASK.inv() or
+                    if (dark) Configuration.UI_MODE_NIGHT_YES else Configuration.UI_MODE_NIGHT_NO
+            }
+            val themed = ContextThemeWrapper(context.createConfigurationContext(config), R.style.Theme_Eve)
+            val adapter = com.eve.app.ui.result.AnswerAdapter()
+            adapter.submit(listOf(com.eve.app.data.model.AnswerItem(questionId = "contrast", number = 1,
+                questionText = "Question", selected = "A", selectedText = "Wrong", correct = "C", correctText = "Right",
+                optionA = "Wrong", optionB = "Other", optionC = "Right", optionD = "Other")))
+            val holder = adapter.onCreateViewHolder(android.widget.FrameLayout(themed), 0)
+            adapter.onBindViewHolder(holder, 0)
+            val binding = com.eve.app.databinding.ItemAnswerBinding.bind(holder.itemView)
+            assertEquals(themed.getColor(R.color.on_accent), binding.tvBadgeOptionA.currentTextColor)
+            adapter.expandSolution("contrast")
+            adapter.onBindViewHolder(holder, 0)
+            for ((views, containerId) in listOf(
+                Triple(binding.tvBadgeOptionA, binding.layoutOptionA, binding.ivOptionAStatus) to R.color.system_red_container,
+                Triple(binding.tvBadgeOptionC, binding.layoutOptionC, binding.ivOptionCStatus) to R.color.system_green_container)) {
+                val (text, tile, status) = views
+                val container = themed.getColor(containerId)
+                fun fill(view: android.view.View) = (view.background as android.graphics.drawable.GradientDrawable).color!!.defaultColor
+                assertEquals("Semantic tile fill is preserved", container, fill(tile))
+                assertEquals("Nested badge fill is preserved", container, fill(text))
+                val tileBackground = ColorUtils.compositeColors(fill(tile), binding.root.cardBackgroundColor.defaultColor)
+                val badgeBackground = ColorUtils.compositeColors(fill(text), tileBackground)
+                assertTrue("Double-composited badge text dark=$dark", ColorUtils.calculateContrast(text.currentTextColor, badgeBackground) >= 4.5)
+                assertTrue("Status icon dark=$dark", ColorUtils.calculateContrast(status.imageTintList!!.defaultColor, tileBackground) >= 3.0)
+            }
+            adapter.resetExpandedSolutions()
+            adapter.onBindViewHolder(holder, 0)
+            assertEquals(themed.getColor(R.color.on_accent), binding.tvBadgeOptionA.currentTextColor)
+            assertEquals(android.view.View.GONE, binding.ivOptionAStatus.visibility)
+        }
+    }
+
     @Test fun oldSelectionsMigrateAndImportedFilesSurviveColdStartsAndTransactions() {
         val prefs = context.getSharedPreferences(TelegramThemeEngine.PREFS_NAME, Context.MODE_PRIVATE)
         prefs.edit().clear().putString("day_theme_id", "arctic").putInt("day_accent_id", 9)

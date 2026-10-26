@@ -136,3 +136,12 @@ Imported translucent modal colors are preserved byte-for-byte. AA calculations
 composite them over the resolved opaque backing first; they do not force imported
 surfaces opaque or reject an otherwise valid user theme. A focused round-trip
 regression test covers this separate custom-theme override path.
+
+Expanded Review badges composite the same semantic container twice (tile, then
+badge). Their foreground now checks the actual double composite; status icons
+check the single tile at 3:1. Fills, answer state and reveal actions are unchanged.
+A binding regression checks both semantic branches in Light/Night and reset.
+The native evidence gate also requires `source-main-tabs` Light/Night hardware
+PixelCopy captures over a two-tone source canvas/surface backdrop in both navigation
+jobs. These demonstrate the EVE non-liquid renderer in context, not Telegram
+liquid refraction or same-build screenshot parity.

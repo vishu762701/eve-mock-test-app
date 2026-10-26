@@ -13,6 +13,7 @@ PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
 ANDROID = "{http://schemas.android.com/apk/res/android}"
 APP = "{http://schemas.android.com/apk/res-auto}"
 PAIRS = (
+    "source-main-tabs",
     "ios26-nav-bar", "ios26-tab-bar", "ios26-menu", "ios26-sheet", "ios26-dialog",
     "shared-components", "shared-components-high-contrast", "home", "mock-test", "recovery-home-360dp", "recovery-profile",
     "recovery-result-overview", "recovery-result-review",

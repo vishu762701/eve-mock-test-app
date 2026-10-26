@@ -25,6 +25,77 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class SourceColorMigrationNativeTest {
+    @androidx.test.filters.SdkSuppress(minSdkVersion = 26)
+    @androidx.annotation.RequiresApi(26)
+    @Test fun floatingMainTabsCaptureBothSourceModesOverLiveTwoToneBackdrop() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        androidx.test.core.app.ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+            for (dark in listOf(false, true)) {
+                lateinit var owner: FrameLayout
+                lateinit var palette: TelegramThemeEngine.ResolvedPalette
+                scenario.onActivity { activity ->
+                    val config = Configuration(activity.resources.configuration).apply {
+                        uiMode = uiMode and Configuration.UI_MODE_NIGHT_MASK.inv() or
+                            if (dark) Configuration.UI_MODE_NIGHT_YES else Configuration.UI_MODE_NIGHT_NO
+                    }
+                    val context = ContextThemeWrapper(activity.createConfigurationContext(config), R.style.Theme_Eve)
+                    palette = TelegramThemeEngine.resolvePalette(context, TelegramThemeEngine.getTheme(if (dark) "night" else "day"), 0)
+                    owner = FrameLayout(activity)
+                    val backdrop = FrameLayout(context)
+                    backdrop.addView(object : View(context) {
+                        private val paint = android.graphics.Paint()
+                        override fun onDraw(canvas: Canvas) {
+                            paint.color = palette.windowBackground
+                            canvas.drawRect(0f, 0f, width / 2f, height.toFloat(), paint)
+                            paint.color = palette.surface
+                            canvas.drawRect(width / 2f, 0f, width.toFloat(), height.toFloat(), paint)
+                        }
+                    }, FrameLayout.LayoutParams(-1, -1))
+                    owner.addView(backdrop, FrameLayout.LayoutParams(-1, -1))
+                    val pill = EveBottomPillBar(context)
+                    val density = context.resources.displayMetrics.density
+                    owner.addView(pill, FrameLayout.LayoutParams(-2, (56 * density).toInt()).apply {
+                        gravity = android.view.Gravity.BOTTOM or android.view.Gravity.CENTER_HORIZONTAL
+                        setMargins((8 * density).toInt(), 0, (8 * density).toInt(), (8 * density).toInt())
+                    })
+                    (pill.glassBackgroundView as com.eve.app.designsystem.DesignGlassLayout).backdropRoot = backdrop
+                    activity.setContentView(owner)
+                    pill.updateThemePalette(palette)
+                    pill.selectTab(EveBottomPillBar.TAB_HOME, false, false)
+                    pill.setUserAvatar(null)
+                }
+                instrumentation.waitForIdleSync()
+                val ready = java.util.concurrent.CountDownLatch(1)
+                var result = -1
+                lateinit var bitmap: Bitmap
+                scenario.onActivity { activity ->
+                    assertTrue("Floating glass capture uses the hardware compositor", owner.isHardwareAccelerated)
+                    bitmap = Bitmap.createBitmap(owner.width, owner.height, Bitmap.Config.ARGB_8888)
+                    owner.postOnAnimation { owner.postOnAnimation { owner.postOnAnimation {
+                        val location = IntArray(2).also { owner.getLocationInWindow(it) }
+                        val rect = android.graphics.Rect(location[0], location[1], location[0] + owner.width, location[1] + owner.height)
+                        android.view.PixelCopy.request(activity.window, rect, bitmap, { code -> result = code; ready.countDown() },
+                            android.os.Handler(android.os.Looper.getMainLooper()))
+                    } } }
+                }
+                assertTrue("Floating tabs hardware frame completes", ready.await(8, java.util.concurrent.TimeUnit.SECONDS))
+                assertEquals(android.view.PixelCopy.SUCCESS, result)
+                try {
+                    assertEquals(palette.windowBackground, bitmap.getPixel(bitmap.width / 4, bitmap.height / 4))
+                    assertEquals(palette.surface, bitmap.getPixel(bitmap.width * 3 / 4, bitmap.height / 4))
+                    val values = android.content.ContentValues().apply {
+                        put(android.provider.MediaStore.Images.Media.DISPLAY_NAME, "source-main-tabs-${if (dark) "dark" else "light"}.png")
+                        put(android.provider.MediaStore.Images.Media.MIME_TYPE, "image/png")
+                        put(android.provider.MediaStore.Images.Media.RELATIVE_PATH, "Pictures/eve-approved-ui")
+                    }
+                    val resolver = instrumentation.targetContext.contentResolver
+                    val uri = requireNotNull(resolver.insert(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values))
+                    resolver.openOutputStream(uri)!!.use { assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)) }
+                } finally { bitmap.recycle() }
+            }
+        }
+    }
+
     @Test fun representativeScreensUseOriginalDefaultsWithDoubleFontAndRtl() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         instrumentation.runOnMainSync {

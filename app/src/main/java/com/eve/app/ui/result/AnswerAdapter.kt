@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.R
 import com.eve.app.data.model.AnswerItem
@@ -84,6 +85,16 @@ class AnswerAdapter(
             val hasOptions = optA.isNotBlank() || optB.isNotBlank()
             b.layoutOptionsContainer.visibility = if (hasOptions) View.VISIBLE else View.GONE
 
+            // The badge overlays the already tinted option: its container alpha
+            // composites twice. Keep the semantic fills and adjust only the ink.
+            fun semanticForeground(colorRes: Int, containerRes: Int, layers: Int = 2, ratio: Double = 4.5): Int {
+                val container = ContextCompat.getColor(ctx, containerRes)
+                var background = b.root.cardBackgroundColor.defaultColor
+                repeat(layers) { background = ColorUtils.compositeColors(container, background) }
+                return com.eve.app.theme.TelegramColorRoles.accessibleForeground(
+                    ContextCompat.getColor(ctx, colorRes), listOf(background), ratio)
+            }
+
             fun bindOptionRow(
                 letter: String,
                 text: String,
@@ -108,23 +119,23 @@ class AnswerAdapter(
                         isCorrect -> {
                             layout.setBackgroundResource(R.drawable.design_tile_green)
                             badge.setBackgroundResource(R.drawable.design_badge_green)
-                            badge.setTextColor(ContextCompat.getColor(ctx, R.color.system_green_text))
+                            badge.setTextColor(semanticForeground(R.color.system_green_text, R.color.system_green_container))
                             textView.setTextColor(ContextCompat.getColor(ctx, R.color.system_green_text))
                             statusIv.visibility = View.VISIBLE
                             statusIv.setImageResource(R.drawable.ic_check_circle)
                             statusIv.imageTintList = android.content.res.ColorStateList.valueOf(
-                                ContextCompat.getColor(ctx, R.color.system_green)
+                                semanticForeground(R.color.system_green, R.color.system_green_container, 1, 3.0)
                             )
                         }
                         isSelected -> {
                             layout.setBackgroundResource(R.drawable.design_tile_red)
                             badge.setBackgroundResource(R.drawable.design_badge_red)
-                            badge.setTextColor(ContextCompat.getColor(ctx, R.color.system_red_text))
+                            badge.setTextColor(semanticForeground(R.color.system_red_text, R.color.system_red_container))
                             textView.setTextColor(ContextCompat.getColor(ctx, R.color.system_red_text))
                             statusIv.visibility = View.VISIBLE
                             statusIv.setImageResource(R.drawable.ic_close)
                             statusIv.imageTintList = android.content.res.ColorStateList.valueOf(
-                                ContextCompat.getColor(ctx, R.color.system_red)
+                                semanticForeground(R.color.system_red, R.color.system_red_container, 1, 3.0)
                             )
                         }
                         else -> {

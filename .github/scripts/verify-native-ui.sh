@@ -19,7 +19,7 @@ collect_evidence() {
     done
   done
   # Disposable production-layout fixtures only; publish no extra artifact.
-  for fixture in ios26-nav-bar ios26-tab-bar ios26-menu ios26-sheet ios26-dialog home home-attached mock-test recovery-result-overview student-settings student-login; do
+  for fixture in ios26-nav-bar ios26-tab-bar ios26-menu ios26-sheet ios26-dialog source-main-tabs home home-attached mock-test recovery-result-overview student-settings student-login; do
     for theme in light dark; do
       for folder in eve-approved-ui eve-student-ui; do
         fixture_path="/sdcard/Pictures/$folder/$fixture-$theme.png"
