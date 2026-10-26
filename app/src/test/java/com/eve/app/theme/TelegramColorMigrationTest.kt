@@ -121,6 +121,17 @@ class TelegramColorMigrationTest {
         assertEquals(Color.MAGENTA, (card.background as android.graphics.drawable.ColorDrawable).color)
     }
 
+    @Test
+    @Config(sdk = [24], application = android.app.Application::class)
+    fun minimumSupportedApiUsesExplicitNonLiquidCoatingWithoutShaderApis() {
+        val themed = ContextThemeWrapper(context, R.style.Theme_Eve)
+        val pill = com.eve.app.ui.navigation.EveBottomPillBar(themed)
+        assertEquals(4, pill.tabsLayout.childCount)
+        val coating = (pill.glassBackgroundView.background as android.graphics.drawable.ColorDrawable).color
+        assertEquals(194, Color.alpha(coating))
+        assertEquals(null, pill.glassBackgroundView.foreground?.colorFilter)
+    }
+
     @Test fun packagedNightAssetMatchesTheIndependentlyVerifiedSourceFile() {
         val bytes = context.assets.open("themes/night.attheme").use { it.readBytes() }
         val sha = MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }

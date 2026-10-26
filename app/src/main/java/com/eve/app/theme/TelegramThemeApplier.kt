@@ -117,10 +117,11 @@ object TelegramThemeApplier {
                     val role = if (prior?.second == current) prior.first else when (current) {
                         androidx.core.content.ContextCompat.getColor(view.context, R.color.text_primary) -> 0
                         androidx.core.content.ContextCompat.getColor(view.context, R.color.text_secondary) -> 1
-                        androidx.core.content.ContextCompat.getColor(view.context, R.color.accent) -> 2
+                        androidx.core.content.ContextCompat.getColor(view.context, R.color.accent),
+                        androidx.core.content.ContextCompat.getColor(view.context, R.color.accent_icon) -> 2
                         else -> -1
                     }
-                    val color = when (role) { 0 -> palette.textPrimary; 1 -> palette.textSecondary; 2 -> palette.accent; else -> current }
+                    val color = when (role) { 0 -> palette.textPrimary; 1 -> palette.textSecondary; 2 -> TelegramColorRoles.accessibleForeground(palette.accent, listOf(palette.windowBackground, palette.surface, palette.dialogSurface), 3.0); else -> current }
                     if (role >= 0) {
                         androidx.core.widget.ImageViewCompat.setImageTintList(view, ColorStateList.valueOf(color))
                         appliedImageColors[view] = role to color

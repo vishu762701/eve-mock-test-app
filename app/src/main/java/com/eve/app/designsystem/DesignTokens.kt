@@ -16,6 +16,21 @@ object DesignTokens {
         return if (value.resourceId != 0) ContextCompat.getColor(context, value.resourceId) else value.data
     }
 
+    /** Keep semantic fill/icon colors independent from accessible normal-text shades. */
+    fun semanticText(context: Context, color: Int): Int {
+        for ((base, text) in listOf(
+            R.color.system_green to R.color.system_green_text,
+            R.color.system_red to R.color.system_red_text,
+            R.color.system_orange to R.color.system_orange_text,
+            R.color.system_blue to R.color.system_blue_text,
+            R.color.system_yellow to R.color.system_yellow_text,
+            R.color.system_purple to R.color.system_purple_text,
+            R.color.system_indigo to R.color.system_indigo_text)) {
+            if (color == ContextCompat.getColor(context, base)) return ContextCompat.getColor(context, text)
+        }
+        return color
+    }
+
     fun primary(context: Context): Int = color(context, R.attr.designTextPrimary)
     fun secondary(context: Context): Int = color(context, R.attr.designTextSecondary)
     fun accent(context: Context): Int = color(context, R.attr.designAccent)

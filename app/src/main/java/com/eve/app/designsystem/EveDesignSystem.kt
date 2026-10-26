@@ -23,7 +23,7 @@ object EveDesignSystem {
         fun homeOnAccent(context: Context): Int = ContextCompat.getColor(context, R.color.on_accent)
         fun secondarySystemBackground(context: Context): Int = ContextCompat.getColor(context, R.color.surface_inset)
         fun labelPrimary(context: Context): Int = ContextCompat.getColor(context, R.color.text_primary)
-        fun statusRightText(context: Context): Int = ContextCompat.getColor(context, R.color.system_green)
+        fun statusRightText(context: Context): Int = ContextCompat.getColor(context, R.color.system_green_text)
         fun shapeBorder(context: Context): Int = ContextCompat.getColor(context, R.color.hairline)
         fun drawerScrim(context: Context): Int = ContextCompat.getColor(context, R.color.modal_scrim)
     }

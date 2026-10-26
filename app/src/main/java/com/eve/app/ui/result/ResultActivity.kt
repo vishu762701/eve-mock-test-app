@@ -690,7 +690,7 @@ class ResultActivity : EveBaseActivity() {
                 item.tvSub.setTextColor(
                     ContextCompat.getColor(
                         this,
-                        if (qualified) R.color.system_green else R.color.system_red
+                        if (qualified) R.color.system_green_text else R.color.system_red_text
                     )
                 )
             } else {

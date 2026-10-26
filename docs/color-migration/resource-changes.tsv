@@ -1,23 +1,37 @@
 path	name	old	new
-app/src/main/res/values/design_colors.xml	bg_app	#F5F5F5	#FFF1F1F3
-app/src/main/res/values/design_colors.xml	surface	#FFFFFF	#FFFFFFFF
-app/src/main/res/values/design_colors.xml	surface_inset	#F5F5F5	#FFF1F1F3
-app/src/main/res/values/design_colors.xml	text_primary	#000000	#FF1A1D21
-app/src/main/res/values/design_colors.xml	text_secondary	#6C6C70	#FF6C6E6F
-app/src/main/res/values/design_colors.xml	accent	#000000	#FF229AF0
-app/src/main/res/values/design_colors.xml	on_accent	#FFFFFF	#FF000000
-app/src/main/res/values/design_colors.xml	hairline	#1F000000	#FFD9D9D9
+app/src/main/res/values/design_colors.xml	surface_inset	#F5F5F5	#F1F1F3
+app/src/main/res/values/design_colors.xml	text_primary	#000000	#1A1D21
+app/src/main/res/values/design_colors.xml	text_secondary	#6C6C70	#6C6E6F
+app/src/main/res/values/design_colors.xml	hairline	#1F000000	#D9D9D9
 app/src/main/res/values/design_colors.xml	track	#29787880	#0F000000
+app/src/main/res/values/design_colors.xml	accent	#000000	#229AF0
+app/src/main/res/values/design_colors.xml	on_accent	#FFFFFF	#000000
 app/src/main/res/values/design_colors.xml	glass_tint	#8CFFFFFF	#C2FFFFFF
 app/src/main/res/values/design_colors.xml	glass_fallback	#F0FFFFFF	#C2FFFFFF
-app/src/main/res/values-night/design_colors.xml	bg_app	#000000	#FF000000
-app/src/main/res/values-night/design_colors.xml	surface	#1C1C1E	#FF181819
-app/src/main/res/values-night/design_colors.xml	surface_inset	#2C2C2E	#FF000000
-app/src/main/res/values-night/design_colors.xml	text_primary	#FFFFFF	#FFFFFFFF
+app/src/main/res/values/design_colors.xml	bg_app	#F5F5F5	#F1F1F3
+app/src/main/res/values/design_colors.xml	dialog_surface	NOT PRESENT	#FFFFFF
+app/src/main/res/values/design_colors.xml	system_red_text	NOT PRESENT	#FFBD292C
+app/src/main/res/values/design_colors.xml	system_green_text	NOT PRESENT	#FF1F7735
+app/src/main/res/values/design_colors.xml	system_blue_text	NOT PRESENT	#FF0064BD
+app/src/main/res/values/design_colors.xml	system_orange_text	NOT PRESENT	#FF9B5518
+app/src/main/res/values/design_colors.xml	system_yellow_text	NOT PRESENT	#FF826800
+app/src/main/res/values/design_colors.xml	system_purple_text	NOT PRESENT	#FFA326B4
+app/src/main/res/values/design_colors.xml	system_indigo_text	NOT PRESENT	#FF574DDD
+app/src/main/res/values/design_colors.xml	accent_icon	NOT PRESENT	#FF2090E1
+app/src/main/res/values-night/design_colors.xml	surface_inset	#2C2C2E	#000000
 app/src/main/res/values-night/design_colors.xml	text_secondary	#A1A1A6	#75FFFFFF
-app/src/main/res/values-night/design_colors.xml	accent	#FFFFFF	#FF229AF0
-app/src/main/res/values-night/design_colors.xml	on_accent	#000000	#FF000000
-app/src/main/res/values-night/design_colors.xml	hairline	#2EFFFFFF	#FF000000
-app/src/main/res/values-night/design_colors.xml	track	#52787880	#0F000000
+app/src/main/res/values-night/design_colors.xml	hairline	#2EFFFFFF	#000000
+app/src/main/res/values-night/design_colors.xml	track	#52787880	#16FFFFFF
+app/src/main/res/values-night/design_colors.xml	accent	#FFFFFF	#229AF0
 app/src/main/res/values-night/design_colors.xml	glass_tint	#8C2C2C2E	#C2262627
 app/src/main/res/values-night/design_colors.xml	glass_fallback	#F02C2C2E	#C2262627
+app/src/main/res/values-night/design_colors.xml	surface	#1C1C1E	#181819
+app/src/main/res/values-night/design_colors.xml	dialog_surface	NOT PRESENT	#1E1E1E
+app/src/main/res/values-night/design_colors.xml	system_red_text	NOT PRESENT	#FFFF6265
+app/src/main/res/values-night/design_colors.xml	system_green_text	NOT PRESENT	#FF30D158
+app/src/main/res/values-night/design_colors.xml	system_blue_text	NOT PRESENT	#FF219FFF
+app/src/main/res/values-night/design_colors.xml	system_orange_text	NOT PRESENT	#FFFF9230
+app/src/main/res/values-night/design_colors.xml	system_yellow_text	NOT PRESENT	#FFFFD600
+app/src/main/res/values-night/design_colors.xml	system_purple_text	NOT PRESENT	#FFE25BF4
+app/src/main/res/values-night/design_colors.xml	system_indigo_text	NOT PRESENT	#FF8D85F7
+app/src/main/res/values-night/design_colors.xml	accent_icon	NOT PRESENT	#FF229AF0

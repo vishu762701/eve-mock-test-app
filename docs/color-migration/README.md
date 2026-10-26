@@ -102,3 +102,14 @@ Source values differ from JPG estimates (Light F1F1F3 versus sampled F0F0F0;
 Night surface 181819 versus compressed 181818). No screenshot-derived replacement
 hex or same-build/device pixel parity claim is made. Actual commands, exact-SHA
 FAST/FULL outcomes, native captures and remaining limitations are reported at delivery.
+
+The old semantic base hues remain fill/icon data. Normal-text consumers now use
+separate `system_*_text` shades, computed by the same minimum AA transformation
+against canvas, primary/modal surfaces and their semantic containers. The native
+student rendering matrix no longer exempts low-contrast semantic labels. Icons
+using the general accent receive a separate minimum-3:1 `accent_icon` foreground;
+the source control fill and raw palette accent remain unchanged. Main-tab foreground
+AA considers both black and white backdrop extremes after source coating/overlay,
+not only a stable source canvas. The source .09 selector remains raw and unchanged.
+Primary content panels and modal panels use separate drawables with identical
+shape geometry; values-v31 dialog overrides are migrated with the base theme.

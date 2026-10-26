@@ -85,8 +85,9 @@ class UiArcBadgeView @JvmOverloads constructor(
 
         // Apply background and token styling
         setBackgroundResource(backgroundRes)
-        setTextColor(color)
-        outgoingPaint.color = color
+        val foreground = DesignTokens.semanticText(context, color)
+        setTextColor(foreground)
+        outgoingPaint.color = foreground
         outgoingPaint.textSize = textSize
 
         if (previous.isEmpty() || previous == verdictText || !UiArcMotion.isMotionEnabled(context)) {

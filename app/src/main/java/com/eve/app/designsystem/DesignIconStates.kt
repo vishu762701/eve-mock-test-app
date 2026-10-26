@@ -11,7 +11,7 @@ object DesignIconStates {
         view.setImageResource(if (checked) R.drawable.ic_star_filled else R.drawable.ic_star_outline)
         view.isSelected = checked
         ImageViewCompat.setImageTintList(view, ColorStateList.valueOf(
-            if (checked) DesignTokens.accent(view.context) else DesignTokens.secondary(view.context)
+            if (checked) androidx.core.content.ContextCompat.getColor(view.context, R.color.accent_icon) else DesignTokens.secondary(view.context)
         ))
         view.contentDescription = if (checked) "Remove bookmark" else "Bookmark question"
     }

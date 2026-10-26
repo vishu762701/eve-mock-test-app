@@ -199,7 +199,7 @@ class GlassTabView @JvmOverloads constructor(
         // receives the smallest EVE AA accommodation over the expected glass/backdrop roles.
         val target = palette.glassTargetMainTabs
         val coating = TelegramThemeEngine.solveSrcColor(palette.surface, target, 0.76f)
-        val backgrounds = listOf(palette.windowBackground, palette.surface, target).map {
+        val backgrounds = listOf(palette.windowBackground, palette.surface, target, Color.BLACK, Color.WHITE).map {
             ColorUtils.compositeColors(TelegramThemeEngine.multAlpha(colorSelected, 0.09f),
                 ColorUtils.compositeColors(coating, it))
         }

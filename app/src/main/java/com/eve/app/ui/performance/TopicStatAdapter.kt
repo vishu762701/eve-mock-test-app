@@ -31,7 +31,7 @@ class TopicStatAdapter : RecyclerView.Adapter<TopicStatAdapter.VH>() {
                 else -> R.color.system_red
             }
             val color = ContextCompat.getColor(b.root.context, colorRes)
-            b.tvTopicAccuracy.setTextColor(color)
+            b.tvTopicAccuracy.setTextColor(com.eve.app.designsystem.DesignTokens.semanticText(b.root.context, color))
             b.pbTopicAccuracy.progressDrawable?.setColorFilter(color, PorterDuff.Mode.SRC_IN)
         }
     }

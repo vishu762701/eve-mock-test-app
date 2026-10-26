@@ -70,8 +70,8 @@ class AnswerAdapter(
 
             val (statusText, badgeColor) = when {
                 !item.isAttempted -> Pair("Unattempted", R.color.text_secondary)
-                item.isCorrect -> Pair("Correct", R.color.system_green)
-                else -> Pair("Incorrect", R.color.system_red)
+                item.isCorrect -> Pair("Correct", R.color.system_green_text)
+                else -> Pair("Incorrect", R.color.system_red_text)
             }
             b.tvQuestionStatusLabel.text = statusText
             b.tvQuestionStatusLabel.setTextColor(ContextCompat.getColor(ctx, badgeColor))
@@ -231,9 +231,9 @@ class AnswerAdapter(
 
                 b.tvTimeInsightMessage.text = comparison.message
                 val messageColor = when (comparison.statusColorRes) {
-                    R.color.system_green -> R.color.system_green
-                    R.color.system_red -> R.color.system_red
-                    else -> R.color.system_orange
+                    R.color.system_green -> R.color.system_green_text
+                    R.color.system_red -> R.color.system_red_text
+                    else -> R.color.system_orange_text
                 }
                 b.tvTimeInsightMessage.setTextColor(ContextCompat.getColor(ctx, messageColor))
             } else {

@@ -42,4 +42,5 @@
     <color name="system_yellow_text">#FFFFD600</color>
     <color name="system_purple_text">#FFE25BF4</color>
     <color name="system_indigo_text">#FF8D85F7</color>
+    <color name="accent_icon">#FF229AF0</color>
 </resources>

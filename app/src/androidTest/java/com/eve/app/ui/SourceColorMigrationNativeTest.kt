@@ -96,6 +96,33 @@ class SourceColorMigrationNativeTest {
         }
     }
 
+    @Test fun floatingTabTextAndIconStayAccessibleOverChangingCoatedBackdrops() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        instrumentation.runOnMainSync {
+            for (dark in listOf(false, true)) {
+                val context = ContextThemeWrapper(instrumentation.targetContext, R.style.Theme_Eve)
+                val p = TelegramThemeEngine.resolvePalette(context, TelegramThemeEngine.getTheme(if (dark) "night" else "day"), 0)
+                val pill = EveBottomPillBar(context)
+                pill.updateThemePalette(p)
+                pill.selectTab(0, false, false)
+                val tab = pill.tabHome
+                val labels = mutableListOf<android.widget.TextView>()
+                fun find(view: View) {
+                    if (view is android.widget.TextView) labels += view
+                    if (view is ViewGroup) for (i in 0 until view.childCount) find(view.getChildAt(i))
+                }
+                find(tab)
+                assertTrue(labels.isNotEmpty())
+                val coating = TelegramThemeEngine.solveSrcColor(p.surface, p.glassTargetMainTabs, .76f)
+                for (backdrop in listOf(Color.BLACK, Color.WHITE, p.surface, p.windowBackground)) {
+                    val bg = ColorUtils.compositeColors(TelegramThemeEngine.multAlpha(p.glassTabSelected, .09f),
+                        ColorUtils.compositeColors(coating, backdrop))
+                    labels.forEach { assertTrue("selected label over changing backdrop", ColorUtils.calculateContrast(it.currentTextColor, bg) >= 4.5) }
+                }
+            }
+        }
+    }
+
     @Test fun semanticStatusTextRetainsMeaningWithAaContrastInBothModes() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         instrumentation.runOnMainSync {

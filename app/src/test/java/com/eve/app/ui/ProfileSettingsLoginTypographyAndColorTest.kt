@@ -173,7 +173,7 @@ class ProfileSettingsLoginTypographyAndColorTest {
         val tvError = findElementById(root, "tvError")
         assertNotNull("tvError must exist", tvError)
         assertEquals("@style/TextAppearance.Eve.Token.Secondary.red", tvError?.getAttribute("style"))
-        assertEquals("@color/system_red", tvError?.designAttribute("android:textColor"))
+        assertEquals("@color/system_red_text", tvError?.designAttribute("android:textColor"))
 
         val btnSubmit = findElementById(root, "btnSubmit")
         assertNotNull("btnSubmit must exist", btnSubmit)
