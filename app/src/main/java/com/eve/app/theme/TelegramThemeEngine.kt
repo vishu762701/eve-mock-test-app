@@ -26,7 +26,6 @@ object TelegramThemeEngine {
     private const val KEY_NIGHT_THEME = "night_theme_id"
     private const val KEY_NIGHT_ACCENT = "night_accent_id"
     private const val KEY_THEME_MODE = "theme_mode"
-    private const val SCHEMA_VERSION = 1
 
     enum class ThemeMode {
         DAY, NIGHT, SYSTEM
@@ -66,99 +65,16 @@ object TelegramThemeEngine {
         val glassTabUnselected: Int,
         val actionSelector: Int,
         val drawerIcon: Int,
-        val isDark: Boolean
+        val isDark: Boolean,
+        val dialogSurface: Int = surface
     )
 
-    // Built-in Day accents (from Theme.java:3979-3986)
-    val DAY_ACCENTS = listOf(
-        ThemeAccentOption(9, 0xFF56A2C9.toInt(), "Home Blue"),
-        ThemeAccentOption(0, 0xFF4C91DF.toInt(), "Default Blue"),
-        ThemeAccentOption(10, 0xFFCC6E83.toInt(), "Rose"),
-        ThemeAccentOption(11, 0xFFD08E47.toInt(), "Amber"),
-        ThemeAccentOption(12, 0xFFCC6462.toInt(), "Coral"),
-        ThemeAccentOption(13, 0xFF867CD2.toInt(), "Violet"),
-        ThemeAccentOption(1, 0xFF57B4D9.toInt(), "Cyan"),
-        ThemeAccentOption(2, 0xFF54B169.toInt(), "Green"),
-        ThemeAccentOption(3, 0xFFD9BF3F.toInt(), "Gold"),
-        ThemeAccentOption(4, 0xFFCC6462.toInt(), "Red"),
-        ThemeAccentOption(5, 0xFFCC6E83.toInt(), "Pink"),
-        ThemeAccentOption(6, 0xFF9B7BD2.toInt(), "Purple"),
-        ThemeAccentOption(7, 0xFFD79144.toInt(), "Orange"),
-        ThemeAccentOption(8, 0xFF7B88AB.toInt(), "Slate")
-    )
-
-    // Built-in Night accents (from Theme.java:4003-4010)
-    val NIGHT_ACCENTS = listOf(
-        ThemeAccentOption(0, 0xFF3E88F7.toInt(), "Home Blue"),
-        ThemeAccentOption(9, 0xFF6ABE3F.toInt(), "Green"),
-        ThemeAccentOption(10, 0xFF8D78E3.toInt(), "Purple"),
-        ThemeAccentOption(11, 0xFFDE5E7E.toInt(), "Pink"),
-        ThemeAccentOption(12, 0xFF5977E8.toInt(), "Indigo"),
-        ThemeAccentOption(13, 0xFFDBC11A.toInt(), "Yellow"),
-        ThemeAccentOption(1, 0xFF4AB5D3.toInt(), "Cyan"),
-        ThemeAccentOption(2, 0xFF4AB841.toInt(), "Emerald"),
-        ThemeAccentOption(3, 0xFFD95576.toInt(), "Coral"),
-        ThemeAccentOption(4, 0xFFE27D2B.toInt(), "Orange"),
-        ThemeAccentOption(5, 0xFF936CDA.toInt(), "Violet"),
-        ThemeAccentOption(6, 0xFFD04336.toInt(), "Red"),
-        ThemeAccentOption(7, 0xFFE8AE1C.toInt(), "Amber"),
-        ThemeAccentOption(8, 0xFF7988A3.toInt(), "Slate")
-    )
-
+    // Fixed original-source defaults. Old accent/preset choices are migrated, not layered over them.
+    val DAY_ACCENTS = listOf(ThemeAccentOption(0, 0xFF229AF0.toInt(), "Telegram"))
+    val NIGHT_ACCENTS = listOf(ThemeAccentOption(0, 0xFF229AF0.toInt(), "Telegram"))
     val BUILT_IN_THEMES = listOf(
-        ThemeDefinition(
-            id = "day",
-            name = "Day",
-            isDark = false,
-            assetName = "day.attheme",
-            baseAccentColor = 0xFF4C91DF.toInt(),
-            defaultAccentId = 9,
-            accentOptions = DAY_ACCENTS
-        ),
-        ThemeDefinition(
-            id = "night",
-            name = "Night",
-            isDark = true,
-            assetName = "night.attheme",
-            baseAccentColor = 0xFF3E88F7.toInt(),
-            defaultAccentId = 0,
-            accentOptions = NIGHT_ACCENTS
-        ),
-        ThemeDefinition(
-            id = "arctic",
-            name = "Arctic Blue",
-            isDark = false,
-            assetName = "arctic.attheme",
-            baseAccentColor = 0xFF40B1E2.toInt(),
-            defaultAccentId = 0,
-            accentOptions = listOf(
-                ThemeAccentOption(0, 0xFF40B1E2.toInt(), "Arctic Ice"),
-                ThemeAccentOption(1, 0xFF41B05D.toInt(), "Arctic Pine")
-            )
-        ),
-        ThemeDefinition(
-            id = "darkblue",
-            name = "Dark Blue",
-            isDark = true,
-            assetName = "darkblue.attheme",
-            baseAccentColor = 0xFF927BD4.toInt(),
-            defaultAccentId = 0,
-            accentOptions = listOf(
-                ThemeAccentOption(0, 0xFF927BD4.toInt(), "Dark Indigo"),
-                ThemeAccentOption(1, 0xFF698AFB.toInt(), "Ocean")
-            )
-        ),
-        ThemeDefinition(
-            id = "bluebubbles",
-            name = "Blue Bubbles",
-            isDark = false,
-            assetName = "bluebubbles.attheme",
-            baseAccentColor = 0xFF5890C5.toInt(),
-            defaultAccentId = 99,
-            accentOptions = listOf(
-                ThemeAccentOption(99, 0xFF5890C5.toInt(), "Classic Blue")
-            )
-        )
+        ThemeDefinition("day", "Day", false, "day.attheme", 0xFF229AF0.toInt(), 0, DAY_ACCENTS),
+        ThemeDefinition("night", "Night", true, "night.attheme", 0xFF229AF0.toInt(), 0, NIGHT_ACCENTS)
     )
 
     private const val MAX_CUSTOM_THEME_BYTES = 256 * 1024
@@ -168,7 +84,7 @@ object TelegramThemeEngine {
 
     // Committed state
     private var committedDayThemeId = "day"
-    private var committedDayAccentId = 9
+    private var committedDayAccentId = 0
     private var committedNightThemeId = "night"
     private var committedNightAccentId = 0
     private var committedMode = ThemeMode.SYSTEM
@@ -176,22 +92,14 @@ object TelegramThemeEngine {
     // Preview state (transactional)
     private var previewActive = false
     private var previewDayThemeId = "day"
-    private var previewDayAccentId = 9
+    private var previewDayAccentId = 0
     private var previewNightThemeId = "night"
     private var previewNightAccentId = 0
     private var previewMode = ThemeMode.SYSTEM
 
     private var initialized = false
 
-    val FALLBACK_KEYS: Map<String, String> = mapOf(
-        "glass_targetMainTabs" to "dialogBackground",
-        "glass_targetMainTopPanel" to "dialogBackground",
-        "glass_tabSelected" to "chat_messagePanelSend",
-        "glass_tabSelectedText" to "chat_messagePanelSend",
-        "glass_tabUnselected" to "windowBackgroundWhiteBlackText",
-        "dialogBackground" to "windowBackgroundWhite",
-        "windowBackgroundWhiteGrayText" to "windowBackgroundWhiteBlackText"
-    )
+    val FALLBACK_KEYS: Map<String, String> = TelegramColorRoles.fallbackKeys
 
     private val RECOGNIZED_THEME_KEYS = setOf(
         "windowBackgroundGray", "windowBackgroundWhite", "chat_messagePanelSend",
@@ -202,7 +110,7 @@ object TelegramThemeEngine {
         if (initialized) return
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         committedDayThemeId = prefs.getString(KEY_DAY_THEME, "day") ?: "day"
-        committedDayAccentId = prefs.getInt(KEY_DAY_ACCENT, 9)
+        committedDayAccentId = prefs.getInt(KEY_DAY_ACCENT, 0)
         committedNightThemeId = prefs.getString(KEY_NIGHT_THEME, "night") ?: "night"
         committedNightAccentId = prefs.getInt(KEY_NIGHT_ACCENT, 0)
 
@@ -211,11 +119,27 @@ object TelegramThemeEngine {
         val legacyPrefs = context.getSharedPreferences(com.eve.app.util.ThemeManager.PREFS, Context.MODE_PRIVATE)
         committedMode = resolvePersistedMode(prefs, legacyPrefs)
 
-        // Synchronize NightMode globally
-        syncNightModeWithSystem(context)
         restoreCustomThemes(context)
+        migrateDefaultSelections(prefs)
+        syncNightModeWithSystem(context)
         initialized = true
     }
+
+    /** v2 retires only built-in presets/accents. Mode, imported files and unrelated prefs survive. */
+    internal fun migrateDefaultSelections(prefs: SharedPreferences) {
+        fun selection(id: String, dark: Boolean): String =
+            customThemes.firstOrNull { it.id == id && it.isDark == dark }?.id ?: if (dark) "night" else "day"
+        committedDayThemeId = selection(committedDayThemeId, false)
+        committedNightThemeId = selection(committedNightThemeId, true)
+        committedDayAccentId = 0
+        committedNightAccentId = 0
+        prefs.edit().putInt("color_roles_version", 2)
+            .putString(KEY_DAY_THEME, committedDayThemeId).putInt(KEY_DAY_ACCENT, 0)
+            .putString(KEY_NIGHT_THEME, committedNightThemeId).putInt(KEY_NIGHT_ACCENT, 0).apply()
+    }
+
+    private fun canonicalTheme(id: String, dark: Boolean): String =
+        customThemes.firstOrNull { it.id == id && it.isDark == dark }?.id ?: if (dark) "night" else "day"
 
     internal fun resolvePersistedMode(prefs: SharedPreferences, legacyPrefs: SharedPreferences): ThemeMode {
         if (prefs.contains(KEY_THEME_MODE)) {
@@ -282,7 +206,7 @@ object TelegramThemeEngine {
         }
         if (colors.isEmpty() || colors.none { it.key in RECOGNIZED_THEME_KEYS }) return null
 
-        val accent = colors["chat_messagePanelSend"] ?: 0xFF56A2C9.toInt()
+        val accent = colors["chat_messagePanelSend"] ?: 0xFF229AF0.toInt()
         val bg = colors["windowBackgroundGray"] ?: colors["windowBackgroundWhite"]
         val isDark = if (bg != null) computePerceivedBrightness(bg) < 0.45f else false
         val definition = ThemeDefinition(
@@ -326,10 +250,10 @@ object TelegramThemeEngine {
         context: Context
     ) {
         previewActive = true
-        previewDayThemeId = dayTheme
-        previewDayAccentId = dayAccent
-        previewNightThemeId = nightTheme
-        previewNightAccentId = nightAccent
+        previewDayThemeId = canonicalTheme(dayTheme, false)
+        previewDayAccentId = 0
+        previewNightThemeId = canonicalTheme(nightTheme, true)
+        previewNightAccentId = 0
         previewMode = mode
         notifyPaletteChanged(context)
     }
@@ -345,15 +269,15 @@ object TelegramThemeEngine {
 
     fun setPreviewDayTheme(themeId: String, accentId: Int, context: Context) {
         previewActive = true
-        previewDayThemeId = themeId
-        previewDayAccentId = accentId
+        previewDayThemeId = canonicalTheme(themeId, false)
+        previewDayAccentId = 0
         notifyPaletteChanged(context)
     }
 
     fun setPreviewNightTheme(themeId: String, accentId: Int, context: Context) {
         previewActive = true
-        previewNightThemeId = themeId
-        previewNightAccentId = accentId
+        previewNightThemeId = canonicalTheme(themeId, true)
+        previewNightAccentId = 0
         notifyPaletteChanged(context)
     }
 
@@ -407,7 +331,7 @@ object TelegramThemeEngine {
         // Reset is part of the preview transaction. Only Apply may persist it.
         previewActive = true
         previewDayThemeId = "day"
-        previewDayAccentId = 9
+        previewDayAccentId = 0
         previewNightThemeId = "night"
         previewNightAccentId = 0
         previewMode = ThemeMode.SYSTEM
@@ -454,62 +378,45 @@ object TelegramThemeEngine {
     }
 
     fun resolvePalette(context: Context, themeDef: ThemeDefinition, accentId: Int): ResolvedPalette {
-        val rawColors = loadThemeRawColors(context, themeDef)
-        val isDark = themeDef.isDark
-
-        // Determine accent color
-        val accentColor = themeDef.accentOptions.firstOrNull { it.id == accentId }?.color
-            ?: themeDef.baseAccentColor
-
-        // Apply accent color shift if needed
-        val adjustedColors = applyAccentShift(rawColors, themeDef.baseAccentColor, accentColor, isDark)
-
-        // Resolve keys with fallback chain
-        val windowBg = resolveColor(adjustedColors, "windowBackgroundGray", if (isDark) 0xFF000000.toInt() else 0xFFF5F5F5.toInt())
-        val surface = resolveColor(adjustedColors, "windowBackgroundWhite", if (isDark) 0xFF181819.toInt() else 0xFFFFFFFF.toInt())
-        val surfaceInset = if (isDark) 0xFF2C2C2E.toInt() else 0xFFF5F5F5.toInt()
-        val textPrimary = resolveColor(adjustedColors, "windowBackgroundWhiteBlackText", if (isDark) 0xFFFFFFFF.toInt() else 0xFF1A1D21.toInt())
-        val rawTextSecondary = resolveColor(adjustedColors, "windowBackgroundWhiteGrayText", if (isDark) 0xFFA1A1A6.toInt() else 0xFF6C6C70.toInt())
-        val textSecondary = if (ColorUtils.calculateContrast(rawTextSecondary, windowBg) >= 4.5) {
-            rawTextSecondary
-        } else {
-            if (isDark) 0xFFA1A1A6.toInt() else 0xFF6C6C70.toInt()
+        // Fixed defaults never pass through the retired accent transform. Imported files are
+        // independent explicit overrides; empty/missing imports fall back to the matching mode.
+        val raw = loadThemeRawColors(context, themeDef)
+        val active = if (raw.isEmpty()) loadThemeRawColors(context, BUILT_IN_THEMES[if (themeDef.isDark) 1 else 0]) else raw
+        fun role(key: String): Int {
+            // Preserve partial imported-theme inheritance separately from fixed-default parity.
+            if (themeDef.isCustom && !active.containsKey(key) &&
+                TelegramColorRoles.fallbackKeys[key]?.let { active.containsKey(it) } != true) {
+                val base = loadThemeRawColors(context, BUILT_IN_THEMES[if (themeDef.isDark) 1 else 0])
+                return TelegramColorRoles.resolve(base, key)
+            }
+            return TelegramColorRoles.resolve(active, key)
         }
-
-        // Chat panel send button color / tab selected
-        val sendColor = resolveColor(adjustedColors, "chat_messagePanelSend", accentColor)
-        val glassTabSelected = resolveColor(adjustedColors, "glass_tabSelected", sendColor)
-        val glassTabSelectedText = resolveColor(adjustedColors, "glass_tabSelectedText", sendColor)
-        val glassTabUnselected = resolveColor(adjustedColors, "glass_tabUnselected", textPrimary)
-        val glassTargetTabs = resolveColor(adjustedColors, "glass_targetMainTabs", if (isDark) 0xFF232324.toInt() else 0xFFFFFFFF.toInt())
-        val glassTargetTop = resolveColor(adjustedColors, "glass_targetMainTopPanel", if (isDark) 0xFF232324.toInt() else 0xFFFFFFFF.toInt())
-        val actionSelector = if (isDark) 0x16FFFFFF else 0x121A1D21
-        val drawerIcon = if (isDark) 0xFF828282.toInt() else 0xFF889198.toInt()
-        val hairline = if (isDark) 0x2EFFFFFF else 0x1F000000
-
-        // Prefer the foreground with the higher WCAG contrast ratio. A brightness
-        // threshold picks white on House Blue (only ~2.84:1), which is unreadable.
-        val onAccent = if (ColorUtils.calculateContrast(Color.BLACK, accentColor) >=
-            ColorUtils.calculateContrast(Color.WHITE, accentColor)
-        ) Color.BLACK else Color.WHITE
-
+        val windowBg = role("windowBackgroundGray")
+        val surface = role("windowBackgroundWhite")
+        val textPrimary = role("windowBackgroundWhiteBlackText")
+        val textSecondary = TelegramColorRoles.accessibleForeground(
+            role("windowBackgroundWhiteGrayText"), listOf(windowBg, surface, role("dialogBackground")))
+        val accent = role("chat_messagePanelSend")
+        val onAccent = if (ColorUtils.calculateContrast(Color.BLACK, accent) >=
+            ColorUtils.calculateContrast(Color.WHITE, accent)) Color.BLACK else Color.WHITE
         return ResolvedPalette(
             windowBackground = windowBg,
             surface = surface,
-            surfaceInset = surfaceInset,
+            surfaceInset = windowBg, // grouped-canvas alias; no invented secondary surface.
             textPrimary = textPrimary,
             textSecondary = textSecondary,
-            accent = accentColor,
+            accent = accent,
             onAccent = onAccent,
-            hairline = hairline,
-            glassTargetMainTabs = glassTargetTabs,
-            glassTargetMainTopPanel = glassTargetTop,
-            glassTabSelected = glassTabSelected,
-            glassTabSelectedText = glassTabSelectedText,
-            glassTabUnselected = glassTabUnselected,
-            actionSelector = actionSelector,
-            drawerIcon = drawerIcon,
-            isDark = isDark
+            hairline = role("divider"),
+            glassTargetMainTabs = role("glass_targetMainTabs"),
+            glassTargetMainTopPanel = role("glass_targetMainTopPanel"),
+            glassTabSelected = role("glass_tabSelected"),
+            glassTabSelectedText = role("glass_tabSelectedText"),
+            glassTabUnselected = role("glass_tabUnselected"),
+            actionSelector = role("actionBarDefaultSelector"),
+            drawerIcon = role("chats_menuItemIcon"),
+            isDark = themeDef.isDark,
+            dialogSurface = role("dialogBackground")
         )
     }
 
@@ -569,20 +476,6 @@ object TelegramThemeEngine {
         }
     }
 
-    private fun resolveColor(colors: Map<String, Int>, key: String, default: Int): Int {
-        var currentKey: String? = key
-        val visited = HashSet<String>()
-        while (currentKey != null && visited.add(currentKey)) {
-            val color = colors[currentKey]
-            if (color != null) return color
-            currentKey = FALLBACK_KEYS[currentKey]
-        }
-        return default
-    }
-
-    /**
-     * EVE adaptation of Telegram's accent-shift concept; not source-exact.
-     */
     fun applyAccentShift(rawColors: Map<String, Int>, baseAccentColor: Int, targetAccentColor: Int, isDark: Boolean): Map<String, Int> {
         if (baseAccentColor == 0 || targetAccentColor == 0 || baseAccentColor == targetAccentColor) {
             return rawColors

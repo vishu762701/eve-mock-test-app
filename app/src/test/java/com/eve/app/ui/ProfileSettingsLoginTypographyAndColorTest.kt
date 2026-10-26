@@ -268,9 +268,9 @@ class ProfileSettingsLoginTypographyAndColorTest {
             }
             error("Missing semantic token: $token in $resourcePath")
         }
-        assertEquals("#F5F5F5", hex("src/main/res/values/design_colors.xml", "bg_app"))
+        assertEquals("#F1F1F3", hex("src/main/res/values/design_colors.xml", "bg_app"))
         assertEquals("#FFFFFF", hex("src/main/res/values/design_colors.xml", "surface"))
         assertEquals("#000000", hex("src/main/res/values-night/design_colors.xml", "bg_app"))
-        assertEquals("#1C1C1E", hex("src/main/res/values-night/design_colors.xml", "surface"))
+        assertEquals("#181819", hex("src/main/res/values-night/design_colors.xml", "surface"))
     }
 }

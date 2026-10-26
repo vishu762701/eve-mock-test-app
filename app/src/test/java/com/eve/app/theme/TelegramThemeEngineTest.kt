@@ -16,6 +16,13 @@ import java.nio.charset.StandardCharsets
 @Config(sdk = [34])
 class TelegramThemeEngineTest {
 
+    private fun importedDay(): TelegramThemeEngine.ThemeDefinition {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        val file = java.io.File(context.filesDir, "custom_${System.nanoTime().toString().replace("-", "")}.attheme")
+        file.writeText("windowBackgroundGray=-1\nchat_messagePanelSend=-14509328\n")
+        return requireNotNull(TelegramThemeEngine.registerCustomTheme(context, file))
+    }
+
     @Test
     fun importedThemeIsRegisteredWithStableIdAndResolvablePalette() {
         val context = org.robolectric.RuntimeEnvironment.getApplication()
@@ -79,18 +86,13 @@ class TelegramThemeEngineTest {
     }
 
     @Test
-    fun testDefaultHousePresetsMatchTelegramSource() {
-        // Day theme: House preset uses Day with accent 9 (0xFF56A2C9)
-        val dayTheme = TelegramThemeEngine.BUILT_IN_THEMES.first { it.id == "day" }
-        assertEquals(9, dayTheme.defaultAccentId)
-        val dayAccent9 = dayTheme.accentOptions.first { it.id == 9 }
-        assertEquals(0xFF56A2C9.toInt(), dayAccent9.color)
-
-        // Night theme: House preset uses Night with accent 0 (0xFF3E88F7)
-        val nightTheme = TelegramThemeEngine.BUILT_IN_THEMES.first { it.id == "night" }
-        assertEquals(0, nightTheme.defaultAccentId)
-        val nightAccent0 = nightTheme.accentOptions.first { it.id == 0 }
-        assertEquals(0xFF3E88F7.toInt(), nightAccent0.color)
+    fun fixedBuiltInsDoNotExposeLegacyAccentOverrides() {
+        assertEquals(setOf("day", "night"), TelegramThemeEngine.BUILT_IN_THEMES.map { it.id }.toSet())
+        for (theme in TelegramThemeEngine.BUILT_IN_THEMES) {
+            assertEquals(0, theme.defaultAccentId)
+            assertEquals(listOf(0), theme.accentOptions.map { it.id })
+            assertEquals(0xFF229AF0.toInt(), theme.accentOptions.single().color)
+        }
     }
 
     @Test
@@ -141,6 +143,7 @@ class TelegramThemeEngineTest {
 
     @Test
     fun resetPreviewCanBeCancelledWithoutPersistingDefaults() {
+        val imported = importedDay()
         val context = org.robolectric.RuntimeEnvironment.getApplication()
         TelegramThemeEngine.init(context)
         val previousDay = TelegramThemeEngine.getDayThemeId()
@@ -150,18 +153,18 @@ class TelegramThemeEngineTest {
         val previousMode = TelegramThemeEngine.getThemeMode()
         try {
             TelegramThemeEngine.beginPreview()
-            TelegramThemeEngine.setPreviewDayTheme("arctic", 0, context)
+            TelegramThemeEngine.setPreviewDayTheme(imported.id, 0, context)
             TelegramThemeEngine.applyChanges(context)
-            assertEquals("arctic", TelegramThemeEngine.getDayThemeId())
+            assertEquals(imported.id, TelegramThemeEngine.getDayThemeId())
 
             TelegramThemeEngine.beginPreview()
             TelegramThemeEngine.resetToDefaults(context)
             assertEquals("day", TelegramThemeEngine.getDayThemeId())
             TelegramThemeEngine.cancelPreview(context)
 
-            assertEquals("arctic", TelegramThemeEngine.getDayThemeId())
+            assertEquals(imported.id, TelegramThemeEngine.getDayThemeId())
             val prefs = context.getSharedPreferences(TelegramThemeEngine.PREFS_NAME, android.content.Context.MODE_PRIVATE)
-            assertEquals("arctic", prefs.getString("day_theme_id", null))
+            assertEquals(imported.id, prefs.getString("day_theme_id", null))
         } finally {
             TelegramThemeEngine.beginPreview()
             TelegramThemeEngine.setPreviewDayTheme(previousDay, previousDayAccent, context)
@@ -182,7 +185,8 @@ class TelegramThemeEngineTest {
         val targetColor = TelegramThemeEngine.FALLBACK_KEYS["glass_targetMainTabs"]
         assertEquals("dialogBackground", targetColor)
         val dialogBgFallback = TelegramThemeEngine.FALLBACK_KEYS["dialogBackground"]
-        assertEquals("windowBackgroundWhite", dialogBgFallback)
+        assertEquals(null, dialogBgFallback)
+        assertEquals(0xFFFFFFFF.toInt(), TelegramColorRoles.resolve(colors, "glass_targetMainTabs"))
     }
 
     @Test
@@ -212,6 +216,7 @@ class TelegramThemeEngineTest {
 
     @Test
     fun testTransactionalPreviewLifecycle() {
+        val imported = importedDay()
         val context = org.robolectric.RuntimeEnvironment.getApplication()
         TelegramThemeEngine.init(context)
 
@@ -221,10 +226,10 @@ class TelegramThemeEngineTest {
 
         // Begin preview
         TelegramThemeEngine.beginPreview()
-        TelegramThemeEngine.setPreviewDayTheme("arctic", 1, context)
+        TelegramThemeEngine.setPreviewDayTheme(imported.id, 1, context)
         TelegramThemeEngine.setPreviewMode(TelegramThemeEngine.ThemeMode.NIGHT, context)
 
-        assertEquals("arctic", TelegramThemeEngine.getDayThemeId())
+        assertEquals(imported.id, TelegramThemeEngine.getDayThemeId())
         assertEquals(TelegramThemeEngine.ThemeMode.NIGHT, TelegramThemeEngine.getThemeMode())
 
         // Cancel preview restores initial committed values
@@ -236,7 +241,7 @@ class TelegramThemeEngineTest {
         TelegramThemeEngine.beginPreview()
         TelegramThemeEngine.resetPreviewToDefaults(context)
         assertEquals("day", TelegramThemeEngine.getDayThemeId())
-        assertEquals(9, TelegramThemeEngine.getDayAccentId())
+        assertEquals(0, TelegramThemeEngine.getDayAccentId())
         assertEquals("night", TelegramThemeEngine.getNightThemeId())
         assertEquals(0, TelegramThemeEngine.getNightAccentId())
 
@@ -347,26 +352,11 @@ class TelegramThemeEngineTest {
     }
 
     @Test
-    fun testCatalogHasFiveBundledThemesWithAssets() {
-        val themes = TelegramThemeEngine.BUILT_IN_THEMES
-        assertEquals(5, themes.size)
-
-        val ids = themes.map { it.id }.toSet()
-        assertTrue("day must be bundled", ids.contains("day"))
-        assertTrue("night must be bundled", ids.contains("night"))
-        assertTrue("arctic must be bundled", ids.contains("arctic"))
-        assertTrue("darkblue must be bundled", ids.contains("darkblue"))
-        assertTrue("bluebubbles must be bundled", ids.contains("bluebubbles"))
-
-        for (theme in themes) {
-            val asset = theme.assetName
-            assertNotNull(asset)
-            val file = listOf(
-                java.io.File("src/main/assets/themes/$asset"),
-                java.io.File("app/src/main/assets/themes/$asset")
-            ).firstOrNull { it.exists() }
-            assertNotNull("Asset file for $asset must exist on disk", file)
-            assertTrue("Asset $asset must not be empty", file!!.length() > 0)
+    fun fixedSourceThemeAssetsExist() {
+        assertEquals(setOf("day", "night"), TelegramThemeEngine.BUILT_IN_THEMES.map { it.id }.toSet())
+        for (theme in TelegramThemeEngine.BUILT_IN_THEMES) {
+            val file = java.io.File("src/main/assets/themes/${theme.assetName}")
+            assertTrue("Fixed source role asset exists: $file", file.isFile && file.length() > 0)
         }
     }
 
@@ -389,7 +379,7 @@ class TelegramThemeEngineTest {
         assertEquals(0xFF000000.toInt(), nightPalette.windowBackground)
         assertEquals(0xFF181819.toInt(), nightPalette.surface)
         assertEquals(0xFFFFFFFF.toInt(), nightPalette.textPrimary)
-        assertEquals(0xFF3E88F7.toInt(), nightPalette.accent) // EmojiThemes.java:251 Night accent 0
+        assertEquals(0xFF229AF0.toInt(), nightPalette.accent) // EmojiThemes.java:251 Night accent 0
         assertEquals(0xFF232324.toInt(), nightPalette.glassTargetMainTabs)
         assertEquals(0xFF232324.toInt(), nightPalette.glassTargetMainTopPanel)
 
@@ -402,7 +392,7 @@ class TelegramThemeEngineTest {
 
         assertFalse(dayPalette.isDark)
         assertEquals(0xFFFFFFFF.toInt(), dayPalette.surface)
-        assertEquals(0xFF56A2C9.toInt(), dayPalette.accent)
+        assertEquals(0xFF229AF0.toInt(), dayPalette.accent)
         assertEquals(0xFFFFFFFF.toInt(), dayPalette.glassTargetMainTabs)
         assertTrue(
             "Day/9 onAccent contrast must satisfy WCAG",

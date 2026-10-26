@@ -158,3 +158,18 @@ ZIP was not available and its whole-archive hash was not verified in this missio
 See `docs/telegram-radio-indicator.md` for compatibility deviations. Preserve the
 bundled GPL text and corresponding modified source; all existing production
 release clearance/signing guards and other component obligations still apply.
+
+### Original-source Light/Night role migration
+
+Owner-supplied color source pack SHA-256
+`4b37c4c6749c5347cafdc16c6a1cbb6371599e09222e40be983135400f4fe469`
+was checked against its generated (not Telegram-signed) per-file manifest: 57
+original source files, sizes, CRC32 and SHA-256 values. The original complete
+archive hash is attested by the pack author, not independently verified here.
+See `docs/color-migration/source-role-contract.json` and the adjacent mapping.
+ThemeColors/Theme definitions, original Night asset and main-tabs coating math
+inform the EVE adaptation. The Light asset is an explicitly generated default-role
+projection; Night bytes retain their verified source hash. Existing Telegram
+copyright/license text, corresponding-source obligations and fail-closed production
+release clearance remain unchanged. Platform blur, AA adjustments and unmatched
+filled segmented controls are explicitly documented EVE deviations.

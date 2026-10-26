@@ -40,8 +40,8 @@ class MasterRedesignContinuationTest {
     fun testMenuUsesApi31MaterialAndOlderFallbackWhileDrawerIsOpaque() {
         for (theme in listOf("values", "values-night")) {
             val colors = loadColors("src/main/res/$theme/design_colors.xml")
-            assertTrue("Medium tint", colors["glass_tint"]!!.startsWith("#8C"))
-            assertTrue("Unavailable blur fallback", colors["glass_fallback"]!!.startsWith("#F0"))
+            assertTrue("Medium tint", colors["glass_tint"]!!.startsWith("#C2"))
+            assertTrue("Unavailable blur fallback", colors["glass_fallback"]!!.startsWith("#C2"))
         }
         val home = File("src/main/java/com/eve/app/ui/home/MainActivity.kt").readText()
         assertTrue(home.contains("EveDesignSystem.Colors.surface(this)"))

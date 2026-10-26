@@ -41,7 +41,7 @@ class ManualBorderInventoryTest {
     @Test fun solidPanelsAndAnswerTilesKeepNoDecorativeStroke() {
         val panel = elements(File(res, "drawable/design_surface_panel.xml"))
         assertFalse(panel.any { it.tagName == "stroke" })
-        assertEquals("@color/surface", panel.single { it.tagName == "solid" }.getAttribute("android:color"))
+        assertEquals("@color/dialog_surface", panel.single { it.tagName == "solid" }.getAttribute("android:color"))
         val source = File(res.parentFile, "java/com/eve/app/ui/common/TelegramRadioButton.kt").readText()
         assertFalse(source.contains("setStroke"))
         assertTrue(source.contains("R.dimen.design_radius_inner"))

@@ -190,10 +190,21 @@ class GlassTabView @JvmOverloads constructor(
         }
     }
 
+    private var accessibleSelectedIcon = 0
+
     fun setPalette(palette: TelegramThemeEngine.ResolvedPalette) {
         colorDefault = palette.glassTabUnselected
         colorSelected = palette.glassTabSelected
-        colorSelectedText = palette.glassTabSelectedText
+        // Keep raw colorSelected for the exact .09 selector. Only foreground paint
+        // receives the smallest EVE AA accommodation over the expected glass/backdrop roles.
+        val target = palette.glassTargetMainTabs
+        val coating = TelegramThemeEngine.solveSrcColor(palette.surface, target, 0.76f)
+        val backgrounds = listOf(palette.windowBackground, palette.surface, target).map {
+            ColorUtils.compositeColors(TelegramThemeEngine.multAlpha(colorSelected, 0.09f),
+                ColorUtils.compositeColors(coating, it))
+        }
+        accessibleSelectedIcon = com.eve.app.theme.TelegramColorRoles.accessibleForeground(colorSelected, backgrounds, 3.0)
+        colorSelectedText = com.eve.app.theme.TelegramColorRoles.accessibleForeground(palette.glassTabSelectedText, backgrounds)
         updateColors()
         invalidate()
     }
@@ -242,7 +253,7 @@ class GlassTabView @JvmOverloads constructor(
     fun isTabSelected(): Boolean = isTabSelected
 
     private fun updateColors() {
-        val colorIcon = ColorUtils.blendARGB(colorDefault, colorSelected, selectedFactor)
+        val colorIcon = ColorUtils.blendARGB(colorDefault, accessibleSelectedIcon, selectedFactor)
         val colorText = ColorUtils.blendARGB(colorDefault, colorSelectedText, selectedFactor)
 
         val filter = PorterDuffColorFilter(colorIcon, PorterDuff.Mode.SRC_IN)

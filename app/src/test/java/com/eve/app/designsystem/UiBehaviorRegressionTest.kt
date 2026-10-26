@@ -263,8 +263,8 @@ class UiBehaviorRegressionTest {
 
     @Test fun textRolesMeetNormalTextContrastOnDayAndNightSurfaces() {
         val cases = listOf(
-            Triple("values", "#F5F5F5", "#FFFFFF"),
-            Triple("values-night", "#000000", "#1C1C1E")
+            Triple("values", "#F1F1F3", "#FFFFFF"),
+            Triple("values-night", "#000000", "#181819")
         )
         for ((qualifier, canvas, surface) in cases) {
             val content = read(qualifier + "/telegram_colors.xml")

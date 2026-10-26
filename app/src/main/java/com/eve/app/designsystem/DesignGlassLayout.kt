@@ -34,6 +34,14 @@ open class DesignGlassLayout @JvmOverloads constructor(context: Context, attrs: 
     // Reuse one blur controller while toggling toolbar glass at the scroll boundary.
     // setupWith() replaces a controller and allocates renderer/listener state.
     private var configuredRoot: ViewGroup? = null
+    private var palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette? = null
+    var drawHairline: Boolean = true
+    var mainTabsCoating: Boolean = false
+    fun useCapsuleShape() { capsule = true; invalidateOutline() }
+    private fun coating(): Int = palette?.let {
+        com.eve.app.theme.TelegramThemeEngine.solveSrcColor(it.surface,
+            if (mainTabsCoating) it.glassTargetMainTabs else it.glassTargetMainTopPanel, 0.76f)
+    } ?: ContextCompat.getColor(context, R.color.glass_tint)
     private var capsule = false
     private var radius = resources.getDimension(R.dimen.design_radius_card)
     private val configureAfterAttach = Runnable { configureBackdrop() }
@@ -46,7 +54,10 @@ open class DesignGlassLayout @JvmOverloads constructor(context: Context, attrs: 
         }
 
     fun updatePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+        this.palette = palette
         border.color = palette.hairline
+        if (configuredRoot == null && glassEnabled) setBackgroundColor(coating())
+        facade?.setFrameClearDrawable(ColorDrawable(palette.windowBackground))
         invalidate()
     }
     /** Popup chrome can point to its host window, rather than the popup's own tree. */
@@ -65,7 +76,7 @@ open class DesignGlassLayout @JvmOverloads constructor(context: Context, attrs: 
             }
         }
         clipToOutline = true
-        setBackgroundColor(ContextCompat.getColor(context, R.color.glass_fallback))
+        setBackgroundColor(coating())
     }
     protected fun useSquareCorners() { radius = resources.getDimension(R.dimen.design_zero) }
     private fun drawnRadius(): Float = if (capsule) minOf(width, height) / 2f else radius
@@ -110,7 +121,7 @@ open class DesignGlassLayout @JvmOverloads constructor(context: Context, attrs: 
                 .setBlurAutoUpdate(true)
             configuredRoot = source
         } catch (error: RuntimeException) {
-            Log.w("DesignGlassLayout", "Backdrop unavailable; using locked glass fallback", error)
+            Log.w("DesignGlassLayout", "Backdrop unavailable; using source coating without blur", error)
             fallback()
         }
     }
@@ -118,7 +129,7 @@ open class DesignGlassLayout @JvmOverloads constructor(context: Context, attrs: 
         facade?.setBlurAutoUpdate(false)
         facade?.setBlurEnabled(false)
         configuredRoot = null
-        setBackgroundColor(ContextCompat.getColor(context, R.color.glass_fallback))
+        setBackgroundColor(coating())
     }
     private fun activityContent(): ViewGroup? {
         var owner: Context = context
@@ -132,7 +143,7 @@ open class DesignGlassLayout @JvmOverloads constructor(context: Context, attrs: 
     }
     override fun dispatchDraw(canvas: Canvas) {
         super.dispatchDraw(canvas)
-        if (glassEnabled) {
+        if (glassEnabled && drawHairline) {
             val inset = border.strokeWidth / 2f
             rect.set(inset, inset, width - inset, height - inset)
             val corner = (drawnRadius() - inset).coerceAtLeast(0f)
@@ -148,7 +159,7 @@ open class DesignGlassLayout @JvmOverloads constructor(context: Context, attrs: 
             if (failed) return bitmap
             return try { super.blur(bitmap, blurRadius) } catch (error: RuntimeException) {
                 failed = true
-                Log.w("DesignGlassLayout", "Backdrop renderer failed; using locked fallback", error)
+                Log.w("DesignGlassLayout", "Backdrop renderer failed; using source coating without blur", error)
                 post { fallback() }
                 bitmap
             }
@@ -156,10 +167,10 @@ open class DesignGlassLayout @JvmOverloads constructor(context: Context, attrs: 
         override fun render(canvas: Canvas, bitmap: Bitmap) {
             if (!failed && canvas.isHardwareAccelerated) {
                 super.render(canvas, bitmap)
-                canvas.drawColor(ContextCompat.getColor(context, R.color.glass_tint))
+                canvas.drawColor(coating())
             } else {
                 // Software screenshots must not enter the library's RenderScript fallback.
-                canvas.drawColor(ContextCompat.getColor(context, R.color.glass_fallback))
+                canvas.drawColor(coating())
             }
         }
     }

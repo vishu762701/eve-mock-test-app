@@ -4,7 +4,7 @@
     <color name="telegram_type_primary">#FF1A1D21</color>
     <!-- Telegram ThemeColors.java:199 key_actionBarDefaultSelector = 0x121A1D21. -->
     <color name="telegram_action_selector">#121A1D21</color>
-    <color name="telegram_type_secondary">#FF6C6C70</color>
+    <color name="telegram_type_secondary">#FF6C6E6F</color>
     <!-- Telegram BlueHeader (#298ACF) darkened only to preserve 4.5:1 accessibility. -->
     <color name="telegram_type_section">#FF176A9E</color>
     <color name="telegram_type_dialog">#FF1A1D21</color>

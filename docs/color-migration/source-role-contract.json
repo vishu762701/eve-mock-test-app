@@ -1,0 +1,603 @@
+{
+  "pack_sha256": "4b37c4c6749c5347cafdc16c6a1cbb6371599e09222e40be983135400f4fe469",
+  "original_archive_sha256_attested": "0785365538ce05cf5bdf44a15d8fd5f5219f8193db0a2d124af9665fc63fd7b3",
+  "full_archive_verified_here": false,
+  "source_files": [
+    {
+      "path": "Telegram-master/LICENSE",
+      "bytes": 18092,
+      "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643",
+      "zip_crc32": "4e46f4a1"
+    },
+    {
+      "path": "Telegram-master/README.md",
+      "bytes": 2848,
+      "sha256": "f14f594cba6f95b5969146d1baf78a7890a915eb0b794a8392db9a507650abda",
+      "zip_crc32": "e9d6a8de"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/assets/darkblue.attheme",
+      "bytes": 15723,
+      "sha256": "5f3f87ff46198d82eecd78c975fdba849f6ed43561e6e7ebd58d16f40841fe39",
+      "zip_crc32": "27100d8e"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/assets/day.attheme",
+      "bytes": 9860,
+      "sha256": "889713b6dfdc03494ed9cf27277fea904bc93193972f1b569a7907331898bcfc",
+      "zip_crc32": "c12226e4"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/assets/night.attheme",
+      "bytes": 16374,
+      "sha256": "c93fb2934d2684888a5d9e72a36361c0789d6bc745db23043da7eb88155c5469",
+      "zip_crc32": "676a59bb"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/Theme.java",
+      "bytes": 562026,
+      "sha256": "b2cc15c52f4b82ca79cee15c3e3d62f93c4b4e91e578e6da850fd279a1591e90",
+      "zip_crc32": "cc093533"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ThemeColors.java",
+      "bytes": 122710,
+      "sha256": "49f27ef5f1a33844ca8818feb4b737a96df8d8d4eaef50a20b11225c46c2000d",
+      "zip_crc32": "4234f264"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ThemeDescription.java",
+      "bytes": 40793,
+      "sha256": "b369eef1af112be82eb682da53c7c8f6eb77c64a563aa82870340d76167b51cf",
+      "zip_crc32": "fa16b087"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/theme/ITheme.java",
+      "bytes": 247,
+      "sha256": "1788bb9aebf7d3ee7e8214cfdb3ada1793eb8cb802feb972e6502fc7446632c2",
+      "zip_crc32": "35ffe710"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/theme/ThemeKey.java",
+      "bytes": 3736,
+      "sha256": "e4be17a8ea0c547af19721b4e98a18e2ba3d1cc9c16d329c16bb4031b7eb838f",
+      "zip_crc32": "9c116d36"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/BlurBehindDrawable.java",
+      "bytes": 16501,
+      "sha256": "e2b5a354825ace28bdc01b97294c8be4bfac8dae2651a0093665bc305ac22a96",
+      "zip_crc32": "ca41ab14"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/BlurredFrameLayout.java",
+      "bytes": 3088,
+      "sha256": "f9807b5a80ed4cf9c999e53d8e328c028b7305abab825f3db9bf0521963dbc64",
+      "zip_crc32": "6e961fcc"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/BlurredLinearLayout.java",
+      "bytes": 2644,
+      "sha256": "4519ac9535063e8c0e0fa49e4fcc277b384af325586d9d4ebe1d299382aa6923",
+      "zip_crc32": "251cafd4"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/BlurringShader.java",
+      "bytes": 50111,
+      "sha256": "39750c768b086ca6276fbe1752ca80dff153e05e924be79352af00a005090c52",
+      "zip_crc32": "3be8482f"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/FilterTabsView.java",
+      "bytes": 87557,
+      "sha256": "25e2f34494903fedc86375632c769570083135ddb093bb5868f97f2cd02ae87c",
+      "zip_crc32": "87f0f470"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/PagerSlidingTabStrip.java",
+      "bytes": 17257,
+      "sha256": "d974ed31efd85e56bdfba9d9fd97804108c487afbfb8d08535c3ac61ba7cd399",
+      "zip_crc32": "855b75fb"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/ProfileActionsView.java",
+      "bytes": 51138,
+      "sha256": "67163d89b9a3f79c898de830457b9a69264cc89e55c90966a27babafe6b0f34b",
+      "zip_crc32": "71a04611"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/ProfileGalleryBlurView.java",
+      "bytes": 26598,
+      "sha256": "9c8188ba6279a067c5a5b10b0053bfbff96fa439c3ab5dd539695aa6e30f46cf",
+      "zip_crc32": "caedb81e"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/ScrollSlidingTabStrip.java",
+      "bytes": 45854,
+      "sha256": "e7719164ee2c27ad093efe9c5f45cc67e73af21d06f3a2449d5100169d69a14d",
+      "zip_crc32": "b9301e93"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/ScrollSlidingTextTabStrip.java",
+      "bytes": 38804,
+      "sha256": "90e5a99fa8636d893bc08fff486bce22e124b0bceb5b71781fb48dfea185093c",
+      "zip_crc32": "7871e516"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/SharedMediaLayout.java",
+      "bytes": 644251,
+      "sha256": "172be0675f8b5f1e6a5066dd7c6e8358663a07219449413c041feb2b4c5e384d",
+      "zip_crc32": "cf12780c"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/Blur3HashImpl.java",
+      "bytes": 667,
+      "sha256": "9e32f5b9f59c492881cf168221dc36e90702ff94d702749854fe9b4098240b45",
+      "zip_crc32": "272fc58d"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/BlurredBackgroundDrawableViewFactory.java",
+      "bytes": 4380,
+      "sha256": "ff48c8e68f51f7640b6ef964719a0b912297287b7ca67f77d96add8dcecdd3d6",
+      "zip_crc32": "02a37573"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/BlurredBackgroundWithFadeDrawable.java",
+      "bytes": 9086,
+      "sha256": "f0cd89bd4e2818eba4eaf863b8e28c66a29c4f7931e1d4f2236ac4bcfcc45991",
+      "zip_crc32": "f073dfdf"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/DownscaleScrollableNoiseSuppressor.java",
+      "bytes": 20658,
+      "sha256": "e66f709487c1d2fc4e255c1cb7d9722e200f0464e47f6e5ef653c5724ee06674",
+      "zip_crc32": "aff289fd"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/LiquidGlassEffect.java",
+      "bytes": 4337,
+      "sha256": "d27cc91404f76a6e7e020cbc5ac133287d147deea5d59e68532d1276134e32ab",
+      "zip_crc32": "c40b9dcb"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/RenderNodeWithHash.java",
+      "bytes": 1963,
+      "sha256": "13800afbaba6a38bc8c9cd3f53e32500a3f82dfa6a5db8682baf36953d730009",
+      "zip_crc32": "da346509"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/StrokeDrawable.java",
+      "bytes": 3247,
+      "sha256": "ed84ecf210c3208ef970da5ba9bc0c6dc74bfaf2b57f9d0c12566020979ea99f",
+      "zip_crc32": "4f312504"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/ViewGroupPartRenderer.java",
+      "bytes": 3336,
+      "sha256": "219e209d33219202491ddd45386f37fa9d3dde8c3b7b09d202754c3068517240",
+      "zip_crc32": "c720c09b"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/capture/IBlur3Capture.java",
+      "bytes": 313,
+      "sha256": "bcfa01d5d64af5d07a69cfd4b09d63e97a4a8308ac3223d389ea2d274da69a50",
+      "zip_crc32": "a47cff45"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/capture/IBlur3Hash.java",
+      "bytes": 774,
+      "sha256": "425eed59f4a8a1a3900edbafa75e5930c150e3313083c5711af214ede8eb2676",
+      "zip_crc32": "54343eab"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/drawable/BlurredBackgroundDrawable.java",
+      "bytes": 33626,
+      "sha256": "e129faa58b1dd878db97217cbb3078ad8052c461b7778eef584bbcea7f888d3e",
+      "zip_crc32": "00383417"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/drawable/BlurredBackgroundDrawableRenderNode.java",
+      "bytes": 7749,
+      "sha256": "a6177c41d320192554350208550a3f87616b3cab6e82e2dabc444bafef5af744",
+      "zip_crc32": "0e16ab61"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/drawable/BlurredBackgroundDrawableSource.java",
+      "bytes": 718,
+      "sha256": "b60f53632efcb8823f4612028bdf3e4f257e0b02d9944718234f413c0d659074",
+      "zip_crc32": "18cc4d85"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/drawable/color/BlurredBackgroundColorProvider.java",
+      "bytes": 305,
+      "sha256": "794caaf151b52fffb8614368650dc1a1e31a4ed6cb7dcb73b917105b4f3a9b26",
+      "zip_crc32": "46e67883"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/drawable/color/BlurredBackgroundColorProviderThemed.java",
+      "bytes": 2198,
+      "sha256": "e6e8ba14eccb6e4a364673517504211ef6d956b7137dbf321eefd8bc97f653ff",
+      "zip_crc32": "a7b174b3"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/drawable/color/BlurredBackgroundProvider.java",
+      "bytes": 535,
+      "sha256": "0cefcccc6ab0ee8b894f62aa11163add941d2cd0c930717f2e39653f2da7eb95",
+      "zip_crc32": "d37f8b54"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/drawable/color/BlurredBackgroundProviderBuilder.java",
+      "bytes": 4064,
+      "sha256": "3857115b3e6883f128520f7b5dd3f178fc37afa292216c0052dbbc1c8ce1312f",
+      "zip_crc32": "3ec6b3ff"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/drawable/color/impl/BlurredBackgroundProviderImpl.java",
+      "bytes": 17455,
+      "sha256": "cd8ef046d1c210a7ac6d0dbdce37d39263f8099fa86eca4903681a1f0e2939ca",
+      "zip_crc32": "a3b3760b"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/source/BlurredBackgroundSource.java",
+      "bytes": 400,
+      "sha256": "1d1bec5d1ff17936d67069db4f804ff3f4f5469e9b56ba56e4e904696ed8bc11",
+      "zip_crc32": "29b21e08"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/source/BlurredBackgroundSourceBitmap.java",
+      "bytes": 4897,
+      "sha256": "448188f60bbb46ad0fbecd58286a76af4e9e95cc99abebe0edfa4916b98cc5bf",
+      "zip_crc32": "c9d61c52"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/source/BlurredBackgroundSourceColor.java",
+      "bytes": 866,
+      "sha256": "ec51826942bec581db111b2bec2929d7c309657311153f8f55120820d5e22042",
+      "zip_crc32": "15a6ba17"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/source/BlurredBackgroundSourceRenderNode.java",
+      "bytes": 6376,
+      "sha256": "a0bc4359255b61e5be62d85848c28c435e58c476c335d30cdea417b5fb8bec9c",
+      "zip_crc32": "7517d894"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/source/BlurredBackgroundSourceWrapped.java",
+      "bytes": 945,
+      "sha256": "b5c61a7e19af6b9f53796e9c372cf1f7ce0801b8b669dd2a86fa0f04faebfa15",
+      "zip_crc32": "93cf5206"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/utils/BitmapChangeTracker.java",
+      "bytes": 1804,
+      "sha256": "9375e1048975467cb5c7054d7d01d7629491259f7a689d34b3e61afafbeed417",
+      "zip_crc32": "d62dc513"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/utils/BitmapMemoizedMetadata.java",
+      "bytes": 681,
+      "sha256": "dababf06cc12a2c9a3fa27fa14ee1ed36dbe2c45270cb5b3edca14a051b0d87c",
+      "zip_crc32": "8c1a516f"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/utils/Blur3Utils.java",
+      "bytes": 4123,
+      "sha256": "2ef258379c7dd2240459edb1f799ece3b141b27bb65b1f2fd93c0bdb02e5cd1e",
+      "zip_crc32": "9a9fc952"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/utils/NinePatchBuilder.java",
+      "bytes": 9289,
+      "sha256": "388517934de66691c25e5c5eadfddd80a6cba19192035cbe412dde78761f2cc7",
+      "zip_crc32": "5fe3a7d8"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/glass/GlassTabView.java",
+      "bytes": 27404,
+      "sha256": "71b7595b3e4f240970ac633cb468e06d220f288f14e525016cbfcd6b398c52f7",
+      "zip_crc32": "eb108c53"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/Components/glass/GlassTabsView.java",
+      "bytes": 2283,
+      "sha256": "2a9978dc9789fee694928702a53986d597d461fb7450f46c29d7d75105b525e9",
+      "zip_crc32": "8ff10b39"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/DialogsActivity.java",
+      "bytes": 766879,
+      "sha256": "f733ff0b35d4f527dd3d3e5780d3e1476273bc1fc6ea130cf2406ea26bd4487d",
+      "zip_crc32": "23bf6f43"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/MainTabsLayout.java",
+      "bytes": 22988,
+      "sha256": "7013cab03317c0e1a1c587ec891fc13d775a1ce60ddb646f7ac147f882f39575",
+      "zip_crc32": "ae603c5b"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/ProfileActivity.java",
+      "bytes": 931034,
+      "sha256": "ca3869ffb45eac5a62fc1e780b8b5a45deddcacfc9ed1d6bdbdda93d0625f867",
+      "zip_crc32": "a7c207d9"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/ui/ProfileStoriesCollectionTabs.java",
+      "bytes": 13459,
+      "sha256": "2a58c3a11f0afe62a9e409a04e00a9218488995286b115008824341f19f187c6",
+      "zip_crc32": "611e9057"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/utils/glass/GlassEngine.java",
+      "bytes": 12356,
+      "sha256": "73674526e2ea6093f2b08bc52d589d9df8fe7a7f73f16a6f34137da98e965e2e",
+      "zip_crc32": "7ace5e13"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/utils/glass/positions/GlassPositionsArray.java",
+      "bytes": 4176,
+      "sha256": "dad65e799661bb5b06dca19255679a6454a531d3f2b376adc801165775ea04e3",
+      "zip_crc32": "fd3074f3"
+    },
+    {
+      "path": "Telegram-master/TMessagesProj/src/main/java/org/telegram/utils/glass/positions/GlassPositionsMerger.java",
+      "bytes": 5884,
+      "sha256": "4b20970f06f0a9509d2a033fb65321ef8614b51036a756e4f879717a9b96f301",
+      "zip_crc32": "32273b1a"
+    }
+  ],
+  "definitions": [
+    {
+      "role": "windowBackgroundGray",
+      "path": "java/org/telegram/ui/ActionBar/ThemeColors.java",
+      "line": 133,
+      "argb": "FFF1F1F3"
+    },
+    {
+      "role": "windowBackgroundWhite",
+      "path": "java/org/telegram/ui/ActionBar/ThemeColors.java",
+      "line": 79,
+      "argb": "FFFFFFFF"
+    },
+    {
+      "role": "windowBackgroundWhiteBlackText",
+      "path": "java/org/telegram/ui/ActionBar/ThemeColors.java",
+      "line": 107,
+      "argb": "FF1A1D21"
+    },
+    {
+      "role": "windowBackgroundWhiteGrayText",
+      "path": "java/org/telegram/ui/ActionBar/ThemeColors.java",
+      "line": 99,
+      "argb": "FF808384"
+    },
+    {
+      "role": "dialogBackground",
+      "path": "java/org/telegram/ui/ActionBar/ThemeColors.java",
+      "line": 24,
+      "argb": "FFFFFFFF"
+    },
+    {
+      "role": "dialogTextBlack",
+      "path": "java/org/telegram/ui/ActionBar/ThemeColors.java",
+      "line": 26,
+      "argb": "FF1A1D21"
+    },
+    {
+      "role": "dialogTextGray",
+      "path": "java/org/telegram/ui/ActionBar/ThemeColors.java",
+      "line": 32,
+      "argb": "FF348BC1"
+    },
+    {
+      "role": "glass_defaultIcon",
+      "path": "java/org/telegram/ui/ActionBar/ThemeColors.java",
+      "line": 872,
+      "argb": "991B2227"
+    },
+    {
+      "role": "glass_defaultText",
+      "path": "java/org/telegram/ui/ActionBar/ThemeColors.java",
+      "line": 873,
+      "argb": "991B2227"
+    },
+    {
+      "role": "glass_targetMainTabs",
+      "path": "java/org/telegram/ui/ActionBar/ThemeColors.java",
+      "line": 874,
+      "argb": "FFFFFFFF"
+    },
+    {
+      "role": "glass_targetMainTopPanel",
+      "path": "java/org/telegram/ui/ActionBar/ThemeColors.java",
+      "line": 875,
+      "argb": "FFFFFFFF"
+    },
+    {
+      "role": "glass_tabSelected",
+      "path": "java/org/telegram/ui/ActionBar/ThemeColors.java",
+      "line": 876,
+      "argb": "FF1A91E6"
+    },
+    {
+      "role": "glass_tabSelectedText",
+      "path": "java/org/telegram/ui/ActionBar/ThemeColors.java",
+      "line": 877,
+      "argb": "FF0D7FCF"
+    },
+    {
+      "role": "glass_tabUnselected",
+      "path": "java/org/telegram/ui/ActionBar/ThemeColors.java",
+      "line": 878,
+      "argb": "FF1A1D21"
+    },
+    {
+      "role": "profile_actionBackground",
+      "path": "java/org/telegram/ui/ActionBar/ThemeColors.java",
+      "line": 540,
+      "argb": "FFFFFFFF"
+    },
+    {
+      "role": "profile_tabText",
+      "path": "java/org/telegram/ui/ActionBar/ThemeColors.java",
+      "line": 549,
+      "argb": "FF878C90"
+    },
+    {
+      "role": "profile_tabSelectedText",
+      "path": "java/org/telegram/ui/ActionBar/ThemeColors.java",
+      "line": 550,
+      "argb": "FF3A95D5"
+    },
+    {
+      "role": "profile_tabSelectedLine",
+      "path": "java/org/telegram/ui/ActionBar/ThemeColors.java",
+      "line": 551,
+      "argb": "FF4FA6E9"
+    },
+    {
+      "role": "profile_tabSelector",
+      "path": "java/org/telegram/ui/ActionBar/ThemeColors.java",
+      "line": 552,
+      "argb": "0F000000"
+    },
+    {
+      "role": "chat_messagePanelSend",
+      "path": "java/org/telegram/ui/ActionBar/ThemeColors.java",
+      "line": 502,
+      "argb": "FF229AF0"
+    },
+    {
+      "role": "actionBarDefaultSelector",
+      "path": "java/org/telegram/ui/ActionBar/ThemeColors.java",
+      "line": 199,
+      "argb": "121A1D21"
+    },
+    {
+      "role": "chats_menuItemIcon",
+      "path": "java/org/telegram/ui/ActionBar/ThemeColors.java",
+      "line": 268,
+      "argb": "FF889198"
+    },
+    {
+      "role": "divider",
+      "path": "java/org/telegram/ui/ActionBar/ThemeColors.java",
+      "line": 136,
+      "argb": "FFD9D9D9"
+    },
+    {
+      "role": "listSelector",
+      "path": "java/org/telegram/ui/ActionBar/ThemeColors.java",
+      "line": 129,
+      "argb": "0F000000"
+    },
+    {
+      "role": "windowBackgroundGray",
+      "path": "assets/night.attheme",
+      "line": 61,
+      "argb": "FF000000"
+    },
+    {
+      "role": "windowBackgroundWhite",
+      "path": "assets/night.attheme",
+      "line": 235,
+      "argb": "FF181819"
+    },
+    {
+      "role": "windowBackgroundWhiteBlackText",
+      "path": "assets/night.attheme",
+      "line": 88,
+      "argb": "FFFFFFFF"
+    },
+    {
+      "role": "windowBackgroundWhiteGrayText",
+      "path": "assets/night.attheme",
+      "line": 314,
+      "argb": "6EFFFFFF"
+    },
+    {
+      "role": "dialogBackground",
+      "path": "assets/night.attheme",
+      "line": 137,
+      "argb": "FF1E1E1E"
+    },
+    {
+      "role": "dialogTextBlack",
+      "path": "assets/night.attheme",
+      "line": 319,
+      "argb": "FFF6F6F6"
+    },
+    {
+      "role": "dialogTextGray",
+      "path": "assets/night.attheme",
+      "line": 238,
+      "argb": "FF7D7D7D"
+    },
+    {
+      "role": "glass_defaultIcon",
+      "path": "assets/night.attheme",
+      "line": 488,
+      "argb": "A0FFFFFF"
+    },
+    {
+      "role": "glass_defaultText",
+      "path": "assets/night.attheme",
+      "line": 489,
+      "argb": "A0FFFFFF"
+    },
+    {
+      "role": "glass_targetMainTabs",
+      "path": "assets/night.attheme",
+      "line": 490,
+      "argb": "FF232324"
+    },
+    {
+      "role": "glass_targetMainTopPanel",
+      "path": "assets/night.attheme",
+      "line": 491,
+      "argb": "FF232324"
+    },
+    {
+      "role": "profile_actionBackground",
+      "path": "assets/night.attheme",
+      "line": 279,
+      "argb": "FF4F9ADB"
+    },
+    {
+      "role": "profile_tabText",
+      "path": "assets/night.attheme",
+      "line": 203,
+      "argb": "78FFFFFF"
+    },
+    {
+      "role": "profile_tabSelector",
+      "path": "assets/night.attheme",
+      "line": 227,
+      "argb": "0FFFFFFF"
+    },
+    {
+      "role": "chat_messagePanelSend",
+      "path": "assets/night.attheme",
+      "line": 158,
+      "argb": "FF229AF0"
+    },
+    {
+      "role": "actionBarDefaultSelector",
+      "path": "assets/night.attheme",
+      "line": 324,
+      "argb": "16FFFFFF"
+    },
+    {
+      "role": "chats_menuItemIcon",
+      "path": "assets/night.attheme",
+      "line": 292,
+      "argb": "FF828282"
+    },
+    {
+      "role": "divider",
+      "path": "assets/night.attheme",
+      "line": 101,
+      "argb": "FF000000"
+    }
+  ]
+}

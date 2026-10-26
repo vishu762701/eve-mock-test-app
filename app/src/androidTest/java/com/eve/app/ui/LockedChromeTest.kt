@@ -90,17 +90,21 @@ class LockedChromeTest {
                 fun pixel(bitmap: Bitmap, x: Int, y: Int) = bitmap.getPixel((x * density).toInt(), (y * density).toInt())
                 fun closeColor(expected: Int, actual: Int) {
                     for (channel in listOf<(Int) -> Int>(android.graphics.Color::red, android.graphics.Color::green, android.graphics.Color::blue))
-                        assertTrue("Glass tint matches 55% rather than opaque/94% fallback: $expected / $actual", kotlin.math.abs(channel(expected) - channel(actual)) <= 10)
+                        assertTrue("Glass tint matches source non-liquid coating: $expected / $actual", kotlin.math.abs(channel(expected) - channel(actual)) <= 10)
                 }
                 val first = capture()
                 val expectedLeft = ColorUtils.compositeColors(tint, leftColor)
                 val expectedRight = ColorUtils.compositeColors(tint, rightColor)
                 closeColor(expectedLeft, pixel(first, 40, 80))
                 closeColor(expectedRight, pixel(first, 120, 80))
-                val center = android.graphics.Color.red(pixel(first, 80, 80))
-                val lo = minOf(android.graphics.Color.red(expectedLeft), android.graphics.Color.red(expectedRight))
-                val hi = maxOf(android.graphics.Color.red(expectedLeft), android.graphics.Color.red(expectedRight))
-                assertTrue("A sharp source edge becomes a blurred transition", center > lo + 15 && center < hi - 15)
+                // Choose the most separated channel: the new source blue is not a white/black checker.
+                val channels = listOf<(Int) -> Int>(android.graphics.Color::red, android.graphics.Color::green, android.graphics.Color::blue)
+                val channel = channels.maxByOrNull { kotlin.math.abs(it(expectedLeft) - it(expectedRight)) }!!
+                val center = channel(pixel(first, 80, 80))
+                val lo = minOf(channel(expectedLeft), channel(expectedRight))
+                val hi = maxOf(channel(expectedLeft), channel(expectedRight))
+                val margin = (hi - lo) * .2f
+                assertTrue("A sharp source edge becomes a blurred transition", center > lo + margin && center < hi - margin)
                 assertEquals("Foreground stays sharp and untinted", foreground, pixel(first, 36, 36))
                 first.recycle()
                 scenario.onActivity {

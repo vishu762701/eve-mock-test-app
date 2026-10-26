@@ -35,7 +35,7 @@ object DesignSurfaces {
     fun sheet(view: View) {
         val shape = ShapeAppearanceModel.builder(view.context, R.style.ShapeAppearance_Eve_Token_Sheet, 0).build()
         view.background = MaterialShapeDrawable(shape).apply {
-            fillColor = ContextCompat.getColorStateList(view.context, R.color.surface)
+            fillColor = ContextCompat.getColorStateList(view.context, R.color.dialog_surface)
         }
     }
 }

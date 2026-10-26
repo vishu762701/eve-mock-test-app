@@ -55,7 +55,7 @@ class TaskBToEVerificationTest {
     fun testAppBackgroundRemainsPureWhiteAndBlack() {
         val light = File("src/main/res/values/design_colors.xml").readText()
         val dark = File("src/main/res/values-night/design_colors.xml").readText()
-        assertTrue(light.contains("<color name=\"bg_app\">#F5F5F5</color>"))
+        assertTrue(light.contains("<color name=\"bg_app\">#F1F1F3</color>"))
         assertTrue(dark.contains("<color name=\"bg_app\">#000000</color>"))
     }
 

@@ -856,7 +856,7 @@ object ThemeManager {
         )
         touchLockInstalled = true
 
-        val targetBg = ContextCompat.getColor(activity, R.color.eve_bg)
+        val targetBg = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(activity).windowBackground
         val origStatusBarColor = activity.window.statusBarColor
         val origNavBarColor = activity.window.navigationBarColor
 

@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Editable theme palette; update both modes, consumers and meaningful tests together. -->
-    <color name="surface_inset">#F5F5F5</color>
-    <color name="text_primary">#000000</color>
-    <color name="text_secondary">#6C6C70</color>
-    <color name="hairline">#1F000000</color>
-    <color name="track">#29787880</color>
-    <color name="accent">#000000</color>
-    <color name="on_accent">#FFFFFF</color>
+    <!-- Source-derived default roles; source mapping and AA accommodations: docs/color-migration/. -->
+    <color name="surface_inset">#F1F1F3</color>
+    <color name="text_primary">#1A1D21</color>
+    <color name="text_secondary">#6C6E6F</color>
+    <color name="hairline">#D9D9D9</color>
+    <color name="track">#0F000000</color>
+    <color name="accent">#229AF0</color>
+    <color name="on_accent">#000000</color>
     <color name="solid_white">#FFFFFF</color>
     <color name="transparent">#00000000</color>
-    <color name="glass_tint">#8CFFFFFF</color>
-    <color name="glass_fallback">#F0FFFFFF</color>
+    <color name="glass_tint">#C2FFFFFF</color>
+    <color name="glass_fallback">#C2FFFFFF</color>
     <color name="card_shadow">#29000000</color>
     <color name="navigation_legacy_background">#000000</color>
     <color name="solid_black">#000000</color>
 <color name="modal_scrim">#26000000</color>
 
 
-    <color name="bg_app">#F5F5F5</color>
+    <color name="bg_app">#F1F1F3</color>
     <color name="surface">#FFFFFF</color>
     <color name="system_red">#FF383C</color>
     <color name="system_red_container">#1FFF383C</color>
@@ -34,4 +34,5 @@
     <color name="system_purple_container">#1FCB30E0</color>
     <color name="system_yellow">#FFCC00</color>
     <color name="system_yellow_container">#1FFFCC00</color>
+    <color name="dialog_surface">#FFFFFF</color>
 </resources>

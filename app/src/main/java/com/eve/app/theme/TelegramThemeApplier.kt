@@ -52,6 +52,7 @@ object TelegramThemeApplier {
         when (view) {
             is EveBottomPillBar -> {
                 view.updateThemePalette(palette)
+                return // GlassTabView owns animated source colors and AA foregrounds.
             }
             is DesignSegmentedTabs -> {
                 // TabLayout owns its selected/unselected label colors. Recursing into
@@ -145,8 +146,8 @@ object TelegramThemeApplier {
         } else {
             // Preserve caller-owned custom colors; reclassify only known defaults.
             when (current) {
-                Color.BLACK, Color.WHITE -> TextColorRole.PRIMARY
-                0xFF6C6C70.toInt(), 0xFFA1A1A6.toInt() -> TextColorRole.SECONDARY
+                Color.BLACK, Color.WHITE, 0xFF1A1D21.toInt() -> TextColorRole.PRIMARY
+                0xFF6C6C70.toInt(), 0xFFA1A1A6.toInt(), 0xFF6C6E6F.toInt(), 0x75FFFFFF -> TextColorRole.SECONDARY
                 else -> null
             }
         }

@@ -55,9 +55,12 @@ class EveBottomPillBar @JvmOverloads constructor(
         clipToPadding = false
 
         backgroundDrawable = TelegramGlassBackgroundDrawable(context)
-        glassBackgroundView = android.view.View(context).apply {
+        glassBackgroundView = com.eve.app.designsystem.DesignGlassLayout(context).apply {
+            useCapsuleShape()
+            mainTabsCoating = true
+            drawHairline = false
             layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-            background = backgroundDrawable
+            foreground = backgroundDrawable
         }
         addView(glassBackgroundView)
 
@@ -162,9 +165,7 @@ class EveBottomPillBar @JvmOverloads constructor(
         currentPalette = palette
         backgroundDrawable.setPalette(palette)
         tabsLayout.updatePalette(palette)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            LiquidGlassHelper.apply(glassBackgroundView, context, palette)
-        }
+        (glassBackgroundView as com.eve.app.designsystem.DesignGlassLayout).updatePalette(palette)
         invalidate()
     }
 
@@ -181,13 +182,6 @@ class EveBottomPillBar @JvmOverloads constructor(
             minOf(available, maxWidth)
         }
         super.onMeasure(MeasureSpec.makeMeasureSpec(boundedWidth, MeasureSpec.EXACTLY), heightMeasureSpec)
-    }
-
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        super.onSizeChanged(w, h, oldw, oldh)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && currentPalette != null) {
-            LiquidGlassHelper.apply(glassBackgroundView, context, currentPalette!!)
-        }
     }
 
     private fun dp(value: Int): Int {
@@ -229,14 +223,8 @@ class EveBottomPillBar @JvmOverloads constructor(
 
         fun setPalette(palette: TelegramThemeEngine.ResolvedPalette) {
             isDark = palette.isDark
-            val bgTarget = palette.glassTargetMainTabs
-            val bgSurface = palette.surface
-            // Source coating alpha is 0.85 with liquid glass, 0.76 fallback
-            val alpha = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) 0.85f else 0.76f
-            val fillColor = TelegramThemeEngine.solveSrcColor(bgSurface, bgTarget, alpha)
-
-            paintFill.color = fillColor
-
+            // Source non-liquid branch: the BlurView behind this foreground draws the
+            // captured backdrop plus solveSrcColor(surface, target, .76) exactly once.
             // Stroke colors from source:
             // setStrokeColorTop(0x11000000, 0x06FFFFFF)
             // setStrokeColorBottom(0x20000000, 0x11FFFFFF)
@@ -261,10 +249,8 @@ class EveBottomPillBar @JvmOverloads constructor(
         }
 
         override fun draw(canvas: Canvas) {
-            // Shadow layer
-            canvas.drawRoundRect(rect, radius, radius, paintShadow)
-            // Fill
-            canvas.drawRoundRect(rect, radius, radius, paintFill)
+            // Do not fill the entire capsule with the shadow paint or double-coat it.
+            // BlurView owns the backdrop/coating; this foreground owns source edge colors.
             // Top stroke (clipped to top)
             drawStroke(canvas, rect, radius, strokeTopWidth, true, paintStrokeTop)
             // Bottom stroke (clipped to bottom)
@@ -321,58 +307,4 @@ class EveBottomPillBar @JvmOverloads constructor(
         override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
     }
 
-    @androidx.annotation.RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    private object LiquidGlassHelper {
-        private var runtimeShader: android.graphics.RuntimeShader? = null
-
-        fun apply(view: android.view.View, context: Context, palette: TelegramThemeEngine.ResolvedPalette) {
-            try {
-                if (runtimeShader == null) {
-                    val code = context.resources.openRawResource(R.raw.liquid_glass_shader).bufferedReader().use { it.readText() }
-                    runtimeShader = android.graphics.RuntimeShader(code)
-                }
-                val shader = runtimeShader ?: run {
-                    view.setRenderEffect(null)
-                    return
-                }
-                val w = view.width.toFloat()
-                val h = view.height.toFloat()
-                if (w <= 0f || h <= 0f) {
-                    view.setRenderEffect(null)
-                    return
-                }
-
-                val density = context.resources.displayMetrics.density
-                val radius = 28f * density
-
-                // In Telegram's liquid_glass_shader.agsl:
-                // srcOver(foreground_color_premultiplied, img.eval(uv))
-                // outRGB = src.rgb + dst.rgb * (1.0 - src.a)
-                // A direct opaque palette target (alpha=1.0) zeroes out sampled backdrop.
-                // Translucent coating alpha (0.55f) ensures the backdrop is refracted and visible.
-                val bgTarget = palette.glassTargetMainTabs
-                val bgSurface = palette.surface
-                val coating = TelegramThemeEngine.solveSrcColor(bgSurface, bgTarget, 0.55f)
-                val a = (Color.alpha(coating) / 255f).coerceIn(0.20f, 0.70f)
-                val r = Color.red(coating) / 255f * a
-                val g = Color.green(coating) / 255f * a
-                val b = Color.blue(coating) / 255f * a
-
-                shader.setFloatUniform("resolution", w, h)
-                shader.setFloatUniform("center", w / 2f, h / 2f)
-                shader.setFloatUniform("size", w / 2f, h / 2f)
-                shader.setFloatUniform("radius", radius, radius, radius, radius)
-                shader.setFloatUniform("thickness", 20f * density)
-                shader.setFloatUniform("refract_intensity", 0.15f)
-                shader.setFloatUniform("refract_index", 1.33f)
-                shader.setFloatUniform("foreground_color_premultiplied", r, g, b, a)
-
-                val effect = android.graphics.RenderEffect.createRuntimeShaderEffect(shader, "img")
-                view.setRenderEffect(effect)
-            } catch (_: Throwable) {
-                // Supported fallback: clear render effect, backgroundDrawable draws solid coating & strokes
-                view.setRenderEffect(null)
-            }
-        }
-    }
 }

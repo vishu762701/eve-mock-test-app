@@ -124,8 +124,8 @@ class HomeSemanticColorsTest {
     @Test
     fun testOfficialAppleBackgroundHierarchy_forHome() {
         for ((folder, bg, card, inset) in listOf(
-            listOf("values", "#F5F5F5", "#FFFFFF", "#F5F5F5"),
-            listOf("values-night", "#000000", "#1C1C1E", "#2C2C2E")
+            listOf("values", "#F1F1F3", "#FFFFFF", "#F1F1F3"),
+            listOf("values-night", "#000000", "#181819", "#000000")
         )) {
             val colors = loadColors("src/main/res/$folder/design_colors.xml")
             assertEquals(bg, colors["bg_app"])
@@ -139,7 +139,7 @@ class HomeSemanticColorsTest {
     fun testOfficialAppleLabelHierarchy_forHome() {
         val light = loadColors("src/main/res/values/design_colors.xml")
         val dark = loadColors("src/main/res/values-night/design_colors.xml")
-        assertEquals("#000000", light["text_primary"])
+        assertEquals("#1A1D21", light["text_primary"])
         assertEquals("#FFFFFF", dark["text_primary"])
         assertEquals("#6C6C70", light["text_secondary"])
         assertEquals("#A1A1A6", dark["text_secondary"])
@@ -247,10 +247,10 @@ class HomeSemanticColorsTest {
 
         val light = loadColors("src/main/res/values/design_colors.xml")
         val dark = loadColors("src/main/res/values-night/design_colors.xml")
-        assertEquals("#F5F5F5", light["bg_app"])
+        assertEquals("#F1F1F3", light["bg_app"])
         assertEquals("#FFFFFF", light["surface"])
         assertEquals("#000000", dark["bg_app"])
-        assertEquals("#1C1C1E", dark["surface"])
+        assertEquals("#181819", dark["surface"])
     }
     @Test
     fun segmentedTabSelectedTextPairsWithItsRealIndicatorInBothModes() {

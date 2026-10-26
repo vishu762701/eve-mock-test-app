@@ -162,11 +162,11 @@ class ContrastTokensTest {
     fun testAppleSemanticBackgroundHierarchy_inLightAndDark() {
         val light = loadColors("src/main/res/values/design_colors.xml")
         val dark = loadColors("src/main/res/values-night/design_colors.xml")
-        assertEquals("#F5F5F5", light["bg_app"])
+        assertEquals("#F1F1F3", light["bg_app"])
         assertEquals("#FFFFFF", light["surface"])
         assertEquals("#000000", dark["bg_app"])
-        assertEquals("#1C1C1E", dark["surface"])
-        assertEquals("#2C2C2E", dark["surface_inset"])
+        assertEquals("#181819", dark["surface"])
+        assertEquals("#000000", dark["surface_inset"])
     }
 
     @Test

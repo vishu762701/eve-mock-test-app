@@ -68,15 +68,15 @@ class SurfaceMaterialTest {
     @Test fun glassTokensUseMediumTintAndAvailabilityFallback() {
         val light = loadColors("src/main/res/values/design_colors.xml")
         val dark = loadColors("src/main/res/values-night/design_colors.xml")
-        assertEquals("#8CFFFFFF", light["glass_tint"])
-        assertEquals("#8C2C2C2E", dark["glass_tint"])
-        assertEquals("#F0FFFFFF", light["glass_fallback"])
-        assertEquals("#F02C2C2E", dark["glass_fallback"])
+        assertEquals("#C2FFFFFF", light["glass_tint"])
+        assertEquals("#C2262627", dark["glass_tint"])
+        assertEquals("#C2FFFFFF", light["glass_fallback"])
+        assertEquals("#C2262627", dark["glass_fallback"])
     }
     @Test fun panelsHaveSolidSurfaceAndSharedRadiusWithoutOutline() {
         val panel = loadXml("src/main/res/drawable/design_surface_panel.xml")
         assertEquals("shape", panel.documentElement.tagName)
-        assertEquals("@color/surface", (panel.getElementsByTagName("solid").item(0) as Element).getAttribute("android:color"))
+        assertEquals("@color/dialog_surface", (panel.getElementsByTagName("solid").item(0) as Element).getAttribute("android:color"))
         assertEquals("@dimen/design_radius_card", (panel.getElementsByTagName("corners").item(0) as Element).getAttribute("android:radius"))
         assertEquals(0, panel.getElementsByTagName("stroke").length)
     }

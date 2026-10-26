@@ -182,7 +182,7 @@
         <item name="android:windowElevation">@dimen/design_card_elevation</item>
         <item name="materialAlertDialogTitlePanelStyle">@style/Widget.Eve.Token.Dialog.TitlePanel</item>
         <item name="shapeAppearance">@style/ShapeAppearance.Eve.Dialog</item>
-        <item name="colorSurface">@color/surface</item>
+        <item name="colorSurface">@color/dialog_surface</item>
         <item name="android:windowBackground">@drawable/design_surface_panel</item>
         <item name="buttonBarPositiveButtonStyle">@style/Widget.Eve.Telegram.DialogAction.Primary</item>
         <item name="buttonBarNegativeButtonStyle">@style/Widget.Eve.Telegram.DialogAction.Secondary</item>
@@ -209,7 +209,7 @@
         <item name="android:navigationBarColor">@color/bg_app</item>
     </style>
     <style name="Widget.Eve.BottomSheet.Modal" parent="Widget.Material3.BottomSheet.Modal">
-        <item name="backgroundTint">@color/surface</item>
+        <item name="backgroundTint">@color/dialog_surface</item>
         <item name="shapeAppearance">@style/ShapeAppearance.Eve.Token.Sheet</item>
     </style>
     <style name="Theme.Eve.Home" parent="Theme.Eve">

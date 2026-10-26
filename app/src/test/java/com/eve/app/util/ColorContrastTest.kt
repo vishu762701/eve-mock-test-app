@@ -160,7 +160,7 @@ class ColorContrastTest {
         assertTrue("Star/flag icon in light mode must exceed 3:1 (actual: $lightRatio)", lightRatio >= 3.0)
 
         val darkSurface = "#111111"
-        val darkIconTint = "#F5F5F5"
+        val darkIconTint = "#F1F1F3"
         val darkRatio = contrastRatio(darkIconTint, darkSurface)
         assertTrue("Star/flag icon in dark mode must exceed 3:1 (actual: $darkRatio)", darkRatio >= 3.0)
     }

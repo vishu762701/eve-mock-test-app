@@ -43,10 +43,10 @@ class ApprovedUiRenderingTest {
     private fun sp(view: android.widget.TextView, value: Int) =
         assertEquals(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP,
             value.toFloat(), context.resources.displayMetrics), view.textSize, 0.51f)
-    private val foreground get() = if (dark) Color.WHITE else Color.BLACK
-    private val canvasBackground get() = if (dark) Color.BLACK else color("#F5F5F5")
-    private val appBackground get() = if (dark) Color.BLACK else color("#F5F5F5")
-    private val buttonText get() = if (dark) Color.BLACK else Color.WHITE
+    private val foreground get() = context.getColor(R.color.text_primary)
+    private val canvasBackground get() = if (dark) Color.BLACK else color("#F1F1F3")
+    private val appBackground get() = if (dark) Color.BLACK else color("#F1F1F3")
+    private val buttonText get() = context.getColor(R.color.on_accent)
     private fun color(value: String) = Color.parseColor(value)
     private fun measure(view: View, width: Int = 360, height: Int = 844) {
         repeat(2) {
