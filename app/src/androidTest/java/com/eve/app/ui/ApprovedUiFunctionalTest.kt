@@ -114,7 +114,7 @@ class ApprovedUiFunctionalTest {
                     context.resources.displayMetrics), b.rbA.textSize, 0.51f)
                 assertEquals(1f, b.tvQuestion.lineSpacingMultiplier, 0.01f)
                 assertEquals((48f * context.resources.displayMetrics.density + 0.5f).toInt(), b.rbA.minHeight)
-                // A selected fill must not paint over the approved 2dp indicator border.
+                // Telegram's selected state is a dot inside its ring, replacing the old check glyph.
                 b.rbA.isChecked = true
                 b.rbA.jumpDrawablesToCurrentState()
                 val density = context.resources.displayMetrics.density
@@ -125,17 +125,48 @@ class ApprovedUiFunctionalTest {
                 b.rbA.layout(0, 0, width, height)
                 val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
                 b.rbA.draw(Canvas(bitmap))
-                val expectedBorder = context.getColor(R.color.on_accent)
-                val actualBorder = bitmap.getPixel((31f * density).toInt(), height / 2)
-                // At low density a curved edge shares a pixel with the green surface.
-                // Allow antialiasing, while rejecting a selected fill covering the ring.
-                assertTrue("Indicator border must remain visible in theme $night",
-                    listOf(Color.red(expectedBorder) - Color.red(actualBorder),
-                        Color.green(expectedBorder) - Color.green(actualBorder),
-                        Color.blue(expectedBorder) - Color.blue(actualBorder))
-                        .all { kotlin.math.abs(it) <= 24 })
+                val center = b.rbA.resources.getDimensionPixelSize(R.dimen.design_card_padding) +
+                    b.rbA.resources.getDimensionPixelSize(R.dimen.design_icon_size) / 2
+                assertEquals("Selected source dot", context.getColor(R.color.on_accent),
+                    bitmap.getPixel(center, height / 2))
                 bitmap.recycle()
             }
+        }
+    }
+
+    @Test fun rapidOptionsClearAndRecycledBindingKeepViewModelTruth() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        instrumentation.runOnMainSync {
+            val context = ContextThemeWrapper(instrumentation.targetContext, R.style.Theme_Eve)
+            val vm = com.eve.app.ui.test.TestViewModel()
+            val calls = mutableListOf<String>()
+            val adapter = QuestionAdapter(List(2) { Question(id = "radio-$it", questionText = "Question $it") },
+                { vm.getAnswer(it) }, { pos, answer -> calls += answer; vm.setAnswer(pos, answer) },
+                { false }, {}, { false }, {}, { 0L })
+            val holder = adapter.onCreateViewHolder(FrameLayout(context), 0)
+            val b = ItemQuestionBinding.bind(holder.itemView)
+            adapter.onBindViewHolder(holder, 0)
+            val options = listOf(b.rbA, b.rbB, b.rbC, b.rbD)
+            val sequence = listOf(0, 3, 3, 1, 2, 0, 3, 0, 2)
+            sequence.forEach { options[it].performClick() }
+            assertEquals(listOf("A", "D", "B", "C", "A", "D", "A", "C"), calls)
+            assertEquals("C", vm.getAnswer(0))
+            adapter.onBindViewHolder(holder, 1)
+            assertTrue(options.none { it.isChecked })
+            adapter.onBindViewHolder(holder, 0)
+            assertTrue(b.rbC.isChecked)
+            val count = calls.size
+            vm.setAnswer(0, "")
+            holder.clearSelection()
+            assertTrue(options.none { it.isChecked })
+            assertEquals(count, calls.size)
+            b.rbD.performClick()
+            assertEquals("D", vm.getAnswer(0))
+            assertEquals(count + 1, calls.size)
+            val recreated = adapter.onCreateViewHolder(FrameLayout(context), 0)
+            adapter.onBindViewHolder(recreated, 0)
+            assertTrue(ItemQuestionBinding.bind(recreated.itemView).rbD.isChecked)
+            assertEquals(count + 1, calls.size)
         }
     }
 

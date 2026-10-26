@@ -141,3 +141,20 @@ reuse and exact behavioural parity has not been independently established.
 No Telegram service marks or strings are imported. This file-specific license
 header does not establish compatibility for all other Telegram assets or the
 combined release binary; the production GPL release gate remains mandatory.
+
+### Mock-test Telegram radio indicator adaptation
+
+`app/src/main/java/com/eve/app/ui/common/TelegramRadioIndicator.kt` derives the
+no-icon drawing and checked-progress transition from official Telegram
+`Components/RadioButton.java` at revision
+`0aae959806c57be8ad457980f2a5c6277ff18635` (SHA-256
+`2422b0fecc33129021ec0654f66f0ec3dd5be78c1191890a5ff25b0758abb61b`).
+`Cells/RadioButtonCell.java` (SHA-256
+`7745a9d5ac7a9e6f52e5089ab8b1c221f16db06c5edac5225eb6f772a610c0c2`)
+provides the 20dp size and binding/accessibility reference. Both original headers
+credit Nikolai Kudashov, 2013–2018, and explicitly grant GPL version 2 or later.
+The upstream bytes match the owner's original reference file hashes; the original
+ZIP was not available and its whole-archive hash was not verified in this mission.
+See `docs/telegram-radio-indicator.md` for compatibility deviations. Preserve the
+bundled GPL text and corresponding modified source; all existing production
+release clearance/signing guards and other component obligations still apply.

@@ -99,6 +99,9 @@ object TelegramThemeApplier {
                 view.buttonTintList = ColorStateList.valueOf(palette.accent)
                 view.setTextColor(palette.textPrimary)
             }
+            is com.eve.app.ui.common.TelegramRadioButton -> {
+                view.updatePalette(palette)
+            }
             is RadioButton -> {
                 view.buttonTintList = ColorStateList.valueOf(palette.accent)
                 view.setTextColor(palette.textPrimary)
