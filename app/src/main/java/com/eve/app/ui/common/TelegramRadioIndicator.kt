@@ -63,7 +63,7 @@ internal class TelegramRadioIndicator(
             return
         }
         // ValueAnimator uses the same default accelerate/decelerate interpolation as ObjectAnimator.
-        animator = ValueAnimator.ofFloat(progress, if (checked) 1f else 0f).apply {
+        val transition = ValueAnimator.ofFloat(progress, if (checked) 1f else 0f).apply {
             duration = TRANSITION_MS
             addUpdateListener { progress = it.animatedValue as Float; invalidateSelf() }
             addListener(object : AnimatorListenerAdapter() {
@@ -71,8 +71,11 @@ internal class TelegramRadioIndicator(
                     if (animator === animation) animator = null
                 }
             })
-            start()
         }
+        // Publish before start: duration scale can become zero between the check
+        // above and start(), causing an immediate end callback.
+        animator = transition
+        transition.start()
     }
 
     private fun cancelAnimation() {

@@ -93,6 +93,8 @@ class ApprovedUiFunctionalTest {
                 val b = ItemQuestionBinding.bind(holder.itemView)
                 assertEquals(R.id.rbB, b.rgOptions.checkedRadioButtonId)
                 assertTrue("Restoring a saved answer must not submit a selection", calls.isEmpty())
+                assertEquals(context.getColor(R.color.on_accent), b.rbB.currentTextColor)
+                assertEquals(context.getColor(R.color.text_primary), b.rbA.currentTextColor)
                 b.rbA.performClick()
                 assertEquals(listOf("A"), calls)
                 holder.clearSelection()

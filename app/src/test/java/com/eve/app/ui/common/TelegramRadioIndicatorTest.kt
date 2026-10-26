@@ -44,6 +44,10 @@ class TelegramRadioIndicatorTest {
         assertNull(indicator.animator)
         shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(1))
         assertEquals(1f, indicator.progress, 0f)
+        indicator.setChecked(false, true)
+        indicator.animator!!.end()
+        assertEquals(0f, indicator.progress, 0f)
+        assertNull(indicator.animator)
     }
 
     @Test fun reducedMotionSettlesEvenAnInterruptedTransition() {
