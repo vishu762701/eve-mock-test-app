@@ -60,14 +60,8 @@ class SharedDesignSystemTest {
                     assertNotNull("Controls retain native pressed feedback", button.rippleColor)
                     assertTrue(android.graphics.Color.alpha(button.rippleColor!!.getColorForState(
                         intArrayOf(android.R.attr.state_enabled, android.R.attr.state_pressed), 0)) > 0)
-                    val minContrast = if (button.currentTextColor == context.getColor(R.color.on_accent)) 3.0 else 4.5
-                    if (button.backgroundTintList!!.getColorForState(button.drawableState, 0) == context.getColor(R.color.system_red)) {
-                        assertEquals("Destructive controls keep the owner's white label", context.getColor(R.color.solid_white), button.currentTextColor)
-                    } else if (button.currentTextColor == context.getColor(R.color.system_blue)) {
-                        // ADR-009 exact-blue exception; all other labels retain their AA gate.
-                        assertEquals(context.getColor(R.color.system_blue), button.currentTextColor)
-                    } else assertTrue("Enabled control labels meet AA", ColorUtils.calculateContrast(
-                        button.currentTextColor, ColorUtils.compositeColors(button.backgroundTintList!!.getColorForState(button.drawableState, 0), context.getColor(R.color.bg_app))) >= minContrast)
+                    assertTrue("Enabled normal-sized control labels meet 4.5:1, including destructive/semantic labels", ColorUtils.calculateContrast(
+                        button.currentTextColor, ColorUtils.compositeColors(button.backgroundTintList!!.getColorForState(button.drawableState, 0), context.getColor(R.color.bg_app))) >= 4.5)
                 }
                 assertTrue(ColorUtils.calculateContrast(secondary.currentTextColor, context.getColor(R.color.bg_app)) >= 4.5)
                 assertEquals(context.getColor(R.color.on_accent), buttons[0].currentTextColor)

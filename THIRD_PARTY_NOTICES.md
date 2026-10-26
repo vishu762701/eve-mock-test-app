@@ -119,7 +119,7 @@ Two further original Telegram static RGBA icons from the owner-supplied official
   - `msg_home.webp`, `msg_theme.webp`, `msg_palette.webp`
 - **Theme and Navigation Components:**
   - `TelegramThemeEngine`: `.attheme` parsing, `changeColorAccent` HSV shift, fallback chain, House Day/9 and Night/0 defaults.
-  - Bundled themes (`day.attheme`, `night.attheme`, `arctic.attheme`, `darkblue.attheme`, `bluebubbles.attheme`) in `app/src/main/assets/themes/`.
+  - Historical Mission 02 bundled themes (`day.attheme`, `night.attheme`, `arctic.attheme`, `darkblue.attheme`, `bluebubbles.attheme`) in `app/src/main/assets/themes/`.
   - Settings > Appearance (`AppearanceActivity` and `activity_appearance.xml`) theme picker and preview.
   - Floating bottom navigation pill (`MainTabsLayout`, `GlassTabView`, `EveBottomPillBar`, `EveNavigationHost`) with Telegram's 320ms decelerate capsule animation, 56dp height, 8dp margin, 344dp max width, and `BlurredBackgroundProviderImpl.mainTabs()` glass drawable with AGSL shader fallback.
   - Tab Settings animation (`tab_settings.json`) in `app/src/main/res/raw/`.

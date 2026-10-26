@@ -81,7 +81,7 @@ class DesignRecoveryTest {
                     for (position in listOf(0, 1, 0)) {
                         examAdapter.onBindViewHolder(examHolder, position)
                         assertTrue("Bound and recycled Home metadata must remain readable in both themes",
-                            if (position == 1) exam.tvExamTime.currentTextColor == context.getColor(R.color.system_green)
+                            if (position == 1) exam.tvExamTime.currentTextColor == context.getColor(R.color.system_green_text)
                             else androidx.core.graphics.ColorUtils.calculateContrast(exam.tvExamTime.currentTextColor, context.getColor(R.color.surface)) >= 4.5)
                     }
                     examAdapter.onViewRecycled(examHolder)

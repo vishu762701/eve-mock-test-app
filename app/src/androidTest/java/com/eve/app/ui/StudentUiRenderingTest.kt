@@ -248,7 +248,7 @@ class StudentUiRenderingTest {
             "feedback-error" -> root.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.tilFeedback).error = "Please enter your message"
             "feedback-loading" -> { text(R.id.etFeedbackMessage, "Please add more reasoning practice."); show(R.id.progressBar); root.findViewById<View>(R.id.btnSendFeedback).isEnabled = false }
             "notifications-empty" -> { HomeAppearance.tintNotificationBell(root.findViewById(R.id.lottieEmpty)); show(R.id.emptyGroup); show(R.id.rvNotifications, false) }
-            "payment-success" -> { text(R.id.tvStatusText, "Payment received"); root.findViewById<TextView>(R.id.tvStatusText).setTextColor(context.getColor(R.color.system_green)) }
+            "payment-success" -> { text(R.id.tvStatusText, "Payment received"); root.findViewById<TextView>(R.id.tvStatusText).setTextColor(context.getColor(R.color.system_green_text)) }
             "payment-expired" -> { show(R.id.layoutQrSection, false); show(R.id.layoutExpired); show(R.id.cardStatus, false) }
             "about" -> text(R.id.tvVersion, "Version 1.0")
             "payment-method" -> text(R.id.tvSheetSubtitle, "Select how you would like to pay ₹99")
@@ -314,9 +314,6 @@ class StudentUiRenderingTest {
             val foreground = androidx.core.graphics.ColorUtils.compositeColors(androidx.core.graphics.ColorUtils.setAlphaComponent(view.currentTextColor, Math.round(android.graphics.Color.alpha(view.currentTextColor) * alpha)), background)
             val largeOrPrimary = (view.textSize / view.resources.displayMetrics.scaledDensity >= if (view.typeface?.isBold == true) 18f else 24f)
             val ratio = androidx.core.graphics.ColorUtils.calculateContrast(foreground, background)
-            val lockedSystemColors = listOf(R.color.system_red, R.color.system_green, R.color.system_blue,
-                R.color.system_indigo, R.color.system_orange, R.color.system_purple, R.color.system_yellow)
-                .map { view.context.getColor(it) }
             val lockedDisabled = view is com.google.android.material.button.MaterialButton && !view.isEnabled &&
                 view.currentTextColor == view.context.getColor(R.color.text_secondary) &&
                 view.backgroundTintList?.getColorForState(view.drawableState, 0) == view.context.getColor(R.color.track)

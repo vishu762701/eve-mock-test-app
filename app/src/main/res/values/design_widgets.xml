@@ -53,7 +53,7 @@
         <item name="boxStrokeErrorColor">@color/system_red</item>
         <item name="errorIconDrawable">@drawable/ic_warning</item>
         <item name="hintTextColor">@color/text_secondary</item><item name="android:textColorHint">@color/text_secondary</item>
-        <item name="errorTextColor">@color/system_red</item><item name="errorTextAppearance">@style/TextAppearance.Eve.Token.Error</item>
+        <item name="errorTextColor">@color/system_red_text</item><item name="errorTextAppearance">@style/TextAppearance.Eve.Token.Error</item>
         <item name="helperTextTextAppearance">@style/TextAppearance.Eve.Token.Secondary</item>
         <item name="endIconTint">@color/text_secondary</item><item name="startIconTint">@color/text_secondary</item>
     </style>

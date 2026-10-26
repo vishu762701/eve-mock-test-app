@@ -44,7 +44,7 @@ Exact ARGB definitions/hashes are in `source-role-contract.json`.
 
 | Role | Original definition/resolution | EVE consumer | Fidelity |
 | --- | --- | --- | --- |
-| canvasBackground | ThemeColors.java:133 FFF1F1F3; night.attheme:61 FF000000 | bg_app, Engine.windowBackground, SystemBarHelper | original role |
+| canvasBackground | ThemeColors.java:133 FFF1F1F3; ProfileActivity.java:4227,15286; night.attheme:61 FF000000 | bg_app, Engine.windowBackground, SystemBarHelper | original role |
 | primarySurface | ThemeColors.java:79 FFFFFFFF; night.attheme:235 FF181819 | surface, Material styles/cards, Engine.surface | original role |
 | modalSurface | ThemeColors.java:24 FFFFFFFF; night.attheme:137 FF1E1E1E | dialog_surface, DesignSurfaces and dialog/sheet styles | original role |
 | inset/grouped canvas | same canvas role | surface_inset | compatibility alias; no invented secondary surface |
@@ -113,3 +113,5 @@ AA considers both black and white backdrop extremes after source coating/overlay
 not only a stable source canvas. The source .09 selector remains raw and unchanged.
 Primary content panels and modal panels use separate drawables with identical
 shape geometry; values-v31 dialog overrides are migrated with the base theme.
+
+Destructive labels now pair the retained semantic red fill with black, the higher-contrast endpoint. Numeric sizes, control geometry and callbacks are unchanged. The native shared-controls matrix enforces 4.5:1 without old exact-hue exceptions.

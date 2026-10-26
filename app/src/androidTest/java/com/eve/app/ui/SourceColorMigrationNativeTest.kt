@@ -104,8 +104,10 @@ class SourceColorMigrationNativeTest {
                 val p = TelegramThemeEngine.resolvePalette(context, TelegramThemeEngine.getTheme(if (dark) "night" else "day"), 0)
                 val pill = EveBottomPillBar(context)
                 pill.updateThemePalette(p)
+                pill.selectTab(1, false, false)
                 pill.selectTab(0, false, false)
                 val tab = pill.tabHome
+                assertTrue(tab.isTabSelected())
                 val labels = mutableListOf<android.widget.TextView>()
                 fun find(view: View) {
                     if (view is android.widget.TextView) labels += view
@@ -118,6 +120,10 @@ class SourceColorMigrationNativeTest {
                     val bg = ColorUtils.compositeColors(TelegramThemeEngine.multAlpha(p.glassTabSelected, .09f),
                         ColorUtils.compositeColors(coating, backdrop))
                     labels.forEach { assertTrue("selected label over changing backdrop", ColorUtils.calculateContrast(it.currentTextColor, bg) >= 4.5) }
+                    if (android.os.Build.VERSION.SDK_INT >= 29) {
+                        val iconColor = (tab.iconView.colorFilter as android.graphics.PorterDuffColorFilter).color
+                        assertTrue("selected icon over changing backdrop", ColorUtils.calculateContrast(iconColor, bg) >= 3.0)
+                    }
                 }
             }
         }

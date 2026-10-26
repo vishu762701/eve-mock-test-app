@@ -158,7 +158,7 @@ class ManualUiSpecificationTest {
                             view.layout(0, 0, view.measuredWidth, view.measuredHeight)
                         }
                     }
-                    val border = Color.parseColor(if (night == Configuration.UI_MODE_NIGHT_YES) "#2EFFFFFF" else "#1F000000")
+                    val border = Color.parseColor(if (night == Configuration.UI_MODE_NIGHT_YES) "#000000" else "#D9D9D9")
                     assertEquals(border, context.getColor(R.color.hairline))
                     val home = ActivityMainBinding.inflate(LayoutInflater.from(context))
                     home.panelHomeBanner.visibility = View.VISIBLE
