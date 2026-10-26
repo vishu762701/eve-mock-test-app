@@ -116,14 +116,24 @@ class SourceColorMigrationNativeTest {
                 find(tab)
                 assertTrue(labels.isNotEmpty())
                 val coating = TelegramThemeEngine.solveSrcColor(p.surface, p.glassTargetMainTabs, .76f)
+                val icon = tab.iconView
+                icon.measure(View.MeasureSpec.makeMeasureSpec(64, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(64, View.MeasureSpec.EXACTLY))
+                icon.layout(0, 0, 64, 64)
+                val iconBitmap = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888)
+                icon.draw(Canvas(iconBitmap))
+                val opaquePixels = mutableMapOf<Int, Int>()
+                for (y in 0 until 64) for (x in 0 until 64) {
+                    val color = iconBitmap.getPixel(x, y)
+                    if (Color.alpha(color) == 255) opaquePixels[color] = (opaquePixels[color] ?: 0) + 1
+                }
+                assertTrue("Original alpha-mask icon has opaque interior pixels", opaquePixels.isNotEmpty())
+                val iconColor = opaquePixels.maxByOrNull { it.value }!!.key
+                iconBitmap.recycle()
                 for (backdrop in listOf(Color.BLACK, Color.WHITE, p.surface, p.windowBackground)) {
                     val bg = ColorUtils.compositeColors(TelegramThemeEngine.multAlpha(p.glassTabSelected, .09f),
                         ColorUtils.compositeColors(coating, backdrop))
                     labels.forEach { assertTrue("selected label over changing backdrop", ColorUtils.calculateContrast(it.currentTextColor, bg) >= 4.5) }
-                    if (android.os.Build.VERSION.SDK_INT >= 29) {
-                        val iconColor = (tab.iconView.colorFilter as android.graphics.PorterDuffColorFilter).color
-                        assertTrue("selected icon over changing backdrop", ColorUtils.calculateContrast(iconColor, bg) >= 3.0)
-                    }
+                    assertTrue("selected icon over changing backdrop", ColorUtils.calculateContrast(iconColor, bg) >= 3.0)
                 }
             }
         }
