@@ -190,8 +190,8 @@ class EveBottomPillBar @JvmOverloads constructor(
     }
 
     /**
-     * Source-matching Telegram glass background drawable.
-     * Ported from Telegram BlurredBackgroundProviderImpl.mainTabs() & StrokeDrawable.
+     * Source edge-color foreground; DesignGlassLayout owns backdrop/coating.
+     * EVE platform-renderer adaptation, not a claim of Telegram liquid optics.
      */
     private class TelegramGlassBackgroundDrawable(val context: Context) : Drawable() {
         private val paintStrokeTop = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }

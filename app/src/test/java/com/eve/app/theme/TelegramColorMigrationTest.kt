@@ -158,6 +158,8 @@ class TelegramColorMigrationTest {
             val theme = requireNotNull(TelegramThemeEngine.registerCustomTheme(context, file))
             val p = TelegramThemeEngine.resolvePalette(context, theme, 0)
             assertEquals(0x80181819.toInt(), p.dialogSurface)
+            assertEquals(0xFF181819.toInt(), p.surface)
+            assertEquals(Color.BLACK, p.windowBackground)
             val backing = ColorUtils.compositeColors(p.dialogSurface, p.windowBackground)
             assertTrue(ColorUtils.calculateContrast(p.textSecondary, backing) >= 4.5)
             assertArrayEquals(bytes, file.readBytes())
