@@ -39,7 +39,7 @@ class EveBottomPillBar @JvmOverloads constructor(
     val tabProfile: GlassTabView
 
     val glassBackgroundView: android.view.View
-    private val backgroundDrawable: TelegramGlassBackgroundDrawable
+    internal val backgroundDrawable: TelegramGlassBackgroundDrawable
 
     companion object {
         const val TAB_HOME = 0
@@ -190,17 +190,21 @@ class EveBottomPillBar @JvmOverloads constructor(
     }
 
     /**
-     * Source edge-color foreground; DesignGlassLayout owns backdrop/coating.
-     * EVE platform-renderer adaptation, not a claim of Telegram liquid optics.
+     * Source edge-color and shadow foreground; DesignGlassLayout owns backdrop/coating.
+     * Ported from Telegram BlurredBackgroundProviderImpl.mainTabs() & StrokeDrawable.
      */
-    private class TelegramGlassBackgroundDrawable(val context: Context) : Drawable() {
+    internal class TelegramGlassBackgroundDrawable(val context: Context) : Drawable() {
         private val paintStrokeTop = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
         private val paintStrokeBottom = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
+        private val paintShadow = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
 
         private val rect = RectF()
         private var radius = 0f
         private var strokeTopWidth = 0f
         private var strokeBottomWidth = 0f
+        private var shadowRadius = 0f
+        private var shadowDy = 0f
+        private var shadowColor = 0x20000000
         private var isDark = false
 
         init {
@@ -208,29 +212,43 @@ class EveBottomPillBar @JvmOverloads constructor(
             radius = 28f * density // DialogsActivity.MAIN_TABS_HEIGHT / 2f
             strokeTopWidth = 0.4f * density
             strokeBottomWidth = 0.4f * density
+            shadowRadius = 2.667f * density
+            shadowDy = 0.85f * density
 
             paintStrokeTop.strokeWidth = strokeTopWidth
             paintStrokeBottom.strokeWidth = strokeBottomWidth
-
+            paintShadow.strokeWidth = strokeBottomWidth
+            paintShadow.setShadowLayer(shadowRadius, 0f, shadowDy, shadowColor)
         }
 
         fun setPalette(palette: TelegramThemeEngine.ResolvedPalette) {
             isDark = palette.isDark
             // Source non-liquid branch: the BlurView behind this foreground draws the
             // captured backdrop plus solveSrcColor(surface, target, .76) exactly once.
-            // Stroke colors from source:
+            // Stroke and shadow colors from source:
             // setStrokeColorTop(0x11000000, 0x06FFFFFF)
             // setStrokeColorBottom(0x20000000, 0x11FFFFFF)
             // setShadowColor(0x20000000, 0x04FFFFFF)
             if (isDark) {
                 paintStrokeTop.color = 0x06FFFFFF
                 paintStrokeBottom.color = 0x11FFFFFF
+                shadowColor = 0x04FFFFFF
             } else {
                 paintStrokeTop.color = 0x11000000
                 paintStrokeBottom.color = 0x20000000
+                shadowColor = 0x20000000
             }
+            paintShadow.color = shadowColor
+            paintShadow.setShadowLayer(shadowRadius, 0f, shadowDy, shadowColor)
             invalidateSelf()
         }
+
+        internal val strokeTopColor get() = paintStrokeTop.color
+        internal val strokeBottomColor get() = paintStrokeBottom.color
+        internal val currentShadowColor get() = shadowColor
+        internal val currentShadowRadius get() = shadowRadius
+        internal val currentShadowDy get() = shadowDy
+        internal val currentStrokeWidth get() = strokeTopWidth
 
         override fun onBoundsChange(bounds: Rect) {
             super.onBoundsChange(bounds)
@@ -238,8 +256,8 @@ class EveBottomPillBar @JvmOverloads constructor(
         }
 
         override fun draw(canvas: Canvas) {
-            // Do not fill the entire capsule with the shadow paint or double-coat it.
-            // BlurView owns the backdrop/coating; this foreground owns source edge colors.
+            // Shadow layer from BlurredBackgroundProviderImpl (radius 2.667dp, dy 0.85dp, stroke 0.4dp)
+            canvas.drawRoundRect(rect, radius, radius, paintShadow)
             // Top stroke (clipped to top)
             drawStroke(canvas, rect, radius, strokeTopWidth, true, paintStrokeTop)
             // Bottom stroke (clipped to bottom)
@@ -285,12 +303,14 @@ class EveBottomPillBar @JvmOverloads constructor(
         override fun setAlpha(alpha: Int) {
             paintStrokeTop.alpha = alpha
             paintStrokeBottom.alpha = alpha
+            paintShadow.alpha = alpha
             invalidateSelf()
         }
 
         override fun setColorFilter(colorFilter: ColorFilter?) {
             paintStrokeTop.colorFilter = colorFilter
             paintStrokeBottom.colorFilter = colorFilter
+            paintShadow.colorFilter = colorFilter
             invalidateSelf()
         }
 

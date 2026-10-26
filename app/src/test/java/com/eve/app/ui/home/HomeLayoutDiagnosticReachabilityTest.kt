@@ -4,7 +4,7 @@ import org.junit.Assert.*
 import org.junit.Test
 import java.io.File
 
-/** Protect the debug-only field diagnostic from being silently disconnected. */
+/** Protect Home layout diagnostic contract: log-only in debug, zero on-screen overlays, no-op in release. */
 class HomeLayoutDiagnosticReachabilityTest {
     private fun source(path: String): String {
         val candidates = listOf(File(path), File("../app/$path"), File("app/$path"))
@@ -24,11 +24,14 @@ class HomeLayoutDiagnosticReachabilityTest {
         }
     }
 
-    @Test fun diagnosticRemainsDebugOnly() {
+    @Test fun diagnosticRemainsDebugOnlyAndNeverAddsOnScreenOverlay() {
         val debug = source("src/debug/java/com/eve/app/ui/home/HomeLayoutDiagnostic.kt")
         val release = source("src/release/java/com/eve/app/ui/home/HomeLayoutDiagnostic.kt")
-        assertTrue(debug.contains("decor.addView(this"))
-        assertTrue(debug.contains("EVE HOME DEBUG"))
+        assertFalse("Debug may not inject on-screen overlays or views into decor", debug.contains("addView("))
+        assertFalse("Debug may not add views to decor", debug.contains("decor.addView"))
+        assertFalse("Debug may not bring panel to front", debug.contains("bringToFront()"))
+        assertTrue("Debug must log diagnostics via Log.d", debug.contains("Log.d("))
+        assertTrue("Debug logs layout snapshot", debug.contains("EVE HOME DEBUG"))
         assertTrue("Unknown full-screen layers must be observable", debug.contains("contentRoot?.let"))
         assertTrue("Fullscreen layer data must include geometry", debug.contains("append(info("))
         assertFalse("Release may not add on-screen overlays", release.contains("addView("))

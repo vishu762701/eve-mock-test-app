@@ -88,19 +88,40 @@ object TelegramThemeApplier {
                 if (isAccentButton) {
                     view.backgroundTintList = ColorStateList.valueOf(palette.accent)
                     view.setTextColor(palette.onAccent)
+                } else if (view.id == R.id.btnAdmin || tagStr.contains("admin_button")) {
+                    com.eve.app.designsystem.EveDesignSystem.Components.applyAdminButtonPalette(view, palette)
                 } else if (view.strokeWidth > 0) {
                     view.strokeColor = ColorStateList.valueOf(palette.hairline)
+                    view.setTextColor(palette.textPrimary)
+                } else {
                     view.setTextColor(palette.textPrimary)
                 }
             }
             is Chip -> {
-                if (view.isChecked) {
-                    view.chipBackgroundColor = ColorStateList.valueOf(palette.accent)
-                    view.setTextColor(palette.onAccent)
-                } else {
-                    view.chipBackgroundColor = ColorStateList.valueOf(palette.surfaceInset)
-                    view.setTextColor(palette.textPrimary)
-                }
+                val unselectedBg = if (palette.isDark) 0x1AFFFFFF else palette.surface
+                view.chipBackgroundColor = ColorStateList(
+                    arrayOf(
+                        intArrayOf(android.R.attr.state_checked),
+                        intArrayOf(-android.R.attr.state_checked)
+                    ),
+                    intArrayOf(
+                        palette.accent,
+                        unselectedBg
+                    )
+                )
+                view.setTextColor(
+                    ColorStateList(
+                        arrayOf(
+                            intArrayOf(android.R.attr.state_checked),
+                            intArrayOf(-android.R.attr.state_checked)
+                        ),
+                        intArrayOf(
+                            palette.onAccent,
+                            palette.textPrimary
+                        )
+                    )
+                )
+                view.checkedIconTint = ColorStateList.valueOf(palette.onAccent)
             }
             is CheckBox -> {
                 view.buttonTintList = ColorStateList.valueOf(palette.accent)

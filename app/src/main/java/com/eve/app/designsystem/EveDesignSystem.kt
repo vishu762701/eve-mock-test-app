@@ -54,8 +54,29 @@ object EveDesignSystem {
             DesignType.apply(this, DesignType.Role.CHIP)
             chipStrokeWidth = 0f
             val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
-            chipBackgroundColor = android.content.res.ColorStateList.valueOf(palette.accent)
-            setTextColor(palette.onAccent)
+            val unselectedBg = if (palette.isDark) 0x1AFFFFFF else palette.surface
+            chipBackgroundColor = android.content.res.ColorStateList(
+                arrayOf(
+                    intArrayOf(android.R.attr.state_checked),
+                    intArrayOf(-android.R.attr.state_checked)
+                ),
+                intArrayOf(
+                    palette.accent,
+                    unselectedBg
+                )
+            )
+            setTextColor(
+                android.content.res.ColorStateList(
+                    arrayOf(
+                        intArrayOf(android.R.attr.state_checked),
+                        intArrayOf(-android.R.attr.state_checked)
+                    ),
+                    intArrayOf(
+                        palette.onAccent,
+                        palette.textPrimary
+                    )
+                )
+            )
             setCheckedIconResource(R.drawable.ic_target_exam_checked)
             checkedIconTint = android.content.res.ColorStateList.valueOf(palette.onAccent)
             isCheckedIconVisible = true
@@ -100,8 +121,24 @@ object EveDesignSystem {
         }
 
         fun applyAdminButton(button: MaterialButton) {
-            button.backgroundTintList = ContextCompat.getColorStateList(button.context, R.color.track)
-            button.setTextColor(ContextCompat.getColorStateList(button.context, R.color.design_secondary_text))
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(button.context)
+            applyAdminButtonPalette(button, palette)
+        }
+
+        fun applyAdminButtonPalette(button: MaterialButton, palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+            button.backgroundTintList = android.content.res.ColorStateList.valueOf(palette.actionSelector)
+            button.setTextColor(
+                android.content.res.ColorStateList(
+                    arrayOf(
+                        intArrayOf(-android.R.attr.state_enabled),
+                        intArrayOf(android.R.attr.state_enabled)
+                    ),
+                    intArrayOf(
+                        palette.textSecondary,
+                        palette.textPrimary
+                    )
+                )
+            )
             button.strokeWidth = 0
             button.minHeight = button.resources.getDimensionPixelSize(R.dimen.design_touch_min)
             DesignType.apply(button, DesignType.Role.BUTTON)
