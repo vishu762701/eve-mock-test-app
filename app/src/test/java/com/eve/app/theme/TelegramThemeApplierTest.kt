@@ -178,7 +178,7 @@ class TelegramThemeApplierTest {
             surface = Color.WHITE,
             textPrimary = 0xFF1A1D21.toInt(),
             accent = 0xFF229AF0.toInt(),
-            onAccent = Color.WHITE,
+            onAccent = Color.BLACK,
             isDark = false
         )
         TelegramThemeApplier.applyToViewTree(chip, dayPalette)
