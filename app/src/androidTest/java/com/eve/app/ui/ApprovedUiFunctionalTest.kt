@@ -215,6 +215,45 @@ class ApprovedUiFunctionalTest {
         } finally { shell("settings put global animator_duration_scale $previous") }
     }
 
+    @Test fun radioIndicatorMirrorsWithLongMultilineOptionsAtDoubleFontScale() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        instrumentation.runOnMainSync {
+            for (night in listOf(Configuration.UI_MODE_NIGHT_NO, Configuration.UI_MODE_NIGHT_YES)) {
+                val config = Configuration(instrumentation.targetContext.resources.configuration).apply {
+                    uiMode = (uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or night
+                    fontScale = 2f
+                    setLayoutDirection(java.util.Locale("ar"))
+                }
+                val context = ContextThemeWrapper(instrumentation.targetContext.createConfigurationContext(config), R.style.Theme_Eve)
+                val binding = ItemQuestionBinding.inflate(LayoutInflater.from(context))
+                binding.root.layoutDirection = View.LAYOUT_DIRECTION_RTL
+                val options = listOf(binding.rbA, binding.rbB, binding.rbC, binding.rbD)
+                options.forEachIndexed { index, option ->
+                    option.text = "${'A' + index}. " + "लंबा उत्तर / Long English answer ".repeat(8)
+                }
+                val width = (320 * context.resources.displayMetrics.density).toInt()
+                binding.root.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec((600 * context.resources.displayMetrics.density).toInt(), View.MeasureSpec.EXACTLY))
+                binding.root.layout(0, 0, binding.root.measuredWidth, binding.root.measuredHeight)
+                options.forEach { option ->
+                    option.performClick()
+                    option.jumpDrawablesToCurrentState()
+                    assertTrue(option.lineCount > 1)
+                    assertTrue(option.height >= option.minHeight)
+                    assertEquals(View.LAYOUT_DIRECTION_RTL, option.layoutDirection)
+                    assertEquals(option.id, binding.rgOptions.checkedRadioButtonId)
+                    val bitmap = Bitmap.createBitmap(option.width, option.height, Bitmap.Config.ARGB_8888)
+                    option.draw(Canvas(bitmap))
+                    val center = option.width - context.resources.getDimensionPixelSize(R.dimen.design_card_padding) -
+                        context.resources.getDimensionPixelSize(R.dimen.design_icon_size) / 2
+                    assertEquals("RTL source dot must stay at the native leading edge", context.getColor(R.color.on_accent),
+                        bitmap.getPixel(center, option.height / 2))
+                    bitmap.recycle()
+                }
+            }
+        }
+    }
+
     @Test fun activePaletteKeepsAnswerAndReviewStatesAndNavigation() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         instrumentation.runOnMainSync {
