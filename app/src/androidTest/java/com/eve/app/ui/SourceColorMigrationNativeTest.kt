@@ -139,6 +139,38 @@ class SourceColorMigrationNativeTest {
         }
     }
 
+    @Test fun avatarFallbackTracksPaletteWhileLoadedPhotoPixelsRemainUntouched() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        instrumentation.runOnMainSync {
+            val context = ContextThemeWrapper(instrumentation.targetContext, R.style.Theme_Eve)
+            val pill = EveBottomPillBar(context)
+            pill.setUserAvatar(null)
+            val fallback = pill.tabProfile.avatarView.drawable
+            val light = TelegramThemeEngine.resolvePalette(context, TelegramThemeEngine.getTheme("day"), 0)
+            val night = TelegramThemeEngine.resolvePalette(context, TelegramThemeEngine.getTheme("night"), 0)
+            pill.updateThemePalette(light)
+            val firstFilter = fallback.colorFilter
+            pill.updateThemePalette(night)
+            assertNotSame(firstFilter, fallback.colorFilter)
+            assertNotNull(fallback.colorFilter)
+            // Synthetic photo, no private account data or network. Its pixels must survive palette changes.
+            val photo = Bitmap.createBitmap(32, 32, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.MAGENTA) }
+            val view = pill.tabProfile.avatarView
+            view.setImageBitmap(photo)
+            val photoDrawable = view.drawable
+            pill.updateThemePalette(light)
+            assertSame(photoDrawable, view.drawable)
+            assertNull(view.colorFilter)
+            view.measure(View.MeasureSpec.makeMeasureSpec(64, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(64, View.MeasureSpec.EXACTLY))
+            view.layout(0, 0, 64, 64)
+            val rendered = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888)
+            view.draw(Canvas(rendered))
+            assertEquals(Color.MAGENTA, rendered.getPixel(32, 32))
+            rendered.recycle()
+            photo.recycle()
+        }
+    }
+
     @Test fun semanticStatusTextRetainsMeaningWithAaContrastInBothModes() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         instrumentation.runOnMainSync {

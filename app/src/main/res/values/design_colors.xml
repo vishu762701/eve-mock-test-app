@@ -43,4 +43,5 @@
     <color name="system_purple_text">#FFA326B4</color>
     <color name="system_indigo_text">#FF574DDD</color>
     <color name="accent_icon">#FF2090E1</color>
+    <color name="accent_text">#FF1972B2</color>
 </resources>

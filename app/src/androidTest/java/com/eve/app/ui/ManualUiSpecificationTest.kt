@@ -300,7 +300,7 @@ class ManualUiSpecificationTest {
                             assertEquals(context.getColor(R.color.system_red), actualBox.strokeColor!!.defaultColor)
                             view.error = null
                             view.editText?.requestFocus()
-                            assertEquals(context.getColor(R.color.accent), actualBox.strokeColor!!.defaultColor)
+                            assertEquals(context.getColor(R.color.accent_icon), actualBox.strokeColor!!.defaultColor)
                             assertTrue("Fixture focus sink must take focus", styled.requestFocus())
                             assertEquals("Clearing focus removes the previous ring", context.getColor(R.color.transparent), actualBox.strokeColor!!.defaultColor)
                         }

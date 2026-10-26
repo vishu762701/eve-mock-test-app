@@ -18,6 +18,7 @@ app/src/main/res/values/design_colors.xml	system_yellow_text	NOT PRESENT	#FF8268
 app/src/main/res/values/design_colors.xml	system_purple_text	NOT PRESENT	#FFA326B4
 app/src/main/res/values/design_colors.xml	system_indigo_text	NOT PRESENT	#FF574DDD
 app/src/main/res/values/design_colors.xml	accent_icon	NOT PRESENT	#FF2090E1
+app/src/main/res/values/design_colors.xml	accent_text	NOT PRESENT	#FF1972B2
 app/src/main/res/values-night/design_colors.xml	surface_inset	#2C2C2E	#000000
 app/src/main/res/values-night/design_colors.xml	text_secondary	#A1A1A6	#75FFFFFF
 app/src/main/res/values-night/design_colors.xml	hairline	#2EFFFFFF	#000000
@@ -35,3 +36,4 @@ app/src/main/res/values-night/design_colors.xml	system_yellow_text	NOT PRESENT	#
 app/src/main/res/values-night/design_colors.xml	system_purple_text	NOT PRESENT	#FFE25BF4
 app/src/main/res/values-night/design_colors.xml	system_indigo_text	NOT PRESENT	#FF8D85F7
 app/src/main/res/values-night/design_colors.xml	accent_icon	NOT PRESENT	#FF229AF0
+app/src/main/res/values-night/design_colors.xml	accent_text	NOT PRESENT	#FF229AF0

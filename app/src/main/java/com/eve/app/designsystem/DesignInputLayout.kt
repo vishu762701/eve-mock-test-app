@@ -37,7 +37,7 @@ class DesignInputLayout @JvmOverloads constructor(
             !isEnabled -> R.color.transparent
             !error.isNullOrEmpty() -> R.color.system_red
             isCounterEnabled && counterMaxLength > 0 && field.length() > counterMaxLength -> R.color.system_red
-            field.hasFocus() -> R.color.accent
+            field.hasFocus() -> R.color.accent_icon
             else -> R.color.transparent
         }
         box.setStroke(resources.getDimension(R.dimen.design_focus_stroke), ContextCompat.getColor(context, color))
@@ -103,7 +103,7 @@ class DesignInputLayout @JvmOverloads constructor(
             layout.setBoxStrokeColorStateList(requireNotNull(ContextCompat.getColorStateList(context, R.color.design_input_stroke)))
             layout.boxStrokeErrorColor = ContextCompat.getColorStateList(context, R.color.system_red)
             layout.setErrorTextAppearance(R.style.TextAppearance_Eve_Token_Error)
-            layout.setErrorTextColor(requireNotNull(ContextCompat.getColorStateList(context, R.color.system_red)))
+            layout.setErrorTextColor(requireNotNull(ContextCompat.getColorStateList(context, R.color.system_red_text)))
             if (field is AutoCompleteTextView) {
                 layout.endIconMode = END_ICON_DROPDOWN_MENU
                 layout.setEndIconDrawable(R.drawable.ic_chevron_down)

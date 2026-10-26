@@ -242,11 +242,11 @@ class ApprovedUiRenderingTest {
         fun timerPaint(name: String) = CircularTimerView::class.java.getDeclaredField(name).apply { isAccessible = true }
             .get(b.circularTimerView) as Paint
         assertEquals(4f * density, timerPaint("progressPaint").strokeWidth, 0.01f)
-        assertEquals(foreground, timerPaint("progressPaint").color)
+        assertEquals(context.getColor(R.color.accent_text), timerPaint("progressPaint").color)
         assertEquals(14f * context.resources.displayMetrics.scaledDensity, timerPaint("textPaint").textSize, 0.01f)
         bitmap(b.circularTimerView).useBitmap { image ->
             assertEquals(Color.TRANSPARENT, image.getPixel(dp(36), dp(8)))
-            assertEquals(foreground, image.getPixel(dp(36), dp(2)))
+            assertEquals(context.getColor(R.color.accent_text), image.getPixel(dp(36), dp(2)))
         }
         val holder = adapter.onCreateViewHolder(FrameLayout(context), 0)
         adapter.onBindViewHolder(holder, 0)

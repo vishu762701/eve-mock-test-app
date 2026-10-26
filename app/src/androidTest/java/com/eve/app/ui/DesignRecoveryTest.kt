@@ -236,7 +236,7 @@ class DesignRecoveryTest {
                         androidx.core.graphics.ColorUtils.calculateContrast(context.getColor(R.color.text_secondary), context.getColor(surface)) >= 4.5)
                 }
                 assertTrue("Enabled input outlines must be distinguishable from the canvas",
-                    androidx.core.graphics.ColorUtils.calculateContrast(context.getColor(R.color.accent), context.getColor(R.color.bg_app)) >= 3.0)
+                    androidx.core.graphics.ColorUtils.calculateContrast(context.getColor(R.color.accent_icon), context.getColor(R.color.bg_app)) >= 3.0)
                 val accent = context.getColor(R.color.system_blue)
                 // UI ADR-009 explicitly accepts system blue's sub-AA contrast.
                 // Other semantic labels retain their contrast assertions above.

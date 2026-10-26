@@ -125,3 +125,9 @@ source liquid branch/refraction is not imported or claimed; the independently
 verified non-liquid provider/coating path is the supported implementation.
 The nav host explicitly captures the screen-content child rather than the floating
 overlay subtree, keeping tab labels/avatar out of the captured backdrop.
+
+Native FULL exposed a distinction between raw source fill and foreground contrast:
+focus outlines now use accent_icon (3:1), and timer text/arc use accent_text (4.5:1)
+with semantic warning text shades. Timer values, deadlines, thresholds, geometry
+and motion are unchanged. A per-tab tinted alpha-mask placeholder is used for
+missing/loading avatars; loaded photo drawables never receive that filter.

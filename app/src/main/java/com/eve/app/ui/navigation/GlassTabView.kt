@@ -155,12 +155,24 @@ class GlassTabView @JvmOverloads constructor(
         updateColors()
     }
 
+    private var avatarFallback: android.graphics.drawable.Drawable? = null
+
+    /** Tint only the original alpha-mask placeholder, never a loaded user photo. */
+    fun avatarFallbackDrawable(): android.graphics.drawable.Drawable {
+        val drawable = avatarFallback ?: requireNotNull(androidx.appcompat.content.res.AppCompatResources.getDrawable(
+            context, com.eve.app.R.drawable.ic_user_profile)).mutate().also { avatarFallback = it }
+        drawable.colorFilter = PorterDuffColorFilter(
+            ColorUtils.blendARGB(colorDefault, accessibleSelectedIcon, selectedFactor), PorterDuff.Mode.SRC_IN)
+        return drawable
+    }
+
     fun configureAsAvatar(label: String) {
         isAvatarTab = true
         isLottieTab = false
         iconView.visibility = GONE
         lottieView.visibility = GONE
         avatarView.visibility = VISIBLE
+        avatarView.setImageDrawable(avatarFallbackDrawable())
         textView.text = label
         contentDescription = label
         updateColors()
@@ -257,7 +269,9 @@ class GlassTabView @JvmOverloads constructor(
         val colorText = ColorUtils.blendARGB(colorDefault, colorSelectedText, selectedFactor)
 
         val filter = PorterDuffColorFilter(colorIcon, PorterDuff.Mode.SRC_IN)
-        if (!isAvatarTab) {
+        if (isAvatarTab) {
+            avatarFallback?.colorFilter = filter
+        } else {
             iconView.colorFilter = filter
             if (isLottieTab && lottieView.visibility == VISIBLE) {
                 lottieView.addValueCallback(

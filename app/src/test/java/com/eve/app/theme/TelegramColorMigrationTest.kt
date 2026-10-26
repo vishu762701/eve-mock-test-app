@@ -132,6 +132,24 @@ class TelegramColorMigrationTest {
         assertEquals(null, pill.glassBackgroundView.foreground?.colorFilter)
     }
 
+    @Test fun focusAndTimerForegroundsRetainContrastWithoutChangingSourceFill() {
+        for (dark in listOf(false, true)) {
+            val config = Configuration(context.resources.configuration).apply {
+                uiMode = uiMode and Configuration.UI_MODE_NIGHT_MASK.inv() or
+                    if (dark) Configuration.UI_MODE_NIGHT_YES else Configuration.UI_MODE_NIGHT_NO
+            }
+            val themed = ContextThemeWrapper(context.createConfigurationContext(config), R.style.Theme_Eve)
+            val stroke = themed.getColorStateList(R.color.design_input_stroke).getColorForState(
+                intArrayOf(android.R.attr.state_enabled, android.R.attr.state_focused), 0)
+            assertEquals(themed.getColor(R.color.accent_icon), stroke)
+            assertEquals(0xFF229AF0.toInt(), themed.getColor(R.color.accent))
+            for (background in listOf(R.color.bg_app, R.color.surface, R.color.dialog_surface)) {
+                assertTrue(ColorUtils.calculateContrast(stroke, themed.getColor(background)) >= 3.0)
+                assertTrue(ColorUtils.calculateContrast(themed.getColor(R.color.accent_text), themed.getColor(background)) >= 4.5)
+            }
+        }
+    }
+
     @Test fun packagedNightAssetMatchesTheIndependentlyVerifiedSourceFile() {
         val bytes = context.assets.open("themes/night.attheme").use { it.readBytes() }
         val sha = MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }

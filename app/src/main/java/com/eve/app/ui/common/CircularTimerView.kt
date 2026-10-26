@@ -28,10 +28,10 @@ class CircularTimerView @JvmOverloads constructor(
     private val density = resources.displayMetrics.density
     private val strokePx = resources.getDimension(R.dimen.design_ring_stroke)
     private val normalColor: Int
-        get() = com.eve.app.designsystem.DesignTokens.accent(context)
+        get() = ContextCompat.getColor(context, R.color.accent_text)
 
     private val warningColor: Int
-        get() = com.eve.app.designsystem.DesignTokens.color(context, R.attr.systemRed)
+        get() = ContextCompat.getColor(context, R.color.system_red_text)
 
     private val progressPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE

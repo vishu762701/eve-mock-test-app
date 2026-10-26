@@ -24,12 +24,12 @@ app/src/main/java/com/eve/app/designsystem/UiArcUploadStepperView.kt	185		runtim
 app/src/main/java/com/eve/app/designsystem/DesignInputLayout.kt	37	transparent	compositing/platform/contrast primitive	!isEnabled -> R.color.transparent
 app/src/main/java/com/eve/app/designsystem/DesignInputLayout.kt	38	system_red	EVE semantic/status/decoration exception; not Telegram claim	!error.isNullOrEmpty() -> R.color.system_red
 app/src/main/java/com/eve/app/designsystem/DesignInputLayout.kt	39	system_red	EVE semantic/status/decoration exception; not Telegram claim	isCounterEnabled && counterMaxLength > 0 && field.length() > counterMaxLength -> R.color.system_red
-app/src/main/java/com/eve/app/designsystem/DesignInputLayout.kt	40	accent	source role or alias consumer	field.hasFocus() -> R.color.accent
+app/src/main/java/com/eve/app/designsystem/DesignInputLayout.kt	40	accent_icon	source role or alias consumer	field.hasFocus() -> R.color.accent_icon
 app/src/main/java/com/eve/app/designsystem/DesignInputLayout.kt	41	transparent	compositing/platform/contrast primitive	else -> R.color.transparent
 app/src/main/java/com/eve/app/designsystem/DesignInputLayout.kt	91		runtime/component producer; source or EVE semantic role	field.setTextColor(DesignTokens.primary(context))
 app/src/main/java/com/eve/app/designsystem/DesignInputLayout.kt	103	design_input_stroke	source role or alias consumer	layout.setBoxStrokeColorStateList(requireNotNull(ContextCompat.getColorStateList(context, R.color.design_input_stroke)))
 app/src/main/java/com/eve/app/designsystem/DesignInputLayout.kt	104	system_red	EVE semantic/status/decoration exception; not Telegram claim	layout.boxStrokeErrorColor = ContextCompat.getColorStateList(context, R.color.system_red)
-app/src/main/java/com/eve/app/designsystem/DesignInputLayout.kt	106	system_red	EVE semantic/status/decoration exception; not Telegram claim	layout.setErrorTextColor(requireNotNull(ContextCompat.getColorStateList(context, R.color.system_red)))
+app/src/main/java/com/eve/app/designsystem/DesignInputLayout.kt	106	system_red_text	EVE semantic AA foreground accommodation	layout.setErrorTextColor(requireNotNull(ContextCompat.getColorStateList(context, R.color.system_red_text)))
 app/src/main/java/com/eve/app/designsystem/DesignLottieTokens.kt	9		runtime/component producer; source or EVE semantic role	val rgb = original and 0x00FFFFFF
 app/src/main/java/com/eve/app/designsystem/DesignLottieTokens.kt	10		runtime/component producer; source or EVE semantic role	val alpha = original and 0xFF000000.toInt()
 app/src/main/java/com/eve/app/designsystem/DesignLottieTokens.kt	13		runtime/component producer; source or EVE semantic role	0xC7EBF5, 0xC4EDF5 -> 0x6CB6FF // High-contrast cyan/blue stroke
@@ -257,21 +257,21 @@ app/src/main/java/com/eve/app/util/ExamCategoryTintHelper.kt	24	design_role_cate
 app/src/main/java/com/eve/app/util/ExamCategoryTintHelper.kt	25	design_role_category_tint_teal_bg,design_role_category_tint_teal_fg	EVE semantic/status/decoration exception; not Telegram claim	TintColors(R.color.design_role_category_tint_teal_bg, R.color.design_role_category_tint_teal_fg)
 app/src/main/java/com/eve/app/util/AvatarDrawable.kt	69		runtime/component producer; source or EVE semantic role	private val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 app/src/main/java/com/eve/app/util/AvatarDrawable.kt	70		runtime/component producer; source or EVE semantic role	private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-app/src/main/java/com/eve/app/ui/navigation/EveBottomPillBar.kt	196		runtime/component producer; source or EVE semantic role	private val paintStrokeTop = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
-app/src/main/java/com/eve/app/ui/navigation/EveBottomPillBar.kt	197		runtime/component producer; source or EVE semantic role	private val paintStrokeBottom = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
-app/src/main/java/com/eve/app/ui/navigation/EveBottomPillBar.kt	221		runtime/component producer; source or EVE semantic role	// setStrokeColorTop(0x11000000, 0x06FFFFFF)
-app/src/main/java/com/eve/app/ui/navigation/EveBottomPillBar.kt	222		runtime/component producer; source or EVE semantic role	// setStrokeColorBottom(0x20000000, 0x11FFFFFF)
-app/src/main/java/com/eve/app/ui/navigation/EveBottomPillBar.kt	223		runtime/component producer; source or EVE semantic role	// setShadowColor(0x20000000, 0x04FFFFFF)
-app/src/main/java/com/eve/app/ui/navigation/EveBottomPillBar.kt	225		runtime/component producer; source or EVE semantic role	paintStrokeTop.color = 0x06FFFFFF
-app/src/main/java/com/eve/app/ui/navigation/EveBottomPillBar.kt	226		runtime/component producer; source or EVE semantic role	paintStrokeBottom.color = 0x11FFFFFF
-app/src/main/java/com/eve/app/ui/navigation/EveBottomPillBar.kt	228		runtime/component producer; source or EVE semantic role	paintStrokeTop.color = 0x11000000
-app/src/main/java/com/eve/app/ui/navigation/EveBottomPillBar.kt	229		runtime/component producer; source or EVE semantic role	paintStrokeBottom.color = 0x20000000
+app/src/main/java/com/eve/app/ui/navigation/EveBottomPillBar.kt	197		runtime/component producer; source or EVE semantic role	private val paintStrokeTop = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
+app/src/main/java/com/eve/app/ui/navigation/EveBottomPillBar.kt	198		runtime/component producer; source or EVE semantic role	private val paintStrokeBottom = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
+app/src/main/java/com/eve/app/ui/navigation/EveBottomPillBar.kt	222		runtime/component producer; source or EVE semantic role	// setStrokeColorTop(0x11000000, 0x06FFFFFF)
+app/src/main/java/com/eve/app/ui/navigation/EveBottomPillBar.kt	223		runtime/component producer; source or EVE semantic role	// setStrokeColorBottom(0x20000000, 0x11FFFFFF)
+app/src/main/java/com/eve/app/ui/navigation/EveBottomPillBar.kt	224		runtime/component producer; source or EVE semantic role	// setShadowColor(0x20000000, 0x04FFFFFF)
+app/src/main/java/com/eve/app/ui/navigation/EveBottomPillBar.kt	226		runtime/component producer; source or EVE semantic role	paintStrokeTop.color = 0x06FFFFFF
+app/src/main/java/com/eve/app/ui/navigation/EveBottomPillBar.kt	227		runtime/component producer; source or EVE semantic role	paintStrokeBottom.color = 0x11FFFFFF
+app/src/main/java/com/eve/app/ui/navigation/EveBottomPillBar.kt	229		runtime/component producer; source or EVE semantic role	paintStrokeTop.color = 0x11000000
+app/src/main/java/com/eve/app/ui/navigation/EveBottomPillBar.kt	230		runtime/component producer; source or EVE semantic role	paintStrokeBottom.color = 0x20000000
 app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt	49		runtime/component producer; source or EVE semantic role	private val paintSelector = Paint(Paint.ANTI_ALIAS_FLAG)
 app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt	57		runtime/component producer; source or EVE semantic role	private var colorSelected: Int = 0xFF1A91E6.toInt()
 app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt	58		runtime/component producer; source or EVE semantic role	private var colorSelectedText: Int = 0xFF0D7FCF.toInt()
 app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt	59		runtime/component producer; source or EVE semantic role	private var colorDefault: Int = 0xFF1A1D21.toInt()
 app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt	120		runtime/component producer; source or EVE semantic role	defaultTextPaint = TextPaint(textView.paint)
-app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt	269		runtime/component producer; source or EVE semantic role	textView.setTextColor(colorText)
+app/src/main/java/com/eve/app/ui/navigation/GlassTabView.kt	283		runtime/component producer; source or EVE semantic role	textView.setTextColor(colorText)
 app/src/main/java/com/eve/app/ui/bookmarks/BookmarkAdapter.kt	105	system_green	EVE semantic/status/decoration exception; not Telegram claim	val greenColor = ContextCompat.getColor(context, R.color.system_green)
 app/src/main/java/com/eve/app/ui/bookmarks/BookmarkAdapter.kt	106	text_primary	source role or alias consumer	val defaultColor = ContextCompat.getColor(context, R.color.text_primary)
 app/src/main/java/com/eve/app/ui/bookmarks/BookmarkAdapter.kt	112		runtime/component producer; source or EVE semantic role	tv.setTextColor(greenColor)
@@ -456,6 +456,8 @@ app/src/main/java/com/eve/app/ui/common/TelegramRadioButton.kt	72		runtime/compo
 app/src/main/java/com/eve/app/ui/common/TelegramRadioButton.kt	85		runtime/component producer; source or EVE semantic role	androidx.core.widget.CompoundButtonCompat.setButtonTintList(this, null)
 app/src/main/java/com/eve/app/ui/common/StudentSelectionControls.kt	26	accent	source role or alias consumer	chipBackgroundColor = ContextCompat.getColorStateList(context, R.color.accent)
 app/src/main/java/com/eve/app/ui/common/StudentSelectionControls.kt	27	on_accent	source role or alias consumer	setTextColor(ContextCompat.getColorStateList(context, R.color.on_accent))
+app/src/main/java/com/eve/app/ui/common/CircularTimerView.kt	31	accent_text	source role or alias consumer	get() = ContextCompat.getColor(context, R.color.accent_text)
+app/src/main/java/com/eve/app/ui/common/CircularTimerView.kt	34	system_red_text	EVE semantic AA foreground accommodation	get() = ContextCompat.getColor(context, R.color.system_red_text)
 app/src/main/java/com/eve/app/ui/common/CircularTimerView.kt	36		runtime/component producer; source or EVE semantic role	private val progressPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
 app/src/main/java/com/eve/app/ui/common/CircularTimerView.kt	43		runtime/component producer; source or EVE semantic role	private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
 app/src/main/java/com/eve/app/ui/common/CircularTimerView.kt	50		runtime/component producer; source or EVE semantic role	private val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -715,6 +717,7 @@ app/src/main/res/values/design_colors.xml	42	system_yellow_text	EVE semantic AA 
 app/src/main/res/values/design_colors.xml	43	system_purple_text	EVE semantic AA foreground accommodation	<color name="system_purple_text">#FFA326B4</color>
 app/src/main/res/values/design_colors.xml	44	system_indigo_text	EVE semantic AA foreground accommodation	<color name="system_indigo_text">#FF574DDD</color>
 app/src/main/res/values/design_colors.xml	45	accent_icon	source role or alias consumer	<color name="accent_icon">#FF2090E1</color>
+app/src/main/res/values/design_colors.xml	46	accent_text	source role or alias consumer	<color name="accent_text">#FF1972B2</color>
 app/src/main/res/values/design_widgets.xml	18	design_button_fill	source role or alias consumer	<item name="backgroundTint">@color/design_button_fill</item>
 app/src/main/res/values/design_widgets.xml	19	design_button_text,design_button_text	source role or alias consumer	<item name="android:textColor">@color/design_button_text</item><item name="iconTint">@color/design_button_text</item>
 app/src/main/res/values/design_widgets.xml	23	track	source role or alias consumer	<item name="rippleColor">@color/track</item>
@@ -1020,6 +1023,7 @@ app/src/main/res/values-night/design_colors.xml	42	system_yellow_text	EVE semant
 app/src/main/res/values-night/design_colors.xml	43	system_purple_text	EVE semantic AA foreground accommodation	<color name="system_purple_text">#FFE25BF4</color>
 app/src/main/res/values-night/design_colors.xml	44	system_indigo_text	EVE semantic AA foreground accommodation	<color name="system_indigo_text">#FF8D85F7</color>
 app/src/main/res/values-night/design_colors.xml	45	accent_icon	source role or alias consumer	<color name="accent_icon">#FF229AF0</color>
+app/src/main/res/values-night/design_colors.xml	46	accent_text	source role or alias consumer	<color name="accent_text">#FF229AF0</color>
 app/src/main/res/values-sw600dp/telegram_typography.xml	12	telegram_type_secondary	source role or alias consumer	<item name="android:textColor">@color/telegram_type_secondary</item>
 app/src/main/res/layout/activity_login.xml	35	telegram_type_primary	source role or alias consumer	<ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/telegram_type_primary"
 app/src/main/res/layout/layout_bulletin.xml	5	text_primary	source role or alias consumer	<ImageView android:id="@+id/ivBulletinIcon" android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:layout_marginEnd="@dimen/design_card_padding" android:src="@drawable/ic_check_circle" app:tin
@@ -1186,7 +1190,7 @@ app/src/main/res/color/design_control_tint.xml	3	track	source role or alias cons
 app/src/main/res/color/design_control_tint.xml	4	accent	source role or alias consumer	<item android:state_checked="true" android:color="@color/accent" />
 app/src/main/res/color/design_control_tint.xml	5	text_secondary	source role or alias consumer	<item  android:color="@color/text_secondary" />
 app/src/main/res/color/design_review_text.xml	1	text_secondary,solid_black,text_primary	compositing/platform/contrast primitive	<selector xmlns:android="http://schemas.android.com/apk/res/android"><item android:state_enabled="false" android:color="@color/text_secondary"/><item android:state_selected="true" android:color="@color/solid_black"/><item android:color="@co
-app/src/main/res/color/design_input_stroke.xml	3	accent	source role or alias consumer	<item android:state_focused="true" android:color="@color/accent" />
+app/src/main/res/color/design_input_stroke.xml	3	accent_icon	source role or alias consumer	<item android:state_focused="true" android:color="@color/accent_icon" />
 app/src/main/res/color/design_input_stroke.xml	4	transparent	compositing/platform/contrast primitive	<item  android:color="@color/transparent" />
 app/src/main/res/color/design_secondary_text.xml	3	text_secondary	source role or alias consumer	<item android:state_enabled="false" android:color="@color/text_secondary" />
 app/src/main/res/color/design_secondary_text.xml	4	text_primary	source role or alias consumer	<item android:color="@color/text_primary" />

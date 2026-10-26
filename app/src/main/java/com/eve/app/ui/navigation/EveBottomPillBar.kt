@@ -150,14 +150,15 @@ class EveBottomPillBar @JvmOverloads constructor(
 
     fun setUserAvatar(photoUrl: String?) {
         if (!photoUrl.isNullOrEmpty()) {
+            val fallback = tabProfile.avatarFallbackDrawable()
             tabProfile.avatarView.load(photoUrl) {
                 crossfade(true)
                 transformations(CircleCropTransformation())
-                placeholder(R.drawable.ic_user_profile)
-                error(R.drawable.ic_user_profile)
+                placeholder(fallback)
+                error(fallback)
             }
         } else {
-            tabProfile.avatarView.setImageResource(R.drawable.ic_user_profile)
+            tabProfile.avatarView.setImageDrawable(tabProfile.avatarFallbackDrawable())
         }
     }
 
