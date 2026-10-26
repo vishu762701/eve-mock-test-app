@@ -191,14 +191,17 @@ class ManualUiSpecificationTest {
                         assertEquals(0f, chip.chipStrokeWidth, 0.01f)
                         for (checked in listOf(false, true, false)) {
                             chip.isChecked = checked
-                            // Category chips now use the selected Telegram palette, not the
-                            // retired monochrome XML accent. Preserve state and contrast checks.
+                            // Category chips use the Telegram source-backed stateful palette:
+                            // checked -> accent / onAccent; unchecked -> surface / textPrimary.
                             val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
-                            assertEquals(palette.accent,
+                            val expectedBg = if (checked) palette.accent else if (palette.isDark) 0x1AFFFFFF else palette.surface
+                            val expectedText = if (checked) palette.onAccent else palette.textPrimary
+                            assertEquals(expectedBg,
                                 chip.chipBackgroundColor!!.getColorForState(chip.drawableState, 0))
-                            assertEquals(palette.onAccent, chip.currentTextColor)
+                            assertEquals(expectedText, chip.currentTextColor)
+                            val effectiveBg = androidx.core.graphics.ColorUtils.compositeColors(expectedBg, palette.background)
                             assertTrue("Telegram chip label contrast must remain readable",
-                                androidx.core.graphics.ColorUtils.calculateContrast(chip.currentTextColor, palette.accent) >= 4.5)
+                                androidx.core.graphics.ColorUtils.calculateContrast(chip.currentTextColor, effectiveBg) >= 4.5)
                         }
                         assertTrue(chip.height >= dp(32))
                         assertTrue("Chip must fit the locked screen margins at $width/$font",
