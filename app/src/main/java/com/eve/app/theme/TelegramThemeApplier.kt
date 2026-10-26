@@ -52,6 +52,10 @@ object TelegramThemeApplier {
 
         applyBackgroundRole(view, palette)
         when (view) {
+            is com.eve.app.designsystem.TelegramFlickerSkeletonView -> {
+                view.updateTheme(palette)
+                return
+            }
             is EveBottomPillBar -> {
                 view.updateThemePalette(palette)
                 return // GlassTabView owns animated source colors and AA foregrounds.
@@ -160,6 +164,7 @@ object TelegramThemeApplier {
 
     /** Preserve shape/padding and semantic caller-owned fills while rebinding late/live roots. */
     private fun applyBackgroundRole(view: View, palette: TelegramThemeEngine.ResolvedPalette) {
+        if (view is com.eve.app.designsystem.TelegramFlickerSkeletonView) return
         val color = solidColor(view) ?: return
         val previous = backgroundRoles[view]
         val role = if (previous?.color == color) previous.role else when (color) {

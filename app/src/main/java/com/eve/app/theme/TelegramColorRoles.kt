@@ -32,7 +32,8 @@ object TelegramColorRoles {
         "actionBarDefaultSelector" to 0x121A1D21.toInt(),
         "chats_menuItemIcon" to 0xFF889198.toInt(),
         "divider" to 0xFFD9D9D9.toInt(),
-        "listSelector" to 0x0F000000.toInt()
+        "listSelector" to 0x0F000000.toInt(),
+        "actionBarDefaultSubmenuBackground" to 0xFFFFFFFF.toInt()
     )
 
     val fallbackKeys = mapOf(
@@ -46,7 +47,8 @@ object TelegramColorRoles {
         "profile_tabText" to "windowBackgroundWhiteGrayText",
         "profile_tabSelectedText" to "windowBackgroundWhiteBlueHeader",
         "profile_tabSelectedLine" to "windowBackgroundWhiteBlueHeader",
-        "profile_tabSelector" to "listSelector"
+        "profile_tabSelector" to "listSelector",
+        "listSelector" to "listSelectorSDK21"
     )
 
     /** Theme.java:9024–9052: direct active key, ONE active fallback, then source default.

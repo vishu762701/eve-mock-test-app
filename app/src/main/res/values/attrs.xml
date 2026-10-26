@@ -31,4 +31,12 @@
         <attr name="designGlassCapsule" format="boolean" />
         <attr name="designGlassRadius" format="dimension" />
     </declare-styleable>
+    <declare-styleable name="TelegramFlickerSkeletonView">
+        <attr name="flickerRowType" format="enum">
+            <enum name="home_exam" value="0" />
+            <enum name="exam_test" value="1" />
+            <enum name="history" value="2" />
+        </attr>
+        <attr name="flickerItemsCount" format="integer" />
+    </declare-styleable>
 </resources>

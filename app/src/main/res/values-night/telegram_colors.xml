@@ -10,4 +10,8 @@
     <color name="telegram_type_dialog">#FFF6F6F6</color>
     <!-- Telegram TMessagesProj/src/main/assets/night.attheme:292: chats_menuItemIcon = -8224126. -->
     <color name="telegram_drawer_icon">#FF828282</color>
+    <!-- Telegram night.attheme:35 actionBarDefaultSubmenuBackground = -14145495 (#FF282829) -->
+    <color name="telegram_flicker_base">#FF282829</color>
+    <!-- Telegram night.attheme:308 listSelectorSDK21 = 234881023 (#0DFFFFFF) -->
+    <color name="telegram_flicker_highlight">#0DFFFFFF</color>
 </resources>

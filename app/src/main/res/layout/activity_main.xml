@@ -49,7 +49,7 @@
             </HorizontalScrollView>
             <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
                 <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvExams" android:layout_width="match_parent" android:layout_height="match_parent" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Scroll" />
-                <com.eve.app.designsystem.DesignLoadingView android:id="@+id/loadingHome" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" />
+                <com.eve.app.designsystem.TelegramFlickerSkeletonView android:id="@+id/loadingHome" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" app:flickerRowType="home_exam" style="@style/Widget.Eve.Token.Scroll" />
                 <LinearLayout android:id="@+id/progressGroup" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:orientation="vertical" android:visibility="gone" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
                     <com.eve.app.designsystem.TelegramRadialProgressView android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" />
                     <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:text="Loading exams…" />

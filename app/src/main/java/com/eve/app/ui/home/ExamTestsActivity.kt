@@ -95,8 +95,17 @@ class ExamTestsActivity : EveBaseActivity() {
     }
 
     private fun loadData(showLoading: Boolean = true) {
+        val hasCachedItems = adapter.itemCount > 0
         if (showLoading) {
-            binding.progressBar.visibility = View.VISIBLE
+            if (hasCachedItems) {
+                binding.progressBar.visibility = View.VISIBLE
+                binding.loadingTests.visibility = View.GONE
+                binding.rvTests.visibility = View.VISIBLE
+            } else {
+                binding.progressBar.visibility = View.GONE
+                binding.loadingTests.visibility = View.VISIBLE
+                binding.rvTests.visibility = View.GONE
+            }
             binding.compactErrorView.hide()
             binding.tvEmpty.visibility = View.GONE
         }
@@ -154,6 +163,7 @@ class ExamTestsActivity : EveBaseActivity() {
                 }
 
                 binding.progressBar.visibility = View.GONE
+                binding.loadingTests.visibility = View.GONE
 
                 val combinedItems = buildExamTestsList(testItems, subExamItems)
 
@@ -168,12 +178,18 @@ class ExamTestsActivity : EveBaseActivity() {
                 }
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
-                if (showLoading) {
-                    binding.compactErrorView.show(
-                        type = ErrorStateView.ErrorType.SERVER_ERROR,
-                        customMessage = "Couldn't load tests: ${e.localizedMessage}",
-                        onRetry = { loadData() }
-                    )
+                binding.loadingTests.visibility = View.GONE
+                if (hasCachedItems) {
+                    binding.rvTests.visibility = View.VISIBLE
+                } else {
+                    binding.rvTests.visibility = View.GONE
+                    if (showLoading) {
+                        binding.compactErrorView.show(
+                            type = ErrorStateView.ErrorType.SERVER_ERROR,
+                            customMessage = "Couldn't load tests: ${e.localizedMessage}",
+                            onRetry = { loadData() }
+                        )
+                    }
                 }
             }
         }

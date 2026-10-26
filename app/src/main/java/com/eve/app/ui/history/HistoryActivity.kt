@@ -80,8 +80,14 @@ class HistoryActivity : EveBaseActivity() {
     private fun render(state: UiState<List<TestAttempt>>) {
         when (state) {
             is UiState.Loading -> {
-                binding.loadingHistory.visibility = View.VISIBLE
-                binding.rvHistory.visibility = View.GONE
+                val hasCachedItems = adapter.itemCount > 0
+                if (hasCachedItems) {
+                    binding.loadingHistory.visibility = View.GONE
+                    binding.rvHistory.visibility = View.VISIBLE
+                } else {
+                    binding.loadingHistory.visibility = View.VISIBLE
+                    binding.rvHistory.visibility = View.GONE
+                }
                 binding.progressGroup.visibility = View.GONE
                 binding.messageGroup.visibility = View.GONE
             }
@@ -108,16 +114,22 @@ class HistoryActivity : EveBaseActivity() {
             is UiState.Error -> {
                 binding.loadingHistory.visibility = View.GONE
                 binding.progressGroup.visibility = View.GONE
-                binding.messageGroup.visibility = View.VISIBLE
-                binding.btnRetry.visibility = View.VISIBLE
-                com.eve.app.util.EmptyStateAnimationHelper.showErrorState(binding.ivMessageIcon)
-                if (NetworkUtil.isOnline(this)) {
-                    binding.tvMessage.text = "Something went wrong"
-                    binding.tvMessageSub.text = state.message
+                if (adapter.itemCount > 0) {
+                    binding.rvHistory.visibility = View.VISIBLE
+                    binding.messageGroup.visibility = View.GONE
                 } else {
-                    binding.tvMessage.text = "No internet connection"
-                    binding.tvMessageSub.text =
-                        "History has not been cached yet. Please retry when internet connection is restored."
+                    binding.rvHistory.visibility = View.GONE
+                    binding.messageGroup.visibility = View.VISIBLE
+                    binding.btnRetry.visibility = View.VISIBLE
+                    com.eve.app.util.EmptyStateAnimationHelper.showErrorState(binding.ivMessageIcon)
+                    if (NetworkUtil.isOnline(this)) {
+                        binding.tvMessage.text = "Something went wrong"
+                        binding.tvMessageSub.text = state.message
+                    } else {
+                        binding.tvMessage.text = "No internet connection"
+                        binding.tvMessageSub.text =
+                            "History has not been cached yet. Please retry when internet connection is restored."
+                    }
                 }
             }
         }

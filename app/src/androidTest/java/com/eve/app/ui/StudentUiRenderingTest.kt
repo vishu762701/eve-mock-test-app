@@ -165,7 +165,7 @@ class StudentUiRenderingTest {
         fun show(id: Int, visible: Boolean = true) { root.findViewById<View>(id)?.visibility = if (visible) View.VISIBLE else View.GONE }
         fun text(id: Int, value: String) { root.findViewById<TextView>(id)?.text = value }
         for (id in listOf(R.id.progressGroup, R.id.messageGroup, R.id.progressBar, R.id.progress,
-            R.id.loadingHome, R.id.loadingTest, R.id.loadingHistory)) show(id, false)
+            R.id.loadingHome, R.id.loadingTest, R.id.loadingHistory, R.id.loadingTests)) show(id, false)
         if (name.startsWith("payment") && name != "payment-method") {
             text(R.id.tvPlanName, "EVE Premium • 30 days"); text(R.id.tvAmount, "₹99"); text(R.id.tvTimer, "Expires in 14:32")
             val image = com.eve.app.util.QrCodeGenerator.generateBitmap("EVE_FIXTURE_NOT_A_PAYMENT", 180)
