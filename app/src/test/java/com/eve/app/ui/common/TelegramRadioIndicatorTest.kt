@@ -103,6 +103,8 @@ class TelegramRadioIndicatorTest {
         activity.setContentView(root)
         val radio = TelegramRadioButton(context)
         val other = TelegramRadioButton(context)
+        assertNull("Framework tint must not replace source-interpolated colors",
+            androidx.core.widget.CompoundButtonCompat.getButtonTintList(radio))
         root.addView(radio)
         root.addView(other)
         radio.isChecked = true
@@ -118,6 +120,7 @@ class TelegramRadioIndicatorTest {
         TelegramThemeApplier.applyToViewTree(root, palette.copy(textSecondary = Color.BLUE, onAccent = Color.GREEN))
         assertEquals(Color.BLUE, radio.indicator!!.uncheckedColor)
         assertEquals(Color.GREEN, radio.indicator!!.checkedColor)
+        assertNull(androidx.core.widget.CompoundButtonCompat.getButtonTintList(radio))
         assertTrue(radio.isChecked)
         assertEquals(progress, radio.indicator!!.progress, 0f)
         assertNotSame(radio.indicator, other.indicator)
