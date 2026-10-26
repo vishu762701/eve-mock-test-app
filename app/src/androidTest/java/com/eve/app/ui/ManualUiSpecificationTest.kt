@@ -52,7 +52,14 @@ class ManualUiSpecificationTest {
                         fontScale = 1f
                     }
                     val context = ContextThemeWrapper(activity.createConfigurationContext(config), R.style.Theme_Eve)
-                    home = ActivityMainBinding.inflate(LayoutInflater.from(context))
+                    // Keep production's AppCompat factory: a fresh Context inflater
+                    // creates framework ImageViews that ignore app:tint in the XML.
+                    home = ActivityMainBinding.inflate(activity.layoutInflater.cloneInContext(context))
+                    listOf(home.btnSearch, home.ivNotificationIdle, home.btnOverflow).forEach { icon ->
+                        assertEquals("Home action tint must follow the active source text role",
+                            context.getColor(R.color.telegram_type_primary),
+                            androidx.core.widget.ImageViewCompat.getImageTintList(icon)?.defaultColor)
+                    }
                     home.chipGroupCategory.addView(HomeAppearance.categoryChip(context, "All", "All") { clicked.set(true) })
                     activity.setContentView(home.root)
                 }
