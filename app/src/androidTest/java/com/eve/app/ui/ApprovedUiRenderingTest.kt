@@ -309,6 +309,8 @@ class ApprovedUiRenderingTest {
             // Native antialiasing blends the curved outer edge with the background.
             // Paint color/stroke assertions above remain exact.
             val pixel = image.getPixel(dp(70), dp(36))
+            // Timer foreground uses the accessible source accent, independently
+            // of the general body-text role and the translucent empty track.
             val remainingColor = context.getColor(R.color.accent_text)
             assertTrue("The remaining half-ring must render", listOf(
                 Color.red(pixel) - Color.red(remainingColor), Color.green(pixel) - Color.green(remainingColor),
