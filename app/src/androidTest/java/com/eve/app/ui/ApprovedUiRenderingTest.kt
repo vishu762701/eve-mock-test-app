@@ -43,7 +43,6 @@ class ApprovedUiRenderingTest {
     private fun sp(view: android.widget.TextView, value: Int) =
         assertEquals(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP,
             value.toFloat(), context.resources.displayMetrics), view.textSize, 0.51f)
-    private val foreground get() = context.getColor(R.color.text_primary)
     private val canvasBackground get() = if (dark) Color.BLACK else color("#F1F1F3")
     private val appBackground get() = if (dark) Color.BLACK else color("#F1F1F3")
     private val buttonText get() = context.getColor(R.color.on_accent)
@@ -310,9 +309,10 @@ class ApprovedUiRenderingTest {
             // Native antialiasing blends the curved outer edge with the background.
             // Paint color/stroke assertions above remain exact.
             val pixel = image.getPixel(dp(70), dp(36))
+            val remainingColor = context.getColor(R.color.accent_text)
             assertTrue("The remaining half-ring must render", listOf(
-                Color.red(pixel) - Color.red(foreground), Color.green(pixel) - Color.green(foreground),
-                Color.blue(pixel) - Color.blue(foreground)).all { kotlin.math.abs(it) <= 16 })
+                Color.red(pixel) - Color.red(remainingColor), Color.green(pixel) - Color.green(remainingColor),
+                Color.blue(pixel) - Color.blue(remainingColor)).all { kotlin.math.abs(it) <= 16 })
             val trackColor = context.getColor(R.color.track)
             val trackPixel = image.getPixel(dp(2), dp(36))
             // Premultiplied ARGB pixels quantize low-alpha RGB channels; the Paint stays exact.
