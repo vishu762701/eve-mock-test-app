@@ -193,17 +193,13 @@ class EveBottomPillBar @JvmOverloads constructor(
      * Ported from Telegram BlurredBackgroundProviderImpl.mainTabs() & StrokeDrawable.
      */
     private class TelegramGlassBackgroundDrawable(val context: Context) : Drawable() {
-        private val paintFill = Paint(Paint.ANTI_ALIAS_FLAG)
         private val paintStrokeTop = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
         private val paintStrokeBottom = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
-        private val paintShadow = Paint(Paint.ANTI_ALIAS_FLAG)
 
         private val rect = RectF()
         private var radius = 0f
         private var strokeTopWidth = 0f
         private var strokeBottomWidth = 0f
-        private var shadowRadius = 0f
-        private var shadowDy = 0f
         private var isDark = false
 
         init {
@@ -215,10 +211,6 @@ class EveBottomPillBar @JvmOverloads constructor(
             paintStrokeTop.strokeWidth = strokeTopWidth
             paintStrokeBottom.strokeWidth = strokeBottomWidth
 
-            // Shadow properties from BlurredBackgroundProviderImpl: radius 2.667dp, dy 0.85dp
-            shadowRadius = 2.667f * density
-            shadowDy = 0.85f * density
-            paintShadow.setShadowLayer(shadowRadius, 0f, shadowDy, 0x20000000)
         }
 
         fun setPalette(palette: TelegramThemeEngine.ResolvedPalette) {
@@ -232,13 +224,9 @@ class EveBottomPillBar @JvmOverloads constructor(
             if (isDark) {
                 paintStrokeTop.color = 0x06FFFFFF
                 paintStrokeBottom.color = 0x11FFFFFF
-                paintShadow.color = 0x04FFFFFF
-                paintShadow.setShadowLayer(shadowRadius, 0f, shadowDy, 0x04FFFFFF)
             } else {
                 paintStrokeTop.color = 0x11000000
                 paintStrokeBottom.color = 0x20000000
-                paintShadow.color = 0x20000000
-                paintShadow.setShadowLayer(shadowRadius, 0f, shadowDy, 0x20000000)
             }
             invalidateSelf()
         }
@@ -294,12 +282,14 @@ class EveBottomPillBar @JvmOverloads constructor(
         }
 
         override fun setAlpha(alpha: Int) {
-            paintFill.alpha = alpha
+            paintStrokeTop.alpha = alpha
+            paintStrokeBottom.alpha = alpha
             invalidateSelf()
         }
 
         override fun setColorFilter(colorFilter: ColorFilter?) {
-            paintFill.colorFilter = colorFilter
+            paintStrokeTop.colorFilter = colorFilter
+            paintStrokeBottom.colorFilter = colorFilter
             invalidateSelf()
         }
 

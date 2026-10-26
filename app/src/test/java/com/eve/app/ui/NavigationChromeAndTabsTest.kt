@@ -146,10 +146,10 @@ class NavigationChromeAndTabsTest {
     fun testSegmentedControl_colorAliasesAndDrawables() {
         val light = loadColors("src/main/res/values/design_colors.xml")
         val dark = loadColors("src/main/res/values-night/design_colors.xml")
-        assertEquals("#29787880", light["track"])
-        assertEquals("#52787880", dark["track"])
-        assertEquals("#000000", light["accent"])
-        assertEquals("#FFFFFF", dark["accent"])
+        assertEquals("#0F000000", light["track"])
+        assertEquals("#16FFFFFF", dark["track"])
+        assertEquals("#229AF0", light["accent"])
+        assertEquals("#229AF0", dark["accent"])
         for ((name, color) in listOf("design_tab_track" to "track", "design_tab_segment" to "accent")) {
             val drawable = loadXml("src/main/res/drawable/$name.xml")
             assertEquals("@color/$color", (drawable.getElementsByTagName("solid").item(0) as Element).getAttribute("android:color"))

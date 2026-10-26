@@ -114,7 +114,7 @@ class ExamTestsAdapter(
                 item.isCompleted -> {
                     binding.tvSubtitle.text = item.subtitle
                     binding.tvStatus.text = "Completed"
-                    binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.system_green))
+                    binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.system_green_text))
                     binding.cardContainer.setOnClickListener {
                         onTestClick(item.test, item.isCompleted)
                     }
@@ -122,7 +122,7 @@ class ExamTestsAdapter(
                 item.isResume -> {
                     binding.tvSubtitle.text = item.subtitle
                     binding.tvStatus.text = "Resume"
-                    binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.system_blue))
+                    binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.system_blue_text))
                     binding.cardContainer.setOnClickListener {
                         onTestClick(item.test, item.isCompleted)
                     }
@@ -130,7 +130,7 @@ class ExamTestsAdapter(
                 else -> {
                     binding.tvSubtitle.text = item.subtitle
                     binding.tvStatus.text = "Start"
-                    binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.system_blue))
+                    binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.system_blue_text))
                     binding.cardContainer.setOnClickListener {
                         onTestClick(item.test, item.isCompleted)
                     }

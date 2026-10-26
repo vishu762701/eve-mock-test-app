@@ -1262,10 +1262,10 @@ class AdminActivity : EveBaseActivity() {
     private fun updateMaintenanceStatusBadge(isModeActive: Boolean) {
         if (isModeActive) {
             binding.tvLiveMaintenanceStatus.text = "ACTIVE (Restricted)"
-            binding.tvLiveMaintenanceStatus.setTextColor(getColor(R.color.system_red))
+            binding.tvLiveMaintenanceStatus.setTextColor(getColor(R.color.system_red_text))
         } else {
             binding.tvLiveMaintenanceStatus.text = "OFF (Live)"
-            binding.tvLiveMaintenanceStatus.setTextColor(getColor(R.color.system_green))
+            binding.tvLiveMaintenanceStatus.setTextColor(getColor(R.color.system_green_text))
         }
     }
 
@@ -1279,7 +1279,7 @@ class AdminActivity : EveBaseActivity() {
 
                 val isSupported = BuildConfig.VERSION_CODE >= config.minimum_supported_version_code
                 binding.tvVersionStatusBadge.text = if (isSupported) "Supported" else "Update Required"
-                binding.tvVersionStatusBadge.setTextColor(getColor(if (isSupported) R.color.system_green else R.color.system_red))
+                binding.tvVersionStatusBadge.setTextColor(getColor(if (isSupported) R.color.system_green_text else R.color.system_red_text))
 
                 binding.switchMaintenanceMode.isChecked = config.maintenance_mode
                 binding.etMaintenanceMessage.setText(config.maintenance_message)

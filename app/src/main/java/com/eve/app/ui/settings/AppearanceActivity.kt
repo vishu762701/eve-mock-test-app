@@ -151,7 +151,7 @@ class AppearanceActivity : EveBaseActivity() {
         val palette = TelegramThemeEngine.resolveCurrentPalette(this)
         val selectedBg = palette.accent
         val selectedFg = palette.onAccent
-        val defaultBg = ContextCompat.getColor(this, R.color.surface_inset)
+        val defaultBg = palette.surfaceInset
         val defaultFg = palette.textPrimary
 
         fun highlight(btn: MaterialButton, active: Boolean) {
@@ -167,6 +167,7 @@ class AppearanceActivity : EveBaseActivity() {
     }
 
     private fun rebuildThemesList() {
+        val palette = TelegramThemeEngine.resolveCurrentPalette(this)
         binding.layoutThemesContainer.removeAllViews()
         val isDark = TelegramThemeEngine.isDarkActive(this)
         val activeThemeId = if (isDark) TelegramThemeEngine.getNightThemeId() else TelegramThemeEngine.getDayThemeId()
@@ -181,7 +182,7 @@ class AppearanceActivity : EveBaseActivity() {
                 radius = 16 * density
                 strokeWidth = if (isSelected) (2 * density).toInt() else 0
                 strokeColor = if (isSelected) theme.baseAccentColor else Color.TRANSPARENT
-                setCardBackgroundColor(ContextCompat.getColor(this@AppearanceActivity, R.color.surface))
+                setCardBackgroundColor(palette.surface)
                 elevation = 4 * density
 
                 val lp = LinearLayout.LayoutParams((100 * density).toInt(), (110 * density).toInt()).apply {
@@ -210,7 +211,7 @@ class AppearanceActivity : EveBaseActivity() {
                     val label = TextView(this@AppearanceActivity).apply {
                         text = theme.name
                         gravity = Gravity.CENTER
-                        setTextColor(ContextCompat.getColor(this@AppearanceActivity, R.color.text_primary))
+                        setTextColor(palette.textPrimary)
                         textSize = 12f
                         typeface = if (isSelected) android.graphics.Typeface.DEFAULT_BOLD else android.graphics.Typeface.DEFAULT
                     }
@@ -234,6 +235,7 @@ class AppearanceActivity : EveBaseActivity() {
     }
 
     private fun rebuildAccentsList() {
+        val palette = TelegramThemeEngine.resolveCurrentPalette(this)
         binding.layoutAccentsContainer.removeAllViews()
         val isDark = TelegramThemeEngine.isDarkActive(this)
         val activeThemeId = if (isDark) TelegramThemeEngine.getNightThemeId() else TelegramThemeEngine.getDayThemeId()
@@ -267,7 +269,7 @@ class AppearanceActivity : EveBaseActivity() {
             val swatch = MaterialCardView(this).apply {
                 radius = 20 * density
                 strokeWidth = if (isSelected) (2 * density).toInt() else 0
-                strokeColor = if (isSelected) ContextCompat.getColor(this@AppearanceActivity, R.color.text_primary) else Color.TRANSPARENT
+                strokeColor = if (isSelected) palette.textPrimary else Color.TRANSPARENT
                 setCardBackgroundColor(accent.color)
                 layoutParams = android.widget.FrameLayout.LayoutParams(visualSize, visualSize, Gravity.CENTER)
                 isClickable = false

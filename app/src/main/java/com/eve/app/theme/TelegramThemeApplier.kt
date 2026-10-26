@@ -30,12 +30,13 @@ import java.util.WeakHashMap
  */
 object TelegramThemeApplier {
 
-    private enum class TextColorRole { PRIMARY, SECONDARY }
+    private enum class TextColorRole { PRIMARY, SECONDARY, ON_ACCENT }
 
     private data class AppliedTextColor(val role: TextColorRole, val color: Int)
 
     // Retain semantic roles across palette changes without retaining detached views.
     private val appliedTextColors = WeakHashMap<TextView, AppliedTextColor>()
+    private val appliedImageColors = WeakHashMap<ImageView, Pair<Int, Int>>()
 
     fun applyToActivity(activity: Activity, palette: TelegramThemeEngine.ResolvedPalette) {
         val root = activity.findViewById<View>(android.R.id.content) ?: return
@@ -49,6 +50,7 @@ object TelegramThemeApplier {
             return
         }
 
+        applyBackgroundRole(view, palette)
         when (view) {
             is EveBottomPillBar -> {
                 view.updateThemePalette(palette)
@@ -107,6 +109,24 @@ object TelegramThemeApplier {
                 view.buttonTintList = ColorStateList.valueOf(palette.accent)
                 view.setTextColor(palette.textPrimary)
             }
+            is ImageView -> {
+                val old = androidx.core.widget.ImageViewCompat.getImageTintList(view)
+                if (old != null && !old.isStateful) {
+                    val prior = appliedImageColors[view]
+                    val current = old.defaultColor
+                    val role = if (prior?.second == current) prior.first else when (current) {
+                        androidx.core.content.ContextCompat.getColor(view.context, R.color.text_primary) -> 0
+                        androidx.core.content.ContextCompat.getColor(view.context, R.color.text_secondary) -> 1
+                        androidx.core.content.ContextCompat.getColor(view.context, R.color.accent) -> 2
+                        else -> -1
+                    }
+                    val color = when (role) { 0 -> palette.textPrimary; 1 -> palette.textSecondary; 2 -> palette.accent; else -> current }
+                    if (role >= 0) {
+                        androidx.core.widget.ImageViewCompat.setImageTintList(view, ColorStateList.valueOf(color))
+                        appliedImageColors[view] = role to color
+                    }
+                }
+            }
             is EditText -> {
                 view.setTextColor(palette.textPrimary)
                 view.setHintTextColor(palette.textSecondary)
@@ -127,6 +147,38 @@ object TelegramThemeApplier {
         }
     }
 
+    private enum class BackgroundRole { CANVAS, SURFACE, DIALOG }
+    private data class AppliedBackground(val role: BackgroundRole, val color: Int)
+    private val backgroundRoles = WeakHashMap<View, AppliedBackground>()
+
+    private fun solidColor(view: View): Int? = when (val background = view.background) {
+        is android.graphics.drawable.ColorDrawable -> background.color
+        is android.graphics.drawable.GradientDrawable -> background.color?.defaultColor
+        else -> null
+    }
+
+    /** Preserve shape/padding and semantic caller-owned fills while rebinding late/live roots. */
+    private fun applyBackgroundRole(view: View, palette: TelegramThemeEngine.ResolvedPalette) {
+        val color = solidColor(view) ?: return
+        val previous = backgroundRoles[view]
+        val role = if (previous?.color == color) previous.role else when (color) {
+            androidx.core.content.ContextCompat.getColor(view.context, R.color.bg_app) -> BackgroundRole.CANVAS
+            androidx.core.content.ContextCompat.getColor(view.context, R.color.surface) -> BackgroundRole.SURFACE
+            androidx.core.content.ContextCompat.getColor(view.context, R.color.dialog_surface) -> BackgroundRole.DIALOG
+            else -> return
+        }
+        val resolved = when (role) {
+            BackgroundRole.CANVAS -> palette.windowBackground
+            BackgroundRole.SURFACE -> palette.surface
+            BackgroundRole.DIALOG -> palette.dialogSurface
+        }
+        when (val background = view.background) {
+            is android.graphics.drawable.ColorDrawable -> if (color != resolved) background.color = resolved
+            is android.graphics.drawable.GradientDrawable -> if (color != resolved) (background.mutate() as android.graphics.drawable.GradientDrawable).setColor(resolved)
+        }
+        backgroundRoles[view] = AppliedBackground(role, resolved)
+    }
+
     private fun applyTextViewColors(tv: TextView, palette: TelegramThemeEngine.ResolvedPalette) {
         val tagStr = tv.tag?.toString() ?: ""
         if (tagStr.contains("semantic_") ||
@@ -145,9 +197,10 @@ object TelegramThemeApplier {
             previouslyApplied.role
         } else {
             // Preserve caller-owned custom colors; reclassify only known defaults.
-            when (current) {
-                Color.BLACK, Color.WHITE, 0xFF1A1D21.toInt() -> TextColorRole.PRIMARY
-                0xFF6C6C70.toInt(), 0xFFA1A1A6.toInt(), 0xFF6C6E6F.toInt(), 0x75FFFFFF -> TextColorRole.SECONDARY
+            when {
+                solidColor(tv) == palette.accent && current == palette.onAccent -> TextColorRole.ON_ACCENT
+                current == Color.BLACK || current == Color.WHITE || current == 0xFF1A1D21.toInt() -> TextColorRole.PRIMARY
+                current == 0xFF6C6C70.toInt() || current == 0xFFA1A1A6.toInt() || current == 0xFF6C6E6F.toInt() || current == 0x75FFFFFF -> TextColorRole.SECONDARY
                 else -> null
             }
         }
@@ -156,7 +209,11 @@ object TelegramThemeApplier {
             appliedTextColors.remove(tv)
             return
         }
-        val resolved = if (role == TextColorRole.PRIMARY) palette.textPrimary else palette.textSecondary
+        val resolved = when (role) {
+            TextColorRole.PRIMARY -> palette.textPrimary
+            TextColorRole.SECONDARY -> palette.textSecondary
+            TextColorRole.ON_ACCENT -> palette.onAccent
+        }
         if (current != resolved) tv.setTextColor(resolved)
         appliedTextColors[tv] = AppliedTextColor(role, resolved)
     }

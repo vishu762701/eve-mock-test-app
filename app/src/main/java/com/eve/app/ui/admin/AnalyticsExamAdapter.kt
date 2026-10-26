@@ -36,17 +36,17 @@ class AnalyticsExamAdapter : RecyclerView.Adapter<AnalyticsExamAdapter.VH>() {
                 x.attemptCount == 0L -> {
                     b.tvEngagementBadge.visibility = View.VISIBLE
                     b.tvEngagementBadge.text = "⚠️ 0 Attempts - Needs Promotion"
-                    b.tvEngagementBadge.setTextColor(ContextCompat.getColor(ctx, R.color.system_red))
+                    b.tvEngagementBadge.setTextColor(ContextCompat.getColor(ctx, R.color.system_red_text))
                 }
                 x.attemptCount < 5L -> {
                     b.tvEngagementBadge.visibility = View.VISIBLE
                     b.tvEngagementBadge.text = "⚠️ Low Engagement (<5 attempts)"
-                    b.tvEngagementBadge.setTextColor(ContextCompat.getColor(ctx, R.color.system_orange))
+                    b.tvEngagementBadge.setTextColor(ContextCompat.getColor(ctx, R.color.system_orange_text))
                 }
                 else -> {
                     b.tvEngagementBadge.visibility = View.VISIBLE
                     b.tvEngagementBadge.text = "✅ Active Engagement"
-                    b.tvEngagementBadge.setTextColor(ContextCompat.getColor(ctx, R.color.system_green))
+                    b.tvEngagementBadge.setTextColor(ContextCompat.getColor(ctx, R.color.system_green_text))
                 }
             }
         }

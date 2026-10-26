@@ -108,8 +108,8 @@ class AnswerAdapter(
                         isCorrect -> {
                             layout.setBackgroundResource(R.drawable.design_tile_green)
                             badge.setBackgroundResource(R.drawable.design_badge_green)
-                            badge.setTextColor(ContextCompat.getColor(ctx, R.color.system_green))
-                            textView.setTextColor(ContextCompat.getColor(ctx, R.color.system_green))
+                            badge.setTextColor(ContextCompat.getColor(ctx, R.color.system_green_text))
+                            textView.setTextColor(ContextCompat.getColor(ctx, R.color.system_green_text))
                             statusIv.visibility = View.VISIBLE
                             statusIv.setImageResource(R.drawable.ic_check_circle)
                             statusIv.imageTintList = android.content.res.ColorStateList.valueOf(
@@ -119,8 +119,8 @@ class AnswerAdapter(
                         isSelected -> {
                             layout.setBackgroundResource(R.drawable.design_tile_red)
                             badge.setBackgroundResource(R.drawable.design_badge_red)
-                            badge.setTextColor(ContextCompat.getColor(ctx, R.color.system_red))
-                            textView.setTextColor(ContextCompat.getColor(ctx, R.color.system_red))
+                            badge.setTextColor(ContextCompat.getColor(ctx, R.color.system_red_text))
+                            textView.setTextColor(ContextCompat.getColor(ctx, R.color.system_red_text))
                             statusIv.visibility = View.VISIBLE
                             statusIv.setImageResource(R.drawable.ic_close)
                             statusIv.imageTintList = android.content.res.ColorStateList.valueOf(
@@ -185,15 +185,15 @@ class AnswerAdapter(
                 }
                 item.isCorrect -> {
                     b.tvYourAnswer.text = "Your answer: ${item.selected}. ${item.displaySelectedText(hindi)}  ✓ Correct"
-                    b.tvYourAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.system_green))
+                    b.tvYourAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.system_green_text))
                 }
                 else -> {
                     b.tvYourAnswer.text = "Your answer: ${item.selected}. ${item.displaySelectedText(hindi)}  ✗ Incorrect"
-                    b.tvYourAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.system_red))
+                    b.tvYourAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.system_red_text))
                 }
             }
             b.tvCorrectAnswer.text = "Correct answer: ${item.correct}. ${item.displayCorrectText(hindi)}  ✓"
-            b.tvCorrectAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.system_green))
+            b.tvCorrectAnswer.setTextColor(ContextCompat.getColor(ctx, R.color.system_green_text))
 
             // X% got this right stat
             val stat = questionStats[item.questionId]

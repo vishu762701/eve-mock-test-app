@@ -27,7 +27,7 @@ class LeaderboardAdapter(
             when (rank) {
                 1 -> {
                     com.eve.app.designsystem.DesignSurfaces.badge(b.tvRank, R.drawable.design_badge_orange)
-                    b.tvRank.setTextColor(ContextCompat.getColor(ctx, R.color.system_orange))
+                    b.tvRank.setTextColor(ContextCompat.getColor(ctx, R.color.system_orange_text))
                 }
                 2, 3 -> {
                     com.eve.app.designsystem.DesignSurfaces.badge(b.tvRank, R.drawable.design_badge_neutral)

@@ -76,7 +76,7 @@ class SurfaceMaterialTest {
     @Test fun panelsHaveSolidSurfaceAndSharedRadiusWithoutOutline() {
         val panel = loadXml("src/main/res/drawable/design_surface_panel.xml")
         assertEquals("shape", panel.documentElement.tagName)
-        assertEquals("@color/dialog_surface", (panel.getElementsByTagName("solid").item(0) as Element).getAttribute("android:color"))
+        assertEquals("@color/surface", (panel.getElementsByTagName("solid").item(0) as Element).getAttribute("android:color"))
         assertEquals("@dimen/design_radius_card", (panel.getElementsByTagName("corners").item(0) as Element).getAttribute("android:radius"))
         assertEquals(0, panel.getElementsByTagName("stroke").length)
     }
@@ -121,14 +121,14 @@ class SurfaceMaterialTest {
         val themesDoc = loadXml("src/main/res/values/themes.xml")
         val themeStyle = findStyle(themesDoc, "Theme.Eve.Dialog.SubmitConfirmation")
         assertNotNull("Theme.Eve.Dialog.SubmitConfirmation must exist in values/themes.xml", themeStyle)
-        assertEquals("@drawable/design_surface_panel", findItem(themeStyle!!, "android:windowBackground"))
+        assertEquals("@drawable/design_dialog_surface_panel", findItem(themeStyle!!, "android:windowBackground"))
         assertEquals("true", findItem(themeStyle, "android:windowIsFloating"))
 
         // Theme.Eve.Dialog.SubmitConfirmation in values-v31/materials.xml
         val v31Doc = loadXml("src/main/res/values-v31/materials.xml")
         val v31Style = findStyle(v31Doc, "Theme.Eve.Dialog.SubmitConfirmation")
         assertNotNull("Theme.Eve.Dialog.SubmitConfirmation must exist in values-v31/materials.xml", v31Style)
-        assertEquals("@drawable/design_surface_panel", findItem(v31Style!!, "android:windowBackground"))
+        assertEquals("@drawable/design_dialog_surface_panel", findItem(v31Style!!, "android:windowBackground"))
         assertEquals("true", findItem(v31Style, "android:windowIsFloating"))
         assertEquals("false", findItem(v31Style, "android:windowIsTranslucent"))
         assertEquals("@dimen/design_zero", findItem(v31Style, "android:windowBackgroundBlurRadius"))

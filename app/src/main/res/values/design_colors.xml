@@ -35,4 +35,11 @@
     <color name="system_yellow">#FFCC00</color>
     <color name="system_yellow_container">#1FFFCC00</color>
     <color name="dialog_surface">#FFFFFF</color>
+    <color name="system_red_text">#FFBD292C</color>
+    <color name="system_green_text">#FF1F7735</color>
+    <color name="system_blue_text">#FF0064BD</color>
+    <color name="system_orange_text">#FF9B5518</color>
+    <color name="system_yellow_text">#FF826800</color>
+    <color name="system_purple_text">#FFA326B4</color>
+    <color name="system_indigo_text">#FF574DDD</color>
 </resources>

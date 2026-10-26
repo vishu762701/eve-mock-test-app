@@ -35,7 +35,7 @@ class MistakesAdapter(
                 binding.layoutYourAnswer.visibility = View.GONE
             } else {
                 binding.tvMistakeType.text = "Wrong Answer"
-                binding.tvMistakeType.setTextColor(ContextCompat.getColor(itemView.context, R.color.system_red))
+                binding.tvMistakeType.setTextColor(ContextCompat.getColor(itemView.context, R.color.system_red_text))
                 binding.layoutYourAnswer.visibility = View.VISIBLE
                 val ansText = if (hindi && item.selectedTextHi.isNotBlank()) item.selectedTextHi else item.selectedText
                 binding.tvYourAnswer.text = "${item.selected}) $ansText"
@@ -55,14 +55,14 @@ class MistakesAdapter(
             // Learned toggle state
             if (learned) {
                 binding.btnMarkLearned.text = "Learned ✓"
-                binding.btnMarkLearned.setTextColor(ContextCompat.getColor(itemView.context, R.color.system_green))
+                binding.btnMarkLearned.setTextColor(ContextCompat.getColor(itemView.context, R.color.system_green_text))
                 binding.btnMarkLearned.strokeColor = ColorStateList.valueOf(
                     ContextCompat.getColor(itemView.context, R.color.hairline)
                 )
                 binding.layoutExplanation.alpha = 1.0f
             } else {
                 binding.btnMarkLearned.text = "Mark as learned"
-                binding.btnMarkLearned.setTextColor(ContextCompat.getColor(itemView.context, R.color.system_blue))
+                binding.btnMarkLearned.setTextColor(ContextCompat.getColor(itemView.context, R.color.system_blue_text))
                 binding.btnMarkLearned.strokeColor = ColorStateList.valueOf(
                     ContextCompat.getColor(itemView.context, R.color.hairline)
                 )

@@ -100,6 +100,27 @@ class TelegramColorMigrationTest {
         } finally { file.delete(); prefs.edit().clear().commit(); restart() }
     }
 
+    @Test fun liveBackgroundRolesKeepShapesAndCallerOverridesThroughRepeatedSwitches() {
+        val light = palette(false)
+        val night = palette(true)
+        val themed = ContextThemeWrapper(context, R.style.Theme_Eve)
+        val root = android.widget.LinearLayout(themed).apply { setBackgroundColor(light.windowBackground) }
+        val card = android.view.View(themed).apply {
+            background = android.graphics.drawable.GradientDrawable().apply { cornerRadius = 19f; setColor(light.surface) }
+        }
+        root.addView(card)
+        TelegramThemeApplier.applyToViewTree(root, light)
+        TelegramThemeApplier.applyToViewTree(root, night)
+        assertEquals(night.windowBackground, (root.background as android.graphics.drawable.ColorDrawable).color)
+        assertEquals(night.surface, (card.background as android.graphics.drawable.GradientDrawable).color!!.defaultColor)
+        assertEquals(19f, (card.background as android.graphics.drawable.GradientDrawable).cornerRadius, 0f)
+        TelegramThemeApplier.applyToViewTree(root, light)
+        assertEquals(light.surface, (card.background as android.graphics.drawable.GradientDrawable).color!!.defaultColor)
+        card.setBackgroundColor(Color.MAGENTA)
+        TelegramThemeApplier.applyToViewTree(root, night)
+        assertEquals(Color.MAGENTA, (card.background as android.graphics.drawable.ColorDrawable).color)
+    }
+
     @Test fun packagedNightAssetMatchesTheIndependentlyVerifiedSourceFile() {
         val bytes = context.assets.open("themes/night.attheme").use { it.readBytes() }
         val sha = MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }

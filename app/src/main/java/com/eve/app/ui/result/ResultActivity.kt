@@ -751,7 +751,7 @@ class ResultActivity : EveBaseActivity() {
                 }
                 val confirmBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 val cancelBtn = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
-                confirmBtn.setTextColor(ContextCompat.getColor(this@ResultActivity, R.color.system_red))
+                confirmBtn.setTextColor(ContextCompat.getColor(this@ResultActivity, R.color.system_red_text))
 
                 cancelBtn.setOnClickListener {
                     if (decorView != null) {

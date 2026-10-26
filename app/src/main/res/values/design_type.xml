@@ -298,10 +298,10 @@
     </style>
 
     <style name="TextAppearance.Eve.Token.Error" parent="TextAppearance.Eve.Token.Secondary">
-        <item name="android:textColor">@color/system_red</item>
+        <item name="android:textColor">@color/system_red_text</item>
     </style>
 
     <style name="TextAppearance.Eve.Token.Link" parent="TextAppearance.Eve.Token.Body">
-        <item name="android:textColor">@color/system_blue</item>
+        <item name="android:textColor">@color/system_blue_text</item>
     </style>
 </resources>

@@ -20,10 +20,11 @@ class DesignSegmentedTabs @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = com.google.android.material.R.attr.tabStyle
 ) : TabLayout(context, attrs, defStyleAttr) {
+    private var currentPalette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
     init {
         clipChildren = false
         clipToPadding = false
-        val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
+        val palette = currentPalette
         applyIndicatorColor(palette.accent)
         tabRippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
         addOnTabSelectedListener(object : OnTabSelectedListener {
@@ -34,6 +35,7 @@ class DesignSegmentedTabs @JvmOverloads constructor(
     }
 
     fun updatePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+        currentPalette = palette
         applyIndicatorColor(palette.accent)
         tabRippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
         applyTypography()
@@ -85,7 +87,7 @@ class DesignSegmentedTabs @JvmOverloads constructor(
             if (view.typeface != tabTypeface) view.typeface = tabTypeface
             val size = resources.getDimension(R.dimen.design_type_tab)
             if (view.textSize != size) view.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
-            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
+            val palette = currentPalette
             // Indicator fill and selected text migrated together to current active palette.
             val color = if (selected) palette.onAccent else palette.textPrimary
             if (view.currentTextColor != color) view.setTextColor(color)

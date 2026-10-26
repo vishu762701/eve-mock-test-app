@@ -153,7 +153,7 @@ class UiArcMorphSelectView @JvmOverloads constructor(
                 marginStart = Math.round(4f * density)
             }
             TextViewCompat.setTextAppearance(this, R.style.TextAppearance_Eve_Token_Secondary)
-            setTextColor(ContextCompat.getColor(context, R.color.system_red))
+            setTextColor(ContextCompat.getColor(context, R.color.system_red_text))
             typeface = FontManager.typeface(context, bold = false)
             visibility = GONE
         }

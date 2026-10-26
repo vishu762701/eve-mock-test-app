@@ -136,13 +136,13 @@ class HomeSemanticColorsTest {
     }
 
     @Test
-    fun testOfficialAppleLabelHierarchy_forHome() {
+    fun testSourceDerivedAccessibleLabelHierarchy_forHome() {
         val light = loadColors("src/main/res/values/design_colors.xml")
         val dark = loadColors("src/main/res/values-night/design_colors.xml")
         assertEquals("#1A1D21", light["text_primary"])
         assertEquals("#FFFFFF", dark["text_primary"])
-        assertEquals("#6C6C70", light["text_secondary"])
-        assertEquals("#A1A1A6", dark["text_secondary"])
+        assertEquals("#6C6E6F", light["text_secondary"])
+        assertEquals("#75FFFFFF", dark["text_secondary"])
     }
 
     @Test
