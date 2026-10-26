@@ -145,7 +145,7 @@ class SourceColorMigrationNativeTest {
             val context = ContextThemeWrapper(instrumentation.targetContext, R.style.Theme_Eve)
             val pill = EveBottomPillBar(context)
             pill.setUserAvatar(null)
-            val fallback = pill.tabProfile.avatarView.drawable
+            val fallback = requireNotNull(pill.tabProfile.avatarView.drawable)
             val light = TelegramThemeEngine.resolvePalette(context, TelegramThemeEngine.getTheme("day"), 0)
             val night = TelegramThemeEngine.resolvePalette(context, TelegramThemeEngine.getTheme("night"), 0)
             pill.updateThemePalette(light)

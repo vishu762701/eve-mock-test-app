@@ -237,11 +237,9 @@ class DesignRecoveryTest {
                 }
                 assertTrue("Enabled input outlines must be distinguishable from the canvas",
                     androidx.core.graphics.ColorUtils.calculateContrast(context.getColor(R.color.accent_icon), context.getColor(R.color.bg_app)) >= 3.0)
-                val accent = context.getColor(R.color.system_blue)
-                // UI ADR-009 explicitly accepts system blue's sub-AA contrast.
-                // Other semantic labels retain their contrast assertions above.
-                assertEquals("Interactive labels retain the user-selected system blue",
-                    context.getColor(R.color.system_blue), accent)
+                val accentText = context.getColor(R.color.system_blue_text)
+                assertTrue("Interactive semantic labels use accessible foreground shades",
+                    androidx.core.graphics.ColorUtils.calculateContrast(accentText, context.getColor(R.color.bg_app)) >= 4.5)
                 val primaryFill = context.getColor(R.color.accent)
                 assertTrue("On-accent control label meets 3:1 on primary fill",
                     androidx.core.graphics.ColorUtils.calculateContrast(context.getColor(R.color.on_accent), primaryFill) >= 3.0)
