@@ -131,3 +131,8 @@ focus outlines now use accent_icon (3:1), and timer text/arc use accent_text (4.
 with semantic warning text shades. Timer values, deadlines, thresholds, geometry
 and motion are unchanged. A per-tab tinted alpha-mask placeholder is used for
 missing/loading avatars; loaded photo drawables never receive that filter.
+
+Imported translucent modal colors are preserved byte-for-byte. AA calculations
+composite them over the resolved opaque backing first; they do not force imported
+surfaces opaque or reject an otherwise valid user theme. A focused round-trip
+regression test covers this separate custom-theme override path.

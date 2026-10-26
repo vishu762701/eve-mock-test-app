@@ -150,6 +150,20 @@ class TelegramColorMigrationTest {
         }
     }
 
+    @Test fun translucentImportedSurfaceRemainsValidAndPreservesOriginalArgb() {
+        val file = File(context.filesDir, "custom_991234568.attheme")
+        val bytes = "windowBackgroundGray=-16777216\nwindowBackgroundWhite=-15198183\ndialogBackground=#80181819\nwindowBackgroundWhiteBlackText=-1\n".toByteArray()
+        file.writeBytes(bytes)
+        try {
+            val theme = requireNotNull(TelegramThemeEngine.registerCustomTheme(context, file))
+            val p = TelegramThemeEngine.resolvePalette(context, theme, 0)
+            assertEquals(0x80181819.toInt(), p.dialogSurface)
+            val backing = ColorUtils.compositeColors(p.dialogSurface, p.windowBackground)
+            assertTrue(ColorUtils.calculateContrast(p.textSecondary, backing) >= 4.5)
+            assertArrayEquals(bytes, file.readBytes())
+        } finally { file.delete() }
+    }
+
     @Test fun packagedNightAssetMatchesTheIndependentlyVerifiedSourceFile() {
         val bytes = context.assets.open("themes/night.attheme").use { it.readBytes() }
         val sha = MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }

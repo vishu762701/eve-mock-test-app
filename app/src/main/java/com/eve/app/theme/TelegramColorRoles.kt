@@ -66,7 +66,11 @@ object TelegramColorRoles {
      * Raw source colors remain in defaults/the resolved glass roles for provenance/overlay.
      */
     fun accessibleForeground(source: Int, backgrounds: List<Int>, ratio: Double = 4.5): Int {
-        fun passes(color: Int) = backgrounds.all { bg ->
+        // Imported themes may intentionally use translucent surfaces. Calculate contrast
+        // on their opaque backing without changing the imported ARGB or file bytes.
+        val backing = backgrounds.firstOrNull { Color.alpha(it) == 255 } ?: Color.BLACK
+        val opaqueBackgrounds = backgrounds.map { ColorUtils.compositeColors(it, backing) }
+        fun passes(color: Int) = opaqueBackgrounds.all { bg ->
             ColorUtils.calculateContrast(ColorUtils.compositeColors(color, bg), bg) >= ratio
         }
         for (alpha in Color.alpha(source)..255) {
@@ -75,7 +79,7 @@ object TelegramColorRoles {
         }
         val opaque = source or 0xff000000.toInt()
         val endpoint = listOf(Color.BLACK, Color.WHITE).maxByOrNull { color ->
-            backgrounds.minOf { ColorUtils.calculateContrast(color, it) }
+            opaqueBackgrounds.minOf { ColorUtils.calculateContrast(color, it) }
         }!!
         for (step in 1..255) {
             val candidate = ColorUtils.blendARGB(opaque, endpoint, step / 255f)

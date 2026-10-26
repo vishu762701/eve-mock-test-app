@@ -180,7 +180,7 @@ app/src/main/java/com/eve/app/theme/TelegramColorRoles.kt	33		runtime/component 
 app/src/main/java/com/eve/app/theme/TelegramColorRoles.kt	34		runtime/component producer; source or EVE semantic role	"divider" to 0xFFD9D9D9.toInt(),
 app/src/main/java/com/eve/app/theme/TelegramColorRoles.kt	35		runtime/component producer; source or EVE semantic role	"listSelector" to 0x0F000000.toInt()
 app/src/main/java/com/eve/app/theme/TelegramColorRoles.kt	58		runtime/component producer; source or EVE semantic role	if (direct != null) return if (key in opaqueKeys) direct or 0xff000000.toInt() else direct
-app/src/main/java/com/eve/app/theme/TelegramColorRoles.kt	76		runtime/component producer; source or EVE semantic role	val opaque = source or 0xff000000.toInt()
+app/src/main/java/com/eve/app/theme/TelegramColorRoles.kt	80		runtime/component producer; source or EVE semantic role	val opaque = source or 0xff000000.toInt()
 app/src/main/java/com/eve/app/theme/TelegramThemeApplier.kt	43		runtime/component producer; source or EVE semantic role	root.setBackgroundColor(palette.windowBackground)
 app/src/main/java/com/eve/app/theme/TelegramThemeApplier.kt	44		runtime/component producer; source or EVE semantic role	activity.window.decorView.setBackgroundColor(palette.windowBackground)
 app/src/main/java/com/eve/app/theme/TelegramThemeApplier.kt	82		runtime/component producer; source or EVE semantic role	view.backgroundTintList?.defaultColor == palette.accent
