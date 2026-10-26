@@ -80,9 +80,9 @@ class TelegramRadioButton @JvmOverloads constructor(
         indicator?.jumpToCurrentState()
         indicator = TelegramRadioIndicator(resources.displayMetrics.density,
             resources.getDimensionPixelSize(R.dimen.design_icon_size), ::motionEnabled)
-        // Remove both tint channels: the source drawing interpolates its own two colors.
-        supportButtonTintList = null
-        buttonTintList = null
+        // API 24+ AppCompat inflation installs buttonTint through the public framework
+        // channel. Clear it so the source drawing interpolates its own two colors.
+        androidx.core.widget.CompoundButtonCompat.setButtonTintList(this, null)
         val iconInset = resources.getDimensionPixelSize(R.dimen.design_card_padding)
         buttonDrawable = android.graphics.drawable.InsetDrawable(indicator, iconInset, 0, iconInset, 0)
         indicator?.setChecked(isChecked, false)
