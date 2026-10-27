@@ -40,17 +40,26 @@ class BulletinHostNativeTest {
         return own + if (view is ViewGroup) (0 until view.childCount).sumOf { bulletinCount(view.getChildAt(it)) } else 0
     }
     private fun awaitWindowFocus(scenario: ActivityScenario<RepairVerificationActivity>) {
-        awaitCondition(scenario, "Attached test activity must have window focus") { it.hasWindowFocus() }
-    }
-    private fun captureWindow(name: String) {
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
         val deadline = SystemClock.uptimeMillis() + 4000L
-        var activePackage = instrumentation.uiAutomation.rootInActiveWindow?.packageName?.toString()
-        while (activePackage != instrumentation.targetContext.packageName && SystemClock.uptimeMillis() < deadline) {
-            SystemClock.sleep(25)
-            activePackage = instrumentation.uiAutomation.rootInActiveWindow?.packageName?.toString()
+        var focused = false
+        while (!focused && SystemClock.uptimeMillis() < deadline) {
+            scenario.onActivity { focused = it.hasWindowFocus() }
+            if (!focused) SystemClock.sleep(25)
         }
-        assertEquals("Screenshot must capture the test app's focused window", instrumentation.targetContext.packageName, activePackage)
+        val active = InstrumentationRegistry.getInstrumentation().uiAutomation.rootInActiveWindow?.packageName
+        assertTrue("Attached test activity must have window focus; active package=$active", focused)
+    }
+    private fun captureWindow(name: String, allowInputMethod: Boolean = false) {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        if (!allowInputMethod) {
+            val deadline = SystemClock.uptimeMillis() + 4000L
+            var activePackage = instrumentation.uiAutomation.rootInActiveWindow?.packageName?.toString()
+            while (activePackage != instrumentation.targetContext.packageName && SystemClock.uptimeMillis() < deadline) {
+                SystemClock.sleep(25)
+                activePackage = instrumentation.uiAutomation.rootInActiveWindow?.packageName?.toString()
+            }
+            assertEquals("Screenshot must capture the test app's focused window", instrumentation.targetContext.packageName, activePackage)
+        }
         val screenshot = requireNotNull(instrumentation.uiAutomation.takeScreenshot())
         try {
             if (android.os.Build.VERSION.SDK_INT >= 29) {
@@ -308,7 +317,10 @@ class BulletinHostNativeTest {
                     android.util.Log.w("EveBulletin", "MANUAL/UNKNOWN: emulator did not show an IME")
                 }
             }
-            if (visible) captureWindow("bulletin-ime")
+            if (visible) {
+                awaitWindowFocus(scenario)
+                captureWindow("bulletin-ime", allowInputMethod = true)
+            }
         }
     }
 
