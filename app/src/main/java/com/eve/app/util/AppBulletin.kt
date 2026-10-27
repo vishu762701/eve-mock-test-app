@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewConfiguration
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -19,6 +20,7 @@ import com.eve.app.designsystem.DesignMotion
 import com.eve.app.designsystem.UiArcMotion
 import java.lang.ref.WeakReference
 import java.util.WeakHashMap
+import kotlin.math.abs
 
 /**
  * UIArc Toast Stack & Bulletin System.
@@ -203,6 +205,7 @@ class AppBulletin private constructor(
     private fun setupTouchInteractions(card: View) {
         var startX = 0f
         var isDragging = false
+        val touchSlop = ViewConfiguration.get(activity).scaledTouchSlop
 
         card.setOnTouchListener { v, event ->
             when (event.actionMasked) {
@@ -210,39 +213,40 @@ class AppBulletin private constructor(
                     startX = event.rawX
                     isDragging = false
                     pauseStackTimers(activity)
-                    false
+                    true
                 }
                 MotionEvent.ACTION_MOVE -> {
                     val deltaX = event.rawX - startX
-                    if (deltaX > 20f) {
+                    if (abs(deltaX) > touchSlop) {
                         isDragging = true
                         v.translationX = deltaX
-                        v.alpha = (1f - (deltaX / (v.width * 0.8f))).coerceIn(0.2f, 1f)
+                        v.alpha = (1f - (abs(deltaX) / (v.width * 0.8f))).coerceIn(0.2f, 1f)
                         true
                     } else {
-                        false
+                        true
                     }
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                     resumeStackTimers(activity)
                     if (isDragging) {
                         val deltaX = event.rawX - startX
-                        if (deltaX > v.width * 0.35f) {
+                        if (event.actionMasked == MotionEvent.ACTION_UP && abs(deltaX) > v.width / 3f) {
                             // Swiped far enough to dismiss
-                            dismissWithSwipe(v)
+                            dismissWithSwipe(v, deltaX)
                         } else {
                             // Snap back to 0
                             val motionEnabled = UiArcMotion.isMotionEnabled(activity)
                             v.animate()
                                 .translationX(0f)
                                 .alpha(1f)
-                                .setDuration(if (motionEnabled) UiArcMotion.Duration.FAST else 0L)
+                                .setDuration(if (motionEnabled) 200L else 0L)
                                 .setInterpolator(UiArcMotion.Spring.SNAPPY)
                                 .start()
                         }
                         true
                     } else {
-                        false
+                        if (event.actionMasked == MotionEvent.ACTION_UP) v.performClick()
+                        true
                     }
                 }
                 else -> false
@@ -250,7 +254,7 @@ class AppBulletin private constructor(
         }
     }
 
-    private fun dismissWithSwipe(card: View) {
+    private fun dismissWithSwipe(card: View, deltaX: Float) {
         if (isDismissed) return
         isDismissed = true
         mainHandler.removeCallbacks(dismissRunnable)
@@ -259,7 +263,7 @@ class AppBulletin private constructor(
         stack?.remove(this)
 
         val motionEnabled = UiArcMotion.isMotionEnabled(activity)
-        val exitTarget = card.width.toFloat() + 60f
+        val exitTarget = if (deltaX < 0f) -card.width.toFloat() else card.width.toFloat()
 
         card.animate()
             .translationX(exitTarget)
