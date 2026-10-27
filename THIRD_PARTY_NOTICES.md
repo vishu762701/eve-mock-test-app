@@ -184,3 +184,11 @@ provenance claims, not a validation performed here. The EVE implementation uses
 its own host and AndroidX spring transitions, with accessibility
 and lifecycle deviations described in `docs/BULLETIN_MISSION_04.md`. Existing
 Telegram license, corresponding-source and release gates remain in force.
+
+### AndroidX DynamicAnimation 1.0.0
+
+The bulletin springs use `androidx.dynamicanimation:dynamicanimation:1.0.0`
+from the Android Open Source Project. Its published Maven POM identifies the
+Apache License, Version 2.0; the license text is included in
+`app/src/main/assets/licenses/BlurView-LICENSE.txt`. Source:
+https://android.googlesource.com/platform/frameworks/support/.

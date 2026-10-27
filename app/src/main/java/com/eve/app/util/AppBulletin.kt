@@ -200,7 +200,14 @@ class AppBulletin private constructor(
             layoutListener = reposition
             content.addOnLayoutChangeListener(reposition)
             val preDraw = ViewTreeObserver.OnPreDrawListener {
-                if (view === root) position(root)
+                if (view === root) {
+                    position(root)
+                    if (!DesignMotion.enabled(root.context) && transitionSpring?.isRunning == true) {
+                        transitionSpring?.cancel()
+                        if (exiting) handler.post { active?.let { finish(it) } }
+                        else card.translationY = 0f
+                    }
+                }
                 true
             }
             drawListener = preDraw
