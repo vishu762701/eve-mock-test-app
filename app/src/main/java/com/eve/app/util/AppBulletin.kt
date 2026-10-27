@@ -20,8 +20,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import com.eve.app.R
-import com.eve.app.designsystem.UiArcMotion
+import com.eve.app.designsystem.DesignMotion
 import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.ui.navigation.EveBottomPillBar
 import com.google.android.material.card.MaterialCardView
@@ -103,8 +105,16 @@ class AppBulletin private constructor(
         private var layoutListener: View.OnLayoutChangeListener? = null
         private var drawListener: ViewTreeObserver.OnPreDrawListener? = null
         private var exiting = false
+        private val lifecycle = (findActivity(content.context) as? LifecycleOwner)?.lifecycle
+        private val lifecycleObserver = object : DefaultLifecycleObserver {
+            override fun onStop(owner: LifecycleOwner) { dispose() }
+            override fun onDestroy(owner: LifecycleOwner) { dispose() }
+        }
         private val timeout = Runnable { active?.let { dismiss(it) } }
-        init { content.addOnAttachStateChangeListener(this) }
+        init {
+            content.addOnAttachStateChangeListener(this)
+            lifecycle?.addObserver(lifecycleObserver)
+        }
 
         fun enqueue(item: AppBulletin) {
             if (disposed || active === item || pending.contains(item)) return
@@ -129,6 +139,13 @@ class AppBulletin private constructor(
             paused = false
             val root = LayoutInflater.from(activity).inflate(R.layout.layout_telegram_bulletin, content, false)
             view = root
+            root.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+                override fun onViewAttachedToWindow(v: View) = Unit
+                override fun onViewDetachedFromWindow(v: View) {
+                    // setContentView can remove this overlay without detaching the content root.
+                    if (view === v) dispose()
+                }
+            })
             val card = root.findViewById<MaterialCardView>(R.id.cardBulletin)
             val text = root.findViewById<TextView>(R.id.tvBulletinMessage)
             val icon = root.findViewById<ImageView>(R.id.ivBulletinIcon)
@@ -192,7 +209,7 @@ class AppBulletin private constructor(
             root.translationY = -max(bottom, pillOffset).toFloat()
         }
         private fun enter(card: View, activity: Activity) {
-            if (!UiArcMotion.isMotionEnabled(activity)) return
+            if (!DesignMotion.enabled(activity)) return
             card.translationY = card.height.toFloat()
             card.animate().translationY(0f).setDuration(255L).setInterpolator(DecelerateInterpolator()).start()
         }
@@ -227,7 +244,7 @@ class AppBulletin private constructor(
                         if (event.actionMasked == MotionEvent.ACTION_UP && dragging && abs(dx) > v.width / 3f) dismiss(item)
                         else {
                             if (!dragging && event.actionMasked == MotionEvent.ACTION_UP) v.performClick()
-                            v.animate().translationX(0f).setDuration(if (UiArcMotion.isMotionEnabled(activity)) 200L else 0L).start()
+                            v.animate().translationX(0f).setDuration(if (DesignMotion.enabled(activity)) 200L else 0L).start()
                             resumeTimer()
                         }
                         true
@@ -243,7 +260,7 @@ class AppBulletin private constructor(
             val card = view?.findViewById<View>(R.id.cardBulletin)
             val activity = item.activityRef.get()
             handler.removeCallbacks(timeout)
-            if (card == null || activity == null || !UiArcMotion.isMotionEnabled(activity)) { finish(item); return }
+            if (card == null || activity == null || !DesignMotion.enabled(activity)) { finish(item); return }
             card.animate().cancel()
             card.animate().translationY(card.height.toFloat()).setDuration(175L)
                 .setInterpolator(AccelerateInterpolator()).withEndAction { finish(item) }.start()
@@ -270,10 +287,15 @@ class AppBulletin private constructor(
         }
         override fun onViewAttachedToWindow(v: View) = Unit
         override fun onViewDetachedFromWindow(v: View) {
+            dispose()
+        }
+        private fun dispose() {
+            if (disposed) return
             disposed = true
             removeVisible()
             pending.forEach { it.host = null }
             pending.clear()
+            lifecycle?.removeObserver(lifecycleObserver)
             content.removeOnAttachStateChangeListener(this)
             content.setTag(R.id.eve_bulletin_host, null)
         }
