@@ -98,3 +98,7 @@
 
 ## E.3-05 Native test numeric type correction
 - Follow-up to 68ece4a: `kotlin.math.round(Float)` produces Float; `Rect(left,top,right,bottom)` needs Int. Converted measured visual dimensions to Int before rectangle creation. This corrects test-source type safety without changing any assertion, production behavior, CI selection or app code. Verify commit-specific FAST.
+
+## E.3-06 Corrected native-test FAST gate green; retry mission-final FULL
+- `908100f9083dd6a824f116e75c5b9e20dfeef391`, [FAST #40515982517](https://github.com/vishu762701/eve-mock-test-app/actions/runs/40515982517): SUCCESS build / Firebase Functions / backend, no native tests or publication by design.
+- Triggering new same-scope `[eve-full]` commit by updating a test-file documentation comment; no app logic, native assertions, runtime test selection, lint, backend or security gates altered. Exact six-job status, native screenshot proofs and APK artifacts must be verified from the newly triggered run.
