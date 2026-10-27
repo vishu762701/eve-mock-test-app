@@ -44,3 +44,9 @@
 - Parent main 16fef77a86d8f7a67a258a91648e28e0b5447ff6. New `app/src/androidTest/java/com/eve/app/ui/HomeOverflowPopupNativeTest.kt` uses a credentials-free attached RepairVerificationActivity, actual TelegramMenuPopup, global screen bounds against visible display frame, seven rows (touch height and labels), scrollable last action, and dismissal.
 - This is an AndroidTest source **not yet executed** on gesture/three-button devices. FAST compile gate is expected, but actual geometry/RTL/IME and theme-reveal tests remain UNKNOWN; do not mark native PASS from compilation.
 - Repaired C.2 FAST #40501814392 on commit 16fef77a: SUCCESS (build/backend/firebase-functions).
+
+## B.3-02 Home-only edge-to-edge inset routing
+- Parent main 5badf981da3ad8ef347ee3dadb1f47a555fbd754. SystemBarHelper.kt lines 144-157 previously padded and consumed root android.R.id.content insets for every Activity, leaving the Home drawer short of transparent system navigation region.
+- Changed Home-only path to pad mainContentContainer with saved base padding; leaves DrawerLayout/decor unpadded and forwards original insets to the drawer fitsSystemWindows content and existing floating pill listener. All non-Home behavior untouched.
+- Extended HomeDrawerNavigationNativeTest.kt to dispatch synthetic 3-button system insets, assert full-window drawer host and Home body navigation clearance. Native test not executed on either navigation mode yet.
+- C3 FAST #40502524249 on 5badf981: SUCCESS.

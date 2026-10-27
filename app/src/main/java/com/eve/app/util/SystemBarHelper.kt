@@ -148,12 +148,34 @@ object SystemBarHelper {
         val top = view.paddingTop
         val right = view.paddingRight
         val bottom = view.paddingBottom
+        // Home's DrawerLayout must paint beneath the transparent system bars.
+        // Cache original page-content padding; repeated dispatch cannot accumulate.
+        var homeBasePadding: IntArray? = null
+        var homeContentOwner: View? = null
         ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
-            v.setPadding(left + bars.left, top + bars.top, right + bars.right, bottom + bars.bottom)
-            // The content container handled these edges. Keep child listeners,
-            // but don't make them add the same navigation padding a second time.
-            insets.inset(bars.left, bars.top, bars.right, bars.bottom)
+            val homeContent = v.findViewById<View>(R.id.mainContentContainer)
+            val homeDrawer = v.findViewById<View>(R.id.drawerLayout)
+            if (homeContent != null && homeDrawer != null) {
+                // Page content remains clear of SystemUI while the full-window
+                // drawer surface extends to the physical navigation region.
+                v.setPadding(left, top, right, bottom)
+                if (homeContentOwner !== homeContent) {
+                    homeContentOwner = homeContent
+                    homeBasePadding = intArrayOf(homeContent.paddingLeft, homeContent.paddingTop,
+                        homeContent.paddingRight, homeContent.paddingBottom)
+                }
+                val base = requireNotNull(homeBasePadding)
+                homeContent.setPadding(base[0] + bars.left, base[1] + bars.top,
+                    base[2] + bars.right, base[3] + bars.bottom)
+                // Drawer content receives original insets via fitsSystemWindows;
+                // the decor-independent floating pill owns its navigation inset.
+                insets
+            } else {
+                // Preserve the existing inset contract on every other screen.
+                v.setPadding(left + bars.left, top + bars.top, right + bars.right, bottom + bars.bottom)
+                insets.inset(bars.left, bars.top, bars.right, bars.bottom)
+            }
         }
         ViewCompat.requestApplyInsets(view)
     }
