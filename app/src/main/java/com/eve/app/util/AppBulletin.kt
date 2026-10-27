@@ -113,6 +113,8 @@ class AppBulletin private constructor(
         private var offsetSpring: SpringAnimation? = null
         private var transitionSpring: SpringAnimation? = null
         private var offsetTarget = Float.NaN
+        private var viewportKey: List<Int>? = null
+        private var viewportCorrection = 0
         private var exiting = false
         private val lifecycle = (findActivity(content.context) as? LifecycleOwner)?.lifecycle
         private val lifecycleObserver = object : DefaultLifecycleObserver {
@@ -243,10 +245,31 @@ class AppBulletin private constructor(
             val top = inset?.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())?.top ?: 0
             val scroll = root.findViewById<ScrollView>(R.id.bulletinMessageScroll)
             val message = root.findViewById<TextView>(R.id.tvBulletinMessage)
+            val card = root.findViewById<View>(R.id.cardBulletin)
+            val decor = root.rootView
+            val decorLocation = IntArray(2)
+            decor.getLocationOnScreen(decorLocation)
+            val safeTop = max(contentLocation[1], decorLocation[1] + top)
+            val key = listOf(contentLocation[1], content.height, top, bottom, pillOffset, decorLocation[1])
+            if (viewportKey != key) {
+                viewportKey = key
+                viewportCorrection = 0
+            }
             val maxMessageHeight = (content.height - top - max(bottom, pillOffset) -
-                (16 * root.resources.displayMetrics.density).toInt()).coerceAtLeast(0)
+                (16 * root.resources.displayMetrics.density).toInt() - viewportCorrection).coerceAtLeast(0)
             val naturalHeight = message.measuredHeight + scroll.paddingTop + scroll.paddingBottom
-            val desiredHeight = if (naturalHeight > maxMessageHeight) maxMessageHeight else ViewGroup.LayoutParams.WRAP_CONTENT
+            var desiredHeight = if (naturalHeight > maxMessageHeight) maxMessageHeight else ViewGroup.LayoutParams.WRAP_CONTENT
+            // A parent can constrain the overlay while its card still measures taller than it.
+            // Correct from actual screen coordinates after layout, ignoring the entrance animation.
+            if (root.isLaidOut && card.isLaidOut && desiredHeight >= 0 && scroll.layoutParams.height == desiredHeight) {
+                val cardLocation = IntArray(2)
+                card.getLocationOnScreen(cardLocation)
+                val overflow = safeTop - (cardLocation[1] - card.translationY.toInt())
+                if (overflow > 0) {
+                    viewportCorrection += overflow
+                    desiredHeight = (desiredHeight - overflow).coerceAtLeast(0)
+                }
+            }
             val heightChanged = scroll.layoutParams.height != desiredHeight
             if (heightChanged) {
                 scroll.layoutParams = scroll.layoutParams.apply { height = desiredHeight }
@@ -371,6 +394,8 @@ class AppBulletin private constructor(
             offsetSpring?.cancel()
             offsetSpring = null
             offsetTarget = Float.NaN
+            viewportKey = null
+            viewportCorrection = 0
             transitionSpring?.cancel()
             transitionSpring = null
             if (removeRoot) (old?.parent as? ViewGroup)?.removeView(old)

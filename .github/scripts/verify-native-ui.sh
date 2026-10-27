@@ -47,6 +47,9 @@ collect_evidence() {
   # Disposable fixture emulator only: capture ANR categories, not application payloads.
   adb logcat -d -b events -s am_anr am_crash > ui-renderings/process-failures.log || true
   cat ui-renderings/process-failures.log || true
+  if [[ "${messaging_disabled:-0}" == 1 ]]; then
+    adb shell pm enable --user 0 com.google.android.apps.messaging || true
+  fi
 }
 trap collect_evidence EXIT
 # Each matrix job owns a fresh emulator and runs exactly one navigation mode.
@@ -59,6 +62,15 @@ case "$mode" in
   *) echo "Unsupported navigation mode: $mode" >&2; exit 2 ;;
 esac
 mkdir -p ui-renderings
+# FULL run 40469943287 recorded a carrier-config ANR in the emulator's
+# unrelated Messages app, whose system dialog obscured the test activity.
+# This disposable emulator does not exercise SMS. Restore the package on exit;
+# retain all EVE tests and fail on every instrumentation assertion as before.
+messaging_disabled=0
+if adb shell pm path com.google.android.apps.messaging | grep -q '^package:'; then
+  adb shell pm disable-user --user 0 com.google.android.apps.messaging
+  messaging_disabled=1
+fi
 adb shell getprop ro.build.fingerprint > ui-renderings/emulator-fingerprint.log
 adb shell wm size > ui-renderings/display-size.log
 adb shell wm density > ui-renderings/display-density.log

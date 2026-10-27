@@ -31,6 +31,7 @@ case "$*" in
     echo "$((count + 1))" > "$READ_COUNT"
     if (( count < PENDING_READS )); then echo 2; else echo "$OBSERVED_MODE"; fi ;;
   'shell pm path com.android.deskclock') exit 1 ;;
+  'shell pm path com.google.android.apps.messaging') echo 'package:/system/app/Messages.apk' ;;
   'shell am instrument '*)
     # Simulate adb shell consuming all available stdin.
     if [[ "$DRAIN_INSTRUMENT_STDIN" == "1" ]]; then cat >/dev/null; fi
@@ -93,6 +94,8 @@ esac
                                 commands.index('adb shell am instrument -w -r'))
                 self.assertNotIn('force-stop', commands)
                 self.assertNotIn('adb reboot', commands)
+                self.assertIn('adb shell pm disable-user --user 0 com.google.android.apps.messaging', commands)
+                self.assertIn('adb shell pm enable --user 0 com.google.android.apps.messaging', commands)
                 self.assertIn('adb pull /sdcard/Pictures/eve-approved-ui', commands)
                 self.assertIn('process-failures.log', evidence)
 
