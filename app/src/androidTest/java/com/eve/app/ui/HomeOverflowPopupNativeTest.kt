@@ -52,8 +52,16 @@ class HomeOverflowPopupNativeTest {
                 assertTrue("Home popup must be attached", popup.isShowing)
                 val root = popup.contentView
                 val frame = Rect().also(anchor::getWindowVisibleDisplayFrame)
-                val bounds = Rect()
-                assertTrue("Popup root must have global screen bounds", root.getGlobalVisibleRect(bounds))
+                // PopupWindow has its own window coordinate origin. getGlobalVisibleRect()
+                // returns that window's local coordinates (often 0,0), not display coordinates.
+                // Compare against the anchor's screen-space display frame using the popup's
+                // actual screen position and full measured size so clipping cannot hide overflow.
+                val popupLocation = IntArray(2)
+                root.getLocationOnScreen(popupLocation)
+                assertTrue("Popup root must have nonzero measured dimensions",
+                    root.width > 0 && root.height > 0 && root.isAttachedToWindow)
+                val bounds = Rect(popupLocation[0], popupLocation[1],
+                    popupLocation[0] + root.width, popupLocation[1] + root.height)
                 val tolerance = (2 * root.resources.displayMetrics.density).toInt().coerceAtLeast(2)
                 assertTrue("Popup extends outside available horizontal viewport: $bounds vs $frame",
                     bounds.left >= frame.left - tolerance && bounds.right <= frame.right + tolerance)
