@@ -399,7 +399,15 @@ class BulletinHostNativeTest {
                 assertNotNull(card)
                 assertTrue(card.isShown && card.width > 0 && card.height > 0)
                 assertEquals(1, bulletinCount(content))
-                assertEquals("पहला परीक्षण संदेश", content.findViewById<TextView>(R.id.tvBulletinMessage).text.toString())
+                val messageView = content.findViewById<TextView>(R.id.tvBulletinMessage)
+                assertEquals("पहला परीक्षण संदेश", messageView.text.toString())
+                assertEquals("पहला परीक्षण संदेश", messageView.createAccessibilityNodeInfo().text.toString())
+                assertEquals(View.ACCESSIBILITY_LIVE_REGION_POLITE,
+                    content.findViewById<View>(R.id.bulletinContainer).accessibilityLiveRegion)
+                val action = content.findViewById<View>(R.id.btnBulletinAction)
+                assertTrue(action.createAccessibilityNodeInfo().isClickable)
+                val minTouch = 48 * activity.resources.displayMetrics.density
+                assertTrue(action.width >= minTouch && action.height >= minTouch)
             }
             // UiAutomation captures the attached window, including actual compositing.
             captureWindow("bulletin-attached")
