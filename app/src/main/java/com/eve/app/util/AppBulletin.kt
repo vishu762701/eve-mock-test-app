@@ -23,7 +23,8 @@ import java.util.WeakHashMap
  * UIArc Toast Stack & Bulletin System.
  * Genuine native translation of official UIArc Toast Stack specification:
  * - Source: https://uiarc.dev/r/toast-stack.json
- * - Default display duration: 5000ms; error/warning multiplier: 1.6x (8000ms)
+ * - Implicit message duration: 1500ms below 20 characters, otherwise 2750ms
+ * - Errors retain the previous 8000ms for readability until the host is replaced
  * - Maximum queue: 12; maximum visible stacked: 3
  * - Stacked peek: 14dp; scale step: 0.05 per tucked level
  * - Entering bulletins slide up from bottom edge with smooth spring
@@ -54,6 +55,10 @@ class AppBulletin private constructor(
         const val PEEK_DP = 14f
         const val SCALE_STEP = 0.05f
 
+        /** Owner-supplied Telegram BulletinFactory duration contract. */
+        fun durationForMessage(message: CharSequence): Long =
+            if (message.length < 20) DURATION_SHORT else DURATION_LONG
+
         private val mainHandler = Handler(Looper.getMainLooper())
         private val activityStacks = WeakHashMap<Activity, MutableList<AppBulletin>>()
 
@@ -69,7 +74,7 @@ class AppBulletin private constructor(
         fun make(
             activity: Activity,
             message: CharSequence,
-            durationMs: Long = DURATION_DEFAULT,
+            durationMs: Long = durationForMessage(message),
             iconRes: Int = R.drawable.ic_check_circle,
             actionText: String? = null,
             onAction: (() -> Unit)? = null
@@ -84,7 +89,7 @@ class AppBulletin private constructor(
         fun show(
             context: Context,
             message: CharSequence,
-            durationMs: Long = if (message.length > 35) DURATION_LONG else DURATION_DEFAULT,
+            durationMs: Long = durationForMessage(message),
             iconRes: Int = R.drawable.ic_check_circle,
             actionText: String? = null,
             onAction: (() -> Unit)? = null
@@ -98,7 +103,7 @@ class AppBulletin private constructor(
         }
 
         fun showSuccess(context: Context, message: CharSequence) {
-            show(context, message, DURATION_DEFAULT, R.drawable.ic_check_circle)
+            show(context, message, durationForMessage(message), R.drawable.ic_check_circle)
         }
 
         fun showError(context: Context, message: CharSequence) {

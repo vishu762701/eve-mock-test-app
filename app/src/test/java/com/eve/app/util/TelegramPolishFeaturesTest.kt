@@ -35,11 +35,13 @@ class TelegramPolishFeaturesTest {
         val shortMsg = "Bookmark added"
         val longMsg = "This is an informative notification with more detailed text explaining the operation."
 
-        val durationShort = if (shortMsg.length > 35) AppBulletin.DURATION_LONG else AppBulletin.DURATION_SHORT
-        val durationLong = if (longMsg.length > 35) AppBulletin.DURATION_LONG else AppBulletin.DURATION_SHORT
+        val durationShort = AppBulletin.durationForMessage(shortMsg)
+        val durationLong = AppBulletin.durationForMessage(longMsg)
 
         assertEquals(AppBulletin.DURATION_SHORT, durationShort)
         assertEquals(AppBulletin.DURATION_LONG, durationLong)
+        assertEquals(AppBulletin.DURATION_SHORT, AppBulletin.durationForMessage("a".repeat(19)))
+        assertEquals(AppBulletin.DURATION_LONG, AppBulletin.durationForMessage("a".repeat(20)))
     }
 
     // ==========================================
