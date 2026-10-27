@@ -17,6 +17,33 @@ import java.util.concurrent.TimeUnit
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
 class AppBulletinHostTest {
+    @Test
+    @org.robolectric.annotation.LooperMode(org.robolectric.annotation.LooperMode.Mode.PAUSED)
+    fun actionClickWinsWhenTimerExpiresJustBeforePress() {
+        val controller = Robolectric.buildActivity(Activity::class.java).setup()
+        val activity = controller.get()
+        activity.setTheme(R.style.Theme_Eve)
+        var calls = 0
+        AppBulletin.make(activity, "message", 1000L, actionText = "Undo", onAction = { calls++ }).show()
+        val action = activity.findViewById<View>(R.id.btnBulletinAction)
+        action.layout(0, 0, 100, 80)
+        // Advance time without dispatching the already-due timeout, then press the action.
+        org.robolectric.shadows.ShadowSystemClock.advanceBy(1001, TimeUnit.MILLISECONDS)
+        val downTime = android.os.SystemClock.uptimeMillis()
+        val down = android.view.MotionEvent.obtain(downTime, downTime, android.view.MotionEvent.ACTION_DOWN, 10f, 10f, 0)
+        val up = android.view.MotionEvent.obtain(downTime, downTime, android.view.MotionEvent.ACTION_UP, 10f, 10f, 0)
+        try {
+            assertEquals(true, action.dispatchTouchEvent(down))
+            action.dispatchTouchEvent(up)
+            shadowOf(android.os.Looper.getMainLooper()).idleFor(100, TimeUnit.MILLISECONDS)
+            assertEquals(1, calls)
+        } finally {
+            down.recycle()
+            up.recycle()
+            controller.pause().stop().destroy()
+        }
+    }
+
     @Test fun bulletinGeometryMatchesTheSuppliedContract() {
         val controller = Robolectric.buildActivity(Activity::class.java).setup()
         val activity = controller.get()

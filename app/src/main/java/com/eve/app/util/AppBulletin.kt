@@ -120,6 +120,8 @@ class AppBulletin private constructor(
             override fun onDestroy(owner: LifecycleOwner) { dispose() }
         }
         private val timeout = Runnable { active?.let { dismiss(it) } }
+        private val resumeAfterActionTouch = Runnable { if (active != null && !exiting) resumeTimer() }
+        private val deferActionResume = Runnable { handler.post(resumeAfterActionTouch) }
         init {
             content.addOnAttachStateChangeListener(this)
             lifecycle?.addObserver(lifecycleObserver)
@@ -168,7 +170,14 @@ class AppBulletin private constructor(
                 action.setOnTouchListener { _, event ->
                     when (event.actionMasked) {
                         MotionEvent.ACTION_DOWN -> pauseTimer()
-                        MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> resumeTimer()
+                        // Let the button dispatch its click before an exhausted timer dismisses it.
+                        MotionEvent.ACTION_UP -> {
+                            handler.removeCallbacks(deferActionResume)
+                            handler.removeCallbacks(resumeAfterActionTouch)
+                            // View may itself post performClick after dispatchTouchEvent returns.
+                            handler.post(deferActionResume)
+                        }
+                        MotionEvent.ACTION_CANCEL -> resumeTimer()
                     }
                     false
                 }
@@ -346,6 +355,8 @@ class AppBulletin private constructor(
         }
         private fun removeVisible(removeRoot: Boolean = true) {
             handler.removeCallbacks(timeout)
+            handler.removeCallbacks(deferActionResume)
+            handler.removeCallbacks(resumeAfterActionTouch)
             val old = view
             view = null
             old?.findViewById<View>(R.id.cardBulletin)?.animate()?.cancel()
