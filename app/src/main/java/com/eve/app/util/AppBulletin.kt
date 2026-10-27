@@ -101,6 +101,7 @@ class AppBulletin private constructor(
         private val handler = Handler(Looper.getMainLooper())
         private val pending = ArrayDeque<AppBulletin>()
         private var active: AppBulletin? = null
+        // One content-owned host keeps queued callbacks out of process-wide registries.
         private var view: View? = null
         private var remaining = 0L
         private var started = 0L
