@@ -169,7 +169,10 @@ class EveDesignSystemTest {
     @Test
     fun homeOverflowKeepsAllSevenScrollableAccessibleRows() {
         val root = loadXml("src/main/res/layout/popup_telegram_menu.xml")
-        assertNotNull("Overflow must scroll inside capped viewport", findElementById(root, "menuScroll"))
+        val scroll = findElementById(root, "menuScroll")
+        assertNotNull("Overflow must scroll inside capped viewport", scroll)
+        assertEquals("vertical", scroll?.designAttribute("android:scrollbars"))
+        assertEquals("insideOverlay", scroll?.designAttribute("android:scrollbarStyle"))
         for (id in listOf("cardTheme", "menuRowHistory", "menuRowBookmarks",
             "menuRowMistakes", "menuRowTopic", "menuRowPyq", "menuRowLogout")) {
             val row = findElementById(root, id)

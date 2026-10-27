@@ -35,3 +35,7 @@
 - Original source-backed assets ALREADY imported and unchanged: History msg_recent, Bookmarks msg_saved, Light mode msg_brightness_high, Logout msg_leave (density fingerprint docs). For Night-mode moon, Mistake Notebook, Topic-wise Test, PYQ, a semantically exact original counterpart is NOT VERIFIED; retain EVE glyphs unchanged. No fabricated icons.
 - Popup DesignGlassLayout and its rounded/glass contour remain an EVE adaptation; original `ActionBarPopupWindow.java:153-170,531-538` nine-patch drawable renderer is not transplanted or falsely claimed exact. Full visual parity remains BLOCKED until source dependencies/license/rendering verified.
 - Native interaction/IME/full-matrix clipping evidence still pending; FAST compilation is not device-pass evidence.
+
+## C.2-02 AAPT scrollbars attribute repair
+- Commit 10c2eedb FAST #40501567437 FAILED Android resource linking: `popup_telegram_menu.xml:6` used `android:scrollbars="insideOverlay"`, which is not valid; valid values are `none|horizontal|vertical`. `insideOverlay` belongs to `android:scrollbarStyle`.
+- Corrected to vertical scrollbars + insideOverlay style. Added JVM XML assertions to prevent regression; no CI gate weakened. Recheck new FAST run on this repaired main SHA.
