@@ -16,6 +16,35 @@ import java.nio.charset.StandardCharsets
 @Config(sdk = [34])
 class TelegramThemeEngineTest {
 
+    @Test
+    fun bulletinRolesPreserveSourceAlphaAndNightOverrides() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        val day = TelegramThemeEngine.resolvePalette(context, TelegramThemeEngine.BUILT_IN_THEMES[0], 0)
+        val night = TelegramThemeEngine.resolvePalette(context, TelegramThemeEngine.BUILT_IN_THEMES[1], 0)
+        assertEquals(0xEA272F38.toInt(), day.bulletinBackground)
+        assertEquals(0xFFFFFFFF.toInt(), day.bulletinInfo)
+        assertEquals(0xFF85CAFF.toInt(), day.bulletinAction)
+        assertEquals(0xF5181818.toInt(), night.bulletinBackground)
+        assertEquals(0xFFFFFFFF.toInt(), night.bulletinInfo)
+        assertEquals(0xFF6CB7FF.toInt(), night.bulletinAction)
+    }
+
+    @Test
+    fun importedBulletinRolesOverrideIndependentlyAndKeepAlpha() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        val file = java.io.File(context.filesDir, "custom_${System.nanoTime().toString().replace("-", "")}.attheme")
+        try {
+            file.writeText("windowBackgroundGray=-1\nundo_background=#AA123456\n")
+            val theme = requireNotNull(TelegramThemeEngine.registerCustomTheme(context, file))
+            val palette = TelegramThemeEngine.resolvePalette(context, theme, 0)
+            assertEquals(0xAA123456.toInt(), palette.bulletinBackground)
+            assertEquals(0xFFFFFFFF.toInt(), palette.bulletinInfo)
+            assertEquals(0xFF85CAFF.toInt(), palette.bulletinAction)
+        } finally {
+            file.delete()
+        }
+    }
+
     private fun importedDay(): TelegramThemeEngine.ThemeDefinition {
         val context = org.robolectric.RuntimeEnvironment.getApplication()
         val file = java.io.File(context.filesDir, "custom_${System.nanoTime().toString().replace("-", "")}.attheme")

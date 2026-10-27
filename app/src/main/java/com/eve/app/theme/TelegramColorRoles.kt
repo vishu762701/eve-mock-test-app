@@ -9,6 +9,10 @@ import androidx.core.graphics.ColorUtils
  */
 object TelegramColorRoles {
     val defaults: Map<String, Int> = mapOf(
+        // Bulletin.java / ThemeColors.java values supplied in the Mission 04 contract.
+        "undo_background" to 0xEA272F38.toInt(),
+        "undo_infoColor" to 0xFFFFFFFF.toInt(),
+        "undo_cancelColor" to 0xFF85CAFF.toInt(),
         "windowBackgroundGray" to 0xFFF1F1F3.toInt(),
         "windowBackgroundWhite" to 0xFFFFFFFF.toInt(),
         "windowBackgroundWhiteBlackText" to 0xFF1A1D21.toInt(),

@@ -66,7 +66,10 @@ object TelegramThemeEngine {
         val actionSelector: Int,
         val drawerIcon: Int,
         val isDark: Boolean,
-        val dialogSurface: Int = surface
+        val dialogSurface: Int = surface,
+        val bulletinBackground: Int = 0xEA272F38.toInt(),
+        val bulletinInfo: Int = 0xFFFFFFFF.toInt(),
+        val bulletinAction: Int = 0xFF85CAFF.toInt()
     )
 
     // Fixed original-source defaults. Old accent/preset choices are migrated, not layered over them.
@@ -416,7 +419,10 @@ object TelegramThemeEngine {
             actionSelector = role("actionBarDefaultSelector"),
             drawerIcon = role("chats_menuItemIcon"),
             isDark = themeDef.isDark,
-            dialogSurface = role("dialogBackground")
+            dialogSurface = role("dialogBackground"),
+            bulletinBackground = role("undo_background"),
+            bulletinInfo = role("undo_infoColor"),
+            bulletinAction = role("undo_cancelColor")
         )
     }
 
