@@ -75,3 +75,8 @@
 
 ## E.2/E.3 — Final mission-wide native and release gate
 - The final [eve-full] commit below triggers project-standard FULL only after all achievable scoped code and FAST work above. Evaluate all six same-SHA jobs, screenshot evidence and APK. If red, repair root cause on main with FAST commits before new final FULL. A passing FULL does NOT clear the four source-exact icon roles, original popup nine-patch rendering/license, or EVE sidebar exactness.
+
+## E.3-01 Final FULL trigger correction (no workflow gate change)
+- Documentation-only final marker commit a8ee51adfe12065ba23234e31c92be0ed72abb37 did NOT start Build Eve APK because `.github/workflows/build.yml:4-12` uses `paths-ignore: docs/**, **.md`. It did pass Verify Documentation #40505153398. No premature FULL occurred.
+- This final same-scope test commit adds raw source-based `dialogButtonSelector` Day #0F000000, Night #19FFFFFF and custom .attheme override assertions to `TelegramThemeEngineTest.kt`, so a nonignored source change will trigger the existing unchanged [eve-full] workflow.
+- Last FAST before final #40504362925: SUCCESS on 11ebc12bedee857d0c074610e231ff04ee48b868. Final job/device/API screenshots and artifact outcomes to be recorded from exact new SHA, not assumed here.
