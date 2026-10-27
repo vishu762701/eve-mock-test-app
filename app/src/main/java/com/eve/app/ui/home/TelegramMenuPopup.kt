@@ -4,6 +4,11 @@ import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Rect
+import android.content.res.ColorStateList
+import android.graphics.drawable.RippleDrawable
+import androidx.core.widget.ImageViewCompat
+import com.eve.app.theme.TelegramThemeEngine
 import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
 import android.view.View
@@ -162,27 +167,58 @@ class TelegramMenuPopup(
         exitTransition = ordinaryExitTransition
         anchorViewRef = anchorView
         setupThemeCard()
+        applyOriginalMenuRoles()
 
-        // Measure content precisely so PopupWindow height is exact and matches content
+        // PopupWindow content must be measured inside the current status/nav/IME-safe display frame.
+        val frame = Rect()
+        anchorView.getWindowVisibleDisplayFrame(frame)
+        val gap = (8f * context.resources.displayMetrics.density).toInt().coerceAtLeast(1)
+        val maxWidth = (frame.width() - 2 * gap).coerceAtLeast(1)
+        val targetWidth = minOf((250f * context.resources.displayMetrics.density).toInt(), maxWidth)
+        val maxHeight = (frame.height() - 2 * gap).coerceAtLeast(1)
+        binding.root.layoutParams = ViewGroup.LayoutParams(targetWidth, ViewGroup.LayoutParams.WRAP_CONTENT)
         binding.root.measure(
-            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            View.MeasureSpec.makeMeasureSpec(targetWidth, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(maxHeight, View.MeasureSpec.AT_MOST)
         )
-        val measuredW = binding.root.measuredWidth
-        val measuredH = binding.root.measuredHeight
-        width = measuredW
-        height = measuredH
+        width = targetWidth
+        height = minOf(binding.root.measuredHeight, maxHeight)
 
-        // Align right edge of popup with right edge of 3-dot anchor icon, right beneath it
-        val xOffset = -(measuredW - anchorView.width)
+        val anchorLocation = IntArray(2)
+        anchorView.getLocationOnScreen(anchorLocation)
+        val minLeft = frame.left + gap
+        val maxLeft = (frame.right - gap - width).coerceAtLeast(minLeft)
+        val desiredLeft = (anchorLocation[0] + anchorView.width - width).coerceIn(minLeft, maxLeft)
+        val xOffset = desiredLeft - anchorLocation[0]
 
-        // Medium glass belongs to the container; the reveal handoff below is unchanged.
+        // Keep the existing circular-reveal handoff; menu body scrolls within the available viewport.
         val activity = (anchorView.context as? Activity) ?: (context as? Activity)
         binding.root.backdropRoot = activity?.findViewById(android.R.id.content)
-        showAsDropDown(anchorView, xOffset, 4)
+        isClippingEnabled = true
+        showAsDropDown(anchorView, xOffset, 0)
 
         // Upgrade 7: Telegram-style anchored scale+fade popup entrance (ActionBarPopupWindow pattern)
         TelegramPopupHelper.animateEntrance(binding.root, anchorView)
+    }
+
+    /** Source: ActionBarMenuSubItem.java:78-84 and ThemeColors.java:51,203-206. */
+    private fun applyOriginalMenuRoles() {
+        val palette = TelegramThemeEngine.resolveCurrentPalette(context)
+        binding.root.updatePalette(palette)
+        binding.cardTheme.contentDescription = binding.tvThemeTitle.text
+        // The other six labels currently have no stable XML IDs; use the row's TextView child.
+        val rows = listOf(binding.cardTheme, binding.menuRowHistory, binding.menuRowBookmarks,
+            binding.menuRowMistakes, binding.menuRowTopic, binding.menuRowPyq, binding.menuRowLogout)
+        for (row in rows) {
+            for (index in 0 until row.childCount) {
+                when (val child = row.getChildAt(index)) {
+                    is android.widget.TextView -> child.setTextColor(palette.submenuText)
+                    is android.widget.ImageView ->
+                        ImageViewCompat.setImageTintList(child, ColorStateList.valueOf(palette.submenuIcon))
+                }
+            }
+            row.foreground = RippleDrawable(ColorStateList.valueOf(palette.submenuSelector), null, null)
+        }
     }
 
     private fun dismissWithAction(action: () -> Unit) {

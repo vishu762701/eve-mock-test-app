@@ -27,3 +27,11 @@
 - New source tests: JVM XML hierarchy assertions and `HomeDrawerNavigationNativeTest.kt` (native attach/START drawer). The panel's existing shape/color/inset code remains unchanged; EVE/Telegram geometry parity and system navigation-region surface paint NOT YET VERIFIED.
 - Telegram `DrawerLayoutContainer.java:190-212` forwards system/cutout/IME insets; EVE's DrawerLayout is an adaptation, not a byte-exact port.
 - B.2 FAST run #40499647957 on 3d6a6ac5: SUCCESS.
+
+## C.1/C.2-01 Popup bounds, rows, source role colors
+- Parent main 29f87b4348a0f806ec855c9700341d45af8f893b. `TelegramMenuPopup.kt` replaces unbounded UNSPECIFIED measures with window-visible-frame bounded EXACT/AT_MOST measures and clamped horizontal anchored offset. Android framework retains drop-down vertical positioning; seven rows live inside `menuScroll`.
+- Original `ActionBarMenuSubItem.java:51,78-84,97,126-130`: 48dp default row, 18dp horizontal padding, 16sp text; EVE uses minimum 48dp and multiline-safe wrap content (ACCESSIBILITY ADAPTATION), not falsely called byte-exact.
+- Original `ThemeColors.java:51,203-206` + `night.attheme:35,108,316,362,417`: submenu text/icon, background/selector colors. New `submenuSelector` preserves raw Day #0F000000 / Night #19FFFFFF and all role overrides. Popup updates foreground ripple and text/icon tints from active theme.
+- Original source-backed assets ALREADY imported and unchanged: History msg_recent, Bookmarks msg_saved, Light mode msg_brightness_high, Logout msg_leave (density fingerprint docs). For Night-mode moon, Mistake Notebook, Topic-wise Test, PYQ, a semantically exact original counterpart is NOT VERIFIED; retain EVE glyphs unchanged. No fabricated icons.
+- Popup DesignGlassLayout and its rounded/glass contour remain an EVE adaptation; original `ActionBarPopupWindow.java:153-170,531-538` nine-patch drawable renderer is not transplanted or falsely claimed exact. Full visual parity remains BLOCKED until source dependencies/license/rendering verified.
+- Native interaction/IME/full-matrix clipping evidence still pending; FAST compilation is not device-pass evidence.

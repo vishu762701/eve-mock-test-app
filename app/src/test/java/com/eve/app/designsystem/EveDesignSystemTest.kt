@@ -164,6 +164,21 @@ class EveDesignSystemTest {
         assertTrue("Drawer panel must be sibling above content", drawer?.parentNode === root && navHost?.parentNode === root)
     }
 
+
+
+    @Test
+    fun homeOverflowKeepsAllSevenScrollableAccessibleRows() {
+        val root = loadXml("src/main/res/layout/popup_telegram_menu.xml")
+        assertNotNull("Overflow must scroll inside capped viewport", findElementById(root, "menuScroll"))
+        for (id in listOf("cardTheme", "menuRowHistory", "menuRowBookmarks",
+            "menuRowMistakes", "menuRowTopic", "menuRowPyq", "menuRowLogout")) {
+            val row = findElementById(root, id)
+            assertNotNull("Missing action $id", row)
+            assertEquals("48dp", row?.designAttribute("android:minHeight"))
+            assertEquals("wrap_content", row?.designAttribute("android:layout_height"))
+        }
+    }
+
     @Test
     fun testHomeExamAndFeedbackCardXml_UsesLockedCardStyles() {
         val examCard = loadXml("src/main/res/layout/item_exam.xml")

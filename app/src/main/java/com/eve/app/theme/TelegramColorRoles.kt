@@ -41,7 +41,9 @@ object TelegramColorRoles {
         // ThemeColors.java:203-206: Telegram original Day submenu chrome.
         "actionBarDefaultSubmenuItem" to 0xFF1A1D21.toInt(),
         "actionBarDefaultSubmenuItemIcon" to 0xFF1A1D21.toInt(),
-        "actionBarDefaultSubmenuSeparator" to 0xFFF5F5F5.toInt()
+        "actionBarDefaultSubmenuSeparator" to 0xFFF5F5F5.toInt(),
+        // ActionBarMenuSubItem.java:81 uses Theme.key_dialogButtonSelector.
+        "dialogButtonSelector" to 0x0F000000.toInt()
     )
 
     val fallbackKeys = mapOf(
