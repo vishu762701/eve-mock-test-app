@@ -61,12 +61,17 @@ class HomeOverflowPopupNativeTest {
                 root.getLocationOnScreen(popupLocation)
                 assertTrue("Popup root must have nonzero measured dimensions",
                     root.width > 0 && root.height > 0 && root.isAttachedToWindow)
+                // getLocationOnScreen incorporates the active scale transform, whereas
+                // width/height are unscaled layout dimensions. Using both unchanged
+                // mixes two coordinate systems during the 220ms anchored entrance.
+                val visualWidth = kotlin.math.round(root.width * root.scaleX)
+                val visualHeight = kotlin.math.round(root.height * root.scaleY)
                 val bounds = Rect(popupLocation[0], popupLocation[1],
-                    popupLocation[0] + root.width, popupLocation[1] + root.height)
+                    popupLocation[0] + visualWidth, popupLocation[1] + visualHeight)
                 val tolerance = (2 * root.resources.displayMetrics.density).toInt().coerceAtLeast(2)
-                assertTrue("Popup extends outside available horizontal viewport: $bounds vs $frame",
+                assertTrue("Animated popup extends outside available horizontal viewport: $bounds vs $frame",
                     bounds.left >= frame.left - tolerance && bounds.right <= frame.right + tolerance)
-                assertTrue("Popup extends outside available vertical viewport: $bounds vs $frame",
+                assertTrue("Animated popup extends outside available vertical viewport: $bounds vs $frame",
                     bounds.top >= frame.top - tolerance && bounds.bottom <= frame.bottom + tolerance)
 
                 val scroll = root.findViewById<ScrollView>(R.id.menuScroll)
@@ -82,6 +87,22 @@ class HomeOverflowPopupNativeTest {
                 }
                 scroll.scrollTo(0, scroll.getChildAt(0).height)
                 assertTrue("Last popup destination remains mounted", root.findViewById<View>(R.id.menuRowLogout).isAttachedToWindow)
+            }
+            // Verify the full final size separately, after the real entrance animation
+            // has settled. This does not disable animation or bypass viewport checks.
+            android.os.SystemClock.sleep(350)
+            scenario.onActivity {
+                val root = popup.contentView
+                val frame = Rect().also(anchor::getWindowVisibleDisplayFrame)
+                val screen = IntArray(2).also(root::getLocationOnScreen)
+                val bounds = Rect(screen[0], screen[1], screen[0] + root.width, screen[1] + root.height)
+                val tolerance = (2 * root.resources.displayMetrics.density).toInt().coerceAtLeast(2)
+                assertTrue("Popup entrance must complete", kotlin.math.abs(root.scaleX - 1f) < 0.001f &&
+                    kotlin.math.abs(root.scaleY - 1f) < 0.001f)
+                assertTrue("Settled popup horizontal bounds must remain safe: $bounds vs $frame",
+                    bounds.left >= frame.left - tolerance && bounds.right <= frame.right + tolerance)
+                assertTrue("Settled popup vertical bounds must remain safe: $bounds vs $frame",
+                    bounds.top >= frame.top - tolerance && bounds.bottom <= frame.bottom + tolerance)
                 popup.dismiss()
             }
         }
