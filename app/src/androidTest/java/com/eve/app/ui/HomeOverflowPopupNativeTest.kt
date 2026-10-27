@@ -64,8 +64,8 @@ class HomeOverflowPopupNativeTest {
                 // getLocationOnScreen incorporates the active scale transform, whereas
                 // width/height are unscaled layout dimensions. Using both unchanged
                 // mixes two coordinate systems during the 220ms anchored entrance.
-                val visualWidth = kotlin.math.round(root.width * root.scaleX)
-                val visualHeight = kotlin.math.round(root.height * root.scaleY)
+                val visualWidth = kotlin.math.round(root.width * root.scaleX).toInt()
+                val visualHeight = kotlin.math.round(root.height * root.scaleY).toInt()
                 val bounds = Rect(popupLocation[0], popupLocation[1],
                     popupLocation[0] + visualWidth, popupLocation[1] + visualHeight)
                 val tolerance = (2 * root.resources.displayMetrics.density).toInt().coerceAtLeast(2)
