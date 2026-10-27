@@ -29,9 +29,9 @@ class TelegramThemeEngineTest {
         assertEquals(0xFFFFFFFF.toInt(), night.submenuText)
         assertEquals(0xFFFFFFFF.toInt(), night.submenuIcon)
         assertEquals(0xFF1E1E1F.toInt(), night.submenuSeparator)
-        val file = java.io.File(context.filesDir, "custom_${System.nanoTime()}.attheme")
+        val file = java.io.File(context.filesDir, "custom_${System.nanoTime().toString().replace("-", "")}.attheme")
         try {
-            file.writeText("actionBarDefaultSubmenuBackground=#DD112233\nactionBarDefaultSubmenuItem=#FFABCDEF\n")
+            file.writeText("windowBackgroundGray=#FFF1F1F3\nactionBarDefaultSubmenuBackground=#DD112233\nactionBarDefaultSubmenuItem=#FFABCDEF\n")
             val custom = requireNotNull(TelegramThemeEngine.registerCustomTheme(context, file))
             val palette = TelegramThemeEngine.resolvePalette(context, custom, 0)
             assertEquals(0xDD112233.toInt(), palette.submenuBackground)

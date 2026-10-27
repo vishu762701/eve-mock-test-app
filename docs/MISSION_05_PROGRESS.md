@@ -9,4 +9,4 @@
 - Classification: EXACT raw ARGB mapping in new palette fields, not yet any screen's final composited color. No unverified assertion of complete app-wide color coverage.
 - Source pack is NOT a complete original checkout; whole original Telegramsource.zip hash is manifest-reported, not independently checked here.
 - Remaining: inspect all chrome consumers and migrate family by family (A.2); implement drawer (B), popup (C), bulletin remaining work (D), then final integrated FULL (E).
-- FAST CI run and commit SHA: inspect after push; do not mark green without run evidence.
+- FAST #40497770337 on commit 989b202c2 FAILED: 416 tests / 1 failed. Real root cause: `TelegramThemeEngine.kt:111-114,201-215` imported-theme validator requires an authoritative recognized base role; newly added test fixture had only submenu roles. Repair adds `windowBackgroundGray` to this test fixture and uses an established negative-sign-safe filename; no production validation is weakened. Fresh FAST result pending.
