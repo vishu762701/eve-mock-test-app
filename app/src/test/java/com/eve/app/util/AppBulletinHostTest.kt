@@ -48,6 +48,22 @@ class AppBulletinHostTest {
         controller.pause().stop().destroy()
     }
 
+    @Test fun errorWaitsBehindActionAndIsNotReplacedByInformation() {
+        val controller = Robolectric.buildActivity(Activity::class.java).setup()
+        val activity = controller.get()
+        activity.setTheme(R.style.Theme_Eve)
+        val first = AppBulletin.make(activity, "undo", 10000L, actionText = "Undo", onAction = {})
+        first.show()
+        AppBulletin.showError(activity, "Important error")
+        AppBulletin.show(activity, "minor update")
+        first.dismiss()
+        val content = activity.findViewById<android.view.ViewGroup>(android.R.id.content)
+        assertEquals("Important error", content.findViewById<TextView>(R.id.tvBulletinMessage).text.toString())
+        AppBulletin.show(activity, "another update")
+        assertEquals("Important error", content.findViewById<TextView>(R.id.tvBulletinMessage).text.toString())
+        controller.pause().stop().destroy()
+    }
+
     @Test fun externallyRemovedOverlayCanBeRecreated() {
         val controller = Robolectric.buildActivity(Activity::class.java).setup()
         val activity = controller.get()

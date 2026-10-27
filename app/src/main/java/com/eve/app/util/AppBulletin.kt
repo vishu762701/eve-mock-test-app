@@ -49,6 +49,7 @@ class AppBulletin private constructor(
     private val activityRef = WeakReference(activity)
     private var host: Host? = null
     private val actionable get() = !actionText.isNullOrBlank() && onAction != null
+    private val important get() = actionable || (iconRes == R.drawable.ic_info && durationMs == DURATION_ERROR)
 
     companion object {
         const val DURATION_SHORT = 1500L
@@ -127,9 +128,9 @@ class AppBulletin private constructor(
             if (disposed || active === item || pending.contains(item)) return
             val visible = active
             if (visible == null) { present(item); return }
-            if (visible.actionable || pending.isNotEmpty()) {
-                // Preserve all actionable callbacks; redundant informational events may be coalesced.
-                if (item.actionable) pending.addLast(item)
+            if (visible.important || pending.isNotEmpty()) {
+                // Preserve actionable and error notices; ordinary informational bursts may coalesce.
+                if (item.important) pending.addLast(item)
                 return
             }
             removeVisible()
