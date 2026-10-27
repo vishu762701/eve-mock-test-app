@@ -19,6 +19,7 @@ import androidx.lifecycle.lifecycleScope
 import com.eve.app.R
 import com.eve.app.data.remote.ApiClient
 import com.eve.app.databinding.ActivitySettingsBinding
+import com.eve.app.ui.about.AboutActivity
 import com.eve.app.ui.login.LoginActivity
 import com.eve.app.util.ProfilePhotoManager
 import com.eve.app.util.ReminderScheduler
@@ -85,6 +86,10 @@ class SettingsActivity : EveBaseActivity() {
 
         binding.rowAppearance.setOnClickListener {
             startActivity(Intent(this, AppearanceActivity::class.java))
+        }
+
+        binding.rowAbout.setOnClickListener {
+            startActivity(Intent(this, AboutActivity::class.java))
         }
 
         setupReminderSetting()

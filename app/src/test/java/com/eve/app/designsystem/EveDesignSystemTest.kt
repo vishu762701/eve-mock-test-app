@@ -198,6 +198,9 @@ class EveDesignSystemTest {
 
         val settingsLayout = loadXml("src/main/res/layout/activity_settings.xml")
         assertNotNull("activity_settings.xml must exist and parse", settingsLayout)
+        val about = findElementById(settingsLayout, "rowAbout")
+        assertNotNull("Settings must retain real About navigation", about)
+        assertEquals("@dimen/design_bottom_bar_height", about?.designAttribute("android:minHeight"))
 
         val leaderboardLayout = loadXml("src/main/res/layout/activity_leaderboard.xml")
         assertNotNull("activity_leaderboard.xml must exist and parse", leaderboardLayout)

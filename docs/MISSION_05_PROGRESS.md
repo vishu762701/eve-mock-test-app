@@ -16,3 +16,8 @@
 - `MainActivity.kt` removes only the corresponding drawer bindings/callbacks, keeps existing History/Bookmarks popup routes and all six retained rows.
 - `EveDesignSystemTest.kt` updates structural contract to 6 drawer rows and no removed IDs; source-exact drawer geometry still remains B.3, not claimed here.
 - CI: check fresh commit-specific FAST run before marking VERIFIED.
+
+## B.2-01 Add Settings → About real destination
+- Parent main de92e0d5e9d943dfeb149fe00e90b5fd49a78f25; `activity_settings.xml` adds accessible About row under INFORMATION and existing section/card style. `SettingsActivity.kt` routes to the already manifest-registered `AboutActivity` (not a placeholder); prior independent Profile/About surface stays intact.
+- `EveDesignSystemTest.kt` requires the About row and original minimum touch token; build and native navigation proof pending fresh FAST / final FULL.
+- B.1 FAST #40499004153 on de92e0d5: SUCCESS (build, backend, firebase-functions).

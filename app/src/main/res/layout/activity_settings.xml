@@ -56,6 +56,17 @@
                     </LinearLayout>
                 </LinearLayout>
             </com.eve.app.designsystem.DesignCardView>
+            <TextView style="@style/TextAppearance.Eve.Telegram.SettingsSection" android:tag="eve_telegram_type" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="INFORMATION" />
+            <com.eve.app.designsystem.DesignCardView style="@style/Widget.Eve.Token.Card" android:layout_width="match_parent" android:layout_height="wrap_content">
+                <LinearLayout android:id="@+id/rowAbout" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="@dimen/design_bottom_bar_height" android:clickable="true" android:focusable="true" android:contentDescription="About Eve" android:foreground="?attr/selectableItemBackground" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                    <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:importantForAccessibility="no" android:src="@drawable/ic_info" app:tint="@color/telegram_type_primary" />
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_pill_padding" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                        <TextView style="@style/TextAppearance.Eve.Telegram.SettingsLabel" android:tag="eve_telegram_type" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="About" />
+                        <TextView style="@style/TextAppearance.Eve.Telegram.SettingsDetail" android:tag="eve_telegram_type" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="App information and details" />
+                    </LinearLayout>
+                    <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:importantForAccessibility="no" android:src="@drawable/ic_chevron_right" app:tint="@color/text_secondary" />
+                </LinearLayout>
+            </com.eve.app.designsystem.DesignCardView>
             <TextView style="@style/TextAppearance.Eve.Telegram.SettingsSection" android:tag="eve_telegram_type" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="ACCOUNT" />
             <com.eve.app.designsystem.DesignCardView style="@style/Widget.Eve.Token.Card" android:layout_width="match_parent" android:layout_height="wrap_content">
                 <LinearLayout android:id="@+id/rowDeleteAccount" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="@dimen/design_bottom_bar_height" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
