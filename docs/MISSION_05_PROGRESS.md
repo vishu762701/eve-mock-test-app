@@ -50,3 +50,8 @@
 - Changed Home-only path to pad mainContentContainer with saved base padding; leaves DrawerLayout/decor unpadded and forwards original insets to the drawer fitsSystemWindows content and existing floating pill listener. All non-Home behavior untouched.
 - Extended HomeDrawerNavigationNativeTest.kt to dispatch synthetic 3-button system insets, assert full-window drawer host and Home body navigation clearance. Native test not executed on either navigation mode yet.
 - C3 FAST #40502524249 on 5badf981: SUCCESS.
+
+## B.3-03 Constrain drawer header and row labels without shortening destination text
+- Parent main ecdf36a7e8ff044ad79d77021d536df4b83d827e. Home drawer header name/email/Premium line keep their actual accessible text and ellipsize within panel width; six destination row TextViews use weighted remaining width so icons and text do not overlap at large fonts. Row heights stay wrap_content with min 52dp inside scrollable list.
+- Scoped structural JVM assertions added for bounded header; no view IDs, callbacks or premium animation modified. This is EVE accessibility adaptation, not an original Telegram drawer-profile renderer claim.
+- B.3-02 FAST #40503561917 on ecdf36a7: SUCCESS (build/backend/functions). Native device rows/font scaling still UNKNOWN until FULL.

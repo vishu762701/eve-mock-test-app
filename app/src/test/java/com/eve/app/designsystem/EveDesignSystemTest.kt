@@ -162,6 +162,11 @@ class EveDesignSystemTest {
         assertNotNull("Floating navigation overlay must be inside content", overlay)
         assertTrue("Pill host must be within DrawerLayout content", overlay?.parentNode === navHost)
         assertTrue("Drawer panel must be sibling above content", drawer?.parentNode === root && navHost?.parentNode === root)
+        for (id in listOf("tvDrawerUserName", "tvDrawerUserEmail", "tvDrawerPremiumStatus")) {
+            val header = findElementById(root, id)
+            assertEquals("match_parent", header?.designAttribute("android:layout_width"))
+            assertEquals("end", header?.designAttribute("android:ellipsize"))
+        }
     }
 
 
