@@ -13,8 +13,6 @@ import android.view.View
 import android.view.ViewConfiguration
 import android.view.ViewTreeObserver
 import android.view.ViewGroup
-import android.view.animation.AccelerateInterpolator
-import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -37,7 +35,7 @@ import java.util.ArrayDeque
 import kotlin.math.abs
 import kotlin.math.max
 
-/** Source-traced EVE adaptation. Uses Telegram's documented default transition fallback. */
+/** Source-traced EVE adaptation of Telegram's bulletin behavior. */
 class AppBulletin private constructor(
     activity: Activity,
     private val message: CharSequence,
@@ -111,6 +109,7 @@ class AppBulletin private constructor(
         private var layoutListener: View.OnLayoutChangeListener? = null
         private var drawListener: ViewTreeObserver.OnPreDrawListener? = null
         private var offsetSpring: SpringAnimation? = null
+        private var transitionSpring: SpringAnimation? = null
         private var offsetTarget = Float.NaN
         private var exiting = false
         private val lifecycle = (findActivity(content.context) as? LifecycleOwner)?.lifecycle
@@ -206,7 +205,7 @@ class AppBulletin private constructor(
             }
             drawListener = preDraw
             content.viewTreeObserver.addOnPreDrawListener(preDraw)
-            root.post { if (view === root) { position(root); enter(card, activity) } }
+            root.post { if (view === root && !exiting) { position(root); enter(card, activity) } }
             setupSwipe(card, item, activity)
             startTimer()
         }
@@ -244,7 +243,11 @@ class AppBulletin private constructor(
         private fun enter(card: View, activity: Activity) {
             if (!DesignMotion.enabled(activity)) return
             card.translationY = card.height.toFloat()
-            card.animate().translationY(0f).setDuration(255L).setInterpolator(DecelerateInterpolator()).start()
+            transitionSpring?.cancel()
+            transitionSpring = SpringAnimation(card, DynamicAnimation.TRANSLATION_Y).also {
+                it.setSpring(SpringForce(0f).setStiffness(400f).setDampingRatio(0.8f))
+                it.start()
+            }
         }
         private fun startTimer() {
             handler.removeCallbacks(timeout)
@@ -298,8 +301,12 @@ class AppBulletin private constructor(
                 return
             }
             card.animate().cancel()
-            card.animate().translationY(card.height.toFloat()).setDuration(175L)
-                .setInterpolator(AccelerateInterpolator()).withEndAction { finish(item) }.start()
+            transitionSpring?.cancel()
+            transitionSpring = SpringAnimation(card, DynamicAnimation.TRANSLATION_Y).also { spring ->
+                spring.setSpring(SpringForce(card.height.toFloat()).setStiffness(400f).setDampingRatio(0.8f))
+                spring.addEndListener { _, cancelled, _, _ -> if (!cancelled) finish(item) }
+                spring.start()
+            }
         }
         private fun finish(item: AppBulletin) {
             if (active !== item) return
@@ -320,6 +327,8 @@ class AppBulletin private constructor(
             offsetSpring?.cancel()
             offsetSpring = null
             offsetTarget = Float.NaN
+            transitionSpring?.cancel()
+            transitionSpring = null
             if (removeRoot) (old?.parent as? ViewGroup)?.removeView(old)
             active?.host = null
             active = null

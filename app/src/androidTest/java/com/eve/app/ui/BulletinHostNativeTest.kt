@@ -25,6 +25,16 @@ import org.junit.runner.RunWith
 /** Exercises the production overlay in a real attached activity, not an XML-only fixture. */
 @RunWith(AndroidJUnit4::class)
 class BulletinHostNativeTest {
+    private fun awaitCondition(scenario: ActivityScenario<RepairVerificationActivity>, description: String,
+                               predicate: (RepairVerificationActivity) -> Boolean) {
+        val deadline = SystemClock.uptimeMillis() + 4000L
+        var met = false
+        while (!met && SystemClock.uptimeMillis() < deadline) {
+            scenario.onActivity { met = predicate(it) }
+            if (!met) SystemClock.sleep(25)
+        }
+        assertTrue(description, met)
+    }
     private fun bulletinCount(view: View): Int {
         val own = if (view.id == R.id.cardBulletin) 1 else 0
         return own + if (view is ViewGroup) (0 until view.childCount).sumOf { bulletinCount(view.getChildAt(it)) } else 0
@@ -157,7 +167,9 @@ class BulletinHostNativeTest {
                 }
                 swipe(0.2f)
                 instrumentation.waitForIdleSync()
-                SystemClock.sleep(250)
+                awaitCondition(scenario, "Short swipe must return to its original position") { activity ->
+                    activity.findViewById<View>(R.id.cardBulletin)?.let { kotlin.math.abs(it.translationX) < 1f } == true
+                }
                 scenario.onActivity { activity ->
                     val card = activity.findViewById<View>(R.id.cardBulletin)
                     assertNotNull(card)
@@ -165,7 +177,9 @@ class BulletinHostNativeTest {
                 }
                 swipe(0.45f)
                 instrumentation.waitForIdleSync()
-                SystemClock.sleep(300)
+                awaitCondition(scenario, "Long swipe must dismiss the bulletin") { activity ->
+                    activity.findViewById<View>(R.id.cardBulletin) == null
+                }
                 scenario.onActivity { activity -> assertNull(activity.findViewById<View>(R.id.cardBulletin)) }
             }
         }
@@ -197,7 +211,7 @@ class BulletinHostNativeTest {
             scenario.onActivity { activity -> assertNotNull(activity.findViewById<View>(R.id.cardBulletin)) }
             val up = android.view.MotionEvent.obtain(downTime, SystemClock.uptimeMillis(), android.view.MotionEvent.ACTION_UP, x, y, 0)
             try { instrumentation.sendPointerSync(up) } finally { up.recycle() }
-            SystemClock.sleep(2000)
+            SystemClock.sleep(2300)
             instrumentation.waitForIdleSync()
             scenario.onActivity { activity -> assertNull(activity.findViewById<View>(R.id.cardBulletin)) }
         }
@@ -406,7 +420,9 @@ class BulletinHostNativeTest {
                 if (action == android.view.MotionEvent.ACTION_DOWN) SystemClock.sleep(30)
             }
             instrumentation.waitForIdleSync()
-            SystemClock.sleep(300)
+            awaitCondition(scenario, "Queued bulletin must appear") { activity ->
+                activity.findViewById<TextView>(R.id.tvBulletinMessage)?.text?.toString() == "Second"
+            }
             scenario.onActivity { activity ->
                 val content = activity.findViewById<ViewGroup>(android.R.id.content)
                 assertEquals(1, actions)
