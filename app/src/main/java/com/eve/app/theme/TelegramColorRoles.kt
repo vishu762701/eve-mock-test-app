@@ -37,7 +37,11 @@ object TelegramColorRoles {
         "chats_menuItemIcon" to 0xFF889198.toInt(),
         "divider" to 0xFFD9D9D9.toInt(),
         "listSelector" to 0x0F000000.toInt(),
-        "actionBarDefaultSubmenuBackground" to 0xFFFFFFFF.toInt()
+        "actionBarDefaultSubmenuBackground" to 0xFFFFFFFF.toInt(),
+        // ThemeColors.java:203-206: Telegram original Day submenu chrome.
+        "actionBarDefaultSubmenuItem" to 0xFF1A1D21.toInt(),
+        "actionBarDefaultSubmenuItemIcon" to 0xFF1A1D21.toInt(),
+        "actionBarDefaultSubmenuSeparator" to 0xFFF5F5F5.toInt()
     )
 
     val fallbackKeys = mapOf(

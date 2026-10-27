@@ -17,6 +17,32 @@ import java.nio.charset.StandardCharsets
 class TelegramThemeEngineTest {
 
     @Test
+    fun originalTelegramSubmenuRolesResolveDayNightAndCustomOverrides() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        val day = TelegramThemeEngine.resolvePalette(context, TelegramThemeEngine.BUILT_IN_THEMES[0], 0)
+        val night = TelegramThemeEngine.resolvePalette(context, TelegramThemeEngine.BUILT_IN_THEMES[1], 0)
+        assertEquals(0xFFFFFFFF.toInt(), day.submenuBackground)
+        assertEquals(0xFF1A1D21.toInt(), day.submenuText)
+        assertEquals(0xFF1A1D21.toInt(), day.submenuIcon)
+        assertEquals(0xFFF5F5F5.toInt(), day.submenuSeparator)
+        assertEquals(0xFF282829.toInt(), night.submenuBackground)
+        assertEquals(0xFFFFFFFF.toInt(), night.submenuText)
+        assertEquals(0xFFFFFFFF.toInt(), night.submenuIcon)
+        assertEquals(0xFF1E1E1F.toInt(), night.submenuSeparator)
+        val file = java.io.File(context.filesDir, "custom_${System.nanoTime()}.attheme")
+        try {
+            file.writeText("actionBarDefaultSubmenuBackground=#DD112233\nactionBarDefaultSubmenuItem=#FFABCDEF\n")
+            val custom = requireNotNull(TelegramThemeEngine.registerCustomTheme(context, file))
+            val palette = TelegramThemeEngine.resolvePalette(context, custom, 0)
+            assertEquals(0xDD112233.toInt(), palette.submenuBackground)
+            assertEquals(0xFFABCDEF.toInt(), palette.submenuText)
+            assertEquals(0xFF1A1D21.toInt(), palette.submenuIcon)
+        } finally {
+            file.delete()
+        }
+    }
+
+    @Test
     fun bulletinRolesPreserveSourceAlphaAndNightOverrides() {
         val context = org.robolectric.RuntimeEnvironment.getApplication()
         val day = TelegramThemeEngine.resolvePalette(context, TelegramThemeEngine.BUILT_IN_THEMES[0], 0)
