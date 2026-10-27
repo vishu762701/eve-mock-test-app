@@ -39,8 +39,18 @@ class BulletinHostNativeTest {
         val own = if (view.id == R.id.cardBulletin) 1 else 0
         return own + if (view is ViewGroup) (0 until view.childCount).sumOf { bulletinCount(view.getChildAt(it)) } else 0
     }
+    private fun awaitWindowFocus(scenario: ActivityScenario<RepairVerificationActivity>) {
+        awaitCondition(scenario, "Attached test activity must have window focus") { it.hasWindowFocus() }
+    }
     private fun captureWindow(name: String) {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val deadline = SystemClock.uptimeMillis() + 4000L
+        var activePackage = instrumentation.uiAutomation.rootInActiveWindow?.packageName?.toString()
+        while (activePackage != instrumentation.targetContext.packageName && SystemClock.uptimeMillis() < deadline) {
+            SystemClock.sleep(25)
+            activePackage = instrumentation.uiAutomation.rootInActiveWindow?.packageName?.toString()
+        }
+        assertEquals("Screenshot must capture the test app's focused window", instrumentation.targetContext.packageName, activePackage)
         val screenshot = requireNotNull(instrumentation.uiAutomation.takeScreenshot())
         try {
             if (android.os.Build.VERSION.SDK_INT >= 29) {
@@ -138,6 +148,7 @@ class BulletinHostNativeTest {
                 activity.setTheme(R.style.Theme_Eve)
                 activity.setContentView(FrameLayout(activity))
             }
+            awaitWindowFocus(scenario)
             for (direction in listOf(-1, 1)) {
                 scenario.onActivity { activity -> AppBulletin.make(activity, "Swipe test", 30000L).show() }
                 instrumentation.waitForIdleSync()
@@ -191,6 +202,9 @@ class BulletinHostNativeTest {
             scenario.onActivity { activity ->
                 activity.setTheme(R.style.Theme_Eve)
                 activity.setContentView(FrameLayout(activity))
+            }
+            awaitWindowFocus(scenario)
+            scenario.onActivity { activity ->
                 AppBulletin.make(activity, "Pause test", 2500L).show()
             }
             instrumentation.waitForIdleSync()
@@ -317,7 +331,7 @@ class BulletinHostNativeTest {
                 assertTrue("Long message must be vertically scrollable", scroll.canScrollVertically(1))
                 val position = IntArray(2)
                 card.getLocationOnScreen(position)
-                assertTrue("Card must remain within the window", position[1] >= 0)
+                assertTrue("Card must remain within the window: top=${position[1]}, height=${card.height}", position[1] >= 0)
             }
             captureWindow("bulletin-long-scroll")
         }
@@ -413,6 +427,9 @@ class BulletinHostNativeTest {
             scenario.onActivity { activity ->
                 activity.setTheme(R.style.Theme_Eve)
                 activity.setContentView(FrameLayout(activity))
+            }
+            awaitWindowFocus(scenario)
+            scenario.onActivity { activity ->
                 AppBulletin.make(activity, "पहला परीक्षण संदेश", 10000L, actionText = "Undo", onAction = { actions++ }).show()
                 AppBulletin.make(activity, "Second", 10000L, actionText = "Undo", onAction = { actions++ }).show()
             }

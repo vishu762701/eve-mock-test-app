@@ -40,10 +40,13 @@ collect_evidence() {
   cat ui-renderings/safe-runtime.log || true
   # The hosted runner has grep but does not include ripgrep.
   adb shell dumpsys window windows | grep -E 'mCurrentFocus|mFocusedApp|mAppearance|appearance=|mNavBarColor|mNavigationBarColor' > ui-renderings/window-appearance.log || true
+  # Surface the already-filtered focus evidence when an external window blocks tests.
+  cat ui-renderings/window-appearance.log || true
   adb shell dumpsys activity service SystemUIService | grep -Ei 'appearance|darkIntensity|lightBar|navigationMode|navBarColor|lightNavigation|navigationLight|navigationBarMode|mForce.*Scrim' > ui-renderings/systemui-appearance.log || true
   adb shell settings get secure navigation_mode > ui-renderings/navigation-mode.log || true
   # Disposable fixture emulator only: capture ANR categories, not application payloads.
   adb logcat -d -b events -s am_anr am_crash > ui-renderings/process-failures.log || true
+  cat ui-renderings/process-failures.log || true
 }
 trap collect_evidence EXIT
 # Each matrix job owns a fresh emulator and runs exactly one navigation mode.

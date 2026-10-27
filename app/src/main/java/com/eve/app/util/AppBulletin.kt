@@ -279,6 +279,8 @@ class AppBulletin private constructor(
             transitionSpring?.cancel()
             transitionSpring = SpringAnimation(card, DynamicAnimation.TRANSLATION_Y).also {
                 it.setSpring(SpringForce(0f).setStiffness(400f).setDampingRatio(0.8f))
+                // Keep a full-height, scrollable bulletin inside the top safe area on spring overshoot.
+                it.addUpdateListener { _, value, _ -> if (value < 0f) card.translationY = 0f }
                 it.start()
             }
         }
