@@ -8,6 +8,8 @@ import android.widget.TextView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.eve.app.R
 import com.eve.app.util.AppBulletin
 import com.eve.app.theme.TelegramThemeEngine
@@ -49,6 +51,76 @@ class BulletinHostNativeTest {
         } finally { screenshot.recycle() }
     }
 
+    private fun verifyCompositedContrast(scenario: ActivityScenario<RepairVerificationActivity>) {
+        val point = IntArray(2)
+        var foreground = 0
+        scenario.onActivity { activity ->
+            val card = activity.findViewById<View>(R.id.cardBulletin)
+            card.getLocationOnScreen(point)
+            point[0] += (4 * activity.resources.displayMetrics.density).toInt()
+            point[1] += card.height / 2
+            foreground = activity.findViewById<TextView>(R.id.tvBulletinMessage).currentTextColor
+        }
+        val screenshot = requireNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot())
+        try {
+            assertTrue(point[0] in 0 until screenshot.width && point[1] in 0 until screenshot.height)
+            val background = screenshot.getPixel(point[0], point[1])
+            val ratio = androidx.core.graphics.ColorUtils.calculateContrast(foreground, background)
+            assertTrue("Composited bulletin text contrast is $ratio", ratio >= 4.5)
+        } finally { screenshot.recycle() }
+    }
+
+    @Test fun recreationRemovesTransientBulletinWithoutRunningAction() {
+        var actions = 0
+        ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                activity.setTheme(R.style.Theme_Eve)
+                activity.setContentView(FrameLayout(activity))
+                AppBulletin.make(activity, "Undo test", 30000L, actionText = "Undo", onAction = { actions++ }).show()
+            }
+            scenario.recreate()
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+            scenario.onActivity { activity ->
+                assertNull(activity.findViewById<View>(R.id.cardBulletin))
+                assertEquals(0, actions)
+            }
+        }
+    }
+
+    @Test fun disabledAnimationsRemoveAnAttachedBulletinImmediately() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val resolver = instrumentation.targetContext.contentResolver
+        val key = android.provider.Settings.Global.ANIMATOR_DURATION_SCALE
+        val previous = android.provider.Settings.Global.getFloat(resolver, key, 1f)
+        fun shell(command: String) {
+            instrumentation.uiAutomation.executeShellCommand(command).use { descriptor ->
+                java.io.FileInputStream(descriptor.fileDescriptor).use { it.readBytes() }
+            }
+        }
+        try {
+            shell("settings put global animator_duration_scale 0")
+            ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+                lateinit var bulletin: AppBulletin
+                scenario.onActivity { activity ->
+                    activity.setTheme(R.style.Theme_Eve)
+                    activity.setContentView(FrameLayout(activity))
+                    bulletin = AppBulletin.make(activity, "Reduced motion", 30000L)
+                    bulletin.show()
+                }
+                instrumentation.waitForIdleSync()
+                SystemClock.sleep(250)
+                scenario.onActivity { activity ->
+                    assertTrue("Animator scale should be disabled", !com.eve.app.designsystem.DesignMotion.enabled(activity))
+                    val card = activity.findViewById<View>(R.id.cardBulletin)
+                    assertTrue(card.isLaidOut)
+                    assertEquals(0f, card.translationY, 0f)
+                    bulletin.dismiss()
+                    assertNull(activity.findViewById<View>(R.id.cardBulletin))
+                }
+            }
+        } finally { shell("settings put global animator_duration_scale $previous") }
+    }
+
     @Test fun swipesDismissInBothDirections() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
@@ -70,21 +142,145 @@ class BulletinHostNativeTest {
                 }
                 val startX = bounds[0] + bounds[2] / 2f
                 val y = bounds[1] + bounds[3] / 2f
-                val downTime = SystemClock.uptimeMillis()
-                fun send(action: Int, x: Float) {
-                    val event = android.view.MotionEvent.obtain(downTime, SystemClock.uptimeMillis(), action, x, y, 0)
-                    try { instrumentation.sendPointerSync(event) } finally { event.recycle() }
+                fun swipe(fraction: Float) {
+                    val downTime = SystemClock.uptimeMillis()
+                    fun send(action: Int, x: Float) {
+                        val event = android.view.MotionEvent.obtain(downTime, SystemClock.uptimeMillis(), action, x, y, 0)
+                        try { instrumentation.sendPointerSync(event) } finally { event.recycle() }
+                    }
+                    send(android.view.MotionEvent.ACTION_DOWN, startX)
+                    for (step in 1..5) {
+                        SystemClock.sleep(20)
+                        send(android.view.MotionEvent.ACTION_MOVE, startX + direction * bounds[2] * fraction * step / 5f)
+                    }
+                    send(android.view.MotionEvent.ACTION_UP, startX + direction * bounds[2] * fraction)
                 }
-                send(android.view.MotionEvent.ACTION_DOWN, startX)
-                for (step in 1..5) {
-                    SystemClock.sleep(20)
-                    send(android.view.MotionEvent.ACTION_MOVE, startX + direction * bounds[2] * 0.45f * step / 5f)
+                swipe(0.2f)
+                instrumentation.waitForIdleSync()
+                SystemClock.sleep(250)
+                scenario.onActivity { activity ->
+                    val card = activity.findViewById<View>(R.id.cardBulletin)
+                    assertNotNull(card)
+                    assertEquals(0f, card.translationX, 1f)
                 }
-                send(android.view.MotionEvent.ACTION_UP, startX + direction * bounds[2] * 0.45f)
+                swipe(0.45f)
                 instrumentation.waitForIdleSync()
                 SystemClock.sleep(300)
                 scenario.onActivity { activity -> assertNull(activity.findViewById<View>(R.id.cardBulletin)) }
             }
+        }
+    }
+
+    @Test fun touchPausesOnlyTheRemainingTime() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                activity.setTheme(R.style.Theme_Eve)
+                activity.setContentView(FrameLayout(activity))
+                AppBulletin.make(activity, "Pause test", 2500L).show()
+            }
+            instrumentation.waitForIdleSync()
+            SystemClock.sleep(1000)
+            val position = IntArray(2)
+            val size = IntArray(2)
+            scenario.onActivity { activity ->
+                val card = activity.findViewById<View>(R.id.cardBulletin)
+                card.getLocationOnScreen(position)
+                size[0] = card.width; size[1] = card.height
+            }
+            val x = position[0] + size[0] / 2f
+            val y = position[1] + size[1] / 2f
+            val downTime = SystemClock.uptimeMillis()
+            val down = android.view.MotionEvent.obtain(downTime, downTime, android.view.MotionEvent.ACTION_DOWN, x, y, 0)
+            try { instrumentation.sendPointerSync(down) } finally { down.recycle() }
+            SystemClock.sleep(1800)
+            scenario.onActivity { activity -> assertNotNull(activity.findViewById<View>(R.id.cardBulletin)) }
+            val up = android.view.MotionEvent.obtain(downTime, SystemClock.uptimeMillis(), android.view.MotionEvent.ACTION_UP, x, y, 0)
+            try { instrumentation.sendPointerSync(up) } finally { up.recycle() }
+            SystemClock.sleep(2000)
+            instrumentation.waitForIdleSync()
+            scenario.onActivity { activity -> assertNull(activity.findViewById<View>(R.id.cardBulletin)) }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    @Test fun hindiWrapsInNarrowRtlWindowAtLargeFontScale() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val message = "यह परीक्षा की महत्वपूर्ण सूचना है। कृपया आगे बढ़ने से पहले सभी निर्देश ध्यान से पढ़ें।"
+        var original: android.content.res.Configuration? = null
+        ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+            try {
+                scenario.onActivity { activity ->
+                    activity.setTheme(R.style.Theme_Eve)
+                    val resources = activity.resources
+                    original = android.content.res.Configuration(resources.configuration)
+                    val scaled = android.content.res.Configuration(resources.configuration).apply { fontScale = 2f }
+                    resources.updateConfiguration(scaled, resources.displayMetrics)
+                    activity.window.setLayout((320 * resources.displayMetrics.density).toInt(), ViewGroup.LayoutParams.MATCH_PARENT)
+                    activity.setContentView(FrameLayout(activity))
+                    val content = activity.findViewById<ViewGroup>(android.R.id.content)
+                    content.layoutDirection = View.LAYOUT_DIRECTION_RTL
+                    AppBulletin.make(activity, message, 30000L).show()
+                }
+                instrumentation.waitForIdleSync()
+                SystemClock.sleep(350)
+                scenario.onActivity { activity ->
+                    val card = activity.findViewById<View>(R.id.cardBulletin)
+                    val text = activity.findViewById<TextView>(R.id.tvBulletinMessage)
+                    assertEquals(message, text.text.toString())
+                    assertEquals(View.LAYOUT_DIRECTION_RTL, text.layoutDirection)
+                    assertTrue("Large text must wrap", text.lineCount > 1)
+                    assertTrue("Large font scale must affect the text", text.textSize > 20 * activity.resources.displayMetrics.density)
+                    assertTrue("Text must fit its measured height", text.height >= requireNotNull(text.layout).height)
+                    assertTrue("Card must fit the narrow window", card.width <= (320 * activity.resources.displayMetrics.density).toInt())
+                }
+                captureWindow("bulletin-rtl-large")
+            } finally {
+                scenario.onActivity { activity ->
+                    original?.let { activity.resources.updateConfiguration(it, activity.resources.displayMetrics) }
+                }
+            }
+        }
+    }
+
+    @Test fun bulletinClearsImeWhenEmulatorProvidesOne() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                activity.setTheme(R.style.Theme_Eve)
+                activity.window.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+                val container = FrameLayout(activity)
+                val field = android.widget.EditText(activity)
+                container.addView(field, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+                activity.setContentView(container)
+                field.requestFocus()
+                field.post {
+                    val input = activity.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                    input.showSoftInput(field, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+                }
+                AppBulletin.make(activity, "Keyboard clearance", 30000L).show()
+            }
+            instrumentation.waitForIdleSync()
+            SystemClock.sleep(1200)
+            var visible = false
+            scenario.onActivity { activity ->
+                val content = activity.findViewById<ViewGroup>(android.R.id.content)
+                val insets = ViewCompat.getRootWindowInsets(content)
+                visible = insets?.isVisible(WindowInsetsCompat.Type.ime()) == true
+                if (visible) {
+                    val card = activity.findViewById<View>(R.id.cardBulletin)
+                    val cardPosition = IntArray(2)
+                    val windowPosition = IntArray(2)
+                    card.getLocationOnScreen(cardPosition)
+                    activity.window.decorView.rootView.getLocationOnScreen(windowPosition)
+                    val bottom = windowPosition[1] + activity.window.decorView.rootView.height
+                    val keyboardTop = bottom - requireNotNull(insets).getInsets(WindowInsetsCompat.Type.ime()).bottom
+                    assertTrue("Bulletin must clear the keyboard", cardPosition[1] + card.height <= keyboardTop)
+                } else {
+                    android.util.Log.w("EveBulletin", "MANUAL/UNKNOWN: emulator did not show an IME")
+                }
+            }
+            if (visible) captureWindow("bulletin-ime")
         }
     }
 
@@ -139,13 +335,33 @@ class BulletinHostNativeTest {
                     assertEquals(0xEA272F38.toInt(), card.cardBackgroundColor.defaultColor)
                 }
                 captureWindow("bulletin-day")
+                verifyCompositedContrast(scenario)
                 scenario.onActivity { activity ->
                     TelegramThemeEngine.setPreviewMode(TelegramThemeEngine.ThemeMode.NIGHT, activity)
                     val card = activity.findViewById<MaterialCardView>(R.id.cardBulletin)
                     assertEquals(0xF5181818.toInt(), card.cardBackgroundColor.defaultColor)
                 }
                 instrumentation.waitForIdleSync()
+                SystemClock.sleep(100)
                 captureWindow("bulletin-night")
+                verifyCompositedContrast(scenario)
+                var customFile: java.io.File? = null
+                try {
+                    scenario.onActivity { activity ->
+                        val file = java.io.File(activity.filesDir, "custom_${System.nanoTime().toString().replace("-", "")}.attheme")
+                        customFile = file
+                        file.writeText("windowBackgroundGray=-1\nundo_background=#AA123456\n")
+                        val theme = requireNotNull(TelegramThemeEngine.registerCustomTheme(activity, file))
+                        TelegramThemeEngine.setPreviewDayTheme(theme.id, 0, activity)
+                        TelegramThemeEngine.setPreviewMode(TelegramThemeEngine.ThemeMode.DAY, activity)
+                        val card = activity.findViewById<MaterialCardView>(R.id.cardBulletin)
+                        assertEquals(0xAA123456.toInt(), card.cardBackgroundColor.defaultColor)
+                    }
+                    instrumentation.waitForIdleSync()
+                    SystemClock.sleep(100)
+                    captureWindow("bulletin-custom")
+                    verifyCompositedContrast(scenario)
+                } finally { customFile?.delete() }
             } finally {
                 scenario.onActivity { TelegramThemeEngine.cancelPreview(it) }
             }

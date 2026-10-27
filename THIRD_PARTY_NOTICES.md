@@ -173,3 +173,14 @@ projection; Night bytes retain their verified source hash. Existing Telegram
 copyright/license text, corresponding-source obligations and fail-closed production
 release clearance remain unchanged. Platform blur, AA adjustments and unmatched
 filled segmented controls are explicitly documented EVE deviations.
+
+### Telegram Bulletin source-traced EVE adaptation
+
+`AppBulletin` and `layout_telegram_bulletin.xml` are an EVE-authored behavioral
+adaptation of Bulletin.java, BulletinFactory.java and theme-role facts supplied
+by the owner for Mission 04. No upstream Bulletin source file was copied or
+independently verified in this session; the owner-provided archive hashes are
+provenance claims, not a validation performed here. The EVE implementation uses
+its own host and the documented default transition fallback, with accessibility
+and lifecycle deviations described in `docs/BULLETIN_MISSION_04.md`. Existing
+Telegram license, corresponding-source and release gates remain in force.

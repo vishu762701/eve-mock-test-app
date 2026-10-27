@@ -145,7 +145,7 @@ class AppBulletin private constructor(
                 override fun onViewAttachedToWindow(v: View) = Unit
                 override fun onViewDetachedFromWindow(v: View) {
                     // setContentView can remove this overlay without detaching the content root.
-                    if (view === v) dispose()
+                    if (view === v) dispose(overlayAlreadyDetaching = true)
                 }
             })
             val card = root.findViewById<MaterialCardView>(R.id.cardBulletin)
@@ -281,7 +281,7 @@ class AppBulletin private constructor(
             removeVisible()
             if (!disposed && pending.isNotEmpty()) present(pending.removeFirst())
         }
-        private fun removeVisible() {
+        private fun removeVisible(removeRoot: Boolean = true) {
             handler.removeCallbacks(timeout)
             val old = view
             view = null
@@ -292,7 +292,7 @@ class AppBulletin private constructor(
             layoutListener = null
             drawListener?.let { if (content.viewTreeObserver.isAlive) content.viewTreeObserver.removeOnPreDrawListener(it) }
             drawListener = null
-            (old?.parent as? ViewGroup)?.removeView(old)
+            if (removeRoot) (old?.parent as? ViewGroup)?.removeView(old)
             active?.host = null
             active = null
         }
@@ -300,10 +300,10 @@ class AppBulletin private constructor(
         override fun onViewDetachedFromWindow(v: View) {
             dispose()
         }
-        private fun dispose() {
+        private fun dispose(overlayAlreadyDetaching: Boolean = false) {
             if (disposed) return
             disposed = true
-            removeVisible()
+            removeVisible(removeRoot = !overlayAlreadyDetaching)
             pending.forEach { it.host = null }
             pending.clear()
             lifecycle?.removeObserver(lifecycleObserver)
