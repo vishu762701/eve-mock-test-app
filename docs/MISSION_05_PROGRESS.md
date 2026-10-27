@@ -39,3 +39,8 @@
 ## C.2-02 AAPT scrollbars attribute repair
 - Commit 10c2eedb FAST #40501567437 FAILED Android resource linking: `popup_telegram_menu.xml:6` used `android:scrollbars="insideOverlay"`, which is not valid; valid values are `none|horizontal|vertical`. `insideOverlay` belongs to `android:scrollbarStyle`.
 - Corrected to vertical scrollbars + insideOverlay style. Added JVM XML assertions to prevent regression; no CI gate weakened. Recheck new FAST run on this repaired main SHA.
+
+## C.3-01 Native popup viewport and seven-row test source
+- Parent main 16fef77a86d8f7a67a258a91648e28e0b5447ff6. New `app/src/androidTest/java/com/eve/app/ui/HomeOverflowPopupNativeTest.kt` uses a credentials-free attached RepairVerificationActivity, actual TelegramMenuPopup, global screen bounds against visible display frame, seven rows (touch height and labels), scrollable last action, and dismissal.
+- This is an AndroidTest source **not yet executed** on gesture/three-button devices. FAST compile gate is expected, but actual geometry/RTL/IME and theme-reveal tests remain UNKNOWN; do not mark native PASS from compilation.
+- Repaired C.2 FAST #40501814392 on commit 16fef77a: SUCCESS (build/backend/firebase-functions).
