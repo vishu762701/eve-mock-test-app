@@ -10,408 +10,272 @@ import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import android.view.ViewConfiguration
+import android.view.ViewTreeObserver
+import android.view.ViewGroup
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.eve.app.R
-import com.eve.app.designsystem.DesignMotion
 import com.eve.app.designsystem.UiArcMotion
 import com.eve.app.theme.TelegramThemeEngine
+import com.eve.app.ui.navigation.EveBottomPillBar
 import com.google.android.material.card.MaterialCardView
 import java.lang.ref.WeakReference
-import java.util.WeakHashMap
+import java.util.ArrayDeque
 import kotlin.math.abs
+import kotlin.math.max
 
-/**
- * UIArc Toast Stack & Bulletin System.
- * Genuine native translation of official UIArc Toast Stack specification:
- * - Source: https://uiarc.dev/r/toast-stack.json
- * - Implicit message duration: 1500ms below 20 characters, otherwise 2750ms
- * - Errors retain the previous 8000ms for readability until the host is replaced
- * - Maximum queue: 12; maximum visible stacked: 3
- * - Stacked peek: 14dp; scale step: 0.05 per tucked level
- * - Entering bulletins slide up from bottom edge with smooth spring
- * - Front card dismiss reflows subsequent toasts forward with spring.smooth
- * - Touch down pauses dismissal timer; touch release resumes
- * - Horizontal swipe-to-dismiss gesture support
- * - Full accessibility with TalkBack announcements and reduced-motion support
- */
+/** Source-traced EVE adaptation. Uses Telegram's documented default transition fallback. */
 class AppBulletin private constructor(
-    private val activity: Activity,
+    activity: Activity,
     private val message: CharSequence,
-    private val durationMs: Long = DURATION_DEFAULT,
-    private val iconRes: Int = R.drawable.ic_check_circle,
-    private val actionText: String? = null,
-    private val onAction: (() -> Unit)? = null
+    private val durationMs: Long,
+    private val iconRes: Int,
+    private val actionText: String?,
+    private val onAction: (() -> Unit)?
 ) {
+    private val activityRef = WeakReference(activity)
+    private var host: Host? = null
+    private val actionable get() = !actionText.isNullOrBlank() && onAction != null
 
     companion object {
         const val DURATION_SHORT = 1500L
         const val DURATION_LONG = 2750L
         const val DURATION_PROLONG = 5000L
-
-        // UIArc Toast Stack authoritative timing and sizing tokens
         const val DURATION_DEFAULT = 5000L
-        const val DURATION_ERROR = 8000L // 5000ms * 1.6
-        const val MAX_QUEUE = 12
-        const val MAX_VISIBLE = 3
-        const val PEEK_DP = 14f
-        const val SCALE_STEP = 0.05f
-
-        /** Owner-supplied Telegram BulletinFactory duration contract. */
-        fun durationForMessage(message: CharSequence): Long =
-            if (message.length < 20) DURATION_SHORT else DURATION_LONG
-
+        // Retain longer error visibility for readability.
+        const val DURATION_ERROR = 8000L
+        fun durationForMessage(message: CharSequence): Long = if (message.length < 20) DURATION_SHORT else DURATION_LONG
         internal fun remainingAfterElapsed(remainingMs: Long, elapsedMs: Long): Long =
             (remainingMs - elapsedMs.coerceAtLeast(0)).coerceAtLeast(0)
-
-        private val mainHandler = Handler(Looper.getMainLooper())
-        private val activityStacks = WeakHashMap<Activity, MutableList<AppBulletin>>()
-
         fun findActivity(context: Context?): Activity? {
             var ctx = context
             while (ctx is ContextWrapper) {
                 if (ctx is Activity) return ctx
-                ctx = ctx.baseContext
+                val next = ctx.baseContext
+                if (next === ctx) break
+                ctx = next
             }
             return null
         }
-
-        fun make(
-            activity: Activity,
-            message: CharSequence,
-            durationMs: Long = durationForMessage(message),
-            iconRes: Int = R.drawable.ic_check_circle,
-            actionText: String? = null,
-            onAction: (() -> Unit)? = null
-        ): AppBulletin {
-            return AppBulletin(activity, message, durationMs, iconRes, actionText, onAction)
+        fun make(activity: Activity, message: CharSequence, durationMs: Long = durationForMessage(message),
+                 iconRes: Int = R.drawable.ic_check_circle, actionText: String? = null,
+                 onAction: (() -> Unit)? = null): AppBulletin =
+            AppBulletin(activity, message, durationMs, iconRes, actionText, onAction)
+        fun show(context: Context, message: CharSequence, durationMs: Long = durationForMessage(message),
+                 iconRes: Int = R.drawable.ic_check_circle, actionText: String? = null,
+                 onAction: (() -> Unit)? = null) {
+            val activity = findActivity(context)
+            if (activity != null && !activity.isFinishing && !activity.isDestroyed)
+                make(activity, message, durationMs, iconRes, actionText, onAction).show()
+            else Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
-
-        /**
-         * Replaces Toast across the app. Displays a UIArc Toast Stack bulletin
-         * if an Activity is available, or gracefully falls back to Toast.
-         */
-        fun show(
-            context: Context,
-            message: CharSequence,
-            durationMs: Long = durationForMessage(message),
-            iconRes: Int = R.drawable.ic_check_circle,
-            actionText: String? = null,
-            onAction: (() -> Unit)? = null
-        ) {
-            val act = findActivity(context)
-            if (act != null && !act.isFinishing && !act.isDestroyed) {
-                make(act, message, durationMs, iconRes, actionText, onAction).show()
-            } else {
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        fun showSuccess(context: Context, message: CharSequence) {
-            show(context, message, durationForMessage(message), R.drawable.ic_check_circle)
-        }
-
-        fun showError(context: Context, message: CharSequence) {
-            show(context, message, DURATION_ERROR, R.drawable.ic_info)
-        }
+        fun showSuccess(context: Context, message: CharSequence) = show(context, message)
+        fun showError(context: Context, message: CharSequence) = show(context, message, DURATION_ERROR, R.drawable.ic_info)
     }
-
-    private var bulletinView: View? = null
-    private var isDismissed = false
-    private var isPaused = false
-    private var remainingDurationMs = durationMs
-    private var timerStartedAtMs = 0L
-
-    private val dismissRunnable = Runnable { dismiss() }
 
     fun show() {
+        val activity = activityRef.get() ?: return
         if (activity.isFinishing || activity.isDestroyed) return
+        val content = activity.findViewById<ViewGroup>(android.R.id.content) ?: return
+        val current = content.getTag(R.id.eve_bulletin_host) as? Host
+        val target = current ?: Host(content).also { content.setTag(R.id.eve_bulletin_host, it) }
+        host = target
+        target.enqueue(this)
+    }
+    fun dismiss() { host?.dismiss(this) }
 
-        val stack = activityStacks.getOrPut(activity) { mutableListOf() }
+    private class Host(private val content: ViewGroup) : View.OnAttachStateChangeListener {
+        private val handler = Handler(Looper.getMainLooper())
+        private val pending = ArrayDeque<AppBulletin>()
+        private var active: AppBulletin? = null
+        private var view: View? = null
+        private var remaining = 0L
+        private var started = 0L
+        private var paused = false
+        private var disposed = false
+        private var themeListener: ((TelegramThemeEngine.ResolvedPalette) -> Unit)? = null
+        private var layoutListener: View.OnLayoutChangeListener? = null
+        private var drawListener: ViewTreeObserver.OnPreDrawListener? = null
+        private var exiting = false
+        private val timeout = Runnable { active?.let { dismiss(it) } }
+        init { content.addOnAttachStateChangeListener(this) }
 
-        // Enforce max queue of 12 items
-        while (stack.size >= MAX_QUEUE) {
-            val oldest = stack.removeAt(0)
-            oldest.dismissInternal(immediate = true)
-        }
-
-        val decorView = activity.findViewById<ViewGroup>(android.R.id.content) ?: return
-        val inflater = LayoutInflater.from(activity)
-        val view = inflater.inflate(R.layout.layout_bulletin, decorView, false)
-        bulletinView = view
-
-        val tvMessage = view.findViewById<TextView>(R.id.tvBulletinMessage)
-        val ivIcon = view.findViewById<ImageView>(R.id.ivBulletinIcon)
-        val btnAction = view.findViewById<TextView>(R.id.btnBulletinAction)
-        val card = view.findViewById<View>(R.id.cardBulletin)
-
-        // The app-wide theme traversal must not overwrite bulletin-specific roles.
-        view.tag = "no_theme"
-        fun applyBulletinPalette(palette: TelegramThemeEngine.ResolvedPalette) {
-            (card as? MaterialCardView)?.setCardBackgroundColor(palette.bulletinBackground)
-            tvMessage.setTextColor(palette.bulletinInfo)
-            ivIcon.imageTintList = ColorStateList.valueOf(palette.bulletinInfo)
-            btnAction.setTextColor(palette.bulletinAction)
-        }
-        val themeListener: (TelegramThemeEngine.ResolvedPalette) -> Unit = { applyBulletinPalette(it) }
-        view.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
-            override fun onViewAttachedToWindow(v: View) {
-                TelegramThemeEngine.addThemeChangeListener(themeListener)
-                applyBulletinPalette(TelegramThemeEngine.resolveCurrentPalette(v.context))
+        fun enqueue(item: AppBulletin) {
+            if (disposed || active === item || pending.contains(item)) return
+            val visible = active
+            if (visible == null) { present(item); return }
+            if (visible.actionable || pending.isNotEmpty()) {
+                // Preserve all actionable callbacks; redundant informational events may be coalesced.
+                if (item.actionable) pending.addLast(item)
+                return
             }
-
-            override fun onViewDetachedFromWindow(v: View) {
-                TelegramThemeEngine.removeThemeChangeListener(themeListener)
-            }
-        })
-
-        tvMessage.text = message
-        ivIcon.setImageResource(iconRes)
-
-        if (!actionText.isNullOrBlank() && onAction != null) {
-            btnAction.visibility = View.VISIBLE
-            btnAction.text = actionText
-            btnAction.setOnClickListener {
-                dismiss()
-                onAction.invoke()
-            }
-        } else {
-            btnAction.visibility = View.GONE
+            removeVisible()
+            present(item)
         }
 
-        // Add to active stack (newest is at end of list, representing the front-most visible toast)
-        stack.add(this)
-
-        decorView.addView(view)
-        card.announceForAccessibility(message)
-
-        // Setup touch to pause timer & swipe-to-dismiss
-        setupTouchInteractions(card)
-
-        // Reflow entire stack according to UIArc Toast Stack physics
-        reflowStack(activity, animateNew = true)
-
-        startDismissTimer()
-    }
-
-    private fun startDismissTimer() {
-        mainHandler.removeCallbacks(dismissRunnable)
-        if (!isPaused && remainingDurationMs > 0) {
-            timerStartedAtMs = SystemClock.elapsedRealtime()
-            mainHandler.postDelayed(dismissRunnable, remainingDurationMs)
-        } else if (!isPaused && remainingDurationMs <= 0) {
-            dismiss()
-        }
-    }
-
-    private fun pauseDismissTimer() {
-        if (!isPaused) {
-            isPaused = true
-            remainingDurationMs = remainingAfterElapsed(
-                remainingDurationMs, SystemClock.elapsedRealtime() - timerStartedAtMs
-            )
-            mainHandler.removeCallbacks(dismissRunnable)
-        }
-    }
-
-    private fun resumeDismissTimer() {
-        if (isPaused) {
-            isPaused = false
-            startDismissTimer()
-        }
-    }
-
-    private fun setupTouchInteractions(card: View) {
-        var startX = 0f
-        var isDragging = false
-        val touchSlop = ViewConfiguration.get(activity).scaledTouchSlop
-
-        card.setOnTouchListener { v, event ->
-            when (event.actionMasked) {
-                MotionEvent.ACTION_DOWN -> {
-                    startX = event.rawX
-                    isDragging = false
-                    pauseStackTimers(activity)
-                    true
+        private fun present(item: AppBulletin) {
+            if (disposed) return
+            val activity = item.activityRef.get() ?: return
+            if (activity.isFinishing || activity.isDestroyed) return
+            active = item
+            exiting = false
+            remaining = item.durationMs.coerceAtLeast(0)
+            paused = false
+            val root = LayoutInflater.from(activity).inflate(R.layout.layout_telegram_bulletin, content, false)
+            view = root
+            val card = root.findViewById<MaterialCardView>(R.id.cardBulletin)
+            val text = root.findViewById<TextView>(R.id.tvBulletinMessage)
+            val icon = root.findViewById<ImageView>(R.id.ivBulletinIcon)
+            val action = root.findViewById<TextView>(R.id.btnBulletinAction)
+            text.text = item.message
+            icon.setImageResource(item.iconRes)
+            if (item.actionable) {
+                action.visibility = View.VISIBLE
+                action.text = item.actionText
+                action.setOnTouchListener { _, event ->
+                    when (event.actionMasked) {
+                        MotionEvent.ACTION_DOWN -> pauseTimer()
+                        MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> resumeTimer()
+                    }
+                    false
                 }
-                MotionEvent.ACTION_MOVE -> {
-                    val deltaX = event.rawX - startX
-                    if (abs(deltaX) > touchSlop) {
-                        isDragging = true
-                        v.translationX = deltaX
-                        v.alpha = (1f - (abs(deltaX) / (v.width * 0.8f))).coerceIn(0.2f, 1f)
-                        true
-                    } else {
-                        true
+                action.setOnClickListener {
+                    if (active === item && !exiting) {
+                        action.isEnabled = false
+                        val callback = item.onAction
+                        dismiss(item)
+                        callback?.invoke()
                     }
                 }
-                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                    resumeStackTimers(activity)
-                    if (isDragging) {
-                        val deltaX = event.rawX - startX
-                        if (event.actionMasked == MotionEvent.ACTION_UP && abs(deltaX) > v.width / 3f) {
-                            // Swiped far enough to dismiss
-                            dismissWithSwipe(v, deltaX)
-                        } else {
-                            // Snap back to 0
-                            val motionEnabled = UiArcMotion.isMotionEnabled(activity)
-                            v.animate()
-                                .translationX(0f)
-                                .alpha(1f)
-                                .setDuration(if (motionEnabled) 200L else 0L)
-                                .setInterpolator(UiArcMotion.Spring.SNAPPY)
-                                .start()
+            }
+            val listener: (TelegramThemeEngine.ResolvedPalette) -> Unit = { palette ->
+                card.setCardBackgroundColor(palette.bulletinBackground)
+                text.setTextColor(palette.bulletinInfo)
+                icon.imageTintList = ColorStateList.valueOf(palette.bulletinInfo)
+                action.setTextColor(palette.bulletinAction)
+            }
+            themeListener = listener
+            TelegramThemeEngine.addThemeChangeListener(listener)
+            listener(TelegramThemeEngine.resolveCurrentPalette(activity))
+            root.accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
+            content.addView(root)
+            root.announceForAccessibility(item.message)
+            val reposition = View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> position(root) }
+            layoutListener = reposition
+            content.addOnLayoutChangeListener(reposition)
+            val preDraw = ViewTreeObserver.OnPreDrawListener {
+                if (view === root) position(root)
+                true
+            }
+            drawListener = preDraw
+            content.viewTreeObserver.addOnPreDrawListener(preDraw)
+            root.post { if (view === root) { position(root); enter(card, activity) } }
+            setupSwipe(card, item, activity)
+            startTimer()
+        }
+        private fun position(root: View) {
+            val inset = ViewCompat.getRootWindowInsets(content)
+            val bottom = inset?.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout() or WindowInsetsCompat.Type.ime())?.bottom ?: 0
+            val contentLocation = IntArray(2)
+            content.getLocationOnScreen(contentLocation)
+            val pill = content.findViewWithTag<EveBottomPillBar>("eve_bottom_pill_bar")
+            val pillOffset = if (pill != null && pill.isShown) {
+                val location = IntArray(2); pill.getLocationOnScreen(location)
+                (contentLocation[1] + content.height - location[1]).coerceAtLeast(0)
+            } else 0
+            root.translationY = -max(bottom, pillOffset).toFloat()
+        }
+        private fun enter(card: View, activity: Activity) {
+            if (!UiArcMotion.isMotionEnabled(activity)) return
+            card.translationY = card.height.toFloat()
+            card.animate().translationY(0f).setDuration(255L).setInterpolator(DecelerateInterpolator()).start()
+        }
+        private fun startTimer() {
+            handler.removeCallbacks(timeout)
+            if (paused) return
+            if (remaining <= 0L) { active?.let { dismiss(it) }; return }
+            started = SystemClock.elapsedRealtime()
+            handler.postDelayed(timeout, remaining)
+        }
+        private fun pauseTimer() {
+            if (paused) return
+            paused = true
+            remaining = remainingAfterElapsed(remaining, SystemClock.elapsedRealtime() - started)
+            handler.removeCallbacks(timeout)
+        }
+        private fun resumeTimer() { if (paused) { paused = false; startTimer() } }
+        private fun setupSwipe(card: View, item: AppBulletin, activity: Activity) {
+            var down = 0f
+            var dragging = false
+            val slop = ViewConfiguration.get(activity).scaledTouchSlop
+            card.setOnTouchListener { v, event ->
+                when (event.actionMasked) {
+                    MotionEvent.ACTION_DOWN -> { down = event.rawX; dragging = false; pauseTimer(); true }
+                    MotionEvent.ACTION_MOVE -> {
+                        val dx = event.rawX - down
+                        if (abs(dx) > slop) { dragging = true; v.translationX = dx }
+                        true
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        val dx = event.rawX - down
+                        if (event.actionMasked == MotionEvent.ACTION_UP && dragging && abs(dx) > v.width / 3f) dismiss(item)
+                        else {
+                            if (!dragging && event.actionMasked == MotionEvent.ACTION_UP) v.performClick()
+                            v.animate().translationX(0f).setDuration(if (UiArcMotion.isMotionEnabled(activity)) 200L else 0L).start()
+                            resumeTimer()
                         }
                         true
-                    } else {
-                        if (event.actionMasked == MotionEvent.ACTION_UP) v.performClick()
-                        true
                     }
-                }
-                else -> false
-            }
-        }
-    }
-
-    private fun dismissWithSwipe(card: View, deltaX: Float) {
-        if (isDismissed) return
-        isDismissed = true
-        mainHandler.removeCallbacks(dismissRunnable)
-
-        val stack = activityStacks[activity]
-        stack?.remove(this)
-
-        val motionEnabled = UiArcMotion.isMotionEnabled(activity)
-        val exitTarget = if (deltaX < 0f) -card.width.toFloat() else card.width.toFloat()
-
-        card.animate()
-            .translationX(exitTarget)
-            .alpha(0f)
-            .setDuration(if (motionEnabled) UiArcMotion.Duration.EXIT else 0L)
-            .setInterpolator(UiArcMotion.Ease.EXIT)
-            .withEndAction {
-                cleanupView()
-                reflowStack(activity, animateNew = false)
-            }
-            .start()
-    }
-
-    fun dismiss() {
-        dismissInternal(immediate = false)
-    }
-
-    private fun dismissInternal(immediate: Boolean) {
-        if (isDismissed) return
-        isDismissed = true
-        mainHandler.removeCallbacks(dismissRunnable)
-
-        val stack = activityStacks[activity]
-        stack?.remove(this)
-
-        val view = bulletinView
-        val card = view?.findViewById<View>(R.id.cardBulletin)
-
-        if (immediate || card == null || view == null) {
-            cleanupView()
-            reflowStack(activity, animateNew = false)
-            return
-        }
-
-        val motionEnabled = UiArcMotion.isMotionEnabled(activity)
-        val exitOffset = activity.resources.getDimension(R.dimen.design_section_gap)
-
-        card.animate()
-            .translationY(exitOffset)
-            .alpha(0f)
-            .setDuration(if (motionEnabled) UiArcMotion.Duration.EXIT else 0L)
-            .setInterpolator(UiArcMotion.Ease.EXIT)
-            .withEndAction {
-                cleanupView()
-                reflowStack(activity, animateNew = false)
-            }
-            .start()
-    }
-
-    private fun cleanupView() {
-        bulletinView?.let { v ->
-            (v.parent as? ViewGroup)?.removeView(v)
-        }
-        bulletinView = null
-    }
-
-    private fun reflowStack(act: Activity, animateNew: Boolean) {
-        val stack = activityStacks[act] ?: return
-        if (act.isFinishing || act.isDestroyed) return
-
-        val density = act.resources.displayMetrics.density
-        val peekPx = PEEK_DP * density
-        val motionEnabled = UiArcMotion.isMotionEnabled(act)
-
-        // Stack order: stack.last() is depth 0 (front-most toast)
-        val total = stack.size
-        for (i in 0 until total) {
-            val bulletin = stack[i]
-            val depth = (total - 1 - i) // 0 for the newest/front toast, 1 for previous, etc.
-            val card = bulletin.bulletinView?.findViewById<View>(R.id.cardBulletin) ?: continue
-
-            if (depth >= MAX_VISIBLE) {
-                // Older toasts beyond top 3 are hidden in background
-                card.animate().cancel()
-                card.visibility = View.GONE
-                card.alpha = 0f
-            } else {
-                card.visibility = View.VISIBLE
-                val targetTranslationY = -depth * peekPx
-                val targetScale = (1.0f - depth * SCALE_STEP).coerceAtLeast(0.7f)
-                val targetAlpha = (1.0f - depth * 0.08f).coerceIn(0.5f, 1.0f)
-
-                if (bulletin === this && animateNew) {
-                    // Newly entering toast: slide up from bottom edge
-                    val startOffset = act.resources.getDimension(R.dimen.design_section_gap)
-                    card.translationY = startOffset
-                    card.translationX = 0f
-                    card.scaleX = 1f
-                    card.scaleY = 1f
-                    card.alpha = 0f
-
-                    card.animate()
-                        .translationY(targetTranslationY)
-                        .scaleX(targetScale)
-                        .scaleY(targetScale)
-                        .alpha(targetAlpha)
-                        .setDuration(if (motionEnabled) UiArcMotion.Spring.SMOOTH.settlingDurationMs else 0L)
-                        .setInterpolator(UiArcMotion.Spring.SMOOTH)
-                        .start()
-                } else {
-                    // Reflowing existing toast in stack
-                    card.animate()
-                        .translationY(targetTranslationY)
-                        .scaleX(targetScale)
-                        .scaleY(targetScale)
-                        .alpha(targetAlpha)
-                        .setDuration(if (motionEnabled) UiArcMotion.Spring.SMOOTH.settlingDurationMs else 0L)
-                        .setInterpolator(UiArcMotion.Spring.SMOOTH)
-                        .start()
+                    else -> true
                 }
             }
         }
-    }
-
-    private fun pauseStackTimers(act: Activity) {
-        val stack = activityStacks[act] ?: return
-        for (b in stack) {
-            b.pauseDismissTimer()
+        fun dismiss(item: AppBulletin) {
+            if (active !== item) { pending.remove(item); item.host = null; return }
+            if (exiting) return
+            exiting = true
+            val card = view?.findViewById<View>(R.id.cardBulletin)
+            val activity = item.activityRef.get()
+            handler.removeCallbacks(timeout)
+            if (card == null || activity == null || !UiArcMotion.isMotionEnabled(activity)) { finish(item); return }
+            card.animate().cancel()
+            card.animate().translationY(card.height.toFloat()).setDuration(175L)
+                .setInterpolator(AccelerateInterpolator()).withEndAction { finish(item) }.start()
         }
-    }
-
-    private fun resumeStackTimers(act: Activity) {
-        val stack = activityStacks[act] ?: return
-        for (b in stack) {
-            b.resumeDismissTimer()
+        private fun finish(item: AppBulletin) {
+            if (active !== item) return
+            removeVisible()
+            if (!disposed && pending.isNotEmpty()) present(pending.removeFirst())
+        }
+        private fun removeVisible() {
+            handler.removeCallbacks(timeout)
+            val old = view
+            view = null
+            old?.findViewById<View>(R.id.cardBulletin)?.animate()?.cancel()
+            themeListener?.let { TelegramThemeEngine.removeThemeChangeListener(it) }
+            themeListener = null
+            layoutListener?.let { content.removeOnLayoutChangeListener(it) }
+            layoutListener = null
+            drawListener?.let { if (content.viewTreeObserver.isAlive) content.viewTreeObserver.removeOnPreDrawListener(it) }
+            drawListener = null
+            (old?.parent as? ViewGroup)?.removeView(old)
+            active?.host = null
+            active = null
+        }
+        override fun onViewAttachedToWindow(v: View) = Unit
+        override fun onViewDetachedFromWindow(v: View) {
+            disposed = true
+            removeVisible()
+            pending.forEach { it.host = null }
+            pending.clear()
+            content.removeOnAttachStateChangeListener(this)
+            content.setTag(R.id.eve_bulletin_host, null)
         }
     }
 }

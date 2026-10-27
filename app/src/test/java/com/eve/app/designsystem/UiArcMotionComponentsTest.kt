@@ -276,13 +276,10 @@ class UiArcMotionComponentsTest {
     }
 
     @Test
-    fun testBatch03_Component3_ToastStackConstants() {
-        assertEquals(5000L, com.eve.app.util.AppBulletin.DURATION_DEFAULT)
-        assertEquals(8000L, com.eve.app.util.AppBulletin.DURATION_ERROR)
-        assertEquals(12, com.eve.app.util.AppBulletin.MAX_QUEUE)
-        assertEquals(3, com.eve.app.util.AppBulletin.MAX_VISIBLE)
-        assertEquals(14f, com.eve.app.util.AppBulletin.PEEK_DP, 0.001f)
-        assertEquals(0.05f, com.eve.app.util.AppBulletin.SCALE_STEP, 0.001f)
+    fun testBulletinDurationContract() {
+        assertEquals(1500L, com.eve.app.util.AppBulletin.DURATION_SHORT)
+        assertEquals(2750L, com.eve.app.util.AppBulletin.DURATION_LONG)
+        assertEquals(5000L, com.eve.app.util.AppBulletin.DURATION_PROLONG)
     }
 
     @Test
