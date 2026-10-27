@@ -155,6 +155,13 @@ class EveDesignSystemTest {
         listOf("layoutDrawerProfile", "layoutDrawerPremium", "layoutDrawerPerformance",
             "layoutDrawerLeaderboard", "layoutDrawerSyllabus", "layoutDrawerSettings")
             .forEach { assertNotNull("Missing drawer row: $it", findElementById(root, it)) }
+        val navHost = findElementById(root, "homeContentHost")
+        val overlay = findElementById(root, "homeNavOverlay")
+        val drawer = findElementById(root, "navDrawerPanel")
+        assertNotNull("Home content host must exist", navHost)
+        assertNotNull("Floating navigation overlay must be inside content", overlay)
+        assertTrue("Pill host must be within DrawerLayout content", overlay?.parentNode === navHost)
+        assertTrue("Drawer panel must be sibling above content", drawer?.parentNode === root && navHost?.parentNode === root)
     }
 
     @Test

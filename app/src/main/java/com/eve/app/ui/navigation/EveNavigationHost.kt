@@ -8,6 +8,7 @@ import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import com.eve.app.R
 import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.ui.history.HistoryActivity
 import com.eve.app.ui.home.MainActivity
@@ -30,6 +31,9 @@ object EveNavigationHost {
         val root = activity.findViewById<ViewGroup>(android.R.id.content)
             ?: throw IllegalStateException("Activity content view not found")
 
+        // Home pill must be a DrawerLayout content descendant, not a decor foreground sibling.
+        val pillParent: ViewGroup = root.findViewById<FrameLayout>(R.id.homeNavOverlay) ?: root
+
         // Reuse existing pill if already attached
         val existing = root.findViewWithTag<EveBottomPillBar>("eve_bottom_pill_bar")
         val pill = existing ?: EveBottomPillBar(activity).apply {
@@ -47,7 +51,7 @@ object EveNavigationHost {
                 rightMargin = (8 * density).toInt()
             }
             layoutParams = lp
-            root.addView(this)
+            pillParent.addView(this)
         }
 
         // Capture the screen content, not the floating overlay's own tab labels/avatar.

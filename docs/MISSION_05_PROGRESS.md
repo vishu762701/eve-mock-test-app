@@ -21,3 +21,9 @@
 - Parent main de92e0d5e9d943dfeb149fe00e90b5fd49a78f25; `activity_settings.xml` adds accessible About row under INFORMATION and existing section/card style. `SettingsActivity.kt` routes to the already manifest-registered `AboutActivity` (not a placeholder); prior independent Profile/About surface stays intact.
 - `EveDesignSystemTest.kt` requires the About row and original minimum touch token; build and native navigation proof pending fresh FAST / final FULL.
 - B.1 FAST #40499004153 on de92e0d5: SUCCESS (build, backend, firebase-functions).
+
+## B.3-01 Fix Home pill/drawer stacking hierarchy
+- Parent main 3d6a6ac5fcd275606b1d526336fef2821d5ddfff; `EveNavigationHost.kt` previously placed the Home pill directly in decor's `android.R.id.content` above `DrawerLayout`. New `homeContentHost/homeNavOverlay` in `activity_main.xml` makes the pill a descendant of DrawerLayout's content child, so actual native drawer sibling renders above it. Other screen hosts are unchanged.
+- New source tests: JVM XML hierarchy assertions and `HomeDrawerNavigationNativeTest.kt` (native attach/START drawer). The panel's existing shape/color/inset code remains unchanged; EVE/Telegram geometry parity and system navigation-region surface paint NOT YET VERIFIED.
+- Telegram `DrawerLayoutContainer.java:190-212` forwards system/cutout/IME insets; EVE's DrawerLayout is an adaptation, not a byte-exact port.
+- B.2 FAST run #40499647957 on 3d6a6ac5: SUCCESS.

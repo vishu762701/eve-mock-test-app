@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/drawerLayout" android:layout_width="match_parent" android:layout_height="match_parent" style="@style/Widget.Eve.Token.Screen">
+    <FrameLayout android:id="@+id/homeContentHost" android:layout_width="match_parent" android:layout_height="match_parent" android:clipChildren="false" android:clipToPadding="false">
     <LinearLayout android:id="@+id/mainContentContainer" android:layout_width="match_parent" android:layout_height="match_parent" android:clipChildren="false" android:clipToPadding="false" android:orientation="vertical" style="@style/Widget.Eve.Token.Column">
         <FrameLayout android:id="@+id/topBarContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
             <LinearLayout android:id="@+id/normalTopBar" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
@@ -66,6 +67,9 @@
             </FrameLayout>
         </LinearLayout>
     </LinearLayout>
+        <!-- Place Home pill behind drawer as part of DrawerLayout content (not decor foreground). -->
+        <FrameLayout android:id="@+id/homeNavOverlay" android:layout_width="match_parent" android:layout_height="match_parent" android:clipChildren="false" android:clipToPadding="false" android:clickable="false" android:focusable="false" />
+    </FrameLayout>
     <FrameLayout android:id="@+id/navDrawerPanel" android:layout_width="290dp" android:layout_height="match_parent" android:layout_gravity="start" android:clickable="true" android:focusable="true" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Modal">
         <ImageView android:id="@+id/ivDrawerGlassBlurBackground" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerCrop" android:importantForAccessibility="no" />
         <View android:id="@+id/viewDrawerGlassTintOverlay" android:layout_width="match_parent" android:layout_height="match_parent" />
