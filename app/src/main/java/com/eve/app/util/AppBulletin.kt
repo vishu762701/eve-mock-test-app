@@ -3,6 +3,7 @@ package com.eve.app.util
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.res.ColorStateList
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
@@ -18,6 +19,8 @@ import androidx.core.content.ContextCompat
 import com.eve.app.R
 import com.eve.app.designsystem.DesignMotion
 import com.eve.app.designsystem.UiArcMotion
+import com.eve.app.theme.TelegramThemeEngine
+import com.google.android.material.card.MaterialCardView
 import java.lang.ref.WeakReference
 import java.util.WeakHashMap
 import kotlin.math.abs
@@ -145,6 +148,26 @@ class AppBulletin private constructor(
         val ivIcon = view.findViewById<ImageView>(R.id.ivBulletinIcon)
         val btnAction = view.findViewById<TextView>(R.id.btnBulletinAction)
         val card = view.findViewById<View>(R.id.cardBulletin)
+
+        // The app-wide theme traversal must not overwrite bulletin-specific roles.
+        view.tag = "no_theme"
+        fun applyBulletinPalette(palette: TelegramThemeEngine.ResolvedPalette) {
+            (card as? MaterialCardView)?.setCardBackgroundColor(palette.bulletinBackground)
+            tvMessage.setTextColor(palette.bulletinInfo)
+            ivIcon.imageTintList = ColorStateList.valueOf(palette.bulletinInfo)
+            btnAction.setTextColor(palette.bulletinAction)
+        }
+        val themeListener: (TelegramThemeEngine.ResolvedPalette) -> Unit = { applyBulletinPalette(it) }
+        view.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+            override fun onViewAttachedToWindow(v: View) {
+                TelegramThemeEngine.addThemeChangeListener(themeListener)
+                applyBulletinPalette(TelegramThemeEngine.resolveCurrentPalette(v.context))
+            }
+
+            override fun onViewDetachedFromWindow(v: View) {
+                TelegramThemeEngine.removeThemeChangeListener(themeListener)
+            }
+        })
 
         tvMessage.text = message
         ivIcon.setImageResource(iconRes)
