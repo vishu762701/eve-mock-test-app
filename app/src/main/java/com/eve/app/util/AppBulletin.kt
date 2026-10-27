@@ -20,11 +20,13 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.eve.app.R
 import com.eve.app.designsystem.DesignMotion
 import com.eve.app.theme.TelegramThemeEngine
+import com.eve.app.theme.TelegramColorRoles
 import com.eve.app.ui.navigation.EveBottomPillBar
 import com.google.android.material.card.MaterialCardView
 import java.lang.ref.WeakReference
@@ -173,9 +175,15 @@ class AppBulletin private constructor(
             }
             val listener: (TelegramThemeEngine.ResolvedPalette) -> Unit = { palette ->
                 card.setCardBackgroundColor(palette.bulletinBackground)
-                text.setTextColor(palette.bulletinInfo)
-                icon.imageTintList = ColorStateList.valueOf(palette.bulletinInfo)
-                action.setTextColor(palette.bulletinAction)
+                // Account for the translucent source fill over both theme backing roles.
+                val backing = listOf(palette.windowBackground, palette.surface).map {
+                    ColorUtils.compositeColors(palette.bulletinBackground, it)
+                }
+                val info = TelegramColorRoles.accessibleForeground(palette.bulletinInfo, backing)
+                val actionColor = TelegramColorRoles.accessibleForeground(palette.bulletinAction, backing)
+                text.setTextColor(info)
+                icon.imageTintList = ColorStateList.valueOf(info)
+                action.setTextColor(actionColor)
             }
             themeListener = listener
             TelegramThemeEngine.addThemeChangeListener(listener)
@@ -260,7 +268,10 @@ class AppBulletin private constructor(
             val card = view?.findViewById<View>(R.id.cardBulletin)
             val activity = item.activityRef.get()
             handler.removeCallbacks(timeout)
-            if (card == null || activity == null || !DesignMotion.enabled(activity)) { finish(item); return }
+            if (card == null || activity == null || !card.isLaidOut || card.height == 0 || !DesignMotion.enabled(activity)) {
+                finish(item)
+                return
+            }
             card.animate().cancel()
             card.animate().translationY(card.height.toFloat()).setDuration(175L)
                 .setInterpolator(AccelerateInterpolator()).withEndAction { finish(item) }.start()
