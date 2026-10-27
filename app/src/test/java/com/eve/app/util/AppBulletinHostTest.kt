@@ -17,6 +17,28 @@ import java.util.concurrent.TimeUnit
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
 class AppBulletinHostTest {
+    @Test fun bulletinGeometryMatchesTheSuppliedContract() {
+        val controller = Robolectric.buildActivity(Activity::class.java).setup()
+        val activity = controller.get()
+        activity.setTheme(R.style.Theme_Eve)
+        val root = activity.layoutInflater.inflate(R.layout.layout_telegram_bulletin, android.widget.FrameLayout(activity), false)
+        val card = root.findViewById<com.google.android.material.card.MaterialCardView>(R.id.cardBulletin)
+        val row = card.getChildAt(0) as android.widget.LinearLayout
+        val icon = root.findViewById<View>(R.id.ivBulletinIcon)
+        val message = root.findViewById<TextView>(R.id.tvBulletinMessage)
+        val density = activity.resources.displayMetrics.density
+        assertEquals(16 * density, card.radius, 0.5f)
+        assertEquals((48 * density).toInt(), row.minimumHeight)
+        assertEquals((16 * density).toInt(), row.paddingStart)
+        assertEquals((16 * density).toInt(), row.paddingEnd)
+        assertEquals((8 * density).toInt(), row.paddingTop)
+        assertEquals((8 * density).toInt(), row.paddingBottom)
+        assertEquals((24 * density).toInt(), icon.layoutParams.width)
+        assertEquals((24 * density).toInt(), icon.layoutParams.height)
+        assertEquals(15 * activity.resources.displayMetrics.scaledDensity, message.textSize, 0.5f)
+        controller.pause().stop().destroy()
+    }
+
     private fun bulletinCount(view: View): Int {
         val own = if (view.id == R.id.cardBulletin) 1 else 0
         return own + if (view is android.view.ViewGroup) {
