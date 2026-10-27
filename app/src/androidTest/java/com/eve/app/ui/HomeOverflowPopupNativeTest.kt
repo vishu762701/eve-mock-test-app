@@ -20,6 +20,7 @@ import org.junit.runner.RunWith
 /**
  * Tests the actual PopupWindow, not only inflated XML or unbounded layout metrics.
  * Uses a credentials-free debug Activity; does not trigger logout or exam operations.
+ * Mission 05 final FULL gate intentionally reruns both native navigation modes.
  */
 @RunWith(AndroidJUnit4::class)
 class HomeOverflowPopupNativeTest {
