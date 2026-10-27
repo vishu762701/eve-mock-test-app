@@ -298,6 +298,31 @@ class BulletinHostNativeTest {
         }
     }
 
+    @Test fun veryLongMessageRemainsScrollableInsideVisibleViewport() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val message = "परीक्षा की सूचना पढ़ें। ".repeat(100)
+        ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                activity.setTheme(R.style.Theme_Eve)
+                activity.setContentView(FrameLayout(activity))
+                AppBulletin.make(activity, message, 30000L).show()
+            }
+            instrumentation.waitForIdleSync()
+            SystemClock.sleep(500)
+            scenario.onActivity { activity ->
+                val card = activity.findViewById<View>(R.id.cardBulletin)
+                val scroll = activity.findViewById<android.widget.ScrollView>(R.id.bulletinMessageScroll)
+                val text = activity.findViewById<TextView>(R.id.tvBulletinMessage)
+                assertEquals(message, text.text.toString())
+                assertTrue("Long message must be vertically scrollable", scroll.canScrollVertically(1))
+                val position = IntArray(2)
+                card.getLocationOnScreen(position)
+                assertTrue("Card must remain within the window", position[1] >= 0)
+            }
+            captureWindow("bulletin-long-scroll")
+        }
+    }
+
     @Test fun visibleBulletinClearsAttachedFloatingPill() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->

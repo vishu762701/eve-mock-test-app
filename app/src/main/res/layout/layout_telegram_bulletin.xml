@@ -12,8 +12,11 @@
             android:paddingStart="16dp" android:paddingEnd="16dp" android:paddingTop="8dp" android:paddingBottom="8dp">
             <ImageView android:id="@+id/ivBulletinIcon" android:layout_width="24dp" android:layout_height="24dp"
                 android:layout_marginEnd="16dp" android:importantForAccessibility="no" />
-            <TextView android:id="@+id/tvBulletinMessage" android:layout_width="0dp" android:layout_height="wrap_content"
-                android:layout_weight="1" style="@style/TextAppearance.Eve.Bulletin" />
+            <ScrollView android:id="@+id/bulletinMessageScroll" android:layout_width="0dp"
+                android:layout_height="wrap_content" android:layout_weight="1" android:fillViewport="false">
+                <TextView android:id="@+id/tvBulletinMessage" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" style="@style/TextAppearance.Eve.Bulletin" />
+            </ScrollView>
             <com.google.android.material.button.MaterialButton android:id="@+id/btnBulletinAction"
                 style="@style/Widget.Material3.Button.TextButton" android:layout_width="wrap_content"
                 android:layout_height="wrap_content" android:minHeight="48dp" android:minWidth="48dp"

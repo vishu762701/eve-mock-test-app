@@ -5,3 +5,8 @@ EVE's bulletin implementation is a source-traced EVE adaptation of the behavior 
 Remaining work before mission completion: attached-device tests of gesture, action, lifecycle, theme changes, 320dp, font scaling, RTL, navigation and IME; visual contrast with composited backgrounds; exact-SHA FULL CI and APK evidence. The host samples inset and pill geometry at pre-draw. A 900-stiffness, no-bounce spring handles downward offset changes; upward changes are immediate to avoid obscuring a newly raised IME or pill. This EVE safety adaptation still requires attached-device verification. The queue, gesture dispatch and accessibility must not be called verified until tests actually run.
 
 For imported palettes, foregrounds are adjusted only when needed against the translucent bulletin fill composited over the theme canvas and surface roles. This approximation cannot prove contrast over arbitrary image pixels; actual-device contrast remains unverified.
+
+EVE uses a vertically scrollable message area when the available viewport is too
+short for the full text. Horizontal drags on that area remain bulletin swipes;
+vertical drags remain message scrolling. This is an EVE accessibility adaptation
+and requires attached-device verification, especially with IME and large fonts.

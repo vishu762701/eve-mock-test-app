@@ -14,6 +14,7 @@ import android.view.ViewConfiguration
 import android.view.ViewTreeObserver
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.ViewCompat
@@ -155,6 +156,7 @@ class AppBulletin private constructor(
             })
             val card = root.findViewById<MaterialCardView>(R.id.cardBulletin)
             val text = root.findViewById<TextView>(R.id.tvBulletinMessage)
+            val messageScroll = root.findViewById<ScrollView>(R.id.bulletinMessageScroll)
             val icon = root.findViewById<ImageView>(R.id.ivBulletinIcon)
             val action = root.findViewById<TextView>(R.id.btnBulletinAction)
             text.text = item.message
@@ -200,23 +202,24 @@ class AppBulletin private constructor(
             layoutListener = reposition
             content.addOnLayoutChangeListener(reposition)
             val preDraw = ViewTreeObserver.OnPreDrawListener {
+                var needsLayout = false
                 if (view === root) {
-                    position(root)
+                    needsLayout = position(root)
                     if (!DesignMotion.enabled(root.context) && transitionSpring?.isRunning == true) {
                         transitionSpring?.cancel()
                         if (exiting) handler.post { active?.let { finish(it) } }
                         else card.translationY = 0f
                     }
                 }
-                true
+                !needsLayout
             }
             drawListener = preDraw
             content.viewTreeObserver.addOnPreDrawListener(preDraw)
             root.post { if (view === root && !exiting) { position(root); enter(card, activity) } }
-            setupSwipe(card, item, activity)
+            setupSwipe(card, messageScroll, item, activity)
             startTimer()
         }
-        private fun position(root: View) {
+        private fun position(root: View): Boolean {
             val inset = ViewCompat.getRootWindowInsets(content)
             val bottom = inset?.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout() or WindowInsetsCompat.Type.ime())?.bottom ?: 0
             val contentLocation = IntArray(2)
@@ -226,13 +229,25 @@ class AppBulletin private constructor(
                 val location = IntArray(2); pill.getLocationOnScreen(location)
                 (contentLocation[1] + content.height - location[1]).coerceAtLeast(0)
             } else 0
+            // Keep long messages reachable when an IME or floating bar reduces the viewport.
+            val top = inset?.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())?.top ?: 0
+            val scroll = root.findViewById<ScrollView>(R.id.bulletinMessageScroll)
+            val message = root.findViewById<TextView>(R.id.tvBulletinMessage)
+            val maxMessageHeight = (content.height - top - max(bottom, pillOffset) -
+                (16 * root.resources.displayMetrics.density).toInt()).coerceAtLeast(0)
+            val naturalHeight = message.measuredHeight + scroll.paddingTop + scroll.paddingBottom
+            val desiredHeight = if (naturalHeight > maxMessageHeight) maxMessageHeight else ViewGroup.LayoutParams.WRAP_CONTENT
+            val heightChanged = scroll.layoutParams.height != desiredHeight
+            if (heightChanged) {
+                scroll.layoutParams = scroll.layoutParams.apply { height = desiredHeight }
+            }
             val target = -max(bottom, pillOffset).toFloat()
             if (target == offsetTarget) {
                 if (!DesignMotion.enabled(root.context) && offsetSpring?.isRunning == true) {
                     offsetSpring?.cancel()
                     root.translationY = target
                 }
-                return
+                return heightChanged
             }
             offsetTarget = target
             // Moving upward is immediate so the bulletin never covers a newly raised IME/pill.
@@ -246,6 +261,7 @@ class AppBulletin private constructor(
                 }
                 animation.animateToFinalPosition(target)
             }
+            return heightChanged
         }
         private fun enter(card: View, activity: Activity) {
             if (!DesignMotion.enabled(activity)) return
@@ -270,31 +286,38 @@ class AppBulletin private constructor(
             handler.removeCallbacks(timeout)
         }
         private fun resumeTimer() { if (paused) { paused = false; startTimer() } }
-        private fun setupSwipe(card: View, item: AppBulletin, activity: Activity) {
+        private fun setupSwipe(card: View, messageScroll: ScrollView, item: AppBulletin, activity: Activity) {
             var down = 0f
+            var downY = 0f
             var dragging = false
             val slop = ViewConfiguration.get(activity).scaledTouchSlop
-            card.setOnTouchListener { v, event ->
+            val listener = View.OnTouchListener { v, event ->
                 when (event.actionMasked) {
-                    MotionEvent.ACTION_DOWN -> { down = event.rawX; dragging = false; pauseTimer(); true }
+                    MotionEvent.ACTION_DOWN -> {
+                        down = event.rawX; downY = event.rawY; dragging = false; pauseTimer()
+                        v === card
+                    }
                     MotionEvent.ACTION_MOVE -> {
                         val dx = event.rawX - down
-                        if (abs(dx) > slop) { dragging = true; v.translationX = dx }
-                        true
+                        if (!dragging && abs(dx) > slop && abs(dx) > abs(event.rawY - downY)) dragging = true
+                        if (dragging) card.translationX = dx
+                        dragging || v === card
                     }
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                         val dx = event.rawX - down
-                        if (event.actionMasked == MotionEvent.ACTION_UP && dragging && abs(dx) > v.width / 3f) dismiss(item)
+                        if (event.actionMasked == MotionEvent.ACTION_UP && dragging && abs(dx) > card.width / 3f) dismiss(item)
                         else {
-                            if (!dragging && event.actionMasked == MotionEvent.ACTION_UP) v.performClick()
-                            v.animate().translationX(0f).setDuration(if (DesignMotion.enabled(activity)) 200L else 0L).start()
+                            if (!dragging && v === card && event.actionMasked == MotionEvent.ACTION_UP) v.performClick()
+                            card.animate().translationX(0f).setDuration(if (DesignMotion.enabled(activity)) 200L else 0L).start()
                             resumeTimer()
                         }
-                        true
+                        dragging || v === card
                     }
                     else -> true
                 }
             }
+            card.setOnTouchListener(listener)
+            messageScroll.setOnTouchListener(listener)
         }
         fun dismiss(item: AppBulletin) {
             if (active !== item) { pending.remove(item); item.host = null; return }
