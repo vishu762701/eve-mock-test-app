@@ -44,6 +44,13 @@ class TelegramPolishFeaturesTest {
         assertEquals(AppBulletin.DURATION_LONG, AppBulletin.durationForMessage("a".repeat(20)))
     }
 
+    @Test
+    fun testBulletinPausePreservesElapsedTime() {
+        assertEquals(1000L, AppBulletin.remainingAfterElapsed(4000L, 3000L))
+        assertEquals(0L, AppBulletin.remainingAfterElapsed(1000L, 3000L))
+        assertEquals(1000L, AppBulletin.remainingAfterElapsed(1000L, -1L))
+    }
+
     // ==========================================
     // FEATURE 2 — UNDO DELETE BAR
     // ==========================================

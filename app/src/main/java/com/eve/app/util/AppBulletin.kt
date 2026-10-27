@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -58,6 +59,9 @@ class AppBulletin private constructor(
         /** Owner-supplied Telegram BulletinFactory duration contract. */
         fun durationForMessage(message: CharSequence): Long =
             if (message.length < 20) DURATION_SHORT else DURATION_LONG
+
+        internal fun remainingAfterElapsed(remainingMs: Long, elapsedMs: Long): Long =
+            (remainingMs - elapsedMs.coerceAtLeast(0)).coerceAtLeast(0)
 
         private val mainHandler = Handler(Looper.getMainLooper())
         private val activityStacks = WeakHashMap<Activity, MutableList<AppBulletin>>()
@@ -115,6 +119,7 @@ class AppBulletin private constructor(
     private var isDismissed = false
     private var isPaused = false
     private var remainingDurationMs = durationMs
+    private var timerStartedAtMs = 0L
 
     private val dismissRunnable = Runnable { dismiss() }
 
@@ -171,13 +176,19 @@ class AppBulletin private constructor(
     private fun startDismissTimer() {
         mainHandler.removeCallbacks(dismissRunnable)
         if (!isPaused && remainingDurationMs > 0) {
+            timerStartedAtMs = SystemClock.elapsedRealtime()
             mainHandler.postDelayed(dismissRunnable, remainingDurationMs)
+        } else if (!isPaused && remainingDurationMs <= 0) {
+            dismiss()
         }
     }
 
     private fun pauseDismissTimer() {
         if (!isPaused) {
             isPaused = true
+            remainingDurationMs = remainingAfterElapsed(
+                remainingDurationMs, SystemClock.elapsedRealtime() - timerStartedAtMs
+            )
             mainHandler.removeCallbacks(dismissRunnable)
         }
     }
