@@ -10,3 +10,9 @@
 - Source pack is NOT a complete original checkout; whole original Telegramsource.zip hash is manifest-reported, not independently checked here.
 - Remaining: inspect all chrome consumers and migrate family by family (A.2); implement drawer (B), popup (C), bulletin remaining work (D), then final integrated FULL (E).
 - FAST #40497770337 on commit 989b202c2 FAILED: 416 tests / 1 failed. Real root cause: `TelegramThemeEngine.kt:111-114,201-215` imported-theme validator requires an authoritative recognized base role; newly added test fixture had only submenu roles. Repair adds `windowBackgroundGray` to this test fixture and uses an established negative-sign-safe filename; no production validation is weakened. Fresh FAST result pending.
+
+## B.1-01 Remove redundant Home drawer destinations (no screen deletion)
+- Parent main 78f2e8e3f919c96cc7aee476e7d15438d3c349ee; XML `activity_main.xml` removes exactly `layoutDrawerHistory`, `layoutDrawerSaved`, `layoutDrawerAbout` nodes.
+- `MainActivity.kt` removes only the corresponding drawer bindings/callbacks, keeps existing History/Bookmarks popup routes and all six retained rows.
+- `EveDesignSystemTest.kt` updates structural contract to 6 drawer rows and no removed IDs; source-exact drawer geometry still remains B.3, not claimed here.
+- CI: check fresh commit-specific FAST run before marking VERIFIED.

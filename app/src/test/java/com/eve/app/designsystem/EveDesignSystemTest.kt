@@ -145,13 +145,16 @@ class EveDesignSystemTest {
         assertEquals("false", rvExams?.getAttribute("android:clipToPadding"))
         assertEquals("@dimen/design_screen_margin", rvExams?.designAttribute("android:paddingLeft"))
 
-        // Home navigation is transient in the Drawer; there is no persistent bottom overlay.
+        // Home uses a decor-attached floating pill, not legacy embedded bottom buttons.
         assertNull(findElementById(root, "cardHomeBottomBar"))
         assertNull(findElementById(root, "btnBottomNavHistory"))
         assertNull(findElementById(root, "btnBottomNavSaved"))
-        assertNotNull(findElementById(root, "layoutDrawerHistory"))
-        assertNotNull(findElementById(root, "layoutDrawerSaved"))
-        assertNotNull(findElementById(root, "layoutDrawerProfile"))
+        assertNull(findElementById(root, "layoutDrawerHistory"))
+        assertNull(findElementById(root, "layoutDrawerSaved"))
+        assertNull(findElementById(root, "layoutDrawerAbout"))
+        listOf("layoutDrawerProfile", "layoutDrawerPremium", "layoutDrawerPerformance",
+            "layoutDrawerLeaderboard", "layoutDrawerSyllabus", "layoutDrawerSettings")
+            .forEach { assertNotNull("Missing drawer row: $it", findElementById(root, it)) }
     }
 
     @Test

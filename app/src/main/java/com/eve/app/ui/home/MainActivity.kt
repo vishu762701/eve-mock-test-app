@@ -55,7 +55,6 @@ import com.eve.app.data.model.HomeBanner
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.FeedbackRepository
 import com.eve.app.databinding.ActivityMainBinding
-import com.eve.app.ui.about.AboutActivity
 import com.eve.app.ui.admin.AdminActivity
 import com.eve.app.ui.bookmarks.BookmarksActivity
 import com.eve.app.ui.history.HistoryActivity
@@ -1370,13 +1369,12 @@ class MainActivity : EveBaseActivity() {
 
         val drawerRows = listOf(
             binding.layoutDrawerProfile,
-            binding.layoutDrawerHistory,
-            binding.layoutDrawerSaved,
+
             binding.layoutDrawerPremium,
             binding.layoutDrawerPerformance,
             binding.layoutDrawerLeaderboard,
             binding.layoutDrawerSyllabus,
-            binding.layoutDrawerAbout,
+
             binding.layoutDrawerSettings
         )
         drawerRows.forEach { row ->
@@ -1385,12 +1383,6 @@ class MainActivity : EveBaseActivity() {
 
         binding.layoutDrawerProfile.setOnClickListener {
             navigateFromDrawer(Intent(this, ProfileActivity::class.java))
-        }
-        binding.layoutDrawerHistory.setOnClickListener {
-            navigateFromDrawer(Intent(this, HistoryActivity::class.java))
-        }
-        binding.layoutDrawerSaved.setOnClickListener {
-            navigateFromDrawer(Intent(this, BookmarksActivity::class.java))
         }
         binding.layoutDrawerPremium.setOnClickListener {
             navigateFromDrawer(Intent(this, com.eve.app.ui.premium.PremiumActivity::class.java))
@@ -1406,9 +1398,6 @@ class MainActivity : EveBaseActivity() {
         }
         binding.layoutDrawerSyllabus.setOnClickListener {
             navigateFromDrawer(Intent(this, SyllabusActivity::class.java))
-        }
-        binding.layoutDrawerAbout.setOnClickListener {
-            navigateFromDrawer(Intent(this, AboutActivity::class.java))
         }
         binding.layoutDrawerSettings.setOnClickListener {
             navigateFromDrawer(Intent(this, SettingsActivity::class.java))
