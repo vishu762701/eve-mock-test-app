@@ -23,6 +23,9 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.dynamicanimation.animation.DynamicAnimation
+import androidx.dynamicanimation.animation.SpringAnimation
+import androidx.dynamicanimation.animation.SpringForce
 import com.eve.app.R
 import com.eve.app.designsystem.DesignMotion
 import com.eve.app.theme.TelegramThemeEngine
@@ -106,6 +109,8 @@ class AppBulletin private constructor(
         private var themeListener: ((TelegramThemeEngine.ResolvedPalette) -> Unit)? = null
         private var layoutListener: View.OnLayoutChangeListener? = null
         private var drawListener: ViewTreeObserver.OnPreDrawListener? = null
+        private var offsetSpring: SpringAnimation? = null
+        private var offsetTarget = Float.NaN
         private var exiting = false
         private val lifecycle = (findActivity(content.context) as? LifecycleOwner)?.lifecycle
         private val lifecycleObserver = object : DefaultLifecycleObserver {
@@ -214,7 +219,26 @@ class AppBulletin private constructor(
                 val location = IntArray(2); pill.getLocationOnScreen(location)
                 (contentLocation[1] + content.height - location[1]).coerceAtLeast(0)
             } else 0
-            root.translationY = -max(bottom, pillOffset).toFloat()
+            val target = -max(bottom, pillOffset).toFloat()
+            if (target == offsetTarget) {
+                if (!DesignMotion.enabled(root.context) && offsetSpring?.isRunning == true) {
+                    offsetSpring?.cancel()
+                    root.translationY = target
+                }
+                return
+            }
+            offsetTarget = target
+            // Moving upward is immediate so the bulletin never covers a newly raised IME/pill.
+            if (target < root.translationY || !DesignMotion.enabled(root.context)) {
+                offsetSpring?.cancel()
+                root.translationY = target
+            } else {
+                val animation = offsetSpring ?: SpringAnimation(root, DynamicAnimation.TRANSLATION_Y).also {
+                    it.setSpring(SpringForce().setStiffness(900f).setDampingRatio(SpringForce.DAMPING_RATIO_NO_BOUNCY))
+                    offsetSpring = it
+                }
+                animation.animateToFinalPosition(target)
+            }
         }
         private fun enter(card: View, activity: Activity) {
             if (!DesignMotion.enabled(activity)) return
@@ -292,6 +316,9 @@ class AppBulletin private constructor(
             layoutListener = null
             drawListener?.let { if (content.viewTreeObserver.isAlive) content.viewTreeObserver.removeOnPreDrawListener(it) }
             drawListener = null
+            offsetSpring?.cancel()
+            offsetSpring = null
+            offsetTarget = Float.NaN
             if (removeRoot) (old?.parent as? ViewGroup)?.removeView(old)
             active?.host = null
             active = null

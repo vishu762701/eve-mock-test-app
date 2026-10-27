@@ -101,6 +101,8 @@ dependencies {
     implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
+    // Telegram bulletin bottom-offset spring (stiffness 900, no bounce).
+    implementation("androidx.dynamicanimation:dynamicanimation:1.0.0")
     implementation("androidx.viewpager2:viewpager2:1.1.0")
     implementation("androidx.activity:activity-ktx:1.9.1")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
