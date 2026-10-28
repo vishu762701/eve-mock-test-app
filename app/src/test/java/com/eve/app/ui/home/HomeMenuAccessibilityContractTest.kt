@@ -31,6 +31,21 @@ class HomeMenuAccessibilityContractTest {
         }
     }
 
+    @Test fun originalTelegramRadialPopupMaskIsAppliedWithExactRowCorners() {
+        val popup = File("src/main/java/com/eve/app/ui/home/TelegramMenuPopup.kt").readText()
+        val selector = File("src/main/java/com/eve/app/ui/home/TelegramPopupRadialSelector.java").readText()
+        assertTrue(popup.contains("row.background = TelegramPopupRadialSelector.create("))
+        assertTrue(popup.contains("if (index == 0) 6 else 0"))
+        assertTrue(popup.contains("if (index == rows.lastIndex) 6 else 0"))
+        assertTrue(popup.contains("row.foreground = null"))
+        assertTrue(selector.contains("path.addRoundRect(rect, radii, Path.Direction.CW)"))
+        assertTrue(selector.contains("new Paint(Paint.ANTI_ALIAS_FLAG)"))
+        assertTrue(selector.contains("final int save = canvas.save()"))
+        assertTrue(selector.contains("canvas.restoreToCount(save)"))
+        assertTrue(selector.contains("3de37c8cfb039452be7398909461da6288babf15"))
+        assertTrue(!selector.contains("org.telegram.messenger"))
+    }
+
     @Test fun allRowsAreReadAsSingleDynamicLabelWithoutDecorativeDuplication() {
         val source = File("src/main/java/com/eve/app/ui/home/TelegramMenuPopup.kt").readText()
         val roles = source.substringAfter("private fun applyOriginalMenuRoles()")

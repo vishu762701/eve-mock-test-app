@@ -221,3 +221,13 @@ while its EVE placement and Android PopupWindow/glass renderer remain adaptation
 Retain upstream Telegram GPL license notices and existing distribution/release
 compliance gates, including obligations for copied source/assets; do not assume
 a successful development build alone establishes redistribution clearance.
+
+
+### Mission 06 — isolated Telegram popup radial selector mask (approved revision)
+
+- Owner approved original source revision: `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`. The ZIP containing those **same source file bytes** is SHA-256 `4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10`. The historical ZIP hash requirement was superseded for Mission 06 only; no archived ZIP equality is claimed.
+- Original `TMessagesProj/src/main/java/org/telegram/ui/ActionBar/Theme.java:5296-5357,5387-5395` is Git blob `b56ee0d84558b738144f16961eeaec8b767bb993` (ZIP SHA-256 `b2cc15c52f4b82ca79cee15c3e3d62f93c4b4e91e578e6da850fd279a1591e90`).
+- Original `ActionBarPopupWindow.java:604-609` is blob `6a9dc814bbfdd56f36ac4e5f8ab70fe179b231ea` (SHA-256 `4f4ccd178f82abf4e9cb1cdff330b57d34df9340bf23a2d86d75e1fe429a05c3`). It assigns the first and last visible menu rows original 6dp corner masks.
+- Original `Cells/BaseCell.java:150-165` is blob `f352ac78dc0438bd50f6c62ce2a438137540159b` (SHA-256 `a77dd0fe9fad11b3a4d9f055da0492faa7ef9cd171a105d3b9b217372624b183`).
+- Isolated into `app/src/main/java/com/eve/app/ui/home/TelegramPopupRadialSelector.java` under the upstream GPL-2-or-later file header. Uses original eight corner radii, white anti-aliased clockwise mask, original RippleDrawableSafe canvas save/restore/error-handling semantics. Necessary platform-only deviations: Telegram `AndroidUtilities.dp` replaced by context density; `AndroidUtilities.rectTmp` and global `Theme.maskPaint` replaced with instance-owned primitives; `BaseCell.RippleDrawableSafe` reconstructed as independent subclass using EVE logger. `TelegramMenuPopup` binds it to existing seven rows using EVE Day/Night selector color, WITHOUT importing Telegram account/network code, modifying actions, theme reveal or implementing a counterfeit full `ActionBarPopupWindow`.
+- This is a **source-backed mask/selector atom, not a byte-exact import of the full original popup**, which still requires its own vetted dependency chain, entrance/dismissal physics, original popup background and full frame/native verification. Keep the bundled Telegram GPL text, attribution, corresponding source and release compliance gates; APK distribution compatibility with every binary dependency remains unverified.

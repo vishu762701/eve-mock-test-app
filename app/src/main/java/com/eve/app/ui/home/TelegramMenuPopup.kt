@@ -6,7 +6,6 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Rect
 import android.content.res.ColorStateList
-import android.graphics.drawable.RippleDrawable
 import androidx.core.widget.ImageViewCompat
 import com.eve.app.theme.TelegramThemeEngine
 import android.graphics.drawable.ColorDrawable
@@ -210,7 +209,7 @@ class TelegramMenuPopup(
         // Telegram artwork, popup motion or any action's existing callback.
         val rows = listOf(binding.cardTheme, binding.menuRowHistory, binding.menuRowBookmarks,
             binding.menuRowMistakes, binding.menuRowTopic, binding.menuRowPyq, binding.menuRowLogout)
-        for (row in rows) {
+        for ((index, row) in rows.withIndex()) {
             row.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
             for (index in 0 until row.childCount) {
                 when (val child = row.getChildAt(index)) {
@@ -225,7 +224,15 @@ class TelegramMenuPopup(
                     }
                 }
             }
-            row.foreground = RippleDrawable(ColorStateList.valueOf(palette.submenuSelector), null, null)
+            // Source: ActionBarPopupWindow.java:604-609. Top and bottom rows
+            // have original 6dp corners, while middle rows are square.
+            // Remove XML's default foreground to avoid a duplicate ripple.
+            row.foreground = null
+            row.background = TelegramPopupRadialSelector.create(
+                context, palette.submenuSelector,
+                if (index == 0) 6 else 0,
+                if (index == rows.lastIndex) 6 else 0
+            )
         }
     }
 

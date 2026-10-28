@@ -80,6 +80,8 @@ class HomeOverflowPopupNativeTest {
                     R.id.menuRowMistakes, R.id.menuRowTopic, R.id.menuRowPyq, R.id.menuRowLogout)
                 for (id in rows) {
                     val row = root.findViewById<View>(id)
+                    assertTrue("Source-isolated Telegram radial ripple must be assigned to each action: $id",
+                        row.background is android.graphics.drawable.RippleDrawable && row.foreground == null)
                     assertTrue("Missing or zero-height popup row: $id", row.width > 0 && row.height > 0)
                     assertTrue("Row must be at least 48dp: $id",
                         row.height >= (48 * root.resources.displayMetrics.density).toInt() - 1)
