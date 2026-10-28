@@ -38,6 +38,12 @@ class HomeCategorySelectionTest {
         assertEquals("Other", HomeCategorySelection.select("Other", "Unknown", categories))
     }
 
+    @Test fun nativeGestureFixtureMustSizeHeightInDpNotRawPixels() {
+        val source = File("src/androidTest/java/com/eve/app/ui/HomeCategoryTouchNativeTest.kt").readText()
+        assertTrue("Native gesture test should scale its height for dense phone screens",
+            source.contains("240f * activity.resources.displayMetrics.density"))
+    }
+
     @Test fun delegatedTouchesMustStayWithOneOwnerUntilUpOrCancel() {
         val src = File("src/main/java/com/eve/app/ui/home/HomeCategoryChipGroup.kt").readText()
         assertTrue("DOWN must select exactly one hit region",

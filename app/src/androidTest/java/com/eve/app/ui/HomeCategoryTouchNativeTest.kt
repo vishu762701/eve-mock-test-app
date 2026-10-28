@@ -28,7 +28,10 @@ class HomeCategoryTouchNativeTest {
                 group.addView(second)
                 group.measure(
                     View.MeasureSpec.makeMeasureSpec(activity.resources.displayMetrics.widthPixels, View.MeasureSpec.AT_MOST),
-                    View.MeasureSpec.makeMeasureSpec(240, View.MeasureSpec.AT_MOST)
+                    View.MeasureSpec.makeMeasureSpec(
+                        (240f * activity.resources.displayMetrics.density).toInt(),
+                        View.MeasureSpec.AT_MOST
+                    )
                 )
                 group.layout(0, 0, group.measuredWidth, group.measuredHeight)
                 val delegate = group.touchDelegate
