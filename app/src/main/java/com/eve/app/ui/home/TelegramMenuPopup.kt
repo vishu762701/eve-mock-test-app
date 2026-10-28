@@ -39,8 +39,8 @@ class TelegramMenuPopup(
 
     private val binding: PopupTelegramMenuBinding =
         PopupTelegramMenuBinding.inflate(LayoutInflater.from(context))
-    // ActionBarMenuItem.java:841-845 sets animation style to 0 whenever
-    // ActionBarPopupWindow drives its own source-backed row cascade.
+    // ItemOptions.java:1394 sets animation style to R.style.PopupContextAnimation.
+    // Programmatic dismissal via ActionBarPopupWindow.java:1065-1068 (-5dp, 150ms exit).
     private var isDismissing = false
     private var anchorViewRef: View? = null
     private fun actionRows(): List<LinearLayout> = listOf(
@@ -54,14 +54,16 @@ class TelegramMenuPopup(
         height = ViewGroup.LayoutParams.WRAP_CONTENT
         isFocusable = true
         isOutsideTouchable = true
-        // ActionBarMenuItem.java:855-863: Telegram popup content owns its
+        // ItemOptions.java:1394: Upstream Telegram ItemOptions uses PopupContextAnimation (@anim/popup_context_in).
+        animationStyle = R.style.PopupContextAnimation
+        // ItemOptions.java:1405-1406: Telegram popup content owns its
         // keyboard focus, not the Activity IME or an Android window transition.
         inputMethodMode = PopupWindow.INPUT_METHOD_NOT_NEEDED
         softInputMode = WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED
         binding.root.isFocusableInTouchMode = true
         binding.root.setOnKeyListener { _, keyCode, event ->
-            if (keyCode == KeyEvent.KEYCODE_MENU && event.repeatCount == 0 &&
-                event.action == KeyEvent.ACTION_UP && isShowing) {
+            if ((keyCode == KeyEvent.KEYCODE_MENU || keyCode == KeyEvent.KEYCODE_BACK) &&
+                event.repeatCount == 0 && event.action == KeyEvent.ACTION_UP && isShowing) {
                 dismiss()
                 true
             } else {
@@ -185,10 +187,8 @@ class TelegramMenuPopup(
     fun show(anchorView: View) {
         if (isShowing) return
         isDismissing = false
-        // Keep the platform PopupWindow from applying a second slide/fade
-        // on top of TelegramPopupSourceMotion. The custom 150+16*n entrance
-        // and 150ms dismissal retain sole ownership of the popup's motion.
-        animationStyle = 0
+        // ItemOptions.java:1394: Upstream Telegram ItemOptions uses PopupContextAnimation (@anim/popup_context_in).
+        animationStyle = R.style.PopupContextAnimation
         exitTransition = null
         anchorViewRef = anchorView
         setupThemeCard()
@@ -239,10 +239,6 @@ class TelegramMenuPopup(
         isClippingEnabled = true
         showAsDropDown(anchorView, xOffset, effectiveYOffset)
         applyDimBehind()
-
-        // Source-backed ActionBarPopupWindow.java:843-913 visible-row cascade.
-        // Original background-only backScaleY is not re-created using whole-popup scale.
-        TelegramPopupSourceMotion.entrance(binding.root, actionRows())
     }
 
     /** Upstream DialogsActivity.java:13678 io.setDimAlpha(0x08) & ActionBarPopupWindow.java:787 dimBehind(amount) */

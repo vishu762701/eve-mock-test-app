@@ -99,44 +99,46 @@ class HomeMenuAccessibilityContractTest {
         assertTrue(source.contains("isClippingEnabled = true"))
     }
 
-    @Test fun originalActionBarMenuItemDisablesPlatformPopupAnimationForCustomCascade() {
+    @Test fun officialItemOptionsUsesPopupContextAnimationAndProgrammaticDismissExit() {
         val popup = File("src/main/java/com/eve/app/ui/home/TelegramMenuPopup.kt").readText()
+        val themes = File("src/main/res/values/themes.xml").readText()
+        val anim = File("src/main/res/anim/popup_context_in.xml").readText()
         val shown = popup.substringAfter("fun show(anchorView: View)")
             .substringBefore("private fun applyOriginalMenuRoles()")
-        assertTrue("Original ActionBarMenuItem.java:841-845 disables duplicate platform animation",
-            shown.contains("animationStyle = 0"))
+        assertTrue("Original ItemOptions.java:1394 uses PopupContextAnimation",
+            shown.contains("animationStyle = R.style.PopupContextAnimation"))
         assertTrue("Custom exit must not trigger an extra platform transition",
             shown.contains("exitTransition = null"))
-        assertTrue(shown.contains("TelegramPopupSourceMotion.entrance(binding.root, actionRows())"))
-        assertTrue(!shown.contains("ordinaryAnimationStyle") && !shown.contains("ordinaryExitTransition"))
+        assertTrue("PopupContextAnimation style defined in themes.xml",
+            themes.contains("name=\"PopupContextAnimation\""))
+        assertTrue("PopupContextAnimation references @anim/popup_context_in",
+            themes.contains("@anim/popup_context_in"))
+        assertTrue("popup_context_in alpha duration 150ms",
+            anim.contains("android:duration=\"150\""))
+        assertTrue("popup_context_in scale duration 200ms",
+            anim.contains("android:duration=\"200\""))
+        assertTrue("popup_context_in uses overshoot_interpolator",
+            anim.contains("@android:anim/overshoot_interpolator"))
+        assertTrue("popup_context_in scales from 95% to 100%",
+            anim.contains("android:fromXScale=\"95%\"") && anim.contains("android:toXScale=\"100%\""))
         assertTrue("Theme reveal handoff still dismisses immediately without a second animation",
             popup.contains("ThemeManager.reservePopupHandoff()") &&
                 popup.contains("ThemeFrameCoordinator.afterFrame("))
     }
 
-    @Test fun popupUsesOfficialCascadeAndDismissMotionWithoutWholePopupScale() {
+    @Test fun popupUsesOfficialDismissMotionWithoutWholePopupScale() {
         val popup = File("src/main/java/com/eve/app/ui/home/TelegramMenuPopup.kt").readText()
         val motion = File("src/main/java/com/eve/app/ui/home/TelegramPopupSourceMotion.kt").readText()
-        assertTrue(popup.contains("TelegramPopupSourceMotion.entrance(binding.root, actionRows())"))
         assertTrue(popup.contains("TelegramPopupSourceMotion.exit(binding.root, actionRows())"))
         assertTrue(popup.contains("TelegramPopupSourceMotion.cancel(binding.root, actionRows())"))
         assertTrue(!popup.contains("TelegramPopupHelper.animateEntrance"))
         assertTrue(!popup.contains("TelegramPopupHelper.animateExit"))
-        assertTrue(motion.contains("duration = (150 + 16 * count).toLong()"))
         assertTrue("Telegram ActionBarPopupWindow.java:66,397 uses decelerateInterpolator",
             motion.contains("interpolator = DecelerateInterpolator()"))
-        assertTrue("Telegram ActionBarPopupWindow.java:846 keeps root alpha fully opaque",
-            motion.contains("root.alpha = 1f"))
-        assertTrue("Source-based menu cannot stack an invented secondary root fade",
-            !motion.contains("root.alpha = (0.01f") &&
-                !motion.contains("root.alpha = 0.01f"))
-        assertTrue("9-patch itself controls entrance opacity",
-            motion.contains("source.backAlpha = (progress * 255f).toInt().coerceIn(0, 255)"))
-        assertTrue(motion.contains("val rise = -6f * root.resources.displayMetrics.density"))
-        assertTrue(motion.contains("val at = cascade(progress, position.toFloat(), count.toFloat(), 4f)"))
-        assertTrue(motion.contains("duration = 150L"))
-        assertTrue(motion.contains("val distance = -5f * root.resources.displayMetrics.density"))
-        assertTrue(motion.contains("root.background?.alpha = (progress * 255f).toInt().coerceIn(0, 255)"))
+        assertTrue("Telegram ActionBarPopupWindow.java:1068 dismiss duration is 150ms",
+            motion.contains("duration = 150L"))
+        assertTrue("Telegram ActionBarPopupWindow.java:1066 dismiss translation distance is -5dp",
+            motion.contains("val distance = -5f * root.resources.displayMetrics.density"))
         assertTrue(motion.contains("if (!UiArcMotion.isMotionEnabled(root.context))"))
         assertTrue(!motion.contains("root.scaleY =") && !motion.contains("View.SCALE_Y"))
         assertTrue(!motion.contains("UserConfig"))

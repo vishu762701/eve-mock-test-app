@@ -235,4 +235,9 @@
         <item name="android:textColorSecondary">@color/text_secondary</item>
         <item name="android:textColorHint">@color/text_secondary</item>
     </style>
+
+    <!-- Source: Telegram 13.1.1 styles.xml:103 PopupContextAnimation -->
+    <style name="PopupContextAnimation" parent="android:Animation">
+        <item name="android:windowEnterAnimation">@anim/popup_context_in</item>
+    </style>
 </resources>
