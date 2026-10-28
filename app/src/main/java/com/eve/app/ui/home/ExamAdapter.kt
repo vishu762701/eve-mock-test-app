@@ -115,6 +115,18 @@ class ExamAdapter(
             }
 
             b.ivPinned.visibility = if (isPinned) View.VISIBLE else View.GONE
+            // Keep one actionable TalkBack node for the exam card: title, test
+            // duration/submission state and optional pinned status. Icons/Lottie
+            // and child TextViews are decorative within that parent action.
+            b.root.contentDescription = HomeExamAccessibility.describe(
+                b.tvExamName.text, b.tvExamTime.text,
+                if (isPinned) b.ivPinned.contentDescription else null
+            )
+            b.root.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
+            listOf(b.examIconContainer, b.ivExamImage, b.lottieExamIcon, b.ivPinned,
+                b.tvExamName, b.tvExamTime).forEach { child ->
+                child.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            }
             b.root.isEnabled = true
             b.root.alpha = 1f
             b.root.setOnClickListener { onClick(exam, attempted, attempt) }
