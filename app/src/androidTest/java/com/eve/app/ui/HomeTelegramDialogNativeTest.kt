@@ -8,8 +8,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.eve.app.designsystem.showDestructive
 import com.eve.app.theme.TelegramThemeEngine
-import com.eve.app.ui.home.TelegramDialogSourceBackground
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -36,7 +35,8 @@ class HomeTelegramDialogNativeTest {
                     .setPositiveButton("Delete") { _, _ -> destructiveInvocations++ }
                     .setNegativeButton("Cancel", null)
                     .showDestructive()
-                TelegramDialogSourceBackground.apply(dialog)
+                // showDestructive() must apply source atoms via the shared adapter.
+                // No direct Home-specific invocation may be necessary here.
                 try {
                     assertTrue("Confirmation window must be visible", dialog.isShowing)
                     val decor = dialog.window?.decorView

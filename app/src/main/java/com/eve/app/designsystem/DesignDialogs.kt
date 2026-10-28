@@ -15,4 +15,8 @@ fun AlertDialog.Builder.showDestructive(): AlertDialog = show().also { dialog ->
         ViewCompat.setBackgroundTintList(button, ContextCompat.getColorStateList(button.context, R.color.design_destructive_fill))
         button.setTextColor(ContextCompat.getColorStateList(button.context, R.color.design_destructive_text))
     }
+    // Source-backed normal AlertDialog/DarkAlertDialog background and typography.
+    // Scope: EVE-owned destructive confirmations only; system dialogs unchanged.
+    // Apply after positive-button styling so Delete/Remove retains its fill/color.
+    com.eve.app.ui.home.TelegramDialogSourceBackground.apply(dialog)
 }

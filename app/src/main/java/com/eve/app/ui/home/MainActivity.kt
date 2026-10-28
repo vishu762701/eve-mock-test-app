@@ -785,10 +785,7 @@ class MainActivity : EveBaseActivity() {
                         adminDeleteFlow.removeConfirmed("feedback:${post.id}", { viewModel.deleteFeedbackPostConfirmed(post.id); null })
                     }
                     .setNegativeButton("Cancel", null)
-                    .showDestructive().also { dialog ->
-                        // Source-backed Telegram dialog background; button callbacks unchanged.
-                        com.eve.app.ui.home.TelegramDialogSourceBackground.apply(dialog)
-                    }
+                    .showDestructive()
             }
         }
     }

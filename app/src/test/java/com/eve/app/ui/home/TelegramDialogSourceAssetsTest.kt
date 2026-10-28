@@ -66,7 +66,7 @@ class TelegramDialogSourceAssetsTest {
             source.contains("FontManager.telegramMediumTypeface(dialog.context)"))
         assertTrue("Preserve the registered destructive confirmation behavior",
             main.contains("adminDeleteFlow.removeConfirmed(") &&
-            main.contains(".showDestructive().also { dialog ->"))
+            main.contains(".showDestructive()"))
         assertTrue("Don't shrink 48dp accessible buttons to Telegram's 40dp visual size",
             !source.contains("minimumHeight") && !source.contains("layoutParams.height"))
     }
@@ -83,6 +83,27 @@ class TelegramDialogSourceAssetsTest {
             scope.contains("adminDeleteFlow.removeConfirmed("))
     }
 
+    @Test fun allSharedDestructiveConfirmationsUseSourceAdapterWithoutReplacingButtons() {
+        val central = File("src/main/java/com/eve/app/designsystem/DesignDialogs.kt").readText()
+        assertTrue(central.contains("fun AlertDialog.Builder.showDestructive(): AlertDialog"))
+        assertTrue(central.contains("ViewCompat.setBackgroundTintList(button"))
+        assertTrue(central.contains("TelegramDialogSourceBackground.apply(dialog)"))
+        assertTrue("Original Source applies after mandatory EVE destructive tint",
+            central.indexOf("TelegramDialogSourceBackground.apply(dialog)") >
+                central.indexOf("R.color.design_destructive_text"))
+        val coveredOwners = listOf(
+            "ui/admin/AdminDeleteFlow.kt",
+            "ui/admin/AdminActivity.kt",
+            "ui/admin/ManagePremiumActivity.kt",
+            "ui/settings/SettingsActivity.kt",
+            "ui/home/MainActivity.kt"
+        )
+        for (owner in coveredOwners) {
+            val source = File("src/main/java/com/eve/app/$owner").readText()
+            assertTrue("Destructive entrypoint missing from $owner", source.contains(".showDestructive()"))
+        }
+    }
+
     @Test fun homeAdminFeedbackDialogKeepsOriginalDestructiveActionsAndSourceRole() {
         val main = File("src/main/java/com/eve/app/ui/home/MainActivity.kt").readText()
         val block = main.substringAfter("private fun handleFeedbackPostLongClick")
@@ -90,8 +111,14 @@ class TelegramDialogSourceAssetsTest {
         val helper = File("src/main/java/com/eve/app/ui/home/TelegramDialogSourceBackground.kt").readText()
         assertTrue(block.contains("adminRepo.isAdmin(email)"))
         assertTrue(block.contains("adminDeleteFlow.removeConfirmed"))
-        assertTrue(block.contains(".showDestructive().also { dialog ->"))
-        assertTrue(block.contains("TelegramDialogSourceBackground.apply(dialog)"))
+        assertTrue(block.contains(".showDestructive()"))
+        assertTrue("No duplicated direct adapter after shared source integration",
+            !block.contains("TelegramDialogSourceBackground.apply(dialog)"))
+        val central = File("src/main/java/com/eve/app/designsystem/DesignDialogs.kt").readText()
+        assertTrue(central.contains("TelegramDialogSourceBackground.apply(dialog)"))
+        assertTrue("Preserve destructive button color before source background",
+            central.indexOf("R.color.design_destructive_fill") <
+                central.indexOf("TelegramDialogSourceBackground.apply(dialog)"))
         assertTrue(helper.contains("R.drawable.telegram_dialog_popup_fixed_alert4"))
         assertTrue(helper.contains("palette.dialogSurface"))
         assertTrue(helper.contains("PorterDuff.Mode.MULTIPLY"))

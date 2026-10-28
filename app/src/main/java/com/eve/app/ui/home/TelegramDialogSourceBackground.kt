@@ -31,7 +31,8 @@ internal object TelegramDialogSourceBackground {
         // Normal AlertDialog.java:307,314-317 uses the dialogBackground role.
         // The original DarkAlertDialog.java:13-17 *explicitly overrides* it with
         // #262626 and assigns white to dialog text, buttons and scroll glow.
-        // Mapping EVE Night to this original variant is scoped to Home's admin dialog.
+        // Mapping EVE Night to this original variant is scoped to the
+        // shared EVE-owned destructive-confirmation path, not system dialogs.
         val surface = if (palette.isDark) 0xFF262626.toInt() else palette.dialogSurface
         drawable.colorFilter = PorterDuffColorFilter(surface, PorterDuff.Mode.MULTIPLY)
         dialog.window?.setBackgroundDrawable(drawable)
