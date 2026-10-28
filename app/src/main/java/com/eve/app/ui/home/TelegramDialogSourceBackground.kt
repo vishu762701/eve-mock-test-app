@@ -11,7 +11,9 @@
  */
 package com.eve.app.ui.home
 
+import android.graphics.Color
 import android.graphics.PorterDuff
+import android.widget.TextView
 import android.graphics.PorterDuffColorFilter
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.content.res.AppCompatResources
@@ -24,10 +26,18 @@ internal object TelegramDialogSourceBackground {
             dialog.context, R.drawable.telegram_dialog_popup_fixed_alert4
         )?.mutate() ?: return
         val palette = TelegramThemeEngine.resolveCurrentPalette(dialog.context)
-        // Original AlertDialog.java:307,314-317: dialogBackground role and MULTIPLY.
-        drawable.colorFilter = PorterDuffColorFilter(
-            palette.dialogSurface, PorterDuff.Mode.MULTIPLY
-        )
+        // Normal AlertDialog.java:307,314-317 uses the dialogBackground role.
+        // The original DarkAlertDialog.java:13-17 *explicitly overrides* it with
+        // #262626 and assigns white to dialog text, buttons and scroll glow.
+        // Mapping EVE Night to this original variant is scoped to Home's admin dialog.
+        val surface = if (palette.isDark) 0xFF262626.toInt() else palette.dialogSurface
+        drawable.colorFilter = PorterDuffColorFilter(surface, PorterDuff.Mode.MULTIPLY)
         dialog.window?.setBackgroundDrawable(drawable)
+        if (palette.isDark) {
+            dialog.findViewById<TextView>(android.R.id.message)?.setTextColor(Color.WHITE)
+            dialog.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)?.setTextColor(Color.WHITE)
+            // Keep positive deletion's explicitly required destructive fill/contrast.
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(Color.WHITE)
+        }
     }
 }

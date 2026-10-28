@@ -34,6 +34,17 @@ class TelegramDialogSourceAssetsTest {
         }
     }
 
+    @Test fun approvedDarkAlertDialogVariantPreservesSourceColorsAndDestructiveAction() {
+        val helper = File("src/main/java/com/eve/app/ui/home/TelegramDialogSourceBackground.kt").readText()
+        assertTrue(helper.contains("val surface = if (palette.isDark) 0xFF262626.toInt() else palette.dialogSurface"))
+        assertTrue(helper.contains("android.R.id.message"))
+        assertTrue(helper.contains("androidx.appcompat.R.id.alertTitle"))
+        assertTrue(helper.contains("Color.WHITE"))
+        assertTrue(helper.contains("dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(Color.WHITE)"))
+        assertTrue("Do not override EVE's destructive positive button styling",
+            !helper.contains("BUTTON_POSITIVE"))
+    }
+
     @Test fun homeAdminFeedbackDialogKeepsOriginalDestructiveActionsAndSourceRole() {
         val main = File("src/main/java/com/eve/app/ui/home/MainActivity.kt").readText()
         val block = main.substringAfter("private fun handleFeedbackPostLongClick")
