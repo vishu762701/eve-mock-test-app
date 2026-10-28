@@ -58,6 +58,25 @@ class HomeMenuAccessibilityContractTest {
         assertTrue(glass.contains("if (source != null) background = source"))
     }
 
+    @Test fun popupUsesOfficialCascadeAndDismissMotionWithoutWholePopupScale() {
+        val popup = File("src/main/java/com/eve/app/ui/home/TelegramMenuPopup.kt").readText()
+        val motion = File("src/main/java/com/eve/app/ui/home/TelegramPopupSourceMotion.kt").readText()
+        assertTrue(popup.contains("TelegramPopupSourceMotion.entrance(binding.root, actionRows())"))
+        assertTrue(popup.contains("TelegramPopupSourceMotion.exit(binding.root, actionRows())"))
+        assertTrue(popup.contains("TelegramPopupSourceMotion.cancel(binding.root, actionRows())"))
+        assertTrue(!popup.contains("TelegramPopupHelper.animateEntrance"))
+        assertTrue(!popup.contains("TelegramPopupHelper.animateExit"))
+        assertTrue(motion.contains("duration = (150 + 16 * count).toLong()"))
+        assertTrue(motion.contains("val rise = -6f * root.resources.displayMetrics.density"))
+        assertTrue(motion.contains("val at = cascade(progress, position.toFloat(), count.toFloat(), 4f)"))
+        assertTrue(motion.contains("duration = 150L"))
+        assertTrue(motion.contains("val distance = -5f * root.resources.displayMetrics.density"))
+        assertTrue(motion.contains("root.background?.alpha = (progress * 255f).toInt().coerceIn(0, 255)"))
+        assertTrue(motion.contains("if (!UiArcMotion.isMotionEnabled(root.context))"))
+        assertTrue(!motion.contains("root.scaleY"))
+        assertTrue(!motion.contains("UserConfig"))
+    }
+
     @Test fun allRowsAreReadAsSingleDynamicLabelWithoutDecorativeDuplication() {
         val source = File("src/main/java/com/eve/app/ui/home/TelegramMenuPopup.kt").readText()
         val roles = source.substringAfter("private fun applyOriginalMenuRoles()")

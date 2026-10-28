@@ -22,7 +22,6 @@ import com.eve.app.util.GlassmorphismHelper
 import com.eve.app.util.ThemeFrameCoordinator
 import com.eve.app.util.ThemeManager
 import com.eve.app.util.ThemeSwitchAnimator
-import com.eve.app.util.TelegramPopupHelper
 
 class TelegramMenuPopup(
     private val context: Context,
@@ -42,6 +41,10 @@ class TelegramMenuPopup(
     private var isDismissing = false
     private var anchorViewRef: View? = null
     private var blurBitmap: Bitmap? = null
+    private fun actionRows(): List<View> = listOf(
+        binding.cardTheme, binding.menuRowHistory, binding.menuRowBookmarks,
+        binding.menuRowMistakes, binding.menuRowTopic, binding.menuRowPyq, binding.menuRowLogout
+    )
 
     init {
         contentView = binding.root
@@ -57,7 +60,7 @@ class TelegramMenuPopup(
         setupListeners()
 
         setOnDismissListener {
-            TelegramPopupHelper.cancel(binding.root)
+            TelegramPopupSourceMotion.cancel(binding.root, actionRows())
             GlassmorphismHelper.removeWindowBlur(binding.root, animate = false)
             binding.ivGlassBlurBackground.setImageDrawable(null)
             blurBitmap = null
@@ -106,7 +109,7 @@ class TelegramMenuPopup(
                 isDismissing = true
                 val handoffId = ThemeManager.activeTransitionId + 1
                 ThemeManager.trace("tap_accepted", anchor, handoffId)
-                TelegramPopupHelper.cancel(binding.root)
+                TelegramPopupSourceMotion.cancel(binding.root, actionRows())
                 GlassmorphismHelper.removeWindowBlur(binding.root, animate = false)
                 val popupRoot = binding.root.rootView
                 animationStyle = 0
@@ -200,8 +203,9 @@ class TelegramMenuPopup(
         isClippingEnabled = true
         showAsDropDown(anchorView, xOffset, 0)
 
-        // Upgrade 7: Telegram-style anchored scale+fade popup entrance (ActionBarPopupWindow pattern)
-        TelegramPopupHelper.animateEntrance(binding.root, anchorView)
+        // Source-backed ActionBarPopupWindow.java:843-913 visible-row cascade.
+        // Original background-only backScaleY is not re-created using whole-popup scale.
+        TelegramPopupSourceMotion.entrance(binding.root, actionRows())
     }
 
     /** Source: ActionBarMenuSubItem.java:78-84 and ThemeColors.java:51,203-206. */
@@ -223,8 +227,7 @@ class TelegramMenuPopup(
         // Accessibility: one focus target per clickable action, rather than reading the
         // original decorative icon and the label separately. This does not change
         // Telegram artwork, popup motion or any action's existing callback.
-        val rows = listOf(binding.cardTheme, binding.menuRowHistory, binding.menuRowBookmarks,
-            binding.menuRowMistakes, binding.menuRowTopic, binding.menuRowPyq, binding.menuRowLogout)
+        val rows = actionRows()
         for ((index, row) in rows.withIndex()) {
             row.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
             for (index in 0 until row.childCount) {
@@ -257,8 +260,8 @@ class TelegramMenuPopup(
         isDismissing = true
         GlassmorphismHelper.removeWindowBlur(binding.root, animate = true)
 
-        // Upgrade 7: Telegram-style reverse scale+fade popup exit
-        TelegramPopupHelper.animateExit(binding.root) {
+        // Original ActionBarPopupWindow.java:1024-1069 default -5dp/150ms exit.
+        TelegramPopupSourceMotion.exit(binding.root, actionRows()) {
             isDismissing = false
             super.dismiss()
             binding.ivGlassBlurBackground.setImageDrawable(null)
@@ -272,8 +275,8 @@ class TelegramMenuPopup(
         isDismissing = true
         GlassmorphismHelper.removeWindowBlur(binding.root, animate = true)
 
-        // Upgrade 7: Telegram-style reverse scale+fade popup exit
-        TelegramPopupHelper.animateExit(binding.root) {
+        // Original ActionBarPopupWindow.java:1024-1069 default -5dp/150ms exit.
+        TelegramPopupSourceMotion.exit(binding.root, actionRows()) {
             isDismissing = false
             super.dismiss()
             binding.ivGlassBlurBackground.setImageDrawable(null)

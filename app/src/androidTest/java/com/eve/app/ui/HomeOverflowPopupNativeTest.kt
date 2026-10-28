@@ -102,8 +102,17 @@ class HomeOverflowPopupNativeTest {
                 val screen = IntArray(2).also(root::getLocationOnScreen)
                 val bounds = Rect(screen[0], screen[1], screen[0] + root.width, screen[1] + root.height)
                 val tolerance = (2 * root.resources.displayMetrics.density).toInt().coerceAtLeast(2)
-                assertTrue("Popup entrance must complete", kotlin.math.abs(root.scaleX - 1f) < 0.001f &&
+                assertTrue("Original source row entrance must settle without whole-popup scaling",
+                    kotlin.math.abs(root.scaleX - 1f) < 0.001f &&
                     kotlin.math.abs(root.scaleY - 1f) < 0.001f)
+                for (id in intArrayOf(R.id.cardTheme, R.id.menuRowHistory,
+                        R.id.menuRowBookmarks, R.id.menuRowMistakes, R.id.menuRowTopic,
+                        R.id.menuRowPyq, R.id.menuRowLogout)) {
+                    val row = root.findViewById<View>(id)
+                    assertTrue("Original row cascade must end at zero Y and full alpha: $id",
+                        kotlin.math.abs(row.translationY) < 0.01f &&
+                        kotlin.math.abs(row.alpha - 1f) < 0.01f)
+                }
                 assertTrue("Settled popup horizontal bounds must remain safe: $bounds vs $frame",
                     bounds.left >= frame.left - tolerance && bounds.right <= frame.right + tolerance)
                 assertTrue("Settled popup vertical bounds must remain safe: $bounds vs $frame",
