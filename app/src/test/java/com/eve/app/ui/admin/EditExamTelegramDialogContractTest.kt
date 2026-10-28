@@ -23,18 +23,7 @@ class EditExamTelegramDialogContractTest {
 
     @Test fun allThreeOriginalEditAndImportWorkflowsKeepInputsAndAdminMutations() {
         val source = File("src/main/java/com/eve/app/ui/admin/EditExamActivity.kt").readText()
-        for (required in listOf("Bulk Question Import Preview", "Import (" + ',
-                "importQuestions(result.validQuestions)", "Add New Question", "Edit Question",
-                "questionText = qText", "optionA = a", "optionD = d",
-                "examRepo.addQuestion(newQuestion)", "examRepo.updateQuestion(updatedQ)",
-                "examRepo.deleteQuestion(q.id)", "AppUndoBar.show(")) {
-            assertTrue("Required original exam flow missing: $required", source.contains(required))
-        }
-        assertTrue("Custom form cancel buttons preserved",
-            source.split(".setNegativeButton(\"Cancel\", null)").size >= 3)
-    }
-}
- + "validCount questions)",
+        for (required in listOf("Bulk Question Import Preview", "Import (",
                 "importQuestions(result.validQuestions)", "Add New Question", "Edit Question",
                 "questionText = qText", "optionA = a", "optionD = d",
                 "examRepo.addQuestion(newQuestion)", "examRepo.updateQuestion(updatedQ)",
