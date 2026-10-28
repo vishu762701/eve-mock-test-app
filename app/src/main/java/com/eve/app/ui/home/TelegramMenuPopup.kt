@@ -239,7 +239,9 @@ class TelegramMenuPopup(
         binding.root.clipToOutline = false
         binding.root.drawHairline = false
         binding.root.glassEnabled = false
-        val originalNinePatch = ContextCompat.getDrawable(context, R.drawable.telegram_popup_fixed_alert2)
+        // Original ActionBarMenuItem.createPopupLayout():418 uses
+        // popup_fixed_alert4 for a normal menu (not the alert2 topView variant).
+        val originalNinePatch = ContextCompat.getDrawable(context, R.drawable.telegram_dialog_popup_fixed_alert4)
             ?.mutate()
         originalNinePatch?.colorFilter = PorterDuffColorFilter(
             palette.submenuBackground, PorterDuff.Mode.MULTIPLY

@@ -70,7 +70,9 @@ class HomeMenuAccessibilityContractTest {
     @Test fun sourceBackedNinePatchOnlyChangesHomeOverflow() {
         val popup = File("src/main/java/com/eve/app/ui/home/TelegramMenuPopup.kt").readText()
         val glass = File("src/main/java/com/eve/app/designsystem/DesignGlassLayout.kt").readText()
-        assertTrue(popup.contains("R.drawable.telegram_popup_fixed_alert2"))
+        assertTrue("Normal ActionBarMenuItem uses popup_fixed_alert4, not topView alert2",
+            popup.contains("R.drawable.telegram_dialog_popup_fixed_alert4"))
+        assertTrue(!popup.contains("R.drawable.telegram_popup_fixed_alert2"))
         assertTrue(popup.contains("PorterDuff.Mode.MULTIPLY"))
         assertTrue(popup.contains("palette.submenuBackground"))
         assertTrue(popup.contains("binding.root.glassEnabled = false"))
