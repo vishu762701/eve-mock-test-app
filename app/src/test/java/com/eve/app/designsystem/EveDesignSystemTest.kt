@@ -171,6 +171,16 @@ class EveDesignSystemTest {
 
 
 
+    /** ChipGroup must never toggle the active Home category off on a repeat tap. */
+    @Test
+    fun homeCategoryRequiresExactlyOneSelectedChip() {
+        val root = loadXml("src/main/res/layout/activity_main.xml")
+        val group = findElementById(root, "chipGroupCategory")
+        assertNotNull("Home category filter must exist", group)
+        assertEquals("true", group?.designAttribute("app:singleSelection"))
+        assertEquals("true", group?.designAttribute("app:selectionRequired"))
+    }
+
     @Test
     fun homeOverflowKeepsAllSevenScrollableAccessibleRows() {
         val root = loadXml("src/main/res/layout/popup_telegram_menu.xml")
