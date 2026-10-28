@@ -81,7 +81,14 @@ class HomeMenuAccessibilityContractTest {
         val source = File("src/main/java/com/eve/app/ui/home/TelegramMenuPopup.kt").readText()
         val roles = source.substringAfter("private fun applyOriginalMenuRoles()")
             .substringBefore("private fun dismissWithAction(")
-        for (id in rowIds) assertTrue(roles.contains("binding.$id"))
+        // Rows are now explicitly typed once in actionRows(), reused by animation
+        // and accessibility. Verify all seven mappings and the applying loop.
+        val mapping = source.substringAfter("private fun actionRows()")
+            .substringBefore("    init {")
+        for (id in rowIds) assertTrue("Accessibility row mapping missing $id",
+            mapping.contains("binding.$id"))
+        assertTrue("Accessibility roles must iterate the actual action rows",
+            roles.contains("val rows = actionRows()"))
         assertTrue(roles.contains("row.contentDescription = child.text"))
         assertTrue(roles.contains("row.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES"))
         assertTrue(roles.contains("child.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO"))
