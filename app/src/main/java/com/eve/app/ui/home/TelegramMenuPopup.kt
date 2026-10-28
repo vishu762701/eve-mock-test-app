@@ -10,6 +10,7 @@ import android.graphics.Rect
 import android.content.res.ColorStateList
 import androidx.core.widget.ImageViewCompat
 import androidx.core.content.ContextCompat
+import com.eve.app.designsystem.TelegramPopupSourceBackground
 import com.eve.app.theme.TelegramThemeEngine
 import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
@@ -219,11 +220,12 @@ class TelegramMenuPopup(
         binding.root.clipToOutline = false
         binding.root.drawHairline = false
         binding.root.glassEnabled = false
-        val sourceBackground = ContextCompat.getDrawable(context, R.drawable.telegram_popup_fixed_alert2)
+        val originalNinePatch = ContextCompat.getDrawable(context, R.drawable.telegram_popup_fixed_alert2)
             ?.mutate()
-        sourceBackground?.colorFilter = PorterDuffColorFilter(
+        originalNinePatch?.colorFilter = PorterDuffColorFilter(
             palette.submenuBackground, PorterDuff.Mode.MULTIPLY
         )
+        val sourceBackground = originalNinePatch?.let { TelegramPopupSourceBackground(it) }
         binding.root.originalPopupBackground = sourceBackground
         // Accessibility: one focus target per clickable action, rather than reading the
         // original decorative icon and the label separately. This does not change

@@ -53,8 +53,11 @@ class HomeOverflowPopupNativeTest {
             scenario.onActivity {
                 assertTrue("Home popup must be attached", popup.isShowing)
                 val root = popup.contentView
-                assertTrue("Original Telegram nine-patch should back Home popup",
-                    root.background is android.graphics.drawable.NinePatchDrawable)
+                assertTrue("Source-backed Telegram background must wrap the original 9-patch",
+                    root.background is com.eve.app.designsystem.TelegramPopupSourceBackground)
+                val source = root.background as com.eve.app.designsystem.TelegramPopupSourceBackground
+                assertTrue("Unmodified nine-patch must remain the underlying source image",
+                    source.sourceDrawable is android.graphics.drawable.NinePatchDrawable)
                 val frame = Rect().also(anchor::getWindowVisibleDisplayFrame)
                 // PopupWindow has its own window coordinate origin. getGlobalVisibleRect()
                 // returns that window's local coordinates (often 0,0), not display coordinates.
@@ -102,6 +105,9 @@ class HomeOverflowPopupNativeTest {
                 val screen = IntArray(2).also(root::getLocationOnScreen)
                 val bounds = Rect(screen[0], screen[1], screen[0] + root.width, screen[1] + root.height)
                 val tolerance = (2 * root.resources.displayMetrics.density).toInt().coerceAtLeast(2)
+                assertTrue("Popup growth must end with full background scale",
+                    kotlin.math.abs((root.background as
+                        com.eve.app.designsystem.TelegramPopupSourceBackground).backScaleY - 1f) < 0.001f)
                 assertTrue("Original source row entrance must settle without whole-popup scaling",
                     kotlin.math.abs(root.scaleX - 1f) < 0.001f &&
                     kotlin.math.abs(root.scaleY - 1f) < 0.001f)

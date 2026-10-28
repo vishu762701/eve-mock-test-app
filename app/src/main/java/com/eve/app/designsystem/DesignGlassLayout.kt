@@ -151,7 +151,17 @@ open class DesignGlassLayout @JvmOverloads constructor(context: Context, attrs: 
         return null
     }
     override fun dispatchDraw(canvas: Canvas) {
-        super.dispatchDraw(canvas)
+        val source = if (!glassEnabled) originalPopupBackground as? TelegramPopupSourceBackground else null
+        if (source != null && source.backScaleY < 1f) {
+            // ActionBarPopupWindowLayout.java:533-539 clips children to the
+            // current background growth bounds, not a scaled whole-window view.
+            val checkpoint = canvas.save()
+            canvas.clipRect(0, 0, width, source.visibleHeight(height))
+            super.dispatchDraw(canvas)
+            canvas.restoreToCount(checkpoint)
+        } else {
+            super.dispatchDraw(canvas)
+        }
         if (glassEnabled && drawHairline) {
             val inset = border.strokeWidth / 2f
             rect.set(inset, inset, width - inset, height - inset)

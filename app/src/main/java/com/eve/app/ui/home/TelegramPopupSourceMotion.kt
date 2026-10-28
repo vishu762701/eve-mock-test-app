@@ -7,6 +7,7 @@ import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.view.View
 import com.eve.app.designsystem.UiArcMotion
+import com.eve.app.designsystem.TelegramPopupSourceBackground
 import java.util.WeakHashMap
 
 /**
@@ -34,7 +35,13 @@ internal object TelegramPopupSourceMotion {
     private fun settle(root: View, rows: List<View>) {
         root.alpha = 1f
         root.translationY = 0f
-        root.background?.alpha = 255
+        val source = root.background as? TelegramPopupSourceBackground
+        if (source != null) {
+            source.backScaleY = 1f
+            source.backAlpha = 255
+        } else {
+            root.background?.alpha = 255
+        }
         rows.forEach { row ->
             row.translationY = 0f
             row.alpha = if (row.isEnabled) 1f else 0.5f
@@ -53,14 +60,26 @@ internal object TelegramPopupSourceMotion {
         if (visible.isEmpty()) return
         val count = visible.size
         val rise = -6f * root.resources.displayMetrics.density
-        root.background?.alpha = 0
+        val source = root.background as? TelegramPopupSourceBackground
+        if (source != null) {
+            source.backScaleY = 0f
+            source.backAlpha = 0
+        } else {
+            root.background?.alpha = 0
+        }
         visible.forEach { it.alpha = 0f }
         val animator = ValueAnimator.ofFloat(0f, 1f).apply {
             // Original ActionBarPopupWindow.startAnimation: 150 + 16 * visibleCount.
             duration = (150 + 16 * count).toLong()
             addUpdateListener { frame ->
                 val progress = frame.animatedValue as Float
-                root.background?.alpha = (progress * 255f).toInt().coerceIn(0, 255)
+                if (source != null) {
+                    // Original background-only top-down growth, not root.scaleY.
+                    source.backScaleY = progress
+                    source.backAlpha = (progress * 255f).toInt().coerceIn(0, 255)
+                } else {
+                    root.background?.alpha = (progress * 255f).toInt().coerceIn(0, 255)
+                }
                 visible.forEachIndexed { position, row ->
                     // Original AndroidUtilities.cascade(t, position, count, 4).
                     val at = cascade(progress, position.toFloat(), count.toFloat(), 4f)
