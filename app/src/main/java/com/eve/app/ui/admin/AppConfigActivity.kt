@@ -16,6 +16,7 @@ import com.eve.app.data.repository.AuditLogRepository
 import com.eve.app.databinding.ActivityAppConfigBinding
 import com.eve.app.util.AppBulletin
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.eve.app.designsystem.showTelegramSourceDialog
 import kotlinx.coroutines.launch
 
 class AppConfigActivity : EveBaseActivity() {
@@ -23,6 +24,7 @@ class AppConfigActivity : EveBaseActivity() {
     private lateinit var binding: ActivityAppConfigBinding
     private val adminRepo = AdminRepository()
     private val auditLogRepo = AuditLogRepository()
+    private var maintenanceConfirmationDialog: androidx.appcompat.app.AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,14 +86,21 @@ class AppConfigActivity : EveBaseActivity() {
         )
 
         if (maintenanceMode) {
-            MaterialAlertDialogBuilder(this)
+            // Original AndroidUtilities.isSafeToShow() and one active
+            // privileged window: don't stack server-impacting confirmations.
+            if (isFinishing || isDestroyed || maintenanceConfirmationDialog?.isShowing == true) return
+            val dialog = MaterialAlertDialogBuilder(this)
                 .setTitle("Enable Maintenance Mode?")
                 .setMessage("Are you sure? When maintenance mode is active, students opening the app will be blocked by a full-screen maintenance notice.")
                 .setPositiveButton("Enable Maintenance") { _, _ ->
                     saveConfig(configToSave)
                 }
                 .setNegativeButton("Cancel", null)
-                .show()
+                .showTelegramSourceDialog()
+            maintenanceConfirmationDialog = dialog
+            dialog.setOnDismissListener {
+                if (maintenanceConfirmationDialog === dialog) maintenanceConfirmationDialog = null
+            }
         } else {
             saveConfig(configToSave)
         }
@@ -178,4 +187,10 @@ class AppConfigActivity : EveBaseActivity() {
             }
         }
     }
+    override fun onDestroy() {
+        maintenanceConfirmationDialog?.dismiss()
+        maintenanceConfirmationDialog = null
+        super.onDestroy()
+    }
+
 }
