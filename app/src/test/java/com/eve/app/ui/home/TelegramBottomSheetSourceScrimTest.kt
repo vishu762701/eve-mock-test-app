@@ -18,21 +18,28 @@ class TelegramBottomSheetSourceScrimTest {
         assertTrue(source.contains("3de37c8cfb039452be7398909461da6288babf15"))
     }
 
-    @Test fun targetSheetUsesOriginalQuint400msAlpha51InsteadOfWindowDim() {
-        val source = File("src/main/java/com/eve/app/ui/home/TargetExamsBottomSheet.kt").readText()
-        val patch = source.substringAfter("Source: BottomSheet.java:135-192")
-            .substringBefore("dialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED")
-        assertTrue(patch.contains("TelegramBottomSheetSourceScrim()"))
-        assertTrue(patch.contains("WindowManager.LayoutParams.FLAG_DIM_BEHIND"))
-        assertTrue(patch.contains("window.clearFlags("))
-        assertTrue(patch.contains("window.setDimAmount(0f)"))
-        assertTrue(patch.contains("ValueAnimator.ofInt(0, 51)"))
-        assertTrue(patch.contains("duration = 400L"))
-        assertTrue(patch.contains("startDelay = 20L"))
-        assertTrue(patch.contains("CubicBezierInterpolator.EASE_OUT_QUINT"))
-        assertTrue(patch.contains("!UiArcMotion.isMotionEnabled(activity)"))
-        assertTrue("Selection and secure persistence unchanged",
-            source.contains("putStringSet(KEY_TARGET_EXAMS, selected)") &&
-                source.contains("putBoolean(KEY_ONBOARDING_DONE, true)"))
+    @Test fun bothTargetAndCompletedSheetsKeepTheOriginalOneSourceScrim() {
+        val scrim = File("src/main/java/com/eve/app/ui/home/TelegramBottomSheetSourceScrim.kt").readText()
+        val target = File("src/main/java/com/eve/app/ui/home/TargetExamsBottomSheet.kt").readText()
+        val completed = File("src/main/java/com/eve/app/ui/common/CompletedExamBottomSheet.kt").readText()
+        assertTrue(scrim.contains("internal object TelegramBottomSheetSourceBackdrop"))
+        assertTrue(scrim.contains("TelegramBottomSheetSourceScrim().apply { alpha = 0 }"))
+        assertTrue(scrim.contains("WindowManager.LayoutParams.FLAG_DIM_BEHIND"))
+        assertTrue(scrim.contains("window.clearFlags("))
+        assertTrue(scrim.contains("window.setDimAmount(0f)"))
+        assertTrue(scrim.contains("ValueAnimator.ofInt(0, 51)"))
+        assertTrue(scrim.contains("duration = 400L"))
+        assertTrue(scrim.contains("startDelay = 20L"))
+        assertTrue(scrim.contains("CubicBezierInterpolator.EASE_OUT_QUINT"))
+        assertTrue(scrim.contains("!UiArcMotion.isMotionEnabled(context)"))
+        assertTrue(scrim.contains("fade.cancel()"))
+        assertTrue(target.contains("TelegramBottomSheetSourceBackdrop.install(dialog, activity)"))
+        assertTrue(completed.contains("TelegramBottomSheetSourceBackdrop.install(dialog, activity)"))
+        assertTrue("Selection state and onboarding persistence must remain",
+            target.contains("putStringSet(KEY_TARGET_EXAMS, selected)") &&
+            target.contains("putBoolean(KEY_ONBOARDING_DONE, true)"))
+        assertTrue("Review and reattempt still invoke existing handlers",
+            completed.contains("ResultDataHolder.setAnswers(att.answers)") &&
+            completed.contains("onReattemptConfirmed()"))
     }
 }

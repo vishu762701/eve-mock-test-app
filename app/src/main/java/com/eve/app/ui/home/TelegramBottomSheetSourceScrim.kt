@@ -9,6 +9,13 @@
  */
 package com.eve.app.ui.home
 
+import android.animation.ValueAnimator
+import android.content.Context
+import android.view.View
+import android.view.WindowManager
+import com.eve.app.designsystem.UiArcMotion
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import org.telegram.ui.Components.CubicBezierInterpolator
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.ColorFilter
@@ -63,4 +70,38 @@ internal class TelegramBottomSheetSourceScrim : Drawable() {
     }
 
     override fun getOpacity(): Int = PixelFormat.UNKNOWN
+}
+
+/**
+ * EVE Material host adaptation of original Telegram BottomSheet.java:135-192,
+ * 213-222,1766-1778; not a claim of source-exact gesture/detent physics.
+ */
+internal object TelegramBottomSheetSourceBackdrop {
+    fun install(dialog: BottomSheetDialog, context: Context) {
+        val host = dialog.findViewById<View>(com.google.android.material.R.id.coordinator) ?: return
+        val scrim = TelegramBottomSheetSourceScrim().apply { alpha = 0 }
+        host.background = scrim
+        dialog.window?.let { window ->
+            window.setDimAmount(0f)
+            window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+        }
+        if (!UiArcMotion.isMotionEnabled(context)) {
+            scrim.alpha = 51
+        } else {
+            val fade = ValueAnimator.ofInt(0, 51).apply {
+                duration = 400L
+                startDelay = 20L
+                interpolator = CubicBezierInterpolator.EASE_OUT_QUINT
+                addUpdateListener { scrim.alpha = it.animatedValue as Int }
+            }
+            host.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+                override fun onViewAttachedToWindow(v: View) = Unit
+                override fun onViewDetachedFromWindow(v: View) {
+                    fade.cancel()
+                    v.removeOnAttachStateChangeListener(this)
+                }
+            })
+            fade.start()
+        }
+    }
 }

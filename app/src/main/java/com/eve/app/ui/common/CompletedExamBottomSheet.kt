@@ -129,5 +129,7 @@ object CompletedExamBottomSheet {
         }
 
         dialog.show()
+        // Shared original Telegram BottomSheet.java black alpha-51 scrim atom.
+        com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, activity)
     }
 }
