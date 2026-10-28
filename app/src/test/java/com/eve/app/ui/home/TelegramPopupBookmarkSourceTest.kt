@@ -6,41 +6,41 @@ import org.junit.Test
 import java.io.File
 import java.security.MessageDigest
 
-/** Bookmarks menu artwork must be Telegram's actual four-density original. */
+/** Existing EVE bookmark image is exactly Telegram msg_saved.webp on all densities. */
 class TelegramPopupBookmarkSourceTest {
     private data class Original(val density: String, val bytes: Int, val sha256: String, val gitBlob: String)
     private val assets = listOf(
-        Original("mdpi", 166, "7ae2785dabb6e9bf3d711a1ce582b666129da3235ac9348d0e3ac967846680f0", "ebc89f3d587e40abd03d6ebfa281dfa24e9a8756"),
-        Original("hdpi", 214, "a2c4d7d9c31164425c9849777d5ce2164367b13f79331bc8452817a9579d1f6b", "17cd432a4dc0b6b82fd2348150ad4e18cb1cff8a"),
-        Original("xhdpi", 250, "9569e339988dd9b2687c16f33b014332413601f6054781d49ead303682a6a877", "469163a675760e854044f8e82a95055a0e50d33c"),
-        Original("xxhdpi", 304, "283d3123c1b194471b0cf9cb0c3669f94a06e66192355a81183d33ebd274349a", "9790581c0bbcf2075383a0033ed15b453b7c2626")
+        Original("mdpi", 134, "873ad24c7b1951de855a069a66e5e0f63500e24cbf8c3a4ab1099a182ae29f73", "e7cdcff6e452c07459dc31eac58af0f36d1c7d62"),
+        Original("hdpi", 204, "7453f638e2a396bfdaa04910f1a7cb6eb304d88cc11d44b9f8bd8de4f9dcac06", "ec3097732ea3a2462e241386876ca93a00af44d2"),
+        Original("xhdpi", 226, "09b8b18ba5f5f161945483ea13aec029bc4d47dc271e330720cdff3f397b4c2c", "bf4fda65e037332f7bfe8f02a74d2ebc53238eba"),
+        Original("xxhdpi", 270, "457066fd5447cd0389503b422a1eecee520cd17cbfd5b2c111d4a8c5f9b763c0", "63c064cafb3e217d55df9b31575352dc7c9efe66")
     )
     private fun hex(bytes: ByteArray) = bytes.joinToString("") {
         (it.toInt() and 255).toString(16).padStart(2, '0')
     }
 
-    @Test fun exactOfficialTelegramBookmarksMenuImagesWereNotReencoded() {
+    @Test fun savedQuestionMenuIconIsExactlyTelegramMsgSavedOriginal() {
         for (original in assets) {
-            val file = File("src/main/res/drawable-${original.density}/telegram_menu_browser_bookmarks.webp")
-            assertTrue("Official source image missing: ${file.path}", file.isFile)
+            val file = File("src/main/res/drawable-${original.density}/ic_bookmark.webp")
+            assertTrue("Unchanged Telegram Saved original missing: ${file.path}", file.isFile)
             val bytes = file.readBytes()
-            assertEquals("Original image size ${original.density}", original.bytes, bytes.size)
+            assertEquals("Official original byte length ${original.density}", original.bytes, bytes.size)
             assertEquals("Original SHA-256 ${original.density}", original.sha256,
                 hex(MessageDigest.getInstance("SHA-256").digest(bytes)))
             val sha = MessageDigest.getInstance("SHA-1")
             sha.update("blob ${bytes.size}\u0000".toByteArray(Charsets.UTF_8))
             sha.update(bytes)
-            assertEquals("Official upstream Git object ${original.density}", original.gitBlob,
+            assertEquals("Official source git blob ${original.density}", original.gitBlob,
                 hex(sha.digest()))
         }
     }
 
-    @Test fun bookmarksRowUsesOfficialIconWithoutChangingAction() {
+    @Test fun bookmarksRowKeepsSavedOriginalNotBrowserSpecificIcon() {
         val xml = File("src/main/res/layout/popup_telegram_menu.xml").readText()
         val block = xml.substringAfter("android:id=\"@+id/menuRowBookmarks\"")
             .substringBefore("android:id=\"@+id/menuRowMistakes\"")
-        assertTrue(block.contains("@drawable/telegram_menu_browser_bookmarks"))
-        assertTrue(!block.contains("@drawable/ic_bookmark"))
+        assertTrue(block.contains("@drawable/ic_bookmark"))
+        assertTrue(!block.contains("@drawable/telegram_menu_browser_bookmarks"))
         assertTrue(block.contains("android:minHeight=\"48dp\""))
         val source = File("src/main/java/com/eve/app/ui/home/TelegramMenuPopup.kt").readText()
         assertTrue(source.contains("binding.menuRowBookmarks.setOnClickListener"))
