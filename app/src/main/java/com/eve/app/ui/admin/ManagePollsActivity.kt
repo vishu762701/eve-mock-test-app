@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.ImageButton
 import com.eve.app.util.AppBulletin
+import com.eve.app.ui.home.TelegramDialogSourceBackground
 import com.eve.app.util.AdminAccessGate
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -31,6 +32,7 @@ class ManagePollsActivity : EveBaseActivity() {
     private lateinit var binding: ActivityManagePollsBinding
     private val pollRepository = PollRepository()
     private lateinit var adapter: PollsAdminAdapter
+    private var createPollDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -119,6 +121,9 @@ class ManagePollsActivity : EveBaseActivity() {
     }
 
     private fun showCreatePollDialog() {
+        // Original Telegram AlertDialog.java:325-328/AndroidUtilities.java:6255-6267:
+        // never show a window after Activity teardown; don't stack create dialogs.
+        if (isFinishing || isDestroyed || createPollDialog?.isShowing == true) return
         val dialogBinding = DialogCreatePollBinding.inflate(layoutInflater)
         val dialog = AlertDialog.Builder(this)
             .setView(dialogBinding.root)
@@ -227,7 +232,20 @@ class ManagePollsActivity : EveBaseActivity() {
             }
         }
 
+        dialog.setOnDismissListener {
+            if (createPollDialog === dialog) createPollDialog = null
+        }
         dialog.show()
+        createPollDialog = dialog
+        // Telegram AlertDialog.java:302-318,680-693 and DarkAlertDialog.java:11-19.
+        // Only source-backed dialog chrome changes; custom validation remains.
+        TelegramDialogSourceBackground.apply(dialog)
+    }
+
+    override fun onDestroy() {
+        createPollDialog?.dismiss()
+        createPollDialog = null
+        super.onDestroy()
     }
 
     private fun pickCustomDateTime(onDateTimeSelected: (Long) -> Unit) {
