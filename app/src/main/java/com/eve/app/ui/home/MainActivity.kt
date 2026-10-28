@@ -559,8 +559,17 @@ class MainActivity : EveBaseActivity() {
         })
     }
 
+    private fun cancelSearchVisualAnimations() {
+        // An interrupted ViewPropertyAnimator must not commit a stale end action.
+        binding.normalTopBar.animate().cancel()
+        binding.btnSearchBack.animate().cancel()
+        binding.etSearch.animate().cancel()
+    }
+
     private fun openSearch() {
+        if (isSearchActive) return
         isSearchActive = true
+        cancelSearchVisualAnimations()
         searchMorphAnimator?.cancel()
 
         if (!UiArcMotion.isMotionEnabled(this)) {
@@ -610,7 +619,12 @@ class MainActivity : EveBaseActivity() {
                 binding.layoutSearchFieldContainer.layoutParams = p
             }
             addListener(object : android.animation.AnimatorListenerAdapter() {
+                private var cancelled = false
+                override fun onAnimationCancel(animation: android.animation.Animator) {
+                    cancelled = true
+                }
                 override fun onAnimationEnd(animation: android.animation.Animator) {
+                    if (cancelled || !isSearchActive) return
                     val finalLp = binding.layoutSearchFieldContainer.layoutParams as android.widget.LinearLayout.LayoutParams
                     finalLp.width = 0
                     finalLp.weight = 1f
@@ -626,7 +640,7 @@ class MainActivity : EveBaseActivity() {
             .setDuration(UiArcMotion.Duration.FAST)
             .setInterpolator(UiArcMotion.Ease.STANDARD)
             .withEndAction {
-                binding.normalTopBar.visibility = View.GONE
+                if (isSearchActive) binding.normalTopBar.visibility = View.GONE
             }
             .start()
 
@@ -651,9 +665,12 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun closeSearch() {
+        if (!isSearchActive) return
         isSearchActive = false
+        cancelSearchVisualAnimations()
         searchMorphAnimator?.cancel()
         binding.etSearch.text?.clear()
+        searchDebounceJob?.cancel()
         currentSearchQuery = ""
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         imm?.hideSoftInputFromWindow(binding.etSearch.windowToken, 0)
@@ -708,7 +725,12 @@ class MainActivity : EveBaseActivity() {
                 binding.layoutSearchFieldContainer.layoutParams = p
             }
             addListener(object : android.animation.AnimatorListenerAdapter() {
+                private var cancelled = false
+                override fun onAnimationCancel(animation: android.animation.Animator) {
+                    cancelled = true
+                }
                 override fun onAnimationEnd(animation: android.animation.Animator) {
+                    if (cancelled || isSearchActive) return
                     binding.searchTopBar.visibility = View.GONE
                     val finalLp = binding.layoutSearchFieldContainer.layoutParams as android.widget.LinearLayout.LayoutParams
                     finalLp.width = 0
@@ -1145,8 +1167,10 @@ class MainActivity : EveBaseActivity() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        searchDebounceJob?.cancel()
         searchMorphAnimator?.cancel()
+        cancelSearchVisualAnimations()
+        super.onDestroy()
         try {
             unregisterReceiver(foregroundNotificationReceiver)
         } catch (_: Exception) { }
