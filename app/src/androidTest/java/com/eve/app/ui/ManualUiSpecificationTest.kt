@@ -195,7 +195,7 @@ class ManualUiSpecificationTest {
                             // background is transparent (drawn by parent selector); text uses filterTab active/unactive.
                             val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
                             val expectedBg = Color.TRANSPARENT
-                            val expectedText = if (checked) palette.filterTabActiveText else palette.filterTabUnactiveText
+                            val expectedText = if (chip.isChecked) palette.filterTabActiveText else palette.filterTabUnactiveText
                             assertEquals(expectedBg,
                                 chip.chipBackgroundColor!!.getColorForState(chip.drawableState, 0))
                             assertEquals(expectedText, chip.currentTextColor)

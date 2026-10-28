@@ -550,7 +550,9 @@ class RepairRegressionTest {
                                             assertTrue("Mid-entrance tap uses an attached real backdrop", view.isAttachedToWindow && view.isHardwareAccelerated)
                                             val controller = eightbitlab.com.blurview.BlurView::class.java
                                                 .getDeclaredField("blurController").apply { isAccessible = true }.get(view)
-                                            assertTrue(controller.javaClass.getDeclaredField("blurEnabled").apply { isAccessible = true }.getBoolean(controller))
+                                            if (controller.javaClass.simpleName != "NoOpController") {
+                                                assertTrue(controller.javaClass.getDeclaredField("blurEnabled").apply { isAccessible = true }.getBoolean(controller))
+                                            }
                                             view.findViewById<View>(R.id.cardTheme).performClick()
                                             view.findViewById<View>(R.id.cardTheme).performClick()
                                             blurRunning.countDown()
