@@ -3,6 +3,7 @@ package com.eve.app.ui
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
@@ -77,6 +78,29 @@ class HomeScreenshotChromeNativeTest {
                 val search = activity.findViewById<android.view.View>(R.id.searchTopBar)
                 assertTrue("Normal title host must exist", normal != null)
                 assertTrue("Search host must remain separate", search != null)
+            }
+        }
+    }
+
+    @Test fun homePopupMenuUsesTelegramDensityAndMinWidth() {
+        ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                val popupView = LayoutInflater.from(activity).inflate(R.layout.popup_telegram_menu, null)
+                val rows = intArrayOf(
+                    R.id.cardTheme, R.id.menuRowHistory, R.id.menuRowBookmarks,
+                    R.id.menuRowMistakes, R.id.menuRowTopic, R.id.menuRowPyq, R.id.menuRowLogout
+                )
+                val density = activity.resources.displayMetrics.density
+                val expectedMinHeight = (48 * density).toInt()
+                val expectedMinWidth = (196 * density).toInt()
+
+                for (id in rows) {
+                    val row = popupView.findViewById<LinearLayout>(id)
+                    assertEquals("Top padding must be 0dp for authentic Telegram density", 0, row.paddingTop)
+                    assertEquals("Bottom padding must be 0dp for authentic Telegram density", 0, row.paddingBottom)
+                    assertEquals("Min height must match 48dp upstream itemHeight", expectedMinHeight, row.minimumHeight)
+                    assertEquals("Min width must match 196dp upstream ActionBarMenuSubItem minWidth", expectedMinWidth, row.minimumWidth)
+                }
             }
         }
     }
