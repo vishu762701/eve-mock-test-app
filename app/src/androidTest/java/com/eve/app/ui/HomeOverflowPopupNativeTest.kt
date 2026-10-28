@@ -95,6 +95,18 @@ class HomeOverflowPopupNativeTest {
                         row.height >= (48 * root.resources.displayMetrics.density).toInt() - 1)
                     val label = (row as android.view.ViewGroup).getChildAt(1) as TextView
                     assertTrue("Popup label may not be cropped to zero width: $id", label.width > 0)
+                    // Source geometry: ActionBarMenuSubItem.java:83-84,206-218
+                    // 18dp row padding + 43dp inner title offset. TextView is
+                    // attached to EVE's 24dp icon + 19dp dedicated start gap.
+                    val inset = if (row.layoutDirection == View.LAYOUT_DIRECTION_RTL) {
+                        row.width - label.right
+                    } else {
+                        label.left
+                    }
+                    val expected = (61f * row.resources.displayMetrics.density).toInt()
+                    assertTrue("Telegram original 61dp title inset in LTR/RTL: $id ($inset vs $expected)",
+                        kotlin.math.abs(inset - expected) <= (2f * row.resources.displayMetrics.density).toInt().coerceAtLeast(2))
+
                     assertTrue("Original Telegram menu title stays on one line: $id", label.isSingleLine)
                     assertEquals("Original Telegram menu title must end-ellipsize: $id",
                         android.text.TextUtils.TruncateAt.END, label.ellipsize)

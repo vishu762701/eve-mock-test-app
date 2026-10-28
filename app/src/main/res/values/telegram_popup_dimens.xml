@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Original Telegram ActionBarMenuSubItem.java:83-84,206-218:
+         row start padding 18dp, title padding 43dp from content start.
+         EVE linear host has 24dp icon: 43 - 24 = 19dp gap.
+         This keeps the same 61dp total inset in both LTR and RTL. -->
+    <dimen name="telegram_popup_label_gap">19dp</dimen>
+</resources>

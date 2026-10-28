@@ -15,6 +15,27 @@ class HomeMenuAccessibilityContractTest {
         "menuRowTopic", "menuRowPyq", "menuRowLogout"
     )
 
+    @Test fun popupLabelGeometryMatchesOfficialTelegramSourceTextInset() {
+        // ActionBarMenuSubItem.java:83-84/206-218. EVE linear-host mapping:
+        // original 18dp outer + 43dp inner = EVE 18dp + 24dp icon + 19dp gap.
+        val source = File("src/main/res/values/telegram_popup_dimens.xml").readText()
+        assertTrue(source.contains("name=\"telegram_popup_label_gap\">19dp"))
+        val layout = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+            .parse(File("src/main/res/layout/popup_telegram_menu.xml"))
+        val nodes = layout.getElementsByTagName("LinearLayout")
+        for (id in rowIds) {
+            val row = (0 until nodes.length).map { nodes.item(it) as Element }
+                .first { it.getAttribute("android:id") == "@+id/$id" }
+            val label = row.getElementsByTagName("TextView").item(0) as Element
+            assertEquals("Original source requires 18dp outer inset: $id",
+                "18dp", row.getAttribute("android:paddingStart"))
+            assertEquals("Original Telegram 43dp title inset with 24dp icon: $id",
+                "@dimen/telegram_popup_label_gap",
+                label.getAttribute("android:layout_marginStart"))
+        }
+        assertEquals(61, 18 + 24 + 19)
+    }
+
     @Test fun popupRetainsSevenFocusableActionsAtLeast48dpTall() {
         val layout = File("src/main/res/layout/popup_telegram_menu.xml")
         val dom = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(layout)
