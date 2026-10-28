@@ -57,6 +57,7 @@ class TestActivity : EveBaseActivity() {
     // Prevent rapid Back/Submit taps from stacking duplicate windows.
     private var leaveConfirmDialog: AlertDialog? = null
     private var submitConfirmDialog: AlertDialog? = null
+    private var statusDialog: AlertDialog? = null
     private var isLeavingTest = false
     private var adminRepository = AdminRepository()
     private var isAdminUser = false
@@ -109,7 +110,7 @@ class TestActivity : EveBaseActivity() {
                         .setMessage("You have reached the maximum limit of 3 attempts for this test. Normal users can attempt each test at most 3 times.")
                         .setPositiveButton("OK") { _, _ -> finish() }
                         .setCancelable(false)
-                        .show()
+                        .let(::showExamNotice)
                     return@launch
                 }
             }
@@ -626,6 +627,24 @@ class TestActivity : EveBaseActivity() {
         }
     }
 
+    /**
+     * Original Telegram AlertDialog visual atoms on all EVE-owned exam status
+     * notices; only one window is live at once. All original button actions and
+     * server/offline logic remain in their caller callbacks.
+     */
+    private fun showExamNotice(builder: AlertDialog.Builder): AlertDialog? {
+        if (isFinishing || isDestroyed) return null
+        statusDialog?.takeIf { it.isShowing }?.dismiss()
+        val dialog = builder.create()
+        dialog.setOnDismissListener { dismissed ->
+            if (statusDialog === dismissed) statusDialog = null
+        }
+        dialog.show()
+        statusDialog = dialog
+        com.eve.app.ui.home.TelegramDialogSourceBackground.apply(dialog)
+        return dialog
+    }
+
     private fun showSubmissionError(message: String, attemptName: String, items: List<AnswerItem>) {
         submitted = false
         binding.btnNext.isEnabled = !submitted
@@ -643,7 +662,7 @@ class TestActivity : EveBaseActivity() {
                 handleOfflineSubmit(attemptName, items)
             }
             .setNeutralButton("Cancel", null)
-            .show()
+            .let(::showExamNotice)
     }
 
     private fun handleOfflineSubmit(attemptName: String, items: List<AnswerItem>) {
@@ -685,7 +704,7 @@ class TestActivity : EveBaseActivity() {
             .setMessage("Your test responses have been stored securely on your device. They will be submitted automatically when network connectivity is restored.")
             .setPositiveButton("OK") { _, _ -> finish() }
             .setCancelable(false)
-            .show()
+            .let(::showExamNotice)
     }
 
     private fun sessionTitle(): String = when {
@@ -733,8 +752,10 @@ class TestActivity : EveBaseActivity() {
         // Release Activity-owned windows before detaching their window tokens.
         leaveConfirmDialog?.dismiss()
         submitConfirmDialog?.dismiss()
+        statusDialog?.dismiss()
         leaveConfirmDialog = null
         submitConfirmDialog = null
+        statusDialog = null
         super.onDestroy()
         com.eve.app.typography.TypographyRepository.getInstance(this).setTestSessionActive(false)
     }

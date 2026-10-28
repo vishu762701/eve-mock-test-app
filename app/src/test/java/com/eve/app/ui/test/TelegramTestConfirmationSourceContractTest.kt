@@ -45,10 +45,37 @@ class TelegramTestConfirmationSourceContractTest {
         assertTrue(submit.contains("viewModel.clientAttemptId"))
     }
 
+    @Test fun examNoticesReuseSourceHostWithoutStackingOrChangingRecoveryActions() {
+        val notices = activity.substringAfter("private fun showExamNotice(")
+            .substringBefore("private fun sessionTitle()")
+        assertTrue("Never show a notice on destroyed Activity",
+            notices.contains("if (isFinishing || isDestroyed) return null"))
+        assertTrue("Only one exam status window may remain visible",
+            notices.contains("statusDialog?.takeIf { it.isShowing }?.dismiss()"))
+        assertTrue(notices.contains("if (statusDialog === dismissed) statusDialog = null"))
+        assertTrue(notices.contains("TelegramDialogSourceBackground.apply(dialog)"))
+        assertTrue("Retry must remain wired to original submit operation",
+            notices.contains(".setPositiveButton(\"Retry\") { _, _ ->") &&
+            notices.contains("submit()"))
+        assertTrue("Offline Save must still delegate to original queue logic",
+            notices.contains(".setNegativeButton(\"Save Offline\")") &&
+            notices.contains("handleOfflineSubmit(attemptName, items)"))
+        assertTrue("Cancel and offline acknowledgements are unchanged",
+            notices.contains(".setNeutralButton(\"Cancel\", null)") &&
+            notices.contains(".setTitle(\"Submission Saved Offline\")"))
+        assertTrue("Both recovery dialogs use source host",
+            notices.split(".let(::showExamNotice)").size >= 3)
+        val attemptLimit = activity.substringAfter("if (!canAttempt)")
+            .substringBefore("viewModel.start(")
+        assertTrue(attemptLimit.contains(".let(::showExamNotice)"))
+        assertTrue(attemptLimit.contains(".setCancelable(false)"))
+    }
+
     @Test fun dialogCleanupRetainsTimerAndTypographySessionCleanup() {
         val destroy = activity.substringAfter("override fun onDestroy()")
         assertTrue(destroy.contains("leaveConfirmDialog?.dismiss()"))
         assertTrue(destroy.contains("submitConfirmDialog?.dismiss()"))
+        assertTrue(destroy.contains("statusDialog?.dismiss()"))
         assertTrue(destroy.contains("setTestSessionActive(false)"))
         assertTrue(activity.contains("launch { viewModel.timeUp.collect { if (it) submit() } }"))
     }
