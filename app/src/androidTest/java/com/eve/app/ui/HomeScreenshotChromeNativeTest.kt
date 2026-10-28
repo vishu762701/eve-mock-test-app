@@ -91,8 +91,8 @@ class HomeScreenshotChromeNativeTest {
                     R.id.menuRowMistakes, R.id.menuRowTopic, R.id.menuRowPyq, R.id.menuRowLogout
                 )
                 val density = activity.resources.displayMetrics.density
-                val expectedMinHeight = (48 * density).toInt()
-                val expectedMinWidth = (196 * density).toInt()
+                val expectedMinHeight = (48 * density + 0.5f).toInt()
+                val expectedMinWidth = (196 * density + 0.5f).toInt()
 
                 for (id in rows) {
                     val row = popupView.findViewById<LinearLayout>(id)
