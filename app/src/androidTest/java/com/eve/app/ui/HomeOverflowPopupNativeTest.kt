@@ -53,6 +53,8 @@ class HomeOverflowPopupNativeTest {
             scenario.onActivity {
                 assertTrue("Home popup must be attached", popup.isShowing)
                 val root = popup.contentView
+                assertTrue("Original Telegram nine-patch should back Home popup",
+                    root.background is android.graphics.drawable.NinePatchDrawable)
                 val frame = Rect().also(anchor::getWindowVisibleDisplayFrame)
                 // PopupWindow has its own window coordinate origin. getGlobalVisibleRect()
                 // returns that window's local coordinates (often 0,0), not display coordinates.

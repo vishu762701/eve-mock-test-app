@@ -4,9 +4,12 @@ import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.graphics.Rect
 import android.content.res.ColorStateList
 import androidx.core.widget.ImageViewCompat
+import androidx.core.content.ContextCompat
 import com.eve.app.theme.TelegramThemeEngine
 import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
@@ -46,7 +49,8 @@ class TelegramMenuPopup(
         height = ViewGroup.LayoutParams.WRAP_CONTENT
         isFocusable = true
         isOutsideTouchable = true
-        elevation = context.resources.getDimension(R.dimen.design_card_elevation)
+        // Original Telegram 9-patch supplies its own perimeter shadow.
+        elevation = 0f
         setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         setupThemeCard()
@@ -204,6 +208,18 @@ class TelegramMenuPopup(
     private fun applyOriginalMenuRoles() {
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
         binding.root.updatePalette(palette)
+        // Original ActionBarPopupWindowLayout.java:148-170,294-297.
+        val padding = (8f * context.resources.displayMetrics.density).toInt()
+        binding.root.setPadding(padding, padding, padding, padding)
+        binding.root.clipToOutline = false
+        binding.root.drawHairline = false
+        binding.root.glassEnabled = false
+        val sourceBackground = ContextCompat.getDrawable(context, R.drawable.telegram_popup_fixed_alert2)
+            ?.mutate()
+        sourceBackground?.colorFilter = PorterDuffColorFilter(
+            palette.submenuBackground, PorterDuff.Mode.MULTIPLY
+        )
+        binding.root.originalPopupBackground = sourceBackground
         // Accessibility: one focus target per clickable action, rather than reading the
         // original decorative icon and the label separately. This does not change
         // Telegram artwork, popup motion or any action's existing callback.

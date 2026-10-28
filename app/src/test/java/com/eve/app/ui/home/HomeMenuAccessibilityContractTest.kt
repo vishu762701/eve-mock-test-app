@@ -46,6 +46,18 @@ class HomeMenuAccessibilityContractTest {
         assertTrue(!selector.contains("org.telegram.messenger"))
     }
 
+    @Test fun sourceBackedNinePatchOnlyChangesHomeOverflow() {
+        val popup = File("src/main/java/com/eve/app/ui/home/TelegramMenuPopup.kt").readText()
+        val glass = File("src/main/java/com/eve/app/designsystem/DesignGlassLayout.kt").readText()
+        assertTrue(popup.contains("R.drawable.telegram_popup_fixed_alert2"))
+        assertTrue(popup.contains("PorterDuff.Mode.MULTIPLY"))
+        assertTrue(popup.contains("palette.submenuBackground"))
+        assertTrue(popup.contains("binding.root.glassEnabled = false"))
+        assertTrue(popup.contains("binding.root.originalPopupBackground = sourceBackground"))
+        assertTrue(glass.contains("var originalPopupBackground: Drawable? = null"))
+        assertTrue(glass.contains("if (source != null) background = source"))
+    }
+
     @Test fun allRowsAreReadAsSingleDynamicLabelWithoutDecorativeDuplication() {
         val source = File("src/main/java/com/eve/app/ui/home/TelegramMenuPopup.kt").readText()
         val roles = source.substringAfter("private fun applyOriginalMenuRoles()")

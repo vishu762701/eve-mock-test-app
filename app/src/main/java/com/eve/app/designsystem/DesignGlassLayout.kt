@@ -9,6 +9,7 @@ import android.graphics.Outline
 import android.graphics.Paint
 import android.graphics.RectF
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.util.AttributeSet
 import android.util.Log
@@ -36,6 +37,12 @@ open class DesignGlassLayout @JvmOverloads constructor(context: Context, attrs: 
     private var configuredRoot: ViewGroup? = null
     private var palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette? = null
     var drawHairline: Boolean = true
+    // Original 9-patch is opt-in for popup only; all other glass surfaces unchanged.
+    var originalPopupBackground: Drawable? = null
+        set(value) {
+            field = value
+            if (!glassEnabled) background = value ?: ColorDrawable(android.graphics.Color.TRANSPARENT)
+        }
     var mainTabsCoating: Boolean = false
     fun useCapsuleShape() { capsule = true; invalidateOutline() }
     private fun coating(): Int = palette?.let {
@@ -95,7 +102,9 @@ open class DesignGlassLayout @JvmOverloads constructor(context: Context, attrs: 
         if (!glassEnabled) {
             facade?.setBlurAutoUpdate(false)
             facade?.setBlurEnabled(false)
-            setBackgroundColor(ContextCompat.getColor(context, R.color.transparent))
+            val source = originalPopupBackground
+            if (source != null) background = source
+            else setBackgroundColor(ContextCompat.getColor(context, R.color.transparent))
             return
         }
         if (!isAttachedToWindow) return
