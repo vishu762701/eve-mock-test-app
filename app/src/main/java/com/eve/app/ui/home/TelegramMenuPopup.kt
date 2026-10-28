@@ -2,7 +2,6 @@ package com.eve.app.ui.home
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
@@ -44,7 +43,6 @@ class TelegramMenuPopup(
     // ActionBarPopupWindow drives its own source-backed row cascade.
     private var isDismissing = false
     private var anchorViewRef: View? = null
-    private var blurBitmap: Bitmap? = null
     private fun actionRows(): List<LinearLayout> = listOf(
         binding.cardTheme, binding.menuRowHistory, binding.menuRowBookmarks,
         binding.menuRowMistakes, binding.menuRowTopic, binding.menuRowPyq, binding.menuRowLogout
@@ -80,8 +78,6 @@ class TelegramMenuPopup(
         setOnDismissListener {
             TelegramPopupSourceMotion.cancel(binding.root, actionRows())
             GlassmorphismHelper.removeWindowBlur(binding.root, animate = false)
-            binding.ivGlassBlurBackground.setImageDrawable(null)
-            blurBitmap = null
         }
     }
 
@@ -227,8 +223,6 @@ class TelegramMenuPopup(
         val xOffset = desiredLeft - anchorLocation[0]
 
         // Keep the existing circular-reveal handoff; menu body scrolls within the available viewport.
-        val activity = (anchorView.context as? Activity) ?: (context as? Activity)
-        binding.root.backdropRoot = activity?.findViewById(android.R.id.content)
         isClippingEnabled = true
         showAsDropDown(anchorView, xOffset, 0)
 
@@ -301,8 +295,6 @@ class TelegramMenuPopup(
         TelegramPopupSourceMotion.exit(binding.root, actionRows()) {
             isDismissing = false
             super.dismiss()
-            binding.ivGlassBlurBackground.setImageDrawable(null)
-            blurBitmap = null
             action()
         }
     }
@@ -327,8 +319,6 @@ class TelegramMenuPopup(
         TelegramPopupSourceMotion.exit(binding.root, actionRows()) {
             isDismissing = false
             super.dismiss()
-            binding.ivGlassBlurBackground.setImageDrawable(null)
-            blurBitmap = null
         }
     }
 }
