@@ -74,7 +74,7 @@ class HomeMenuAccessibilityContractTest {
         assertTrue(motion.contains("val distance = -5f * root.resources.displayMetrics.density"))
         assertTrue(motion.contains("root.background?.alpha = (progress * 255f).toInt().coerceIn(0, 255)"))
         assertTrue(motion.contains("if (!UiArcMotion.isMotionEnabled(root.context))"))
-        assertTrue(!motion.contains("root.scaleY"))
+        assertTrue(!motion.contains("root.scaleY =") && !motion.contains("View.SCALE_Y"))
         assertTrue(!motion.contains("UserConfig"))
     }
 
@@ -89,7 +89,7 @@ class HomeMenuAccessibilityContractTest {
         assertTrue(motion.contains("source.backScaleY = progress"))
         assertTrue(motion.contains("source.backAlpha = (progress * 255f).toInt().coerceIn(0, 255)"))
         assertTrue(!source.contains("UserConfig"))
-        assertTrue(!motion.contains("root.scaleY"))
+        assertTrue(!motion.contains("root.scaleY =") && !motion.contains("View.SCALE_Y"))
     }
 
     @Test fun allRowsAreReadAsSingleDynamicLabelWithoutDecorativeDuplication() {
