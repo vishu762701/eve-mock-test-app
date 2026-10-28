@@ -205,16 +205,24 @@ class TelegramMenuPopup(
     private fun applyOriginalMenuRoles() {
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
         binding.root.updatePalette(palette)
-        binding.cardTheme.contentDescription = binding.tvThemeTitle.text
-        // The other six labels currently have no stable XML IDs; use the row's TextView child.
+        // Accessibility: one focus target per clickable action, rather than reading the
+        // original decorative icon and the label separately. This does not change
+        // Telegram artwork, popup motion or any action's existing callback.
         val rows = listOf(binding.cardTheme, binding.menuRowHistory, binding.menuRowBookmarks,
             binding.menuRowMistakes, binding.menuRowTopic, binding.menuRowPyq, binding.menuRowLogout)
         for (row in rows) {
+            row.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
             for (index in 0 until row.childCount) {
                 when (val child = row.getChildAt(index)) {
-                    is android.widget.TextView -> child.setTextColor(palette.submenuText)
-                    is android.widget.ImageView ->
+                    is android.widget.TextView -> {
+                        child.setTextColor(palette.submenuText)
+                        row.contentDescription = child.text
+                        child.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                    }
+                    is android.widget.ImageView -> {
                         ImageViewCompat.setImageTintList(child, ColorStateList.valueOf(palette.submenuIcon))
+                        child.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                    }
                 }
             }
             row.foreground = RippleDrawable(ColorStateList.valueOf(palette.submenuSelector), null, null)
