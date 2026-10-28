@@ -8,8 +8,11 @@
     <!-- Telegram night.attheme windowBackgroundWhiteBlueHeader=-9652488, #FF6CB6F8. -->
     <color name="telegram_type_section">#FF6CB6F8</color>
     <color name="telegram_type_dialog">#FFF6F6F6</color>
-    <!-- Telegram TMessagesProj/src/main/assets/night.attheme:292: chats_menuItemIcon = -8224126. -->
-    <color name="telegram_drawer_icon">#FF828282</color>
+    <!-- Owner-requested Night readability override: original Telegram
+         night.attheme:292 chats_menuItemIcon=#FF828282 was too dim against
+         the owner's opaque #000000 Home drawer. Use primary white here only;
+         original upstream role mapping remains documented, not misattributed. -->
+    <color name="telegram_drawer_icon">#FFFFFFFF</color>
     <!-- Telegram night.attheme:35 actionBarDefaultSubmenuBackground = -14145495 (#FF282829) -->
     <color name="telegram_flicker_base">#FF282829</color>
     <!-- Telegram night.attheme:308 listSelectorSDK21 = 234881023 (#0DFFFFFF) -->
