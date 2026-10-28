@@ -41,8 +41,19 @@ class TelegramDialogSourceAssetsTest {
         assertTrue(helper.contains("androidx.appcompat.R.id.alertTitle"))
         assertTrue(helper.contains("Color.WHITE"))
         assertTrue(helper.contains("dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(Color.WHITE)"))
-        assertTrue("Do not override EVE's destructive positive button styling",
-            !helper.contains("BUTTON_POSITIVE"))
+        // The original source typography is allowed for both buttons, but EVE's
+        // positive Delete fill, text color and callback must not be altered.
+        val typography = helper.substringAfter("for (which in intArrayOf(")
+            .substringBefore("if (palette.isDark)")
+        assertTrue("Positive source typography must be explicitly covered",
+            typography.contains("AlertDialog.BUTTON_POSITIVE"))
+        assertTrue("Do not override EVE's destructive positive background or tint",
+            !typography.contains("setBackground") &&
+                !typography.contains("setTextColor") &&
+                !typography.contains("backgroundTint"))
+        assertTrue("Only the negative button may receive DarkAlertDialog white text",
+            helper.contains("dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(Color.WHITE)") &&
+                !helper.contains("dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor"))
     }
 
     @Test fun dialogTypographyMatchesOriginalSizesAndMediumFaceWithAccessibleScaling() {
