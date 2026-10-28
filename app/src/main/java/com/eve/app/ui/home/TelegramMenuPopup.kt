@@ -73,7 +73,7 @@ class TelegramMenuPopup(
         val isDark = ThemeSwitchAnimator.isDarkMode(context)
         binding.ivThemeIcon.visibility = View.VISIBLE
         if (isDark) {
-            binding.ivThemeIcon.setImageResource(R.drawable.ic_theme_sun)
+            binding.ivThemeIcon.setImageResource(R.drawable.telegram_menu_day_mode_24)
             binding.tvThemeTitle.text = "Day Mode"
         } else {
             binding.ivThemeIcon.setImageResource(R.drawable.telegram_menu_night_mode_24)

@@ -80,6 +80,9 @@ class HomeOverflowPopupNativeTest {
                 assertTrue("Animated popup extends outside available vertical viewport: $bounds vs $frame",
                     bounds.top >= frame.top - tolerance && bounds.bottom <= frame.bottom + tolerance)
 
+                val themeIcon = root.findViewById<android.widget.ImageView>(R.id.ivThemeIcon)
+                assertTrue("Theme toggle must retain its official source icon",
+                    themeIcon.drawable != null)
                 val scroll = root.findViewById<ScrollView>(R.id.menuScroll)
                 val rows = intArrayOf(R.id.cardTheme, R.id.menuRowHistory, R.id.menuRowBookmarks,
                     R.id.menuRowMistakes, R.id.menuRowTopic, R.id.menuRowPyq, R.id.menuRowLogout)
