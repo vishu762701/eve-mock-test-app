@@ -71,6 +71,18 @@ class TelegramDialogSourceAssetsTest {
             !source.contains("minimumHeight") && !source.contains("layoutParams.height"))
     }
 
+    @Test fun originalTelegramActivitySafetyCheckRunsAfterAsynchronousAdminLookup() {
+        val main = File("src/main/java/com/eve/app/ui/home/MainActivity.kt").readText()
+        val scope = main.substringAfter("private fun handleFeedbackPostLongClick")
+            .substringBefore("private var isReturningFromStopped")
+        assertTrue("Source-backed isSafeToShow guard must run after admin authorization",
+            scope.contains("if (adminRepo.isAdmin(email) && !isDestroyed && !isFinishing)"))
+        assertTrue("Destroying the Activity cannot trigger a late confirmation window",
+            scope.contains("lifecycleScope.launch(lifecycleExceptionHandler)"))
+        assertTrue("Authorized deletion callbacks must be preserved",
+            scope.contains("adminDeleteFlow.removeConfirmed("))
+    }
+
     @Test fun homeAdminFeedbackDialogKeepsOriginalDestructiveActionsAndSourceRole() {
         val main = File("src/main/java/com/eve/app/ui/home/MainActivity.kt").readText()
         val block = main.substringAfter("private fun handleFeedbackPostLongClick")

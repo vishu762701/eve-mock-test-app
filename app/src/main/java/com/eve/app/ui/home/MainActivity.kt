@@ -771,7 +771,10 @@ class MainActivity : EveBaseActivity() {
         val email = FirebaseAuth.getInstance().currentUser?.email
 
         lifecycleScope.launch(lifecycleExceptionHandler) {
-            if (adminRepo.isAdmin(email)) {
+            // Original AlertDialog.show() checks AndroidUtilities.isSafeToShow:
+            // AndroidUtilities.java:6255-6267 => !isDestroyed && !isFinishing.
+            // The admin lookup is asynchronous; never open a window during teardown.
+            if (adminRepo.isAdmin(email) && !isDestroyed && !isFinishing) {
                 com.google.android.material.dialog.MaterialAlertDialogBuilder(this@MainActivity)
                     .setTitle("Delete Feedback Post?")
                     .setMessage("Are you sure you want to delete '${post.title}'?")
