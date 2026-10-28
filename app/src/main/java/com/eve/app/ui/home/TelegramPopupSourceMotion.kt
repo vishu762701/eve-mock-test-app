@@ -6,6 +6,7 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.view.View
+import android.view.animation.DecelerateInterpolator
 import com.eve.app.designsystem.UiArcMotion
 import com.eve.app.designsystem.TelegramPopupSourceBackground
 import java.util.WeakHashMap
@@ -75,6 +76,8 @@ internal object TelegramPopupSourceMotion {
         val animator = ValueAnimator.ofFloat(0f, 1f).apply {
             // Original ActionBarPopupWindow.startAnimation: 150 + 16 * visibleCount.
             duration = (150 + 16 * count).toLong()
+            // Original ActionBarPopupWindow.java:66,397 uses decelerateInterpolator.
+            interpolator = DecelerateInterpolator()
             addUpdateListener { frame ->
                 val progress = frame.animatedValue as Float
                 if (source != null) {
@@ -119,6 +122,7 @@ internal object TelegramPopupSourceMotion {
                 ObjectAnimator.ofFloat(root, View.ALPHA, 1f, 0f)
             )
             duration = 150L
+            interpolator = DecelerateInterpolator()
             addListener(object : AnimatorListenerAdapter() {
                 private var cancelled = false
                 override fun onAnimationCancel(animation: Animator) { cancelled = true }

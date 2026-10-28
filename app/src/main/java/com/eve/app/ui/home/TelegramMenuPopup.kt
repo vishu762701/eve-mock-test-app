@@ -201,9 +201,17 @@ class TelegramMenuPopup(
         anchorView.getWindowVisibleDisplayFrame(frame)
         val gap = (8f * context.resources.displayMetrics.density).toInt().coerceAtLeast(1)
         val maxWidth = (frame.width() - 2 * gap).coerceAtLeast(1)
-        val targetWidth = minOf((250f * context.resources.displayMetrics.density).toInt(), maxWidth)
+        val padding = (8f * context.resources.displayMetrics.density).toInt()
+        // Original ActionBarMenuItem.java:2467 uses 196dp minimum item width.
+        val minRowWidth = (196f * context.resources.displayMetrics.density).toInt()
+        val minPopupWidth = minRowWidth + 2 * padding
         val maxHeight = (frame.height() - 2 * gap).coerceAtLeast(1)
-        binding.root.layoutParams = ViewGroup.LayoutParams(targetWidth, ViewGroup.LayoutParams.WRAP_CONTENT)
+        binding.root.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        binding.root.measure(
+            View.MeasureSpec.makeMeasureSpec(maxWidth, View.MeasureSpec.AT_MOST),
+            View.MeasureSpec.makeMeasureSpec(maxHeight, View.MeasureSpec.AT_MOST)
+        )
+        val targetWidth = maxOf(binding.root.measuredWidth, minPopupWidth).coerceAtMost(maxWidth)
         binding.root.measure(
             View.MeasureSpec.makeMeasureSpec(targetWidth, View.MeasureSpec.EXACTLY),
             View.MeasureSpec.makeMeasureSpec(maxHeight, View.MeasureSpec.AT_MOST)

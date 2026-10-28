@@ -139,14 +139,24 @@ object TelegramThemeApplier {
                 if (old != null && !old.isStateful) {
                     val prior = appliedImageColors[view]
                     val current = old.defaultColor
+                    val drawerColor = androidx.core.content.ContextCompat.getColor(view.context, R.color.telegram_drawer_icon)
+                    val telegramPrimaryColor = androidx.core.content.ContextCompat.getColor(view.context, R.color.telegram_type_primary)
                     val role = if (prior?.second == current) prior.first else when (current) {
-                        androidx.core.content.ContextCompat.getColor(view.context, R.color.text_primary) -> 0
+                        androidx.core.content.ContextCompat.getColor(view.context, R.color.text_primary),
+                        telegramPrimaryColor -> 0
                         androidx.core.content.ContextCompat.getColor(view.context, R.color.text_secondary) -> 1
                         androidx.core.content.ContextCompat.getColor(view.context, R.color.accent),
                         androidx.core.content.ContextCompat.getColor(view.context, R.color.accent_icon) -> 2
+                        drawerColor -> 3
                         else -> -1
                     }
-                    val color = when (role) { 0 -> palette.textPrimary; 1 -> palette.textSecondary; 2 -> TelegramColorRoles.accessibleForeground(palette.accent, listOf(palette.windowBackground, palette.surface, palette.dialogSurface), 3.0); else -> current }
+                    val color = when (role) {
+                        0 -> palette.textPrimary
+                        1 -> palette.textSecondary
+                        2 -> TelegramColorRoles.accessibleForeground(palette.accent, listOf(palette.windowBackground, palette.surface, palette.dialogSurface), 3.0)
+                        3 -> if (palette.isDark) 0xFFFFFFFF.toInt() else palette.drawerIcon
+                        else -> current
+                    }
                     if (role >= 0) {
                         androidx.core.widget.ImageViewCompat.setImageTintList(view, ColorStateList.valueOf(color))
                         appliedImageColors[view] = role to color

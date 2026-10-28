@@ -668,11 +668,13 @@ class MainActivity : EveBaseActivity() {
         isSearchActive = true
         cancelSearchVisualAnimations()
         searchTransitionAnimator?.cancel()
-        // Telegram's verified search toggle has no width spring. Keep weighted layout.
+        // Telegram's verified search toggle has no width spring. Keep weighted layout without redundant relayout.
         val lp = binding.layoutSearchFieldContainer.layoutParams as android.widget.LinearLayout.LayoutParams
-        lp.width = 0
-        lp.weight = 1f
-        binding.layoutSearchFieldContainer.layoutParams = lp
+        if (lp.width != 0 || lp.weight != 1f) {
+            lp.width = 0
+            lp.weight = 1f
+            binding.layoutSearchFieldContainer.layoutParams = lp
+        }
         binding.btnSearchBack.alpha = 1f
         binding.etSearch.alpha = 1f
         if (!UiArcMotion.isMotionEnabled(this)) {

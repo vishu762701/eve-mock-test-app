@@ -33,4 +33,14 @@ class HomeNightDrawerIconContrastTest {
         val day = File("src/main/res/values/telegram_colors.xml").readText()
         assertTrue(day.contains("name=\"telegram_drawer_icon\">#FF889198"))
     }
+
+    @Test fun dynamicThemeSwitchAppliesDrawerContrastOverrideWithoutRestart() {
+        val applier = File("src/main/java/com/eve/app/theme/TelegramThemeApplier.kt").readText()
+        assertTrue("TelegramThemeApplier recognizes telegram_drawer_icon",
+            applier.contains("drawerColor = androidx.core.content.ContextCompat.getColor(view.context, R.color.telegram_drawer_icon)"))
+        assertTrue("TelegramThemeApplier binds role 3 to opaque white in Night",
+            applier.contains("3 -> if (palette.isDark) 0xFFFFFFFF.toInt() else palette.drawerIcon"))
+        assertTrue("TelegramThemeApplier recognizes telegram_type_primary",
+            applier.contains("telegramPrimaryColor -> 0"))
+    }
 }

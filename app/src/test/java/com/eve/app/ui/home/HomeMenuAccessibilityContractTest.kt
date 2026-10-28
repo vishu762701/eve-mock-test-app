@@ -47,6 +47,9 @@ class HomeMenuAccessibilityContractTest {
             assertEquals("true", element!!.getAttribute("android:clickable"))
             assertEquals("true", element.getAttribute("android:focusable"))
             assertEquals("48dp", element.getAttribute("android:minHeight"))
+            assertEquals("196dp", element.getAttribute("android:minWidth"))
+            assertEquals("0dp", element.getAttribute("android:paddingTop"))
+            assertEquals("0dp", element.getAttribute("android:paddingBottom"))
             assertEquals(1, element.getElementsByTagName("ImageView").length)
             assertEquals(1, element.getElementsByTagName("TextView").length)
         }
@@ -120,6 +123,8 @@ class HomeMenuAccessibilityContractTest {
         assertTrue(!popup.contains("TelegramPopupHelper.animateEntrance"))
         assertTrue(!popup.contains("TelegramPopupHelper.animateExit"))
         assertTrue(motion.contains("duration = (150 + 16 * count).toLong()"))
+        assertTrue("Telegram ActionBarPopupWindow.java:66,397 uses decelerateInterpolator",
+            motion.contains("interpolator = DecelerateInterpolator()"))
         assertTrue("Telegram ActionBarPopupWindow.java:846 keeps root alpha fully opaque",
             motion.contains("root.alpha = 1f"))
         assertTrue("Source-based menu cannot stack an invented secondary root fade",
@@ -180,5 +185,14 @@ class HomeMenuAccessibilityContractTest {
         assertTrue(roles.contains("row.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES"))
         assertTrue(roles.contains("child.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO"))
         assertTrue(roles.contains("binding.root.updatePalette(palette)"))
+    }
+
+    @Test fun popupUsesSource196dpMinWidthAndDynamicWrapContent() {
+        val popup = File("src/main/java/com/eve/app/ui/home/TelegramMenuPopup.kt").readText()
+        assertTrue("Original ActionBarMenuItem.java:2467 uses 196dp minWidth",
+            popup.contains("val minRowWidth = (196f * context.resources.displayMetrics.density).toInt()"))
+        assertTrue("Popup width expands from wrap_content with minPopupWidth",
+            popup.contains("val targetWidth = maxOf(binding.root.measuredWidth, minPopupWidth).coerceAtMost(maxWidth)"))
+        assertTrue(!popup.contains("targetWidth = minOf((250f"))
     }
 }
