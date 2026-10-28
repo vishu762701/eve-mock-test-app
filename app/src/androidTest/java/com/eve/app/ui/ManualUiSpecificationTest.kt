@@ -191,15 +191,15 @@ class ManualUiSpecificationTest {
                         assertEquals(0f, chip.chipStrokeWidth, 0.01f)
                         for (checked in listOf(false, true, false)) {
                             chip.isChecked = checked
-                            // Category chips use the Telegram source-backed stateful palette:
-                            // checked -> accent / onAccent; unchecked -> surface / textPrimary.
+                            // Category chips use the Telegram FilterTabsView source-backed palette:
+                            // background is transparent (drawn by parent selector); text uses filterTab active/unactive.
                             val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
-                            val expectedBg = if (checked) palette.accent else if (palette.isDark) 0x1AFFFFFF else palette.surface
-                            val expectedText = if (checked) palette.onAccent else palette.textPrimary
+                            val expectedBg = Color.TRANSPARENT
+                            val expectedText = if (checked) palette.filterTabActiveText else palette.filterTabUnactiveText
                             assertEquals(expectedBg,
                                 chip.chipBackgroundColor!!.getColorForState(chip.drawableState, 0))
                             assertEquals(expectedText, chip.currentTextColor)
-                            val effectiveBg = androidx.core.graphics.ColorUtils.compositeColors(expectedBg, palette.windowBackground)
+                            val effectiveBg = palette.windowBackground
                             assertTrue("Telegram chip label contrast must remain readable",
                                 androidx.core.graphics.ColorUtils.calculateContrast(chip.currentTextColor, effectiveBg) >= 4.5)
                         }
