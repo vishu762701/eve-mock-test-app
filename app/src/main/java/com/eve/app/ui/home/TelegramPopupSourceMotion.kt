@@ -68,13 +68,15 @@ internal object TelegramPopupSourceMotion {
             root.background?.alpha = 0
         }
         visible.forEach { it.alpha = 0f }
-        root.alpha = 0.01f
+        // Original ActionBarPopupWindow.java:843-848 sets content/root alpha 1f.
+        // Animate ONLY the 9-patch backAlpha/backScaleY and menu row cascade;
+        // a second root fade multiplied their opacity and looked sluggish.
+        root.alpha = 1f
         val animator = ValueAnimator.ofFloat(0f, 1f).apply {
             // Original ActionBarPopupWindow.startAnimation: 150 + 16 * visibleCount.
             duration = (150 + 16 * count).toLong()
             addUpdateListener { frame ->
                 val progress = frame.animatedValue as Float
-                root.alpha = (0.01f + progress * 0.99f).coerceIn(0.01f, 1f)
                 if (source != null) {
                     // Original background-only top-down growth, not root.scaleY.
                     source.backScaleY = progress

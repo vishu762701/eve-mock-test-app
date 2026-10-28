@@ -118,6 +118,13 @@ class HomeMenuAccessibilityContractTest {
         assertTrue(!popup.contains("TelegramPopupHelper.animateEntrance"))
         assertTrue(!popup.contains("TelegramPopupHelper.animateExit"))
         assertTrue(motion.contains("duration = (150 + 16 * count).toLong()"))
+        assertTrue("Telegram ActionBarPopupWindow.java:846 keeps root alpha fully opaque",
+            motion.contains("root.alpha = 1f"))
+        assertTrue("Source-based menu cannot stack an invented secondary root fade",
+            !motion.contains("root.alpha = (0.01f") &&
+                !motion.contains("root.alpha = 0.01f"))
+        assertTrue("9-patch itself controls entrance opacity",
+            motion.contains("source.backAlpha = (progress * 255f).toInt().coerceIn(0, 255)"))
         assertTrue(motion.contains("val rise = -6f * root.resources.displayMetrics.density"))
         assertTrue(motion.contains("val at = cascade(progress, position.toFloat(), count.toFloat(), 4f)"))
         assertTrue(motion.contains("duration = 150L"))

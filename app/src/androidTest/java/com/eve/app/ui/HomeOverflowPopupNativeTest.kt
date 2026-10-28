@@ -64,6 +64,8 @@ class HomeOverflowPopupNativeTest {
                 assertTrue("Source-backed Telegram background must wrap the original 9-patch",
                     root.background is com.eve.app.designsystem.TelegramPopupSourceBackground)
                 val source = root.background as com.eve.app.designsystem.TelegramPopupSourceBackground
+                assertEquals("Original Telegram root does not fade with its backdrop",
+                    1f, root.alpha, 0.001f)
                 assertTrue("Unmodified nine-patch must remain the underlying source image",
                     source.sourceDrawable is android.graphics.drawable.NinePatchDrawable)
                 val frame = Rect().also(anchor::getWindowVisibleDisplayFrame)
