@@ -78,3 +78,45 @@ Last implementation commit FAST #40622312166 SUCCESS; latest report-only commit 
 - **VERIFIED source defect:** `MainActivity.onCreate` returns to login before view-binding inflation when Firebase user is absent. The prior `onDestroy` animator cleanup unconditionally dereferenced binding. `cancelSearchVisualAnimations` now safely returns when binding is not initialized, preserving authorized-user cleanup and existing animations.
 - Existing category suite was strengthened: Kotlin runtime `assert` calls were replaced with unconditional JUnit `assertTrue` assertions. Focused source regression ensures the signed-out lifecycle path cannot regress.
 - This is an **EVE lifecycle safety repair**, not a Telegram search renderer/physics transplant. Native execution of this path remains NOT TESTED. Fast CI evidence must be recorded for the repair commit.
+
+## Continuation completion checkpoint — 2026-10-28
+
+**Latest application-code SHA checked:** `eaefdbe84d09eaf84edd4335177e567c529fc81b`. All implementation commits in this continuation were pushed to `main` without force and used SHA-specific FAST, never FULL. Current attached complete ZIP SHA remains `4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10`; expected is `0785365538ce05cf5bdf44a15d8fd5f5219f8193db0a2d124af9665fc63fd7b3`. ZIP has 14,794 entries, passes CRC and has no EVE_MANIFEST.sha256; no accepted Telegram-source transplant is allowed.
+
+| Continuation | Commit on remote main | Exact SHA-specific CI proof | Classification |
+|---|---|---|---|
+| 04b: selection persisted through process recreation; removed category falls back before exam publish; existing chips transfer selection with a single `group.check`; categories deduplicate All | `0ee0ca4146499f4ba159da3e8038c8cb06114dc6` | [FAST 40623531526](https://github.com/vishu762701/eve-mock-test-app/actions/runs/40623531526) — Build/Backend/Firebase Functions SUCCESS; Native/Publish SKIPPED | **DONE — source-neutral behavior**; Telegram tab visual exactness BLOCKED |
+| 03b: signed-out Home early-return cannot crash search teardown on uninitialized binding; source wiring assertions changed from disabled-prone Kotlin `assert` to JUnit `assertTrue` | `eaefdbe84d09eaf84edd4335177e567c529fc81b` | [FAST 40623968230](https://github.com/vishu762701/eve-mock-test-app/actions/runs/40623968230) — Build/Backend/Firebase Functions SUCCESS; Native/Publish SKIPPED | **DONE — source-neutral lifecycle protection**; original search implementation/physics BLOCKED |
+
+**Latest Android build log evidence, FAST 40623968230, build job 122604368039:**
+
+```text
+2026-10-28T02:59:12Z > Task :app:compileDebugKotlin
+2026-10-28T02:59:58Z > Task :app:assembleDebug
+2026-10-28T03:00:09Z > Task :app:compileDebugAndroidTestKotlin
+2026-10-28T03:00:28Z > Task :app:testDebugUnitTest
+2026-10-28T03:00:28Z BUILD SUCCESSFUL in 1m 59s
+```
+
+**Every numbered mission workstream classification at this checkpoint:**
+
+| Step | Status | Evidence / exact blocker |
+|---|---|---|
+| 00 baseline | DONE | Live HEAD/rules/code, ZIP SHA/CRC/contents and historical vs new CI distinguished |
+| 01 original shared primitives | BLOCKED | Supplied archive SHA not accepted |
+| 02 Home seam | Functional code patch FAST-VERIFIED; **native no-gap acceptance BLOCKED** | `601d775f`, FAST [40621762592](https://github.com/vishu762701/eve-mock-test-app/actions/runs/40621762592); actual pixel/scroll tests not run mid-mission |
+| 03 Home search | Lifecycle patches FAST-VERIFIED; **Telegram-exact presentation/physics BLOCKED** | `7b2f3d9a` / `eaefdbe8` FAST green; accepted original caller/renderer unavailable |
+| 04 category selection logic | DONE for data/state and source-neutral native-test source compilation; **device execution BLOCKED** | `e996dcc9` / `0ee0ca41` FAST green; both nav-mode emulator runs reserved for terminal FULL |
+| 05 category look/physics | BLOCKED | No accepted exact upstream renderer and animation property map |
+| 06 exam cards | BLOCKED | No accepted source-backed card atoms, dimensions, motion or original caller mapping |
+| 07 original popup | BLOCKED | Original ActionBarPopupWindow rendering/dependency transplant requires accepted source; seven existing EVE actions/icons preserved, not newly certified |
+| 08 original drawer motion/curves | BLOCKED | Original DrawerLayoutContainer and caller chain cannot be source-verified |
+| 09 drawer pure-black Night override | DONE code/FAST; **native composited-pixel/edge acceptance BLOCKED** | `3229ee1b` initial FAST failed stale test; `dd53040e` repaired and FAST [40621233645](https://github.com/vishu762701/eve-mock-test-app/actions/runs/40621233645) SUCCESS |
+| 10 AlertDialog renderer/variants | BLOCKED | Complete original source/caller/license chain not accepted |
+| 11+ migration of confirmations | BLOCKED | Cannot replace app-owned dialogs with unverified approximations; current secure exam/account semantics preserved by noninterference |
+| 12 complete physics/integration | BLOCKED | Source properties and actual native motion/IME/theme verification missing |
+| 13 cleanup/provenance | DONE for in-scope report; unproven resource deletion deliberately not performed | No now-obsolete source/render assets created; third-party notices/release gate preserved |
+| 14 integrated pre-final | FAST gates VERIFIED; **FULL native/lint and true visual/source fidelity BLOCKED** | Latest app-code FAST above; green compilation is not on-device pixel/gesture verification |
+| 15 final FULL and published APK | BLOCKED / NOT RUN | Mission-exact implementation not complete; `[eve-full]` must be reserved for a genuine mission-final SHA. No Mission 06 `Eve-debug-apk` artifact exists |
+
+**Resolution requirement:** owner-supplied complete source with the exact accepted SHA-256 (or a newly owner-approved source-identity contract) is needed before starting source-dependent work. Never infer permission merely from a similar file name or matching CRC. After completing exact renderers/physics and required native acceptance, run mission-final FULL on the actual final implementation SHA, then record six job results and uploaded APK's artifact ID/size/digest. This remains **SOURCE FIDELITY BLOCKED**, not 100% complete.
