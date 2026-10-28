@@ -72,6 +72,10 @@ object TelegramThemeEngine {
         val submenuSeparator: Int = hairline,
         val submenuSelector: Int = actionSelector,
         val dialogSurface: Int = surface,
+        val filterTabLine: Int = accent,
+        val filterTabActiveText: Int = accent,
+        val filterTabUnactiveText: Int = textSecondary,
+        val filterTabSelector: Int = actionSelector,
         val bulletinBackground: Int = 0xEA272F38.toInt(),
         val bulletinInfo: Int = 0xFFFFFFFF.toInt(),
         val bulletinAction: Int = 0xFF85CAFF.toInt()
@@ -430,6 +434,10 @@ object TelegramThemeEngine {
             submenuSeparator = role("actionBarDefaultSubmenuSeparator"),
             submenuSelector = role("dialogButtonSelector"),
             dialogSurface = role("dialogBackground"),
+            filterTabLine = role("actionBarTabLine"),
+            filterTabActiveText = role("actionBarTabActiveText"),
+            filterTabUnactiveText = role("actionBarTabUnactiveText"),
+            filterTabSelector = role("actionBarTabSelector"),
             bulletinBackground = role("undo_background"),
             bulletinInfo = role("undo_infoColor"),
             bulletinAction = role("undo_cancelColor")

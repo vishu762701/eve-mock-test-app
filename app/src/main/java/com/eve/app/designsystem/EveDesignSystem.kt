@@ -54,17 +54,11 @@ object EveDesignSystem {
             DesignType.apply(this, DesignType.Role.CHIP)
             chipStrokeWidth = 0f
             val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
-            val unselectedBg = if (palette.isDark) 0x1AFFFFFF else palette.surface
-            chipBackgroundColor = android.content.res.ColorStateList(
-                arrayOf(
-                    intArrayOf(android.R.attr.state_checked),
-                    intArrayOf(-android.R.attr.state_checked)
-                ),
-                intArrayOf(
-                    palette.accent,
-                    unselectedBg
-                )
-            )
+            // FilterTabsView.java:915-918,1448-1514 draws one shared 28dp
+            // low-alpha tab indicator behind the title; tabs are not solid pills.
+            // This Chip remains an EVE accessibility/selection host only.
+            chipBackgroundColor = android.content.res.ColorStateList.valueOf(Color.TRANSPARENT)
+            rippleColor = android.content.res.ColorStateList.valueOf(palette.filterTabSelector)
             setTextColor(
                 android.content.res.ColorStateList(
                     arrayOf(
@@ -72,8 +66,8 @@ object EveDesignSystem {
                         intArrayOf(-android.R.attr.state_checked)
                     ),
                     intArrayOf(
-                        palette.onAccent,
-                        palette.textPrimary
+                        palette.filterTabActiveText,
+                        palette.filterTabUnactiveText
                     )
                 )
             )

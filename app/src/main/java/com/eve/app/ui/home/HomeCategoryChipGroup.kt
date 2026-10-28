@@ -1,28 +1,78 @@
 package com.eve.app.ui.home
 
 import android.content.Context
+import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.Region
+import android.graphics.drawable.GradientDrawable
+import android.text.Layout
+import kotlin.math.ceil
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.TouchDelegate
 import android.view.View
 import android.view.accessibility.AccessibilityNodeInfo
+import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import com.eve.app.theme.TelegramThemeEngine
 
-/** Keeps the 40dp visible pills while delegating a full 48dp vertical touch region. */
+/**
+ * Preserves EVE category touch/selection while drawing only the original Telegram
+ * FilterTabsView selector atom. Source:
+ * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15,
+ * FilterTabsView.java:176-178,904-918,1448-1514, GPL v2-or-later.
+ * Host/text measurement/selection remain EVE and are explicitly NOT a full port.
+ */
 class HomeCategoryChipGroup @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : ChipGroup(context, attrs) {
+    private fun dp(value: Float) = value * resources.displayMetrics.density
+    private val selectorDrawable = GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, null).apply {
+        val radius = dp(14f)
+        cornerRadii = floatArrayOf(radius, radius, radius, radius, radius, radius, radius, radius)
+    }
+    private var selectorColor: Int? = null
+
+    override fun dispatchDraw(canvas: Canvas) {
+        // Original FilterTabsView draws its selector BEHIND the title with alpha=31.
+        // The Home host is an Android ChipGroup rather than Telegram RecyclerListView.
+        val selected = (0 until childCount).asSequence()
+            .mapNotNull { getChildAt(it) as? Chip }
+            .firstOrNull { it.isChecked && it.visibility == View.VISIBLE }
+        if (selected != null && selected.width > 0) {
+            val desiredWidth = ceil(Layout.getDesiredWidth(selected.text, selected.paint).toDouble()).toFloat()
+            val indicatorWidth = maxOf(dp(16f), desiredWidth)
+            val x = selected.x + (selected.width - indicatorWidth) / 2f
+            val y = height / 2f - dp(14f)
+            val internalPadding = dp(12.5f)
+            val color = TelegramThemeEngine.resolveCurrentPalette(context).filterTabLine
+            if (selectorColor != color) {
+                selectorColor = color
+                selectorDrawable.setColor(color)
+            }
+            selectorDrawable.setBounds(
+                (x - internalPadding).toInt(), y.toInt(),
+                (x + indicatorWidth + internalPadding).toInt(), (y + dp(28f)).toInt()
+            )
+            selectorDrawable.alpha = 31
+            selectorDrawable.draw(canvas)
+        }
+        super.dispatchDraw(canvas)
+    }
+
     init {
         val inset = Math.round(8f * resources.displayMetrics.density)
         setPaddingRelative(paddingStart, inset, paddingEnd, inset)
         minimumHeight = Math.round(48f * resources.displayMetrics.density)
+        setOnCheckedStateChangeListener { _, _ -> invalidate() }
         addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> updateTouchDelegates() }
     }
 
     override fun onViewAdded(child: View) {
         super.onViewAdded(child)
         // Rebuild after category replacement even when the group's bounds stay unchanged.
-        child.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> updateTouchDelegates() }
+        child.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            updateTouchDelegates()
+            invalidate()
+        }
     }
 
     override fun onViewRemoved(child: View) {

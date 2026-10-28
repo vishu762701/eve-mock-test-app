@@ -34,6 +34,11 @@ object TelegramColorRoles {
         "profile_tabSelector" to 0x0F000000.toInt(),
         "chat_messagePanelSend" to 0xFF229AF0.toInt(),
         "actionBarDefaultSelector" to 0x121A1D21.toInt(),
+        // ThemeColors.java:15,211-216, exact original Telegram tab roles.
+        "actionBarTabActiveText" to 0xFF298ACF.toInt(),
+        "actionBarTabUnactiveText" to 0xFF777C7F.toInt(),
+        "actionBarTabLine" to 0xFF298ACF.toInt(),
+        "actionBarTabSelector" to 0x121A1D21.toInt(),
         "chats_menuItemIcon" to 0xFF889198.toInt(),
         "divider" to 0xFFD9D9D9.toInt(),
         "listSelector" to 0x0F000000.toInt(),
