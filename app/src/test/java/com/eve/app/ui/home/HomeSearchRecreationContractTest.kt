@@ -1,6 +1,9 @@
 package com.eve.app.ui.home
 
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import javax.xml.parsers.DocumentBuilderFactory
+import org.w3c.dom.Element
 import org.junit.Test
 import java.io.File
 
@@ -15,6 +18,22 @@ class HomeSearchRecreationContractTest {
         val firstRender = source.indexOf("            render(viewModel.state.value)")
         assertTrue(setupCall >= 0 && restoreCall > setupCall)
         assertTrue("Search must restore before first Home render", firstRender > restoreCall)
+    }
+
+    @Test fun searchBarUsesIntrinsicHeightWithinWrapContentHeader() {
+        val document = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+            .parse(File("src/main/res/layout/activity_main.xml"))
+        val elements = document.getElementsByTagName("*")
+        fun byId(id: String): Element = (0 until elements.length)
+            .map { elements.item(it) as Element }
+            .first { it.getAttribute("android:id") == "@+id/$id" }
+        val parent = byId("topBarContainer")
+        val search = byId("searchTopBar")
+        assertEquals("wrap_content", parent.getAttribute("android:layout_height"))
+        assertEquals("wrap_content", search.getAttribute("android:layout_height"))
+        assertEquals("match_parent", search.getAttribute("android:layout_width"))
+        assertEquals("gone", search.getAttribute("android:visibility"))
+        assertEquals("@dimen/design_tab_height", search.getAttribute("android:minHeight"))
     }
 
     @Test fun activeQueryIsSavedFromRealEditTextAndRestoredWithoutMorphOrImeRestart() {
