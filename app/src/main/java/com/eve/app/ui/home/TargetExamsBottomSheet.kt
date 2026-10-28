@@ -1,6 +1,10 @@
 package com.eve.app.ui.home
 
 import android.content.Context
+import android.animation.ValueAnimator
+import android.view.View
+import android.view.WindowManager
+import org.telegram.ui.Components.CubicBezierInterpolator
 import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
 import com.eve.app.data.model.Exam
@@ -136,6 +140,37 @@ object TargetExamsBottomSheet {
         dialog.show()
         com.eve.app.designsystem.DesignSurfaces.dialog(dialog)
         com.eve.app.designsystem.DesignSurfaces.sheet(binding.root)
+
+        // Source: BottomSheet.java:135-192,213-222,1766-1778. Telegram does NOT
+        // use Window FLAG_DIM_BEHIND here; its SheetBackDrawable owns alpha=51.
+        // Apply only to this EVE Target Exams sheet, leaving Material sheet
+        // content, detents, scroll, outside-dismiss and state handling unchanged.
+        dialog.findViewById<View>(com.google.android.material.R.id.coordinator)?.let { host ->
+            val scrim = TelegramBottomSheetSourceScrim().apply { alpha = 0 }
+            host.background = scrim
+            dialog.window?.let { window ->
+                window.setDimAmount(0f)
+                window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+            }
+            if (!UiArcMotion.isMotionEnabled(activity)) {
+                scrim.alpha = 51
+            } else {
+                val fade = ValueAnimator.ofInt(0, 51).apply {
+                    duration = 400L
+                    startDelay = 20L
+                    interpolator = CubicBezierInterpolator.EASE_OUT_QUINT
+                    addUpdateListener { scrim.alpha = it.animatedValue as Int }
+                }
+                host.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+                    override fun onViewAttachedToWindow(v: View) = Unit
+                    override fun onViewDetachedFromWindow(v: View) {
+                        fade.cancel()
+                        v.removeOnAttachStateChangeListener(this)
+                    }
+                })
+                fade.start()
+            }
+        }
 
         dialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
         return dialog
