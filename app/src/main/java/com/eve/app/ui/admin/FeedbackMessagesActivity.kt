@@ -1,6 +1,8 @@
 package com.eve.app.ui.admin
 
 import com.eve.app.designsystem.showDestructive
+import com.eve.app.ui.home.TelegramDialogSourceBackground
+import androidx.appcompat.app.AlertDialog
 
 import com.eve.app.ui.common.EveBaseActivity
 
@@ -26,6 +28,7 @@ class FeedbackMessagesActivity : EveBaseActivity() {
     private lateinit var binding: ActivityFeedbackMessagesBinding
     private val repo = FeedbackRepository()
     private lateinit var adapter: FeedbackMessagesAdapter
+    private var replyDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -154,6 +157,9 @@ class FeedbackMessagesActivity : EveBaseActivity() {
     }
 
     private fun showReplyDialog(message: FeedbackMessage) {
+        // Original AlertDialog.show(): Activity must be alive. An in-progress
+        // reply owns one modal window, not a stack of duplicate confirmations.
+        if (isFinishing || isDestroyed || replyDialog?.isShowing == true) return
         val dialogBinding = com.eve.app.databinding.DialogReplyFeedbackBinding.inflate(layoutInflater)
         val dialog = MaterialAlertDialogBuilder(this)
             .setView(dialogBinding.root)
@@ -203,6 +209,19 @@ class FeedbackMessagesActivity : EveBaseActivity() {
             }
         }
 
+        dialog.setOnDismissListener {
+            if (replyDialog === dialog) replyDialog = null
+        }
         dialog.show()
+        replyDialog = dialog
+        // Original Telegram AlertDialog.java:302-318,680-693 and
+        // DarkAlertDialog.java:11-19. Existing report buttons/listeners remain.
+        TelegramDialogSourceBackground.apply(dialog)
+    }
+
+    override fun onDestroy() {
+        replyDialog?.dismiss()
+        replyDialog = null
+        super.onDestroy()
     }
 }
