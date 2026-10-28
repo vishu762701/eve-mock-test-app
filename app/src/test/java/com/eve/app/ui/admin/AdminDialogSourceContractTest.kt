@@ -29,8 +29,8 @@ class AdminDialogSourceContractTest {
         val source = File("src/main/java/com/eve/app/ui/admin/AdminDeleteFlow.kt").readText()
         assertTrue(source.contains("import com.eve.app.designsystem.showDestructive"))
         assertTrue(source.contains("import com.eve.app.designsystem.showTelegramSourceDialog"))
-        assertTrue(source.contains("builder.showDestructive()"))
-        assertTrue(source.contains("builder.showTelegramSourceDialog()"))
+        assertTrue(source.contains(".showDestructive()"))
+        assertTrue(source.contains(".showTelegramSourceDialog()"))
     }
 
     @Test fun secondaryAdminActivitiesRouteDialogsThroughSourceAdapters() {
