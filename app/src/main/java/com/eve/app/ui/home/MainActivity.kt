@@ -107,6 +107,9 @@ class MainActivity : EveBaseActivity() {
     private val adminRepo = AdminRepository()
     private var isAdminUser: Boolean = false
 
+    // ActionBarMenuItem.java:779-782: a second tap toggles the SAME popup closed.
+    // Do not stack separate focusable windows on repeated overflow taps.
+    private var homeOverflowPopup: TelegramMenuPopup? = null
     private var isSearchActive = false
     private var searchTransitionAnimator: android.animation.AnimatorSet? = null
     private var currentSearchQuery = ""
@@ -326,8 +329,13 @@ class MainActivity : EveBaseActivity() {
 
         // Telegram-style overflow menu setup
         binding.btnOverflow.setOnClickListener { anchor ->
-            if (ThemeSwitchAnimator.isTransitioning) return@setOnClickListener
-            TelegramMenuPopup(
+            if (ThemeSwitchAnimator.isTransitioning || isFinishing || isDestroyed) return@setOnClickListener
+            val openPopup = homeOverflowPopup
+            if (openPopup?.isShowing == true) {
+                openPopup.dismiss()
+                return@setOnClickListener
+            }
+            homeOverflowPopup = TelegramMenuPopup(
                 context = this,
                 onThemeToggle = { cx, cy, iconWidth, iconHeight ->
                     try {
@@ -343,7 +351,7 @@ class MainActivity : EveBaseActivity() {
                 onTopic = { com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, PracticeActivity::class.java), anchor) },
                 onPyq = { com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, PyqActivity::class.java), anchor) },
                 onLogout = { logout() }
-            ).show(anchor)
+            ).also { it.show(anchor) }
         }
 
         // System back button closes drawer first, then active search
@@ -1120,6 +1128,10 @@ class MainActivity : EveBaseActivity() {
     }
 
     override fun onDestroy() {
+        // A stale popup window belongs to the old Activity. Its 150ms animated
+        // dismiss must not outlive configuration/process teardown or run an action.
+        homeOverflowPopup?.dismissForHostTeardown()
+        homeOverflowPopup = null
         searchDebounceJob?.cancel()
         searchTransitionAnimator?.cancel()
         cancelSearchVisualAnimations()

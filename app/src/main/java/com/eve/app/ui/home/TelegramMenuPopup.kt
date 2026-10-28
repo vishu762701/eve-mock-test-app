@@ -297,6 +297,17 @@ class TelegramMenuPopup(
         }
     }
 
+    /** Lifecycle-only immediate teardown; user-triggered dismissal retains Telegram 150ms exit. */
+    fun dismissForHostTeardown() {
+        isDismissing = true
+        TelegramPopupSourceMotion.cancel(binding.root, actionRows())
+        GlassmorphismHelper.removeWindowBlur(binding.root, animate = false)
+        animationStyle = 0
+        exitTransition = null
+        if (isShowing) super.dismiss()
+        anchorViewRef = null
+    }
+
     override fun dismiss() {
         if (isDismissing) return
         isDismissing = true
