@@ -1102,6 +1102,13 @@ class MainActivity : EveBaseActivity() {
         // Home only: scrolling enabled the blur and also drew a perimeter stroke.
         // Disable that unwanted hairline without touching shared toolbar behavior.
         binding.homeGlassToolbar.drawHairline = false
+        // The screenshots show the scroll-activated #1F1F1F glass coating
+        // against a pure-black Home canvas. The original source does not
+        // authorize a conflicting extra Home-only strip; do not re-enable it
+        // on every pre-draw or during the search alpha transition.
+        binding.homeGlassToolbar.scrollBackdropEnabled = false
+        binding.homeGlassToolbar.glassEnabled = false
+        binding.homeGlassToolbar.setBackgroundColor(Color.TRANSPARENT)
         binding.homeGlassToolbar.invalidate()
     }
 

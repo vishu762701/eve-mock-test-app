@@ -223,6 +223,19 @@ class EveDesignSystemTest {
             .substringBefore("private fun renderHomeBannerCta(")
         assertTrue("Disable only the Home toolbar's perimeter stroke",
             setup.contains("binding.homeGlassToolbar.drawHairline = false"))
+        assertTrue("Owner's pure-black Home header must not enable gray glass on scroll",
+            setup.contains("binding.homeGlassToolbar.scrollBackdropEnabled = false"))
+        assertTrue("Search and normal Home toolbar share the neutral canvas",
+            setup.contains("binding.homeGlassToolbar.setBackgroundColor(Color.TRANSPARENT)"))
+        val sharedToolbar = File(getProjectDir(),
+            "app/src/main/java/com/eve/app/ui/common/EveGlassToolbar.kt").readText()
+        assertTrue("Shared toolbars retain scroll glass by default",
+            sharedToolbar.contains("var scrollBackdropEnabled: Boolean = true"))
+        assertTrue("Opted-out Home must skip blur selection work every pre-draw",
+            sharedToolbar.contains("if (!scrollBackdropEnabled) {") &&
+                sharedToolbar.contains("if (glassEnabled) glassEnabled = false"))
+        assertTrue("Home opt-out must avoid searching whole view tree on layout",
+            sharedToolbar.contains("if (!scrollBackdropEnabled) return"))
         val shared = File(getProjectDir(), "app/src/main/java/com/eve/app/designsystem/DesignGlassLayout.kt").readText()
         assertTrue("Shared stroke must remain conditionally drawn",
             shared.contains("if (glassEnabled && drawHairline)"))

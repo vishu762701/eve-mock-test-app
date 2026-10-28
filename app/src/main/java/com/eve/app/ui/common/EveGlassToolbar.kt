@@ -18,6 +18,20 @@ class EveGlassToolbar @JvmOverloads constructor(
     ViewTreeObserver.OnPreDrawListener {
     private var observer: ViewTreeObserver? = null
     private val scrollHosts = ArrayList<View>()
+    /** Home opts out so scrolling cannot introduce a contrasting Night toolbar strip.
+     * Other screens keep the existing scroll-responsive Telegram-style backdrop.
+     */
+    var scrollBackdropEnabled: Boolean = true
+        set(value) {
+            if (field == value) return
+            field = value
+            if (!value) {
+                scrollHosts.clear()
+                glassEnabled = false
+            }
+            invalidate()
+        }
+
     init { useSquareCorners(); glassEnabled = false }
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
@@ -38,6 +52,7 @@ class EveGlassToolbar @JvmOverloads constructor(
     }
     override fun onGlobalLayout() {
         scrollHosts.clear()
+        if (!scrollBackdropEnabled) return
         fun visit(view: View) {
             if (view === this) return
             if (view is RecyclerView || view is ScrollView || view is NestedScrollView || view is AbsListView)
@@ -47,6 +62,10 @@ class EveGlassToolbar @JvmOverloads constructor(
         visit(rootView)
     }
     override fun onPreDraw(): Boolean {
+        if (!scrollBackdropEnabled) {
+            if (glassEnabled) glassEnabled = false
+            return true
+        }
         // Ignore elastic, sub-pixel edge movement that otherwise toggles blur on
         // successive frames near scrollY=0. Geometry and backdrop tokens are unchanged.
         val glassNeeded = scrollHosts.any { host ->
