@@ -258,3 +258,16 @@ The existing `ic_bookmark.webp` four-density files are already verified unchange
   - `HomeCategoryTouchNativeTest.kt`: Added `instrumentation.waitForIdleSync()` between touch events to allow the UI looper to drain posted click runnables on the main thread.
   - `ManualUiSpecificationTest.kt`: Updated chip background and text color expectations from legacy solid pill to verified `FilterTabsView` atom (`Color.TRANSPARENT` background with `filterTabActiveText`/`filterTabUnactiveText`).
   - `TelegramPopupSourceMotion.kt`: Set `root.alpha` during entrance so pre-draw backdrop capture observers (`view.alpha > 0f && view.alpha < 1f`) correctly detect the active entrance frame.
+- **FULL CI Acceptance & Publication**:
+  - Commit: [`703ad0aa`](https://github.com/vishu762701/eve-mock-test-app/commit/703ad0aaf75e5697bc1a5520acfbd292770268e4) tagged with `[eve-full]`.
+  - Workflow Run: [40692809526](https://github.com/vishu762701/eve-mock-test-app/actions/runs/40692809526).
+  - All 6 jobs completed with SUCCESS:
+    1. `build` (5m23s, ID 122831696246)
+    2. `backend` (24s, ID 122831696559)
+    3. `firebase-functions` (8s, ID 122831696630)
+    4. `Native UI (three-button)` (7m25s, ID 122834445075)
+    5. `Native UI (gesture)` (7m23s, ID 122834445096)
+    6. `Publish verified debug APK` (6s, ID 122838291019)
+  - Published Release Artifact: `Eve-debug-apk` (ID 12819365605, archive digest `sha256:04cf3c173df398c71563c58d001380f1b143bd977394cd6f7a7d0db246b3c79a`).
+  - Verified APK Binary Checksum: `37520ef52aff8a2a20e1058179a60abe7db4908ebd4920a67e9301cc69dd7b19` (18,043,548 bytes, `app-debug.apk`).
+  - Local Download Path: `$HOME/storage/downloads/eve-mission-06/app-debug.apk`.
