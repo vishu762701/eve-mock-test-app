@@ -409,6 +409,20 @@ object TelegramThemeEngine {
         val textSecondary = TelegramColorRoles.accessibleForeground(
             role("windowBackgroundWhiteGrayText"), listOf(windowBg, surface, role("dialogBackground")))
         val accent = role("chat_messagePanelSend")
+        // Preserve original Telegram raw actionBarTab* roles for source fidelity,
+        // but make 14sp text legible on both EVE's selected (alpha=31 overlay)
+        // and unselected Day/Night canvases. Marker geometry/color is unchanged.
+        val rawFilterTabLine = role("actionBarTabLine")
+        val activeFilterBackdrops = listOf(
+            ColorUtils.blendARGB(surface, rawFilterTabLine, 31f / 255f),
+            ColorUtils.blendARGB(windowBg, rawFilterTabLine, 31f / 255f)
+        )
+        val accessibleFilterTabActiveText = TelegramColorRoles.accessibleForeground(
+            role("actionBarTabActiveText"), activeFilterBackdrops
+        )
+        val accessibleFilterTabUnactiveText = TelegramColorRoles.accessibleForeground(
+            role("actionBarTabUnactiveText"), listOf(surface, windowBg)
+        )
         val onAccent = if (ColorUtils.calculateContrast(Color.BLACK, accent) >=
             ColorUtils.calculateContrast(Color.WHITE, accent)) Color.BLACK else Color.WHITE
         return ResolvedPalette(
@@ -434,9 +448,9 @@ object TelegramThemeEngine {
             submenuSeparator = role("actionBarDefaultSubmenuSeparator"),
             submenuSelector = role("dialogButtonSelector"),
             dialogSurface = role("dialogBackground"),
-            filterTabLine = role("actionBarTabLine"),
-            filterTabActiveText = role("actionBarTabActiveText"),
-            filterTabUnactiveText = role("actionBarTabUnactiveText"),
+            filterTabLine = rawFilterTabLine,
+            filterTabActiveText = accessibleFilterTabActiveText,
+            filterTabUnactiveText = accessibleFilterTabUnactiveText,
             filterTabSelector = role("actionBarTabSelector"),
             bulletinBackground = role("undo_background"),
             bulletinInfo = role("undo_infoColor"),

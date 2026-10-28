@@ -15,6 +15,25 @@ class TelegramFilterSelectorSourceTest {
         assertEquals(0x121A1D21, TelegramColorRoles.defaults["actionBarTabSelector"])
     }
 
+    @Test fun originalRawDayTabTextRequiresAaAccommodationOnWhite() {
+        fun luminance(color: Int): Double {
+            fun channel(value: Int): Double {
+                val c = value / 255.0
+                return if (c <= 0.04045) c / 12.92 else Math.pow((c + 0.055) / 1.055, 2.4)
+            }
+            return 0.2126 * channel((color ushr 16) and 255) +
+                0.7152 * channel((color ushr 8) and 255) +
+                0.0722 * channel(color and 255)
+        }
+        val white = luminance(0xFFFFFFFF.toInt())
+        val active = luminance(TelegramColorRoles.defaults.getValue("actionBarTabActiveText"))
+        val inactive = luminance(TelegramColorRoles.defaults.getValue("actionBarTabUnactiveText"))
+        assertTrue("Original Telegram Day active blue needs text AA correction",
+            (white + 0.05) / (active + 0.05) < 4.5)
+        assertTrue("Original Telegram Day inactive gray needs text AA correction",
+            (white + 0.05) / (inactive + 0.05) < 4.5)
+    }
+
     @Test fun exactUpstreamQuintInterpolatorAnd320msFrameContractArePreserved() {
         val source = File("src/main/java/org/telegram/ui/Components/CubicBezierInterpolator.java").readBytes()
         val digest = java.security.MessageDigest.getInstance("SHA-1")
@@ -48,8 +67,13 @@ class TelegramFilterSelectorSourceTest {
         assertTrue(design.contains("chipBackgroundColor = android.content.res.ColorStateList.valueOf(Color.TRANSPARENT)"))
         assertTrue(design.contains("palette.filterTabActiveText"))
         assertTrue(design.contains("palette.filterTabUnactiveText"))
-        assertTrue(theme.contains("filterTabLine = role(\"actionBarTabLine\")"))
-        assertTrue(theme.contains("filterTabActiveText = role(\"actionBarTabActiveText\")"))
-        assertTrue(theme.contains("filterTabUnactiveText = role(\"actionBarTabUnactiveText\")"))
+        assertTrue(theme.contains("val rawFilterTabLine = role(\"actionBarTabLine\")"))
+        assertTrue(theme.contains("filterTabLine = rawFilterTabLine"))
+        assertTrue(theme.contains("filterTabActiveText = accessibleFilterTabActiveText"))
+        assertTrue(theme.contains("filterTabUnactiveText = accessibleFilterTabUnactiveText"))
+        assertTrue(theme.contains("ColorUtils.blendARGB(surface, rawFilterTabLine, 31f / 255f)"))
+        assertTrue(theme.contains("TelegramColorRoles.accessibleForeground("))
+        assertTrue(theme.contains("role(\"actionBarTabActiveText\")"))
+        assertTrue(theme.contains("role(\"actionBarTabUnactiveText\")"))
     }
 }
