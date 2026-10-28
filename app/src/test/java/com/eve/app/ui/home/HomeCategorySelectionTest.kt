@@ -1,6 +1,7 @@
 package com.eve.app.ui.home
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
 
@@ -41,10 +42,10 @@ class HomeCategorySelectionTest {
         val viewModel = File("src/main/java/com/eve/app/ui/home/HomeViewModel.kt").readText()
         val activity = File("src/main/java/com/eve/app/ui/home/MainActivity.kt").readText()
         val appearance = File("src/main/java/com/eve/app/ui/home/HomeAppearance.kt").readText()
-        assert(viewModel.contains("SavedStateHandle"))
-        assert(viewModel.contains("savedStateHandle[SELECTED_CATEGORY_STATE_KEY] = category"))
-        assert(viewModel.contains("publishExamState(exams)"))
-        assert(activity.contains("group.check(selectedChip.id)"))
-        assert(appearance.contains("values.filter { it != Constants.CATEGORY_ALL }"))
+        assertTrue(viewModel.contains("SavedStateHandle"))
+        assertTrue(viewModel.contains("savedStateHandle[SELECTED_CATEGORY_STATE_KEY] = category"))
+        assertTrue(viewModel.contains("publishExamState(exams)"))
+        assertTrue(activity.contains("group.check(selectedChip.id)"))
+        assertTrue(appearance.contains("values.filter { it != Constants.CATEGORY_ALL }"))
     }
 }

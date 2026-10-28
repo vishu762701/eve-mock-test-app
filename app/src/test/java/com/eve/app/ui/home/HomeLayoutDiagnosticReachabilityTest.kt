@@ -24,6 +24,20 @@ class HomeLayoutDiagnosticReachabilityTest {
         }
     }
 
+    @Test fun unauthenticatedHomeCleanupMustGuardUninitializedBinding() {
+        val main = source("src/main/java/com/eve/app/ui/home/MainActivity.kt")
+        val earlyReturn = main.substringAfter("val user = FirebaseAuth.getInstance().currentUser")
+            .substringBefore("binding = ActivityMainBinding.inflate(layoutInflater)")
+        assertTrue("Signed-out flow must return before binding inflation", earlyReturn.contains("goToLogin()") && earlyReturn.contains("return"))
+        val cleanup = main.substringAfter("private fun cancelSearchVisualAnimations()")
+            .substringBefore("private fun openSearch()")
+        assertTrue("Animation cleanup must safely handle signed-out early return",
+            cleanup.contains("if (!::binding.isInitialized) return"))
+        assertTrue("Activity destruction calls the guarded search cleanup",
+            main.substringAfter("override fun onDestroy()")
+                .substringBefore("override fun onSaveInstanceState(").contains("cancelSearchVisualAnimations()"))
+    }
+
     @Test fun diagnosticRemainsDebugOnlyAndNeverAddsOnScreenOverlay() {
         val debug = source("src/debug/java/com/eve/app/ui/home/HomeLayoutDiagnostic.kt")
         val release = source("src/release/java/com/eve/app/ui/home/HomeLayoutDiagnostic.kt")

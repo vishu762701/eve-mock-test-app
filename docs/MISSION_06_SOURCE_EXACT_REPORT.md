@@ -72,3 +72,9 @@ Last implementation commit FAST #40622312166 SUCCESS; latest report-only commit 
 - `MainActivity.renderChips` uses a single `ChipGroup.check(id)` instead of individually mutating every existing chip, avoiding transient multi/empty selection on a data refresh. `HomeAppearance.categories` excludes duplicate All category entries.
 - Tests: new pure JVM reducer suite, source wiring contract; prior Native category tap test remains awaiting actual emulator execution. This fixes state semantics only; **Telegram-exact filter pill graphics, checked-icon width, physics and pixel fidelity remain BLOCKED**.
 - Commit/FAST evidence for this continuation must be checked against the latest remote SHA, not historic runs.
+
+## Continuation Microstep 03b — search teardown when signed out
+
+- **VERIFIED source defect:** `MainActivity.onCreate` returns to login before view-binding inflation when Firebase user is absent. The prior `onDestroy` animator cleanup unconditionally dereferenced binding. `cancelSearchVisualAnimations` now safely returns when binding is not initialized, preserving authorized-user cleanup and existing animations.
+- Existing category suite was strengthened: Kotlin runtime `assert` calls were replaced with unconditional JUnit `assertTrue` assertions. Focused source regression ensures the signed-out lifecycle path cannot regress.
+- This is an **EVE lifecycle safety repair**, not a Telegram search renderer/physics transplant. Native execution of this path remains NOT TESTED. Fast CI evidence must be recorded for the repair commit.

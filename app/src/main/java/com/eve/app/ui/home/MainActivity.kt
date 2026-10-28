@@ -560,6 +560,8 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun cancelSearchVisualAnimations() {
+        // Unauthenticated onCreate exits before binding inflation; onDestroy still runs.
+        if (!::binding.isInitialized) return
         // An interrupted ViewPropertyAnimator must not commit a stale end action.
         binding.normalTopBar.animate().cancel()
         binding.btnSearchBack.animate().cancel()
