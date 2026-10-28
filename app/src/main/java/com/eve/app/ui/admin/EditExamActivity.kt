@@ -1,6 +1,7 @@
 package com.eve.app.ui.admin
 
 import com.eve.app.designsystem.showDestructive
+import com.eve.app.designsystem.showTelegramSourceDialog
 
 import com.eve.app.ui.common.EveBaseActivity
 
@@ -277,7 +278,7 @@ class EditExamActivity : EveBaseActivity() {
             builder.setPositiveButton("OK", null)
         }
 
-        builder.show()
+        builder.showTelegramSourceDialog()
     }
 
     private fun importQuestions(questions: List<Question>) {
@@ -358,7 +359,7 @@ class EditExamActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .showTelegramSourceDialog()
     }
 
     private fun showQuestionDetails(q: Question) {
@@ -497,7 +498,7 @@ class EditExamActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .showTelegramSourceDialog()
     }
 
     companion object {
