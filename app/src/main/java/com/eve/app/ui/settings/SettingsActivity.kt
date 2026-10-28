@@ -27,6 +27,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.eve.app.designsystem.showTelegramSourceDialog
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
 import com.google.firebase.auth.EmailAuthProvider
@@ -188,7 +189,7 @@ class SettingsActivity : EveBaseActivity() {
                 .setTitle("Select Daily Goal")
                 .setView(dialogView)
                 .setNegativeButton("Cancel", null)
-                .show()
+                .showTelegramSourceDialog()
         }
     }
 
@@ -239,7 +240,7 @@ class SettingsActivity : EveBaseActivity() {
                     dialog.dismiss()
                 }
                 .setNegativeButton("Cancel", null)
-                .show()
+                .showTelegramSourceDialog()
         }
     }
 

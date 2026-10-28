@@ -7,6 +7,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.eve.app.designsystem.showDestructive
+import com.eve.app.designsystem.showTelegramSourceDialog
 import com.eve.app.theme.TelegramThemeEngine
  import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.junit.Assert.assertEquals
@@ -65,4 +66,24 @@ class HomeTelegramDialogNativeTest {
             }
         }
     }
+    @Test fun normalSettingsChoiceUsesSourceBackgroundWithoutDestructiveTint() {
+        ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                val dialog = MaterialAlertDialogBuilder(activity)
+                    .setTitle("Select App Language")
+                    .setSingleChoiceItems(arrayOf("System", "English", "Hindi"), 0) { d, _ -> d.dismiss() }
+                    .setNegativeButton("Cancel", null)
+                    .showTelegramSourceDialog()
+                try {
+                    assertTrue("Normal EVE selector must show", dialog.isShowing)
+                    assertTrue("Verified Telegram dialog nine-patch must be installed",
+                        dialog.window?.decorView?.background is NinePatchDrawable)
+                    assertEquals("Cancel", dialog.getButton(AlertDialog.BUTTON_NEGATIVE).text.toString())
+                } finally {
+                    dialog.dismiss()
+                }
+            }
+        }
+    }
+
 }

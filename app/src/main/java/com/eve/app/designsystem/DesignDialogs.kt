@@ -20,3 +20,10 @@ fun AlertDialog.Builder.showDestructive(): AlertDialog = show().also { dialog ->
     // Apply after positive-button styling so Delete/Remove retains its fill/color.
     com.eve.app.ui.home.TelegramDialogSourceBackground.apply(dialog)
 }
+
+/** Source-backed EVE-owned informational/choice dialog; callbacks are unchanged. */
+fun AlertDialog.Builder.showTelegramSourceDialog(): AlertDialog = show().also { dialog ->
+    // DrKLO/Telegram@3de37c8c: AlertDialog.java:302-318,680-693;
+    // DarkAlertDialog.java:11-19. This is a drawing/typography subset only.
+    com.eve.app.ui.home.TelegramDialogSourceBackground.apply(dialog)
+}
