@@ -76,6 +76,7 @@ class TelegramMenuPopup(
         setupListeners()
 
         setOnDismissListener {
+            dismissDim()
             TelegramPopupSourceMotion.cancel(binding.root, actionRows())
             GlassmorphismHelper.removeWindowBlur(binding.root, animate = false)
         }
@@ -125,6 +126,7 @@ class TelegramMenuPopup(
                 ThemeManager.trace("tap_accepted", anchor, handoffId)
                 TelegramPopupSourceMotion.cancel(binding.root, actionRows())
                 GlassmorphismHelper.removeWindowBlur(binding.root, animate = false)
+                dismissDim()
                 val popupRoot = binding.root.rootView
                 animationStyle = 0
                 exitTransition = null
@@ -219,16 +221,54 @@ class TelegramMenuPopup(
         anchorView.getLocationOnScreen(anchorLocation)
         val minLeft = frame.left + gap
         val maxLeft = (frame.right - gap - width).coerceAtLeast(minLeft)
-        val desiredLeft = (anchorLocation[0] + anchorView.width - width).coerceIn(minLeft, maxLeft)
+        // ItemOptions.java:1400: X = container.getX() + x + scrimViewBounds.width() - layoutBounds.right
+        // Where layoutBounds.right = width - padding. Right edge aligns to anchor right + padding (9-patch shadow).
+        val desiredLeft = (anchorLocation[0] + anchorView.width - width + padding).coerceIn(minLeft, maxLeft)
         val xOffset = desiredLeft - anchorLocation[0]
+
+        // DialogsActivity.java:13839: io.setTranslationY(-dp(64)).
+        // Scrim height is ~56dp, so translateY = -56dp - 8dp = top of anchor - 8dp padding.
+        // showAsDropDown default places popup at anchorLocation[1] + anchorView.height.
+        // Offsetting by -anchorView.height - padding places top of popup at anchorLocation[1] - padding,
+        // so the internal menu items start exactly at anchorLocation[1] (covering the 3-dot anchor).
+        val yOffset = -anchorView.height - padding
+        val desiredTop = (anchorLocation[1] + anchorView.height + yOffset).coerceAtLeast(frame.top + gap)
+        val effectiveYOffset = desiredTop - (anchorLocation[1] + anchorView.height)
 
         // Keep the existing circular-reveal handoff; menu body scrolls within the available viewport.
         isClippingEnabled = true
-        showAsDropDown(anchorView, xOffset, 0)
+        showAsDropDown(anchorView, xOffset, effectiveYOffset)
+        applyDimBehind()
 
         // Source-backed ActionBarPopupWindow.java:843-913 visible-row cascade.
         // Original background-only backScaleY is not re-created using whole-popup scale.
         TelegramPopupSourceMotion.entrance(binding.root, actionRows())
+    }
+
+    /** Upstream DialogsActivity.java:13678 io.setDimAlpha(0x08) & ActionBarPopupWindow.java:787 dimBehind(amount) */
+    private fun applyDimBehind() {
+        try {
+            val root = binding.root.rootView
+            val lp = root.layoutParams as? WindowManager.LayoutParams ?: return
+            val wm = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager ?: return
+            lp.flags = lp.flags or WindowManager.LayoutParams.FLAG_DIM_BEHIND
+            lp.dimAmount = 8f / 255f
+            wm.updateViewLayout(root, lp)
+        } catch (_: Exception) {}
+    }
+
+    /** Upstream ActionBarPopupWindow.java:816 dismissDim() */
+    private fun dismissDim() {
+        try {
+            val root = binding.root.rootView
+            val lp = root.layoutParams as? WindowManager.LayoutParams ?: return
+            val wm = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager ?: return
+            if ((lp.flags and WindowManager.LayoutParams.FLAG_DIM_BEHIND) != 0) {
+                lp.flags = lp.flags and WindowManager.LayoutParams.FLAG_DIM_BEHIND.inv()
+                lp.dimAmount = 0f
+                wm.updateViewLayout(root, lp)
+            }
+        } catch (_: Exception) {}
     }
 
     /** Source: ActionBarMenuSubItem.java:78-84 and ThemeColors.java:51,203-206. */
@@ -289,6 +329,7 @@ class TelegramMenuPopup(
     private fun dismissWithAction(action: () -> Unit) {
         if (isDismissing) return
         isDismissing = true
+        dismissDim()
         GlassmorphismHelper.removeWindowBlur(binding.root, animate = true)
 
         // Original ActionBarPopupWindow.java:1024-1069 default -5dp/150ms exit.
@@ -302,6 +343,7 @@ class TelegramMenuPopup(
     /** Lifecycle-only immediate teardown; user-triggered dismissal retains Telegram 150ms exit. */
     fun dismissForHostTeardown() {
         isDismissing = true
+        dismissDim()
         TelegramPopupSourceMotion.cancel(binding.root, actionRows())
         GlassmorphismHelper.removeWindowBlur(binding.root, animate = false)
         animationStyle = 0
@@ -313,6 +355,7 @@ class TelegramMenuPopup(
     override fun dismiss() {
         if (isDismissing) return
         isDismissing = true
+        dismissDim()
         GlassmorphismHelper.removeWindowBlur(binding.root, animate = true)
 
         // Original ActionBarPopupWindow.java:1024-1069 default -5dp/150ms exit.
