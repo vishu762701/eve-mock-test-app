@@ -381,16 +381,21 @@ class SettingsActivity : EveBaseActivity() {
                 finish()
             } catch (e: Exception) {
                 dismissProgress()
+                // The network deletion can finish after Settings is closing.
+                // Original Telegram AndroidUtilities.isSafeToShow():6255-6267.
+                if (isFinishing || isDestroyed) return@launch
                 MaterialAlertDialogBuilder(this@SettingsActivity)
                     .setTitle("Account Deletion Failed")
                     .setMessage(e.localizedMessage ?: "Could not delete account. Please try again.")
                     .setPositiveButton("OK", null)
-                    .show()
+                    .showTelegramSourceDialog()
             }
         }
     }
 
     private fun promptReauthentication() {
+        // EVE-owned authentication prompt must not leak a destroyed Activity.
+        if (isFinishing || isDestroyed) return
         val user = FirebaseAuth.getInstance().currentUser ?: return
         if (user.providerData.any { it.providerId == EmailAuthProvider.PROVIDER_ID }) {
             val email = user.email?.takeIf { it.isNotBlank() } ?: return
@@ -451,11 +456,13 @@ class SettingsActivity : EveBaseActivity() {
                     .build()
                 val client = GoogleSignIn.getClient(this, gso)
                 client.signOut().addOnCompleteListener {
-                    reauthLauncher.launch(client.signInIntent)
+                    if (!isFinishing && !isDestroyed) {
+                        reauthLauncher.launch(client.signInIntent)
+                    }
                 }
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .showTelegramSourceDialog()
     }
 
     override fun onDestroy() {
