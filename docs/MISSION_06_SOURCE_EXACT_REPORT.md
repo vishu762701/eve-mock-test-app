@@ -14,7 +14,7 @@
 |---|---|---|---|---|---|
 | 00 | Remote HEAD, rules, uploaded ZIP integrity, relevant code inspected | `ENGINEERING_STANDARD.md`, `AGENTS.md`, `SOURCE_OF_TRUTH.md`; `activity_main.xml:49`, `EveDesignSystem.kt:50-53` | ZIP identity differs; no source-exact transplant | VERIFIED baseline / SOURCE BLOCKED | Read-only |
 | 01 | Original shared primitives | No changes | Expected SHA mismatch | BLOCKED | None |
-| 02 | Toolbar scroll seam | `MainActivity.kt:1116-1119`, `EveGlassToolbar.kt:40-65`, `SystemBarHelper.kt:130-162`; root cause not established by device measurements | Source fidelity unverified | NOT VERIFIED | None |
+| 02 | Home toolbar scroll seam | `DesignGlassLayout.kt:144-151` draws an explicit full-rect hairline while `glassEnabled`; `EveGlassToolbar.kt:40-65` enables glass during scroll. Home alone now sets `homeGlassToolbar.drawHairline = false` in `MainActivity.setupTopBarDepth`; shared toolbar code untouched. | No new Telegram renderer or guessed physics; existing EVE frame stroke removed | IMPLEMENTED, actual scroll pixel comparison NOT VERIFIED | SHA-specific FAST pending |
 | 03 | Telegram-exact search renderer/physics | `MainActivity.kt:562-728` currently uses `UiArcMotion` | Source identity mismatch | BLOCKED | None |
 | 04 | Category single-selection functional guard | `activity_main.xml:49` now requires selection; `EveDesignSystemTest.kt` XML contract; `HomeCategorySelectionNativeTest.kt` on-device repeated-tap test | No Telegram styling/physics changed | IMPLEMENTED, runtime NOT YET VERIFIED | \`e996dcc9d920a714fe21dadec287faff29e65e43\`; FAST [#40620365549](https://github.com/vishu762701/eve-mock-test-app/actions/runs/40620365549) **SUCCESS** |
 | 09 | Owner's drawer-only pure-black Night background | `MainActivity.prepareDrawerSurface()`, `navDrawerPanel` and drawer-only `home_drawer_background` resource; retained existing corner token and six rows | Owner override, explicitly **not** Telegram Night's original drawer surface | IMPLEMENTED, runtime NOT YET VERIFIED | Initial FAST [#40620882198](https://github.com/vishu762701/eve-mock-test-app/actions/runs/40620882198) FAILED: 420 JVM tests, 1 stale shared-surface assertion in `MasterRedesignContinuationTest.kt:47`. Forward test-contract repair pending FAST |
@@ -23,6 +23,11 @@
 ## Scope and evidence constraints
 
 The Microstep 04 change affects only the Home filter's state contract, not Day/Night palette, icon assets, motion, dimensions, data source, Firebase/backend, or category click destinations. Android `ChipGroup` single-selection alone permits deselection; `selectionRequired` requests the invariant at the widget layer. The existing `HomeViewModel.buildUiData()` falls back visually to All when a category disappears; persistent reappearance behavior still needs integration verification. Instrumentation test source compilation is checked by FAST, but its actual tap behavior requires the final native FULL gate. Any prior CI green state cannot prove this new code.
+
+## Source archive extra checks
+
+- ZIP root `LICENSE` SHA-256 `8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643` (GNU GPL version 2 text); no `EVE_MANIFEST.sha256` entry is present in the uploaded archive. CRC validity is not a source-authenticity signature.
+- Scroll seam: source-level `drawHairline` path removed only for Home; no emulator/frame screenshot currently establishes zero pixels of visual discontinuity.
 
 ## Remaining quality gates
 

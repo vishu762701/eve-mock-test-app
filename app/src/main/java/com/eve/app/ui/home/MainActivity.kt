@@ -1116,6 +1116,10 @@ class MainActivity : EveBaseActivity() {
     private fun setupTopBarDepth() {
         binding.topBarContainer.setBackgroundColor(getColor(R.color.transparent))
         binding.searchTopBar.setBackgroundColor(getColor(R.color.transparent))
+        // Home only: scrolling enabled the blur and also drew a perimeter stroke.
+        // Disable that unwanted hairline without touching shared toolbar behavior.
+        binding.homeGlassToolbar.drawHairline = false
+        binding.homeGlassToolbar.invalidate()
     }
 
     private fun renderHomeBannerCta(position: Int) {

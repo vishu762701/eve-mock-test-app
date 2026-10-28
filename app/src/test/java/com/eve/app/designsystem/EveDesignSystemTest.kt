@@ -190,6 +190,23 @@ class EveDesignSystemTest {
             source.contains("ContextCompat.getColor(this, R.color.home_drawer_background)"))
     }
 
+    /** The Home-only glass toolbar must not draw a scroll-triggered frame stroke. */
+    @Test
+    fun homeToolbarRemovesItsOwnScrollHairlineWithoutChangingSharedToolbars() {
+        val root = loadXml("src/main/res/layout/activity_main.xml")
+        val home = findElementById(root, "homeGlassToolbar")
+        assertNotNull("Home toolbar must have a scoped identity", home)
+        assertEquals("com.eve.app.ui.common.EveGlassToolbar", home?.tagName)
+        val source = File(getProjectDir(), "app/src/main/java/com/eve/app/ui/home/MainActivity.kt").readText()
+        val setup = source.substringAfter("private fun setupTopBarDepth()")
+            .substringBefore("private fun renderHomeBannerCta(")
+        assertTrue("Disable only the Home toolbar's perimeter stroke",
+            setup.contains("binding.homeGlassToolbar.drawHairline = false"))
+        val shared = File(getProjectDir(), "app/src/main/java/com/eve/app/designsystem/DesignGlassLayout.kt").readText()
+        assertTrue("Shared stroke must remain conditionally drawn",
+            shared.contains("if (glassEnabled && drawHairline)"))
+    }
+
     /** ChipGroup must never toggle the active Home category off on a repeat tap. */
     @Test
     fun homeCategoryRequiresExactlyOneSelectedChip() {
