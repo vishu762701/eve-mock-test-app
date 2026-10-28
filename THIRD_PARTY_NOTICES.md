@@ -192,3 +192,25 @@ from the Android Open Source Project. Its published Maven POM identifies the
 Apache License, Version 2.0; the license text is included in
 `app/src/main/assets/licenses/BlurView-LICENSE.txt`. Source:
 https://android.googlesource.com/platform/frameworks/support/.
+
+### Source-exact Telegram assets for EVE Home overflow (post-Mission 05 icon parity)
+
+The owner-supplied complete Telegram Android archive was checked against SHA-256
+`0785365538ce05cf5bdf44a15d8fd5f5219f8193db0a2d124af9665fc63fd7b3`.
+EVE's Home 3-dot popup now references the unchanged upstream binary assets
+`TMessagesProj/src/main/res/drawable-{mdpi,hdpi,xhdpi,xxhdpi}/large_notes.webp`
+(Notebook), `msg_topics.webp` (Topic-wise) and `msg_filehq.webp` (PYQ),
+and unchanged `TMessagesProj/src/main/res/drawable/menu_night_mode_24.xml`
+(Dark Mode). The EVE resource names are `telegram_popup_notes`,
+`telegram_popup_topics`, `telegram_popup_paper` and
+`telegram_menu_night_mode_24`. Each new resource's SHA-256 is tested against
+original ZIP bytes in `UiBehaviorRegressionTest`; no WebP was re-encoded and
+the vector was copied verbatim. History, Bookmarks, Light Mode and Logout
+already used imported original Telegram assets.
+
+These are genuine Telegram artwork assets, not a claim Telegram itself has
+EVE's exam-specific menu functions. Each selected item is a source-exact asset,
+while its EVE placement and Android PopupWindow/glass renderer remain adaptations.
+Retain upstream Telegram GPL license notices and existing distribution/release
+compliance gates, including obligations for copied source/assets; do not assume
+a successful development build alone establishes redistribution clearance.

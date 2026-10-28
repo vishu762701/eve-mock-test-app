@@ -102,3 +102,10 @@
 ## E.3-06 Corrected native-test FAST gate green; retry mission-final FULL
 - `908100f9083dd6a824f116e75c5b9e20dfeef391`, [FAST #40515982517](https://github.com/vishu762701/eve-mock-test-app/actions/runs/40515982517): SUCCESS build / Firebase Functions / backend, no native tests or publication by design.
 - Triggering new same-scope `[eve-full]` commit by updating a test-file documentation comment; no app logic, native assertions, runtime test selection, lint, backend or security gates altered. Exact six-job status, native screenshot proofs and APK artifacts must be verified from the newly triggered run.
+
+## F.1 — User-approved original Telegram popup icon alignment
+- Source: owner-provided official Telegram Android ZIP verified SHA-256 `0785365538ce05cf5bdf44a15d8fd5f5219f8193db0a2d124af9665fc63fd7b3`.
+- Import original 4 density WebP sets: `large_notes` for Mistake Notebook, `msg_topics` for Topic-wise Test, `msg_filehq` for PYQ. Import original `menu_night_mode_24.xml` for Light-mode Dark Mode action. Byte identity is guarded by twelve original per-file SHA256 checks plus vector SHA256.
+- Existing source-matched History/Bookmarks/Light Mode/Logout icons stay unchanged; theme reveal, menu callbacks, screen layout and scroll remain unchanged.
+- Exact source-artwork usage does not mean Telegram exposes the same exam-specific features, and it does not transplant Telegram's entire `ActionBarPopupWindow` renderer; that broader renderer remains separately BLOCKED rather than falsely claimed exact.
+- Implementation commit requires its own FAST build and source-tests. No final native FULL automatically triggered by this intermediate icon step.

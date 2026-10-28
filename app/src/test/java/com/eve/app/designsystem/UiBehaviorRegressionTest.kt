@@ -196,12 +196,54 @@ class UiBehaviorRegressionTest {
 
     @Test fun menuIconsPreserveSemanticsAndMapTelegramInk() {
         val menu = File("src/main/res/layout/popup_telegram_menu.xml").readText()
-        for (line in menu.lineSequence().filter { it.contains("<ImageView") && it.contains("android:src=\"@drawable/ic_") }) {
+        for (line in menu.lineSequence().filter { it.contains("<ImageView") && it.contains("android:src=\"@drawable/") }) {
             assertTrue("Mixed menu icon tint: " + line, line.contains("app:tint=\"@color/telegram_type_primary\""))
         }
         val mistakeLine = menu.lineSequence().first { it.contains("android:contentDescription=\"Mistake Notebook\"") }
-        assertTrue("Mistake action must not be represented by Close", mistakeLine.contains("android:src=\"@drawable/ic_flag\""))
+        assertTrue("Mistake action must not be represented by Close", mistakeLine.contains("android:src=\"@drawable/telegram_popup_notes\""))
         assertTrue(menu.contains("android:id=\"@+id/menuRowMistakes\""))
+    }
+
+
+    @Test fun popupOfficialTelegramIconsKeepOriginalSourceBytes() {
+        val menu = File("src/main/res/layout/popup_telegram_menu.xml").readText()
+        val popup = File("src/main/java/com/eve/app/ui/home/TelegramMenuPopup.kt").readText()
+        assertTrue(menu.contains("android:src=\"@drawable/telegram_popup_notes\""))
+        assertTrue(menu.contains("android:src=\"@drawable/telegram_popup_topics\""))
+        assertTrue(menu.contains("android:src=\"@drawable/telegram_popup_paper\""))
+        assertTrue(popup.contains("R.drawable.telegram_menu_night_mode_24"))
+        val mdpiToXxhdpi = listOf("mdpi", "hdpi", "xhdpi", "xxhdpi")
+        val expected = mapOf(
+            "telegram_popup_topics" to listOf(
+                "b97155cd49fb0504f0d5c0f61245fac95ce0646d74c4f3b0673aa1a85d0cec83",
+                "3bc5c5743b3d41361ad77373ab506621a557c7945919f5339d958f7cf18688d5",
+                "c89f25e558b3a8e0db32c29416e92a569d0881a0f85063356c1022ac2aeace84",
+                "0d8826e7c835e0fc8edf2678b36ac955cf9ded826521512a854a9bdfa22c8812"),
+            "telegram_popup_paper" to listOf(
+                "023818805e20163fb85ba62486e1767a8a89741117b583510ff41f74f0474330",
+                "462347aa66a287114dfb4586e2de45534b4f867347990c4225df364d2138e3cb",
+                "4ac7fadf911592a184dbe8032457f87096d7c041c7635549cf1aeb12295120e2",
+                "ec68b5f82706205d8a50d9673838365a8e0bd77f2c1a855957bdc58cc9a95282"),
+            "telegram_popup_notes" to listOf(
+                "8e6cdfa4fa8103e3d0a441e68023e457b4cfc3724653364a368231ff7ab48430",
+                "2f4e571154cfc2a40e6652bd9004d76b383fc5d2fd1b67e19bd9e423ce57b48b",
+                "7668ec03ef61274e970fbe2a78d70c46d7b10d77b73118e4b1aa9d296c2a21af",
+                "b45b9d4c8f4c34b799344cfbcdcc58625adaf2fb979f40b3d7d6957249746cfd")
+        )
+        fun sha256(data: ByteArray): String =
+            java.security.MessageDigest.getInstance("SHA-256").digest(data)
+                .joinToString("") { "%02x".format(it.toInt() and 0xff) }
+        for ((name, hashes) in expected) {
+            for ((index, density) in mdpiToXxhdpi.withIndex()) {
+                val resource = File("src/main/res/drawable-${density}/${name}.webp")
+                assertTrue("Missing original ${resource.path}", resource.isFile)
+                assertEquals("Changed original Telegram asset ${resource.path}", hashes[index], sha256(resource.readBytes()))
+            }
+        }
+        val moon = File("src/main/res/drawable/telegram_menu_night_mode_24.xml")
+        assertTrue(moon.isFile)
+        assertEquals("Source Telegram menu_night_mode_24 vector must be unmodified",
+            "66f143dbffd1c5abbc85dae15de22161a6a7d3c13ded1fc0168051b2af41d861", sha256(moon.readBytes()))
     }
 
     @Test fun adminStateAndExamControlsAreUntouched() {

@@ -68,7 +68,7 @@ class TelegramMenuPopup(
             binding.ivThemeIcon.setImageResource(R.drawable.ic_theme_sun)
             binding.tvThemeTitle.text = "Day Mode"
         } else {
-            binding.ivThemeIcon.setImageResource(R.drawable.ic_theme_moon)
+            binding.ivThemeIcon.setImageResource(R.drawable.telegram_menu_night_mode_24)
             binding.tvThemeTitle.text = "Dark Mode"
         }
     }
