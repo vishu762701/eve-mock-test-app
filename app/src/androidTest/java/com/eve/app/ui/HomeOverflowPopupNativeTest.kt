@@ -52,6 +52,8 @@ class HomeOverflowPopupNativeTest {
             instrumentation.waitForIdleSync()
             scenario.onActivity {
                 assertTrue("Home popup must be attached", popup.isShowing)
+                assertEquals("Telegram ActionBarMenuItem disables platform popup transitions",
+                    0, popup.animationStyle)
                 val root = popup.contentView
                 assertTrue("Source-backed Telegram background must wrap the original 9-patch",
                     root.background is com.eve.app.designsystem.TelegramPopupSourceBackground)

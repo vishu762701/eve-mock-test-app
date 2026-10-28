@@ -38,8 +38,8 @@ class TelegramMenuPopup(
 
     private val binding: PopupTelegramMenuBinding =
         PopupTelegramMenuBinding.inflate(LayoutInflater.from(context))
-    private val ordinaryAnimationStyle = animationStyle
-    private val ordinaryExitTransition = exitTransition
+    // ActionBarMenuItem.java:841-845 sets animation style to 0 whenever
+    // ActionBarPopupWindow drives its own source-backed row cascade.
     private var isDismissing = false
     private var anchorViewRef: View? = null
     private var blurBitmap: Bitmap? = null
@@ -171,8 +171,11 @@ class TelegramMenuPopup(
     fun show(anchorView: View) {
         if (isShowing) return
         isDismissing = false
-        animationStyle = ordinaryAnimationStyle
-        exitTransition = ordinaryExitTransition
+        // Keep the platform PopupWindow from applying a second slide/fade
+        // on top of TelegramPopupSourceMotion. The custom 150+16*n entrance
+        // and 150ms dismissal retain sole ownership of the popup's motion.
+        animationStyle = 0
+        exitTransition = null
         anchorViewRef = anchorView
         setupThemeCard()
         applyOriginalMenuRoles()

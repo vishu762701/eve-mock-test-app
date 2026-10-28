@@ -80,6 +80,21 @@ class HomeMenuAccessibilityContractTest {
         assertTrue(glass.contains("if (source != null) background = source"))
     }
 
+    @Test fun originalActionBarMenuItemDisablesPlatformPopupAnimationForCustomCascade() {
+        val popup = File("src/main/java/com/eve/app/ui/home/TelegramMenuPopup.kt").readText()
+        val shown = popup.substringAfter("fun show(anchorView: View)")
+            .substringBefore("private fun applyOriginalMenuRoles()")
+        assertTrue("Original ActionBarMenuItem.java:841-845 disables duplicate platform animation",
+            shown.contains("animationStyle = 0"))
+        assertTrue("Custom exit must not trigger an extra platform transition",
+            shown.contains("exitTransition = null"))
+        assertTrue(shown.contains("TelegramPopupSourceMotion.entrance(binding.root, actionRows())"))
+        assertTrue(!shown.contains("ordinaryAnimationStyle") && !shown.contains("ordinaryExitTransition"))
+        assertTrue("Theme reveal handoff still dismisses immediately without a second animation",
+            popup.contains("ThemeManager.reservePopupHandoff()") &&
+                popup.contains("ThemeFrameCoordinator.afterFrame("))
+    }
+
     @Test fun popupUsesOfficialCascadeAndDismissMotionWithoutWholePopupScale() {
         val popup = File("src/main/java/com/eve/app/ui/home/TelegramMenuPopup.kt").readText()
         val motion = File("src/main/java/com/eve/app/ui/home/TelegramPopupSourceMotion.kt").readText()
