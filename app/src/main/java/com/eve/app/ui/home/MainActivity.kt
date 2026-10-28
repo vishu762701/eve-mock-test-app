@@ -551,7 +551,9 @@ class MainActivity : EveBaseActivity() {
         currentSearchQuery = query.trim()
         binding.btnClearSearch.visibility = if (currentSearchQuery.isEmpty()) View.GONE else View.VISIBLE
         binding.normalTopBar.visibility = View.GONE
-        binding.normalTopBar.alpha = 0f
+        binding.normalTopBar.alpha = 1f
+        binding.homeGlassToolbar.alpha = 0f
+        binding.titleGroup.visibility = View.GONE
         binding.searchTopBar.visibility = View.VISIBLE
         binding.searchTopBar.alpha = 1f
         binding.btnSearchBack.alpha = 1f
@@ -597,6 +599,7 @@ class MainActivity : EveBaseActivity() {
         if (!::binding.isInitialized) return
         // An interrupted ViewPropertyAnimator must not commit a stale end action.
         binding.normalTopBar.animate().cancel()
+        binding.homeGlassToolbar.animate().cancel()
         binding.btnSearchBack.animate().cancel()
         binding.etSearch.animate().cancel()
     }
@@ -608,14 +611,22 @@ class MainActivity : EveBaseActivity() {
      */
     private fun startSearchAlphaTransition(opening: Boolean) {
         searchTransitionAnimator?.cancel()
-        val normal = binding.normalTopBar
+        // Original ActionBarMenuItem.java:950-1031 crossfades ONLY menu icon
+        // views against searchContainer. The EVE title is a separate Home row
+        // and must not be faded as a giant parent (it overlaps search text and
+        // changes the header height at the END of the old animation).
+        val menuIcons = binding.homeGlassToolbar
         val search = binding.searchTopBar
+        binding.normalTopBar.alpha = 1f
         if (opening) {
+            binding.titleGroup.visibility = View.GONE
+            binding.normalTopBar.visibility = View.VISIBLE
             if (search.visibility != View.VISIBLE) search.alpha = 0f
             search.visibility = View.VISIBLE
         } else {
-            if (normal.visibility != View.VISIBLE) normal.alpha = 0f
-            normal.visibility = View.VISIBLE
+            if (binding.normalTopBar.visibility != View.VISIBLE) menuIcons.alpha = 0f
+            binding.normalTopBar.visibility = View.VISIBLE
+            binding.titleGroup.visibility = View.VISIBLE
         }
 
         val animator = android.animation.AnimatorSet().apply {
@@ -624,7 +635,7 @@ class MainActivity : EveBaseActivity() {
                     search, View.ALPHA, search.alpha, if (opening) 1f else 0f
                 ),
                 android.animation.ObjectAnimator.ofFloat(
-                    normal, View.ALPHA, normal.alpha, if (opening) 0f else 1f
+                    menuIcons, View.ALPHA, menuIcons.alpha, if (opening) 0f else 1f
                 )
             )
             duration = 150L
@@ -636,13 +647,13 @@ class MainActivity : EveBaseActivity() {
                 override fun onAnimationEnd(animation: android.animation.Animator) {
                     if (cancelled || isSearchActive != opening) return
                     if (opening) {
-                        normal.visibility = View.GONE
-                        normal.alpha = 0f
+                        binding.normalTopBar.visibility = View.GONE
+                        menuIcons.alpha = 0f
                         search.alpha = 1f
                     } else {
                         search.visibility = View.GONE
                         search.alpha = 0f
-                        normal.alpha = 1f
+                        menuIcons.alpha = 1f
                     }
                     if (searchTransitionAnimator === animation) searchTransitionAnimator = null
                 }
@@ -665,8 +676,10 @@ class MainActivity : EveBaseActivity() {
         binding.btnSearchBack.alpha = 1f
         binding.etSearch.alpha = 1f
         if (!UiArcMotion.isMotionEnabled(this)) {
+            binding.titleGroup.visibility = View.GONE
             binding.normalTopBar.visibility = View.GONE
-            binding.normalTopBar.alpha = 0f
+            binding.normalTopBar.alpha = 1f
+            binding.homeGlassToolbar.alpha = 0f
             binding.searchTopBar.visibility = View.VISIBLE
             binding.searchTopBar.alpha = 1f
         } else {
@@ -697,6 +710,8 @@ class MainActivity : EveBaseActivity() {
             binding.searchTopBar.alpha = 0f
             binding.normalTopBar.visibility = View.VISIBLE
             binding.normalTopBar.alpha = 1f
+            binding.homeGlassToolbar.alpha = 1f
+            binding.titleGroup.visibility = View.VISIBLE
         } else {
             startSearchAlphaTransition(opening = false)
         }

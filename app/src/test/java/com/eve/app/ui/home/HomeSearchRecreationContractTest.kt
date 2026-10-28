@@ -36,6 +36,31 @@ class HomeSearchRecreationContractTest {
         assertTrue(code.contains("binding.chipGroupCategory.visibility = View.VISIBLE"))
     }
 
+    @Test fun originalTelegramSearchFadesOnlyMenuIconsNotWholeHomeTitle() {
+        val source = File("src/main/java/com/eve/app/ui/home/MainActivity.kt").readText()
+        val transition = source.substringAfter("private fun startSearchAlphaTransition(opening: Boolean)")
+            .substringBefore("private fun openSearch()")
+        assertTrue("Upstream ActionBarMenuItem.java:950-1031 crossfades icon views",
+            transition.contains("val menuIcons = binding.homeGlassToolbar"))
+        assertTrue("No fade of giant title/header container during search entry",
+            !transition.contains("val normal = binding.normalTopBar") &&
+                !transition.contains("ObjectAnimator.ofFloat(\n                    binding.normalTopBar"))
+        assertTrue("EVE-only title row must be removed before search text renders",
+            transition.indexOf("binding.titleGroup.visibility = View.GONE") <
+                transition.indexOf("val animator = android.animation.AnimatorSet()"))
+        assertTrue("Original source duration must remain 150ms",
+            transition.contains("duration = 150L"))
+        assertTrue("Interrupted search transition must still suppress stale callbacks",
+            transition.contains("if (cancelled || isSearchActive != opening) return"))
+        val restore = source.substringAfter("private fun restoreSearchPresentation(savedInstanceState: Bundle?)")
+            .substringBefore("private fun setupSearch()")
+        assertTrue("Restored active search must hide normal title without animations",
+            restore.contains("binding.titleGroup.visibility = View.GONE"))
+        assertTrue("Reduced motion must restore both title and toolbar immediately",
+            source.contains("binding.homeGlassToolbar.alpha = 1f") &&
+                source.contains("binding.titleGroup.visibility = View.VISIBLE"))
+    }
+
     @Test fun searchBarUsesIntrinsicHeightWithinWrapContentHeader() {
         val document = DocumentBuilderFactory.newInstance().newDocumentBuilder()
             .parse(File("src/main/res/layout/activity_main.xml"))

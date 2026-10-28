@@ -203,6 +203,9 @@ class EveDesignSystemTest {
         assertTrue(search.contains("if (cancelled || isSearchActive != opening) return"))
         assertTrue(search.contains("searchTransitionAnimator?.cancel()"))
         assertTrue(search.contains("android.animation.AnimatorSet().apply"))
+        assertTrue("Only the original menu icon group may crossfade",
+            search.contains("val menuIcons = binding.homeGlassToolbar") &&
+                search.contains("binding.titleGroup.visibility = View.GONE"))
         assertTrue(search.contains("android.animation.ObjectAnimator.ofFloat("))
         assertTrue(search.contains("duration = 150L"))
         assertTrue("No invented spring width morph is permitted for this original-source search",
