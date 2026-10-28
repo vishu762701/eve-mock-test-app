@@ -1,6 +1,7 @@
 package com.eve.app.ui.home
 
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eve.app.data.model.Exam
@@ -22,7 +23,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 
-class HomeViewModel : ViewModel() {
+class HomeViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel() {
 
     private val repo = ExamRepository()
     private val pinnedRepo = PinnedExamsRepository()
@@ -39,7 +40,7 @@ class HomeViewModel : ViewModel() {
     private val _pinnedIds = MutableStateFlow<Set<String>>(emptySet())
     private val _targetExamIds = MutableStateFlow<Set<String>>(TargetExamsBottomSheet.getTargetExamIds(com.eve.app.EveApplication.instance))
     private val _feedbackPosts = MutableStateFlow<List<FeedbackPost>>(emptyList())
-    private val _selectedCategory = MutableStateFlow(Constants.CATEGORY_ALL)
+    private val _selectedCategory = MutableStateFlow(savedStateHandle[SELECTED_CATEGORY_STATE_KEY] ?: Constants.CATEGORY_ALL)
 
     private var pinnedObserverJob: Job? = null
     private var feedbackObserverJob: Job? = null
@@ -101,7 +102,7 @@ class HomeViewModel : ViewModel() {
         if (cached.isNotEmpty()) {
             allLoadedExams = cached
             hasLoadedOnce = true
-            _examState.value = UiState.Success(cached)
+            publishExamState(cached)
         }
         load()
     }
@@ -117,7 +118,7 @@ class HomeViewModel : ViewModel() {
                 allLoadedExams = exams
                 hasLoadedOnce = true
                 saveCachedExams(exams)
-                _examState.value = UiState.Success(exams)
+                publishExamState(exams)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -132,6 +133,7 @@ class HomeViewModel : ViewModel() {
     }
 
     companion object {
+        private const val SELECTED_CATEGORY_STATE_KEY = "home_selected_category"
         private val _clearedAttemptedIds = mutableSetOf<String>()
         private val _submittedAttemptedIds = mutableSetOf<String>()
         private val _cachedSubmittedAttempts = mutableMapOf<String, com.eve.app.data.model.TestAttempt>()
@@ -193,7 +195,7 @@ class HomeViewModel : ViewModel() {
                 allLoadedExams = exams
                 hasLoadedOnce = true
                 saveCachedExams(exams)
-                _examState.value = UiState.Success(exams)
+                publishExamState(exams)
                 if (isAdmin) {
                     _attemptInfo.value = AttemptInfo()
                 } else {
@@ -265,7 +267,29 @@ class HomeViewModel : ViewModel() {
         _feedbackPosts.value = _feedbackPosts.value.filterNot { it.id == postId }
     }
 
-    fun selectCategory(category: String) { _selectedCategory.value = category }
+    private fun availableCategories(exams: List<Exam>) =
+        HomeAppearance.categories(exams.asSequence().filter { it.isMainExam }.map { it.categoryOrOther }.toList())
+
+    private fun updateSelectedCategory(category: String) {
+        if (_selectedCategory.value == category) return
+        _selectedCategory.value = category
+        savedStateHandle[SELECTED_CATEGORY_STATE_KEY] = category
+    }
+
+    private fun publishExamState(exams: List<Exam>) {
+        // Resolve removed categories before publishing the new dataset, avoiding a stale selection.
+        updateSelectedCategory(HomeCategorySelection.resolve(
+            _selectedCategory.value, availableCategories(exams), Constants.CATEGORY_ALL
+        ))
+        _examState.value = UiState.Success(exams)
+    }
+
+    fun selectCategory(category: String) {
+        val next = HomeCategorySelection.select(
+            _selectedCategory.value, category, availableCategories(allLoadedExams)
+        )
+        updateSelectedCategory(next)
+    }
 
     private fun buildUiData(
         all: List<Exam>,
@@ -278,7 +302,7 @@ class HomeViewModel : ViewModel() {
     ): HomeUiData {
         val mainExams = all.filter { it.isMainExam }
         val categories = HomeAppearance.categories(mainExams.map { it.categoryOrOther })
-        val effectiveSelected = if (selected in categories) selected else Constants.CATEGORY_ALL
+        val effectiveSelected = HomeCategorySelection.resolve(selected, categories, Constants.CATEGORY_ALL)
         val filtered = if (effectiveSelected == Constants.CATEGORY_ALL) mainExams else mainExams.filter { it.categoryOrOther == effectiveSelected }
 
         val pinnedExams = filtered.filter { it.id in pinned }.sortedBy { it.examName }

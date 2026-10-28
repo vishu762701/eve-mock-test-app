@@ -63,3 +63,12 @@ The Microstep 04 change affects only the Home filter's state contract, not Day/N
 ## Remaining quality gates
 
 Last implementation commit FAST #40622312166 SUCCESS; latest report-only commit FAST pending. Runtime native gesture/three-button, source renderer/property mapping, visual frame comparison, physical Samsung device and mission-final FULL/APK: **NOT VERIFIED** until each has actual evidence. Owner night drawer #000000 is an **implemented owner override** with Day/Night resource-contract assertions; final native pixel verification is still pending. This black background is not claimed as Telegram's own Night drawer color.
+
+
+## Continuation (2026-10-28) — category state reconciliation (Microstep 04b)
+
+- Source requirement remains BLOCKED: supplied `Telegram-master (1).zip` SHA-256 does not equal the owner-accepted complete ZIP; no Telegram visual, motion, asset or source properties were transplanted.
+- **EVE-only data correctness:** `HomeViewModel` now uses `SavedStateHandle` for process-recreation category state; exam cache/network refresh resolves deleted categories back to All **before** publishing the new exam state; unknown category requests are ignored and repeat selections are no-ops.
+- `MainActivity.renderChips` uses a single `ChipGroup.check(id)` instead of individually mutating every existing chip, avoiding transient multi/empty selection on a data refresh. `HomeAppearance.categories` excludes duplicate All category entries.
+- Tests: new pure JVM reducer suite, source wiring contract; prior Native category tap test remains awaiting actual emulator execution. This fixes state semantics only; **Telegram-exact filter pill graphics, checked-icon width, physics and pixel fidelity remain BLOCKED**.
+- Commit/FAST evidence for this continuation must be checked against the latest remote SHA, not historic runs.

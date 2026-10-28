@@ -1296,9 +1296,14 @@ class MainActivity : EveBaseActivity() {
                 (binding.chipGroupCategory.getChildAt(i) as? Chip)?.text?.toString() == categories[i]
             }
             if (same) {
-                (0 until binding.chipGroupCategory.childCount).forEach { i ->
-                    val chip = binding.chipGroupCategory.getChildAt(i) as Chip
-                    chip.isChecked = chip.text.toString() == selected
+                val group = binding.chipGroupCategory
+                val selectedChip = (0 until group.childCount)
+                    .mapNotNull { group.getChildAt(it) as? Chip }
+                    .firstOrNull { it.text.toString() == selected }
+                // A single group.check() transfers selection atomically. Per-chip unchecked
+                // mutations can fight selectionRequired, especially when moving back to All.
+                if (selectedChip != null && group.checkedChipId != selectedChip.id) {
+                    group.check(selectedChip.id)
                 }
                 return
             }

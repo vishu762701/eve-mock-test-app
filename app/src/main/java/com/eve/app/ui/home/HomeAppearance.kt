@@ -9,7 +9,8 @@ import com.google.android.material.chip.Chip
 /** Native Home presentation powered by EveDesignSystem foundation. */
 object HomeAppearance {
     fun categories(values: List<String>): List<String> = listOf(Constants.CATEGORY_ALL) +
-        values.distinct().sortedWith(compareBy<String> { it != "Other" }.thenBy { it })
+        values.filter { it != Constants.CATEGORY_ALL }.distinct()
+            .sortedWith(compareBy<String> { it != "Other" }.thenBy { it })
 
     fun tintNotificationBell(view: com.airbnb.lottie.LottieAnimationView) {
         EveDesignSystem.Components.tintNotificationBell(view)
