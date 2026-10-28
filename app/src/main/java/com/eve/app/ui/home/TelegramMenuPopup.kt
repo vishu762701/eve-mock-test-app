@@ -16,6 +16,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
+import android.widget.LinearLayout
 import com.eve.app.R
 import com.eve.app.databinding.PopupTelegramMenuBinding
 import com.eve.app.util.GlassmorphismHelper
@@ -41,7 +42,7 @@ class TelegramMenuPopup(
     private var isDismissing = false
     private var anchorViewRef: View? = null
     private var blurBitmap: Bitmap? = null
-    private fun actionRows(): List<View> = listOf(
+    private fun actionRows(): List<LinearLayout> = listOf(
         binding.cardTheme, binding.menuRowHistory, binding.menuRowBookmarks,
         binding.menuRowMistakes, binding.menuRowTopic, binding.menuRowPyq, binding.menuRowLogout
     )
