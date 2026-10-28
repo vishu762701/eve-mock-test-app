@@ -20,6 +20,18 @@ class HomeSearchRecreationContractTest {
         assertTrue("Search must restore before first Home render", firstRender > restoreCall)
     }
 
+    @Test fun telegramSourceSearchFadePreservesKeyboardAndCategoryRestoration() {
+        val code = File("src/main/java/com/eve/app/ui/home/MainActivity.kt").readText()
+            .substringAfter("private fun startSearchAlphaTransition(")
+            .substringBefore("private fun applyCurrentList()")
+        assertTrue(code.contains("lp.width = 0") && code.contains("lp.weight = 1f"))
+        assertTrue(code.contains("imm?.showSoftInput("))
+        assertTrue(code.contains("imm?.hideSoftInputFromWindow("))
+        assertTrue(code.contains("binding.etSearch.text?.clear()"))
+        assertTrue(code.contains("binding.chipGroupCategory.visibility = View.GONE"))
+        assertTrue(code.contains("binding.chipGroupCategory.visibility = View.VISIBLE"))
+    }
+
     @Test fun searchBarUsesIntrinsicHeightWithinWrapContentHeader() {
         val document = DocumentBuilderFactory.newInstance().newDocumentBuilder()
             .parse(File("src/main/res/layout/activity_main.xml"))

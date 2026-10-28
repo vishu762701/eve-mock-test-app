@@ -190,9 +190,9 @@ class EveDesignSystemTest {
             source.contains("ContextCompat.getColor(this, R.color.home_drawer_background)"))
     }
 
-    /** Search transitions must be cancel-safe without changing Telegram physics constants. */
+    /** Original Telegram search is a 150ms AnimatorSet alpha crossfade, not morph. */
     @Test
-    fun homeSearchCancelsStaleMorphCallbacksAndRepeatedTransitions() {
+    fun homeSearchUsesVerifiedTelegramFadeAndRetainsCancellationGuards() {
         val source = File(getProjectDir(), "app/src/main/java/com/eve/app/ui/home/MainActivity.kt").readText()
         val search = source.substringAfter("private fun cancelSearchVisualAnimations()")
             .substringBefore("private fun applyCurrentList()")
@@ -200,11 +200,15 @@ class EveDesignSystemTest {
         assertTrue(search.contains("if (!isSearchActive) return"))
         assertTrue(search.contains("cancelSearchVisualAnimations()"))
         assertTrue(search.contains("searchDebounceJob?.cancel()"))
-        assertTrue(search.contains("if (cancelled || !isSearchActive) return"))
-        assertTrue(search.contains("if (cancelled || isSearchActive) return"))
-        assertTrue(search.contains("if (isSearchActive) binding.normalTopBar.visibility = View.GONE"))
-        assertTrue("Existing animation category and constants must be retained",
-            search.contains("UiArcMotion.Spring.MORPH") && search.contains("UiArcMotion.Spring.SMOOTH"))
+        assertTrue(search.contains("if (cancelled || isSearchActive != opening) return"))
+        assertTrue(search.contains("searchTransitionAnimator?.cancel()"))
+        assertTrue(search.contains("android.animation.AnimatorSet().apply"))
+        assertTrue(search.contains("android.animation.ObjectAnimator.ofFloat("))
+        assertTrue(search.contains("duration = 150L"))
+        assertTrue("No invented spring width morph is permitted for this original-source search",
+            !search.contains("UiArcMotion.Spring.MORPH") &&
+                !search.contains("UiArcMotion.Spring.SMOOTH"))
+        assertTrue(search.contains("if (!UiArcMotion.isMotionEnabled(this))"))
     }
 
     /** The Home-only glass toolbar must not draw a scroll-triggered frame stroke. */
