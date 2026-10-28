@@ -77,9 +77,10 @@ object EveDesignSystem {
                     )
                 )
             )
-            setCheckedIconResource(R.drawable.ic_target_exam_checked)
-            checkedIconTint = android.content.res.ColorStateList.valueOf(palette.onAccent)
-            isCheckedIconVisible = true
+            // Telegram FilterTabsView.java:388-400,649-659 measures title/counter only;
+            // no selected checkmark consumes width. Only Home's category chip follows
+            // this verified source property; TargetExamsBottomSheet keeps its checkmark.
+            isCheckedIconVisible = false
             setEnsureMinTouchTargetSize(true)
             chipMinHeight = resources.getDimension(R.dimen.design_pill_height)
             chipStartPadding = resources.getDimension(R.dimen.design_pill_padding)

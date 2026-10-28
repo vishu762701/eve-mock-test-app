@@ -33,6 +33,23 @@ class HomeCategorySelectionNativeTest {
                 }
 
                 assertTrue("Selection-required group must be active", group.isSelectionRequired)
+                assertTrue("Home filter uses no width-changing selected check icon",
+                    !all.isCheckedIconVisible && !other.isCheckedIconVisible)
+                val widthSpec = android.view.View.MeasureSpec.makeMeasureSpec(
+                    (320 * activity.resources.displayMetrics.density).toInt(),
+                    android.view.View.MeasureSpec.AT_MOST
+                )
+                val heightSpec = android.view.View.MeasureSpec.makeMeasureSpec(
+                    (80 * activity.resources.displayMetrics.density).toInt(),
+                    android.view.View.MeasureSpec.AT_MOST
+                )
+                all.measure(widthSpec, heightSpec)
+                val selectedWidth = all.measuredWidth
+                all.isChecked = false
+                all.measure(widthSpec, heightSpec)
+                val unselectedWidth = all.measuredWidth
+                all.isChecked = true
+                assertEquals("Home category may not jump in width on select", selectedWidth, unselectedWidth)
                 assertSingle(all)
                 repeat(10) {
                     all.performClick()

@@ -57,6 +57,19 @@ class HomeCategorySelectionTest {
             !src.contains("delegates.any"))
     }
 
+    @Test fun homeFilterDoesNotAddUnsupportedCheckedIconWidth() {
+        val system = File("src/main/java/com/eve/app/designsystem/EveDesignSystem.kt").readText()
+        val chip = system.substringAfter("fun createCategoryChip(")
+            .substringBefore("fun applyHomeCard(")
+        assertTrue("Original Telegram filter tabs have no checked-icon glyph",
+            chip.contains("isCheckedIconVisible = false"))
+        assertTrue("Selected category must remain checked as a filter state",
+            chip.contains("isChecked = isSelected"))
+        assertTrue("Target exam checked icon must not be removed by Home-only change",
+            File("src/main/java/com/eve/app/ui/home/TargetExamsBottomSheet.kt").readText()
+                .contains("ic_target_exam_checked"))
+    }
+
     @Test fun viewModelPersistsStateAndRenderChecksSingleChipAtomically() {
         val viewModel = File("src/main/java/com/eve/app/ui/home/HomeViewModel.kt").readText()
         val activity = File("src/main/java/com/eve/app/ui/home/MainActivity.kt").readText()
