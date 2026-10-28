@@ -1,5 +1,6 @@
 package com.eve.app.ui.admin
 
+import com.eve.app.designsystem.showTelegramSourceDialog
 import com.eve.app.ui.common.EveBaseActivity
 
 import android.os.Bundle
@@ -195,7 +196,7 @@ class GeneratedTestsActivity : EveBaseActivity() {
             .setTitle("${test.examName} (${test.questionCount} Questions)")
             .setMessage(formattedText.toString())
             .setPositiveButton("Close", null)
-            .show()
+            .showTelegramSourceDialog()
     }
 
     private val deleteFlow by lazy { AdminDeleteFlow(this) }

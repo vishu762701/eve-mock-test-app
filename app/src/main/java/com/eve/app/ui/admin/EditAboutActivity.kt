@@ -5,6 +5,7 @@ import com.eve.app.ui.common.EveBaseActivity
 import android.os.Bundle
 import android.view.View
 import com.eve.app.util.AppBulletin
+import com.eve.app.designsystem.showTelegramSourceDialog
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -68,7 +69,7 @@ class EditAboutActivity : EveBaseActivity() {
                                 }
                                 binding.tabLayout.getTabAt(currentIndex)?.select()
                             }
-                            .show()
+                            .showTelegramSourceDialog()
                     } else {
                         switchTab(newType)
                     }
@@ -199,7 +200,7 @@ class EditAboutActivity : EveBaseActivity() {
                     finish()
                 }
                 .setNeutralButton("Cancel", null)
-                .show()
+                .showTelegramSourceDialog()
         } else {
             finish()
         }

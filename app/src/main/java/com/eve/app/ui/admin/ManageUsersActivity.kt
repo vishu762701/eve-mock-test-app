@@ -1,5 +1,7 @@
 package com.eve.app.ui.admin
 
+import com.eve.app.designsystem.showDestructive
+import com.eve.app.designsystem.showTelegramSourceDialog
 import com.eve.app.ui.common.EveBaseActivity
 
 import android.os.Bundle
@@ -255,7 +257,7 @@ class ManageUsersActivity : EveBaseActivity() {
                     .setTitle(user.displayName.ifBlank { "Student Details" })
                     .setMessage(message)
                     .setPositiveButton("Close", null)
-                    .show()
+                    .showTelegramSourceDialog()
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
                 AppBulletin.showError(this@ManageUsersActivity, "Failed to load attempts: ${e.toUserFriendlyMessage()}")
@@ -315,6 +317,6 @@ class ManageUsersActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .let { if (disable) it.showDestructive() else it.showTelegramSourceDialog() }
     }
 }

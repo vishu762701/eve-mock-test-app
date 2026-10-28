@@ -321,7 +321,10 @@ class SettingsActivity : EveBaseActivity() {
         }
         builder.setView(layout)
         builder.setCancelable(false)
-        progressDialog = builder.create().apply { show() }
+        progressDialog = builder.create().apply {
+            show()
+            com.eve.app.ui.home.TelegramDialogSourceBackground.apply(this)
+        }
     }
 
     private fun dismissProgress() {

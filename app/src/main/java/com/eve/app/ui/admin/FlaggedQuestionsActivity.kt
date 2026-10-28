@@ -1,5 +1,6 @@
 package com.eve.app.ui.admin
 
+import com.eve.app.designsystem.showTelegramSourceDialog
 import com.eve.app.ui.common.EveBaseActivity
 
 import android.content.Intent
@@ -117,7 +118,7 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .showTelegramSourceDialog()
     }
 
     private fun showEditDialog(item: AggregatedFlaggedQuestion) {
@@ -216,7 +217,7 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
                     startActivity(intent)
                 }
                 .setNegativeButton("Cancel", null)
-                .show()
+                .showTelegramSourceDialog()
         }
     }
 }

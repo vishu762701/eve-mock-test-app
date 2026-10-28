@@ -1,6 +1,8 @@
 package com.eve.app.ui.admin
 
 import com.eve.app.designsystem.showDestructive
+import com.eve.app.designsystem.showTelegramSourceDialog
+import com.eve.app.ui.home.TelegramDialogSourceBackground
 
 import com.eve.app.ui.common.EveBaseActivity
 
@@ -422,7 +424,7 @@ class AdminActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .showTelegramSourceDialog()
     }
 
     private fun showEditExamImageDialog() {
@@ -453,7 +455,7 @@ class AdminActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .showTelegramSourceDialog()
     }
 
     private fun promptRenameExam() {
@@ -493,7 +495,7 @@ class AdminActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .showTelegramSourceDialog()
     }
 
     private fun confirmDeleteExam() {
@@ -529,7 +531,7 @@ class AdminActivity : EveBaseActivity() {
             .setTitle("Question Details")
             .setMessage(details)
             .setPositiveButton("OK", null)
-            .show()
+            .showTelegramSourceDialog()
     }
 
     private fun confirmDeleteQuestion(q: Question) {
@@ -649,7 +651,7 @@ class AdminActivity : EveBaseActivity() {
             builder.setPositiveButton("OK", null)
         }
 
-        builder.show()
+        builder.showTelegramSourceDialog()
     }
 
     private fun importQuestionsForSelectedExam(examId: String, questions: List<Question>) {
@@ -719,6 +721,7 @@ class AdminActivity : EveBaseActivity() {
         }
 
         dialog.show()
+        TelegramDialogSourceBackground.apply(dialog)
     }
 
     private fun showHomeBannerOptionsDialog() {
@@ -880,6 +883,7 @@ class AdminActivity : EveBaseActivity() {
 
         refreshBannerList(dialogBinding)
         dialog.show()
+        TelegramDialogSourceBackground.apply(dialog)
     }
 
     private fun refreshBannerList(dialogBinding: DialogManageBannersBinding) {
@@ -1004,6 +1008,7 @@ class AdminActivity : EveBaseActivity() {
         }
 
         dialog.show()
+        TelegramDialogSourceBackground.apply(dialog)
     }
 
     private fun showFeedbackRepliesDialog() {
@@ -1026,7 +1031,7 @@ class AdminActivity : EveBaseActivity() {
                         showPostRepliesDialog(posts[which])
                     }
                     .setNegativeButton("Cancel", null)
-                    .show()
+                    .showTelegramSourceDialog()
             }
         }
     }
@@ -1047,7 +1052,7 @@ class AdminActivity : EveBaseActivity() {
                     showPostActionsDialog(selected)
                 }
                 .setNegativeButton("Close", null)
-                .show()
+                .showTelegramSourceDialog()
         }
     }
 
@@ -1078,7 +1083,7 @@ class AdminActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Back", null)
-            .show()
+            .showTelegramSourceDialog()
     }
 
     private fun showEditPostDialog(post: FeedbackPost) {
@@ -1136,7 +1141,7 @@ class AdminActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .showTelegramSourceDialog()
     }
 
     private fun showPostRepliesDialog(post: FeedbackPost) {
@@ -1212,6 +1217,7 @@ class AdminActivity : EveBaseActivity() {
         }
 
         dialog.show()
+        TelegramDialogSourceBackground.apply(dialog)
     }
 
     override fun onResume() {
@@ -1247,7 +1253,7 @@ class AdminActivity : EveBaseActivity() {
                         updateMaintenanceStatusBadge(true)
                     }
                     .setNegativeButton("Cancel", null)
-                    .show()
+                    .showTelegramSourceDialog()
             } else {
                 // Turning OFF does not require confirmation dialog
                 updateMaintenanceStatusBadge(false)
@@ -1349,6 +1355,7 @@ class AdminActivity : EveBaseActivity() {
             .setCancelable(false)
             .create()
         progressDialog.show()
+        TelegramDialogSourceBackground.apply(progressDialog)
 
         lifecycleScope.launch {
             try {
@@ -1434,7 +1441,7 @@ class AdminActivity : EveBaseActivity() {
                         startActivity(Intent.createChooser(shareIntent, "Save or Share Exam Backup"))
                     }
                     .setNegativeButton("Done", null)
-                    .show()
+                    .showTelegramSourceDialog()
 
             } catch (e: Exception) {
                 progressDialog.dismiss()

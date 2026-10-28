@@ -20,6 +20,7 @@ import com.eve.app.data.model.QuestionAnalytics
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.databinding.ActivityAdminAnalyticsBinding
+import com.eve.app.designsystem.showTelegramSourceDialog
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.Constants
 import com.eve.app.util.UiState
@@ -215,7 +216,7 @@ class AdminAnalyticsActivity : EveBaseActivity() {
                     startActivity(intent)
                 }
                 .setNegativeButton("Cancel", null)
-                .show()
+                .showTelegramSourceDialog()
         }
     }
 }

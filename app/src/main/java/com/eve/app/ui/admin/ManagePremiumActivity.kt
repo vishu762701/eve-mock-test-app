@@ -1,6 +1,7 @@
 package com.eve.app.ui.admin
 
 import com.eve.app.designsystem.showDestructive
+import com.eve.app.designsystem.showTelegramSourceDialog
 
 import com.eve.app.ui.common.EveBaseActivity
 
@@ -279,7 +280,7 @@ class ManagePremiumActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .showTelegramSourceDialog()
     }
 
     private fun extendUserPremium(user: AdminPremiumUserDto) {

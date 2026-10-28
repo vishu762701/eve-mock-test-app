@@ -1,6 +1,7 @@
 package com.eve.app.ui.admin
 
 import com.eve.app.designsystem.showDestructive
+import com.eve.app.designsystem.showTelegramSourceDialog
 
 import com.eve.app.ui.common.EveBaseActivity
 
@@ -333,7 +334,7 @@ class SendNotificationActivity : EveBaseActivity() {
                 sendNotification(title, message)
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .showTelegramSourceDialog()
     }
 
     private fun sendNotification(title: String, message: String) {

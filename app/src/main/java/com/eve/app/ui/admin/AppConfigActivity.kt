@@ -141,7 +141,7 @@ class AppConfigActivity : EveBaseActivity() {
                         .setTitle("AI Health Check Failed")
                         .setMessage(errMsg)
                         .setPositiveButton("OK", null)
-                        .show()
+                        .showTelegramSourceDialog()
                 } else {
                     val data = res.data
                     val workingModel = data?.workingModel ?: "None"
@@ -171,7 +171,7 @@ class AppConfigActivity : EveBaseActivity() {
                         .setTitle("AI Connection Health")
                         .setMessage(message)
                         .setPositiveButton("OK", null)
-                        .show()
+                        .showTelegramSourceDialog()
                 }
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
@@ -180,7 +180,7 @@ class AppConfigActivity : EveBaseActivity() {
                     .setTitle("AI Health Check Failed")
                     .setMessage(errMsg)
                     .setPositiveButton("OK", null)
-                    .show()
+                    .showTelegramSourceDialog()
             } finally {
                 binding.progressBar.visibility = View.GONE
                 binding.btnTestAiHealth.isEnabled = true

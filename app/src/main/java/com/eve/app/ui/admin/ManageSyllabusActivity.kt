@@ -1,5 +1,6 @@
 package com.eve.app.ui.admin
 
+import com.eve.app.designsystem.showTelegramSourceDialog
 import com.eve.app.ui.common.EveBaseActivity
 
 import android.content.Context
@@ -467,7 +468,7 @@ class ManageSyllabusActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .showTelegramSourceDialog()
     }
 
     private val deleteFlow by lazy { AdminDeleteFlow(this) }

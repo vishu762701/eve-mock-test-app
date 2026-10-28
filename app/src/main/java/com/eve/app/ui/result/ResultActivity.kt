@@ -46,6 +46,8 @@ class ResultActivity : EveBaseActivity() {
     private val viewModel: ResultViewModel by viewModels()
     private lateinit var allItems: List<AnswerItem>
     private lateinit var binding: ActivityResultBinding
+    private var reattemptLimitDialog: AlertDialog? = null
+    private var reattemptConfirmDialog: AlertDialog? = null
 
     private var currentExamName: String = ""
     private var currentExamId: String = ""
@@ -712,28 +714,22 @@ class ResultActivity : EveBaseActivity() {
     }
 
     private fun showReattemptDialog(examId: String, examName: String) {
+        if (isFinishing || isDestroyed || reattemptConfirmDialog?.isShowing == true || reattemptLimitDialog?.isShowing == true) return
         lifecycleScope.launch {
             val canReattempt = com.eve.app.util.AttemptLimitManager.canAttempt(this@ResultActivity, examId)
+            if (isFinishing || isDestroyed) return@launch
             if (!canReattempt) {
                 val limitDialog = MaterialAlertDialogBuilder(this@ResultActivity)
                     .setTitle("Attempt Limit Reached")
                     .setMessage("You have reached the maximum limit of 3 attempts for this test. Normal users can attempt each test at most 3 times.")
                     .setPositiveButton("OK", null)
                     .create()
-                limitDialog.setOnShowListener {
-                    val decorView = limitDialog.window?.decorView
-                    if (decorView != null) {
-                        com.eve.app.designsystem.UiArcMotion.animateDialogEntrance(decorView)
-                    }
-                    limitDialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setOnClickListener {
-                        if (decorView != null) {
-                            com.eve.app.designsystem.UiArcMotion.animateDialogExit(decorView) { limitDialog.dismiss() }
-                        } else {
-                            limitDialog.dismiss()
-                        }
-                    }
+                limitDialog.setOnDismissListener { dismissed ->
+                    if (reattemptLimitDialog === dismissed) reattemptLimitDialog = null
                 }
                 limitDialog.show()
+                reattemptLimitDialog = limitDialog
+                com.eve.app.ui.home.TelegramDialogSourceBackground.apply(limitDialog)
                 return@launch
             }
 
@@ -745,20 +741,12 @@ class ResultActivity : EveBaseActivity() {
                 .create()
 
             dialog.setOnShowListener {
-                val decorView = dialog.window?.decorView
-                if (decorView != null) {
-                    com.eve.app.designsystem.UiArcMotion.animateDialogEntrance(decorView)
-                }
                 val confirmBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 val cancelBtn = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
                 confirmBtn.setTextColor(ContextCompat.getColor(this@ResultActivity, R.color.system_red_text))
 
                 cancelBtn.setOnClickListener {
-                    if (decorView != null) {
-                        com.eve.app.designsystem.UiArcMotion.animateDialogExit(decorView) { dialog.dismiss() }
-                    } else {
-                        dialog.dismiss()
-                    }
+                    dialog.dismiss()
                 }
 
                 confirmBtn.setOnClickListener {
@@ -787,17 +775,9 @@ class ResultActivity : EveBaseActivity() {
                                     putExtra(Constants.EXTRA_EXAM_CATEGORY, category)
                                     putExtra(Constants.EXTRA_TIME_LIMIT, timeLimit)
                                 }
-                                if (decorView != null) {
-                                    com.eve.app.designsystem.UiArcMotion.animateDialogExit(decorView) {
-                                        dialog.dismiss()
-                                        startActivity(testIntent)
-                                        finish()
-                                    }
-                                } else {
-                                    dialog.dismiss()
-                                    startActivity(testIntent)
-                                    finish()
-                                }
+                                dialog.dismiss()
+                                startActivity(testIntent)
+                                finish()
                             } else {
                                 confirmBtn.isEnabled = true
                                 cancelBtn.isEnabled = true
@@ -815,7 +795,12 @@ class ResultActivity : EveBaseActivity() {
                 }
             }
 
+            dialog.setOnDismissListener { dismissed ->
+                if (reattemptConfirmDialog === dismissed) reattemptConfirmDialog = null
+            }
             dialog.show()
+            reattemptConfirmDialog = dialog
+            com.eve.app.ui.home.TelegramDialogSourceBackground.apply(dialog, preserveDestructivePositive = true)
         }
     }
 
@@ -832,6 +817,10 @@ class ResultActivity : EveBaseActivity() {
     }
 
     override fun onDestroy() {
+        reattemptLimitDialog?.dismiss()
+        reattemptLimitDialog = null
+        reattemptConfirmDialog?.dismiss()
+        reattemptConfirmDialog = null
         super.onDestroy()
         if (isFinishing) {
             ResultDataHolder.clear()

@@ -1,5 +1,6 @@
 package com.eve.app.ui.admin
 
+import com.eve.app.designsystem.showTelegramSourceDialog
 import com.eve.app.ui.common.EveBaseActivity
 
 import android.annotation.SuppressLint
@@ -212,7 +213,7 @@ class ManageExamsActivity : EveBaseActivity() {
                                 finish()
                             }
                             .setNeutralButton("Cancel", null)
-                            .show()
+                            .showTelegramSourceDialog()
                     } else {
                         finish()
                     }
@@ -230,7 +231,7 @@ class ManageExamsActivity : EveBaseActivity() {
                             exitNewMainExamModeAndRestore()
                         }
                         .setNeutralButton("Cancel", null)
-                        .show()
+                        .showTelegramSourceDialog()
                 } else {
                     exitNewMainExamModeAndRestore()
                 }
@@ -246,7 +247,7 @@ class ManageExamsActivity : EveBaseActivity() {
                             enterNewMainExamMode()
                         }
                         .setNeutralButton("Cancel", null)
-                        .show()
+                        .showTelegramSourceDialog()
                 } else {
                     enterNewMainExamMode()
                 }
@@ -266,7 +267,7 @@ class ManageExamsActivity : EveBaseActivity() {
                             exitNewSubExamModeAndRestore()
                         }
                         .setNeutralButton("Cancel", null)
-                        .show()
+                        .showTelegramSourceDialog()
                 } else {
                     exitNewSubExamModeAndRestore()
                 }
@@ -282,7 +283,7 @@ class ManageExamsActivity : EveBaseActivity() {
                             enterNewSubExamMode()
                         }
                         .setNeutralButton("Cancel", null)
-                        .show()
+                        .showTelegramSourceDialog()
                 } else {
                     enterNewSubExamMode()
                 }
@@ -375,7 +376,7 @@ class ManageExamsActivity : EveBaseActivity() {
                 binding.actvExam.setText(selectedMainExam?.examName.orEmpty(), false)
                 updateSubExamDropdown()
             }
-            .show()
+            .showTelegramSourceDialog()
     }
 
     private fun selectExamEntity(exam: Exam) {
@@ -843,7 +844,7 @@ class ManageExamsActivity : EveBaseActivity() {
                                 .setTitle("Generation Successful")
                                 .setMessage("Successfully generated $generatedCount questions for '$examName'.\n\nYou can review or publish them in the Generated Tests section below.")
                                 .setPositiveButton("OK", null)
-                                .show()
+                                .showTelegramSourceDialog()
                             loadExams(targetExamId = targetId)
                             loadGeneratedTestsForExam()
                         }
@@ -857,7 +858,7 @@ class ManageExamsActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .showTelegramSourceDialog()
     }
 
     private var listLoadJob: kotlinx.coroutines.Job? = null
@@ -948,7 +949,7 @@ class ManageExamsActivity : EveBaseActivity() {
             .setTitle(test.displayTitle)
             .setMessage(formattedText.toString())
             .setPositiveButton("Close", null)
-            .show()
+            .showTelegramSourceDialog()
     }
 
     private val deleteFlow by lazy { AdminDeleteFlow(this) }
@@ -1079,7 +1080,7 @@ class ManageExamsActivity : EveBaseActivity() {
                 clipboard.setPrimaryClip(clip)
                 android.widget.Toast.makeText(context, "Details copied to clipboard", android.widget.Toast.LENGTH_SHORT).show()
             }
-            .show()
+            .showTelegramSourceDialog()
     }
 
     private fun getCurrentFormAsExam(): Exam {
@@ -1343,7 +1344,7 @@ class ManageExamsActivity : EveBaseActivity() {
                         exitNewSubExamModeAndRestore()
                     }
                     .setNeutralButton("Cancel", null)
-                    .show()
+                    .showTelegramSourceDialog()
             } else {
                 exitNewSubExamModeAndRestore()
             }
@@ -1363,7 +1364,7 @@ class ManageExamsActivity : EveBaseActivity() {
                             finish()
                         }
                         .setNeutralButton("Cancel", null)
-                        .show()
+                        .showTelegramSourceDialog()
                 } else {
                     finish()
                 }
@@ -1381,7 +1382,7 @@ class ManageExamsActivity : EveBaseActivity() {
                         exitNewMainExamModeAndRestore()
                     }
                     .setNeutralButton("Cancel", null)
-                    .show()
+                    .showTelegramSourceDialog()
             } else {
                 exitNewMainExamModeAndRestore()
             }
@@ -1398,7 +1399,7 @@ class ManageExamsActivity : EveBaseActivity() {
                     finish()
                 }
                 .setNeutralButton("Cancel", null)
-                .show()
+                .showTelegramSourceDialog()
         } else {
             finish()
         }

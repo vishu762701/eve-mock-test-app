@@ -26,6 +26,7 @@ import com.eve.app.R
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.databinding.ActivityProfileBinding
 import com.eve.app.ui.about.AboutActivity
+import com.eve.app.ui.home.TelegramDialogSourceBackground
 import com.eve.app.util.ProfilePhotoManager
 import com.eve.app.util.ReminderScheduler
 import com.eve.app.util.SessionManager
@@ -335,7 +336,10 @@ class ProfileActivity : EveBaseActivity() {
         }
         builder.setView(layout)
         builder.setCancelable(false)
-        progressDialog = builder.create().apply { show() }
+        progressDialog = builder.create().apply {
+            show()
+            TelegramDialogSourceBackground.apply(this)
+        }
     }
 
     private fun dismissProgress() {

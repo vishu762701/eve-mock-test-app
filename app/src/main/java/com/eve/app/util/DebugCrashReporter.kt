@@ -156,6 +156,7 @@ object DebugCrashReporter {
         }
 
         dialog.show()
+        com.eve.app.ui.home.TelegramDialogSourceBackground.apply(dialog)
     }
 
     private fun checkAndShowDialog(activity: Activity) {

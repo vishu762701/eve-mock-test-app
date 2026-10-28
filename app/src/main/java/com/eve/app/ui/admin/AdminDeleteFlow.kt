@@ -1,6 +1,7 @@
 package com.eve.app.ui.admin
 
 import com.eve.app.designsystem.showDestructive
+import com.eve.app.designsystem.showTelegramSourceDialog
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -55,7 +56,12 @@ class AdminDeleteFlow(private val activity: AppCompatActivity, private val api: 
                         }
                     }
                 }
-                dialog.setOnDismissListener { if (!processing) pending.remove(key) }.show()
+                dialog.setOnDismissListener { if (!processing) pending.remove(key) }
+                if (info.canDelete) {
+                    dialog.showDestructive()
+                } else {
+                    dialog.showTelegramSourceDialog()
+                }
             } catch (e: CancellationException) { pending.remove(key); throw e }
             catch (e: Exception) { pending.remove(key); showFailure(e); refresh() }
         }
@@ -107,6 +113,6 @@ class AdminDeleteFlow(private val activity: AppCompatActivity, private val api: 
             (activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
                 .setPrimaryClip(ClipData.newPlainText("Eve request ID", requestId))
         }
-        dialog.show()
+        dialog.showTelegramSourceDialog()
     }
 }

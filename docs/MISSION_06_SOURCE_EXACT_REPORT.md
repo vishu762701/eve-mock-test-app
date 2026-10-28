@@ -234,3 +234,22 @@ Latest source-neutral logic patches from prior section remain intact: all-catego
 ## Verified source correction — Home Bookmarks icon (2026-10-28)
 
 The existing `ic_bookmark.webp` four-density files are already verified unchanged official Telegram `msg_saved.webp` originals at owner-approved `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`. A later source audit compared all four source/EVE Git blob SHA-1 values and found them **identical**, disproving the assumption that this asset was a Tabler alternative. The intervening `d55ef3a6` commit imported another *genuine* Telegram icon, `menu_browser_bookmarks.webp`, but that represents the Telegram browser bookmarking feature, not Saved Messages or saved exam questions. A forward fix restored the existing appropriate source icon and deleted the four files newly added by that misguided swap; it also replaced the test with original `msg_saved.webp` SHA-256/Git-blob assertions. The error and its correction are recorded transparently; no original Telegram or EVE saved content was lost. The correction's exact commit/FAST result must be checked at the live remote SHA.
+
+
+## Workstream 5 completion & card geometry polish (2026-10-28)
+
+- **ResultActivity**: Reattempt confirmation and 3-attempt limit dialogs migrated to `TelegramDialogSourceBackground.apply(...)`. Re-entrancy guards prevent double-launch; `preserveDestructivePositive = true` maintains the red action button contrast. Both dialog references are dismissed in `onDestroy()`.
+- **Admin activities dialog migration**:
+  - `AdminActivity`: Plain dialog builders routed through `showTelegramSourceDialog()`; custom view dialogs (Feedback Post, Home Banner, Floating Link, Post Replies, Export progress) styled via `TelegramDialogSourceBackground.apply()`.
+  - `ManageExamsActivity`: 14 plain dialog builders (prompts, generation confirm/success/error, test details) migrated to `showTelegramSourceDialog()`.
+  - `AdminDeleteFlow`: Uses `showDestructive()` on confirmed deletion; non-deletable and failure alerts use `showTelegramSourceDialog()`.
+  - `EditAboutActivity`: Tab-switching and back-navigation unsaved-changes alerts migrated to `showTelegramSourceDialog()`.
+  - `ManageUsersActivity`: Student details and enable user use `showTelegramSourceDialog()`; disable user uses `showDestructive()`.
+  - `FlaggedQuestionsActivity`, `GeneratedTestsActivity`, `ManagePremiumActivity`, `ManageSyllabusActivity`, `SendNotificationActivity`, `AdminAnalyticsActivity`: All dialogs migrated to `showTelegramSourceDialog()`.
+  - `AppConfigActivity`: AI health check failure and connection health dialogs migrated to `showTelegramSourceDialog()`.
+  - `ProfileActivity` & `SettingsActivity`: Custom progress dialogs styled with `TelegramDialogSourceBackground.apply(this)`.
+  - `DebugCrashReporter`: Crash alert dialog styled with `TelegramDialogSourceBackground.apply(dialog)`.
+- **Card Geometry Polish (`item_exam.xml`)**: Removed redundant `android:layout_marginBottom="@dimen/design_card_gap"` from inner `examIconContainer`, eliminating vertical center asymmetry and clipping risk.
+- **Contract Unit Tests**:
+  - `ResultReattemptSourceDialogTest.kt`: Enforces re-entrancy protection, lifecycle safety, `TelegramDialogSourceBackground` application, destructive contrast preservation, and reset/navigation intents.
+  - `AdminDialogSourceContractTest.kt`: Verifies all plain and custom dialog builders across `AdminActivity`, `ManageExamsActivity`, `AdminDeleteFlow`, and secondary admin activities route through source adapters.
