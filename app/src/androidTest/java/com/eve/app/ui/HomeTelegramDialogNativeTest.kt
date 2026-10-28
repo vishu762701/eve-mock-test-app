@@ -50,6 +50,9 @@ class HomeTelegramDialogNativeTest {
                     assertNotNull("Cancel button must remain present", negative)
                     assertEquals("Delete", positive.text.toString())
                     assertEquals("Cancel", negative.text.toString())
+                    assertEquals("EVE destructive Delete text role must remain authoritative",
+                        androidx.core.content.ContextCompat.getColor(activity, com.eve.app.R.color.design_destructive_text),
+                        positive.currentTextColor)
                     val palette = TelegramThemeEngine.resolveCurrentPalette(activity)
                     if (palette.isDark) {
                         assertEquals("Original DarkAlertDialog message must be white",
@@ -72,6 +75,7 @@ class HomeTelegramDialogNativeTest {
                 val dialog = MaterialAlertDialogBuilder(activity)
                     .setTitle("Select App Language")
                     .setSingleChoiceItems(arrayOf("System", "English", "Hindi"), 0) { d, _ -> d.dismiss() }
+                    .setPositiveButton("Apply", null)
                     .setNegativeButton("Cancel", null)
                     .showTelegramSourceDialog()
                 try {
@@ -79,6 +83,12 @@ class HomeTelegramDialogNativeTest {
                     assertTrue("Verified Telegram dialog nine-patch must be installed",
                         dialog.window?.decorView?.background is NinePatchDrawable)
                     assertEquals("Cancel", dialog.getButton(AlertDialog.BUTTON_NEGATIVE).text.toString())
+                    if (TelegramThemeEngine.resolveCurrentPalette(activity).isDark) {
+                        assertEquals("Original DarkAlertDialog positive text must be white",
+                            Color.WHITE, dialog.getButton(AlertDialog.BUTTON_POSITIVE).currentTextColor)
+                        assertEquals("Original DarkAlertDialog negative text must be white",
+                            Color.WHITE, dialog.getButton(AlertDialog.BUTTON_NEGATIVE).currentTextColor)
+                    }
                 } finally {
                     dialog.dismiss()
                 }

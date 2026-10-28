@@ -51,9 +51,14 @@ class TelegramDialogSourceAssetsTest {
             !typography.contains("setBackground") &&
                 !typography.contains("setTextColor") &&
                 !typography.contains("backgroundTint"))
-        assertTrue("Only the negative button may receive DarkAlertDialog white text",
-            helper.contains("dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(Color.WHITE)") &&
-                !helper.contains("dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor"))
+        // Source DarkAlertDialog explicitly uses white for all normal action roles.
+        // EVE's destructive positive has an owner-approved contrasting fill instead.
+        assertTrue(helper.contains("dialog.getButton(AlertDialog.BUTTON_NEUTRAL)?.setTextColor(Color.WHITE)"))
+        assertTrue(helper.contains("if (!preserveDestructivePositive)"))
+        assertTrue(helper.contains("dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(Color.WHITE)"))
+        val central = File("src/main/java/com/eve/app/designsystem/DesignDialogs.kt").readText()
+        assertTrue("Destructive positive must not inherit the original white action role",
+            central.contains("dialog, preserveDestructivePositive = true"))
     }
 
     @Test fun dialogTypographyMatchesOriginalSizesAndMediumFaceWithAccessibleScaling() {
@@ -87,9 +92,10 @@ class TelegramDialogSourceAssetsTest {
         val central = File("src/main/java/com/eve/app/designsystem/DesignDialogs.kt").readText()
         assertTrue(central.contains("fun AlertDialog.Builder.showDestructive(): AlertDialog"))
         assertTrue(central.contains("ViewCompat.setBackgroundTintList(button"))
-        assertTrue(central.contains("TelegramDialogSourceBackground.apply(dialog)"))
+        assertTrue(central.contains("TelegramDialogSourceBackground.apply("))
+        assertTrue(central.contains("preserveDestructivePositive = true"))
         assertTrue("Original Source applies after mandatory EVE destructive tint",
-            central.indexOf("TelegramDialogSourceBackground.apply(dialog)") >
+            central.indexOf("TelegramDialogSourceBackground.apply(") >
                 central.indexOf("R.color.design_destructive_text"))
         val coveredOwners = listOf(
             "ui/admin/AdminDeleteFlow.kt",
@@ -115,10 +121,10 @@ class TelegramDialogSourceAssetsTest {
         assertTrue("No duplicated direct adapter after shared source integration",
             !block.contains("TelegramDialogSourceBackground.apply(dialog)"))
         val central = File("src/main/java/com/eve/app/designsystem/DesignDialogs.kt").readText()
-        assertTrue(central.contains("TelegramDialogSourceBackground.apply(dialog)"))
+        assertTrue(central.contains("TelegramDialogSourceBackground.apply("))
         assertTrue("Preserve destructive button color before source background",
             central.indexOf("R.color.design_destructive_fill") <
-                central.indexOf("TelegramDialogSourceBackground.apply(dialog)"))
+                central.indexOf("TelegramDialogSourceBackground.apply("))
         assertTrue(helper.contains("R.drawable.telegram_dialog_popup_fixed_alert4"))
         assertTrue(helper.contains("palette.dialogSurface"))
         assertTrue(helper.contains("PorterDuff.Mode.MULTIPLY"))

@@ -23,7 +23,7 @@ import com.eve.app.R
 import com.eve.app.theme.TelegramThemeEngine
 
 internal object TelegramDialogSourceBackground {
-    fun apply(dialog: AlertDialog) {
+    fun apply(dialog: AlertDialog, preserveDestructivePositive: Boolean = false) {
         val drawable = AppCompatResources.getDrawable(
             dialog.context, R.drawable.telegram_dialog_popup_fixed_alert4
         )?.mutate() ?: return
@@ -31,8 +31,8 @@ internal object TelegramDialogSourceBackground {
         // Normal AlertDialog.java:307,314-317 uses the dialogBackground role.
         // The original DarkAlertDialog.java:13-17 *explicitly overrides* it with
         // #262626 and assigns white to dialog text, buttons and scroll glow.
-        // Mapping EVE Night to this original variant is scoped to the
-        // shared EVE-owned destructive-confirmation path, not system dialogs.
+        // Scope: EVE-owned confirmations and choice dialogs, not system dialogs.
+        // A destructive positive action is the only intentional source color exception.
         val surface = if (palette.isDark) 0xFF262626.toInt() else palette.dialogSurface
         drawable.colorFilter = PorterDuffColorFilter(surface, PorterDuff.Mode.MULTIPLY)
         dialog.window?.setBackgroundDrawable(drawable)
@@ -46,7 +46,9 @@ internal object TelegramDialogSourceBackground {
         dialog.findViewById<TextView>(android.R.id.message)?.setTextSize(
             TypedValue.COMPLEX_UNIT_SP, 16f
         )
-        for (which in intArrayOf(AlertDialog.BUTTON_POSITIVE, AlertDialog.BUTTON_NEGATIVE)) {
+        for (which in intArrayOf(
+            AlertDialog.BUTTON_POSITIVE, AlertDialog.BUTTON_NEGATIVE, AlertDialog.BUTTON_NEUTRAL
+        )) {
             dialog.getButton(which)?.let { button ->
                 button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
                 button.typeface = FontManager.telegramMediumTypeface(dialog.context)
@@ -57,8 +59,13 @@ internal object TelegramDialogSourceBackground {
         if (palette.isDark) {
             dialog.findViewById<TextView>(android.R.id.message)?.setTextColor(Color.WHITE)
             dialog.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)?.setTextColor(Color.WHITE)
-            // Keep positive deletion's explicitly required destructive fill/contrast.
+            // Original DarkAlertDialog.java:11-19: key_dialogButton=white.
+            // Do not overwrite EVE's explicitly authorized red Delete/Remove action.
             dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(Color.WHITE)
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL)?.setTextColor(Color.WHITE)
+            if (!preserveDestructivePositive) {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(Color.WHITE)
+            }
         }
     }
 }

@@ -18,7 +18,9 @@ fun AlertDialog.Builder.showDestructive(): AlertDialog = show().also { dialog ->
     // Source-backed normal AlertDialog/DarkAlertDialog background and typography.
     // Scope: EVE-owned destructive confirmations only; system dialogs unchanged.
     // Apply after positive-button styling so Delete/Remove retains its fill/color.
-    com.eve.app.ui.home.TelegramDialogSourceBackground.apply(dialog)
+    com.eve.app.ui.home.TelegramDialogSourceBackground.apply(
+        dialog, preserveDestructivePositive = true
+    )
 }
 
 /** Source-backed EVE-owned informational/choice dialog; callbacks are unchanged. */
