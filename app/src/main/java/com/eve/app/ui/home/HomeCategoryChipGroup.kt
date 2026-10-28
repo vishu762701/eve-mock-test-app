@@ -3,11 +3,15 @@ package com.eve.app.ui.home
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Rect
+import android.graphics.RectF
 import android.graphics.Region
 import android.graphics.drawable.GradientDrawable
 import android.text.Layout
 import kotlin.math.ceil
 import android.util.AttributeSet
+import android.os.SystemClock
+import com.eve.app.designsystem.UiArcMotion
+import org.telegram.ui.Components.CubicBezierInterpolator
 import android.view.MotionEvent
 import android.view.TouchDelegate
 import android.view.View
@@ -31,26 +35,109 @@ class HomeCategoryChipGroup @JvmOverloads constructor(context: Context, attrs: A
     }
     private var selectorColor: Int? = null
 
-    override fun dispatchDraw(canvas: Canvas) {
-        // Original FilterTabsView draws its selector BEHIND the title with alpha=31.
-        // The Home host is an Android ChipGroup rather than Telegram RecyclerListView.
+    private val originalInterpolator = CubicBezierInterpolator.EASE_OUT_QUINT
+    private var lastRenderedBounds: RectF? = null
+    private var fromBounds: RectF? = null
+    private var toBounds: RectF? = null
+    private var animatingIndicator = false
+    private var animationTime = 0f
+    private var lastAnimationTime = 0L
+
+    // Source: FilterTabsView.java:855-881. Original frame delta cap=17ms,
+    // accumulated time divided by 320ms, EASE_OUT_QUINT interpolation.
+    private val indicatorAnimation = object : Runnable {
+        override fun run() {
+            if (!animatingIndicator) return
+            val newTime = SystemClock.elapsedRealtime()
+            val dt = (newTime - lastAnimationTime).coerceIn(0L, 17L)
+            lastAnimationTime = newTime
+            animationTime += dt / 320.0f
+            val progress = originalInterpolator.getInterpolation(animationTime.coerceIn(0f, 1f))
+            val from = fromBounds
+            val to = toBounds
+            if (from != null && to != null) {
+                lastRenderedBounds = RectF(
+                    lerp(from.left, to.left, progress),
+                    lerp(from.top, to.top, progress),
+                    lerp(from.right, to.right, progress),
+                    lerp(from.bottom, to.bottom, progress)
+                )
+            }
+            invalidate()
+            if (animationTime < 1f) {
+                postOnAnimation(this)
+            } else {
+                animatingIndicator = false
+                lastRenderedBounds = toBounds?.let(::RectF)
+                fromBounds = null
+                toBounds = null
+            }
+        }
+    }
+
+    private fun lerp(start: Float, end: Float, progress: Float): Float =
+        start + (end - start) * progress
+
+    private fun selectedIndicatorBounds(): RectF? {
         val selected = (0 until childCount).asSequence()
             .mapNotNull { getChildAt(it) as? Chip }
             .firstOrNull { it.isChecked && it.visibility == View.VISIBLE }
-        if (selected != null && selected.width > 0) {
-            val desiredWidth = ceil(Layout.getDesiredWidth(selected.text, selected.paint).toDouble()).toFloat()
-            val indicatorWidth = maxOf(dp(16f), desiredWidth)
-            val x = selected.x + (selected.width - indicatorWidth) / 2f
-            val y = height / 2f - dp(14f)
-            val internalPadding = dp(12.5f)
+            ?: return null
+        if (selected.width <= 0) return null
+        val desiredWidth = ceil(Layout.getDesiredWidth(selected.text, selected.paint).toDouble()).toFloat()
+        val indicatorWidth = maxOf(dp(16f), desiredWidth)
+        val x = selected.x + (selected.width - indicatorWidth) / 2f
+        val y = height / 2f - dp(14f)
+        val padding = dp(12.5f)
+        return RectF(x - padding, y, x + indicatorWidth + padding, y + dp(28f))
+    }
+
+    private fun selectedCategoryChanged() {
+        removeCallbacks(indicatorAnimation)
+        val target = selectedIndicatorBounds()
+        val previous = lastRenderedBounds
+        if (target == null || previous == null ||
+            !UiArcMotion.isMotionEnabled(context) || !isAttachedToWindow ||
+            (previous.left == target.left && previous.right == target.right)) {
+            animatingIndicator = false
+            lastRenderedBounds = target
+            fromBounds = null
+            toBounds = null
+            invalidate()
+            return
+        }
+        fromBounds = RectF(previous)
+        toBounds = RectF(target)
+        animationTime = 0f
+        lastAnimationTime = SystemClock.elapsedRealtime()
+        animatingIndicator = true
+        postOnAnimation(indicatorAnimation)
+    }
+
+    override fun onDetachedFromWindow() {
+        removeCallbacks(indicatorAnimation)
+        animatingIndicator = false
+        fromBounds = null
+        toBounds = null
+        lastRenderedBounds = null
+        super.onDetachedFromWindow()
+    }
+
+    override fun dispatchDraw(canvas: Canvas) {
+        // Telegram FilterTabsView.java:1448-1514, 28dp/14dp/alpha31 selector.
+        // Home uses existing single-line ChipGroup rather than Telegram RecyclerListView.
+        val target = selectedIndicatorBounds()
+        val shown = if (animatingIndicator) lastRenderedBounds ?: target else target
+        if (!animatingIndicator) lastRenderedBounds = target?.let(::RectF)
+        if (shown != null) {
             val color = TelegramThemeEngine.resolveCurrentPalette(context).filterTabLine
             if (selectorColor != color) {
                 selectorColor = color
                 selectorDrawable.setColor(color)
             }
             selectorDrawable.setBounds(
-                (x - internalPadding).toInt(), y.toInt(),
-                (x + indicatorWidth + internalPadding).toInt(), (y + dp(28f)).toInt()
+                shown.left.toInt(), shown.top.toInt(),
+                shown.right.toInt(), shown.bottom.toInt()
             )
             selectorDrawable.alpha = 31
             selectorDrawable.draw(canvas)
@@ -62,7 +149,7 @@ class HomeCategoryChipGroup @JvmOverloads constructor(context: Context, attrs: A
         val inset = Math.round(8f * resources.displayMetrics.density)
         setPaddingRelative(paddingStart, inset, paddingEnd, inset)
         minimumHeight = Math.round(48f * resources.displayMetrics.density)
-        setOnCheckedStateChangeListener { _, _ -> invalidate() }
+        setOnCheckedStateChangeListener { _, _ -> selectedCategoryChanged() }
         addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> updateTouchDelegates() }
     }
 
@@ -77,6 +164,11 @@ class HomeCategoryChipGroup @JvmOverloads constructor(context: Context, attrs: A
 
     override fun onViewRemoved(child: View) {
         super.onViewRemoved(child)
+        removeCallbacks(indicatorAnimation)
+        animatingIndicator = false
+        lastRenderedBounds = null
+        fromBounds = null
+        toBounds = null
         updateTouchDelegates()
     }
 
