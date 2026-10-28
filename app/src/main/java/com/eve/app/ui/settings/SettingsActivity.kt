@@ -44,6 +44,7 @@ class SettingsActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
     private var progressDialog: AlertDialog? = null
+    private var passwordReauthenticationDialog: AlertDialog? = null
     private var deleteConfirmationDialog: AlertDialog? = null
     private var deleteConfirmArmedAt: Long = 0L
     private var deleteTimeoutJob: kotlinx.coroutines.Job? = null
@@ -395,7 +396,7 @@ class SettingsActivity : EveBaseActivity() {
 
     private fun promptReauthentication() {
         // EVE-owned authentication prompt must not leak a destroyed Activity.
-        if (isFinishing || isDestroyed) return
+        if (isFinishing || isDestroyed || passwordReauthenticationDialog?.isShowing == true) return
         val user = FirebaseAuth.getInstance().currentUser ?: return
         if (user.providerData.any { it.providerId == EmailAuthProvider.PROVIDER_ID }) {
             val email = user.email?.takeIf { it.isNotBlank() } ?: return
@@ -443,7 +444,17 @@ class SettingsActivity : EveBaseActivity() {
                     }
                 }
             }
+            dialog.setOnDismissListener {
+                // Clear the password on any dismissal, including Activity teardown.
+                field.text?.clear()
+                if (passwordReauthenticationDialog === dialog) passwordReauthenticationDialog = null
+            }
             dialog.show()
+            passwordReauthenticationDialog = dialog
+            // Original Telegram AlertDialog.java:302-318,680-693 and
+            // DarkAlertDialog.java:11-19. Preserve the existing password view
+            // and OnShow Verify listener rather than swapping the host class.
+            com.eve.app.ui.home.TelegramDialogSourceBackground.apply(dialog)
             return
         }
         MaterialAlertDialogBuilder(this)
@@ -469,6 +480,8 @@ class SettingsActivity : EveBaseActivity() {
         deleteTimeoutJob?.cancel()
         deleteConfirmationDialog?.dismiss()
         deleteConfirmationDialog = null
+        passwordReauthenticationDialog?.dismiss()
+        passwordReauthenticationDialog = null
         dismissProgress()
         super.onDestroy()
     }
