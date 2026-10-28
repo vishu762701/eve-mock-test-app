@@ -16,6 +16,7 @@ import com.eve.app.data.model.Question
 import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.data.repository.FlaggedQuestionRepository
 import com.eve.app.util.AppBulletin
+import com.eve.app.ui.home.TelegramDialogSourceBackground
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -78,6 +79,11 @@ object ReportQuestionDialog {
             .create()
 
         dialog.show()
+        // Telegram AlertDialog.java:302-318,680-693,809-821,874-878 and
+        // DarkAlertDialog.java:11-19: original 9-patch, tint and type roles.
+        // Retain the custom Report Question form and non-auto-dismissing
+        // positive button: validation and server submission must remain intact.
+        TelegramDialogSourceBackground.apply(dialog)
 
         val btnSubmit = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
         btnSubmit.setOnClickListener {
