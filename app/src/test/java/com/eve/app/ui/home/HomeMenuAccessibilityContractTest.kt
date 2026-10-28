@@ -80,6 +80,20 @@ class HomeMenuAccessibilityContractTest {
         assertTrue(glass.contains("if (source != null) background = source"))
     }
 
+    @Test fun sourcePopupRetainsInputModeAndMenuKeyDismissContract() {
+        val source = File("src/main/java/com/eve/app/ui/home/TelegramMenuPopup.kt").readText()
+        val init = source.substringAfter("    init {").substringBefore("        setupThemeCard()")
+        assertTrue(init.contains("inputMethodMode = PopupWindow.INPUT_METHOD_NOT_NEEDED"))
+        assertTrue(init.contains("softInputMode = WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED"))
+        assertTrue(init.contains("binding.root.isFocusableInTouchMode = true"))
+        assertTrue(init.contains("keyCode == KeyEvent.KEYCODE_MENU"))
+        assertTrue(init.contains("event.repeatCount == 0"))
+        assertTrue(init.contains("event.action == KeyEvent.ACTION_UP && isShowing"))
+        assertTrue(init.contains("dismiss()"))
+        assertTrue(source.contains("isOutsideTouchable = true"))
+        assertTrue(source.contains("isClippingEnabled = true"))
+    }
+
     @Test fun originalActionBarMenuItemDisablesPlatformPopupAnimationForCustomCascade() {
         val popup = File("src/main/java/com/eve/app/ui/home/TelegramMenuPopup.kt").readText()
         val shown = popup.substringAfter("fun show(anchorView: View)")

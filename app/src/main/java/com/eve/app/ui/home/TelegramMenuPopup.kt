@@ -13,6 +13,8 @@ import androidx.core.content.ContextCompat
 import com.eve.app.designsystem.TelegramPopupSourceBackground
 import com.eve.app.theme.TelegramThemeEngine
 import android.graphics.drawable.ColorDrawable
+import android.view.KeyEvent
+import android.view.WindowManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -54,6 +56,20 @@ class TelegramMenuPopup(
         height = ViewGroup.LayoutParams.WRAP_CONTENT
         isFocusable = true
         isOutsideTouchable = true
+        // ActionBarMenuItem.java:855-863: Telegram popup content owns its
+        // keyboard focus, not the Activity IME or an Android window transition.
+        inputMethodMode = PopupWindow.INPUT_METHOD_NOT_NEEDED
+        softInputMode = WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED
+        binding.root.isFocusableInTouchMode = true
+        binding.root.setOnKeyListener { _, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_MENU && event.repeatCount == 0 &&
+                event.action == KeyEvent.ACTION_UP && isShowing) {
+                dismiss()
+                true
+            } else {
+                false
+            }
+        }
         // Original Telegram 9-patch supplies its own perimeter shadow.
         elevation = 0f
         setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))

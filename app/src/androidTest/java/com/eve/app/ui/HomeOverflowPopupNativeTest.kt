@@ -54,6 +54,12 @@ class HomeOverflowPopupNativeTest {
                 assertTrue("Home popup must be attached", popup.isShowing)
                 assertEquals("Telegram ActionBarMenuItem disables platform popup transitions",
                     0, popup.animationStyle)
+                assertEquals("Original Telegram submenu does not consume IME insets",
+                    android.widget.PopupWindow.INPUT_METHOD_NOT_NEEDED, popup.inputMethodMode)
+                assertEquals("Original Telegram submenu keeps neutral soft-input state",
+                    android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED, popup.softInputMode)
+                assertTrue("Original Telegram popup root owns keyboard focus",
+                    popup.contentView.isFocusableInTouchMode)
                 val root = popup.contentView
                 assertTrue("Source-backed Telegram background must wrap the original 9-patch",
                     root.background is com.eve.app.designsystem.TelegramPopupSourceBackground)
