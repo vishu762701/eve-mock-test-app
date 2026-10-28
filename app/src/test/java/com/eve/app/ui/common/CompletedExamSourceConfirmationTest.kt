@@ -30,6 +30,11 @@ class CompletedExamSourceConfirmationTest {
         assertTrue(code.contains("HomeViewModel.markAttemptCleared(examId)"))
         assertTrue(code.contains("onReattemptConfirmed()"))
         assertTrue(code.contains("onDismiss?.invoke()"))
-        assertTrue(code.contains("openReview(att)"))
+        assertTrue("Review helper must preserve original saved answer payload",
+            code.contains("ResultDataHolder.setAnswers(att.answers)"))
+        assertTrue("Direct completed attempt still opens review",
+            code.contains("openReview(attempt)"))
+        assertTrue("Fetched completed attempt still opens review",
+            code.contains("openReview(found)"))
     }
 }
