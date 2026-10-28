@@ -677,6 +677,9 @@ class MainActivity : EveBaseActivity() {
         cancelSearchVisualAnimations()
         searchTransitionAnimator?.cancel()
         binding.etSearch.text?.clear()
+        // Original Telegram ActionBarMenuItem.java:986 clears search focus on
+        // collapse; hiding IME alone can leave focus on an invisible input.
+        binding.etSearch.clearFocus()
         searchDebounceJob?.cancel()
         currentSearchQuery = ""
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager

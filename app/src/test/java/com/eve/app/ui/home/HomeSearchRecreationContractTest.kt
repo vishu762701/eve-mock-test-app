@@ -28,6 +28,10 @@ class HomeSearchRecreationContractTest {
         assertTrue(code.contains("imm?.showSoftInput("))
         assertTrue(code.contains("imm?.hideSoftInputFromWindow("))
         assertTrue(code.contains("binding.etSearch.text?.clear()"))
+        assertTrue("Telegram source clears keyboard focus during collapse",
+            code.contains("binding.etSearch.clearFocus()"))
+        assertTrue("Expand still restores keyboard focus for typing",
+            code.contains("binding.etSearch.requestFocus()"))
         assertTrue(code.contains("binding.chipGroupCategory.visibility = View.GONE"))
         assertTrue(code.contains("binding.chipGroupCategory.visibility = View.VISIBLE"))
     }
