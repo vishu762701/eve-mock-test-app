@@ -13,6 +13,8 @@ import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.ui.common.EveBaseActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.eve.app.designsystem.showTelegramSourceDialog
+import androidx.appcompat.app.AlertDialog
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
@@ -31,6 +33,7 @@ class SystemMonitorActivity : EveBaseActivity() {
     private var offset = 0
     private var nextOffset: Int? = null
     private var loading = false
+    private var retryConfirmationDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -158,8 +161,10 @@ class SystemMonitorActivity : EveBaseActivity() {
     }
 
     private fun confirmRetry(id: String) {
-        if (loading) return
-        MaterialAlertDialogBuilder(this)
+        // Telegram AlertDialog.java:325-328: never present a stale Activity window;
+        // keep only one owner-controlled Retry confirmation visible.
+        if (loading || isFinishing || isDestroyed || retryConfirmationDialog?.isShowing == true) return
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle("Retry generation?")
             .setMessage("Uses the current exam syllabus and settings. A complete validated test will be created only if generation succeeds.")
             .setNegativeButton("Cancel", null)
@@ -172,10 +177,27 @@ class SystemMonitorActivity : EveBaseActivity() {
                 lifecycleScope.launch {
                     try { checked { ApiClient.api.retryGenerationJob(id) } }
                     catch (e: CancellationException) { throw e }
-                    catch (e: Exception) { MaterialAlertDialogBuilder(this@SystemMonitorActivity).setMessage(e.toUserFriendlyMessage()).setPositiveButton("OK", null).show() }
+                    catch (e: Exception) {
+                        if (!isFinishing && !isDestroyed) {
+                            MaterialAlertDialogBuilder(this@SystemMonitorActivity)
+                                .setMessage(e.toUserFriendlyMessage())
+                                .setPositiveButton("OK", null)
+                                .showTelegramSourceDialog()
+                        }
+                    }
                     finally { loading = false; offset = 0; load() }
                 }
-            }.show()
+            }.showTelegramSourceDialog()
+        retryConfirmationDialog = dialog
+        dialog.setOnDismissListener {
+            if (retryConfirmationDialog === dialog) retryConfirmationDialog = null
+        }
+    }
+
+    override fun onDestroy() {
+        retryConfirmationDialog?.dismiss()
+        retryConfirmationDialog = null
+        super.onDestroy()
     }
 
     private fun JsonObject.string(key: String): String = get(key)?.takeUnless { it.isJsonNull }?.asString.orEmpty()
