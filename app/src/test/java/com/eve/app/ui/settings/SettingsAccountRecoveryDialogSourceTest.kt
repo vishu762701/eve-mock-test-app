@@ -47,7 +47,8 @@ class SettingsAccountRecoveryDialogSourceTest {
     @Test fun googleReauthenticationKeepsOriginalLoginFlowAndSourceNightDialog() {
         val recovery = source.substringAfter("private fun promptReauthentication()")
             .substringBefore("override fun onDestroy()")
-        assertTrue(recovery.contains("if (isFinishing || isDestroyed) return"))
+        assertTrue("Google reauthentication must be gated by Activity safety AND the active password prompt",
+            recovery.contains("if (isFinishing || isDestroyed || passwordReauthenticationDialog?.isShowing == true) return"))
         assertTrue(recovery.contains(".setTitle(\"Re-authentication Required\")"))
         assertTrue(recovery.contains(".setPositiveButton(\"Sign In\")"))
         assertTrue(recovery.contains(".setNegativeButton(\"Cancel\", null)"))
