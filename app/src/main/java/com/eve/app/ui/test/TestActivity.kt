@@ -53,6 +53,11 @@ class TestActivity : EveBaseActivity() {
     private var pyqPaper = ""
     private var totalQuestions = 0
     private var submitted = false
+    // Confirmation windows are owned by this Activity, never by the ViewModel.
+    // Prevent rapid Back/Submit taps from stacking duplicate windows.
+    private var leaveConfirmDialog: AlertDialog? = null
+    private var submitConfirmDialog: AlertDialog? = null
+    private var isLeavingTest = false
     private var adminRepository = AdminRepository()
     private var isAdminUser = false
     private var hasEmptyPlayed = false
@@ -214,19 +219,30 @@ class TestActivity : EveBaseActivity() {
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
+                if (isFinishing || isDestroyed || isLeavingTest ||
+                    leaveConfirmDialog?.isShowing == true) return
                 AlertDialog.Builder(this@TestActivity)
                     .setTitle("Leave Test?")
                     .setMessage("Your progress is saved. You can resume this test anytime.")
                     .setPositiveButton("Leave") { _, _ ->
-                        val currentPos = binding.viewPager.currentItem
-                        viewModel.stopTimer()
-                        lifecycleScope.launch {
-                            try { viewModel.pauseSession(examId, currentPos) }
-                            finally { finish() }
+                        if (!isLeavingTest) {
+                            isLeavingTest = true
+                            val currentPos = binding.viewPager.currentItem
+                            viewModel.stopTimer()
+                            lifecycleScope.launch {
+                                try { viewModel.pauseSession(examId, currentPos) }
+                                finally { finish() }
+                            }
                         }
                     }
                     .setNegativeButton("Continue", null)
-                    .show()
+                    .setOnDismissListener { leaveConfirmDialog = null }
+                    .show().also { dialog ->
+                        leaveConfirmDialog = dialog
+                        // Original AlertDialog.java:302-318,680-693,809-821.
+                        // Host remains AndroidX; the original 9-patch/roles are reused.
+                        com.eve.app.ui.home.TelegramDialogSourceBackground.apply(dialog)
+                    }
             }
         })
 
@@ -431,6 +447,8 @@ class TestActivity : EveBaseActivity() {
     }
 
     private fun confirmSubmit() {
+        if (submitted || submitConfirmDialog?.isShowing == true ||
+            isFinishing || isDestroyed) return
         val counts = QuestionPaletteAdapter.calculateSubmitDialogCounts(
             totalQuestions = totalQuestions,
             answeredIndices = viewModel.getAnsweredIndices(),
@@ -447,10 +465,15 @@ class TestActivity : EveBaseActivity() {
             .setMessage(message)
             .setPositiveButton("Submit") { _, _ -> submit() }
             .setNegativeButton("Cancel", null)
+            .setOnDismissListener { submitConfirmDialog = null }
             .create()
 
         com.eve.app.designsystem.DesignSurfaces.dialog(dialog)
         dialog.show()
+        submitConfirmDialog = dialog
+        // Preserve exam palette counts and server-authoritative submit callback.
+        // Original AlertDialog.java window background and typography only.
+        com.eve.app.ui.home.TelegramDialogSourceBackground.apply(dialog)
     }
 
     private fun submit() {
@@ -707,6 +730,11 @@ class TestActivity : EveBaseActivity() {
     }
 
     override fun onDestroy() {
+        // Release Activity-owned windows before detaching their window tokens.
+        leaveConfirmDialog?.dismiss()
+        submitConfirmDialog?.dismiss()
+        leaveConfirmDialog = null
+        submitConfirmDialog = null
         super.onDestroy()
         com.eve.app.typography.TypographyRepository.getInstance(this).setTestSessionActive(false)
     }
