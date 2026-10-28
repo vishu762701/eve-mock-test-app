@@ -113,6 +113,7 @@ class MainActivity : EveBaseActivity() {
     private var restoreThemeContent = false
     private var themeListState: android.os.Parcelable? = null
     private var lastLoadedItems: List<HomeListItem> = emptyList()
+    private var lastSearchItems: List<HomeListItem> = emptyList()
     private var searchDebounceJob: Job? = null
 
     private var notifJob: Job? = null
@@ -777,13 +778,13 @@ class MainActivity : EveBaseActivity() {
 
     private fun applyCurrentList() {
         if (isSearchActive && currentSearchQuery.isNotEmpty()) {
-            val q = currentSearchQuery.lowercase()
-            val filtered = lastLoadedItems.filter { item ->
+            val q = currentSearchQuery
+            val filtered = lastSearchItems.filter { item ->
                 when (item) {
                     is HomeListItem.ExamRow ->
-                        item.exam.examName.lowercase().contains(q) || item.exam.categoryOrOther.lowercase().contains(q)
+                        HomeSearchText.matches(q, item.exam.examName, item.exam.categoryOrOther)
                     is HomeListItem.FeedbackPostRow ->
-                        item.post.title.lowercase().contains(q) || item.post.message.lowercase().contains(q)
+                        HomeSearchText.matches(q, item.post.title, item.post.message)
                     is HomeListItem.Header -> false
                 }
             }
@@ -1271,6 +1272,7 @@ class MainActivity : EveBaseActivity() {
                 binding.btnRetry.visibility = View.GONE
                 val data = state.data
                 lastLoadedItems = data.items
+                lastSearchItems = data.searchItems
                 renderChips(data.categories, data.selectedCategory)
                 applyCurrentList()
                 if (restoreThemeContent) {

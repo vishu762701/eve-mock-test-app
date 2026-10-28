@@ -19,5 +19,8 @@ sealed class HomeListItem {
 data class HomeUiData(
     val categories: List<String>,
     val selectedCategory: String,
-    val items: List<HomeListItem>
+    val items: List<HomeListItem>,
+    // Search spans every visible exam category even when Home is filtered to one chip.
+    // Separate from 'items' so the selected Home category remains unchanged.
+    val searchItems: List<HomeListItem> = items
 )

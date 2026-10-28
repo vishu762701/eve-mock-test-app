@@ -353,6 +353,18 @@ class HomeViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
             items.addAll(remainingExams.sortedBy { it.examName }.map { HomeListItem.ExamRow(it, it.id in attempted, isPinned = false, attempt = attemptsMap[it.id]) })
         }
 
-        return HomeUiData(categories, effectiveSelected, items)
+        // Search uses one row per main exam across ALL categories, not repeated
+        // Continue/Pinned/Target presentation rows from the selected Home list.
+        // Feedback posts also remain discoverable while the category bar is hidden.
+        val searchItems = buildList<HomeListItem> {
+            mainExams.forEach { exam ->
+                add(HomeListItem.ExamRow(exam, exam.id in attempted,
+                    isPinned = exam.id in pinned, attempt = attemptsMap[exam.id]))
+            }
+            feedbackPosts.sortedByDescending { it.timestamp }.forEach { post ->
+                add(HomeListItem.FeedbackPostRow(post))
+            }
+        }
+        return HomeUiData(categories, effectiveSelected, items, searchItems)
     }
 }
