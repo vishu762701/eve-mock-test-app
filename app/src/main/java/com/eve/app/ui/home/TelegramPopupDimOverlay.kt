@@ -32,7 +32,7 @@ class TelegramPopupDimOverlay(
     private var preDrawListener: ViewTreeObserver.OnPreDrawListener? = null
     private val point = FloatArray(2)
 
-    val dimView: View = object : View(context) {
+    inner class DimView(context: Context) : View(context) {
         var dimProgress = 0f
             set(value) {
                 if (field == value) return
@@ -59,6 +59,8 @@ class TelegramPopupDimOverlay(
             }
         }
     }
+
+    val dimView = DimView(context)
 
     init {
         dimView.isClickable = false
