@@ -45,6 +45,21 @@ class TelegramDialogSourceAssetsTest {
             !helper.contains("BUTTON_POSITIVE"))
     }
 
+    @Test fun dialogTypographyMatchesOriginalSizesAndMediumFaceWithAccessibleScaling() {
+        val source = File("src/main/java/com/eve/app/ui/home/TelegramDialogSourceBackground.kt").readText()
+        val main = File("src/main/java/com/eve/app/ui/home/MainActivity.kt").readText()
+        assertTrue("Original title uses 20-unit typography", source.contains("TypedValue.COMPLEX_UNIT_SP, 20f"))
+        assertTrue("Original message and actions use 16-unit typography",
+            source.contains("TypedValue.COMPLEX_UNIT_SP, 16f"))
+        assertTrue("Original AndroidUtilities.bold maps to Telegram medium face",
+            source.contains("FontManager.telegramMediumTypeface(dialog.context)"))
+        assertTrue("Preserve the registered destructive confirmation behavior",
+            main.contains("adminDeleteFlow.removeConfirmed(") &&
+            main.contains(".showDestructive().also { dialog ->"))
+        assertTrue("Don't shrink 48dp accessible buttons to Telegram's 40dp visual size",
+            !source.contains("minimumHeight") && !source.contains("layoutParams.height"))
+    }
+
     @Test fun homeAdminFeedbackDialogKeepsOriginalDestructiveActionsAndSourceRole() {
         val main = File("src/main/java/com/eve/app/ui/home/MainActivity.kt").readText()
         val block = main.substringAfter("private fun handleFeedbackPostLongClick")

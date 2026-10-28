@@ -14,6 +14,8 @@ package com.eve.app.ui.home
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.widget.TextView
+import android.util.TypedValue
+import com.eve.app.util.FontManager
 import android.graphics.PorterDuffColorFilter
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.content.res.AppCompatResources
@@ -33,6 +35,24 @@ internal object TelegramDialogSourceBackground {
         val surface = if (palette.isDark) 0xFF262626.toInt() else palette.dialogSurface
         drawable.colorFilter = PorterDuffColorFilter(surface, PorterDuff.Mode.MULTIPLY)
         dialog.window?.setBackgroundDrawable(drawable)
+        // Original AlertDialog.java:809-821,874-878,1137-1204 uses title=20,
+        // message=16, actions=16 and AndroidUtilities.bold() (Roboto Medium).
+        // EVE deliberately specifies SP instead of original DIP to retain font scaling.
+        dialog.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)?.let { title ->
+            title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f)
+            title.typeface = FontManager.telegramMediumTypeface(dialog.context)
+        }
+        dialog.findViewById<TextView>(android.R.id.message)?.setTextSize(
+            TypedValue.COMPLEX_UNIT_SP, 16f
+        )
+        for (which in intArrayOf(AlertDialog.BUTTON_POSITIVE, AlertDialog.BUTTON_NEGATIVE)) {
+            dialog.getButton(which)?.let { button ->
+                button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+                button.typeface = FontManager.telegramMediumTypeface(dialog.context)
+                // Keep EVE's existing 48dp-or-larger accessible targets and styling.
+            }
+        }
+
         if (palette.isDark) {
             dialog.findViewById<TextView>(android.R.id.message)?.setTextColor(Color.WHITE)
             dialog.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)?.setTextColor(Color.WHITE)
