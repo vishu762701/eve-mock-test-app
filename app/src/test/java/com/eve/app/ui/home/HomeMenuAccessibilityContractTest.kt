@@ -197,4 +197,24 @@ class HomeMenuAccessibilityContractTest {
             popup.contains("val targetWidth = maxOf(binding.root.measuredWidth, minPopupWidth).coerceAtMost(maxWidth)"))
         assertTrue(!popup.contains("targetWidth = minOf((250f"))
     }
+
+    @Test fun itemOptionsDimOverlayMatchesUpstreamDimViewContract() {
+        val popup = File("src/main/java/com/eve/app/ui/home/TelegramMenuPopup.kt").readText()
+        val overlay = File("src/main/java/com/eve/app/ui/home/TelegramPopupDimOverlay.kt").readText()
+        assertTrue("Popup uses TelegramPopupDimOverlay instead of FLAG_DIM_BEHIND",
+            popup.contains("TelegramPopupDimOverlay(context, container, anchorView, dimAlpha = 0x08)"))
+        assertTrue("FLAG_DIM_BEHIND not used on window",
+            !popup.contains("FLAG_DIM_BEHIND"))
+        assertTrue("Overlay default dimAlpha is 0x08 per DialogsActivity.java:13678",
+            overlay.contains("dimAlpha: Int = 0x08"))
+        assertTrue("Overlay animates progress over 150ms per ItemOptions.java:1347",
+            overlay.contains("duration = 150L"))
+        assertTrue("Overlay renders anchor view on top of dim per ItemOptions.java:2192-2194",
+            overlay.contains("anchor.draw(canvas)"))
+        assertTrue("Overlay uses OnPreDrawListener for synchronized invalidation",
+            overlay.contains("ViewTreeObserver.OnPreDrawListener"))
+        assertTrue("Overlay cleans up on dismissal and immediate teardown",
+            popup.contains("dimOverlay?.dismiss(animated = true)") &&
+                popup.contains("dimOverlay?.dismiss(animated = false)"))
+    }
 }
