@@ -321,6 +321,7 @@ class MainActivity : EveBaseActivity() {
         // Telegram-style Search setup
         Log.e("EVE_STARTUP", "stage: setupSearch")
         setupSearch()
+        restoreSearchPresentation(savedInstanceState)
 
         // Telegram-style overflow menu setup
         binding.btnOverflow.setOnClickListener { anchor ->
@@ -524,6 +525,29 @@ class MainActivity : EveBaseActivity() {
                 binding.maintenanceOverlay.visibility = View.GONE
             }
         }
+    }
+
+    /**
+     * Recreate the active search surface without replaying entrance motion or forcing
+     * the keyboard. Android owns restored IME/window focus; the query is immediately
+     * available to the next Home state render rather than waiting for debounce.
+     */
+    private fun restoreSearchPresentation(savedInstanceState: Bundle?) {
+        if (savedInstanceState?.getBoolean("home_search_active") != true) return
+        isSearchActive = true
+        val query = savedInstanceState.getString("home_search_query").orEmpty()
+        binding.etSearch.setText(query)
+        binding.etSearch.setSelection(binding.etSearch.text?.length ?: 0)
+        searchDebounceJob?.cancel()
+        currentSearchQuery = query.trim()
+        binding.btnClearSearch.visibility = if (currentSearchQuery.isEmpty()) View.GONE else View.VISIBLE
+        binding.normalTopBar.visibility = View.GONE
+        binding.normalTopBar.alpha = 0f
+        binding.searchTopBar.visibility = View.VISIBLE
+        binding.searchTopBar.alpha = 1f
+        binding.btnSearchBack.alpha = 1f
+        binding.etSearch.alpha = 1f
+        binding.chipGroupCategory.visibility = View.GONE
     }
 
     private fun setupSearch() {
@@ -1183,6 +1207,11 @@ class MainActivity : EveBaseActivity() {
         outState.putBoolean("key_empty_played", hasEmptyPlayed)
         if (::binding.isInitialized) {
             outState.putParcelable("theme_home_list_state", binding.rvExams.layoutManager?.onSaveInstanceState())
+            outState.putBoolean("home_search_active", isSearchActive)
+            if (isSearchActive) {
+                // Save the actual input, not the last (possibly debounced) search result.
+                outState.putString("home_search_query", binding.etSearch.text?.toString().orEmpty())
+            }
         }
     }
 
