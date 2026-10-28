@@ -171,6 +171,25 @@ class EveDesignSystemTest {
 
 
 
+    /** Scope the owner's pure-black Night override to the Home drawer, not shared surfaces. */
+    @Test
+    fun homeDrawerBackgroundHasIsolatedBlackNightOverride() {
+        val day = parseColorMap("src/main/res/values/design_colors.xml")
+        val night = parseColorMap("src/main/res/values-night/design_colors.xml")
+        assertEquals("@color/surface", day["home_drawer_background"])
+        assertEquals("#FF000000", night["home_drawer_background"])
+        assertEquals("#181819", night["surface"])
+        val root = loadXml("src/main/res/layout/activity_main.xml")
+        val panel = findElementById(root, "navDrawerPanel")
+        assertEquals("@drawable/design_home_drawer_panel", panel?.designAttribute("android:background"))
+        val shape = loadXml("src/main/res/drawable/design_home_drawer_panel.xml")
+        val solid = shape.getElementsByTagName("solid").item(0) as Element
+        assertEquals("@color/home_drawer_background", solid.getAttribute("android:color"))
+        val source = File(getProjectDir(), "app/src/main/java/com/eve/app/ui/home/MainActivity.kt").readText()
+        assertTrue("Drawer runtime fill must use the dedicated owner role",
+            source.contains("ContextCompat.getColor(this, R.color.home_drawer_background)"))
+    }
+
     /** ChipGroup must never toggle the active Home category off on a repeat tap. */
     @Test
     fun homeCategoryRequiresExactlyOneSelectedChip() {

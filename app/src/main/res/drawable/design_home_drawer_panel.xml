@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home drawer only: preserve existing panel curvature, override Night fill to black. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/home_drawer_background" />
+    <corners android:radius="@dimen/design_radius_card" />
+</shape>

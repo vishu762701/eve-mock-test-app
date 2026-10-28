@@ -19,6 +19,8 @@
 
 
     <color name="bg_app">#F1F1F3</color>
+    <!-- Home side-drawer only. Night #000000 is an explicit owner override. -->
+    <color name="home_drawer_background">@color/surface</color>
     <color name="surface">#FFFFFF</color>
     <color name="system_red">#FF383C</color>
     <color name="system_red_container">#1FFF383C</color>

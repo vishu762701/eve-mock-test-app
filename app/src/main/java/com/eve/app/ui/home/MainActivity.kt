@@ -1304,8 +1304,9 @@ class MainActivity : EveBaseActivity() {
     private fun prepareDrawerSurface() {
         // Drawer content is opaque; retain listener and animation ownership unchanged.
         binding.ivDrawerGlassBlurBackground.setImageDrawable(null)
+        // Explicit owner Night override: keep this drawer black; do not change other surfaces.
         binding.ivDrawerGlassBlurBackground.setBackgroundColor(
-            com.eve.app.designsystem.EveDesignSystem.Colors.surface(this))
+            ContextCompat.getColor(this, R.color.home_drawer_background))
     }
 
     private var pendingDrawerDestination: Intent? = null

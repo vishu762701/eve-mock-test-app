@@ -16,8 +16,9 @@
 | 01 | Original shared primitives | No changes | Expected SHA mismatch | BLOCKED | None |
 | 02 | Toolbar scroll seam | `MainActivity.kt:1116-1119`, `EveGlassToolbar.kt:40-65`, `SystemBarHelper.kt:130-162`; root cause not established by device measurements | Source fidelity unverified | NOT VERIFIED | None |
 | 03 | Telegram-exact search renderer/physics | `MainActivity.kt:562-728` currently uses `UiArcMotion` | Source identity mismatch | BLOCKED | None |
-| 04 | Category single-selection functional guard | `activity_main.xml:49` now requires selection; `EveDesignSystemTest.kt` XML contract; `HomeCategorySelectionNativeTest.kt` on-device repeated-tap test | No Telegram styling/physics changed | IMPLEMENTED, runtime NOT YET VERIFIED | Commit and SHA-specific FAST result to be recorded after CI |
-| 05–15 | Source look, cards, popup, drawer, alerts, physics, integration and release | Not changed in this microstep | Exact comparisons pending accepted source and validation | PENDING / SOURCE BLOCKED where necessary | None |
+| 04 | Category single-selection functional guard | `activity_main.xml:49` now requires selection; `EveDesignSystemTest.kt` XML contract; `HomeCategorySelectionNativeTest.kt` on-device repeated-tap test | No Telegram styling/physics changed | IMPLEMENTED, runtime NOT YET VERIFIED | \`e996dcc9d920a714fe21dadec287faff29e65e43\`; FAST [#40620365549](https://github.com/vishu762701/eve-mock-test-app/actions/runs/40620365549) **SUCCESS** |
+| 09 | Owner's drawer-only pure-black Night background | `MainActivity.prepareDrawerSurface()`, `navDrawerPanel` and drawer-only `home_drawer_background` resource; retained existing corner token and six rows | Owner override, explicitly **not** Telegram Night's original drawer surface | IMPLEMENTED, runtime NOT YET VERIFIED | SHA-specific FAST pending |
+| 05–08, 10–15 | Source look, cards, popup, drawer motion, alerts, physics, integration and release | Unchanged by this step | Exact comparisons pending accepted source and validation | PENDING / SOURCE BLOCKED where necessary | None |
 
 ## Scope and evidence constraints
 
@@ -25,4 +26,4 @@ The Microstep 04 change affects only the Home filter's state contract, not Day/N
 
 ## Remaining quality gates
 
-Current SHA-specific FAST, runtime native gesture/three-button, source renderer/property mapping, visual frame comparison, physical Samsung device and mission-final FULL/APK: **NOT VERIFIED** until each has actual evidence. Owner night drawer #000000 remains a pending explicit override, not a claimed source-exact Telegram color.
+Current SHA-specific FAST, runtime native gesture/three-button, source renderer/property mapping, visual frame comparison, physical Samsung device and mission-final FULL/APK: **NOT VERIFIED** until each has actual evidence. Owner night drawer #000000 is an **implemented owner override** with Day/Night resource-contract assertions; final native pixel verification is still pending. This black background is not claimed as Telegram's own Night drawer color.
