@@ -43,6 +43,7 @@ class SettingsActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
     private var progressDialog: AlertDialog? = null
+    private var deleteConfirmationDialog: AlertDialog? = null
     private var deleteConfirmArmedAt: Long = 0L
     private var deleteTimeoutJob: kotlinx.coroutines.Job? = null
 
@@ -259,6 +260,9 @@ class SettingsActivity : EveBaseActivity() {
     }
 
     private fun showDeleteAccountConfirmation() {
+        // Official Telegram AndroidUtilities.isSafeToShow():6255-6267.
+        // Never stack destructive windows or show one during Activity teardown.
+        if (isFinishing || isDestroyed || deleteConfirmationDialog?.isShowing == true) return
         val dialog = MaterialAlertDialogBuilder(this)
             .setTitle("Delete Account")
             .setMessage("Warning: Deleting your account is permanent. All your data (profile, test attempts, results, history, leaderboard entries, pinned tests and notifications) will be erased and cannot be recovered. Do you want to continue?")
@@ -268,6 +272,7 @@ class SettingsActivity : EveBaseActivity() {
                 d.dismiss()
             }
             .showDestructive()
+        deleteConfirmationDialog = dialog
 
         deleteConfirmArmedAt = android.os.SystemClock.elapsedRealtime()
         dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setOnClickListener {
@@ -291,6 +296,7 @@ class SettingsActivity : EveBaseActivity() {
 
         dialog.setOnDismissListener {
             deleteTimeoutJob?.cancel()
+            if (deleteConfirmationDialog === dialog) deleteConfirmationDialog = null
         }
     }
 
@@ -453,6 +459,8 @@ class SettingsActivity : EveBaseActivity() {
 
     override fun onDestroy() {
         deleteTimeoutJob?.cancel()
+        deleteConfirmationDialog?.dismiss()
+        deleteConfirmationDialog = null
         dismissProgress()
         super.onDestroy()
     }
