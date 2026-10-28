@@ -1289,7 +1289,10 @@ class MainActivity : EveBaseActivity() {
                     if (data.categories.size <= 1 || isSearchActive) View.GONE else View.VISIBLE
 
                 if (!TargetExamsBottomSheet.isOnboardingDone(this@MainActivity)) {
-                    val mainExams = data.items.filterIsInstance<HomeListItem.ExamRow>().map { it.exam }.filter { it.isMainExam }
+                    // Onboarding must offer ALL published main exams, even if Home opens
+                    // with a persisted category filter. Search index has no duplicate cards.
+                    val mainExams = data.searchItems.filterIsInstance<HomeListItem.ExamRow>()
+                        .map { it.exam }.filter { it.isMainExam }
                     if (mainExams.isNotEmpty()) {
                         TargetExamsBottomSheet.show(this@MainActivity, mainExams) {
                             viewModel.refreshTargetExams()

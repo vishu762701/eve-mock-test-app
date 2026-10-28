@@ -29,6 +29,16 @@ class HomeSearchTextTest {
         }
     }
 
+    @Test fun targetExamOnboardingIsNotRestrictedBySelectedCategory() {
+        val activity = File("src/main/java/com/eve/app/ui/home/MainActivity.kt").readText()
+        val onboarding = activity.substringAfter("if (!TargetExamsBottomSheet.isOnboardingDone")
+            .substringBefore("TargetExamsBottomSheet.show")
+        assertTrue("Target exam onboarding must see all main exams, not selected category only",
+            onboarding.contains("data.searchItems.filterIsInstance<HomeListItem.ExamRow>()"))
+        assertTrue("Category-specific normal Home list is unchanged",
+            activity.contains("lastLoadedItems = data.items"))
+    }
+
     @Test fun searchReadsUnfilteredRowsButLeavesHomeCategoryListUntouched() {
         val vm = File("src/main/java/com/eve/app/ui/home/HomeViewModel.kt").readText()
         val activity = File("src/main/java/com/eve/app/ui/home/MainActivity.kt").readText()
