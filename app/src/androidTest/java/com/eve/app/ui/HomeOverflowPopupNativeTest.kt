@@ -92,6 +92,11 @@ class HomeOverflowPopupNativeTest {
                         row.height >= (48 * root.resources.displayMetrics.density).toInt() - 1)
                     val label = (row as android.view.ViewGroup).getChildAt(1) as TextView
                     assertTrue("Popup label may not be cropped to zero width: $id", label.width > 0)
+                    assertTrue("Original Telegram menu title stays on one line: $id", label.isSingleLine)
+                    assertEquals("Original Telegram menu title must end-ellipsize: $id",
+                        android.text.TextUtils.TruncateAt.END, label.ellipsize)
+                    assertEquals("Full title must remain readable by TalkBack: $id",
+                        label.text.toString(), row.contentDescription.toString())
                 }
                 scroll.scrollTo(0, scroll.getChildAt(0).height)
                 assertTrue("Last popup destination remains mounted", root.findViewById<View>(R.id.menuRowLogout).isAttachedToWindow)

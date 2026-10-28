@@ -92,6 +92,19 @@ class HomeMenuAccessibilityContractTest {
         assertTrue(!motion.contains("root.scaleY =") && !motion.contains("View.SCALE_Y"))
     }
 
+    @Test fun originalTelegramPopupTitlesAreSingleLineEndEllipsizedWithoutAccessibilityLoss() {
+        val source = File("src/main/java/com/eve/app/ui/home/TelegramMenuPopup.kt").readText()
+        val roles = source.substringAfter("private fun applyOriginalMenuRoles()")
+            .substringBefore("private fun dismissWithAction(")
+        assertTrue("Telegram ActionBarMenuSubItem.java:91-98 requires one visual line",
+            roles.contains("child.setSingleLine(true)"))
+        assertTrue("Telegram original visual menu titles end-ellipsize",
+            roles.contains("child.ellipsize = android.text.TextUtils.TruncateAt.END"))
+        assertTrue("Full untruncated title remains available to screen readers",
+            roles.contains("row.contentDescription = child.text"))
+        assertTrue(roles.contains("row.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES"))
+    }
+
     @Test fun allRowsAreReadAsSingleDynamicLabelWithoutDecorativeDuplication() {
         val source = File("src/main/java/com/eve/app/ui/home/TelegramMenuPopup.kt").readText()
         val roles = source.substringAfter("private fun applyOriginalMenuRoles()")

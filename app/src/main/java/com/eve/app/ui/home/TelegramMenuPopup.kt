@@ -236,6 +236,11 @@ class TelegramMenuPopup(
             for (index in 0 until row.childCount) {
                 when (val child = row.getChildAt(index)) {
                     is android.widget.TextView -> {
+                        // Original ActionBarMenuSubItem.java:91-98: a single title
+                        // line with END ellipsis. Keep the COMPLETE text on its
+                        // 48dp accessibility row even if the visual label truncates.
+                        child.setSingleLine(true)
+                        child.ellipsize = android.text.TextUtils.TruncateAt.END
                         child.setTextColor(palette.submenuText)
                         row.contentDescription = child.text
                         child.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
