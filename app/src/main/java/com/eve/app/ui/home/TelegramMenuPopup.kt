@@ -314,14 +314,14 @@ class TelegramMenuPopup(
                     }
                 }
             }
-            // Source: ActionBarPopupWindow.java:604-609. Top and bottom rows
-            // have original 6dp corners, while middle rows are square.
+            // Source: ItemOptions.java:1218,1225 & ActionBarMenuSubItem.java:52.
+            // First and last items have 12dp selector corners, while middle rows are square.
             // Remove XML's default foreground to avoid a duplicate ripple.
             row.foreground = null
             row.background = TelegramPopupRadialSelector.create(
                 context, palette.submenuSelector,
-                if (index == 0) 6 else 0,
-                if (index == rows.lastIndex) 6 else 0
+                if (index == 0) 12 else 0,
+                if (index == rows.lastIndex) 12 else 0
             )
         }
     }
