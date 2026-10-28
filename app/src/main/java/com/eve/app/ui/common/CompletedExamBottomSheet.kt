@@ -3,6 +3,7 @@ package com.eve.app.ui.common
 import android.content.Intent
 import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.R
 import com.eve.app.data.model.TestAttempt
@@ -74,33 +75,56 @@ object CompletedExamBottomSheet {
             }
         }
 
+        var reattemptCheckPending = false
+        var reattemptConfirmDialog: AlertDialog? = null
         binding.btnReattempt.setOnClickListener {
+            // One attempt-limit lookup and one confirmation window per tap sequence.
+            if (reattemptCheckPending || reattemptConfirmDialog?.isShowing == true ||
+                activity.isFinishing || activity.isDestroyed || !dialog.isShowing) {
+                return@setOnClickListener
+            }
+            reattemptCheckPending = true
             activity.lifecycleScope.launch {
-                val canReattempt = com.eve.app.util.AttemptLimitManager.canAttempt(activity, examId)
-                if (!canReattempt) {
-                    MaterialAlertDialogBuilder(activity)
-                        .setTitle("Attempt Limit Reached")
-                        .setMessage("You have reached the maximum limit of 3 attempts for this test. Normal users can attempt each test at most 3 times.")
-                        .setPositiveButton("OK", null)
-                        .show()
-                    return@launch
-                }
-
-                MaterialAlertDialogBuilder(activity)
-                    .setTitle(R.string.reattempt_confirm_title)
-                    .setMessage("Are you sure you want to start a new attempt for this test? Each test can be attempted up to 3 times.")
-                    .setNegativeButton(R.string.cancel, null)
-                    .setPositiveButton("Start Attempt") { _, _ ->
-                        binding.btnReattempt.isEnabled = false
-                        com.eve.app.ui.home.HomeViewModel.markAttemptCleared(examId)
-                        dialog.dismiss()
-                        onReattemptConfirmed()
+                try {
+                    val canReattempt = com.eve.app.util.AttemptLimitManager.canAttempt(activity, examId)
+                    // An asynchronous account/attempt lookup must never display a
+                    // late dialog after navigation or host Activity destruction.
+                    if (activity.isFinishing || activity.isDestroyed || !dialog.isShowing) return@launch
+                    val builder = if (!canReattempt) {
+                        MaterialAlertDialogBuilder(activity)
+                            .setTitle("Attempt Limit Reached")
+                            .setMessage("You have reached the maximum limit of 3 attempts for this test. Normal users can attempt each test at most 3 times.")
+                            .setPositiveButton("OK", null)
+                    } else {
+                        MaterialAlertDialogBuilder(activity)
+                            .setTitle(R.string.reattempt_confirm_title)
+                            .setMessage("Are you sure you want to start a new attempt for this test? Each test can be attempted up to 3 times.")
+                            .setNegativeButton(R.string.cancel, null)
+                            .setPositiveButton("Start Attempt") { _, _ ->
+                                binding.btnReattempt.isEnabled = false
+                                com.eve.app.ui.home.HomeViewModel.markAttemptCleared(examId)
+                                dialog.dismiss()
+                                onReattemptConfirmed()
+                            }
                     }
-                    .show()
+                    val confirmation = builder.create()
+                    confirmation.setOnDismissListener { dismissed ->
+                        if (reattemptConfirmDialog === dismissed) reattemptConfirmDialog = null
+                    }
+                    confirmation.show()
+                    reattemptConfirmDialog = confirmation
+                    // Original Telegram AlertDialog.java:302-318,680-693 and
+                    // DarkAlertDialog.java:11-19, not the full original renderer.
+                    com.eve.app.ui.home.TelegramDialogSourceBackground.apply(confirmation)
+                } finally {
+                    reattemptCheckPending = false
+                }
             }
         }
 
         dialog.setOnDismissListener {
+            reattemptConfirmDialog?.dismiss()
+            reattemptConfirmDialog = null
             onDismiss?.invoke()
         }
 
