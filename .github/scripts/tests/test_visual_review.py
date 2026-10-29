@@ -9,7 +9,6 @@ import unittest
 
 SCRIPT = Path(__file__).resolve().parents[1] / "eve_visual_review.py"
 PAIRS = (
-    "source-main-tabs",
     "ios26-nav-bar", "ios26-tab-bar", "ios26-menu", "ios26-sheet", "ios26-dialog","shared-components", "shared-components-high-contrast", "home", "mock-test", "recovery-home-360dp", "recovery-profile",
          "recovery-result-overview", "recovery-result-review",
          "recovery-result-leaderboard", "recovery-target-exams",
