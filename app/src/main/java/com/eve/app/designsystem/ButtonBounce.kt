@@ -63,7 +63,7 @@ class ButtonBounce constructor(
                     }
                 })
                 if (isPressedState) {
-                    interpolator = TelegramThemeEasing
+                    interpolator = org.telegram.ui.Components.CubicBezierInterpolator.DEFAULT
                     duration = (60 * durationPressMultiplier).toLong()
                     startDelay = 0
                 } else {
@@ -73,6 +73,28 @@ class ButtonBounce constructor(
                 }
                 start()
             }
+        }
+    }
+
+    fun bounce() {
+        bounceAnimator?.cancel()
+        bounceAnimator = ValueAnimator.ofFloat(0.9f, 1f).apply {
+            addUpdateListener { anm ->
+                bounceScale = anm.animatedValue as Float
+                invalidate()
+            }
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    if (animation === bounceAnimator) {
+                        bounceAnimator = null
+                        bounceScale = 1f
+                        invalidate()
+                    }
+                }
+            })
+            duration = 320
+            interpolator = OvershootInterpolator()
+            start()
         }
     }
 
