@@ -90,7 +90,6 @@ import com.eve.app.util.isHardcodedAdmin
 import coil.load
 import coil.transform.CircleCropTransformation
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
-import android.view.MotionEvent
 import android.view.ViewConfiguration
 import android.view.HapticFeedbackConstants
 import org.telegram.ui.Components.CubicBezierInterpolator
