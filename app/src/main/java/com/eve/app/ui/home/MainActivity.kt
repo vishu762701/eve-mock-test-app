@@ -144,6 +144,10 @@ class MainActivity : EveBaseActivity() {
     private var activeFloatingLinkUrl: String? = null
     private var activeFloatingLinkData: FloatingLinkData? = null
     private var isFloatingAirplaneAdmin: Boolean = false
+    private var safeInsetTop = 0
+    private var safeInsetBottom = 0
+    private var safeInsetLeft = 0
+    private var safeInsetRight = 0
 
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* ignored */ }
@@ -841,13 +845,19 @@ class MainActivity : EveBaseActivity() {
         applyFloatingAirplaneTheme()
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.cardFloatingAirplane) { view, windowInsets ->
-            // android.R.id.content already owns system-bar/cutout padding; only residual
-            // gesture clearance reaches floating children.
+            val bars = windowInsets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
+            safeInsetTop = bars.top
+            safeInsetBottom = bars.bottom
+            safeInsetLeft = bars.left
+            safeInsetRight = bars.right
+
             val gestures = windowInsets.getInsets(WindowInsetsCompat.Type.systemGestures())
             val baseMarginPx = resources.getDimensionPixelSize(R.dimen.design_screen_margin)
             (view.layoutParams as? ViewGroup.MarginLayoutParams)?.let { lp ->
-                val bottom = gestures.bottom + baseMarginPx
-                val end = baseMarginPx
+                val bottom = maxOf(bars.bottom, gestures.bottom) + baseMarginPx
+                val end = maxOf(bars.right, baseMarginPx)
                 if (lp.bottomMargin != bottom || lp.marginEnd != end) {
                     lp.bottomMargin = bottom
                     lp.marginEnd = end
@@ -953,10 +963,10 @@ class MainActivity : EveBaseActivity() {
                             val cardW = view.width.takeIf { it > 0 } ?: resources.getDimensionPixelSize(R.dimen.floating_link_icon_size)
                             val cardH = view.height.takeIf { it > 0 } ?: resources.getDimensionPixelSize(R.dimen.floating_link_icon_size)
 
-                            val minX = marginPx.toFloat()
-                            val maxX = (parent.width - cardW - marginPx).toFloat().coerceAtLeast(minX)
-                            val minY = marginPx.toFloat()
-                            val maxY = (parent.height - cardH - marginPx).toFloat().coerceAtLeast(minY)
+                            val minX = (safeInsetLeft + marginPx).toFloat()
+                            val maxX = (parent.width - safeInsetRight - cardW - marginPx).toFloat().coerceAtLeast(minX)
+                            val minY = (safeInsetTop + marginPx).toFloat()
+                            val maxY = (parent.height - safeInsetBottom - cardH - marginPx).toFloat().coerceAtLeast(minY)
 
                             val newX = (view.left + startTransX + dx).coerceIn(minX, maxX)
                             val newY = (view.top + startTransY + dy).coerceIn(minY, maxY)
@@ -989,10 +999,10 @@ class MainActivity : EveBaseActivity() {
                             val cardW = view.width.takeIf { it > 0 } ?: resources.getDimensionPixelSize(R.dimen.floating_link_icon_size)
                             val cardH = view.height.takeIf { it > 0 } ?: resources.getDimensionPixelSize(R.dimen.floating_link_icon_size)
 
-                            val minX = marginPx.toFloat()
-                            val maxX = (parent.width - cardW - marginPx).toFloat().coerceAtLeast(minX)
-                            val minY = marginPx.toFloat()
-                            val maxY = (parent.height - cardH - marginPx).toFloat().coerceAtLeast(minY)
+                            val minX = (safeInsetLeft + marginPx).toFloat()
+                            val maxX = (parent.width - safeInsetRight - cardW - marginPx).toFloat().coerceAtLeast(minX)
+                            val minY = (safeInsetTop + marginPx).toFloat()
+                            val maxY = (parent.height - safeInsetBottom - cardH - marginPx).toFloat().coerceAtLeast(minY)
 
                             val currentX = view.left + view.translationX
                             val currentY = view.top + view.translationY
@@ -1089,10 +1099,10 @@ class MainActivity : EveBaseActivity() {
                 val cardW = card.width.takeIf { it > 0 } ?: resources.getDimensionPixelSize(R.dimen.floating_link_icon_size)
                 val cardH = card.height.takeIf { it > 0 } ?: resources.getDimensionPixelSize(R.dimen.floating_link_icon_size)
 
-                val minX = marginPx.toFloat()
-                val maxX = (parent.width - cardW - marginPx).toFloat().coerceAtLeast(minX)
-                val minY = marginPx.toFloat()
-                val maxY = (parent.height - cardH - marginPx).toFloat().coerceAtLeast(minY)
+                val minX = (safeInsetLeft + marginPx).toFloat()
+                val maxX = (parent.width - safeInsetRight - cardW - marginPx).toFloat().coerceAtLeast(minX)
+                val minY = (safeInsetTop + marginPx).toFloat()
+                val maxY = (parent.height - safeInsetBottom - cardH - marginPx).toFloat().coerceAtLeast(minY)
 
                 val targetX = minX + normX.coerceIn(0f, 1f) * (maxX - minX)
                 val targetY = minY + normY.coerceIn(0f, 1f) * (maxY - minY)
