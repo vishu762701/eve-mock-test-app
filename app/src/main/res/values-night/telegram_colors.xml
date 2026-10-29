@@ -8,6 +8,8 @@
     <!-- Telegram night.attheme windowBackgroundWhiteBlueHeader=-9652488, #FF6CB6F8. -->
     <color name="telegram_type_section">#FF6CB6F8</color>
     <color name="telegram_type_dialog">#FFF6F6F6</color>
+    <!-- Telegram night.attheme:129 text_RedBold = -1152913 (#FFEE686F) -->
+    <color name="telegram_text_red_bold">#FFEE686F</color>
     <!-- Owner-requested Night readability override: original Telegram
          night.attheme:292 chats_menuItemIcon=#FF828282 was too dim against
          the owner's opaque #000000 Home drawer. Use primary white here only;
