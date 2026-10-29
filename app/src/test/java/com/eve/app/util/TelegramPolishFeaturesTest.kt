@@ -230,4 +230,15 @@ class TelegramPolishFeaturesTest {
         assertEquals("Default fallback for null/empty key must be 5 (Telegram Blue)", 5, AvatarDrawable.getColorIndex(null))
         assertEquals("Default fallback for blank key must be 5 (Telegram Blue)", 5, AvatarDrawable.getColorIndex("   "))
     }
+
+    @Test
+    fun testAvatar_officialTelegramGradientPalettes() {
+        assertEquals("Must provide exactly 7 Telegram gradient pairs matching ThemeColors.java:161-174", 7, AvatarDrawable.TELEGRAM_GRADIENTS.size)
+        // Red: key_avatar_backgroundRed (0xffFF845E) -> key_avatar_background2Red (0xffD45246)
+        assertEquals(0xFFFF845E.toInt(), AvatarDrawable.TELEGRAM_GRADIENTS[0][0])
+        assertEquals(0xFFD45246.toInt(), AvatarDrawable.TELEGRAM_GRADIENTS[0][1])
+        // Blue: key_avatar_backgroundBlue (0xff5CAFFA) -> key_avatar_background2Blue (0xff408ACF)
+        assertEquals(0xFF5CAFFA.toInt(), AvatarDrawable.TELEGRAM_GRADIENTS[5][0])
+        assertEquals(0xFF408ACF.toInt(), AvatarDrawable.TELEGRAM_GRADIENTS[5][1])
+    }
 }

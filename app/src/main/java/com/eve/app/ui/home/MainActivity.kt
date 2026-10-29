@@ -414,8 +414,9 @@ class MainActivity : EveBaseActivity() {
         hasEmptyPlayed = false
         isExamNavigating = false
         checkAppConfigAndMaintenance()
-        FirebaseAuth.getInstance().currentUser?.let { current ->
-            loadProfilePhoto(current)
+        val current = FirebaseAuth.getInstance().currentUser
+        loadProfilePhoto(current)
+        if (current != null) {
             updateDrawerHeader(current)
             lifecycleScope.launch(lifecycleExceptionHandler) {
                 val admin = adminRepo.isAdmin(current.email)
