@@ -100,14 +100,15 @@ class SettingsActivity : EveBaseActivity() {
 
     private fun setupLogoutSetting() {
         binding.rowLogout.setOnClickListener {
-            showTelegramSourceDialog {
-                setTitle("Log out")
-                setMessage("Are you sure you want to log out?")
-                setPositiveButton("Log out") { _, _ ->
+            if (isFinishing || isDestroyed) return@setOnClickListener
+            MaterialAlertDialogBuilder(this)
+                .setTitle("Log out")
+                .setMessage("Are you sure you want to log out?")
+                .setPositiveButton("Log out") { _, _ ->
                     executeLogout()
                 }
-                setNegativeButton("Cancel", null)
-            }
+                .setNegativeButton("Cancel", null)
+                .showTelegramSourceDialog()
         }
     }
 
