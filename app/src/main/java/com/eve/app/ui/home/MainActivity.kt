@@ -131,7 +131,6 @@ class MainActivity : EveBaseActivity() {
 
     private val floatingLinkRepo = com.eve.app.data.repository.FloatingLinkRepository()
     private var activeFloatingLinkUrl: String? = null
-    private var lastStreakFetchTime: Long = 0L
     private var bottomPill: com.eve.app.ui.navigation.EveBottomPillBar? = null
 
     private val notificationPermissionLauncher =
@@ -270,23 +269,6 @@ class MainActivity : EveBaseActivity() {
         setupTopBarDepth()
 
         com.eve.app.util.SystemBarHelper.syncSystemBars(this)
-
-        // Task H: Immediately restore last-known valid streak state so theme recreation never flashes empty/GONE
-        val cachedStreak = com.eve.app.util.StreakHelper.getCachedStreak(this)
-        if (cachedStreak != null) {
-            val summaryText = com.eve.app.util.StreakHelper.formatStreakText(
-                cachedStreak.currentStreak,
-                cachedStreak.todayCount,
-                cachedStreak.goal
-            )
-            com.eve.app.designsystem.EveDesignSystem.Components.applyStreakPill(
-                binding.layoutStreakPill,
-                binding.tvStreakSummary,
-                summaryText
-            )
-            binding.layoutStreakPill.visibility = View.VISIBLE
-            binding.tvStreakSummary.visibility = View.VISIBLE
-        }
 
         Log.e("EVE_STARTUP", "stage: setupDrawer")
         setupDrawer(user)
@@ -427,42 +409,6 @@ class MainActivity : EveBaseActivity() {
                 viewModel.loadForUser(current.uid, admin)
             }
         }
-
-        val now = System.currentTimeMillis()
-        if (now - lastStreakFetchTime > 60_000L) {
-            lifecycleScope.launch(lifecycleExceptionHandler) {
-                try {
-                    val tzOffset = -java.util.TimeZone.getDefault().getOffset(System.currentTimeMillis()) / 60000
-                    val res = com.eve.app.data.remote.ApiClient.api.getStreak(tzOffset)
-                    if (res.success && res.data != null) {
-                        lastStreakFetchTime = System.currentTimeMillis()
-                        val prefs = getSharedPreferences(com.eve.app.util.StreakHelper.PREFS_NAME, Context.MODE_PRIVATE)
-                        val goal = prefs.getInt(com.eve.app.util.StreakHelper.KEY_DAILY_GOAL, com.eve.app.util.StreakHelper.DEFAULT_DAILY_GOAL)
-                        com.eve.app.util.StreakHelper.saveStreak(
-                            this@MainActivity,
-                            res.data.currentStreak,
-                            res.data.todayCount,
-                            goal
-                        )
-                        val summaryText = com.eve.app.util.StreakHelper.formatStreakText(
-                            res.data.currentStreak,
-                            res.data.todayCount,
-                            goal
-                        )
-                        com.eve.app.designsystem.EveDesignSystem.Components.applyStreakPill(
-                            binding.layoutStreakPill,
-                            binding.tvStreakSummary,
-                            summaryText
-                        )
-                        binding.layoutStreakPill.visibility = View.VISIBLE
-                        binding.tvStreakSummary.visibility = View.VISIBLE
-                    }
-                } catch (_: Exception) {
-                    // Graceful fallback: maintain existing cached state without hiding the streak
-                }
-            }
-        }
-
 
         if (::binding.isInitialized && binding.cardFloatingAirplane.visibility == View.VISIBLE) {
             val animScale = Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f)

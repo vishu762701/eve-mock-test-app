@@ -153,14 +153,12 @@ class Part2UnitTests {
     }
 
     // ------------------------------------------------------------
-    // 5. Streak text formatting tests
+    // 5. Daily goal practice preferences contract
     // ------------------------------------------------------------
     @Test
-    fun testStreakTextFormatting() {
-        val text1 = StreakHelper.formatStreakText(currentStreak = 0, todayCount = 0, goal = 2)
-        assertEquals("0-day streak • Today: 0/2 tests", text1)
-
-        val text2 = StreakHelper.formatStreakText(currentStreak = 3, todayCount = 2, goal = 2)
-        assertEquals("3-day streak • Today: 2/2 tests", text2)
+    fun testStreakHelperGoalConstants() {
+        assertEquals("eve_streak_prefs", StreakHelper.PREFS_NAME)
+        assertEquals("daily_goal", StreakHelper.KEY_DAILY_GOAL)
+        assertEquals(2, StreakHelper.DEFAULT_DAILY_GOAL)
     }
 }

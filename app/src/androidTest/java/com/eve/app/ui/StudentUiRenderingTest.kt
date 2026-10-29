@@ -175,7 +175,7 @@ class StudentUiRenderingTest {
         when (name) {
             "home", "home-drawer", "home-feedback", "home-loading" -> {
                 HomeAppearance.tintNotificationBell(root.findViewById(R.id.btnNotification))
-                text(R.id.tvWelcome, "Hi, Ananya"); show(R.id.layoutStreakPill); text(R.id.tvStreakSummary, "7-day streak")
+                text(R.id.tvWelcome, "Hi, Ananya")
                 val group = root.findViewById<com.google.android.material.chip.ChipGroup>(R.id.chipGroupCategory)
                 for (label in listOf("All", "SSC", "Banking")) group.addView(HomeAppearance.categoryChip(context, label, "All") {})
                 recycler(root, R.id.rvExams, ExamAdapter({ _, _, _ -> }).apply { submit(listOf(HomeListItem.Header("Recommended exams")) +

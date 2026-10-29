@@ -174,8 +174,7 @@ class HomeTypographyTest {
         assertEquals("eve_telegram_type", etSearch?.getAttribute("android:tag"))
 
         val tvStreakSummary = findElementById(root, "tvStreakSummary")
-        assertNotNull(tvStreakSummary)
-        assertEquals("@style/TextAppearance.Eve.Token.Chip.OnAccent", tvStreakSummary?.getAttribute("style"))
+        assertNull("Home streak summary pill must be removed", tvStreakSummary)
 
         val tvOfflineBanner = findElementById(root, "tvOfflineBanner")
         assertNotNull(tvOfflineBanner)

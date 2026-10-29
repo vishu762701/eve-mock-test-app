@@ -108,13 +108,6 @@ object EveDesignSystem {
             }
         }
 
-        fun applyStreakPill(pillContainer: View, textView: TextView, summaryText: CharSequence) {
-            val ctx = pillContainer.context
-            textView.text = summaryText
-            DesignType.apply(textView, DesignType.Role.CHIP)
-            textView.setTextColor(Colors.homeOnAccent(ctx))
-        }
-
         fun applyAdminButton(button: MaterialButton) {
             val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(button.context)
             applyAdminButtonPalette(button, palette)

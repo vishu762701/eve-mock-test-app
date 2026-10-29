@@ -105,15 +105,11 @@ class DesignRecoveryTest {
                     home.tvWelcome.text = "Hi, A very long accessible student name"
                     home.panelHomeBanner.visibility = View.VISIBLE
                     home.btnAdmin.visibility = View.VISIBLE
-                    home.layoutStreakPill.visibility = View.VISIBLE
-                    home.tvStreakSummary.text = "15-day streak"
                     home.chipGroupCategory.addView(com.eve.app.ui.home.HomeAppearance.categoryChip(context, "All", "All") {})
                     home.loadingHome.visibility = View.GONE
                     home.rvExams.visibility = View.VISIBLE
                     layout(home.root, width, 640)
                     assertTrue("Home must retain a usable exam viewport at $width/$font", home.rvExams.height >= dp(48))
-                    // Release looping fixture artwork before the next configuration.
-                    home.flameStreakAnimation.visibility = View.GONE
                     val result = ActivityResultBinding.inflate(inflater)
                     ResultTabs.bind(result) {}
                     result.btnReattempt.visibility = View.VISIBLE
@@ -376,8 +372,6 @@ class DesignRecoveryTest {
                         }
                         home.btnHomeBannerCta.visibility = View.VISIBLE
                         home.btnHomeBannerCta.text = "Explore practice"
-                        home.layoutStreakPill.visibility = View.VISIBLE
-                        home.tvStreakSummary.text = "15-day streak"
                         home.btnAdmin.visibility = View.VISIBLE
                         com.eve.app.ui.home.HomeAppearance.categories(listOf("SSC", "Banking", "Other")).forEach { name ->
                             home.chipGroupCategory.addView(com.eve.app.ui.home.HomeAppearance.categoryChip(activity, name, "All") {})
@@ -413,8 +407,8 @@ class DesignRecoveryTest {
                         assertEquals("Home no overlapping sheet", 0,
                             (home.contentSheet.layoutParams as android.widget.LinearLayout.LayoutParams).topMargin)
                         val groupedCard = activity.getColor(R.color.surface_inset)
-                        assertEquals("Streak pill uses Mono accent", activity.getColor(R.color.accent),
-                            (home.layoutStreakPill.background as android.graphics.drawable.GradientDrawable).color!!.defaultColor)
+                        assertNull("Streak pill must be absent from Home layout",
+                            home.root.findViewById<View>(R.id.layoutStreakPill))
                         assertEquals("Admin secondary action uses track", activity.getColor(R.color.track),
                             home.btnAdmin.backgroundTintList!!.getColorForState(home.btnAdmin.drawableState, 0))
                         assertEquals("Admin button retains disabled appearance", activity.getColor(R.color.track),

@@ -420,13 +420,10 @@ class ResultAndTestPolishVerificationTest {
         assertTrue("activity_main.xml must exist", mainFile != null && mainFile.exists())
         val content = mainFile!!.readText()
 
-        assertTrue("layoutStreakPill must exist", content.contains("android:id=\"@+id/layoutStreakPill\""))
+        assertFalse("layoutStreakPill must be removed from Home", content.contains("android:id=\"@+id/layoutStreakPill\""))
+        assertFalse("flameStreakAnimation must be removed from Home", content.contains("android:id=\"@+id/flameStreakAnimation\""))
+        assertFalse("tvStreakSummary must be removed from Home", content.contains("android:id=\"@+id/tvStreakSummary\""))
         assertTrue("btnAdmin must exist", content.contains("android:id=\"@+id/btnAdmin\""))
-
-        // The streak remains outside the single admin-managed Home Banner surface.
-        val streakPillStart = content.indexOf("android:id=\"@+id/layoutStreakPill\"")
-        val streakChunk = content.substring(streakPillStart, content.indexOf(">", streakPillStart))
-        assertTrue("layoutStreakPill should size to its content", streakChunk.contains("android:layout_width=\"wrap_content\""))
 
         val bannerStart = content.indexOf("android:id=\"@+id/panelHomeBanner\"")
         val bannerEnd = content.indexOf("</FrameLayout>", bannerStart)
