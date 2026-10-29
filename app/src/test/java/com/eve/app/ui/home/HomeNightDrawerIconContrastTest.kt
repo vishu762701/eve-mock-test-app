@@ -21,7 +21,7 @@ class HomeNightDrawerIconContrastTest {
         assertTrue("Owner's opaque Night drawer must be maintained",
             drawer.contains("name=\"home_drawer_background\">#FF000000"))
         val layout = File("src/main/res/layout/activity_main.xml").readText()
-        assertEquals("All five static navigation icons share this Night role", 5,
+        assertEquals("All eight static navigation icons share this Night role", 8,
             Regex("app:tint=\"@color/telegram_drawer_icon\"").findAll(layout).count())
         assertTrue("Dynamic premium Lottie is not force-tinted",
             !layout.contains("lottieDrawerPremiumStarFallback\" app:tint="))
