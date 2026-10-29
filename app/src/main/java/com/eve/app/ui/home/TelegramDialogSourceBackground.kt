@@ -37,6 +37,27 @@ internal object TelegramDialogSourceBackground {
         drawable.colorFilter = PorterDuffColorFilter(surface, PorterDuff.Mode.MULTIPLY)
         dialog.window?.setBackgroundDrawable(drawable)
         dialog.window?.setDimAmount(0.5f)
+
+        // Upstream Telegram AlertDialog.java:490-517 window sizing:
+        // final int calculatedWidth = AndroidUtilities.displaySize.x - dp(56);
+        // int maxWidth = isTablet ? dp(446) : dp(356);
+        // final int dialogWidth = Math.min(maxWidth, calculatedWidth) + backgroundPaddings.left + backgroundPaddings.right;
+        val dm = dialog.context.resources.displayMetrics
+        val calculatedWidth = dm.widthPixels - (56 * dm.density).toInt()
+        val isTablet = (dialog.context.resources.configuration.screenLayout and
+                android.content.res.Configuration.SCREENLAYOUT_SIZE_MASK) >=
+                android.content.res.Configuration.SCREENLAYOUT_SIZE_LARGE
+        val maxWidth = ((if (isTablet) 446 else 356) * dm.density).toInt()
+        val backgroundPaddings = android.graphics.Rect()
+        drawable.getPadding(backgroundPaddings)
+        val dialogWidth = minOf(maxWidth, calculatedWidth) + backgroundPaddings.left + backgroundPaddings.right
+        dialog.window?.let { window ->
+            val lp = window.attributes
+            if (lp != null && lp.width != dialogWidth) {
+                lp.width = dialogWidth
+                window.attributes = lp
+            }
+        }
         // Original AlertDialog.java:809-821,874-878,1137-1204 uses title=20,
         // message=16, actions=16 and AndroidUtilities.bold() (Roboto Medium).
         // EVE deliberately specifies SP instead of original DIP to retain font scaling.
@@ -66,6 +87,13 @@ internal object TelegramDialogSourceBackground {
             dialog.getButton(AlertDialog.BUTTON_NEUTRAL)?.setTextColor(Color.WHITE)
             if (!preserveDestructivePositive) {
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(Color.WHITE)
+            }
+        } else {
+            // Day mode: Theme.key_dialogButton (Telegram accent blue #298ACF)
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(palette.accent)
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL)?.setTextColor(palette.accent)
+            if (!preserveDestructivePositive) {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(palette.accent)
             }
         }
     }

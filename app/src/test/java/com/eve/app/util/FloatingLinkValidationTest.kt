@@ -1,6 +1,8 @@
 package com.eve.app.util
 
 import com.eve.app.data.repository.FloatingLinkRepository
+import com.eve.app.data.repository.FloatingLinkData
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -39,5 +41,17 @@ class FloatingLinkValidationTest {
     fun testRejectsEmptyOrBlank() {
         assertFalse(FloatingLinkRepository.isValidHttpsUrl(""))
         assertFalse(FloatingLinkRepository.isValidHttpsUrl("   "))
+    }
+
+    @Test
+    fun testFloatingLinkDataModel() {
+        val data = FloatingLinkData(
+            url = "https://t.me/eve_community",
+            x = 0.85f,
+            y = 0.90f
+        )
+        assertEquals("https://t.me/eve_community", data.url)
+        assertEquals(0.85f, data.x ?: 0f, 0.001f)
+        assertEquals(0.90f, data.y ?: 0f, 0.001f)
     }
 }

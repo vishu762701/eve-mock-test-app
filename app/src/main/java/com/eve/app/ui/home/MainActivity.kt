@@ -18,6 +18,8 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.GestureDetector
@@ -76,6 +78,8 @@ import com.eve.app.util.NetworkUtil
 import com.eve.app.util.NotificationHelper
 import com.eve.app.util.NotificationStore
 import com.eve.app.util.ProfilePhotoManager
+import com.eve.app.util.AvatarDrawable
+import com.eve.app.data.repository.FloatingLinkData
 import com.eve.app.util.ReminderScheduler
 import com.eve.app.util.ThemeManager
 import com.eve.app.util.ThemeSwitchAnimator
@@ -83,6 +87,13 @@ import com.eve.app.util.SessionManager
 import com.eve.app.util.UiState
 import com.eve.app.util.VibrationHelper
 import com.eve.app.util.isHardcodedAdmin
+import coil.load
+import coil.transform.CircleCropTransformation
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
+import android.view.MotionEvent
+import android.view.ViewConfiguration
+import android.view.HapticFeedbackConstants
+import org.telegram.ui.Components.CubicBezierInterpolator
 import com.eve.app.util.HomeBannerLinkValidator
 import com.google.android.material.chip.Chip
 import com.google.firebase.auth.FirebaseAuth
@@ -131,6 +142,8 @@ class MainActivity : EveBaseActivity() {
 
     private val floatingLinkRepo = com.eve.app.data.repository.FloatingLinkRepository()
     private var activeFloatingLinkUrl: String? = null
+    private var activeFloatingLinkData: FloatingLinkData? = null
+    private var isFloatingAirplaneAdmin: Boolean = false
 
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* ignored */ }
@@ -297,6 +310,10 @@ class MainActivity : EveBaseActivity() {
             binding.drawerLayout.openDrawer(GravityCompat.START, UiArcMotion.isMotionEnabled(this))
         }
         loadProfilePhoto(user)
+        lifecycleScope.launch(lifecycleExceptionHandler) {
+            val admin = adminRepo.isAdmin(user.email)
+            isFloatingAirplaneAdmin = admin
+        }
 
         // Telegram-style Search setup
         Log.e("EVE_STARTUP", "stage: setupSearch")
@@ -398,8 +415,11 @@ class MainActivity : EveBaseActivity() {
         isExamNavigating = false
         checkAppConfigAndMaintenance()
         FirebaseAuth.getInstance().currentUser?.let { current ->
+            loadProfilePhoto(current)
+            updateDrawerHeader(current)
             lifecycleScope.launch(lifecycleExceptionHandler) {
                 val admin = adminRepo.isAdmin(current.email)
+                isFloatingAirplaneAdmin = admin
                 viewModel.loadForUser(current.uid, admin)
             }
         }
@@ -785,9 +805,12 @@ class MainActivity : EveBaseActivity() {
             startListeningToHomeBanner()
 
             lifecycleScope.launch(lifecycleExceptionHandler) {
-                val link = floatingLinkRepo.getFloatingLink()
+                val data = floatingLinkRepo.getFloatingLinkData()
+                activeFloatingLinkData = data
+                val link = data?.url
                 activeFloatingLinkUrl = link
                 updateFloatingAirplaneState(link)
+                applyFloatingAirplanePosition(data?.x, data?.y)
             }
         }
     }
@@ -859,19 +882,216 @@ class MainActivity : EveBaseActivity() {
             windowInsets
         }
 
+        setupFloatingAirplaneInteraction()
+    }
+
+    private fun setupFloatingAirplaneInteraction() {
+        val card = binding.cardFloatingAirplane
+        val slop = ViewConfiguration.get(this).scaledTouchSlop
+        val longPressHandler = Handler(Looper.getMainLooper())
+        var isDragging = false
+        var isLongPressScheduled = false
+        var downRawX = 0f
+        var downRawY = 0f
+        var startCardX = 0f
+        var startCardY = 0f
         var lastLinkLaunch = 0L
-        com.eve.app.designsystem.DesignPress.bind(binding.cardFloatingAirplane) {
+
+        card.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            val data = activeFloatingLinkData
+            if (data?.x != null && data?.y != null) {
+                applyFloatingAirplanePosition(data.x, data.y)
+            }
+        }
+
+        val longPressRunnable = Runnable {
+            if (!isFloatingAirplaneAdmin) return@Runnable
+            isDragging = true
+            isLongPressScheduled = false
+            card.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+            card.parent?.requestDisallowInterceptTouchEvent(true)
+            card.animate()
+                .scaleX(1.10f)
+                .scaleY(1.10f)
+                .alpha(0.92f)
+                .setDuration(160)
+                .setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT)
+                .start()
+        }
+
+        card.setOnTouchListener { view, event ->
+            if (!isFloatingAirplaneAdmin) {
+                // Non-admin: allow DesignPress / standard click to handle link opening
+                return@setOnTouchListener false
+            }
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    downRawX = event.rawX
+                    downRawY = event.rawY
+                    startCardX = view.x
+                    startCardY = view.y
+                    isDragging = false
+
+                    isLongPressScheduled = true
+                    longPressHandler.postDelayed(longPressRunnable, 400L)
+                    true
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    val dx = event.rawX - downRawX
+                    val dy = event.rawY - downRawY
+                    val distance = Math.hypot(dx.toDouble(), dy.toDouble()).toFloat()
+
+                    if (!isDragging) {
+                        if (distance > slop) {
+                            if (isLongPressScheduled) {
+                                longPressHandler.removeCallbacks(longPressRunnable)
+                                isLongPressScheduled = false
+                            }
+                        }
+                    } else {
+                        val parent = view.parent as? ViewGroup
+                        if (parent != null) {
+                            val marginPx = resources.getDimensionPixelSize(R.dimen.design_screen_margin)
+                            val minX = marginPx.toFloat()
+                            val maxX = (parent.width - view.width - marginPx).toFloat().coerceAtLeast(minX)
+                            val minY = marginPx.toFloat()
+                            val maxY = (parent.height - view.height - marginPx).toFloat().coerceAtLeast(minY)
+
+                            view.x = (startCardX + dx).coerceIn(minX, maxX)
+                            view.y = (startCardY + dy).coerceIn(minY, maxY)
+                        }
+                    }
+                    true
+                }
+                MotionEvent.ACTION_UP -> {
+                    if (isLongPressScheduled) {
+                        longPressHandler.removeCallbacks(longPressRunnable)
+                        isLongPressScheduled = false
+                    }
+                    if (isDragging) {
+                        isDragging = false
+                        view.parent?.requestDisallowInterceptTouchEvent(false)
+                        view.animate()
+                            .scaleX(1.0f)
+                            .scaleY(1.0f)
+                            .alpha(1.0f)
+                            .setDuration(180)
+                            .setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT)
+                            .start()
+
+                        val parent = view.parent as? ViewGroup
+                        if (parent != null) {
+                            val marginPx = resources.getDimensionPixelSize(R.dimen.design_screen_margin)
+                            val minX = marginPx.toFloat()
+                            val maxX = (parent.width - view.width - marginPx).toFloat().coerceAtLeast(minX)
+                            val minY = marginPx.toFloat()
+                            val maxY = (parent.height - view.height - marginPx).toFloat().coerceAtLeast(minY)
+
+                            val availableW = maxX - minX
+                            val availableH = maxY - minY
+                            val normX = if (availableW > 0) ((view.x - minX) / availableW).coerceIn(0f, 1f) else 0.5f
+                            val normY = if (availableH > 0) ((view.y - minY) / availableH).coerceIn(0f, 1f) else 0.5f
+
+                            lifecycleScope.launch(lifecycleExceptionHandler) {
+                                val result = floatingLinkRepo.updateFloatingLinkPosition(normX, normY)
+                                if (result.isSuccess) {
+                                    activeFloatingLinkData = FloatingLinkData(
+                                        url = activeFloatingLinkUrl.orEmpty(),
+                                        x = normX,
+                                        y = normY
+                                    )
+                                } else {
+                                    AppBulletin.showError(this@MainActivity, "Couldn't save position")
+                                }
+                            }
+                        }
+                    } else {
+                        val dx = event.rawX - downRawX
+                        val dy = event.rawY - downRawY
+                        val distance = Math.hypot(dx.toDouble(), dy.toDouble()).toFloat()
+                        if (distance <= slop) {
+                            val now = android.os.SystemClock.elapsedRealtime()
+                            if (now - lastLinkLaunch >= 800L) {
+                                lastLinkLaunch = now
+                                openFloatingLink()
+                            }
+                        }
+                    }
+                    view.performClick()
+                    true
+                }
+                MotionEvent.ACTION_CANCEL -> {
+                    if (isLongPressScheduled) {
+                        longPressHandler.removeCallbacks(longPressRunnable)
+                        isLongPressScheduled = false
+                    }
+                    if (isDragging) {
+                        isDragging = false
+                        view.parent?.requestDisallowInterceptTouchEvent(false)
+                        view.animate()
+                            .scaleX(1.0f)
+                            .scaleY(1.0f)
+                            .alpha(1.0f)
+                            .setDuration(180)
+                            .setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT)
+                            .start()
+                    }
+                    true
+                }
+                else -> false
+            }
+        }
+
+        com.eve.app.designsystem.DesignPress.bind(card) {
+            if (isFloatingAirplaneAdmin) return@bind
             val now = android.os.SystemClock.elapsedRealtime()
             if (now - lastLinkLaunch < 800L) return@bind
             lastLinkLaunch = now
-            val url = activeFloatingLinkUrl?.trim() ?: return@bind
-            if (!com.eve.app.data.repository.FloatingLinkRepository.isValidHttpsUrl(url)) return@bind
-            try {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                startActivity(intent)
-            } catch (_: Exception) {
-                AppBulletin.showError(this, "Couldn't open link")
+            openFloatingLink()
+        }
+    }
+
+    private fun openFloatingLink() {
+        val url = activeFloatingLinkUrl?.trim() ?: return
+        if (!com.eve.app.data.repository.FloatingLinkRepository.isValidHttpsUrl(url)) return
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            startActivity(intent)
+        } catch (_: Exception) {
+            AppBulletin.showError(this, "Couldn't open link")
+        }
+    }
+
+    private fun applyFloatingAirplanePosition(normX: Float?, normY: Float?) {
+        val card = binding.cardFloatingAirplane
+        if (normX == null || normY == null) {
+            card.translationX = 0f
+            card.translationY = 0f
+            return
+        }
+        val applyCoords = {
+            val parent = card.parent as? ViewGroup
+            if (parent != null && parent.width > 0 && parent.height > 0) {
+                val marginPx = resources.getDimensionPixelSize(R.dimen.design_screen_margin)
+                val cardW = card.width.takeIf { it > 0 } ?: resources.getDimensionPixelSize(R.dimen.floating_link_icon_size)
+                val cardH = card.height.takeIf { it > 0 } ?: resources.getDimensionPixelSize(R.dimen.floating_link_icon_size)
+
+                val minX = marginPx.toFloat()
+                val maxX = (parent.width - cardW - marginPx).toFloat().coerceAtLeast(minX)
+                val minY = marginPx.toFloat()
+                val maxY = (parent.height - cardH - marginPx).toFloat().coerceAtLeast(minY)
+
+                val targetX = minX + normX.coerceIn(0f, 1f) * (maxX - minX)
+                val targetY = minY + normY.coerceIn(0f, 1f) * (maxY - minY)
+
+                card.x = targetX
+                card.y = targetY
             }
+        }
+        if (card.isLaidOut) {
+            applyCoords()
+        } else {
+            card.post { applyCoords() }
         }
     }
 
@@ -1132,8 +1352,41 @@ class MainActivity : EveBaseActivity() {
         }
     }
 
-    private fun loadProfilePhoto(user: com.google.firebase.auth.FirebaseUser) {
-        // No bottom navigation pill to display avatar
+    private fun loadProfilePhoto(user: com.google.firebase.auth.FirebaseUser?) {
+        if (!::binding.isInitialized) return
+        if (user == null) {
+            binding.btnMenu.setImageResource(R.drawable.msg_openprofile)
+            binding.btnMenu.imageTintList = ContextCompat.getColorStateList(this, R.color.telegram_type_primary)
+            return
+        }
+
+        val effectiveName = user.displayName?.takeIf { it.isNotBlank() } ?: "Student"
+        val effectiveId = user.uid.takeIf { it.isNotBlank() } ?: effectiveName
+        val fallbackDrawable = AvatarDrawable.create(this, effectiveName, effectiveId)
+
+        val localBmp = ProfilePhotoManager.loadBitmap(this)
+        when {
+            localBmp != null -> {
+                binding.btnMenu.imageTintList = null
+                val circularDrawable = RoundedBitmapDrawableFactory.create(resources, localBmp).apply {
+                    isCircular = true
+                }
+                binding.btnMenu.setImageDrawable(circularDrawable)
+            }
+            !user.photoUrl?.toString().isNullOrBlank() -> {
+                binding.btnMenu.imageTintList = null
+                binding.btnMenu.load(user.photoUrl) {
+                    crossfade(true)
+                    transformations(CircleCropTransformation())
+                    placeholder(fallbackDrawable)
+                    error(fallbackDrawable)
+                }
+            }
+            else -> {
+                binding.btnMenu.imageTintList = null
+                binding.btnMenu.setImageDrawable(fallbackDrawable)
+            }
+        }
     }
 
     private fun setupPushNotifications() {
