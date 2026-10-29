@@ -93,8 +93,26 @@ app.get("/api/floating-link", async (c) => {
   const db = c.env.DB;
   try {
     const row = await db.prepare("SELECT body FROM app_content WHERE id = 'floating_link'").first<{ body: string }>();
-    const url = row?.body?.trim() || "";
-    return c.json({ success: true, data: { url }, url });
+    if (!row || !row.body) {
+      return c.json({ success: true, data: { url: "", x: null, y: null }, url: "" });
+    }
+    let url = "";
+    let x: number | null = null;
+    let y: number | null = null;
+    const trimmed = row.body.trim();
+    if (trimmed.startsWith("{")) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        url = typeof parsed.url === "string" ? parsed.url.trim() : "";
+        x = typeof parsed.x === "number" && !isNaN(parsed.x) ? parsed.x : null;
+        y = typeof parsed.y === "number" && !isNaN(parsed.y) ? parsed.y : null;
+      } catch {
+        url = trimmed;
+      }
+    } else {
+      url = trimmed;
+    }
+    return c.json({ success: true, data: { url, x, y }, url, x, y });
   } catch (err: any) {
     return c.json({ success: false, error: err.message }, 500);
   }

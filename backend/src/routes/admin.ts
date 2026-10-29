@@ -405,8 +405,26 @@ adminRoutes.get("/floating-link", async (c) => {
   const db = c.env.DB;
   try {
     const row = await db.prepare("SELECT body FROM app_content WHERE id = 'floating_link'").first<{ body: string }>();
-    const url = row?.body?.trim() || "";
-    return c.json({ success: true, data: { url }, url });
+    if (!row || !row.body) {
+      return c.json({ success: true, data: { url: "", x: null, y: null }, url: "" });
+    }
+    let url = "";
+    let x: number | null = null;
+    let y: number | null = null;
+    const trimmed = row.body.trim();
+    if (trimmed.startsWith("{")) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        url = typeof parsed.url === "string" ? parsed.url.trim() : "";
+        x = typeof parsed.x === "number" && !isNaN(parsed.x) ? parsed.x : null;
+        y = typeof parsed.y === "number" && !isNaN(parsed.y) ? parsed.y : null;
+      } catch {
+        url = trimmed;
+      }
+    } else {
+      url = trimmed;
+    }
+    return c.json({ success: true, data: { url, x, y }, url, x, y });
   } catch (err: any) {
     return c.json({ success: false, error: err.message }, 500);
   }
@@ -415,7 +433,31 @@ adminRoutes.get("/floating-link", async (c) => {
 // PUT /api/admin/floating-link
 adminRoutes.put("/floating-link", async (c) => {
   const body = await c.req.json().catch(() => ({}));
-  let rawUrl = String(body.url ?? body.link ?? "").trim();
+
+  const db = c.env.DB;
+  let existingUrl = "";
+  let existingX: number | null = null;
+  let existingY: number | null = null;
+  try {
+    const existingRow = await db.prepare("SELECT body FROM app_content WHERE id = 'floating_link'").first<{ body: string }>();
+    if (existingRow?.body) {
+      const trimmed = existingRow.body.trim();
+      if (trimmed.startsWith("{")) {
+        try {
+          const parsed = JSON.parse(trimmed);
+          existingUrl = typeof parsed.url === "string" ? parsed.url.trim() : "";
+          existingX = typeof parsed.x === "number" && !isNaN(parsed.x) ? parsed.x : null;
+          existingY = typeof parsed.y === "number" && !isNaN(parsed.y) ? parsed.y : null;
+        } catch {
+          existingUrl = trimmed;
+        }
+      } else {
+        existingUrl = trimmed;
+      }
+    }
+  } catch {}
+
+  let rawUrl = body.url !== undefined ? String(body.url).trim() : (body.link !== undefined ? String(body.link).trim() : existingUrl);
   if (rawUrl && !rawUrl.startsWith("http://") && !rawUrl.startsWith("https://")) {
     rawUrl = `https://${rawUrl}`;
   }
@@ -424,25 +466,40 @@ adminRoutes.put("/floating-link", async (c) => {
     return c.json({ success: false, error: validation.error }, 400);
   }
 
-  const db = c.env.DB;
+  let newX: number | null = existingX;
+  if (typeof body.x === "number" && !isNaN(body.x)) {
+    newX = Math.max(0, Math.min(1, body.x));
+  } else if (body.x === null) {
+    newX = null;
+  }
+
+  let newY: number | null = existingY;
+  if (typeof body.y === "number" && !isNaN(body.y)) {
+    newY = Math.max(0, Math.min(1, body.y));
+  } else if (body.y === null) {
+    newY = null;
+  }
+
+  const cleanUrl = validation.cleanUrl || "";
+  if (!cleanUrl && newX === null && newY === null) {
+    await db.prepare("DELETE FROM app_content WHERE id = 'floating_link'").run();
+    return c.json({ success: true, data: { url: "", x: null, y: null }, url: "", x: null, y: null });
+  }
+
   const user = c.get("user");
   const updatedBy = user?.email || "admin";
   const now = Date.now();
+  const payload = JSON.stringify({ url: cleanUrl, x: newX, y: newY });
 
   try {
-    if (!validation.cleanUrl) {
-      await db.prepare("DELETE FROM app_content WHERE id = 'floating_link'").run();
-      return c.json({ success: true, data: { url: "" }, url: "" });
-    }
-
     await db
       .prepare(
         "INSERT INTO app_content (id, title, body, updated_at, updated_by) VALUES ('floating_link', 'Floating Link', ?, ?, ?) ON CONFLICT(id) DO UPDATE SET body = excluded.body, updated_at = excluded.updated_at, updated_by = excluded.updated_by"
       )
-      .bind(validation.cleanUrl, now, updatedBy)
+      .bind(payload, now, updatedBy)
       .run();
 
-    return c.json({ success: true, data: { url: validation.cleanUrl }, url: validation.cleanUrl });
+    return c.json({ success: true, data: { url: cleanUrl, x: newX, y: newY }, url: cleanUrl, x: newX, y: newY });
   } catch (err: any) {
     return c.json({ success: false, error: err.message }, 500);
   }

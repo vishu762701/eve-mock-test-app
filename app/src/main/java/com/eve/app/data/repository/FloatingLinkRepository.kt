@@ -4,9 +4,15 @@ import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.EveApiService
 import java.net.URI
 
+data class FloatingLinkData(
+    val url: String,
+    val x: Float? = null,
+    val y: Float? = null
+)
+
 /**
  * Repository for managing the floating community link.
- * Caches the link for 10 minutes on the client and strictly validates schemes and format.
+ * Caches the link and coordinates for 10 minutes on the client and strictly validates schemes and format.
  */
 class FloatingLinkRepository(
     private val api: EveApiService = ApiClient.apiService
@@ -15,6 +21,7 @@ class FloatingLinkRepository(
     companion object {
         private const val CACHE_TTL_MS = 10 * 60 * 1000L // 10 minutes
         @Volatile private var cachedUrl: String? = null
+        @Volatile private var cachedData: FloatingLinkData? = null
         @Volatile private var lastFetchTimestamp: Long = 0L
 
         /**
@@ -52,27 +59,42 @@ class FloatingLinkRepository(
     }
 
     /**
-     * Retrieves the floating link. Uses 10-minute in-memory cache.
-     * On network/server failure, keeps the last cached value.
+     * Retrieves the floating link data (url + normalized safe viewport coordinates).
      */
-    suspend fun getFloatingLink(forceRefresh: Boolean = false): String? {
+    suspend fun getFloatingLinkData(forceRefresh: Boolean = false): FloatingLinkData? {
         val now = System.currentTimeMillis()
-        if (!forceRefresh && cachedUrl != null && (now - lastFetchTimestamp < CACHE_TTL_MS)) {
-            return cachedUrl
+        if (!forceRefresh && cachedData != null && (now - lastFetchTimestamp < CACHE_TTL_MS)) {
+            return cachedData
         }
 
         return try {
             val response = api.getFloatingLink()
             if (response.success && response.data != null) {
                 val remoteUrl = response.data.url?.trim() ?: ""
-                cachedUrl = if (remoteUrl.isNotEmpty() && isValidHttpsUrl(remoteUrl)) remoteUrl else null
+                val validUrl = if (remoteUrl.isNotEmpty() && isValidHttpsUrl(remoteUrl)) remoteUrl else null
+                val data = if (validUrl != null) {
+                    FloatingLinkData(
+                        url = validUrl,
+                        x = response.data.x?.takeIf { it in 0f..1f },
+                        y = response.data.y?.takeIf { it in 0f..1f }
+                    )
+                } else null
+                cachedData = data
+                cachedUrl = validUrl
                 lastFetchTimestamp = now
             }
-            cachedUrl
+            cachedData
         } catch (_: Exception) {
-            // Keep last cached value on failure
-            cachedUrl
+            cachedData
         }
+    }
+
+    /**
+     * Retrieves the floating link URL. Uses 10-minute in-memory cache.
+     * On network/server failure, keeps the last cached value.
+     */
+    suspend fun getFloatingLink(forceRefresh: Boolean = false): String? {
+        return getFloatingLinkData(forceRefresh)?.url ?: cachedUrl
     }
 
     /**
@@ -88,7 +110,7 @@ class FloatingLinkRepository(
     }
 
     /**
-     * Admin: updates or sets the floating community link.
+     * Admin: updates or sets the floating community link URL and optionally coordinates.
      */
     suspend fun updateFloatingLink(url: String): Result<String> = runCatching {
         var cleanUrl = url.trim()
@@ -106,11 +128,38 @@ class FloatingLinkRepository(
         val response = api.updateAdminFloatingLink(mapOf("url" to cleanUrl))
         if (response.success) {
             val savedUrl = response.data?.url?.trim() ?: cleanUrl
-            cachedUrl = if (savedUrl.isNotEmpty() && isValidHttpsUrl(savedUrl)) savedUrl else null
+            val validUrl = if (savedUrl.isNotEmpty() && isValidHttpsUrl(savedUrl)) savedUrl else null
+            cachedUrl = validUrl
+            cachedData = if (validUrl != null) {
+                FloatingLinkData(
+                    url = validUrl,
+                    x = response.data?.x?.takeIf { it in 0f..1f } ?: cachedData?.x,
+                    y = response.data?.y?.takeIf { it in 0f..1f } ?: cachedData?.y
+                )
+            } else null
             lastFetchTimestamp = System.currentTimeMillis()
             savedUrl
         } else {
             throw IllegalStateException(response.error ?: "Failed to update floating link")
+        }
+    }
+
+    /**
+     * Admin: updates only the normalized coordinates for the floating link.
+     */
+    suspend fun updateFloatingLinkPosition(x: Float, y: Float): Result<FloatingLinkData> = runCatching {
+        val clampedX = x.coerceIn(0f, 1f)
+        val clampedY = y.coerceIn(0f, 1f)
+        val payload: Map<String, Any> = mapOf("x" to clampedX, "y" to clampedY)
+        val response = api.updateAdminFloatingLink(payload)
+        if (response.success) {
+            val currentUrl = response.data?.url?.trim()?.takeIf { isValidHttpsUrl(it) } ?: cachedUrl ?: ""
+            val updated = FloatingLinkData(url = currentUrl, x = clampedX, y = clampedY)
+            cachedData = updated
+            lastFetchTimestamp = System.currentTimeMillis()
+            updated
+        } else {
+            throw IllegalStateException(response.error ?: "Failed to update floating link position")
         }
     }
 
@@ -121,6 +170,7 @@ class FloatingLinkRepository(
         val response = api.updateAdminFloatingLink(mapOf("url" to ""))
         if (response.success) {
             cachedUrl = null
+            cachedData = null
             lastFetchTimestamp = System.currentTimeMillis()
         } else {
             throw IllegalStateException(response.error ?: "Failed to clear floating link")

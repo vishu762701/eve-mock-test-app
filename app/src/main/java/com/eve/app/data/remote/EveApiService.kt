@@ -115,7 +115,9 @@ data class AttemptLockResponse(
 )
 
 data class FloatingLinkResponse(
-    val url: String? = null
+    val url: String? = null,
+    val x: Float? = null,
+    val y: Float? = null
 )
 
 data class SyllabusUploadResponse(
@@ -535,7 +537,7 @@ interface EveApiService {
     suspend fun getAdminFloatingLink(): ApiResponse<FloatingLinkResponse>
 
     @PUT("api/admin/floating-link")
-    suspend fun updateAdminFloatingLink(@Body body: Map<String, String>): ApiResponse<FloatingLinkResponse>
+    suspend fun updateAdminFloatingLink(@Body body: Map<String, @JvmSuppressWildcards Any>): ApiResponse<FloatingLinkResponse>
 
     // --- Premium & Payment Endpoints ---
     @GET("api/premium/plan")
