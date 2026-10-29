@@ -80,7 +80,7 @@ class AvatarDrawable(
 
     private val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = 0xFFFFFFFF.toInt()
+        color = com.eve.app.designsystem.DesignTokens.color(context, R.attr.designOnAccent)
         textAlign = Paint.Align.CENTER
         typeface = FontManager.typeface(context, bold = true)
     }
@@ -94,14 +94,10 @@ class AvatarDrawable(
         super.onBoundsChange(bounds)
         if (bounds.width() <= 0 || bounds.height() <= 0) return
 
-        val pair = TELEGRAM_GRADIENTS[colorIndex.coerceIn(0, TELEGRAM_GRADIENTS.size - 1)]
-        bgPaint.shader = LinearGradient(
-            0f, 0f, 0f, bounds.height().toFloat(),
-            pair[0], pair[1],
-            Shader.TileMode.CLAMP
-        )
-        textPaint.color = 0xFFFFFFFF.toInt()
-        textPaint.textSize = bounds.height() * 0.42f
+        bgPaint.shader = null
+        bgPaint.color = com.eve.app.designsystem.DesignTokens.accent(context)
+        textPaint.color = com.eve.app.designsystem.DesignTokens.color(context, R.attr.designOnAccent)
+        textPaint.textSize = context.resources.getDimension(R.dimen.design_type_heading)
     }
 
     override fun draw(canvas: Canvas) {
