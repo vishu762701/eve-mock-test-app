@@ -277,7 +277,7 @@ class EveDesignSystemTest {
         assertEquals("@dimen/design_card_elevation", examCard.designAttribute("app:cardElevation"))
         assertEquals("@color/surface", examCard.designAttribute("app:cardBackgroundColor"))
         assertEquals("", examCard.getAttribute("android:layout_marginHorizontal"))
-        assertEquals("@dimen/design_zero", examCard.getAttribute("android:layout_marginVertical"))
+        assertEquals("@dimen/design_card_gap", examCard.getAttribute("android:layout_marginBottom"))
 
         val tvExamName = findElementById(examCard, "tvExamName")
         assertEquals("@style/TextAppearance.Eve.Telegram.ListTitle", tvExamName?.getAttribute("style"))

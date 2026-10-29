@@ -11,6 +11,7 @@
     <dimen name="design_row_min">44dp</dimen>
     <dimen name="design_radius_card">26dp</dimen>
     <dimen name="telegram_list_card_radius">14dp</dimen>
+    <dimen name="floating_link_icon_size">46.8dp</dimen>
     <dimen name="design_radius_inner">16dp</dimen>
     <dimen name="design_radius_multiline">20dp</dimen>
     <dimen name="design_tab_height">40dp</dimen>

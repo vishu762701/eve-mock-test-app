@@ -293,7 +293,8 @@ class MainActivity : EveBaseActivity() {
 
         com.eve.app.designsystem.DesignPress.bind(binding.btnMenu) {
             if (ThemeSwitchAnimator.isTransitioning || isFinishing || isDestroyed) return@bind
-            startActivity(Intent(this, ProfileActivity::class.java))
+            prepareDrawerSurface()
+            binding.drawerLayout.openDrawer(GravityCompat.START, UiArcMotion.isMotionEnabled(this))
         }
         loadProfilePhoto(user)
 
@@ -806,11 +807,19 @@ class MainActivity : EveBaseActivity() {
 
     private fun setupFloatingAirplane() {
         binding.cardFloatingAirplane.strokeWidth = 0
+        binding.cardFloatingAirplane.strokeColor = Color.TRANSPARENT
         binding.cardFloatingAirplane.cardElevation = 0f
         binding.cardFloatingAirplane.maxCardElevation = 0f
+        binding.cardFloatingAirplane.outlineProvider = null
+        binding.cardFloatingAirplane.background = null
+        binding.cardFloatingAirplane.foreground = null
         binding.cardFloatingAirplane.setCardBackgroundColor(
             ContextCompat.getColor(this, android.R.color.transparent)
         )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            binding.cardFloatingAirplane.outlineAmbientShadowColor = Color.TRANSPARENT
+            binding.cardFloatingAirplane.outlineSpotShadowColor = Color.TRANSPARENT
+        }
         applyFloatingAirplaneTheme()
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.cardFloatingAirplane) { view, windowInsets ->
