@@ -164,7 +164,7 @@ class ApprovedUiRenderingTest {
         b.rvExams.adapter = adapter
         val holder = adapter.onCreateViewHolder(FrameLayout(context), adapter.getItemViewType(0))
         adapter.onBindViewHolder(holder, 0)
-        assertEquals(context.resources.getDimension(R.dimen.design_radius_card), ItemExamBinding.bind(holder.itemView).root.radius, 0.01f)
+        assertEquals(context.resources.getDimension(R.dimen.telegram_list_card_radius), ItemExamBinding.bind(holder.itemView).root.radius, 0.01f)
         measure(b.root)
         val outline = Outline()
         b.panelHomeBanner.outlineProvider.getOutline(b.panelHomeBanner, outline)
