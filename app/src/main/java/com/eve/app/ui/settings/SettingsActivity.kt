@@ -94,7 +94,37 @@ class SettingsActivity : EveBaseActivity() {
         setupDailyGoalSetting()
         setupTargetExamsSetting()
         setupLanguageSetting()
+        setupLogoutSetting()
         setupDeleteAccountSetting()
+    }
+
+    private fun setupLogoutSetting() {
+        binding.rowLogout.setOnClickListener {
+            showTelegramSourceDialog {
+                setTitle("Log out")
+                setMessage("Are you sure you want to log out?")
+                setPositiveButton("Log out") { _, _ ->
+                    executeLogout()
+                }
+                setNegativeButton("Cancel", null)
+            }
+        }
+    }
+
+    private fun executeLogout() {
+        com.eve.app.util.SessionManager.clear()
+        val uid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
+        com.eve.app.data.repository.PremiumRepository.clearCacheForLogout(uid, this)
+        FirebaseAuth.getInstance().signOut()
+        val gso = GoogleSignInOptions
+            .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .build()
+        GoogleSignIn.getClient(this, gso).signOut()
+        val intent = Intent(this, LoginActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        startActivity(intent)
+        finishAffinity()
     }
 
     private fun setupDailyGoalSetting() {

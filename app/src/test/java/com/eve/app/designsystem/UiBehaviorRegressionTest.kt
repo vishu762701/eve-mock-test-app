@@ -199,18 +199,19 @@ class UiBehaviorRegressionTest {
         for (line in menu.lineSequence().filter { it.contains("<ImageView") && it.contains("android:src=\"@drawable/") }) {
             assertTrue("Mixed menu icon tint: " + line, line.contains("app:tint=\"@color/telegram_type_primary\""))
         }
-        val mistakeLine = menu.lineSequence().first { it.contains("android:contentDescription=\"Mistake Notebook\"") }
+        val mainXml = File("src/main/res/layout/activity_main.xml").readText()
+        val mistakeLine = mainXml.lineSequence().first { it.contains("android:contentDescription=\"Mistake Notebook\"") }
         assertTrue("Mistake action must not be represented by Close", mistakeLine.contains("android:src=\"@drawable/telegram_popup_notes\""))
-        assertTrue(menu.contains("android:id=\"@+id/menuRowMistakes\""))
+        assertTrue(mainXml.contains("android:id=\"@+id/layoutDrawerMistakes\""))
     }
 
 
     @Test fun popupOfficialTelegramIconsKeepOriginalSourceBytes() {
-        val menu = File("src/main/res/layout/popup_telegram_menu.xml").readText()
+        val drawer = File("src/main/res/layout/activity_main.xml").readText()
         val popup = File("src/main/java/com/eve/app/ui/home/TelegramMenuPopup.kt").readText()
-        assertTrue(menu.contains("android:src=\"@drawable/telegram_popup_notes\""))
-        assertTrue(menu.contains("android:src=\"@drawable/telegram_popup_topics\""))
-        assertTrue(menu.contains("android:src=\"@drawable/telegram_popup_paper\""))
+        assertTrue(drawer.contains("android:src=\"@drawable/telegram_popup_notes\""))
+        assertTrue(drawer.contains("android:src=\"@drawable/telegram_popup_topics\""))
+        assertTrue(drawer.contains("android:src=\"@drawable/telegram_popup_paper\""))
         assertTrue(popup.contains("R.drawable.telegram_menu_night_mode_24"))
         val mdpiToXxhdpi = listOf("mdpi", "hdpi", "xhdpi", "xxhdpi")
         val expected = mapOf(

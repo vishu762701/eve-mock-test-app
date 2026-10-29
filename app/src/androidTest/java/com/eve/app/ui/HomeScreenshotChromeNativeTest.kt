@@ -35,7 +35,8 @@ class HomeScreenshotChromeNativeTest {
                 val rows = intArrayOf(
                     R.id.layoutDrawerProfile, R.id.layoutDrawerPerformance,
                     R.id.layoutDrawerLeaderboard, R.id.layoutDrawerSyllabus,
-                    R.id.layoutDrawerSettings
+                    R.id.layoutDrawerTopic, R.id.layoutDrawerPyq,
+                    R.id.layoutDrawerMistakes, R.id.layoutDrawerSettings
                 )
                 for (id in rows) {
                     val row = activity.findViewById<LinearLayout>(id)
@@ -87,8 +88,7 @@ class HomeScreenshotChromeNativeTest {
             scenario.onActivity { activity ->
                 val popupView = LayoutInflater.from(activity).inflate(R.layout.popup_telegram_menu, null)
                 val rows = intArrayOf(
-                    R.id.cardTheme, R.id.menuRowHistory, R.id.menuRowBookmarks,
-                    R.id.menuRowMistakes, R.id.menuRowTopic, R.id.menuRowPyq, R.id.menuRowLogout
+                    R.id.cardTheme, R.id.menuRowHistory, R.id.menuRowBookmarks
                 )
                 val density = activity.resources.displayMetrics.density
                 val expectedMinHeight = (48 * density + 0.5f).toInt()

@@ -8,11 +8,10 @@ import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
 import org.w3c.dom.Element
 
-/** Seven EVE actions remain reachable as 48dp+ standalone accessibility targets. */
+/** Three retained EVE overflow actions remain reachable as 48dp+ standalone accessibility targets. */
 class HomeMenuAccessibilityContractTest {
     private val rowIds = listOf(
-        "cardTheme", "menuRowHistory", "menuRowBookmarks", "menuRowMistakes",
-        "menuRowTopic", "menuRowPyq", "menuRowLogout"
+        "cardTheme", "menuRowHistory", "menuRowBookmarks"
     )
 
     @Test fun popupLabelGeometryMatchesOfficialTelegramSourceTextInset() {
@@ -36,13 +35,13 @@ class HomeMenuAccessibilityContractTest {
         assertEquals(61, 18 + 24 + 19)
     }
 
-    @Test fun popupRetainsSevenFocusableActionsAtLeast48dpTall() {
+    @Test fun popupRetainsReorganizedFocusableActionsAtLeast48dpTall() {
         val layout = File("src/main/res/layout/popup_telegram_menu.xml")
         val dom = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(layout)
+        val nodes = dom.getElementsByTagName("LinearLayout")
+        val elements = (0 until nodes.length).map { nodes.item(it) as Element }
         for (id in rowIds) {
-            val nodes = dom.getElementsByTagName("LinearLayout")
-            val element = (0 until nodes.length).map { nodes.item(it) as Element }
-                .firstOrNull { it.getAttribute("android:id") == "@+id/$id" }
+            val element = elements.firstOrNull { it.getAttribute("android:id") == "@+id/$id" }
             assertNotNull("Missing menu action $id", element)
             assertEquals("true", element!!.getAttribute("android:clickable"))
             assertEquals("true", element.getAttribute("android:focusable"))
@@ -52,6 +51,10 @@ class HomeMenuAccessibilityContractTest {
             assertEquals("0dp", element.getAttribute("android:paddingBottom"))
             assertEquals(1, element.getElementsByTagName("ImageView").length)
             assertEquals(1, element.getElementsByTagName("TextView").length)
+        }
+        for (removedId in listOf("menuRowMistakes", "menuRowTopic", "menuRowPyq", "menuRowLogout")) {
+            val removedElement = elements.firstOrNull { it.getAttribute("android:id") == "@+id/$removedId" }
+            assertTrue("Removed action $removedId must not exist in overflow popup", removedElement == null)
         }
     }
 

@@ -343,11 +343,7 @@ class MainActivity : EveBaseActivity() {
                     }
                 },
                 onHistory = { com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, HistoryActivity::class.java), anchor) },
-                onBookmarks = { com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, BookmarksActivity::class.java), anchor) },
-                onMistakes = { com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, com.eve.app.ui.mistakes.MistakesActivity::class.java), anchor) },
-                onTopic = { com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, PracticeActivity::class.java), anchor) },
-                onPyq = { com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, PyqActivity::class.java), anchor) },
-                onLogout = { logout() }
+                onBookmarks = { com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, BookmarksActivity::class.java), anchor) }
             ).also { it.show(anchor) }
         }
 
@@ -1649,6 +1645,9 @@ class MainActivity : EveBaseActivity() {
             binding.layoutDrawerPerformance,
             binding.layoutDrawerLeaderboard,
             binding.layoutDrawerSyllabus,
+            binding.layoutDrawerTopic,
+            binding.layoutDrawerPyq,
+            binding.layoutDrawerMistakes,
 
             binding.layoutDrawerSettings
         )
@@ -1673,6 +1672,15 @@ class MainActivity : EveBaseActivity() {
         }
         binding.layoutDrawerSyllabus.setOnClickListener {
             navigateFromDrawer(Intent(this, SyllabusActivity::class.java))
+        }
+        binding.layoutDrawerTopic.setOnClickListener {
+            navigateFromDrawer(Intent(this, PracticeActivity::class.java))
+        }
+        binding.layoutDrawerPyq.setOnClickListener {
+            navigateFromDrawer(Intent(this, PyqActivity::class.java))
+        }
+        binding.layoutDrawerMistakes.setOnClickListener {
+            navigateFromDrawer(Intent(this, com.eve.app.ui.mistakes.MistakesActivity::class.java))
         }
         binding.layoutDrawerSettings.setOnClickListener {
             navigateFromDrawer(Intent(this, SettingsActivity::class.java))

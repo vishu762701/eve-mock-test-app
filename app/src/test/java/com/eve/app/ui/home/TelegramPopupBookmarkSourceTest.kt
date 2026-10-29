@@ -38,7 +38,7 @@ class TelegramPopupBookmarkSourceTest {
     @Test fun bookmarksRowKeepsSavedOriginalNotBrowserSpecificIcon() {
         val xml = File("src/main/res/layout/popup_telegram_menu.xml").readText()
         val block = xml.substringAfter("android:id=\"@+id/menuRowBookmarks\"")
-            .substringBefore("android:id=\"@+id/menuRowMistakes\"")
+            .substringBefore("</LinearLayout>")
         assertTrue(block.contains("@drawable/ic_bookmark"))
         assertTrue(!block.contains("@drawable/telegram_menu_browser_bookmarks"))
         assertTrue(block.contains("android:minHeight=\"48dp\""))
