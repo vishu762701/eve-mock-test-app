@@ -407,8 +407,8 @@ class DesignRecoveryTest {
                         assertEquals("Home no overlapping sheet", 0,
                             (home.contentSheet.layoutParams as android.widget.LinearLayout.LayoutParams).topMargin)
                         val groupedCard = activity.getColor(R.color.surface_inset)
-                        assertNull("Streak pill must be absent from Home layout",
-                            home.root.findViewById<View>(R.id.layoutStreakPill))
+                        val streakPillId = activity.resources.getIdentifier("layoutStreakPill", "id", activity.packageName)
+                        assertEquals("layoutStreakPill must not exist in resources", 0, streakPillId)
                         assertEquals("Admin secondary action uses track", activity.getColor(R.color.track),
                             home.btnAdmin.backgroundTintList!!.getColorForState(home.btnAdmin.drawableState, 0))
                         assertEquals("Admin button retains disabled appearance", activity.getColor(R.color.track),
