@@ -261,6 +261,7 @@ class MainActivity : EveBaseActivity() {
     )
 
     private var hasEmptyPlayed = false
+    private var hasAnimatedWelcome = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -271,6 +272,7 @@ class MainActivity : EveBaseActivity() {
             themeListState = savedInstanceState?.getParcelable("theme_home_list_state")
         }
         hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
+        hasAnimatedWelcome = savedInstanceState?.getBoolean(HomeGreetingMotion.KEY_HAS_ANIMATED_GREETING, false) ?: false
 
         val user = FirebaseAuth.getInstance().currentUser
         if (user == null) {
@@ -293,6 +295,12 @@ class MainActivity : EveBaseActivity() {
         setupBannerCarousel()
 
         binding.tvWelcome.text = "Hi, ${user.displayName ?: "Student"}"
+        if (!hasAnimatedWelcome) {
+            hasAnimatedWelcome = true
+            HomeGreetingMotion.animateIntro(binding.tvWelcome)
+        } else {
+            HomeGreetingMotion.settleNatural(binding.tvWelcome)
+        }
 
         Log.e("EVE_STARTUP", "stage: setupNotificationBell")
         setupNotificationBell()
@@ -793,6 +801,7 @@ class MainActivity : EveBaseActivity() {
         if (::binding.isInitialized) {
             FirebaseAuth.getInstance().currentUser?.let { current ->
                 binding.tvWelcome.text = "Hi, ${current.displayName ?: "Student"}"
+                HomeGreetingMotion.settleNatural(binding.tvWelcome)
                 updateDrawerHeader(current)
                 lifecycleScope.launch(lifecycleExceptionHandler) {
                     val admin = adminRepo.isAdmin(current.email)
@@ -1389,6 +1398,7 @@ class MainActivity : EveBaseActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean("key_empty_played", hasEmptyPlayed)
+        outState.putBoolean(HomeGreetingMotion.KEY_HAS_ANIMATED_GREETING, hasAnimatedWelcome)
         if (::binding.isInitialized) {
             outState.putParcelable("theme_home_list_state", binding.rvExams.layoutManager?.onSaveInstanceState())
             outState.putBoolean("home_search_active", isSearchActive)
