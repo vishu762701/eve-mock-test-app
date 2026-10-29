@@ -228,8 +228,8 @@ class HomeSemanticColorsTest {
         assertEquals("@color/track", admin.designAttribute("app:backgroundTint"))
         assertEquals("@dimen/design_zero", admin.designAttribute("app:strokeWidth"))
         val foundation = source("src/main/java/com/eve/app/designsystem/EveDesignSystem.kt")
-        assertTrue(foundation.contains("DesignType.apply(textView, DesignType.Role.CHIP)"))
-        assertTrue(foundation.contains("textView.setTextColor(Colors.homeOnAccent(ctx))"))
+        org.junit.Assert.assertFalse("applyStreakPill must be removed from EveDesignSystem",
+            foundation.contains("applyStreakPill"))
     }
 
     @Test
