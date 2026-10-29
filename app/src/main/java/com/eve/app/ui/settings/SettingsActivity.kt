@@ -82,11 +82,6 @@ class SettingsActivity : EveBaseActivity() {
 
         binding.btnBack.setOnClickListener { finish() }
 
-        com.eve.app.ui.navigation.EveNavigationHost.attach(
-            this,
-            com.eve.app.ui.navigation.EveBottomPillBar.TAB_SETTINGS
-        )
-
         binding.rowAppearance.setOnClickListener {
             startActivity(Intent(this, AppearanceActivity::class.java))
         }

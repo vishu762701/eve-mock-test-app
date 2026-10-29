@@ -29,7 +29,6 @@ import com.eve.app.R
 import com.eve.app.designsystem.DesignMotion
 import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.theme.TelegramColorRoles
-import com.eve.app.ui.navigation.EveBottomPillBar
 import com.google.android.material.card.MaterialCardView
 import java.lang.ref.WeakReference
 import java.util.ArrayDeque
@@ -234,14 +233,8 @@ class AppBulletin private constructor(
         private fun position(root: View): Boolean {
             val inset = ViewCompat.getRootWindowInsets(content)
             val bottom = inset?.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout() or WindowInsetsCompat.Type.ime())?.bottom ?: 0
-            val contentLocation = IntArray(2)
-            content.getLocationOnScreen(contentLocation)
-            val pill = content.findViewWithTag<EveBottomPillBar>("eve_bottom_pill_bar")
-            val pillOffset = if (pill != null && pill.isShown) {
-                val location = IntArray(2); pill.getLocationOnScreen(location)
-                (contentLocation[1] + content.height - location[1]).coerceAtLeast(0)
-            } else 0
-            // Keep long messages reachable when an IME or floating bar reduces the viewport.
+            val pillOffset = 0
+            // Keep long messages reachable when an IME reduces the viewport.
             val top = inset?.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())?.top ?: 0
             val scroll = root.findViewById<ScrollView>(R.id.bulletinMessageScroll)
             val message = root.findViewById<TextView>(R.id.tvBulletinMessage)

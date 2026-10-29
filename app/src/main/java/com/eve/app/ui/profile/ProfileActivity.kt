@@ -66,11 +66,6 @@ class ProfileActivity : EveBaseActivity() {
 
         binding.btnBack.setOnClickListener { com.eve.app.util.EveNavigationHelper.finishWithTransition(this) }
 
-        com.eve.app.ui.navigation.EveNavigationHost.attach(
-            this,
-            com.eve.app.ui.navigation.EveBottomPillBar.TAB_PROFILE
-        )
-
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (pendingPhotoUri != null) {

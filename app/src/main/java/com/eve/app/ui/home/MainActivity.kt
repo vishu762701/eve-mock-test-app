@@ -131,7 +131,6 @@ class MainActivity : EveBaseActivity() {
 
     private val floatingLinkRepo = com.eve.app.data.repository.FloatingLinkRepository()
     private var activeFloatingLinkUrl: String? = null
-    private var bottomPill: com.eve.app.ui.navigation.EveBottomPillBar? = null
 
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* ignored */ }
@@ -296,12 +295,6 @@ class MainActivity : EveBaseActivity() {
             prepareDrawerSurface()
             binding.drawerLayout.openDrawer(GravityCompat.START, UiArcMotion.isMotionEnabled(this))
         }
-        bottomPill = com.eve.app.ui.navigation.EveNavigationHost.attach(
-            this,
-            com.eve.app.ui.navigation.EveBottomPillBar.TAB_HOME
-        ) {
-            binding.rvExams.smoothScrollToPosition(0)
-        }
         loadProfilePhoto(user)
 
         // Telegram-style Search setup
@@ -422,7 +415,7 @@ class MainActivity : EveBaseActivity() {
         // Debug shows actual drawer/scrim and floating-pill geometry after
         // FLAG_ACTIVITY_REORDER_TO_FRONT resumes. The release implementation is a no-op.
         HomeLayoutDiagnostic.report(
-            this, binding.drawerLayout, bottomPill,
+            this, binding.drawerLayout, null,
             listOf(
                 "maintenance" to binding.maintenanceOverlay,
                 "forceUpdate" to binding.forceUpdateOverlay,
@@ -1125,7 +1118,7 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun loadProfilePhoto(user: com.google.firebase.auth.FirebaseUser) {
-        bottomPill?.setUserAvatar(user.photoUrl?.toString())
+        // No bottom navigation pill to display avatar
     }
 
     private fun setupPushNotifications() {

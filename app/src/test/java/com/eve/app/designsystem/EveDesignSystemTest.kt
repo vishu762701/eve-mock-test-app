@@ -159,8 +159,7 @@ class EveDesignSystemTest {
         val overlay = findElementById(root, "homeNavOverlay")
         val drawer = findElementById(root, "navDrawerPanel")
         assertNotNull("Home content host must exist", navHost)
-        assertNotNull("Floating navigation overlay must be inside content", overlay)
-        assertTrue("Pill host must be within DrawerLayout content", overlay?.parentNode === navHost)
+        assertNull("Floating navigation overlay must be removed completely", overlay)
         assertTrue("Drawer panel must be sibling above content", drawer?.parentNode === root && navHost?.parentNode === root)
         for (id in listOf("tvDrawerUserName", "tvDrawerUserEmail", "tvDrawerPremiumStatus")) {
             val header = findElementById(root, id)

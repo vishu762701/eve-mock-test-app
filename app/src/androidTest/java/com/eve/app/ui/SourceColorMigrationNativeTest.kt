@@ -17,7 +17,6 @@ import com.eve.app.R
 import com.eve.app.designsystem.DesignSurfaces
 import com.eve.app.theme.TelegramThemeApplier
 import com.eve.app.theme.TelegramThemeEngine
-import com.eve.app.ui.navigation.EveBottomPillBar
 import com.google.android.material.card.MaterialCardView
 import org.junit.Assert.*
 import org.junit.Test
@@ -25,77 +24,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class SourceColorMigrationNativeTest {
-    /** Disposable EVE hardware evidence; the verified non-liquid inputs do not imply Telegram pixel parity. */
-    @androidx.test.filters.SdkSuppress(minSdkVersion = 26)
-    @Test fun floatingMainTabsCaptureBothSourceModesOverLiveTwoToneBackdrop() {
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        androidx.test.core.app.ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
-            for (dark in listOf(false, true)) {
-                lateinit var owner: FrameLayout
-                lateinit var palette: TelegramThemeEngine.ResolvedPalette
-                scenario.onActivity { activity ->
-                    val config = Configuration(activity.resources.configuration).apply {
-                        uiMode = uiMode and Configuration.UI_MODE_NIGHT_MASK.inv() or
-                            if (dark) Configuration.UI_MODE_NIGHT_YES else Configuration.UI_MODE_NIGHT_NO
-                    }
-                    val context = ContextThemeWrapper(activity.createConfigurationContext(config), R.style.Theme_Eve)
-                    palette = TelegramThemeEngine.resolvePalette(context, TelegramThemeEngine.getTheme(if (dark) "night" else "day"), 0)
-                    owner = FrameLayout(activity)
-                    val backdrop = FrameLayout(context)
-                    backdrop.addView(object : View(context) {
-                        private val paint = android.graphics.Paint()
-                        override fun onDraw(canvas: Canvas) {
-                            paint.color = palette.windowBackground
-                            canvas.drawRect(0f, 0f, width / 2f, height.toFloat(), paint)
-                            paint.color = palette.surface
-                            canvas.drawRect(width / 2f, 0f, width.toFloat(), height.toFloat(), paint)
-                        }
-                    }, FrameLayout.LayoutParams(-1, -1))
-                    owner.addView(backdrop, FrameLayout.LayoutParams(-1, -1))
-                    val pill = EveBottomPillBar(context)
-                    val density = context.resources.displayMetrics.density
-                    owner.addView(pill, FrameLayout.LayoutParams(-2, (56 * density).toInt()).apply {
-                        gravity = android.view.Gravity.BOTTOM or android.view.Gravity.CENTER_HORIZONTAL
-                        setMargins((8 * density).toInt(), 0, (8 * density).toInt(), (8 * density).toInt())
-                    })
-                    (pill.glassBackgroundView as com.eve.app.designsystem.DesignGlassLayout).backdropRoot = backdrop
-                    activity.setContentView(owner)
-                    pill.updateThemePalette(palette)
-                    pill.selectTab(EveBottomPillBar.TAB_HOME, false, false)
-                    pill.setUserAvatar(null)
-                }
-                instrumentation.waitForIdleSync()
-                val ready = java.util.concurrent.CountDownLatch(1)
-                var result = -1
-                lateinit var bitmap: Bitmap
-                scenario.onActivity { activity ->
-                    assertTrue("Floating glass capture uses the hardware compositor", owner.isHardwareAccelerated)
-                    bitmap = Bitmap.createBitmap(owner.width, owner.height, Bitmap.Config.ARGB_8888)
-                    owner.postOnAnimation { owner.postOnAnimation { owner.postOnAnimation {
-                        val location = IntArray(2).also { owner.getLocationInWindow(it) }
-                        val rect = android.graphics.Rect(location[0], location[1], location[0] + owner.width, location[1] + owner.height)
-                        android.view.PixelCopy.request(activity.window, rect, bitmap, { code -> result = code; ready.countDown() },
-                            android.os.Handler(android.os.Looper.getMainLooper()))
-                    } } }
-                }
-                assertTrue("Floating tabs hardware frame completes", ready.await(8, java.util.concurrent.TimeUnit.SECONDS))
-                assertEquals(android.view.PixelCopy.SUCCESS, result)
-                try {
-                    assertEquals(palette.windowBackground, bitmap.getPixel(bitmap.width / 4, bitmap.height / 4))
-                    assertEquals(palette.surface, bitmap.getPixel(bitmap.width * 3 / 4, bitmap.height / 4))
-                    val values = android.content.ContentValues().apply {
-                        put(android.provider.MediaStore.Images.Media.DISPLAY_NAME, "source-main-tabs-${if (dark) "dark" else "light"}.png")
-                        put(android.provider.MediaStore.Images.Media.MIME_TYPE, "image/png")
-                        put(android.provider.MediaStore.Images.Media.RELATIVE_PATH, "Pictures/eve-approved-ui")
-                    }
-                    val resolver = instrumentation.targetContext.contentResolver
-                    val uri = requireNotNull(resolver.insert(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values))
-                    resolver.openOutputStream(uri)!!.use { assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)) }
-                } finally { bitmap.recycle() }
-            }
-        }
-    }
-
     @Test fun representativeScreensUseOriginalDefaultsWithDoubleFontAndRtl() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         instrumentation.runOnMainSync {
@@ -164,81 +92,6 @@ class SourceColorMigrationNativeTest {
                 assertEquals(context.getColor(R.color.dialog_surface),
                     (sheet.background as com.google.android.material.shape.MaterialShapeDrawable).fillColor!!.defaultColor)
             }
-        }
-    }
-
-    @Test fun floatingTabTextAndIconStayAccessibleOverChangingCoatedBackdrops() {
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        instrumentation.runOnMainSync {
-            for (dark in listOf(false, true)) {
-                val context = ContextThemeWrapper(instrumentation.targetContext, R.style.Theme_Eve)
-                val p = TelegramThemeEngine.resolvePalette(context, TelegramThemeEngine.getTheme(if (dark) "night" else "day"), 0)
-                val pill = EveBottomPillBar(context)
-                pill.updateThemePalette(p)
-                pill.selectTab(1, false, false)
-                pill.selectTab(0, false, false)
-                val tab = pill.tabHome
-                assertTrue(tab.isTabSelected())
-                val labels = mutableListOf<android.widget.TextView>()
-                fun find(view: View) {
-                    if (view is android.widget.TextView) labels += view
-                    if (view is ViewGroup) for (i in 0 until view.childCount) find(view.getChildAt(i))
-                }
-                find(tab)
-                assertTrue(labels.isNotEmpty())
-                val coating = TelegramThemeEngine.solveSrcColor(p.surface, p.glassTargetMainTabs, .76f)
-                val icon = tab.iconView
-                icon.measure(View.MeasureSpec.makeMeasureSpec(64, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(64, View.MeasureSpec.EXACTLY))
-                icon.layout(0, 0, 64, 64)
-                val iconBitmap = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888)
-                icon.draw(Canvas(iconBitmap))
-                val opaquePixels = mutableMapOf<Int, Int>()
-                for (y in 0 until 64) for (x in 0 until 64) {
-                    val color = iconBitmap.getPixel(x, y)
-                    if (Color.alpha(color) == 255) opaquePixels[color] = (opaquePixels[color] ?: 0) + 1
-                }
-                assertTrue("Original alpha-mask icon has opaque interior pixels", opaquePixels.isNotEmpty())
-                val iconColor = opaquePixels.maxByOrNull { it.value }!!.key
-                iconBitmap.recycle()
-                for (backdrop in listOf(Color.BLACK, Color.WHITE, p.surface, p.windowBackground)) {
-                    val bg = ColorUtils.compositeColors(TelegramThemeEngine.multAlpha(p.glassTabSelected, .09f),
-                        ColorUtils.compositeColors(coating, backdrop))
-                    labels.forEach { assertTrue("selected label over changing backdrop", ColorUtils.calculateContrast(it.currentTextColor, bg) >= 4.5) }
-                    assertTrue("selected icon over changing backdrop", ColorUtils.calculateContrast(iconColor, bg) >= 3.0)
-                }
-            }
-        }
-    }
-
-    @Test fun avatarFallbackTracksPaletteWhileLoadedPhotoPixelsRemainUntouched() {
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        instrumentation.runOnMainSync {
-            val context = ContextThemeWrapper(instrumentation.targetContext, R.style.Theme_Eve)
-            val pill = EveBottomPillBar(context)
-            pill.setUserAvatar(null)
-            val fallback = requireNotNull(pill.tabProfile.avatarView.drawable)
-            val light = TelegramThemeEngine.resolvePalette(context, TelegramThemeEngine.getTheme("day"), 0)
-            val night = TelegramThemeEngine.resolvePalette(context, TelegramThemeEngine.getTheme("night"), 0)
-            pill.updateThemePalette(light)
-            val firstFilter = fallback.colorFilter
-            pill.updateThemePalette(night)
-            assertNotSame(firstFilter, fallback.colorFilter)
-            assertNotNull(fallback.colorFilter)
-            // Synthetic photo, no private account data or network. Its pixels must survive palette changes.
-            val photo = Bitmap.createBitmap(32, 32, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.MAGENTA) }
-            val view = pill.tabProfile.avatarView
-            view.setImageBitmap(photo)
-            val photoDrawable = view.drawable
-            pill.updateThemePalette(light)
-            assertSame(photoDrawable, view.drawable)
-            assertNull(view.colorFilter)
-            view.measure(View.MeasureSpec.makeMeasureSpec(64, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(64, View.MeasureSpec.EXACTLY))
-            view.layout(0, 0, 64, 64)
-            val rendered = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888)
-            view.draw(Canvas(rendered))
-            assertEquals(Color.MAGENTA, rendered.getPixel(32, 32))
-            rendered.recycle()
-            photo.recycle()
         }
     }
 

@@ -63,8 +63,6 @@
             </FrameLayout>
         </LinearLayout>
     </LinearLayout>
-        <!-- Place Home pill behind drawer as part of DrawerLayout content (not decor foreground). -->
-        <FrameLayout android:id="@+id/homeNavOverlay" android:layout_width="match_parent" android:layout_height="match_parent" android:clipChildren="false" android:clipToPadding="false" android:clickable="false" android:focusable="false" />
     </FrameLayout>
     <FrameLayout android:id="@+id/navDrawerPanel" android:background="@drawable/design_home_drawer_panel" android:layout_width="290dp" android:layout_height="match_parent" android:layout_gravity="start" android:clickable="true" android:focusable="true" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Modal">
         <ImageView android:id="@+id/ivDrawerGlassBlurBackground" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerCrop" android:importantForAccessibility="no" />

@@ -13,7 +13,6 @@ import androidx.core.view.WindowInsetsCompat
 import com.eve.app.R
 import com.eve.app.util.AppBulletin
 import com.eve.app.theme.TelegramThemeEngine
-import com.eve.app.ui.navigation.EveBottomPillBar
 import com.google.android.material.card.MaterialCardView
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -346,38 +345,6 @@ class BulletinHostNativeTest {
                 assertTrue("Card must remain within the window: top=${position[1]}, height=${card.height}", position[1] >= 0)
             }
             captureWindow("bulletin-long-scroll")
-        }
-    }
-
-    @Test fun visibleBulletinClearsAttachedFloatingPill() {
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
-            scenario.onActivity { activity ->
-                activity.setTheme(R.style.Theme_Eve)
-                activity.setContentView(FrameLayout(activity))
-                val content = activity.findViewById<ViewGroup>(android.R.id.content)
-                val density = activity.resources.displayMetrics.density
-                val pill = EveBottomPillBar(activity).apply { tag = "eve_bottom_pill_bar" }
-                val params = FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, (56 * density).toInt()).apply {
-                    gravity = android.view.Gravity.BOTTOM or android.view.Gravity.CENTER_HORIZONTAL
-                    bottomMargin = (8 * density).toInt()
-                }
-                content.addView(pill, params)
-                AppBulletin.make(activity, "परीक्षण सूचना", 30000L).show()
-            }
-            instrumentation.waitForIdleSync()
-            SystemClock.sleep(350)
-            scenario.onActivity { activity ->
-                val content = activity.findViewById<ViewGroup>(android.R.id.content)
-                val card = content.findViewById<View>(R.id.cardBulletin)
-                val pill = requireNotNull(content.findViewWithTag<EveBottomPillBar>("eve_bottom_pill_bar"))
-                val cardPosition = IntArray(2)
-                val pillPosition = IntArray(2)
-                card.getLocationOnScreen(cardPosition)
-                pill.getLocationOnScreen(pillPosition)
-                assertTrue("Bulletin must be above the pill", cardPosition[1] + card.height <= pillPosition[1])
-            }
-            captureWindow("bulletin-pill")
         }
     }
 

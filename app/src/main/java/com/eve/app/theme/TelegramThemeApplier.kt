@@ -14,7 +14,6 @@ import androidx.appcompat.widget.Toolbar
 import com.eve.app.R
 import com.eve.app.designsystem.DesignGlassLayout
 import com.eve.app.designsystem.DesignSegmentedTabs
-import com.eve.app.ui.navigation.EveBottomPillBar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
@@ -55,10 +54,6 @@ object TelegramThemeApplier {
             is com.eve.app.designsystem.TelegramFlickerSkeletonView -> {
                 view.updateTheme(palette)
                 return
-            }
-            is EveBottomPillBar -> {
-                view.updateThemePalette(palette)
-                return // GlassTabView owns animated source colors and AA foregrounds.
             }
             is DesignSegmentedTabs -> {
                 // TabLayout owns its selected/unselected label colors. Recursing into

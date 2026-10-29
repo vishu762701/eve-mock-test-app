@@ -5,8 +5,6 @@ import androidx.core.graphics.ColorUtils
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.eve.app.theme.TelegramThemeEngine
-import com.eve.app.ui.navigation.EveBottomPillBar
-import com.eve.app.ui.navigation.EveNavigationHost
 import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
@@ -14,7 +12,6 @@ import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.test.core.app.ActivityScenario
-import com.eve.app.ui.navigation.MainTabsLayout
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -66,150 +63,6 @@ class TelegramAppearanceAndThemeAuthorityNativeTest {
 
             TelegramThemeEngine.setCommittedMode(TelegramThemeEngine.ThemeMode.SYSTEM, context)
             assertEquals(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM, AppCompatDelegate.getDefaultNightMode())
-        }
-    }
-
-
-    @Test
-    fun actualNavigationHostKeepsBottomGravityAfterNavigationInsets() {
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
-            scenario.onActivity { activity ->
-                val pill = EveNavigationHost.attach(activity, EveBottomPillBar.TAB_HOME)
-                assertTrue("Backdrop source excludes the floating foreground overlay",
-                    (pill.glassBackgroundView as com.eve.app.designsystem.DesignGlassLayout).backdropRoot !== pill.parent)
-                val lpBefore = pill.layoutParams as FrameLayout.LayoutParams
-                assertEquals("Primary pill must attach to the window bottom",
-                    Gravity.BOTTOM, lpBefore.gravity and Gravity.VERTICAL_GRAVITY_MASK)
-                assertEquals("Pill must remain horizontally centered",
-                    Gravity.CENTER_HORIZONTAL, lpBefore.gravity and Gravity.HORIZONTAL_GRAVITY_MASK)
-
-                val density = activity.resources.displayMetrics.density
-                val bottomSystemInsetPx = (24f * density).toInt()
-                val navigationInsets = WindowInsetsCompat.Builder()
-                    .setInsets(WindowInsetsCompat.Type.navigationBars(),
-                        Insets.of(0, 0, 0, bottomSystemInsetPx))
-                    .build()
-                ViewCompat.dispatchApplyWindowInsets(pill, navigationInsets)
-                val lpAfter = pill.layoutParams as FrameLayout.LayoutParams
-                assertEquals("Window inset dispatch must not reparent/reposition pill to TOP",
-                    Gravity.BOTTOM, lpAfter.gravity and Gravity.VERTICAL_GRAVITY_MASK)
-                assertEquals("Window inset dispatch must preserve horizontal centering",
-                    Gravity.CENTER_HORIZONTAL, lpAfter.gravity and Gravity.HORIZONTAL_GRAVITY_MASK)
-                assertEquals("Synthetic navigation inset must be included exactly once",
-                    (8f * density).toInt() + bottomSystemInsetPx, lpAfter.bottomMargin)
-            }
-
-            // Observe the real window traversal after the inset-triggered requestLayout.
-            // Forcing a synthetic measure/layout on android.R.id.content while attached
-            // races the decor's traversal and can assert against stale child coordinates.
-            instrumentation.waitForIdleSync()
-            scenario.onActivity { activity ->
-                val parent = activity.findViewById<FrameLayout>(android.R.id.content)
-                val pill = requireNotNull(parent.findViewWithTag<EveBottomPillBar>("eve_bottom_pill_bar"))
-                val lp = pill.layoutParams as FrameLayout.LayoutParams
-                for (index in 0 until pill.tabsLayout.childCount) {
-                    val tab = pill.tabsLayout.getChildAt(index) as com.eve.app.ui.navigation.GlassTabView
-                    assertTrue("Real EVE host must retain the source tab label's font padding",
-                        tab.textView.includeFontPadding)
-                }
-                val tolerance = (1f * activity.resources.displayMetrics.density).toInt().coerceAtLeast(1)
-                assertTrue("Content viewport must be laid out", parent.width > 0 && parent.height > 0)
-                assertTrue("Floating bottom pill must have visible dimensions",
-                    pill.width > 0 && pill.height > 0 && pill.isLaidOut)
-                assertEquals("A MATCH_PARENT glass child must never expand the 56dp navigation pill",
-                    (56f * activity.resources.displayMetrics.density).toInt(), pill.height)
-                assertEquals("Glass coating must be confined to the 56dp bar, not the Home viewport",
-                    pill.height, pill.glassBackgroundView.height)
-                assertTrue("The complete glass pill must respect Telegram's 344dp maximum",
-                    pill.width <= (344f * activity.resources.displayMetrics.density).toInt())
-                assertEquals("Window traversal must preserve bottom gravity",
-                    Gravity.BOTTOM, lp.gravity and Gravity.VERTICAL_GRAVITY_MASK)
-                assertEquals("Window traversal must preserve horizontal centering",
-                    Gravity.CENTER_HORIZONTAL, lp.gravity and Gravity.HORIZONTAL_GRAVITY_MASK)
-                assertTrue("Floating bottom pill must occupy the lower half of the content viewport: " +
-                    "top=${pill.top}, viewportHeight=${parent.height}",
-                    pill.top >= parent.height / 2)
-                val expectedBottom = parent.height - parent.paddingBottom - lp.bottomMargin
-                assertTrue("Floating bottom pill must be anchored above navigation insets: " +
-                    "actualBottom=${pill.bottom}, expectedBottom=$expectedBottom, " +
-                    "parentPaddingBottom=${parent.paddingBottom}, bottomMargin=${lp.bottomMargin}",
-                    kotlin.math.abs(pill.bottom - expectedBottom) <= tolerance)
-            }
-        }
-    }
-
-    @Test
-    fun mainTabLabelWeightsMatchTelegramOnRealAndroidTypeface() {
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        instrumentation.runOnMainSync {
-            val context = instrumentation.targetContext
-            val tab = com.eve.app.ui.navigation.GlassTabView(context)
-            tab.configureAsIcon(com.eve.app.R.drawable.msg_home, "Home")
-            assertTrue("Telegram tab keeps platform TextView font padding despite EVE's global override",
-                tab.textView.includeFontPadding)
-            tab.setSelectedTab(false, false)
-            if (android.os.Build.VERSION.SDK_INT >= 28) {
-                assertEquals("Unselected tab must use the source Medium font weight 500",
-                    500, tab.textView.typeface.weight)
-            } else {
-                assertEquals(com.eve.app.util.FontManager.telegramMediumTypeface(context), tab.textView.typeface)
-            }
-            tab.setSelectedTab(true, false)
-            if (android.os.Build.VERSION.SDK_INT >= 28) {
-                assertEquals("Selected tab must render at Telegram ExtraBold weight 800",
-                    800, tab.textView.typeface.weight)
-            } else {
-                assertTrue(tab.textView.typeface.isBold)
-            }
-        }
-    }
-
-    @Test
-    fun bottomPillBarMeetsTouchTargetAndPreservesProgrammaticState() {
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        val context = instrumentation.targetContext
-
-        instrumentation.runOnMainSync {
-            val pillBar = EveBottomPillBar(context)
-            val density = context.resources.displayMetrics.density
-            val widthSpec = android.view.View.MeasureSpec.makeMeasureSpec((344 * density).toInt(), android.view.View.MeasureSpec.EXACTLY)
-            val heightSpec = android.view.View.MeasureSpec.makeMeasureSpec((56 * density).toInt(), android.view.View.MeasureSpec.EXACTLY)
-            pillBar.measure(widthSpec, heightSpec)
-
-            // Select tab 1 without notifying listeners (lifecycle restore behavior)
-            var selectedCalled = false
-            var reselectedCalled = false
-            pillBar.setTabSelectionListener(object : MainTabsLayout.TabSelectionListener {
-                override fun onTabSelected(position: Int) { selectedCalled = true }
-                override fun onTabReselected(position: Int) { reselectedCalled = true }
-            })
-
-            pillBar.selectTab(1, animated = false, notify = false)
-            assertEquals(1, pillBar.getSelectedTab())
-            assertFalse("Programmatic selection must not invoke onTabSelected", selectedCalled)
-            assertFalse("Programmatic selection must not invoke onTabReselected", reselectedCalled)
-        }
-    }
-
-    @Test
-    fun bottomPillRendersGlassOnBackgroundLayerOnlyKeepingForegroundSharp() {
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        val context = instrumentation.targetContext
-
-        instrumentation.runOnMainSync {
-            val pillBar = EveBottomPillBar(context)
-            // Ensure glassBackgroundView is first child and tabsLayout is in front
-            assertEquals("Glass background must be first child", pillBar.glassBackgroundView, pillBar.getChildAt(0))
-            assertEquals("Tabs layout must be foreground child", pillBar.tabsLayout, pillBar.getChildAt(1))
-
-            // Verify foreground tabs are unaffected by background effect
-            assertFalse("Foreground tabs must not be clipped", pillBar.tabsLayout.clipChildren)
-            assertTrue("Background drawable must be attached to background view", pillBar.glassBackgroundView.background != null)
-
-            val palette = TelegramThemeEngine.resolveCurrentPalette(context)
-            pillBar.updateThemePalette(palette)
-            assertEquals(palette, pillBar.currentPalette)
         }
     }
 

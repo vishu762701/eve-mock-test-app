@@ -17,7 +17,7 @@ class HomeLayoutDiagnosticReachabilityTest {
         val resume = home.substringAfter("override fun onResume()")
             .substringBefore("override fun onPause()")
         assertTrue("Home resume must invoke layout diagnostic", resume.contains("HomeLayoutDiagnostic.report("))
-        for (field in listOf("bottomPill", "drawerLayout", "maintenanceOverlay",
+        for (field in listOf("drawerLayout", "maintenanceOverlay",
                 "forceUpdateOverlay", "loadingHome", "progressGroup",
                 "ivDrawerGlassBlurBackground", "mainContentContainer")) {
             assertTrue("Missing diagnostic input $field", resume.contains(field))

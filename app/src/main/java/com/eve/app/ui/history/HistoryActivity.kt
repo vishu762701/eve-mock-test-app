@@ -42,13 +42,6 @@ class HistoryActivity : EveBaseActivity() {
 
         binding.btnBack.setOnClickListener { finish() }
 
-        com.eve.app.ui.navigation.EveNavigationHost.attach(
-            this,
-            com.eve.app.ui.navigation.EveBottomPillBar.TAB_HISTORY
-        ) {
-            binding.rvHistory.smoothScrollToPosition(0)
-        }
-
         binding.rvHistory.layoutManager = LinearLayoutManager(this)
         binding.rvHistory.adapter = adapter
         // UIArc Scroll Area adaptation: keep RecyclerView's native virtualization,

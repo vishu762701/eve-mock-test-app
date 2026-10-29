@@ -204,17 +204,6 @@ class TelegramColorMigrationTest {
         assertEquals(Color.MAGENTA, (card.background as android.graphics.drawable.ColorDrawable).color)
     }
 
-    @Test
-    @Config(sdk = [24], application = android.app.Application::class)
-    fun minimumSupportedApiUsesExplicitNonLiquidCoatingWithoutShaderApis() {
-        val themed = ContextThemeWrapper(context, R.style.Theme_Eve)
-        val pill = com.eve.app.ui.navigation.EveBottomPillBar(themed)
-        assertEquals(4, pill.tabsLayout.childCount)
-        val coating = (pill.glassBackgroundView.background as android.graphics.drawable.ColorDrawable).color
-        assertEquals(194, Color.alpha(coating))
-        assertEquals(null, pill.glassBackgroundView.foreground?.colorFilter)
-    }
-
     @Test fun focusAndTimerForegroundsRetainContrastWithoutChangingSourceFill() {
         for (dark in listOf(false, true)) {
             val config = Configuration(context.resources.configuration).apply {
@@ -253,31 +242,5 @@ class TelegramColorMigrationTest {
         val bytes = context.assets.open("themes/night.attheme").use { it.readBytes() }
         val sha = MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
         assertEquals("c93fb2934d2684888a5d9e72a36361c0789d6bc745db23043da7eb88155c5469", sha)
-    }
-
-    @Test fun testFloatingTabsGlassBackgroundNumericalContract() {
-        for (dark in listOf(false, true)) {
-            val config = Configuration(context.resources.configuration).apply {
-                uiMode = uiMode and Configuration.UI_MODE_NIGHT_MASK.inv() or
-                    if (dark) Configuration.UI_MODE_NIGHT_YES else Configuration.UI_MODE_NIGHT_NO
-            }
-            val themed = ContextThemeWrapper(context.createConfigurationContext(config), R.style.Theme_Eve)
-            val p = palette(dark)
-            val pill = com.eve.app.ui.navigation.EveBottomPillBar(themed)
-            pill.updateThemePalette(p)
-            val bg = pill.backgroundDrawable
-            val density = context.resources.displayMetrics.density
-
-            val expectedTopStroke = if (dark) 0x06FFFFFF else 0x11000000
-            val expectedBottomStroke = if (dark) 0x11FFFFFF else 0x20000000
-            val expectedShadow = if (dark) 0x04FFFFFF else 0x20000000
-
-            assertEquals("Top stroke color dark=$dark", expectedTopStroke, bg.strokeTopColor)
-            assertEquals("Bottom stroke color dark=$dark", expectedBottomStroke, bg.strokeBottomColor)
-            assertEquals("Shadow color dark=$dark", expectedShadow, bg.currentShadowColor)
-            assertEquals("Shadow radius 2.667dp", 2.667f * density, bg.currentShadowRadius, 0.01f)
-            assertEquals("Shadow dy 0.85dp", 0.85f * density, bg.currentShadowDy, 0.01f)
-            assertEquals("Stroke width 0.4dp", 0.4f * density, bg.currentStrokeWidth, 0.01f)
-        }
     }
 }
