@@ -108,10 +108,30 @@ Observable interaction behaviors verified via automated tests and device executi
 
 ## 7. Terminal FULL CI Verification (G6)
 
-To be executed via final terminal commit containing `[eve-full]` to execute the authoritative 6-job FULL CI workflow:
-- `backend`
-- `firebase-functions`
-- `build`
-- `Native UI (gesture)`
-- `Native UI (three-button)`
-- `Publish verified debug APK`
+Triggered on remote `main` at commit `04cb31a962378ac0f6782ea8dfe1d21d5db3aeab` (`docs(mission-10): complete EVE Mission 10 acceptance report [eve-full]`).
+
+- **Workflow Run ID:** `40927950764`
+- **Workflow Run URL:** [https://github.com/vishu762701/eve-mock-test-app/actions/runs/40927950764](https://github.com/vishu762701/eve-mock-test-app/actions/runs/40927950764)
+- **Workflow Conclusion:** `SUCCESS` (All 6 terminal jobs passed green)
+- **Execution Profile:** `FULL` (`full=true`, triggered via `workflow_dispatch` / `[eve-full]`)
+
+| Job Name | Database ID | Duration | Result | Purpose & Verification Scope |
+| :--- | :--- | :--- | :--- | :--- |
+| **backend** | `123638412277` | 26s | `SUCCESS` | Node.js backend types and security tests |
+| **firebase-functions** | `123638412590` | 9s | `SUCCESS` | Firebase Functions and question parser validation |
+| **build** | `123638413684` | 5m 24s | `SUCCESS` | FAST compile, FULL lint, AndroidTest source compilation, and APK fingerprinting |
+| **Native UI (gesture)** | `123641475841` | 10m 6s | `SUCCESS` | Native emulator UI instrumentation tests with gesture navigation |
+| **Native UI (three-button)** | `123641476067` | 8m 46s | `SUCCESS` | Native emulator UI instrumentation tests with 3-button navigation |
+| **Publish verified debug APK** | `123647092335` | 7s | `SUCCESS` | Gated publication of exact prebuilt debug APK artifact without recompilation |
+
+---
+
+## 8. Published Debug APK Digest & Artifact Provenance
+
+- **Artifact Name:** `Eve-debug-apk`
+- **Artifact ID:** `12922481452`
+- **Download URL:** [https://github.com/vishu762701/eve-mock-test-app/actions/runs/40927950764/artifacts/12922481452](https://github.com/vishu762701/eve-mock-test-app/actions/runs/40927950764/artifacts/12922481452)
+- **File Size:** `16,607,843 bytes` (~15.8 MB)
+- **Raw Debug APK SHA-256 Digest:** `44e4903d99ec66d6422fe56c9c4b9581afc3a132bb0376ce0a413150aa4bd68a`
+- **Uploaded Artifact Zip SHA-256 Digest:** `cf2b2e26354410a1ee2f9d0a55e534a6817da596a511c6f756168cd7e821c49b`
+- **Verification Proof:** Checksums matched identically between `Fingerprint built APK` in job `build` and `Verify same APK checksum before publication` in job `Publish verified debug APK`. Zero recompilation occurred.
