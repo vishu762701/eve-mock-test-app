@@ -233,6 +233,8 @@ class AppBulletin private constructor(
         private fun position(root: View): Boolean {
             val inset = ViewCompat.getRootWindowInsets(content)
             val bottom = inset?.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout() or WindowInsetsCompat.Type.ime())?.bottom ?: 0
+            val contentLocation = IntArray(2)
+            content.getLocationOnScreen(contentLocation)
             val pillOffset = 0
             // Keep long messages reachable when an IME reduces the viewport.
             val top = inset?.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())?.top ?: 0
