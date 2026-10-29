@@ -24,6 +24,64 @@ EVE is being actively developed. **No UI/UX choice is permanently locked**: the 
 - Make technical choices autonomously ONLY within the requested scope. When exact source, implementation rights or compatibility are missing, report that specific blocker. Alternatives may be proposed but NEVER implemented without the owner's express approval; do not modify unrelated work.
 - Own the outcome: run available preflight checks, compile and test, inspect current SHA-specific CI logs, repair failures without removing legitimate assertions or bypassing gates. Report VERIFIED, INFERRED and UNKNOWN clearly; enumerate remaining unrelated issues by impact. Work only in the active session, never promise background completion.
 
+## Engineering governance gates (G0–G8) — non-negotiable contract
+Every engineer and autonomous agent operating on EVE must enforce nine sequential, testable quality gates before, during, and upon completion of any mission or task:
+
+### G0: Pre-flight & baseline audit
+- Before modifying repository files, fetch the live remote `main` branch HEAD, record its exact commit SHA, and reconcile any concurrent commits.
+- Inspect the live source files and caller graph rather than relying on historical summaries or conversational memory.
+- Enumerate concrete, testable acceptance criteria, identify affected layers and dependencies, and check the latest CI run status for known baseline failures.
+- Proactively report material risks, regressions, or contradictions before writing code.
+
+### G1: Official source & provenance verification
+- When the owner requests official Telegram assets, layouts, typography, animations, or components, verify the upstream Git revision and local archive SHA-256 (`~/.eve/official-telegram/verify.sh` and `THIRD_PARTY_NOTICES.md`).
+- Map each property in a source-mapping table: property name, EVE `file:line`, upstream Telegram `file:line`, verified source value or asset SHA-256 hash, and status classification:
+  - `EXACT`: Verbatim copied upstream asset, identical math/color/token, or verified asset hash match.
+  - `ADAPTED`: Telegram architecture adapted to native Android standard with documented technical rationale.
+  - `NOT FOUND`: Requested property does not exist in the verified upstream source.
+  - `BLOCKED`: Upstream item cannot be verified, accessed, or legally redistributed under current licensing.
+- Never label an approximation or wrapper as exact if only surface attributes or wrappers were copied. Keep EVE backend, security, and authentication invariants strictly intact.
+
+### G2: Serial micro-change contract
+- Work exclusively in sequential, atomic micro-commits directly on `main`. Each commit must represent one coherent, reviewable unit of change.
+- Bundle code, resources, Day/Night qualifiers, callers, and directly dependent test contracts together in the same commit.
+- Never create multi-feature omnibus commits. Never unnaturally split a single atomic change merely to inflate commit count.
+- **Strict intermediate commit rule:** Never add [eve-full] to intermediate commits. Intermediate commits must run FAST CI only.
+
+### G3: FAST CI validation on every intermediate push
+- After pushing an intermediate micro-commit to `main`, inspect the remote FAST CI run on that exact SHA.
+- A red CI run stops all forward implementation: do not proceed to the next feature while CI is failing.
+- Diagnose failures from first actionable logs and implement focused, forward root-cause repairs on `main`.
+- Never disable, suppress, or delete legitimate test assertions to bypass failures. If GitHub Actions APIs cannot establish run status, mark it `UNKNOWN` and never claim `PASS`.
+
+### G4: Functional behavior acceptance
+- Verify observable runtime behavior (e.g., tap dispatch, long-press gestures, drag state machines, coordinate translations, navigation transitions, persistence, admin authorization gates, normal-user read access, lifecycle survival on `onResume` / rotation, accessibility).
+- Green CI, compilation, or static code presence alone is insufficient to prove functional acceptance; verify with targeted JVM tests, instrumentation tests, and physical/emulator device execution.
+
+### G5: Visual fidelity & device acceptance
+- For UI/UX changes, verify visual correctness across all relevant environments: Day and Night themes, phone and tablet breakpoints, system font scaling, window insets/cutouts, RTL layout direction, and Hindi/Devanagari typography.
+- Compare EVE rendered output with upstream Telegram reference implementations where feasible.
+- Never generate, cite, or rely on synthetic or fake visual evidence.
+
+### G6: Mission completion & terminal FULL CI gate
+- Compile a comprehensive requirement-by-requirement acceptance matrix classifying every deliverable as `VERIFIED`, `FAILED`, `UNKNOWN`, or `BLOCKED` with links to SHA-specific evidence.
+- Only after all authorized mission acceptance criteria are implemented, verified, and passing may a mission-final commit carry `[eve-full]` to trigger the terminal six-job FULL CI pipeline (`build`, `Native UI (gesture)`, `Native UI (three-button)`, `backend`, `firebase-functions`, `Publish verified debug APK`).
+- Inspect and record the exact final SHA, all six passing job IDs, and the published debug APK SHA-256 checksum. If any legitimate blocker remains, report the mission as `INCOMPLETE`.
+
+### G7: Continuity & resumable checkpoint contract
+- If execution is interrupted by session limits, token boundaries, tool timeouts, or external blockers, establish a precise resumable checkpoint before halting.
+- The checkpoint must record: current remote `main` SHA, completed microsteps and commit SHAs, latest CI run ID and job status, first actionable failure (if any), uncommitted changes, next exact action, source proof, and remaining acceptance criteria.
+- Never promise or claim unattended background continuation.
+
+### G8: Safe auto-correction & root-cause repair
+- Proactively diagnose and repair defects within authorized mission scope; choose maintainable native architecture over temporary workarounds.
+- Explicitly disclose material failures, architectural tradeoffs, and behavioral deviations.
+- Never silently roll back previous approved work, change secrets/credentials, weaken authorization guards or server-authoritative scoring, or substitute unauthorized code.
+- Escalate genuinely new product decisions, changed scope, or demonstrated legal/security blockers to the owner.
+
+### Standardized mission acceptance report
+All completed or checkpointed missions must document results using the canonical report format defined in [docs/MISSION_ACCEPTANCE_TEMPLATE.md](file:///data/data/com.termux/files/home/eve-mock-test-app/docs/MISSION_ACCEPTANCE_TEMPLATE.md).
+
 ## Official design / source reuse: lawful friction-minimizing workflow
 - The owner can request any official design or component from Apple, Samsung, Telegram, Android or other sources. Use the verified original upstream documentation/code/asset when the owner requests "official", not a self-authored approximation. Require an upstream ZIP only when source-exact verification genuinely needs that ZIP.
 - For **exact copied code, illustrations, icons, fonts, animation files or assets**, inspect the item's specific permissions, copyright/license, attribution, redistribution and derivative-source obligations, platform API compatibility and branding. An "official" label is not a universal reuse license.

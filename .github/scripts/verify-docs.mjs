@@ -99,6 +99,13 @@ if (!engineering.includes('Owner-authorized scope and exact official implementat
     !architecture.includes('ONLY change scope')) {
   error('Strict owner-requested change scope or verified official-only policy is missing');
 }
+if (!engineering.includes('Engineering governance gates (G0–G8)') ||
+    !agent.includes('Engineering Governance Gates (G0–G8)')) {
+  error('Engineering governance gates (G0–G8) missing from canonical rules');
+}
+if (!fs.existsSync(path.join(REPO_ROOT, 'docs/MISSION_ACCEPTANCE_TEMPLATE.md'))) {
+  error('docs/MISSION_ACCEPTANCE_TEMPLATE.md missing');
+}
 if (fs.readFileSync(path.join(REPO_ROOT, '.github/workflows/build.yml'), 'utf8').includes("Retired UI Studio references remain in active source")) {
   error('CI must not hard-ban a safely reintroduced UI feature');
 }
