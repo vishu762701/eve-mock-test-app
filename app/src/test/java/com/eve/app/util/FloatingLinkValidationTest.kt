@@ -54,4 +54,32 @@ class FloatingLinkValidationTest {
         assertEquals(0.85f, data.x ?: 0f, 0.001f)
         assertEquals(0.90f, data.y ?: 0f, 0.001f)
     }
+
+    @Test
+    fun testNormalizedCoordinatesClamping() {
+        val clampNorm = { v: Float -> v.coerceIn(0f, 1f) }
+        assertEquals(0f, clampNorm(-0.5f), 0.001f)
+        assertEquals(1f, clampNorm(1.5f), 0.001f)
+        assertEquals(0.5f, clampNorm(0.5f), 0.001f)
+    }
+
+    @Test
+    fun testViewportCoordinateMapping() {
+        val parentW = 1080
+        val parentH = 2400
+        val cardW = 180
+        val cardH = 180
+        val marginPx = 48
+
+        val minX = marginPx.toFloat()
+        val maxX = (parentW - cardW - marginPx).toFloat()
+        val minY = marginPx.toFloat()
+        val maxY = (parentH - cardH - marginPx).toFloat()
+
+        fun mapCoord(norm: Float, min: Float, max: Float) = min + norm.coerceIn(0f, 1f) * (max - min)
+
+        assertEquals(minX, mapCoord(0f, minX, maxX), 0.001f)
+        assertEquals(maxX, mapCoord(1f, minX, maxX), 0.001f)
+        assertEquals((minX + maxX) / 2f, mapCoord(0.5f, minX, maxX), 0.001f)
+    }
 }
