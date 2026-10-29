@@ -19,4 +19,9 @@
     <color name="telegram_flicker_base">#FF282829</color>
     <!-- Telegram night.attheme:308 listSelectorSDK21 = 234881023 (#0DFFFFFF) -->
     <color name="telegram_flicker_highlight">#0DFFFFFF</color>
+    <!-- Owner override R05: Monochrome category filter pills -->
+    <color name="category_pill_selected_bg">#FFFFFFFF</color>
+    <color name="category_pill_selected_fg">#FF000000</color>
+    <color name="category_pill_unselected_bg">#FF1C1C1E</color>
+    <color name="category_pill_unselected_fg">#FFA1A1A6</color>
 </resources>

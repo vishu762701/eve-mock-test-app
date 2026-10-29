@@ -191,17 +191,20 @@ class ManualUiSpecificationTest {
                         assertEquals(0f, chip.chipStrokeWidth, 0.01f)
                         for (checked in listOf(false, true, false)) {
                             chip.isChecked = checked
-                            // Category chips use the Telegram FilterTabsView source-backed palette:
-                            // background is transparent (drawn by parent selector); text uses filterTab active/unactive.
-                            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
-                            val expectedBg = Color.TRANSPARENT
-                            val expectedText = if (chip.isChecked) palette.filterTabActiveText else palette.filterTabUnactiveText
+                            // Owner override R05: Monochrome category filter pills
+                            val expectedBg = if (chip.isChecked)
+                                androidx.core.content.ContextCompat.getColor(context, R.color.category_pill_selected_bg)
+                            else
+                                androidx.core.content.ContextCompat.getColor(context, R.color.category_pill_unselected_bg)
+                            val expectedText = if (chip.isChecked)
+                                androidx.core.content.ContextCompat.getColor(context, R.color.category_pill_selected_fg)
+                            else
+                                androidx.core.content.ContextCompat.getColor(context, R.color.category_pill_unselected_fg)
                             assertEquals(expectedBg,
                                 chip.chipBackgroundColor!!.getColorForState(chip.drawableState, 0))
                             assertEquals(expectedText, chip.currentTextColor)
-                            val effectiveBg = palette.windowBackground
-                            assertTrue("Telegram chip label contrast must remain readable",
-                                androidx.core.graphics.ColorUtils.calculateContrast(chip.currentTextColor, effectiveBg) >= 4.5)
+                            assertTrue("Chip label contrast must remain readable",
+                                androidx.core.graphics.ColorUtils.calculateContrast(chip.currentTextColor, expectedBg) >= 4.5)
                         }
                         assertTrue(chip.height >= dp(32))
                         assertTrue("Chip must fit the locked screen margins at $width/$font",

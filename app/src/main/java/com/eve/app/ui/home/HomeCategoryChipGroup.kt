@@ -130,7 +130,9 @@ class HomeCategoryChipGroup @JvmOverloads constructor(context: Context, attrs: A
         val shown = if (animatingIndicator) lastRenderedBounds ?: target else target
         if (!animatingIndicator) lastRenderedBounds = target?.let(::RectF)
         if (shown != null) {
-            val color = TelegramThemeEngine.resolveCurrentPalette(context).filterTabLine
+            // Owner override R05: Monochrome category filter pills draw their own solid surfaces.
+            // Transparent selector prevents any bright blue Telegram tab line from rendering.
+            val color = Color.TRANSPARENT
             if (selectorColor != color) {
                 selectorColor = color
                 selectorDrawable.setColor(color)

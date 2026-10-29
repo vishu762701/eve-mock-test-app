@@ -53,23 +53,41 @@ object EveDesignSystem {
             isChecked = isSelected
             DesignType.apply(this, DesignType.Role.CHIP)
             chipStrokeWidth = 0f
+            // Owner override R05: Monochrome category filter pills
+            // NIGHT selected: EXACT #FFFFFF bg, #000000 text/icons
+            // DAY selected: EXACT #000000 bg, #FFFFFF text/icons
+            // Unselected: quiet theme-neutral surfaces with WCAG AA readable text
+            val selectedBg = ContextCompat.getColor(context, R.color.category_pill_selected_bg)
+            val unselectedBg = ContextCompat.getColor(context, R.color.category_pill_unselected_bg)
+            val selectedFg = ContextCompat.getColor(context, R.color.category_pill_selected_fg)
+            val unselectedFg = ContextCompat.getColor(context, R.color.category_pill_unselected_fg)
+
+            chipBackgroundColor = android.content.res.ColorStateList(
+                arrayOf(
+                    intArrayOf(android.R.attr.state_checked),
+                    intArrayOf(-android.R.attr.state_checked)
+                ),
+                intArrayOf(selectedBg, unselectedBg)
+            )
             val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
-            // FilterTabsView.java:915-918,1448-1514 draws one shared 28dp
-            // low-alpha tab indicator behind the title; tabs are not solid pills.
-            // This Chip remains an EVE accessibility/selection host only.
-            chipBackgroundColor = android.content.res.ColorStateList.valueOf(Color.TRANSPARENT)
-            rippleColor = android.content.res.ColorStateList.valueOf(palette.filterTabSelector)
+            rippleColor = android.content.res.ColorStateList.valueOf(
+                if (selectedBg == Color.BLACK) 0x1A000000 else 0x26FFFFFF
+            )
             setTextColor(
                 android.content.res.ColorStateList(
                     arrayOf(
                         intArrayOf(android.R.attr.state_checked),
                         intArrayOf(-android.R.attr.state_checked)
                     ),
-                    intArrayOf(
-                        palette.filterTabActiveText,
-                        palette.filterTabUnactiveText
-                    )
+                    intArrayOf(selectedFg, unselectedFg)
                 )
+            )
+            chipIconTint = android.content.res.ColorStateList(
+                arrayOf(
+                    intArrayOf(android.R.attr.state_checked),
+                    intArrayOf(-android.R.attr.state_checked)
+                ),
+                intArrayOf(selectedFg, unselectedFg)
             )
             // Telegram FilterTabsView.java:388-400,649-659 measures title/counter only;
             // no selected checkmark consumes width. Only Home's category chip follows

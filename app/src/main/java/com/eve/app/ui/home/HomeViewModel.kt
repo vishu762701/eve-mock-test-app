@@ -285,10 +285,13 @@ class HomeViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     }
 
     fun selectCategory(category: String) {
+        if (_selectedCategory.value == category) return
         val next = HomeCategorySelection.select(
             _selectedCategory.value, category, availableCategories(allLoadedExams)
         )
-        updateSelectedCategory(next)
+        if (next != _selectedCategory.value) {
+            updateSelectedCategory(next)
+        }
     }
 
     private fun buildUiData(

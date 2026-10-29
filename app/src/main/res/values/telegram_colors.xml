@@ -16,4 +16,9 @@
     <color name="telegram_flicker_base">#FFFFFFFF</color>
     <!-- Telegram ThemeColors.java:129 listSelector = #0F000000 -->
     <color name="telegram_flicker_highlight">#0F000000</color>
+    <!-- Owner override R05: Monochrome category filter pills -->
+    <color name="category_pill_selected_bg">#FF000000</color>
+    <color name="category_pill_selected_fg">#FFFFFFFF</color>
+    <color name="category_pill_unselected_bg">#FFE5E5EA</color>
+    <color name="category_pill_unselected_fg">#FF545458</color>
 </resources>
