@@ -52,8 +52,8 @@ class HomeOverflowPopupNativeTest {
             instrumentation.waitForIdleSync()
             scenario.onActivity {
                 assertTrue("Home popup must be attached", popup.isShowing)
-                assertEquals("Telegram ActionBarMenuItem disables platform popup transitions",
-                    0, popup.animationStyle)
+                assertEquals("Telegram ItemOptions uses PopupContextAnimation style",
+                    R.style.PopupContextAnimation, popup.animationStyle)
                 assertEquals("Original Telegram submenu does not consume IME insets",
                     android.widget.PopupWindow.INPUT_METHOD_NOT_NEEDED, popup.inputMethodMode)
                 assertEquals("Original Telegram submenu keeps neutral soft-input state",

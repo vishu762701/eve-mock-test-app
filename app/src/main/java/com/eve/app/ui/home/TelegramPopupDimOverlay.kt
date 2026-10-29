@@ -72,8 +72,12 @@ class TelegramPopupDimOverlay(
         updateAnchorPoint()
 
         preDrawListener = ViewTreeObserver.OnPreDrawListener {
+            val oldX = point[0]
+            val oldY = point[1]
             updateAnchorPoint()
-            dimView.invalidate()
+            if (point[0] != oldX || point[1] != oldY) {
+                dimView.invalidate()
+            }
             true
         }
         container.viewTreeObserver.addOnPreDrawListener(preDrawListener)

@@ -238,10 +238,6 @@ class TelegramMenuPopup(
         val desiredTop = (anchorLocation[1] + anchorView.height + yOffset).coerceAtLeast(frame.top + gap)
         val effectiveYOffset = desiredTop - (anchorLocation[1] + anchorView.height)
 
-        // Keep the existing circular-reveal handoff; menu body scrolls within the available viewport.
-        isClippingEnabled = true
-        showAsDropDown(anchorView, xOffset, effectiveYOffset)
-
         // ItemOptions.java:1310-1350 DimView host overlay with dimAlpha = 0x08 (~3%)
         val activity = context as? Activity
         val container = activity?.window?.decorView as? ViewGroup ?: (anchorView.rootView as? ViewGroup)
@@ -250,6 +246,10 @@ class TelegramMenuPopup(
                 it.show()
             }
         }
+
+        // Keep the existing circular-reveal handoff; menu body scrolls within the available viewport.
+        isClippingEnabled = true
+        showAsDropDown(anchorView, xOffset, effectiveYOffset)
     }
 
     /** Source: ActionBarMenuSubItem.java:78-84 and ThemeColors.java:51,203-206. */
