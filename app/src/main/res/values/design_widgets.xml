@@ -183,7 +183,7 @@
     <!-- Telegram AlertDialog.java:1128-1134,1167-1175:
          16dp text and AndroidUtilities.bold() (bundled rmedium by default).
          Keep EVE button geometry, colors and 48dp accessibility minimum. -->
-    <style name="Widget.Eve.Telegram.DialogAction.Primary" parent="Widget.Material3.Button.TextButton">
+    <style name="Widget.Eve.Telegram.DialogAction.Primary" parent="Widget.Eve.Token.Button">
         <item name="android:fontFamily">@font/telegram_roboto_medium</item>
         <item name="fontFamily">@font/telegram_roboto_medium</item>
         <item name="android:textSize">16sp</item>
@@ -194,7 +194,7 @@
         <item name="strokeColor">@android:color/transparent</item>
         <item name="android:minHeight">@dimen/design_touch_min</item>
     </style>
-    <style name="Widget.Eve.Telegram.DialogAction.Secondary" parent="Widget.Material3.Button.TextButton">
+    <style name="Widget.Eve.Telegram.DialogAction.Secondary" parent="Widget.Eve.Token.Button.Secondary">
         <item name="android:fontFamily">@font/telegram_roboto_medium</item>
         <item name="fontFamily">@font/telegram_roboto_medium</item>
         <item name="android:textSize">16sp</item>
