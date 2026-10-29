@@ -292,8 +292,8 @@ class MainActivity : EveBaseActivity() {
         )
 
         com.eve.app.designsystem.DesignPress.bind(binding.btnMenu) {
-            prepareDrawerSurface()
-            binding.drawerLayout.openDrawer(GravityCompat.START, UiArcMotion.isMotionEnabled(this))
+            if (ThemeSwitchAnimator.isTransitioning || isFinishing || isDestroyed) return@bind
+            EveNavigationHelper.navigate(this, Intent(this, ProfileActivity::class.java))
         }
         loadProfilePhoto(user)
 
@@ -806,6 +806,8 @@ class MainActivity : EveBaseActivity() {
 
     private fun setupFloatingAirplane() {
         binding.cardFloatingAirplane.strokeWidth = 0
+        binding.cardFloatingAirplane.cardElevation = 0f
+        binding.cardFloatingAirplane.maxCardElevation = 0f
         binding.cardFloatingAirplane.setCardBackgroundColor(
             ContextCompat.getColor(this, android.R.color.transparent)
         )
@@ -848,7 +850,11 @@ class MainActivity : EveBaseActivity() {
             windowInsets
         }
 
+        var lastLinkLaunch = 0L
         com.eve.app.designsystem.DesignPress.bind(binding.cardFloatingAirplane) {
+            val now = android.os.SystemClock.elapsedRealtime()
+            if (now - lastLinkLaunch < 800L) return@bind
+            lastLinkLaunch = now
             val url = activeFloatingLinkUrl?.trim() ?: return@bind
             if (!com.eve.app.data.repository.FloatingLinkRepository.isValidHttpsUrl(url)) return@bind
             try {

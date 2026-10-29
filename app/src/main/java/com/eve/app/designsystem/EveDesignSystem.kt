@@ -95,16 +95,15 @@ object EveDesignSystem {
         fun applyHomeCard(card: MaterialCardView) {
             val ctx = card.context
             val res = card.resources
-            card.radius = res.getDimension(R.dimen.design_radius_card)
-            card.cardElevation = Elevation.homeCardElevation(ctx)
-            card.maxCardElevation = Elevation.homeCardElevation(ctx)
+            card.radius = res.getDimension(R.dimen.telegram_list_card_radius)
+            card.cardElevation = 0f
+            card.maxCardElevation = 0f
             card.setCardBackgroundColor(ContextCompat.getColor(ctx, R.color.surface))
             card.strokeWidth = 0
             card.strokeColor = Color.TRANSPARENT
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                val shadowColor = ContextCompat.getColor(ctx, R.color.card_shadow)
-                card.outlineAmbientShadowColor = shadowColor
-                card.outlineSpotShadowColor = shadowColor
+                card.outlineAmbientShadowColor = Color.TRANSPARENT
+                card.outlineSpotShadowColor = Color.TRANSPARENT
             }
         }
 

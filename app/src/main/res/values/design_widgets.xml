@@ -183,17 +183,27 @@
     <!-- Telegram AlertDialog.java:1128-1134,1167-1175:
          16dp text and AndroidUtilities.bold() (bundled rmedium by default).
          Keep EVE button geometry, colors and 48dp accessibility minimum. -->
-    <style name="Widget.Eve.Telegram.DialogAction.Primary" parent="Widget.Eve.Token.Button">
+    <style name="Widget.Eve.Telegram.DialogAction.Primary" parent="Widget.Material3.Button.TextButton">
         <item name="android:fontFamily">@font/telegram_roboto_medium</item>
         <item name="fontFamily">@font/telegram_roboto_medium</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/accent</item>
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="strokeWidth">@dimen/design_zero</item>
+        <item name="strokeColor">@android:color/transparent</item>
+        <item name="android:minHeight">@dimen/design_touch_min</item>
     </style>
-    <style name="Widget.Eve.Telegram.DialogAction.Secondary" parent="Widget.Eve.Token.Button.Secondary">
+    <style name="Widget.Eve.Telegram.DialogAction.Secondary" parent="Widget.Material3.Button.TextButton">
         <item name="android:fontFamily">@font/telegram_roboto_medium</item>
         <item name="fontFamily">@font/telegram_roboto_medium</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/accent</item>
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="strokeWidth">@dimen/design_zero</item>
+        <item name="strokeColor">@android:color/transparent</item>
+        <item name="android:minHeight">@dimen/design_touch_min</item>
     </style>
     <style name="Widget.Eve.Token.Dialog.Title" parent="MaterialAlertDialog.Material3.Title.Text">
         <item name="android:textAppearance">@style/TextAppearance.Eve.Telegram.DialogTitle</item>

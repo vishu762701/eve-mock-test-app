@@ -179,14 +179,15 @@
     </style>
     <style name="Theme.Eve.Dialog.Base" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="dialogPreferredPadding">@dimen/design_card_padding</item>
-        <item name="android:windowElevation">@dimen/design_card_elevation</item>
+        <item name="android:windowElevation">@dimen/design_zero</item>
+        <item name="android:backgroundDimAmount">0.5</item>
         <item name="materialAlertDialogTitlePanelStyle">@style/Widget.Eve.Token.Dialog.TitlePanel</item>
         <item name="shapeAppearance">@style/ShapeAppearance.Eve.Dialog</item>
         <item name="colorSurface">@color/dialog_surface</item>
         <item name="android:windowBackground">@drawable/design_dialog_surface_panel</item>
         <item name="buttonBarPositiveButtonStyle">@style/Widget.Eve.Telegram.DialogAction.Primary</item>
         <item name="buttonBarNegativeButtonStyle">@style/Widget.Eve.Telegram.DialogAction.Secondary</item>
-        <item name="materialButtonStyle">@style/Widget.Eve.Token.Button</item>
+        <item name="materialButtonStyle">@style/Widget.Eve.Telegram.DialogAction.Secondary</item>
         <item name="buttonBarNeutralButtonStyle">@style/Widget.Eve.Telegram.DialogAction.Secondary</item>
         <item name="materialAlertDialogTitleTextStyle">@style/Widget.Eve.Token.Dialog.Title</item>
         <item name="materialAlertDialogBodyTextStyle">@style/Widget.Eve.Token.Dialog.Body</item>

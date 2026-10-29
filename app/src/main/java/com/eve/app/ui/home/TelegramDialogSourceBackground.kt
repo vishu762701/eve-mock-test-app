@@ -35,7 +35,13 @@ internal object TelegramDialogSourceBackground {
         // A destructive positive action is the only intentional source color exception.
         val surface = if (palette.isDark) 0xFF262626.toInt() else palette.dialogSurface
         drawable.colorFilter = PorterDuffColorFilter(surface, PorterDuff.Mode.MULTIPLY)
-        dialog.window?.setBackgroundDrawable(drawable)
+        dialog.window?.let { window ->
+            window.setBackgroundDrawable(drawable)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                window.elevation = 0f
+            }
+            window.setDimAmount(0.5f)
+        }
         // Original AlertDialog.java:809-821,874-878,1137-1204 uses title=20,
         // message=16, actions=16 and AndroidUtilities.bold() (Roboto Medium).
         // EVE deliberately specifies SP instead of original DIP to retain font scaling.
