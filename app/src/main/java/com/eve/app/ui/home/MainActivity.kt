@@ -293,7 +293,7 @@ class MainActivity : EveBaseActivity() {
 
         com.eve.app.designsystem.DesignPress.bind(binding.btnMenu) {
             if (ThemeSwitchAnimator.isTransitioning || isFinishing || isDestroyed) return@bind
-            EveNavigationHelper.navigate(this, Intent(this, ProfileActivity::class.java))
+            startActivity(Intent(this, ProfileActivity::class.java))
         }
         loadProfilePhoto(user)
 

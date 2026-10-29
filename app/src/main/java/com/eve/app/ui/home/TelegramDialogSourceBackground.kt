@@ -37,9 +37,6 @@ internal object TelegramDialogSourceBackground {
         drawable.colorFilter = PorterDuffColorFilter(surface, PorterDuff.Mode.MULTIPLY)
         dialog.window?.let { window ->
             window.setBackgroundDrawable(drawable)
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                window.elevation = 0f
-            }
             window.setDimAmount(0.5f)
         }
         // Original AlertDialog.java:809-821,874-878,1137-1204 uses title=20,
