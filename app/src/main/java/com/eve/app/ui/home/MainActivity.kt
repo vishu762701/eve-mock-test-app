@@ -1235,7 +1235,10 @@ class MainActivity : EveBaseActivity() {
                 if (res.success && !res.data.isNullOrEmpty()) {
                     // Merge all available new broadcasts; never replace FCM/reminder entries
                     // or mark the Home screen's unread notifications as acknowledged.
-                    NotificationStore.importBroadcasts(this@MainActivity, res.data)
+                    val newCount = NotificationStore.importBroadcasts(this@MainActivity, res.data)
+                    if (newCount > 0) {
+                        animateNotificationBell()
+                    }
                 }
                 updateNotificationDot()
             } catch (_: Exception) {
@@ -1263,12 +1266,24 @@ class MainActivity : EveBaseActivity() {
             restoreNotificationBellIdle()
             return
         }
-        // An asynchronous/invalid composition must not hide the always-visible vector.
+        val generation = ++bellAnimationGeneration
         if (binding.btnNotification.composition == null) {
-            restoreNotificationBellIdle()
+            binding.btnNotification.addLottieOnCompositionLoadedListener {
+                if (generation == bellAnimationGeneration && ::binding.isInitialized &&
+                    com.eve.app.designsystem.DesignMotion.enabled(this@MainActivity)) {
+                    try {
+                        binding.btnNotification.repeatCount = 0
+                        binding.btnNotification.progress = 0f
+                        binding.ivNotificationIdle.visibility = View.INVISIBLE
+                        binding.btnNotification.alpha = 1f
+                        binding.btnNotification.playAnimation()
+                    } catch (_: Exception) {
+                        restoreNotificationBellIdle()
+                    }
+                }
+            }
             return
         }
-        val generation = ++bellAnimationGeneration
         try {
             binding.btnNotification.cancelAnimation()
             binding.btnNotification.repeatCount = 0

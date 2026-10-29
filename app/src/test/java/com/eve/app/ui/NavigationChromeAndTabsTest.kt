@@ -113,6 +113,14 @@ class NavigationChromeAndTabsTest {
 
         val dotUnread = findElementById(parent, "dotUnread")
         assertNotNull("dotUnread must exist inside bell parent", dotUnread)
+        assertEquals("@drawable/shape_notification_dot", dotUnread?.designAttribute("android:background"))
+        assertEquals("@dimen/design_card_gap", dotUnread?.designAttribute("android:layout_width"))
+        assertEquals("@dimen/design_card_gap", dotUnread?.designAttribute("android:layout_height"))
+
+        val dotShapeDoc = loadXml("src/main/res/drawable/shape_notification_dot.xml")
+        assertEquals("oval", dotShapeDoc.documentElement.getAttribute("android:shape"))
+        val solid = dotShapeDoc.documentElement.getElementsByTagName("solid").item(0) as? Element
+        assertEquals("@color/system_red", solid?.getAttribute("android:color"))
     }
 
     @Test
