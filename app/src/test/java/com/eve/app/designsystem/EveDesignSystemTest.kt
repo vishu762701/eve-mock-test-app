@@ -232,12 +232,12 @@ class EveDesignSystemTest {
             setup.contains("binding.homeGlassToolbar.setBackgroundColor(Color.TRANSPARENT)"))
         val sharedToolbar = File(getProjectDir(),
             "app/src/main/java/com/eve/app/ui/common/EveGlassToolbar.kt").readText()
-        assertTrue("Shared toolbars retain scroll glass by default",
-            sharedToolbar.contains("var scrollBackdropEnabled: Boolean = true"))
-        assertTrue("Opted-out Home must skip blur selection work every pre-draw",
+        assertTrue("Shared toolbars disable contrasting scroll glass by default app-wide",
+            sharedToolbar.contains("var scrollBackdropEnabled: Boolean = false"))
+        assertTrue("Opted-out toolbars must skip blur selection work every pre-draw",
             sharedToolbar.contains("if (!scrollBackdropEnabled) {") &&
                 sharedToolbar.contains("if (glassEnabled) glassEnabled = false"))
-        assertTrue("Home opt-out must avoid searching whole view tree on layout",
+        assertTrue("Toolbars must avoid searching whole view tree on layout when scroll backdrop disabled",
             sharedToolbar.contains("if (!scrollBackdropEnabled) return"))
         val shared = File(getProjectDir(), "app/src/main/java/com/eve/app/designsystem/DesignGlassLayout.kt").readText()
         assertTrue("Shared stroke must remain conditionally drawn",

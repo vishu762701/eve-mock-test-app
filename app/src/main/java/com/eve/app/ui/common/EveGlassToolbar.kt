@@ -18,10 +18,10 @@ class EveGlassToolbar @JvmOverloads constructor(
     ViewTreeObserver.OnPreDrawListener {
     private var observer: ViewTreeObserver? = null
     private val scrollHosts = ArrayList<View>()
-    /** Home opts out so scrolling cannot introduce a contrasting Night toolbar strip.
-     * Other screens keep the existing scroll-responsive Telegram-style backdrop.
+    /** Contrasting scroll backdrop is disabled by default app-wide so upward scrolling
+     * on Profile, Home, or any other screen does not reveal a contrasting top strip or seam.
      */
-    var scrollBackdropEnabled: Boolean = true
+    var scrollBackdropEnabled: Boolean = false
         set(value) {
             if (field == value) return
             field = value
@@ -32,7 +32,11 @@ class EveGlassToolbar @JvmOverloads constructor(
             invalidate()
         }
 
-    init { useSquareCorners(); glassEnabled = false }
+    init {
+        useSquareCorners()
+        drawHairline = false
+        glassEnabled = false
+    }
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         observer = rootView.viewTreeObserver.also {
