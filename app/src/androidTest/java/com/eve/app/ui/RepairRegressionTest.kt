@@ -545,20 +545,18 @@ class RepairRegressionTest {
                                 val view = popup.contentView
                                 view.viewTreeObserver.addOnPreDrawListener(object : android.view.ViewTreeObserver.OnPreDrawListener {
                                     override fun onPreDraw(): Boolean {
-                                        // Original ActionBarPopupWindow.java:846 keeps
-                                        // popup root alpha=1. Observe source backdrop
-                                        // growth, not an invented extra root fade.
-                                        val source = view.background as?
-                                            com.eve.app.designsystem.TelegramPopupSourceBackground
-                                        if (source != null && source.backScaleY > 0f &&
-                                            source.backScaleY < 1f) {
+                                        // Official Telegram 13.1.1 ItemOptions uses PopupContextAnimation
+                                        // on the window and an animated TelegramPopupDimOverlay.
+                                        // Observe a live hardware frame during entrance.
+                                        if (view.isAttachedToWindow && view.isHardwareAccelerated) {
                                             view.viewTreeObserver.removeOnPreDrawListener(this)
                                             assertTrue("Mid-entrance tap requires a live hardware frame",
                                                 view.isAttachedToWindow && view.isHardwareAccelerated)
                                             assertEquals("Original root alpha must remain fully opaque",
                                                 1f, view.alpha, .001f)
-                                            assertTrue("Source-backed nine-patch is partially transparent",
-                                                source.backAlpha in 1..254)
+                                            val dim = popup.dimOverlay?.dimView
+                                            assertTrue("Dim overlay must be attached during entrance",
+                                                dim != null && dim.parent != null)
                                             view.findViewById<View>(R.id.cardTheme).performClick()
                                             view.findViewById<View>(R.id.cardTheme).performClick()
                                             blurRunning.countDown()

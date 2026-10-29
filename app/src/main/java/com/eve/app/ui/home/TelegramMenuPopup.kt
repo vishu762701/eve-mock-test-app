@@ -43,7 +43,7 @@ class TelegramMenuPopup(
     // Programmatic dismissal via ActionBarPopupWindow.java:1065-1068 (-5dp, 150ms exit).
     private var isDismissing = false
     private var anchorViewRef: View? = null
-    private var dimOverlay: TelegramPopupDimOverlay? = null
+    internal var dimOverlay: TelegramPopupDimOverlay? = null
     private fun actionRows(): List<LinearLayout> = listOf(
         binding.cardTheme, binding.menuRowHistory, binding.menuRowBookmarks,
         binding.menuRowMistakes, binding.menuRowTopic, binding.menuRowPyq, binding.menuRowLogout
