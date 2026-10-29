@@ -18,6 +18,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -41,6 +42,7 @@ class HomeViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     private val _targetExamIds = MutableStateFlow<Set<String>>(TargetExamsBottomSheet.getTargetExamIds(com.eve.app.EveApplication.instance))
     private val _feedbackPosts = MutableStateFlow<List<FeedbackPost>>(emptyList())
     private val _selectedCategory = MutableStateFlow(savedStateHandle[SELECTED_CATEGORY_STATE_KEY] ?: Constants.CATEGORY_ALL)
+    val selectedCategory: StateFlow<String> = _selectedCategory.asStateFlow()
 
     private var pinnedObserverJob: Job? = null
     private var feedbackObserverJob: Job? = null

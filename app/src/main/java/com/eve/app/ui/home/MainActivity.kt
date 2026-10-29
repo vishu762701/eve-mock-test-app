@@ -1573,7 +1573,7 @@ class MainActivity : EveBaseActivity() {
         binding.chipGroupCategory.removeAllViews()
         categories.forEach { category ->
             val chip = HomeAppearance.categoryChip(this, category, selected) {
-                if (viewModel.selectedCategory.value != category) {
+                if (category != selected) {
                     viewModel.selectCategory(category)
                 }
             }
