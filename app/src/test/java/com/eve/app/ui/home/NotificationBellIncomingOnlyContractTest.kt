@@ -17,7 +17,8 @@ class NotificationBellIncomingOnlyContractTest {
                 .contains("animateNotificationBell()") ||
             src.substringAfter("private val foregroundNotificationReceiver").substringBefore("override fun onCreate")
                 .contains("animateNotificationBell()"))
-        assertTrue(src.contains("newCount > 0"))
+        assertTrue(src.contains("newCount > 0 && hadBroadcastBaseline"))
+        assertTrue(src.contains("NotificationStore.hasEstablishedBroadcastBaseline(this@MainActivity)"))
         assertTrue(src.contains("pendingBellGeneration = null"))
         assertTrue(src.contains("bell.composition?.duration?.toLong()"))
         assertTrue("Only incoming callbacks may queue a bell until Activity resumes",

@@ -50,6 +50,14 @@ object NotificationStore {
     private const val MAX_STORED = 50
     private const val KEY_LAST_BROADCAST_TS = "key_last_broadcast_delivery_ts"
 
+    /**
+     * The first server page may contain historical posts. Retain them as
+     * unread inbox content but do not present the import itself as a live bell
+     * event. Later pages can animate only when new IDs are actually merged.
+     */
+    fun hasEstablishedBroadcastBaseline(context: Context): Boolean =
+        notificationPrefs(context).contains(KEY_LAST_BROADCAST_TS)
+
     fun add(context: Context, title: String, body: String) {
         val prefs = notificationPrefs(context)
         val array = readArray(prefs)

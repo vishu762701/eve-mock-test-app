@@ -1375,8 +1375,12 @@ class MainActivity : EveBaseActivity() {
                 if (res.success && !res.data.isNullOrEmpty()) {
                     // Merge all available new broadcasts; never replace FCM/reminder entries
                     // or mark the Home screen's unread notifications as acknowledged.
+                    val hadBroadcastBaseline =
+                        NotificationStore.hasEstablishedBroadcastBaseline(this@MainActivity)
                     val newCount = NotificationStore.importBroadcasts(this@MainActivity, res.data)
-                    if (newCount > 0) {
+                    if (newCount > 0 && hadBroadcastBaseline) {
+                        // First sync backfills old posts; only subsequent new IDs
+                        // qualify for the incoming notification animation.
                         animateNotificationBell()
                     }
                 }
