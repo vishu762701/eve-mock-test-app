@@ -447,7 +447,10 @@ class MainActivity : EveBaseActivity() {
                 viewModel.loadForUser(current.uid, admin)
             }
         }
-        refreshFloatingLink()
+        // On return from another screen, the admin may have moved the icon.
+        // Skip the 10-minute in-memory URL/position cache and read the public
+        // server-authoritative coordinates (no admin endpoint or privilege).
+        refreshFloatingLink(forceRefresh = true)
 
         if (::binding.isInitialized && binding.cardFloatingAirplane.visibility == View.VISIBLE) {
             val animScale = Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
@@ -1256,9 +1259,16 @@ class MainActivity : EveBaseActivity() {
         }
     }
 
-    private fun refreshFloatingLink() {
+    // Both onStart and onResume can initiate a request. Prevent an older,
+    // slower response from overwriting the freshest position on Home.
+    private var floatingLinkFetchGeneration = 0
+
+    private fun refreshFloatingLink(forceRefresh: Boolean = false) {
+        val generation = ++floatingLinkFetchGeneration
         lifecycleScope.launch(lifecycleExceptionHandler) {
-            val data = floatingLinkRepo.getFloatingLinkData(forceRefresh = false)
+            val data = floatingLinkRepo.getFloatingLinkData(forceRefresh = forceRefresh)
+            if (generation != floatingLinkFetchGeneration ||
+                isDestroyed || isFinishing || !::binding.isInitialized) return@launch
             activeFloatingLinkData = data
             val link = data?.url
             activeFloatingLinkUrl = link
