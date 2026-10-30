@@ -20,11 +20,10 @@ import com.eve.app.data.model.QuestionAnalytics
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.databinding.ActivityAdminAnalyticsBinding
-import com.eve.app.designsystem.showTelegramSourceDialog
+import com.eve.app.designsystem.TelegramNativeAlertDialog
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.Constants
 import com.eve.app.util.UiState
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -159,7 +158,7 @@ class AdminAnalyticsActivity : EveBaseActivity() {
                 else -> rgCorrect.check(R.id.rbA)
             }
 
-            MaterialAlertDialogBuilder(this@AdminAnalyticsActivity)
+            TelegramNativeAlertDialog.Builder(this@AdminAnalyticsActivity)
                 .setTitle("Edit Question")
                 .setView(dialogView)
                 .setPositiveButton("Save Changes") { _, _ ->
@@ -216,7 +215,7 @@ class AdminAnalyticsActivity : EveBaseActivity() {
                     startActivity(intent)
                 }
                 .setNegativeButton("Cancel", null)
-                .showTelegramSourceDialog()
+                .show()
         }
     }
 }

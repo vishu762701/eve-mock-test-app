@@ -291,4 +291,41 @@ class TelegramNativeLogoutDialogTest {
         }
     }
 
+
+    @Test fun confirmationChoiceKeepsWindowOpenAndUpdatesRadioBeforeCommit() {
+        ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                var chosen = 0
+                var confirmed = -1
+                val dialog = TelegramNativeAlertDialog.Builder(activity)
+                    .setTitle("Reassign Syllabus")
+                    .setSingleChoiceItems(
+                        arrayOf("Exam A", "Exam B"), 0, dismissOnSelection = false
+                    ) { _, index -> chosen = index }
+                    .setPositiveButton("Reassign") { _, _ -> confirmed = chosen }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+                try {
+                    val second = dialog.window!!.decorView.findViewWithTag<android.widget.LinearLayout>(
+                        "telegram_native_alert_item_1"
+                    )
+                    assertNotNull(second)
+                    second.performClick()
+                    assertTrue("Choice selection must not submit or dismiss", dialog.isShowing)
+                    assertEquals(-1, confirmed)
+                    assertEquals(1, chosen)
+                    assertTrue(second.isSelected)
+                    assertTrue((0 until second.childCount).any {
+                        (second.getChildAt(it) as? android.widget.RadioButton)?.isChecked == true
+                    })
+                    dialog.getActionButton(DialogInterface.BUTTON_POSITIVE)!!.performClick()
+                    assertEquals(1, confirmed)
+                    assertFalse(dialog.isShowing)
+                } finally {
+                    if (dialog.isShowing) dialog.dismiss()
+                }
+            }
+        }
+    }
+
 }

@@ -1,6 +1,6 @@
 package com.eve.app.ui.admin
 
-import com.eve.app.designsystem.showTelegramSourceDialog
+import com.eve.app.designsystem.TelegramNativeAlertDialog
 import com.eve.app.ui.common.EveBaseActivity
 
 import android.content.Context
@@ -28,7 +28,6 @@ import com.eve.app.designsystem.UiArcMotion
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.SecurityHelper
 import com.eve.app.util.AdminAccessGate
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -414,9 +413,9 @@ class ManageSyllabusActivity : EveBaseActivity() {
         val examLabels = targetExams.map { "${it.examName} (${it.categoryOrOther})" }.toTypedArray()
         var selectedIdx = 0
 
-        MaterialAlertDialogBuilder(this)
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle("Reassign Syllabus to Another Exam")
-            .setSingleChoiceItems(examLabels, 0) { _, which ->
+            .setSingleChoiceItems(examLabels, 0, dismissOnSelection = false) { _, which ->
                 selectedIdx = which
             }
             .setPositiveButton("Reassign") { _, _ ->
@@ -468,7 +467,7 @@ class ManageSyllabusActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .showTelegramSourceDialog()
+            .show()
     }
 
     private val deleteFlow by lazy { AdminDeleteFlow(this) }

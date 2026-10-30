@@ -52,6 +52,7 @@ class TelegramNativeAlertDialog private constructor(
     private val rowItems: Array<out CharSequence>?,
     private val selectedItemIndex: Int,
     private val onItemClick: DialogInterface.OnClickListener?,
+    private val dismissItemsOnSelection: Boolean,
     private val customContent: View?,
     private val neutralText: CharSequence?,
     private val onNeutral: DialogInterface.OnClickListener?,
@@ -122,7 +123,22 @@ class TelegramNativeAlertDialog private constructor(
                         try {
                             onItemClick?.onClick(this@TelegramNativeAlertDialog, index)
                         } finally {
-                            if (isShowing) dismiss()
+                            if (isShowing && (selectedItemIndex < 0 || dismissItemsOnSelection)) {
+                                dismiss()
+                            } else if (isShowing && selectedItemIndex >= 0) {
+                                // EVE confirm-later choice: selecting a row updates
+                                // its radio indicator without closing the dialog.
+                                (0 until (rowItems?.size ?: 0)).forEach { itemIndex ->
+                                    scrollContainer.findViewWithTag<LinearLayout>(
+                                        "telegram_native_alert_item_$itemIndex"
+                                    )?.let { choiceRow ->
+                                        choiceRow.isSelected = itemIndex == index
+                                        for (childIndex in 0 until choiceRow.childCount) {
+                                            (choiceRow.getChildAt(childIndex) as? RadioButton)?.isChecked = itemIndex == index
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -272,6 +288,7 @@ class TelegramNativeAlertDialog private constructor(
         private var items: Array<out CharSequence>? = null
         private var selectedItemIndex: Int = -1
         private var onItemClick: DialogInterface.OnClickListener? = null
+        private var dismissItemsOnSelection: Boolean = true
         private var customView: View? = null
         private var neutral: CharSequence? = null
         private var onNeutral: DialogInterface.OnClickListener? = null
@@ -295,14 +312,17 @@ class TelegramNativeAlertDialog private constructor(
         /** Original Telegram AlertDialog.Builder.setItems():1827-1842. */
         fun setItems(values: Array<out CharSequence>, listener: DialogInterface.OnClickListener?) = apply {
             items = values.copyOf(); selectedItemIndex = -1; onItemClick = listener
+            dismissItemsOnSelection = true
         }
         /** EVE-only ADAPTED single-radio-choice behavior on upstream 50dp rows. */
         fun setSingleChoiceItems(
             values: Array<out CharSequence>,
             checkedIndex: Int,
+            dismissOnSelection: Boolean = true,
             listener: DialogInterface.OnClickListener?
         ) = apply {
             items = values.copyOf(); selectedItemIndex = checkedIndex; onItemClick = listener
+            dismissItemsOnSelection = dismissOnSelection
         }
         fun setNeutralButton(value: CharSequence, listener: DialogInterface.OnClickListener?) = apply {
             neutral = value; onNeutral = listener
@@ -315,7 +335,8 @@ class TelegramNativeAlertDialog private constructor(
         }
         fun create() = TelegramNativeAlertDialog(
             context, title, message, positive, onPositive, negative, onNegative,
-            items, selectedItemIndex, onItemClick, customView, neutral, onNeutral, redButtons.toSet()
+            items, selectedItemIndex, onItemClick, dismissItemsOnSelection,
+            customView, neutral, onNeutral, redButtons.toSet()
         ).also { dialog ->
             dialog.setCancelable(cancelable)
             dialog.setCanceledOnTouchOutside(cancelable)

@@ -1,8 +1,7 @@
 package com.eve.app.ui.admin
 
-import com.eve.app.designsystem.showDestructive
-import com.eve.app.ui.home.TelegramDialogSourceBackground
-import androidx.appcompat.app.AlertDialog
+import com.eve.app.designsystem.TelegramNativeAlertDialog
+import android.content.DialogInterface
 
 import com.eve.app.ui.common.EveBaseActivity
 
@@ -17,7 +16,6 @@ import com.eve.app.data.model.FeedbackMessage
 import com.eve.app.data.repository.FeedbackRepository
 import com.eve.app.databinding.ActivityFeedbackMessagesBinding
 import com.eve.app.ui.common.ErrorStateView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 
 /**
@@ -28,7 +26,7 @@ class FeedbackMessagesActivity : EveBaseActivity() {
     private lateinit var binding: ActivityFeedbackMessagesBinding
     private val repo = FeedbackRepository()
     private lateinit var adapter: FeedbackMessagesAdapter
-    private var replyDialog: AlertDialog? = null
+    private var replyDialog: TelegramNativeAlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -108,7 +106,8 @@ class FeedbackMessagesActivity : EveBaseActivity() {
     }
 
     private fun confirmDeleteMessage(message: FeedbackMessage) {
-        MaterialAlertDialogBuilder(this)
+        if (isFinishing || isDestroyed) return
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle("Delete Feedback")
             .setMessage("Are you sure you want to delete this message? This action cannot be undone.")
             .setPositiveButton("Delete") { _, _ ->
@@ -137,7 +136,7 @@ class FeedbackMessagesActivity : EveBaseActivity() {
                 )
             }
             .setNegativeButton("Cancel", null)
-            .showDestructive()
+            .makeRed(DialogInterface.BUTTON_POSITIVE).show()
     }
 
     private fun deleteMessage(id: String) {
@@ -161,7 +160,7 @@ class FeedbackMessagesActivity : EveBaseActivity() {
         // reply owns one modal window, not a stack of duplicate confirmations.
         if (isFinishing || isDestroyed || replyDialog?.isShowing == true) return
         val dialogBinding = com.eve.app.databinding.DialogReplyFeedbackBinding.inflate(layoutInflater)
-        val dialog = MaterialAlertDialogBuilder(this)
+        val dialog = TelegramNativeAlertDialog.Builder(this)
             .setView(dialogBinding.root)
             .create()
 
@@ -214,9 +213,8 @@ class FeedbackMessagesActivity : EveBaseActivity() {
         }
         dialog.show()
         replyDialog = dialog
-        // Original Telegram AlertDialog.java:302-318,680-693 and
-        // DarkAlertDialog.java:11-19. Existing report buttons/listeners remain.
-        TelegramDialogSourceBackground.apply(dialog)
+        // The dependency-isolated Telegram host keeps the original custom form,
+        // confirmation and asynchronous reply callback intact.
     }
 
     override fun onDestroy() {

@@ -10,20 +10,18 @@ class FeedbackReplySourceDialogContractTest {
         val source = File("src/main/java/com/eve/app/ui/admin/FeedbackMessagesActivity.kt").readText()
         val reply = source.substringAfter("private fun showReplyDialog(message: FeedbackMessage)")
             .substringBefore("override fun onDestroy()")
-        assertTrue(reply.contains("MaterialAlertDialogBuilder(this)"))
+        assertTrue(reply.contains("TelegramNativeAlertDialog.Builder(this)"))
         assertTrue(reply.contains(".setView(dialogBinding.root)"))
         assertTrue(reply.contains(".create()"))
         assertTrue(reply.contains("dialog.show()"))
-        assertTrue(reply.contains("TelegramDialogSourceBackground.apply(dialog)"))
-        assertTrue(reply.indexOf("dialog.show()") <
-            reply.indexOf("TelegramDialogSourceBackground.apply(dialog)"))
+        assertTrue(!reply.contains("TelegramDialogSourceBackground.apply(dialog)"))
         assertTrue(reply.contains("dialogBinding.btnSendReply.setOnClickListener"))
         assertTrue(reply.contains("dialogBinding.btnCancelReply.setOnClickListener"))
     }
 
     @Test fun dialogCanNeverStackOrOutliveItsActivityAndPayloadRemainsUnchanged() {
         val source = File("src/main/java/com/eve/app/ui/admin/FeedbackMessagesActivity.kt").readText()
-        assertTrue(source.contains("private var replyDialog: AlertDialog? = null"))
+        assertTrue(source.contains("private var replyDialog: TelegramNativeAlertDialog? = null"))
         assertTrue(source.contains("if (isFinishing || isDestroyed || replyDialog?.isShowing == true) return"))
         assertTrue(source.contains("dialog.setOnDismissListener"))
         assertTrue(source.contains("if (replyDialog === dialog) replyDialog = null"))
@@ -36,6 +34,7 @@ class FeedbackReplySourceDialogContractTest {
         assertTrue("Server authorization gate remains unchanged",
             source.contains("AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true)"))
         assertTrue("Delete undo flow remains unchanged",
-            source.contains("AppUndoBar.show(") && source.contains(".showDestructive()"))
+            source.contains("AppUndoBar.show(") &&
+                source.contains(".makeRed(DialogInterface.BUTTON_POSITIVE).show()"))
     }
 }

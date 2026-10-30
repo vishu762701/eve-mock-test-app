@@ -1,7 +1,7 @@
 package com.eve.app.ui.admin
 
-import com.eve.app.designsystem.showDestructive
-import com.eve.app.designsystem.showTelegramSourceDialog
+import com.eve.app.designsystem.TelegramNativeAlertDialog
+import android.content.DialogInterface
 import com.eve.app.ui.common.EveBaseActivity
 
 import android.os.Bundle
@@ -29,7 +29,6 @@ import com.eve.app.data.repository.AdminRepository
 import com.eve.app.databinding.ActivityManageUsersBinding
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.AdminAccessGate
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -253,11 +252,11 @@ class ManageUsersActivity : EveBaseActivity() {
                     $attemptsSummary
                 """.trimIndent()
 
-                MaterialAlertDialogBuilder(this@ManageUsersActivity)
+                TelegramNativeAlertDialog.Builder(this@ManageUsersActivity)
                     .setTitle(user.displayName.ifBlank { "Student Details" })
                     .setMessage(message)
                     .setPositiveButton("Close", null)
-                    .showTelegramSourceDialog()
+                    .show()
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
                 AppBulletin.showError(this@ManageUsersActivity, "Failed to load attempts: ${e.toUserFriendlyMessage()}")
@@ -266,7 +265,7 @@ class ManageUsersActivity : EveBaseActivity() {
     }
 
     private fun confirmToggleUserStatus(user: AdminUser, disable: Boolean) {
-        if (actionPending || !gateReady || authorizedUid == null) return
+        if (isFinishing || isDestroyed || actionPending || !gateReady || authorizedUid == null) return
         val actionTitle = if (disable) "Disable / Ban User Account?" else "Enable User Account?"
         val actionWarning = if (disable) {
             "Are you sure? This user will be blocked from accessing and submitting mock tests in the app.\n\nUser: ${user.displayName} (${user.email})"
@@ -274,7 +273,7 @@ class ManageUsersActivity : EveBaseActivity() {
             "Enable and restore full access for ${user.displayName} (${user.email})?"
         }
 
-        MaterialAlertDialogBuilder(this)
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle(actionTitle)
             .setMessage(actionWarning)
             .setPositiveButton(if (disable) "Disable Account" else "Enable Account") { _, _ ->
@@ -317,6 +316,6 @@ class ManageUsersActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .let { if (disable) it.showDestructive() else it.showTelegramSourceDialog() }
+            .let { if (disable) it.makeRed(DialogInterface.BUTTON_POSITIVE).show() else it.show() }
     }
 }

@@ -55,9 +55,19 @@ class AdminDialogSourceContractTest {
         assertTrue(editAbout.contains(".setNeutralButton(\"Cancel\""))
         for (path in activities) {
             val content = File(path).readText()
-            assertTrue("$path must import showTelegramSourceDialog", content.contains("import com.eve.app.designsystem.showTelegramSourceDialog"))
-            assertTrue("$path must call showTelegramSourceDialog()", content.contains(".showTelegramSourceDialog()"))
+            assertTrue("$path must import native Telegram host", content.contains("import com.eve.app.designsystem.TelegramNativeAlertDialog"))
+            assertTrue("$path must use native Telegram host", content.contains("TelegramNativeAlertDialog.Builder("))
+            assertTrue("$path must not open the obsolete Material adapter", !content.contains(".showTelegramSourceDialog()"))
         }
+        val syllabus = File(activities[0]).readText()
+        assertTrue("Choosing a new exam must not dismiss before Reassign",
+            syllabus.contains(".setSingleChoiceItems(examLabels, 0, dismissOnSelection = false)"))
+        assertTrue(syllabus.contains("examRepo.updateExamFullSettings("))
+        val users = File(activities[1]).readText()
+        assertTrue(users.contains("adminRepo.toggleUserStatus(user.id, disable)"))
+        assertTrue(users.contains("authorizedUid != FirebaseAuth.getInstance().currentUser?.uid"))
+        val analytics = File(activities[2]).readText()
+        assertTrue(analytics.contains("examRepo.updateQuestion(updated)"))
     }
 
     @Test fun publishingPremiumAndModerationDialogsUseNativeHostWithoutChangingAuthority() {
