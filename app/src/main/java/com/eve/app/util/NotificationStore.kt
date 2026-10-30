@@ -92,7 +92,15 @@ object NotificationStore {
      */
     @Synchronized
     fun importBroadcasts(context: Context, broadcasts: List<BroadcastMessage>): Int {
-        if (broadcasts.isEmpty()) return 0
+        if (broadcasts.isEmpty()) {
+            // A successful empty page is an established server baseline too.
+            // The first future real post must not be mistaken for backfill.
+            val prefs = notificationPrefs(context)
+            if (!prefs.contains(KEY_LAST_BROADCAST_TS)) {
+                prefs.edit().putLong(KEY_LAST_BROADCAST_TS, 0L).apply()
+            }
+            return 0
+        }
         val prefs = notificationPrefs(context)
         val old = readArray(prefs)
         val lastCursor = prefs.getLong(KEY_LAST_BROADCAST_TS, 0L)

@@ -1372,12 +1372,14 @@ class MainActivity : EveBaseActivity() {
         notifJob = lifecycleScope.launch(lifecycleExceptionHandler) {
             try {
                 val res = com.eve.app.data.remote.ApiClient.apiService.getBroadcasts(50)
-                if (res.success && !res.data.isNullOrEmpty()) {
+                if (res.success) {
+                    // An empty successful response still establishes the
+                    // initial sync baseline for subsequent live notifications.
                     // Merge all available new broadcasts; never replace FCM/reminder entries
                     // or mark the Home screen's unread notifications as acknowledged.
                     val hadBroadcastBaseline =
                         NotificationStore.hasEstablishedBroadcastBaseline(this@MainActivity)
-                    val newCount = NotificationStore.importBroadcasts(this@MainActivity, res.data)
+                    val newCount = NotificationStore.importBroadcasts(this@MainActivity, res.data.orEmpty())
                     if (newCount > 0 && hadBroadcastBaseline) {
                         // First sync backfills old posts; only subsequent new IDs
                         // qualify for the incoming notification animation.

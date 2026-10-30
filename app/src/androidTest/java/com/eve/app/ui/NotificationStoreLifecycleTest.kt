@@ -12,6 +12,26 @@ import org.junit.runner.RunWith
 /** Real SharedPreferences merge/acknowledgement test; no Firebase, push, or live broadcast. */
 @RunWith(AndroidJUnit4::class)
 class NotificationStoreLifecycleTest {
+    @Test fun emptyFirstServerPageEstablishesBaselineWithoutUnreadOrFakeMotion() {
+        val ctx = InstrumentationRegistry.getInstrumentation().targetContext
+        val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+        val prefs = ctx.getSharedPreferences(NotificationStore.namespaceForUser(uid), Context.MODE_PRIVATE)
+        val previouslyPresent = prefs.contains("key_last_broadcast_delivery_ts")
+        val previous = prefs.getLong("key_last_broadcast_delivery_ts", 0L)
+        try {
+            prefs.edit().remove("key_last_broadcast_delivery_ts").commit()
+            assertFalse(NotificationStore.hasEstablishedBroadcastBaseline(ctx))
+            assertEquals(0, NotificationStore.importBroadcasts(ctx, emptyList()))
+            assertTrue(NotificationStore.hasEstablishedBroadcastBaseline(ctx))
+            assertEquals(0L, prefs.getLong("key_last_broadcast_delivery_ts", -1L))
+        } finally {
+            val edit = prefs.edit()
+            if (previouslyPresent) edit.putLong("key_last_broadcast_delivery_ts", previous)
+            else edit.remove("key_last_broadcast_delivery_ts")
+            edit.commit()
+        }
+    }
+
     @Test fun multipleServerBroadcastsMergeWithLocalAndDoNotAutoAcknowledge() {
         val ctx = InstrumentationRegistry.getInstrumentation().targetContext
         // Mirror the runtime's UID-specific namespace. Avoid modifying legacy
