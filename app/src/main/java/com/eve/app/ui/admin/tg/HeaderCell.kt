@@ -34,11 +34,11 @@ class HeaderCell @JvmOverloads constructor(
     private val density = resources.displayMetrics.density
     private fun dp(v: Float): Int = (v * density).toInt()
 
-    var text: CharSequence?
-        get() = textView.text
-        set(value) {
-            textView.text = value
-        }
+    fun getText(): CharSequence? = textView.text
+
+    fun setText(title: CharSequence) {
+        textView.text = title
+    }
 
     init {
         textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14f)

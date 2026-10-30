@@ -31,11 +31,11 @@ class TextInfoPrivacyCell @JvmOverloads constructor(
 
     val textView: TextView = TextView(context)
 
-    var text: CharSequence?
-        get() = textView.text
-        set(value) {
-            textView.text = value
-        }
+    fun getText(): CharSequence? = textView.text
+
+    fun setText(info: CharSequence) {
+        textView.text = info
+    }
 
     init {
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
