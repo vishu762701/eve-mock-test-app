@@ -124,13 +124,16 @@ class TestActivity : EveBaseActivity() {
         // Phase 15: exam start event — is exam ko kitni baar attempt kiya gaya, yeh track karta hai
         AnalyticsHelper.logExamStart(this, examId, examName, examCategory)
 
-        paletteAdapter = QuestionPaletteAdapter(approvedTestStyle = true) { pos ->
+        paletteAdapter = QuestionPaletteAdapter(approvedTestStyle = true, progressiveMotion = true) { pos ->
             // Only revealed numbers exist in the adapter; guard programmatic calls too.
             if (pos in 0 until totalQuestions && pos <= viewModel.furthestRevealedIndex) {
                 binding.viewPager.setCurrentItem(pos, true)
             }
         }
         binding.rvQuestionPalette.adapter = paletteAdapter
+        // The source-timed enter animation owns insertion visuals; avoid a
+        // competing RecyclerView default fade or rebinding all old circles.
+        binding.rvQuestionPalette.itemAnimator = null
         // Future pages cannot be revealed with a swipe ahead of Save and Next.
         // Previous and already-revealed positions remain available via the strip.
         binding.viewPager.isUserInputEnabled = false
