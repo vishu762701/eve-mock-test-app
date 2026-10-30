@@ -149,7 +149,7 @@ class DesignRecoveryTest {
                     val profile = ActivityProfileBinding.inflate(inflater)
                     profile.tvName.text = "आरती शर्मा / A very long student name"
                     profile.tvEveId.text = "EV-12345678901234567890"
-                    profile.tvPhoneValue.text = "+91 98765 43210"
+                    profile.tvMobileValue.text = "+91 98765 43210"
                     profile.tvUsernameValue.text = "@ev_wk96r9"
                     profile.tvBirthdayValue.text = "31/12/2000"
                     layout(profile.root)
@@ -299,7 +299,7 @@ class DesignRecoveryTest {
                         activity.setContentView(profile.root)
                         profile.tvName.text = "Aarti Sharma"
                         profile.tvEveId.text = "EV-ABC123"
-                        profile.tvPhoneValue.text = "+91 98765 43210"
+                        profile.tvMobileValue.text = "+91 98765 43210"
                         profile.tvUsernameValue.text = "@aarti"
                         profile.tvBirthdayValue.text = "12/06/2001"
                         // Match ProfilePhotoManager's native fallback without requiring a signed-in account.
