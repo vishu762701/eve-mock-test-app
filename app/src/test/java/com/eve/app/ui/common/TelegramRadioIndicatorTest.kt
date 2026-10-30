@@ -115,11 +115,15 @@ class TelegramRadioIndicatorTest {
         assertTrue(radio.isChecked)
         assertEquals(progress, radio.indicator!!.progress, 0f)
         assertEquals(Color.RED, radio.indicator!!.uncheckedColor)
-        assertEquals(Color.YELLOW, radio.indicator!!.checkedColor)
-        assertEquals(Color.YELLOW, radio.currentTextColor)
+        // R07: theme's blue/yellow accent must NOT override the user-selected
+        // GREEN answer tile's high-contrast black ring/text. An answer is not graded here.
+        assertEquals(context.getColor(R.color.solid_black), radio.indicator!!.checkedColor)
+        assertEquals(context.getColor(R.color.solid_black), radio.currentTextColor)
+        assertEquals(context.getColor(R.color.system_green),
+            (radio.background.current as android.graphics.drawable.GradientDrawable).color?.defaultColor)
         TelegramThemeApplier.applyToViewTree(root, palette.copy(textSecondary = Color.BLUE, onAccent = Color.GREEN))
         assertEquals(Color.BLUE, radio.indicator!!.uncheckedColor)
-        assertEquals(Color.GREEN, radio.indicator!!.checkedColor)
+        assertEquals(context.getColor(R.color.solid_black), radio.indicator!!.checkedColor)
         assertNull(androidx.core.widget.CompoundButtonCompat.getButtonTintList(radio))
         assertTrue(radio.isChecked)
         assertEquals(progress, radio.indicator!!.progress, 0f)
