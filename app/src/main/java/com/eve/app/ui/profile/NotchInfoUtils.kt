@@ -32,7 +32,7 @@ object NotchInfoUtils {
         var rawPath: String = ""
     }
 
-    @SuppressLint("DiscouragedApi")
+    @SuppressLint("DiscouragedApi", "RestrictedApi")
     fun getInfo(ctx: Context): NotchInfo? {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
             return null
@@ -74,11 +74,8 @@ object NotchInfoUtils {
             spec = splits[0].trim()
         }
 
-        val p: Path
-        try {
-            val n = PathParser.createNodesFromPathData(spec)
-            p = Path()
-            PathParser.PathDataNode.nodesToPath(n, p)
+        val p: Path = try {
+            PathParser.createPathFromPathData(spec) ?: return null
         } catch (_: Throwable) {
             return null
         }
