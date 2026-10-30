@@ -965,18 +965,32 @@ class AdminActivity : EveBaseActivity() {
             .setView(dialogBinding.root)
             .create()
 
-        dialogBinding.tvDialogPostTitle.text = post.title
-        dialogBinding.tvDialogPostMessage.text = post.message
+        dialogBinding.tvPostRepliesTitle.text = "Replies: ${post.title}"
+        dialogBinding.tvPostRepliesSnippet.text = post.message
 
-        val replyAdapter = PostRepliesAdapter(
-            currentAdminId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty(),
+        var currentReplies: List<FeedbackPostReply> = emptyList()
+
+        lateinit var repliesAdapter: PostRepliesAdapter
+        repliesAdapter = PostRepliesAdapter(
+            onMarkRead = { reply ->
+                lifecycleScope.launch {
+                    feedbackRepo.markReplyAsRead(post.id, reply.id).onSuccess {
+                        currentReplies = currentReplies.map { if (it.id == reply.id) it.copy(read = true) else it }
+                        repliesAdapter.submitList(currentReplies)
+                        AppBulletin.showSuccess(this@AdminActivity, "Marked as read")
+                    }
+                }
+            },
             onDelete = { reply ->
                 TelegramNativeAlertDialog.Builder(this)
                     .setTitle("Delete Reply?")
-                    .setMessage("Delete this student reply?")
+                    .setMessage("Delete reply from ${reply.name}?")
                     .setPositiveButton("Delete") { _, _ ->
                         lifecycleScope.launch {
-                            feedbackRepo.deletePostReply(reply.id).onSuccess {
+                            feedbackRepo.deleteSingleReply(post.id, reply.id).onSuccess {
+                                currentReplies = currentReplies.filter { it.id != reply.id }
+                                repliesAdapter.submitList(currentReplies)
+                                dialogBinding.tvNoReplies.visibility = if (currentReplies.isEmpty()) View.VISIBLE else View.GONE
                                 AppBulletin.showSuccess(this@AdminActivity, "Reply deleted")
                             }
                         }
@@ -986,17 +1000,17 @@ class AdminActivity : EveBaseActivity() {
             }
         )
 
-        dialogBinding.rvPostReplies.layoutManager = LinearLayoutManager(this)
-        dialogBinding.rvPostReplies.adapter = replyAdapter
+        dialogBinding.rvReplies.layoutManager = LinearLayoutManager(this)
+        dialogBinding.rvReplies.adapter = repliesAdapter
 
         dialogBinding.btnDeletePostFromReplies.setOnClickListener {
             TelegramNativeAlertDialog.Builder(this)
                 .setTitle("Delete Post?")
-                .setMessage("Delete this feedback post?")
+                .setMessage("Delete '${post.title}' from Home screen? All its student replies will also be permanently deleted.")
                 .setPositiveButton("Delete") { _, _ ->
+                    dialog.dismiss()
                     lifecycleScope.launch {
                         feedbackRepo.deleteFeedbackPost(post.id).onSuccess {
-                            dialog.dismiss()
                             AppBulletin.showSuccess(this@AdminActivity, "Post deleted")
                         }
                     }
@@ -1006,6 +1020,15 @@ class AdminActivity : EveBaseActivity() {
         }
 
         dialogBinding.btnCloseReplies.setOnClickListener { dialog.dismiss() }
+
+        dialogBinding.progressBarReplies.visibility = View.VISIBLE
+        lifecycleScope.launch {
+            currentReplies = feedbackRepo.getRepliesForPost(post.id)
+            dialogBinding.progressBarReplies.visibility = View.GONE
+            repliesAdapter.submitList(currentReplies)
+            dialogBinding.tvNoReplies.visibility = if (currentReplies.isEmpty()) View.VISIBLE else View.GONE
+        }
+
         dialog.show()
     }
 
