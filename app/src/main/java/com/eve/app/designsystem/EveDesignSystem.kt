@@ -42,6 +42,37 @@ object EveDesignSystem {
         fun homeCardElevation(context: Context): Float = context.resources.getDimension(R.dimen.design_card_elevation)
     }
     object Components {
+        /** The owner's monochrome role overrides both Material's accent layer and a
+         * temporarily stale resource Configuration during Day/Night reveal.
+         * This is EVE-specific, not an upstream Telegram tab color. */
+        fun refreshCategoryChipPalette(chip: Chip) {
+            val context = chip.context
+            val dark = com.eve.app.theme.TelegramThemeEngine.isDarkActive(context)
+            val resourceSelectedBg = ContextCompat.getColor(context, R.color.category_pill_selected_bg)
+            val resourceSelectedFg = ContextCompat.getColor(context, R.color.category_pill_selected_fg)
+            val resourceUnselectedBg = ContextCompat.getColor(context, R.color.category_pill_unselected_bg)
+            val resourceUnselectedFg = ContextCompat.getColor(context, R.color.category_pill_unselected_fg)
+            // Active preview can precede AppCompat's resources qualifier recreation.
+            fun role(resource: Int, expected: Int) = if (resource == expected) resource else expected
+            val selectedBg = role(resourceSelectedBg, if (dark) Color.WHITE else Color.BLACK)
+            val selectedFg = role(resourceSelectedFg, if (dark) Color.BLACK else Color.WHITE)
+            val unselectedBg = role(resourceUnselectedBg,
+                if (dark) 0xFF1C1C1E.toInt() else 0xFFE5E5EA.toInt())
+            val unselectedFg = role(resourceUnselectedFg,
+                if (dark) 0xFFA1A1A6.toInt() else 0xFF545458.toInt())
+            val states = arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf())
+            chip.chipSurfaceColor = android.content.res.ColorStateList.valueOf(Color.TRANSPARENT)
+            chip.chipBackgroundColor = android.content.res.ColorStateList(
+                states, intArrayOf(selectedBg, unselectedBg))
+            chip.setTextColor(android.content.res.ColorStateList(
+                states, intArrayOf(selectedFg, unselectedFg)))
+            chip.chipIconTint = android.content.res.ColorStateList(
+                states, intArrayOf(selectedFg, unselectedFg))
+            chip.rippleColor = android.content.res.ColorStateList.valueOf(
+                if (dark) 0x20FFFFFF else 0x20000000)
+            chip.invalidate()
+        }
+
         fun createCategoryChip(
             context: Context,
             category: String,
@@ -57,38 +88,7 @@ object EveDesignSystem {
             // NIGHT selected: EXACT #FFFFFF bg, #000000 text/icons
             // DAY selected: EXACT #000000 bg, #FFFFFF text/icons
             // Unselected: quiet theme-neutral surfaces with WCAG AA readable text
-            val selectedBg = ContextCompat.getColor(context, R.color.category_pill_selected_bg)
-            val unselectedBg = ContextCompat.getColor(context, R.color.category_pill_unselected_bg)
-            val selectedFg = ContextCompat.getColor(context, R.color.category_pill_selected_fg)
-            val unselectedFg = ContextCompat.getColor(context, R.color.category_pill_unselected_fg)
-
-            chipBackgroundColor = android.content.res.ColorStateList(
-                arrayOf(
-                    intArrayOf(android.R.attr.state_checked),
-                    intArrayOf(-android.R.attr.state_checked)
-                ),
-                intArrayOf(selectedBg, unselectedBg)
-            )
-            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
-            rippleColor = android.content.res.ColorStateList.valueOf(
-                if (selectedBg == Color.BLACK) 0x1A000000 else 0x26FFFFFF
-            )
-            setTextColor(
-                android.content.res.ColorStateList(
-                    arrayOf(
-                        intArrayOf(android.R.attr.state_checked),
-                        intArrayOf(-android.R.attr.state_checked)
-                    ),
-                    intArrayOf(selectedFg, unselectedFg)
-                )
-            )
-            chipIconTint = android.content.res.ColorStateList(
-                arrayOf(
-                    intArrayOf(android.R.attr.state_checked),
-                    intArrayOf(-android.R.attr.state_checked)
-                ),
-                intArrayOf(selectedFg, unselectedFg)
-            )
+            refreshCategoryChipPalette(this)
             // Telegram FilterTabsView.java:388-400,649-659 measures title/counter only;
             // no selected checkmark consumes width. Only Home's category chip follows
             // this verified source property; TargetExamsBottomSheet keeps its checkmark.

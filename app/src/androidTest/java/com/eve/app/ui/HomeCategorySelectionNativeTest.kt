@@ -51,6 +51,19 @@ class HomeCategorySelectionNativeTest {
                 all.isChecked = true
                 assertEquals("Home category may not jump in width on select", selectedWidth, unselectedWidth)
                 assertSingle(all)
+                val isDark = com.eve.app.theme.TelegramThemeEngine.isDarkActive(activity)
+                val activeBg = if (isDark) android.graphics.Color.WHITE else android.graphics.Color.BLACK
+                val activeFg = if (isDark) android.graphics.Color.BLACK else android.graphics.Color.WHITE
+                fun assertRenderedRoles(chip: Chip) {
+                    val checked = intArrayOf(android.R.attr.state_checked)
+                    assertEquals("Material chip selected fill cannot fall back to blue", activeBg,
+                        chip.chipBackgroundColor?.getColorForState(checked, -1))
+                    assertEquals("Selected label must have the opposite monochrome foreground", activeFg,
+                        chip.textColors.getColorForState(checked, -1))
+                    assertEquals("Surface tint must not mix Material accent into owner fill",
+                        android.graphics.Color.TRANSPARENT, chip.chipSurfaceColor?.defaultColor)
+                }
+                assertRenderedRoles(all)
                 repeat(10) {
                     all.performClick()
                     assertSingle(all)
@@ -58,6 +71,7 @@ class HomeCategorySelectionNativeTest {
                 repeat(10) {
                     other.performClick()
                     assertSingle(other)
+                    assertRenderedRoles(other)
                     all.performClick()
                     assertSingle(all)
                 }

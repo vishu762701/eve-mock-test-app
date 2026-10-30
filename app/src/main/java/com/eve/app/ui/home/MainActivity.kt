@@ -283,6 +283,7 @@ class MainActivity : EveBaseActivity() {
         Log.e("EVE_STARTUP", "stage: inflate")
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        TelegramThemeEngine.addThemeChangeListener(categoryPaletteListener)
         setupHomeBannerSurface()
         setupTopBarDepth()
 
@@ -1386,6 +1387,7 @@ class MainActivity : EveBaseActivity() {
         // dismiss must not outlive configuration/process teardown or run an action.
         homeOverflowPopup?.dismissForHostTeardown()
         homeOverflowPopup = null
+        TelegramThemeEngine.removeThemeChangeListener(categoryPaletteListener)
         searchDebounceJob?.cancel()
         searchTransitionAnimator?.cancel()
         cancelSearchVisualAnimations()
@@ -1552,6 +1554,22 @@ class MainActivity : EveBaseActivity() {
         }
     }
 
+    private val categoryPaletteListener: (TelegramThemeEngine.ResolvedPalette) -> Unit = {
+        if (::binding.isInitialized && !isFinishing && !isDestroyed) {
+            runOnUiThread { refreshInstantiatedCategoryChips() }
+        }
+    }
+
+    private fun refreshInstantiatedCategoryChips() {
+        if (!::binding.isInitialized) return
+        val group = binding.chipGroupCategory
+        for (index in 0 until group.childCount) {
+            (group.getChildAt(index) as? Chip)?.let {
+                com.eve.app.designsystem.EveDesignSystem.Components.refreshCategoryChipPalette(it)
+            }
+        }
+    }
+
     private fun renderChips(categories: List<String>, selected: String) {
         if (binding.chipGroupCategory.childCount == categories.size) {
             val same = (0 until binding.chipGroupCategory.childCount).all { i ->
@@ -1567,6 +1585,7 @@ class MainActivity : EveBaseActivity() {
                 if (selectedChip != null && group.checkedChipId != selectedChip.id) {
                     group.check(selectedChip.id)
                 }
+                refreshInstantiatedCategoryChips()
                 return
             }
         }
