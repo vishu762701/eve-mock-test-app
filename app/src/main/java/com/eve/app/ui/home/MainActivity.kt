@@ -1042,6 +1042,16 @@ class MainActivity : EveBaseActivity() {
         var startTransY = 0f
         var lastLinkLaunch = 0L
 
+        // A real View click callback is required for TalkBack/keyboard ACTION_CLICK.
+        // Both student and admin activate the same link without entering drag mode.
+        card.setOnClickListener {
+            val now = android.os.SystemClock.elapsedRealtime()
+            if (now - lastLinkLaunch >= 800L) {
+                lastLinkLaunch = now
+                openFloatingLink()
+            }
+        }
+
         card.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
             val data = activeFloatingLinkData
             if (data?.x != null && data?.y != null) {
@@ -1171,14 +1181,11 @@ class MainActivity : EveBaseActivity() {
                         val dy = event.rawY - downRawY
                         val distance = Math.hypot(dx.toDouble(), dy.toDouble()).toFloat()
                         if (distance <= slop) {
-                            val now = android.os.SystemClock.elapsedRealtime()
-                            if (now - lastLinkLaunch >= 800L) {
-                                lastLinkLaunch = now
-                                openFloatingLink()
-                            }
+                            // Dispatch the same click as accessibility and keyboard
+                            // activation; never launch the link after an admin drag.
+                            view.performClick()
                         }
                     }
-                    view.performClick()
                     true
                 }
                 MotionEvent.ACTION_CANCEL -> {
