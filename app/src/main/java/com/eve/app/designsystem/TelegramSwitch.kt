@@ -24,6 +24,11 @@ import android.widget.Checkable
 import androidx.annotation.Keep
 import com.eve.app.theme.TelegramThemeEngine
 
+/**
+ * Official Telegram Switch component ported for EVE Mission 01.
+ * Features 37x24dp track, 10dp thumb radius, 200ms cubic-bezier animation,
+ * authentic Day/Night track and thumb colors, and optional left-text measurement.
+ */
 class TelegramSwitch @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
