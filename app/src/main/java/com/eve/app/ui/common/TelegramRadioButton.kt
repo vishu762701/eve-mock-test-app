@@ -61,8 +61,18 @@ class TelegramRadioButton @JvmOverloads constructor(
         // Use a muted green-tinted tile with a GREEN selected radio dot/ring.
         // Day's darker green text role meets non-text indicator contrast on
         // a light surface; Night uses a brighter green on the dark canvas.
-        val selectedGreenSurface = color(R.color.system_green_container)
-        val selectedGreenIndicator = color(R.color.system_green_text)
+        val resourceNight = (resources.configuration.uiMode and
+            android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
+            android.content.res.Configuration.UI_MODE_NIGHT_YES
+        val chosenNight = p?.isDark ?: resourceNight
+        // A live theme preview changes the palette before Android swaps
+        // values-night qualifiers. Keep its selected state green immediately.
+        val selectedGreenSurface = if (chosenNight == resourceNight) {
+            color(R.color.system_green_container)
+        } else if (chosenNight) 0x3330D158 else 0x1F34C759
+        val selectedGreenIndicator = if (chosenNight == resourceNight) {
+            color(R.color.system_green_text)
+        } else if (chosenNight) 0xFF30D158.toInt() else 0xFF1F7735.toInt()
         val inset = p?.surfaceInset ?: color(R.color.surface_inset)
         val primary = p?.textPrimary ?: color(R.color.text_primary)
         val secondary = p?.textSecondary ?: color(R.color.text_secondary)

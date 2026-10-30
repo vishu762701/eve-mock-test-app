@@ -69,6 +69,28 @@ class TestActivity : EveBaseActivity() {
     private lateinit var paletteAdapter: QuestionPaletteAdapter
     private var currentQuestionPosition: Int = 0
 
+    // A custom Telegram theme preview can change while this Activity stays alive.
+    // Rebind the existing answer tiles and only the requested primary action.
+    private val questionThemeListener: (com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) -> Unit = { palette ->
+        if (::binding.isInitialized && !isFinishing && !isDestroyed) {
+            runOnUiThread { refreshQuestionTheme(palette) }
+        }
+    }
+
+    private fun refreshQuestionTheme(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+        if (!::binding.isInitialized || isFinishing || isDestroyed) return
+        TestPrimaryActionAppearance.apply(binding.btnNext, palette.isDark)
+        val recycler = binding.viewPager.getChildAt(0) as? androidx.recyclerview.widget.RecyclerView
+        if (recycler != null) {
+            for (index in 0 until recycler.childCount) {
+                val page = recycler.getChildAt(index)
+                for (id in intArrayOf(R.id.rbA, R.id.rbB, R.id.rbC, R.id.rbD)) {
+                    page.findViewById<com.eve.app.ui.common.TelegramRadioButton>(id)?.updatePalette(palette)
+                }
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         com.eve.app.typography.TypographyRepository.getInstance(this).setTestSessionActive(true)
@@ -77,6 +99,7 @@ class TestActivity : EveBaseActivity() {
         SecurityHelper.applyScreenProtection(this)
         binding = ActivityTestBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        com.eve.app.theme.TelegramThemeEngine.addThemeChangeListener(questionThemeListener)
         TestPrimaryActionAppearance.apply(binding.btnNext)
         // Source-backed hierarchy from Telegram ActionBar.java:534; EVE test
         // heading uses the owner-requested 700 weight (ADAPTED arrangement).
@@ -745,7 +768,8 @@ class TestActivity : EveBaseActivity() {
     override fun onResume() {
         super.onResume()
         // Rebind the owner override after a Day/Night or theme-preview change.
-        if (::binding.isInitialized) TestPrimaryActionAppearance.apply(binding.btnNext)
+        if (::binding.isInitialized) refreshQuestionTheme(
+            com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(this))
     }
 
     override fun onPause() {
@@ -783,6 +807,7 @@ class TestActivity : EveBaseActivity() {
     }
 
     override fun onDestroy() {
+        com.eve.app.theme.TelegramThemeEngine.removeThemeChangeListener(questionThemeListener)
         // Release Activity-owned windows before detaching their window tokens.
         leaveConfirmDialog?.dismiss()
         submitConfirmDialog?.dismiss()

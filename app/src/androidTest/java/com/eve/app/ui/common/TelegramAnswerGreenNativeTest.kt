@@ -34,6 +34,17 @@ class TelegramAnswerGreenNativeTest {
                 option.isChecked = true
                 assertEquals(greenSurface, (option.background.current as GradientDrawable).color?.defaultColor)
                 assertTrue(option.isChecked)
+
+                // Theme-preview callbacks can arrive before Configuration/qualifier
+                // recreation. Both directions must rebind the checked indicator.
+                val current = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(activity)
+                for (night in listOf(true, false, true)) {
+                    option.updatePalette(current.copy(isDark = night))
+                    assertEquals(
+                        if (night) 0xFF30D158.toInt() else 0xFF1F7735.toInt(),
+                        option.indicator?.checkedColor)
+                    assertTrue(option.isChecked)
+                }
             }
         }
     }
