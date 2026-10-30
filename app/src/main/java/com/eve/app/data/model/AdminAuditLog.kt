@@ -56,32 +56,14 @@ data class AdminAuditLog(
         const val ACTION_GENERATE_NOW_TRIGGERED = GENERATE_NOW_TRIGGERED
         const val ACTION_FLOATING_LINK_UPDATED = FLOATING_LINK_UPDATED
     }
-        const val ADMIN_REMOVED = "ADMIN_REMOVED"
-        const val MAINTENANCE_TOGGLED = "MAINTENANCE_TOGGLED"
-        const val GENERATE_NOW_TRIGGERED = "GENERATE_NOW_TRIGGERED"
-        const val FLOATING_LINK_UPDATED = "FLOATING_LINK_UPDATED"
-
-        // Aliases with ACTION_ prefix for seamless compatibility
-        const val ACTION_EXAM_CREATED = EXAM_CREATED
-        const val ACTION_EXAM_EDITED = EXAM_EDITED
-        const val ACTION_EXAM_DELETED = EXAM_DELETED
-        const val ACTION_BROADCAST_SENT = BROADCAST_SENT
-        const val ACTION_BROADCAST_DELETED = BROADCAST_DELETED
-        const val ACTION_FEEDBACK_POST_CREATED = FEEDBACK_POST_CREATED
-        const val ACTION_FEEDBACK_POST_EDITED = FEEDBACK_POST_EDITED
-        const val ACTION_FEEDBACK_POST_DELETED = FEEDBACK_POST_DELETED
-        const val ACTION_USER_STATUS_TOGGLED = USER_STATUS_TOGGLED
-        const val ACTION_ADMIN_ADDED = ADMIN_ADDED
-        const val ACTION_ADMIN_REMOVED = ADMIN_REMOVED
-        const val ACTION_MAINTENANCE_TOGGLED = MAINTENANCE_TOGGLED
-        const val ACTION_GENERATE_NOW_TRIGGERED = GENERATE_NOW_TRIGGERED
-        const val ACTION_FLOATING_LINK_UPDATED = FLOATING_LINK_UPDATED
-    }
 
     val actionBadge: String get() = when (actionType) {
         EXAM_CREATED -> "✨ New Exam"
         EXAM_EDITED -> "✏️ Edit Exam"
         EXAM_DELETED -> "🗑️ Delete Exam"
+        QUESTION_CREATED -> "➕ New Question"
+        QUESTION_EDITED -> "✏️ Edit Question"
+        QUESTION_DELETED -> "🗑️ Delete Question"
         BROADCAST_SENT -> "📢 Broadcast Sent"
         BROADCAST_DELETED -> "🗑️ Broadcast Deleted"
         FEEDBACK_POST_CREATED -> "💬 New Feedback Post"
@@ -90,9 +72,14 @@ data class AdminAuditLog(
         USER_STATUS_TOGGLED -> "👤 User Status"
         ADMIN_ADDED -> "🛡️ Admin Added"
         ADMIN_REMOVED -> "🛡️ Admin Removed"
+        ADMIN_RIGHTS_CHANGED -> "🛡️ Rights Changed"
         MAINTENANCE_TOGGLED -> "🔧 Maintenance Mode"
         GENERATE_NOW_TRIGGERED -> "⚡ Generate Now"
         FLOATING_LINK_UPDATED -> "🔗 Floating Link"
+        BANNER_CREATED -> "🖼️ New Banner"
+        BANNER_EDITED -> "🖼️ Edit Banner"
+        BANNER_DELETED -> "🗑️ Delete Banner"
+        CONFIG_UPDATED -> "⚙️ Config Updated"
         else -> "📋 $actionType"
     }
 
