@@ -216,7 +216,9 @@ class ApprovedUiFunctionalTest {
                     radio.draw(Canvas(bitmap)) // No jump or wait: scale zero must already show the dot.
                     val center = radio.resources.getDimensionPixelSize(R.dimen.design_card_padding) +
                         radio.resources.getDimensionPixelSize(R.dimen.design_icon_size) / 2
-                    assertEquals(palette.onAccent, bitmap.getPixel(center, height / 2))
+                    assertEquals("Owner-selected exam answer must display green, not a Telegram accent",
+                        androidx.core.content.ContextCompat.getColor(radio.context, R.color.system_green_text),
+                        bitmap.getPixel(center, height / 2))
                     radio.isChecked = false
                     radio.draw(Canvas(bitmap))
                     assertEquals(palette.surfaceInset, bitmap.getPixel(center, height / 2))

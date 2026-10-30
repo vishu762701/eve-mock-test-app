@@ -90,7 +90,9 @@ class RepairRegressionTest {
                     it.recycle()
                 }
                 adapter.onBindViewHolder(holder, 0)
-                pixels().also { assertEquals(context.getColor(R.color.accent), it.getPixel((80 * d).toInt(), (4 * d).toInt())); it.recycle() }
+                pixels().also { assertEquals("Selected answer tile must remain green, not legacy blue",
+                        context.getColor(R.color.system_green_container),
+                        it.getPixel((80 * d).toInt(), (4 * d).toInt())); it.recycle() }
                 b.rbB.performClick()
                 pixels().also {
                     assertEquals("Changing answer immediately clears the old indicator", context.getColor(R.color.surface_inset), it.getPixel((22 * d).toInt(), height / 2))

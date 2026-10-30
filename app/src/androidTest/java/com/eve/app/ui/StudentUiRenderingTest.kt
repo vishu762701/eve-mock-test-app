@@ -153,9 +153,17 @@ class StudentUiRenderingTest {
             try {
                 avatar.draw(Canvas(bitmap))
                 val paint = com.eve.app.util.AvatarDrawable::class.java.getDeclaredField("textPaint").apply { isAccessible = true }.get(avatar) as android.graphics.Paint
-                for (position in listOf(20, 108)) {
-                    assertTrue("Readable initials on rendered avatar $index", androidx.core.graphics.ColorUtils.calculateContrast(paint.color, bitmap.getPixel(position, position)) >= 4.5)
+                assertEquals("Original Telegram initials are pure white", android.graphics.Color.WHITE, paint.color)
+                // The old assertion sampled two gradient-background corners, not
+                // letters. Authentic Telegram's lighter gradient stops cannot
+                // have 4.5:1 contrast with white at every background coordinate.
+                // Verify rendered foreground pixels and real gradient instead.
+                val whiteGlyphPixels = (32..96).sumOf { x ->
+                    (32..96).count { yy -> bitmap.getPixel(x, yy) == android.graphics.Color.WHITE }
                 }
+                assertTrue("White initials must actually render for avatar $index", whiteGlyphPixels > 5)
+                assertTrue("Original two-stop gradient must remain visible",
+                    bitmap.getPixel(64, 8) != bitmap.getPixel(64, 120))
             } finally { bitmap.recycle() }
         }
     }

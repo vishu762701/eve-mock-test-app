@@ -261,7 +261,7 @@ class ApprovedUiRenderingTest {
         measure(q.root, 360, 590)
         assertNull(q.questionContainer.background)
         assertNull(q.tvQuestion.background)
-        sp(q.tvQuestion, 16) // Real mock question body uses the native 16sp shared role.
+        sp(q.tvQuestion, 17) // Mission 11 R06: prominent 17sp heading, distinct from 16sp options.
         assertEquals(1f, q.tvQuestion.lineSpacingMultiplier, 0.01f)
         assertEquals(Gravity.LEFT, q.tvQuestion.gravity and Gravity.HORIZONTAL_GRAVITY_MASK)
         assertEquals(dp(16), q.optionsMaterialHost.top - q.questionContainer.bottom)

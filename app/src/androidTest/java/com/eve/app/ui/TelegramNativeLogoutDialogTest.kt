@@ -27,7 +27,8 @@ class TelegramNativeLogoutDialogTest {
                     assertNotNull(dialog.window?.decorView?.findViewWithTag<TextView>("telegram_native_alert_title"))
                     assertNotNull(dialog.window?.decorView?.findViewWithTag<TextView>("telegram_native_alert_message"))
                     val cancel = dialog.getActionButton(DialogInterface.BUTTON_NEGATIVE)!!
-                    assertTrue(cancel.minHeight >= (48 * activity.resources.displayMetrics.density).toInt())
+                    assertTrue("Cancel action layout must have 48dp accessible height",
+                        cancel.layoutParams.height >= (48 * activity.resources.displayMetrics.density).toInt())
                     cancel.performClick()
                     assertEquals(0, logouts)
                     assertFalse(dialog.isShowing)
@@ -67,7 +68,8 @@ class TelegramNativeLogoutDialogTest {
                         "telegram_native_alert_item_2"
                     )
                     assertNotNull("Original 50dp Telegram choice row missing", row)
-                    assertTrue(row.height >= (48 * activity.resources.displayMetrics.density).toInt())
+                    assertTrue("Telegram choice row reserves a real 50dp tap height",
+                        row.layoutParams.height >= (48 * activity.resources.displayMetrics.density).toInt())
                     row.performClick()
                     assertEquals(2, selected)
                     assertFalse(dialog.isShowing)
@@ -186,8 +188,10 @@ class TelegramNativeLogoutDialogTest {
                     )
                     for (key in buttons) {
                         val b = dialog.getActionButton(key)!!
-                        assertTrue(b.width > 0)
-                        assertTrue(b.height >= (48 * activity.resources.displayMetrics.density).toInt())
+                        assertEquals("Narrow screen actions must use full-width rows",
+                            android.view.ViewGroup.LayoutParams.MATCH_PARENT, b.layoutParams.width)
+                        assertTrue("Action row must reserve at least 48dp for touch",
+                            b.layoutParams.height >= (48 * activity.resources.displayMetrics.density).toInt())
                     }
                 } finally {
                     dialog.dismiss()
@@ -222,16 +226,16 @@ class TelegramNativeLogoutDialogTest {
     }
 
     @Test fun nativeBuilderPreservesNonCancelableExamNoticeAndDismissCleanup() {
+        val dismissed = java.util.concurrent.atomic.AtomicInteger()
         ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
             scenario.onActivity { activity ->
-                var dismissed = 0
                 var completed = 0
                 val dialog = TelegramNativeAlertDialog.Builder(activity)
                     .setTitle("Attempt Limit Reached")
                     .setMessage("You have reached the maximum number of attempts.")
                     .setCancelable(false)
                     .setPositiveButton("OK") { _, _ -> completed++ }
-                    .setOnDismissListener { dismissed++ }
+                    .setOnDismissListener { dismissed.incrementAndGet() }
                     .show()
                 try {
                     assertTrue(dialog.isShowing)
@@ -240,12 +244,15 @@ class TelegramNativeLogoutDialogTest {
                     assertEquals(0, completed)
                     dialog.getActionButton(DialogInterface.BUTTON_POSITIVE)!!.performClick()
                     assertEquals(1, completed)
-                    assertEquals(1, dismissed)
                     assertFalse(dialog.isShowing)
                 } finally {
                     if (dialog.isShowing) dialog.dismiss()
                 }
             }
+            // Android Dialog delivers OnDismissListener via the main-looper Handler.
+            // Its callback is not guaranteed synchronously within performClick().
+            androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+            assertEquals("Dismiss notification delivered exactly once", 1, dismissed.get())
         }
     }
 
@@ -330,33 +337,33 @@ class TelegramNativeLogoutDialogTest {
 
 
     @Test fun sourceNativeCancelListenerFiresForOutsideOrBackWithoutCommitting() {
+        val cancellations = java.util.concurrent.atomic.AtomicInteger()
         ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
             scenario.onActivity { activity ->
-                var cancellations = 0
                 var confirmations = 0
                 val dialog = TelegramNativeAlertDialog.Builder(activity)
                     .setTitle("Unsaved Changes")
                     .setMessage("Do you want to save before switching?")
-                    .setOnCancelListener { cancellations++ }
+                    .setOnCancelListener { cancellations.incrementAndGet() }
                     .setPositiveButton("Save") { _, _ -> confirmations++ }
                     .setNegativeButton("Discard", null)
                     .show()
                 dialog.cancel()
-                assertEquals(1, cancellations)
                 assertEquals(0, confirmations)
                 assertFalse(dialog.isShowing)
                 val discard = TelegramNativeAlertDialog.Builder(activity)
                     .setTitle("Unsaved Changes")
-                    .setOnCancelListener { cancellations++ }
+                    .setOnCancelListener { cancellations.incrementAndGet() }
                     .setNegativeButton("Discard", null)
                     .show()
                 discard.getActionButton(DialogInterface.BUTTON_NEGATIVE)!!.performClick()
-                assertEquals("Negative action must dismiss without the Back-cancel callback", 1, cancellations)
                 assertFalse(discard.isShowing)
             }
+            // Dialog cancellation is delivered from Android's main-looper Handler.
+            androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+            assertEquals("Only Back/outside cancellation invokes OnCancelListener", 1, cancellations.get())
         }
     }
-
 
     @Test fun sourceNativeDialogConstrainsWindowAndUsesOriginalScrimWithUsableActions() {
         ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
@@ -379,7 +386,8 @@ class TelegramNativeLogoutDialogTest {
                         params.flags and android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND != 0)
                     assertEquals("Source-native message scrim", 0.5f, params.dimAmount, 0.001f)
                     val action = requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_POSITIVE))
-                    assertTrue("Primary action must remain accessible", action.minHeight >= (48f * dp).toInt())
+                    assertTrue("Primary action must remain accessible",
+                        action.layoutParams.height >= (48f * dp).toInt())
                     dialog.getActionButton(DialogInterface.BUTTON_NEGATIVE)!!.performClick()
                     assertFalse(dialog.isShowing)
                 } finally {
