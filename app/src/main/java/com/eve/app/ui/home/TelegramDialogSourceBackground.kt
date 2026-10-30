@@ -38,16 +38,23 @@ internal object TelegramDialogSourceBackground {
         dialog.window?.setBackgroundDrawable(drawable)
         dialog.window?.setDimAmount(0.5f)
 
-        // Upstream Telegram AlertDialog.java:490-517 window sizing:
-        // final int calculatedWidth = AndroidUtilities.displaySize.x - dp(56);
-        // int maxWidth = isTablet ? dp(446) : dp(356);
-        // final int dialogWidth = Math.min(maxWidth, calculatedWidth) + backgroundPaddings.left + backgroundPaddings.right;
+        // Original AlertDialog.java:489-504: display width minus 56dp;
+        // phone max356dp, small tablet446dp, large tablet496dp.
+        // AndroidUtilities.java:3002-3004: small tablet min side <=690dp.
+        // This window sizing atom is source-backed; the Material dialog host
+        // remains ADAPTED and is not the Telegram AlertDialog renderer.
         val dm = dialog.context.resources.displayMetrics
         val calculatedWidth = dm.widthPixels - (56 * dm.density).toInt()
         val isTablet = (dialog.context.resources.configuration.screenLayout and
                 android.content.res.Configuration.SCREENLAYOUT_SIZE_MASK) >=
                 android.content.res.Configuration.SCREENLAYOUT_SIZE_LARGE
-        val maxWidth = ((if (isTablet) 446 else 356) * dm.density).toInt()
+        val minSideDp = minOf(dm.widthPixels, dm.heightPixels) / dm.density
+        val maxWidthDp = when {
+            !isTablet -> 356
+            minSideDp <= 690f -> 446
+            else -> 496
+        }
+        val maxWidth = (maxWidthDp * dm.density).toInt()
         val backgroundPaddings = android.graphics.Rect()
         drawable.getPadding(backgroundPaddings)
         val dialogWidth = minOf(maxWidth, calculatedWidth) + backgroundPaddings.left + backgroundPaddings.right
