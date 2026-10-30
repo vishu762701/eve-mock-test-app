@@ -7,6 +7,44 @@
     android:layout_height="match_parent"
     style="@style/Widget.Eve.Token.Screen">
 
+    <!-- Top Glass Toolbar -->
+    <com.eve.app.ui.common.EveGlassToolbar
+        android:id="@+id/glassToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="4dp"
+        android:translationZ="4dp">
+
+        <LinearLayout
+            android:id="@+id/topToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/design_touch_min"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="4dp"
+            style="@style/Widget.Eve.Token.ToolbarRow">
+
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="@dimen/design_touch_min"
+                android:layout_height="@dimen/design_touch_min"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Back"
+                android:src="@drawable/ic_back"
+                app:tint="@color/telegram_type_primary" />
+
+            <TextView
+                android:id="@+id/tvToolbarTitle"
+                style="@style/TextAppearance.Eve.Telegram.NavigationTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:alpha="0"
+                android:text="Profile" />
+        </LinearLayout>
+    </com.eve.app.ui.common.EveGlassToolbar>
+
     <!-- Scrollable content -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/profileScrollView"
@@ -547,34 +585,4 @@
             </com.eve.app.designsystem.DesignCardView>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-
-    <!-- Top Toolbar (collapsible title) -->
-    <LinearLayout
-        android:id="@+id/topToolbar"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/design_touch_min"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="4dp"
-        style="@style/Widget.Eve.Token.ToolbarRow">
-
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="@dimen/design_touch_min"
-            android:layout_height="@dimen/design_touch_min"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Back"
-            android:src="@drawable/ic_back"
-            app:tint="@color/telegram_type_primary" />
-
-        <TextView
-            android:id="@+id/tvToolbarTitle"
-            style="@style/TextAppearance.Eve.Telegram.NavigationTitle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:alpha="0"
-            android:text="Profile" />
-    </LinearLayout>
 </FrameLayout>

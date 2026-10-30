@@ -90,6 +90,7 @@ class ProfileActivity : EveBaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.glassToolbar.bringToFront()
 
         val user = FirebaseAuth.getInstance().currentUser
         if (user == null) {
@@ -529,6 +530,33 @@ class ProfileActivity : EveBaseActivity() {
         pendingPhotoUri = null
         binding.layoutPhotoActions.visibility = View.GONE
         loadProfilePhoto()
+    }
+
+    private fun showProgress(msg: String) {
+        dismissProgress()
+        val builder = TelegramNativeAlertDialog.Builder(this)
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            val space = resources.getDimensionPixelSize(R.dimen.design_card_padding)
+            setPadding(space, space, space, space)
+            gravity = android.view.Gravity.CENTER_VERTICAL
+            addView(TelegramRadialProgressView(this@ProfileActivity), LinearLayout.LayoutParams(
+                resources.getDimensionPixelSize(R.dimen.design_ring_size),
+                resources.getDimensionPixelSize(R.dimen.design_ring_size)))
+            addView(TextView(this@ProfileActivity).apply {
+                text = msg
+                setPadding(resources.getDimensionPixelSize(R.dimen.design_section_gap), 0, 0, 0)
+                TextViewCompat.setTextAppearance(this, R.style.TextAppearance_Eve_Token_Body)
+            })
+        }
+        builder.setView(layout)
+        builder.setCancelable(false)
+        progressDialog = builder.create().apply { show() }
+    }
+
+    private fun dismissProgress() {
+        progressDialog?.dismiss()
+        progressDialog = null
     }
 
     override fun onDestroy() {
