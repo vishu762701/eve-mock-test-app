@@ -48,6 +48,14 @@ class HomeTelegramDialogNativeTest {
                     val negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
                     assertNotNull("Delete button must remain present", positive)
                     assertNotNull("Cancel button must remain present", negative)
+                    assertTrue("Source-mapped rounded masked action selector must be present",
+                        positive.background is android.graphics.drawable.RippleDrawable)
+                    assertTrue("Cancel action also uses the Telegram selector",
+                        negative.background is android.graphics.drawable.RippleDrawable)
+                    assertTrue("Owner's accessible action height must remain at least 48dp",
+                        positive.minHeight >= (48 * activity.resources.displayMetrics.density).toInt())
+                    assertTrue("Upstream 64dp action min width remains intact",
+                        positive.minWidth >= (64 * activity.resources.displayMetrics.density).toInt())
                     assertEquals("Delete", positive.text.toString())
                     assertEquals("Cancel", negative.text.toString())
                     assertEquals("EVE destructive Delete text role must remain authoritative",

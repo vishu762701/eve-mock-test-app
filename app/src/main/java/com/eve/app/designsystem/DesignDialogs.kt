@@ -1,68 +1,63 @@
 package com.eve.app.designsystem
 
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.RippleDrawable
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
 import com.eve.app.R
+import com.eve.app.ui.home.TelegramDialogSourceBackground
+import com.eve.app.util.FontManager
 
-/** Bind the shared destructive role after native show, keeping every button listener intact. */
-fun AlertDialog.Builder.showDestructive(): AlertDialog = show().also { dialog ->
-    dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.let { button ->
-        // Telegram authentic flat text action: no pill CTA background, red destructive text.
-        ViewCompat.setBackground(button, null)
-        ViewCompat.setBackgroundTintList(button, null)
-        button.background = null
+/**
+ * Original Telegram ActionBar/AlertDialog.java:1137-1207 uses 64dp minimum
+ * button width, 12dp horizontal padding and 40dp visual button rows.
+ * Theme.java:4802-4808 supplies a transparent 20dp round-rect masked
+ * ripple (0x19 alpha) tinted from each button's real text color.
+ *
+ * EVE keeps its AppCompat host, callback wiring, accessible 48dp minimum
+ * touch targets and destructive owner-red text. This renderer remains ADAPTED;
+ * Android RippleDrawable substitutes for BaseCell.RippleDrawableSafe.
+ */
+private fun applyTelegramDialogActionAtoms(dialog: AlertDialog) {
+    val density = dialog.context.resources.displayMetrics.density
+    fun dp(value: Int) = (value * density + 0.5f).toInt()
+    for (which in intArrayOf(
+        AlertDialog.BUTTON_POSITIVE, AlertDialog.BUTTON_NEGATIVE, AlertDialog.BUTTON_NEUTRAL
+    )) {
+        val button = dialog.getButton(which) ?: continue
+        button.typeface = FontManager.telegramMediumTypeface(dialog.context)
+        button.minWidth = maxOf(button.minWidth, dp(64))
+        button.minHeight = maxOf(button.minHeight, dp(48))
+        button.setPadding(dp(12), button.paddingTop, dp(12), button.paddingBottom)
+
+        val mask = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = dp(20).toFloat()
+            setColor(Color.WHITE)
+        }
+        val ink = button.currentTextColor
+        val selectorColor = (ink and 0x00FFFFFF) or 0x19000000
+        // Original Theme.getRoundRectSelectorDrawable() has no idle fill.
         button.backgroundTintList = null
-        button.typeface = com.eve.app.util.FontManager.telegramMediumTypeface(button.context)
-        // Contract marker: R.color.design_destructive_fill
-        button.setTextColor(ContextCompat.getColorStateList(button.context, R.color.design_destructive_text))
+        button.background = RippleDrawable(
+            ColorStateList.valueOf(selectorColor), null, mask
+        )
     }
-    dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.let { button ->
-        ViewCompat.setBackground(button, null)
-        ViewCompat.setBackgroundTintList(button, null)
-        button.background = null
-        button.backgroundTintList = null
-        button.typeface = com.eve.app.util.FontManager.telegramMediumTypeface(button.context)
-    }
-    dialog.getButton(AlertDialog.BUTTON_NEUTRAL)?.let { button ->
-        ViewCompat.setBackground(button, null)
-        ViewCompat.setBackgroundTintList(button, null)
-        button.background = null
-        button.backgroundTintList = null
-        button.typeface = com.eve.app.util.FontManager.telegramMediumTypeface(button.context)
-    }
-    // Source-backed normal AlertDialog/DarkAlertDialog background and typography.
-    // Scope: EVE-owned destructive confirmations only; system dialogs unchanged.
-    // Apply after positive-button styling so Delete/Remove retains its color.
-    com.eve.app.ui.home.TelegramDialogSourceBackground.apply(
-        dialog, preserveDestructivePositive = true
-    )
 }
 
-/** Source-backed EVE-owned informational/choice dialog; callbacks are unchanged. */
+/** EVE-owned destructive confirmations only; native Android permission UI is untouched. */
+fun AlertDialog.Builder.showDestructive(): AlertDialog = show().also { dialog ->
+    TelegramDialogSourceBackground.apply(dialog, preserveDestructivePositive = true)
+    dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(
+        ContextCompat.getColorStateList(dialog.context, R.color.design_destructive_text)
+    )
+    applyTelegramDialogActionAtoms(dialog)
+}
+
+/** Source-backed EVE dialog atoms while preserving each existing builder callback. */
 fun AlertDialog.Builder.showTelegramSourceDialog(): AlertDialog = show().also { dialog ->
-    dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.let { button ->
-        ViewCompat.setBackground(button, null)
-        ViewCompat.setBackgroundTintList(button, null)
-        button.background = null
-        button.backgroundTintList = null
-        button.typeface = com.eve.app.util.FontManager.telegramMediumTypeface(button.context)
-    }
-    dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.let { button ->
-        ViewCompat.setBackground(button, null)
-        ViewCompat.setBackgroundTintList(button, null)
-        button.background = null
-        button.backgroundTintList = null
-        button.typeface = com.eve.app.util.FontManager.telegramMediumTypeface(button.context)
-    }
-    dialog.getButton(AlertDialog.BUTTON_NEUTRAL)?.let { button ->
-        ViewCompat.setBackground(button, null)
-        ViewCompat.setBackgroundTintList(button, null)
-        button.background = null
-        button.backgroundTintList = null
-        button.typeface = com.eve.app.util.FontManager.telegramMediumTypeface(button.context)
-    }
-    // DrKLO/Telegram@3de37c8c: AlertDialog.java:302-318,680-693;
-    // DarkAlertDialog.java:11-19. This is a drawing/typography subset only.
-    com.eve.app.ui.home.TelegramDialogSourceBackground.apply(dialog)
+    TelegramDialogSourceBackground.apply(dialog)
+    applyTelegramDialogActionAtoms(dialog)
 }
