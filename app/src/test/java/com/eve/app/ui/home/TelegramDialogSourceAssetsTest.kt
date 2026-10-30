@@ -71,7 +71,7 @@ class TelegramDialogSourceAssetsTest {
             source.contains("FontManager.telegramMediumTypeface(dialog.context)"))
         assertTrue("Preserve the registered destructive confirmation behavior",
             main.contains("adminDeleteFlow.removeConfirmed(") &&
-            main.contains(".showDestructive()"))
+            main.contains(".makeRed(android.content.DialogInterface.BUTTON_POSITIVE)"))
         assertTrue("Don't shrink 48dp accessible buttons to Telegram's 40dp visual size",
             !source.contains("minimumHeight") && !source.contains("layoutParams.height"))
     }
@@ -106,8 +106,7 @@ class TelegramDialogSourceAssetsTest {
                 central.indexOf("applyTelegramDialogActionAtoms(dialog)"))
         val coveredOwners = listOf(
             "ui/admin/AdminActivity.kt",
-            "ui/admin/ManagePremiumActivity.kt",
-            "ui/home/MainActivity.kt"
+            "ui/admin/ManagePremiumActivity.kt"
         )
         for (owner in coveredOwners) {
             val source = File("src/main/java/com/eve/app/$owner").readText()
@@ -142,7 +141,8 @@ class TelegramDialogSourceAssetsTest {
         val helper = File("src/main/java/com/eve/app/ui/home/TelegramDialogSourceBackground.kt").readText()
         assertTrue(block.contains("adminRepo.isAdmin(email)"))
         assertTrue(block.contains("adminDeleteFlow.removeConfirmed"))
-        assertTrue(block.contains(".showDestructive()"))
+        assertTrue(block.contains("TelegramNativeAlertDialog.Builder(this@MainActivity)"))
+        assertTrue(block.contains(".makeRed(android.content.DialogInterface.BUTTON_POSITIVE)"))
         assertTrue("No duplicated direct adapter after shared source integration",
             !block.contains("TelegramDialogSourceBackground.apply(dialog)"))
         val central = File("src/main/java/com/eve/app/designsystem/DesignDialogs.kt").readText()
@@ -156,5 +156,17 @@ class TelegramDialogSourceAssetsTest {
         assertTrue(helper.contains("palette.dialogSurface"))
         assertTrue(helper.contains("PorterDuff.Mode.MULTIPLY"))
         assertTrue(helper.contains("dialog.window?.setBackgroundDrawable(drawable)"))
+    }
+
+    @Test fun profileProgressUsesNativeTelegramHostWithNonCancelableCustomContent() {
+        val profile = File("src/main/java/com/eve/app/ui/profile/ProfileActivity.kt").readText()
+        val progress = profile.substringAfter("private fun showProgress(msg: String)")
+            .substringBefore("private fun dismissProgress()")
+        assertTrue(progress.contains("TelegramNativeAlertDialog.Builder(this)"))
+        assertTrue(progress.contains("builder.setView(layout)"))
+        assertTrue(progress.contains("builder.setCancelable(false)"))
+        assertTrue(progress.contains("TelegramRadialProgressView(this@ProfileActivity)"))
+        assertTrue(progress.contains("progressDialog = builder.create().apply { show() }"))
+        assertTrue(!progress.contains("TelegramDialogSourceBackground.apply(this)"))
     }
 }

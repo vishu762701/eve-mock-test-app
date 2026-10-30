@@ -18,7 +18,7 @@ import android.widget.Toast
 import com.eve.app.util.AppBulletin
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
+import com.eve.app.designsystem.TelegramNativeAlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import coil.load
@@ -26,7 +26,6 @@ import com.eve.app.R
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.databinding.ActivityProfileBinding
 import com.eve.app.ui.about.AboutActivity
-import com.eve.app.ui.home.TelegramDialogSourceBackground
 import com.eve.app.util.ProfilePhotoManager
 import com.eve.app.util.ReminderScheduler
 import com.eve.app.util.SessionManager
@@ -43,7 +42,7 @@ class ProfileActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityProfileBinding
     private val adminRepo = AdminRepository()
-    private var progressDialog: AlertDialog? = null
+    private var progressDialog: TelegramNativeAlertDialog? = null
     private var pendingPhotoUri: Uri? = null
 
     private val pickPhotoLauncher =
@@ -314,7 +313,7 @@ class ProfileActivity : EveBaseActivity() {
 
     private fun showProgress(msg: String) {
         dismissProgress()
-        val builder = AlertDialog.Builder(this)
+        val builder = TelegramNativeAlertDialog.Builder(this)
         val layout = android.widget.LinearLayout(this).apply {
             orientation = android.widget.LinearLayout.HORIZONTAL
             val space = resources.getDimensionPixelSize(R.dimen.design_card_padding)
@@ -331,10 +330,7 @@ class ProfileActivity : EveBaseActivity() {
         }
         builder.setView(layout)
         builder.setCancelable(false)
-        progressDialog = builder.create().apply {
-            show()
-            TelegramDialogSourceBackground.apply(this)
-        }
+        progressDialog = builder.create().apply { show() }
     }
 
     private fun dismissProgress() {

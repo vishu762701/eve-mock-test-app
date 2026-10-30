@@ -1,6 +1,5 @@
 package com.eve.app.ui.home
 
-import com.eve.app.designsystem.showDestructive
 import com.eve.app.designsystem.UiArcMotion
 
 import android.graphics.Outline
@@ -901,14 +900,15 @@ class MainActivity : EveBaseActivity() {
             // AndroidUtilities.java:6255-6267 => !isDestroyed && !isFinishing.
             // The admin lookup is asynchronous; never open a window during teardown.
             if (adminRepo.isAdmin(email) && !isDestroyed && !isFinishing) {
-                com.google.android.material.dialog.MaterialAlertDialogBuilder(this@MainActivity)
+                com.eve.app.designsystem.TelegramNativeAlertDialog.Builder(this@MainActivity)
                     .setTitle("Delete Feedback Post?")
                     .setMessage("Are you sure you want to delete '${post.title}'?")
                     .setPositiveButton("Delete") { _, _ ->
                         adminDeleteFlow.removeConfirmed("feedback:${post.id}", { viewModel.deleteFeedbackPostConfirmed(post.id); null })
                     }
                     .setNegativeButton("Cancel", null)
-                    .showDestructive()
+                    .makeRed(android.content.DialogInterface.BUTTON_POSITIVE)
+                    .show()
             }
         }
     }
