@@ -76,7 +76,7 @@
 
             <TextView
                 android:id="@+id/tvActionBadge"
-                style="@style/TextAppearance.Eve.Telegram.CellDetail"
+                style="@style/TextAppearance.Eve.Telegram.SettingsDetail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/accent"
@@ -84,7 +84,7 @@
 
             <TextView
                 android:id="@+id/tvClientSource"
-                style="@style/TextAppearance.Eve.Telegram.CellDetail"
+                style="@style/TextAppearance.Eve.Telegram.SettingsDetail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
