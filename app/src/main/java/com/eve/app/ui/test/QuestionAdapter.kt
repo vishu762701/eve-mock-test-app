@@ -49,6 +49,13 @@ class QuestionAdapter(
         init {
             // View IDs repeat on every page. The ViewModel is the only answer
             // state owner; Android hierarchy restoration must not check a page.
+            // Telegram ActionBar.java:534 establishes the prominent-title atom.
+            // EVE question hierarchy uses owner-requested stronger 700 weight;
+            // the arrangement/700 weight are ADAPTED, not Telegram-exact.
+            com.eve.app.designsystem.DesignType.apply(
+                b.tvQuestion, com.eve.app.designsystem.DesignType.Role.HEADING
+            )
+            b.tvQuestion.typeface = com.eve.app.util.FontManager.boldTypeface(b.root.context)
             b.rgOptions.isSaveEnabled = false
             listOf(b.rbA, b.rbB, b.rbC, b.rbD).forEach {
                 it.isSaveEnabled = false

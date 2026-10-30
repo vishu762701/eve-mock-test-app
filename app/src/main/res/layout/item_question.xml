@@ -15,7 +15,7 @@
             </FrameLayout>
         </LinearLayout>
         <FrameLayout android:id="@+id/questionContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_zero" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
-            <TextView android:id="@+id/tvQuestion" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="left" />
+            <TextView android:id="@+id/tvQuestion" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="start" />
         </FrameLayout>
         <FrameLayout android:id="@+id/optionsMaterialHost" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_section_gap" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
             <RadioGroup android:id="@+id/rgOptions" android:layout_width="match_parent" android:layout_height="wrap_content">

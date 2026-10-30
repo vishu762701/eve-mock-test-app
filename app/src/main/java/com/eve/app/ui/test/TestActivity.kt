@@ -77,6 +77,9 @@ class TestActivity : EveBaseActivity() {
         SecurityHelper.applyScreenProtection(this)
         binding = ActivityTestBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        // Source-backed hierarchy from Telegram ActionBar.java:534; EVE test
+        // heading uses the owner-requested 700 weight (ADAPTED arrangement).
+        binding.tvTestTitle.typeface = com.eve.app.util.FontManager.boldTypeface(this)
 
         examId = intent.getStringExtra(Constants.EXTRA_EXAM_ID) ?: ""
         examName = intent.getStringExtra(Constants.EXTRA_EXAM_NAME) ?: "Test"
