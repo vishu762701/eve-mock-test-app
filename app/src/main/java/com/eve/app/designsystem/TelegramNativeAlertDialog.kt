@@ -33,6 +33,7 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.RadioButton
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.appcompat.content.res.AppCompatResources
 import com.eve.app.R
 import com.eve.app.theme.TelegramThemeEngine
@@ -50,7 +51,10 @@ class TelegramNativeAlertDialog private constructor(
     private val rowItems: Array<out CharSequence>?,
     private val selectedItemIndex: Int,
     private val onItemClick: DialogInterface.OnClickListener?,
-    private val customContent: View?
+    private val customContent: View?,
+    private val neutralText: CharSequence?,
+    private val onNeutral: DialogInterface.OnClickListener?,
+    private val redButtons: Set<Int>
 ) : Dialog(context, R.style.Theme_Eve_TelegramNativeDialog) {
 
     private fun dp(value: Int) = (value * context.resources.displayMetrics.density + 0.5f).toInt()
@@ -156,7 +160,7 @@ class TelegramNativeAlertDialog private constructor(
                 addView(scrollContainer, android.widget.FrameLayout.LayoutParams(-1, -2))
             }, LinearLayout.LayoutParams(-1, -2))
         }
-        if (positiveText != null || negativeText != null) {
+        if (positiveText != null || negativeText != null || neutralText != null) {
             val actions = LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.END or Gravity.CENTER_VERTICAL
@@ -168,10 +172,15 @@ class TelegramNativeAlertDialog private constructor(
                     cornerRadius = dp(20).toFloat()
                     setColor(Color.WHITE)
                 }
+                // Original AlertDialog.Builder.makeRed():1991-2008.
+                // EVE destructive-red override is ADAPTED to its owner token.
+                val buttonInk = if (which in redButtons) {
+                    ContextCompat.getColor(context, R.color.design_destructive_text)
+                } else actionInk
                 val action = TextView(context).apply {
                     tag = which
                     text = label
-                    setTextColor(actionInk)
+                    setTextColor(buttonInk)
                     setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
                     typeface = FontManager.telegramMediumTypeface(context)
                     gravity = Gravity.CENTER
@@ -181,7 +190,7 @@ class TelegramNativeAlertDialog private constructor(
                     isSingleLine = true
                     ellipsize = TextUtils.TruncateAt.END
                     setBackground(RippleDrawable(
-                        ColorStateList.valueOf((actionInk and 0x00FFFFFF) or 0x19000000), null, mask
+                        ColorStateList.valueOf((buttonInk and 0x00FFFFFF) or 0x19000000), null, mask
                     ))
                     setOnClickListener {
                         if (!isShowing) return@setOnClickListener
@@ -199,6 +208,7 @@ class TelegramNativeAlertDialog private constructor(
                 if (actions.childCount != 0) lp.marginStart = dp(8)
                 actions.addView(action, lp)
             }
+            neutralText?.let { addAction(DialogInterface.BUTTON_NEUTRAL, it, onNeutral) }
             negativeText?.let { addAction(DialogInterface.BUTTON_NEGATIVE, it, onNegative) }
             positiveText?.let { addAction(DialogInterface.BUTTON_POSITIVE, it, onPositive) }
             // Upstream buttonsLayout is 52dp high; EVE retains >=48dp targets.
@@ -243,6 +253,9 @@ class TelegramNativeAlertDialog private constructor(
         private var selectedItemIndex: Int = -1
         private var onItemClick: DialogInterface.OnClickListener? = null
         private var customView: View? = null
+        private var neutral: CharSequence? = null
+        private var onNeutral: DialogInterface.OnClickListener? = null
+        private val redButtons = mutableSetOf<Int>()
         fun setTitle(value: CharSequence) = apply { title = value }
         fun setMessage(value: CharSequence) = apply { message = value }
         fun setPositiveButton(value: CharSequence, listener: DialogInterface.OnClickListener?) = apply {
@@ -265,9 +278,18 @@ class TelegramNativeAlertDialog private constructor(
         ) = apply {
             items = values.copyOf(); selectedItemIndex = checkedIndex; onItemClick = listener
         }
+        fun setNeutralButton(value: CharSequence, listener: DialogInterface.OnClickListener?) = apply {
+            neutral = value; onNeutral = listener
+        }
+        fun makeRed(which: Int) = apply {
+            require(which in setOf(
+                DialogInterface.BUTTON_POSITIVE, DialogInterface.BUTTON_NEGATIVE, DialogInterface.BUTTON_NEUTRAL
+            )) { "Unsupported destructive action" }
+            redButtons += which
+        }
         fun create() = TelegramNativeAlertDialog(
             context, title, message, positive, onPositive, negative, onNegative,
-            items, selectedItemIndex, onItemClick, customView
+            items, selectedItemIndex, onItemClick, customView, neutral, onNeutral, redButtons.toSet()
         )
         fun show() = create().also { it.show() }
     }

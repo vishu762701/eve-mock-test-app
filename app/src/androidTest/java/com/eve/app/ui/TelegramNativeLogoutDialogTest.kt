@@ -129,4 +129,38 @@ class TelegramNativeLogoutDialogTest {
         }
     }
 
+    @Test fun sourceRedDestructiveAndNeutralActionsPreserveSemantics() {
+        ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                var deleted = 0
+                var neutral = 0
+                val dialog = TelegramNativeAlertDialog.Builder(activity)
+                    .setTitle("Delete")
+                    .setMessage("Confirm")
+                    .setPositiveButton("Delete") { _, _ -> deleted++ }
+                    .setNegativeButton("Cancel", null)
+                    .setNeutralButton("Details") { _, _ -> neutral++ }
+                    .makeRed(DialogInterface.BUTTON_POSITIVE)
+                    .show()
+                try {
+                    val positive = dialog.getActionButton(DialogInterface.BUTTON_POSITIVE)!!
+                    val info = dialog.getActionButton(DialogInterface.BUTTON_NEUTRAL)!!
+                    assertEquals(
+                        androidx.core.content.ContextCompat.getColor(
+                            activity, com.eve.app.R.color.design_destructive_text
+                        ),
+                        positive.currentTextColor
+                    )
+                    assertNotNull(info.background)
+                    info.performClick()
+                    assertEquals(0, deleted)
+                    assertEquals(1, neutral)
+                    assertFalse(dialog.isShowing)
+                } finally {
+                    if (dialog.isShowing) dialog.dismiss()
+                }
+            }
+        }
+    }
+
 }
