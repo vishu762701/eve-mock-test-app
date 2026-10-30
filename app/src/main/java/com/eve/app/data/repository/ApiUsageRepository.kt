@@ -1,10 +1,7 @@
 package com.eve.app.data.repository
 
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.tasks.await
+import com.eve.app.data.remote.ApiClient
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -14,12 +11,13 @@ data class MonthlyApiUsage(
     val geminiCalls: Long = 0L,
     val documentsCreatedProxy: Long = 0L,
     val testSubmissionsProxy: Long = 0L,
-    val lastUpdated: Long = 0L
+    val lastUpdated: Long = 0L,
+    val countedSince: String = ""
 )
 
-class ApiUsageRepository {
-
-    private val firestore get() = FirebaseFirestore.getInstance()
+class ApiUsageRepository(
+    private val api: com.eve.app.data.remote.EveApiService = ApiClient.apiService
+) {
 
     fun getCurrentYearMonth(): String {
         val sdf = SimpleDateFormat("yyyy-MM", Locale.US)
@@ -31,116 +29,49 @@ class ApiUsageRepository {
         return sdf.format(Date())
     }
 
-    /** Increment Gemini call counter for the current month */
-    fun incrementGeminiCalls() {
-        try {
-            val ym = getCurrentYearMonth()
-            firestore.collection("usage_stats").document(ym).set(
-                mapOf(
-                    "geminiCalls" to FieldValue.increment(1),
-                    "month" to ym,
-                    "updatedAt" to System.currentTimeMillis()
-                ),
-                com.google.firebase.firestore.SetOptions.merge()
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
+    /** No-op: Gemini usage is recorded server-authoritatively on Cloudflare Worker */
+    fun incrementGeminiCalls() {}
 
-    /** Increment document creation proxy (exams, questions, broadcasts, feedback) */
-    fun incrementDocumentCreation(count: Long = 1L) {
-        try {
-            val ym = getCurrentYearMonth()
-            firestore.collection("usage_stats").document(ym).set(
-                mapOf(
-                    "documentsCreated" to FieldValue.increment(count),
-                    "month" to ym,
-                    "updatedAt" to System.currentTimeMillis()
-                ),
-                com.google.firebase.firestore.SetOptions.merge()
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
+    /** No-op: Document creation is tracked server-authoritatively on Cloudflare D1 */
+    fun incrementDocumentCreation(count: Long = 1L) {}
 
-    /** Alias for incrementDocumentCreation */
-    fun incrementDocumentWrites(count: Int = 1) {
-        incrementDocumentCreation(count.toLong())
-    }
+    /** No-op alias for incrementDocumentCreation */
+    fun incrementDocumentWrites(count: Int = 1) {}
 
-    /** Increment student test submissions proxy */
-    fun incrementTestSubmissions() {
-        try {
-            val ym = getCurrentYearMonth()
-            firestore.collection("usage_stats").document(ym).set(
-                mapOf(
-                    "testSubmissions" to FieldValue.increment(1),
-                    "month" to ym,
-                    "updatedAt" to System.currentTimeMillis()
-                ),
-                com.google.firebase.firestore.SetOptions.merge()
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
+    /** No-op: Student test submissions are counted directly from D1 attempts */
+    fun incrementTestSubmissions() {}
 
+    /**
+     * Fetches server-authoritative monthly usage counters from Cloudflare Worker / D1.
+     * All counting is performed on the server where the operations occur.
+     */
     suspend fun getUsageForCurrentMonth(): MonthlyApiUsage {
         val ym = getCurrentYearMonth()
         val displayName = getMonthDisplayName()
 
         return try {
-            val doc = firestore.collection("usage_stats").document(ym).get().await()
-
-            var gemini = doc.getLong("geminiCalls") ?: 0L
-            var docsCreated = doc.getLong("documentsCreated") ?: 0L
-            var testSubmissions = doc.getLong("testSubmissions") ?: 0L
-            val updatedAt = doc.getLong("updatedAt") ?: System.currentTimeMillis()
-
-            // Calculate start of current month timestamp
-            val cal = Calendar.getInstance().apply {
-                set(Calendar.DAY_OF_MONTH, 1)
-                set(Calendar.HOUR_OF_DAY, 0)
-                set(Calendar.MINUTE, 0)
-                set(Calendar.SECOND, 0)
-                set(Calendar.MILLISECOND, 0)
+            val response = api.getApiUsage(ym)
+            if (response.success && response.data != null) {
+                val data = response.data
+                MonthlyApiUsage(
+                    yearMonth = data.yearMonth.ifBlank { ym },
+                    monthDisplayName = data.monthDisplayName.ifBlank { displayName },
+                    geminiCalls = data.geminiCalls,
+                    documentsCreatedProxy = data.documentsCreated,
+                    testSubmissionsProxy = data.testSubmissions,
+                    lastUpdated = data.lastUpdated,
+                    countedSince = data.countedSince.orEmpty()
+                )
+            } else {
+                MonthlyApiUsage(
+                    yearMonth = ym,
+                    monthDisplayName = displayName,
+                    geminiCalls = 0L,
+                    documentsCreatedProxy = 0L,
+                    testSubmissionsProxy = 0L,
+                    lastUpdated = System.currentTimeMillis()
+                )
             }
-            val startOfMonth = cal.timeInMillis
-
-            // If proxy counters in doc are 0, estimate from collections for real baseline
-            if (testSubmissions == 0L) {
-                try {
-                    val attemptsSnap = firestore.collection("attempts")
-                        .whereGreaterThanOrEqualTo("timestamp", startOfMonth)
-                        .get()
-                        .await()
-                    testSubmissions = attemptsSnap.size().toLong()
-                } catch (_: Exception) {}
-            }
-
-            if (docsCreated == 0L) {
-                try {
-                    val logsSnap = firestore.collection("admin_audit_log")
-                        .whereGreaterThanOrEqualTo("timestamp", startOfMonth)
-                        .get()
-                        .await()
-                    docsCreated = logsSnap.documents.count {
-                        val t = it.getString("actionType").orEmpty()
-                        t.contains("CREATED") || t.contains("SENT")
-                    }.toLong().coerceAtLeast(1L)
-                } catch (_: Exception) {}
-            }
-
-            MonthlyApiUsage(
-                yearMonth = ym,
-                monthDisplayName = displayName,
-                geminiCalls = gemini,
-                documentsCreatedProxy = docsCreated,
-                testSubmissionsProxy = testSubmissions,
-                lastUpdated = updatedAt
-            )
         } catch (e: Exception) {
             MonthlyApiUsage(
                 yearMonth = ym,

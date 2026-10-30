@@ -110,7 +110,7 @@
                                 <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/tvMinSupportedVersion" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1" />
                             </LinearLayout>
                         </LinearLayout>
-                        <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:text="To enforce an immediate update on older student devices, update 'minimum_supported_version_code' in Firebase Remote Config or using App Config." />
+                        <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:text="To enforce an immediate update on older student devices, update 'minimum_supported_version_code' using App Config." />
                     </LinearLayout>
                 </com.eve.app.designsystem.DesignCardView>
                 <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="28dp" android:text="SYSTEM MAINTENANCE" />

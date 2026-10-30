@@ -37,7 +37,8 @@ class ApiUsageActivity : EveBaseActivity() {
     private fun loadUsage() {
         lifecycleScope.launch {
             val usage = usageRepo.getUsageForCurrentMonth()
-            binding.tvCurrentMonth.text = "📅 ${usage.monthDisplayName}"
+            val countedNote = if (usage.countedSince.isNotBlank()) " • Since ${usage.countedSince.take(10)}" else ""
+            binding.tvCurrentMonth.text = "📅 ${usage.monthDisplayName}$countedNote"
             binding.tvGeminiCallsCount.text = usage.geminiCalls.toString()
             binding.tvDocsCreatedCount.text = usage.documentsCreatedProxy.toString()
             binding.tvSubmissionsCount.text = usage.testSubmissionsProxy.toString()

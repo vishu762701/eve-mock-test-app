@@ -45,11 +45,6 @@ class HistoryRepository(
         )
         val res = api.submitAttempt(payload)
         if (res.success && res.data != null) {
-            try {
-                ApiUsageRepository().incrementTestSubmissions()
-            } catch (_: Exception) {
-                // optional: failure is fine
-            }
             return true
         } else {
             throw Exception(res.error ?: "Submission rejected by server")

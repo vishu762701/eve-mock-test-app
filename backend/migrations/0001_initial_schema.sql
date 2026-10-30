@@ -368,3 +368,15 @@ CREATE TABLE IF NOT EXISTS rate_limits (
     count INTEGER NOT NULL DEFAULT 0,
     reset_at INTEGER NOT NULL
 );
+
+-- 26. API Usage Monthly Counters
+CREATE TABLE IF NOT EXISTS api_usage_monthly (
+    year_month TEXT PRIMARY KEY,
+    gemini_calls INTEGER NOT NULL DEFAULT 0,
+    gemini_successful_calls INTEGER NOT NULL DEFAULT 0,
+    gemini_failed_calls INTEGER NOT NULL DEFAULT 0,
+    first_recorded_at INTEGER NOT NULL,
+    last_updated_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_api_usage_monthly_ym ON api_usage_monthly (year_month);
+

@@ -30,7 +30,6 @@ import com.eve.app.data.model.GeneratedTest
 import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.data.remote.sanitizeErrorMessage
-import com.eve.app.data.repository.ApiUsageRepository
 import com.eve.app.data.repository.AuditLogRepository
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.databinding.ActivityManageExamsBinding
@@ -48,7 +47,6 @@ class ManageExamsActivity : EveBaseActivity() {
     private lateinit var binding: ActivityManageExamsBinding
     private val examRepo = ExamRepository()
     private val auditLogRepo = AuditLogRepository()
-    private val apiUsageRepo = ApiUsageRepository()
 
     private var examList: MutableList<Exam> = mutableListOf()
     private lateinit var dropdownAdapter: ExamDropdownAdapter
@@ -834,7 +832,6 @@ class ManageExamsActivity : EveBaseActivity() {
                             showGenerationErrorDialog(res.error, null)
                         } else {
                             val generatedCount = res.data?.get("questionCount") ?: count
-                            apiUsageRepo.incrementGeminiCalls()
                             TelegramNativeAlertDialog.Builder(this@ManageExamsActivity)
                                 .setTitle("Generation Successful")
                                 .setMessage("Successfully generated $generatedCount questions for '$examName'.\n\nYou can review or publish them in the Generated Tests section below.")
@@ -1263,7 +1260,6 @@ class ManageExamsActivity : EveBaseActivity() {
                         publishMode = publishMode
                     )
                     Log.d("EVE_MANAGE_EXAM", "updateExamFullSettings success: examId=$currentExamId")
-                    apiUsageRepo.incrementDocumentWrites(1)
                     AppBulletin.showSuccess(this@ManageExamsActivity, "Settings saved for '$name'")
                 } else {
                     // Create new
@@ -1283,7 +1279,6 @@ class ManageExamsActivity : EveBaseActivity() {
                     )
                     Log.d("EVE_MANAGE_EXAM", "addExam success: newId=$newId, isSavingSubExam=$isSavingSubExam")
                     currentExamId = newId
-                    apiUsageRepo.incrementDocumentWrites(1)
                     binding.btnGenerateNow.visibility = View.VISIBLE
                     if (isNewSubExamMode) {
                         exitNewSubExamMode()

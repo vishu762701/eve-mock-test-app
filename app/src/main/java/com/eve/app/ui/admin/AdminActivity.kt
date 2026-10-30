@@ -45,15 +45,12 @@ import android.provider.OpenableColumns
 import com.eve.app.BuildConfig
 import com.eve.app.data.model.AdminAuditLog
 import com.eve.app.data.repository.AuditLogRepository
-import com.eve.app.data.repository.ApiUsageRepository
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.util.QuestionImportHelper
 import com.eve.app.util.HomeBannerLinkValidator
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.functions.FirebaseFunctions
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -67,7 +64,6 @@ class AdminActivity : EveBaseActivity() {
     private val bannerRepo = HomeBannerRepository()
     private val examRepo = ExamRepository()
     private val auditLogRepo = AuditLogRepository()
-    private val apiUsageRepo = ApiUsageRepository()
 
     private var exams: List<Exam> = emptyList()
     private var selectedExamForImageUpdate: Exam? = null
@@ -412,7 +408,6 @@ class AdminActivity : EveBaseActivity() {
                 )
 
                 viewModel.addQuestion(newQuestion) {
-                    apiUsageRepo.incrementDocumentWrites(1)
                     AppBulletin.showSuccess(this@AdminActivity, "Question added successfully!")
                 }
             }
@@ -631,7 +626,6 @@ class AdminActivity : EveBaseActivity() {
         lifecycleScope.launch {
             try {
                 val added = examRepo.addQuestions(questions)
-                apiUsageRepo.incrementDocumentWrites(added)
                 AppBulletin.showSuccess(this@AdminActivity, "Successfully imported $added questions!")
                 viewModel.loadQuestions(examId)
             } catch (e: Exception) {
@@ -676,7 +670,6 @@ class AdminActivity : EveBaseActivity() {
                 val result = feedbackRepo.createFeedbackPost(title, message, authorId, authorEmail)
                 dialogBinding.btnPublishPost.isEnabled = true
                 result.onSuccess {
-                    apiUsageRepo.incrementDocumentWrites(1)
                     AppBulletin.showSuccess(this@AdminActivity, "Feedback post published successfully!")
                     dialog.dismiss()
                 }.onFailure { err ->
@@ -1247,26 +1240,17 @@ class AdminActivity : EveBaseActivity() {
 
         lifecycleScope.launch {
             try {
-                // 1. Invoke Callable Cloud Function
-                try {
-                    val functions = FirebaseFunctions.getInstance()
-                    val payload = hashMapOf(
-                        "maintenanceMode" to isModeOn,
-                        "maintenanceMessage" to message
-                    )
-                    functions.getHttpsCallable("updateRemoteConfigMaintenance").call(payload).await()
-                } catch (fnErr: Exception) {
-                    // Fallback to direct Firestore update if callable function is unavailable
-                }
-
-                // 2. Ensure Firestore app_config is always updated
                 val currentConfig = adminRepo.getAppConfig()
-                adminRepo.updateAppConfig(
+                val success = adminRepo.updateAppConfig(
                     currentConfig.copy(
                         maintenance_mode = isModeOn,
                         maintenance_message = message
                     )
                 )
+
+                if (!success) {
+                    throw Exception("Failed to update maintenance settings")
+                }
 
                 binding.progressBarMaintenance.visibility = View.GONE
                 binding.btnApplyMaintenance.isEnabled = true

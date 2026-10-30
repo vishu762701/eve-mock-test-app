@@ -30,18 +30,14 @@ import com.eve.app.util.QuestionImportHelper
 import kotlinx.coroutines.launch
 import com.eve.app.data.model.AdminAuditLog
 import com.eve.app.data.repository.AuditLogRepository
-import com.eve.app.data.repository.ApiUsageRepository
 import com.eve.app.designsystem.TelegramRadialProgressView
 import com.google.android.material.button.MaterialButton
-import com.google.firebase.functions.FirebaseFunctions
-import kotlinx.coroutines.tasks.await
 
 class EditExamActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityEditExamBinding
     private val examRepo = ExamRepository()
     private val auditLogRepo = AuditLogRepository()
-    private val apiUsageRepo = ApiUsageRepository()
 
     private var examId: String = ""
     private var examName: String = ""
@@ -196,7 +192,6 @@ class EditExamActivity : EveBaseActivity() {
             try {
                 examRepo.updateExam(updatedExam)
 
-                apiUsageRepo.incrementDocumentWrites(1)
                 currentExam = updatedExam
                 examName = newName
                 examCategory = selectedCategory
@@ -406,8 +401,7 @@ class EditExamActivity : EveBaseActivity() {
 
             lifecycleScope.launch {
                 try {
-                    val functions = FirebaseFunctions.getInstance()
-                    val payload = hashMapOf(
+                    val payload = mapOf(
                         "questionText" to qText,
                         "optionA" to optA,
                         "optionB" to optB,
@@ -416,23 +410,20 @@ class EditExamActivity : EveBaseActivity() {
                         "correctAnswer" to correctOpt,
                         "explanation" to currentExp
                     )
-                    val result = functions.getHttpsCallable("reformatQuestionExplanation")
-                        .call(payload)
-                        .await()
-                    val resMap = result.data as? Map<*, *>
-                    val reformatted = resMap?.get("reformattedExplanation") as? String
-                    if (!reformatted.isNullOrBlank()) {
+                    val result = com.eve.app.data.remote.ApiClient.apiService.reformatExplanation(payload)
+                    val reformatted = result.data?.get("reformattedExplanation")
+                    if (result.success && !reformatted.isNullOrBlank()) {
                         etExplanation.setText(reformatted)
                         AppBulletin.showSuccess(this@EditExamActivity, "Restructured to Key Points format!")
                     } else {
                         val fallback = formatKeyPointsLocally(correctOpt, currentExp)
                         etExplanation.setText(fallback)
-                        AppBulletin.show(this@EditExamActivity, "Restructured to Key Points format")
+                        AppBulletin.show(this@EditExamActivity, "AI unavailable; formatted locally (not by AI).")
                     }
                 } catch (e: Exception) {
                     val fallback = formatKeyPointsLocally(correctOpt, currentExp)
                     etExplanation.setText(fallback)
-                    AppBulletin.show(this@EditExamActivity, "Restructured to Key Points format")
+                    AppBulletin.show(this@EditExamActivity, "AI unavailable; formatted locally (not by AI).")
                 } finally {
                     pbReformat.visibility = View.GONE
                     btnReformatAi.isEnabled = true

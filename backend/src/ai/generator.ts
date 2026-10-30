@@ -3,6 +3,7 @@
 // ============================================================================
 
 import { Env } from "../types";
+import { trackGeminiCall } from "../util/usageTracker";
 
 export interface GeneratedQuestionItem {
   questionText: string;
@@ -664,6 +665,9 @@ export async function generateQuestions(
           });
 
           if (!res.ok) {
+            if (env.DB) {
+              await trackGeminiCall(env.DB, false).catch(() => {});
+            }
             const errText = await res.text();
             const providerErr = classifyGeminiError(res.status, errText, {
               correlationId,
@@ -787,8 +791,14 @@ export async function generateQuestions(
 
           chunkQuestions = parsed;
           chunkSuccess = true;
+          if (env.DB) {
+            await trackGeminiCall(env.DB, true).catch(() => {});
+          }
           break modelLoop;
         } catch (err: any) {
+          if (env.DB) {
+            await trackGeminiCall(env.DB, false).catch(() => {});
+          }
           if (err instanceof GeminiProviderError) {
             lastError = err;
             if (err.isPreconditionFailure) {

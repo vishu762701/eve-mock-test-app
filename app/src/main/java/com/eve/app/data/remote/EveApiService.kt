@@ -515,6 +515,12 @@ interface EveApiService {
     @PUT("api/admin/config")
     suspend fun updateAppConfig(@Body body: Map<String, @JvmSuppressWildcards Any>): ApiResponse<AppConfig>
 
+    @GET("api/admin/api-usage")
+    suspend fun getApiUsage(@Query("month") month: String? = null): ApiResponse<MonthlyApiUsageDto>
+
+    @POST("api/admin/questions/reformat-explanation")
+    suspend fun reformatExplanation(@Body body: Map<String, String>): ApiResponse<Map<String, String>>
+
     // --- Generated Tests ---
     @GET("api/generated-tests")
     suspend fun getGeneratedTests(@Query("examId") examId: String? = null): ApiResponse<List<GeneratedTest>>
@@ -618,3 +624,16 @@ interface EveApiService {
     @GET("api/typography/published")
     suspend fun getPublishedTypography(): ApiResponse<com.eve.app.typography.TypographyConfig>
 }
+
+data class MonthlyApiUsageDto(
+    val yearMonth: String = "",
+    val monthDisplayName: String = "",
+    val geminiCalls: Long = 0L,
+    val geminiSuccessfulCalls: Long = 0L,
+    val geminiFailedCalls: Long = 0L,
+    val documentsCreated: Long = 0L,
+    val testSubmissions: Long = 0L,
+    val countedSince: String? = null,
+    val lastUpdated: Long = 0L
+)
+

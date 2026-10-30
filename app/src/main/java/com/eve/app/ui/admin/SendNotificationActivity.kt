@@ -20,14 +20,12 @@ import com.eve.app.data.remote.EveApiService
 import com.eve.app.databinding.ActivitySendNotificationBinding
 import com.eve.app.ui.common.ErrorStateView
 import kotlinx.coroutines.launch
-import com.eve.app.data.repository.ApiUsageRepository
 
 class SendNotificationActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivitySendNotificationBinding
     private lateinit var sentAdapter: SentBroadcastAdapter
     private val api: EveApiService = ApiClient.apiService
-    private val apiUsageRepo = ApiUsageRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -349,7 +347,6 @@ class SendNotificationActivity : EveBaseActivity() {
                         "Failed to send: ${res.error ?: "Unknown error"}"
                     )
                 } else {
-                    apiUsageRepo.incrementDocumentWrites(1)
                     binding.etTitle.text?.clear()
                     binding.etMessage.text?.clear()
                     AppBulletin.showSuccess(

@@ -10,6 +10,8 @@ import { getGeminiApiKeys, getModelChain, classifyGeminiError } from "../ai/gene
 import { checkRateLimit } from "../middleware/rateLimiter";
 import { isUserAdmin, HARDCODED_ADMIN_EMAILS } from "../auth";
 import { prepareAdminAuditLog, recordAdminAction, runBatch } from "../util/auditLog";
+import { getMonthlyApiUsage, trackGeminiCall } from "../util/usageTracker";
+import { validateReformatInput, reformatExplanationWithAi } from "../ai/explanationReformat";
 
 const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
 
@@ -1077,6 +1079,9 @@ adminRoutes.post("/ai-health", async (c) => {
       providerStatus,
       message,
     });
+    if (db) {
+      await trackGeminiCall(db, ok).catch(() => {});
+    }
   }
 
   let workingModel: string | null = null;
@@ -1101,9 +1106,18 @@ adminRoutes.post("/ai-health", async (c) => {
           });
           if (res.ok) {
             workingModel = testModel;
+            if (db) {
+              await trackGeminiCall(db, true).catch(() => {});
+            }
             break fallbackSearch;
+          } else if (db) {
+            await trackGeminiCall(db, false).catch(() => {});
           }
-        } catch {}
+        } catch {
+          if (db) {
+            await trackGeminiCall(db, false).catch(() => {});
+          }
+        }
       }
     }
   }
@@ -1116,4 +1130,52 @@ adminRoutes.post("/ai-health", async (c) => {
       slots,
     },
   });
+});
+
+// GET /api/admin/api-usage - Truthful server-side API usage & cost monitor metrics
+adminRoutes.get("/api-usage", async (c) => {
+  const monthParam = c.req.query("month")?.trim();
+  if (monthParam && !/^(\d{4})-(0[1-9]|1[0-2])$/.test(monthParam)) {
+    return c.json({ success: false, error: "Query parameter 'month' must be in YYYY-MM format" }, 400);
+  }
+
+  try {
+    const usage = await getMonthlyApiUsage(c.env.DB, monthParam);
+    return c.json({ success: true, data: usage });
+  } catch (err: any) {
+    return c.json({ success: false, error: err.message || "Failed to retrieve monthly API usage" }, 500);
+  }
+});
+
+// POST /api/admin/questions/reformat-explanation - Reformat question explanation with Gemini AI (rate-limited, sanitized)
+adminRoutes.post("/questions/reformat-explanation", async (c) => {
+  const user = c.get("user");
+  const ip = c.req.header("cf-connecting-ip") || c.req.header("x-forwarded-for") || "unknown";
+
+  // Rate limit: 20 calls per minute per user/IP
+  const rl = await checkRateLimit(c.env.DB, `reformat:${user.uid || ip}`, 20, 60);
+  if (rl.limited) {
+    return c.json({ success: false, error: "Too many reformat requests. Please try again in a few moments." }, 429);
+  }
+
+  const rawBody = await c.req.json().catch(() => ({}));
+  const validation = validateReformatInput(rawBody);
+  if (!validation.valid || !validation.input) {
+    return c.json({ success: false, error: validation.error || "Invalid reformat input" }, 400);
+  }
+
+  try {
+    const reformattedExplanation = await reformatExplanationWithAi(c.env, validation.input);
+    return c.json({
+      success: true,
+      data: { reformattedExplanation },
+    });
+  } catch (err: any) {
+    const status = typeof err.statusCode === "number" ? err.statusCode : 502;
+    return c.json({
+      success: false,
+      error: err.userFacingMessage || err.message || "AI reformat service is temporarily unavailable",
+      errorCode: err.code || "REFORMAT_FAILED",
+    }, status);
+  }
 });

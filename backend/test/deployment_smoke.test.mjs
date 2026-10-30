@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, readFileSync, chmodSync, rmSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, readFileSync, chmodSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -9,7 +9,8 @@ function run(fail = false) {
   const directory = mkdtempSync(join(tmpdir(), 'eve-smoke-'));
   try {
     const curl = join(directory, 'curl');
-    writeFileSync(curl, `#!/usr/bin/env bash
+    const shebang = existsSync('/usr/bin/env') ? '#!/usr/bin/env bash' : `#!${process.env.SHELL || '/bin/sh'}`;
+    writeFileSync(curl, `${shebang}
 url="\${@: -1}"
 case "$url" in
   *api.cloudflare.com*) echo '{"subdomain":"test-only"}';;
