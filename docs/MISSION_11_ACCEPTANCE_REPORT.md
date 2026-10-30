@@ -4,7 +4,7 @@
 **Repository:** https://github.com/vishu762701/eve-mock-test-app
 **Branch:** `main` only
 **Mission 10 checkpoint:** `470c4c7908a8d1e16d68ec6cb9548689cc904ff9`
-**Last audited Mission 11 implementation SHA:** `cc5f56d8795295a56dcabb8030d95683e2875d2e`
+**Last audited Mission 11 implementation SHA:** `82e5dd1b672f7688f0bd5e468e9c9db163c8f2b5`
 **Status:** **INCOMPLETE — do not claim terminal G4–G6 verification**
 **Terminal FULL CI:** **NOT TRIGGERED** (the exact upstream Telegram dialog renderer and matched visual acceptance are still unresolved).
 **Mission 11 APK:** **NOT PUBLISHED OR DIGEST-VERIFIED**.
@@ -70,8 +70,12 @@ Commits below are after Mission 10, oldest to newest. Some initial FAST failures
 | `d8bf05033cc3` | fix(avatar): render genuine Telegram two-stop fallback gradients | SUCCESS [41007723148](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41007723148) |
 | `42dc240bf031` | fix(notifications): align inbox empty broadcast sync with Home baseline | SUCCESS [41008114672](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41008114672) |
 | `cc5f56d87952` | fix(avatar): use authentic Telegram white initials over source gradients | SUCCESS [41008497392](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41008497392) |
+| `408521563efc` | fix(home): refresh public floating-link position on resume, discard stale overlapping UI responses | SUCCESS [41010509160](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41010509160) |
+| `f71f74f758d0` | fix(home): accessible community link click, no link launch after drag-release | SUCCESS [41010894448](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41010894448) |
+| `ba5d25514843` | fix(home): one admin drag save at a time; rollback failed optimistic coordinates | FAILED [41011240288](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41011240288) — two source-contract assertions expected the previous weaker admin guard |
+| `82e5dd1b672f` | test(home): align both contracts to the stronger admin+pending-write guard | SUCCESS [41011542384](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41011542384) |
 
-**Latest implementation FAST:** [41008497392](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41008497392), **SUCCESS**, at `cc5f56d8795295a56dcabb8030d95683e2875d2e`. This verifies FAST compilation/JVM/backend/Firebase checks, not native device rendering.
+**Latest implementation FAST:** [41011542384](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41011542384), **SUCCESS**, at `82e5dd1b672f7688f0bd5e468e9c9db163c8f2b5`. This verifies FAST compilation/JVM/backend/Firebase checks, not native device rendering.
 
 ## 4. R01–R10 acceptance matrix (G4/G5)
 
@@ -112,3 +116,24 @@ Statuses reflect the **complete owner acceptance criterion**, not simply Kotlin 
 5. Only when all G4/G5 requirements are satisfied, create the final `[eve-full]` implementation commit; verify exact SHA and **all six FULL jobs** (backend, Firebase, Android build/lint, gesture emulator, three-button emulator, APK publish) plus published APK SHA-256 and size. Update this report truthfully with HEAD/SHA distinction.
 
 **Uncommitted edits:** None in a local checkout; all referenced implementation edits are GitHub commits. This report is a new GitHub file, not a local uncommitted workspace.
+
+## 8. Subsequent evidence-backed continuation (2026-10-30; do not infer runtime parity)
+
+**Latest implementation SHA before this documentation commit:** `82e5dd1b672f7688f0bd5e468e9c9db163c8f2b5`.
+
+### Floating community link: code-level repairs, G4/G5 pending
+
+- Returning students previously read the singleton's 10-minute cached link position. `MainActivity.onResume()` now requests `refreshFloatingLink(forceRefresh = true)` from the public endpoint. A generation token prevents an older overlapping Home response from overriding the latest displayed coordinates. This does not claim push-based real-time propagation while Home stays open.
+- Community-icon `ACTION_CLICK` is now handled by an actual `OnClickListener`, including keyboard/screen-reader activation. The physical tap dispatches `performClick()` only for a short non-drag gesture, retaining the link-open debounce. The parent card has one accessible label and decorative artwork is hidden from separate screen-reader focus.
+- Only a verified admin may start a long-press drag. While an admin position write is in progress, further drag starts are inhibited. On a failed write the visual icon rolls back to the previously confirmed coordinates; successful writes retain backend authorization. The failed FAST on `ba5d2551` identified two preexisting exact-string checks for a weaker admin guard; `82e5dd1b` repaired those contract expectations **without weakening the implementation**.
+- These source/JVM tests do not prove live administrator identity, backend permission rejection, actual public propagation, Voice/TalkBack dispatch, or physical insets/drag bounds. Those remain **UNKNOWN** until authenticated native execution.
+
+### Verified G1 blocker: Telegram original AlertDialog dependencies
+
+The uploaded source's `TMessagesProj/src/main/java/org/telegram/ui/ActionBar/AlertDialog.java` has **2,069 source lines**. Its imports at lines **59–84** include `ApplicationLoader`, `UserConfig`, `NotificationCenter`, `SharedConfig`, `Browser`, `LaunchActivity`, `StarsIntroActivity`, `RLottieDrawable`, `EffectsTextView` and other app-specific components. It is **not** a self-contained Android dialog widget. EVE's existing `DesignDialogs.kt` and `TelegramDialogSourceBackground.kt` implement authentic background/size/typography/ripple atoms in an **ADAPTED AppCompat renderer**. The unmodified whole original view/interaction/motion renderer is **BLOCKED** pending dependency-isolated EVE integration, licensing/source-distribution validation and full callback/OS-dialog invariants. Never import Telegram authentication/network machinery to resolve its dependencies.
+
+### Independent G4/G5 blocker and terminal gate
+
+The active container provides neither `adb` nor Android `emulator`/`sdkmanager`, and no logged-in owner test device or authenticated admin/student harness is connected here. Intermediate GitHub FAST jobs verify compile/JVM, not run the native emulator suite. The repository prohibits an early `[eve-full]` run while original renderer, paired Telegram/EVE visual states and authenticated runtime acceptance are unresolved. **No Mission 11 six-job terminal FULL or APK SHA verification has occurred.**
+
+**G7 resume action:** Re-fetch remote `main` and the documentation-only push FAST outcome; do not repeat the four floating-link commits. Next, isolate genuine Telegram AlertDialog UI dependencies without copying `UserConfig`/account/service stack, verify full GPL obligations, implement/validate original renderer per confirmation variant. Then obtain matched genuine Day/Night, RTL/Hindi, 320/360/393dp/tablet, gesture/three-button and admin/student runtime evidence for R01–R10 plus inherited Home flows. Only when all blocking acceptance gates are met, initiate `[eve-full]` on a mission-final implementation SHA, inspect six job conclusions and verify the published APK digest. Any missing prerequisite retains **MISSION 11 INCOMPLETE**.
