@@ -90,9 +90,25 @@ class RepairRegressionTest {
                     it.recycle()
                 }
                 adapter.onBindViewHolder(holder, 0)
-                pixels().also { assertEquals("Selected answer tile must remain green, not legacy blue",
-                        context.getColor(R.color.system_green_container),
-                        it.getPixel((80 * d).toInt(), (4 * d).toInt())); it.recycle() }
+                pixels().also { image ->
+                    val expected = context.getColor(R.color.system_green_container)
+                    val fill = (b.rbA.background as android.graphics.drawable.StateListDrawable)
+                        .current as android.graphics.drawable.GradientDrawable
+                    assertEquals("Selected drawable must retain the exact green source token",
+                        expected, fill.color!!.defaultColor)
+                    val pixel = image.getPixel((80 * d).toInt(), (4 * d).toInt())
+                    assertEquals("Premultiplied green tile must preserve source alpha",
+                        Color.alpha(expected), Color.alpha(pixel))
+                    // Android bitmap drawing quantizes low-alpha premultiplied RGB
+                    // channels: accept only the observed +/-3 8-bit rounding.
+                    assertTrue("Selected tile must render source green, not blue",
+                        listOf(
+                            Color.red(expected) - Color.red(pixel),
+                            Color.green(expected) - Color.green(pixel),
+                            Color.blue(expected) - Color.blue(pixel)
+                        ).all { kotlin.math.abs(it) <= 3 })
+                    image.recycle()
+                }
                 b.rbB.performClick()
                 pixels().also {
                     assertEquals("Changing answer immediately clears the old indicator", context.getColor(R.color.surface_inset), it.getPixel((22 * d).toInt(), height / 2))

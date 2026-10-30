@@ -279,8 +279,8 @@ class ApprovedUiRenderingTest {
             if (index < 3) assertEquals(dp(6), options[index + 1].top - option.bottom)
             val surface = (option.background as StateListDrawable).current as GradientDrawable
             assertEquals(16f * density, surface.cornerRadius, 0.01f)
-            assertEquals(context.getColor(if (option.isChecked) R.color.accent else R.color.surface_inset), surface.color!!.defaultColor)
-            assertEquals(context.getColor(if (option.isChecked) R.color.on_accent else R.color.text_primary), option.currentTextColor)
+            assertEquals(context.getColor(if (option.isChecked) R.color.system_green_container else R.color.surface_inset), surface.color!!.defaultColor)
+            assertEquals(context.getColor(if (option.isChecked) R.color.text_primary), option.currentTextColor)
             assertNotNull(option.buttonDrawable)
         }
         assertEquals(60, palette.itemCount)
