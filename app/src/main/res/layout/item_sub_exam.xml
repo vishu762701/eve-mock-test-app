@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EVE nested-exam host is ADAPTED; original Telegram TextCell.java:98-104
+     supplies 16sp list text, and the existing authentic large_notes.webp icon
+     is repurposed without its former boxed holder. It is NOT a Telegram exam cell. -->
+<com.eve.app.designsystem.DesignCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardContainer"
+    style="@style/Widget.Eve.Token.Card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="56dp"
+    android:clickable="true"
+    android:focusable="true"
+    app:rippleColor="@color/design_role_ripple">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="56dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+        <ImageView
+            android:id="@+id/ivSubExamBook"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/telegram_popup_notes"
+            android:background="@null"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no"
+            android:scaleType="fitCenter" />
+        <TextView
+            android:id="@+id/tvSubExamName"
+            style="@style/TextAppearance.Eve.Telegram.ListTitle"
+            android:tag="eve_telegram_type"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="16dp"
+            android:maxLines="3"
+            android:ellipsize="end"
+            tools:text="English" />
+    </LinearLayout>
+</com.eve.app.designsystem.DesignCardView>

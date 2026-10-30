@@ -10,6 +10,7 @@ import com.eve.app.data.model.Exam
 import com.eve.app.data.model.GeneratedTest
 import com.eve.app.databinding.ItemCategoryHeaderBinding
 import com.eve.app.databinding.ItemExamTestBinding
+import com.eve.app.databinding.ItemSubExamBinding
 
 sealed class ExamTestsListItem {
     data class HeaderItem(val title: String) : ExamTestsListItem()
@@ -60,6 +61,10 @@ class ExamTestsAdapter(
                 val binding = ItemCategoryHeaderBinding.inflate(inflater, parent, false)
                 HeaderViewHolder(binding)
             }
+            VIEW_TYPE_SUB_EXAM -> {
+                val binding = ItemSubExamBinding.inflate(inflater, parent, false)
+                SubExamViewHolder(binding)
+            }
             else -> {
                 val binding = ItemExamTestBinding.inflate(inflater, parent, false)
                 ExamTestViewHolder(binding)
@@ -70,7 +75,7 @@ class ExamTestsAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val item = items[position]) {
             is ExamTestsListItem.HeaderItem -> (holder as HeaderViewHolder).bind(item)
-            is ExamTestsListItem.SubExamItem -> (holder as ExamTestViewHolder).bindSubExam(item)
+            is ExamTestsListItem.SubExamItem -> (holder as SubExamViewHolder).bind(item)
             is ExamTestsListItem.TestItem -> (holder as ExamTestViewHolder).bindTest(item)
         }
     }
@@ -84,18 +89,17 @@ class ExamTestsAdapter(
         }
     }
 
+    inner class SubExamViewHolder(private val binding: ItemSubExamBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(item: ExamTestsListItem.SubExamItem) {
+            binding.tvSubExamName.text = item.exam.examName
+            binding.cardContainer.contentDescription = "Open ${item.exam.examName} tests"
+            binding.cardContainer.setOnClickListener { onSubExamClick(item.exam) }
+        }
+    }
+
     inner class ExamTestViewHolder(private val binding: ItemExamTestBinding) :
         RecyclerView.ViewHolder(binding.root) {
-
-        fun bindSubExam(item: ExamTestsListItem.SubExamItem) {
-            binding.tvTitle.text = item.exam.examName
-            binding.tvSubtitle.visibility = View.GONE
-            binding.tvStatus.visibility = View.GONE
-            binding.cardContainer.setOnClickListener {
-                onSubExamClick(item.exam)
-            }
-        }
-
         fun bindTest(item: ExamTestsListItem.TestItem) {
             binding.tvTitle.text = item.title
             binding.tvSubtitle.visibility = View.VISIBLE
