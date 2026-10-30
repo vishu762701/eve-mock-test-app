@@ -321,6 +321,14 @@ class TelegramNativeLogoutDialogTest {
                     assertTrue("Choice selection must not submit or dismiss", dialog.isShowing)
                     assertEquals(-1, confirmed)
                     assertEquals(1, chosen)
+                    val first = dialog.window!!.decorView.findViewWithTag<android.widget.LinearLayout>(
+                        "telegram_native_alert_item_0"
+                    )
+                    assertNotNull(first)
+                    assertFalse("Previous radio row must be unselected", first.isSelected)
+                    assertTrue("Previous radio dot must be cleared", (0 until first.childCount).none {
+                        (first.getChildAt(it) as? android.widget.RadioButton)?.isChecked == true
+                    })
                     assertTrue(second.isSelected)
                     assertTrue((0 until second.childCount).any {
                         (second.getChildAt(it) as? android.widget.RadioButton)?.isChecked == true
