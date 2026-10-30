@@ -1,11 +1,12 @@
 package com.eve.app.ui.settings
 
-import com.eve.app.designsystem.showDestructive
+import com.eve.app.designsystem.TelegramNativeAlertDialog
 import com.eve.app.designsystem.UiArcMotion
 import com.eve.app.designsystem.UiArcRadioCardsGroup
 
 import com.eve.app.ui.common.EveBaseActivity
 
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import com.eve.app.designsystem.TelegramRadialProgressView
@@ -13,7 +14,6 @@ import android.widget.TextView
 import com.eve.app.util.AppBulletin
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.R
@@ -26,8 +26,6 @@ import com.eve.app.util.ReminderScheduler
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.eve.app.designsystem.showTelegramSourceDialog
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
 import com.google.firebase.auth.EmailAuthProvider
@@ -43,9 +41,9 @@ import com.eve.app.util.StreakHelper
 class SettingsActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
-    private var progressDialog: AlertDialog? = null
-    private var passwordReauthenticationDialog: AlertDialog? = null
-    private var deleteConfirmationDialog: AlertDialog? = null
+    private var progressDialog: TelegramNativeAlertDialog? = null
+    private var passwordReauthenticationDialog: TelegramNativeAlertDialog? = null
+    private var deleteConfirmationDialog: TelegramNativeAlertDialog? = null
     private var deleteConfirmArmedAt: Long = 0L
     private var deleteTimeoutJob: kotlinx.coroutines.Job? = null
 
@@ -291,7 +289,7 @@ class SettingsActivity : EveBaseActivity() {
         // Official Telegram AndroidUtilities.isSafeToShow():6255-6267.
         // Never stack destructive windows or show one during Activity teardown.
         if (isFinishing || isDestroyed || deleteConfirmationDialog?.isShowing == true) return
-        val dialog = MaterialAlertDialogBuilder(this)
+        val dialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Delete Account")
             .setMessage("Warning: Deleting your account is permanent. All your data (profile, test attempts, results, history, leaderboard entries, pinned tests and notifications) will be erased and cannot be recovered. Do you want to continue?")
             .setPositiveButton("Delete", null)
@@ -299,11 +297,13 @@ class SettingsActivity : EveBaseActivity() {
                 deleteTimeoutJob?.cancel()
                 d.dismiss()
             }
-            .showDestructive()
+            .makeRed(DialogInterface.BUTTON_POSITIVE)
+            .show()
         deleteConfirmationDialog = dialog
 
         deleteConfirmArmedAt = android.os.SystemClock.elapsedRealtime()
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setOnClickListener {
+        requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_POSITIVE)).setOnClickListener {
+            if (!dialog.isShowing) return@setOnClickListener
             // Enforce UIArc duplicate-action guard (280ms)
             if (android.os.SystemClock.elapsedRealtime() - deleteConfirmArmedAt < 280L) {
                 return@setOnClickListener
@@ -330,7 +330,7 @@ class SettingsActivity : EveBaseActivity() {
 
     private fun showProgress(msg: String) {
         dismissProgress()
-        val builder = AlertDialog.Builder(this)
+        val builder = TelegramNativeAlertDialog.Builder(this)
         val layout = android.widget.LinearLayout(this).apply {
             orientation = android.widget.LinearLayout.HORIZONTAL
             val space = resources.getDimensionPixelSize(R.dimen.design_card_padding)
@@ -347,10 +347,7 @@ class SettingsActivity : EveBaseActivity() {
         }
         builder.setView(layout)
         builder.setCancelable(false)
-        progressDialog = builder.create().apply {
-            show()
-            com.eve.app.ui.home.TelegramDialogSourceBackground.apply(this)
-        }
+        progressDialog = builder.create().apply { show() }
     }
 
     private fun dismissProgress() {
@@ -414,11 +411,11 @@ class SettingsActivity : EveBaseActivity() {
                 // The network deletion can finish after Settings is closing.
                 // Original Telegram AndroidUtilities.isSafeToShow():6255-6267.
                 if (isFinishing || isDestroyed) return@launch
-                MaterialAlertDialogBuilder(this@SettingsActivity)
+                TelegramNativeAlertDialog.Builder(this@SettingsActivity)
                     .setTitle("Account Deletion Failed")
                     .setMessage(e.localizedMessage ?: "Could not delete account. Please try again.")
                     .setPositiveButton("OK", null)
-                    .showTelegramSourceDialog()
+                    .show()
             }
         }
     }
@@ -444,7 +441,7 @@ class SettingsActivity : EveBaseActivity() {
                     android.view.ViewGroup.LayoutParams.WRAP_CONTENT
                 ))
             }
-            val dialog = MaterialAlertDialogBuilder(this)
+            val dialog = TelegramNativeAlertDialog.Builder(this)
                 .setTitle("Confirm Account Identity")
                 .setMessage("Enter your current password to complete account deletion.")
                 .setView(container)
@@ -452,13 +449,14 @@ class SettingsActivity : EveBaseActivity() {
                 .setNegativeButton("Cancel", null)
                 .create()
             dialog.setOnShowListener {
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_POSITIVE)).setOnClickListener {
+                    if (!dialog.isShowing) return@setOnClickListener
                     val password = field.text?.toString().orEmpty()
                     if (password.isBlank()) {
                         field.error = "Password required"
                         return@setOnClickListener
                     }
-                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = false
+                    requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_POSITIVE)).isEnabled = false
                     lifecycleScope.launch {
                         try {
                             user.reauthenticate(EmailAuthProvider.getCredential(email, password)).await()
@@ -468,7 +466,7 @@ class SettingsActivity : EveBaseActivity() {
                         } catch (_: Exception) {
                             field.text?.clear()
                             field.error = "Verification failed. Check your password."
-                            dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = true
+                            requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_POSITIVE)).isEnabled = true
                         }
                     }
                 }
@@ -480,13 +478,10 @@ class SettingsActivity : EveBaseActivity() {
             }
             dialog.show()
             passwordReauthenticationDialog = dialog
-            // Original Telegram AlertDialog.java:302-318,680-693 and
-            // DarkAlertDialog.java:11-19. Preserve the existing password view
-            // and OnShow Verify listener rather than swapping the host class.
-            com.eve.app.ui.home.TelegramDialogSourceBackground.apply(dialog)
+            // The native UI host retains EVE-only password validation and Firebase reauthentication.
             return
         }
-        MaterialAlertDialogBuilder(this)
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle("Re-authentication Required")
             .setMessage("Sign in with your linked Google account to finish deletion.")
             .setPositiveButton("Sign In") { _, _ ->
@@ -502,7 +497,7 @@ class SettingsActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .showTelegramSourceDialog()
+            .show()
     }
 
     override fun onDestroy() {

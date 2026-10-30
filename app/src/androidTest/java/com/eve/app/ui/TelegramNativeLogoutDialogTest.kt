@@ -249,4 +249,46 @@ class TelegramNativeLogoutDialogTest {
         }
     }
 
+    @Test fun secureCustomInputValidationCanKeepNativeDialogOpen() {
+        ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                val field = android.widget.EditText(activity).apply {
+                    inputType = android.text.InputType.TYPE_CLASS_TEXT or
+                        android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+                    isSingleLine = true
+                }
+                val dialog = TelegramNativeAlertDialog.Builder(activity)
+                    .setTitle("Confirm Account Identity")
+                    .setView(field)
+                    .setPositiveButton("Verify", null)
+                    .setNegativeButton("Cancel", null)
+                    .show()
+                try {
+                    val verify = dialog.getActionButton(DialogInterface.BUTTON_POSITIVE)!!
+                    var accepted = 0
+                    verify.setOnClickListener {
+                        if (field.text.isNullOrBlank()) {
+                            field.error = "Password required"
+                        } else {
+                            accepted++
+                            field.text?.clear()
+                            dialog.dismiss()
+                        }
+                    }
+                    verify.performClick()
+                    assertEquals(0, accepted)
+                    assertTrue("Blank input may not close reauthentication", dialog.isShowing)
+                    field.setText("sample-only-password")
+                    verify.performClick()
+                    assertEquals(1, accepted)
+                    assertTrue(field.text.isNullOrEmpty())
+                    assertFalse(dialog.isShowing)
+                } finally {
+                    field.text?.clear()
+                    if (dialog.isShowing) dialog.dismiss()
+                }
+            }
+        }
+    }
+
 }

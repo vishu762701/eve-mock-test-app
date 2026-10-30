@@ -16,7 +16,8 @@ class SettingsAccountRecoveryDialogSourceTest {
         assertTrue(deletion.contains("user.delete().await()"))
         assertTrue(deletion.contains("if (isFinishing || isDestroyed) return@launch"))
         assertTrue(deletion.contains(".setTitle(\"Account Deletion Failed\")"))
-        assertTrue(deletion.contains(".showTelegramSourceDialog()"))
+        assertTrue(deletion.contains("TelegramNativeAlertDialog.Builder(this@SettingsActivity)"))
+        assertTrue(deletion.contains(".show()"))
         assertTrue(!deletion.contains(".showDestructive()"))
     }
 
@@ -25,7 +26,7 @@ class SettingsAccountRecoveryDialogSourceTest {
             .substringBefore("override fun onDestroy()")
         val emailBranch = recovery.substringAfter("EmailAuthProvider.PROVIDER_ID")
             .substringBefore(".setTitle(\"Re-authentication Required\")")
-        assertTrue(source.contains("private var passwordReauthenticationDialog: AlertDialog? = null"))
+        assertTrue(source.contains("private var passwordReauthenticationDialog: TelegramNativeAlertDialog? = null"))
         assertTrue(recovery.contains("passwordReauthenticationDialog?.isShowing == true"))
         assertTrue(emailBranch.contains("TYPE_TEXT_VARIATION_PASSWORD"))
         assertTrue(emailBranch.contains("dialog.setOnShowListener"))
@@ -35,10 +36,9 @@ class SettingsAccountRecoveryDialogSourceTest {
         assertTrue(emailBranch.contains("dialog.setOnDismissListener"))
         assertTrue(emailBranch.contains("field.text?.clear()"))
         assertTrue(emailBranch.contains("passwordReauthenticationDialog = dialog"))
-        assertTrue(emailBranch.contains("TelegramDialogSourceBackground.apply(dialog)"))
-        assertTrue("Original source helper must be applied AFTER show to a real window",
-            emailBranch.indexOf("TelegramDialogSourceBackground.apply(dialog)") >
-                emailBranch.indexOf("dialog.show()"))
+        assertTrue(emailBranch.contains("TelegramNativeAlertDialog.Builder(this)"))
+        assertTrue(emailBranch.contains("requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_POSITIVE))"))
+        assertTrue(!emailBranch.contains("TelegramDialogSourceBackground.apply(dialog)"))
         val destroy = source.substringAfter("override fun onDestroy()")
         assertTrue(destroy.contains("passwordReauthenticationDialog?.dismiss()"))
         assertTrue(destroy.contains("passwordReauthenticationDialog = null"))
@@ -52,7 +52,8 @@ class SettingsAccountRecoveryDialogSourceTest {
         assertTrue(recovery.contains(".setTitle(\"Re-authentication Required\")"))
         assertTrue(recovery.contains(".setPositiveButton(\"Sign In\")"))
         assertTrue(recovery.contains(".setNegativeButton(\"Cancel\", null)"))
-        assertTrue(recovery.contains(".showTelegramSourceDialog()"))
+        assertTrue(recovery.contains("TelegramNativeAlertDialog.Builder(this)"))
+        assertTrue(recovery.contains(".show()"))
         assertTrue(recovery.contains("GoogleSignIn.getClient(this, gso)"))
         assertTrue(recovery.contains("client.signOut().addOnCompleteListener"))
         assertTrue(recovery.contains("if (!isFinishing && !isDestroyed)"))
