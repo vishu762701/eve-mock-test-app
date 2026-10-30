@@ -21,18 +21,18 @@ class TelegramAnswerGreenNativeTest {
             scenario.onActivity { activity ->
                 val option = TelegramRadioButton(activity)
                 activity.setContentView(option)
-                val green = ContextCompat.getColor(activity, R.color.system_green)
+                val greenSurface = ContextCompat.getColor(activity, R.color.system_green_container)
+                val greenIndicator = ContextCompat.getColor(activity, R.color.system_green_text)
                 option.isChecked = true
                 val checked = option.background.current as GradientDrawable
-                assertEquals(green, checked.color?.defaultColor)
-                assertEquals(ContextCompat.getColor(activity, R.color.solid_black),
+                assertEquals(greenSurface, checked.color?.defaultColor)
+                assertEquals(ContextCompat.getColor(activity, R.color.text_primary),
                     option.textColors.getColorForState(intArrayOf(android.R.attr.state_checked), -1))
-                assertEquals(ContextCompat.getColor(activity, R.color.solid_black),
-                    option.indicator?.checkedColor)
+                assertEquals(greenIndicator, option.indicator?.checkedColor)
                 option.isChecked = false
-                assertNotEquals(green, (option.background.current as GradientDrawable).color?.defaultColor)
+                assertNotEquals(greenSurface, (option.background.current as GradientDrawable).color?.defaultColor)
                 option.isChecked = true
-                assertEquals(green, (option.background.current as GradientDrawable).color?.defaultColor)
+                assertEquals(greenSurface, (option.background.current as GradientDrawable).color?.defaultColor)
                 assertTrue(option.isChecked)
             }
         }

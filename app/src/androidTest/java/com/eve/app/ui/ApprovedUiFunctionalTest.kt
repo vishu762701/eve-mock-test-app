@@ -93,7 +93,7 @@ class ApprovedUiFunctionalTest {
                 val b = ItemQuestionBinding.bind(holder.itemView)
                 assertEquals(R.id.rbB, b.rgOptions.checkedRadioButtonId)
                 assertTrue("Restoring a saved answer must not submit a selection", calls.isEmpty())
-                assertEquals(context.getColor(R.color.on_accent), b.rbB.currentTextColor)
+                assertEquals(context.getColor(R.color.text_primary), b.rbB.currentTextColor)
                 assertEquals(context.getColor(R.color.text_primary), b.rbA.currentTextColor)
                 b.rbA.performClick()
                 assertEquals(listOf("A"), calls)
@@ -138,7 +138,7 @@ class ApprovedUiFunctionalTest {
                 b.rbA.draw(Canvas(bitmap))
                 val center = b.rbA.resources.getDimensionPixelSize(R.dimen.design_card_padding) +
                     b.rbA.resources.getDimensionPixelSize(R.dimen.design_icon_size) / 2
-                assertEquals("Selected source dot", context.getColor(R.color.on_accent),
+                assertEquals("Selected source dot", context.getColor(R.color.system_green_text),
                     bitmap.getPixel(center, height / 2))
                 bitmap.recycle()
             }
@@ -257,7 +257,7 @@ class ApprovedUiFunctionalTest {
                     option.draw(Canvas(bitmap))
                     val center = option.width - context.resources.getDimensionPixelSize(R.dimen.design_card_padding) -
                         context.resources.getDimensionPixelSize(R.dimen.design_icon_size) / 2
-                    assertEquals("RTL source dot must stay at the native leading edge", context.getColor(R.color.on_accent),
+                    assertEquals("RTL source dot must stay at the native leading edge", context.getColor(R.color.system_green_text),
                         bitmap.getPixel(center, option.height / 2))
                     bitmap.recycle()
                 }

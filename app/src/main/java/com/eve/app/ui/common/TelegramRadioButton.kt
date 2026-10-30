@@ -58,9 +58,11 @@ class TelegramRadioButton @JvmOverloads constructor(
         // Owner's R07 selected-answer state is not a correctness judgment.
         // Telegram ThemeColors.java:94-95 defines green text roles; this
         // exam-specific green selection surface is an ADAPTED EVE decision.
-        // Use theme-qualified system green so Day/Night both remain legible.
-        val selectedGreen = color(R.color.system_green)
-        val onSelectedGreen = color(R.color.solid_black)
+        // Use a muted green-tinted tile with a GREEN selected radio dot/ring.
+        // Day's darker green text role meets non-text indicator contrast on
+        // a light surface; Night uses a brighter green on the dark canvas.
+        val selectedGreenSurface = color(R.color.system_green_container)
+        val selectedGreenIndicator = color(R.color.system_green_text)
         val inset = p?.surfaceInset ?: color(R.color.surface_inset)
         val primary = p?.textPrimary ?: color(R.color.text_primary)
         val secondary = p?.textSecondary ?: color(R.color.text_secondary)
@@ -70,14 +72,14 @@ class TelegramRadioButton @JvmOverloads constructor(
             setColor(color)
         }
         background = StateListDrawable().apply {
-            addState(intArrayOf(android.R.attr.state_checked), surface(selectedGreen))
+            addState(intArrayOf(android.R.attr.state_checked), surface(selectedGreenSurface))
             addState(intArrayOf(), surface(inset))
         }
         setTextColor(ColorStateList(
             arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
-            intArrayOf(onSelectedGreen, primary)
+            intArrayOf(primary, primary)
         ))
-        indicator?.setColors(secondary, onSelectedGreen)
+        indicator?.setColors(secondary, selectedGreenIndicator)
     }
 
     fun applyChoiceStyle() {
