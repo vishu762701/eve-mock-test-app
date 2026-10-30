@@ -84,7 +84,7 @@ class TelegramNativeAlertDialog private constructor(
                     setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
                     gravity = Gravity.START
                     setPadding(dp(24), if (titleText == null) dp(19) else 0, dp(24), dp(10))
-                }, ScrollView.LayoutParams(-1, -2))
+                }, android.widget.FrameLayout.LayoutParams(-1, -2))
             }
             root.addView(scroll, LinearLayout.LayoutParams(-1, -2))
         }
@@ -112,9 +112,9 @@ class TelegramNativeAlertDialog private constructor(
                     setPadding(dp(12), 0, dp(12), 0)
                     isSingleLine = true
                     ellipsize = TextUtils.TruncateAt.END
-                    background = RippleDrawable(
+                    setBackground(RippleDrawable(
                         ColorStateList.valueOf((actionInk and 0x00FFFFFF) or 0x19000000), null, mask
-                    )
+                    ))
                     setOnClickListener {
                         if (!isShowing) return@setOnClickListener
                         try {
