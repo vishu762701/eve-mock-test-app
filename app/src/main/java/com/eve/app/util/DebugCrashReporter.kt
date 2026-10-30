@@ -12,7 +12,7 @@ import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import com.eve.app.BuildConfig
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.eve.app.designsystem.TelegramNativeAlertDialog
 import java.io.File
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -134,7 +134,7 @@ object DebugCrashReporter {
             addView(textView)
         }
 
-        val dialog = MaterialAlertDialogBuilder(activity)
+        val dialog = TelegramNativeAlertDialog.Builder(activity)
             .setTitle("Crash Detected on Previous Launch")
             .setView(scrollView)
             .setPositiveButton("Copy Trace", null)
@@ -147,7 +147,7 @@ object DebugCrashReporter {
             .create()
 
         dialog.setOnShowListener {
-            dialog.getButton(DialogInterface.BUTTON_POSITIVE)?.setOnClickListener {
+            dialog.getActionButton(DialogInterface.BUTTON_POSITIVE)?.setOnClickListener {
                 val clipboard = activity.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
                 val clip = ClipData.newPlainText("Crash Trace", crashContent)
                 clipboard?.setPrimaryClip(clip)
@@ -155,8 +155,8 @@ object DebugCrashReporter {
             }
         }
 
+        // The debug trace remains private until an explicit Copy Trace action.
         dialog.show()
-        com.eve.app.ui.home.TelegramDialogSourceBackground.apply(dialog)
     }
 
     private fun checkAndShowDialog(activity: Activity) {

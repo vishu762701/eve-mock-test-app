@@ -24,5 +24,12 @@ class DebugCrashReporterPrivacyTest {
             code.contains("getExternalFilesDir") || code.contains("/sdcard/Download"))
         assertFalse("Do not log the entire exception payload automatically",
             code.contains("FATAL CRASH DETECTED:\\n\$crashPayload"))
+        assertTrue("Debug trace viewer must use source-isolated native dialog",
+            code.contains("TelegramNativeAlertDialog.Builder(activity)"))
+        assertTrue("Only explicit Copy Trace button may write to clipboard",
+            code.contains("dialog.getActionButton(DialogInterface.BUTTON_POSITIVE)?.setOnClickListener") &&
+                code.contains("clipboard?.setPrimaryClip(clip)"))
+        assertTrue("Crash dialog must preserve dismiss callback",
+            code.contains(".setOnDismissListener {") && code.contains("onDismiss()"))
     }
 }
