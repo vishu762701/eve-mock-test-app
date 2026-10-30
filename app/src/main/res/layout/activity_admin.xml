@@ -1,136 +1,281 @@
-<?xml version='1.0' encoding='utf-8'?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:clickable="true" android:focusable="true" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Screen">
-    <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.ToolbarRow">
-            <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/telegram_type_primary" style="@style/Widget.Eve.Token.IconButton" />
-            <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
-            <com.eve.app.designsystem.TelegramRadialProgressView android:id="@+id/progressBarAdmin" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:visibility="gone" />
-        </LinearLayout>
-    </com.eve.app.ui.common.EveGlassToolbar>
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.LargeTitleBlock">
-        <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Admin Dashboard"  android:tag="eve_telegram_type" />
-    </LinearLayout>
-    <com.eve.app.designsystem.DesignSegmentedTabs android:id="@+id/tabLayoutAdmin" style="@style/Widget.Eve.Token.SegmentedTabs" android:layout_width="match_parent" android:layout_height="@dimen/design_tab_height" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_marginTop="@dimen/design_card_gap" android:layout_marginBottom="@dimen/design_card_gap" app:tabMode="scrollable" app:tabGravity="start">
-        <com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Exams" />
-        <com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Manage Questions" />
-        <com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Admins" />
-    </com.eve.app.designsystem.DesignSegmentedTabs>
-    <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-        <ScrollView android:id="@+id/scrollTabCreateExam" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:visibility="visible" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="CONTENT MANAGEMENT" />
-                <com.google.android.material.button.MaterialButton android:id="@+id/btnManageExistingExams" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center_vertical|start" android:text="Manage Existing Exams" app:icon="@drawable/ic_exam_placeholder" app:iconPadding="@dimen/design_screen_margin" />
-                <com.google.android.material.button.MaterialButton android:id="@+id/btnManageExams" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center_vertical|start" android:text="Manage Exams" app:icon="@drawable/ic_edit" app:iconPadding="@dimen/design_screen_margin" />
-                <com.google.android.material.button.MaterialButton android:id="@+id/btnGeneratedTests" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center_vertical|start" android:text="AI Generated Tests" app:icon="@drawable/ic_robot" app:iconPadding="@dimen/design_screen_margin" />
-                <com.google.android.material.button.MaterialButton android:id="@+id/btnHomeBanner" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center_vertical|start" android:text="Home Banner" app:icon="@drawable/ic_image" app:iconPadding="@dimen/design_screen_margin" />
-                <com.google.android.material.button.MaterialButton android:id="@+id/btnFloatingLink" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center_vertical|start" android:text="Floating Link" app:icon="@drawable/ic_link" app:iconPadding="@dimen/design_screen_margin" />
-                <com.google.android.material.button.MaterialButton android:id="@+id/btnManagePremium" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center_vertical|start" android:text="Premium Management" app:icon="@drawable/ic_star_filled" app:iconPadding="@dimen/design_screen_margin" />
-                <com.google.android.material.button.MaterialButton android:id="@+id/btnManageSyllabus" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center_vertical|start" android:text="Manage Syllabus" app:icon="@drawable/ic_syllabus" app:iconPadding="@dimen/design_screen_margin" />
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_app"
+    style="@style/Widget.Eve.Token.Screen">
+
+    <com.eve.app.ui.admin.tg.TelegramActionBar
+        android:id="@+id/telegramActionBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ScrollView
+            android:id="@+id/scrollAdminHub"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:overScrollMode="always"
+            style="@style/Widget.Eve.Token.Scroll">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="32dp">
+
+                <!-- Telegram-Style Admin Header Block -->
+                <LinearLayout
+                    android:id="@+id/headerBlockAdmin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="20dp"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="16dp">
+
+                    <ImageView
+                        android:id="@+id/ivAdminAvatar"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:contentDescription="Admin Avatar" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvAdminName"
+                            style="@style/TextAppearance.Eve.Telegram.NavigationTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Administrator"
+                            android:textSize="19sp" />
+
+                        <TextView
+                            android:id="@+id/tvAdminRole"
+                            style="@style/TextAppearance.Eve.Token.Secondary"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Owner" />
+
+                        <TextView
+                            android:id="@+id/tvAdminEmail"
+                            style="@style/TextAppearance.Eve.Token.Secondary"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:text="admin@eve.app"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <com.eve.app.ui.admin.tg.ShadowSectionCell
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <!-- SECTION 1: CONTENT -->
+                <com.eve.app.ui.admin.tg.HeaderCell
+                    android:id="@+id/headerContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.TextCell
+                    android:id="@+id/rowExams"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.TextCell
+                    android:id="@+id/rowQuestions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.TextCell
+                    android:id="@+id/rowGeneratedTests"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.TextCell
+                    android:id="@+id/rowSyllabus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.TextCell
+                    android:id="@+id/rowHomeBanner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.TextCell
+                    android:id="@+id/rowFloatingLink"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.TextCell
+                    android:id="@+id/rowAnimatedEmoji"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.ShadowSectionCell
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <!-- SECTION 2: PEOPLE -->
+                <com.eve.app.ui.admin.tg.HeaderCell
+                    android:id="@+id/headerPeople"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.TextCell
+                    android:id="@+id/rowUsers"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.TextCell
+                    android:id="@+id/rowAdmins"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.TextCell
+                    android:id="@+id/rowPremium"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.ShadowSectionCell
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <!-- SECTION 3: COMMUNICATION -->
+                <com.eve.app.ui.admin.tg.HeaderCell
+                    android:id="@+id/headerCommunication"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.TextCell
+                    android:id="@+id/rowBroadcast"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.TextCell
+                    android:id="@+id/rowFlaggedQuestions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.TextCell
+                    android:id="@+id/rowFeedback"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.TextCell
+                    android:id="@+id/rowCreateFeedbackPost"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.TextCell
+                    android:id="@+id/btnManageFeedbackPosts"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.TextCell
+                    android:id="@+id/rowPolls"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.ShadowSectionCell
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <!-- SECTION 4: INSIGHTS -->
+                <com.eve.app.ui.admin.tg.HeaderCell
+                    android:id="@+id/headerInsights"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.TextCell
+                    android:id="@+id/rowAnalytics"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.TextCell
+                    android:id="@+id/rowRecentActions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.TextCell
+                    android:id="@+id/rowSystemMonitor"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.TextCell
+                    android:id="@+id/rowApiUsage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.ShadowSectionCell
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <!-- SECTION 5: SYSTEM -->
+                <com.eve.app.ui.admin.tg.HeaderCell
+                    android:id="@+id/headerSystem"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.TextCheckCell
+                    android:id="@+id/cellMaintenance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.TextCell
+                    android:id="@+id/rowAppConfig"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.TextCell
+                    android:id="@+id/rowVersionStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.TextCell
+                    android:id="@+id/rowExportData"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.TextCell
+                    android:id="@+id/rowEditAbout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.eve.app.ui.admin.tg.ShadowSectionCell
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
             </LinearLayout>
         </ScrollView>
-        <ScrollView android:id="@+id/scrollTabManageQuestions" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2. Select Exam (to manage questions)" />
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                    <com.eve.app.designsystem.DesignSpinner android:id="@+id/spExam" android:layout_width="0dp" android:layout_height="@dimen/design_input_height" android:layout_weight="1" style="@style/Widget.Eve.Token.Spinner" />
-                    <com.google.android.material.button.MaterialButton android:id="@+id/btnEditExamImage" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_row_gap" android:text="Image" />
-                    <com.google.android.material.button.MaterialButton android:id="@+id/btnRenameExam" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_row_gap" android:text="Rename" />
-                    <com.google.android.material.button.MaterialButton android:id="@+id/btnDeleteExam" style="@style/Widget.Eve.Token.Button.Destructive" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_row_gap" android:text="Delete" />
-                </LinearLayout>
-                <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_icon_size" android:text="3. Questions in Selected Exam" />
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                    <com.google.android.material.button.MaterialButton android:id="@+id/btnAddQuestionManual" style="@style/Widget.Eve.Token.Button" android:layout_width="0dp" android:layout_height="@dimen/design_touch_min" android:layout_marginEnd="4dp" android:layout_weight="1" android:text="+ Add Question" />
-                    <com.google.android.material.button.MaterialButton android:id="@+id/btnBulkUploadSelectedExam" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="0dp" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="4dp" android:layout_weight="1" android:text="📥 Bulk Upload" />
-                </LinearLayout>
-                <LinearLayout android:id="@+id/layoutEmptyQuestions" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                    <com.airbnb.lottie.LottieAnimationView android:id="@+id/ivEmptyStateFolder" android:layout_width="88dp" android:layout_height="88dp" android:contentDescription="No exam selected placeholder" app:lottie_autoPlay="false" app:lottie_loop="false" app:lottie_rawRes="@raw/search" style="@style/Widget.Eve.Token.Lottie" />
-                    <TextView android:id="@+id/tvEmptyQuestionsTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_section_gap" android:gravity="center" android:text="Select an exam above to view its questions" style="@style/TextAppearance.Eve.Token.Body" />
-                    <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/tvEmptyQuestionsSubtitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:gravity="center" android:text="Choose an exam from the dropdown to manage questions or upload new ones." />
-                </LinearLayout>
-                <TextView android:id="@+id/tvNoQuestions" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="No questions uploaded yet" android:visibility="gone" style="@style/TextAppearance.Eve.Token.Body" />
-                <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvQuestions" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:nestedScrollingEnabled="false" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll.Inner" />
-            </LinearLayout>
-        </ScrollView>
-        <ScrollView android:id="@+id/scrollTabAdmins" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="USER MANAGEMENT" />
-                <com.eve.app.designsystem.DesignCardView android:id="@+id/cardUserStats" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground" style="@style/Widget.Eve.Token.Card">
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                        <com.eve.app.designsystem.UiArcStatsBandView android:id="@+id/statsBandUserManagement" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                                <TextView style="@style/TextAppearance.Eve.Token.Heading" android:id="@+id/tvTotalUsers" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" />
-                                <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Signups" />
-                            </LinearLayout>
-                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                                <TextView style="@style/TextAppearance.Eve.Token.Heading.green" android:id="@+id/tvOnlineUsers" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="—" />
-                                <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Online Now" />
-                            </LinearLayout>
-                            <ImageButton android:id="@+id/btnRefreshStats" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Refresh stats" android:src="@drawable/ic_refresh" app:tint="@color/text_secondary" style="@style/Widget.Eve.Token.IconButton" />
-                        </com.eve.app.designsystem.UiArcStatsBandView>
-                        <TextView style="@style/TextAppearance.Eve.Token.Secondary.blue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:text="Tap to manage users &amp; view test history →" />
-                    </LinearLayout>
-                </com.eve.app.designsystem.DesignCardView>
-                <com.google.android.material.button.MaterialButton android:id="@+id/btnManageUsers" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center_vertical|start" android:text="Manage Users List" app:icon="@drawable/ic_users" app:iconPadding="@dimen/design_screen_margin" />
-                <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="28dp" android:text="4. Manage Admins" />
-                <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:layout_marginBottom="@dimen/design_card_gap" android:text="Add new admin emails dynamically without requiring an app update." />
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                    <EditText style="@style/Widget.Eve.Token.Input" android:id="@+id/etAdminEmail" android:layout_width="0dp" android:layout_height="@dimen/design_input_height" android:layout_weight="1" android:hint="new-admin@gmail.com" android:inputType="textEmailAddress" />
-                    <com.google.android.material.button.MaterialButton android:id="@+id/btnAddAdmin" style="@style/Widget.Eve.Token.Button" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_card_gap" android:text="Add" />
-                </LinearLayout>
-                <TextView android:id="@+id/tvNoAdmins" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:text="No extra dynamic admins added" android:visibility="gone" style="@style/TextAppearance.Eve.Token.Body" />
-                <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvAdmins" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:nestedScrollingEnabled="false" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll.Inner" />
-                <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="28dp" android:text="COMMUNICATION" />
-                <com.google.android.material.button.MaterialButton android:id="@+id/btnSendNotification" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center_vertical|start" android:text="Broadcast Notification (High-Risk)" app:icon="@drawable/ic_broadcast" app:iconPadding="@dimen/design_screen_margin" />
-                <com.google.android.material.button.MaterialButton android:id="@+id/btnFlaggedQuestions" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center_vertical|start" android:text="Flagged Questions Inbox" app:icon="@drawable/ic_flag" app:iconPadding="@dimen/design_screen_margin" />
-                <com.google.android.material.button.MaterialButton android:id="@+id/btnFeedbackReplies" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center_vertical|start" android:text="Feedback Replies" app:icon="@drawable/ic_message_dots" app:iconPadding="@dimen/design_screen_margin" />
-                <com.google.android.material.button.MaterialButton android:id="@+id/btnCreateFeedbackPost" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center_vertical|start" android:text="Create Feedback Post" app:icon="@drawable/ic_campaign" app:iconPadding="@dimen/design_screen_margin" />
-                <com.google.android.material.button.MaterialButton android:id="@+id/btnManageFeedbackPosts" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center_vertical|start" android:text="Manage Feedback Posts" app:icon="@drawable/ic_edit" app:iconPadding="@dimen/design_screen_margin" />
-                <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="28dp" android:text="ANALYTICS &amp; MONITORING" />
-                <com.google.android.material.button.MaterialButton android:id="@+id/btnSystemMonitor" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_gap" android:text="System Health &amp; Operations" />
-                <com.google.android.material.button.MaterialButton android:id="@+id/btnAnalyticsAdmin" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center_vertical|start" android:text="Admin Analytics &amp; Crash Reports" app:icon="@drawable/ic_analytics" app:iconPadding="@dimen/design_screen_margin" />
-                <com.google.android.material.button.MaterialButton android:id="@+id/btnActivityLog" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center_vertical|start" android:text="Activity &amp; Audit Log" app:icon="@drawable/ic_history" app:iconPadding="@dimen/design_screen_margin" />
-                <com.google.android.material.button.MaterialButton android:id="@+id/btnApiUsage" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center_vertical|start" android:text="API Usage &amp; Cost Monitor" app:icon="@drawable/ic_analytics" app:iconPadding="@dimen/design_screen_margin" />
-                <com.google.android.material.button.MaterialButton android:id="@+id/btnExportData" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center_vertical|start" android:text="Export All Exam Data (JSON)" app:icon="@drawable/ic_download" app:iconPadding="@dimen/design_screen_margin" />
-                <com.google.android.material.button.MaterialButton android:id="@+id/btnAppConfig" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center_vertical|start" android:text="App Config &amp; Maintenance Mode" app:icon="@drawable/ic_maintenance" app:iconPadding="@dimen/design_screen_margin" />
-                <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="28dp" android:text="APP VERSION &amp; BUILD STATUS" />
-                <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                            <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Build Info" android:src="@drawable/ic_info" app:tint="@color/system_blue" />
-                            <TextView style="@style/TextAppearance.Eve.Token.Body" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_card_gap" android:layout_weight="1" android:text="Version Enforcement Status" />
-                            <TextView style="@style/TextAppearance.Eve.Token.Secondary.green" android:id="@+id/tvVersionStatusBadge" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Active" />
-                        </LinearLayout>
-                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                                <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Installed Version" />
-                                <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/tvInstalledVersion" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="v1.0 (Code 1)" />
-                            </LinearLayout>
-                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                                <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Min Supported Code" />
-                                <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/tvMinSupportedVersion" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1" />
-                            </LinearLayout>
-                        </LinearLayout>
-                        <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:text="To enforce an immediate update on older student devices, update 'minimum_supported_version_code' using App Config." />
-                    </LinearLayout>
-                </com.eve.app.designsystem.DesignCardView>
-                <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="28dp" android:text="SYSTEM MAINTENANCE" />
-                <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:layout_marginBottom="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                            <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Maintenance Mode" android:src="@drawable/ic_maintenance" app:tint="@color/system_red" />
-                            <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_card_gap" android:layout_weight="1" android:text="Maintenance Mode" />
-                            <TextView style="@style/TextAppearance.Eve.Token.Secondary.green" android:id="@+id/tvLiveMaintenanceStatus" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="OFF (Live)" />
-                        </LinearLayout>
-                        <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:text="When active, all students are immediately blocked by a maintenance screen with your custom message." />
-                        <com.eve.app.designsystem.TelegramSwitch android:id="@+id/switchMaintenanceMode" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:text="Enable Maintenance Mode" />
-                        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:hint="Custom Maintenance Notice Message">
-                            <com.google.android.material.textfield.TextInputEditText style="@style/Widget.Eve.Token.Input" android:id="@+id/etMaintenanceMessage" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:gravity="top|start" android:lines="2" android:maxLines="4" />
-                        </com.eve.app.designsystem.DesignInputLayout>
-                        <com.google.android.material.button.MaterialButton android:id="@+id/btnApplyMaintenance" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_pill_padding" android:text="Publish Maintenance Settings" />
-                        <com.eve.app.designsystem.TelegramRadialProgressView android:id="@+id/progressBarMaintenance" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center" android:layout_marginTop="@dimen/design_card_gap" android:visibility="gone" />
-                    </LinearLayout>
-                </com.eve.app.designsystem.DesignCardView>
-            </LinearLayout>
-        </ScrollView>
+
+        <!-- Search Results List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvAdminSearch"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/bg_app"
+            android:visibility="gone" />
+
+        <ProgressBar
+            android:id="@+id/progressBarAdmin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
     </FrameLayout>
 </LinearLayout>

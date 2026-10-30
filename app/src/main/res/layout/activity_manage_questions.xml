@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_app"
+    style="@style/Widget.Eve.Token.Screen">
+
+    <com.eve.app.ui.admin.tg.TelegramActionBar
+        android:id="@+id/telegramActionBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        style="@style/Widget.Eve.Token.Scroll">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/design_screen_margin"
+            android:paddingTop="12dp"
+            android:paddingBottom="24dp"
+            style="@style/Widget.Eve.Token.Column">
+
+            <TextView
+                style="@style/TextAppearance.Eve.Token.Heading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Select Exam" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/design_card_gap"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.eve.app.designsystem.DesignSpinner
+                    android:id="@+id/spExam"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/design_input_height"
+                    android:layout_weight="1"
+                    style="@style/Widget.Eve.Token.Spinner" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEditExamImage"
+                    style="@style/Widget.Eve.Token.Button.Secondary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/design_touch_min"
+                    android:layout_marginStart="@dimen/design_row_gap"
+                    android:text="Image" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRenameExam"
+                    style="@style/Widget.Eve.Token.Button.Secondary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/design_touch_min"
+                    android:layout_marginStart="@dimen/design_row_gap"
+                    android:text="Rename" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDeleteExam"
+                    style="@style/Widget.Eve.Token.Button.Destructive"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/design_touch_min"
+                    android:layout_marginStart="@dimen/design_row_gap"
+                    android:text="Delete" />
+            </LinearLayout>
+
+            <TextView
+                style="@style/TextAppearance.Eve.Token.Heading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/design_icon_size"
+                android:text="Questions in Selected Exam" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/design_card_gap"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAddQuestionManual"
+                    style="@style/Widget.Eve.Token.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/design_touch_min"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="1"
+                    android:text="+ Add Question" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnBulkUploadSelectedExam"
+                    style="@style/Widget.Eve.Token.Button.Secondary"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/design_touch_min"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:text="📥 Bulk Upload" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutEmptyQuestions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:layout_marginTop="24dp">
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/ivEmptyStateFolder"
+                    android:layout_width="88dp"
+                    android:layout_height="88dp"
+                    android:contentDescription="No exam selected placeholder"
+                    app:lottie_autoPlay="false"
+                    app:lottie_loop="false"
+                    app:lottie_rawRes="@raw/search" />
+
+                <TextView
+                    android:id="@+id/tvEmptyQuestionsTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/design_section_gap"
+                    android:gravity="center"
+                    android:text="Select an exam above to view its questions"
+                    style="@style/TextAppearance.Eve.Token.Body" />
+
+                <TextView
+                    android:id="@+id/tvEmptyQuestionsSubtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/design_row_gap"
+                    android:gravity="center"
+                    android:text="Choose an exam from the dropdown to manage questions or upload new ones."
+                    style="@style/TextAppearance.Eve.Token.Secondary" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvNoQuestions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="No questions uploaded yet"
+                android:visibility="gone"
+                style="@style/TextAppearance.Eve.Token.Body" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvQuestions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/design_card_gap"
+                android:nestedScrollingEnabled="false"
+                android:visibility="gone"
+                style="@style/Widget.Eve.Token.Scroll.Inner" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

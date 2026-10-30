@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_app"
+    style="@style/Widget.Eve.Token.Screen">
+
+    <com.eve.app.ui.admin.tg.TelegramActionBar
+        android:id="@+id/telegramActionBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        style="@style/Widget.Eve.Token.Scroll">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/design_screen_margin"
+            android:paddingTop="12dp"
+            android:paddingBottom="24dp"
+            style="@style/Widget.Eve.Token.Column">
+
+            <TextView
+                style="@style/TextAppearance.Eve.Token.Heading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add Dynamic Admin" />
+
+            <TextView
+                style="@style/TextAppearance.Eve.Token.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="@dimen/design_card_gap"
+                android:text="Add new admin emails dynamically without requiring an app update." />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <EditText
+                    style="@style/Widget.Eve.Token.Input"
+                    android:id="@+id/etAdminEmail"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/design_input_height"
+                    android:layout_weight="1"
+                    android:hint="new-admin@gmail.com"
+                    android:inputType="textEmailAddress" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAddAdmin"
+                    style="@style/Widget.Eve.Token.Button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/design_touch_min"
+                    android:layout_marginStart="@dimen/design_card_gap"
+                    android:text="Add" />
+            </LinearLayout>
+
+            <TextView
+                style="@style/TextAppearance.Eve.Token.Heading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:text="Existing Admins" />
+
+            <TextView
+                android:id="@+id/tvNoAdmins"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/design_card_gap"
+                android:text="No extra dynamic admins added"
+                android:visibility="gone"
+                style="@style/TextAppearance.Eve.Token.Body" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvAdmins"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:nestedScrollingEnabled="false"
+                style="@style/Widget.Eve.Token.Scroll.Inner" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

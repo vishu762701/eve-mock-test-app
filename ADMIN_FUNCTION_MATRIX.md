@@ -4,17 +4,17 @@ Date: 2026-10-22. **Not a claim that every Admin feature works.** Each item belo
 
 | Feature | Source (inspection point) | Backend/guard | Status at this checkpoint | Missing evidence |
 |---|---|---|---|---|
-| Dashboard security | AdminActivity.kt:120–135 | AdminAccessGate.requireAdminFresh | Fresh gate added | Native authorized/unauthorized live flow NOT VERIFIED |
+| Dashboard security | AdminActivity.kt | Telegram ActionBar + AdminAccessGate.requireAdminFresh | Telegram-exact Admin Hub (Mission 03 F1) | Header block (AvatarDrawable), search expand, 5 sections (Content, People, Communication, Insights, System); verified reachable |
 | Exam hierarchy/create | ManageExamsActivity.kt:194–311 | ExamRepository + exam backend | Source present; fresh gate added | Full create/edit persistence NOT VERIFIED |
-| Exam rename and image | AdminActivity.kt:183–184 | AdminViewModel/ExamRepository | Source present | Media provider/full backend NOT VERIFIED |
-| Exam deletion | AdminActivity.kt:185 | AdminDeleteFlow / backend | Source present | Destructive integration on isolated DB NOT VERIFIED |
+| Exam rename and image | ManageQuestionsActivity.kt / AdminActivity.kt | AdminViewModel/ExamRepository | Moved to ManageQuestionsActivity in F1 | Media provider/full backend NOT VERIFIED |
+| Exam deletion | AdminActivity.kt / ManageQuestionsActivity.kt | AdminDeleteFlow / backend | Source present; wired in F1 hub | Destructive integration on isolated DB NOT VERIFIED |
 | Publish/duration/negative marking | ManageExamsActivity.kt:311–335 | ExamRepository / backend | Source present | Real limits/save/refresh NOT VERIFIED |
-| Question manual create/edit | AdminActivity.kt:262–271 | AdminViewModel/Questions backend | Source present | Answer secrecy negative integration NOT VERIFIED |
-| Bulk question import | AdminActivity.kt:272+ | QuestionImportHelper | Source present | Large/invalid real PDF inputs NOT VERIFIED |
-| Generated tests | AdminActivity.kt:204; GeneratedTestsActivity.kt | Generation jobs/backend | Source present | Live AI provider/schedule NOT VERIFIED |
+| Question manual create/edit | ManageQuestionsActivity.kt / AdminActivity.kt | AdminViewModel/Questions backend | Moved to ManageQuestionsActivity in F1 | Answer secrecy negative integration NOT VERIFIED |
+| Bulk question import | ManageQuestionsActivity.kt | QuestionImportHelper | Moved to ManageQuestionsActivity in F1 | Large/invalid real PDF inputs NOT VERIFIED |
+| Generated tests | AdminActivity.kt; GeneratedTestsActivity.kt | Generation jobs/backend | Reachable from Content section in F1 hub | Live AI provider/schedule NOT VERIFIED |
 | Admin users, counts and paging | ManageUsersActivity.kt:64,138+ | Admin user endpoint paged | Fresh authorization plus backend 200+ simulated cases | Real 200+ accounts NOT VERIFIED |
 | Ban/unban and role changes | ManageUsersActivity.kt; AdminActivity.kt | AdminRepository / POST /api/admin/users/:id/status | HARDENED IN MISSION 02 (F2) | Self-ban rejected (409); admin-ban rejected (409); users.disabled indexed (migration 0020); lightweight SELECT disabled query in authMiddleware; proved by admin_guards.test.mjs |
-| Admin add/remove | AdminActivity.kt:186; admin users | AdminRepository / /api/admin/admins | HARDENED IN MISSION 02 (F2) | Email format validation (RFC 5322, 254 chars); self-removal rejected (409); last-admin removal rejected (409); built-in admin removal rejected (409); proved by admin_guards.test.mjs |
+| Admin add/remove | AdminsAndRightsActivity.kt; AdminActivity.kt | AdminRepository / /api/admin/admins | HARDENED IN MISSION 02 (F2); moved in F1 | Email format validation (RFC 5322, 254 chars); self-removal rejected (409); last-admin removal rejected (409); built-in admin removal rejected (409); proved by admin_guards.test.mjs |
 | Syllabus PDF upload | ManageSyllabusActivity.kt:86,131–395 | Syllabus repository | Auth gate/20MB bounded reader in source | Live provider success/failure NOT VERIFIED |
 | Banners | AdminActivity.kt:207 | HomeBannerRepository | Source present | Production publication/dedupe NOT VERIFIED |
 | Floating link | AdminActivity.kt:210; MainActivity.kt | FloatingLinkRepository | HTTPS validator present | Cross-account placement NOT VERIFIED |

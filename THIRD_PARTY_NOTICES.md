@@ -58,6 +58,27 @@ Old Telegram premium GL renderer classes, models, textures and shaders were dele
 `app/src/main/java/com/eve/app/designsystem/ButtonBounce.kt` declares a Kotlin port
 of upstream `TMessagesProj/src/main/java/org/telegram/ui/Components/ButtonBounce.java`.
 The extracted Telegram root license is GPL v2; the applicable version grant
+
+### Telegram Admin UI Kit & Bundled Lottie Icons (Mission 03)
+
+Derived from Telegram Android v13.1.1 (`DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`), licensed under GNU GPL v2 or later.
+Copyright (C) Nikolai Kudashov, 2013-2018; Telegram FZ-LLC.
+
+**Ported UI Kit Components (`com.eve.app.ui.admin.tg`):**
+- `HeaderCell.kt`: derived from `TMessagesProj/src/main/java/org/telegram/ui/Cells/HeaderCell.java:80-120`
+- `TextCell.kt`: derived from `TMessagesProj/src/main/java/org/telegram/ui/Cells/TextCell.java:90-150`
+- `TextCheckCell.kt`: derived from `TMessagesProj/src/main/java/org/telegram/ui/Cells/TextCheckCell.java:70-120`
+- `TextDetailCell.kt`: derived from `TMessagesProj/src/main/java/org/telegram/ui/Cells/TextDetailCell.java:60-110`
+- `TextInfoPrivacyCell.kt`: derived from `TMessagesProj/src/main/java/org/telegram/ui/Cells/TextInfoPrivacyCell.java:60-80`
+- `ShadowSectionCell.kt`: derived from `TMessagesProj/src/main/java/org/telegram/ui/Cells/ShadowSectionCell.java:20-50`
+- `TelegramActionBar.kt`: derived from `TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBar.java:150-250` and `ActionBarMenuItem.java:1316-1390`
+- `TelegramSegmentedTabs.kt`: derived from `TMessagesProj/src/main/java/org/telegram/ui/Components/FilterTabsView.java:80-160`
+- `NumberTextView.kt`: derived from `TMessagesProj/src/main/java/org/telegram/ui/Components/NumberTextView.java`
+- `TelegramUndoView.kt`: derived from `TMessagesProj/src/main/java/org/telegram/ui/Components/UndoView.java:120-200`
+
+**Bundled Admin Lottie Icons (`app/src/main/res/raw/`):**
+- `tg_ic_admin.json`, `tg_ic_ban.json`, `tg_ic_unban.json`, `tg_ic_delete.json`, `tg_ic_pin.json`, `tg_ic_unpin.json`, `tg_ic_mute.json`, `tg_ic_unmute.json`, `tg_statistic_preload.json`, `tg_filters.json`, `tg_filter_new.json`, `tg_folder_in.json`, `tg_folder_out.json`, `tg_fire_on.json`, `tg_fire_off.json`, `tg_report_police.json`, `tg_chats_archive.json`, `tg_swipe_delete.json`, `tg_saved_messages.json`, `tg_qr_code_logo.json`, `tg_tab_poll.json`.
+- All copied verbatim from `TMessagesProj/src/main/res/raw/` in official revision `3de37c8cfb039452be7398909461da6288babf15`.
 for this specific derived component still requires per-file review. EVE plans
 GPL-3.0-or-later distribution, subject to license compatibility clearance. Preserve upstream
 attribution and provide this modified Kotlin source with corresponding-source

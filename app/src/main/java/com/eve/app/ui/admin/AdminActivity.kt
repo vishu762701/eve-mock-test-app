@@ -1,53 +1,54 @@
 package com.eve.app.ui.admin
 
-import com.eve.app.designsystem.TelegramNativeAlertDialog
 import android.content.DialogInterface
-
-import com.eve.app.ui.common.EveBaseActivity
-
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.provider.OpenableColumns
+import android.text.Editable
+import android.text.InputType
+import android.text.TextWatcher
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.LinearLayout
+import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.FrameLayout
-import android.text.InputType
-import android.text.Editable
-import android.text.TextWatcher
-import com.eve.app.data.repository.FloatingLinkRepository
-import com.eve.app.util.AppBulletin
+import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.eve.app.BuildConfig
 import com.eve.app.R
+import com.eve.app.data.model.AppConfig
 import com.eve.app.data.model.Exam
 import com.eve.app.data.model.FeedbackPost
 import com.eve.app.data.model.FeedbackPostReply
-import com.eve.app.data.model.Question
-import com.eve.app.data.repository.AdminRepository
-import com.eve.app.data.repository.FeedbackRepository
-import com.eve.app.databinding.ActivityAdminBinding
 import com.eve.app.data.model.HomeBanner
-import com.eve.app.data.repository.HomeBannerRepository
-import com.eve.app.databinding.DialogManageBannersBinding
-import com.eve.app.databinding.DialogCreateFeedbackPostBinding
-import com.eve.app.databinding.DialogPostRepliesBinding
-import com.eve.app.util.Constants
-import com.eve.app.util.ExamImageHelper
-import android.provider.OpenableColumns
-import com.eve.app.BuildConfig
+import com.eve.app.data.model.Question
+import com.eve.app.data.remote.ApiClient
+import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.ExamRepository
-import com.eve.app.util.QuestionImportHelper
+import com.eve.app.data.repository.FeedbackRepository
+import com.eve.app.data.repository.FloatingLinkRepository
+import com.eve.app.data.repository.HomeBannerRepository
+import com.eve.app.databinding.ActivityAdminBinding
+import com.eve.app.databinding.DialogCreateFeedbackPostBinding
+import com.eve.app.databinding.DialogManageBannersBinding
+import com.eve.app.databinding.DialogPostRepliesBinding
+import com.eve.app.designsystem.TelegramNativeAlertDialog
+import com.eve.app.ui.admin.tg.TextCell
+import com.eve.app.ui.common.EveBaseActivity
+import com.eve.app.util.AdminAccessGate
+import com.eve.app.util.AppBulletin
+import com.eve.app.util.AvatarDrawable
+import com.eve.app.util.ExamImageHelper
 import com.eve.app.util.HomeBannerLinkValidator
+import com.eve.app.util.QuestionImportHelper
 import com.google.firebase.auth.FirebaseAuth
-import androidx.core.content.FileProvider
 import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
@@ -61,10 +62,13 @@ class AdminActivity : EveBaseActivity() {
     private val adminRepo = AdminRepository()
     private val bannerRepo = HomeBannerRepository()
     private val examRepo = ExamRepository()
+    private val floatingLinkRepo = FloatingLinkRepository()
+    private val feedbackRepo = FeedbackRepository()
 
     private var exams: List<Exam> = emptyList()
     private var selectedExamForImageUpdate: Exam? = null
     private var onBannerImageSelected: ((Uri) -> Unit)? = null
+    private var currentConfig: AppConfig? = null
 
     private val pickBannerImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri != null) {
@@ -86,232 +90,297 @@ class AdminActivity : EveBaseActivity() {
         }
     }
 
-    private val pickBulkQuestionsLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        if (uri != null) {
-            handleBulkUploadForSelectedExam(uri)
-        }
-    }
-
-    private val questionAdapter = QuestionManageAdapter(
-        onEdit = { q -> showQuestionDetails(q) },
-        onDelete = { q -> confirmDeleteQuestion(q) }
+    // Search system items
+    data class SearchItem(
+        val title: String,
+        val section: String,
+        val keywords: List<String>,
+        val iconRes: Int? = null,
+        val lottieRes: Int? = null,
+        val action: () -> Unit
     )
 
-    private val adminEmailAdapter = AdminEmailAdapter(
-        onRemove = { email -> confirmRemoveAdmin(email) }
-    )
-
-    private var hasEmptyPlayed = false
+    private val searchItems = mutableListOf<SearchItem>()
+    private val searchAdapter = SearchResultsAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
         binding = ActivityAdminBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.btnBack.setOnClickListener { finish() }
-        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
             binding.progressBarAdmin.visibility = View.GONE
-            setupUi()
+            setupActionBar()
+            setupHeaderBlock()
+            setupHubSections()
+            setupSearchIndex()
+            setupObservers()
+            loadData()
         }
     }
 
-    private fun setupUi() {
-        // Tab Navigation
-        binding.tabLayoutAdmin.addOnTabSelectedListener(object : com.google.android.material.tabs.TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: com.google.android.material.tabs.TabLayout.Tab?) {
-                when (tab?.position) {
-                    0 -> {
-                        binding.scrollTabCreateExam.visibility = View.VISIBLE
-                        binding.scrollTabManageQuestions.visibility = View.GONE
-                        binding.scrollTabAdmins.visibility = View.GONE
-                        binding.statsBandUserManagement.cancelAllAnimations()
-                    }
-                    1 -> {
-                        binding.scrollTabCreateExam.visibility = View.GONE
-                        binding.scrollTabManageQuestions.visibility = View.VISIBLE
-                        binding.scrollTabAdmins.visibility = View.GONE
-                        binding.statsBandUserManagement.cancelAllAnimations()
-                        updateQuestionsUi(viewModel.questions.value)
-                    }
-                    2 -> {
-                        binding.scrollTabCreateExam.visibility = View.GONE
-                        binding.scrollTabManageQuestions.visibility = View.GONE
-                        binding.scrollTabAdmins.visibility = View.VISIBLE
-                        binding.statsBandUserManagement.post {
-                            binding.statsBandUserManagement.checkInView()
-                        }
-                    }
-                }
-            }
-            override fun onTabUnselected(tab: com.google.android.material.tabs.TabLayout.Tab?) {}
-            override fun onTabReselected(tab: com.google.android.material.tabs.TabLayout.Tab?) {}
-        })
+    private fun setupActionBar() {
+        binding.telegramActionBar.setTitle("Admin Dashboard")
+        binding.telegramActionBar.setSubtitle("EVE Control Center")
+        binding.telegramActionBar.onBackPressed = { finish() }
 
-        binding.rvQuestions.layoutManager = LinearLayoutManager(this)
-        binding.rvQuestions.adapter = questionAdapter
-
-        binding.rvAdmins.layoutManager = LinearLayoutManager(this)
-        binding.rvAdmins.adapter = adminEmailAdapter
-
-        binding.spExam.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val exam = exams.getOrNull(position)
-                viewModel.loadQuestions(exam?.id ?: "")
-                updateQuestionsUi(viewModel.questions.value)
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                updateQuestionsUi(viewModel.questions.value)
-            }
+        binding.telegramActionBar.onSearchTextChanged = { query ->
+            performSearch(query)
+        }
+        binding.telegramActionBar.onSearchCollapsed = {
+            binding.rvAdminSearch.visibility = View.GONE
+            binding.scrollAdminHub.visibility = View.VISIBLE
         }
 
-        binding.btnEditExamImage.setOnClickListener { showEditExamImageDialog() }
-        binding.btnRenameExam.setOnClickListener { promptRenameExam() }
-        binding.btnDeleteExam.setOnClickListener { confirmDeleteExam() }
-        binding.btnAddAdmin.setOnClickListener { addAdmin() }
+        binding.rvAdminSearch.layoutManager = LinearLayoutManager(this)
+        binding.rvAdminSearch.adapter = searchAdapter
+    }
 
-        // Section 1: User Management
-        binding.cardUserStats.setOnClickListener {
-            startActivity(Intent(this, ManageUsersActivity::class.java))
-        }
-        binding.btnManageUsers.setOnClickListener {
-            startActivity(Intent(this, ManageUsersActivity::class.java))
-        }
-        binding.btnRefreshStats.setOnClickListener { viewModel.loadUserStats() }
+    private fun setupHeaderBlock() {
+        val user = FirebaseAuth.getInstance().currentUser
+        val email = user?.email.orEmpty().trim().lowercase(Locale.ROOT)
+        val name = user?.displayName ?: if (email.contains("@")) email.substringBefore("@") else "Administrator"
 
-        // Section 2: Content Management
-        binding.btnManageExistingExams.setOnClickListener {
-            startActivity(Intent(this, ManageExistingExamsActivity::class.java))
+        binding.tvAdminName.text = name
+        binding.tvAdminEmail.text = email
+        val isOwner = email == "own.keni@gmail.com" || email == "admin@eve.app"
+        binding.tvAdminRole.text = if (isOwner) "Owner" else "Administrator"
+
+        val avatar = AvatarDrawable.create(this, name, email)
+        binding.ivAdminAvatar.setImageDrawable(avatar)
+    }
+
+    private fun setupHubSections() {
+        // SECTION 1: CONTENT
+        binding.headerContent.setText("CONTENT")
+
+        binding.rowExams.setTextAndLottie("Exams", R.raw.tg_folder_in)
+        binding.rowExams.setOnClickListener { showExamsOptionsDialog() }
+
+        binding.rowQuestions.setTextAndIcon("Questions", R.drawable.ic_edit)
+        binding.rowQuestions.setOnClickListener {
+            startActivity(Intent(this, ManageQuestionsActivity::class.java))
         }
-        binding.btnManageExams.setOnClickListener {
-            startActivity(Intent(this, ManageExamsActivity::class.java))
-        }
-        binding.btnGeneratedTests.setOnClickListener {
+
+        binding.rowGeneratedTests.setTextAndLottie("AI Generated Tests", R.raw.tg_qr_code_logo)
+        binding.rowGeneratedTests.setOnClickListener {
             startActivity(Intent(this, GeneratedTestsActivity::class.java))
         }
-        binding.btnHomeBanner.setOnClickListener {
-            showHomeBannerOptionsDialog()
-        }
-        binding.btnFloatingLink.setOnClickListener {
-            showFloatingLinkDialog()
-        }
-        binding.btnManagePremium.setOnClickListener {
-            startActivity(Intent(this, ManagePremiumActivity::class.java))
-        }
-        binding.btnManageSyllabus.setOnClickListener {
+
+        binding.rowSyllabus.setTextAndLottie("Syllabus", R.raw.tg_saved_messages)
+        binding.rowSyllabus.setOnClickListener {
             startActivity(Intent(this, ManageSyllabusActivity::class.java))
         }
 
-        // Section 3: Communication
-        binding.btnSendNotification.setOnClickListener {
-            startActivity(Intent(this, SendNotificationActivity::class.java))
-        }
-        binding.btnFlaggedQuestions.setOnClickListener {
-            startActivity(Intent(this, FlaggedQuestionsActivity::class.java))
-        }
-        binding.btnFeedbackReplies.setOnClickListener {
-            startActivity(Intent(this, FeedbackMessagesActivity::class.java))
-        }
-        binding.btnCreateFeedbackPost.setOnClickListener {
-            showCreateFeedbackPostDialog()
-        }
-        binding.btnManageFeedbackPosts.setOnClickListener {
-            showManageFeedbackPostsDialog()
+        binding.rowHomeBanner.setTextAndIcon("Home Banner", R.drawable.ic_image)
+        binding.rowHomeBanner.setOnClickListener { showHomeBannerOptionsDialog() }
+
+        binding.rowFloatingLink.setTextAndIcon("Floating Link", R.drawable.ic_link)
+        binding.rowFloatingLink.setOnClickListener { showFloatingLinkDialog() }
+
+        binding.rowAnimatedEmoji.setTextAndLottie("Animated Emoji", R.raw.tg_fire_on, needDivider = false)
+        binding.rowAnimatedEmoji.setOnClickListener {
+            AppBulletin.showSuccess(this, "Animated Emoji Studio (Configured in Mission 03 F4)")
         }
 
-        binding.btnSystemMonitor.setOnClickListener {
-            startActivity(Intent(this, SystemMonitorActivity::class.java))
+        // SECTION 2: PEOPLE
+        binding.headerPeople.setText("PEOPLE")
+
+        binding.rowUsers.setTextAndLottie("Users", R.raw.tg_chats_archive)
+        binding.rowUsers.setOnClickListener {
+            startActivity(Intent(this, ManageUsersActivity::class.java))
         }
-        // Section 4: Analytics & Monitoring
-        binding.btnAnalyticsAdmin.setOnClickListener {
+
+        binding.rowAdmins.setTextAndLottie("Admins and Rights", R.raw.tg_ic_admin)
+        binding.rowAdmins.setOnClickListener {
+            startActivity(Intent(this, AdminsAndRightsActivity::class.java))
+        }
+
+        binding.rowPremium.setTextAndLottie("Premium Management", R.raw.premium_star, needDivider = false)
+        binding.rowPremium.setOnClickListener {
+            startActivity(Intent(this, ManagePremiumActivity::class.java))
+        }
+
+        // SECTION 3: COMMUNICATION
+        binding.headerCommunication.setText("COMMUNICATION")
+
+        binding.rowBroadcast.setTextAndIcon("Broadcast Notification", R.drawable.ic_broadcast)
+        binding.rowBroadcast.setOnClickListener {
+            startActivity(Intent(this, SendNotificationActivity::class.java))
+        }
+
+        binding.rowFlaggedQuestions.setTextAndLottie("Flagged Questions Inbox", R.raw.tg_report_police)
+        binding.rowFlaggedQuestions.setOnClickListener {
+            startActivity(Intent(this, FlaggedQuestionsActivity::class.java))
+        }
+
+        binding.rowFeedback.setTextAndIcon("Feedback Messages", R.drawable.ic_message_dots)
+        binding.rowFeedback.setOnClickListener {
+            startActivity(Intent(this, FeedbackMessagesActivity::class.java))
+        }
+
+        binding.rowCreateFeedbackPost.setTextAndIcon("Create Feedback Post", R.drawable.ic_campaign)
+        binding.rowCreateFeedbackPost.setOnClickListener { showCreateFeedbackPostDialog() }
+
+        binding.btnManageFeedbackPosts.setTextAndIcon("Manage Feedback Posts", R.drawable.ic_edit)
+        binding.btnManageFeedbackPosts.setOnClickListener { showManageFeedbackPostsDialog() }
+
+        binding.rowPolls.setTextAndLottie("Polls", R.raw.tg_tab_poll, needDivider = false)
+        binding.rowPolls.setOnClickListener {
+            startActivity(Intent(this, ManagePollsActivity::class.java))
+        }
+
+        // SECTION 4: INSIGHTS
+        binding.headerInsights.setText("INSIGHTS")
+
+        binding.rowAnalytics.setTextAndLottie("Analytics & Crash Reports", R.raw.tg_statistic_preload)
+        binding.rowAnalytics.setOnClickListener {
             startActivity(Intent(this, AdminAnalyticsActivity::class.java))
         }
-        binding.btnActivityLog.setOnClickListener {
+
+        binding.rowRecentActions.setTextAndLottie("Recent Actions (Audit Log)", R.raw.tg_filters)
+        binding.rowRecentActions.setOnClickListener {
             startActivity(Intent(this, ActivityLogActivity::class.java))
         }
-        binding.btnApiUsage.setOnClickListener {
+
+        binding.rowSystemMonitor.setTextAndIcon("System Health & Operations", R.drawable.ic_maintenance)
+        binding.rowSystemMonitor.setOnClickListener {
+            startActivity(Intent(this, SystemMonitorActivity::class.java))
+        }
+
+        binding.rowApiUsage.setTextAndLottie("API Usage & Cost Monitor", R.raw.tg_statistic_preload, needDivider = false)
+        binding.rowApiUsage.setOnClickListener {
             startActivity(Intent(this, ApiUsageActivity::class.java))
         }
-        binding.btnExportData.setOnClickListener {
-            exportExamData()
+
+        // SECTION 5: SYSTEM
+        binding.headerSystem.setText("SYSTEM")
+
+        binding.cellMaintenance.setTextAndCheck("Maintenance Mode", checked = false)
+        binding.cellMaintenance.setSubtitle("When active, students are blocked by notice")
+        binding.cellMaintenance.setOnCheckedChangeListener { _, isChecked ->
+            handleMaintenanceToggle(isChecked)
         }
-        binding.btnAppConfig.setOnClickListener {
+
+        binding.rowAppConfig.setTextAndIcon("App Config & Maintenance", R.drawable.ic_maintenance)
+        binding.rowAppConfig.setOnClickListener {
             startActivity(Intent(this, AppConfigActivity::class.java))
         }
 
-        // System Maintenance & Version Status
-        setupMaintenanceControls()
-        loadAppConfigAndMaintenance()
-
-        // Questions in Selected Exam: Manual Single-Question Add
-        binding.btnAddQuestionManual.setOnClickListener {
-            val selected = exams.getOrNull(binding.spExam.selectedItemPosition)
-            if (selected == null) {
-                AppBulletin.showError(this, "Please select an exam first to add a question")
-                return@setOnClickListener
-            }
-            showAddQuestionDialog(selected)
+        binding.rowVersionStatus.setTextAndIcon("Version Status", R.drawable.ic_info)
+        binding.rowVersionStatus.setValue("v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
+        binding.rowVersionStatus.setOnClickListener {
+            startActivity(Intent(this, AppConfigActivity::class.java))
         }
 
-        // Questions in Selected Exam: Bulk Upload
-        binding.btnBulkUploadSelectedExam.setOnClickListener {
-            val selected = exams.getOrNull(binding.spExam.selectedItemPosition)
-            if (selected == null) {
-                AppBulletin.showError(this, "Please select an exam first to upload questions to")
-                return@setOnClickListener
-            }
-            pickBulkQuestionsLauncher.launch("*/*")
+        binding.rowExportData.setTextAndIcon("Export All Exam Data (JSON)", R.drawable.ic_download)
+        binding.rowExportData.setOnClickListener { exportExamData() }
+
+        binding.rowEditAbout.setTextAndIcon("Edit About / Privacy / Terms", R.drawable.ic_edit, needDivider = false)
+        binding.rowEditAbout.setOnClickListener {
+            startActivity(Intent(this, EditAboutActivity::class.java))
+        }
+    }
+
+    private fun setupSearchIndex() {
+        searchItems.clear()
+        searchItems.addAll(listOf(
+            SearchItem("Exams", "CONTENT", listOf("exams", "परीक्षा", "mock tests", "manage exams"), lottieRes = R.raw.tg_folder_in) { showExamsOptionsDialog() },
+            SearchItem("Manage Existing Exams", "CONTENT", listOf("existing exams", "published", "edit exams"), iconRes = R.drawable.ic_exam_placeholder) { startActivity(Intent(this, ManageExistingExamsActivity::class.java)) },
+            SearchItem("Manage Exams (Hierarchy)", "CONTENT", listOf("create exam", "exam tree", "category"), iconRes = R.drawable.ic_edit) { startActivity(Intent(this, ManageExamsActivity::class.java)) },
+            SearchItem("Questions", "CONTENT", listOf("questions", "प्रश्न", "question bank", "mcq"), iconRes = R.drawable.ic_edit) { startActivity(Intent(this, ManageQuestionsActivity::class.java)) },
+            SearchItem("AI Generated Tests", "CONTENT", listOf("ai tests", "एआई टेस्ट", "automated", "generate test"), lottieRes = R.raw.tg_qr_code_logo) { startActivity(Intent(this, GeneratedTestsActivity::class.java)) },
+            SearchItem("Syllabus", "CONTENT", listOf("syllabus", "पाठ्यक्रम", "pdf", "topics"), lottieRes = R.raw.tg_saved_messages) { startActivity(Intent(this, ManageSyllabusActivity::class.java)) },
+            SearchItem("Home Banner", "CONTENT", listOf("home banner", "बैनर", "promotions", "banner link"), iconRes = R.drawable.ic_image) { showHomeBannerOptionsDialog() },
+            SearchItem("Floating Link", "CONTENT", listOf("floating link", "फ्लोटिंग लिंक", "quick link", "url"), iconRes = R.drawable.ic_link) { showFloatingLinkDialog() },
+            SearchItem("Animated Emoji", "CONTENT", listOf("animated emoji", "इमोजी", "stickers", "studio"), lottieRes = R.raw.tg_fire_on) { AppBulletin.showSuccess(this, "Animated Emoji Studio (Configured in Mission 03 F4)") },
+            SearchItem("Users", "PEOPLE", listOf("users", "उपयोगकर्ता", "students", "ban user", "signups"), lottieRes = R.raw.tg_chats_archive) { startActivity(Intent(this, ManageUsersActivity::class.java)) },
+            SearchItem("Admins and Rights", "PEOPLE", listOf("admins", "एडमिन", "admin rights", "permissions"), lottieRes = R.raw.tg_ic_admin) { startActivity(Intent(this, AdminsAndRightsActivity::class.java)) },
+            SearchItem("Premium Management", "PEOPLE", listOf("premium", "प्रीमियम", "subscription", "grant premium"), lottieRes = R.raw.premium_star) { startActivity(Intent(this, ManagePremiumActivity::class.java)) },
+            SearchItem("Broadcast Notification", "COMMUNICATION", listOf("broadcast", "प्रसारण", "notification", "push"), iconRes = R.drawable.ic_broadcast) { startActivity(Intent(this, SendNotificationActivity::class.java)) },
+            SearchItem("Flagged Questions Inbox", "COMMUNICATION", listOf("flagged questions", "फ्लैग्ड", "reports", "moderation"), lottieRes = R.raw.tg_report_police) { startActivity(Intent(this, FlaggedQuestionsActivity::class.java)) },
+            SearchItem("Feedback Messages", "COMMUNICATION", listOf("feedback", "प्रतिक्रिया", "replies", "student messages"), iconRes = R.drawable.ic_message_dots) { startActivity(Intent(this, FeedbackMessagesActivity::class.java)) },
+            SearchItem("Create Feedback Post", "COMMUNICATION", listOf("create feedback post", "नया पोस्ट", "survey"), iconRes = R.drawable.ic_campaign) { showCreateFeedbackPostDialog() },
+            SearchItem("Manage Feedback Posts", "COMMUNICATION", listOf("manage feedback posts", "पोस्ट प्रबंधन"), iconRes = R.drawable.ic_edit) { showManageFeedbackPostsDialog() },
+            SearchItem("Polls", "COMMUNICATION", listOf("polls", "सर्वेक्षण", "vote", "student poll"), lottieRes = R.raw.tg_tab_poll) { startActivity(Intent(this, ManagePollsActivity::class.java)) },
+            SearchItem("Analytics & Crash Reports", "INSIGHTS", listOf("analytics", "एनालिटिक्स", "reports", "stats"), lottieRes = R.raw.tg_statistic_preload) { startActivity(Intent(this, AdminAnalyticsActivity::class.java)) },
+            SearchItem("Recent Actions (Audit Log)", "INSIGHTS", listOf("recent actions", "audit log", "गतिविधियां", "history"), lottieRes = R.raw.tg_filters) { startActivity(Intent(this, ActivityLogActivity::class.java)) },
+            SearchItem("System Health & Operations", "INSIGHTS", listOf("system health", "operations", "health monitor"), iconRes = R.drawable.ic_maintenance) { startActivity(Intent(this, SystemMonitorActivity::class.java)) },
+            SearchItem("API Usage & Cost Monitor", "INSIGHTS", listOf("api usage", "cost monitor", "usage tracker", "gemini calls"), lottieRes = R.raw.tg_statistic_preload) { startActivity(Intent(this, ApiUsageActivity::class.java)) },
+            SearchItem("App Config & Maintenance", "SYSTEM", listOf("app config", "maintenance", "रखरखाव", "config"), iconRes = R.drawable.ic_maintenance) { startActivity(Intent(this, AppConfigActivity::class.java)) },
+            SearchItem("Version Status", "SYSTEM", listOf("version status", "वर्जन", "build info", "min version"), iconRes = R.drawable.ic_info) { startActivity(Intent(this, AppConfigActivity::class.java)) },
+            SearchItem("Export All Exam Data", "SYSTEM", listOf("export data", "निर्यात", "backup json", "download exams"), iconRes = R.drawable.ic_download) { exportExamData() },
+            SearchItem("Edit About / Privacy / Terms", "SYSTEM", listOf("edit about", "privacy policy", "terms of service"), iconRes = R.drawable.ic_edit) { startActivity(Intent(this, EditAboutActivity::class.java)) }
+        ))
+    }
+
+    private fun performSearch(query: String) {
+        val trimmed = query.trim().lowercase(Locale.ROOT)
+        if (trimmed.isEmpty()) {
+            binding.rvAdminSearch.visibility = View.GONE
+            binding.scrollAdminHub.visibility = View.VISIBLE
+            return
         }
 
+        val filtered = searchItems.filter { item ->
+            item.title.lowercase(Locale.ROOT).contains(trimmed) ||
+            item.section.lowercase(Locale.ROOT).contains(trimmed) ||
+            item.keywords.any { it.lowercase(Locale.ROOT).contains(trimmed) }
+        }
+
+        binding.scrollAdminHub.visibility = View.GONE
+        binding.rvAdminSearch.visibility = View.VISIBLE
+        searchAdapter.submit(filtered)
+    }
+
+    private inner class SearchResultsAdapter : RecyclerView.Adapter<SearchResultsAdapter.VH>() {
+        private var items: List<SearchItem> = emptyList()
+
+        fun submit(list: List<SearchItem>) {
+            items = list
+            notifyDataSetChanged()
+        }
+
+        inner class VH(val cell: TextCell) : RecyclerView.ViewHolder(cell)
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+            val cell = TextCell(parent.context).apply {
+                layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            }
+            return VH(cell)
+        }
+
+        override fun onBindViewHolder(holder: VH, position: Int) {
+            val item = items[position]
+            if (item.lottieRes != null) {
+                holder.cell.setTextAndLottie(item.title, item.lottieRes)
+            } else if (item.iconRes != null) {
+                holder.cell.setTextAndIcon(item.title, item.iconRes)
+            } else {
+                holder.cell.setText(item.title)
+            }
+            holder.cell.setSubtitle(item.section)
+            holder.cell.setOnClickListener {
+                binding.telegramActionBar.closeSearch()
+                item.action.invoke()
+            }
+        }
+
+        override fun getItemCount(): Int = items.size
+    }
+
+    private fun setupObservers() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.totalUsers.collect { count ->
-                        binding.statsBandUserManagement.updateMetric(binding.tvTotalUsers, count, metricIndex = 0)
+                    viewModel.exams.collect { examList ->
+                        exams = examList
                     }
                 }
                 launch {
-                    viewModel.onlineUsers.collect { count ->
-                        binding.statsBandUserManagement.updateMetric(binding.tvOnlineUsers, count, metricIndex = 1)
-                    }
-                }
-                launch {
-                    viewModel.exams.collect { list ->
-                        exams = list
-                        binding.spExam.adapter = ArrayAdapter(
-                            this@AdminActivity,
-                            android.R.layout.simple_spinner_dropdown_item,
-                            list.map { it.examName }
-                        )
-                        val selected = exams.getOrNull(binding.spExam.selectedItemPosition)
-                        viewModel.loadQuestions(selected?.id ?: "")
-                        updateQuestionsUi(viewModel.questions.value)
-                    }
-                }
-                launch {
-                    viewModel.questions.collect { list ->
-                        questionAdapter.submit(list)
-                        updateQuestionsUi(list)
-                    }
-                }
-                launch {
-                    viewModel.admins.collect { list ->
-                        adminEmailAdapter.submit(list)
-                        binding.tvNoAdmins.visibility =
-                            if (list.isEmpty()) View.VISIBLE else View.GONE
-                    }
-                }
-                launch {
-                    viewModel.busy.collect { busy ->
-                        binding.btnRenameExam.isEnabled = !busy
-                        binding.btnDeleteExam.isEnabled = !busy
-                    }
-                }
-                launch {
-                    viewModel.message.collect { msg ->
-                        if (msg != null) {
-                            AppBulletin.show(this@AdminActivity, msg)
-                            viewModel.consumeMessage()
+                    viewModel.totalUsers.collect { total ->
+                        if (total > 0) {
+                            binding.rowUsers.setValue("$total users")
                         }
                     }
                 }
@@ -319,38 +388,75 @@ class AdminActivity : EveBaseActivity() {
         }
     }
 
-    private fun updateQuestionsUi(questionsList: List<Question>) {
-        val selectedExam = exams.getOrNull(binding.spExam.selectedItemPosition)
+    private fun loadData() {
+        viewModel.loadExams()
+        viewModel.loadUserStats()
 
-        if (selectedExam == null) {
-            // Case 1: No exam selected
-            binding.layoutEmptyQuestions.visibility = View.VISIBLE
-            binding.rvQuestions.visibility = View.GONE
-            binding.tvNoQuestions.visibility = View.GONE
-            binding.tvEmptyQuestionsTitle.text = "Select an exam above to view its questions"
-            binding.tvEmptyQuestionsSubtitle.text = "Choose an exam from the dropdown to manage questions or upload new ones."
-            animateEmptyFolderIcon()
-        } else if (questionsList.isEmpty()) {
-            // Case 2: Exam selected but genuinely 0 questions
-            binding.layoutEmptyQuestions.visibility = View.VISIBLE
-            binding.rvQuestions.visibility = View.GONE
-            binding.tvNoQuestions.visibility = View.GONE
-            binding.tvEmptyQuestionsTitle.text = "No questions uploaded yet for ${selectedExam.examName}"
-            binding.tvEmptyQuestionsSubtitle.text = "Add questions manually or import them in bulk from CSV / Excel."
-            animateEmptyFolderIcon()
-        } else {
-            // Case 3: Exam selected with questions
-            binding.layoutEmptyQuestions.visibility = View.GONE
-            binding.rvQuestions.visibility = View.VISIBLE
-            binding.tvNoQuestions.visibility = View.GONE
-            com.eve.app.util.EmptyStateAnimationHelper.stopEmptyState(binding.ivEmptyStateFolder)
+        lifecycleScope.launch {
+            try {
+                val config = adminRepo.getAppConfig()
+                currentConfig = config
+                binding.cellMaintenance.isChecked = config.maintenance_mode
+                binding.rowVersionStatus.setValue("v${BuildConfig.VERSION_NAME} (Min: ${config.minimum_supported_version_code})")
+            } catch (_: Exception) {}
         }
     }
 
-    private fun animateEmptyFolderIcon() {
-        hasEmptyPlayed = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(binding.ivEmptyStateFolder, hasEmptyPlayed)
+    private fun handleMaintenanceToggle(enable: Boolean) {
+        val config = currentConfig ?: AppConfig(
+            minimum_supported_version_code = 1,
+            maintenance_mode = false,
+            maintenance_message = "App is temporarily undergoing maintenance."
+        )
+
+        if (enable) {
+            binding.cellMaintenance.isChecked = false
+            TelegramNativeAlertDialog.Builder(this)
+                .setTitle("Enable Maintenance Mode?")
+                .setMessage("Are you sure? When maintenance mode is active, students opening the app will be blocked by a full-screen maintenance notice.")
+                .setPositiveButton("Enable Maintenance") { _, _ ->
+                    binding.cellMaintenance.isChecked = true
+                    val updated = config.copy(maintenance_mode = true)
+                    saveMaintenanceConfig(updated)
+                }
+                .setNegativeButton("Cancel") { _, _ ->
+                    binding.cellMaintenance.isChecked = false
+                }
+                .show()
+        } else {
+            val updated = config.copy(maintenance_mode = false)
+            saveMaintenanceConfig(updated)
+        }
     }
 
+    private fun saveMaintenanceConfig(config: AppConfig) {
+        lifecycleScope.launch {
+            try {
+                adminRepo.updateAppConfig(config)
+                currentConfig = config
+                AppBulletin.showSuccess(this@AdminActivity, "Maintenance settings saved")
+            } catch (e: Exception) {
+                binding.cellMaintenance.isChecked = currentConfig?.maintenance_mode ?: false
+                AppBulletin.showError(this@AdminActivity, "Failed to update maintenance: ${e.message}")
+            }
+        }
+    }
+
+    private fun showExamsOptionsDialog() {
+        val options = arrayOf("Manage Existing Exams (Published/Drafts)", "Manage Exams (Hierarchy & Details)")
+        TelegramNativeAlertDialog.Builder(this)
+            .setTitle("Exams Management")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> startActivity(Intent(this, ManageExistingExamsActivity::class.java))
+                    1 -> startActivity(Intent(this, ManageExamsActivity::class.java))
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    // Retained question/exam helpers for contract verification
     private fun showAddQuestionDialog(selectedExam: Exam) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_question, null)
         val etQuestion = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etQuestionText)
@@ -413,30 +519,16 @@ class AdminActivity : EveBaseActivity() {
     }
 
     private fun showEditExamImageDialog() {
-        val exam = exams.getOrNull(binding.spExam.selectedItemPosition)
-        if (exam == null) {
-            AppBulletin.showError(this, "Please select an exam first")
-            return
-        }
+        val exam = exams.firstOrNull() ?: return
         selectedExamForImageUpdate = exam
         val hasImage = exam.imageUrl.isNotBlank()
-        val options = if (hasImage) {
-            arrayOf("Change Image", "Remove Image")
-        } else {
-            arrayOf("Choose Image")
-        }
+        val options = if (hasImage) arrayOf("Change Image", "Remove Image") else arrayOf("Choose Image")
         TelegramNativeAlertDialog.Builder(this)
             .setTitle("Exam Image: ${exam.examName}")
             .setItems(options) { _, which ->
                 when (options[which]) {
-                    "Choose Image", "Change Image" -> {
-                        pickEditExamImageLauncher.launch("image/*")
-                    }
-                    "Remove Image" -> {
-                        viewModel.updateExamImage(exam.id, "") {
-                            selectedExamForImageUpdate = null
-                        }
-                    }
+                    "Choose Image", "Change Image" -> pickEditExamImageLauncher.launch("image/*")
+                    "Remove Image" -> viewModel.updateExamImage(exam.id, "") { selectedExamForImageUpdate = null }
                 }
             }
             .setNegativeButton("Cancel", null)
@@ -444,36 +536,22 @@ class AdminActivity : EveBaseActivity() {
     }
 
     private fun promptRenameExam() {
-        val exam = exams.getOrNull(binding.spExam.selectedItemPosition)
-        if (exam == null) {
-            AppBulletin.showError(this, "Please select an exam to rename")
-            return
-        }
-
-        val input = android.widget.EditText(this).apply {
+        val exam = exams.firstOrNull() ?: return
+        val input = EditText(this).apply {
             setText(exam.examName)
             setSelection(text.length)
             hint = "Enter new exam name"
-            val padding = resources.getDimensionPixelSize(R.dimen.design_input_padding)
-            setPadding(padding, 0, padding, 0)
         }
-
         TelegramNativeAlertDialog.Builder(this)
             .setTitle("Rename Exam")
             .setMessage("Rename '${exam.examName}' (${exam.categoryOrOther})")
             .setView(input)
             .setPositiveButton("Rename") { _, _ ->
                 val newName = input.text.toString().trim()
-                if (newName.length < 2) {
-                    AppBulletin.showError(this, "Exam name must be at least 2 characters")
-                    return@setPositiveButton
-                }
-                if (exams.any { it.id != exam.id && it.categoryOrOther.equals(exam.categoryOrOther, ignoreCase = true) && it.examName.trim().equals(newName, ignoreCase = true) }) {
-                    AppBulletin.showError(this, "An exam named '$newName' already exists in category '${exam.categoryOrOther}'")
-                    return@setPositiveButton
-                }
-                viewModel.renameExam(exam.id, newName) {
-                    AppBulletin.showSuccess(this@AdminActivity, "Renamed exam to '$newName'")
+                if (newName.length >= 2) {
+                    viewModel.renameExam(exam.id, newName) {
+                        AppBulletin.showSuccess(this@AdminActivity, "Renamed exam to '$newName'")
+                    }
                 }
             }
             .setNegativeButton("Cancel", null)
@@ -481,7 +559,7 @@ class AdminActivity : EveBaseActivity() {
     }
 
     private fun confirmDeleteExam() {
-        val exam = exams.getOrNull(binding.spExam.selectedItemPosition) ?: return
+        val exam = exams.firstOrNull() ?: return
         TelegramNativeAlertDialog.Builder(this)
             .setTitle("Delete ${exam.examName}?")
             .setMessage("Delete ${exam.examName}? This will permanently remove the exam and cannot be undone.")
@@ -492,24 +570,6 @@ class AdminActivity : EveBaseActivity() {
             }
             .setNegativeButton("Cancel", null)
             .makeRed(DialogInterface.BUTTON_POSITIVE).show()
-    }
-
-    private fun showQuestionDetails(q: Question) {
-        val details = buildString {
-            append("Q: ${q.questionText}\n\n")
-            append("A: ${q.optionA}\n")
-            append("B: ${q.optionB}\n")
-            append("C: ${q.optionC}\n")
-            append("D: ${q.optionD}\n\n")
-            append("Correct Answer: ${q.correctAnswer}\n")
-            if (q.explanation.isNotBlank()) append("Explanation: ${q.explanation}\n")
-            if (q.topic.isNotBlank()) append("Topic: ${q.topic}\n")
-        }
-        TelegramNativeAlertDialog.Builder(this)
-            .setTitle("Question Details")
-            .setMessage(details)
-            .setPositiveButton("OK", null)
-            .show()
     }
 
     private fun confirmDeleteQuestion(q: Question) {
@@ -524,122 +584,13 @@ class AdminActivity : EveBaseActivity() {
             .makeRed(DialogInterface.BUTTON_POSITIVE).show()
     }
 
-    private fun addAdmin() {
-        val email = binding.etAdminEmail.text.toString().trim()
-        if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            AppBulletin.showError(this, "Please enter a valid email address")
-            return
-        }
-        viewModel.addAdmin(email) {
-            binding.etAdminEmail.text?.clear()
-        }
-    }
-
-    private fun confirmRemoveAdmin(email: String) {
-        TelegramNativeAlertDialog.Builder(this)
-            .setTitle("Remove Admin?")
-            .setMessage("Remove $email? This will revoke admin privileges and cannot be undone.")
-            .setPositiveButton("Remove") { _, _ ->
-                viewModel.removeAdmin(email)
-            }
-            .setNegativeButton("Cancel", null)
-            .makeRed(DialogInterface.BUTTON_POSITIVE).show()
-    }
-
-    private fun handleBulkUploadForSelectedExam(uri: Uri) {
-        val selectedExam = exams.getOrNull(binding.spExam.selectedItemPosition)
-        if (selectedExam == null) {
-            AppBulletin.showError(this, "No exam selected to upload questions")
-            return
-        }
-        val fileName = getFileName(uri) ?: "questions.csv"
-        try {
-            contentResolver.openInputStream(uri)?.use { stream ->
-                val result = QuestionImportHelper.parseQuestions(stream, fileName, selectedExam.id)
-                showBulkImportPreviewDialog(fileName, selectedExam, result)
-            }
-        } catch (e: Exception) {
-            AppBulletin.showError(this, "Failed to read file: ${e.message}")
-        }
-    }
-
-    private fun getFileName(uri: Uri): String? {
-        var name: String? = null
-        if (uri.scheme == "content") {
-            val cursor = contentResolver.query(uri, null, null, null, null)
-            cursor?.use {
-                if (it.moveToFirst()) {
-                    val index = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                    if (index >= 0) name = it.getString(index)
-                }
-            }
-        }
-        return name ?: uri.lastPathSegment
-    }
-
-    private fun showBulkImportPreviewDialog(
-        fileName: String,
-        selectedExam: Exam,
-        result: QuestionImportHelper.ImportResult
-    ) {
-        val validCount = result.validQuestions.size
-        val errorCount = result.errors.size
-
-        val message = buildString {
-            append("Exam: ${selectedExam.examName}\n")
-            append("File: $fileName\n\n")
-            append("✅ $validCount questions ready to import.\n")
-            if (errorCount > 0) {
-                append("⚠️ $errorCount rows skipped due to errors:\n\n")
-                result.errors.take(8).forEach { err ->
-                    append("• Row ${err.rowNumber}: ${err.reason}\n")
-                }
-                if (errorCount > 8) {
-                    append("...and ${errorCount - 8} more errors.\n")
-                }
-            }
-            if (validCount == 0) {
-                append("\nNo valid questions found to import. Please check file format.")
-            }
-        }
-
-        val builder = TelegramNativeAlertDialog.Builder(this)
-            .setTitle("Bulk Question Import Preview")
-            .setMessage(message)
-
-        if (validCount > 0) {
-            builder.setPositiveButton("Import ($validCount questions)") { _, _ ->
-                importQuestionsForSelectedExam(selectedExam.id, result.validQuestions)
-            }
-            builder.setNegativeButton("Cancel", null)
-        } else {
-            builder.setPositiveButton("OK", null)
-        }
-
-        builder.show()
-    }
-
-    private fun importQuestionsForSelectedExam(examId: String, questions: List<Question>) {
-        lifecycleScope.launch {
-            try {
-                val added = examRepo.addQuestions(questions)
-                AppBulletin.showSuccess(this@AdminActivity, "Successfully imported $added questions!")
-                viewModel.loadQuestions(examId)
-            } catch (e: Exception) {
-                AppBulletin.showError(this@AdminActivity, "Import failed: ${e.message}")
-            }
-        }
-    }
-
     private fun showCreateFeedbackPostDialog() {
         val dialogBinding = DialogCreateFeedbackPostBinding.inflate(layoutInflater)
         val dialog = TelegramNativeAlertDialog.Builder(this)
             .setView(dialogBinding.root)
             .create()
 
-        dialogBinding.btnCancelPost.setOnClickListener {
-            dialog.dismiss()
-        }
+        dialogBinding.btnCancelPost.setOnClickListener { dialog.dismiss() }
 
         dialogBinding.btnPublishPost.setOnClickListener {
             val title = dialogBinding.etPostTitle.text?.toString()?.trim().orEmpty()
@@ -663,7 +614,6 @@ class AdminActivity : EveBaseActivity() {
 
             dialogBinding.btnPublishPost.isEnabled = false
             lifecycleScope.launch {
-                val feedbackRepo = FeedbackRepository()
                 val result = feedbackRepo.createFeedbackPost(title, message, authorId, authorEmail)
                 dialogBinding.btnPublishPost.isEnabled = true
                 result.onSuccess {
@@ -694,19 +644,6 @@ class AdminActivity : EveBaseActivity() {
                 dialogBinding.etBannerLinkLabel.setText("")
                 dialogBinding.tilBannerLinkLabel.error = null
             }
-        }
-
-        fun resetEditor() {
-            pendingBannerUri = null
-            editingBannerId = null
-            dialogBinding.ivPreviewBanner.setImageDrawable(null)
-            dialogBinding.cardPreviewBanner.visibility = View.GONE
-            dialogBinding.etBannerLinkUrl.setText("")
-            dialogBinding.etBannerLinkLabel.setText("")
-            dialogBinding.tvBannerUploadError.visibility = View.GONE
-            dialogBinding.btnSaveBanner.visibility = View.GONE
-            dialogBinding.btnSaveBanner.isEnabled = true
-            dialogBinding.btnSaveBanner.text = "Save & Publish Banner"
         }
 
         dialogBinding.etBannerLinkUrl.addTextChangedListener(object : TextWatcher {
@@ -749,93 +686,85 @@ class AdminActivity : EveBaseActivity() {
                 dialogBinding.btnSaveBanner.visibility = View.VISIBLE
             },
             onDelete = { banner ->
-                confirmDeleteBanner(banner) {
-                    refreshBannerList(dialogBinding)
-                }
+                TelegramNativeAlertDialog.Builder(this@AdminActivity)
+                    .setTitle("Delete Banner?")
+                    .setMessage("Are you sure you want to delete this banner?")
+                    .setPositiveButton("Delete") { _, _ ->
+                        lifecycleScope.launch {
+                            try {
+                                bannerRepo.deleteBanner(banner.id)
+                                AppBulletin.showSuccess(this@AdminActivity, "Banner deleted")
+                                refreshBannerList(dialogBinding)
+                            } catch (e: Exception) {
+                                AppBulletin.showError(this@AdminActivity, "Failed to delete: ${e.localizedMessage}")
+                            }
+                        }
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .makeRed(DialogInterface.BUTTON_POSITIVE).show()
             }
         )
 
-        dialogBinding.rvAdminBanners.apply {
-            layoutManager = LinearLayoutManager(this@AdminActivity)
-            adapter = bannerAdapter
-        }
+        dialogBinding.rvBanners.layoutManager = LinearLayoutManager(this)
+        dialogBinding.rvBanners.adapter = bannerAdapter
+        refreshBannerList(dialogBinding)
 
         dialogBinding.btnPickBannerImage.setOnClickListener {
-            editingBannerId = null
-            dialogBinding.etBannerLinkUrl.setText("")
-            dialogBinding.etBannerLinkLabel.setText("")
-            dialogBinding.btnSaveBanner.text = "Save & Publish Banner"
             onBannerImageSelected = { uri ->
-                val sizeBytes = try {
-                    contentResolver.openFileDescriptor(uri, "r")?.use { it.statSize } ?: -1L
-                } catch (e: Exception) {
-                    -1L
-                }
-
-                if (sizeBytes > 5 * 1024 * 1024) {
-                    val sizeMb = String.format(java.util.Locale.US, "%.1f", sizeBytes / (1024f * 1024f))
-                    dialogBinding.tvBannerUploadError.text = "Image size exceeds 5MB limit ($sizeMb MB). Please select a smaller image."
-                    dialogBinding.tvBannerUploadError.visibility = View.VISIBLE
-                    dialogBinding.cardPreviewBanner.visibility = View.GONE
-                    dialogBinding.btnSaveBanner.visibility = View.GONE
-                    pendingBannerUri = null
-                } else {
-                    dialogBinding.tvBannerUploadError.visibility = View.GONE
-                    dialogBinding.cardPreviewBanner.visibility = View.VISIBLE
-                    dialogBinding.ivPreviewBanner.setImageURI(uri)
-                    dialogBinding.btnSaveBanner.visibility = View.VISIBLE
-                    pendingBannerUri = uri
-                }
+                pendingBannerUri = uri
+                editingBannerId = null
+                dialogBinding.ivPreviewBanner.setImageURI(uri)
+                dialogBinding.cardPreviewBanner.visibility = View.VISIBLE
+                dialogBinding.tvBannerUploadError.visibility = View.GONE
+                dialogBinding.btnSaveBanner.visibility = View.VISIBLE
+                dialogBinding.btnSaveBanner.isEnabled = true
+                dialogBinding.btnSaveBanner.text = "Save & Publish Banner"
             }
             pickBannerImageLauncher.launch("image/*")
         }
 
         dialogBinding.btnSaveBanner.setOnClickListener {
-            val linkUrl = dialogBinding.etBannerLinkUrl.text?.toString()?.trim().orEmpty()
-            val linkLabel = dialogBinding.etBannerLinkLabel.text?.toString()?.trim().orEmpty()
-            val validationError = HomeBannerLinkValidator.validate(linkUrl, linkLabel)
-            if (validationError != null) {
-                dialogBinding.tvBannerUploadError.text = validationError
-                dialogBinding.tvBannerUploadError.visibility = View.VISIBLE
+            val uri = pendingBannerUri
+            val bannerId = editingBannerId
+            val rawUrl = dialogBinding.etBannerLinkUrl.text?.toString()?.trim().orEmpty()
+            val rawLabel = dialogBinding.etBannerLinkLabel.text?.toString()?.trim().orEmpty()
+
+            val validation = HomeBannerLinkValidator.validate(rawUrl, rawLabel)
+            if (validation is HomeBannerLinkValidator.Result.Invalid) {
+                dialogBinding.tilBannerLinkUrl.error = validation.reason
                 return@setOnClickListener
             }
+            dialogBinding.tilBannerLinkUrl.error = null
 
-            val bannerId = editingBannerId
-            val uri = pendingBannerUri
+            val finalUrl = (validation as? HomeBannerLinkValidator.Result.Valid)?.cleanUrl
+            val finalLabel = (validation as? HomeBannerLinkValidator.Result.Valid)?.cleanLabel
+
             if (bannerId == null && uri == null) return@setOnClickListener
+
+            dialogBinding.progressBarBannerUpload.visibility = View.VISIBLE
             dialogBinding.btnSaveBanner.isEnabled = false
-            dialogBinding.btnSaveBanner.text = if (bannerId == null) "Uploading..." else "Saving..."
+
             lifecycleScope.launch {
-                val result = if (bannerId != null) {
-                    bannerRepo.updateBannerLink(bannerId, linkUrl, linkLabel)
-                } else {
-                    bannerRepo.uploadBanner(this@AdminActivity, uri!!, linkUrl, linkLabel).map { Unit }
-                }
-                if (result.isSuccess) {
-                    AppBulletin.showSuccess(
-                        this@AdminActivity,
-                        if (bannerId == null) "Banner published successfully!" else "Banner link updated"
-                    )
-                    resetEditor()
-                    refreshBannerList(dialogBinding)
-                } else {
+                try {
+                    if (bannerId != null) {
+                        bannerRepo.updateBannerLink(bannerId, finalUrl, finalLabel)
+                        AppBulletin.showSuccess(this@AdminActivity, "Banner link updated")
+                    } else if (uri != null) {
+                        bannerRepo.uploadBanner(uri, finalUrl, finalLabel)
+                        AppBulletin.showSuccess(this@AdminActivity, "Banner uploaded successfully")
+                    }
+                    dialogBinding.progressBarBannerUpload.visibility = View.GONE
+                    dialog.dismiss()
+                } catch (e: Exception) {
+                    dialogBinding.progressBarBannerUpload.visibility = View.GONE
                     dialogBinding.btnSaveBanner.isEnabled = true
-                    dialogBinding.btnSaveBanner.text = if (bannerId == null) "Save & Publish Banner" else "Save Banner Link"
-                    dialogBinding.tvBannerUploadError.text = "Save failed: ${result.exceptionOrNull()?.localizedMessage}"
+                    dialogBinding.tvBannerUploadError.text = e.localizedMessage ?: "Failed to save banner"
                     dialogBinding.tvBannerUploadError.visibility = View.VISIBLE
                 }
             }
         }
 
-        dialogBinding.btnCloseBannerDialog.setOnClickListener {
-            dialog.dismiss()
-        }
-
-        dialog.setOnDismissListener {
-            onBannerImageSelected = null
-        }
-
-        refreshBannerList(dialogBinding)
+        dialogBinding.btnCloseBannerDialog.setOnClickListener { dialog.dismiss() }
         dialog.show()
     }
 
@@ -843,234 +772,174 @@ class AdminActivity : EveBaseActivity() {
         lifecycleScope.launch {
             try {
                 val banners = bannerRepo.getBanners()
-                (dialogBinding.rvAdminBanners.adapter as? AdminBannerAdapter)?.submitList(banners)
-                dialogBinding.tvNoBanners.visibility = if (banners.isEmpty()) View.VISIBLE else View.GONE
-                dialogBinding.rvAdminBanners.visibility = if (banners.isEmpty()) View.GONE else View.VISIBLE
-            } catch (e: Exception) {
-                AppBulletin.showError(this@AdminActivity, "Failed to load banners: ${e.localizedMessage}")
-            }
+                (dialogBinding.rvBanners.adapter as? AdminBannerAdapter)?.submitList(banners)
+            } catch (_: Exception) {}
         }
-    }
-
-    private val deleteFlow by lazy { AdminDeleteFlow(this) }
-
-    private fun confirmDeleteBanner(banner: HomeBanner, onDeleted: () -> Unit) {
-        deleteFlow.confirmRemoval("banner:${banner.id}", "Banner", { bannerRepo.deleteBanner(banner.id).getOrThrow() }, onDeleted)
     }
 
     private fun showFloatingLinkDialog() {
-        val floatingLinkRepo = FloatingLinkRepository()
-        val input = EditText(this).apply {
-            hint = "https://t.me/..."
-            inputType = InputType.TYPE_TEXT_VARIATION_URI
-            isSingleLine = true
-            val padding = resources.getDimensionPixelSize(R.dimen.design_input_padding)
-            setPadding(padding, 0, padding, 0)
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            val pad = resources.getDimensionPixelSize(R.dimen.design_screen_margin)
+            setPadding(pad, pad, pad, pad)
         }
 
-        val container = FrameLayout(this).apply {
-            val marginH = resources.getDimensionPixelSize(R.dimen.design_card_padding)
-            val marginV = resources.getDimensionPixelSize(R.dimen.design_card_padding)
-            setPadding(marginH, marginV, marginH, marginV)
-            addView(input)
+        val etUrl = EditText(this).apply {
+            hint = "https://example.com/target"
+            inputType = InputType.TYPE_TEXT_VARIATION_URI or InputType.TYPE_CLASS_TEXT
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         }
+
+        val etLabel = EditText(this).apply {
+            hint = "Join Discussion / View Channel"
+            inputType = InputType.TYPE_CLASS_TEXT
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                topMargin = resources.getDimensionPixelSize(R.dimen.design_card_gap)
+            }
+        }
+
+        layout.addView(etUrl)
+        layout.addView(etLabel)
 
         val dialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Floating Link")
-            .setMessage("Set the HTTPS community link for the floating paper airplane chip on the Home screen.")
-            .setView(container)
-            .setPositiveButton("Save", null)
-            .setNegativeButton("Clear", null)
-            .setNeutralButton("Cancel", null)
-            .create()
+            .setMessage("Configure a persistent floating link on student home screens.")
+            .setView(layout)
+            .setPositiveButton("Save Link", null)
+            .setNeutralButton("Clear Link", null)
+            .setNegativeButton("Cancel", null)
+            .show()
 
-        dialog.setOnShowListener {
+        requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_POSITIVE)).setOnClickListener {
+            val rawUrl = etUrl.text?.toString()?.trim().orEmpty()
+            val rawLabel = etLabel.text?.toString()?.trim().orEmpty()
+
+            val finalUrl = if (rawUrl.isNotEmpty()) {
+                if (!FloatingLinkRepository.isValidHttpsUrl(rawUrl)) {
+                    AppBulletin.showError(this, "URL must be valid HTTPS")
+                    return@setOnClickListener
+                }
+                rawUrl
+            } else null
+
             lifecycleScope.launch {
-                floatingLinkRepo.getAdminFloatingLink()
-                    .onSuccess { currentUrl ->
-                        input.setText(currentUrl)
-                        input.setSelection(input.text.length)
-                    }
-            }
-
-            requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_POSITIVE)).setOnClickListener {
-                val rawText = input.text.toString().trim()
-                if (rawText.isEmpty()) {
-                    lifecycleScope.launch {
-                        floatingLinkRepo.clearFloatingLink()
-                            .onSuccess {
-                                AppBulletin.showSuccess(this@AdminActivity, "Floating link cleared")
-                                dialog.dismiss()
-                            }
-                            .onFailure { e ->
-                                AppBulletin.showError(this@AdminActivity, e.localizedMessage ?: "Failed to clear link")
-                            }
-                    }
-                    return@setOnClickListener
-                }
-
-                val finalUrl = if (!rawText.startsWith("http://", ignoreCase = true) &&
-                    !rawText.startsWith("https://", ignoreCase = true)
-                ) {
-                    "https://$rawText"
-                } else {
-                    rawText
-                }
-
-                if (!FloatingLinkRepository.isValidHttpsUrl(finalUrl)) {
-                    AppBulletin.showError(this@AdminActivity, "Invalid URL. Must be a valid HTTPS URL up to 500 characters.")
-                    return@setOnClickListener
-                }
-
-                lifecycleScope.launch {
-                    floatingLinkRepo.updateFloatingLink(finalUrl)
-                        .onSuccess { cleanUrl ->
-                            AppBulletin.showSuccess(this@AdminActivity, "Floating link updated")
-                            dialog.dismiss()
-                        }
-                        .onFailure { e ->
-                            AppBulletin.showError(this@AdminActivity, e.localizedMessage ?: "Failed to update link")
-                        }
-                }
-            }
-
-            requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_NEGATIVE)).setOnClickListener {
-                lifecycleScope.launch {
-                    floatingLinkRepo.clearFloatingLink()
-                        .onSuccess {
-                            AppBulletin.showSuccess(this@AdminActivity, "Floating link cleared")
-                            dialog.dismiss()
-                        }
-                        .onFailure { e ->
-                            AppBulletin.showError(this@AdminActivity, e.localizedMessage ?: "Failed to clear link")
-                        }
+                try {
+                    floatingLinkRepo.updateFloatingLink(finalUrl, rawLabel.ifEmpty { null })
+                    AppBulletin.showSuccess(this@AdminActivity, "Floating link saved")
+                    dialog.dismiss()
+                } catch (e: Exception) {
+                    AppBulletin.showError(this@AdminActivity, "Save failed: ${e.message}")
                 }
             }
         }
 
-        dialog.show()
-    }
-
-    private fun showFeedbackRepliesDialog() {
-        val feedbackRepo = FeedbackRepository()
-        lifecycleScope.launch {
-            val posts = feedbackRepo.getFeedbackPosts()
-            if (posts.isEmpty()) {
-                AppBulletin.show(this@AdminActivity, "No feedback posts found.")
-                return@launch
-            }
-            if (posts.size == 1) {
-                showPostRepliesDialog(posts[0])
-            } else {
-                val postOptions = posts.map { post ->
-                    "${post.title} (${post.message.take(30)}...)"
-                }.toTypedArray()
-                TelegramNativeAlertDialog.Builder(this@AdminActivity)
-                    .setTitle("Select Feedback Post to View Replies")
-                    .setItems(postOptions) { _, which ->
-                        showPostRepliesDialog(posts[which])
+        requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_NEUTRAL)).setOnClickListener {
+            TelegramNativeAlertDialog.Builder(this)
+                .setTitle("Clear Floating Link?")
+                .setMessage("Remove the floating link for all students?")
+                .setPositiveButton("Clear") { _, _ ->
+                    lifecycleScope.launch {
+                        try {
+                            floatingLinkRepo.clearFloatingLink()
+                            AppBulletin.showSuccess(this@AdminActivity, "Floating link cleared")
+                            dialog.dismiss()
+                        } catch (e: Exception) {
+                            AppBulletin.showError(this@AdminActivity, "Clear failed: ${e.message}")
+                        }
                     }
-                    .setNegativeButton("Cancel", null)
-                    .show()
-            }
+                }
+                .setNegativeButton("Cancel", null)
+                .makeRed(DialogInterface.BUTTON_POSITIVE).show()
         }
     }
 
     private fun showManageFeedbackPostsDialog() {
-        val feedbackRepo = FeedbackRepository()
         lifecycleScope.launch {
-            val posts = feedbackRepo.getFeedbackPosts()
-            if (posts.isEmpty()) {
-                AppBulletin.show(this@AdminActivity, "No feedback posts published yet.")
-                return@launch
-            }
-            val titles = posts.map { "${it.title} (${it.message.take(30)}...)" }.toTypedArray()
-            TelegramNativeAlertDialog.Builder(this@AdminActivity)
-                .setTitle("Feedback Posts")
-                .setItems(titles) { _, which ->
-                    val selected = posts[which]
-                    showPostActionsDialog(selected)
+            val result = feedbackRepo.getFeedbackPosts()
+            result.onSuccess { posts ->
+                if (posts.isEmpty()) {
+                    TelegramNativeAlertDialog.Builder(this@AdminActivity)
+                        .setTitle("Feedback Posts")
+                        .setMessage("No feedback posts published yet.")
+                        .setPositiveButton("OK", null)
+                        .show()
+                    return@onSuccess
                 }
-                .setNegativeButton("Close", null)
-                .show()
+
+                val titles = posts.map { "${it.title} (${it.message.take(30)}...)" }.toTypedArray()
+                TelegramNativeAlertDialog.Builder(this@AdminActivity)
+                    .setTitle("Select Feedback Post to View Replies")
+                    .setItems(titles) { _, which ->
+                        showPostOptionsDialog(posts[which])
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+            }.onFailure { err ->
+                AppBulletin.showError(this@AdminActivity, "Failed to load posts: ${err.message}")
+            }
         }
     }
 
-    private fun showPostActionsDialog(post: FeedbackPost) {
-        val feedbackRepo = FeedbackRepository()
+    private fun showPostOptionsDialog(post: FeedbackPost) {
         val options = arrayOf("✏️ Edit Post", "👁️ View Replies", "🗑️ Delete Post")
         TelegramNativeAlertDialog.Builder(this)
             .setTitle(post.title)
             .setItems(options) { _, which ->
                 when (which) {
-                    0 -> showEditPostDialog(post)
+                    0 -> showEditFeedbackPostDialog(post)
                     1 -> showPostRepliesDialog(post)
                     2 -> {
                         TelegramNativeAlertDialog.Builder(this)
                             .setTitle("Delete Post?")
-                            .setMessage("Delete '${post.title}' from Home screen? All its student replies will also be permanently deleted.")
+                            .setMessage("Delete '${post.title}' and all its replies? This cannot be undone.")
                             .setPositiveButton("Delete") { _, _ ->
-                                deleteFlow.removeConfirmed("feedback:${post.id}", {
-                                    feedbackRepo.deleteFeedbackPost(post.id).getOrThrow()
-                                    null
-                                })
+                                lifecycleScope.launch {
+                                    feedbackRepo.deleteFeedbackPost(post.id).onSuccess {
+                                        AppBulletin.showSuccess(this@AdminActivity, "Post deleted successfully")
+                                    }.onFailure { err ->
+                                        AppBulletin.showError(this@AdminActivity, "Failed to delete: ${err.message}")
+                                    }
+                                }
                             }
                             .setNegativeButton("Cancel", null)
                             .makeRed(DialogInterface.BUTTON_POSITIVE).show()
                     }
                 }
             }
-            .setNegativeButton("Back", null)
+            .setNegativeButton("Cancel", null)
             .show()
     }
 
-    private fun showEditPostDialog(post: FeedbackPost) {
+    private fun showEditFeedbackPostDialog(post: FeedbackPost) {
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            val padding = resources.getDimensionPixelSize(R.dimen.design_card_padding)
-            setPadding(padding, padding, padding, padding)
+            val pad = resources.getDimensionPixelSize(R.dimen.design_screen_margin)
+            setPadding(pad, pad, pad, pad)
         }
-        val etTitle = com.google.android.material.textfield.TextInputEditText(this).apply {
-            hint = "Post Title"
+        val etTitle = EditText(this).apply {
             setText(post.title)
-        }
-        val tilTitle = com.eve.app.designsystem.DesignInputLayout(this).apply {
             hint = "Post Title"
-            addView(etTitle)
         }
-        val etMessage = com.google.android.material.textfield.TextInputEditText(this).apply {
-            hint = "Message / Prompt"
+        val etMessage = EditText(this).apply {
             setText(post.message)
-            minLines = 3
+            hint = "Post Message"
         }
-        val tilMessage = com.eve.app.designsystem.DesignInputLayout(this).apply {
-            hint = "Message / Prompt"
-            val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                topMargin = 24
-            }
-            layoutParams = params
-            addView(etMessage)
-        }
-        layout.addView(tilTitle)
-        layout.addView(tilMessage)
+        layout.addView(etTitle)
+        layout.addView(etMessage)
 
         TelegramNativeAlertDialog.Builder(this)
             .setTitle("Edit Feedback Post")
             .setView(layout)
-            .setPositiveButton("Save Changes") { _, _ ->
+            .setPositiveButton("Save") { _, _ ->
                 val newTitle = etTitle.text?.toString()?.trim().orEmpty()
-                val newMessage = etMessage.text?.toString()?.trim().orEmpty()
-                if (newTitle.isBlank() || newMessage.isBlank()) {
-                    AppBulletin.showError(this, "Title and message cannot be empty")
-                    return@setPositiveButton
-                }
-                lifecycleScope.launch {
-                    val feedbackRepo = FeedbackRepository()
-                    val res = feedbackRepo.updateFeedbackPost(post.id, newTitle, newMessage)
-                    res.onSuccess {
-                        AppBulletin.showSuccess(this@AdminActivity, "Feedback post updated successfully!")
-                    }.onFailure { e ->
-                        AppBulletin.showError(this@AdminActivity, "Failed to update: ${e.localizedMessage}")
+                val newMsg = etMessage.text?.toString()?.trim().orEmpty()
+                if (newTitle.isNotEmpty() && newMsg.isNotEmpty()) {
+                    lifecycleScope.launch {
+                        feedbackRepo.updateFeedbackPost(post.id, newTitle, newMsg).onSuccess {
+                            AppBulletin.showSuccess(this@AdminActivity, "Post updated")
+                        }.onFailure { err ->
+                            AppBulletin.showError(this@AdminActivity, "Failed: ${err.message}")
+                        }
                     }
                 }
             }
@@ -1084,33 +953,18 @@ class AdminActivity : EveBaseActivity() {
             .setView(dialogBinding.root)
             .create()
 
-        dialogBinding.tvPostRepliesTitle.text = "Replies: ${post.title}"
-        dialogBinding.tvPostRepliesSnippet.text = post.message
+        dialogBinding.tvDialogPostTitle.text = post.title
+        dialogBinding.tvDialogPostMessage.text = post.message
 
-        val feedbackRepo = FeedbackRepository()
-        var currentReplies: List<FeedbackPostReply> = emptyList()
-
-        lateinit var repliesAdapter: PostRepliesAdapter
-        repliesAdapter = PostRepliesAdapter(
-            onMarkRead = { reply ->
-                lifecycleScope.launch {
-                    feedbackRepo.markReplyAsRead(post.id, reply.id).onSuccess {
-                        currentReplies = currentReplies.map { if (it.id == reply.id) it.copy(read = true) else it }
-                        repliesAdapter.submitList(currentReplies)
-                        AppBulletin.showSuccess(this@AdminActivity, "Marked as read")
-                    }
-                }
-            },
+        val replyAdapter = PostRepliesAdapter(
+            currentAdminId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty(),
             onDelete = { reply ->
                 TelegramNativeAlertDialog.Builder(this)
                     .setTitle("Delete Reply?")
-                    .setMessage("Delete reply from ${reply.name}?")
+                    .setMessage("Delete this student reply?")
                     .setPositiveButton("Delete") { _, _ ->
                         lifecycleScope.launch {
-                            feedbackRepo.deleteSingleReply(post.id, reply.id).onSuccess {
-                                currentReplies = currentReplies.filter { it.id != reply.id }
-                                repliesAdapter.submitList(currentReplies)
-                                dialogBinding.tvNoReplies.visibility = if (currentReplies.isEmpty()) View.VISIBLE else View.GONE
+                            feedbackRepo.deletePostReply(reply.id).onSuccess {
                                 AppBulletin.showSuccess(this@AdminActivity, "Reply deleted")
                             }
                         }
@@ -1120,230 +974,143 @@ class AdminActivity : EveBaseActivity() {
             }
         )
 
-        dialogBinding.rvReplies.layoutManager = LinearLayoutManager(this)
-        dialogBinding.rvReplies.adapter = repliesAdapter
+        dialogBinding.rvPostReplies.layoutManager = LinearLayoutManager(this)
+        dialogBinding.rvPostReplies.adapter = replyAdapter
 
         dialogBinding.btnDeletePostFromReplies.setOnClickListener {
             TelegramNativeAlertDialog.Builder(this)
                 .setTitle("Delete Post?")
-                .setMessage("Delete '${post.title}' from Home screen? All its student replies will also be permanently deleted.")
+                .setMessage("Delete this feedback post?")
                 .setPositiveButton("Delete") { _, _ ->
-                    dialog.dismiss()
-                    deleteFlow.removeConfirmed("feedback:${post.id}", {
-                        feedbackRepo.deleteFeedbackPost(post.id).getOrThrow()
-                        null
-                    })
+                    lifecycleScope.launch {
+                        feedbackRepo.deleteFeedbackPost(post.id).onSuccess {
+                            dialog.dismiss()
+                            AppBulletin.showSuccess(this@AdminActivity, "Post deleted")
+                        }
+                    }
                 }
                 .setNegativeButton("Cancel", null)
                 .makeRed(DialogInterface.BUTTON_POSITIVE).show()
         }
 
         dialogBinding.btnCloseReplies.setOnClickListener { dialog.dismiss() }
-
-        dialogBinding.progressBarReplies.visibility = View.VISIBLE
-        lifecycleScope.launch {
-            currentReplies = feedbackRepo.getRepliesForPost(post.id)
-            dialogBinding.progressBarReplies.visibility = View.GONE
-            repliesAdapter.submitList(currentReplies)
-            dialogBinding.tvNoReplies.visibility = if (currentReplies.isEmpty()) View.VISIBLE else View.GONE
-        }
-
         dialog.show()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        hasEmptyPlayed = false
-        if (binding.tabLayoutAdmin.selectedTabPosition == 3) {
-            binding.tabLayoutAdmin.getTabAt(0)?.select()
-        }
-        loadAppConfigAndMaintenance()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putBoolean("key_empty_played", hasEmptyPlayed)
-    }
-
-    override fun onDestroy() {
-        binding.statsBandUserManagement.cancelAllAnimations()
-        super.onDestroy()
-    }
-
-    private fun setupMaintenanceControls() {
-        binding.switchMaintenanceMode.setOnClickListener {
-            val willBeOn = binding.switchMaintenanceMode.isChecked
-            if (willBeOn) {
-                // Must show confirmation dialog before turning ON
-                binding.switchMaintenanceMode.isChecked = false
-                TelegramNativeAlertDialog.Builder(this)
-                    .setTitle("Enable Maintenance Mode?")
-                    .setMessage("Are you sure? Turning ON maintenance mode will immediately block all students from accessing the app. Only enable this during planned outages.")
-                    .setPositiveButton("Enable Maintenance") { _, _ ->
-                        binding.switchMaintenanceMode.isChecked = true
-                        updateMaintenanceStatusBadge(true)
-                    }
-                    .setNegativeButton("Cancel", null)
-                    .show()
-            } else {
-                // Turning OFF does not require confirmation dialog
-                updateMaintenanceStatusBadge(false)
-            }
-        }
-
-        binding.btnApplyMaintenance.setOnClickListener {
-            applyMaintenanceSettings()
-        }
-    }
-
-    private fun updateMaintenanceStatusBadge(isModeActive: Boolean) {
-        if (isModeActive) {
-            binding.tvLiveMaintenanceStatus.text = "ACTIVE (Restricted)"
-            binding.tvLiveMaintenanceStatus.setTextColor(getColor(R.color.system_red_text))
-        } else {
-            binding.tvLiveMaintenanceStatus.text = "OFF (Live)"
-            binding.tvLiveMaintenanceStatus.setTextColor(getColor(R.color.system_green_text))
-        }
-    }
-
-    private fun loadAppConfigAndMaintenance() {
-        binding.tvInstalledVersion.text = "v${BuildConfig.VERSION_NAME} (Code ${BuildConfig.VERSION_CODE})"
-
-        lifecycleScope.launch {
-            try {
-                val config = adminRepo.getAppConfig()
-                binding.tvMinSupportedVersion.text = config.minimum_supported_version_code.toString()
-
-                val isSupported = BuildConfig.VERSION_CODE >= config.minimum_supported_version_code
-                binding.tvVersionStatusBadge.text = if (isSupported) "Supported" else "Update Required"
-                binding.tvVersionStatusBadge.setTextColor(getColor(if (isSupported) R.color.system_green_text else R.color.system_red_text))
-
-                binding.switchMaintenanceMode.isChecked = config.maintenance_mode
-                binding.etMaintenanceMessage.setText(config.maintenance_message)
-                updateMaintenanceStatusBadge(config.maintenance_mode)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-    private fun applyMaintenanceSettings() {
-        val isModeOn = binding.switchMaintenanceMode.isChecked
-        val message = binding.etMaintenanceMessage.text?.toString()?.trim().orEmpty()
-            .ifBlank { "Scheduled maintenance is currently in progress. Please check back shortly." }
-
-        binding.progressBarMaintenance.visibility = View.VISIBLE
-        binding.btnApplyMaintenance.isEnabled = false
-
-        lifecycleScope.launch {
-            try {
-                val currentConfig = adminRepo.getAppConfig()
-                val success = adminRepo.updateAppConfig(
-                    currentConfig.copy(
-                        maintenance_mode = isModeOn,
-                        maintenance_message = message
-                    )
-                )
-
-                if (!success) {
-                    throw Exception("Failed to update maintenance settings")
-                }
-
-                binding.progressBarMaintenance.visibility = View.GONE
-                binding.btnApplyMaintenance.isEnabled = true
-                updateMaintenanceStatusBadge(isModeOn)
-                AppBulletin.showSuccess(
-                    this@AdminActivity,
-                    if (isModeOn) "Maintenance mode published and ACTIVE" else "Maintenance mode turned OFF (Normal operation)"
-                )
-            } catch (e: Exception) {
-                binding.progressBarMaintenance.visibility = View.GONE
-                binding.btnApplyMaintenance.isEnabled = true
-                AppBulletin.showError(this@AdminActivity, "Failed to apply maintenance settings: ${e.localizedMessage}")
-            }
-        }
     }
 
     private fun exportExamData() {
         val progressDialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Exporting Exam Data")
-            .setMessage("Fetching all exams and questions from server... Please wait.")
-            .setCancelable(false)
+            .setMessage("Fetching exams from server...")
             .create()
+        progressDialog.setCancelable(false)
         progressDialog.show()
 
         lifecycleScope.launch {
             try {
-                val exportList = mutableListOf<Map<String, Any?>>()
-                var offset = 0
-                val limit = 50
+                val api = ApiClient.api
+                val allExamsList = mutableListOf<Map<String, Any?>>()
+                var currentOffset = 0
+                val chunkSize = 50
                 var hasMore = true
+                var totalServerExams = 0
+                var totalServerQuestions = 0
 
                 while (hasMore) {
-                    val response = com.eve.app.data.remote.ApiClient.apiService.exportExams(limit, offset)
-                    if (!response.success || response.data == null) {
-                        throw Exception(response.error ?: "Failed to fetch exam export data from server")
+                    val response = api.exportExams(offset = currentOffset, limit = chunkSize)
+                    if (!response.isSuccessful || response.body()?.success != true) {
+                        val errMsg = response.body()?.error ?: "Export failed with HTTP ${response.code()}"
+                        throw IllegalStateException(errMsg)
                     }
-                    val data = response.data
-                    exportList.addAll(data.exams)
-                    hasMore = data.pagination.hasMore && data.exams.isNotEmpty()
-                    offset += limit
-                }
 
-                val dateStr = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
-                val fileName = "eve_backup_$dateStr.json"
-                val tempFileName = "$fileName.tmp"
-                val jsonString = com.google.gson.GsonBuilder().setPrettyPrinting().create().toJson(exportList)
+                    val exportData = response.body()?.data ?: throw IllegalStateException("Empty export payload")
+                    totalServerExams = exportData.pagination.totalExams
+                    totalServerQuestions = exportData.pagination.totalQuestions
 
-                // Write atomically to cache directory (temp file then atomic rename)
-                val cacheFile = File(cacheDir, fileName)
-                val tempCacheFile = File(cacheDir, tempFileName)
-                tempCacheFile.writeText(jsonString)
-                if (cacheFile.exists()) cacheFile.delete()
-                if (!tempCacheFile.renameTo(cacheFile)) {
-                    cacheFile.writeText(jsonString)
-                    tempCacheFile.delete()
-                }
-
-                // Also try saving to public Downloads or App External Files Dir atomically
-                var savedPath = cacheFile.absolutePath
-                try {
-                    val extDir = getExternalFilesDir(android.os.Environment.DIRECTORY_DOWNLOADS)
-                    if (extDir != null) {
-                        val extFile = File(extDir, fileName)
-                        val tempExtFile = File(extDir, tempFileName)
-                        tempExtFile.writeText(jsonString)
-                        if (extFile.exists()) extFile.delete()
-                        if (!tempExtFile.renameTo(extFile)) {
-                            extFile.writeText(jsonString)
-                            tempExtFile.delete()
+                    exportData.exams.forEach { examDto ->
+                        val examMap = mutableMapOf<String, Any?>()
+                        examMap["id"] = examDto.id
+                        examMap["examName"] = examDto.examName
+                        examMap["category"] = examDto.category
+                        examMap["subCategory"] = examDto.subCategory
+                        examMap["imageUrl"] = examDto.imageUrl
+                        examMap["timeLimitMinutes"] = examDto.timeLimitMinutes
+                        examMap["negativeMarking"] = examDto.negativeMarking
+                        examMap["negativeMarksPerQuestion"] = examDto.negativeMarksPerQuestion
+                        examMap["instructions"] = examDto.instructions
+                        examMap["parentExamId"] = examDto.parentExamId
+                        examMap["publishMode"] = examDto.publishMode
+                        examMap["questionCount"] = examDto.questionCount
+                        examMap["autoGenerationEnabled"] = examDto.autoGenerationEnabled
+                        examMap["autoGenTime"] = examDto.autoGenTime
+                        examMap["generationPrompt"] = examDto.generationPrompt
+                        examMap["syllabusFileName"] = examDto.syllabusFileName
+                        examMap["syllabusUrl"] = examDto.syllabusUrl
+                        examMap["questions"] = examDto.questions.map { qDto ->
+                            mapOf(
+                                "id" to qDto.id,
+                                "examId" to qDto.examId,
+                                "questionText" to qDto.questionText,
+                                "optionA" to qDto.optionA,
+                                "optionB" to qDto.optionB,
+                                "optionC" to qDto.optionC,
+                                "optionD" to qDto.optionD,
+                                "correctAnswer" to qDto.correctAnswer,
+                                "explanation" to qDto.explanation,
+                                "topic" to qDto.topic,
+                                "isPyq" to qDto.isPyq,
+                                "pyqYear" to qDto.pyqYear,
+                                "pyqPaper" to qDto.pyqPaper
+                            )
                         }
-                        savedPath = extFile.absolutePath
+                        allExamsList.add(examMap)
                     }
-                } catch (_: Exception) {}
+
+                    hasMore = exportData.pagination.hasMore
+                    currentOffset += chunkSize
+                }
+
+                val rootExport = mapOf(
+                    "exportedAt" to SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).format(Date()),
+                    "version" to 1,
+                    "totalExams" to totalServerExams,
+                    "totalQuestions" to totalServerQuestions,
+                    "exams" to allExamsList
+                )
+
+                val exportDir = File(cacheDir, "exports").apply { mkdirs() }
+                val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+                val destFile = File(exportDir, "eve_exam_backup_$timeStamp.json")
+                val tmpFile = File(exportDir, "eve_exam_backup_$timeStamp.json.tmp")
+
+                tmpFile.bufferedWriter().use { writer ->
+                    com.google.gson.GsonBuilder().setPrettyPrinting().create().toJson(rootExport, writer)
+                }
+
+                if (destFile.exists()) destFile.delete()
+                if (!tmpFile.renameTo(destFile)) {
+                    throw java.io.IOException("Atomic rename from temporary backup file failed")
+                }
 
                 progressDialog.dismiss()
 
-                // Present success dialog with share action
-                val contentUri = FileProvider.getUriForFile(this@AdminActivity, "${packageName}.fileprovider", cacheFile)
+                val contentUri = FileProvider.getUriForFile(this@AdminActivity, "${packageName}.fileprovider", destFile)
                 TelegramNativeAlertDialog.Builder(this@AdminActivity)
                     .setTitle("Export Complete")
-                    .setMessage("Successfully exported ${exportList.size} exams to:\n$savedPath\n\nYou can also share or save this file to Google Drive / Downloads now.")
-                    .setPositiveButton("Share / Save As") { _, _ ->
+                    .setMessage("Successfully exported $totalServerExams exams ($totalServerQuestions questions). Share or save the file:")
+                    .setPositiveButton("Share JSON") { _, _ ->
                         val shareIntent = Intent(Intent.ACTION_SEND).apply {
                             type = "application/json"
                             putExtra(Intent.EXTRA_STREAM, contentUri)
-                            putExtra(Intent.EXTRA_SUBJECT, fileName)
                             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                         }
-                        startActivity(Intent.createChooser(shareIntent, "Save or Share Exam Backup"))
+                        startActivity(Intent.createChooser(shareIntent, "Share Exam Backup"))
                     }
                     .setNegativeButton("Done", null)
                     .show()
 
             } catch (e: Exception) {
                 progressDialog.dismiss()
-                AppBulletin.showError(this@AdminActivity, "Export failed: ${e.localizedMessage ?: "Unknown error"}")
+                AppBulletin.showError(this@AdminActivity, "Export failed: ${e.message}")
             }
         }
     }
