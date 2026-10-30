@@ -515,8 +515,8 @@
 
                         <ImageButton
                             android:id="@+id/btnCopyEveId"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
+                            android:layout_width="@dimen/design_touch_min"
+                            android:layout_height="@dimen/design_touch_min"
                             android:background="?attr/selectableItemBackgroundBorderless"
                             android:contentDescription="Copy EVE ID"
                             android:src="@drawable/ic_copy"
