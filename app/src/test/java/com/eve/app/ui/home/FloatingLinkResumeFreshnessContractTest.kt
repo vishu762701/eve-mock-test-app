@@ -20,7 +20,10 @@ class FloatingLinkResumeFreshnessContractTest {
             method.contains("generation != floatingLinkFetchGeneration"))
         assertTrue("Fresh public read must still update the ordinary user's position",
             method.contains("applyFloatingAirplanePosition(data?.x, data?.y)"))
+        assertTrue("An in-flight admin write must prohibit a second long press",
+            src.contains("floatingLinkPositionSaveInFlight = true") &&
+                src.contains("floatingLinkPositionSaveInFlight = false"))
         assertTrue("Only authorized admin long-press can submit coordinates",
-            src.contains("if (!isFloatingAirplaneAdmin) return@Runnable"))
+            src.contains("if (!isFloatingAirplaneAdmin || floatingLinkPositionSaveInFlight) return@Runnable"))
     }
 }

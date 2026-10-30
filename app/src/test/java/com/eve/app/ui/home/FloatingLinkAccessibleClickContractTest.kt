@@ -20,7 +20,7 @@ class FloatingLinkAccessibleClickContractTest {
         assertTrue("Clicks for every user must retain duplicate-open debounce",
             click.contains("lastLinkLaunch"))
         assertTrue("Drag must be privileged", interaction.contains(
-            "if (!isFloatingAirplaneAdmin) return@Runnable"))
+            "if (!isFloatingAirplaneAdmin || floatingLinkPositionSaveInFlight) return@Runnable"))
         val up = interaction.substringAfter("MotionEvent.ACTION_UP -> {")
             .substringBefore("MotionEvent.ACTION_CANCEL -> {")
         assertTrue("A short touch must call the same accessible click",
