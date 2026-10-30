@@ -623,6 +623,12 @@ interface EveApiService {
     // Legacy public read contract for already-installed clients; editor writes are retired.
     @GET("api/typography/published")
     suspend fun getPublishedTypography(): ApiResponse<com.eve.app.typography.TypographyConfig>
+
+    @GET("api/admin/export/exams")
+    suspend fun exportExams(
+        @Query("limit") limit: Int = 50,
+        @Query("offset") offset: Int = 0
+    ): ApiResponse<ExportExamsResponseDto>
 }
 
 data class MonthlyApiUsageDto(
@@ -636,4 +642,18 @@ data class MonthlyApiUsageDto(
     val countedSince: String? = null,
     val lastUpdated: Long = 0L
 )
+
+data class ExportExamsResponseDto(
+    val exams: List<Map<String, @JvmSuppressWildcards Any?>> = emptyList(),
+    val pagination: ExportPaginationDto = ExportPaginationDto()
+)
+
+data class ExportPaginationDto(
+    val offset: Int = 0,
+    val limit: Int = 50,
+    val totalExams: Int = 0,
+    val totalQuestions: Int = 0,
+    val hasMore: Boolean = false
+)
+
 

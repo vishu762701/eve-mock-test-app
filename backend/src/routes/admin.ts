@@ -4,7 +4,7 @@
 
 import { Hono } from "hono";
 import { requireAdmin } from "../middleware/authMiddleware";
-import { AuthUser, Env, PremiumConfigRow, PremiumEntitlementRow, PremiumOrderRow } from "../types";
+import { AuthUser, Env, ExamRow, PremiumConfigRow, PremiumEntitlementRow, PremiumOrderRow, QuestionRow } from "../types";
 import { activateUserPremium, getPremiumConfig } from "./premium";
 import { getGeminiApiKeys, getModelChain, classifyGeminiError } from "../ai/generator";
 import { checkRateLimit } from "../middleware/rateLimiter";
@@ -1177,5 +1177,137 @@ adminRoutes.post("/questions/reformat-explanation", async (c) => {
       error: err.userFacingMessage || err.message || "AI reformat service is temporarily unavailable",
       errorCode: err.code || "REFORMAT_FAILED",
     }, status);
+  }
+});
+
+// GET /api/admin/export/exams - Safe, chunked one-call export of exam content & questions (NO user/student PII)
+adminRoutes.get("/export/exams", async (c) => {
+  const db = c.env.DB;
+  const user = c.get("user");
+
+  const offsetParam = c.req.query("offset");
+  const limitParam = c.req.query("limit");
+
+  let offset = 0;
+  if (offsetParam !== undefined) {
+    if (!/^\d+$/.test(offsetParam)) {
+      return c.json({ success: false, error: "Query parameter 'offset' must be a non-negative integer" }, 400);
+    }
+    offset = parseInt(offsetParam, 10);
+  }
+
+  let limit = 50;
+  if (limitParam !== undefined) {
+    if (!/^[1-9]\d*$/.test(limitParam)) {
+      return c.json({ success: false, error: "Query parameter 'limit' must be a positive integer between 1 and 100" }, 400);
+    }
+    limit = parseInt(limitParam, 10);
+    if (limit > 100) limit = 100;
+  }
+
+  try {
+    // 1. Get total exams and questions count
+    const totalExamsRow = await db.prepare("SELECT COUNT(*) as count FROM exams").first<{ count: number }>();
+    const totalQuestionsRow = await db.prepare("SELECT COUNT(*) as count FROM questions").first<{ count: number }>();
+    const totalExams = totalExamsRow?.count || 0;
+    const totalQuestions = totalQuestionsRow?.count || 0;
+
+    // 2. Fetch exams for this chunk
+    const { results: examRows } = await db
+      .prepare("SELECT * FROM exams ORDER BY id ASC LIMIT ? OFFSET ?")
+      .bind(limit, offset)
+      .all<ExamRow>();
+
+    const exams: ExamRow[] = examRows || [];
+
+    // 3. Fetch questions for these exams
+    const questionsByExam: Record<string, QuestionRow[]> = {};
+    if (exams.length > 0) {
+      const examIds = exams.map((e) => e.id);
+      const placeholders = examIds.map(() => "?").join(",");
+      const { results: questionRows } = await db
+        .prepare(`SELECT * FROM questions WHERE exam_id IN (${placeholders}) ORDER BY exam_id ASC, id ASC`)
+        .bind(...examIds)
+        .all<QuestionRow>();
+
+      for (const q of questionRows || []) {
+        if (!questionsByExam[q.exam_id]) {
+          questionsByExam[q.exam_id] = [];
+        }
+        questionsByExam[q.exam_id].push(q);
+      }
+    }
+
+    // 4. Map to clean export structure containing NO student PII
+    let chunkQuestionCount = 0;
+    const mappedExams = exams.map((exam) => {
+      const qList = questionsByExam[exam.id] || [];
+      chunkQuestionCount += qList.length;
+
+      return {
+        id: exam.id,
+        examName: exam.exam_name,
+        category: exam.category || "Other",
+        timeLimitMinutes: exam.time_limit_minutes,
+        questionCount: qList.length,
+        autoGenerationEnabled: Boolean(exam.auto_generation_enabled),
+        autoGenTime: exam.auto_gen_time || "00:00",
+        generationPrompt: exam.generation_prompt || "",
+        syllabusFileName: exam.syllabus_file_name || "",
+        syllabusUrl: exam.syllabus_url || "",
+        questions: qList.map((q) => ({
+          id: q.id,
+          examId: q.exam_id,
+          questionText: q.question_text,
+          optionA: q.option_a,
+          optionB: q.option_b,
+          optionC: q.option_c,
+          optionD: q.option_d,
+          correctAnswer: q.correct_answer,
+          explanation: q.explanation || "",
+          topic: q.topic || "",
+          questionTextHi: q.question_text_hi || "",
+          optionAHi: q.option_a_hi || "",
+          optionBHi: q.option_b_hi || "",
+          optionCHi: q.option_c_hi || "",
+          optionDHi: q.option_d_hi || "",
+          explanationHi: q.explanation_hi || "",
+        })),
+      };
+    });
+
+    // 5. Audit log recorded server-side
+    await recordAdminAction(db, user, {
+      actionType: "EXAM_EXPORTED",
+      description: `Exported backup of ${mappedExams.length} exams and ${chunkQuestionCount} questions (offset ${offset}, limit ${limit})`,
+      targetType: "system",
+      targetId: "export_exams",
+      metadata: {
+        offset,
+        limit,
+        examCount: mappedExams.length,
+        questionCount: chunkQuestionCount,
+        totalExams,
+        totalQuestions,
+      },
+    });
+
+    const hasMore = offset + mappedExams.length < totalExams;
+
+    return c.json({
+      success: true,
+      data: {
+        exams: mappedExams,
+        pagination: {
+          offset,
+          limit,
+          totalExams,
+          totalQuestions,
+          hasMore,
+        },
+      },
+    });
+  } catch (err: any) {
+    return c.json({ success: false, error: err.message || "Failed to assemble exam export" }, 500);
   }
 });

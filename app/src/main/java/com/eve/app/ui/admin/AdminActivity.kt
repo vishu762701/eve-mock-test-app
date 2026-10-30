@@ -43,8 +43,6 @@ import com.eve.app.util.Constants
 import com.eve.app.util.ExamImageHelper
 import android.provider.OpenableColumns
 import com.eve.app.BuildConfig
-import com.eve.app.data.model.AdminAuditLog
-import com.eve.app.data.repository.AuditLogRepository
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.util.QuestionImportHelper
 import com.eve.app.util.HomeBannerLinkValidator
@@ -63,7 +61,6 @@ class AdminActivity : EveBaseActivity() {
     private val adminRepo = AdminRepository()
     private val bannerRepo = HomeBannerRepository()
     private val examRepo = ExamRepository()
-    private val auditLogRepo = AuditLogRepository()
 
     private var exams: List<Exam> = emptyList()
     private var selectedExamForImageUpdate: Exam? = null
@@ -1270,85 +1267,68 @@ class AdminActivity : EveBaseActivity() {
     private fun exportExamData() {
         val progressDialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Exporting Exam Data")
-            .setMessage("Fetching all exams and questions from database... Please wait.")
+            .setMessage("Fetching all exams and questions from server... Please wait.")
             .setCancelable(false)
             .create()
         progressDialog.show()
 
         lifecycleScope.launch {
             try {
-                val allExams = examRepo.getExams()
                 val exportList = mutableListOf<Map<String, Any?>>()
+                var offset = 0
+                val limit = 50
+                var hasMore = true
 
-                for (exam in allExams) {
-                    val questions = examRepo.getQuestions(exam.id)
-                    val examMap = linkedMapOf<String, Any?>(
-                        "id" to exam.id,
-                        "examName" to exam.examName,
-                        "category" to exam.categoryOrOther,
-                        "timeLimitMinutes" to exam.timeLimitMinutes,
-                        "questionCount" to questions.size,
-                        "autoGenerationEnabled" to exam.autoGenerationEnabled,
-                        "autoGenTime" to exam.autoGenTime,
-                        "generationPrompt" to exam.generationPrompt,
-                        "syllabusFileName" to exam.syllabusFileName,
-                        "syllabusUrl" to exam.syllabusUrl,
-                        "questions" to questions.map { q ->
-                            linkedMapOf(
-                                "id" to q.id,
-                                "examId" to q.examId,
-                                "questionText" to q.questionText,
-                                "optionA" to q.optionA,
-                                "optionB" to q.optionB,
-                                "optionC" to q.optionC,
-                                "optionD" to q.optionD,
-                                "correctAnswer" to q.correctAnswer,
-                                "explanation" to q.explanation,
-                                "topic" to q.topic,
-                                "questionTextHi" to q.questionTextHi,
-                                "optionAHi" to q.optionAHi,
-                                "optionBHi" to q.optionBHi,
-                                "optionCHi" to q.optionCHi,
-                                "optionDHi" to q.optionDHi,
-                                "explanationHi" to q.explanationHi
-                            )
-                        }
-                    )
-                    exportList.add(examMap)
+                while (hasMore) {
+                    val response = com.eve.app.data.remote.ApiClient.apiService.exportExams(limit, offset)
+                    if (!response.success || response.data == null) {
+                        throw Exception(response.error ?: "Failed to fetch exam export data from server")
+                    }
+                    val data = response.data
+                    exportList.addAll(data.exams)
+                    hasMore = data.pagination.hasMore && data.exams.isNotEmpty()
+                    offset += limit
                 }
 
                 val dateStr = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
                 val fileName = "eve_backup_$dateStr.json"
+                val tempFileName = "$fileName.tmp"
                 val jsonString = com.google.gson.GsonBuilder().setPrettyPrinting().create().toJson(exportList)
 
-                // Write to cache directory for reliable FileProvider sharing
+                // Write atomically to cache directory (temp file then atomic rename)
                 val cacheFile = File(cacheDir, fileName)
-                cacheFile.writeText(jsonString)
+                val tempCacheFile = File(cacheDir, tempFileName)
+                tempCacheFile.writeText(jsonString)
+                if (cacheFile.exists()) cacheFile.delete()
+                if (!tempCacheFile.renameTo(cacheFile)) {
+                    cacheFile.writeText(jsonString)
+                    tempCacheFile.delete()
+                }
 
-                // Also try saving to public Downloads or App External Files Dir
+                // Also try saving to public Downloads or App External Files Dir atomically
                 var savedPath = cacheFile.absolutePath
                 try {
                     val extDir = getExternalFilesDir(android.os.Environment.DIRECTORY_DOWNLOADS)
                     if (extDir != null) {
                         val extFile = File(extDir, fileName)
-                        extFile.writeText(jsonString)
+                        val tempExtFile = File(extDir, tempFileName)
+                        tempExtFile.writeText(jsonString)
+                        if (extFile.exists()) extFile.delete()
+                        if (!tempExtFile.renameTo(extFile)) {
+                            extFile.writeText(jsonString)
+                            tempExtFile.delete()
+                        }
                         savedPath = extFile.absolutePath
                     }
                 } catch (_: Exception) {}
 
                 progressDialog.dismiss()
 
-                // Record audit log
-                auditLogRepo.recordLog(
-                    AdminAuditLog.ACTION_EXAM_EDITED,
-                    "Exported backup of ${allExams.size} exams and ${exportList.sumOf { (it["questions"] as? List<*>)?.size ?: 0 }} questions to $fileName"
-                )
-
                 // Present success dialog with share action
                 val contentUri = FileProvider.getUriForFile(this@AdminActivity, "${packageName}.fileprovider", cacheFile)
                 TelegramNativeAlertDialog.Builder(this@AdminActivity)
                     .setTitle("Export Complete")
-                    .setMessage("Successfully exported ${allExams.size} exams to:\n$savedPath\n\nYou can also share or save this file to Google Drive / Downloads now.")
+                    .setMessage("Successfully exported ${exportList.size} exams to:\n$savedPath\n\nYou can also share or save this file to Google Drive / Downloads now.")
                     .setPositiveButton("Share / Save As") { _, _ ->
                         val shareIntent = Intent(Intent.ACTION_SEND).apply {
                             type = "application/json"

@@ -47,6 +47,18 @@ export async function authMiddleware(c: Context<{ Bindings: Env; Variables: { us
     const profile = await c.env.DB.prepare("SELECT disabled FROM users WHERE id = ?").bind(user.uid).first<{ disabled?: number }>();
     if (profile?.disabled === 1) return c.json({ success: false, error: "This account is disabled. Contact an administrator." }, 403);
     c.set("user", user);
+
+    // Keep 'Online Now' truthful by updating last_active on authenticated activity (throttled to at most once per 2 minutes)
+    try {
+      const now = Date.now();
+      const updateStmt = c.env.DB.prepare(
+        "UPDATE users SET last_active = ?1 WHERE id = ?2 AND (?1 - COALESCE(last_active, 0)) > 120000"
+      ).bind(now, user.uid);
+      if (typeof updateStmt.run === "function") {
+        updateStmt.run().catch(() => {});
+      }
+    } catch {}
+
     return next();
   } catch (err: any) {
     return c.json({ success: false, error: "Authentication services are temporarily unavailable. Please retry." }, 503);

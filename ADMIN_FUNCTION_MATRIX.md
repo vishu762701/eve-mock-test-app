@@ -13,23 +13,23 @@ Date: 2026-10-22. **Not a claim that every Admin feature works.** Each item belo
 | Bulk question import | AdminActivity.kt:272+ | QuestionImportHelper | Source present | Large/invalid real PDF inputs NOT VERIFIED |
 | Generated tests | AdminActivity.kt:204; GeneratedTestsActivity.kt | Generation jobs/backend | Source present | Live AI provider/schedule NOT VERIFIED |
 | Admin users, counts and paging | ManageUsersActivity.kt:64,138+ | Admin user endpoint paged | Fresh authorization plus backend 200+ simulated cases | Real 200+ accounts NOT VERIFIED |
-| Ban/unban and role changes | ManageUsersActivity.kt; AdminActivity.kt | AdminRepository | Source present | Destructive negative tests/live write NOT VERIFIED |
-| Admin add/remove | AdminActivity.kt:186; admin users | AdminRepository | Source present | Last-admin protection NOT VERIFIED |
+| Ban/unban and role changes | ManageUsersActivity.kt; AdminActivity.kt | AdminRepository / POST /api/admin/users/:id/status | HARDENED IN MISSION 02 (F2) | Self-ban rejected (409); admin-ban rejected (409); users.disabled indexed (migration 0020); lightweight SELECT disabled query in authMiddleware; proved by admin_guards.test.mjs |
+| Admin add/remove | AdminActivity.kt:186; admin users | AdminRepository / /api/admin/admins | HARDENED IN MISSION 02 (F2) | Email format validation (RFC 5322, 254 chars); self-removal rejected (409); last-admin removal rejected (409); built-in admin removal rejected (409); proved by admin_guards.test.mjs |
 | Syllabus PDF upload | ManageSyllabusActivity.kt:86,131–395 | Syllabus repository | Auth gate/20MB bounded reader in source | Live provider success/failure NOT VERIFIED |
 | Banners | AdminActivity.kt:207 | HomeBannerRepository | Source present | Production publication/dedupe NOT VERIFIED |
 | Floating link | AdminActivity.kt:210; MainActivity.kt | FloatingLinkRepository | HTTPS validator present | Cross-account placement NOT VERIFIED |
-| Send broadcast | SendNotificationActivity.kt:72,330–403 | POST /api/broadcasts / requireAdmin | Fresh UI gate and backend guard | Safe live push transport NOT VERIFIED |
+| Send broadcast | SendNotificationActivity.kt:72,330–403 | POST /api/broadcasts / requireAdmin | Fresh UI gate and backend guard | Safe live push transport NOT VERIFIED; UI verified sending to All Users only with no dead category controls |
 | Flagged questions | AdminActivity.kt:224 | FlaggedQuestionsActivity.kt | Source present | Real moderation persistence NOT VERIFIED |
 | Student feedback and replies | AdminActivity.kt:227–234 | Feedback repository | Source present | Reply delivery/update NOT VERIFIED |
 | Polls | ManagePollsActivity.kt | Poll backend | Source present | All CRUD paths NOT VERIFIED |
 | Analytics | AdminActivity.kt:241 | AdminAnalyticsActivity.kt | Source present | Source-derived aggregates/time filters NOT VERIFIED |
 | System Monitor | AdminActivity.kt:237 | SystemMonitorActivity.kt | Source present | Production monitoring signals NOT VERIFIED |
-| API Usage | AdminActivity.kt:247 | ApiUsageActivity.kt | Source present | Provider cost correlation NOT VERIFIED |
-| Activity and audit logs | AdminActivity.kt:244 | ActivityLogActivity.kt | Source present | Redaction/retention NOT VERIFIED |
-| Export data | AdminActivity.kt:250 | Admin export flow | Source present | PII exposure permissions NOT VERIFIED |
-| Premium grant/config | AdminActivity.kt:213 | ManagePremiumActivity.kt | Source present | Real payment/entitlements NOT VERIFIED |
-| App config + maintenance | AdminActivity.kt:253,1244+ | AppConfigActivity.kt / backend | Source present | Cross-device maintenance/write confirm NOT VERIFIED |
-| Minimum app version | AdminActivity.kt version status | Backend app-config | Source present | Real app-update force-gate NOT VERIFIED |
+| API Usage | AdminActivity.kt:247 | ApiUsageActivity.kt / GET /api/admin/api-usage | HARDENED IN MISSION 02 (F3) | Server-side D1 usage tracking via migration 0021 (api_usage_monthly); real attempts and audit writes counted; client Firestore imports and client-side increment calls completely removed; firebase-firestore and firebase-functions removed from app module; proved by api_usage.test.mjs |
+| Activity and audit logs | AdminActivity.kt:244 | ActivityLogActivity.kt / /api/admin/audit-log | HARDENED IN MISSION 02 (F1) | Server-side unforgeable audit logging via migration 0019 (actor_uid, target_type, target_id, metadata, source); audited across all admin routes in D1; client log writes removed; proved by admin_audit_log.test.mjs |
+| Export data | AdminActivity.kt:250 | Admin export flow / GET /api/admin/export/exams | HARDENED IN MISSION 02 (F4) | Server-side chunked export endpoint; strictly zero student/user PII; server-side audit logging; atomic file write (temp file + rename) on Android; client-side N+1 loops removed; proved by admin_export.test.mjs |
+| Premium grant/config | AdminActivity.kt:213 | ManagePremiumActivity.kt / /api/admin/premium/users/* | HARDENED IN MISSION 02 (F2) | Lifetime grant requires confirmLifetime: true; duration validated 1..3650 days; lifetime extend rejected (409); planName trimmed and capped (100 chars); client confirmation dialog added; proved by admin_guards.test.mjs |
+| App config + maintenance | AdminActivity.kt:253,1244+ | AppConfigActivity.kt / PUT /api/admin/config | HARDENED IN MISSION 02 (F2/F3) | PUT /api/admin/config validates types/bounds; redundant Firebase callable removed; Worker endpoint is single authoritative path; layout updated; proved by admin_guards.test.mjs |
+| Minimum app version | AdminActivity.kt version status | Backend app-config | Source present; verified bound at runtime | Real app-update force-gate NOT VERIFIED |
 | Typography Studio | Retired: activity_admin.xml and manifest | All writable editor API paths removed | Retired by owner | Public published GET intentionally retained for old clients |
 
 ## Prioritized unresolved actions
