@@ -5,12 +5,20 @@ data class AdminAuditLog(
     val actionType: String = "",
     val description: String = "",
     val adminEmail: String = "",
-    val timestamp: Long = System.currentTimeMillis()
+    val timestamp: Long = System.currentTimeMillis(),
+    val actorUid: String? = null,
+    val targetType: String? = null,
+    val targetId: String? = null,
+    val source: String = "server",
+    val metadata: Map<String, Any?>? = null
 ) {
     companion object {
         const val EXAM_CREATED = "EXAM_CREATED"
         const val EXAM_EDITED = "EXAM_EDITED"
         const val EXAM_DELETED = "EXAM_DELETED"
+        const val QUESTION_CREATED = "QUESTION_CREATED"
+        const val QUESTION_EDITED = "QUESTION_EDITED"
+        const val QUESTION_DELETED = "QUESTION_DELETED"
         const val BROADCAST_SENT = "BROADCAST_SENT"
         const val BROADCAST_DELETED = "BROADCAST_DELETED"
         const val FEEDBACK_POST_CREATED = "FEEDBACK_POST_CREATED"
@@ -18,6 +26,36 @@ data class AdminAuditLog(
         const val FEEDBACK_POST_DELETED = "FEEDBACK_POST_DELETED"
         const val USER_STATUS_TOGGLED = "USER_STATUS_TOGGLED"
         const val ADMIN_ADDED = "ADMIN_ADDED"
+        const val ADMIN_REMOVED = "ADMIN_REMOVED"
+        const val ADMIN_RIGHTS_CHANGED = "ADMIN_RIGHTS_CHANGED"
+        const val MAINTENANCE_TOGGLED = "MAINTENANCE_TOGGLED"
+        const val GENERATE_NOW_TRIGGERED = "GENERATE_NOW_TRIGGERED"
+        const val FLOATING_LINK_UPDATED = "FLOATING_LINK_UPDATED"
+        const val BANNER_CREATED = "BANNER_CREATED"
+        const val BANNER_EDITED = "BANNER_EDITED"
+        const val BANNER_DELETED = "BANNER_DELETED"
+        const val CONFIG_UPDATED = "CONFIG_UPDATED"
+
+        // Aliases with ACTION_ prefix for seamless compatibility
+        const val ACTION_EXAM_CREATED = EXAM_CREATED
+        const val ACTION_EXAM_EDITED = EXAM_EDITED
+        const val ACTION_EXAM_DELETED = EXAM_DELETED
+        const val ACTION_QUESTION_CREATED = QUESTION_CREATED
+        const val ACTION_QUESTION_EDITED = QUESTION_EDITED
+        const val ACTION_QUESTION_DELETED = QUESTION_DELETED
+        const val ACTION_BROADCAST_SENT = BROADCAST_SENT
+        const val ACTION_BROADCAST_DELETED = BROADCAST_DELETED
+        const val ACTION_FEEDBACK_POST_CREATED = FEEDBACK_POST_CREATED
+        const val ACTION_FEEDBACK_POST_EDITED = FEEDBACK_POST_EDITED
+        const val ACTION_FEEDBACK_POST_DELETED = FEEDBACK_POST_DELETED
+        const val ACTION_USER_STATUS_TOGGLED = USER_STATUS_TOGGLED
+        const val ACTION_ADMIN_ADDED = ADMIN_ADDED
+        const val ACTION_ADMIN_REMOVED = ADMIN_REMOVED
+        const val ACTION_ADMIN_RIGHTS_CHANGED = ADMIN_RIGHTS_CHANGED
+        const val ACTION_MAINTENANCE_TOGGLED = MAINTENANCE_TOGGLED
+        const val ACTION_GENERATE_NOW_TRIGGERED = GENERATE_NOW_TRIGGERED
+        const val ACTION_FLOATING_LINK_UPDATED = FLOATING_LINK_UPDATED
+    }
         const val ADMIN_REMOVED = "ADMIN_REMOVED"
         const val MAINTENANCE_TOGGLED = "MAINTENANCE_TOGGLED"
         const val GENERATE_NOW_TRIGGERED = "GENERATE_NOW_TRIGGERED"

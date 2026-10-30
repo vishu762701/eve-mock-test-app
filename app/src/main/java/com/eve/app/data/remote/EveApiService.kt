@@ -184,7 +184,12 @@ data class AdminAuditLogDto(
     val actionType: String = "",
     val description: String = "",
     val adminEmail: String = "",
-    val timestamp: Long = 0L
+    val timestamp: Long = 0L,
+    val actorUid: String? = null,
+    val targetType: String? = null,
+    val targetId: String? = null,
+    val source: String? = "server",
+    val metadata: Map<String, Any?>? = null
 )
 
 interface EveApiService {
@@ -627,7 +632,17 @@ interface EveApiService {
     suspend fun createAuditLog(@Body body: CreateAuditLogRequest): ApiResponse<Unit>
 
     @GET("api/admin/audit-log")
-    suspend fun getAdminAuditLogs(@Query("range") range: String = "all"): ApiResponse<List<AdminAuditLogDto>>
+    suspend fun getAdminAuditLogs(
+        @Query("range") range: String = "all",
+        @Query("before") before: Long? = null,
+        @Query("admin") admin: String? = null,
+        @Query("type") type: String? = null,
+        @Query("q") q: String? = null,
+        @Query("limit") limit: Int? = 50
+    ): ApiResponse<List<AdminAuditLogDto>>
+
+    @GET("api/admin/audit-log/types")
+    suspend fun getAuditLogTypes(): ApiResponse<List<String>>
 
     // Legacy public read contract for already-installed clients; editor writes are retired.
     @GET("api/typography/published")

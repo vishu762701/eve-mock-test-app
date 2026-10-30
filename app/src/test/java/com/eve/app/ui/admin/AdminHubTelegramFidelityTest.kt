@@ -89,4 +89,25 @@ class AdminHubTelegramFidelityTest {
         assertTrue("Rights layout must contain checkManageQuestions", rightsXml.contains("android:id=\"@+id/checkManageQuestions\""))
         assertTrue("Rights layout must contain btnDismissAdmin", rightsXml.contains("android:id=\"@+id/btnDismissAdmin\""))
     }
+
+    @Test
+    fun testRecentActionsTelegramLogFidelity() {
+        val logXml = File("src/main/res/layout/activity_activity_log.xml").readText()
+        assertTrue("Log layout must contain TelegramActionBar", logXml.contains("<com.eve.app.ui.admin.tg.TelegramActionBar"))
+        assertTrue("Log layout must contain TelegramSegmentedTabs", logXml.contains("<com.eve.app.ui.admin.tg.TelegramSegmentedTabs"))
+        assertTrue("Log layout must contain rvAuditLogs", logXml.contains("android:id=\"@+id/rvAuditLogs\""))
+        assertTrue("Log layout must contain progressBar", logXml.contains("android:id=\"@+id/progressBar\""))
+        assertTrue("Log layout must contain emptyContainer", logXml.contains("android:id=\"@+id/emptyContainer\""))
+        assertTrue("Log layout must use search lottie for empty state", logXml.contains("@raw/search"))
+
+        val activitySource = File("src/main/java/com/eve/app/ui/admin/ActivityLogActivity.kt").readText()
+        assertTrue("ActivityLogActivity must use AdminAccessGate", activitySource.contains("AdminAccessGate.requireAdmin"))
+        assertTrue("ActivityLogActivity must support cursor pagination", activitySource.contains("oldestTimestamp"))
+        assertTrue("ActivityLogActivity must support filter bottom sheet", activitySource.contains("showFilterSheet"))
+        assertTrue("ActivityLogActivity must support detail dialog", activitySource.contains("showLogDetailDialog"))
+
+        val adapterSource = File("src/main/java/com/eve/app/ui/admin/AuditLogAdapter.kt").readText()
+        assertTrue("AuditLogAdapter must support day grouping headers", adapterSource.contains("AuditLogListItem.Header"))
+        assertTrue("AuditLogAdapter must support log entries", adapterSource.contains("AuditLogListItem.Entry"))
+    }
 }

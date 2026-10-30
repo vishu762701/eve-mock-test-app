@@ -51,7 +51,9 @@ class TelegramActionBar @JvmOverloads constructor(
     val subtitleTextView: TextView = TextView(context)
 
     val searchButton: ImageButton = ImageButton(context)
+    val filterButton: ImageButton = ImageButton(context)
     val actionButton: ImageButton = ImageButton(context)
+    private var hasFilterAction: Boolean = false
     private val searchContainer: FrameLayout = FrameLayout(context)
     val searchEditText: EditText = EditText(context)
     val clearButton: ImageButton = ImageButton(context)
@@ -123,6 +125,17 @@ class TelegramActionBar @JvmOverloads constructor(
         searchButton.setOnClickListener {
             openSearch()
         }
+
+        // 3a. Filter Action Button
+        filterButton.setImageResource(R.drawable.ic_filter)
+        filterButton.scaleType = ImageView.ScaleType.CENTER
+        filterButton.setColorFilter(palette.textPrimary)
+        filterButton.setBackgroundResource(selectableBorderless)
+        filterButton.contentDescription = "Filter"
+        filterButton.visibility = View.GONE
+        addView(filterButton, LayoutParams(dp(48f), dp(48f), Gravity.END or Gravity.CENTER_VERTICAL).apply {
+            marginEnd = dp(52f)
+        })
 
         // 3b. Generic / Done Action Button
         actionButton.scaleType = ImageView.ScaleType.CENTER
@@ -206,6 +219,7 @@ class TelegramActionBar @JvmOverloads constructor(
             }
         }).start()
         searchButton.visibility = View.GONE
+        if (hasFilterAction) filterButton.visibility = View.GONE
     }
 
     fun closeSearch() {
@@ -218,9 +232,23 @@ class TelegramActionBar @JvmOverloads constructor(
             override fun onAnimationEnd(animation: Animator) {
                 searchContainer.visibility = View.GONE
                 searchButton.visibility = View.VISIBLE
+                if (hasFilterAction) filterButton.visibility = View.VISIBLE
                 onSearchCollapsed?.invoke()
             }
         }).start()
+    }
+
+    fun showFilterAction(onClick: () -> Unit) {
+        val palette = TelegramThemeEngine.resolveCurrentPalette(context)
+        hasFilterAction = true
+        filterButton.setColorFilter(palette.textPrimary)
+        filterButton.visibility = if (isSearchExpanded) View.GONE else View.VISIBLE
+        filterButton.setOnClickListener { onClick() }
+    }
+
+    fun hideFilterAction() {
+        hasFilterAction = false
+        filterButton.visibility = View.GONE
     }
 
     fun showDoneAction(onClick: () -> Unit) {

@@ -1,26 +1,112 @@
 <?xml version='1.0' encoding='utf-8'?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:clickable="true" android:focusable="true" android:orientation="vertical" style="@style/Widget.Eve.Token.Screen" android:clipChildren="false" android:clipToPadding="false">
-    <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.ToolbarRow">
-            <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/telegram_type_primary" style="@style/Widget.Eve.Token.IconButton" />
-            <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
-            <ImageButton android:id="@+id/btnRefresh" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Refresh" android:src="@drawable/ic_refresh" app:tint="@color/text_primary" style="@style/Widget.Eve.Token.IconButton" />
-        </LinearLayout>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="vertical"
+    style="@style/Widget.Eve.Token.Screen"
+    android:clipChildren="false"
+    android:clipToPadding="false">
+
+    <com.eve.app.ui.common.EveGlassToolbar
+        android:id="@+id/glassToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.eve.app.ui.admin.tg.TelegramActionBar
+            android:id="@+id/actionBar"
+            android:layout_width="match_parent"
+            android:layout_height="56dp" />
     </com.eve.app.ui.common.EveGlassToolbar>
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.LargeTitleBlock">
-        <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Activity &amp; Audit Log"  android:tag="eve_telegram_type" />
-    </LinearLayout>
-    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
-        <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Read-only activity trail recording exam changes, broadcast dispatch, feedback moderation, and maintenance events." />
-        <com.google.android.material.chip.ChipGroup android:id="@+id/chipGroupAuditFilter" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:layout_marginBottom="@dimen/design_card_gap" app:singleSelection="true">
-            <com.google.android.material.chip.Chip android:id="@+id/chipToday" style="@style/Widget.Eve.Token.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Today" />
-            <com.google.android.material.chip.Chip android:id="@+id/chipLast7Days" style="@style/Widget.Eve.Token.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Last 7 days" />
-            <com.google.android.material.chip.Chip android:id="@+id/chipAllTime" style="@style/Widget.Eve.Token.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="All time" />
-        </com.google.android.material.chip.ChipGroup>
-        <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-            <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvAuditLogs" android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll" />
-            <com.eve.app.designsystem.TelegramRadialProgressView android:id="@+id/progressBar" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center" android:visibility="gone" />
-            <TextView android:id="@+id/tvEmpty" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:text="No activity logs recorded for this period." android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+
+        <com.eve.app.ui.admin.tg.TelegramSegmentedTabs
+            android:id="@+id/tabsRange"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tvActiveFilters"
+            style="@style/TextAppearance.Eve.Telegram.CellDetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="4dp"
+            android:textColor="@color/telegram_type_secondary"
+            android:visibility="gone" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipChildren="false"
+            android:clipToPadding="false">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvAuditLogs"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:clipChildren="false"
+                android:overScrollMode="never" />
+
+            <com.eve.app.designsystem.TelegramRadialProgressView
+                android:id="@+id/progressBar"
+                android:layout_width="@dimen/design_ring_size"
+                android:layout_height="@dimen/design_ring_size"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/emptyContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:visibility="gone">
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/lottieEmpty"
+                    android:layout_width="140dp"
+                    android:layout_height="140dp"
+                    app:lottie_rawRes="@raw/search"
+                    app:lottie_loop="true"
+                    app:lottie_autoPlay="true" />
+
+                <TextView
+                    android:id="@+id/tvEmptyTitle"
+                    style="@style/TextAppearance.Eve.Telegram.NavigationTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="No Recent Actions"
+                    android:tag="eve_telegram_type" />
+
+                <TextView
+                    android:id="@+id/tvEmptySubtitle"
+                    style="@style/TextAppearance.Eve.Telegram.CellDetail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center"
+                    android:text="No activity logs match the selected filters."
+                    android:tag="eve_telegram_type" />
+            </LinearLayout>
         </FrameLayout>
     </LinearLayout>
 </LinearLayout>

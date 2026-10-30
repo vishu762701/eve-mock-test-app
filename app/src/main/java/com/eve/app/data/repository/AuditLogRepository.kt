@@ -47,14 +47,28 @@ class AuditLogRepository(
         }
     }
 
-    suspend fun getLogs(timeRange: AuditLogTimeRange = AuditLogTimeRange.ALL_TIME): List<AdminAuditLog> = withContext(Dispatchers.IO) {
+    suspend fun getLogs(
+        timeRange: AuditLogTimeRange = AuditLogTimeRange.ALL_TIME,
+        before: Long? = null,
+        adminEmail: String? = null,
+        actionType: String? = null,
+        searchQuery: String? = null,
+        limit: Int = 50
+    ): List<AdminAuditLog> = withContext(Dispatchers.IO) {
         try {
             val rangeParam = when (timeRange) {
                 AuditLogTimeRange.TODAY -> "today"
                 AuditLogTimeRange.LAST_7_DAYS -> "7d"
                 AuditLogTimeRange.ALL_TIME -> "all"
             }
-            val response = api.getAdminAuditLogs(range = rangeParam)
+            val response = api.getAdminAuditLogs(
+                range = rangeParam,
+                before = before,
+                admin = adminEmail?.takeIf { it.isNotBlank() && it != "all" },
+                type = actionType?.takeIf { it.isNotBlank() && it != "ALL" },
+                q = searchQuery?.takeIf { it.isNotBlank() },
+                limit = limit
+            )
             if (response.success && response.data != null) {
                 response.data.map { dto ->
                     AdminAuditLog(
@@ -62,7 +76,12 @@ class AuditLogRepository(
                         actionType = dto.actionType,
                         description = dto.description,
                         adminEmail = dto.adminEmail,
-                        timestamp = dto.timestamp
+                        timestamp = dto.timestamp,
+                        actorUid = dto.actorUid,
+                        targetType = dto.targetType,
+                        targetId = dto.targetId,
+                        source = dto.source ?: "server",
+                        metadata = dto.metadata
                     )
                 }
             } else {
@@ -70,6 +89,20 @@ class AuditLogRepository(
             }
         } catch (e: Exception) {
             Log.e("AuditLogRepo", "Failed to fetch audit logs", e)
+            emptyList()
+        }
+    }
+
+    suspend fun getActionTypes(): List<String> = withContext(Dispatchers.IO) {
+        try {
+            val response = api.getAuditLogTypes()
+            if (response.success && response.data != null) {
+                response.data
+            } else {
+                emptyList()
+            }
+        } catch (e: Exception) {
+            Log.e("AuditLogRepo", "Failed to fetch audit log types", e)
             emptyList()
         }
     }

@@ -224,9 +224,48 @@ adminReportRoutes.delete("/:id", async (c) => {
 // ----------------------------------------------------------------------------
 // 3. Admin Audit Log Routes
 // POST /api/admin/audit-log
-// GET /api/admin/audit-log?range=today|7d|all
+// GET /api/admin/audit-log?range=today|7d|all&before=123456&admin=email&type=TYPE&q=search&limit=50
+// GET /api/admin/audit-log/types
 // ----------------------------------------------------------------------------
 adminAuditLogRoutes.use("*", requirePermission("view_analytics_logs"));
+
+const FORBIDDEN_METADATA_KEY_REGEX = /(token|secret|password|auth|answer|credential|phone|username|api_?key|secret_?key)/i;
+
+function safeFormatMetadata(raw: any): Record<string, any> | null {
+  if (!raw) return null;
+  let obj = raw;
+  if (typeof raw === "string") {
+    try {
+      obj = JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  }
+  if (typeof obj !== "object" || obj === null) return null;
+  const safe: Record<string, any> = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (FORBIDDEN_METADATA_KEY_REGEX.test(k)) continue;
+    if (typeof v === "string") {
+      safe[k] = v.length > 200 ? v.substring(0, 200) + "..." : v;
+    } else if (typeof v === "number" || typeof v === "boolean" || v === null) {
+      safe[k] = v;
+    } else if (Array.isArray(v)) {
+      safe[k] = v.slice(0, 20).filter((item) => typeof item === "string" || typeof item === "number" || typeof item === "boolean");
+    } else if (typeof v === "object") {
+      safe[k] = safeFormatMetadata(v);
+    }
+  }
+  return safe;
+}
+
+adminAuditLogRoutes.get("/types", async (c) => {
+  const db = c.env.DB;
+  const { results } = await db
+    .prepare("SELECT DISTINCT action_type FROM admin_audit_log ORDER BY action_type ASC")
+    .all<{ action_type: string }>();
+  const types = (results || []).map((r) => r.action_type).filter(Boolean);
+  return c.json({ success: true, data: types });
+});
 
 adminAuditLogRoutes.post("/", async (c) => {
   const user = c.get("user");
@@ -251,8 +290,14 @@ adminAuditLogRoutes.post("/", async (c) => {
 
 adminAuditLogRoutes.get("/", async (c) => {
   const range = c.req.query("range")?.trim().toLowerCase() || "all";
-  const now = Date.now();
+  const beforeRaw = c.req.query("before")?.trim();
+  const adminFilter = c.req.query("admin")?.trim().toLowerCase();
+  const typeFilter = c.req.query("type")?.trim().toUpperCase();
+  const searchQuery = c.req.query("q")?.trim();
+  const limitParam = parseInt(c.req.query("limit") || "50", 10);
+  const limit = Math.max(1, Math.min(isNaN(limitParam) ? 50 : limitParam, 100));
 
+  const now = Date.now();
   let cutoff = 0;
   if (range === "today") {
     const istOffset = 5.5 * 3600 * 1000;
@@ -263,21 +308,49 @@ adminAuditLogRoutes.get("/", async (c) => {
     cutoff = now - 7 * 86400 * 1000;
   }
 
-  const db = c.env.DB;
-  const { results } = await db
-    .prepare("SELECT * FROM admin_audit_log WHERE timestamp >= ? ORDER BY timestamp DESC LIMIT 200")
-    .bind(cutoff)
-    .all<AdminAuditLogRow>();
+  const conditions: string[] = [];
+  const bindings: any[] = [];
 
-  const list = (results || []).map((r) => {
-    let parsedMetadata = null;
-    if (r.metadata) {
-      try {
-        parsedMetadata = JSON.parse(r.metadata);
-      } catch {
-        parsedMetadata = { raw: r.metadata };
-      }
+  if (cutoff > 0) {
+    conditions.push("timestamp >= ?");
+    bindings.push(cutoff);
+  }
+
+  if (beforeRaw) {
+    const beforeTs = parseInt(beforeRaw, 10);
+    if (!isNaN(beforeTs) && beforeTs > 0) {
+      conditions.push("timestamp < ?");
+      bindings.push(beforeTs);
     }
+  }
+
+  if (adminFilter && adminFilter !== "all") {
+    conditions.push("LOWER(admin_email) = ?");
+    bindings.push(adminFilter);
+  }
+
+  if (typeFilter && typeFilter !== "ALL") {
+    conditions.push("action_type = ?");
+    bindings.push(typeFilter);
+  }
+
+  if (searchQuery) {
+    const escaped = `%${searchQuery.replace(/[%_\\]/g, "\\$&")}%`;
+    conditions.push("(description LIKE ? ESCAPE '\\' OR target_id LIKE ? ESCAPE '\\' OR admin_email LIKE ? ESCAPE '\\')");
+    bindings.push(escaped, escaped, escaped);
+  }
+
+  const whereClause = conditions.length > 0 ? "WHERE " + conditions.join(" AND ") : "";
+  const query = `SELECT * FROM admin_audit_log ${whereClause} ORDER BY timestamp DESC, id DESC LIMIT ?`;
+  bindings.push(limit + 1);
+
+  const db = c.env.DB;
+  const { results } = await db.prepare(query).bind(...bindings).all<AdminAuditLogRow>();
+  const rows = results || [];
+  const hasMore = rows.length > limit;
+  const listRows = hasMore ? rows.slice(0, limit) : rows;
+
+  const list = listRows.map((r) => {
     return {
       id: r.id,
       actionType: r.action_type,
@@ -287,10 +360,17 @@ adminAuditLogRoutes.get("/", async (c) => {
       actorUid: r.actor_uid || null,
       targetType: r.target_type || null,
       targetId: r.target_id || null,
-      metadata: parsedMetadata,
+      metadata: safeFormatMetadata(r.metadata),
       source: r.source || "server",
     };
   });
 
-  return c.json({ success: true, data: list });
+  const nextCursor = hasMore && list.length > 0 ? list[list.length - 1].timestamp : null;
+
+  return c.json({
+    success: true,
+    data: list,
+    nextCursor,
+    hasMore,
+  });
 });
