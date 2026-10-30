@@ -271,10 +271,10 @@
             android:background="@color/bg_app"
             android:visibility="gone" />
 
-        <ProgressBar
+        <com.eve.app.designsystem.TelegramRadialProgressView
             android:id="@+id/progressBarAdmin"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/design_ring_size"
+            android:layout_height="@dimen/design_ring_size"
             android:layout_gravity="center"
             android:visibility="gone" />
     </FrameLayout>
