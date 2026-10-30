@@ -25,7 +25,6 @@ import com.eve.app.ui.result.ResultTabs
 import com.eve.app.util.ThemeManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.chip.Chip
-import com.google.android.material.textfield.TextInputLayout
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -148,22 +147,16 @@ class DesignRecoveryTest {
                     assertEquals(context.getColor(R.color.surface), square.getPixel(dp(2), dp(2)))
                     square.recycle()
                     val profile = ActivityProfileBinding.inflate(inflater)
-                    profile.etName.setText("आरती शर्मा / A very long student name")
-                    profile.etDob.setText("31/12/2000")
-                    profile.tvEmail.text = "a.long.email.address@example.com"
+                    profile.tvName.text = "आरती शर्मा / A very long student name"
                     profile.tvEveId.text = "EV-12345678901234567890"
+                    profile.tvPhoneValue.text = "+91 98765 43210"
+                    profile.tvUsernameValue.text = "@ev_wk96r9"
+                    profile.tvBirthdayValue.text = "31/12/2000"
                     layout(profile.root)
-                    for (field in listOf(profile.tilName, profile.tilDob)) {
-                        assertEquals(TextInputLayout.BOX_BACKGROUND_OUTLINE, field.boxBackgroundMode)
-                        assertEquals(context.resources.getDimensionPixelSize(R.dimen.design_focus_stroke), field.boxStrokeWidth)
-                        assertEquals(context.resources.getDimensionPixelSize(R.dimen.design_focus_stroke), field.boxStrokeWidthFocused)
-                        assertTrue(field.editText!!.height >= dp(44))
-                        assertTrue(field.editText!!.bottom <= field.height)
-                    }
                     assertTrue(profile.btnCopyEveId.width >= dp(48))
-                    assertTrue(profile.btnChangePhoto.width >= dp(48))
-                    assertTrue(profile.btnSaveProfile.height >= dp(48))
-                    assertEquals(0, profile.btnAbout.strokeWidth)
+                    assertTrue(profile.btnSetPhoto.height >= dp(48))
+                    assertTrue(profile.btnEditInfo.height >= dp(48))
+                    assertTrue(profile.btnSettings.height >= dp(48))
                     result.tabLayoutResult.getTabAt(1)!!.select()
                     layout(result.root, width, 640)
                     readable(result.tvReviewPaletteTitle)
@@ -305,10 +298,10 @@ class DesignRecoveryTest {
                         activity.window.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
                         activity.setContentView(profile.root)
                         profile.tvName.text = "Aarti Sharma"
-                        profile.tvEmail.text = "aarti@example.com"
                         profile.tvEveId.text = "EV-ABC123"
-                        profile.etName.setText("Aarti Sharma")
-                        profile.etDob.setText("12/06/2001")
+                        profile.tvPhoneValue.text = "+91 98765 43210"
+                        profile.tvUsernameValue.text = "@aarti"
+                        profile.tvBirthdayValue.text = "12/06/2001"
                         // Match ProfilePhotoManager's native fallback without requiring a signed-in account.
                         profile.ivProfilePhoto.background = null
                         profile.ivProfilePhoto.setPadding(0, 0, 0, 0)
