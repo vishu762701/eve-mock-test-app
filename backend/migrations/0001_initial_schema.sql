@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS users (
     created_at INTEGER NOT NULL,               -- Epoch millis
     last_active INTEGER NOT NULL,              -- Epoch millis
     last_updated INTEGER DEFAULT 0,
-    fcm_token TEXT DEFAULT ''
+    fcm_token TEXT DEFAULT '',
+    disabled INTEGER DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS idx_users_last_active ON users (last_active);
 CREATE INDEX IF NOT EXISTS idx_users_email ON users (email);
