@@ -80,7 +80,9 @@ class AvatarDrawable(
 
     private val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = com.eve.app.designsystem.DesignTokens.color(context, R.attr.designOnAccent)
+        // EXACT upstream ThemeColors.java:155 key_avatar_text=#FFFFFFFF;
+        // AvatarDrawable.java:566 applies this role to every initial.
+        color = Color.WHITE
         textAlign = Paint.Align.CENTER
         typeface = FontManager.typeface(context, bold = true)
     }
@@ -104,7 +106,9 @@ class AvatarDrawable(
             0f, bounds.top.toFloat(), 0f, bounds.bottom.toFloat(),
             pair[0], pair[1], Shader.TileMode.CLAMP
         )
-        textPaint.color = com.eve.app.designsystem.DesignTokens.color(context, R.attr.designOnAccent)
+        // Not designOnAccent (which varies with EVE's button palette):
+        // the original Telegram avatar foreground is always pure white.
+        textPaint.color = Color.WHITE
         textPaint.textSize = context.resources.getDimension(R.dimen.design_type_heading)
     }
 
