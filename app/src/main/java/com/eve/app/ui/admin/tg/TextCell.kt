@@ -217,6 +217,21 @@ class TextCell @JvmOverloads constructor(
         (badgeTextView.layoutParams as? LayoutParams)?.marginEnd = margin
     }
 
+    fun setTextColor(color: Int) {
+        textView.setTextColor(color)
+    }
+
+    fun setIconColor(color: Int) {
+        iconView.setColorFilter(color)
+    }
+
+    fun makeRed() {
+        val red = context.getColor(R.color.system_red)
+        textView.setTextColor(red)
+        iconView.setColorFilter(red)
+        arrowView.visibility = View.GONE
+    }
+
     private fun updateOffsets(hasIcon: Boolean) {
         offsetFromImage = if (hasIcon) dp(58f) else dp(20f)
         (textLayout.layoutParams as? LayoutParams)?.marginStart = offsetFromImage

@@ -90,7 +90,7 @@ adminRoutes.post("/admins", requirePermission("manage_admins_rights"), async (c)
 
   // Caller cannot grant rights they do not hold unless owner
   if (!callerPerms?.isOwner) {
-    const callerRightsSet = new Set(callerPerms?.rights || []);
+    const callerRightsSet = new Set<string>(callerPerms?.rights || []);
     for (const r of requestedRights) {
       if (!callerRightsSet.has(r)) {
         return c.json({ success: false, error: `Cannot grant permission '${r}' which you do not possess` }, 403);
@@ -128,7 +128,7 @@ adminRoutes.post("/admins", requirePermission("manage_admins_rights"), async (c)
 // PUT /api/admin/admins/:email/rights - Update admin rights and custom title
 adminRoutes.put("/admins/:email/rights", requirePermission("manage_admins_rights"), async (c) => {
   const user = c.get("user");
-  const targetEmail = c.req.param("email").trim().toLowerCase();
+  const targetEmail = (c.req.param("email") || "").trim().toLowerCase();
   const db = c.env.DB;
   const callerEmail = (user?.email || "").trim().toLowerCase();
 
@@ -153,7 +153,7 @@ adminRoutes.put("/admins/:email/rights", requirePermission("manage_admins_rights
 
   // 4. Caller cannot self-escalate
   if (callerEmail === targetEmail && !callerPerms?.isOwner) {
-    const currentRights = new Set(callerPerms?.rights || []);
+    const currentRights = new Set<string>(callerPerms?.rights || []);
     for (const r of requestedRights) {
       if (!currentRights.has(r)) {
         return c.json({ success: false, error: "Self-escalation is not allowed: you cannot grant yourself rights you do not currently hold" }, 403);
@@ -163,7 +163,7 @@ adminRoutes.put("/admins/:email/rights", requirePermission("manage_admins_rights
 
   // 5. Caller cannot edit an admin whose rights exceed caller's (Telegram rule)
   if (!callerPerms?.isOwner) {
-    const callerRightsSet = new Set(callerPerms?.rights || []);
+    const callerRightsSet = new Set<string>(callerPerms?.rights || []);
     const targetRights = targetPerms?.rights || [];
     const targetHasExceeding = targetRights.some((r) => !callerRightsSet.has(r));
     if (targetHasExceeding) {
@@ -230,7 +230,7 @@ adminRoutes.put("/admins/:email/rights", requirePermission("manage_admins_rights
 // DELETE /api/admin/admins/:email - Remove dynamic admin
 adminRoutes.delete("/admins/:email", requirePermission("manage_admins_rights"), async (c) => {
   const user = c.get("user");
-  const email = c.req.param("email").trim().toLowerCase();
+  const email = (c.req.param("email") || "").trim().toLowerCase();
   const db = c.env.DB;
 
   // 1. Reject removing yourself
