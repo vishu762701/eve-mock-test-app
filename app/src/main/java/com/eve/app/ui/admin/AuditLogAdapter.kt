@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.data.model.AdminAuditLog
 import com.eve.app.databinding.ItemAuditLogBinding
 import com.eve.app.databinding.ItemAuditLogHeaderBinding
+import com.eve.app.util.AvatarDrawable
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -109,7 +110,7 @@ class AuditLogAdapter(
         fun bind(log: AdminAuditLog) {
             val email = log.adminEmail.ifBlank { "Admin" }
             b.tvAdminEmail.text = email
-            b.tvAvatarInitials.text = email.take(1).uppercase(Locale.getDefault())
+            b.ivAvatar.setImageDrawable(AvatarDrawable.create(b.root.context, email, email))
 
             b.tvDescription.text = log.description
             b.tvActionBadge.text = log.actionBadge
