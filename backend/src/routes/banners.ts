@@ -7,6 +7,7 @@ import { Hono } from "hono";
 import { requireAdmin } from "../middleware/authMiddleware";
 import { SupabaseStorage } from "../supabase";
 import { AuthUser, Env, HomeBannerRow } from "../types";
+import { prepareAdminAuditLog } from "../util/auditLog";
 
 export const bannerRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
@@ -130,14 +131,23 @@ bannerRoutes.post("/", requireAdmin, async (c) => {
   const nextOrder = (maxOrderRow?.max_order ?? -1) + 1;
   const now = Date.now();
 
-  await db
+  const insertStmt = db
     .prepare(
       `INSERT INTO home_banners (
          id, image_url, storage_path, order_index, uploaded_at, uploaded_by, active, link_url, link_label
        ) VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?)`
     )
-    .bind(id, imageUrl, storagePath, nextOrder, now, user.email, link.url, link.label)
-    .run();
+    .bind(id, imageUrl, storagePath, nextOrder, now, user.email, link.url, link.label);
+
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "BANNER_ADDED",
+    description: `Added home banner '${id}'`,
+    targetType: "banner",
+    targetId: id,
+    metadata: { order: nextOrder, linkUrl: link.url, linkLabel: link.label },
+  });
+
+  await db.batch([insertStmt, auditStmt]);
 
   return c.json(
     {
@@ -160,6 +170,7 @@ bannerRoutes.post("/", requireAdmin, async (c) => {
 
 // PUT /api/banners/:id/link - Set or clear an existing banner's optional CTA.
 bannerRoutes.put("/:id/link", requireAdmin, async (c) => {
+  const user = c.get("user");
   const id = c.req.param("id") || "";
   const body = await c.req.json().catch(() => ({})) as Record<string, unknown>;
   const link = normalizeBannerLink(body.linkUrl, body.linkLabel);
@@ -171,14 +182,23 @@ bannerRoutes.put("/:id/link", requireAdmin, async (c) => {
   const current = await db.prepare("SELECT id FROM home_banners WHERE id = ?").bind(id).first<{ id: string }>();
   if (!current) return c.json({ success: false, error: "Banner not found" }, 404);
 
-  await db.prepare("UPDATE home_banners SET link_url = ?, link_label = ? WHERE id = ?")
-    .bind(link.url, link.label, id)
-    .run();
+  const updateStmt = db.prepare("UPDATE home_banners SET link_url = ?, link_label = ? WHERE id = ?")
+    .bind(link.url, link.label, id);
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "BANNER_LINK_UPDATED",
+    description: `Updated banner link for '${id}'`,
+    targetType: "banner",
+    targetId: id,
+    metadata: { linkUrl: link.url, linkLabel: link.label },
+  });
+  await db.batch([updateStmt, auditStmt]);
+
   return c.json({ success: true, data: { linkUrl: link.url, linkLabel: link.label } });
 });
 
 // DELETE /api/banners/:id - Delete banner and purge file (Admin)
 bannerRoutes.delete("/:id", requireAdmin, async (c) => {
+  const user = c.get("user");
   const id = c.req.param("id") || "";
   const db = c.env.DB;
 
@@ -188,7 +208,16 @@ bannerRoutes.delete("/:id", requireAdmin, async (c) => {
     .first<HomeBannerRow>();
 
   if (!banner) return c.json({ success: false, error: 'Banner not found' }, 404);
-  await db.prepare("DELETE FROM home_banners WHERE id = ?").bind(id).run();
+
+  const deleteStmt = db.prepare("DELETE FROM home_banners WHERE id = ?").bind(id);
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "BANNER_DELETED",
+    description: `Deleted banner '${id}'`,
+    targetType: "banner",
+    targetId: id,
+  });
+  await db.batch([deleteStmt, auditStmt]);
+
   if (banner.storage_path && !await cleanupMedia(c.env, banner.storage_path, c.res.headers.get('X-Request-ID'))) {
     return c.json({ success: true, message: 'Banner removed. Media cleanup was not completed; check System Monitor.' });
   }
@@ -197,6 +226,7 @@ bannerRoutes.delete("/:id", requireAdmin, async (c) => {
 
 // PUT /api/banners/:id/reorder - Swap order with adjacent banner (Admin)
 bannerRoutes.put("/:id/reorder", requireAdmin, async (c) => {
+  const user = c.get("user");
   const id = c.req.param("id") || "";
   const body = await c.req.json().catch(() => ({}));
   const moveUp = Boolean(body.moveUp);
@@ -223,9 +253,18 @@ bannerRoutes.put("/:id/reorder", requireAdmin, async (c) => {
   const current = banners[index];
   const target = banners[targetIndex];
 
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "BANNER_REORDERED",
+    description: `Reordered banner '${id}' (${moveUp ? "up" : "down"})`,
+    targetType: "banner",
+    targetId: id,
+    metadata: { fromOrder: current.order_index, toOrder: target.order_index },
+  });
+
   await db.batch([
     db.prepare("UPDATE home_banners SET order_index = ? WHERE id = ?").bind(target.order_index, current.id),
     db.prepare("UPDATE home_banners SET order_index = ? WHERE id = ?").bind(current.order_index, target.id),
+    auditStmt,
   ]);
 
   return c.json({ success: true });

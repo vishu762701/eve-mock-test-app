@@ -834,10 +834,6 @@ class ManageExamsActivity : EveBaseActivity() {
                             showGenerationErrorDialog(res.error, null)
                         } else {
                             val generatedCount = res.data?.get("questionCount") ?: count
-                            auditLogRepo.recordLog(
-                                AdminAuditLog.ACTION_GENERATE_NOW_TRIGGERED,
-                                "Triggered manual generation for '$examName': $generatedCount questions"
-                            )
                             apiUsageRepo.incrementGeminiCalls()
                             TelegramNativeAlertDialog.Builder(this@ManageExamsActivity)
                                 .setTitle("Generation Successful")
@@ -1267,10 +1263,6 @@ class ManageExamsActivity : EveBaseActivity() {
                         publishMode = publishMode
                     )
                     Log.d("EVE_MANAGE_EXAM", "updateExamFullSettings success: examId=$currentExamId")
-                    auditLogRepo.recordLog(
-                        AdminAuditLog.ACTION_EXAM_EDITED,
-                        "Updated settings & AI config for '$name'"
-                    )
                     apiUsageRepo.incrementDocumentWrites(1)
                     AppBulletin.showSuccess(this@ManageExamsActivity, "Settings saved for '$name'")
                 } else {
@@ -1291,15 +1283,6 @@ class ManageExamsActivity : EveBaseActivity() {
                     )
                     Log.d("EVE_MANAGE_EXAM", "addExam success: newId=$newId, isSavingSubExam=$isSavingSubExam")
                     currentExamId = newId
-                    val auditMsg = if (isSavingSubExam) {
-                        "Created sub-exam '$name' under '${selectedMainExam?.examName}'"
-                    } else {
-                        "Created main exam '$name' with AI generation settings"
-                    }
-                    auditLogRepo.recordLog(
-                        AdminAuditLog.ACTION_EXAM_CREATED,
-                        auditMsg
-                    )
                     apiUsageRepo.incrementDocumentWrites(1)
                     binding.btnGenerateNow.visibility = View.VISIBLE
                     if (isNewSubExamMode) {

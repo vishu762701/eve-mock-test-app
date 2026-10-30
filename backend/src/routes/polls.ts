@@ -5,6 +5,7 @@
 import { Hono } from "hono";
 import { requireAdmin } from "../middleware/authMiddleware";
 import { AuthUser, Env, PollRow } from "../types";
+import { prepareAdminAuditLog } from "../util/auditLog";
 
 export const pollRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
@@ -110,35 +111,62 @@ pollRoutes.post("/", requireAdmin, async (c) => {
   const now = Date.now();
   const db = c.env.DB;
 
-  await db
+  const insertStmt = db
     .prepare(
       "INSERT INTO polls (id, question, options_json, created_at, ends_at, active, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)"
     )
-    .bind(id, question, JSON.stringify(options), now, endsAt, active, user.email)
-    .run();
+    .bind(id, question, JSON.stringify(options), now, endsAt, active, user.email);
+
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "POLL_CREATED",
+    description: `Created poll '${question}'`,
+    targetType: "poll",
+    targetId: id,
+    metadata: { question },
+  });
+
+  await db.batch([insertStmt, auditStmt]);
 
   return c.json({ success: true, data: { id } }, 201);
 });
 
 // PUT /api/polls/:id/status - Toggle poll active status (Admin)
 pollRoutes.put("/:id/status", requireAdmin, async (c) => {
+  const user = c.get("user");
   const id = c.req.param("id");
   const body = await c.req.json().catch(() => ({}));
   const active = body.active ? 1 : 0;
   const db = c.env.DB;
 
-  await db.prepare("UPDATE polls SET active = ? WHERE id = ?").bind(active, id).run();
+  const updateStmt = db.prepare("UPDATE polls SET active = ? WHERE id = ?").bind(active, id);
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "POLL_STATUS_UPDATED",
+    description: `${active ? "Activated" : "Deactivated"} poll '${id}'`,
+    targetType: "poll",
+    targetId: id,
+    metadata: { active: Boolean(active) },
+  });
+  await db.batch([updateStmt, auditStmt]);
   return c.json({ success: true });
 });
 
 // DELETE /api/polls/:id - Delete poll & votes (Admin)
 pollRoutes.delete("/:id", requireAdmin, async (c) => {
+  const user = c.get("user");
   const id = c.req.param("id");
   const db = c.env.DB;
+
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "POLL_DELETED",
+    description: `Deleted poll '${id}'`,
+    targetType: "poll",
+    targetId: id,
+  });
 
   await db.batch([
     db.prepare("DELETE FROM poll_votes WHERE poll_id = ?").bind(id),
     db.prepare("DELETE FROM polls WHERE id = ?").bind(id),
+    auditStmt,
   ]);
 
   return c.json({ success: true });

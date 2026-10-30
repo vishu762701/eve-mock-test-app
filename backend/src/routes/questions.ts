@@ -7,6 +7,7 @@ import { Hono } from "hono";
 import { requireAdmin } from "../middleware/authMiddleware";
 import { AuthUser, Env, QuestionRow } from "../types";
 import { hideAnswers } from "../util/clientProtocol";
+import { prepareAdminAuditLog } from "../util/auditLog";
 
 export const questionRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
@@ -159,10 +160,11 @@ questionRoutes.post("/", requireAdmin, async (c) => {
   }
 
   try { const valid = parseAndValidateQuestions(JSON.stringify([body]))[0]; correctAnswer = valid.correctAnswer; Object.assign(body, valid); } catch { return c.json({ success: false, error: "Question fields, options or answer are invalid" }, 400); }
+  const user = c.get("user");
   const id = crypto.randomUUID();
   const db = c.env.DB;
 
-  await db
+  const insertStmt = db
     .prepare(
       `INSERT INTO questions (
         id, exam_id, question_text, option_a, option_b, option_c, option_d,
@@ -190,14 +192,24 @@ questionRoutes.post("/", requireAdmin, async (c) => {
       String(body.optionCHi || ""),
       String(body.optionDHi || ""),
       String(body.explanationHi || "")
-    )
-    .run();
+    );
+
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "QUESTION_CREATED",
+    description: `Added question '${id}' to exam '${examId}'`,
+    targetType: "question",
+    targetId: id,
+    metadata: { examId, topic: String(body.topic || "") },
+  });
+
+  await db.batch([insertStmt, auditStmt]);
 
   return c.json({ success: true, data: { id } }, 201);
 });
 
 // POST /api/questions/batch - Batch add questions (Admin)
 questionRoutes.post("/batch", requireAdmin, async (c) => {
+  const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
   const questions: any[] = Array.isArray(body.questions) ? body.questions : [];
 
@@ -217,7 +229,7 @@ questionRoutes.post("/batch", requireAdmin, async (c) => {
     explanationHi: String(q.explanationHi || ""),
   }));
   // A single set insert is atomic and avoids one D1 query per imported question.
-  await db.prepare(`INSERT INTO questions (
+  const insertStmt = db.prepare(`INSERT INTO questions (
     id, exam_id, question_text, option_a, option_b, option_c, option_d,
     correct_answer, explanation, topic, is_pyq, pyq_year, pyq_paper,
     question_text_hi, option_a_hi, option_b_hi, option_c_hi, option_d_hi, explanation_hi
@@ -228,19 +240,30 @@ questionRoutes.post("/batch", requireAdmin, async (c) => {
     json_extract(value, '$.pyqYear'), json_extract(value, '$.pyqPaper'), json_extract(value, '$.questionTextHi'),
     json_extract(value, '$.optionAHi'), json_extract(value, '$.optionBHi'), json_extract(value, '$.optionCHi'),
     json_extract(value, '$.optionDHi'), json_extract(value, '$.explanationHi') FROM json_each(?)`)
-    .bind(JSON.stringify(records)).run();
+    .bind(JSON.stringify(records));
+
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "QUESTION_BATCH_CREATED",
+    description: `Batch imported ${questions.length} questions`,
+    targetType: "question",
+    targetId: "batch",
+    metadata: { count: questions.length },
+  });
+
+  await db.batch([insertStmt, auditStmt]);
 
   return c.json({ success: true, count: questions.length }, 201);
 });
 
 // PUT /api/questions/:id - Update single question (Admin)
 questionRoutes.put("/:id", requireAdmin, async (c) => {
+  const user = c.get("user");
   const id = c.req.param("id");
   const body = await c.req.json().catch(() => ({}));
   try { Object.assign(body, parseAndValidateQuestions(JSON.stringify([body]))[0]); } catch { return c.json({ success: false, error: "Question fields, options or answer are invalid" }, 400); }
   const db = c.env.DB;
 
-  await db
+  const updateStmt = db
     .prepare(
       `UPDATE questions SET
         exam_id = ?,
@@ -283,16 +306,35 @@ questionRoutes.put("/:id", requireAdmin, async (c) => {
       String(body.optionDHi || ""),
       String(body.explanationHi || ""),
       id
-    )
-    .run();
+    );
+
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "QUESTION_EDITED",
+    description: `Updated question '${id}'`,
+    targetType: "question",
+    targetId: id,
+    metadata: { examId: String(body.examId || ""), topic: String(body.topic || "") },
+  });
+
+  await db.batch([updateStmt, auditStmt]);
 
   return c.json({ success: true });
 });
 
 // DELETE /api/questions/:id - Delete question (Admin)
 questionRoutes.delete("/:id", requireAdmin, async (c) => {
+  const user = c.get("user");
   const id = c.req.param("id");
   const db = c.env.DB;
-  await db.prepare("DELETE FROM questions WHERE id = ?").bind(id).run();
+
+  const deleteStmt = db.prepare("DELETE FROM questions WHERE id = ?").bind(id);
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "QUESTION_DELETED",
+    description: `Deleted question '${id}'`,
+    targetType: "question",
+    targetId: id,
+  });
+
+  await db.batch([deleteStmt, auditStmt]);
   return c.json({ success: true });
 });

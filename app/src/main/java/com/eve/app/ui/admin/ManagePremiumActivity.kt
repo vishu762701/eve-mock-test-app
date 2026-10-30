@@ -187,10 +187,6 @@ class ManagePremiumActivity : EveBaseActivity() {
                 val res = ApiClient.api.updateAdminPremiumConfig(updated)
                 binding.progressAdmin.visibility = View.GONE
                 if (res.success) {
-                    auditRepo.recordLog(
-                        actionType = "PREMIUM_CONFIG_UPDATED",
-                        description = "Updated Premium plan '$planName' (Price: ₹$priceInr, Duration: $durationDays days, Lifetime: $isLifetime)"
-                    )
                     AppBulletin.showSuccess(this@ManagePremiumActivity, "Settings saved successfully!")
                     currentConfig = updated
                 } else {
@@ -264,10 +260,6 @@ class ManagePremiumActivity : EveBaseActivity() {
                             )
                         )
                         if (res.success) {
-                            auditRepo.recordLog(
-                                actionType = "PREMIUM_MANUALLY_GRANTED",
-                                description = "Manually granted Premium to '$target' (Lifetime: $isLife, Days: $days)"
-                            )
                             AppBulletin.showSuccess(this@ManagePremiumActivity, "Premium granted to $target")
                             loadUsers()
                         } else {
@@ -287,10 +279,6 @@ class ManagePremiumActivity : EveBaseActivity() {
             try {
                 val res = ApiClient.api.extendPremium(AdminExtendRequest(user.userId, 30))
                 if (res.success) {
-                    auditRepo.recordLog(
-                        actionType = "PREMIUM_EXTENDED",
-                        description = "Extended Premium by 30 days for user '${user.email.ifBlank { user.userId }}'"
-                    )
                     AppBulletin.showSuccess(this@ManagePremiumActivity, "Extended by 30 days")
                     loadUsers()
                 } else {
@@ -312,10 +300,6 @@ class ManagePremiumActivity : EveBaseActivity() {
                     try {
                         val res = ApiClient.api.revokePremium(AdminRevokeRequest(user.userId))
                         if (res.success) {
-                            auditRepo.recordLog(
-                                actionType = "PREMIUM_REVOKED",
-                                description = "Revoked Premium for user '${user.email.ifBlank { user.userId }}'"
-                            )
                             AppBulletin.showSuccess(this@ManagePremiumActivity, "Premium revoked")
                             loadUsers()
                         } else {

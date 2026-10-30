@@ -8,6 +8,7 @@ import { Hono } from "hono";
 import { requireAdmin } from "../middleware/authMiddleware";
 import { SupabaseStorage } from "../supabase";
 import { AuthUser, Env, ExamRow } from "../types";
+import { prepareAdminAuditLog, recordAdminAction } from "../util/auditLog";
 
 export const examRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
@@ -149,7 +150,7 @@ examRoutes.post("/", requireAdmin, async (c) => {
 
   const id = crypto.randomUUID();
 
-  await db
+  const insertStmt = db
     .prepare(
       `INSERT INTO exams (
         id, exam_name, time_limit_minutes, category, test_number, question_count,
@@ -173,8 +174,18 @@ examRoutes.post("/", requireAdmin, async (c) => {
       negValue,
       parentExamId,
       publishMode
-    )
-    .run();
+    );
+
+  const user = c.get("user");
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "EXAM_CREATED",
+    description: `Created exam '${name}' (${category})`,
+    targetType: "exam",
+    targetId: id,
+    metadata: { examName: name, category, parentExamId },
+  });
+
+  await db.batch([insertStmt, auditStmt]);
 
   return c.json({ success: true, data: { id } }, 201);
 });
@@ -265,7 +276,8 @@ examRoutes.put("/:id", requireAdmin, async (c) => {
     }
   }
 
-  await db
+  const user = c.get("user");
+  const updateStmt = db
     .prepare(
       `UPDATE exams SET
         exam_name = ?,
@@ -300,25 +312,44 @@ examRoutes.put("/:id", requireAdmin, async (c) => {
       parentExamId,
       publishMode,
       id
-    )
-    .run();
+    );
+
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "EXAM_EDITED",
+    description: `Updated exam '${examName}' (${id})`,
+    targetType: "exam",
+    targetId: id,
+    metadata: { examName, category, minutes, publishMode },
+  });
+
+  await db.batch([updateStmt, auditStmt]);
 
   return c.json({ success: true });
 });
 
 // PUT /api/exams/:id/image - Update image URL or base64 (Admin)
 examRoutes.put("/:id/image", requireAdmin, async (c) => {
+  const user = c.get("user");
   const id = c.req.param("id") || "";
   const body = await c.req.json().catch(() => ({}));
   const imageUrl = String(body.imageUrl || "").trim();
   const db = c.env.DB;
 
-  await db.prepare("UPDATE exams SET image_url = ? WHERE id = ?").bind(imageUrl, id).run();
+  const updateStmt = db.prepare("UPDATE exams SET image_url = ? WHERE id = ?").bind(imageUrl, id);
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "EXAM_IMAGE_UPDATED",
+    description: `Updated image for exam '${id}'`,
+    targetType: "exam",
+    targetId: id,
+  });
+
+  await db.batch([updateStmt, auditStmt]);
   return c.json({ success: true });
 });
 
 // PUT /api/exams/:id/rename - Rename exam with cascading updates (Admin)
 examRoutes.put("/:id/rename", requireAdmin, async (c) => {
+  const user = c.get("user");
   const id = c.req.param("id") || "";
   const body = await c.req.json().catch(() => ({}));
   const newName = String(body.newName || "").trim();
@@ -328,12 +359,21 @@ examRoutes.put("/:id/rename", requireAdmin, async (c) => {
     return c.json({ success: false, error: "New exam name cannot be empty" }, 400);
   }
 
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "EXAM_RENAMED",
+    description: `Renamed exam '${id}' to '${newName}'`,
+    targetType: "exam",
+    targetId: id,
+    metadata: { newName },
+  });
+
   await db.batch([
     db.prepare("UPDATE exams SET exam_name = ? WHERE id = ?").bind(newName, id),
     db.prepare("UPDATE generated_tests SET exam_name = ? WHERE exam_id = ?").bind(newName, id),
     db.prepare("UPDATE attempts SET exam_name = ? WHERE exam_id = ?").bind(newName, id),
     db.prepare("UPDATE leaderboard SET exam_name = ? WHERE exam_id = ?").bind(newName, id),
     db.prepare("UPDATE bookmarks SET exam_name = ? WHERE exam_id = ?").bind(newName, id),
+    auditStmt,
   ]);
 
   return c.json({ success: true });
@@ -347,16 +387,25 @@ examRoutes.get("/:id/deletion-info", requireAdmin, async (c) => {
 });
 
 examRoutes.post('/:id/unpublish-tests', requireAdmin, async (c) => {
+  const user = c.get('user');
   const id = c.req.param('id') || '';
   if (!await c.env.DB.prepare('SELECT id FROM exams WHERE id = ?').bind(id).first()) return c.json({ success: false, error: 'Exam not found' }, 404);
+  const { stmt: auditStmt } = prepareAdminAuditLog(c.env.DB, user, {
+    actionType: "EXAM_TESTS_UNPUBLISHED",
+    description: `Unpublished tests and disabled auto generation for exam '${id}'`,
+    targetType: "exam",
+    targetId: id,
+  });
   await c.env.DB.batch([
     c.env.DB.prepare("UPDATE generated_tests SET status = 'paused' WHERE exam_id = ?").bind(id),
     c.env.DB.prepare('UPDATE exams SET auto_generation_enabled = 0 WHERE id = ?').bind(id),
+    auditStmt,
   ]);
   return c.json({ success: true, message: 'Tests unpublished and automatic generation disabled. History and ongoing sessions preserved.' });
 });
 
 examRoutes.delete("/:id", requireAdmin, async (c) => {
+  const user = c.get("user");
   const id = c.req.param("id") || "";
   const db = c.env.DB;
 
@@ -369,6 +418,14 @@ examRoutes.delete("/:id", requireAdmin, async (c) => {
     const current = await deletionInfo(db, id, 'exam');
     return c.json({ success: false, error: current.message || 'Record changed. Refresh before retrying.', code: current.code || 'DELETE_RECORD_CHANGED', dependencies: current, requestId: c.res.headers.get('X-Request-ID') }, 409);
   }
+
+  await recordAdminAction(db, user, {
+    actionType: "EXAM_DELETED",
+    description: `Deleted exam '${id}'`,
+    targetType: "exam",
+    targetId: id,
+  });
+
   const path = exam?.syllabus_url?.split('/eve-media/')[1];
   if (path && !await cleanupMedia(c.env, path, c.res.headers.get('X-Request-ID'))) {
     return c.json({ success: true, message: 'Exam deleted. Media cleanup was not completed; check System Monitor.' });
@@ -419,22 +476,43 @@ examRoutes.post("/:id/syllabus", requireAdmin, async (c) => {
   const path = `syllabi/${id}_${Date.now()}.pdf`;
   const downloadUrl = await storage.uploadFile(path, pdfBytes, "application/pdf");
 
-  await db
+  const updateStmt = db
     .prepare("UPDATE exams SET syllabus_url = ?, syllabus_file_name = ? WHERE id = ?")
-    .bind(downloadUrl, fileName, id)
-    .run();
+    .bind(downloadUrl, fileName, id);
+
+  const user = c.get("user");
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "SYLLABUS_UPDATED",
+    description: `Uploaded syllabus '${fileName}' for exam '${id}'`,
+    targetType: "exam",
+    targetId: id,
+    metadata: { fileName },
+  });
+
+  await db.batch([updateStmt, auditStmt]);
 
   return c.json({ success: true, data: { syllabusUrl: downloadUrl, syllabusFileName: fileName } });
 });
 
 // DELETE /api/exams/:id/syllabus - Remove syllabus PDF (Admin)
 examRoutes.delete("/:id/syllabus", requireAdmin, async (c) => {
+  const user = c.get("user");
   const id = c.req.param("id") || "";
   const db = c.env.DB;
 
   const exam = await db.prepare("SELECT syllabus_url FROM exams WHERE id = ?").bind(id).first<ExamRow>();
   if (!exam) return c.json({ success: false, error: 'Exam not found' }, 404);
-  await db.prepare("UPDATE exams SET syllabus_url = '', syllabus_file_name = '' WHERE id = ?").bind(id).run();
+
+  const updateStmt = db.prepare("UPDATE exams SET syllabus_url = '', syllabus_file_name = '' WHERE id = ?").bind(id);
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "SYLLABUS_DELETED",
+    description: `Removed syllabus for exam '${id}'`,
+    targetType: "exam",
+    targetId: id,
+  });
+
+  await db.batch([updateStmt, auditStmt]);
+
   const path = exam.syllabus_url?.split('/eve-media/')[1];
   if (path && !await cleanupMedia(c.env, path, c.res.headers.get('X-Request-ID'))) {
     return c.json({ success: true, message: 'Syllabus removed from the exam. Media cleanup was not completed; check System Monitor.' });

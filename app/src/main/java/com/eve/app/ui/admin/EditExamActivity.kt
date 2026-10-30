@@ -196,10 +196,6 @@ class EditExamActivity : EveBaseActivity() {
             try {
                 examRepo.updateExam(updatedExam)
 
-                auditLogRepo.recordLog(
-                    AdminAuditLog.ACTION_EXAM_EDITED,
-                    "Updated exam details for '$newName'"
-                )
                 apiUsageRepo.incrementDocumentWrites(1)
                 currentExam = updatedExam
                 examName = newName

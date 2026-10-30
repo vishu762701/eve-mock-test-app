@@ -10,6 +10,7 @@ import { Hono } from "hono";
 import { GeminiProviderError } from "../ai/generator";
 import { requireAdmin } from "../middleware/authMiddleware";
 import { AuthUser, Env, ExamRow, GeneratedTestRow } from "../types";
+import { prepareAdminAuditLog, recordAdminAction } from "../util/auditLog";
 
 export const generatedTestRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
@@ -128,6 +129,7 @@ generatedTestRoutes.get("/:id", async (c) => {
 
 // PUT /api/generated-tests/:id/schedule - Schedule test (Admin)
 generatedTestRoutes.put("/:id/schedule", requireAdmin, async (c) => {
+  const user = c.get("user");
   const id = c.req.param("id") || "";
   const body = await c.req.json().catch(() => ({}));
   const availableFrom = Number(body.availableFrom);
@@ -137,12 +139,21 @@ generatedTestRoutes.put("/:id/schedule", requireAdmin, async (c) => {
   }
 
   const db = c.env.DB;
-  await db.prepare("UPDATE generated_tests SET available_from = ? WHERE id = ?").bind(availableFrom, id).run();
+  const updateStmt = db.prepare("UPDATE generated_tests SET available_from = ? WHERE id = ?").bind(availableFrom, id);
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "GENERATED_TEST_SCHEDULE_UPDATED",
+    description: `Updated schedule for test '${id}' (availableFrom=${availableFrom})`,
+    targetType: "generated_test",
+    targetId: id,
+    metadata: { availableFrom },
+  });
+  await db.batch([updateStmt, auditStmt]);
   return c.json({ success: true, data: { id, availableFrom } });
 });
 
 // PUT /api/generated-tests/:id/status - Update test status (Admin)
 generatedTestRoutes.put("/:id/status", requireAdmin, async (c) => {
+  const user = c.get("user");
   const id = c.req.param("id") || "";
   const body = await c.req.json().catch(() => ({}));
   const status = String(body.status || "paused").trim().toLowerCase();
@@ -157,7 +168,16 @@ generatedTestRoutes.put("/:id/status", requireAdmin, async (c) => {
       if (validated.length !== test.question_count) throw new Error("Question count mismatch");
     } catch { return c.json({ success: false, error: "Test has invalid questions or answer keys; repair it before publishing" }, 400); }
   }
-  await db.prepare("UPDATE generated_tests SET status = ? WHERE id = ?").bind(status, id).run();
+
+  const updateStmt = db.prepare("UPDATE generated_tests SET status = ? WHERE id = ?").bind(status, id);
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "GENERATED_TEST_STATUS_UPDATED",
+    description: `Updated test status for '${id}' to '${status}'`,
+    targetType: "generated_test",
+    targetId: id,
+    metadata: { status },
+  });
+  await db.batch([updateStmt, auditStmt]);
   return c.json({ success: true });
 });
 
@@ -169,6 +189,7 @@ generatedTestRoutes.get("/:id/deletion-info", requireAdmin, async (c) => {
 });
 
 generatedTestRoutes.delete("/:id", requireAdmin, async (c) => {
+  const user = c.get("user");
   const id = c.req.param("id") || "";
   const db = c.env.DB;
   if (!await db.prepare("SELECT id FROM generated_tests WHERE id = ?").bind(id).first()) return c.json({ success: false, error: "Record not found" }, 404);
@@ -179,11 +200,20 @@ generatedTestRoutes.delete("/:id", requireAdmin, async (c) => {
     const current = await deletionInfo(db, id, 'test');
     return c.json({ success: false, error: current.message || 'Record changed. Refresh before retrying.', code: current.code || 'DELETE_RECORD_CHANGED', dependencies: current, requestId: c.res.headers.get('X-Request-ID') }, 409);
   }
+
+  await recordAdminAction(db, user, {
+    actionType: "GENERATED_TEST_DELETED",
+    description: `Deleted generated test '${id}'`,
+    targetType: "generated_test",
+    targetId: id,
+  });
+
   return c.json({ success: true });
 });
 
 // POST /api/generated-tests/generate-now - On-demand AI test generation (Admin)
 generatedTestRoutes.post("/generate-now", requireAdmin, async (c) => {
+  const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
   const examId = String(body.examId || "").trim();
   const db = c.env.DB;
@@ -205,6 +235,13 @@ generatedTestRoutes.post("/generate-now", requireAdmin, async (c) => {
 
   try {
     const data = await runGeneration(c.env, exam, targetCount, testNumber, customPrompt, "manual", body.requestId ? String(body.requestId).slice(0, 100) : undefined);
+    await recordAdminAction(db, user, {
+      actionType: "GENERATE_NOW_TRIGGERED",
+      description: `Triggered AI generation for exam '${examName}' (${examId})`,
+      targetType: "generated_test",
+      targetId: examId,
+      metadata: { examId, examName, questionCount: targetCount, testNumber },
+    });
     return c.json({ success: true, data });
   } catch (err: any) {
     if (err instanceof GenerationBusyError) return c.json({ success: false, error: err.message, code: "GENERATION_BUSY" }, 409);

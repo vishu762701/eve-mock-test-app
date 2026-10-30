@@ -286,20 +286,8 @@ class ManageUsersActivity : EveBaseActivity() {
                         val success = adminRepo.toggleUserStatus(user.id, disable)
                         binding.progressBar.visibility = View.GONE
                         if (success) {
-                            // The server mutation is authoritative. Refresh even if an
-                            // independent audit-log write fails after the account changed.
+                            // The server mutation is authoritative.
                             loadUsers()
-                            try {
-                                auditLogRepo.recordLog(
-                                    AdminAuditLog.ACTION_USER_STATUS_TOGGLED,
-                                    if (disable) "Disabled/banned user: ${user.displayName} (${user.email})" else "Enabled user: ${user.displayName} (${user.email})"
-                                )
-                            } catch (cancel: CancellationException) {
-                                throw cancel
-                            } catch (auditError: Exception) {
-                                android.util.Log.e("ManageUsers", "Account changed but audit log failed", auditError)
-                                AppBulletin.showError(this@ManageUsersActivity, "Account updated; audit log unavailable")
-                            }
                             val msg = if (disable) "Account disabled successfully" else "Account enabled successfully"
                             AppBulletin.showSuccess(this@ManageUsersActivity, msg)
                         } else {

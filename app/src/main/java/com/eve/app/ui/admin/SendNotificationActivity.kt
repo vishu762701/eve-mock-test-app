@@ -20,8 +20,6 @@ import com.eve.app.data.remote.EveApiService
 import com.eve.app.databinding.ActivitySendNotificationBinding
 import com.eve.app.ui.common.ErrorStateView
 import kotlinx.coroutines.launch
-import com.eve.app.data.model.AdminAuditLog
-import com.eve.app.data.repository.AuditLogRepository
 import com.eve.app.data.repository.ApiUsageRepository
 
 class SendNotificationActivity : EveBaseActivity() {
@@ -29,7 +27,6 @@ class SendNotificationActivity : EveBaseActivity() {
     private lateinit var binding: ActivitySendNotificationBinding
     private lateinit var sentAdapter: SentBroadcastAdapter
     private val api: EveApiService = ApiClient.apiService
-    private val auditLogRepo = AuditLogRepository()
     private val apiUsageRepo = ApiUsageRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -188,10 +185,6 @@ class SendNotificationActivity : EveBaseActivity() {
                         listenToSentBroadcasts()
                         return@launch
                     }
-                    auditLogRepo.recordLog(
-                        AdminAuditLog.ACTION_BROADCAST_DELETED,
-                        "Deleted $confirmed of ${idsToDelete.size} requested in-app notices"
-                    )
                     val summary = if (confirmed == idsToDelete.size) {
                         "Deleted $confirmed notice${if (confirmed == 1) "" else "s"}"
                     } else {
@@ -274,10 +267,6 @@ class SendNotificationActivity : EveBaseActivity() {
                 if (!res.success) {
                     throw Exception(res.error ?: "Failed to delete broadcast")
                 }
-                auditLogRepo.recordLog(
-                    AdminAuditLog.ACTION_BROADCAST_DELETED,
-                    "Deleted broadcast '${broadcast.title}'"
-                )
                 AppBulletin.showSuccess(this@SendNotificationActivity, "Broadcast deleted successfully")
                 val updated = sentAdapter.currentList.filter { it.id != broadcast.id }
                 sentAdapter.submitList(updated)
@@ -360,10 +349,6 @@ class SendNotificationActivity : EveBaseActivity() {
                         "Failed to send: ${res.error ?: "Unknown error"}"
                     )
                 } else {
-                    auditLogRepo.recordLog(
-                        AdminAuditLog.ACTION_BROADCAST_SENT,
-                        "Published in-app notice '$title' for all users"
-                    )
                     apiUsageRepo.incrementDocumentWrites(1)
                     binding.etTitle.text?.clear()
                     binding.etMessage.text?.clear()

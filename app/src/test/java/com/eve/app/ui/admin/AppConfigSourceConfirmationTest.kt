@@ -29,8 +29,6 @@ class AppConfigSourceConfirmationTest {
     @Test fun adminAuthorizationAndOwnerWindowCleanupArePreserved() {
         assertTrue(source.contains("AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true)"))
         assertTrue(source.contains("adminRepo.updateAppConfig(config)"))
-        assertTrue(source.contains("auditLogRepo.recordLog("))
-        assertTrue(source.contains("AdminAuditLog.ACTION_MAINTENANCE_TOGGLED"))
         val destroy = source.substringAfter("override fun onDestroy()")
         assertTrue(destroy.contains("maintenanceConfirmationDialog?.dismiss()"))
         assertTrue(destroy.contains("maintenanceConfirmationDialog = null"))

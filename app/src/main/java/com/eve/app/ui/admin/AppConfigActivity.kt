@@ -112,10 +112,6 @@ class AppConfigActivity : EveBaseActivity() {
                 val success = adminRepo.updateAppConfig(config)
                 binding.progressBar.visibility = View.GONE
                 if (success) {
-                    auditLogRepo.recordLog(
-                        AdminAuditLog.ACTION_MAINTENANCE_TOGGLED,
-                        if (config.maintenance_mode) "Enabled maintenance mode: ${config.maintenance_message}" else "Disabled maintenance mode"
-                    )
                     AppBulletin.showSuccess(this@AppConfigActivity, "Configuration saved successfully!")
                 } else {
                     AppBulletin.showError(this@AppConfigActivity, "Failed to save configuration")

@@ -412,10 +412,6 @@ class AdminActivity : EveBaseActivity() {
                 )
 
                 viewModel.addQuestion(newQuestion) {
-                    auditLogRepo.recordLog(
-                        AdminAuditLog.ACTION_EXAM_EDITED,
-                        "Added question to ${selectedExam.examName}"
-                    )
                     apiUsageRepo.incrementDocumentWrites(1)
                     AppBulletin.showSuccess(this@AdminActivity, "Question added successfully!")
                 }
@@ -485,10 +481,7 @@ class AdminActivity : EveBaseActivity() {
                     return@setPositiveButton
                 }
                 viewModel.renameExam(exam.id, newName) {
-                    auditLogRepo.recordLog(
-                        AdminAuditLog.ACTION_EXAM_EDITED,
-                        "Renamed exam '${exam.examName}' to '$newName'"
-                    )
+                    AppBulletin.showSuccess(this@AdminActivity, "Renamed exam to '$newName'")
                 }
             }
             .setNegativeButton("Cancel", null)
@@ -502,10 +495,6 @@ class AdminActivity : EveBaseActivity() {
             .setMessage("Delete ${exam.examName}? This will permanently remove the exam and cannot be undone.")
             .setPositiveButton("Delete") { _, _ ->
                 viewModel.deleteExam(exam.id) {
-                    auditLogRepo.recordLog(
-                        AdminAuditLog.ACTION_EXAM_DELETED,
-                        "Deleted exam '${exam.examName}'"
-                    )
                     AppBulletin.showSuccess(this@AdminActivity, "Exam '${exam.examName}' deleted")
                 }
             }
@@ -537,10 +526,6 @@ class AdminActivity : EveBaseActivity() {
             .setMessage("Delete this question? This will permanently remove the question and cannot be undone.")
             .setPositiveButton("Delete") { _, _ ->
                 viewModel.deleteQuestion(q)
-                auditLogRepo.recordLog(
-                    AdminAuditLog.ACTION_EXAM_EDITED,
-                    "Deleted question: ${q.questionText.take(40)}"
-                )
                 AppBulletin.showSuccess(this@AdminActivity, "Question deleted")
             }
             .setNegativeButton("Cancel", null)
@@ -554,10 +539,6 @@ class AdminActivity : EveBaseActivity() {
             return
         }
         viewModel.addAdmin(email) {
-            auditLogRepo.recordLog(
-                AdminAuditLog.ACTION_ADMIN_ADDED,
-                "Added new admin email: $email"
-            )
             binding.etAdminEmail.text?.clear()
         }
     }
@@ -568,10 +549,6 @@ class AdminActivity : EveBaseActivity() {
             .setMessage("Remove $email? This will revoke admin privileges and cannot be undone.")
             .setPositiveButton("Remove") { _, _ ->
                 viewModel.removeAdmin(email)
-                auditLogRepo.recordLog(
-                    AdminAuditLog.ACTION_ADMIN_REMOVED,
-                    "Revoked admin privileges for: $email"
-                )
                 AppBulletin.showSuccess(this@AdminActivity, "Admin $email removed")
             }
             .setNegativeButton("Cancel", null)
@@ -655,10 +632,6 @@ class AdminActivity : EveBaseActivity() {
         lifecycleScope.launch {
             try {
                 val added = examRepo.addQuestions(questions)
-                auditLogRepo.recordLog(
-                    AdminAuditLog.ACTION_EXAM_EDITED,
-                    "Imported $added questions to exam"
-                )
                 apiUsageRepo.incrementDocumentWrites(added)
                 AppBulletin.showSuccess(this@AdminActivity, "Successfully imported $added questions!")
                 viewModel.loadQuestions(examId)
@@ -704,10 +677,6 @@ class AdminActivity : EveBaseActivity() {
                 val result = feedbackRepo.createFeedbackPost(title, message, authorId, authorEmail)
                 dialogBinding.btnPublishPost.isEnabled = true
                 result.onSuccess {
-                    auditLogRepo.recordLog(
-                        AdminAuditLog.ACTION_FEEDBACK_POST_CREATED,
-                        "Created feedback post '$title'"
-                    )
                     apiUsageRepo.incrementDocumentWrites(1)
                     AppBulletin.showSuccess(this@AdminActivity, "Feedback post published successfully!")
                     dialog.dismiss()
@@ -941,10 +910,6 @@ class AdminActivity : EveBaseActivity() {
                     lifecycleScope.launch {
                         floatingLinkRepo.clearFloatingLink()
                             .onSuccess {
-                                auditLogRepo.recordLog(
-                                    AdminAuditLog.ACTION_FLOATING_LINK_UPDATED,
-                                    "Cleared floating community link"
-                                )
                                 AppBulletin.showSuccess(this@AdminActivity, "Floating link cleared")
                                 dialog.dismiss()
                             }
@@ -971,10 +936,6 @@ class AdminActivity : EveBaseActivity() {
                 lifecycleScope.launch {
                     floatingLinkRepo.updateFloatingLink(finalUrl)
                         .onSuccess { cleanUrl ->
-                            auditLogRepo.recordLog(
-                                AdminAuditLog.ACTION_FLOATING_LINK_UPDATED,
-                                "Updated floating community link to $cleanUrl"
-                            )
                             AppBulletin.showSuccess(this@AdminActivity, "Floating link updated")
                             dialog.dismiss()
                         }
@@ -988,10 +949,6 @@ class AdminActivity : EveBaseActivity() {
                 lifecycleScope.launch {
                     floatingLinkRepo.clearFloatingLink()
                         .onSuccess {
-                            auditLogRepo.recordLog(
-                                AdminAuditLog.ACTION_FLOATING_LINK_UPDATED,
-                                "Cleared floating community link"
-                            )
                             AppBulletin.showSuccess(this@AdminActivity, "Floating link cleared")
                             dialog.dismiss()
                         }
@@ -1066,8 +1023,6 @@ class AdminActivity : EveBaseActivity() {
                             .setPositiveButton("Delete") { _, _ ->
                                 deleteFlow.removeConfirmed("feedback:${post.id}", {
                                     feedbackRepo.deleteFeedbackPost(post.id).getOrThrow()
-                                    // Audit logging is independent of the confirmed deletion.
-                                    lifecycleScope.launch { auditLogRepo.recordLog(AdminAuditLog.ACTION_FEEDBACK_POST_DELETED, "Deleted feedback post '${post.title}'") }
                                     null
                                 })
                             }
@@ -1124,10 +1079,6 @@ class AdminActivity : EveBaseActivity() {
                     val feedbackRepo = FeedbackRepository()
                     val res = feedbackRepo.updateFeedbackPost(post.id, newTitle, newMessage)
                     res.onSuccess {
-                        auditLogRepo.recordLog(
-                            AdminAuditLog.ACTION_FEEDBACK_POST_EDITED,
-                            "Updated feedback post '$newTitle'"
-                        )
                         AppBulletin.showSuccess(this@AdminActivity, "Feedback post updated successfully!")
                     }.onFailure { e ->
                         AppBulletin.showError(this@AdminActivity, "Failed to update: ${e.localizedMessage}")
@@ -1190,11 +1141,9 @@ class AdminActivity : EveBaseActivity() {
                 .setPositiveButton("Delete") { _, _ ->
                     dialog.dismiss()
                     deleteFlow.removeConfirmed("feedback:${post.id}", {
-                                    feedbackRepo.deleteFeedbackPost(post.id).getOrThrow()
-                                    // Audit logging is independent of the confirmed deletion.
-                                    lifecycleScope.launch { auditLogRepo.recordLog(AdminAuditLog.ACTION_FEEDBACK_POST_DELETED, "Deleted feedback post '${post.title}'") }
-                                    null
-                                })
+                        feedbackRepo.deleteFeedbackPost(post.id).getOrThrow()
+                        null
+                    })
                 }
                 .setNegativeButton("Cancel", null)
                 .makeRed(DialogInterface.BUTTON_POSITIVE).show()
@@ -1318,12 +1267,6 @@ class AdminActivity : EveBaseActivity() {
                         maintenance_mode = isModeOn,
                         maintenance_message = message
                     )
-                )
-
-                // 3. Record in Audit Log
-                auditLogRepo.recordLog(
-                    AdminAuditLog.ACTION_MAINTENANCE_TOGGLED,
-                    if (isModeOn) "Turned ON maintenance mode: $message" else "Turned OFF maintenance mode"
                 )
 
                 binding.progressBarMaintenance.visibility = View.GONE

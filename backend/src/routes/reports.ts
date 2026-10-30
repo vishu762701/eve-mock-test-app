@@ -6,6 +6,7 @@ import { Hono } from "hono";
 import { requireAdmin } from "../middleware/authMiddleware";
 import { checkRateLimit } from "../middleware/rateLimiter";
 import { AuthUser, Env, QuestionReportRow, AdminAuditLogRow } from "../types";
+import { prepareAdminAuditLog, recordAdminAction } from "../util/auditLog";
 
 export const reportRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 export const adminReportRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
@@ -168,12 +169,21 @@ adminReportRoutes.get("/", async (c) => {
 
 adminReportRoutes.put("/:id/dismiss", async (c) => {
   const id = c.req.param("id");
+  const user = c.get("user");
   const db = c.env.DB;
-  await db.prepare("UPDATE question_reports SET status = 'dismissed' WHERE id = ?").bind(id).run();
+  const updateStmt = db.prepare("UPDATE question_reports SET status = 'dismissed' WHERE id = ?").bind(id);
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "REPORT_DISMISSED",
+    description: `Dismissed question report '${id}'`,
+    targetType: "question_report",
+    targetId: id,
+  });
+  await db.batch([updateStmt, auditStmt]);
   return c.json({ success: true });
 });
 
 adminReportRoutes.post("/dismiss-batch", async (c) => {
+  const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
   const ids: string[] = Array.isArray(body.ids) ? body.ids : [];
   if (ids.length === 0) {
@@ -184,14 +194,30 @@ adminReportRoutes.post("/dismiss-batch", async (c) => {
   const stmts = ids.map((id) =>
     db.prepare("UPDATE question_reports SET status = 'dismissed' WHERE id = ?").bind(id)
   );
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "REPORT_BATCH_DISMISSED",
+    description: `Batch dismissed ${ids.length} question reports`,
+    targetType: "question_report",
+    targetId: "batch",
+    metadata: { count: ids.length },
+  });
+  stmts.push(auditStmt);
   await db.batch(stmts);
   return c.json({ success: true });
 });
 
 adminReportRoutes.delete("/:id", async (c) => {
   const id = c.req.param("id");
+  const user = c.get("user");
   const db = c.env.DB;
-  await db.prepare("DELETE FROM question_reports WHERE id = ?").bind(id).run();
+  const deleteStmt = db.prepare("DELETE FROM question_reports WHERE id = ?").bind(id);
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "REPORT_DELETED",
+    description: `Deleted question report '${id}'`,
+    targetType: "question_report",
+    targetId: id,
+  });
+  await db.batch([deleteStmt, auditStmt]);
   return c.json({ success: true });
 });
 
@@ -206,23 +232,19 @@ adminAuditLogRoutes.post("/", async (c) => {
   const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
   const actionType = String(body.actionType || "").trim();
-  const description = String(body.description || "").trim();
-  const adminEmail = String(body.adminEmail || user?.email || "admin@eve.app").trim();
+  const description = String(body.description || "").trim().substring(0, 500);
 
-  if (!actionType) {
-    return c.json({ success: false, error: "actionType is required" }, 400);
+  if (!actionType || !/^[A-Z0-9_]{3,64}$/.test(actionType)) {
+    return c.json({ success: false, error: "Valid actionType is required" }, 400);
   }
 
-  const id = crypto.randomUUID();
-  const now = Date.now();
   const db = c.env.DB;
-
-  await db
-    .prepare(
-      "INSERT INTO admin_audit_log (id, action_type, description, admin_email, timestamp) VALUES (?, ?, ?, ?, ?)"
-    )
-    .bind(id, actionType, description, adminEmail, now)
-    .run();
+  const { id, stmt } = prepareAdminAuditLog(db, user, {
+    actionType,
+    description,
+    source: "client",
+  });
+  await stmt.run();
 
   return c.json({ success: true, data: { id } }, 201);
 });
@@ -247,13 +269,28 @@ adminAuditLogRoutes.get("/", async (c) => {
     .bind(cutoff)
     .all<AdminAuditLogRow>();
 
-  const list = (results || []).map((r) => ({
-    id: r.id,
-    actionType: r.action_type,
-    description: r.description,
-    adminEmail: r.admin_email,
-    timestamp: r.timestamp,
-  }));
+  const list = (results || []).map((r) => {
+    let parsedMetadata = null;
+    if (r.metadata) {
+      try {
+        parsedMetadata = JSON.parse(r.metadata);
+      } catch {
+        parsedMetadata = { raw: r.metadata };
+      }
+    }
+    return {
+      id: r.id,
+      actionType: r.action_type,
+      description: r.description,
+      adminEmail: r.admin_email,
+      timestamp: r.timestamp,
+      actorUid: r.actor_uid || null,
+      targetType: r.target_type || null,
+      targetId: r.target_id || null,
+      metadata: parsedMetadata,
+      source: r.source || "server",
+    };
+  });
 
   return c.json({ success: true, data: list });
 });

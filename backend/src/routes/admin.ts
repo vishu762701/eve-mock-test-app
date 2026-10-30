@@ -8,6 +8,7 @@ import { AuthUser, Env, PremiumConfigRow, PremiumEntitlementRow, PremiumOrderRow
 import { activateUserPremium, getPremiumConfig } from "./premium";
 import { getGeminiApiKeys, getModelChain, classifyGeminiError } from "../ai/generator";
 import { checkRateLimit } from "../middleware/rateLimiter";
+import { prepareAdminAuditLog, recordAdminAction, runBatch } from "../util/auditLog";
 
 export const adminRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
@@ -24,6 +25,7 @@ adminRoutes.get("/admins", async (c) => {
 
 // POST /api/admin/admins - Add dynamic admin
 adminRoutes.post("/admins", async (c) => {
+  const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
   const email = String(body.email || "").trim().toLowerCase();
   const db = c.env.DB;
@@ -32,20 +34,37 @@ adminRoutes.post("/admins", async (c) => {
     return c.json({ success: false, error: "Valid email required" }, 400);
   }
 
-  await db
+  const insertStmt = db
     .prepare("INSERT INTO admins (email, created_at) VALUES (?, ?) ON CONFLICT(email) DO NOTHING")
-    .bind(email, Date.now())
-    .run();
+    .bind(email, Date.now());
+
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "ADMIN_ADDED",
+    description: `Added dynamic admin '${email}'`,
+    targetType: "admin",
+    targetId: email,
+  });
+
+  await runBatch(db, [insertStmt, auditStmt]);
 
   return c.json({ success: true, data: { email } }, 201);
 });
 
 // DELETE /api/admin/admins/:email - Remove dynamic admin
 adminRoutes.delete("/admins/:email", async (c) => {
+  const user = c.get("user");
   const email = c.req.param("email").trim().toLowerCase();
   const db = c.env.DB;
 
-  await db.prepare("DELETE FROM admins WHERE email = ?").bind(email).run();
+  const deleteStmt = db.prepare("DELETE FROM admins WHERE email = ?").bind(email);
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "ADMIN_REMOVED",
+    description: `Removed dynamic admin '${email}'`,
+    targetType: "admin",
+    targetId: email,
+  });
+
+  await runBatch(db, [deleteStmt, auditStmt]);
   return c.json({ success: true });
 });
 
@@ -258,30 +277,48 @@ adminRoutes.get("/users", async (c) => {
 
 // POST /api/admin/users/:id/status - Toggle user disabled/ban status
 adminRoutes.post("/users/:id/status", async (c) => {
+  const user = c.get("user");
   const id = c.req.param("id");
   const body = await c.req.json().catch(() => ({}));
   const disabled = body.disabled === true ? 1 : 0;
   const db = c.env.DB;
 
   try {
-    const update = await db.prepare("UPDATE users SET disabled = ? WHERE id = ?")
-      .bind(disabled, id).run();
-    if ((update.meta?.changes ?? 0) === 0) {
+    const updateStmt = db.prepare("UPDATE users SET disabled = ? WHERE id = ?").bind(disabled, id);
+    const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+      actionType: "USER_STATUS_TOGGLED",
+      description: `${disabled ? "Disabled" : "Enabled"} user account '${id}'`,
+      targetType: "user",
+      targetId: id,
+      metadata: { disabled: Boolean(disabled) },
+    });
+    const batchRes = await runBatch(db, [updateStmt, auditStmt]);
+    if ((batchRes[0]?.meta?.changes ?? 0) === 0) {
       return c.json({ success: false, error: "User not found" }, 404);
     }
     return c.json({ success: true, data: { id, disabled: Boolean(disabled) } });
-  } catch (_: any) {
-    try {
-      await db.prepare("ALTER TABLE users ADD COLUMN disabled INTEGER DEFAULT 0").run();
-      const update = await db.prepare("UPDATE users SET disabled = ? WHERE id = ?")
-        .bind(disabled, id).run();
-      if ((update.meta?.changes ?? 0) === 0) {
-        return c.json({ success: false, error: "User not found" }, 404);
+  } catch (err: any) {
+    if (err?.message?.includes("no such column: disabled")) {
+      try {
+        await db.prepare("ALTER TABLE users ADD COLUMN disabled INTEGER DEFAULT 0").run();
+        const updateStmt = db.prepare("UPDATE users SET disabled = ? WHERE id = ?").bind(disabled, id);
+        const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+          actionType: "USER_STATUS_TOGGLED",
+          description: `${disabled ? "Disabled" : "Enabled"} user account '${id}'`,
+          targetType: "user",
+          targetId: id,
+          metadata: { disabled: Boolean(disabled) },
+        });
+        const batchRes = await runBatch(db, [updateStmt, auditStmt]);
+        if ((batchRes[0]?.meta?.changes ?? 0) === 0) {
+          return c.json({ success: false, error: "User not found" }, 404);
+        }
+        return c.json({ success: true, data: { id, disabled: Boolean(disabled) } });
+      } catch (e: any) {
+        return c.json({ success: false, error: e.message }, 500);
       }
-      return c.json({ success: true, data: { id, disabled: Boolean(disabled) } });
-    } catch (e: any) {
-      return c.json({ success: false, error: e.message }, 500);
     }
+    return c.json({ success: false, error: err?.message || "Failed to update user status" }, 500);
   }
 });
 
@@ -359,12 +396,23 @@ adminRoutes.put("/config", async (c) => {
   };
 
   try {
-    await db
+    const user = c.get("user");
+    const saveStmt = db
       .prepare(
-        "INSERT INTO app_content (id, title, body, updated_at, updated_by) VALUES ('app_config', 'App Configuration', ?, ?, 'admin') ON CONFLICT(id) DO UPDATE SET body = excluded.body, updated_at = excluded.updated_at"
+        "INSERT INTO app_content (id, title, body, updated_at, updated_by) VALUES ('app_config', 'App Configuration', ?, ?, ?) ON CONFLICT(id) DO UPDATE SET body = excluded.body, updated_at = excluded.updated_at, updated_by = excluded.updated_by"
       )
-      .bind(JSON.stringify(configObj), Date.now())
-      .run();
+      .bind(JSON.stringify(configObj), Date.now(), user?.email || "admin");
+
+    const actionType = prevConfig.maintenance_mode !== maintenanceMode ? "MAINTENANCE_TOGGLED" : "CONFIG_UPDATED";
+    const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+      actionType,
+      description: `Updated app configuration (maintenance=${maintenanceMode}, minVersion=${minVersion})`,
+      targetType: "app_content",
+      targetId: "app_config",
+      metadata: { maintenanceMode, minVersion, defaultPublishMode },
+    });
+
+    await runBatch(db, [saveStmt, auditStmt]);
 
     return c.json({ success: true, data: configObj });
   } catch (err: any) {
@@ -482,7 +530,15 @@ adminRoutes.put("/floating-link", async (c) => {
 
   const cleanUrl = validation.cleanUrl || "";
   if (!cleanUrl && newX === null && newY === null) {
-    await db.prepare("DELETE FROM app_content WHERE id = 'floating_link'").run();
+    const user = c.get("user");
+    const deleteStmt = db.prepare("DELETE FROM app_content WHERE id = 'floating_link'");
+    const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+      actionType: "FLOATING_LINK_UPDATED",
+      description: "Cleared floating link",
+      targetType: "app_content",
+      targetId: "floating_link",
+    });
+    await runBatch(db, [deleteStmt, auditStmt]);
     return c.json({ success: true, data: { url: "", x: null, y: null }, url: "", x: null, y: null });
   }
 
@@ -492,12 +548,21 @@ adminRoutes.put("/floating-link", async (c) => {
   const payload = JSON.stringify({ url: cleanUrl, x: newX, y: newY });
 
   try {
-    await db
+    const saveStmt = db
       .prepare(
         "INSERT INTO app_content (id, title, body, updated_at, updated_by) VALUES ('floating_link', 'Floating Link', ?, ?, ?) ON CONFLICT(id) DO UPDATE SET body = excluded.body, updated_at = excluded.updated_at, updated_by = excluded.updated_by"
       )
-      .bind(payload, now, updatedBy)
-      .run();
+      .bind(payload, now, updatedBy);
+
+    const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+      actionType: "FLOATING_LINK_UPDATED",
+      description: `Updated floating link to '${cleanUrl}'`,
+      targetType: "app_content",
+      targetId: "floating_link",
+      metadata: { url: cleanUrl, x: newX, y: newY },
+    });
+
+    await runBatch(db, [saveStmt, auditStmt]);
 
     return c.json({ success: true, data: { url: cleanUrl, x: newX, y: newY }, url: cleanUrl, x: newX, y: newY });
   } catch (err: any) {
@@ -564,7 +629,7 @@ adminRoutes.put("/premium/config", async (c) => {
   // The legacy database column stays empty for migration compatibility.
   const webhookSecret = "";
 
-  await db
+  const configStmt = db
     .prepare(
       `INSERT INTO premium_config (
          id, is_enabled, plan_name, price_inr, currency, duration_days, is_lifetime,
@@ -606,8 +671,17 @@ adminRoutes.put("/premium/config", async (c) => {
       webhookSecret,
       now,
       updatedBy
-    )
-    .run();
+    );
+
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "PREMIUM_CONFIG_UPDATED",
+    description: `Updated premium configuration (${planName}, ₹${priceInr})`,
+    targetType: "premium_config",
+    targetId: "default",
+    metadata: { planName, priceInr, currency, durationDays, isLifetime: Boolean(isLifetime) },
+  });
+
+  await runBatch(db, [configStmt, auditStmt]);
 
   return c.json({ success: true });
 });
@@ -726,12 +800,21 @@ adminRoutes.post("/premium/users/grant", async (c) => {
     "ADMIN_GRANTED"
   );
 
+  await recordAdminAction(db, user, {
+    actionType: "PREMIUM_GRANTED",
+    description: `Granted ${isLifetime ? "Lifetime" : `${durationDays}d`} premium to user '${targetUid}'`,
+    targetType: "user",
+    targetId: targetUid,
+    metadata: { planName, durationDays, isLifetime },
+  });
+
   return c.json({ success: true, data: entitlement });
 });
 
 // POST /api/admin/premium/users/extend - Extend existing Premium expiry
 adminRoutes.post("/premium/users/extend", async (c) => {
   const db = c.env.DB;
+  const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
   const userId = String(body.userId || "").trim();
   const additionalDays = parseInt(String(body.additionalDays || "30"), 10) || 30;
@@ -757,10 +840,19 @@ adminRoutes.post("/premium/users/extend", async (c) => {
   const baseTime = (existing.expires_at && existing.expires_at > now) ? existing.expires_at : now;
   const newExpiresAt = baseTime + additionalDays * 86400000;
 
-  await db
+  const updateStmt = db
     .prepare("UPDATE premium_entitlements SET expires_at = ?, status = 'ACTIVE', updated_at = ? WHERE user_id = ?")
-    .bind(newExpiresAt, now, userId)
-    .run();
+    .bind(newExpiresAt, now, userId);
+
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "PREMIUM_EXTENDED",
+    description: `Extended premium for user '${userId}' by ${additionalDays} days`,
+    targetType: "user",
+    targetId: userId,
+    metadata: { additionalDays, newExpiresAt },
+  });
+
+  await runBatch(db, [updateStmt, auditStmt]);
 
   return c.json({ success: true, data: { userId, expiresAt: newExpiresAt } });
 });
@@ -768,6 +860,7 @@ adminRoutes.post("/premium/users/extend", async (c) => {
 // POST /api/admin/premium/users/revoke - Revoke Premium
 adminRoutes.post("/premium/users/revoke", async (c) => {
   const db = c.env.DB;
+  const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
   const userId = String(body.userId || "").trim();
 
@@ -776,10 +869,18 @@ adminRoutes.post("/premium/users/revoke", async (c) => {
   }
 
   const now = Date.now();
-  await db
+  const revokeStmt = db
     .prepare("UPDATE premium_entitlements SET status = 'REVOKED', updated_at = ? WHERE user_id = ?")
-    .bind(now, userId)
-    .run();
+    .bind(now, userId);
+
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "PREMIUM_REVOKED",
+    description: `Revoked premium for user '${userId}'`,
+    targetType: "user",
+    targetId: userId,
+  });
+
+  await runBatch(db, [revokeStmt, auditStmt]);
 
   return c.json({ success: true, data: { userId, status: "REVOKED" } });
 });

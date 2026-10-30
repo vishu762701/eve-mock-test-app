@@ -3,6 +3,7 @@ import { requireAdmin } from '../middleware/authMiddleware';
 import { getGeminiApiKeys } from '../ai/generator';
 import { runGeneration, GenerationBusyError } from '../services/generation';
 import { AuthUser, Env, ExamRow } from '../types';
+import { recordAdminAction } from '../util/auditLog';
 
 export const monitoringRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 monitoringRoutes.use('*', requireAdmin);
@@ -64,6 +65,7 @@ monitoringRoutes.get('/operations', async (c) => {
 });
 
 monitoringRoutes.post('/jobs/:id/retry', async (c) => {
+  const user = c.get('user');
   const job = await c.env.DB.prepare('SELECT * FROM generation_jobs WHERE id = ?').bind(c.req.param('id')).first<any>();
   if (!job) return c.json({ success: false, error: 'Generation job not found' }, 404);
   if (job.status !== 'failed' || !job.retryable) return c.json({ success: false, error: 'This job is not retryable' }, 409);
@@ -72,6 +74,13 @@ monitoringRoutes.post('/jobs/:id/retry', async (c) => {
   try {
     // A retry uses current syllabus/settings and the failed job's requested count.
     const data = await runGeneration(c.env, exam, job.requested_count, exam.test_number || 'Test 1', exam.generation_prompt || exam.custom_prompt_notes || '', 'retry', `retry:${job.id}`);
+    await recordAdminAction(c.env.DB, user, {
+      actionType: "JOB_RETRIED",
+      description: `Retried generation job '${job.id}' for exam '${exam.exam_name}'`,
+      targetType: "generation_job",
+      targetId: job.id,
+      metadata: { examId: exam.id, examName: exam.exam_name },
+    });
     return c.json({ success: true, data });
   } catch (err) {
     return c.json({ success: false, error: err instanceof GenerationBusyError ? err.message : 'Generation retry failed; refresh operations for the safe category' }, err instanceof GenerationBusyError ? 409 : 502);

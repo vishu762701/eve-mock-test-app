@@ -5,6 +5,7 @@
 import { Hono } from "hono";
 import { requireAdmin } from "../middleware/authMiddleware";
 import { AuthUser, Env, NotificationRow } from "../types";
+import { prepareAdminAuditLog, recordAdminAction } from "../util/auditLog";
 
 export const broadcastRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
@@ -66,28 +67,55 @@ broadcastRoutes.post("/", requireAdmin, async (c) => {
   const now = Date.now();
 
   try {
-    await db
+    const insertStmt = db
       .prepare(
         "INSERT INTO notifications (id, title, message, sent_at, sent_by, type, target_category) VALUES (?, ?, ?, ?, ?, ?, ?)"
       )
-      .bind(id, title, message, now, user.email, type, targetCategory)
-      .run();
+      .bind(id, title, message, now, user.email, type, targetCategory);
+
+    const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+      actionType: "BROADCAST_SENT",
+      description: `Sent broadcast '${title}'`,
+      targetType: "broadcast",
+      targetId: id,
+      metadata: { title, type, targetCategory },
+    });
+
+    await db.batch([insertStmt, auditStmt]);
   } catch {
     try {
       await db.prepare("ALTER TABLE notifications ADD COLUMN target_category TEXT DEFAULT 'All Users'").run();
-      await db
+      const insertStmt = db
         .prepare(
           "INSERT INTO notifications (id, title, message, sent_at, sent_by, type, target_category) VALUES (?, ?, ?, ?, ?, ?, ?)"
         )
-        .bind(id, title, message, now, user.email, type, targetCategory)
-        .run();
+        .bind(id, title, message, now, user.email, type, targetCategory);
+
+      const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+        actionType: "BROADCAST_SENT",
+        description: `Sent broadcast '${title}'`,
+        targetType: "broadcast",
+        targetId: id,
+        metadata: { title, type, targetCategory },
+      });
+
+      await db.batch([insertStmt, auditStmt]);
     } catch {
-      await db
+      const insertStmt = db
         .prepare(
           "INSERT INTO notifications (id, title, message, sent_at, sent_by, type) VALUES (?, ?, ?, ?, ?, ?)"
         )
-        .bind(id, title, message, now, user.email, type)
-        .run();
+        .bind(id, title, message, now, user.email, type);
+
+      const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+        actionType: "BROADCAST_SENT",
+        description: `Sent broadcast '${title}'`,
+        targetType: "broadcast",
+        targetId: id,
+        metadata: { title, type },
+      });
+
+      await db.batch([insertStmt, auditStmt]);
     }
   }
 
@@ -96,6 +124,7 @@ broadcastRoutes.post("/", requireAdmin, async (c) => {
 
 // DELETE /api/broadcasts/:id - Delete single broadcast (Admin)
 broadcastRoutes.delete("/:id", requireAdmin, async (c) => {
+  const user = c.get("user");
   const id = c.req.param("id");
   const db = c.env.DB;
 
@@ -106,11 +135,20 @@ broadcastRoutes.delete("/:id", requireAdmin, async (c) => {
   if ((result.meta?.changes ?? 0) < 1) {
     return c.json({ success: false, error: "Broadcast not found or already deleted" }, 404);
   }
+
+  await recordAdminAction(db, user, {
+    actionType: "BROADCAST_DELETED",
+    description: `Deleted broadcast '${id}'`,
+    targetType: "broadcast",
+    targetId: id,
+  });
+
   return c.json({ success: true });
 });
 
 // POST /api/broadcasts/bulk-delete - Multi-select bulk delete (Admin)
 broadcastRoutes.post("/bulk-delete", requireAdmin, async (c) => {
+  const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
   const ids: unknown[] = Array.isArray(body.ids) ? body.ids : [];
   if (ids.length < 1 || ids.length > 100 ||
@@ -134,5 +172,14 @@ broadcastRoutes.post("/bulk-delete", requireAdmin, async (c) => {
   if (deletedCount < 1) {
     return c.json({ success: false, error: "No matching broadcasts remain" }, 404);
   }
+
+  await recordAdminAction(db, user, {
+    actionType: "BROADCAST_BULK_DELETED",
+    description: `Bulk deleted ${deletedCount} broadcasts`,
+    targetType: "broadcast",
+    targetId: "batch",
+    metadata: { count: deletedCount, requested: ids.length },
+  });
+
   return c.json({ success: true, count: deletedCount, data: { count: deletedCount, requested: ids.length } });
 });

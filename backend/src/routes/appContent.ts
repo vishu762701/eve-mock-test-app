@@ -5,6 +5,7 @@
 import { Hono } from "hono";
 import { requireAdmin } from "../middleware/authMiddleware";
 import { AppContentRow, AuthUser, Env } from "../types";
+import { prepareAdminAuditLog } from "../util/auditLog";
 
 export const appContentRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
@@ -149,7 +150,7 @@ appContentRoutes.put("/:type", requireAdmin, async (c) => {
   const website = String(body.website || "").trim();
   const address = String(body.address || "").trim();
 
-  await db
+  const updateStmt = db
     .prepare(
       `INSERT INTO app_content (id, title, body, updated_at, updated_by, support_email, phone, website, address)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -163,8 +164,17 @@ appContentRoutes.put("/:type", requireAdmin, async (c) => {
          website = excluded.website,
          address = excluded.address`
     )
-    .bind(type, title, textBody, now, user.email, supportEmail, phone, website, address)
-    .run();
+    .bind(type, title, textBody, now, user.email, supportEmail, phone, website, address);
+
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "APP_CONTENT_UPDATED",
+    description: `Updated app content for '${type}'`,
+    targetType: "app_content",
+    targetId: type,
+    metadata: { title },
+  });
+
+  await db.batch([updateStmt, auditStmt]);
 
   return c.json({ success: true });
 });

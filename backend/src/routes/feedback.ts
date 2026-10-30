@@ -11,6 +11,7 @@ import {
   FeedbackPostRow,
   FeedbackReplyRow,
 } from "../types";
+import { prepareAdminAuditLog, recordAdminAction } from "../util/auditLog";
 
 export const feedbackRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
@@ -74,22 +75,39 @@ feedbackRoutes.get("/messages", requireAdmin, async (c) => {
 
 // PUT /api/feedback/messages/:id/read - Mark feedback message read (Admin)
 feedbackRoutes.put("/messages/:id/read", requireAdmin, async (c) => {
+  const user = c.get("user");
   const id = c.req.param("id");
   const db = c.env.DB;
-  await db.prepare("UPDATE feedback_messages SET read = 1 WHERE id = ?").bind(id).run();
+  const updateStmt = db.prepare("UPDATE feedback_messages SET read = 1 WHERE id = ?").bind(id);
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "FEEDBACK_MESSAGE_READ",
+    description: `Marked feedback message '${id}' as read`,
+    targetType: "feedback_message",
+    targetId: id,
+  });
+  await db.batch([updateStmt, auditStmt]);
   return c.json({ success: true });
 });
 
 // DELETE /api/feedback/messages/:id - Delete feedback message (Admin)
 feedbackRoutes.delete("/messages/:id", requireAdmin, async (c) => {
+  const user = c.get("user");
   const id = c.req.param("id");
   const db = c.env.DB;
-  await db.prepare("DELETE FROM feedback_messages WHERE id = ?").bind(id).run();
+  const deleteStmt = db.prepare("DELETE FROM feedback_messages WHERE id = ?").bind(id);
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "FEEDBACK_MESSAGE_DELETED",
+    description: `Deleted feedback message '${id}'`,
+    targetType: "feedback_message",
+    targetId: id,
+  });
+  await db.batch([deleteStmt, auditStmt]);
   return c.json({ success: true });
 });
 
 // POST /api/feedback/messages/:id/reply - Admin reply to student feedback
 feedbackRoutes.post("/messages/:id/reply", requireAdmin, async (c) => {
+  const user = c.get("user");
   const id = c.req.param("id");
   const body = await c.req.json().catch(() => ({}));
   const reply = String(body.reply || "").trim();
@@ -118,6 +136,13 @@ feedbackRoutes.post("/messages/:id/reply", requireAdmin, async (c) => {
         .run();
     } catch {}
   }
+
+  await recordAdminAction(db, user, {
+    actionType: "FEEDBACK_REPLIED",
+    description: `Replied to feedback message '${id}'`,
+    targetType: "feedback_message",
+    targetId: id,
+  });
 
   return c.json({ success: true, data: { id, reply } });
 });
@@ -160,18 +185,28 @@ feedbackRoutes.post("/posts", requireAdmin, async (c) => {
   const now = Date.now();
   const db = c.env.DB;
 
-  await db
+  const insertStmt = db
     .prepare(
       "INSERT INTO feedback_posts (id, title, message, author_id, author_email, timestamp) VALUES (?, ?, ?, ?, ?, ?)"
     )
-    .bind(id, title, message, user.uid, user.email, now)
-    .run();
+    .bind(id, title, message, user.uid, user.email, now);
+
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "FEEDBACK_POST_CREATED",
+    description: `Created feedback post '${title}'`,
+    targetType: "feedback_post",
+    targetId: id,
+    metadata: { title },
+  });
+
+  await db.batch([insertStmt, auditStmt]);
 
   return c.json({ success: true, data: { id } }, 201);
 });
 
 // PUT /api/feedback/posts/:id - Edit post (Admin)
 feedbackRoutes.put("/posts/:id", requireAdmin, async (c) => {
+  const user = c.get("user");
   const id = c.req.param("id");
   const body = await c.req.json().catch(() => ({}));
   const title = String(body.title || "").trim();
@@ -182,22 +217,40 @@ feedbackRoutes.put("/posts/:id", requireAdmin, async (c) => {
   }
 
   const db = c.env.DB;
-  await db
+  const updateStmt = db
     .prepare("UPDATE feedback_posts SET title = ?, message = ? WHERE id = ?")
-    .bind(title, message, id)
-    .run();
+    .bind(title, message, id);
+
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "FEEDBACK_POST_EDITED",
+    description: `Edited feedback post '${title}'`,
+    targetType: "feedback_post",
+    targetId: id,
+    metadata: { title },
+  });
+
+  await db.batch([updateStmt, auditStmt]);
 
   return c.json({ success: true });
 });
 
 // DELETE /api/feedback/posts/:id - Delete post & cascade replies (Admin)
 feedbackRoutes.delete("/posts/:id", requireAdmin, async (c) => {
+  const user = c.get("user");
   const id = c.req.param("id");
   const db = c.env.DB;
+
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "FEEDBACK_POST_DELETED",
+    description: `Deleted feedback post '${id}'`,
+    targetType: "feedback_post",
+    targetId: id,
+  });
 
   await db.batch([
     db.prepare("DELETE FROM feedback_post_replies WHERE post_id = ?").bind(id),
     db.prepare("DELETE FROM feedback_posts WHERE id = ?").bind(id),
+    auditStmt,
   ]);
 
   return c.json({ success: true });
@@ -264,16 +317,32 @@ feedbackRoutes.post("/posts/:postId/replies", async (c) => {
 
 // PUT /api/feedback/posts/:postId/replies/:replyId/read - Mark reply read (Admin)
 feedbackRoutes.put("/posts/:postId/replies/:replyId/read", requireAdmin, async (c) => {
+  const user = c.get("user");
   const replyId = c.req.param("replyId");
   const db = c.env.DB;
-  await db.prepare("UPDATE feedback_post_replies SET read = 1 WHERE id = ?").bind(replyId).run();
+  const updateStmt = db.prepare("UPDATE feedback_post_replies SET read = 1 WHERE id = ?").bind(replyId);
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "FEEDBACK_REPLY_READ",
+    description: `Marked reply '${replyId}' as read`,
+    targetType: "feedback_reply",
+    targetId: replyId,
+  });
+  await db.batch([updateStmt, auditStmt]);
   return c.json({ success: true });
 });
 
 // DELETE /api/feedback/posts/:postId/replies/:replyId - Delete single reply (Admin)
 feedbackRoutes.delete("/posts/:postId/replies/:replyId", requireAdmin, async (c) => {
+  const user = c.get("user");
   const replyId = c.req.param("replyId");
   const db = c.env.DB;
-  await db.prepare("DELETE FROM feedback_post_replies WHERE id = ?").bind(replyId).run();
+  const deleteStmt = db.prepare("DELETE FROM feedback_post_replies WHERE id = ?").bind(replyId);
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "FEEDBACK_REPLY_DELETED",
+    description: `Deleted feedback reply '${replyId}'`,
+    targetType: "feedback_reply",
+    targetId: replyId,
+  });
+  await db.batch([deleteStmt, auditStmt]);
   return c.json({ success: true });
 });

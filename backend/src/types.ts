@@ -357,4 +357,9 @@ export interface AdminAuditLogRow {
   description: string;
   admin_email: string;
   timestamp: number;
+  actor_uid?: string | null;
+  target_type?: string | null;
+  target_id?: string | null;
+  metadata?: string | null;
+  source?: string | null;
 }
