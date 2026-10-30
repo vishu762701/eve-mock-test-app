@@ -94,8 +94,16 @@ class AvatarDrawable(
         super.onBoundsChange(bounds)
         if (bounds.width() <= 0 || bounds.height() <= 0) return
 
-        bgPaint.shader = null
-        bgPaint.color = com.eve.app.designsystem.DesignTokens.accent(context)
+        // Genuine Telegram avatar atoms:
+        // Components/AvatarDrawable.java:571-577 vertical gradient;
+        // ActionBar/ThemeColors.java:161-174 seven exact color pairs.
+        // EVE's stable user-ID hashing and initial extraction remain ADAPTED.
+        val pair = TELEGRAM_GRADIENTS[Math.floorMod(colorIndex, TELEGRAM_GRADIENTS.size)]
+        bgPaint.color = Color.WHITE
+        bgPaint.shader = LinearGradient(
+            0f, bounds.top.toFloat(), 0f, bounds.bottom.toFloat(),
+            pair[0], pair[1], Shader.TileMode.CLAMP
+        )
         textPaint.color = com.eve.app.designsystem.DesignTokens.color(context, R.attr.designOnAccent)
         textPaint.textSize = context.resources.getDimension(R.dimen.design_type_heading)
     }
