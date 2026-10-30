@@ -102,4 +102,31 @@ class TelegramNativeLogoutDialogTest {
         }
     }
 
+    @Test fun customViewPreservesOriginalViewIdentityAndCancellation() {
+        ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                val custom = android.widget.EditText(activity).apply {
+                    tag = "telegram_custom_input"
+                    hint = "Enter name"
+                }
+                val previousParent = android.widget.FrameLayout(activity).apply { addView(custom) }
+                var submissions = 0
+                val dialog = TelegramNativeAlertDialog.Builder(activity)
+                    .setTitle("Edit name")
+                    .setView(custom)
+                    .setPositiveButton("Save") { _, _ -> submissions++ }
+                    .setNegativeButton("Cancel", null).show()
+                try {
+                    assertFalse("View must detach its old parent", previousParent.indexOfChild(custom) >= 0)
+                    assertTrue(dialog.window!!.decorView.findViewWithTag<android.view.View>(
+                        "telegram_custom_input") === custom)
+                    dialog.getActionButton(DialogInterface.BUTTON_NEGATIVE)!!.performClick()
+                    assertEquals(0, submissions)
+                } finally {
+                    if (dialog.isShowing) dialog.dismiss()
+                }
+            }
+        }
+    }
+
 }

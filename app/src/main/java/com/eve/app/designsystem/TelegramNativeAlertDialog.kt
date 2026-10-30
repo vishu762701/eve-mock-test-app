@@ -26,6 +26,8 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -47,7 +49,8 @@ class TelegramNativeAlertDialog private constructor(
     private val onNegative: DialogInterface.OnClickListener?,
     private val rowItems: Array<out CharSequence>?,
     private val selectedItemIndex: Int,
-    private val onItemClick: DialogInterface.OnClickListener?
+    private val onItemClick: DialogInterface.OnClickListener?,
+    private val customContent: View?
 ) : Dialog(context, R.style.Theme_Eve_TelegramNativeDialog) {
 
     private fun dp(value: Int) = (value * context.resources.displayMetrics.density + 0.5f).toInt()
@@ -80,7 +83,7 @@ class TelegramNativeAlertDialog private constructor(
                 setPadding(dp(24), dp(19), dp(24), dp(10))
             }, LinearLayout.LayoutParams(-1, -2))
         }
-        if (messageText != null || rowItems != null) {
+        if (messageText != null || rowItems != null || customContent != null) {
             // Telegram AlertDialog.java:850-871,920,932-949: a single scroll host
             // for message + 50dp list cells, independent of the action row.
             val scrollContainer = LinearLayout(context).apply {
@@ -139,6 +142,14 @@ class TelegramNativeAlertDialog private constructor(
                     row.isSelected = index == selectedItemIndex
                 }
                 scrollContainer.addView(row, LinearLayout.LayoutParams(-1, dp(50)))
+            }
+            customContent?.let { child ->
+                // Telegram AlertDialog.java:950-956 detaches an existing parent before
+                // mounting the custom View into the dialog's scrollable content.
+                (child.parent as? ViewGroup)?.removeView(child)
+                scrollContainer.addView(child, LinearLayout.LayoutParams(-1, -2))
+                // Native EVE inputs use the standard IME resize path, no Telegram services.
+                window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
             }
             root.addView(ScrollView(context).apply {
                 isVerticalScrollBarEnabled = false
@@ -231,6 +242,7 @@ class TelegramNativeAlertDialog private constructor(
         private var items: Array<out CharSequence>? = null
         private var selectedItemIndex: Int = -1
         private var onItemClick: DialogInterface.OnClickListener? = null
+        private var customView: View? = null
         fun setTitle(value: CharSequence) = apply { title = value }
         fun setMessage(value: CharSequence) = apply { message = value }
         fun setPositiveButton(value: CharSequence, listener: DialogInterface.OnClickListener?) = apply {
@@ -239,6 +251,8 @@ class TelegramNativeAlertDialog private constructor(
         fun setNegativeButton(value: CharSequence, listener: DialogInterface.OnClickListener?) = apply {
             negative = value; onNegative = listener
         }
+        /** Telegram AlertDialog.Builder.setView():1845-1853, mount at 950-956. */
+        fun setView(view: View) = apply { customView = view }
         /** Original Telegram AlertDialog.Builder.setItems():1827-1842. */
         fun setItems(values: Array<out CharSequence>, listener: DialogInterface.OnClickListener?) = apply {
             items = values.copyOf(); selectedItemIndex = -1; onItemClick = listener
@@ -253,7 +267,7 @@ class TelegramNativeAlertDialog private constructor(
         }
         fun create() = TelegramNativeAlertDialog(
             context, title, message, positive, onPositive, negative, onNegative,
-            items, selectedItemIndex, onItemClick
+            items, selectedItemIndex, onItemClick, customView
         )
         fun show() = create().also { it.show() }
     }
