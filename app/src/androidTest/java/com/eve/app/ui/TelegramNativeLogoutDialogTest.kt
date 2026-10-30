@@ -199,8 +199,7 @@ class TelegramNativeLogoutDialogTest {
     @Test fun longReadOnlyMessageUsesScrollContainerAndCloseOnly() {
         ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
             scenario.onActivity { activity ->
-                val details = (1..80).joinToString("\\n") { "Question $it: explanation and review notes" }
-                var writes = 0
+                val details = (1..80).joinToString("\n") { "Question $it: explanation and review notes" }
                 val dialog = TelegramNativeAlertDialog.Builder(activity)
                     .setTitle("Test Preview")
                     .setMessage(details)
@@ -214,7 +213,6 @@ class TelegramNativeLogoutDialogTest {
                     assertEquals(details, message.text.toString())
                     assertTrue(message.parent.parent is android.widget.ScrollView)
                     dialog.getActionButton(DialogInterface.BUTTON_POSITIVE)!!.performClick()
-                    assertEquals(0, writes)
                     assertFalse(dialog.isShowing)
                 } finally {
                     if (dialog.isShowing) dialog.dismiss()
