@@ -277,7 +277,9 @@
                     <LinearLayout
                         android:id="@+id/cellMobile"
                         android:layout_width="match_parent"
-                        android:layout_height="60dp"
+                        android:layout_height="wrap_content"
+                        android:minHeight="60dp"
+                        android:paddingVertical="10dp"
                         android:clickable="true"
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackground"
@@ -313,7 +315,9 @@
                     <LinearLayout
                         android:id="@+id/cellUsername"
                         android:layout_width="match_parent"
-                        android:layout_height="60dp"
+                        android:layout_height="wrap_content"
+                        android:minHeight="60dp"
+                        android:paddingVertical="10dp"
                         android:clickable="true"
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackground"
@@ -349,7 +353,9 @@
                     <LinearLayout
                         android:id="@+id/cellBirthday"
                         android:layout_width="match_parent"
-                        android:layout_height="60dp"
+                        android:layout_height="wrap_content"
+                        android:minHeight="60dp"
+                        android:paddingVertical="10dp"
                         android:clickable="true"
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackground"
@@ -385,7 +391,9 @@
                     <LinearLayout
                         android:id="@+id/cellCategory"
                         android:layout_width="match_parent"
-                        android:layout_height="60dp"
+                        android:layout_height="wrap_content"
+                        android:minHeight="60dp"
+                        android:paddingVertical="10dp"
                         android:clickable="true"
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackground"
@@ -481,7 +489,9 @@
                     <LinearLayout
                         android:id="@+id/cellEveId"
                         android:layout_width="match_parent"
-                        android:layout_height="60dp"
+                        android:layout_height="wrap_content"
+                        android:minHeight="60dp"
+                        android:paddingVertical="10dp"
                         android:clickable="true"
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackground"
@@ -533,7 +543,9 @@
                     <LinearLayout
                         android:id="@+id/cellReminder"
                         android:layout_width="match_parent"
-                        android:layout_height="60dp"
+                        android:layout_height="wrap_content"
+                        android:minHeight="60dp"
+                        android:paddingVertical="10dp"
                         android:clickable="true"
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackground"
@@ -546,6 +558,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:layout_marginEnd="12dp"
                             android:text="Daily Practice Reminder" />
 
                         <com.eve.app.designsystem.TelegramSwitch
@@ -558,7 +571,9 @@
                     <LinearLayout
                         android:id="@+id/cellEditAbout"
                         android:layout_width="match_parent"
-                        android:layout_height="60dp"
+                        android:layout_height="wrap_content"
+                        android:minHeight="60dp"
+                        android:paddingVertical="10dp"
                         android:clickable="true"
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackground"
