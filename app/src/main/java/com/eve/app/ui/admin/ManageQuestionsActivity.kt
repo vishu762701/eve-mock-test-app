@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.R
 import com.eve.app.data.model.Exam
 import com.eve.app.data.model.Question
+import com.eve.app.data.repository.ExamRepository
 import com.eve.app.databinding.ActivityManageQuestionsBinding
 import com.eve.app.designsystem.TelegramNativeAlertDialog
 import com.eve.app.ui.common.EveBaseActivity
@@ -29,6 +30,7 @@ class ManageQuestionsActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityManageQuestionsBinding
     private val viewModel: AdminViewModel by viewModels()
+    private val examRepo = ExamRepository()
 
     private var exams: List<Exam> = emptyList()
     private var selectedExamForImageUpdate: Exam? = null
@@ -113,7 +115,7 @@ class ManageQuestionsActivity : EveBaseActivity() {
 
                         if (examList.isNotEmpty()) {
                             val pos = binding.spExam.selectedItemPosition.coerceAtLeast(0).coerceAtMost(examList.size - 1)
-                            viewModel.loadQuestionsForExam(examList[pos].id)
+                            viewModel.loadQuestions(examList[pos].id)
                         } else {
                             updateQuestionsUi(emptyList())
                         }
@@ -130,7 +132,7 @@ class ManageQuestionsActivity : EveBaseActivity() {
         binding.spExam.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 if (position in exams.indices) {
-                    viewModel.loadQuestionsForExam(exams[position].id)
+                    viewModel.loadQuestions(exams[position].id)
                 }
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
@@ -337,28 +339,64 @@ class ManageQuestionsActivity : EveBaseActivity() {
             return
         }
         val fileName = getFileName(uri) ?: "questions.csv"
-        AppBulletin.showProgress(this, "Parsing $fileName...")
+        try {
+            contentResolver.openInputStream(uri)?.use { stream ->
+                val result = QuestionImportHelper.parseQuestions(stream, fileName, selectedExam.id)
+                showBulkImportPreviewDialog(fileName, selectedExam, result)
+            }
+        } catch (e: Exception) {
+            AppBulletin.showError(this, "Failed to read file: ${e.message}")
+        }
+    }
 
+    private fun showBulkImportPreviewDialog(
+        fileName: String,
+        selectedExam: Exam,
+        result: QuestionImportHelper.ImportResult
+    ) {
+        val validCount = result.validQuestions.size
+        val errorCount = result.errors.size
+
+        val message = buildString {
+            append("Exam: ${selectedExam.examName}\n")
+            append("File: $fileName\n\n")
+            append("✅ $validCount questions ready to import.\n")
+            if (errorCount > 0) {
+                append("⚠️ $errorCount rows skipped due to errors:\n\n")
+                result.errors.take(8).forEach { err ->
+                    append("• Row ${err.rowNumber}: ${err.reason}\n")
+                }
+                if (errorCount > 8) {
+                    append("...and ${errorCount - 8} more errors.\n")
+                }
+            }
+            if (validCount == 0) {
+                append("\nNo valid questions found to import. Please check file format.")
+            }
+        }
+
+        val builder = TelegramNativeAlertDialog.Builder(this)
+            .setTitle("Bulk Question Import Preview")
+            .setMessage(message)
+
+        if (validCount > 0) {
+            builder.setPositiveButton("Import ($validCount questions)") { _, _ ->
+                importQuestionsForSelectedExam(selectedExam.id, result.validQuestions)
+            }
+            builder.setNegativeButton("Cancel", null)
+        } else {
+            builder.setPositiveButton("OK", null)
+        }
+
+        builder.show()
+    }
+
+    private fun importQuestionsForSelectedExam(examId: String, questions: List<Question>) {
         lifecycleScope.launch {
             try {
-                contentResolver.openInputStream(uri)?.use { inputStream ->
-                    val parsedQuestions = QuestionImportHelper.parseQuestions(
-                        context = this@ManageQuestionsActivity,
-                        fileName = fileName,
-                        inputStream = inputStream,
-                        targetExamId = selectedExam.id
-                    )
-
-                    if (parsedQuestions.isEmpty()) {
-                        AppBulletin.showError(this@ManageQuestionsActivity, "No valid questions found in file")
-                        return@launch
-                    }
-
-                    AppBulletin.showProgress(this@ManageQuestionsActivity, "Uploading ${parsedQuestions.size} questions...")
-                    viewModel.bulkAddQuestions(parsedQuestions) { count ->
-                        AppBulletin.showSuccess(this@ManageQuestionsActivity, "Successfully imported $count questions!")
-                    }
-                }
+                val added = examRepo.addQuestions(questions)
+                AppBulletin.showSuccess(this@ManageQuestionsActivity, "Successfully imported $added questions!")
+                viewModel.loadQuestions(examId)
             } catch (e: Exception) {
                 AppBulletin.showError(this@ManageQuestionsActivity, "Import failed: ${e.message}")
             }

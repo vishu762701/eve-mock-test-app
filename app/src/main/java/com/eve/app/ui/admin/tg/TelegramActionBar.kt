@@ -20,6 +20,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.eve.app.R
@@ -71,7 +72,7 @@ class TelegramActionBar @JvmOverloads constructor(
 
         // 1. Back button
         backButton.setImageResource(R.drawable.ic_back)
-        backButton.scaleType = ImageButton.ScaleType.CENTER
+        backButton.scaleType = ImageView.ScaleType.CENTER
         backButton.setColorFilter(palette.textPrimary)
         backButton.setBackgroundResource(selectableBorderless)
         backButton.contentDescription = "Back"
@@ -111,7 +112,7 @@ class TelegramActionBar @JvmOverloads constructor(
 
         // 3. Search Action Button
         searchButton.setImageResource(R.drawable.ic_search)
-        searchButton.scaleType = ImageButton.ScaleType.CENTER
+        searchButton.scaleType = ImageView.ScaleType.CENTER
         searchButton.setColorFilter(palette.textPrimary)
         searchButton.setBackgroundResource(selectableBorderless)
         searchButton.contentDescription = "Search"
@@ -151,7 +152,7 @@ class TelegramActionBar @JvmOverloads constructor(
         })
 
         clearButton.setImageResource(R.drawable.ic_close)
-        clearButton.scaleType = ImageButton.ScaleType.CENTER
+        clearButton.scaleType = ImageView.ScaleType.CENTER
         clearButton.setColorFilter(palette.textSecondary)
         clearButton.setBackgroundResource(selectableBorderless)
         clearButton.contentDescription = "Clear search"

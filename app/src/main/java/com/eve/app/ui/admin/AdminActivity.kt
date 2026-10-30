@@ -379,7 +379,7 @@ class AdminActivity : EveBaseActivity() {
                 }
                 launch {
                     viewModel.totalUsers.collect { total ->
-                        if (total > 0) {
+                        if (total != null && total > 0) {
                             binding.rowUsers.setValue("$total users")
                         }
                     }
@@ -705,8 +705,8 @@ class AdminActivity : EveBaseActivity() {
             }
         )
 
-        dialogBinding.rvBanners.layoutManager = LinearLayoutManager(this)
-        dialogBinding.rvBanners.adapter = bannerAdapter
+        dialogBinding.rvAdminBanners.layoutManager = LinearLayoutManager(this)
+        dialogBinding.rvAdminBanners.adapter = bannerAdapter
         refreshBannerList(dialogBinding)
 
         dialogBinding.btnPickBannerImage.setOnClickListener {
@@ -729,35 +729,31 @@ class AdminActivity : EveBaseActivity() {
             val rawUrl = dialogBinding.etBannerLinkUrl.text?.toString()?.trim().orEmpty()
             val rawLabel = dialogBinding.etBannerLinkLabel.text?.toString()?.trim().orEmpty()
 
-            val validation = HomeBannerLinkValidator.validate(rawUrl, rawLabel)
-            if (validation is HomeBannerLinkValidator.Result.Invalid) {
-                dialogBinding.tilBannerLinkUrl.error = validation.reason
+            val validationError = HomeBannerLinkValidator.validate(rawUrl, rawLabel)
+            if (validationError != null) {
+                dialogBinding.tilBannerLinkUrl.error = validationError
                 return@setOnClickListener
             }
             dialogBinding.tilBannerLinkUrl.error = null
 
-            val finalUrl = (validation as? HomeBannerLinkValidator.Result.Valid)?.cleanUrl
-            val finalLabel = (validation as? HomeBannerLinkValidator.Result.Valid)?.cleanLabel
-
             if (bannerId == null && uri == null) return@setOnClickListener
 
-            dialogBinding.progressBarBannerUpload.visibility = View.VISIBLE
             dialogBinding.btnSaveBanner.isEnabled = false
+            dialogBinding.btnSaveBanner.text = if (bannerId == null) "Uploading..." else "Saving..."
 
             lifecycleScope.launch {
                 try {
                     if (bannerId != null) {
-                        bannerRepo.updateBannerLink(bannerId, finalUrl, finalLabel)
+                        bannerRepo.updateBannerLink(bannerId, rawUrl, rawLabel)
                         AppBulletin.showSuccess(this@AdminActivity, "Banner link updated")
                     } else if (uri != null) {
-                        bannerRepo.uploadBanner(uri, finalUrl, finalLabel)
+                        bannerRepo.uploadBanner(this@AdminActivity, uri, rawUrl, rawLabel)
                         AppBulletin.showSuccess(this@AdminActivity, "Banner uploaded successfully")
                     }
-                    dialogBinding.progressBarBannerUpload.visibility = View.GONE
                     dialog.dismiss()
                 } catch (e: Exception) {
-                    dialogBinding.progressBarBannerUpload.visibility = View.GONE
                     dialogBinding.btnSaveBanner.isEnabled = true
+                    dialogBinding.btnSaveBanner.text = "Save & Publish Banner"
                     dialogBinding.tvBannerUploadError.text = e.localizedMessage ?: "Failed to save banner"
                     dialogBinding.tvBannerUploadError.visibility = View.VISIBLE
                 }
@@ -772,7 +768,7 @@ class AdminActivity : EveBaseActivity() {
         lifecycleScope.launch {
             try {
                 val banners = bannerRepo.getBanners()
-                (dialogBinding.rvBanners.adapter as? AdminBannerAdapter)?.submitList(banners)
+                (dialogBinding.rvAdminBanners.adapter as? AdminBannerAdapter)?.submitList(banners)
             } catch (_: Exception) {}
         }
     }
@@ -812,19 +808,35 @@ class AdminActivity : EveBaseActivity() {
 
         requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_POSITIVE)).setOnClickListener {
             val rawUrl = etUrl.text?.toString()?.trim().orEmpty()
-            val rawLabel = etLabel.text?.toString()?.trim().orEmpty()
-
-            val finalUrl = if (rawUrl.isNotEmpty()) {
-                if (!FloatingLinkRepository.isValidHttpsUrl(rawUrl)) {
-                    AppBulletin.showError(this, "URL must be valid HTTPS")
-                    return@setOnClickListener
+            if (rawUrl.isEmpty()) {
+                lifecycleScope.launch {
+                    try {
+                        floatingLinkRepo.clearFloatingLink()
+                        AppBulletin.showSuccess(this@AdminActivity, "Floating link cleared")
+                        dialog.dismiss()
+                    } catch (e: Exception) {
+                        AppBulletin.showError(this@AdminActivity, "Clear failed: ${e.message}")
+                    }
                 }
+                return@setOnClickListener
+            }
+
+            val finalUrl = if (!rawUrl.startsWith("http://", ignoreCase = true) &&
+                !rawUrl.startsWith("https://", ignoreCase = true)
+            ) {
+                "https://$rawUrl"
+            } else {
                 rawUrl
-            } else null
+            }
+
+            if (!FloatingLinkRepository.isValidHttpsUrl(finalUrl)) {
+                AppBulletin.showError(this, "URL must be valid HTTPS")
+                return@setOnClickListener
+            }
 
             lifecycleScope.launch {
                 try {
-                    floatingLinkRepo.updateFloatingLink(finalUrl, rawLabel.ifEmpty { null })
+                    floatingLinkRepo.updateFloatingLink(finalUrl)
                     AppBulletin.showSuccess(this@AdminActivity, "Floating link saved")
                     dialog.dismiss()
                 } catch (e: Exception) {
@@ -1000,100 +1012,50 @@ class AdminActivity : EveBaseActivity() {
     private fun exportExamData() {
         val progressDialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Exporting Exam Data")
-            .setMessage("Fetching exams from server...")
+            .setMessage("Fetching all exams and questions from server... Please wait.")
+            .setCancelable(false)
             .create()
-        progressDialog.setCancelable(false)
         progressDialog.show()
 
         lifecycleScope.launch {
             try {
-                val api = ApiClient.api
-                val allExamsList = mutableListOf<Map<String, Any?>>()
-                var currentOffset = 0
-                val chunkSize = 50
+                val exportList = mutableListOf<Map<String, Any?>>()
+                var offset = 0
+                val limit = 50
                 var hasMore = true
                 var totalServerExams = 0
                 var totalServerQuestions = 0
 
                 while (hasMore) {
-                    val response = api.exportExams(offset = currentOffset, limit = chunkSize)
-                    if (!response.isSuccessful || response.body()?.success != true) {
-                        val errMsg = response.body()?.error ?: "Export failed with HTTP ${response.code()}"
-                        throw IllegalStateException(errMsg)
+                    val response = com.eve.app.data.remote.ApiClient.apiService.exportExams(limit, offset)
+                    if (!response.success || response.data == null) {
+                        throw Exception(response.error ?: "Failed to fetch exam export data from server")
                     }
-
-                    val exportData = response.body()?.data ?: throw IllegalStateException("Empty export payload")
-                    totalServerExams = exportData.pagination.totalExams
-                    totalServerQuestions = exportData.pagination.totalQuestions
-
-                    exportData.exams.forEach { examDto ->
-                        val examMap = mutableMapOf<String, Any?>()
-                        examMap["id"] = examDto.id
-                        examMap["examName"] = examDto.examName
-                        examMap["category"] = examDto.category
-                        examMap["subCategory"] = examDto.subCategory
-                        examMap["imageUrl"] = examDto.imageUrl
-                        examMap["timeLimitMinutes"] = examDto.timeLimitMinutes
-                        examMap["negativeMarking"] = examDto.negativeMarking
-                        examMap["negativeMarksPerQuestion"] = examDto.negativeMarksPerQuestion
-                        examMap["instructions"] = examDto.instructions
-                        examMap["parentExamId"] = examDto.parentExamId
-                        examMap["publishMode"] = examDto.publishMode
-                        examMap["questionCount"] = examDto.questionCount
-                        examMap["autoGenerationEnabled"] = examDto.autoGenerationEnabled
-                        examMap["autoGenTime"] = examDto.autoGenTime
-                        examMap["generationPrompt"] = examDto.generationPrompt
-                        examMap["syllabusFileName"] = examDto.syllabusFileName
-                        examMap["syllabusUrl"] = examDto.syllabusUrl
-                        examMap["questions"] = examDto.questions.map { qDto ->
-                            mapOf(
-                                "id" to qDto.id,
-                                "examId" to qDto.examId,
-                                "questionText" to qDto.questionText,
-                                "optionA" to qDto.optionA,
-                                "optionB" to qDto.optionB,
-                                "optionC" to qDto.optionC,
-                                "optionD" to qDto.optionD,
-                                "correctAnswer" to qDto.correctAnswer,
-                                "explanation" to qDto.explanation,
-                                "topic" to qDto.topic,
-                                "isPyq" to qDto.isPyq,
-                                "pyqYear" to qDto.pyqYear,
-                                "pyqPaper" to qDto.pyqPaper
-                            )
-                        }
-                        allExamsList.add(examMap)
-                    }
-
-                    hasMore = exportData.pagination.hasMore
-                    currentOffset += chunkSize
+                    val data = response.data
+                    exportList.addAll(data.exams)
+                    totalServerExams = data.pagination.totalExams
+                    totalServerQuestions = data.pagination.totalQuestions
+                    hasMore = data.pagination.hasMore && data.exams.isNotEmpty()
+                    offset += limit
                 }
 
-                val rootExport = mapOf(
-                    "exportedAt" to SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).format(Date()),
-                    "version" to 1,
-                    "totalExams" to totalServerExams,
-                    "totalQuestions" to totalServerQuestions,
-                    "exams" to allExamsList
-                )
+                val dateStr = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
+                val fileName = "eve_backup_$dateStr.json"
+                val tempFileName = "$fileName.tmp"
+                val jsonString = com.google.gson.GsonBuilder().setPrettyPrinting().create().toJson(exportList)
 
-                val exportDir = File(cacheDir, "exports").apply { mkdirs() }
-                val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-                val destFile = File(exportDir, "eve_exam_backup_$timeStamp.json")
-                val tmpFile = File(exportDir, "eve_exam_backup_$timeStamp.json.tmp")
-
-                tmpFile.bufferedWriter().use { writer ->
-                    com.google.gson.GsonBuilder().setPrettyPrinting().create().toJson(rootExport, writer)
-                }
-
-                if (destFile.exists()) destFile.delete()
-                if (!tmpFile.renameTo(destFile)) {
-                    throw java.io.IOException("Atomic rename from temporary backup file failed")
+                val cacheFile = File(cacheDir, fileName)
+                val tempCacheFile = File(cacheDir, tempFileName)
+                tempCacheFile.writeText(jsonString)
+                if (cacheFile.exists()) cacheFile.delete()
+                if (!tempCacheFile.renameTo(cacheFile)) {
+                    cacheFile.writeText(jsonString)
+                    tempCacheFile.delete()
                 }
 
                 progressDialog.dismiss()
 
-                val contentUri = FileProvider.getUriForFile(this@AdminActivity, "${packageName}.fileprovider", destFile)
+                val contentUri = FileProvider.getUriForFile(this@AdminActivity, "${packageName}.fileprovider", cacheFile)
                 TelegramNativeAlertDialog.Builder(this@AdminActivity)
                     .setTitle("Export Complete")
                     .setMessage("Successfully exported $totalServerExams exams ($totalServerQuestions questions). Share or save the file:")
