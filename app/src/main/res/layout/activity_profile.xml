@@ -269,7 +269,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:layout_marginStart="20dp"
-                        android:background="?attr/colorHairline" />
+                        android:background="@color/category_pill_unselected_bg" />
 
                     <!-- Username -->
                     <LinearLayout
@@ -305,7 +305,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:layout_marginStart="20dp"
-                        android:background="?attr/colorHairline" />
+                        android:background="@color/category_pill_unselected_bg" />
 
                     <!-- Birthday -->
                     <LinearLayout
@@ -341,7 +341,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:layout_marginStart="20dp"
-                        android:background="?attr/colorHairline" />
+                        android:background="@color/category_pill_unselected_bg" />
 
                     <!-- Category -->
                     <LinearLayout
@@ -489,7 +489,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:layout_marginStart="20dp"
-                        android:background="?attr/colorHairline" />
+                        android:background="@color/category_pill_unselected_bg" />
 
                     <!-- Daily Reminder with Telegram Switch -->
                     <LinearLayout
