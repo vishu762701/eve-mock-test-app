@@ -5,18 +5,18 @@ import org.junit.Test
 import java.io.File
 
 class ManagePollSourceDialogContractTest {
-    @Test fun ownerPollDialogUsesOriginalSourceChromeAndSingleWindowGuard() {
+    @Test fun ownerPollDialogUsesIsolatedNativeHostAndSingleWindowGuard() {
         val code = File("src/main/java/com/eve/app/ui/admin/ManagePollsActivity.kt").readText()
         val body = code.substringAfter("private fun showCreatePollDialog()")
             .substringBefore("private fun pickCustomDateTime(")
         assertTrue(body.contains("if (isFinishing || isDestroyed || createPollDialog?.isShowing == true) return"))
-        assertTrue(body.contains("AlertDialog.Builder(this)"))
+        assertTrue(body.contains("TelegramNativeAlertDialog.Builder(this)"))
         assertTrue(body.contains(".setView(dialogBinding.root)"))
         assertTrue(body.contains(".create()"))
         assertTrue(body.contains("dialog.setOnDismissListener"))
         assertTrue(body.contains("dialog.show()"))
-        assertTrue(body.contains("TelegramDialogSourceBackground.apply(dialog)"))
-        assertTrue(body.indexOf("dialog.show()") < body.indexOf("TelegramDialogSourceBackground.apply(dialog)"))
+        assertTrue(!body.contains("TelegramDialogSourceBackground.apply(dialog)"))
+        assertTrue(code.contains("private var createPollDialog: TelegramNativeAlertDialog? = null"))
         assertTrue(body.contains("if (createPollDialog === dialog) createPollDialog = null"))
         assertTrue(code.contains("createPollDialog?.dismiss()"))
     }

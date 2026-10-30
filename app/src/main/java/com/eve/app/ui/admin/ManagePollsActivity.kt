@@ -11,9 +11,8 @@ import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.ImageButton
 import com.eve.app.util.AppBulletin
-import com.eve.app.ui.home.TelegramDialogSourceBackground
+import com.eve.app.designsystem.TelegramNativeAlertDialog
 import com.eve.app.util.AdminAccessGate
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,7 +21,6 @@ import com.eve.app.data.model.Poll
 import com.eve.app.data.repository.PollRepository
 import com.eve.app.databinding.ActivityManagePollsBinding
 import com.eve.app.databinding.DialogCreatePollBinding
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -32,7 +30,7 @@ class ManagePollsActivity : EveBaseActivity() {
     private lateinit var binding: ActivityManagePollsBinding
     private val pollRepository = PollRepository()
     private lateinit var adapter: PollsAdminAdapter
-    private var createPollDialog: AlertDialog? = null
+    private var createPollDialog: TelegramNativeAlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -125,7 +123,7 @@ class ManagePollsActivity : EveBaseActivity() {
         // never show a window after Activity teardown; don't stack create dialogs.
         if (isFinishing || isDestroyed || createPollDialog?.isShowing == true) return
         val dialogBinding = DialogCreatePollBinding.inflate(layoutInflater)
-        val dialog = AlertDialog.Builder(this)
+        val dialog = TelegramNativeAlertDialog.Builder(this)
             .setView(dialogBinding.root)
             .create()
 
@@ -237,9 +235,7 @@ class ManagePollsActivity : EveBaseActivity() {
         }
         dialog.show()
         createPollDialog = dialog
-        // Telegram AlertDialog.java:302-318,680-693 and DarkAlertDialog.java:11-19.
-        // Only source-backed dialog chrome changes; custom validation remains.
-        TelegramDialogSourceBackground.apply(dialog)
+        // EVE's admin-only poll form remains unchanged inside native source-derived dialog UI.
     }
 
     override fun onDestroy() {
