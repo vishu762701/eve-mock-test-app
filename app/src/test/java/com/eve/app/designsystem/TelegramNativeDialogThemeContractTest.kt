@@ -24,5 +24,8 @@ class TelegramNativeDialogThemeContractTest {
         assertTrue(port.contains("window?.setDimAmount(0.5f)"))
         assertTrue(!port.contains("import org.telegram.messenger.UserConfig"))
         assertTrue(!port.contains("import org.telegram.messenger.ApplicationLoader"))
+        // Port only the upstream Activity liveness gate; no Telegram application context.
+        assertTrue(port.contains("if (!hostActivityIsAlive()) return"))
+        assertTrue(port.contains("!current.isFinishing && !current.isDestroyed"))
     }
 }

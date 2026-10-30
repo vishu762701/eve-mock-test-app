@@ -9,7 +9,9 @@
  */
 package com.eve.app.designsystem
 
+import android.app.Activity
 import android.app.Dialog
+import android.content.ContextWrapper
 import android.content.Context
 import android.content.DialogInterface
 import android.content.res.ColorStateList
@@ -139,7 +141,18 @@ class TelegramNativeAlertDialog private constructor(
         setContentView(root, android.view.ViewGroup.LayoutParams(-1, -2))
     }
 
+    /** Upstream AndroidUtilities.isSafeToShow():6255-6267, AlertDialog.java:325-328. */
+    private fun hostActivityIsAlive(): Boolean {
+        var current: Context? = context
+        while (current is ContextWrapper) {
+            if (current is Activity) return !current.isFinishing && !current.isDestroyed
+            current = current.baseContext
+        }
+        return true
+    }
+
     override fun show() {
+        if (!hostActivityIsAlive()) return
         super.show()
         // Upstream AlertDialog.java:489-504 width constraints and 9-patch padding.
         val metrics = context.resources.displayMetrics
