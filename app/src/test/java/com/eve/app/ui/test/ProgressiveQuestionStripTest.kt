@@ -30,6 +30,12 @@ class ProgressiveQuestionStripTest {
         assertFalse(TestSessionPolicy.canRestore(restored, "studentA", "math", "newAttempt"))
     }
 
+    @Test fun olderInProgressAttemptsRestoreAlreadyVisitedQuestions() {
+        assertEquals(6, ProgressiveQuestionStrip.restoreFurthest(0, 2, setOf(0, 1, 6)))
+        assertEquals(2, ProgressiveQuestionStrip.restoreFurthest(2, 1, emptySet()))
+        assertEquals(0, ProgressiveQuestionStrip.restoreFurthest(0, 0, emptySet()))
+    }
+
     @Test fun previousVersionSessionsDefaultToInitialReveal() {
         val legacy = """{"attemptKey":"math","clientAttemptId":"old","userId":"studentA"}"""
         val restored = Gson().fromJson(legacy, TestSession::class.java)

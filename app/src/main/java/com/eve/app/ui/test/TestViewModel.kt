@@ -307,8 +307,6 @@ class TestViewModel : ViewModel() {
                     checkNotNull(restoredSession)
                     // The session has already passed owner/exam/clientAttemptId validation.
                     // Old serialized sessions lack this field and safely default to zero.
-                    revealThrough(maxOf(restoredSession.furthestRevealedIndex,
-                        restoredSession.currentQuestionIndex))
                     list.forEachIndexed { idx, q ->
                         val sel = restoredSession.answers[q.id]
                         if (sel in listOf("A", "B", "C", "D")) answers[idx] = sel!!
@@ -317,6 +315,12 @@ class TestViewModel : ViewModel() {
                         if (restoredSession.visitedQuestions.contains(q.id)) visited.add(idx)
                         if (restoredSession.markedQuestions.contains(q.id)) marked.add(idx)
                     }
+                    // Legacy sessions had no explicit reveal index but did record
+                    // visited questions. Respect those previously accessible pages
+                    // without falsely marking any new question as visited.
+                    revealThrough(ProgressiveQuestionStrip.restoreFurthest(
+                        restoredSession.furthestRevealedIndex,
+                        restoredSession.currentQuestionIndex, visited))
                 }
 
                 list.forEachIndexed { idx, q ->
