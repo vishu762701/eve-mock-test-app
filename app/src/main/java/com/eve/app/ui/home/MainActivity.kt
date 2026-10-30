@@ -265,6 +265,7 @@ class MainActivity : EveBaseActivity() {
 
     private var hasEmptyPlayed = false
     private var hasAnimatedWelcome = false
+    private var greetingIntroAnimator: android.animation.Animator? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -301,7 +302,7 @@ class MainActivity : EveBaseActivity() {
         binding.tvWelcome.text = "Hi, ${user.displayName ?: "Student"}"
         if (!hasAnimatedWelcome) {
             hasAnimatedWelcome = true
-            HomeGreetingMotion.animateIntro(binding.tvWelcome)
+            greetingIntroAnimator = HomeGreetingMotion.animateIntro(binding.tvWelcome)
         } else {
             HomeGreetingMotion.settleNatural(binding.tvWelcome)
         }
@@ -901,7 +902,8 @@ class MainActivity : EveBaseActivity() {
 
     override fun onStart() {
         super.onStart()
-        if (isReturningFromStopped) {
+        val returningFromStop = isReturningFromStopped
+        if (returningFromStop) {
             isReturningFromStopped = false
             adapter.resetPlayedAnimations()
             if (::binding.isInitialized) {
@@ -912,8 +914,12 @@ class MainActivity : EveBaseActivity() {
         }
         if (::binding.isInitialized) {
             FirebaseAuth.getInstance().currentUser?.let { current ->
-                binding.tvWelcome.text = "Hi, ${current.displayName ?: "Student"}"
-                HomeGreetingMotion.settleNatural(binding.tvWelcome)
+                // onCreate already set the text and started the one-time tracking intro.
+                // Never reset it during this Activity's FIRST onStart().
+                if (returningFromStop) {
+                    binding.tvWelcome.text = "Hi, ${current.displayName ?: "Student"}"
+                    HomeGreetingMotion.settleNatural(binding.tvWelcome)
+                }
                 updateDrawerHeader(current)
                 lifecycleScope.launch(lifecycleExceptionHandler) {
                     val admin = adminRepo.isAdmin(current.email)
@@ -934,6 +940,9 @@ class MainActivity : EveBaseActivity() {
     override fun onStop() {
         super.onStop()
         isReturningFromStopped = true
+        greetingIntroAnimator?.cancel()
+        greetingIntroAnimator = null
+        if (::binding.isInitialized) binding.tvWelcome.animate().cancel()
         notifJob?.cancel()
         notifJob = null
         stopBannerAutoScroll()

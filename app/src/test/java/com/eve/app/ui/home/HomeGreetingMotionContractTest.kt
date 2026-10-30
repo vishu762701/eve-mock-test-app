@@ -87,6 +87,28 @@ class HomeGreetingMotionContractTest {
     }
 
     @Test
+    fun initialOnStartMustNotInterruptTheOneTimeGreetingIntro() {
+        val main = File("src/main/java/com/eve/app/ui/home/MainActivity.kt").readText()
+        val onStart = main.substringAfter("override fun onStart()")
+            .substringBefore("override fun onStop()")
+        val onStop = main.substringAfter("override fun onStop()")
+            .substringBefore("private fun setupFloatingAirplane()")
+        assertTrue("First onStart must distinguish return-from-stop",
+            onStart.contains("val returningFromStop = isReturningFromStopped"))
+        assertTrue("Only a real return may settle the greeting",
+            onStart.contains("if (returningFromStop) {") &&
+                onStart.contains("HomeGreetingMotion.settleNatural(binding.tvWelcome)"))
+        assertTrue("A running greeting animator must cancel on backgrounding",
+            onStop.contains("greetingIntroAnimator?.cancel()"))
+        assertTrue("Indic-script fallback ViewPropertyAnimator must also cancel",
+            onStop.contains("binding.tvWelcome.animate().cancel()"))
+        assertTrue("Intro is still initiated only in onCreate",
+            main.substringAfter("override fun onCreate(")
+                .substringBefore("override fun onStart()")
+                .contains("greetingIntroAnimator = HomeGreetingMotion.animateIntro(binding.tvWelcome)"))
+    }
+
+    @Test
     fun testWelcomeTextViewLayoutContract() {
         val candidates = listOf(
             File("app/src/main/res/layout/activity_main.xml"),
