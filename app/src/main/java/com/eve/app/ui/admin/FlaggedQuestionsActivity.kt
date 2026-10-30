@@ -1,6 +1,6 @@
 package com.eve.app.ui.admin
 
-import com.eve.app.designsystem.showTelegramSourceDialog
+import com.eve.app.designsystem.TelegramNativeAlertDialog
 import com.eve.app.ui.common.EveBaseActivity
 
 import android.content.Intent
@@ -21,7 +21,6 @@ import com.eve.app.data.repository.FlaggedQuestionRepository
 import com.eve.app.databinding.ActivityFlaggedQuestionsBinding
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.Constants
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -89,6 +88,7 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
     }
 
     private fun confirmDismissFlag(item: AggregatedFlaggedQuestion) {
+        if (isFinishing || isDestroyed) return
         val title = if (isTechnicalSelected) "Dismiss Bug Report?" else "Dismiss Flag?"
         val msg = if (isTechnicalSelected) {
             "Mark this technical issue as resolved? (${item.flagCount} report(s))"
@@ -96,7 +96,7 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
             "Dismiss ${item.flagCount} flag(s) for this question? It will be marked as resolved."
         }
 
-        MaterialAlertDialogBuilder(this)
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle(title)
             .setMessage(msg)
             .setPositiveButton("Dismiss") { _, _ ->
@@ -118,7 +118,7 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .showTelegramSourceDialog()
+            .show()
     }
 
     private fun showEditDialog(item: AggregatedFlaggedQuestion) {
@@ -159,7 +159,7 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
                 else -> rgCorrect.check(R.id.rbA)
             }
 
-            MaterialAlertDialogBuilder(this@FlaggedQuestionsActivity)
+            TelegramNativeAlertDialog.Builder(this@FlaggedQuestionsActivity)
                 .setTitle("Review & Edit Question")
                 .setView(dialogView)
                 .setPositiveButton("Save Changes") { _, _ ->
@@ -217,7 +217,7 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
                     startActivity(intent)
                 }
                 .setNegativeButton("Cancel", null)
-                .showTelegramSourceDialog()
+                .show()
         }
     }
 }

@@ -1,7 +1,7 @@
 package com.eve.app.ui.admin
 
-import com.eve.app.designsystem.showDestructive
-import com.eve.app.designsystem.showTelegramSourceDialog
+import com.eve.app.designsystem.TelegramNativeAlertDialog
+import android.content.DialogInterface
 
 import com.eve.app.ui.common.EveBaseActivity
 
@@ -9,7 +9,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,7 +17,6 @@ import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.repository.AuditLogRepository
 import com.eve.app.databinding.ActivityManagePremiumBinding
 import com.eve.app.util.AppBulletin
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.launch
@@ -232,6 +230,7 @@ class ManagePremiumActivity : EveBaseActivity() {
     }
 
     private fun showManualGrantDialog() {
+        if (isFinishing || isDestroyed) return
         val dialogView = LayoutInflater.from(this).inflate(com.eve.app.R.layout.dialog_manual_grant_premium, null)
         val etUser = dialogView.findViewById<EditText>(com.eve.app.R.id.etGrantUser)
         val etDays = dialogView.findViewById<EditText>(com.eve.app.R.id.etGrantDays)
@@ -241,7 +240,7 @@ class ManagePremiumActivity : EveBaseActivity() {
             etDays.visibility = if (isChecked) View.GONE else View.VISIBLE
         }
 
-        MaterialAlertDialogBuilder(this)
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle("Grant Premium Manually")
             .setView(dialogView)
             .setPositiveButton("Grant") { _, _ ->
@@ -280,7 +279,7 @@ class ManagePremiumActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .showTelegramSourceDialog()
+            .show()
     }
 
     private fun extendUserPremium(user: AdminPremiumUserDto) {
@@ -304,7 +303,8 @@ class ManagePremiumActivity : EveBaseActivity() {
     }
 
     private fun confirmRevokeUserPremium(user: AdminPremiumUserDto) {
-        MaterialAlertDialogBuilder(this)
+        if (isFinishing || isDestroyed) return
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle("Revoke Premium?")
             .setMessage("Are you sure you want to revoke Premium access for ${user.email.ifBlank { user.userId }}? They will revert to the standard 3-attempt restriction.")
             .setPositiveButton("Revoke") { _, _ ->
@@ -327,6 +327,6 @@ class ManagePremiumActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .showDestructive()
+            .makeRed(DialogInterface.BUTTON_POSITIVE).show()
     }
 }

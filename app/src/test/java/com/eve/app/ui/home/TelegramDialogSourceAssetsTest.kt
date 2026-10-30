@@ -105,13 +105,15 @@ class TelegramDialogSourceAssetsTest {
             central.indexOf("R.color.design_destructive_text") <
                 central.indexOf("applyTelegramDialogActionAtoms(dialog)"))
         val coveredOwners = listOf(
-            "ui/admin/AdminActivity.kt",
-            "ui/admin/ManagePremiumActivity.kt"
+            "ui/admin/AdminActivity.kt"
         )
         for (owner in coveredOwners) {
             val source = File("src/main/java/com/eve/app/$owner").readText()
             assertTrue("Destructive entrypoint missing from $owner", source.contains(".showDestructive()"))
         }
+        val premium = File("src/main/java/com/eve/app/ui/admin/ManagePremiumActivity.kt").readText()
+        assertTrue(premium.contains("TelegramNativeAlertDialog.Builder(this)"))
+        assertTrue(premium.contains(".makeRed(DialogInterface.BUTTON_POSITIVE).show()"))
         val adminDelete = File("src/main/java/com/eve/app/ui/admin/AdminDeleteFlow.kt").readText()
         assertTrue(adminDelete.contains("TelegramNativeAlertDialog.Builder(activity)"))
         assertTrue(adminDelete.contains(".makeRed(DialogInterface.BUTTON_POSITIVE).show()"))

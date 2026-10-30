@@ -1,7 +1,7 @@
 package com.eve.app.ui.admin
 
-import com.eve.app.designsystem.showDestructive
-import com.eve.app.designsystem.showTelegramSourceDialog
+import com.eve.app.designsystem.TelegramNativeAlertDialog
+import android.content.DialogInterface
 
 import com.eve.app.ui.common.EveBaseActivity
 
@@ -11,7 +11,6 @@ import com.eve.app.util.AdminAccessGate
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.AppUndoBar
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,7 +19,6 @@ import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.EveApiService
 import com.eve.app.databinding.ActivitySendNotificationBinding
 import com.eve.app.ui.common.ErrorStateView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import com.eve.app.data.model.AdminAuditLog
 import com.eve.app.data.repository.AuditLogRepository
@@ -148,17 +146,18 @@ class SendNotificationActivity : EveBaseActivity() {
     }
 
     private fun confirmDeleteSelected() {
+        if (isFinishing || isDestroyed) return
         val count = sentAdapter.selectedIds.size
         if (count == 0) return
 
-        MaterialAlertDialogBuilder(this)
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle("Delete Broadcasts?")
             .setMessage("Delete $count broadcasts? They will be removed from all students' notification lists.")
             .setPositiveButton("Delete") { _, _ ->
                 deleteSelectedBroadcasts()
             }
             .setNegativeButton("Cancel", null)
-            .showDestructive()
+            .makeRed(DialogInterface.BUTTON_POSITIVE).show()
     }
 
     private fun deleteSelectedBroadcasts() {
@@ -250,15 +249,16 @@ class SendNotificationActivity : EveBaseActivity() {
     }
 
     private fun confirmDeleteBroadcast(broadcast: BroadcastMessage) {
+        if (isFinishing || isDestroyed) return
         val titleText = if (broadcast.title.isNotBlank()) "'${broadcast.title}'" else "this broadcast"
-        MaterialAlertDialogBuilder(this)
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle("Delete Broadcast?")
             .setMessage("Are you sure you want to delete $titleText?\n\n💬 Message:\n${broadcast.message}\n\nThis removes the notice from the server inbox. It cannot recall copies already cached on devices.")
             .setPositiveButton("Delete") { _, _ ->
                 deleteBroadcast(broadcast)
             }
             .setNegativeButton("Cancel", null)
-            .showDestructive()
+            .makeRed(DialogInterface.BUTTON_POSITIVE).show()
     }
 
     private fun deleteBroadcast(broadcast: BroadcastMessage) {
@@ -327,14 +327,14 @@ class SendNotificationActivity : EveBaseActivity() {
             binding.etMessage.requestFocus()
             return
         }
-        MaterialAlertDialogBuilder(this)
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle("Confirm In-App Notice")
             .setMessage("Publish this message to every student's in-app Notifications inbox?\n\nDevice push delivery is not confirmed by this action.\n\nTitle: $title\n\nMessage: $message")
             .setPositiveButton("Publish to Inbox") { _, _ ->
                 sendNotification(title, message)
             }
             .setNegativeButton("Cancel", null)
-            .showTelegramSourceDialog()
+            .show()
     }
 
     private fun sendNotification(title: String, message: String) {
