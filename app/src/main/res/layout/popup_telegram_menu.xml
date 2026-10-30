@@ -7,6 +7,12 @@
                 <ImageView android:id="@+id/ivThemeIcon" android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Theme mode" android:src="@drawable/ic_theme_sun" app:tint="@color/telegram_type_primary" />
                 <TextView android:id="@+id/tvThemeTitle" style="@style/TextAppearance.Eve.Telegram.MenuItem" android:tag="eve_telegram_type" android:layout_width="0dp" android:layout_weight="1" android:gravity="center_vertical" android:layout_height="wrap_content" android:layout_marginStart="@dimen/telegram_popup_label_gap" android:text="Dark Mode" />
             </LinearLayout>
+            <!-- ADAPTED from uploaded Telegram ActionBarPopupWindow.java:233-234,1110-1126.
+                 The original GapView is a six-dp themed group break; its native
+                 shadow drawable is NOT transplanted into this EVE XML host. -->
+            <View android:id="@+id/menuSectionGap" android:layout_width="match_parent"
+                android:layout_height="6dp" android:background="@color/telegram_menu_section_gap"
+                android:importantForAccessibility="no" />
             <LinearLayout android:id="@+id/cardMenuItems" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
                 <LinearLayout android:id="@+id/menuRowHistory" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:minWidth="196dp" android:paddingStart="18dp" android:paddingEnd="18dp" android:paddingTop="0dp" android:paddingBottom="0dp" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
                     <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="History" android:src="@drawable/ic_history_rounded" app:tint="@color/telegram_type_primary" />

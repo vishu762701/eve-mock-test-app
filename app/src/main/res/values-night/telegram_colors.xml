@@ -24,4 +24,6 @@
     <color name="category_pill_selected_fg">#FF000000</color>
     <color name="category_pill_unselected_bg">#FF1C1C1E</color>
     <color name="category_pill_unselected_fg">#FFA1A1A6</color>
+    <!-- Original Telegram GapView's themed separator background, not the shadow bitmap. -->
+    <color name="telegram_menu_section_gap">#FF1E1E1F</color>
 </resources>
