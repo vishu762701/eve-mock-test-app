@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    style="@style/Widget.Eve.Token.Screen">
+
+    <!-- Telegram-style Top Toolbar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/design_touch_min"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="4dp"
+        style="@style/Widget.Eve.Token.ToolbarRow">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="@dimen/design_touch_min"
+            android:layout_height="@dimen/design_touch_min"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            android:src="@drawable/ic_back"
+            app:tint="@color/telegram_type_primary" />
+
+        <TextView
+            android:id="@+id/tvToolbarTitle"
+            style="@style/TextAppearance.Eve.Telegram.NavigationTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="Username" />
+
+        <ImageButton
+            android:id="@+id/btnDone"
+            android:layout_width="@dimen/design_touch_min"
+            android:layout_height="@dimen/design_touch_min"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Done"
+            android:src="@drawable/ic_ab_done"
+            app:tint="@color/telegram_type_primary" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@"
+                android:textColor="@color/telegram_type_secondary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/etUsername"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:background="@null"
+                android:hint="username"
+                android:textColorHint="@color/telegram_type_secondary"
+                android:textColor="@color/telegram_type_primary"
+                android:textSize="18sp"
+                android:inputType="textNoSuggestions|textVisiblePassword"
+                android:maxLines="1"
+                android:singleLine="true" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/lineUsername"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/accent" />
+
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvHelp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:lineSpacingExtra="4dp"
+            android:text="You can choose a username on Eve. If you do, other people will be able to find you by this username.\n\nYou can use a-z, 0-9 and underscores. Minimum length is 5 characters."
+            android:textColor="@color/telegram_type_secondary"
+            android:textSize="14sp" />
+    </LinearLayout>
+</LinearLayout>

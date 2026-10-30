@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    style="@style/Widget.Eve.Token.Screen">
+
+    <!-- Telegram-style Top Toolbar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/design_touch_min"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="4dp"
+        style="@style/Widget.Eve.Token.ToolbarRow">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="@dimen/design_touch_min"
+            android:layout_height="@dimen/design_touch_min"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            android:src="@drawable/ic_back"
+            app:tint="@color/telegram_type_primary" />
+
+        <TextView
+            android:id="@+id/tvToolbarTitle"
+            style="@style/TextAppearance.Eve.Telegram.NavigationTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="Edit Name" />
+
+        <ImageButton
+            android:id="@+id/btnDone"
+            android:layout_width="@dimen/design_touch_min"
+            android:layout_height="@dimen/design_touch_min"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Done"
+            android:src="@drawable/ic_ab_done"
+            app:tint="@color/telegram_type_primary" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="24dp">
+
+        <EditText
+            android:id="@+id/etName"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@null"
+            android:hint="Full Name"
+            android:textColorHint="@color/telegram_type_secondary"
+            android:textColor="@color/telegram_type_primary"
+            android:textSize="18sp"
+            android:inputType="textPersonName|textCapWords"
+            android:maxLines="1"
+            android:singleLine="true" />
+
+        <View
+            android:id="@+id/lineName"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/accent" />
+
+        <TextView
+            android:id="@+id/tvHelp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Enter your name as you would like it to appear on your tests and profile."
+            android:textColor="@color/telegram_type_secondary"
+            android:textSize="14sp" />
+    </LinearLayout>
+</LinearLayout>

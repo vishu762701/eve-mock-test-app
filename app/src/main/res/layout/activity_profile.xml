@@ -1,58 +1,580 @@
-<?xml version='1.0' encoding='utf-8'?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:ns2="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Screen">
-    <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.ToolbarRow">
-            <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/telegram_type_primary" style="@style/Widget.Eve.Token.IconButton" />
-            <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Telegram-exact Profile Page -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    style="@style/Widget.Eve.Token.Screen">
+
+    <!-- Scrollable content -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/profileScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:overScrollMode="always"
+        android:clipToPadding="false"
+        android:paddingBottom="48dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="56dp">
+
+            <!-- Avatar & Gooey Container -->
+            <FrameLayout
+                android:id="@+id/avatarOuterContainer"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+
+                <com.eve.app.ui.profile.ProfileGooeyView
+                    android:id="@+id/avatarGooey"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
+
+                    <FrameLayout
+                        android:id="@+id/avatarContainer"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:layout_gravity="center">
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/ivProfilePhoto"
+                            android:layout_width="100dp"
+                            android:layout_height="100dp"
+                            android:contentDescription="Profile photo"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/ic_person"
+                            app:shapeAppearanceOverlay="@style/ShapeCircle" />
+                    </FrameLayout>
+                </com.eve.app.ui.profile.ProfileGooeyView>
+            </FrameLayout>
+
+            <!-- Photo actions (Cancel / Save when picking photo) -->
+            <LinearLayout
+                android:id="@+id/layoutPhotoActions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCancelPhoto"
+                    style="@style/Widget.Eve.Token.Button.Secondary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/design_touch_min"
+                    android:layout_marginEnd="8dp"
+                    android:text="Cancel" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSavePhoto"
+                    style="@style/Widget.Eve.Token.Button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/design_touch_min"
+                    android:text="Save" />
+            </LinearLayout>
+
+            <!-- Name and Status -->
+            <TextView
+                android:id="@+id/tvName"
+                style="@style/TextAppearance.Eve.Telegram.ProfileName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10dp"
+                android:layout_marginHorizontal="24dp"
+                android:gravity="center"
+                tools:text="Student Name" />
+
+            <TextView
+                android:id="@+id/tvStatus"
+                style="@style/TextAppearance.Eve.Telegram.ProfileStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="2dp"
+                tools:text="Admin" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipAdmin"
+                style="@style/Widget.Eve.Token.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="4dp"
+                android:clickable="false"
+                android:text="Admin"
+                android:visibility="gone" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipPremium"
+                style="@style/Widget.Eve.Token.Chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="4dp"
+                android:clickable="true"
+                android:text="Premium Active"
+                android:visibility="gone"
+                app:chipIcon="@drawable/ic_star_filled"
+                app:chipIconTint="@color/design_role_premium_text" />
+
+            <!-- Three Action Buttons (Set Photo, Edit Info, Settings) -->
+            <LinearLayout
+                android:id="@+id/layoutActions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginHorizontal="16dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/btnSetPhoto"
+                    android:layout_width="0dp"
+                    android:layout_height="72dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/design_pill_surface"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/telegram_profile_photo"
+                        app:tint="@color/telegram_type_primary" />
+
+                    <TextView
+                        style="@style/TextAppearance.Eve.Telegram.ProfileAction"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Set Photo" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/btnEditInfo"
+                    android:layout_width="0dp"
+                    android:layout_height="72dp"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="3dp"
+                    android:background="@drawable/design_pill_surface"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/telegram_profile_edit"
+                        app:tint="@color/telegram_type_primary" />
+
+                    <TextView
+                        style="@style/TextAppearance.Eve.Telegram.ProfileAction"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Edit Info" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/btnSettings"
+                    android:layout_width="0dp"
+                    android:layout_height="72dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/design_pill_surface"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/telegram_profile_settings"
+                        app:tint="@color/telegram_type_primary" />
+
+                    <TextView
+                        style="@style/TextAppearance.Eve.Telegram.ProfileAction"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Settings" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Card 1: Personal Information -->
+            <com.eve.app.designsystem.DesignCardView
+                android:id="@+id/cardPersonalInfo"
+                style="@style/Widget.Eve.Token.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginHorizontal="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Mobile -->
+                    <LinearLayout
+                        android:id="@+id/cellMobile"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:gravity="center_vertical"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="20dp">
+
+                        <TextView
+                            android:id="@+id/tvMobileValue"
+                            style="@style/TextAppearance.Eve.Telegram.SettingsLabel"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            tools:text="+91 98765 43210" />
+
+                        <TextView
+                            android:id="@+id/tvMobileLabel"
+                            style="@style/TextAppearance.Eve.Telegram.SettingsDetail"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Mobile" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="20dp"
+                        android:background="?attr/colorHairline" />
+
+                    <!-- Username -->
+                    <LinearLayout
+                        android:id="@+id/cellUsername"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:gravity="center_vertical"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="20dp">
+
+                        <TextView
+                            android:id="@+id/tvUsernameValue"
+                            style="@style/TextAppearance.Eve.Telegram.SettingsLabel"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            tools:text="@ev_wk96r9" />
+
+                        <TextView
+                            android:id="@+id/tvUsernameLabel"
+                            style="@style/TextAppearance.Eve.Telegram.SettingsDetail"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Username" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="20dp"
+                        android:background="?attr/colorHairline" />
+
+                    <!-- Birthday -->
+                    <LinearLayout
+                        android:id="@+id/cellBirthday"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:gravity="center_vertical"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="20dp">
+
+                        <TextView
+                            android:id="@+id/tvBirthdayValue"
+                            style="@style/TextAppearance.Eve.Telegram.SettingsLabel"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            tools:text="Mar 15, 2004 (22 years old)" />
+
+                        <TextView
+                            android:id="@+id/tvBirthdayLabel"
+                            style="@style/TextAppearance.Eve.Telegram.SettingsDetail"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Date of Birth" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="20dp"
+                        android:background="?attr/colorHairline" />
+
+                    <!-- Category -->
+                    <LinearLayout
+                        android:id="@+id/cellCategory"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="20dp">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tvCategoryValue"
+                                style="@style/TextAppearance.Eve.Telegram.SettingsLabel"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="end"
+                                android:maxLines="1"
+                                tools:text="General" />
+
+                            <TextView
+                                android:id="@+id/tvCategoryLabel"
+                                style="@style/TextAppearance.Eve.Telegram.SettingsDetail"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Category" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:id="@+id/ivCategoryArrow"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:importantForAccessibility="no"
+                            android:src="@drawable/ic_chevron_right"
+                            app:tint="@color/telegram_type_secondary" />
+                    </LinearLayout>
+
+                    <!-- Expandable Category Options -->
+                    <LinearLayout
+                        android:id="@+id/layoutCategoryOptions"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="20dp"
+                        android:paddingBottom="12dp"
+                        android:visibility="gone">
+
+                        <com.eve.app.ui.common.TelegramRadioButton
+                            android:id="@+id/radioGeneral"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:text="General" />
+
+                        <com.eve.app.ui.common.TelegramRadioButton
+                            android:id="@+id/radioObc"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:text="OBC" />
+
+                        <com.eve.app.ui.common.TelegramRadioButton
+                            android:id="@+id/radioSc"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:text="SC" />
+
+                        <com.eve.app.ui.common.TelegramRadioButton
+                            android:id="@+id/radioSt"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:text="ST" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.eve.app.designsystem.DesignCardView>
+
+            <!-- Card 2: EVE Extras (Eve ID, Reminder, Admin actions) -->
+            <com.eve.app.designsystem.DesignCardView
+                android:id="@+id/cardExtras"
+                style="@style/Widget.Eve.Token.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginHorizontal="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- EVE ID -->
+                    <LinearLayout
+                        android:id="@+id/cellEveId"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="20dp">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tvEveId"
+                                style="@style/TextAppearance.Eve.Telegram.SettingsLabel"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="end"
+                                android:maxLines="1"
+                                tools:text="EV-WK96R9" />
+
+                            <TextView
+                                android:id="@+id/tvEveIdLabel"
+                                style="@style/TextAppearance.Eve.Telegram.SettingsDetail"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="EVE ID" />
+                        </LinearLayout>
+
+                        <ImageButton
+                            android:id="@+id/btnCopyEveId"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="Copy EVE ID"
+                            android:src="@drawable/ic_copy"
+                            app:tint="@color/telegram_type_secondary" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="20dp"
+                        android:background="?attr/colorHairline" />
+
+                    <!-- Daily Reminder with Telegram Switch -->
+                    <LinearLayout
+                        android:id="@+id/cellReminder"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="20dp">
+
+                        <TextView
+                            style="@style/TextAppearance.Eve.Telegram.SettingsLabel"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Daily Practice Reminder" />
+
+                        <com.eve.app.designsystem.TelegramSwitch
+                            android:id="@+id/switchReminder"
+                            android:layout_width="37dp"
+                            android:layout_height="24dp" />
+                    </LinearLayout>
+
+                    <!-- Edit About Content (Admin only) -->
+                    <LinearLayout
+                        android:id="@+id/cellEditAbout"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="20dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            style="@style/TextAppearance.Eve.Telegram.SettingsLabel"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Edit About Content (Admin)" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:importantForAccessibility="no"
+                            android:src="@drawable/ic_chevron_right"
+                            app:tint="@color/telegram_type_secondary" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.eve.app.designsystem.DesignCardView>
         </LinearLayout>
-    </com.eve.app.ui.common.EveGlassToolbar>
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.LargeTitleBlock">
-        <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Profile"  android:tag="eve_telegram_type" />
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Top Toolbar (collapsible title) -->
+    <LinearLayout
+        android:id="@+id/topToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/design_touch_min"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="4dp"
+        style="@style/Widget.Eve.Token.ToolbarRow">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="@dimen/design_touch_min"
+            android:layout_height="@dimen/design_touch_min"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            android:src="@drawable/ic_back"
+            app:tint="@color/telegram_type_primary" />
+
+        <TextView
+            android:id="@+id/tvToolbarTitle"
+            style="@style/TextAppearance.Eve.Telegram.NavigationTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:alpha="0"
+            android:text="Profile" />
     </LinearLayout>
-    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true" android:clipToPadding="false" android:overScrollMode="ifContentScrolls" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_horizontal" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                <FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
-                    <com.google.android.material.imageview.ShapeableImageView android:id="@+id/ivProfilePhoto" android:layout_width="100dp" android:layout_height="100dp" android:contentDescription="Profile photo" android:src="@drawable/ic_person" app:shapeAppearanceOverlay="@style/ShapeCircle" />
-                    <ImageButton android:id="@+id/btnChangePhoto" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:layout_gravity="bottom|end" android:contentDescription="Change photo" android:src="@drawable/ic_camera" app:tint="@color/on_accent" style="@style/Widget.Eve.Token.IconButton" />
-                </FrameLayout>
-                <LinearLayout android:id="@+id/layoutPhotoActions" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:gravity="center" android:orientation="horizontal" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                    <com.google.android.material.button.MaterialButton android:id="@+id/btnCancelPhoto" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginEnd="@dimen/design_card_padding" android:text="Cancel" />
-                    <com.google.android.material.button.MaterialButton android:id="@+id/btnSavePhoto" style="@style/Widget.Eve.Token.Button" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:text="Save" />
-                </LinearLayout>
-                <TextView android:id="@+id/tvName" style="@style/TextAppearance.Eve.Token.Heading" android:gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_pill_padding" ns2:text="Student" />
-                <TextView android:id="@+id/tvEmail" style="@style/TextAppearance.Eve.Token.Body" android:gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" ns2:text="student@gmail.com" />
-                <LinearLayout android:id="@+id/layoutEveId" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                    <TextView android:id="@+id/tvEveIdLabel" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="EVE ID: " />
-                    <TextView android:id="@+id/tvEveId" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="0dp" android:layout_weight="1" android:maxLines="1" android:ellipsize="end" android:layout_height="wrap_content" ns2:text="EV-ABC123" />
-                    <androidx.appcompat.widget.AppCompatImageButton android:id="@+id/btnCopyEveId" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="4dp" android:clickable="true" android:contentDescription="Copy EVE ID" android:focusable="true" android:src="@drawable/ic_copy" app:tint="@color/text_secondary" style="@style/Widget.Eve.Token.IconButton" />
-                </LinearLayout>
-                <com.google.android.material.chip.Chip android:id="@+id/chipAdmin" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:clickable="false" android:text="Admin" android:visibility="gone" style="@style/Widget.Eve.Token.Chip" />
-                <com.google.android.material.chip.Chip android:id="@+id/chipPremium" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:clickable="true" android:text="Premium Active" android:visibility="gone" app:chipIcon="@drawable/ic_star_filled" app:chipIconTint="@color/design_role_premium_text" style="@style/Widget.Eve.Token.Chip" />
-            </LinearLayout>
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_marginTop="18dp" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Panel">
-                <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Personal Information" />
-                <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilName" style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:hint="Full Name">
-                    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etName" style="@style/Widget.Eve.Token.Input" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="textPersonName" android:maxLines="1" />
-                </com.eve.app.designsystem.DesignInputLayout>
-                <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilDob" style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:hint="Date of Birth (DD/MM/YYYY)" app:endIconDrawable="@drawable/ic_calendar" app:endIconMode="custom">
-                    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etDob" style="@style/Widget.Eve.Token.Input" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:clickable="true" android:cursorVisible="false" android:focusable="false" android:inputType="none" android:maxLines="1" />
-                </com.eve.app.designsystem.DesignInputLayout>
-                <TextView style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_section_gap" android:text="Category" />
-                <com.google.android.material.chip.ChipGroup android:id="@+id/chipGroupCategory" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" app:selectionRequired="true" app:singleSelection="true" app:chipSpacingHorizontal="@dimen/design_card_gap" app:chipSpacingVertical="4dp">
-                    <com.google.android.material.chip.Chip android:id="@+id/chipGeneral" style="@style/Widget.Eve.Token.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="General" />
-                    <com.google.android.material.chip.Chip android:id="@+id/chipObc" style="@style/Widget.Eve.Token.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="OBC" />
-                    <com.google.android.material.chip.Chip android:id="@+id/chipSc" style="@style/Widget.Eve.Token.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="SC" />
-                    <com.google.android.material.chip.Chip android:id="@+id/chipSt" style="@style/Widget.Eve.Token.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="ST" />
-                </com.google.android.material.chip.ChipGroup>
-                <com.google.android.material.button.MaterialButton android:id="@+id/btnSaveProfile" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_section_gap" android:text="Save Profile" />
-            </LinearLayout>
-            <LinearLayout android:id="@+id/rowReminder" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                <TextView style="@style/TextAppearance.Eve.Token.Body" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Daily Practice Reminder" />
-                <com.eve.app.designsystem.UiArcSwitch android:id="@+id/switchReminder" android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/Widget.Eve.Token.Switch" />
-            </LinearLayout>
-            <com.google.android.material.button.MaterialButton android:id="@+id/btnEditAbout" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_marginTop="4dp" android:layout_marginBottom="@dimen/design_card_gap" android:text="Edit About Content (Admin)" android:visibility="gone" />
-            <com.google.android.material.button.MaterialButton android:id="@+id/btnAbout" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_marginTop="4dp" android:layout_marginBottom="@dimen/design_card_gap" android:text="About" />
-        </LinearLayout>
-    </ScrollView>
-</LinearLayout>
+</FrameLayout>

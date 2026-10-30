@@ -1,9 +1,11 @@
+/*
+ * Derived from Telegram Android ProfileActivity.java, Copyright Nikolai Kudashov.
+ * GNU GPL v2 or later. See THIRD_PARTY_NOTICES.md.
+ */
+
 package com.eve.app.ui.profile
 
-import com.eve.app.ui.common.EveBaseActivity
-import com.eve.app.designsystem.UiArcMotion
-
-import android.app.DatePickerDialog
+import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -12,30 +14,36 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
-import com.eve.app.designsystem.TelegramRadialProgressView
+import android.widget.LinearLayout
+import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
-import com.eve.app.util.AppBulletin
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
-import com.eve.app.designsystem.TelegramNativeAlertDialog
-import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.lifecycleScope
 import coil.load
 import com.eve.app.R
+import com.eve.app.data.model.PremiumStatusDto
+import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.repository.AdminRepository
+import com.eve.app.data.repository.PremiumRepository
 import com.eve.app.databinding.ActivityProfileBinding
-import com.eve.app.ui.about.AboutActivity
+import com.eve.app.designsystem.TelegramNativeAlertDialog
+import com.eve.app.designsystem.TelegramRadialProgressView
+import com.eve.app.ui.common.EveBaseActivity
+import com.eve.app.ui.settings.SettingsActivity
+import com.eve.app.util.AppBulletin
+import com.eve.app.util.EveNavigationHelper
 import com.eve.app.util.ProfilePhotoManager
 import com.eve.app.util.ReminderScheduler
 import com.eve.app.util.SessionManager
 import com.eve.app.util.isHardcodedAdmin
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.UserProfileChangeRequest
-import com.eve.app.data.remote.ApiClient
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 
 class ProfileActivity : EveBaseActivity() {
@@ -45,10 +53,36 @@ class ProfileActivity : EveBaseActivity() {
     private var progressDialog: TelegramNativeAlertDialog? = null
     private var pendingPhotoUri: Uri? = null
 
+    private var currentDob: String = ""
+    private var currentCategory: String = "General"
+    private var currentPhone: String = ""
+    private var currentUsername: String = ""
+
     private val pickPhotoLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             if (uri != null) {
                 previewSelectedPhoto(uri)
+            }
+        }
+
+    private val editInfoLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                loadProfile()
+            }
+        }
+
+    private val editUsernameLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                loadProfile()
+            }
+        }
+
+    private val editPhoneLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                loadProfile()
             }
         }
 
@@ -63,7 +97,9 @@ class ProfileActivity : EveBaseActivity() {
             return
         }
 
-        binding.btnBack.setOnClickListener { com.eve.app.util.EveNavigationHelper.finishWithTransition(this) }
+        binding.btnBack.setOnClickListener {
+            EveNavigationHelper.finishWithTransition(this)
+        }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -75,10 +111,114 @@ class ProfileActivity : EveBaseActivity() {
             }
         })
 
-        binding.tvName.text = user.displayName?.takeIf { it.isNotBlank() } ?: "Student"
-        binding.tvEmail.text = user.email ?: ""
+        setupScrollAndGooey()
+        setupActions()
+        setupCells()
+        setupAdminAndPremium(user.email)
 
-        binding.btnCopyEveId.setOnClickListener {
+        loadProfilePhoto()
+        loadProfile()
+    }
+
+    private fun setupScrollAndGooey() {
+        val density = resources.displayMetrics.density
+        val collapseRange = 100f * density
+
+        binding.profileScrollView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
+            val progress = (scrollY.toFloat() / collapseRange).coerceIn(0f, 1f)
+
+            // Gooey avatar update (ProfileActivity.java:6039-6047)
+            binding.avatarGooey.setPullProgress(progress)
+            val blur = ((progress.coerceIn(0.2f, 0.7f) - 0.2f) / 0.5f).coerceAtMost(0.75f)
+            binding.avatarGooey.setBlurIntensity(blur)
+            binding.avatarGooey.setGooeyEnabled(progress > 0f && progress < 1f)
+
+            // Avatar translation towards notch & scale (ProfileActivity.java:8730-8740)
+            val endScale = binding.avatarGooey.getAvatarEndScale()
+            val currentScale = 1f - (1f - endScale) * progress
+            binding.avatarContainer.scaleX = currentScale
+            binding.avatarContainer.scaleY = currentScale
+
+            val endOffset = binding.avatarGooey.getEndOffset(true, currentScale)
+            binding.avatarContainer.translationY = endOffset * progress
+
+            // Alpha fading of toolbar title vs avatar/name
+            binding.tvToolbarTitle.alpha = progress
+            val headerContentAlpha = (1f - progress * 1.5f).coerceIn(0f, 1f)
+            binding.tvName.alpha = headerContentAlpha
+            binding.tvStatus.alpha = headerContentAlpha
+            binding.layoutActions.alpha = headerContentAlpha
+        }
+    }
+
+    private fun setupActions() {
+        binding.btnSetPhoto.setOnClickListener {
+            pickPhotoLauncher.launch("image/*")
+        }
+        binding.ivProfilePhoto.setOnClickListener {
+            pickPhotoLauncher.launch("image/*")
+        }
+        binding.btnCancelPhoto.setOnClickListener {
+            cancelPhotoPreview()
+        }
+        binding.btnSavePhoto.setOnClickListener {
+            savePendingPhoto()
+        }
+
+        binding.btnEditInfo.setOnClickListener {
+            val user = FirebaseAuth.getInstance().currentUser
+            val intent = Intent(this, ChangeNameActivity::class.java).apply {
+                putExtra("current_name", user?.displayName ?: binding.tvName.text.toString())
+            }
+            editInfoLauncher.launch(intent)
+        }
+
+        binding.btnSettings.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
+    }
+
+    private fun setupCells() {
+        // Mobile cell
+        binding.cellMobile.setOnClickListener {
+            val intent = Intent(this, ChangePhoneActivity::class.java).apply {
+                putExtra("current_phone", currentPhone)
+            }
+            editPhoneLauncher.launch(intent)
+        }
+
+        // Username cell
+        binding.cellUsername.setOnClickListener {
+            val intent = Intent(this, ChangeUsernameActivity::class.java).apply {
+                putExtra("current_username", currentUsername)
+            }
+            editUsernameLauncher.launch(intent)
+        }
+
+        // Birthday cell
+        binding.cellBirthday.setOnClickListener {
+            showBirthdayPicker(currentDob)
+        }
+
+        // Category cell & expansion
+        binding.cellCategory.setOnClickListener {
+            val isExpanded = binding.layoutCategoryOptions.visibility == View.VISIBLE
+            if (isExpanded) {
+                binding.layoutCategoryOptions.visibility = View.GONE
+                binding.ivCategoryArrow.animate().rotation(0f).setDuration(150).start()
+            } else {
+                binding.layoutCategoryOptions.visibility = View.VISIBLE
+                binding.ivCategoryArrow.animate().rotation(90f).setDuration(150).start()
+            }
+        }
+
+        binding.radioGeneral.setOnClickListener { selectCategory("General") }
+        binding.radioObc.setOnClickListener { selectCategory("OBC") }
+        binding.radioSc.setOnClickListener { selectCategory("SC") }
+        binding.radioSt.setOnClickListener { selectCategory("ST") }
+
+        // Eve ID copy
+        val copyEveIdAction = {
             val eveId = binding.tvEveId.text.toString().trim()
             if (eveId.isNotBlank() && eveId != "--" && eveId != "Loading...") {
                 val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -87,52 +227,192 @@ class ProfileActivity : EveBaseActivity() {
                 Toast.makeText(this, "EVE ID copied to clipboard", Toast.LENGTH_SHORT).show()
             }
         }
+        binding.cellEveId.setOnClickListener { copyEveIdAction() }
+        binding.btnCopyEveId.setOnClickListener { copyEveIdAction() }
 
-        loadProfilePhoto()
-        binding.btnChangePhoto.setOnClickListener { pickPhotoLauncher.launch("image/*") }
-        binding.ivProfilePhoto.setOnClickListener { pickPhotoLauncher.launch("image/*") }
+        // Daily Reminder toggle with TelegramSwitch
+        binding.switchReminder.isChecked = ReminderScheduler.isEnabled(this)
+        binding.switchReminder.setOnCheckedChangeListener { _, isChecked ->
+            ReminderScheduler.setEnabled(this, isChecked)
+        }
+        binding.cellReminder.setOnClickListener {
+            binding.switchReminder.toggle()
+        }
+    }
 
-        binding.btnCancelPhoto.setOnClickListener {
-            cancelPhotoPreview()
+    private fun selectCategory(cat: String) {
+        currentCategory = cat
+        updateCategoryRadios(cat)
+        binding.tvCategoryValue.text = cat
+
+        // Collapse category dropdown
+        binding.layoutCategoryOptions.visibility = View.GONE
+        binding.ivCategoryArrow.animate().rotation(0f).setDuration(150).start()
+
+        // Save immediately to server
+        lifecycleScope.launch {
+            try {
+                val res = ApiClient.apiService.updateProfile(mapOf("category" to cat))
+                if (res.success) {
+                    AppBulletin.showSuccess(this@ProfileActivity, "Category updated to $cat")
+                } else {
+                    AppBulletin.showError(this@ProfileActivity, res.error ?: "Failed to update category")
+                }
+            } catch (e: Exception) {
+                AppBulletin.showError(this@ProfileActivity, e.localizedMessage ?: "Failed to update category")
+            }
+        }
+    }
+
+    private fun updateCategoryRadios(cat: String) {
+        val upper = cat.uppercase(Locale.US)
+        binding.radioGeneral.isChecked = upper == "GENERAL"
+        binding.radioObc.isChecked = upper == "OBC"
+        binding.radioSc.isChecked = upper == "SC"
+        binding.radioSt.isChecked = upper == "ST"
+    }
+
+    private fun showBirthdayPicker(dob: String) {
+        val cal = Calendar.getInstance()
+        if (dob.isNotBlank()) {
+            val parts = dob.split("/")
+            if (parts.size == 3) {
+                val d = parts[0].toIntOrNull()
+                val m = parts[1].toIntOrNull()
+                val y = parts[2].toIntOrNull()
+                if (d != null && m != null && y != null) {
+                    cal.set(y, m - 1, d)
+                }
+            }
+        } else {
+            cal.add(Calendar.YEAR, -18)
         }
 
-        binding.btnSavePhoto.setOnClickListener {
-            savePendingPhoto()
+        val context = this
+        val density = resources.displayMetrics.density
+        fun dp(v: Int): Int = (v * density).toInt()
+
+        val layout = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            weightSum = 1.0f
+            setPadding(dp(16), dp(12), dp(16), dp(12))
         }
 
-        setupDobPicker()
-        loadUserProfile(user.uid)
-
-        binding.btnSaveProfile.setOnClickListener {
-            saveUserProfile()
+        val dayPicker = NumberPicker(context).apply {
+            minValue = 1
+            maxValue = 31
+            value = cal.get(Calendar.DAY_OF_MONTH)
         }
 
+        val months = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+        val monthPicker = NumberPicker(context).apply {
+            minValue = 0
+            maxValue = 11
+            displayedValues = months
+            value = cal.get(Calendar.MONTH)
+        }
+
+        val curYear = Calendar.getInstance().get(Calendar.YEAR)
+        val yearPicker = NumberPicker(context).apply {
+            minValue = 1940
+            maxValue = curYear
+            value = cal.get(Calendar.YEAR)
+        }
+
+        fun updateDays() {
+            val tempCal = Calendar.getInstance()
+            tempCal.set(Calendar.YEAR, yearPicker.value)
+            tempCal.set(Calendar.MONTH, monthPicker.value)
+            dayPicker.maxValue = tempCal.getActualMaximum(Calendar.DAY_OF_MONTH)
+        }
+        monthPicker.setOnValueChangedListener { _, _, _ -> updateDays() }
+        yearPicker.setOnValueChangedListener { _, _, _ -> updateDays() }
+        updateDays()
+
+        layout.addView(dayPicker, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.3f))
+        layout.addView(monthPicker, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.35f))
+        layout.addView(yearPicker, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.35f))
+
+        TelegramNativeAlertDialog.Builder(context)
+            .setTitle("Date of Birth")
+            .setView(layout)
+            .setPositiveButton("Set") { _, _ ->
+                val formatted = String.format(Locale.US, "%02d/%02d/%04d", dayPicker.value, monthPicker.value + 1, yearPicker.value)
+                saveBirthday(formatted)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun saveBirthday(dob: String) {
+        currentDob = dob
+        binding.tvBirthdayValue.text = formatTelegramBirthday(dob)
+
+        lifecycleScope.launch {
+            try {
+                val res = ApiClient.apiService.updateProfile(mapOf("dob" to dob))
+                if (res.success) {
+                    AppBulletin.showSuccess(this@ProfileActivity, "Birthday updated")
+                } else {
+                    AppBulletin.showError(this@ProfileActivity, res.error ?: "Failed to update birthday")
+                }
+            } catch (e: Exception) {
+                AppBulletin.showError(this@ProfileActivity, e.localizedMessage ?: "Failed to update birthday")
+            }
+        }
+    }
+
+    private fun formatTelegramBirthday(dobString: String): String {
+        if (dobString.isBlank()) return "Add your birthday"
+        val parts = dobString.split("/")
+        if (parts.size != 3) return dobString
+        val d = parts[0].toIntOrNull() ?: return dobString
+        val m = parts[1].toIntOrNull() ?: return dobString
+        val y = parts[2].toIntOrNull() ?: return dobString
+
+        val cal = Calendar.getInstance()
+        cal.set(Calendar.YEAR, y)
+        cal.set(Calendar.MONTH, m - 1)
+        cal.set(Calendar.DAY_OF_MONTH, d)
+
+        val today = Calendar.getInstance()
+        var age = today.get(Calendar.YEAR) - y
+        if (today.get(Calendar.DAY_OF_YEAR) < cal.get(Calendar.DAY_OF_YEAR)) {
+            age--
+        }
+
+        val dateStr = SimpleDateFormat("MMM d, yyyy", Locale.US).format(cal.time)
+        return "$dateStr ($age years old)"
+    }
+
+    private fun setupAdminAndPremium(email: String?) {
         val setupAdminUi = {
+            binding.tvStatus.text = "Admin"
             binding.chipAdmin.visibility = View.VISIBLE
-            binding.btnEditAbout.visibility = View.VISIBLE
-            binding.btnEditAbout.setOnClickListener {
+            binding.cellEditAbout.visibility = View.VISIBLE
+            binding.cellEditAbout.setOnClickListener {
                 startActivity(Intent(this, com.eve.app.ui.admin.EditAboutActivity::class.java))
             }
         }
 
-        val cachedAdmin = SessionManager.getCachedAdminStatus(user.email, allowStale = true)
-            ?: isHardcodedAdmin(user.email)
+        val cachedAdmin = SessionManager.getCachedAdminStatus(email, allowStale = true)
+            ?: isHardcodedAdmin(email)
         if (cachedAdmin) {
             setupAdminUi()
         }
         lifecycleScope.launch {
-            if (adminRepo.isAdmin(user.email)) setupAdminUi()
+            if (adminRepo.isAdmin(email)) setupAdminUi()
         }
 
-        val updatePremiumBadge = { status: com.eve.app.data.model.PremiumStatusDto? ->
-            val isPrem = status?.isPremium ?: com.eve.app.data.repository.PremiumRepository.isCurrentUserPremium(this)
+        val updatePremiumBadge = { status: PremiumStatusDto? ->
+            val isPrem = status?.isPremium ?: PremiumRepository.isCurrentUserPremium(this)
             if (isPrem) {
                 binding.chipPremium.visibility = View.VISIBLE
                 val exp = status?.expiresAt
                 if (status?.isLifetime == true) {
                     binding.chipPremium.text = "Premium • Lifetime"
                 } else if (exp != null && exp > 0) {
-                    val dateStr = java.text.SimpleDateFormat("dd MMM", java.util.Locale.getDefault()).format(java.util.Date(exp))
+                    val dateStr = SimpleDateFormat("dd MMM", Locale.getDefault()).format(Date(exp))
                     binding.chipPremium.text = "Premium Active • Expires $dateStr"
                 } else {
                     binding.chipPremium.text = "Premium Active"
@@ -146,196 +426,66 @@ class ProfileActivity : EveBaseActivity() {
             startActivity(Intent(this, com.eve.app.ui.premium.PremiumActivity::class.java))
         }
         lifecycleScope.launch {
-            val res = com.eve.app.data.repository.PremiumRepository.refreshStatus(this@ProfileActivity)
+            val res = PremiumRepository.refreshStatus(this@ProfileActivity)
             if (res.isSuccess) {
                 updatePremiumBadge(res.getOrNull())
             }
         }
-
-        binding.btnAbout.setOnClickListener {
-            startActivity(Intent(this, AboutActivity::class.java))
-        }
-
-        binding.switchReminder.isChecked = ReminderScheduler.isEnabled(this)
-        binding.switchReminder.setOnCheckedChangeListener { _, isChecked ->
-            ReminderScheduler.setEnabled(this, isChecked)
-        }
-        binding.rowReminder.setOnClickListener {
-            binding.switchReminder.toggle()
-        }
     }
 
-    private fun setupDobPicker() {
-        val openPicker = {
-            val calendar = Calendar.getInstance()
-            val existingDob = binding.etDob.text?.toString()?.trim() ?: ""
-            if (existingDob.isNotEmpty()) {
-                val parts = existingDob.split("/")
-                if (parts.size == 3) {
-                    val d = parts[0].toIntOrNull()
-                    val m = parts[1].toIntOrNull()
-                    val y = parts[2].toIntOrNull()
-                    if (d != null && m != null && y != null) {
-                        calendar.set(y, m - 1, d)
-                    }
-                }
-            } else {
-                calendar.add(Calendar.YEAR, -18)
-            }
-
-            val picker = DatePickerDialog(
-                this,
-                { _, year, month, dayOfMonth ->
-                    val formatted = String.format(Locale.US, "%02d/%02d/%04d", dayOfMonth, month + 1, year)
-                    binding.etDob.setText(formatted)
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            )
-            picker.datePicker.maxDate = System.currentTimeMillis()
-            picker.show()
-        }
-
-        binding.etDob.setOnClickListener { openPicker() }
-        binding.tilDob.setEndIconOnClickListener { openPicker() }
-    }
-
-    private fun loadUserProfile(userId: String) {
+    private fun loadProfile() {
         val user = FirebaseAuth.getInstance().currentUser ?: return
         val currentName = user.displayName?.takeIf { it.isNotBlank() } ?: "Student"
         binding.tvName.text = currentName
-        binding.etName.setText(if (currentName != "Student") currentName else "")
-
-        binding.tvEveId.text = "--"
+        binding.tvToolbarTitle.text = currentName
 
         lifecycleScope.launch {
             try {
                 val res = ApiClient.apiService.getProfile()
                 if (res.success && res.data != null) {
                     val profile = res.data
-                    if (!profile.eveId.isNullOrBlank()) {
-                        binding.tvEveId.text = profile.eveId
+
+                    // Eve ID
+                    val eveId = profile.eveId ?: "--"
+                    binding.tvEveId.text = eveId
+
+                    // Status line (Admin for admins, or Eve ID)
+                    if (binding.chipAdmin.visibility != View.VISIBLE) {
+                        binding.tvStatus.text = if (eveId != "--") "Eve ID: $eveId" else "Student"
                     }
+
+                    // Name
                     if (profile.displayName.isNotBlank()) {
                         binding.tvName.text = profile.displayName
-                        binding.etName.setText(profile.displayName)
+                        binding.tvToolbarTitle.text = profile.displayName
                     }
-                    if (profile.dob.isNotBlank()) {
-                        binding.etDob.setText(profile.dob)
+
+                    // Mobile
+                    currentPhone = profile.phone ?: ""
+                    binding.tvMobileValue.text = if (currentPhone.isNotBlank()) currentPhone else "Add phone number"
+
+                    // Username
+                    currentUsername = profile.username ?: ""
+                    val displayUsername = if (currentUsername.isNotBlank()) {
+                        if (currentUsername.startsWith("@")) currentUsername else "@$currentUsername"
+                    } else {
+                        "Set username"
                     }
-                    if (profile.category.isNotBlank()) {
-                        setCategoryChip(profile.category)
-                    }
+                    binding.tvUsernameValue.text = displayUsername
+
+                    // Birthday
+                    currentDob = profile.dob
+                    binding.tvBirthdayValue.text = formatTelegramBirthday(currentDob)
+
+                    // Category
+                    currentCategory = if (profile.category.isNotBlank()) profile.category else "General"
+                    binding.tvCategoryValue.text = currentCategory
+                    updateCategoryRadios(currentCategory)
                 }
             } catch (e: Exception) {
-                // Non-fatal: Safe fallback, never crash if offline or document missing
                 android.util.Log.w("ProfileActivity", "Error loading profile: ${e.message}")
             }
         }
-    }
-
-    private fun setCategoryChip(category: String) {
-        when (category.trim().uppercase(Locale.US)) {
-            "OBC" -> binding.chipObc.isChecked = true
-            "SC" -> binding.chipSc.isChecked = true
-            "ST" -> binding.chipSt.isChecked = true
-            else -> binding.chipGeneral.isChecked = true
-        }
-    }
-
-    private fun getSelectedCategory(): String {
-        return when {
-            binding.chipObc.isChecked -> "OBC"
-            binding.chipSc.isChecked -> "SC"
-            binding.chipSt.isChecked -> "ST"
-            else -> "General"
-        }
-    }
-
-    private fun saveUserProfile() {
-        val user = FirebaseAuth.getInstance().currentUser ?: return
-        val name = binding.etName.text?.toString()?.trim() ?: ""
-        val dob = binding.etDob.text?.toString()?.trim() ?: ""
-        val category = getSelectedCategory()
-
-        if (name.isBlank()) {
-            binding.tilName.error = "Name cannot be empty"
-            return
-        }
-        binding.tilName.error = null
-
-        showProgress("Saving profile...")
-
-        lifecycleScope.launch {
-            try {
-                val data = mapOf<String, Any>(
-                    "displayName" to name,
-                    "dob" to dob,
-                    "category" to category
-                )
-
-                val res = ApiClient.apiService.updateProfile(data)
-                if (!res.success) {
-                    throw Exception(res.error ?: "Failed to update profile")
-                }
-
-                try {
-                    val profileUpdates = UserProfileChangeRequest.Builder()
-                        .setDisplayName(name)
-                        .build()
-                    user.updateProfile(profileUpdates).await()
-                } catch (_: Exception) {
-                    // Non-fatal
-                }
-
-                if (UiArcMotion.isMotionEnabled(this@ProfileActivity)) {
-                    binding.tvName.alpha = 0f
-                    binding.tvName.translationY = binding.tvName.textSize * 0.3f
-                    binding.tvName.text = name
-                    binding.tvName.animate()
-                        .alpha(1f)
-                        .translationY(0f)
-                        .setDuration(UiArcMotion.Duration.STANDARD)
-                        .setInterpolator(UiArcMotion.Ease.ENTER)
-                        .start()
-                } else {
-                    binding.tvName.text = name
-                }
-                dismissProgress()
-                AppBulletin.showSuccess(this@ProfileActivity, "Profile saved successfully")
-            } catch (e: Exception) {
-                dismissProgress()
-                AppBulletin.showError(this@ProfileActivity, "Failed to save profile: ${e.localizedMessage ?: "Unknown error"}")
-            }
-        }
-    }
-
-    private fun showProgress(msg: String) {
-        dismissProgress()
-        val builder = TelegramNativeAlertDialog.Builder(this)
-        val layout = android.widget.LinearLayout(this).apply {
-            orientation = android.widget.LinearLayout.HORIZONTAL
-            val space = resources.getDimensionPixelSize(R.dimen.design_card_padding)
-            setPadding(space, space, space, space)
-            gravity = android.view.Gravity.CENTER_VERTICAL
-            addView(TelegramRadialProgressView(this@ProfileActivity), android.widget.LinearLayout.LayoutParams(
-                resources.getDimensionPixelSize(R.dimen.design_ring_size),
-                resources.getDimensionPixelSize(R.dimen.design_ring_size)))
-            addView(TextView(this@ProfileActivity).apply {
-                text = msg
-                setPadding(resources.getDimensionPixelSize(R.dimen.design_section_gap), 0, 0, 0)
-                androidx.core.widget.TextViewCompat.setTextAppearance(this, com.eve.app.R.style.TextAppearance_Eve_Token_Body)
-            })
-        }
-        builder.setView(layout)
-        builder.setCancelable(false)
-        progressDialog = builder.create().apply { show() }
-    }
-
-    private fun dismissProgress() {
-        progressDialog?.dismiss()
-        progressDialog = null
     }
 
     private fun loadProfilePhoto() {
@@ -344,7 +494,9 @@ class ProfileActivity : EveBaseActivity() {
             this,
             binding.ivProfilePhoto,
             user.photoUrl?.toString(),
-            R.drawable.design_avatar_surface
+            R.drawable.design_avatar_surface,
+            userName = user.displayName,
+            userId = user.uid
         )
     }
 
@@ -380,7 +532,8 @@ class ProfileActivity : EveBaseActivity() {
     }
 
     override fun onDestroy() {
-        dismissProgress()
+        progressDialog?.dismiss()
+        progressDialog = null
         super.onDestroy()
     }
 }

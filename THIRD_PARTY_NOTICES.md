@@ -483,3 +483,16 @@ Owner-verified `Telegrammaster.zip` SHA-256 `4b65e10b8fc63b4cbcb7377026a5da47078
 ### Mission 11 — source-derived native inline loading spinner (ADAPTED)
 
 `TelegramNativeSpinnerDialog.kt` is an EVE-only port of `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`, `ActionBar/AlertDialog.java:329-336,371-375,901-915` (Nikolai Kudashov, GPL-2.0-or-later). Upstream spinner dimensions 86dp, 18dp radius, 32dp spinner size, 190ms and `OvershootInterpolator(1.3f)` are retained. The EVE existing `TelegramRadialProgressView` is an adapted upstream component, and the inline-progress background role, blur and remote-loading behavior are **not** claimed source-exact. No Telegram account/service dependencies were imported. This new class is not yet migrated to every EVE progress dialog; production distribution/combined-work compatibility remains under existing release compliance gates.
+
+### Mission 01 — official Telegram profile page, switch, and action assets (ADAPTED & EXACT)
+
+Under Mission 01 authorization:
+- **Upstream source archive:** `Telegrammaster.zip` SHA-256 `4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10` (matching official commit `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`).
+- **Verbatim imported assets:**
+  - `TMessagesProj/src/main/res/drawable-{mdpi,hdpi,xhdpi,xxhdpi}/ic_ab_done.webp` imported as `ic_ab_done.webp` across all 4 densities (mdpi: `bd423d9161de653c4b8658f2abcd2d4c974976ff79d653274c3c34ab2abbba31`, hdpi: `7d64c482d47741d2143db109e4024c166fd2aaf025f32c9f9524456c0c6c270c`, xhdpi: `480afa50bf24da4c60c2b9db3a2b1b6cb59cf4232b0d6eafb6e1976ce8e95ab3`, xxhdpi: `78bce3757bb9a9922ff52a3f4b181e96122367e7e1f2bc22dd59cb6a17702a51`).
+  - Action button vector drawables adapted from Telegram: `telegram_profile_photo.xml`, `telegram_profile_edit.xml`, `telegram_profile_settings.xml`.
+- **Adapted components:**
+  - `TelegramSwitch.kt`: Adapted from Telegram `Switch.java` (`TMessagesProj/src/main/java/org/telegram/ui/Components/Switch.java`), featuring authentic track/thumb geometry, Day/Night color roles (`#3B96E8` on-track, `#B9B9B9` / `#565656` off-track, `#FFFFFF` / `#363636` thumb), and 200ms `CubicBezierInterpolator.DEFAULT` toggle animation.
+  - `ProfileGooeyView.kt` and `NotchInfoUtils.kt`: Adapted from `ProfileGooeyView.java` and `NotchInfoUtils.java` for API 31+ RenderEffect gooey liquid camera collapse with fallback.
+  - Profile and editing activities: `ProfileActivity.kt`, `ChangeNameActivity.kt`, `ChangeUsernameActivity.kt`, `ChangePhoneActivity.kt` adapting Telegram's profile structure, layout math, and edit workflows.
+- **Copyright/License:** Telegram Android contributors including DrKLO / Telegram FZ-LLC / Nikolai Kudashov. Upstream source is GNU GPL v2. EVE code is GPL-3.0-or-later. Upstream attribution and corresponding-source obligations are strictly preserved.

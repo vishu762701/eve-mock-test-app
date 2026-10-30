@@ -131,7 +131,15 @@ data class UserProfileResponse(
     val email: String,
     val displayName: String,
     val dob: String,
-    val category: String
+    val category: String,
+    val username: String? = null,
+    val phone: String? = null
+)
+
+data class UsernameCheckResponse(
+    val available: Boolean,
+    val code: String? = null,
+    val error: String? = null
 )
 
 data class AuthUserResponse(
@@ -203,6 +211,9 @@ interface EveApiService {
 
     @GET("api/users/profile")
     suspend fun getProfile(): ApiResponse<UserProfileResponse>
+
+    @GET("api/users/username/check")
+    suspend fun checkUsername(@retrofit2.http.Query("u") username: String): ApiResponse<UsernameCheckResponse>
 
     @PUT("api/users/profile")
     suspend fun updateProfile(@Body body: Map<String, @JvmSuppressWildcards Any>): ApiResponse<Unit>

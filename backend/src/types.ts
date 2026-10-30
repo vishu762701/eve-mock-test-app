@@ -277,6 +277,8 @@ export interface UserRow {
   last_active: number;
   last_updated: number;
   fcm_token: string;
+  username?: string | null;
+  phone?: string | null;
 }
 
 export interface PremiumConfigRow {

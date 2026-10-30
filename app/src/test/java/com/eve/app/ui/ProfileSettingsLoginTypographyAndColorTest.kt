@@ -89,31 +89,30 @@ class ProfileSettingsLoginTypographyAndColorTest {
 
         val tvName = findElementById(root, "tvName")
         assertNotNull("tvName must exist", tvName)
-        assertEquals("@style/TextAppearance.Eve.Token.Heading", tvName?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Telegram.ProfileName", tvName?.getAttribute("style"))
 
-        val tvEmail = findElementById(root, "tvEmail")
-        assertNotNull("tvEmail must exist", tvEmail)
-        assertEquals("@style/TextAppearance.Eve.Token.Body", tvEmail?.getAttribute("style"))
+        val tvStatus = findElementById(root, "tvStatus")
+        assertNotNull("tvStatus must exist", tvStatus)
+        assertEquals("@style/TextAppearance.Eve.Telegram.ProfileStatus", tvStatus?.getAttribute("style"))
 
         val tvEveId = findElementById(root, "tvEveId")
         assertNotNull("tvEveId must exist", tvEveId)
-        assertEquals("@style/TextAppearance.Eve.Token.Secondary", tvEveId?.getAttribute("style"))
+        assertEquals("@style/TextAppearance.Eve.Telegram.SettingsLabel", tvEveId?.getAttribute("style"))
 
-        val etName = findElementById(root, "etName")
-        assertNotNull("etName must exist", etName)
-        assertEquals("@style/Widget.Eve.Token.Input", etName?.getAttribute("style"))
+        val cellMobile = findElementById(root, "cellMobile")
+        assertNotNull("cellMobile must exist", cellMobile)
 
-        val etDob = findElementById(root, "etDob")
-        assertNotNull("etDob must exist", etDob)
-        assertEquals("@style/Widget.Eve.Token.Input", etDob?.getAttribute("style"))
+        val cellUsername = findElementById(root, "cellUsername")
+        assertNotNull("cellUsername must exist", cellUsername)
 
-        val chipGeneral = findElementById(root, "chipGeneral")
-        assertNotNull("chipGeneral must exist", chipGeneral)
-        assertEquals("@style/TextAppearance.Eve.Token.Chip", chipGeneral?.designAttribute("android:textAppearance"))
+        val cellBirthday = findElementById(root, "cellBirthday")
+        assertNotNull("cellBirthday must exist", cellBirthday)
 
-        val btnSaveProfile = findElementById(root, "btnSaveProfile")
-        assertNotNull("btnSaveProfile must exist", btnSaveProfile)
-        assertEquals("@style/TextAppearance.Eve.Token.Button", btnSaveProfile?.designAttribute("android:textAppearance"))
+        val cellCategory = findElementById(root, "cellCategory")
+        assertNotNull("cellCategory must exist", cellCategory)
+
+        val switchReminder = findElementById(root, "switchReminder")
+        assertNotNull("switchReminder must exist", switchReminder)
     }
 
     @Test

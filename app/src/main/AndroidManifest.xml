@@ -57,6 +57,18 @@
             android:name=".ui.profile.ProfileActivity"
             android:exported="false"
             android:theme="@style/Theme.Eve.Profile" />
+        <activity
+            android:name=".ui.profile.ChangeNameActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Eve.Profile" />
+        <activity
+            android:name=".ui.profile.ChangeUsernameActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Eve.Profile" />
+        <activity
+            android:name=".ui.profile.ChangePhoneActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Eve.Profile" />
         <activity android:name=".ui.history.HistoryActivity" android:exported="false" />
         <activity android:name=".ui.bookmarks.BookmarksActivity" android:exported="false" />
         <activity android:name=".ui.mistakes.MistakesActivity" android:exported="false" />
