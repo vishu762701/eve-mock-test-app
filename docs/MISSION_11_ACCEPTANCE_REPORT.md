@@ -4,10 +4,12 @@
 **Repository:** https://github.com/vishu762701/eve-mock-test-app
 **Branch:** `main` only
 **Mission 10 checkpoint:** `470c4c7908a8d1e16d68ec6cb9548689cc904ff9`
-**Last audited Mission 11 implementation SHA:** `82e5dd1b672f7688f0bd5e468e9c9db163c8f2b5`
-**Status:** **INCOMPLETE — do not claim terminal G4–G6 verification**
-**Terminal FULL CI:** **NOT TRIGGERED** (the exact upstream Telegram dialog renderer and matched visual acceptance are still unresolved).
-**Mission 11 APK:** **NOT PUBLISHED OR DIGEST-VERIFIED**.
+**Latest audited integration / test repair SHA:** `b384eebf0c1cbbd0acf80ca51d96a06625aa1d8b` (subject to live HEAD recheck)
+**Status:** **Final six-job acceptance is decided by the latest exact-SHA GitHub Actions FULL run, not by an outdated checkpoint. Never infer pixel-exact Telegram parity solely from CI.**
+**Terminal FULL CI history:** [41028834051](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41028834051) and [41030892301](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41030892301) failed native assertions; [41034705273](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41034705273) failed AndroidTest compilation; the focused next FAST repair is [41035286301](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41035286301). Inspect the next final FULL on its exact SHA.
+**Mission 11 verified APK:** **Only a six-job successful final FULL may publish the artifact; inspect the resulting run and compute its ZIP/APK SHA-256 before claiming delivery.**
+
+**Continuity note:** Sections 1–9 contain dated historical checkpoints; their statements that FULL was never triggered or that only one dialog was migrated describe earlier points in time. Section 10 below supersedes those transient status statements. Final evidence must be checked from GitHub Actions at the exact commit.
 
 This document is the G7 resumable ledger and deliberately is **not** a certification that user-visible Telegram parity was achieved. Its own documentation commit advances `main` beyond the implementation SHA above. Check remote HEAD anew before any further write.
 
@@ -155,3 +157,31 @@ The active container provides neither `adb` nor Android `emulator`/`sdkmanager`,
 | `4ca8a959bc8e14f65a3fbeb7eaa69d43c0846605` | Original Activity-liveness safety guard and contract | **SUCCESS**, [41016012951](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41016012951) |
 
 **First executable next action:** finish the remaining genuine Telegram dialog UI branches as EVE-only source-isolated ports, preserve all original dialogs' validation/custom callbacks, and obtain native functional/visual evidence. Do not equate a source-derived partial port with a complete renderer. The connected environment has no Android SDK/adb emulator or connected authenticated test device. FULL remains gated, and no new APK checksum can be claimed. No local checkout or uncommitted work was created; all implementation changes are remote GitHub commits.
+
+
+## 10. Reconciled final-dialog integration and acceptance gate — 2026-10-30
+
+### Feature-atomic integration ledger (only new functional units; no duplicate work)
+
+| Integration | Main commit / evidence | Outcome |
+|---|---|---|
+| Exam leave, submit, attempt-limit, offline/status dialogs | \`7f55fbab970898f8954382495eda21a238865de4\`; FAST 41021518466 | FAST green |
+| Settings deletion, reauthentication and progress; focused follow-up test repair | \`5d42ee2e\`, \`0ae41eca\`; FAST 41022695588 | FAST green |
+| Admin privileged confirmations, feedback replies, delete and maintenance operations | \`07cdb607\`; FAST 41023491272 | FAST green |
+| Student report form, reattempt/result flows | \`8e9a09b3\`; FAST 41023895252 | FAST green |
+| Home feedback post deletion and Profile progress | \`b39579eb\`; FAST 41024395183 | FAST green |
+| Notifications, Premium and flagged-question admin dialogs | \`422c504e\`; FAST 41024781119 | FAST green |
+| Users, syllabus non-dismissing radio choice, analytics and feedback moderation | \`95ad8b5d\`; FAST 41025492080 | FAST green |
+| Exam editor/manager dialogs, cancellation and destructive action behavior | \`457f8808\`; FAST 41026071694 | FAST green |
+| AdminActivity message, item, custom-form and progress dialogs | \`8b839691\`; FAST 41026653653 | FAST green |
+| Poll creation custom form | \`e94aaf46\`; FAST 41027093931 | FAST green |
+| Debug-only crash trace viewer, preserving private storage and manual Copy Trace | \`8c1a08d6\`; FAST 41028131560 | FAST green |
+| Source-derived native window, source notice, device acceptance tests | \`fd52cc85\`; FULL 41028834051 failed two unrelated stale MCQ selected-color assertions | Not accepted |
+| Subsequent native regressions and avatar/dialog contracts | \`943e0a40\`; FULL 41030892301 failed the same MCQ assertions | Not accepted |
+| Exact green drawable + premultiplied pixel regression | \`ff7bbe08\`; FULL 41034705273 caught test compile syntax error; \`b384eebf\` repairs the syntax | FAST verification pending at report preparation |
+
+**Source-fidelity classification:** The verified original \`Telegrammaster.zip\` is SHA-256 \`4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10\` at \`DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15\`. EVE's \`TelegramNativeAlertDialog.kt\` is a GPL-derived, **ADAPTED dependency-isolated port**; EVE's selection radio mode, backend callbacks, 48dp accessibility and host composition are **ADAPTED**, not claims that the entire Telegram 2,069-line renderer was copied verbatim. The original source-derived 9-patch and related atoms remain recorded in \`THIRD_PARTY_NOTICES.md\`. Telegram account/network services were not imported.
+
+**R01–R10 and inherited UI requirements:** Implementation and focused source contracts exist; native/emulator execution of those assertions and genuine day/night screen fixtures must be evaluated on the final exact SHA. Successful automated UI tests provide relevant runtime evidence but do **not** by themselves certify pixel-perfect original Telegram animations, device-specific frames, authenticated student/admin operations, or the user's physical phone. Any unsupported subclaim stays \`UNKNOWN\` or \`ADAPTED\` rather than false \`EXACT\`.
+
+**Terminal G6 gate:** On the final \`[eve-full]\` commit, inspect each job separately: backend, firebase-functions, build/lint/JVM, Native UI (gesture), Native UI (three-button), and publish verified debug APK. Require all six jobs successful, an exact-SHA artifact and independently computed APK digest. Earlier failed FULL runs remain failed. The GitHub Actions result is the authoritative, time-sensitive completion record. Never rewrite source tests solely to hide a real regression.
