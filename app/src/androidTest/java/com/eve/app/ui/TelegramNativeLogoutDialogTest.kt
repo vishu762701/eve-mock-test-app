@@ -357,4 +357,36 @@ class TelegramNativeLogoutDialogTest {
         }
     }
 
+
+    @Test fun sourceNativeDialogConstrainsWindowAndUsesOriginalScrimWithUsableActions() {
+        ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                val dialog = TelegramNativeAlertDialog.Builder(activity)
+                    .setTitle("Review confirmation")
+                    .setMessage("Read the explanation before confirming.")
+                    .setPositiveButton("Continue", null)
+                    .setNegativeButton("Cancel", null)
+                    .show()
+                try {
+                    val window = requireNotNull(dialog.window)
+                    val params = window.attributes
+                    val dp = activity.resources.displayMetrics.density
+                    val screen = activity.resources.displayMetrics.widthPixels
+                    assertTrue("Telegram window must not extend beyond display", params.width in 1..screen)
+                    assertTrue("Dialog width must leave room for readable content",
+                        params.width >= (240f * dp).toInt())
+                    assertTrue("Original dialog dims content behind the window",
+                        params.flags and android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND != 0)
+                    assertEquals("Source-native message scrim", 0.5f, params.dimAmount, 0.001f)
+                    val action = requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_POSITIVE))
+                    assertTrue("Primary action must remain accessible", action.minHeight >= (48f * dp).toInt())
+                    dialog.getActionButton(DialogInterface.BUTTON_NEGATIVE)!!.performClick()
+                    assertFalse(dialog.isShowing)
+                } finally {
+                    if (dialog.isShowing) dialog.dismiss()
+                }
+            }
+        }
+    }
+
 }
