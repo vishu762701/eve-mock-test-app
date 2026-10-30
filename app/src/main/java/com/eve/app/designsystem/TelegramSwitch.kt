@@ -27,8 +27,20 @@ import com.eve.app.theme.TelegramThemeEngine
 
 /**
  * Official Telegram Switch component ported for EVE Mission 01.
- * Features 37x24dp track, 10dp thumb radius, 200ms cubic-bezier animation,
- * authentic Day/Night track and thumb colors, and optional left-text measurement.
+ * Geometry ported from Switch.java:380-384, 448-450, 497:
+ *   - Track width: 31dp (Switch.java:380)
+ *   - Track height: 14dp (Switch.java:383, 448)
+ *   - Thumb backplate radius: 10dp (diameter 20dp) (Switch.java:381, 450)
+ *   - Thumb inner radius: 8dp (Switch.java:497)
+ *   - Thumb travel distance: 17dp (Switch.java:384)
+ *   - Animation: 200ms ObjectAnimator on "progress" (Switch.java:237-238)
+ *   - Standalone cell layout bounds: 37x20dp (TextCheckCell.java:126)
+ * Colors:
+ *   - Day track off: 0xFFA6ADB3 (ThemeColors.java:115 key_switchTrack)
+ *   - Day track on:  0xFF229AF0 (ThemeColors.java:116 TELEGRAM_COLOR)
+ *   - Night track off: 0xFF606060 (night.attheme:31 switchTrack=-10461088)
+ *   - Night track on:  0xFF459CE3 (night.attheme:366 switchTrackChecked=-12215069)
+ *   - Thumb: 0xFFFFFFFF (Theme.key_windowBackgroundWhite)
  */
 class TelegramSwitch @JvmOverloads constructor(
     context: Context,
@@ -56,10 +68,10 @@ class TelegramSwitch @JvmOverloads constructor(
     private var textValue: CharSequence? = null
 
     // Colors matching Telegram Android ThemeColors.java and night.attheme
-    private val DAY_TRACK_OFF = 0xFFA6ADB3.toInt()        // Theme.key_switchTrack
-    private val DAY_TRACK_ON = 0xFF229AF0.toInt()         // Theme.key_switchTrackChecked (TELEGRAM_COLOR)
+    private val DAY_TRACK_OFF = 0xFFA6ADB3.toInt()        // ThemeColors.java:115 key_switchTrack
+    private val DAY_TRACK_ON = 0xFF229AF0.toInt()         // ThemeColors.java:116 key_switchTrackChecked (TELEGRAM_COLOR)
     private val NIGHT_TRACK_OFF = 0xFF606060.toInt()      // night.attheme:31 switchTrack=-10461088
-    private val NIGHT_TRACK_ON = 0xFF4592E3.toInt()       // night.attheme:366 switchTrackChecked=-12215069
+    private val NIGHT_TRACK_ON = 0xFF459CE3.toInt()       // night.attheme:366 switchTrackChecked=-12215069
     private val THUMB_COLOR = 0xFFFFFFFF.toInt()          // Theme.key_windowBackgroundWhite
 
     var text: CharSequence?
@@ -153,7 +165,7 @@ class TelegramSwitch @JvmOverloads constructor(
         val heightSize = MeasureSpec.getSize(heightMeasureSpec)
 
         val switchW = dp(37)
-        val switchH = dp(24)
+        val switchH = dp(20)
 
         val currentText = textValue
         if (!currentText.isNullOrEmpty()) {

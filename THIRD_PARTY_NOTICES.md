@@ -488,11 +488,32 @@ Owner-verified `Telegrammaster.zip` SHA-256 `4b65e10b8fc63b4cbcb7377026a5da47078
 
 Under Mission 01 authorization:
 - **Upstream source archive:** `Telegrammaster.zip` SHA-256 `4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10` (matching official commit `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`).
-- **Verbatim imported assets:**
-  - `TMessagesProj/src/main/res/drawable-{mdpi,hdpi,xhdpi,xxhdpi}/ic_ab_done.webp` imported as `ic_ab_done.webp` across all 4 densities (mdpi: `bd423d9161de653c4b8658f2abcd2d4c974976ff79d653274c3c34ab2abbba31`, hdpi: `7d64c482d47741d2143db109e4024c166fd2aaf025f32c9f9524456c0c6c270c`, xhdpi: `480afa50bf24da4c60c2b9db3a2b1b6cb59cf4232b0d6eafb6e1976ce8e95ab3`, xxhdpi: `78bce3757bb9a9922ff52a3f4b181e96122367e7e1f2bc22dd59cb6a17702a51`).
-  - Action button vector drawables adapted from Telegram: `telegram_profile_photo.xml`, `telegram_profile_edit.xml`, `telegram_profile_settings.xml`.
-- **Adapted components:**
-  - `TelegramSwitch.kt`: Adapted from Telegram `Switch.java` (`TMessagesProj/src/main/java/org/telegram/ui/Components/Switch.java`), featuring authentic track/thumb geometry, Day/Night color roles (`#3B96E8` on-track, `#B9B9B9` / `#565656` off-track, `#FFFFFF` / `#363636` thumb), and 200ms `CubicBezierInterpolator.DEFAULT` toggle animation.
-  - `ProfileGooeyView.kt` and `NotchInfoUtils.kt`: Adapted from `ProfileGooeyView.java` and `NotchInfoUtils.java` for API 31+ RenderEffect gooey liquid camera collapse with fallback.
+- **Verbatim imported assets (EXACT):**
+  - `TMessagesProj/src/main/res/drawable-{mdpi,hdpi,xhdpi,xxhdpi}/ic_ab_done.webp` imported as `ic_ab_done.webp` across all 4 densities:
+    - mdpi: `bd423d9161de653c4b8658f2abcd2d4c974976ff79d653274c3c34ab2abbba31`
+    - hdpi: `7d64c482d47741d2143db109e4024c166fd2aaf025f32c9f9524456c0c6c270c`
+    - xhdpi: `480afa50bf24da4c60c2b9db3a2b1b6cb59cf4232b0d6eafb6e1976ce8e95ab3`
+    - xxhdpi: `78bce3757bb9a9922ff52a3f4b181e96122367e7e1f2bc22dd59cb6a17702a51`
+  - `TMessagesProj/src/main/res/drawable/filled_profile_edit_24.xml` -> `app/src/main/res/drawable/telegram_profile_edit.xml`:
+    - SHA-256: `31a142ccdd2f7abca3fa54c7b173c14aeda16a0dd8d8979265d53c60a3c654ba` (EXACT)
+  - `TMessagesProj/src/main/res/drawable/filled_profile_photo.xml` -> `app/src/main/res/drawable/telegram_profile_photo.xml`:
+    - SHA-256: `25dd0210a22bd206b386a2777d62ba5e217a403e969e3acd12235cba9d5c9958` (EXACT)
+  - `TMessagesProj/src/main/res/drawable/filled_profile_settings.xml` -> `app/src/main/res/drawable/telegram_profile_settings.xml`:
+    - SHA-256: `56411bb903af5fa7df6d89e2b0fb97ef77fe7fd068240698175e1e668e78c3df` (EXACT)
+- **Adapted components (ADAPTED):**
+  - `TelegramSwitch.kt`: Ported from Telegram `Switch.java` (`TMessagesProj/src/main/java/org/telegram/ui/Components/Switch.java`), featuring authentic track/thumb geometry and animation:
+    - Track width: 31dp (`Switch.java:380`)
+    - Track height: 14dp (`Switch.java:383, 448`)
+    - Thumb backplate radius: 10dp / diameter 20dp (`Switch.java:381, 450`)
+    - Thumb inner radius: 8dp (`Switch.java:497`)
+    - Thumb travel distance: 17dp (`Switch.java:384`)
+    - Animation: 200ms `ObjectAnimator` on `"progress"` (`Switch.java:237-238`)
+    - Standalone cell layout bounds: 37x20dp (`TextCheckCell.java:126`)
+    - Day track off: `0xFFA6ADB3` (`ThemeColors.java:115` `defaultColors[key_switchTrack]`)
+    - Day track on: `0xFF229AF0` (`ThemeColors.java:14, 116` `TELEGRAM_COLOR`)
+    - Night track off: `0xFF606060` (`assets/night.attheme:31` `switchTrack=-10461088`)
+    - Night track on: `0xFF459CE3` (`assets/night.attheme:366` `switchTrackChecked=-12215069`)
+    - Thumb: `0xFFFFFFFF` (`Theme.key_windowBackgroundWhite`)
+  - `ProfileGooeyView.kt` and `NotchInfoUtils.kt`: Ported from `ProfileGooeyView.java` and `NotchInfoUtils.java` for API 31+ `RenderEffect` liquid camera collapse with CPU fallback. Note: `ProfileMetaballView.java` is obsolete upstream (commented out at `ProfileActivity.java:391`) and replaced by `ProfileGooeyView.java`.
   - Profile and editing activities: `ProfileActivity.kt`, `ChangeNameActivity.kt`, `ChangeUsernameActivity.kt`, `ChangePhoneActivity.kt` adapting Telegram's profile structure, layout math, and edit workflows.
 - **Copyright/License:** Telegram Android contributors including DrKLO / Telegram FZ-LLC / Nikolai Kudashov. Upstream source is GNU GPL v2. EVE code is GPL-3.0-or-later. Upstream attribution and corresponding-source obligations are strictly preserved.

@@ -217,3 +217,52 @@ test("PUT /api/users/profile updates username and phone with validation and uniq
   assert.equal(profBody.data.dob, "15/03/2004");
   assert.equal(profBody.data.category, "OBC");
 });
+
+test("privacy guard: phone is never returned except on own profile", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  const caller = { uid: "caller-user", email: "caller@example.com", displayName: "Caller" };
+  const app = createTestApp(d1, caller);
+
+  // Seed another user with sensitive phone
+  sqlite.prepare("INSERT INTO users (id, email, display_name, username, phone, created_at, last_active) VALUES (?, ?, ?, ?, ?, 1, 1)")
+    .run("target-user", "target@example.com", "Target", "target_user", "+91 99999 88888");
+
+  // Own profile returns own phone (or empty if unassigned), never target's phone
+  const ownProf = await app.request("/api/users/profile");
+  const ownBody = await ownProf.json();
+  assert.equal(ownBody.data.phone, "");
+  assert.notEqual(ownBody.data.phone, "+91 99999 88888");
+
+  // Checking username availability of target does NOT leak target's phone or PII
+  const checkRes = await app.request("/api/users/username/check?u=target_user");
+  const checkBody = await checkRes.json();
+  assert.equal(checkBody.data.available, false);
+  assert.equal(checkBody.data.code, "taken");
+  assert.equal(checkBody.data.phone, undefined);
+  assert.equal(checkBody.data.email, undefined);
+});
+
+test("race condition & unique constraint: handles concurrent username collision", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  const user1 = { uid: "user-alpha", email: "alpha@example.com", displayName: "Alpha" };
+  const user2 = { uid: "user-beta", email: "beta@example.com", displayName: "Beta" };
+  const app2 = createTestApp(d1, user2);
+
+  // User 1 claims "racing_star"
+  sqlite.prepare("INSERT INTO users (id, email, display_name, username, created_at, last_active) VALUES (?, ?, ?, ?, 1, 1)")
+    .run(user1.uid, user1.email, user1.displayName, "racing_star");
+
+  // User 2 races with exact or case-insensitive duplicate "RACING_STAR"
+  const raceRes = await app2.request("/api/users/profile", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      displayName: "Beta Racer",
+      username: "RACING_STAR"
+    })
+  });
+  assert.equal(raceRes.status, 409);
+  const raceBody = await raceRes.json();
+  assert.equal(raceBody.success, false);
+  assert.equal(raceBody.error, "Sorry, this username is already taken.");
+});
