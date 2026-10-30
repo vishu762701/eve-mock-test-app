@@ -42,7 +42,7 @@ class TelegramNativeAlertDialog private constructor(
     private val onPositive: DialogInterface.OnClickListener?,
     private val negativeText: CharSequence?,
     private val onNegative: DialogInterface.OnClickListener?
-) : Dialog(context, android.R.style.Theme_Translucent_NoTitleBar) {
+) : Dialog(context, R.style.Theme_Eve_TelegramNativeDialog) {
 
     private fun dp(value: Int) = (value * context.resources.displayMetrics.density + 0.5f).toInt()
     private val actionButtons = mutableMapOf<Int, TextView>()
