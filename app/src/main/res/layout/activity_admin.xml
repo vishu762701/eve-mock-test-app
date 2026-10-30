@@ -3,6 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clickable="true"
+    android:focusable="true"
     android:orientation="vertical"
     android:background="@color/bg_app"
     style="@style/Widget.Eve.Token.Screen">
@@ -60,8 +62,7 @@
                             style="@style/TextAppearance.Eve.Telegram.NavigationTitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Administrator"
-                            android:textSize="19sp" />
+                            android:text="Administrator" />
 
                         <TextView
                             android:id="@+id/tvAdminRole"
@@ -77,8 +78,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="1dp"
-                            android:text="admin@eve.app"
-                            android:textSize="12sp" />
+                            android:text="admin@eve.app" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -285,6 +285,26 @@
             android:orientation="vertical"
             android:visibility="gone">
 
+            <com.eve.app.ui.common.EveGlassToolbar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/design_touch_min"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    style="@style/Widget.Eve.Token.ToolbarRow">
+                    <ImageButton
+                        android:id="@+id/btnBack"
+                        android:layout_width="@dimen/design_touch_min"
+                        android:layout_height="@dimen/design_touch_min"
+                        android:contentDescription="Back"
+                        android:src="@drawable/ic_back"
+                        app:tint="@color/telegram_type_primary"
+                        style="@style/Widget.Eve.Token.IconButton" />
+                </LinearLayout>
+            </com.eve.app.ui.common.EveGlassToolbar>
+
             <com.eve.app.designsystem.DesignSegmentedTabs
                 android:id="@+id/tabLayoutAdmin"
                 style="@style/Widget.Eve.Token.SegmentedTabs"
@@ -318,6 +338,62 @@
                         android:layout_height="wrap_content" />
                     <View
                         android:id="@+id/cardUserStats"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <View
+                        android:id="@+id/btnManageUsers"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <View
+                        android:id="@+id/btnManageExistingExams"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <View
+                        android:id="@+id/btnManageExams"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <View
+                        android:id="@+id/btnGeneratedTests"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <View
+                        android:id="@+id/btnHomeBanner"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <View
+                        android:id="@+id/btnFloatingLink"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <View
+                        android:id="@+id/btnManagePremium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <View
+                        android:id="@+id/btnManageSyllabus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <View
+                        android:id="@+id/btnSendNotification"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <View
+                        android:id="@+id/btnFeedbackReplies"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <View
+                        android:id="@+id/btnCreateFeedbackPost"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <View
+                        android:id="@+id/btnManageFeedbackPosts"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <View
+                        android:id="@+id/btnAnalyticsAdmin"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <View
+                        android:id="@+id/btnAppConfig"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
                     <TextView
