@@ -29,6 +29,7 @@ import android.view.Gravity
 import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.ScrollView
+import android.widget.RadioButton
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import com.eve.app.R
@@ -43,7 +44,10 @@ class TelegramNativeAlertDialog private constructor(
     private val positiveText: CharSequence?,
     private val onPositive: DialogInterface.OnClickListener?,
     private val negativeText: CharSequence?,
-    private val onNegative: DialogInterface.OnClickListener?
+    private val onNegative: DialogInterface.OnClickListener?,
+    private val rowItems: Array<out CharSequence>?,
+    private val selectedItemIndex: Int,
+    private val onItemClick: DialogInterface.OnClickListener?
 ) : Dialog(context, R.style.Theme_Eve_TelegramNativeDialog) {
 
     private fun dp(value: Int) = (value * context.resources.displayMetrics.density + 0.5f).toInt()
@@ -76,19 +80,70 @@ class TelegramNativeAlertDialog private constructor(
                 setPadding(dp(24), dp(19), dp(24), dp(10))
             }, LinearLayout.LayoutParams(-1, -2))
         }
-        messageText?.let { message ->
-            val scroll = ScrollView(context).apply {
-                isVerticalScrollBarEnabled = false
-                addView(TextView(context).apply {
+        if (messageText != null || rowItems != null) {
+            // Telegram AlertDialog.java:850-871,920,932-949: a single scroll host
+            // for message + 50dp list cells, independent of the action row.
+            val scrollContainer = LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+            }
+            messageText?.let { message ->
+                scrollContainer.addView(TextView(context).apply {
                     tag = "telegram_native_alert_message"
                     text = message
                     setTextColor(textInk)
                     setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
                     gravity = Gravity.START
                     setPadding(dp(24), if (titleText == null) dp(19) else 0, dp(24), dp(10))
-                }, android.widget.FrameLayout.LayoutParams(-1, -2))
+                }, LinearLayout.LayoutParams(-1, -2))
             }
-            root.addView(scroll, LinearLayout.LayoutParams(-1, -2))
+            rowItems?.forEachIndexed { index, label ->
+                val row = LinearLayout(context).apply {
+                    tag = "telegram_native_alert_item_" + index
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = Gravity.CENTER_VERTICAL
+                    minHeight = dp(50)
+                    setPadding(dp(24), 0, dp(24), 0)
+                    isClickable = true
+                    isFocusable = true
+                    val ripple = android.util.TypedValue()
+                    if (context.theme.resolveAttribute(android.R.attr.selectableItemBackground, ripple, true)) {
+                        setBackgroundResource(ripple.resourceId)
+                    }
+                    setOnClickListener {
+                        if (!isShowing) return@setOnClickListener
+                        try {
+                            onItemClick?.onClick(this@TelegramNativeAlertDialog, index)
+                        } finally {
+                            if (isShowing) dismiss()
+                        }
+                    }
+                }
+                row.addView(TextView(context).apply {
+                    text = label
+                    setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+                    setTextColor(textInk)
+                    gravity = Gravity.CENTER_VERTICAL
+                    maxLines = 2
+                    ellipsize = TextUtils.TruncateAt.END
+                }, LinearLayout.LayoutParams(0, -2, 1f))
+                if (selectedItemIndex >= 0) {
+                    // EVE radio-choice behavior is ADAPTED: Telegram's upstream
+                    // AlertDialog only defines setItems(), not setSingleChoiceItems().
+                    row.addView(RadioButton(context).apply {
+                        isChecked = index == selectedItemIndex
+                        buttonTintList = ColorStateList.valueOf(palette.accent)
+                        isClickable = false
+                        isFocusable = false
+                        importantForAccessibility = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                    }, LinearLayout.LayoutParams(dp(40), dp(48)))
+                    row.isSelected = index == selectedItemIndex
+                }
+                scrollContainer.addView(row, LinearLayout.LayoutParams(-1, dp(50)))
+            }
+            root.addView(ScrollView(context).apply {
+                isVerticalScrollBarEnabled = false
+                addView(scrollContainer, android.widget.FrameLayout.LayoutParams(-1, -2))
+            }, LinearLayout.LayoutParams(-1, -2))
         }
         if (positiveText != null || negativeText != null) {
             val actions = LinearLayout(context).apply {
@@ -173,6 +228,9 @@ class TelegramNativeAlertDialog private constructor(
         private var negative: CharSequence? = null
         private var onPositive: DialogInterface.OnClickListener? = null
         private var onNegative: DialogInterface.OnClickListener? = null
+        private var items: Array<out CharSequence>? = null
+        private var selectedItemIndex: Int = -1
+        private var onItemClick: DialogInterface.OnClickListener? = null
         fun setTitle(value: CharSequence) = apply { title = value }
         fun setMessage(value: CharSequence) = apply { message = value }
         fun setPositiveButton(value: CharSequence, listener: DialogInterface.OnClickListener?) = apply {
@@ -181,7 +239,22 @@ class TelegramNativeAlertDialog private constructor(
         fun setNegativeButton(value: CharSequence, listener: DialogInterface.OnClickListener?) = apply {
             negative = value; onNegative = listener
         }
-        fun create() = TelegramNativeAlertDialog(context, title, message, positive, onPositive, negative, onNegative)
+        /** Original Telegram AlertDialog.Builder.setItems():1827-1842. */
+        fun setItems(values: Array<out CharSequence>, listener: DialogInterface.OnClickListener?) = apply {
+            items = values.copyOf(); selectedItemIndex = -1; onItemClick = listener
+        }
+        /** EVE-only ADAPTED single-radio-choice behavior on upstream 50dp rows. */
+        fun setSingleChoiceItems(
+            values: Array<out CharSequence>,
+            checkedIndex: Int,
+            listener: DialogInterface.OnClickListener?
+        ) = apply {
+            items = values.copyOf(); selectedItemIndex = checkedIndex; onItemClick = listener
+        }
+        fun create() = TelegramNativeAlertDialog(
+            context, title, message, positive, onPositive, negative, onNegative,
+            items, selectedItemIndex, onItemClick
+        )
         fun show() = create().also { it.show() }
     }
 }

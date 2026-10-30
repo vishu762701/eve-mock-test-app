@@ -53,4 +53,53 @@ class TelegramNativeLogoutDialogTest {
             }
         }
     }
+    @Test fun listItemSelectionDispatchesIndexAndDismisses() {
+        ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                var selected = -1
+                val dialog = TelegramNativeAlertDialog.Builder(activity)
+                    .setTitle("Select App Language")
+                    .setItems(arrayOf("System", "English", "Hindi")) { _, which -> selected = which }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+                try {
+                    val row = dialog.window!!.decorView.findViewWithTag<android.view.View>(
+                        "telegram_native_alert_item_2"
+                    )
+                    assertNotNull("Original 50dp Telegram choice row missing", row)
+                    assertTrue(row.height >= (48 * activity.resources.displayMetrics.density).toInt())
+                    row.performClick()
+                    assertEquals(2, selected)
+                    assertFalse(dialog.isShowing)
+                } finally {
+                    if (dialog.isShowing) dialog.dismiss()
+                }
+            }
+        }
+    }
+
+    @Test fun radioChoiceMarksOnlyConfiguredEntryAndCancelDoesNotChoose() {
+        ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                var choices = 0
+                val dialog = TelegramNativeAlertDialog.Builder(activity)
+                    .setTitle("Select App Language")
+                    .setSingleChoiceItems(arrayOf("System", "English", "Hindi"), 1) { _, _ -> choices++ }
+                    .setNegativeButton("Cancel", null).show()
+                try {
+                    val first = dialog.window!!.decorView.findViewWithTag<android.view.View>(
+                        "telegram_native_alert_item_0")
+                    val selected = dialog.window!!.decorView.findViewWithTag<android.view.View>(
+                        "telegram_native_alert_item_1")
+                    assertFalse(first.isSelected)
+                    assertTrue(selected.isSelected)
+                    dialog.getActionButton(DialogInterface.BUTTON_NEGATIVE)!!.performClick()
+                    assertEquals(0, choices)
+                } finally {
+                    if (dialog.isShowing) dialog.dismiss()
+                }
+            }
+        }
+    }
+
 }
