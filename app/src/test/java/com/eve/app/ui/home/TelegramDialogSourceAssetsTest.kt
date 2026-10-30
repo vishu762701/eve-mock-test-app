@@ -91,12 +91,19 @@ class TelegramDialogSourceAssetsTest {
     @Test fun allSharedDestructiveConfirmationsUseSourceAdapterWithoutReplacingButtons() {
         val central = File("src/main/java/com/eve/app/designsystem/DesignDialogs.kt").readText()
         assertTrue(central.contains("fun AlertDialog.Builder.showDestructive(): AlertDialog"))
-        assertTrue(central.contains("ViewCompat.setBackgroundTintList(button"))
+        assertTrue("Official source action selector must use a masked ripple",
+            central.contains("button.background = RippleDrawable("))
+        assertTrue("Original selector alpha remains 0x19",
+            central.contains("val selectorColor = (ink and 0x00FFFFFF) or 0x19000000"))
+        assertTrue("Source-derived selector corner radius remains 20dp",
+            central.contains("cornerRadius = dp(20).toFloat()"))
         assertTrue(central.contains("TelegramDialogSourceBackground.apply("))
         assertTrue(central.contains("preserveDestructivePositive = true"))
-        assertTrue("Original Source applies after mandatory EVE destructive tint",
-            central.indexOf("TelegramDialogSourceBackground.apply(") >
-                central.indexOf("R.color.design_destructive_text"))
+        assertTrue("Apply owner's destructive-red role after background, before ripple tint",
+            central.indexOf("R.color.design_destructive_text") >
+                central.indexOf("TelegramDialogSourceBackground.apply(") &&
+            central.indexOf("R.color.design_destructive_text") <
+                central.indexOf("applyTelegramDialogActionAtoms(dialog)"))
         val coveredOwners = listOf(
             "ui/admin/AdminDeleteFlow.kt",
             "ui/admin/AdminActivity.kt",
@@ -122,9 +129,11 @@ class TelegramDialogSourceAssetsTest {
             !block.contains("TelegramDialogSourceBackground.apply(dialog)"))
         val central = File("src/main/java/com/eve/app/designsystem/DesignDialogs.kt").readText()
         assertTrue(central.contains("TelegramDialogSourceBackground.apply("))
-        assertTrue("Preserve destructive button color before source background",
-            central.indexOf("R.color.design_destructive_fill") <
-                central.indexOf("TelegramDialogSourceBackground.apply("))
+        assertTrue("Destructive Delete stays red when source background is applied",
+            central.contains("R.color.design_destructive_text") &&
+                central.contains("preserveDestructivePositive = true") &&
+                central.indexOf("TelegramDialogSourceBackground.apply(") <
+                    central.indexOf("R.color.design_destructive_text"))
         assertTrue(helper.contains("R.drawable.telegram_dialog_popup_fixed_alert4"))
         assertTrue(helper.contains("palette.dialogSurface"))
         assertTrue(helper.contains("PorterDuff.Mode.MULTIPLY"))

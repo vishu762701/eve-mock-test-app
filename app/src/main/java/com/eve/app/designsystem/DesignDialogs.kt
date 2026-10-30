@@ -27,7 +27,7 @@ private fun applyTelegramDialogActionAtoms(dialog: AlertDialog) {
         AlertDialog.BUTTON_POSITIVE, AlertDialog.BUTTON_NEGATIVE, AlertDialog.BUTTON_NEUTRAL
     )) {
         val button = dialog.getButton(which) ?: continue
-        button.typeface = FontManager.telegramMediumTypeface(dialog.context)
+        button.typeface = FontManager.telegramMediumTypeface(button.context)
         button.minWidth = maxOf(button.minWidth, dp(64))
         button.minHeight = maxOf(button.minHeight, dp(48))
         button.setPadding(dp(12), button.paddingTop, dp(12), button.paddingBottom)
