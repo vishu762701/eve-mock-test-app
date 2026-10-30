@@ -110,8 +110,17 @@ class ApprovedUiFunctionalTest {
                 val selectedState = actions.btnMarkReview.drawableState
                 assertEquals(context.getColor(R.color.system_yellow), actions.btnMarkReview.backgroundTintList!!.getColorForState(selectedState, 0))
                 assertEquals(Color.BLACK, actions.btnMarkReview.textColors.getColorForState(selectedState, 0))
-                assertEquals(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP, 16f,
+                // Mission 11: question is visually stronger than regular 16sp
+                // answers, without changing rich question content or selection.
+                assertEquals(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP, 17f,
                     context.resources.displayMetrics), b.tvQuestion.textSize, 0.51f)
+                if (android.os.Build.VERSION.SDK_INT >= 28) {
+                    assertTrue("Question heading must carry a real bold 700 weight",
+                        b.tvQuestion.typeface.weight >= 700)
+                } else {
+                    assertTrue("Question heading must remain bold", b.tvQuestion.typeface.isBold)
+                }
+                assertTrue("Answer text must remain regular weight", !b.rbA.typeface.isBold)
                 assertEquals(android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP, 16f,
                     context.resources.displayMetrics), b.rbA.textSize, 0.51f)
                 assertEquals(1f, b.tvQuestion.lineSpacingMultiplier, 0.01f)
