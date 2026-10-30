@@ -85,8 +85,11 @@ class NotificationsActivity : EveBaseActivity() {
         lifecycleScope.launch {
             try {
                 val res = ApiClient.apiService.getBroadcasts(50)
-                if (res.success && !res.data.isNullOrEmpty()) {
-                    NotificationStore.importBroadcasts(this@NotificationsActivity, res.data)
+                if (res.success) {
+                    // Even an empty successful server page establishes a first-sync
+                    // baseline. Otherwise the first later post could be confused
+                    // with historical backfill when Home resumes.
+                    NotificationStore.importBroadcasts(this@NotificationsActivity, res.data.orEmpty())
                     // The user is already viewing their inbox; acknowledge delivered posts here.
                     NotificationStore.markAllRead(this@NotificationsActivity)
                 }

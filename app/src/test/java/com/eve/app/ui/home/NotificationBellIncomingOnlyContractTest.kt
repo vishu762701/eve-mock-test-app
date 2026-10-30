@@ -30,5 +30,11 @@ class NotificationBellIncomingOnlyContractTest {
             onResume.contains("if (NotificationStore.hasUnread(this)) animateNotificationBell()"))
         assertFalse("Opening the inbox must not queue a fake notification",
             click.contains("pendingIncomingBellUntilResume"))
+
+        val inbox = File("src/main/java/com/eve/app/ui/notifications/NotificationsActivity.kt").readText()
+        assertTrue("Successful empty inbox sync must establish the first server baseline",
+            inbox.contains("NotificationStore.importBroadcasts(this@NotificationsActivity, res.data.orEmpty())"))
+        assertTrue("Inbox owns acknowledgement, not Home",
+            inbox.contains("NotificationStore.markAllRead(this@NotificationsActivity)"))
     }
 }
