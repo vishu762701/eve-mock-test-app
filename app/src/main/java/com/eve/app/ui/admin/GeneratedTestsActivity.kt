@@ -1,13 +1,12 @@
 package com.eve.app.ui.admin
 
-import com.eve.app.designsystem.showTelegramSourceDialog
+import com.eve.app.designsystem.TelegramNativeAlertDialog
 import com.eve.app.ui.common.EveBaseActivity
 
 import android.os.Bundle
 import android.view.View
 import com.eve.app.R
 import com.eve.app.util.AppBulletin
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -192,11 +191,11 @@ class GeneratedTestsActivity : EveBaseActivity() {
             formattedText.append("\n--------------------\n\n")
         }
 
-        AlertDialog.Builder(this)
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle("${test.examName} (${test.questionCount} Questions)")
             .setMessage(formattedText.toString())
             .setPositiveButton("Close", null)
-            .showTelegramSourceDialog()
+            .show()
     }
 
     private val deleteFlow by lazy { AdminDeleteFlow(this) }

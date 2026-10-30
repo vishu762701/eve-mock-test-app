@@ -37,13 +37,19 @@ class AdminDialogSourceContractTest {
         val activities = listOf(
             "src/main/java/com/eve/app/ui/admin/EditAboutActivity.kt",
             "src/main/java/com/eve/app/ui/admin/FlaggedQuestionsActivity.kt",
-            "src/main/java/com/eve/app/ui/admin/GeneratedTestsActivity.kt",
             "src/main/java/com/eve/app/ui/admin/ManagePremiumActivity.kt",
             "src/main/java/com/eve/app/ui/admin/ManageSyllabusActivity.kt",
             "src/main/java/com/eve/app/ui/admin/ManageUsersActivity.kt",
             "src/main/java/com/eve/app/ui/admin/SendNotificationActivity.kt",
             "src/main/java/com/eve/app/ui/admin/AdminAnalyticsActivity.kt"
         )
+        // The read-only generated-test preview now uses the actual source-derived
+        // native message scroll host instead of the previous Material adapter.
+        val preview = File("src/main/java/com/eve/app/ui/admin/GeneratedTestsActivity.kt").readText()
+        assertTrue(preview.contains("TelegramNativeAlertDialog.Builder(this)"))
+        assertTrue(preview.contains(".setMessage(formattedText.toString())"))
+        assertTrue(preview.contains(".setPositiveButton(\"Close\", null)"))
+        assertTrue(preview.contains(".show()"))
         for (path in activities) {
             val content = File(path).readText()
             assertTrue("$path must import showTelegramSourceDialog", content.contains("import com.eve.app.designsystem.showTelegramSourceDialog"))
