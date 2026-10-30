@@ -180,8 +180,15 @@ class ApprovedUiRenderingTest {
         assertEquals(dp(14), view.paddingEnd)
         assertEquals(dp(stroke), view.strokeWidth)
         val primary = view.id == R.id.btnNext
-        assertEquals(context.getColor(if (primary) R.color.accent else R.color.track), view.backgroundTintList!!.defaultColor)
-        assertEquals(context.getColor(if (primary) R.color.on_accent else R.color.text_primary), view.currentTextColor)
+        val night = com.eve.app.theme.TelegramThemeEngine.isDarkActive(context)
+        val expectedFill = if (primary) {
+            if (night) Color.WHITE else Color.BLACK
+        } else context.getColor(R.color.track)
+        val expectedInk = if (primary) {
+            if (night) Color.BLACK else Color.WHITE
+        } else context.getColor(R.color.text_primary)
+        assertEquals(expectedFill, view.backgroundTintList!!.defaultColor)
+        assertEquals(expectedInk, view.currentTextColor)
         assertEquals(0f, view.elevation, 0.01f)
         assertEquals(context.resources.getDimension(R.dimen.design_button_height) / 2,
             view.shapeAppearanceModel.topLeftCornerSize.getCornerSize(android.graphics.RectF(0f, 0f, view.width.toFloat(), context.resources.getDimension(R.dimen.design_button_height))), 1f)
@@ -189,6 +196,7 @@ class ApprovedUiRenderingTest {
 
     private fun verifyMock() {
         val b = ActivityTestBinding.inflate(LayoutInflater.from(context))
+        com.eve.app.ui.test.TestPrimaryActionAppearance.apply(b.btnNext)
         assertEquals(appBackground, (b.root.background as ColorDrawable).color)
         assertNull(b.rvQuestionPalette.background)
         b.tvTestTitle.text = "Practice Test"

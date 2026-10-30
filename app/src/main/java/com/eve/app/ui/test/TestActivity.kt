@@ -77,6 +77,7 @@ class TestActivity : EveBaseActivity() {
         SecurityHelper.applyScreenProtection(this)
         binding = ActivityTestBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        TestPrimaryActionAppearance.apply(binding.btnNext)
         // Source-backed hierarchy from Telegram ActionBar.java:534; EVE test
         // heading uses the owner-requested 700 weight (ADAPTED arrangement).
         binding.tvTestTitle.typeface = com.eve.app.util.FontManager.boldTypeface(this)
@@ -717,6 +718,12 @@ class TestActivity : EveBaseActivity() {
         }
         topic.isNotBlank() -> "$examName • $topic Practice"
         else -> examName
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Rebind the owner override after a Day/Night or theme-preview change.
+        if (::binding.isInitialized) TestPrimaryActionAppearance.apply(binding.btnNext)
     }
 
     override fun onPause() {
