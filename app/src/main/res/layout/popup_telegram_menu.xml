@@ -10,7 +10,7 @@
             <!-- ADAPTED from uploaded Telegram ActionBarPopupWindow.java:233-234,1110-1126.
                  The original GapView is a six-dp themed group break; its native
                  shadow drawable is NOT transplanted into this EVE XML host. -->
-            <View android:id="@+id/menuSectionGap" android:layout_width="match_parent"
+            <com.eve.app.ui.home.TelegramPopupGapView android:id="@+id/menuSectionGap" android:layout_width="match_parent"
                 android:layout_height="6dp" android:background="@color/telegram_menu_section_gap"
                 android:importantForAccessibility="no" />
             <LinearLayout android:id="@+id/cardMenuItems" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">

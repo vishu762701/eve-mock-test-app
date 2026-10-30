@@ -28,6 +28,27 @@ class HomePopupSectionGapTest {
         assertEquals("no", gapElement.getAttribute("android:importantForAccessibility"))
     }
 
+    @Test fun byteExactOriginalNinePatchShadowAndSourceHost() {
+        val sha = mapOf(
+            "mdpi" to "08fcaed4891c9dec8cd9774df438d5e367419886bb0a9b867f0c7eb8ff89df8b",
+            "hdpi" to "84f8905c4e97c8eefb64d6c5d88b9d8790e9ea4e254202cd06d8ac5eb6cfbb15",
+            "xhdpi" to "daf5731b3290361fa2bfa4fc7fe934dace0d8018cc270bf9e32b36d153978d58",
+            "xxhdpi" to "bcb4e022907ef3a3a23235a26a1ea230db37ce438966961282868de88a3300e2"
+        )
+        sha.forEach { (density, expected) ->
+            val file = File("src/main/res/drawable-$density/telegram_menu_greydivider.9.png")
+            assertTrue("Missing original Telegram $density divider", file.isFile)
+            val hash = java.security.MessageDigest.getInstance("SHA-256")
+                .digest(file.readBytes()).joinToString("") { "%02x".format(it.toInt() and 0xff) }
+            assertEquals("Upstream Telegram greydivider must remain byte exact", expected, hash)
+        }
+        val source = File("src/main/java/com/eve/app/ui/home/TelegramPopupGapView.kt").readText()
+        assertTrue(source.contains("R.drawable.telegram_menu_greydivider"))
+        assertTrue(source.contains("PorterDuff.Mode.MULTIPLY"))
+        val layout = File("src/main/res/layout/popup_telegram_menu.xml").readText()
+        assertTrue(layout.contains("<com.eve.app.ui.home.TelegramPopupGapView android:id=\"@+id/menuSectionGap\""))
+    }
+
     @Test fun dayAndNightSeparatorColorsMatchUploadedUpstreamThemeKeys() {
         val variants = mapOf(
             "src/main/res/values/telegram_colors.xml" to "#FFF5F5F5",
