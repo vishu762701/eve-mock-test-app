@@ -60,8 +60,6 @@ class HomeCategorySelectionNativeTest {
                         chip.chipBackgroundColor?.getColorForState(checked, -1))
                     assertEquals("Selected label must have the opposite monochrome foreground", activeFg,
                         chip.textColors.getColorForState(checked, -1))
-                    assertEquals("Surface tint must not mix Material accent into owner fill",
-                        android.graphics.Color.TRANSPARENT, chip.chipSurfaceColor?.defaultColor)
                 }
                 assertRenderedRoles(all)
                 repeat(10) {

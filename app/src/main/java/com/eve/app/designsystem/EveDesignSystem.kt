@@ -61,7 +61,6 @@ object EveDesignSystem {
             val unselectedFg = role(resourceUnselectedFg,
                 if (dark) 0xFFA1A1A6.toInt() else 0xFF545458.toInt())
             val states = arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf())
-            chip.chipSurfaceColor = android.content.res.ColorStateList.valueOf(Color.TRANSPARENT)
             chip.chipBackgroundColor = android.content.res.ColorStateList(
                 states, intArrayOf(selectedBg, unselectedBg))
             chip.setTextColor(android.content.res.ColorStateList(
