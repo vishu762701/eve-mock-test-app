@@ -10,6 +10,12 @@ import java.util.concurrent.TimeoutException
 sealed class ApiError : Exception() {
     abstract fun userMessage(isDebug: Boolean = BuildConfig.DEBUG): String
 
+    data class BadRequest(val code: Int = 400, val serverMessage: String? = null) : ApiError() {
+        override fun userMessage(isDebug: Boolean): String {
+            return serverMessage?.takeIf { it.isNotBlank() } ?: "Invalid request parameters."
+        }
+    }
+
     data class SessionExpired(val code: Int = 401, val serverMessage: String? = null) : ApiError() {
         override fun userMessage(isDebug: Boolean): String {
             return if (isDebug) {
@@ -128,6 +134,7 @@ sealed class ApiError : Exception() {
                     }
 
                     when (code) {
+                        400 -> BadRequest(code, serverMsg)
                         401 -> SessionExpired(code, serverMsg)
                         403 -> Forbidden(code, serverMsg)
                         404 -> NotFound(code, serverMsg)

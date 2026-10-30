@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.eve.app.data.remote.toUserFriendlyMessage
 
 class AdminViewModel : ViewModel() {
 
@@ -227,7 +228,7 @@ class AdminViewModel : ViewModel() {
                 loadAdmins()
                 onDone()
             } catch (e: Exception) {
-                _message.value = e.message ?: "Failed to add admin"
+                _message.value = e.toUserFriendlyMessage()
             }
             _busy.value = false
         }
@@ -241,7 +242,7 @@ class AdminViewModel : ViewModel() {
                 _message.value = "Admin removed successfully"
                 loadAdmins()
             } catch (e: Exception) {
-                _message.value = e.message ?: "Failed to remove admin"
+                _message.value = e.toUserFriendlyMessage()
             }
             _busy.value = false
         }

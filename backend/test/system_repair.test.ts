@@ -191,7 +191,7 @@ test('real Firebase signature verification rejects expired/forged JWTs and unver
     await assert.rejects(verifyFirebaseIdToken(await token({ exp: 'not-a-time' }), 'test-project'), /expired/i);
     await assert.rejects(verifyFirebaseIdToken(await token({ aud: 'another-project' }), 'test-project'), /audience/i);
     await assert.rejects(verifyFirebaseIdToken((await token()).slice(0, -10) + 'tampered', 'test-project'), /signature/i);
-    const db = new LocalD1(); db.sqlite.exec('ALTER TABLE users ADD COLUMN disabled INTEGER DEFAULT 0'); db.sqlite.exec("UPDATE users SET disabled = 1 WHERE id = 'u'");
+    const db = new LocalD1(); try { db.sqlite.exec('ALTER TABLE users ADD COLUMN disabled INTEGER DEFAULT 0'); } catch {} db.sqlite.exec("UPDATE users SET disabled = 1 WHERE id = 'u'");
     const response = await worker.fetch(new Request('https://example.test/api/auth/me', { headers: { Authorization: `Bearer ${await token()}` } }), envFor(db), {} as any);
     assert.equal(response.status, 403);
   } finally { globalThis.fetch = original; }

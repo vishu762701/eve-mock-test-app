@@ -115,7 +115,8 @@ data class AdminGrantRequest(
     val userIdOrEmail: String,
     val durationDays: Int = 30,
     val isLifetime: Boolean = false,
-    val planName: String = "Admin Premium Access"
+    val planName: String = "Admin Premium Access",
+    val confirmLifetime: Boolean = false
 )
 
 data class AdminExtendRequest(

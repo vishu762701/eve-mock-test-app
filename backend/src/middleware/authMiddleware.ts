@@ -44,7 +44,7 @@ export async function authMiddleware(c: Context<{ Bindings: Env; Variables: { us
     const isAdmin = user.isAdmin || (user.emailVerified === true && await isUserAdmin(c.env.DB, user.email));
     user.isAdmin = isAdmin;
 
-    const profile = await c.env.DB.prepare("SELECT * FROM users WHERE id = ?").bind(user.uid).first<{ disabled?: number }>();
+    const profile = await c.env.DB.prepare("SELECT disabled FROM users WHERE id = ?").bind(user.uid).first<{ disabled?: number }>();
     if (profile?.disabled === 1) return c.json({ success: false, error: "This account is disabled. Contact an administrator." }, 403);
     c.set("user", user);
     return next();

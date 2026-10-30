@@ -20,6 +20,7 @@ import com.eve.app.util.AppBulletin
 import com.eve.app.designsystem.TelegramSwitch
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.launch
+import com.eve.app.data.remote.toUserFriendlyMessage
 
 class ManagePremiumActivity : EveBaseActivity() {
 
@@ -249,29 +250,45 @@ class ManagePremiumActivity : EveBaseActivity() {
                     return@setPositiveButton
                 }
 
-                lifecycleScope.launch {
-                    try {
-                        val res = ApiClient.api.grantPremium(
-                            AdminGrantRequest(
-                                userIdOrEmail = target,
-                                durationDays = days,
-                                isLifetime = isLife,
-                                planName = "Admin Manual Access"
-                            )
-                        )
-                        if (res.success) {
-                            AppBulletin.showSuccess(this@ManagePremiumActivity, "Premium granted to $target")
-                            loadUsers()
-                        } else {
-                            AppBulletin.showError(this@ManagePremiumActivity, res.error ?: "Grant failed")
+                if (isLife) {
+                    TelegramNativeAlertDialog.Builder(this@ManagePremiumActivity)
+                        .setTitle("Confirm Lifetime Grant")
+                        .setMessage("Grant permanent Lifetime Premium to '$target'? This entitlement will never expire.")
+                        .setPositiveButton("Grant Lifetime") { _, _ ->
+                            executeManualGrant(target, durationDays = 30, isLifetime = true, confirmLifetime = true)
                         }
-                    } catch (e: Exception) {
-                        AppBulletin.showError(this@ManagePremiumActivity, "Error: ${e.message}")
-                    }
+                        .setNegativeButton("Cancel", null)
+                        .show()
+                } else {
+                    executeManualGrant(target, durationDays = days, isLifetime = false, confirmLifetime = false)
                 }
             }
             .setNegativeButton("Cancel", null)
             .show()
+    }
+
+    private fun executeManualGrant(target: String, durationDays: Int, isLifetime: Boolean, confirmLifetime: Boolean) {
+        lifecycleScope.launch {
+            try {
+                val res = ApiClient.api.grantPremium(
+                    AdminGrantRequest(
+                        userIdOrEmail = target,
+                        durationDays = durationDays,
+                        isLifetime = isLifetime,
+                        planName = "Admin Manual Access",
+                        confirmLifetime = confirmLifetime
+                    )
+                )
+                if (res.success) {
+                    AppBulletin.showSuccess(this@ManagePremiumActivity, "Premium granted to $target")
+                    loadUsers()
+                } else {
+                    AppBulletin.showError(this@ManagePremiumActivity, res.error ?: "Grant failed")
+                }
+            } catch (e: Exception) {
+                AppBulletin.showError(this@ManagePremiumActivity, "Error: ${e.toUserFriendlyMessage()}")
+            }
+        }
     }
 
     private fun extendUserPremium(user: AdminPremiumUserDto) {
@@ -285,7 +302,7 @@ class ManagePremiumActivity : EveBaseActivity() {
                     AppBulletin.showError(this@ManagePremiumActivity, res.error ?: "Extension failed")
                 }
             } catch (e: Exception) {
-                AppBulletin.showError(this@ManagePremiumActivity, "Error: ${e.message}")
+                AppBulletin.showError(this@ManagePremiumActivity, "Error: ${e.toUserFriendlyMessage()}")
             }
         }
     }
@@ -306,7 +323,7 @@ class ManagePremiumActivity : EveBaseActivity() {
                             AppBulletin.showError(this@ManagePremiumActivity, res.error ?: "Revocation failed")
                         }
                     } catch (e: Exception) {
-                        AppBulletin.showError(this@ManagePremiumActivity, "Error: ${e.message}")
+                        AppBulletin.showError(this@ManagePremiumActivity, "Error: ${e.toUserFriendlyMessage()}")
                     }
                 }
             }

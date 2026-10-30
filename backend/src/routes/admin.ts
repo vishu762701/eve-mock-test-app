@@ -8,7 +8,10 @@ import { AuthUser, Env, PremiumConfigRow, PremiumEntitlementRow, PremiumOrderRow
 import { activateUserPremium, getPremiumConfig } from "./premium";
 import { getGeminiApiKeys, getModelChain, classifyGeminiError } from "../ai/generator";
 import { checkRateLimit } from "../middleware/rateLimiter";
+import { isUserAdmin, HARDCODED_ADMIN_EMAILS } from "../auth";
 import { prepareAdminAuditLog, recordAdminAction, runBatch } from "../util/auditLog";
+
+const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
 
 export const adminRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
@@ -30,8 +33,8 @@ adminRoutes.post("/admins", async (c) => {
   const email = String(body.email || "").trim().toLowerCase();
   const db = c.env.DB;
 
-  if (!email || !email.includes("@")) {
-    return c.json({ success: false, error: "Valid email required" }, 400);
+  if (!email || email.length > 254 || !EMAIL_REGEX.test(email)) {
+    return c.json({ success: false, error: "A valid email address (max 254 characters) is required" }, 400);
   }
 
   const insertStmt = db
@@ -56,7 +59,30 @@ adminRoutes.delete("/admins/:email", async (c) => {
   const email = c.req.param("email").trim().toLowerCase();
   const db = c.env.DB;
 
-  const deleteStmt = db.prepare("DELETE FROM admins WHERE email = ?").bind(email);
+  // 1. Reject removing yourself
+  const actingEmail = (user?.email || "").trim().toLowerCase();
+  if (actingEmail && actingEmail === email) {
+    return c.json({ success: false, error: "Cannot remove yourself from the admin list" }, 409);
+  }
+
+  // 2. Reject removing hardcoded built-in admin
+  if (HARDCODED_ADMIN_EMAILS.has(email)) {
+    return c.json({ success: false, error: "Cannot remove built-in system administrator" }, 409);
+  }
+
+  // 3. Keep at least one effective admin at all times
+  const dynamicRow = await db.prepare("SELECT email FROM admins WHERE LOWER(TRIM(email)) = ?").bind(email).first<{ email: string }>();
+  if (!dynamicRow) {
+    return c.json({ success: false, error: "Admin not found" }, 404);
+  }
+
+  const totalDynamicAdmins = await db.prepare("SELECT COUNT(*) as count FROM admins").first<{ count: number }>();
+  const totalEffectiveAdmins = HARDCODED_ADMIN_EMAILS.size + (totalDynamicAdmins?.count ?? 0);
+  if (totalEffectiveAdmins <= 1) {
+    return c.json({ success: false, error: "Cannot remove the last remaining administrator" }, 409);
+  }
+
+  const deleteStmt = db.prepare("DELETE FROM admins WHERE LOWER(TRIM(email)) = ?").bind(email);
   const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
     actionType: "ADMIN_REMOVED",
     description: `Removed dynamic admin '${email}'`,
@@ -64,8 +90,11 @@ adminRoutes.delete("/admins/:email", async (c) => {
     targetId: email,
   });
 
-  await runBatch(db, [deleteStmt, auditStmt]);
-  return c.json({ success: true });
+  const batchRes = await runBatch(db, [deleteStmt, auditStmt]);
+  if ((batchRes[0]?.meta?.changes ?? 0) === 0) {
+    return c.json({ success: false, error: "Admin not found" }, 404);
+  }
+  return c.json({ success: true, message: `Admin ${email} removed successfully` });
 });
 
 // GET /api/admin/analytics/exams - Pre-aggregated exam analytics
@@ -283,43 +312,46 @@ adminRoutes.post("/users/:id/status", async (c) => {
   const disabled = body.disabled === true ? 1 : 0;
   const db = c.env.DB;
 
-  try {
-    const updateStmt = db.prepare("UPDATE users SET disabled = ? WHERE id = ?").bind(disabled, id);
-    const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
-      actionType: "USER_STATUS_TOGGLED",
-      description: `${disabled ? "Disabled" : "Enabled"} user account '${id}'`,
-      targetType: "user",
-      targetId: id,
-      metadata: { disabled: Boolean(disabled) },
-    });
-    const batchRes = await runBatch(db, [updateStmt, auditStmt]);
-    if ((batchRes[0]?.meta?.changes ?? 0) === 0) {
-      return c.json({ success: false, error: "User not found" }, 404);
+  // 1. Fetch user to check existence and email
+  const targetUser = await db
+    .prepare("SELECT id, email FROM users WHERE id = ?")
+    .bind(id)
+    .first<{ id: string; email: string }>();
+
+  if (!targetUser) {
+    return c.json({ success: false, error: "User not found" }, 404);
+  }
+
+  // 2. If attempting to disable, enforce admin self/peer protection
+  if (disabled === 1) {
+    const actingUid = user?.uid || "";
+    const actingEmail = (user?.email || "").trim().toLowerCase();
+    const targetEmail = (targetUser.email || "").trim().toLowerCase();
+
+    if (id === actingUid || (actingEmail && targetEmail && actingEmail === targetEmail)) {
+      return c.json({ success: false, error: "Cannot disable your own administrator account" }, 409);
     }
-    return c.json({ success: true, data: { id, disabled: Boolean(disabled) } });
-  } catch (err: any) {
-    if (err?.message?.includes("no such column: disabled")) {
-      try {
-        await db.prepare("ALTER TABLE users ADD COLUMN disabled INTEGER DEFAULT 0").run();
-        const updateStmt = db.prepare("UPDATE users SET disabled = ? WHERE id = ?").bind(disabled, id);
-        const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
-          actionType: "USER_STATUS_TOGGLED",
-          description: `${disabled ? "Disabled" : "Enabled"} user account '${id}'`,
-          targetType: "user",
-          targetId: id,
-          metadata: { disabled: Boolean(disabled) },
-        });
-        const batchRes = await runBatch(db, [updateStmt, auditStmt]);
-        if ((batchRes[0]?.meta?.changes ?? 0) === 0) {
-          return c.json({ success: false, error: "User not found" }, 404);
-        }
-        return c.json({ success: true, data: { id, disabled: Boolean(disabled) } });
-      } catch (e: any) {
-        return c.json({ success: false, error: e.message }, 500);
+
+    if (targetEmail) {
+      const isTargetAdmin = await isUserAdmin(db, targetEmail);
+      if (isTargetAdmin) {
+        return c.json({ success: false, error: "Cannot disable an administrator account" }, 409);
       }
     }
-    return c.json({ success: false, error: err?.message || "Failed to update user status" }, 500);
   }
+
+  // 3. Update status (no request-time ALTER)
+  const updateStmt = db.prepare("UPDATE users SET disabled = ? WHERE id = ?").bind(disabled, id);
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "USER_STATUS_TOGGLED",
+    description: `${disabled ? "Disabled" : "Enabled"} user account '${id}'`,
+    targetType: "user",
+    targetId: id,
+    metadata: { disabled: Boolean(disabled), targetEmail: targetUser.email },
+  });
+
+  await runBatch(db, [updateStmt, auditStmt]);
+  return c.json({ success: true, data: { id, disabled: Boolean(disabled) } });
 });
 
 // GET /api/admin/users/:id/attempts - Get user test attempts
@@ -366,18 +398,38 @@ adminRoutes.put("/config", async (c) => {
     }
   } catch {}
 
-  const minVersion = body.minimum_supported_version_code !== undefined
-    ? Number(body.minimum_supported_version_code)
-    : (prevConfig.minimum_supported_version_code !== undefined ? Number(prevConfig.minimum_supported_version_code) : 1);
-  const maintenanceMode = body.maintenance_mode !== undefined
-    ? Boolean(body.maintenance_mode)
-    : (prevConfig.maintenance_mode !== undefined ? Boolean(prevConfig.maintenance_mode) : false);
-  const maintenanceMessage = body.maintenance_message !== undefined
-    ? String(body.maintenance_message)
-    : (prevConfig.maintenance_message !== undefined
-        ? String(prevConfig.maintenance_message)
-        : "Eve Mock Test is currently undergoing scheduled maintenance. Please check back shortly.");
+  // 1. Validate minimum_supported_version_code
+  let minVersion = prevConfig.minimum_supported_version_code !== undefined ? Number(prevConfig.minimum_supported_version_code) : 1;
+  if (body.minimum_supported_version_code !== undefined && body.minimum_supported_version_code !== null) {
+    const rawVer = body.minimum_supported_version_code;
+    const v = Number(rawVer);
+    if (typeof rawVer === "boolean" || !Number.isInteger(v) || isNaN(v) || v < 0) {
+      return c.json({ success: false, error: "minimum_supported_version_code must be a non-negative integer" }, 400);
+    }
+    minVersion = v;
+  }
 
+  // 2. Validate maintenance_mode
+  let maintenanceMode = prevConfig.maintenance_mode !== undefined ? Boolean(prevConfig.maintenance_mode) : false;
+  if (body.maintenance_mode !== undefined && body.maintenance_mode !== null) {
+    if (typeof body.maintenance_mode !== "boolean") {
+      return c.json({ success: false, error: "maintenance_mode must be a boolean" }, 400);
+    }
+    maintenanceMode = body.maintenance_mode;
+  }
+
+  // 3. Validate maintenance_message
+  let maintenanceMessage = prevConfig.maintenance_message !== undefined
+    ? String(prevConfig.maintenance_message)
+    : "Eve Mock Test is currently undergoing scheduled maintenance. Please check back shortly.";
+  if (body.maintenance_message !== undefined && body.maintenance_message !== null) {
+    if (typeof body.maintenance_message !== "string" || body.maintenance_message.length > 1000) {
+      return c.json({ success: false, error: "maintenance_message must be a string up to 1000 characters" }, 400);
+    }
+    maintenanceMessage = body.maintenance_message.trim();
+  }
+
+  // 4. Validate default_publish_mode
   let defaultPublishMode = prevConfig.default_publish_mode || "paused";
   if (body.default_publish_mode !== undefined && body.default_publish_mode !== null) {
     const mode = String(body.default_publish_mode).trim().toLowerCase();
@@ -770,12 +822,42 @@ adminRoutes.post("/premium/users/grant", async (c) => {
   const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
   const userIdOrEmail = String(body.userIdOrEmail || body.userId || "").trim();
-  const durationDays = parseInt(String(body.durationDays || "30"), 10) || 30;
   const isLifetime = Boolean(body.isLifetime);
-  const planName = String(body.planName || "Admin Premium Access").trim();
 
   if (!userIdOrEmail) {
     return c.json({ success: false, error: "userId or email is required" }, 400);
+  }
+
+  // 1. Validate planName
+  let planName = typeof body.planName === "string" ? body.planName.trim() : "Admin Premium Access";
+  if (!planName) planName = "Admin Premium Access";
+  if (planName.length > 100) {
+    return c.json({ success: false, error: "planName cannot exceed 100 characters" }, 400);
+  }
+
+  // 2. Validate durationDays and lifetime confirmation
+  let durationDays = 30;
+  if (isLifetime) {
+    if (body.confirmLifetime !== true) {
+      return c.json(
+        {
+          success: false,
+          error: "Explicit confirmation (confirmLifetime: true) is required to grant lifetime premium access",
+        },
+        400
+      );
+    }
+    durationDays = 0;
+  } else {
+    const rawDays = body.durationDays;
+    if (rawDays === undefined || rawDays === null || rawDays === "") {
+      return c.json({ success: false, error: "durationDays is required when isLifetime is false" }, 400);
+    }
+    const parsedDays = Number(rawDays);
+    if (!Number.isInteger(parsedDays) || isNaN(parsedDays) || parsedDays < 1 || parsedDays > 3650) {
+      return c.json({ success: false, error: "durationDays must be an integer between 1 and 3650" }, 400);
+    }
+    durationDays = parsedDays;
   }
 
   // Resolve user UID if email was passed
@@ -786,6 +868,11 @@ adminRoutes.post("/premium/users/grant", async (c) => {
       return c.json({ success: false, error: `User with email ${userIdOrEmail} not found` }, 404);
     }
     targetUid = userRow.id;
+  } else {
+    const userRow = await db.prepare("SELECT id FROM users WHERE id = ?").bind(targetUid).first<{ id: string }>();
+    if (!userRow) {
+      return c.json({ success: false, error: `User '${targetUid}' not found` }, 404);
+    }
   }
 
   const entitlement = await activateUserPremium(
@@ -817,11 +904,20 @@ adminRoutes.post("/premium/users/extend", async (c) => {
   const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
   const userId = String(body.userId || "").trim();
-  const additionalDays = parseInt(String(body.additionalDays || "30"), 10) || 30;
 
   if (!userId) {
     return c.json({ success: false, error: "userId is required" }, 400);
   }
+
+  const rawAdditionalDays = body.additionalDays;
+  if (rawAdditionalDays === undefined || rawAdditionalDays === null || rawAdditionalDays === "") {
+    return c.json({ success: false, error: "additionalDays is required" }, 400);
+  }
+  const parsedDays = Number(rawAdditionalDays);
+  if (!Number.isInteger(parsedDays) || isNaN(parsedDays) || parsedDays < 1 || parsedDays > 3650) {
+    return c.json({ success: false, error: "additionalDays must be an integer between 1 and 3650" }, 400);
+  }
+  const additionalDays = parsedDays;
 
   const existing = await db
     .prepare("SELECT * FROM premium_entitlements WHERE user_id = ?")
@@ -833,7 +929,7 @@ adminRoutes.post("/premium/users/extend", async (c) => {
   }
 
   if (existing.is_lifetime === 1) {
-    return c.json({ success: true, message: "User already has Lifetime Premium" });
+    return c.json({ success: false, error: "User already has Lifetime Premium" }, 409);
   }
 
   const now = Date.now();
@@ -866,6 +962,15 @@ adminRoutes.post("/premium/users/revoke", async (c) => {
 
   if (!userId) {
     return c.json({ success: false, error: "userId is required" }, 400);
+  }
+
+  const existing = await db
+    .prepare("SELECT * FROM premium_entitlements WHERE user_id = ?")
+    .bind(userId)
+    .first<PremiumEntitlementRow>();
+
+  if (!existing) {
+    return c.json({ success: false, error: "User has no existing premium entitlement" }, 404);
   }
 
   const now = Date.now();

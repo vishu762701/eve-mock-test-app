@@ -549,7 +549,6 @@ class AdminActivity : EveBaseActivity() {
             .setMessage("Remove $email? This will revoke admin privileges and cannot be undone.")
             .setPositiveButton("Remove") { _, _ ->
                 viewModel.removeAdmin(email)
-                AppBulletin.showSuccess(this@AdminActivity, "Admin $email removed")
             }
             .setNegativeButton("Cancel", null)
             .makeRed(DialogInterface.BUTTON_POSITIVE).show()
