@@ -1,8 +1,7 @@
 package com.eve.app.ui.admin
 
-import com.eve.app.designsystem.showDestructive
-import com.eve.app.designsystem.showTelegramSourceDialog
-import com.eve.app.ui.home.TelegramDialogSourceBackground
+import com.eve.app.designsystem.TelegramNativeAlertDialog
+import android.content.DialogInterface
 
 import com.eve.app.ui.common.EveBaseActivity
 
@@ -22,7 +21,6 @@ import com.eve.app.data.repository.FloatingLinkRepository
 import com.eve.app.util.AppBulletin
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -43,7 +41,6 @@ import com.eve.app.databinding.DialogCreateFeedbackPostBinding
 import com.eve.app.databinding.DialogPostRepliesBinding
 import com.eve.app.util.Constants
 import com.eve.app.util.ExamImageHelper
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.provider.OpenableColumns
 import com.eve.app.BuildConfig
 import com.eve.app.data.model.AdminAuditLog
@@ -372,7 +369,7 @@ class AdminActivity : EveBaseActivity() {
         val etExplanation = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etExplanation)
         val etTopic = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etTopic)
 
-        MaterialAlertDialogBuilder(this)
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle("Add Question to ${selectedExam.examName}")
             .setView(dialogView)
             .setPositiveButton("Add") { _, _ ->
@@ -424,7 +421,7 @@ class AdminActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .showTelegramSourceDialog()
+            .show()
     }
 
     private fun showEditExamImageDialog() {
@@ -440,7 +437,7 @@ class AdminActivity : EveBaseActivity() {
         } else {
             arrayOf("Choose Image")
         }
-        AlertDialog.Builder(this)
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle("Exam Image: ${exam.examName}")
             .setItems(options) { _, which ->
                 when (options[which]) {
@@ -455,7 +452,7 @@ class AdminActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .showTelegramSourceDialog()
+            .show()
     }
 
     private fun promptRenameExam() {
@@ -473,7 +470,7 @@ class AdminActivity : EveBaseActivity() {
             setPadding(padding, 0, padding, 0)
         }
 
-        AlertDialog.Builder(this)
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle("Rename Exam")
             .setMessage("Rename '${exam.examName}' (${exam.categoryOrOther})")
             .setView(input)
@@ -495,12 +492,12 @@ class AdminActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .showTelegramSourceDialog()
+            .show()
     }
 
     private fun confirmDeleteExam() {
         val exam = exams.getOrNull(binding.spExam.selectedItemPosition) ?: return
-        MaterialAlertDialogBuilder(this)
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle("Delete ${exam.examName}?")
             .setMessage("Delete ${exam.examName}? This will permanently remove the exam and cannot be undone.")
             .setPositiveButton("Delete") { _, _ ->
@@ -513,7 +510,7 @@ class AdminActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .showDestructive()
+            .makeRed(DialogInterface.BUTTON_POSITIVE).show()
     }
 
     private fun showQuestionDetails(q: Question) {
@@ -527,15 +524,15 @@ class AdminActivity : EveBaseActivity() {
             if (q.explanation.isNotBlank()) append("Explanation: ${q.explanation}\n")
             if (q.topic.isNotBlank()) append("Topic: ${q.topic}\n")
         }
-        AlertDialog.Builder(this)
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle("Question Details")
             .setMessage(details)
             .setPositiveButton("OK", null)
-            .showTelegramSourceDialog()
+            .show()
     }
 
     private fun confirmDeleteQuestion(q: Question) {
-        MaterialAlertDialogBuilder(this)
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle("Delete Question?")
             .setMessage("Delete this question? This will permanently remove the question and cannot be undone.")
             .setPositiveButton("Delete") { _, _ ->
@@ -547,7 +544,7 @@ class AdminActivity : EveBaseActivity() {
                 AppBulletin.showSuccess(this@AdminActivity, "Question deleted")
             }
             .setNegativeButton("Cancel", null)
-            .showDestructive()
+            .makeRed(DialogInterface.BUTTON_POSITIVE).show()
     }
 
     private fun addAdmin() {
@@ -566,7 +563,7 @@ class AdminActivity : EveBaseActivity() {
     }
 
     private fun confirmRemoveAdmin(email: String) {
-        MaterialAlertDialogBuilder(this)
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle("Remove Admin?")
             .setMessage("Remove $email? This will revoke admin privileges and cannot be undone.")
             .setPositiveButton("Remove") { _, _ ->
@@ -578,7 +575,7 @@ class AdminActivity : EveBaseActivity() {
                 AppBulletin.showSuccess(this@AdminActivity, "Admin $email removed")
             }
             .setNegativeButton("Cancel", null)
-            .showDestructive()
+            .makeRed(DialogInterface.BUTTON_POSITIVE).show()
     }
 
     private fun handleBulkUploadForSelectedExam(uri: Uri) {
@@ -638,7 +635,7 @@ class AdminActivity : EveBaseActivity() {
             }
         }
 
-        val builder = MaterialAlertDialogBuilder(this)
+        val builder = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Bulk Question Import Preview")
             .setMessage(message)
 
@@ -651,7 +648,7 @@ class AdminActivity : EveBaseActivity() {
             builder.setPositiveButton("OK", null)
         }
 
-        builder.showTelegramSourceDialog()
+        builder.show()
     }
 
     private fun importQuestionsForSelectedExam(examId: String, questions: List<Question>) {
@@ -673,7 +670,7 @@ class AdminActivity : EveBaseActivity() {
 
     private fun showCreateFeedbackPostDialog() {
         val dialogBinding = DialogCreateFeedbackPostBinding.inflate(layoutInflater)
-        val dialog = MaterialAlertDialogBuilder(this)
+        val dialog = TelegramNativeAlertDialog.Builder(this)
             .setView(dialogBinding.root)
             .create()
 
@@ -721,12 +718,11 @@ class AdminActivity : EveBaseActivity() {
         }
 
         dialog.show()
-        TelegramDialogSourceBackground.apply(dialog)
     }
 
     private fun showHomeBannerOptionsDialog() {
         val dialogBinding = DialogManageBannersBinding.inflate(layoutInflater)
-        val dialog = MaterialAlertDialogBuilder(this)
+        val dialog = TelegramNativeAlertDialog.Builder(this)
             .setView(dialogBinding.root)
             .create()
 
@@ -883,7 +879,6 @@ class AdminActivity : EveBaseActivity() {
 
         refreshBannerList(dialogBinding)
         dialog.show()
-        TelegramDialogSourceBackground.apply(dialog)
     }
 
     private fun refreshBannerList(dialogBinding: DialogManageBannersBinding) {
@@ -922,7 +917,7 @@ class AdminActivity : EveBaseActivity() {
             addView(input)
         }
 
-        val dialog = MaterialAlertDialogBuilder(this)
+        val dialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Floating Link")
             .setMessage("Set the HTTPS community link for the floating paper airplane chip on the Home screen.")
             .setView(container)
@@ -940,7 +935,7 @@ class AdminActivity : EveBaseActivity() {
                     }
             }
 
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_POSITIVE)).setOnClickListener {
                 val rawText = input.text.toString().trim()
                 if (rawText.isEmpty()) {
                     lifecycleScope.launch {
@@ -989,7 +984,7 @@ class AdminActivity : EveBaseActivity() {
                 }
             }
 
-            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener {
+            requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_NEGATIVE)).setOnClickListener {
                 lifecycleScope.launch {
                     floatingLinkRepo.clearFloatingLink()
                         .onSuccess {
@@ -1008,7 +1003,6 @@ class AdminActivity : EveBaseActivity() {
         }
 
         dialog.show()
-        TelegramDialogSourceBackground.apply(dialog)
     }
 
     private fun showFeedbackRepliesDialog() {
@@ -1025,13 +1019,13 @@ class AdminActivity : EveBaseActivity() {
                 val postOptions = posts.map { post ->
                     "${post.title} (${post.message.take(30)}...)"
                 }.toTypedArray()
-                MaterialAlertDialogBuilder(this@AdminActivity)
+                TelegramNativeAlertDialog.Builder(this@AdminActivity)
                     .setTitle("Select Feedback Post to View Replies")
                     .setItems(postOptions) { _, which ->
                         showPostRepliesDialog(posts[which])
                     }
                     .setNegativeButton("Cancel", null)
-                    .showTelegramSourceDialog()
+                    .show()
             }
         }
     }
@@ -1045,28 +1039,28 @@ class AdminActivity : EveBaseActivity() {
                 return@launch
             }
             val titles = posts.map { "${it.title} (${it.message.take(30)}...)" }.toTypedArray()
-            MaterialAlertDialogBuilder(this@AdminActivity)
+            TelegramNativeAlertDialog.Builder(this@AdminActivity)
                 .setTitle("Feedback Posts")
                 .setItems(titles) { _, which ->
                     val selected = posts[which]
                     showPostActionsDialog(selected)
                 }
                 .setNegativeButton("Close", null)
-                .showTelegramSourceDialog()
+                .show()
         }
     }
 
     private fun showPostActionsDialog(post: FeedbackPost) {
         val feedbackRepo = FeedbackRepository()
         val options = arrayOf("✏️ Edit Post", "👁️ View Replies", "🗑️ Delete Post")
-        MaterialAlertDialogBuilder(this)
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle(post.title)
             .setItems(options) { _, which ->
                 when (which) {
                     0 -> showEditPostDialog(post)
                     1 -> showPostRepliesDialog(post)
                     2 -> {
-                        MaterialAlertDialogBuilder(this)
+                        TelegramNativeAlertDialog.Builder(this)
                             .setTitle("Delete Post?")
                             .setMessage("Delete '${post.title}' from Home screen? All its student replies will also be permanently deleted.")
                             .setPositiveButton("Delete") { _, _ ->
@@ -1078,12 +1072,12 @@ class AdminActivity : EveBaseActivity() {
                                 })
                             }
                             .setNegativeButton("Cancel", null)
-                            .showDestructive()
+                            .makeRed(DialogInterface.BUTTON_POSITIVE).show()
                     }
                 }
             }
             .setNegativeButton("Back", null)
-            .showTelegramSourceDialog()
+            .show()
     }
 
     private fun showEditPostDialog(post: FeedbackPost) {
@@ -1116,7 +1110,7 @@ class AdminActivity : EveBaseActivity() {
         layout.addView(tilTitle)
         layout.addView(tilMessage)
 
-        MaterialAlertDialogBuilder(this)
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle("Edit Feedback Post")
             .setView(layout)
             .setPositiveButton("Save Changes") { _, _ ->
@@ -1141,12 +1135,12 @@ class AdminActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .showTelegramSourceDialog()
+            .show()
     }
 
     private fun showPostRepliesDialog(post: FeedbackPost) {
         val dialogBinding = DialogPostRepliesBinding.inflate(layoutInflater)
-        val dialog = MaterialAlertDialogBuilder(this)
+        val dialog = TelegramNativeAlertDialog.Builder(this)
             .setView(dialogBinding.root)
             .create()
 
@@ -1168,7 +1162,7 @@ class AdminActivity : EveBaseActivity() {
                 }
             },
             onDelete = { reply ->
-                MaterialAlertDialogBuilder(this)
+                TelegramNativeAlertDialog.Builder(this)
                     .setTitle("Delete Reply?")
                     .setMessage("Delete reply from ${reply.name}?")
                     .setPositiveButton("Delete") { _, _ ->
@@ -1182,7 +1176,7 @@ class AdminActivity : EveBaseActivity() {
                         }
                     }
                     .setNegativeButton("Cancel", null)
-                    .showDestructive()
+                    .makeRed(DialogInterface.BUTTON_POSITIVE).show()
             }
         )
 
@@ -1190,7 +1184,7 @@ class AdminActivity : EveBaseActivity() {
         dialogBinding.rvReplies.adapter = repliesAdapter
 
         dialogBinding.btnDeletePostFromReplies.setOnClickListener {
-            MaterialAlertDialogBuilder(this)
+            TelegramNativeAlertDialog.Builder(this)
                 .setTitle("Delete Post?")
                 .setMessage("Delete '${post.title}' from Home screen? All its student replies will also be permanently deleted.")
                 .setPositiveButton("Delete") { _, _ ->
@@ -1203,7 +1197,7 @@ class AdminActivity : EveBaseActivity() {
                                 })
                 }
                 .setNegativeButton("Cancel", null)
-                .showDestructive()
+                .makeRed(DialogInterface.BUTTON_POSITIVE).show()
         }
 
         dialogBinding.btnCloseReplies.setOnClickListener { dialog.dismiss() }
@@ -1217,7 +1211,6 @@ class AdminActivity : EveBaseActivity() {
         }
 
         dialog.show()
-        TelegramDialogSourceBackground.apply(dialog)
     }
 
     override fun onResume() {
@@ -1245,7 +1238,7 @@ class AdminActivity : EveBaseActivity() {
             if (willBeOn) {
                 // Must show confirmation dialog before turning ON
                 binding.switchMaintenanceMode.isChecked = false
-                MaterialAlertDialogBuilder(this)
+                TelegramNativeAlertDialog.Builder(this)
                     .setTitle("Enable Maintenance Mode?")
                     .setMessage("Are you sure? Turning ON maintenance mode will immediately block all students from accessing the app. Only enable this during planned outages.")
                     .setPositiveButton("Enable Maintenance") { _, _ ->
@@ -1253,7 +1246,7 @@ class AdminActivity : EveBaseActivity() {
                         updateMaintenanceStatusBadge(true)
                     }
                     .setNegativeButton("Cancel", null)
-                    .showTelegramSourceDialog()
+                    .show()
             } else {
                 // Turning OFF does not require confirmation dialog
                 updateMaintenanceStatusBadge(false)
@@ -1349,13 +1342,12 @@ class AdminActivity : EveBaseActivity() {
     }
 
     private fun exportExamData() {
-        val progressDialog = MaterialAlertDialogBuilder(this)
+        val progressDialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Exporting Exam Data")
             .setMessage("Fetching all exams and questions from database... Please wait.")
             .setCancelable(false)
             .create()
         progressDialog.show()
-        TelegramDialogSourceBackground.apply(progressDialog)
 
         lifecycleScope.launch {
             try {
@@ -1428,7 +1420,7 @@ class AdminActivity : EveBaseActivity() {
 
                 // Present success dialog with share action
                 val contentUri = FileProvider.getUriForFile(this@AdminActivity, "${packageName}.fileprovider", cacheFile)
-                MaterialAlertDialogBuilder(this@AdminActivity)
+                TelegramNativeAlertDialog.Builder(this@AdminActivity)
                     .setTitle("Export Complete")
                     .setMessage("Successfully exported ${allExams.size} exams to:\n$savedPath\n\nYou can also share or save this file to Google Drive / Downloads now.")
                     .setPositiveButton("Share / Save As") { _, _ ->
@@ -1441,7 +1433,7 @@ class AdminActivity : EveBaseActivity() {
                         startActivity(Intent.createChooser(shareIntent, "Save or Share Exam Backup"))
                     }
                     .setNegativeButton("Done", null)
-                    .showTelegramSourceDialog()
+                    .show()
 
             } catch (e: Exception) {
                 progressDialog.dismiss()

@@ -8,14 +8,21 @@ import java.io.File
 /** Contract verifying Admin UI dialogs use verified Telegram source chrome and proper styling. */
 class AdminDialogSourceContractTest {
 
-    @Test fun adminActivityAppliesTelegramSourceChromeAcrossAllModals() {
+    @Test fun adminActivityUsesNativeSourceIsolatedHostForAllOwnedDialogVariants() {
         val source = File("src/main/java/com/eve/app/ui/admin/AdminActivity.kt").readText()
-        assertTrue(source.contains("import com.eve.app.designsystem.showTelegramSourceDialog"))
-        assertTrue(source.contains("import com.eve.app.ui.home.TelegramDialogSourceBackground"))
-        val sourceDialogCount = source.split(".showTelegramSourceDialog()").size - 1
-        assertEquals("AdminActivity plain dialog builders must all use showTelegramSourceDialog", 11, sourceDialogCount)
-        val customBackgroundCount = source.split("TelegramDialogSourceBackground.apply(").size - 1
-        assertEquals("AdminActivity custom view dialogs must all apply TelegramDialogSourceBackground", 5, customBackgroundCount)
+        assertTrue(source.contains("import com.eve.app.designsystem.TelegramNativeAlertDialog"))
+        assertEquals("Original confirmation, list, custom-form and progress variants",
+            22, source.split("TelegramNativeAlertDialog.Builder(").size - 1)
+        assertTrue("Do not overlay native dialog with obsolete AppCompat background",
+            !source.contains("TelegramDialogSourceBackground.apply("))
+        assertTrue("Floating link form validation and server authorization remain",
+            source.contains("FloatingLinkRepository.isValidHttpsUrl(finalUrl)") &&
+                source.contains("floatingLinkRepo.updateFloatingLink(finalUrl)"))
+        assertTrue("Feedback and banner operations remain connected",
+            source.contains("feedbackRepo.createFeedbackPost(") &&
+                source.contains("bannerRepo."))
+        assertTrue("Destructive actions remain visibly red",
+            source.contains(".makeRed(DialogInterface.BUTTON_POSITIVE).show()"))
     }
 
     @Test fun manageExamsUsesFourteenNativeSourceDerivedDialogsWithCancelHandling() {
