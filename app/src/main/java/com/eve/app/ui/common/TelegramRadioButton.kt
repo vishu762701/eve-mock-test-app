@@ -55,8 +55,12 @@ class TelegramRadioButton @JvmOverloads constructor(
     private fun applyChoiceColors() {
         val p = palette
         fun color(id: Int) = ContextCompat.getColor(context, id)
-        val accent = p?.accent ?: color(R.color.accent)
-        val onAccent = p?.onAccent ?: color(R.color.on_accent)
+        // Owner's R07 selected-answer state is not a correctness judgment.
+        // Telegram ThemeColors.java:94-95 defines green text roles; this
+        // exam-specific green selection surface is an ADAPTED EVE decision.
+        // Use theme-qualified system green so Day/Night both remain legible.
+        val selectedGreen = color(R.color.system_green)
+        val onSelectedGreen = color(R.color.solid_black)
         val inset = p?.surfaceInset ?: color(R.color.surface_inset)
         val primary = p?.textPrimary ?: color(R.color.text_primary)
         val secondary = p?.textSecondary ?: color(R.color.text_secondary)
@@ -66,14 +70,14 @@ class TelegramRadioButton @JvmOverloads constructor(
             setColor(color)
         }
         background = StateListDrawable().apply {
-            addState(intArrayOf(android.R.attr.state_checked), surface(accent))
+            addState(intArrayOf(android.R.attr.state_checked), surface(selectedGreen))
             addState(intArrayOf(), surface(inset))
         }
         setTextColor(ColorStateList(
             arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
-            intArrayOf(onAccent, primary)
+            intArrayOf(onSelectedGreen, primary)
         ))
-        indicator?.setColors(secondary, onAccent)
+        indicator?.setColors(secondary, onSelectedGreen)
     }
 
     fun applyChoiceStyle() {
