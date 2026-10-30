@@ -101,7 +101,7 @@ class TelegramNativeAlertDialog private constructor(
                     tag = "telegram_native_alert_item_" + index
                     orientation = LinearLayout.HORIZONTAL
                     gravity = Gravity.CENTER_VERTICAL
-                    minHeight = dp(50)
+                    minimumHeight = dp(50)
                     setPadding(dp(24), 0, dp(24), 0)
                     isClickable = true
                     isFocusable = true
