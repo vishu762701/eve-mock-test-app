@@ -15,8 +15,7 @@ import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.AuditLogRepository
 import com.eve.app.databinding.ActivityAppConfigBinding
 import com.eve.app.util.AppBulletin
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.eve.app.designsystem.showTelegramSourceDialog
+import com.eve.app.designsystem.TelegramNativeAlertDialog
 import kotlinx.coroutines.launch
 
 class AppConfigActivity : EveBaseActivity() {
@@ -24,7 +23,7 @@ class AppConfigActivity : EveBaseActivity() {
     private lateinit var binding: ActivityAppConfigBinding
     private val adminRepo = AdminRepository()
     private val auditLogRepo = AuditLogRepository()
-    private var maintenanceConfirmationDialog: androidx.appcompat.app.AlertDialog? = null
+    private var maintenanceConfirmationDialog: TelegramNativeAlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,14 +88,14 @@ class AppConfigActivity : EveBaseActivity() {
             // Original AndroidUtilities.isSafeToShow() and one active
             // privileged window: don't stack server-impacting confirmations.
             if (isFinishing || isDestroyed || maintenanceConfirmationDialog?.isShowing == true) return
-            val dialog = MaterialAlertDialogBuilder(this)
+            val dialog = TelegramNativeAlertDialog.Builder(this)
                 .setTitle("Enable Maintenance Mode?")
                 .setMessage("Are you sure? When maintenance mode is active, students opening the app will be blocked by a full-screen maintenance notice.")
                 .setPositiveButton("Enable Maintenance") { _, _ ->
                     saveConfig(configToSave)
                 }
                 .setNegativeButton("Cancel", null)
-                .showTelegramSourceDialog()
+                .show()
             maintenanceConfirmationDialog = dialog
             dialog.setOnDismissListener {
                 if (maintenanceConfirmationDialog === dialog) maintenanceConfirmationDialog = null
@@ -137,11 +136,11 @@ class AppConfigActivity : EveBaseActivity() {
                 binding.progressBar.visibility = View.GONE
                 if (!res.success) {
                     val errMsg = res.error ?: "Failed to perform AI health check"
-                    MaterialAlertDialogBuilder(this@AppConfigActivity)
+                    TelegramNativeAlertDialog.Builder(this@AppConfigActivity)
                         .setTitle("AI Health Check Failed")
                         .setMessage(errMsg)
                         .setPositiveButton("OK", null)
-                        .showTelegramSourceDialog()
+                        .show()
                 } else {
                     val data = res.data
                     val workingModel = data?.workingModel ?: "None"
@@ -167,20 +166,20 @@ class AppConfigActivity : EveBaseActivity() {
                         }
                     }.trim()
 
-                    MaterialAlertDialogBuilder(this@AppConfigActivity)
+                    TelegramNativeAlertDialog.Builder(this@AppConfigActivity)
                         .setTitle("AI Connection Health")
                         .setMessage(message)
                         .setPositiveButton("OK", null)
-                        .showTelegramSourceDialog()
+                        .show()
                 }
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
                 val errMsg = e.toUserFriendlyMessage()
-                MaterialAlertDialogBuilder(this@AppConfigActivity)
+                TelegramNativeAlertDialog.Builder(this@AppConfigActivity)
                     .setTitle("AI Health Check Failed")
                     .setMessage(errMsg)
                     .setPositiveButton("OK", null)
-                    .showTelegramSourceDialog()
+                    .show()
             } finally {
                 binding.progressBar.visibility = View.GONE
                 binding.btnTestAiHealth.isEnabled = true

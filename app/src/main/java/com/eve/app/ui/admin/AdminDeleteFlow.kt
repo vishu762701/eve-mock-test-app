@@ -1,7 +1,7 @@
 package com.eve.app.ui.admin
 
-import com.eve.app.designsystem.showDestructive
-import com.eve.app.designsystem.showTelegramSourceDialog
+import com.eve.app.designsystem.TelegramNativeAlertDialog
+import android.content.DialogInterface
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -12,7 +12,6 @@ import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.util.AppBulletin
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
@@ -30,8 +29,12 @@ class AdminDeleteFlow(private val activity: AppCompatActivity, private val api: 
                 val response = if (exam) api.examDeletionInfo(id) else api.testDeletionInfo(id)
                 val info = response.data
                 check(response.success && info != null) { response.error ?: "Could not check deletion dependencies" }
+                if (activity.isFinishing || activity.isDestroyed) {
+                    pending.remove(key)
+                    return@launch
+                }
                 var processing = false
-                val dialog = MaterialAlertDialogBuilder(activity)
+                val dialog = TelegramNativeAlertDialog.Builder(activity)
                     .setTitle(if (info.canDelete) "Permanently delete $name?" else "Deletion blocked")
                     .setMessage(info.message ?: "No saved attempts, sessions or dependent sub-exams were found. This permanently deletes the record and its questions. It cannot be undone.")
                     .setNegativeButton("Cancel", null)
@@ -58,9 +61,9 @@ class AdminDeleteFlow(private val activity: AppCompatActivity, private val api: 
                 }
                 dialog.setOnDismissListener { if (!processing) pending.remove(key) }
                 if (info.canDelete) {
-                    dialog.showDestructive()
+                    dialog.makeRed(DialogInterface.BUTTON_POSITIVE).show()
                 } else {
-                    dialog.showTelegramSourceDialog()
+                    dialog.show()
                 }
             } catch (e: CancellationException) { pending.remove(key); throw e }
             catch (e: Exception) { pending.remove(key); showFailure(e); refresh() }
@@ -68,9 +71,9 @@ class AdminDeleteFlow(private val activity: AppCompatActivity, private val api: 
     }
 
     fun confirmRemoval(key: String, name: String, delete: suspend () -> String?, refresh: () -> Unit) {
-        if (!pending.add(key)) return
+        if (activity.isFinishing || activity.isDestroyed || !pending.add(key)) return
         var processing = false
-        MaterialAlertDialogBuilder(activity)
+        TelegramNativeAlertDialog.Builder(activity)
             .setTitle("Permanently delete $name?")
             .setMessage("This removes the record after server confirmation. It cannot be undone.")
             .setNegativeButton("Cancel", null)
@@ -86,7 +89,7 @@ class AdminDeleteFlow(private val activity: AppCompatActivity, private val api: 
                 }
             }
             .setOnDismissListener { if (!processing) pending.remove(key) }
-            .showDestructive()
+            .makeRed(DialogInterface.BUTTON_POSITIVE).show()
     }
 
     /** For screens that already displayed their destructive confirmation. */
@@ -103,9 +106,10 @@ class AdminDeleteFlow(private val activity: AppCompatActivity, private val api: 
     }
 
     private fun showFailure(error: Exception) {
+        if (activity.isFinishing || activity.isDestroyed) return
         val requestId = (error as? HttpException)?.response()?.headers()?.get("X-Request-ID")
             ?.takeIf { it.matches(Regex("[a-fA-F0-9-]{36}")) }
-        val dialog = MaterialAlertDialogBuilder(activity)
+        val dialog = TelegramNativeAlertDialog.Builder(activity)
             .setTitle("Operation could not be completed")
             .setMessage(error.toUserFriendlyMessage(false) + (requestId?.let { "\nRequest ID: $it" } ?: ""))
             .setPositiveButton("OK", null)
@@ -113,6 +117,6 @@ class AdminDeleteFlow(private val activity: AppCompatActivity, private val api: 
             (activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
                 .setPrimaryClip(ClipData.newPlainText("Eve request ID", requestId))
         }
-        dialog.showTelegramSourceDialog()
+        dialog.show()
     }
 }

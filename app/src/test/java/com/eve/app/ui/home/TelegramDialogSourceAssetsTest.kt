@@ -105,7 +105,6 @@ class TelegramDialogSourceAssetsTest {
             central.indexOf("R.color.design_destructive_text") <
                 central.indexOf("applyTelegramDialogActionAtoms(dialog)"))
         val coveredOwners = listOf(
-            "ui/admin/AdminDeleteFlow.kt",
             "ui/admin/AdminActivity.kt",
             "ui/admin/ManagePremiumActivity.kt",
             "ui/home/MainActivity.kt"
@@ -114,6 +113,12 @@ class TelegramDialogSourceAssetsTest {
             val source = File("src/main/java/com/eve/app/$owner").readText()
             assertTrue("Destructive entrypoint missing from $owner", source.contains(".showDestructive()"))
         }
+        val adminDelete = File("src/main/java/com/eve/app/ui/admin/AdminDeleteFlow.kt").readText()
+        assertTrue(adminDelete.contains("TelegramNativeAlertDialog.Builder(activity)"))
+        assertTrue(adminDelete.contains(".makeRed(DialogInterface.BUTTON_POSITIVE).show()"))
+        assertTrue(adminDelete.contains("if (!processing) pending.remove(key)"))
+        assertTrue(adminDelete.contains("repository.deleteExam(id)"))
+        assertTrue(adminDelete.contains("repository.deleteGeneratedTest(id)"))
         // Settings now uses the isolated native Telegram host rather than the
         // AppCompat destructive adapter. Verify the red role AND security guards.
         val settings = File("src/main/java/com/eve/app/ui/settings/SettingsActivity.kt").readText()

@@ -7,13 +7,13 @@ import java.io.File
 class SystemMonitorTelegramDialogContractTest {
     @Test fun retryAndFailureDialogsUseVerifiedSourceBackdropAndNeverStack() {
         val file = File("src/main/java/com/eve/app/ui/admin/SystemMonitorActivity.kt").readText()
-        assertTrue(file.contains("import com.eve.app.designsystem.showTelegramSourceDialog"))
-        assertTrue(file.contains("private var retryConfirmationDialog: AlertDialog? = null"))
+        assertTrue(file.contains("import com.eve.app.designsystem.TelegramNativeAlertDialog"))
+        assertTrue(file.contains("private var retryConfirmationDialog: TelegramNativeAlertDialog? = null"))
         val retry = file.substringAfter("private fun confirmRetry(id: String)")
             .substringBefore("private fun JsonObject.string")
         assertTrue(retry.contains("if (loading || isFinishing || isDestroyed || retryConfirmationDialog?.isShowing == true) return"))
-        assertTrue(retry.contains("val dialog = MaterialAlertDialogBuilder(this)"))
-        assertTrue(retry.contains(".showTelegramSourceDialog()"))
+        assertTrue(retry.contains("val dialog = TelegramNativeAlertDialog.Builder(this)"))
+        assertTrue(retry.contains(".show()"))
         assertTrue(retry.contains("dialog.setOnDismissListener"))
         assertTrue(retry.contains("retryConfirmationDialog?.dismiss()"))
         assertTrue(retry.contains("if (!isFinishing && !isDestroyed)"))

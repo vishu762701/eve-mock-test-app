@@ -18,7 +18,8 @@ class AppConfigSourceConfirmationTest {
         assertTrue(block.contains(".setPositiveButton(\"Enable Maintenance\")"))
         assertTrue(block.contains("saveConfig(configToSave)"))
         assertTrue(block.contains(".setNegativeButton(\"Cancel\", null)"))
-        assertTrue(block.contains(".showTelegramSourceDialog()"))
+        assertTrue(block.contains("TelegramNativeAlertDialog.Builder(this)"))
+        assertTrue(block.contains(".show()"))
         assertTrue(block.contains("maintenanceConfirmationDialog = dialog"))
         assertTrue(block.contains("if (maintenanceConfirmationDialog === dialog) maintenanceConfirmationDialog = null"))
         assertTrue("Disabling maintenance must still save immediately",
@@ -33,8 +34,9 @@ class AppConfigSourceConfirmationTest {
         val destroy = source.substringAfter("override fun onDestroy()")
         assertTrue(destroy.contains("maintenanceConfirmationDialog?.dismiss()"))
         assertTrue(destroy.contains("maintenanceConfirmationDialog = null"))
-        val helper = File("src/main/java/com/eve/app/designsystem/DesignDialogs.kt").readText()
-        assertTrue(helper.contains("fun AlertDialog.Builder.showTelegramSourceDialog(): AlertDialog"))
-        assertTrue(helper.contains("TelegramDialogSourceBackground.apply(dialog)"))
+        val host = File("src/main/java/com/eve/app/designsystem/TelegramNativeAlertDialog.kt").readText()
+        assertTrue(host.contains("R.drawable.telegram_dialog_popup_fixed_alert4"))
+        assertTrue(host.contains("fun setOnDismissListener(listener: DialogInterface.OnDismissListener?)"))
+        assertTrue(source.contains("private var maintenanceConfirmationDialog: TelegramNativeAlertDialog? = null"))
     }
 }

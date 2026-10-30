@@ -5,9 +5,8 @@ import com.eve.app.ui.common.EveBaseActivity
 import android.os.Bundle
 import android.view.View
 import com.eve.app.util.AppBulletin
-import com.eve.app.designsystem.showTelegramSourceDialog
+import com.eve.app.designsystem.TelegramNativeAlertDialog
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.data.model.AppContent
@@ -51,7 +50,7 @@ class EditAboutActivity : EveBaseActivity() {
                 }
                 if (newType != currentType) {
                     if (isDirty()) {
-                        AlertDialog.Builder(this@EditAboutActivity)
+                        TelegramNativeAlertDialog.Builder(this@EditAboutActivity)
                             .setTitle("Unsaved Changes")
                             .setMessage("You have unsaved changes. Do you want to save before switching?")
                             .setPositiveButton("Save") { _, _ ->
@@ -69,7 +68,7 @@ class EditAboutActivity : EveBaseActivity() {
                                 }
                                 binding.tabLayout.getTabAt(currentIndex)?.select()
                             }
-                            .showTelegramSourceDialog()
+                            .show()
                     } else {
                         switchTab(newType)
                     }
@@ -190,7 +189,7 @@ class EditAboutActivity : EveBaseActivity() {
 
     private fun handleBack() {
         if (isDirty()) {
-            AlertDialog.Builder(this)
+            TelegramNativeAlertDialog.Builder(this)
                 .setTitle("Unsaved Changes")
                 .setMessage("You have unsaved changes. Do you want to save before leaving?")
                 .setPositiveButton("Save") { _, _ ->
@@ -200,7 +199,7 @@ class EditAboutActivity : EveBaseActivity() {
                     finish()
                 }
                 .setNeutralButton("Cancel", null)
-                .showTelegramSourceDialog()
+                .show()
         } else {
             finish()
         }

@@ -27,15 +27,17 @@ class AdminDialogSourceContractTest {
 
     @Test fun adminDeleteFlowAppliesDestructiveAndSourceStyling() {
         val source = File("src/main/java/com/eve/app/ui/admin/AdminDeleteFlow.kt").readText()
-        assertTrue(source.contains("import com.eve.app.designsystem.showDestructive"))
-        assertTrue(source.contains("import com.eve.app.designsystem.showTelegramSourceDialog"))
-        assertTrue(source.contains(".showDestructive()"))
-        assertTrue(source.contains(".showTelegramSourceDialog()"))
+        assertTrue(source.contains("import com.eve.app.designsystem.TelegramNativeAlertDialog"))
+        assertTrue(source.contains("TelegramNativeAlertDialog.Builder(activity)"))
+        assertTrue(source.contains(".makeRed(DialogInterface.BUTTON_POSITIVE).show()"))
+        assertTrue(source.contains("if (!pending.add(key)) return"))
+        assertTrue(source.contains("repository.deleteExam(id)"))
+        assertTrue(source.contains("repository.deleteGeneratedTest(id)"))
+        assertTrue(source.contains("if (!processing) pending.remove(key)"))
     }
 
     @Test fun secondaryAdminActivitiesRouteDialogsThroughSourceAdapters() {
         val activities = listOf(
-            "src/main/java/com/eve/app/ui/admin/EditAboutActivity.kt",
             "src/main/java/com/eve/app/ui/admin/FlaggedQuestionsActivity.kt",
             "src/main/java/com/eve/app/ui/admin/ManagePremiumActivity.kt",
             "src/main/java/com/eve/app/ui/admin/ManageSyllabusActivity.kt",
@@ -50,6 +52,10 @@ class AdminDialogSourceContractTest {
         assertTrue(preview.contains(".setMessage(formattedText.toString())"))
         assertTrue(preview.contains(".setPositiveButton(\"Close\", null)"))
         assertTrue(preview.contains(".show()"))
+        val editAbout = File("src/main/java/com/eve/app/ui/admin/EditAboutActivity.kt").readText()
+        assertTrue(editAbout.contains("import com.eve.app.designsystem.TelegramNativeAlertDialog"))
+        assertEquals(2, editAbout.split("TelegramNativeAlertDialog.Builder(").size - 1)
+        assertTrue(editAbout.contains(".setNeutralButton(\"Cancel\""))
         for (path in activities) {
             val content = File(path).readText()
             assertTrue("$path must import showTelegramSourceDialog", content.contains("import com.eve.app.designsystem.showTelegramSourceDialog"))

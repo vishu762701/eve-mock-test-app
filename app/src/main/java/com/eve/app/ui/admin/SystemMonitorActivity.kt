@@ -12,9 +12,7 @@ import com.eve.app.data.remote.ApiResponse
 import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.ui.common.EveBaseActivity
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.eve.app.designsystem.showTelegramSourceDialog
-import androidx.appcompat.app.AlertDialog
+import com.eve.app.designsystem.TelegramNativeAlertDialog
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
@@ -33,7 +31,7 @@ class SystemMonitorActivity : EveBaseActivity() {
     private var offset = 0
     private var nextOffset: Int? = null
     private var loading = false
-    private var retryConfirmationDialog: AlertDialog? = null
+    private var retryConfirmationDialog: TelegramNativeAlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -164,7 +162,7 @@ class SystemMonitorActivity : EveBaseActivity() {
         // Telegram AlertDialog.java:325-328: never present a stale Activity window;
         // keep only one owner-controlled Retry confirmation visible.
         if (loading || isFinishing || isDestroyed || retryConfirmationDialog?.isShowing == true) return
-        val dialog = MaterialAlertDialogBuilder(this)
+        val dialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Retry generation?")
             .setMessage("Uses the current exam syllabus and settings. A complete validated test will be created only if generation succeeds.")
             .setNegativeButton("Cancel", null)
@@ -179,15 +177,15 @@ class SystemMonitorActivity : EveBaseActivity() {
                     catch (e: CancellationException) { throw e }
                     catch (e: Exception) {
                         if (!isFinishing && !isDestroyed) {
-                            MaterialAlertDialogBuilder(this@SystemMonitorActivity)
+                            TelegramNativeAlertDialog.Builder(this@SystemMonitorActivity)
                                 .setMessage(e.toUserFriendlyMessage())
                                 .setPositiveButton("OK", null)
-                                .showTelegramSourceDialog()
+                                .show()
                         }
                     }
                     finally { loading = false; offset = 0; load() }
                 }
-            }.showTelegramSourceDialog()
+            }.show()
         retryConfirmationDialog = dialog
         dialog.setOnDismissListener {
             if (retryConfirmationDialog === dialog) retryConfirmationDialog = null
