@@ -108,13 +108,26 @@ class TelegramDialogSourceAssetsTest {
             "ui/admin/AdminDeleteFlow.kt",
             "ui/admin/AdminActivity.kt",
             "ui/admin/ManagePremiumActivity.kt",
-            "ui/settings/SettingsActivity.kt",
             "ui/home/MainActivity.kt"
         )
         for (owner in coveredOwners) {
             val source = File("src/main/java/com/eve/app/$owner").readText()
             assertTrue("Destructive entrypoint missing from $owner", source.contains(".showDestructive()"))
         }
+        // Settings now uses the isolated native Telegram host rather than the
+        // AppCompat destructive adapter. Verify the red role AND security guards.
+        val settings = File("src/main/java/com/eve/app/ui/settings/SettingsActivity.kt").readText()
+        val deletion = settings.substringAfter("private fun showDeleteAccountConfirmation()")
+            .substringBefore("private fun showProgress(")
+        val nativeSource = File("src/main/java/com/eve/app/designsystem/TelegramNativeAlertDialog.kt").readText()
+        assertTrue(settings.contains("private var deleteConfirmationDialog: TelegramNativeAlertDialog? = null"))
+        assertTrue(deletion.contains("TelegramNativeAlertDialog.Builder(this)"))
+        assertTrue(deletion.contains(".makeRed(DialogInterface.BUTTON_POSITIVE)"))
+        assertTrue(deletion.contains("deleteConfirmArmedAt < 280L"))
+        assertTrue(deletion.contains("kotlinx.coroutines.delay(6000L)"))
+        assertTrue(deletion.contains("executeAccountDeletion()"))
+        assertTrue(nativeSource.contains("R.color.design_destructive_text"))
+
     }
 
     @Test fun homeAdminFeedbackDialogKeepsOriginalDestructiveActionsAndSourceRole() {
