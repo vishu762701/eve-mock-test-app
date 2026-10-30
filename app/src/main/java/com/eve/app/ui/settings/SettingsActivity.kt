@@ -254,7 +254,7 @@ class SettingsActivity : EveBaseActivity() {
                 else -> 1
             }
 
-            MaterialAlertDialogBuilder(this)
+            com.eve.app.designsystem.TelegramNativeAlertDialog.Builder(this)
                 .setTitle("Select App Language")
                 .setSingleChoiceItems(options, selectedIdx) { dialog, which ->
                     val locales = when (which) {
@@ -267,7 +267,7 @@ class SettingsActivity : EveBaseActivity() {
                     dialog.dismiss()
                 }
                 .setNegativeButton("Cancel", null)
-                .showTelegramSourceDialog()
+                .show()
         }
     }
 

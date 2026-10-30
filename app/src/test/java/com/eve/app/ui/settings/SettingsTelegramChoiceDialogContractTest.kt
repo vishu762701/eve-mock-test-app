@@ -7,7 +7,7 @@ import java.io.File
 
 /** Original Telegram dialog background/typography on scoped EVE choice surfaces. */
 class SettingsTelegramChoiceDialogContractTest {
-    @Test fun bothSettingsChoicesUseOriginalSourceDialogAdapter() {
+    @Test fun customDailyGoalRetainsAdapterAndLanguageUsesNativeTelegramItemRows() {
         val settings = File("src/main/java/com/eve/app/ui/settings/SettingsActivity.kt").readText()
         val goal = settings.substringAfter("private fun setupDailyGoalSetting()")
             .substringBefore("private fun setupTargetExamsSetting()")
@@ -19,7 +19,9 @@ class SettingsTelegramChoiceDialogContractTest {
         assertTrue(language.contains(".setTitle(\"Select App Language\")"))
         assertTrue(language.contains(".setSingleChoiceItems(options, selectedIdx)"))
         assertTrue(language.contains("AppCompatDelegate.setApplicationLocales(locales)"))
-        assertTrue(language.contains(".showTelegramSourceDialog()"))
+        assertTrue(language.contains("TelegramNativeAlertDialog.Builder(this)"))
+        assertTrue(language.contains(".show()"))
+        assertTrue(!language.contains(".showTelegramSourceDialog()"))
     }
 
     @Test fun normalSourceHelperDoesNotChangeDestructiveFillOrCallbacks() {
