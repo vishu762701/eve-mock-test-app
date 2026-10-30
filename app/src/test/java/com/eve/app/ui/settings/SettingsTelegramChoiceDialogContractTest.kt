@@ -7,7 +7,7 @@ import java.io.File
 
 /** Original Telegram dialog background/typography on scoped EVE choice surfaces. */
 class SettingsTelegramChoiceDialogContractTest {
-    @Test fun customDailyGoalRetainsAdapterAndLanguageUsesNativeTelegramItemRows() {
+    @Test fun dailyGoalCustomContentAndLanguageChoicesUseNativeTelegramDialog() {
         val settings = File("src/main/java/com/eve/app/ui/settings/SettingsActivity.kt").readText()
         val goal = settings.substringAfter("private fun setupDailyGoalSetting()")
             .substringBefore("private fun setupTargetExamsSetting()")
@@ -15,7 +15,10 @@ class SettingsTelegramChoiceDialogContractTest {
             .substringBefore("private fun setupReminderSetting()")
         assertTrue(goal.contains(".setTitle(\"Select Daily Goal\")"))
         assertTrue(goal.contains(".setView(dialogView)"))
-        assertTrue(goal.contains(".showTelegramSourceDialog()"))
+        assertTrue(goal.contains("TelegramNativeAlertDialog.Builder(this)"))
+        assertTrue(goal.contains("radioGroup.setCardOptions(options, currentGoal.toString())"))
+        assertTrue(goal.contains("prefs.edit().putInt(StreakHelper.KEY_DAILY_GOAL, chosenGoal).apply()"))
+        assertTrue(goal.contains(".show()"))
         assertTrue(language.contains(".setTitle(\"Select App Language\")"))
         assertTrue(language.contains(".setSingleChoiceItems(options, selectedIdx)"))
         assertTrue(language.contains("AppCompatDelegate.setApplicationLocales(locales)"))

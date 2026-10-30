@@ -199,7 +199,7 @@ class SettingsActivity : EveBaseActivity() {
                 )
             )
 
-            var dialog: androidx.appcompat.app.AlertDialog? = null
+            var dialog: com.eve.app.designsystem.TelegramNativeAlertDialog? = null
 
             radioGroup.setCardOptions(options, currentGoal.toString()) { selectedValue ->
                 val chosenGoal = selectedValue.toIntOrNull() ?: 1
@@ -212,11 +212,11 @@ class SettingsActivity : EveBaseActivity() {
                 }
             }
 
-            dialog = MaterialAlertDialogBuilder(this)
+            dialog = com.eve.app.designsystem.TelegramNativeAlertDialog.Builder(this)
                 .setTitle("Select Daily Goal")
                 .setView(dialogView)
                 .setNegativeButton("Cancel", null)
-                .showTelegramSourceDialog()
+                .show()
         }
     }
 
