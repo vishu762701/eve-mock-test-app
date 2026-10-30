@@ -6,7 +6,7 @@ import android.view.View
 import android.widget.EditText
 import android.widget.RadioGroup
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
+import android.content.DialogInterface
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.R
@@ -16,8 +16,7 @@ import com.eve.app.data.model.Question
 import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.data.repository.FlaggedQuestionRepository
 import com.eve.app.util.AppBulletin
-import com.eve.app.ui.home.TelegramDialogSourceBackground
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.eve.app.designsystem.TelegramNativeAlertDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -71,7 +70,7 @@ object ReportQuestionDialog {
         val etComment = dialogView.findViewById<EditText>(R.id.etReportComment)
         val tvError = dialogView.findViewById<TextView>(R.id.tvCommentError)
 
-        val dialog = MaterialAlertDialogBuilder(activity)
+        val dialog = TelegramNativeAlertDialog.Builder(activity)
             .setTitle("Report Question")
             .setView(dialogView)
             .setPositiveButton("Submit Report", null)
@@ -79,14 +78,11 @@ object ReportQuestionDialog {
             .create()
 
         dialog.show()
-        // Telegram AlertDialog.java:302-318,680-693,809-821,874-878 and
-        // DarkAlertDialog.java:11-19: original 9-patch, tint and type roles.
-        // Retain the custom Report Question form and non-auto-dismissing
-        // positive button: validation and server submission must remain intact.
-        TelegramDialogSourceBackground.apply(dialog)
-
-        val btnSubmit = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+        // Native UI-only Telegram renderer preserves the report form and
+        // non-auto-dismissing action for validated network submission.
+        val btnSubmit = requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_POSITIVE))
         btnSubmit.setOnClickListener {
+            if (!dialog.isShowing || !btnSubmit.isEnabled) return@setOnClickListener
             val selectedReason = when (rgReason.checkedRadioButtonId) {
                 R.id.rbReasonWrongQuestion -> "Wrong Question"
                 R.id.rbReasonNoSolution -> "No Solution"

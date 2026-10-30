@@ -15,9 +15,11 @@ class ResultReattemptSourceDialogTest {
         assertTrue(code.contains("reattemptConfirmDialog?.dismiss()"))
     }
 
-    @Test fun reattemptDialogAppliesTelegramSourceBackgroundAndPreservesDestructiveColor() {
-        assertTrue(code.contains("TelegramDialogSourceBackground.apply(limitDialog)"))
-        assertTrue(code.contains("TelegramDialogSourceBackground.apply(dialog, preserveDestructivePositive = true)"))
+    @Test fun reattemptUsesIsolatedTelegramHostAndPreservesDestructiveAction() {
+        assertTrue(code.contains("TelegramNativeAlertDialog.Builder(this@ResultActivity)"))
+        assertTrue(code.contains("requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_POSITIVE))"))
+        assertTrue(code.contains("confirmBtn.setTextColor(ContextCompat.getColor(this@ResultActivity, R.color.system_red_text))"))
+        assertTrue(!code.contains("TelegramDialogSourceBackground.apply(limitDialog)"))
         assertTrue(code.contains("AttemptLimitManager.canAttempt"))
         assertTrue(code.contains("Attempt Limit Reached"))
         assertTrue(code.contains("Reattempt this test?"))

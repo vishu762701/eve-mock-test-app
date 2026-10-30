@@ -9,7 +9,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
+import android.content.DialogInterface
+import com.eve.app.designsystem.TelegramNativeAlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -38,7 +39,6 @@ import com.eve.app.util.SecurityHelper
 import com.eve.app.util.ShareCardHelper
 import com.eve.app.util.TopicAccuracyHelper
 import com.eve.app.ui.common.ExpandableCardHelper
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 
 class ResultActivity : EveBaseActivity() {
@@ -46,8 +46,8 @@ class ResultActivity : EveBaseActivity() {
     private val viewModel: ResultViewModel by viewModels()
     private lateinit var allItems: List<AnswerItem>
     private lateinit var binding: ActivityResultBinding
-    private var reattemptLimitDialog: AlertDialog? = null
-    private var reattemptConfirmDialog: AlertDialog? = null
+    private var reattemptLimitDialog: TelegramNativeAlertDialog? = null
+    private var reattemptConfirmDialog: TelegramNativeAlertDialog? = null
 
     private var currentExamName: String = ""
     private var currentExamId: String = ""
@@ -719,7 +719,7 @@ class ResultActivity : EveBaseActivity() {
             val canReattempt = com.eve.app.util.AttemptLimitManager.canAttempt(this@ResultActivity, examId)
             if (isFinishing || isDestroyed) return@launch
             if (!canReattempt) {
-                val limitDialog = MaterialAlertDialogBuilder(this@ResultActivity)
+                val limitDialog = TelegramNativeAlertDialog.Builder(this@ResultActivity)
                     .setTitle("Attempt Limit Reached")
                     .setMessage("You have reached the maximum limit of 3 attempts for this test. Normal users can attempt each test at most 3 times.")
                     .setPositiveButton("OK", null)
@@ -729,11 +729,10 @@ class ResultActivity : EveBaseActivity() {
                 }
                 limitDialog.show()
                 reattemptLimitDialog = limitDialog
-                com.eve.app.ui.home.TelegramDialogSourceBackground.apply(limitDialog)
                 return@launch
             }
 
-            val dialog = MaterialAlertDialogBuilder(this@ResultActivity)
+            val dialog = TelegramNativeAlertDialog.Builder(this@ResultActivity)
                 .setTitle("Reattempt this test?")
                 .setMessage("A new attempt starts with no selected answers. Your previous result and history are preserved.")
                 .setNegativeButton("Cancel", null)
@@ -741,8 +740,8 @@ class ResultActivity : EveBaseActivity() {
                 .create()
 
             dialog.setOnShowListener {
-                val confirmBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                val cancelBtn = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                val confirmBtn = requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_POSITIVE))
+                val cancelBtn = requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_NEGATIVE))
                 confirmBtn.setTextColor(ContextCompat.getColor(this@ResultActivity, R.color.system_red_text))
 
                 cancelBtn.setOnClickListener {
@@ -750,6 +749,7 @@ class ResultActivity : EveBaseActivity() {
                 }
 
                 confirmBtn.setOnClickListener {
+                    if (!dialog.isShowing || !confirmBtn.isEnabled) return@setOnClickListener
                     confirmBtn.isEnabled = false
                     cancelBtn.isEnabled = false
                     confirmBtn.text = "Resetting..."
@@ -800,7 +800,6 @@ class ResultActivity : EveBaseActivity() {
             }
             dialog.show()
             reattemptConfirmDialog = dialog
-            com.eve.app.ui.home.TelegramDialogSourceBackground.apply(dialog, preserveDestructivePositive = true)
         }
     }
 

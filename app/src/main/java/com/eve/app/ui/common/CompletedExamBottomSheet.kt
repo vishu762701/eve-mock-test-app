@@ -3,7 +3,7 @@ package com.eve.app.ui.common
 import android.content.Intent
 import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AlertDialog
+import com.eve.app.designsystem.TelegramNativeAlertDialog
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.R
 import com.eve.app.data.model.TestAttempt
@@ -14,7 +14,6 @@ import com.eve.app.ui.result.ResultDataHolder
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.Constants
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -76,7 +75,7 @@ object CompletedExamBottomSheet {
         }
 
         var reattemptCheckPending = false
-        var reattemptConfirmDialog: AlertDialog? = null
+        var reattemptConfirmDialog: TelegramNativeAlertDialog? = null
         binding.btnReattempt.setOnClickListener {
             // One attempt-limit lookup and one confirmation window per tap sequence.
             if (reattemptCheckPending || reattemptConfirmDialog?.isShowing == true ||
@@ -91,15 +90,15 @@ object CompletedExamBottomSheet {
                     // late dialog after navigation or host Activity destruction.
                     if (activity.isFinishing || activity.isDestroyed || !dialog.isShowing) return@launch
                     val builder = if (!canReattempt) {
-                        MaterialAlertDialogBuilder(activity)
+                        TelegramNativeAlertDialog.Builder(activity)
                             .setTitle("Attempt Limit Reached")
                             .setMessage("You have reached the maximum limit of 3 attempts for this test. Normal users can attempt each test at most 3 times.")
                             .setPositiveButton("OK", null)
                     } else {
-                        MaterialAlertDialogBuilder(activity)
-                            .setTitle(R.string.reattempt_confirm_title)
+                        TelegramNativeAlertDialog.Builder(activity)
+                            .setTitle(activity.getString(R.string.reattempt_confirm_title))
                             .setMessage("Are you sure you want to start a new attempt for this test? Each test can be attempted up to 3 times.")
-                            .setNegativeButton(R.string.cancel, null)
+                            .setNegativeButton(activity.getString(R.string.cancel), null)
                             .setPositiveButton("Start Attempt") { _, _ ->
                                 binding.btnReattempt.isEnabled = false
                                 com.eve.app.ui.home.HomeViewModel.markAttemptCleared(examId)
@@ -113,9 +112,7 @@ object CompletedExamBottomSheet {
                     }
                     confirmation.show()
                     reattemptConfirmDialog = confirmation
-                    // Original Telegram AlertDialog.java:302-318,680-693 and
-                    // DarkAlertDialog.java:11-19, not the full original renderer.
-                    com.eve.app.ui.home.TelegramDialogSourceBackground.apply(confirmation)
+                    // Dialog uses the source-isolated Telegram UI host; BottomSheet remains separate.
                 } finally {
                     reattemptCheckPending = false
                 }
