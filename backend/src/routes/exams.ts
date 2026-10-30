@@ -5,7 +5,7 @@ import { deletionInfo, deleteUnused } from '../services/deletion';
 // ============================================================================
 
 import { Hono } from "hono";
-import { requireAdmin } from "../middleware/authMiddleware";
+import { requireAdmin, requirePermission } from "../middleware/authMiddleware";
 import { SupabaseStorage } from "../supabase";
 import { AuthUser, Env, ExamRow } from "../types";
 import { prepareAdminAuditLog, recordAdminAction } from "../util/auditLog";
@@ -87,7 +87,7 @@ examRoutes.get("/:id", async (c) => {
 });
 
 // POST /api/exams - Create exam (Admin)
-examRoutes.post("/", requireAdmin, async (c) => {
+examRoutes.post("/", requirePermission("manage_exams"), async (c) => {
   const body = await c.req.json().catch(() => ({}));
   const name = String(body.examName || "").trim();
   const minutes = body.timeLimitMinutes !== undefined ? Number(body.timeLimitMinutes) : 30;
@@ -191,7 +191,7 @@ examRoutes.post("/", requireAdmin, async (c) => {
 });
 
 // PUT /api/exams/:id - Full settings update (Admin)
-examRoutes.put("/:id", requireAdmin, async (c) => {
+examRoutes.put("/:id", requirePermission("manage_exams"), async (c) => {
   const id = c.req.param("id") || "";
   const body = await c.req.json().catch(() => ({}));
   const db = c.env.DB;
@@ -328,7 +328,7 @@ examRoutes.put("/:id", requireAdmin, async (c) => {
 });
 
 // PUT /api/exams/:id/image - Update image URL or base64 (Admin)
-examRoutes.put("/:id/image", requireAdmin, async (c) => {
+examRoutes.put("/:id/image", requirePermission("manage_exams"), async (c) => {
   const user = c.get("user");
   const id = c.req.param("id") || "";
   const body = await c.req.json().catch(() => ({}));
@@ -348,7 +348,7 @@ examRoutes.put("/:id/image", requireAdmin, async (c) => {
 });
 
 // PUT /api/exams/:id/rename - Rename exam with cascading updates (Admin)
-examRoutes.put("/:id/rename", requireAdmin, async (c) => {
+examRoutes.put("/:id/rename", requirePermission("manage_exams"), async (c) => {
   const user = c.get("user");
   const id = c.req.param("id") || "";
   const body = await c.req.json().catch(() => ({}));
@@ -380,13 +380,13 @@ examRoutes.put("/:id/rename", requireAdmin, async (c) => {
 });
 
 // DELETE /api/exams/:id - Delete exam and associated test data (Admin)
-examRoutes.get("/:id/deletion-info", requireAdmin, async (c) => {
+examRoutes.get("/:id/deletion-info", requirePermission("manage_exams"), async (c) => {
   const id = c.req.param("id") || "";
   if (!await c.env.DB.prepare("SELECT id FROM exams WHERE id = ?").bind(id).first()) return c.json({ success: false, error: "Record not found" }, 404);
   return c.json({ success: true, data: await deletionInfo(c.env.DB, id, 'exam') });
 });
 
-examRoutes.post('/:id/unpublish-tests', requireAdmin, async (c) => {
+examRoutes.post('/:id/unpublish-tests', requirePermission("manage_exams"), async (c) => {
   const user = c.get('user');
   const id = c.req.param('id') || '';
   if (!await c.env.DB.prepare('SELECT id FROM exams WHERE id = ?').bind(id).first()) return c.json({ success: false, error: 'Exam not found' }, 404);
@@ -404,7 +404,7 @@ examRoutes.post('/:id/unpublish-tests', requireAdmin, async (c) => {
   return c.json({ success: true, message: 'Tests unpublished and automatic generation disabled. History and ongoing sessions preserved.' });
 });
 
-examRoutes.delete("/:id", requireAdmin, async (c) => {
+examRoutes.delete("/:id", requirePermission("manage_exams"), async (c) => {
   const user = c.get("user");
   const id = c.req.param("id") || "";
   const db = c.env.DB;
@@ -435,7 +435,7 @@ examRoutes.delete("/:id", requireAdmin, async (c) => {
 });
 
 // POST /api/exams/:id/syllabus - Upload syllabus PDF (Admin)
-examRoutes.post("/:id/syllabus", requireAdmin, async (c) => {
+examRoutes.post("/:id/syllabus", requirePermission("manage_syllabus"), async (c) => {
   const id = c.req.param("id") || "";
   const contentType = c.req.header("content-type") || "";
   const db = c.env.DB;
@@ -495,7 +495,7 @@ examRoutes.post("/:id/syllabus", requireAdmin, async (c) => {
 });
 
 // DELETE /api/exams/:id/syllabus - Remove syllabus PDF (Admin)
-examRoutes.delete("/:id/syllabus", requireAdmin, async (c) => {
+examRoutes.delete("/:id/syllabus", requirePermission("manage_syllabus"), async (c) => {
   const user = c.get("user");
   const id = c.req.param("id") || "";
   const db = c.env.DB;

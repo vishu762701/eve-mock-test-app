@@ -75,5 +75,18 @@ class AdminHubTelegramFidelityTest {
         val manifest = File("src/main/AndroidManifest.xml").readText()
         assertTrue("Manifest must register ManageQuestionsActivity", manifest.contains("android:name=\".ui.admin.ManageQuestionsActivity\""))
         assertTrue("Manifest must register AdminsAndRightsActivity", manifest.contains("android:name=\".ui.admin.AdminsAndRightsActivity\""))
+        assertTrue("Manifest must register AdminRightsEditActivity", manifest.contains("android:name=\".ui.admin.AdminRightsEditActivity\""))
+
+        val rightsActivity = File("src/main/java/com/eve/app/ui/admin/AdminRightsEditActivity.kt")
+        assertTrue("AdminRightsEditActivity must exist", rightsActivity.exists())
+        val rSource = rightsActivity.readText()
+        assertTrue("AdminRightsEditActivity must use AdminAccessGate", rSource.contains("AdminAccessGate.requireAdmin"))
+        assertTrue("AdminRightsEditActivity must use TelegramActionBar", rSource.contains("binding.telegramActionBar"))
+
+        val rightsXml = File("src/main/res/layout/activity_admin_rights_edit.xml").readText()
+        assertTrue("Rights layout must contain headerRights", rightsXml.contains("android:id=\"@+id/headerRights\""))
+        assertTrue("Rights layout must contain checkManageExams", rightsXml.contains("android:id=\"@+id/checkManageExams\""))
+        assertTrue("Rights layout must contain checkManageQuestions", rightsXml.contains("android:id=\"@+id/checkManageQuestions\""))
+        assertTrue("Rights layout must contain btnDismissAdmin", rightsXml.contains("android:id=\"@+id/btnDismissAdmin\""))
     }
 }

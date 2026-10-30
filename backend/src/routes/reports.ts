@@ -3,7 +3,7 @@
 // ============================================================================
 
 import { Hono } from "hono";
-import { requireAdmin } from "../middleware/authMiddleware";
+import { requireAdmin, requirePermission } from "../middleware/authMiddleware";
 import { checkRateLimit } from "../middleware/rateLimiter";
 import { AuthUser, Env, QuestionReportRow, AdminAuditLogRow } from "../types";
 import { prepareAdminAuditLog, recordAdminAction } from "../util/auditLog";
@@ -151,7 +151,7 @@ async function fetchPendingReports(db: any, typeParam?: string) {
 }
 
 // Also allow GET /api/reports for convenience (admin only)
-reportRoutes.get("/", requireAdmin, async (c) => {
+reportRoutes.get("/", requirePermission("moderate_feedback"), async (c) => {
   const typeParam = c.req.query("type")?.trim().toLowerCase();
   const list = await fetchPendingReports(c.env.DB, typeParam);
   return c.json({ success: true, data: list });
@@ -159,7 +159,7 @@ reportRoutes.get("/", requireAdmin, async (c) => {
 
 // ----------------------------------------------------------------------------
 // 2. Admin Question Reports
-adminReportRoutes.use("*", requireAdmin);
+adminReportRoutes.use("*", requirePermission("moderate_feedback"));
 
 adminReportRoutes.get("/", async (c) => {
   const typeParam = c.req.query("type")?.trim().toLowerCase();
@@ -226,7 +226,7 @@ adminReportRoutes.delete("/:id", async (c) => {
 // POST /api/admin/audit-log
 // GET /api/admin/audit-log?range=today|7d|all
 // ----------------------------------------------------------------------------
-adminAuditLogRoutes.use("*", requireAdmin);
+adminAuditLogRoutes.use("*", requirePermission("view_analytics_logs"));
 
 adminAuditLogRoutes.post("/", async (c) => {
   const user = c.get("user");

@@ -3,12 +3,12 @@
 // ============================================================================
 
 import { Hono } from "hono";
-import { requireAdmin } from "../middleware/authMiddleware";
+import { requireAdmin, requirePermission } from "../middleware/authMiddleware";
 import { AuthUser, Env, ExamRow, PremiumConfigRow, PremiumEntitlementRow, PremiumOrderRow, QuestionRow } from "../types";
 import { activateUserPremium, getPremiumConfig } from "./premium";
 import { getGeminiApiKeys, getModelChain, classifyGeminiError } from "../ai/generator";
 import { checkRateLimit } from "../middleware/rateLimiter";
-import { isUserAdmin, HARDCODED_ADMIN_EMAILS } from "../auth";
+import { isUserAdmin, HARDCODED_ADMIN_EMAILS, ALL_ADMIN_RIGHTS, AdminRight, isOwnerEmail, getAdminPermissions } from "../auth";
 import { prepareAdminAuditLog, recordAdminAction, runBatch } from "../util/auditLog";
 import { getMonthlyApiUsage, trackGeminiCall } from "../util/usageTracker";
 import { validateReformatInput, reformatExplanationWithAi } from "../ai/explanationReformat";
@@ -20,16 +20,61 @@ export const adminRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser
 // All routes here strictly require admin authorization
 adminRoutes.use("*", requireAdmin);
 
-// GET /api/admin/admins - List dynamic admins
-adminRoutes.get("/admins", async (c) => {
+// GET /api/admin/me - Returns caller's owner flag, rights set and custom title
+adminRoutes.get("/me", async (c) => {
+  const user = c.get("user");
   const db = c.env.DB;
-  const { results } = await db.prepare("SELECT email FROM admins ORDER BY email ASC").all<{ email: string }>();
-  const list = (results || []).map((r) => r.email);
-  return c.json({ success: true, data: list });
+  const perms = await getAdminPermissions(db, user?.email);
+  return c.json({
+    success: true,
+    data: {
+      email: user?.email || "",
+      isOwner: perms?.isOwner ?? false,
+      rights: perms?.rights ?? [],
+      customTitle: perms?.customTitle ?? null,
+    },
+  });
 });
 
-// POST /api/admin/admins - Add dynamic admin
-adminRoutes.post("/admins", async (c) => {
+// GET /api/admin/admins - List dynamic admins with rights and titles
+adminRoutes.get("/admins", async (c) => {
+  const db = c.env.DB;
+  const { results: admins } = await db.prepare("SELECT email, created_at FROM admins ORDER BY email ASC").all<{ email: string; created_at?: number }>();
+  const { results: rightsList } = await db.prepare("SELECT email, rights, custom_title, updated_at FROM admin_rights").all<{ email: string; rights: string; custom_title?: string | null; updated_at: number }>();
+
+  const rightsMap = new Map<string, { rights: string[]; customTitle: string | null }>();
+  for (const r of rightsList || []) {
+    let parsed: string[] = [];
+    try {
+      parsed = JSON.parse(r.rights);
+      if (!Array.isArray(parsed)) parsed = [];
+    } catch {
+      parsed = [];
+    }
+    rightsMap.set(r.email.toLowerCase(), {
+      rights: parsed,
+      customTitle: r.custom_title || "Admin",
+    });
+  }
+
+  const data = (admins || []).map((a) => {
+    const norm = a.email.toLowerCase();
+    const isOwner = isOwnerEmail(norm);
+    const rightsInfo = rightsMap.get(norm);
+    return {
+      email: a.email,
+      isOwner,
+      rights: isOwner ? [...ALL_ADMIN_RIGHTS] : (rightsInfo?.rights || [...ALL_ADMIN_RIGHTS]),
+      customTitle: isOwner ? "Owner" : (rightsInfo?.customTitle || "Admin"),
+      createdAt: a.created_at || 0,
+    };
+  });
+
+  return c.json({ success: true, data });
+});
+
+// POST /api/admin/admins - Add dynamic admin with explicit rights selection
+adminRoutes.post("/admins", requirePermission("manage_admins_rights"), async (c) => {
   const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
   const email = String(body.email || "").trim().toLowerCase();
@@ -39,24 +84,151 @@ adminRoutes.post("/admins", async (c) => {
     return c.json({ success: false, error: "A valid email address (max 254 characters) is required" }, 400);
   }
 
+  const callerPerms = await getAdminPermissions(db, user?.email);
+  const requestedRights: string[] = Array.isArray(body.rights) ? body.rights.map(String) : [];
+  const customTitle = body.customTitle !== undefined ? String(body.customTitle).trim().substring(0, 64) : "Admin";
+
+  // Caller cannot grant rights they do not hold unless owner
+  if (!callerPerms?.isOwner) {
+    const callerRightsSet = new Set(callerPerms?.rights || []);
+    for (const r of requestedRights) {
+      if (!callerRightsSet.has(r)) {
+        return c.json({ success: false, error: `Cannot grant permission '${r}' which you do not possess` }, 403);
+      }
+    }
+  }
+
+  const validRights = requestedRights.length > 0
+    ? requestedRights.filter((r) => ALL_ADMIN_RIGHTS.includes(r as any))
+    : [...ALL_ADMIN_RIGHTS];
+  const rightsJson = JSON.stringify(validRights);
+  const now = Date.now();
+
   const insertStmt = db
     .prepare("INSERT INTO admins (email, created_at) VALUES (?, ?) ON CONFLICT(email) DO NOTHING")
-    .bind(email, Date.now());
+    .bind(email, now);
+
+  const insertRightsStmt = db
+    .prepare("INSERT INTO admin_rights (email, rights, custom_title, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT(email) DO NOTHING")
+    .bind(email, rightsJson, customTitle, now);
 
   const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
     actionType: "ADMIN_ADDED",
     description: `Added dynamic admin '${email}'`,
     targetType: "admin",
     targetId: email,
+    metadata: { rights: validRights, customTitle },
   });
 
-  await runBatch(db, [insertStmt, auditStmt]);
+  await runBatch(db, [insertStmt, insertRightsStmt, auditStmt]);
 
-  return c.json({ success: true, data: { email } }, 201);
+  return c.json({ success: true, data: { email, rights: validRights, customTitle } }, 201);
+});
+
+// PUT /api/admin/admins/:email/rights - Update admin rights and custom title
+adminRoutes.put("/admins/:email/rights", requirePermission("manage_admins_rights"), async (c) => {
+  const user = c.get("user");
+  const targetEmail = c.req.param("email").trim().toLowerCase();
+  const db = c.env.DB;
+  const callerEmail = (user?.email || "").trim().toLowerCase();
+
+  const body = await c.req.json().catch(() => ({}));
+  const requestedRights: string[] = Array.isArray(body.rights) ? body.rights.map(String) : [];
+  const customTitle = body.customTitle !== undefined && body.customTitle !== null ? String(body.customTitle).trim().substring(0, 64) : null;
+
+  // 1. Built-in owner rights cannot be modified by anyone
+  if (isOwnerEmail(targetEmail)) {
+    return c.json({ success: false, error: "Built-in owner permissions and role cannot be modified" }, 403);
+  }
+
+  // 2. Check target exists in admins table
+  const targetAdmin = await db.prepare("SELECT email FROM admins WHERE LOWER(TRIM(email)) = ?").bind(targetEmail).first<{ email: string }>();
+  if (!targetAdmin) {
+    return c.json({ success: false, error: "Admin not found" }, 404);
+  }
+
+  // 3. Resolve caller permissions
+  const callerPerms = await getAdminPermissions(db, callerEmail);
+  const targetPerms = await getAdminPermissions(db, targetEmail);
+
+  // 4. Caller cannot self-escalate
+  if (callerEmail === targetEmail && !callerPerms?.isOwner) {
+    const currentRights = new Set(callerPerms?.rights || []);
+    for (const r of requestedRights) {
+      if (!currentRights.has(r)) {
+        return c.json({ success: false, error: "Self-escalation is not allowed: you cannot grant yourself rights you do not currently hold" }, 403);
+      }
+    }
+  }
+
+  // 5. Caller cannot edit an admin whose rights exceed caller's (Telegram rule)
+  if (!callerPerms?.isOwner) {
+    const callerRightsSet = new Set(callerPerms?.rights || []);
+    const targetRights = targetPerms?.rights || [];
+    const targetHasExceeding = targetRights.some((r) => !callerRightsSet.has(r));
+    if (targetHasExceeding) {
+      return c.json({ success: false, error: "Cannot modify permissions of an administrator whose rights exceed yours" }, 403);
+    }
+
+    // 6. Caller cannot grant rights they do not hold
+    for (const r of requestedRights) {
+      if (!callerRightsSet.has(r)) {
+        return c.json({ success: false, error: `Cannot grant permission '${r}' which you do not possess` }, 403);
+      }
+    }
+  }
+
+  // 7. Last holder of manage_admins_rights protection
+  const targetHadManageAdmins = targetPerms?.rights.includes("manage_admins_rights");
+  const targetWillHaveManageAdmins = requestedRights.includes("manage_admins_rights");
+  if (targetHadManageAdmins && !targetWillHaveManageAdmins) {
+    const ownersCount = HARDCODED_ADMIN_EMAILS.size;
+    const otherAdmins = await db.prepare("SELECT email, rights FROM admin_rights WHERE LOWER(TRIM(email)) != ?").bind(targetEmail).all<{ email: string; rights: string }>();
+    const otherDynamicHolders = (otherAdmins.results || []).filter((r) => {
+      try {
+        const rights = JSON.parse(r.rights);
+        return Array.isArray(rights) && rights.includes("manage_admins_rights");
+      } catch {
+        return false;
+      }
+    });
+
+    if (ownersCount === 0 && otherDynamicHolders.length === 0) {
+      return c.json({ success: false, error: "The last holder of manage_admins_rights cannot lose this permission" }, 400);
+    }
+  }
+
+  // Filter requestedRights to valid canonical rights
+  const validRights = requestedRights.filter((r) => ALL_ADMIN_RIGHTS.includes(r as any));
+  const rightsJson = JSON.stringify(validRights);
+  const now = Date.now();
+
+  const updateRightsStmt = db
+    .prepare("INSERT INTO admin_rights (email, rights, custom_title, updated_at) VALUES (?1, ?2, ?3, ?4) ON CONFLICT(email) DO UPDATE SET rights = ?2, custom_title = COALESCE(?3, custom_title), updated_at = ?4")
+    .bind(targetEmail, rightsJson, customTitle, now);
+
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "ADMIN_RIGHTS_CHANGED",
+    description: `Updated permissions for '${targetEmail}' (${validRights.length} rights, title: ${customTitle || 'unchanged'})`,
+    targetType: "admin",
+    targetId: targetEmail,
+    metadata: { newRights: validRights, customTitle },
+  });
+
+  await runBatch(db, [updateRightsStmt, auditStmt]);
+
+  return c.json({
+    success: true,
+    data: {
+      email: targetEmail,
+      rights: validRights,
+      customTitle: customTitle || targetPerms?.customTitle || "Admin",
+    },
+  });
 });
 
 // DELETE /api/admin/admins/:email - Remove dynamic admin
-adminRoutes.delete("/admins/:email", async (c) => {
+adminRoutes.delete("/admins/:email", requirePermission("manage_admins_rights"), async (c) => {
   const user = c.get("user");
   const email = c.req.param("email").trim().toLowerCase();
   const db = c.env.DB;
@@ -84,7 +256,26 @@ adminRoutes.delete("/admins/:email", async (c) => {
     return c.json({ success: false, error: "Cannot remove the last remaining administrator" }, 409);
   }
 
-  const deleteStmt = db.prepare("DELETE FROM admins WHERE LOWER(TRIM(email)) = ?").bind(email);
+  // 4. Last holder of manage_admins_rights check
+  const targetPerms = await getAdminPermissions(db, email);
+  if (targetPerms?.rights.includes("manage_admins_rights")) {
+    const ownersCount = HARDCODED_ADMIN_EMAILS.size;
+    const otherAdmins = await db.prepare("SELECT email, rights FROM admin_rights WHERE LOWER(TRIM(email)) != ?").bind(email).all<{ email: string; rights: string }>();
+    const otherDynamicHolders = (otherAdmins.results || []).filter((r) => {
+      try {
+        const rights = JSON.parse(r.rights);
+        return Array.isArray(rights) && rights.includes("manage_admins_rights");
+      } catch {
+        return false;
+      }
+    });
+    if (ownersCount === 0 && otherDynamicHolders.length === 0) {
+      return c.json({ success: false, error: "Cannot remove the last holder of manage_admins_rights" }, 409);
+    }
+  }
+
+  const deleteAdminStmt = db.prepare("DELETE FROM admins WHERE LOWER(TRIM(email)) = ?").bind(email);
+  const deleteRightsStmt = db.prepare("DELETE FROM admin_rights WHERE LOWER(TRIM(email)) = ?").bind(email);
   const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
     actionType: "ADMIN_REMOVED",
     description: `Removed dynamic admin '${email}'`,
@@ -92,7 +283,7 @@ adminRoutes.delete("/admins/:email", async (c) => {
     targetId: email,
   });
 
-  const batchRes = await runBatch(db, [deleteStmt, auditStmt]);
+  const batchRes = await runBatch(db, [deleteAdminStmt, deleteRightsStmt, auditStmt]);
   if ((batchRes[0]?.meta?.changes ?? 0) === 0) {
     return c.json({ success: false, error: "Admin not found" }, 404);
   }
@@ -100,7 +291,7 @@ adminRoutes.delete("/admins/:email", async (c) => {
 });
 
 // GET /api/admin/analytics/exams - Pre-aggregated exam analytics
-adminRoutes.get("/analytics/exams", async (c) => {
+adminRoutes.get("/analytics/exams", requirePermission("view_analytics_logs"), async (c) => {
   const db = c.env.DB;
   const days = parseInt(c.req.query("days") || "0", 10);
   const cutoff = days > 0 ? Date.now() - days * 24 * 60 * 60 * 1000 : 0;
@@ -169,7 +360,7 @@ adminRoutes.get("/analytics/exams", async (c) => {
 });
 
 // GET /api/admin/analytics/questions - Pre-aggregated question analytics
-adminRoutes.get("/analytics/questions", async (c) => {
+adminRoutes.get("/analytics/questions", requirePermission("view_analytics_logs"), async (c) => {
   const examId = c.req.query("examId");
   const db = c.env.DB;
 
@@ -211,7 +402,7 @@ adminRoutes.get("/analytics/questions", async (c) => {
 });
 
 // GET /api/admin/stats/users - Total and online user counts
-adminRoutes.get("/stats/users", async (c) => {
+adminRoutes.get("/stats/users", requirePermission("manage_users"), async (c) => {
   const db = c.env.DB;
   const ONLINE_WINDOW_MS = 5 * 60 * 1000;
   const cutoff = Date.now() - ONLINE_WINDOW_MS;
@@ -233,7 +424,7 @@ adminRoutes.get("/stats/users", async (c) => {
 
 // GET /api/admin/users - Full-dataset search and bounded, deterministic pagination.
 // Backward compatibility: callers that omit pagination parameters retain 200 rows.
-adminRoutes.get("/users", async (c) => {
+adminRoutes.get("/users", requirePermission("manage_users"), async (c) => {
   const parsePositiveInt = (raw: string | undefined, fallback: number, maximum: number): number | null => {
     if (raw === undefined) return fallback;
     if (!/^[1-9][0-9]*$/.test(raw) || raw.length > 7) return null;
@@ -307,7 +498,7 @@ adminRoutes.get("/users", async (c) => {
 });
 
 // POST /api/admin/users/:id/status - Toggle user disabled/ban status
-adminRoutes.post("/users/:id/status", async (c) => {
+adminRoutes.post("/users/:id/status", requirePermission("manage_users"), async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
   const body = await c.req.json().catch(() => ({}));
@@ -357,7 +548,7 @@ adminRoutes.post("/users/:id/status", async (c) => {
 });
 
 // GET /api/admin/users/:id/attempts - Get user test attempts
-adminRoutes.get("/users/:id/attempts", async (c) => {
+adminRoutes.get("/users/:id/attempts", requirePermission("manage_users"), async (c) => {
   const userId = c.req.param("id");
   const db = c.env.DB;
   try {
@@ -386,7 +577,7 @@ adminRoutes.get("/users/:id/attempts", async (c) => {
 });
 
 // PUT /api/admin/config - Update app configuration
-adminRoutes.put("/config", async (c) => {
+adminRoutes.put("/config", requirePermission("manage_config_maintenance"), async (c) => {
   const body = await c.req.json().catch(() => ({}));
   const db = c.env.DB;
 
@@ -503,7 +694,7 @@ function validateFloatingLinkUrl(rawUrl: string): { valid: boolean; error?: stri
 }
 
 // GET /api/admin/floating-link
-adminRoutes.get("/floating-link", async (c) => {
+adminRoutes.get("/floating-link", requirePermission("manage_content"), async (c) => {
   const db = c.env.DB;
   try {
     const row = await db.prepare("SELECT body FROM app_content WHERE id = 'floating_link'").first<{ body: string }>();
@@ -533,7 +724,7 @@ adminRoutes.get("/floating-link", async (c) => {
 });
 
 // PUT /api/admin/floating-link
-adminRoutes.put("/floating-link", async (c) => {
+adminRoutes.put("/floating-link", requirePermission("manage_content"), async (c) => {
   const body = await c.req.json().catch(() => ({}));
 
   const db = c.env.DB;
@@ -629,7 +820,7 @@ adminRoutes.put("/floating-link", async (c) => {
 // ============================================================================
 
 // GET /api/admin/premium/config - Get current premium plan & payment configuration
-adminRoutes.get("/premium/config", async (c) => {
+adminRoutes.get("/premium/config", requirePermission("manage_premium"), async (c) => {
   const db = c.env.DB;
   const config = await getPremiumConfig(db);
   // Legacy D1 signing values are retired and must not be sent to clients.
@@ -658,7 +849,7 @@ adminRoutes.get("/premium/config", async (c) => {
 });
 
 // PUT /api/admin/premium/config - Update premium plan & payment configuration
-adminRoutes.put("/premium/config", async (c) => {
+adminRoutes.put("/premium/config", requirePermission("manage_premium"), async (c) => {
   const db = c.env.DB;
   const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
@@ -741,7 +932,7 @@ adminRoutes.put("/premium/config", async (c) => {
 });
 
 // GET /api/admin/premium/transactions - List all payment orders / transactions
-adminRoutes.get("/premium/transactions", async (c) => {
+adminRoutes.get("/premium/transactions", requirePermission("manage_premium"), async (c) => {
   const db = c.env.DB;
   const limit = parseInt(c.req.query("limit") || "100", 10);
   const statusFilter = c.req.query("status") || "";
@@ -782,7 +973,7 @@ adminRoutes.get("/premium/transactions", async (c) => {
 });
 
 // GET /api/admin/premium/users - List premium users
-adminRoutes.get("/premium/users", async (c) => {
+adminRoutes.get("/premium/users", requirePermission("manage_premium"), async (c) => {
   const db = c.env.DB;
   const now = Date.now();
 
@@ -819,7 +1010,7 @@ adminRoutes.get("/premium/users", async (c) => {
 });
 
 // POST /api/admin/premium/users/grant - Manually grant Premium (marked ADMIN_GRANTED)
-adminRoutes.post("/premium/users/grant", async (c) => {
+adminRoutes.post("/premium/users/grant", requirePermission("manage_premium"), async (c) => {
   const db = c.env.DB;
   const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
@@ -901,7 +1092,7 @@ adminRoutes.post("/premium/users/grant", async (c) => {
 });
 
 // POST /api/admin/premium/users/extend - Extend existing Premium expiry
-adminRoutes.post("/premium/users/extend", async (c) => {
+adminRoutes.post("/premium/users/extend", requirePermission("manage_premium"), async (c) => {
   const db = c.env.DB;
   const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
@@ -956,7 +1147,7 @@ adminRoutes.post("/premium/users/extend", async (c) => {
 });
 
 // POST /api/admin/premium/users/revoke - Revoke Premium
-adminRoutes.post("/premium/users/revoke", async (c) => {
+adminRoutes.post("/premium/users/revoke", requirePermission("manage_premium"), async (c) => {
   const db = c.env.DB;
   const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
@@ -993,7 +1184,7 @@ adminRoutes.post("/premium/users/revoke", async (c) => {
 });
 
 // POST /api/admin/ai-health - Test AI connection per key slot and model chain (Rate-limited: 1 call per 10s)
-adminRoutes.post("/ai-health", async (c) => {
+adminRoutes.post("/ai-health", requirePermission("manage_questions"), async (c) => {
   const db = c.env.DB;
   const { limited, retryAfter } = await checkRateLimit(db, "rate:admin:ai-health", 1, 10);
   if (limited) {
@@ -1133,7 +1324,7 @@ adminRoutes.post("/ai-health", async (c) => {
 });
 
 // GET /api/admin/api-usage - Truthful server-side API usage & cost monitor metrics
-adminRoutes.get("/api-usage", async (c) => {
+adminRoutes.get("/api-usage", requirePermission("view_analytics_logs"), async (c) => {
   const monthParam = c.req.query("month")?.trim();
   if (monthParam && !/^(\d{4})-(0[1-9]|1[0-2])$/.test(monthParam)) {
     return c.json({ success: false, error: "Query parameter 'month' must be in YYYY-MM format" }, 400);
@@ -1148,7 +1339,7 @@ adminRoutes.get("/api-usage", async (c) => {
 });
 
 // POST /api/admin/questions/reformat-explanation - Reformat question explanation with Gemini AI (rate-limited, sanitized)
-adminRoutes.post("/questions/reformat-explanation", async (c) => {
+adminRoutes.post("/questions/reformat-explanation", requirePermission("manage_questions"), async (c) => {
   const user = c.get("user");
   const ip = c.req.header("cf-connecting-ip") || c.req.header("x-forwarded-for") || "unknown";
 
@@ -1181,7 +1372,7 @@ adminRoutes.post("/questions/reformat-explanation", async (c) => {
 });
 
 // GET /api/admin/export/exams - Safe, chunked one-call export of exam content & questions (NO user/student PII)
-adminRoutes.get("/export/exams", async (c) => {
+adminRoutes.get("/export/exams", requirePermission("export_data"), async (c) => {
   const db = c.env.DB;
   const user = c.get("user");
 

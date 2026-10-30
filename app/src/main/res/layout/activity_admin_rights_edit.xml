@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_app"
+    style="@style/Widget.Eve.Token.Screen">
+
+    <com.eve.app.ui.admin.tg.TelegramActionBar
+        android:id="@+id/telegramActionBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        style="@style/Widget.Eve.Token.Scroll">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="40dp"
+            style="@style/Widget.Eve.Token.Column">
+
+            <!-- Admin Identity Header Card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:paddingTop="20dp"
+                android:paddingBottom="16dp"
+                android:paddingHorizontal="@dimen/design_screen_margin">
+
+                <ImageView
+                    android:id="@+id/ivAvatar"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:contentDescription="Admin Avatar" />
+
+                <TextView
+                    android:id="@+id/tvEmail"
+                    style="@style/TextAppearance.Eve.Telegram.ListTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="admin@example.com"
+                    android:tag="eve_telegram_type" />
+
+                <TextView
+                    android:id="@+id/tvRoleSubtitle"
+                    style="@style/TextAppearance.Eve.Telegram.ListPreview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Administrator"
+                    android:tag="eve_telegram_type" />
+            </LinearLayout>
+
+            <!-- Custom Title Section -->
+            <com.eve.app.ui.admin.tg.HeaderCell
+                android:id="@+id/headerCustomTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="21dp"
+                android:paddingVertical="4dp">
+
+                <EditText
+                    android:id="@+id/etCustomTitle"
+                    style="@style/Widget.Eve.Token.Input"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/design_input_height"
+                    android:hint="Admin"
+                    android:maxLength="64"
+                    android:maxLines="1"
+                    android:inputType="textCapWords" />
+            </FrameLayout>
+
+            <com.eve.app.ui.admin.tg.TextInfoPrivacyCell
+                android:id="@+id/privacyCustomTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <!-- Rights Section -->
+            <com.eve.app.ui.admin.tg.HeaderCell
+                android:id="@+id/headerRights"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.eve.app.ui.admin.tg.TextCheckCell
+                android:id="@+id/checkManageExams"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.eve.app.ui.admin.tg.TextCheckCell
+                android:id="@+id/checkManageQuestions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.eve.app.ui.admin.tg.TextCheckCell
+                android:id="@+id/checkManageGeneratedTests"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.eve.app.ui.admin.tg.TextCheckCell
+                android:id="@+id/checkManageSyllabus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.eve.app.ui.admin.tg.TextCheckCell
+                android:id="@+id/checkManageUsers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.eve.app.ui.admin.tg.TextCheckCell
+                android:id="@+id/checkManageAdminsRights"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.eve.app.ui.admin.tg.TextCheckCell
+                android:id="@+id/checkManagePremium"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.eve.app.ui.admin.tg.TextCheckCell
+                android:id="@+id/checkSendBroadcasts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.eve.app.ui.admin.tg.TextCheckCell
+                android:id="@+id/checkModerateFeedback"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.eve.app.ui.admin.tg.TextCheckCell
+                android:id="@+id/checkManageConfigMaintenance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.eve.app.ui.admin.tg.TextCheckCell
+                android:id="@+id/checkManageContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.eve.app.ui.admin.tg.TextCheckCell
+                android:id="@+id/checkViewAnalyticsLogs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.eve.app.ui.admin.tg.TextCheckCell
+                android:id="@+id/checkExportData"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.eve.app.ui.admin.tg.TextInfoPrivacyCell
+                android:id="@+id/privacyRights"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <!-- Destructive Action: Dismiss Admin -->
+            <com.eve.app.ui.admin.tg.ShadowSectionCell
+                android:id="@+id/shadowDismiss"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.eve.app.ui.admin.tg.TextCell
+                android:id="@+id/btnDismissAdmin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.eve.app.ui.admin.tg.TextInfoPrivacyCell
+                android:id="@+id/privacyDismiss"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

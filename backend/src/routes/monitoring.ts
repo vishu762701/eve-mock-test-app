@@ -1,12 +1,12 @@
 import { Hono } from 'hono';
-import { requireAdmin } from '../middleware/authMiddleware';
+import { requireAdmin, requirePermission } from '../middleware/authMiddleware';
 import { getGeminiApiKeys } from '../ai/generator';
 import { runGeneration, GenerationBusyError } from '../services/generation';
 import { AuthUser, Env, ExamRow } from '../types';
 import { recordAdminAction } from '../util/auditLog';
 
 export const monitoringRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
-monitoringRoutes.use('*', requireAdmin);
+monitoringRoutes.use('*', requirePermission("view_analytics_logs"));
 
 monitoringRoutes.get('/overview', async (c) => {
   const totals = await c.env.DB.prepare(`SELECT

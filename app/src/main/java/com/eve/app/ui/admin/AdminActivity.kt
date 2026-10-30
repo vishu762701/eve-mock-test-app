@@ -29,6 +29,7 @@ import com.eve.app.data.model.FeedbackPost
 import com.eve.app.data.model.FeedbackPostReply
 import com.eve.app.data.model.HomeBanner
 import com.eve.app.data.model.Question
+import com.eve.app.data.remote.AdminMeData
 import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.ExamRepository
@@ -97,6 +98,7 @@ class AdminActivity : EveBaseActivity() {
         val keywords: List<String>,
         val iconRes: Int? = null,
         val lottieRes: Int? = null,
+        val requiredRight: String? = null,
         val action: () -> Unit
     )
 
@@ -282,36 +284,117 @@ class AdminActivity : EveBaseActivity() {
         }
     }
 
-    private fun setupSearchIndex() {
+    private fun setupSearchIndex(adminMe: AdminMeData? = null) {
         searchItems.clear()
-        searchItems.addAll(listOf(
-            SearchItem("Exams", "CONTENT", listOf("exams", "परीक्षा", "mock tests", "manage exams"), lottieRes = R.raw.tg_folder_in) { showExamsOptionsDialog() },
-            SearchItem("Manage Existing Exams", "CONTENT", listOf("existing exams", "published", "edit exams"), iconRes = R.drawable.ic_exam_placeholder) { startActivity(Intent(this, ManageExistingExamsActivity::class.java)) },
-            SearchItem("Manage Exams (Hierarchy)", "CONTENT", listOf("create exam", "exam tree", "category"), iconRes = R.drawable.ic_edit) { startActivity(Intent(this, ManageExamsActivity::class.java)) },
-            SearchItem("Questions", "CONTENT", listOf("questions", "प्रश्न", "question bank", "mcq"), iconRes = R.drawable.ic_edit) { startActivity(Intent(this, ManageQuestionsActivity::class.java)) },
-            SearchItem("AI Generated Tests", "CONTENT", listOf("ai tests", "एआई टेस्ट", "automated", "generate test"), lottieRes = R.raw.tg_qr_code_logo) { startActivity(Intent(this, GeneratedTestsActivity::class.java)) },
-            SearchItem("Syllabus", "CONTENT", listOf("syllabus", "पाठ्यक्रम", "pdf", "topics"), lottieRes = R.raw.tg_saved_messages) { startActivity(Intent(this, ManageSyllabusActivity::class.java)) },
-            SearchItem("Home Banner", "CONTENT", listOf("home banner", "बैनर", "promotions", "banner link"), iconRes = R.drawable.ic_image) { showHomeBannerOptionsDialog() },
-            SearchItem("Floating Link", "CONTENT", listOf("floating link", "फ्लोटिंग लिंक", "quick link", "url"), iconRes = R.drawable.ic_link) { showFloatingLinkDialog() },
-            SearchItem("Animated Emoji", "CONTENT", listOf("animated emoji", "इमोजी", "stickers", "studio"), lottieRes = R.raw.tg_fire_on) { AppBulletin.showSuccess(this, "Animated Emoji Studio (Configured in Mission 03 F4)") },
-            SearchItem("Users", "PEOPLE", listOf("users", "उपयोगकर्ता", "students", "ban user", "signups"), lottieRes = R.raw.tg_chats_archive) { startActivity(Intent(this, ManageUsersActivity::class.java)) },
-            SearchItem("Admins and Rights", "PEOPLE", listOf("admins", "एडमिन", "admin rights", "permissions"), lottieRes = R.raw.tg_ic_admin) { startActivity(Intent(this, AdminsAndRightsActivity::class.java)) },
-            SearchItem("Premium Management", "PEOPLE", listOf("premium", "प्रीमियम", "subscription", "grant premium"), lottieRes = R.raw.premium_star) { startActivity(Intent(this, ManagePremiumActivity::class.java)) },
-            SearchItem("Broadcast Notification", "COMMUNICATION", listOf("broadcast", "प्रसारण", "notification", "push"), iconRes = R.drawable.ic_broadcast) { startActivity(Intent(this, SendNotificationActivity::class.java)) },
-            SearchItem("Flagged Questions Inbox", "COMMUNICATION", listOf("flagged questions", "फ्लैग्ड", "reports", "moderation"), lottieRes = R.raw.tg_report_police) { startActivity(Intent(this, FlaggedQuestionsActivity::class.java)) },
-            SearchItem("Feedback Messages", "COMMUNICATION", listOf("feedback", "प्रतिक्रिया", "replies", "student messages"), iconRes = R.drawable.ic_message_dots) { startActivity(Intent(this, FeedbackMessagesActivity::class.java)) },
-            SearchItem("Create Feedback Post", "COMMUNICATION", listOf("create feedback post", "नया पोस्ट", "survey"), iconRes = R.drawable.ic_campaign) { showCreateFeedbackPostDialog() },
-            SearchItem("Manage Feedback Posts", "COMMUNICATION", listOf("manage feedback posts", "पोस्ट प्रबंधन"), iconRes = R.drawable.ic_edit) { showManageFeedbackPostsDialog() },
-            SearchItem("Polls", "COMMUNICATION", listOf("polls", "सर्वेक्षण", "vote", "student poll"), lottieRes = R.raw.tg_tab_poll) { startActivity(Intent(this, ManagePollsActivity::class.java)) },
-            SearchItem("Analytics & Crash Reports", "INSIGHTS", listOf("analytics", "एनालिटिक्स", "reports", "stats"), lottieRes = R.raw.tg_statistic_preload) { startActivity(Intent(this, AdminAnalyticsActivity::class.java)) },
-            SearchItem("Recent Actions (Audit Log)", "INSIGHTS", listOf("recent actions", "audit log", "गतिविधियां", "history"), lottieRes = R.raw.tg_filters) { startActivity(Intent(this, ActivityLogActivity::class.java)) },
-            SearchItem("System Health & Operations", "INSIGHTS", listOf("system health", "operations", "health monitor"), iconRes = R.drawable.ic_maintenance) { startActivity(Intent(this, SystemMonitorActivity::class.java)) },
-            SearchItem("API Usage & Cost Monitor", "INSIGHTS", listOf("api usage", "cost monitor", "usage tracker", "gemini calls"), lottieRes = R.raw.tg_statistic_preload) { startActivity(Intent(this, ApiUsageActivity::class.java)) },
-            SearchItem("App Config & Maintenance", "SYSTEM", listOf("app config", "maintenance", "रखरखाव", "config"), iconRes = R.drawable.ic_maintenance) { startActivity(Intent(this, AppConfigActivity::class.java)) },
+        val allCandidates = listOf(
+            SearchItem("Exams", "CONTENT", listOf("exams", "परीक्षा", "mock tests", "manage exams"), lottieRes = R.raw.tg_folder_in, requiredRight = "manage_exams") { showExamsOptionsDialog() },
+            SearchItem("Manage Existing Exams", "CONTENT", listOf("existing exams", "published", "edit exams"), iconRes = R.drawable.ic_exam_placeholder, requiredRight = "manage_exams") { startActivity(Intent(this, ManageExistingExamsActivity::class.java)) },
+            SearchItem("Manage Exams (Hierarchy)", "CONTENT", listOf("create exam", "exam tree", "category"), iconRes = R.drawable.ic_edit, requiredRight = "manage_exams") { startActivity(Intent(this, ManageExamsActivity::class.java)) },
+            SearchItem("Questions", "CONTENT", listOf("questions", "प्रश्न", "question bank", "mcq"), iconRes = R.drawable.ic_edit, requiredRight = "manage_questions") { startActivity(Intent(this, ManageQuestionsActivity::class.java)) },
+            SearchItem("AI Generated Tests", "CONTENT", listOf("ai tests", "एआई टेस्ट", "automated", "generate test"), lottieRes = R.raw.tg_qr_code_logo, requiredRight = "manage_generated_tests") { startActivity(Intent(this, GeneratedTestsActivity::class.java)) },
+            SearchItem("Syllabus", "CONTENT", listOf("syllabus", "पाठ्यक्रम", "pdf", "topics"), lottieRes = R.raw.tg_saved_messages, requiredRight = "manage_syllabus") { startActivity(Intent(this, ManageSyllabusActivity::class.java)) },
+            SearchItem("Home Banner", "CONTENT", listOf("home banner", "बैनर", "promotions", "banner link"), iconRes = R.drawable.ic_image, requiredRight = "manage_content") { showHomeBannerOptionsDialog() },
+            SearchItem("Floating Link", "CONTENT", listOf("floating link", "फ्लोटिंग लिंक", "quick link", "url"), iconRes = R.drawable.ic_link, requiredRight = "manage_content") { showFloatingLinkDialog() },
+            SearchItem("Animated Emoji", "CONTENT", listOf("animated emoji", "इमोजी", "stickers", "studio"), lottieRes = R.raw.tg_fire_on, requiredRight = "manage_content") { AppBulletin.showSuccess(this, "Animated Emoji Studio (Configured in Mission 03 F4)") },
+            SearchItem("Users", "PEOPLE", listOf("users", "उपयोगकर्ता", "students", "ban user", "signups"), lottieRes = R.raw.tg_chats_archive, requiredRight = "manage_users") { startActivity(Intent(this, ManageUsersActivity::class.java)) },
+            SearchItem("Admins and Rights", "PEOPLE", listOf("admins", "एडमिन", "admin rights", "permissions"), lottieRes = R.raw.tg_ic_admin, requiredRight = "manage_admins_rights") { startActivity(Intent(this, AdminsAndRightsActivity::class.java)) },
+            SearchItem("Premium Management", "PEOPLE", listOf("premium", "प्रीमियम", "subscription", "grant premium"), lottieRes = R.raw.premium_star, requiredRight = "manage_premium") { startActivity(Intent(this, ManagePremiumActivity::class.java)) },
+            SearchItem("Broadcast Notification", "COMMUNICATION", listOf("broadcast", "प्रसारण", "notification", "push"), iconRes = R.drawable.ic_broadcast, requiredRight = "send_broadcasts") { startActivity(Intent(this, SendNotificationActivity::class.java)) },
+            SearchItem("Flagged Questions Inbox", "COMMUNICATION", listOf("flagged questions", "फ्लैग्ड", "reports", "moderation"), lottieRes = R.raw.tg_report_police, requiredRight = "moderate_feedback") { startActivity(Intent(this, FlaggedQuestionsActivity::class.java)) },
+            SearchItem("Feedback Messages", "COMMUNICATION", listOf("feedback", "प्रतिक्रिया", "replies", "student messages"), iconRes = R.drawable.ic_message_dots, requiredRight = "moderate_feedback") { startActivity(Intent(this, FeedbackMessagesActivity::class.java)) },
+            SearchItem("Create Feedback Post", "COMMUNICATION", listOf("create feedback post", "नया पोस्ट", "survey"), iconRes = R.drawable.ic_campaign, requiredRight = "moderate_feedback") { showCreateFeedbackPostDialog() },
+            SearchItem("Manage Feedback Posts", "COMMUNICATION", listOf("manage feedback posts", "पोस्ट प्रबंधन"), iconRes = R.drawable.ic_edit, requiredRight = "moderate_feedback") { showManageFeedbackPostsDialog() },
+            SearchItem("Polls", "COMMUNICATION", listOf("polls", "सर्वेक्षण", "vote", "student poll"), lottieRes = R.raw.tg_tab_poll, requiredRight = "moderate_feedback") { startActivity(Intent(this, ManagePollsActivity::class.java)) },
+            SearchItem("Analytics & Crash Reports", "INSIGHTS", listOf("analytics", "एनालिटिक्स", "reports", "stats"), lottieRes = R.raw.tg_statistic_preload, requiredRight = "view_analytics_logs") { startActivity(Intent(this, AdminAnalyticsActivity::class.java)) },
+            SearchItem("Recent Actions (Audit Log)", "INSIGHTS", listOf("recent actions", "audit log", "गतिविधियां", "history"), lottieRes = R.raw.tg_filters, requiredRight = "view_analytics_logs") { startActivity(Intent(this, ActivityLogActivity::class.java)) },
+            SearchItem("System Health & Operations", "INSIGHTS", listOf("system health", "operations", "health monitor"), iconRes = R.drawable.ic_maintenance, requiredRight = "view_analytics_logs") { startActivity(Intent(this, SystemMonitorActivity::class.java)) },
+            SearchItem("API Usage & Cost Monitor", "INSIGHTS", listOf("api usage", "cost monitor", "usage tracker", "gemini calls"), lottieRes = R.raw.tg_statistic_preload, requiredRight = "view_analytics_logs") { startActivity(Intent(this, ApiUsageActivity::class.java)) },
+            SearchItem("App Config & Maintenance", "SYSTEM", listOf("app config", "maintenance", "रखरखाव", "config"), iconRes = R.drawable.ic_maintenance, requiredRight = "manage_config_maintenance") { startActivity(Intent(this, AppConfigActivity::class.java)) },
             SearchItem("Version Status", "SYSTEM", listOf("version status", "वर्जन", "build info", "min version"), iconRes = R.drawable.ic_info) { startActivity(Intent(this, AppConfigActivity::class.java)) },
-            SearchItem("Export All Exam Data", "SYSTEM", listOf("export data", "निर्यात", "backup json", "download exams"), iconRes = R.drawable.ic_download) { exportExamData() },
-            SearchItem("Edit About / Privacy / Terms", "SYSTEM", listOf("edit about", "privacy policy", "terms of service"), iconRes = R.drawable.ic_edit) { startActivity(Intent(this, EditAboutActivity::class.java)) }
-        ))
+            SearchItem("Export All Exam Data", "SYSTEM", listOf("export data", "निर्यात", "backup json", "download exams"), iconRes = R.drawable.ic_download, requiredRight = "export_data") { exportExamData() },
+            SearchItem("Edit About / Privacy / Terms", "SYSTEM", listOf("edit about", "privacy policy", "terms of service"), iconRes = R.drawable.ic_edit, requiredRight = "manage_content") { startActivity(Intent(this, EditAboutActivity::class.java)) }
+        )
+
+        val allowed = if (adminMe == null || adminMe.isOwner) {
+            allCandidates
+        } else {
+            allCandidates.filter { it.requiredRight == null || adminMe.rights.contains(it.requiredRight) }
+        }
+        searchItems.addAll(allowed)
+    }
+
+    private fun applyAdminPermissions(adminMe: AdminMeData?) {
+        if (adminMe == null) return
+
+        if (!adminMe.customTitle.isNullOrBlank()) {
+            binding.tvAdminRole.text = adminMe.customTitle
+        } else {
+            binding.tvAdminRole.text = if (adminMe.isOwner) "Owner" else "Administrator"
+        }
+
+        if (adminMe.isOwner) {
+            setupSearchIndex(null)
+            return
+        }
+
+        fun has(right: String): Boolean = adminMe.rights.contains(right)
+
+        // SECTION 1: CONTENT
+        binding.rowExams.visibility = if (has("manage_exams")) View.VISIBLE else View.GONE
+        binding.rowQuestions.visibility = if (has("manage_questions")) View.VISIBLE else View.GONE
+        binding.rowGeneratedTests.visibility = if (has("manage_generated_tests")) View.VISIBLE else View.GONE
+        binding.rowSyllabus.visibility = if (has("manage_syllabus")) View.VISIBLE else View.GONE
+        binding.rowHomeBanner.visibility = if (has("manage_content")) View.VISIBLE else View.GONE
+        binding.rowFloatingLink.visibility = if (has("manage_content")) View.VISIBLE else View.GONE
+        binding.rowAnimatedEmoji.visibility = if (has("manage_content")) View.VISIBLE else View.GONE
+
+        val contentVisible = listOf(
+            binding.rowExams, binding.rowQuestions, binding.rowGeneratedTests,
+            binding.rowSyllabus, binding.rowHomeBanner, binding.rowFloatingLink,
+            binding.rowAnimatedEmoji
+        ).any { it.visibility == View.VISIBLE }
+        binding.headerContent.visibility = if (contentVisible) View.VISIBLE else View.GONE
+
+        // SECTION 2: PEOPLE
+        binding.rowUsers.visibility = if (has("manage_users")) View.VISIBLE else View.GONE
+        binding.rowAdmins.visibility = if (has("manage_admins_rights")) View.VISIBLE else View.GONE
+        binding.rowPremium.visibility = if (has("manage_premium")) View.VISIBLE else View.GONE
+
+        val peopleVisible = listOf(binding.rowUsers, binding.rowAdmins, binding.rowPremium).any { it.visibility == View.VISIBLE }
+        binding.headerPeople.visibility = if (peopleVisible) View.VISIBLE else View.GONE
+
+        // SECTION 3: COMMUNICATION
+        binding.rowBroadcast.visibility = if (has("send_broadcasts")) View.VISIBLE else View.GONE
+        binding.rowFlaggedQuestions.visibility = if (has("moderate_feedback")) View.VISIBLE else View.GONE
+        binding.rowFeedback.visibility = if (has("moderate_feedback")) View.VISIBLE else View.GONE
+        binding.rowCreateFeedbackPost.visibility = if (has("moderate_feedback")) View.VISIBLE else View.GONE
+        binding.btnManageFeedbackPosts.visibility = if (has("moderate_feedback")) View.VISIBLE else View.GONE
+        binding.rowPolls.visibility = if (has("moderate_feedback")) View.VISIBLE else View.GONE
+
+        val commVisible = listOf(
+            binding.rowBroadcast, binding.rowFlaggedQuestions, binding.rowFeedback,
+            binding.rowCreateFeedbackPost, binding.btnManageFeedbackPosts, binding.rowPolls
+        ).any { it.visibility == View.VISIBLE }
+        binding.headerCommunication.visibility = if (commVisible) View.VISIBLE else View.GONE
+
+        // SECTION 4: INSIGHTS
+        binding.rowAnalytics.visibility = if (has("view_analytics_logs")) View.VISIBLE else View.GONE
+        binding.rowRecentActions.visibility = if (has("view_analytics_logs")) View.VISIBLE else View.GONE
+        binding.rowSystemMonitor.visibility = if (has("view_analytics_logs")) View.VISIBLE else View.GONE
+        binding.rowApiUsage.visibility = if (has("view_analytics_logs")) View.VISIBLE else View.GONE
+
+        val insightsVisible = listOf(
+            binding.rowAnalytics, binding.rowRecentActions, binding.rowSystemMonitor, binding.rowApiUsage
+        ).any { it.visibility == View.VISIBLE }
+        binding.headerInsights.visibility = if (insightsVisible) View.VISIBLE else View.GONE
+
+        // SECTION 5: SYSTEM
+        binding.cellMaintenance.visibility = if (has("manage_config_maintenance")) View.VISIBLE else View.GONE
+        binding.rowAppConfig.visibility = if (has("manage_config_maintenance")) View.VISIBLE else View.GONE
+        binding.rowExportData.visibility = if (has("export_data")) View.VISIBLE else View.GONE
+        binding.rowEditAbout.visibility = if (has("manage_content")) View.VISIBLE else View.GONE
+
+        setupSearchIndex(adminMe)
     }
 
     private fun performSearch(query: String) {
@@ -391,6 +474,9 @@ class AdminActivity : EveBaseActivity() {
     private fun loadData() {
         viewModel.loadExams()
         viewModel.loadUserStats()
+        viewModel.loadAdminMe { adminMe ->
+            applyAdminPermissions(adminMe)
+        }
 
         lifecycleScope.launch {
             try {

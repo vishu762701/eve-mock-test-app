@@ -3,7 +3,7 @@
 // ============================================================================
 
 import { Hono } from "hono";
-import { requireAdmin } from "../middleware/authMiddleware";
+import { requireAdmin, requirePermission } from "../middleware/authMiddleware";
 import { AuthUser, Env, PollRow } from "../types";
 import { prepareAdminAuditLog } from "../util/auditLog";
 
@@ -94,7 +94,7 @@ pollRoutes.get("/active", async (c) => {
 });
 
 // POST /api/polls - Create poll (Admin)
-pollRoutes.post("/", requireAdmin, async (c) => {
+pollRoutes.post("/", requirePermission("moderate_feedback"), async (c) => {
   const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
   const question = String(body.question || "").trim();
@@ -131,7 +131,7 @@ pollRoutes.post("/", requireAdmin, async (c) => {
 });
 
 // PUT /api/polls/:id/status - Toggle poll active status (Admin)
-pollRoutes.put("/:id/status", requireAdmin, async (c) => {
+pollRoutes.put("/:id/status", requirePermission("moderate_feedback"), async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
   const body = await c.req.json().catch(() => ({}));
@@ -151,7 +151,7 @@ pollRoutes.put("/:id/status", requireAdmin, async (c) => {
 });
 
 // DELETE /api/polls/:id - Delete poll & votes (Admin)
-pollRoutes.delete("/:id", requireAdmin, async (c) => {
+pollRoutes.delete("/:id", requirePermission("moderate_feedback"), async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
   const db = c.env.DB;

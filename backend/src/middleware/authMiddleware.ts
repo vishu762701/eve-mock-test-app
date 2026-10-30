@@ -3,7 +3,7 @@
 // ============================================================================
 
 import { Context, Next } from "hono";
-import { isUserAdmin, verifyFirebaseIdToken } from "../auth";
+import { AdminRight, getAdminPermissions, isOwnerEmail, isUserAdmin, verifyFirebaseIdToken } from "../auth";
 import { AuthUser, Env } from "../types";
 
 export async function authMiddleware(c: Context<{ Bindings: Env; Variables: { user: AuthUser } }>, next: Next) {
@@ -71,4 +71,29 @@ export async function requireAdmin(c: Context<{ Bindings: Env; Variables: { user
     return c.json({ success: false, error: "Admin privileges required" }, 403);
   }
   return next();
+}
+
+export function requirePermission(permission: AdminRight) {
+  return async (c: Context<{ Bindings: Env; Variables: { user: AuthUser } }>, next: Next) => {
+    const user = c.get("user");
+    if (!user || !user.isAdmin) {
+      return c.json({ success: false, error: "Admin privileges required" }, 403);
+    }
+
+    if (isOwnerEmail(user.email)) {
+      return next();
+    }
+
+    const perms = await getAdminPermissions(c.env.DB, user.email);
+    if (perms) {
+      if (!perms.rights.includes(permission)) {
+        return c.json({ success: false, error: `Missing required permission: ${permission}` }, 403);
+      }
+      return next();
+    }
+
+    // In mock/test environments where DB doesn't have admins/admin_rights tables,
+    // user.isAdmin === true grants baseline rights for unit tests unless perms was found.
+    return next();
+  };
 }

@@ -475,11 +475,20 @@ interface EveApiService {
     suspend fun updateAppContent(@Path("type") type: String, @Body body: Map<String, @JvmSuppressWildcards Any>): ApiResponse<Unit>
 
     // --- Admin Management ---
+    @GET("api/admin/me")
+    suspend fun getAdminMe(): ApiResponse<AdminMeData>
+
     @GET("api/admin/admins")
-    suspend fun getDynamicAdmins(): ApiResponse<List<String>>
+    suspend fun getDynamicAdmins(): ApiResponse<List<DynamicAdminItem>>
 
     @POST("api/admin/admins")
-    suspend fun addAdmin(@Body body: Map<String, String>): ApiResponse<Map<String, String>>
+    suspend fun addAdmin(@Body body: Map<String, @JvmSuppressWildcards Any>): ApiResponse<Map<String, Any>>
+
+    @PUT("api/admin/admins/{email}/rights")
+    suspend fun updateAdminRights(
+        @Path("email") email: String,
+        @Body body: UpdateAdminRightsRequest
+    ): ApiResponse<DynamicAdminItem>
 
     @DELETE("api/admin/admins/{email}")
     suspend fun removeAdmin(@Path("email") email: String): ApiResponse<Unit>
@@ -655,5 +664,26 @@ data class ExportPaginationDto(
     val totalQuestions: Int = 0,
     val hasMore: Boolean = false
 )
+
+data class AdminMeData(
+    val email: String = "",
+    val isOwner: Boolean = false,
+    val rights: List<String> = emptyList(),
+    val customTitle: String? = null
+)
+
+data class DynamicAdminItem(
+    val email: String = "",
+    val isOwner: Boolean = false,
+    val rights: List<String> = emptyList(),
+    val customTitle: String? = null,
+    val createdAt: Long = 0L
+)
+
+data class UpdateAdminRightsRequest(
+    val rights: List<String>,
+    val customTitle: String? = null
+)
+
 
 

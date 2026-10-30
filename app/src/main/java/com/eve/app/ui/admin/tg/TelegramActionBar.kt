@@ -51,6 +51,7 @@ class TelegramActionBar @JvmOverloads constructor(
     val subtitleTextView: TextView = TextView(context)
 
     val searchButton: ImageButton = ImageButton(context)
+    val actionButton: ImageButton = ImageButton(context)
     private val searchContainer: FrameLayout = FrameLayout(context)
     val searchEditText: EditText = EditText(context)
     val clearButton: ImageButton = ImageButton(context)
@@ -122,6 +123,14 @@ class TelegramActionBar @JvmOverloads constructor(
         searchButton.setOnClickListener {
             openSearch()
         }
+
+        // 3b. Generic / Done Action Button
+        actionButton.scaleType = ImageView.ScaleType.CENTER
+        actionButton.setBackgroundResource(selectableBorderless)
+        actionButton.visibility = View.GONE
+        addView(actionButton, LayoutParams(dp(48f), dp(48f), Gravity.END or Gravity.CENTER_VERTICAL).apply {
+            marginEnd = dp(4f)
+        })
 
         // 4. Search Container (Hidden until search expanded)
         searchContainer.visibility = View.GONE
@@ -212,5 +221,20 @@ class TelegramActionBar @JvmOverloads constructor(
                 onSearchCollapsed?.invoke()
             }
         }).start()
+    }
+
+    fun showDoneAction(onClick: () -> Unit) {
+        val palette = TelegramThemeEngine.resolveCurrentPalette(context)
+        actionButton.setImageResource(R.drawable.ic_done)
+        actionButton.setColorFilter(palette.accent)
+        actionButton.contentDescription = "Done"
+        actionButton.visibility = View.VISIBLE
+        searchButton.visibility = View.GONE
+        actionButton.setOnClickListener { onClick() }
+    }
+
+    fun hideAction() {
+        actionButton.visibility = View.GONE
+        searchButton.visibility = View.VISIBLE
     }
 }

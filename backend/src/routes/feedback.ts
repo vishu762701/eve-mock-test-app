@@ -3,7 +3,7 @@
 // ============================================================================
 
 import { Hono } from "hono";
-import { requireAdmin } from "../middleware/authMiddleware";
+import { requireAdmin, requirePermission } from "../middleware/authMiddleware";
 import {
   AuthUser,
   Env,
@@ -52,7 +52,7 @@ feedbackRoutes.post("/messages", async (c) => {
 });
 
 // GET /api/feedback/messages - List feedback messages (Admin)
-feedbackRoutes.get("/messages", requireAdmin, async (c) => {
+feedbackRoutes.get("/messages", requirePermission("moderate_feedback"), async (c) => {
   const db = c.env.DB;
   const { results } = await db
     .prepare("SELECT * FROM feedback_messages ORDER BY timestamp DESC")
@@ -74,7 +74,7 @@ feedbackRoutes.get("/messages", requireAdmin, async (c) => {
 });
 
 // PUT /api/feedback/messages/:id/read - Mark feedback message read (Admin)
-feedbackRoutes.put("/messages/:id/read", requireAdmin, async (c) => {
+feedbackRoutes.put("/messages/:id/read", requirePermission("moderate_feedback"), async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
   const db = c.env.DB;
@@ -90,7 +90,7 @@ feedbackRoutes.put("/messages/:id/read", requireAdmin, async (c) => {
 });
 
 // DELETE /api/feedback/messages/:id - Delete feedback message (Admin)
-feedbackRoutes.delete("/messages/:id", requireAdmin, async (c) => {
+feedbackRoutes.delete("/messages/:id", requirePermission("moderate_feedback"), async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
   const db = c.env.DB;
@@ -106,7 +106,7 @@ feedbackRoutes.delete("/messages/:id", requireAdmin, async (c) => {
 });
 
 // POST /api/feedback/messages/:id/reply - Admin reply to student feedback
-feedbackRoutes.post("/messages/:id/reply", requireAdmin, async (c) => {
+feedbackRoutes.post("/messages/:id/reply", requirePermission("moderate_feedback"), async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
   const body = await c.req.json().catch(() => ({}));
@@ -171,7 +171,7 @@ feedbackRoutes.get("/posts", async (c) => {
 });
 
 // POST /api/feedback/posts - Create post (Admin)
-feedbackRoutes.post("/posts", requireAdmin, async (c) => {
+feedbackRoutes.post("/posts", requirePermission("moderate_feedback"), async (c) => {
   const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
   const title = String(body.title || "").trim();
@@ -205,7 +205,7 @@ feedbackRoutes.post("/posts", requireAdmin, async (c) => {
 });
 
 // PUT /api/feedback/posts/:id - Edit post (Admin)
-feedbackRoutes.put("/posts/:id", requireAdmin, async (c) => {
+feedbackRoutes.put("/posts/:id", requirePermission("moderate_feedback"), async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
   const body = await c.req.json().catch(() => ({}));
@@ -235,7 +235,7 @@ feedbackRoutes.put("/posts/:id", requireAdmin, async (c) => {
 });
 
 // DELETE /api/feedback/posts/:id - Delete post & cascade replies (Admin)
-feedbackRoutes.delete("/posts/:id", requireAdmin, async (c) => {
+feedbackRoutes.delete("/posts/:id", requirePermission("moderate_feedback"), async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
   const db = c.env.DB;
@@ -316,7 +316,7 @@ feedbackRoutes.post("/posts/:postId/replies", async (c) => {
 });
 
 // PUT /api/feedback/posts/:postId/replies/:replyId/read - Mark reply read (Admin)
-feedbackRoutes.put("/posts/:postId/replies/:replyId/read", requireAdmin, async (c) => {
+feedbackRoutes.put("/posts/:postId/replies/:replyId/read", requirePermission("moderate_feedback"), async (c) => {
   const user = c.get("user");
   const replyId = c.req.param("replyId");
   const db = c.env.DB;
@@ -332,7 +332,7 @@ feedbackRoutes.put("/posts/:postId/replies/:replyId/read", requireAdmin, async (
 });
 
 // DELETE /api/feedback/posts/:postId/replies/:replyId - Delete single reply (Admin)
-feedbackRoutes.delete("/posts/:postId/replies/:replyId", requireAdmin, async (c) => {
+feedbackRoutes.delete("/posts/:postId/replies/:replyId", requirePermission("moderate_feedback"), async (c) => {
   const user = c.get("user");
   const replyId = c.req.param("replyId");
   const db = c.env.DB;

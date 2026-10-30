@@ -1,5 +1,57 @@
 <?xml version='1.0' encoding='utf-8'?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:minHeight="@dimen/design_row_with_gap" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
-    <TextView android:id="@+id/tvEmail" style="@style/TextAppearance.Eve.Telegram.ListTitle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"  android:tag="eve_telegram_type" />
-    <TextView android:id="@+id/btnRemove" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Remove" />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:minHeight="@dimen/design_touch_min"
+    android:paddingVertical="8dp"
+    android:paddingHorizontal="4dp"
+    android:background="?attr/selectableItemBackground"
+    style="@style/Widget.Eve.Token.Column">
+
+    <ImageView
+        android:id="@+id/ivAvatar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="12dp"
+        android:contentDescription="Admin Avatar" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvEmail"
+            style="@style/TextAppearance.Eve.Telegram.ListTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:tag="eve_telegram_type" />
+
+        <TextView
+            android:id="@+id/tvRole"
+            style="@style/TextAppearance.Eve.Telegram.ListPreview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Administrator"
+            android:tag="eve_telegram_type" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/btnRemove"
+        style="@style/TextAppearance.Eve.Token.Secondary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="4dp"
+        android:text="Remove"
+        android:textColor="@color/system_red" />
 </LinearLayout>

@@ -1,7 +1,10 @@
 package com.eve.app.data.repository
 
 import com.eve.app.EveApplication
+import com.eve.app.data.remote.AdminMeData
 import com.eve.app.data.remote.ApiClient
+import com.eve.app.data.remote.DynamicAdminItem
+import com.eve.app.data.remote.UpdateAdminRightsRequest
 import com.eve.app.util.Constants
 import com.eve.app.util.NetworkUtil
 import com.eve.app.util.SessionManager
@@ -73,8 +76,17 @@ class AdminRepository {
             profile.uid == uid && profile.email.equals(email, ignoreCase = true)
     }
 
+    /** Current caller admin permissions from /api/admin/me */
+    suspend fun getAdminMe(): AdminMeData {
+        val response = api.getAdminMe()
+        if (!response.success) {
+            throw Exception(response.error ?: "Failed to fetch admin permissions")
+        }
+        return response.data ?: AdminMeData()
+    }
+
     /** Dynamic admins from D1 */
-    suspend fun getDynamicAdmins(): List<String> {
+    suspend fun getDynamicAdmins(): List<DynamicAdminItem> {
         val response = api.getDynamicAdmins()
         if (!response.success) {
             throw Exception(response.error ?: "Failed to fetch dynamic admins")
@@ -82,13 +94,30 @@ class AdminRepository {
         return response.data ?: emptyList()
     }
 
-    suspend fun addAdmin(email: String) {
+    suspend fun addAdmin(email: String, rights: List<String> = emptyList(), customTitle: String? = null) {
         val clean = email.trim()
         if (clean.isBlank()) return
-        val response = api.addAdmin(mapOf("email" to clean))
+        val body = mutableMapOf<String, Any>("email" to clean)
+        if (rights.isNotEmpty()) {
+            body["rights"] = rights
+        }
+        if (!customTitle.isNullOrBlank()) {
+            body["customTitle"] = customTitle.trim()
+        }
+        val response = api.addAdmin(body)
         if (!response.success) {
             throw Exception(response.error ?: "Failed to add admin")
         }
+    }
+
+    suspend fun updateAdminRights(email: String, rights: List<String>, customTitle: String?): DynamicAdminItem {
+        val clean = email.trim().lowercase()
+        val request = UpdateAdminRightsRequest(rights = rights, customTitle = customTitle?.trim())
+        val response = api.updateAdminRights(clean, request)
+        if (!response.success) {
+            throw Exception(response.error ?: "Failed to update admin permissions")
+        }
+        return response.data ?: DynamicAdminItem(email = clean, rights = rights, customTitle = customTitle)
     }
 
     suspend fun removeAdmin(email: String) {

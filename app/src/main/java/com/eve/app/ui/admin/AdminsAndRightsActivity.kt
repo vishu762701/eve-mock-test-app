@@ -8,6 +8,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.eve.app.data.remote.DynamicAdminItem
 import com.eve.app.databinding.ActivityAdminsAndRightsBinding
 import com.eve.app.designsystem.TelegramNativeAlertDialog
 import com.eve.app.ui.common.EveBaseActivity
@@ -21,7 +22,10 @@ class AdminsAndRightsActivity : EveBaseActivity() {
     private val viewModel: AdminViewModel by viewModels()
 
     private val adminEmailAdapter = AdminEmailAdapter(
-        onRemove = { email -> confirmRemoveAdmin(email) }
+        onItemClick = { admin ->
+            startActivity(AdminRightsEditActivity.createIntent(this, admin, canEdit = true))
+        },
+        onRemove = { admin -> confirmRemoveAdmin(admin) }
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,6 +41,11 @@ class AdminsAndRightsActivity : EveBaseActivity() {
             setupObservers()
             viewModel.loadAdmins()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.loadAdmins()
     }
 
     private fun setupUi() {
@@ -70,11 +79,12 @@ class AdminsAndRightsActivity : EveBaseActivity() {
         }
         viewModel.addAdmin(email) {
             binding.etAdminEmail.text?.clear()
-            AppBulletin.showSuccess(this, "Admin added successfully!")
+            AppBulletin.showSuccess(this, "Admin added successfully! Tap the admin row to configure permissions.")
         }
     }
 
-    private fun confirmRemoveAdmin(email: String) {
+    private fun confirmRemoveAdmin(admin: DynamicAdminItem) {
+        val email = admin.email
         TelegramNativeAlertDialog.Builder(this)
             .setTitle("Remove Admin?")
             .setMessage("Remove $email? This will revoke admin privileges and cannot be undone.")

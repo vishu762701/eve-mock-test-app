@@ -3,7 +3,7 @@
 // ============================================================================
 
 import { Hono } from "hono";
-import { requireAdmin } from "../middleware/authMiddleware";
+import { requireAdmin, requirePermission } from "../middleware/authMiddleware";
 import { AuthUser, Env, NotificationRow } from "../types";
 import { prepareAdminAuditLog, recordAdminAction } from "../util/auditLog";
 
@@ -43,7 +43,7 @@ broadcastRoutes.get("/", async (c) => {
 });
 
 // POST /api/broadcasts - Create broadcast (Admin)
-broadcastRoutes.post("/", requireAdmin, async (c) => {
+broadcastRoutes.post("/", requirePermission("send_broadcasts"), async (c) => {
   const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
   const title = typeof body.title === "string" ? body.title.trim() : "";
@@ -123,7 +123,7 @@ broadcastRoutes.post("/", requireAdmin, async (c) => {
 });
 
 // DELETE /api/broadcasts/:id - Delete single broadcast (Admin)
-broadcastRoutes.delete("/:id", requireAdmin, async (c) => {
+broadcastRoutes.delete("/:id", requirePermission("send_broadcasts"), async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
   const db = c.env.DB;
@@ -147,7 +147,7 @@ broadcastRoutes.delete("/:id", requireAdmin, async (c) => {
 });
 
 // POST /api/broadcasts/bulk-delete - Multi-select bulk delete (Admin)
-broadcastRoutes.post("/bulk-delete", requireAdmin, async (c) => {
+broadcastRoutes.post("/bulk-delete", requirePermission("send_broadcasts"), async (c) => {
   const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
   const ids: unknown[] = Array.isArray(body.ids) ? body.ids : [];

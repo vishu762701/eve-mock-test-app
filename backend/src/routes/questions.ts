@@ -4,7 +4,7 @@
 
 import { parseAndValidateQuestions } from "../ai/generator";
 import { Hono } from "hono";
-import { requireAdmin } from "../middleware/authMiddleware";
+import { requireAdmin, requirePermission } from "../middleware/authMiddleware";
 import { AuthUser, Env, QuestionRow } from "../types";
 import { hideAnswers } from "../util/clientProtocol";
 import { prepareAdminAuditLog } from "../util/auditLog";
@@ -145,7 +145,7 @@ questionRoutes.get("/exam/:examId", async (c) => {
 });
 
 // POST /api/questions - Add single question (Admin)
-questionRoutes.post("/", requireAdmin, async (c) => {
+questionRoutes.post("/", requirePermission("manage_questions"), async (c) => {
   const body = await c.req.json().catch(() => ({}));
   const examId = String(body.examId || "").trim();
   const questionText = String(body.questionText || "").trim();
@@ -208,7 +208,7 @@ questionRoutes.post("/", requireAdmin, async (c) => {
 });
 
 // POST /api/questions/batch - Batch add questions (Admin)
-questionRoutes.post("/batch", requireAdmin, async (c) => {
+questionRoutes.post("/batch", requirePermission("manage_questions"), async (c) => {
   const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
   const questions: any[] = Array.isArray(body.questions) ? body.questions : [];
@@ -256,7 +256,7 @@ questionRoutes.post("/batch", requireAdmin, async (c) => {
 });
 
 // PUT /api/questions/:id - Update single question (Admin)
-questionRoutes.put("/:id", requireAdmin, async (c) => {
+questionRoutes.put("/:id", requirePermission("manage_questions"), async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
   const body = await c.req.json().catch(() => ({}));
@@ -322,7 +322,7 @@ questionRoutes.put("/:id", requireAdmin, async (c) => {
 });
 
 // DELETE /api/questions/:id - Delete question (Admin)
-questionRoutes.delete("/:id", requireAdmin, async (c) => {
+questionRoutes.delete("/:id", requirePermission("manage_questions"), async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
   const db = c.env.DB;

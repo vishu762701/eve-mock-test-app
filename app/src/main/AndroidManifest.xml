@@ -83,6 +83,7 @@
         <activity android:name=".ui.admin.AdminActivity" android:exported="false" />
         <activity android:name=".ui.admin.ManageQuestionsActivity" android:exported="false" />
         <activity android:name=".ui.admin.AdminsAndRightsActivity" android:exported="false" />
+        <activity android:name=".ui.admin.AdminRightsEditActivity" android:exported="false" />
         <activity android:name=".ui.admin.SystemMonitorActivity" android:exported="false" />
         <activity android:name=".ui.admin.AdminAnalyticsActivity" android:exported="false" />
         <activity android:name=".ui.admin.SendNotificationActivity" android:exported="false" />

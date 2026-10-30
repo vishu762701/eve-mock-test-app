@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eve.app.data.model.Exam
 import com.eve.app.data.model.Question
+import com.eve.app.data.remote.AdminMeData
+import com.eve.app.data.remote.DynamicAdminItem
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.data.repository.UserStatsRepository
@@ -25,8 +27,11 @@ class AdminViewModel : ViewModel() {
     private val _questions = MutableStateFlow<List<Question>>(emptyList())
     val questions: StateFlow<List<Question>> = _questions.asStateFlow()
 
-    private val _admins = MutableStateFlow<List<String>>(emptyList())
-    val admins: StateFlow<List<String>> = _admins.asStateFlow()
+    private val _admins = MutableStateFlow<List<DynamicAdminItem>>(emptyList())
+    val admins: StateFlow<List<DynamicAdminItem>> = _admins.asStateFlow()
+
+    private val _adminMe = MutableStateFlow<AdminMeData?>(null)
+    val adminMe: StateFlow<AdminMeData?> = _adminMe.asStateFlow()
 
     private val _totalUsers = MutableStateFlow<Long?>(null)
     val totalUsers: StateFlow<Long?> = _totalUsers.asStateFlow()
@@ -209,6 +214,18 @@ class AdminViewModel : ViewModel() {
         }
     }
 
+    fun loadAdminMe(onDone: ((AdminMeData?) -> Unit)? = null) {
+        viewModelScope.launch {
+            try {
+                val data = adminRepo.getAdminMe()
+                _adminMe.value = data
+                onDone?.invoke(data)
+            } catch (e: Exception) {
+                onDone?.invoke(null)
+            }
+        }
+    }
+
     fun loadAdmins() {
         viewModelScope.launch {
             try {
@@ -219,12 +236,27 @@ class AdminViewModel : ViewModel() {
         }
     }
 
-    fun addAdmin(email: String, onDone: () -> Unit) {
+    fun addAdmin(email: String, rights: List<String> = emptyList(), customTitle: String? = null, onDone: () -> Unit) {
         viewModelScope.launch {
             _busy.value = true
             try {
-                adminRepo.addAdmin(email)
+                adminRepo.addAdmin(email, rights, customTitle)
                 _message.value = "Admin added successfully"
+                loadAdmins()
+                onDone()
+            } catch (e: Exception) {
+                _message.value = e.toUserFriendlyMessage()
+            }
+            _busy.value = false
+        }
+    }
+
+    fun updateAdminRights(email: String, rights: List<String>, customTitle: String?, onDone: () -> Unit) {
+        viewModelScope.launch {
+            _busy.value = true
+            try {
+                adminRepo.updateAdminRights(email, rights, customTitle)
+                _message.value = "Admin permissions updated"
                 loadAdmins()
                 onDone()
             } catch (e: Exception) {

@@ -8,7 +8,7 @@ import { parseAndValidateQuestions } from "../ai/generator";
 import { hideAnswers } from "../util/clientProtocol";
 import { Hono } from "hono";
 import { GeminiProviderError } from "../ai/generator";
-import { requireAdmin } from "../middleware/authMiddleware";
+import { requireAdmin, requirePermission } from "../middleware/authMiddleware";
 import { AuthUser, Env, ExamRow, GeneratedTestRow } from "../types";
 import { prepareAdminAuditLog, recordAdminAction } from "../util/auditLog";
 
@@ -128,7 +128,7 @@ generatedTestRoutes.get("/:id", async (c) => {
 });
 
 // PUT /api/generated-tests/:id/schedule - Schedule test (Admin)
-generatedTestRoutes.put("/:id/schedule", requireAdmin, async (c) => {
+generatedTestRoutes.put("/:id/schedule", requirePermission("manage_generated_tests"), async (c) => {
   const user = c.get("user");
   const id = c.req.param("id") || "";
   const body = await c.req.json().catch(() => ({}));
@@ -152,7 +152,7 @@ generatedTestRoutes.put("/:id/schedule", requireAdmin, async (c) => {
 });
 
 // PUT /api/generated-tests/:id/status - Update test status (Admin)
-generatedTestRoutes.put("/:id/status", requireAdmin, async (c) => {
+generatedTestRoutes.put("/:id/status", requirePermission("manage_generated_tests"), async (c) => {
   const user = c.get("user");
   const id = c.req.param("id") || "";
   const body = await c.req.json().catch(() => ({}));
@@ -182,13 +182,13 @@ generatedTestRoutes.put("/:id/status", requireAdmin, async (c) => {
 });
 
 // DELETE /api/generated-tests/:id - Delete generated test (Admin)
-generatedTestRoutes.get("/:id/deletion-info", requireAdmin, async (c) => {
+generatedTestRoutes.get("/:id/deletion-info", requirePermission("manage_generated_tests"), async (c) => {
   const id = c.req.param("id") || "";
   if (!await c.env.DB.prepare("SELECT id FROM generated_tests WHERE id = ?").bind(id).first()) return c.json({ success: false, error: "Record not found" }, 404);
   return c.json({ success: true, data: await deletionInfo(c.env.DB, id, 'test') });
 });
 
-generatedTestRoutes.delete("/:id", requireAdmin, async (c) => {
+generatedTestRoutes.delete("/:id", requirePermission("manage_generated_tests"), async (c) => {
   const user = c.get("user");
   const id = c.req.param("id") || "";
   const db = c.env.DB;
@@ -212,7 +212,7 @@ generatedTestRoutes.delete("/:id", requireAdmin, async (c) => {
 });
 
 // POST /api/generated-tests/generate-now - On-demand AI test generation (Admin)
-generatedTestRoutes.post("/generate-now", requireAdmin, async (c) => {
+generatedTestRoutes.post("/generate-now", requirePermission("manage_generated_tests"), async (c) => {
   const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
   const examId = String(body.examId || "").trim();

@@ -4,7 +4,7 @@ import { cleanupMedia } from '../services/mediaCleanup';
 // ============================================================================
 
 import { Hono } from "hono";
-import { requireAdmin } from "../middleware/authMiddleware";
+import { requireAdmin, requirePermission } from "../middleware/authMiddleware";
 import { SupabaseStorage } from "../supabase";
 import { AuthUser, Env, HomeBannerRow } from "../types";
 import { prepareAdminAuditLog } from "../util/auditLog";
@@ -56,7 +56,7 @@ bannerRoutes.get("/", async (c) => {
 });
 
 // POST /api/banners - Upload banner image & record metadata (Admin)
-bannerRoutes.post("/", requireAdmin, async (c) => {
+bannerRoutes.post("/", requirePermission("manage_content"), async (c) => {
   const user = c.get("user");
   const contentType = c.req.header("content-type") || "";
   const db = c.env.DB;
@@ -169,7 +169,7 @@ bannerRoutes.post("/", requireAdmin, async (c) => {
 });
 
 // PUT /api/banners/:id/link - Set or clear an existing banner's optional CTA.
-bannerRoutes.put("/:id/link", requireAdmin, async (c) => {
+bannerRoutes.put("/:id/link", requirePermission("manage_content"), async (c) => {
   const user = c.get("user");
   const id = c.req.param("id") || "";
   const body = await c.req.json().catch(() => ({})) as Record<string, unknown>;
@@ -197,7 +197,7 @@ bannerRoutes.put("/:id/link", requireAdmin, async (c) => {
 });
 
 // DELETE /api/banners/:id - Delete banner and purge file (Admin)
-bannerRoutes.delete("/:id", requireAdmin, async (c) => {
+bannerRoutes.delete("/:id", requirePermission("manage_content"), async (c) => {
   const user = c.get("user");
   const id = c.req.param("id") || "";
   const db = c.env.DB;
@@ -225,7 +225,7 @@ bannerRoutes.delete("/:id", requireAdmin, async (c) => {
 });
 
 // PUT /api/banners/:id/reorder - Swap order with adjacent banner (Admin)
-bannerRoutes.put("/:id/reorder", requireAdmin, async (c) => {
+bannerRoutes.put("/:id/reorder", requirePermission("manage_content"), async (c) => {
   const user = c.get("user");
   const id = c.req.param("id") || "";
   const body = await c.req.json().catch(() => ({}));

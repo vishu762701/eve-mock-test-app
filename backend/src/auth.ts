@@ -181,6 +181,29 @@ export async function verifyFirebaseIdToken(token: string, projectId: string): P
   };
 }
 
+export const ALL_ADMIN_RIGHTS = [
+  "manage_exams",
+  "manage_questions",
+  "manage_generated_tests",
+  "manage_syllabus",
+  "manage_users",
+  "manage_admins_rights",
+  "manage_premium",
+  "send_broadcasts",
+  "moderate_feedback",
+  "manage_config_maintenance",
+  "manage_content",
+  "view_analytics_logs",
+  "export_data",
+] as const;
+
+export type AdminRight = (typeof ALL_ADMIN_RIGHTS)[number];
+
+export function isOwnerEmail(email?: string | null): boolean {
+  if (!email) return false;
+  return HARDCODED_ADMIN_EMAILS.has(email.toLowerCase().trim());
+}
+
 export async function isUserAdmin(db: D1Database, email: string): Promise<boolean> {
   const cleanEmail = email.toLowerCase().trim();
   if (!cleanEmail) return false;
@@ -194,5 +217,63 @@ export async function isUserAdmin(db: D1Database, email: string): Promise<boolea
     return res !== null && res !== undefined;
   } catch (_e) {
     return false;
+  }
+}
+
+export async function getAdminPermissions(
+  db: D1Database,
+  email?: string | null
+): Promise<{ isOwner: boolean; rights: AdminRight[]; customTitle: string | null } | null> {
+  if (!email) return null;
+  const normalized = email.toLowerCase().trim();
+  if (isOwnerEmail(normalized)) {
+    return {
+      isOwner: true,
+      rights: [...ALL_ADMIN_RIGHTS],
+      customTitle: "Owner",
+    };
+  }
+
+  try {
+    // Check if there is an explicit rights record for this admin
+    const rightsRow = await db
+      .prepare("SELECT rights, custom_title FROM admin_rights WHERE LOWER(TRIM(email)) = ?")
+      .bind(normalized)
+      .first<{ rights: string; custom_title?: string | null }>();
+
+    if (rightsRow) {
+      let parsed: AdminRight[] = [];
+      try {
+        const arr = JSON.parse(rightsRow.rights);
+        if (Array.isArray(arr)) {
+          parsed = arr.filter((r) => ALL_ADMIN_RIGHTS.includes(r as any)) as AdminRight[];
+        }
+      } catch {
+        parsed = [];
+      }
+      return {
+        isOwner: false,
+        rights: parsed,
+        customTitle: rightsRow.custom_title || "Admin",
+      };
+    }
+
+    // No explicit admin_rights row found. Check admins table
+    const adminRow = await db
+      .prepare("SELECT email FROM admins WHERE LOWER(TRIM(email)) = ?")
+      .bind(normalized)
+      .first<{ email: string }>();
+
+    if (adminRow) {
+      return {
+        isOwner: false,
+        rights: [...ALL_ADMIN_RIGHTS],
+        customTitle: "Admin",
+      };
+    }
+
+    return null;
+  } catch (_e) {
+    return null;
   }
 }

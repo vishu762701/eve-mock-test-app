@@ -3,7 +3,7 @@
 // ============================================================================
 
 import { Hono } from "hono";
-import { requireAdmin } from "../middleware/authMiddleware";
+import { requireAdmin, requirePermission } from "../middleware/authMiddleware";
 import { AppContentRow, AuthUser, Env } from "../types";
 import { prepareAdminAuditLog } from "../util/auditLog";
 
@@ -132,7 +132,7 @@ appContentRoutes.get("/:type", async (c) => {
 });
 
 // PUT /api/app-content/:type - Update content (Admin)
-appContentRoutes.put("/:type", requireAdmin, async (c) => {
+appContentRoutes.put("/:type", requirePermission("manage_content"), async (c) => {
   const rawType = (c.req.param("type") || "").toLowerCase();
   const type = normalizeContentType(rawType);
   const parsedBody = await c.req.json().catch(() => ({}));
