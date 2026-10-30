@@ -140,8 +140,8 @@ class SurfaceMaterialTest {
         val testActivitySource = File("src/main/java/com/eve/app/ui/test/TestActivity.kt").readText()
 
         assertTrue(
-            "confirmSubmit() must use Theme_Eve_Dialog_SubmitConfirmation",
-            testActivitySource.contains("R.style.Theme_Eve_Dialog_SubmitConfirmation")
+            "confirmSubmit() must use source-isolated Telegram native dialog",
+            testActivitySource.contains("TelegramNativeAlertDialog.Builder(this)")
         )
         assertTrue(
             "confirmSubmit() must set title 'Submit test?'",
@@ -155,8 +155,8 @@ class SurfaceMaterialTest {
             "confirmSubmit() must have negative button 'Cancel'",
             testActivitySource.contains(".setNegativeButton(\"Cancel\", null)")
         )
-        assertTrue(
-            "confirmSubmit() must apply the solid dialog surface",
+        assertFalse(
+            "the native Telegram dialog must not be overwritten by Material styling",
             testActivitySource.contains("DesignSurfaces.dialog(dialog)")
         )
         assertTrue(

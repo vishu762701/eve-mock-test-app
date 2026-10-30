@@ -18,7 +18,7 @@ class TelegramTestConfirmationSourceContractTest {
         assertTrue(back.contains("viewModel.pauseSession(examId, currentPos)"))
         assertTrue(back.contains("finally { finish() }"))
         assertTrue(back.contains("setOnDismissListener { leaveConfirmDialog = null }"))
-        assertTrue(back.contains("TelegramDialogSourceBackground.apply(dialog)"))
+        assertTrue(back.contains("TelegramNativeAlertDialog.Builder(this@TestActivity)"))
         assertTrue(back.contains(".setNegativeButton(\"Continue\", null)"))
     }
 
@@ -34,8 +34,9 @@ class TelegramTestConfirmationSourceContractTest {
         }
         assertTrue(confirm.contains(".setPositiveButton(\"Submit\") { _, _ -> submit() }"))
         assertTrue(confirm.contains(".setNegativeButton(\"Cancel\", null)"))
-        assertTrue(confirm.contains("DesignSurfaces.dialog(dialog)"))
-        assertTrue(confirm.contains("TelegramDialogSourceBackground.apply(dialog)"))
+        assertTrue(confirm.contains("TelegramNativeAlertDialog.Builder(this)"))
+        assertTrue(confirm.contains("dialog.show()"))
+        assertTrue(!confirm.contains("DesignSurfaces.dialog(dialog)"))
         assertTrue(confirm.contains("setOnDismissListener { submitConfirmDialog = null }"))
         val submit = activity.substringAfter("private fun submit()")
             .substringBefore("private fun showSubmissionError(")
@@ -53,7 +54,8 @@ class TelegramTestConfirmationSourceContractTest {
         assertTrue("Only one exam status window may remain visible",
             notices.contains("statusDialog?.takeIf { it.isShowing }?.dismiss()"))
         assertTrue(notices.contains("if (statusDialog === dismissed) statusDialog = null"))
-        assertTrue(notices.contains("TelegramDialogSourceBackground.apply(dialog)"))
+        assertTrue(notices.contains("val dialog = builder.create()"))
+        assertTrue(notices.contains("dialog.show()"))
         assertTrue("Retry must remain wired to original submit operation",
             notices.contains(".setPositiveButton(\"Retry\") { _, _ ->") &&
             notices.contains("submit()"))
@@ -63,7 +65,7 @@ class TelegramTestConfirmationSourceContractTest {
         assertTrue("Cancel and offline acknowledgements are unchanged",
             notices.contains(".setNeutralButton(\"Cancel\", null)") &&
             notices.contains(".setTitle(\"Submission Saved Offline\")"))
-        assertTrue("Both recovery dialogs use source host",
+        assertTrue("Recovery and offline acknowledgements share the native source host",
             notices.split(".let(::showExamNotice)").size >= 3)
         val attemptLimit = activity.substringAfter("if (!canAttempt)")
             .substringBefore("viewModel.start(")

@@ -221,4 +221,32 @@ class TelegramNativeLogoutDialogTest {
         }
     }
 
+    @Test fun nativeBuilderPreservesNonCancelableExamNoticeAndDismissCleanup() {
+        ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                var dismissed = 0
+                var completed = 0
+                val dialog = TelegramNativeAlertDialog.Builder(activity)
+                    .setTitle("Attempt Limit Reached")
+                    .setMessage("You have reached the maximum number of attempts.")
+                    .setCancelable(false)
+                    .setPositiveButton("OK") { _, _ -> completed++ }
+                    .setOnDismissListener { dismissed++ }
+                    .show()
+                try {
+                    assertTrue(dialog.isShowing)
+                    dialog.onBackPressed()
+                    assertTrue("Non-cancelable exam notice must survive Back", dialog.isShowing)
+                    assertEquals(0, completed)
+                    dialog.getActionButton(DialogInterface.BUTTON_POSITIVE)!!.performClick()
+                    assertEquals(1, completed)
+                    assertEquals(1, dismissed)
+                    assertFalse(dialog.isShowing)
+                } finally {
+                    if (dialog.isShowing) dialog.dismiss()
+                }
+            }
+        }
+    }
+
 }

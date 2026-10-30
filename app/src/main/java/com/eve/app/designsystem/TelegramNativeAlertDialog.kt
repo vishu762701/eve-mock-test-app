@@ -4,8 +4,8 @@
  * Copyright Nikolai Kudashov, 2013-2018. GPL-2.0-or-later.
  *
  * Dependency-isolated ADAPTED port of the Telegram message-confirmation path.
- * NOT the complete renderer: custom views, choices, progress, rich emoji and
- * animations have not yet been ported. No Telegram account/service dependencies.
+ * Not the entire original renderer: specialized progress, blur and rich-content
+ * variants remain out of this isolated host. No Telegram account/service dependencies.
  */
 package com.eve.app.designsystem
 
@@ -40,7 +40,7 @@ import com.eve.app.R
 import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.util.FontManager
 
-/** Message/title/two-button dialog only; not for custom/edit/choice/progress dialogs. */
+/** Source-isolated Telegram dialog for message, action, item and custom-view variants. */
 class TelegramNativeAlertDialog private constructor(
     context: Context,
     private val titleText: CharSequence?,
@@ -276,6 +276,12 @@ class TelegramNativeAlertDialog private constructor(
         private var neutral: CharSequence? = null
         private var onNeutral: DialogInterface.OnClickListener? = null
         private val redButtons = mutableSetOf<Int>()
+        private var cancelable = true
+        private var dismissListener: DialogInterface.OnDismissListener? = null
+        fun setCancelable(value: Boolean) = apply { cancelable = value }
+        fun setOnDismissListener(listener: DialogInterface.OnDismissListener?) = apply {
+            dismissListener = listener
+        }
         fun setTitle(value: CharSequence) = apply { title = value }
         fun setMessage(value: CharSequence) = apply { message = value }
         fun setPositiveButton(value: CharSequence, listener: DialogInterface.OnClickListener?) = apply {
@@ -310,7 +316,11 @@ class TelegramNativeAlertDialog private constructor(
         fun create() = TelegramNativeAlertDialog(
             context, title, message, positive, onPositive, negative, onNegative,
             items, selectedItemIndex, onItemClick, customView, neutral, onNeutral, redButtons.toSet()
-        )
+        ).also { dialog ->
+            dialog.setCancelable(cancelable)
+            dialog.setCanceledOnTouchOutside(cancelable)
+            dialog.setOnDismissListener(dismissListener)
+        }
         fun show() = create().also { it.show() }
     }
 }
