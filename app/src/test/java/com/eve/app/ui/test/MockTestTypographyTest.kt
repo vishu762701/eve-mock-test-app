@@ -18,7 +18,7 @@ import javax.xml.parsers.DocumentBuilderFactory
  *    item_question.xml, and item_palette_circle.xml.
  * 2. Proper semantic typography style bindings according to Apple iOS 26 hierarchy:
  *    - Exam Title: Headline (17sp semibold)
- *    - Question Text: Callout (16sp regular, 1.5 lineSpacingMultiplier)
+ *    - Question Text: owner-promoted Heading (17sp, bold; options stay regular)
  *    - Question Timer Chip: Footnote.Medium (13sp medium)
  *    - Option Choices (A-D): Subheadline (14sp regular)
  *    - Palette Numbers: Caption1.Medium (12sp medium)
@@ -136,7 +136,15 @@ class MockTestTypographyTest {
 
         val tvQuestion = findElementById(root, "tvQuestion")
         assertNotNull("tvQuestion must exist", tvQuestion)
-        assertEquals("@style/TextAppearance.Eve.Token.Body", tvQuestion?.getAttribute("style"))
+        // Mission 11 overrides the previous Body weight to establish a question
+        // hierarchy; keep the separate option widgets on their prior Choice role.
+        assertEquals("@style/TextAppearance.Eve.Token.Heading", tvQuestion?.getAttribute("style"))
+        val adapterSource = File("src/main/java/com/eve/app/ui/test/QuestionAdapter.kt").readText()
+        assertTrue("Question must be rendered using the owner-required bold typeface",
+            adapterSource.contains("b.tvQuestion.typeface = com.eve.app.util.FontManager.boldTypeface("))
+        val activitySource = File("src/main/java/com/eve/app/ui/test/TestActivity.kt").readText()
+        assertTrue("Title must be promoted without altering the timer",
+            activitySource.contains("binding.tvTestTitle.typeface = com.eve.app.util.FontManager.boldTypeface(this)"))
         assertEquals("", tvQuestion?.getAttribute("android:lineSpacingMultiplier"))
 
         val tvQuestionTimer = findElementById(root, "tvQuestionTimer")
