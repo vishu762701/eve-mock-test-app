@@ -465,6 +465,9 @@ class MainActivity : EveBaseActivity() {
     override fun onPause() {
         super.onPause()
         if (::binding.isInitialized) {
+            // Invalidate asynchronous composition callbacks when Home is no longer visible.
+            bellAnimationGeneration++
+            pendingBellGeneration = null
             binding.btnNotification.cancelAnimation()
             restoreNotificationBellIdle()
             if (binding.cardFloatingAirplane.visibility == View.VISIBLE) {
@@ -1375,49 +1378,58 @@ class MainActivity : EveBaseActivity() {
     }
 
     private var bellAnimationGeneration = 0
+    private var pendingBellGeneration: Int? = null
 
+    /** Original EVE asset: notification_bell.json (Git blob bff3b04887e06d0f144a641b8ec5c14f640c4dd4),
+     * present since the historical e9bad22a commit. This is not an Apple asset or
+     * a claim of official iOS animation provenance. Motion is triggered only by
+     * incoming NotificationStore events or newly imported broadcasts. */
     private fun animateNotificationBell() {
         if (!::binding.isInitialized ||
+            !lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED) ||
             !com.eve.app.designsystem.DesignMotion.enabled(this)) {
             restoreNotificationBellIdle()
             return
         }
         val generation = ++bellAnimationGeneration
         if (binding.btnNotification.composition == null) {
-            binding.btnNotification.addLottieOnCompositionLoadedListener {
-                if (generation == bellAnimationGeneration && ::binding.isInitialized &&
-                    com.eve.app.designsystem.DesignMotion.enabled(this@MainActivity)) {
-                    try {
-                        binding.btnNotification.repeatCount = 0
-                        binding.btnNotification.progress = 0f
-                        binding.ivNotificationIdle.visibility = View.INVISIBLE
-                        binding.btnNotification.alpha = 1f
-                        binding.btnNotification.playAnimation()
-                    } catch (_: Exception) {
-                        restoreNotificationBellIdle()
-                    }
-                }
-            }
+            // One registered composition listener consumes only the latest event.
+            // No unbounded listener per notification or duplicate playback.
+            pendingBellGeneration = generation
+        } else {
+            startNotificationBellPlayback(generation)
+        }
+    }
+
+    private fun startNotificationBellPlayback(generation: Int) {
+        if (generation != bellAnimationGeneration || !::binding.isInitialized ||
+            !lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) return
+        val bell = binding.btnNotification
+        if (bell.composition == null) {
+            pendingBellGeneration = generation
             return
         }
         try {
-            binding.btnNotification.cancelAnimation()
-            binding.btnNotification.repeatCount = 0
-            binding.btnNotification.progress = 0f
+            bell.cancelAnimation()
+            bell.repeatCount = 0
+            bell.progress = 0f
             binding.ivNotificationIdle.visibility = View.INVISIBLE
-            binding.btnNotification.alpha = 1f
-            binding.btnNotification.playAnimation()
-            if (!binding.btnNotification.isAnimating) {
+            bell.alpha = 1f
+            bell.playAnimation()
+            if (!bell.isAnimating) {
                 restoreNotificationBellIdle()
                 return
             }
-            // Cancel and restore the vector even if a device's animator stalls.
-            binding.btnNotification.postDelayed({
+            // The original 140-frame/60fps Lottie lasts about 2333ms.
+            // The old fixed 2200ms watchdog cut off its final frames.
+            val safetyMs = ((bell.composition?.duration?.toLong() ?: 2400L) + 300L)
+                .coerceIn(2500L, 5000L)
+            bell.postDelayed({
                 if (::binding.isInitialized && generation == bellAnimationGeneration) {
-                    binding.btnNotification.cancelAnimation()
+                    bell.cancelAnimation()
                     restoreNotificationBellIdle()
                 }
-            }, 2200L)
+            }, safetyMs)
         } catch (_: Exception) {
             restoreNotificationBellIdle()
         }
@@ -1425,6 +1437,14 @@ class MainActivity : EveBaseActivity() {
 
     private fun setupNotificationBell() {
         HomeAppearance.tintNotificationBell(binding.btnNotification)
+        binding.btnNotification.addLottieOnCompositionLoadedListener {
+            val generation = pendingBellGeneration ?: return@addLottieOnCompositionLoadedListener
+            pendingBellGeneration = null
+            if (generation == bellAnimationGeneration &&
+                lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                startNotificationBellPlayback(generation)
+            }
+        }
         restoreNotificationBellIdle()
         binding.btnNotification.addAnimatorListener(object : android.animation.AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: android.animation.Animator) {
@@ -1435,8 +1455,8 @@ class MainActivity : EveBaseActivity() {
             }
         })
         binding.notificationAction.setOnClickListener {
-            // Navigation is immediate and independent from optional motion.
-            animateNotificationBell()
+            // Opening the inbox is navigation, NOT an incoming notification.
+            // Unread state is acknowledged only from the inbox.
             com.eve.app.util.EveNavigationHelper.navigate(
                 this, Intent(this, NotificationsActivity::class.java), binding.notificationAction
             )
