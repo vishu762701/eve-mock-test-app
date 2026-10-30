@@ -24,6 +24,7 @@ import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 import android.os.Bundle
 import android.text.TextUtils
+import android.text.TextPaint
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
@@ -161,8 +162,24 @@ class TelegramNativeAlertDialog private constructor(
             }, LinearLayout.LayoutParams(-1, -2))
         }
         if (positiveText != null || negativeText != null || neutralText != null) {
+            // Original Telegram AlertDialog.java:957-987 measures action labels
+            // and switches to a vertical row when a narrow screen cannot fit them.
+            val actionLabels = listOfNotNull(neutralText, negativeText, positiveText)
+            val measurePaint = TextPaint().apply {
+                textSize = TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_SP, 16f, context.resources.displayMetrics
+                )
+                typeface = FontManager.telegramMediumTypeface(context)
+            }
+            val estimatedWidth = actionLabels.sumOf {
+                measurePaint.measureText(it.toString()).toDouble()
+            }.toFloat() + dp(24 * actionLabels.size + 8 * (actionLabels.size - 1))
+            val screenWidth = context.resources.displayMetrics.widthPixels
+            val availableActionWidth = minOf(screenWidth - dp(56), dp(356)) - dp(16)
+            val verticalActions = estimatedWidth > availableActionWidth
             val actions = LinearLayout(context).apply {
-                orientation = LinearLayout.HORIZONTAL
+                tag = "telegram_native_alert_actions"
+                orientation = if (verticalActions) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
                 gravity = Gravity.END or Gravity.CENTER_VERTICAL
                 setPadding(dp(8), 0, dp(8), 0)
             }
@@ -204,15 +221,18 @@ class TelegramNativeAlertDialog private constructor(
                     }
                 }
                 actionButtons[which] = action
-                val lp = LinearLayout.LayoutParams(-2, dp(48))
-                if (actions.childCount != 0) lp.marginStart = dp(8)
+                val lp = LinearLayout.LayoutParams(
+                    if (verticalActions) -1 else -2, dp(48)
+                )
+                if (actions.childCount != 0 && !verticalActions) lp.marginStart = dp(8)
                 actions.addView(action, lp)
             }
             neutralText?.let { addAction(DialogInterface.BUTTON_NEUTRAL, it, onNeutral) }
             negativeText?.let { addAction(DialogInterface.BUTTON_NEGATIVE, it, onNegative) }
             positiveText?.let { addAction(DialogInterface.BUTTON_POSITIVE, it, onPositive) }
-            // Upstream buttonsLayout is 52dp high; EVE retains >=48dp targets.
-            root.addView(actions, LinearLayout.LayoutParams(-1, dp(52)))
+            // Telegram 52dp horizontal bar; EVE adapts vertical bar for 48dp taps.
+            val rowHeight = if (verticalActions) dp(48 * actionLabels.size + 16) else dp(52)
+            root.addView(actions, LinearLayout.LayoutParams(-1, rowHeight))
         }
         setContentView(root, android.view.ViewGroup.LayoutParams(-1, -2))
     }

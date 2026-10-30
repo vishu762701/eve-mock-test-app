@@ -163,4 +163,37 @@ class TelegramNativeLogoutDialogTest {
         }
     }
 
+    @Test fun longButtonsOnNarrowPhoneWrapVerticallyWithoutClipping() {
+        ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                val dialog = TelegramNativeAlertDialog.Builder(activity)
+                    .setTitle("Long localized confirmation")
+                    .setMessage("Confirm this action.")
+                    .setNeutralButton("Review additional information", null)
+                    .setNegativeButton("Cancel this operation", null)
+                    .setPositiveButton("Confirm and continue", null)
+                    .show()
+                try {
+                    val group = dialog.window!!.decorView.findViewWithTag<android.widget.LinearLayout>(
+                        "telegram_native_alert_actions"
+                    )
+                    assertNotNull(group)
+                    assertEquals(android.widget.LinearLayout.VERTICAL, group.orientation)
+                    val buttons = listOf(
+                        DialogInterface.BUTTON_NEUTRAL,
+                        DialogInterface.BUTTON_NEGATIVE,
+                        DialogInterface.BUTTON_POSITIVE
+                    )
+                    for (key in buttons) {
+                        val b = dialog.getActionButton(key)!!
+                        assertTrue(b.width > 0)
+                        assertTrue(b.height >= (48 * activity.resources.displayMetrics.density).toInt())
+                    }
+                } finally {
+                    dialog.dismiss()
+                }
+            }
+        }
+    }
+
 }
