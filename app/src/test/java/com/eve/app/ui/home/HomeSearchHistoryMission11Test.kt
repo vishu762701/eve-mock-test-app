@@ -22,6 +22,20 @@ class HomeSearchHistoryMission11Test {
         assertTrue(emptyBranch.contains("return"))
     }
 
+    @Test fun closingSearchRestoresAdminOnlyForTheAuthorizedAccount() {
+        val activity = File("src/main/java/com/eve/app/ui/home/MainActivity.kt").readText()
+        val chrome = activity.substringAfter("private fun refreshSearchChrome()")
+            .substringBefore("private fun setupSearch()")
+        assertTrue("Search must hide the admin-only surface without changing authorization",
+            chrome.contains("if (!isSearchActive && isAdminUser) View.VISIBLE else View.GONE"))
+        assertTrue("Opening and closing must both refresh the chrome",
+            activity.substringAfter("private fun openSearch()")
+                .substringBefore("private fun closeSearch()").contains("refreshSearchChrome()"))
+        assertTrue("Closing search must restore admin and banner presentation",
+            activity.substringAfter("private fun closeSearch()")
+                .substringBefore("private fun applyCurrentList()").contains("refreshSearchChrome()"))
+    }
+
     @Test fun onlyExplicitActionsPersistAndClearIsUidScoped() {
         val activity = File("src/main/java/com/eve/app/ui/home/MainActivity.kt").readText()
         val history = File("src/main/java/com/eve/app/ui/home/HomeSearchHistory.kt").readText()

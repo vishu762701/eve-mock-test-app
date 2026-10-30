@@ -597,8 +597,10 @@ class MainActivity : EveBaseActivity() {
     private fun refreshSearchChrome() {
         binding.panelHomeBanner.visibility =
             if (!isSearchActive && homeBanners.isNotEmpty()) View.VISIBLE else View.GONE
-        // Admin identity is unchanged; search hides only the button.
-        if (isSearchActive) binding.btnAdmin.visibility = View.GONE
+        // The admin-only action is presentation-hidden in search, never revoked.
+        // Reopen its original authorized state when closing or restoring search.
+        binding.btnAdmin.visibility =
+            if (!isSearchActive && isAdminUser) View.VISIBLE else View.GONE
     }
 
     private fun setupSearch() {
