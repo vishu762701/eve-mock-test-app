@@ -20,5 +20,14 @@ class NotificationBellIncomingOnlyContractTest {
         assertTrue(src.contains("newCount > 0"))
         assertTrue(src.contains("pendingBellGeneration = null"))
         assertTrue(src.contains("bell.composition?.duration?.toLong()"))
+        assertTrue("Only incoming callbacks may queue a bell until Activity resumes",
+            src.contains("pendingIncomingBellUntilResume = true"))
+        val onResume = src.substringAfter("override fun onResume()")
+            .substringBefore("override fun onPause()")
+        assertTrue("Queue must flush after Lifecycle dispatch", onResume.contains("binding.root.post {"))
+        assertTrue("Previously acknowledged inbox content must not replay",
+            onResume.contains("if (NotificationStore.hasUnread(this)) animateNotificationBell()"))
+        assertFalse("Opening the inbox must not queue a fake notification",
+            click.contains("pendingIncomingBellUntilResume"))
     }
 }

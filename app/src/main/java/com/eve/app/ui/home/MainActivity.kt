@@ -424,6 +424,16 @@ class MainActivity : EveBaseActivity() {
     override fun onResume() {
         super.onResume()
         if (!::binding.isInitialized) return
+        // Lifecycle can still report STARTED inside onResume. Run after the
+        // resume dispatch so an actual incoming bell event is not dropped.
+        binding.root.post {
+            if (!isFinishing && !isDestroyed && ::binding.isInitialized &&
+                pendingIncomingBellUntilResume &&
+                lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                pendingIncomingBellUntilResume = false
+                if (NotificationStore.hasUnread(this)) animateNotificationBell()
+            }
+        }
         hasEmptyPlayed = false
         isExamNavigating = false
         checkAppConfigAndMaintenance()
@@ -1390,18 +1400,26 @@ class MainActivity : EveBaseActivity() {
 
     private var bellAnimationGeneration = 0
     private var pendingBellGeneration: Int? = null
+    // A broadcast/remote import can arrive during STARTED, before ON_RESUME.
+    // Queue only that real event; Home/inbox navigation never sets this flag.
+    private var pendingIncomingBellUntilResume = false
 
     /** Original EVE asset: notification_bell.json (Git blob bff3b04887e06d0f144a641b8ec5c14f640c4dd4),
      * present since the historical e9bad22a commit. This is not an Apple asset or
      * a claim of official iOS animation provenance. Motion is triggered only by
      * incoming NotificationStore events or newly imported broadcasts. */
     private fun animateNotificationBell() {
-        if (!::binding.isInitialized ||
-            !lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED) ||
-            !com.eve.app.designsystem.DesignMotion.enabled(this)) {
+        if (!::binding.isInitialized || !com.eve.app.designsystem.DesignMotion.enabled(this)) {
+            pendingIncomingBellUntilResume = false
             restoreNotificationBellIdle()
             return
         }
+        if (!lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+            pendingIncomingBellUntilResume = true
+            restoreNotificationBellIdle()
+            return
+        }
+        pendingIncomingBellUntilResume = false
         val generation = ++bellAnimationGeneration
         if (binding.btnNotification.composition == null) {
             // One registered composition listener consumes only the latest event.
