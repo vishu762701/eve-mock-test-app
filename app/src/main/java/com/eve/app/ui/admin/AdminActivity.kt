@@ -867,28 +867,24 @@ class AdminActivity : EveBaseActivity() {
 
     private fun showManageFeedbackPostsDialog() {
         lifecycleScope.launch {
-            val result = feedbackRepo.getFeedbackPosts()
-            result.onSuccess { posts ->
-                if (posts.isEmpty()) {
-                    TelegramNativeAlertDialog.Builder(this@AdminActivity)
-                        .setTitle("Feedback Posts")
-                        .setMessage("No feedback posts published yet.")
-                        .setPositiveButton("OK", null)
-                        .show()
-                    return@onSuccess
-                }
-
-                val titles = posts.map { "${it.title} (${it.message.take(30)}...)" }.toTypedArray()
+            val posts = feedbackRepo.getFeedbackPosts()
+            if (posts.isEmpty()) {
                 TelegramNativeAlertDialog.Builder(this@AdminActivity)
-                    .setTitle("Select Feedback Post to View Replies")
-                    .setItems(titles) { _, which ->
-                        showPostOptionsDialog(posts[which])
-                    }
-                    .setNegativeButton("Cancel", null)
+                    .setTitle("Feedback Posts")
+                    .setMessage("No feedback posts published yet.")
+                    .setPositiveButton("OK", null)
                     .show()
-            }.onFailure { err ->
-                AppBulletin.showError(this@AdminActivity, "Failed to load posts: ${err.message}")
+                return@launch
             }
+
+            val titles = posts.map { "${it.title} (${it.message.take(30)}...)" }.toTypedArray()
+            TelegramNativeAlertDialog.Builder(this@AdminActivity)
+                .setTitle("Select Feedback Post to View Replies")
+                .setItems(titles) { _, which ->
+                    showPostOptionsDialog(posts[which])
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
     }
 
