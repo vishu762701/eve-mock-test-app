@@ -9,7 +9,7 @@
         <TextView android:id="@+id/tvScheduledTime" style="@style/TextAppearance.Eve.Token.Secondary.blue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:visibility="gone" />
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
             <TextView style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Live for students:" />
-            <com.eve.app.designsystem.DesignSwitch android:id="@+id/switchLive" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Switch" />
+            <com.eve.app.designsystem.TelegramSwitch android:id="@+id/switchLive" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_card_gap" />
         </LinearLayout>
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:gravity="center_vertical|end" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
             <com.google.android.material.button.MaterialButton android:id="@+id/btnSchedule" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:text="Schedule" />

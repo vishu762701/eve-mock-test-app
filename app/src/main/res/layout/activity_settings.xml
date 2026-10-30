@@ -28,7 +28,7 @@
                             <TextView style="@style/TextAppearance.Eve.Telegram.SettingsLabel" android:tag="eve_telegram_type" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Daily Practice Reminder" />
                             <TextView style="@style/TextAppearance.Eve.Telegram.SettingsDetail" android:tag="eve_telegram_type" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Get notified every day to keep your streak" />
                         </LinearLayout>
-                        <com.eve.app.designsystem.UiArcSwitch android:id="@+id/switchReminder" android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/Widget.Eve.Token.Switch" />
+                        <com.eve.app.designsystem.TelegramSwitch android:id="@+id/switchReminder" android:layout_width="wrap_content" android:layout_height="wrap_content" />
                     </LinearLayout>
                     <LinearLayout android:id="@+id/rowDailyGoal" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="@dimen/design_bottom_bar_height" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
                         <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Daily Goal" android:src="@drawable/ic_trophy" app:tint="@color/system_orange" />

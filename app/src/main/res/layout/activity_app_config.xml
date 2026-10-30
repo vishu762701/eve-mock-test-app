@@ -20,7 +20,7 @@
                             <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Maintenance Mode" />
                             <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Blocks non-admin users from using the app" />
                         </LinearLayout>
-                        <com.eve.app.designsystem.DesignSwitch android:id="@+id/switchMaintenanceMode" android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/Widget.Eve.Token.Switch" />
+                        <com.eve.app.designsystem.TelegramSwitch android:id="@+id/switchMaintenanceMode" android:layout_width="wrap_content" android:layout_height="wrap_content" />
                     </LinearLayout>
                     <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:hint="Maintenance Message">
                         <com.google.android.material.textfield.TextInputEditText android:id="@+id/etMaintenanceMessage" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textMultiLine" android:minLines="2" style="@style/Widget.Eve.Token.Input" />

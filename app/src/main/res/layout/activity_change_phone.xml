@@ -52,13 +52,12 @@
 
         <EditText
             android:id="@+id/etPhone"
+            style="@style/TextAppearance.Eve.Telegram.EditInput"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:background="@null"
             android:hint="+91 00000 00000"
             android:textColorHint="@color/telegram_type_secondary"
-            android:textColor="@color/telegram_type_primary"
-            android:textSize="18sp"
             android:inputType="phone"
             android:maxLines="1"
             android:singleLine="true" />
@@ -71,21 +70,20 @@
 
         <TextView
             android:id="@+id/tvStatus"
+            style="@style/TextAppearance.Eve.Telegram.EditHelp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:visibility="gone"
-            android:textColor="@color/telegram_text_red_bold"
-            android:textSize="14sp" />
+            android:textColor="@color/telegram_text_red_bold" />
 
         <TextView
             android:id="@+id/tvHelp"
+            style="@style/TextAppearance.Eve.Telegram.EditHelp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:lineSpacingExtra="4dp"
-            android:text="Your phone number is optional and visible only to you. Eve does not verify or share your phone number with others."
-            android:textColor="@color/telegram_type_secondary"
-            android:textSize="14sp" />
+            android:text="Your phone number is optional and visible only to you. Eve does not verify or share your phone number with others." />
     </LinearLayout>
 </LinearLayout>

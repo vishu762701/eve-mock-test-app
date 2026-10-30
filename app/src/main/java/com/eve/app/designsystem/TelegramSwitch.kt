@@ -11,7 +11,9 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
-import android.os.Build
+import android.os.Parcel
+import android.os.Parcelable
+import android.text.TextPaint
 import android.util.AttributeSet
 import android.view.HapticFeedbackConstants
 import android.view.SoundEffectConstants
@@ -39,11 +41,13 @@ class TelegramSwitch @JvmOverloads constructor(
     private val rectF = RectF()
     private val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val thumbPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
 
     private var _progress: Float = 0f
     private var checkAnimator: ObjectAnimator? = null
     private var isCheckedState: Boolean = false
     private var onCheckedChangeListener: OnCheckedChangeListener? = null
+    private var textValue: CharSequence? = null
 
     // Colors matching Telegram Android ThemeColors.java and night.attheme
     private val DAY_TRACK_OFF = 0xFFA6ADB3.toInt()        // Theme.key_switchTrack
@@ -52,12 +56,24 @@ class TelegramSwitch @JvmOverloads constructor(
     private val NIGHT_TRACK_ON = 0xFF4592E3.toInt()       // night.attheme:366 switchTrackChecked=-12215069
     private val THUMB_COLOR = 0xFFFFFFFF.toInt()          // Theme.key_windowBackgroundWhite
 
+    var text: CharSequence?
+        get() = textValue
+        set(value) {
+            if (textValue != value) {
+                textValue = value
+                requestLayout()
+                invalidate()
+            }
+        }
+
     init {
         isFocusable = true
         isClickable = true
+        textPaint.textSize = dp(16f)
         if (attrs != null) {
-            val a = context.obtainStyledAttributes(attrs, intArrayOf(android.R.attr.checked))
+            val a = context.obtainStyledAttributes(attrs, intArrayOf(android.R.attr.checked, android.R.attr.text))
             val checked = a.getBoolean(0, false)
+            textValue = a.getText(1)
             a.recycle()
             setChecked(checked, animated = false)
         }
@@ -111,10 +127,6 @@ class TelegramSwitch @JvmOverloads constructor(
         onCheckedChangeListener = listener
     }
 
-    fun setOnCheckedChangeListener(listener: (TelegramSwitch, Boolean) -> Unit) {
-        onCheckedChangeListener = OnCheckedChangeListener { view, checked -> listener(view, checked) }
-    }
-
     private fun cancelCheckAnimator() {
         checkAnimator?.cancel()
         checkAnimator = null
@@ -130,20 +142,52 @@ class TelegramSwitch @JvmOverloads constructor(
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val widthMode = MeasureSpec.getMode(widthMeasureSpec)
+        val widthSize = MeasureSpec.getSize(widthMeasureSpec)
         val heightMode = MeasureSpec.getMode(heightMeasureSpec)
-        val defaultWidth = dp(37)
-        val defaultHeight = dp(24)
+        val heightSize = MeasureSpec.getSize(heightMeasureSpec)
 
-        val w = if (widthMode == MeasureSpec.EXACTLY) MeasureSpec.getSize(widthMeasureSpec) else defaultWidth
-        val h = if (heightMode == MeasureSpec.EXACTLY) MeasureSpec.getSize(heightMeasureSpec) else defaultHeight
-        setMeasuredDimension(w, h)
+        val switchW = dp(37)
+        val switchH = dp(24)
+
+        val currentText = textValue
+        if (!currentText.isNullOrEmpty()) {
+            val minHeight = dp(48)
+            val textWidth = textPaint.measureText(currentText.toString())
+            val padding = dp(8)
+            val totalW = (textWidth + switchW + padding + paddingLeft + paddingRight).toInt()
+            val w = when (widthMode) {
+                MeasureSpec.EXACTLY -> widthSize
+                MeasureSpec.AT_MOST -> Math.min(totalW, widthSize)
+                else -> totalW
+            }
+            val h = when (heightMode) {
+                MeasureSpec.EXACTLY -> heightSize
+                MeasureSpec.AT_MOST -> Math.min(minHeight, heightSize)
+                else -> minHeight
+            }
+            setMeasuredDimension(w, h)
+        } else {
+            val w = if (widthMode == MeasureSpec.EXACTLY) widthSize else switchW
+            val h = if (heightMode == MeasureSpec.EXACTLY) heightSize else switchH
+            setMeasuredDimension(w, h)
+        }
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         if (visibility != VISIBLE) return
 
+        val currentText = textValue
         val isDark = TelegramThemeEngine.isDarkActive(context)
+
+        if (!currentText.isNullOrEmpty()) {
+            textPaint.color = if (isDark) Color.WHITE else 0xFF1A1D21.toInt()
+            val textX = paddingLeft.toFloat()
+            val fontMetrics = textPaint.fontMetrics
+            val textY = (measuredHeight - fontMetrics.top - fontMetrics.bottom) / 2f
+            canvas.drawText(currentText.toString(), textX, textY, textPaint)
+        }
+
         val trackOff = if (isDark) NIGHT_TRACK_OFF else DAY_TRACK_OFF
         val trackOn = if (isDark) NIGHT_TRACK_ON else DAY_TRACK_ON
 
@@ -167,12 +211,17 @@ class TelegramSwitch @JvmOverloads constructor(
 
         // Geometry verbatim from Telegram Switch.java:380-450
         val width = dp(31f)
-        val x = (measuredWidth - width) / 2f
-        val y = (measuredHeight - dp(14f)) / 2f
+        val height = dp(14f)
+        val x = if (!currentText.isNullOrEmpty()) {
+            measuredWidth - width - paddingRight.toFloat() - dp(3f)
+        } else {
+            (measuredWidth - width) / 2f
+        }
+        val y = (measuredHeight - height) / 2f
         val tx = x + dp(7f) + dp(17f) * _progress
         val ty = measuredHeight / 2f
 
-        rectF.set(x, y, x + width, y + dp(14f))
+        rectF.set(x, y, x + width, y + height)
         canvas.drawRoundRect(rectF, dp(7f), dp(7f), trackPaint)
         canvas.drawCircle(tx, ty, dp(10f), trackPaint)
 
@@ -186,5 +235,47 @@ class TelegramSwitch @JvmOverloads constructor(
         info.className = "android.widget.Switch"
         info.isCheckable = true
         info.isChecked = isCheckedState
+        if (!textValue.isNullOrEmpty()) {
+            info.text = textValue
+        }
+    }
+
+    override fun onSaveInstanceState(): Parcelable {
+        val superState = super.onSaveInstanceState()
+        val ss = SavedState(superState)
+        ss.checked = isCheckedState
+        return ss
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        if (state is SavedState) {
+            super.onRestoreInstanceState(state.superState)
+            setChecked(state.checked, animated = false)
+        } else {
+            super.onRestoreInstanceState(state)
+        }
+    }
+
+    private class SavedState : BaseSavedState {
+        var checked: Boolean = false
+
+        constructor(superState: Parcelable?) : super(superState)
+
+        private constructor(parcel: Parcel) : super(parcel) {
+            checked = parcel.readByte().toInt() != 0
+        }
+
+        override fun writeToParcel(out: Parcel, flags: Int) {
+            super.writeToParcel(out, flags)
+            out.writeByte(if (checked) 1 else 0)
+        }
+
+        companion object {
+            @JvmField
+            val CREATOR: Parcelable.Creator<SavedState> = object : Parcelable.Creator<SavedState> {
+                override fun createFromParcel(parcel: Parcel): SavedState = SavedState(parcel)
+                override fun newArray(size: Int): Array<SavedState?> = arrayOfNulls(size)
+            }
+        }
     }
 }

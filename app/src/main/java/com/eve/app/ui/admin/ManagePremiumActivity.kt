@@ -17,7 +17,7 @@ import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.repository.AuditLogRepository
 import com.eve.app.databinding.ActivityManagePremiumBinding
 import com.eve.app.util.AppBulletin
-import com.google.android.material.materialswitch.MaterialSwitch
+import com.eve.app.designsystem.TelegramSwitch
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.launch
 
@@ -234,7 +234,7 @@ class ManagePremiumActivity : EveBaseActivity() {
         val dialogView = LayoutInflater.from(this).inflate(com.eve.app.R.layout.dialog_manual_grant_premium, null)
         val etUser = dialogView.findViewById<EditText>(com.eve.app.R.id.etGrantUser)
         val etDays = dialogView.findViewById<EditText>(com.eve.app.R.id.etGrantDays)
-        val switchLifetime = dialogView.findViewById<MaterialSwitch>(com.eve.app.R.id.switchGrantLifetime)
+        val switchLifetime = dialogView.findViewById<TelegramSwitch>(com.eve.app.R.id.switchGrantLifetime)
 
         switchLifetime.setOnCheckedChangeListener { _, isChecked ->
             etDays.visibility = if (isChecked) View.GONE else View.VISIBLE

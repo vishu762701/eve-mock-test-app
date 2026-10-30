@@ -144,4 +144,18 @@
     <style name="TextAppearance.Eve.Telegram.LoginSubtitle" parent="TextAppearance.Eve.Token.Body">
         <item name="android:textSize">14sp</item>
     </style>
+    <style name="TextAppearance.Eve.Telegram.EditInput" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/telegram_type_primary</item>
+    </style>
+    <style name="TextAppearance.Eve.Telegram.EditHelp" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/telegram_type_secondary</item>
+    </style>
 </resources>

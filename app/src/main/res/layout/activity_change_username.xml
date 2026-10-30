@@ -57,15 +57,16 @@
             android:orientation="horizontal">
 
             <TextView
+                style="@style/TextAppearance.Eve.Telegram.EditInput"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@"
                 android:textColor="@color/telegram_type_secondary"
-                android:textSize="18sp"
                 android:textStyle="bold" />
 
             <EditText
                 android:id="@+id/etUsername"
+                style="@style/TextAppearance.Eve.Telegram.EditInput"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -73,8 +74,6 @@
                 android:background="@null"
                 android:hint="username"
                 android:textColorHint="@color/telegram_type_secondary"
-                android:textColor="@color/telegram_type_primary"
-                android:textSize="18sp"
                 android:inputType="textNoSuggestions|textVisiblePassword"
                 android:maxLines="1"
                 android:singleLine="true" />
@@ -88,20 +87,19 @@
 
         <TextView
             android:id="@+id/tvStatus"
+            style="@style/TextAppearance.Eve.Telegram.EditHelp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:visibility="gone"
-            android:textSize="14sp" />
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/tvHelp"
+            style="@style/TextAppearance.Eve.Telegram.EditHelp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:lineSpacingExtra="4dp"
-            android:text="You can choose a username on Eve. If you do, other people will be able to find you by this username.\n\nYou can use a-z, 0-9 and underscores. Minimum length is 5 characters."
-            android:textColor="@color/telegram_type_secondary"
-            android:textSize="14sp" />
+            android:text="You can choose a username on Eve. If you do, other people will be able to find you by this username.\n\nYou can use a-z, 0-9 and underscores. Minimum length is 5 characters." />
     </LinearLayout>
 </LinearLayout>

@@ -223,27 +223,22 @@ class UiArcMotionComponentsTest {
         val settingsRoot = loadXml("src/main/res/layout/activity_settings.xml")
         val settingsSwitch = findElementById(settingsRoot, "switchReminder")
         assertNotNull("switchReminder must exist in activity_settings.xml", settingsSwitch)
-        assertEquals("com.eve.app.designsystem.UiArcSwitch", settingsSwitch?.tagName)
-        assertEquals("@style/Widget.Eve.Token.Switch", settingsSwitch?.getAttribute("style"))
+        assertEquals("com.eve.app.designsystem.TelegramSwitch", settingsSwitch?.tagName)
 
         val profileRoot = loadXml("src/main/res/layout/activity_profile.xml")
         val profileSwitch = findElementById(profileRoot, "switchReminder")
         assertNotNull("switchReminder must exist in activity_profile.xml", profileSwitch)
-        assertEquals("com.eve.app.designsystem.UiArcSwitch", profileSwitch?.tagName)
-        assertEquals("@style/Widget.Eve.Token.Switch", profileSwitch?.getAttribute("style"))
+        assertEquals("com.eve.app.designsystem.TelegramSwitch", profileSwitch?.tagName)
     }
 
     @Test
     fun testBatch02_Component3_InlineEditProfileLayout() {
-        val root = loadXml("src/main/res/layout/activity_profile.xml")
-        val tilName = findElementById(root, "tilName")
-        assertNotNull("tilName must exist in activity_profile.xml", tilName)
-
+        val root = loadXml("src/main/res/layout/activity_change_name.xml")
         val etName = findElementById(root, "etName")
-        assertNotNull("etName must exist in activity_profile.xml", etName)
+        assertNotNull("etName must exist in activity_change_name.xml", etName)
 
-        val btnSave = findElementById(root, "btnSaveProfile")
-        assertNotNull("btnSaveProfile must exist in activity_profile.xml", btnSave)
+        val btnDone = findElementById(root, "btnDone")
+        assertNotNull("btnDone must exist in activity_change_name.xml", btnDone)
     }
 
     @Test
