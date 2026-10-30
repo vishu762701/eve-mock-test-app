@@ -181,6 +181,11 @@ class TextCell @JvmOverloads constructor(
         updateOffsets(hasIcon = false)
     }
 
+    fun setTextAndValue(text: CharSequence, value: CharSequence?, needDivider: Boolean = true) {
+        setText(text, needDivider)
+        setValue(value)
+    }
+
     fun setSubtitle(subtitle: CharSequence?) {
         if (!subtitle.isNullOrBlank()) {
             subtitleView.text = subtitle
