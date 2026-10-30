@@ -44,6 +44,10 @@
             <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:clipChildren="false" android:clipToPadding="false" android:scrollbars="none">
                 <com.eve.app.ui.home.HomeCategoryChipGroup android:id="@+id/chipGroupCategory" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_section_gap" android:layout_marginEnd="@dimen/design_section_gap" app:chipSpacingHorizontal="@dimen/design_card_gap" app:singleLine="true" app:singleSelection="true" app:selectionRequired="true" />
             </HorizontalScrollView>
+            <LinearLayout android:id="@+id/searchSuggestionsList" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:orientation="vertical"
+                android:paddingTop="8dp" android:paddingBottom="8dp"
+                android:visibility="gone" android:importantForAccessibility="yes" />
             <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
                 <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvExams" android:layout_width="match_parent" android:layout_height="match_parent" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Scroll" />
                 <com.eve.app.designsystem.TelegramFlickerSkeletonView android:id="@+id/loadingHome" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" app:flickerRowType="home_exam" style="@style/Widget.Eve.Token.Scroll" />

@@ -125,6 +125,8 @@ class MainActivity : EveBaseActivity() {
     private var isSearchActive = false
     private var searchTransitionAnimator: android.animation.AnimatorSet? = null
     private var currentSearchQuery = ""
+    private var homeListPositionBeforeSearch: android.os.Parcelable? = null
+
     private var restoreThemeContent = false
     private var themeListState: android.os.Parcelable? = null
     private var lastLoadedItems: List<HomeListItem> = emptyList()
@@ -516,6 +518,7 @@ class MainActivity : EveBaseActivity() {
     private fun restoreSearchPresentation(savedInstanceState: Bundle?) {
         if (savedInstanceState?.getBoolean("home_search_active") != true) return
         isSearchActive = true
+        homeListPositionBeforeSearch = savedInstanceState.getParcelable("home_search_list_position")
         val query = savedInstanceState.getString("home_search_query").orEmpty()
         binding.etSearch.setText(query)
         binding.etSearch.setSelection(binding.etSearch.text?.length ?: 0)
@@ -531,6 +534,68 @@ class MainActivity : EveBaseActivity() {
         binding.btnSearchBack.alpha = 1f
         binding.etSearch.alpha = 1f
         binding.chipGroupCategory.visibility = View.GONE
+        refreshSearchChrome()
+    }
+
+    /** UI-only related suggestions from real EVE exams; never fabricated entries. */
+    private fun showSearchSuggestions(query: String): Boolean {
+        val list = binding.searchSuggestionsList
+        list.removeAllViews()
+        val uid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
+        val recent = HomeSearchHistory.load(this, uid)
+        val phrases = if (query.isEmpty()) recent else lastSearchItems
+            .filterIsInstance<HomeListItem.ExamRow>()
+            .map { it.exam.examName }
+            .distinct()
+            .filter { HomeSearchText.matches(query, it) }
+            .take(3)
+        if (phrases.isEmpty()) {
+            list.visibility = View.GONE
+            return false
+        }
+        list.visibility = View.VISIBLE
+        fun row(title: String, onClick: (() -> Unit)? = null): android.widget.TextView =
+            android.widget.TextView(this).apply {
+                text = title
+                com.eve.app.designsystem.DesignType.apply(this,
+                    if (onClick == null) com.eve.app.designsystem.DesignType.Role.SECONDARY
+                    else com.eve.app.designsystem.DesignType.Role.BODY)
+                setTextColor(ContextCompat.getColor(context, R.color.text_primary))
+                val inset = (16 * resources.displayMetrics.density).toInt()
+                setPadding(inset, 0, inset, 0)
+                minHeight = (48 * resources.displayMetrics.density).toInt()
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                if (onClick != null) {
+                    isClickable = true
+                    isFocusable = true
+                    setBackgroundResource(android.R.drawable.list_selector_background)
+                    setOnClickListener { onClick() }
+                }
+            }
+        list.addView(row(if (query.isEmpty()) "Recent searches" else "Related exams"))
+        phrases.forEach { phrase ->
+            list.addView(row(phrase) {
+                binding.etSearch.setText(phrase)
+                binding.etSearch.setSelection(binding.etSearch.text?.length ?: 0)
+                currentSearchQuery = phrase
+                HomeSearchHistory.record(this, uid, phrase)
+                applyCurrentList()
+            })
+        }
+        if (query.isEmpty()) {
+            list.addView(row("Clear All") {
+                HomeSearchHistory.clear(this, uid)
+                applyCurrentList()
+            })
+        }
+        return true
+    }
+
+    private fun refreshSearchChrome() {
+        binding.panelHomeBanner.visibility =
+            if (!isSearchActive && homeBanners.isNotEmpty()) View.VISIBLE else View.GONE
+        // Admin identity is unchanged; search hides only the button.
+        if (isSearchActive) binding.btnAdmin.visibility = View.GONE
     }
 
     private fun setupSearch() {
@@ -550,6 +615,21 @@ class MainActivity : EveBaseActivity() {
             }
         }
 
+        binding.etSearch.setOnEditorActionListener { _, actionId, event ->
+            val submitted = actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH ||
+                event?.keyCode == android.view.KeyEvent.KEYCODE_ENTER
+            if (!isSearchActive || !submitted) {
+                false
+            } else {
+                val query = HomeSearchHistory.normalize(binding.etSearch.text?.toString().orEmpty())
+                if (query.isNotEmpty()) {
+                    HomeSearchHistory.record(this, FirebaseAuth.getInstance().currentUser?.uid.orEmpty(), query)
+                    currentSearchQuery = query
+                    applyCurrentList()
+                }
+                true
+            }
+        }
         binding.etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -637,7 +717,9 @@ class MainActivity : EveBaseActivity() {
 
     private fun openSearch() {
         if (isSearchActive) return
+        homeListPositionBeforeSearch = binding.rvExams.layoutManager?.onSaveInstanceState()
         isSearchActive = true
+        refreshSearchChrome()
         cancelSearchVisualAnimations()
         searchTransitionAnimator?.cancel()
         // Telegram's verified search toggle has no width spring. Keep weighted layout without redundant relayout.
@@ -669,6 +751,8 @@ class MainActivity : EveBaseActivity() {
     private fun closeSearch() {
         if (!isSearchActive) return
         isSearchActive = false
+        refreshSearchChrome()
+        binding.searchSuggestionsList.visibility = View.GONE
         cancelSearchVisualAnimations()
         searchTransitionAnimator?.cancel()
         binding.etSearch.text?.clear()
@@ -694,10 +778,31 @@ class MainActivity : EveBaseActivity() {
             binding.chipGroupCategory.visibility = View.VISIBLE
         }
         applyCurrentList()
+        val savedListPosition = homeListPositionBeforeSearch
+        homeListPositionBeforeSearch = null
+        if (savedListPosition != null) binding.rvExams.post {
+            if (!isSearchActive) binding.rvExams.layoutManager?.onRestoreInstanceState(savedListPosition)
+        }
     }
 
     private fun applyCurrentList() {
+        refreshSearchChrome()
+        if (isSearchActive && currentSearchQuery.isEmpty()) {
+            adapter.submit(emptyList())
+            binding.rvExams.visibility = View.GONE
+            binding.btnRetry.visibility = View.GONE
+            val hasRecent = showSearchSuggestions("")
+            binding.messageGroup.visibility = if (hasRecent) View.GONE else View.VISIBLE
+            binding.ivMessageIcon.visibility = View.GONE
+            binding.tvMessage.text = "Search exams"
+            binding.tvMessageSub.text = "Type an exam name or category to see results."
+            return
+        }
+        binding.searchSuggestionsList.visibility = View.GONE
+        binding.rvExams.visibility = View.VISIBLE
+        binding.ivMessageIcon.visibility = View.VISIBLE
         if (isSearchActive && currentSearchQuery.isNotEmpty()) {
+            showSearchSuggestions(currentSearchQuery)
             val q = currentSearchQuery
             val filtered = lastSearchItems.filter { item ->
                 when (item) {
@@ -1207,7 +1312,7 @@ class MainActivity : EveBaseActivity() {
                     bannerAdapter.submitList(emptyList())
                     stopBannerAutoScroll()
                 } else {
-                    binding.panelHomeBanner.visibility = View.VISIBLE
+                    binding.panelHomeBanner.visibility = if (isSearchActive) View.GONE else View.VISIBLE
                     bannerAdapter.submitList(banners)
                     val currentPage = binding.vpHomeBanners.currentItem.coerceIn(0, banners.lastIndex)
                     binding.vpHomeBanners.setCurrentItem(currentPage, false)
@@ -1405,6 +1510,7 @@ class MainActivity : EveBaseActivity() {
         if (::binding.isInitialized) {
             outState.putParcelable("theme_home_list_state", binding.rvExams.layoutManager?.onSaveInstanceState())
             outState.putBoolean("home_search_active", isSearchActive)
+            if (isSearchActive) outState.putParcelable("home_search_list_position", homeListPositionBeforeSearch)
             if (isSearchActive) {
                 // Save the actual input, not the last (possibly debounced) search result.
                 outState.putString("home_search_query", binding.etSearch.text?.toString().orEmpty())
@@ -1471,7 +1577,7 @@ class MainActivity : EveBaseActivity() {
 
     private fun showAdminButton() {
         com.eve.app.designsystem.EveDesignSystem.Components.applyAdminButton(binding.btnAdmin)
-        binding.btnAdmin.visibility = View.VISIBLE
+        binding.btnAdmin.visibility = if (isSearchActive) View.GONE else View.VISIBLE
         binding.btnAdmin.setOnClickListener {
             com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, AdminActivity::class.java), binding.btnAdmin)
         }
@@ -1514,6 +1620,8 @@ class MainActivity : EveBaseActivity() {
                 } else {
                     com.eve.app.designsystem.DesignLoading.showContent(binding.loadingHome, binding.rvExams)
                 }
+                // Loading replacement can make an empty search list visible again.
+                if (isSearchActive) applyCurrentList()
                 binding.chipGroupCategory.visibility =
                     if (data.categories.size <= 1 || isSearchActive) View.GONE else View.VISIBLE
 
