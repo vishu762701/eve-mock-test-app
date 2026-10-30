@@ -47,7 +47,5 @@ class TextInfoPrivacyCell @JvmOverloads constructor(
         addView(textView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, Gravity.TOP or Gravity.START))
     }
 
-    fun setText(info: CharSequence) {
-        textView.text = info
-    }
+
 }

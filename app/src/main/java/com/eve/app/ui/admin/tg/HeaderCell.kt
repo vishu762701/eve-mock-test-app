@@ -62,10 +62,6 @@ class HeaderCell @JvmOverloads constructor(
         ViewCompat.setAccessibilityHeading(this, true)
     }
 
-    fun setText(title: CharSequence) {
-        textView.text = title
-    }
-
     fun setTextColor(color: Int) {
         textView.setTextColor(color)
     }
