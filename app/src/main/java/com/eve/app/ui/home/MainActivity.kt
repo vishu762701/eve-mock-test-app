@@ -147,6 +147,8 @@ class MainActivity : EveBaseActivity() {
     private var activeFloatingLinkUrl: String? = null
     private var activeFloatingLinkData: FloatingLinkData? = null
     private var isFloatingAirplaneAdmin: Boolean = false
+    // Prevent overlapping admin PUTs from persisting stale coordinates out of order.
+    private var floatingLinkPositionSaveInFlight = false
     private var safeInsetTop = 0
     private var safeInsetBottom = 0
     private var safeInsetLeft = 0
@@ -1060,7 +1062,9 @@ class MainActivity : EveBaseActivity() {
         }
 
         val longPressRunnable = Runnable {
-            if (!isFloatingAirplaneAdmin) return@Runnable
+            if (!isFloatingAirplaneAdmin || floatingLinkPositionSaveInFlight) return@Runnable
+            // Do not let a slower public GET started at Home resume undo drag.
+            floatingLinkFetchGeneration++
             isDragging = true
             isLongPressScheduled = false
             bounce.setPressed(false)
@@ -1086,7 +1090,7 @@ class MainActivity : EveBaseActivity() {
 
                     bounce.setPressed(true)
 
-                    if (isFloatingAirplaneAdmin) {
+                    if (isFloatingAirplaneAdmin && !floatingLinkPositionSaveInFlight) {
                         isLongPressScheduled = true
                         longPressHandler.postDelayed(longPressRunnable, 400L)
                     }
@@ -1161,16 +1165,26 @@ class MainActivity : EveBaseActivity() {
                             val normX = if (availableW > 0) ((currentX - minX) / availableW).coerceIn(0f, 1f) else 0.5f
                             val normY = if (availableH > 0) ((currentY - minY) / availableH).coerceIn(0f, 1f) else 0.5f
 
+                            // Presentation moves optimistically during drag, but a
+                            // failed admin write must not leave local icon position
+                            // diverged from the last server-confirmed coordinates.
+                            val previous = activeFloatingLinkData
+                            floatingLinkPositionSaveInFlight = true
                             lifecycleScope.launch(lifecycleExceptionHandler) {
-                                val result = floatingLinkRepo.updateFloatingLinkPosition(normX, normY)
-                                if (result.isSuccess) {
-                                    activeFloatingLinkData = FloatingLinkData(
-                                        url = activeFloatingLinkUrl.orEmpty(),
-                                        x = normX,
-                                        y = normY
-                                    )
-                                } else {
-                                    AppBulletin.showError(this@MainActivity, "Couldn't save position")
+                                try {
+                                    val result = floatingLinkRepo.updateFloatingLinkPosition(normX, normY)
+                                    if (result.isSuccess) {
+                                        activeFloatingLinkData = FloatingLinkData(
+                                            url = activeFloatingLinkUrl.orEmpty(),
+                                            x = normX,
+                                            y = normY
+                                        )
+                                    } else {
+                                        applyFloatingAirplanePosition(previous?.x, previous?.y)
+                                        AppBulletin.showError(this@MainActivity, "Couldn't save position")
+                                    }
+                                } finally {
+                                    floatingLinkPositionSaveInFlight = false
                                 }
                             }
                         }
