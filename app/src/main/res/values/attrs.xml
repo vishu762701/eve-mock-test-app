@@ -39,4 +39,8 @@
         </attr>
         <attr name="flickerItemsCount" format="integer" />
     </declare-styleable>
+    <declare-styleable name="TelegramSwitch">
+        <attr name="android:checked" />
+        <attr name="android:text" />
+    </declare-styleable>
 </resources>

@@ -22,6 +22,7 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.Checkable
 import androidx.annotation.Keep
+import com.eve.app.R
 import com.eve.app.theme.TelegramThemeEngine
 
 /**
@@ -76,9 +77,9 @@ class TelegramSwitch @JvmOverloads constructor(
         isClickable = true
         textPaint.textSize = dp(16f)
         if (attrs != null) {
-            val a = context.obtainStyledAttributes(attrs, intArrayOf(android.R.attr.checked, android.R.attr.text))
-            val checked = a.getBoolean(0, false)
-            textValue = a.getText(1)
+            val a = context.obtainStyledAttributes(attrs, R.styleable.TelegramSwitch)
+            val checked = a.getBoolean(R.styleable.TelegramSwitch_android_checked, false)
+            textValue = a.getText(R.styleable.TelegramSwitch_android_text)
             a.recycle()
             setChecked(checked, animated = false)
         }
