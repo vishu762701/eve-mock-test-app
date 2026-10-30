@@ -103,6 +103,30 @@ if (!engineering.includes('Engineering governance gates (G0–G8)') ||
     !agent.includes('Engineering Governance Gates (G0–G8)')) {
   error('Engineering governance gates (G0–G8) missing from canonical rules');
 }
+// Stop-the-line CI recovery contract enforcement (mandatory for every future mission)
+if (!engineering.includes('Stop-the-line CI recovery: mandatory for every future mission') ||
+    !agent.includes('Stop-the-Line CI Recovery Contract')) {
+  error('Stop-the-line CI recovery section missing from canonical governance files');
+}
+if (!engineering.includes('IMMEDIATELY FREEZE') && !agent.includes('IMMEDIATELY FREEZE ALL FEATURE ADVANCEMENT')) {
+  error('Stop-the-line freeze requirement missing from canonical rules');
+}
+if (!engineering.includes('exact commit SHA') && !engineering.includes('exact-SHA')) {
+  error('Exact-SHA CI verification requirement missing from ENGINEERING_STANDARD.md');
+}
+if (!engineering.includes('forward-only repair commit') && !engineering.includes('focused forward-only repair')) {
+  error('Focused forward-only root-cause repair requirement missing from canonical rules');
+}
+if (!engineering.includes('never blindly loosen or delete tests') &&
+    !engineering.includes('Never disable, suppress, or delete legitimate test assertions')) {
+  error('Prohibition on disabling or suppressing tests missing from ENGINEERING_STANDARD.md');
+}
+if (!engineering.includes('FULL CI is a terminal mission gate, not a routine retry loop')) {
+  error('Terminal FULL CI retry procedure missing from ENGINEERING_STANDARD.md');
+}
+if (!engineering.includes('G7 exact resume checkpoint') && !engineering.includes('G7: Continuity')) {
+  error('Resumable continuation checkpoint requirement missing from ENGINEERING_STANDARD.md');
+}
 if (!fs.existsSync(path.join(REPO_ROOT, 'docs/MISSION_ACCEPTANCE_TEMPLATE.md'))) {
   error('docs/MISSION_ACCEPTANCE_TEMPLATE.md missing');
 }

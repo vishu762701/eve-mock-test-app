@@ -98,6 +98,43 @@ class EngineeringGovernanceTest(unittest.TestCase):
                 f"{path} does not start with canonical instruction entrypoint",
             )
 
+    def test_stop_the_line_ci_recovery_governance_in_authoritative_files(self):
+        standard = read("ENGINEERING_STANDARD.md")
+        agents = read("AGENTS.md")
+
+        # Required section headers
+        self.assertIn("Stop-the-line CI recovery: mandatory for every future mission", standard)
+        self.assertIn("Stop-the-Line CI Recovery Contract", agents)
+
+        # State machine formal states
+        for term in ("CI_PENDING", "CI_RED", "CI_GREEN", "ROOT_CAUSE_ANALYSIS", "TARGETED_REPAIR", "EXTERNAL_BLOCKED"):
+            self.assertIn(term, standard, f"State machine term '{term}' missing from ENGINEERING_STANDARD.md")
+            self.assertIn(term, agents, f"State machine term '{term}' missing from AGENTS.md")
+
+        # Core semantics in ENGINEERING_STANDARD.md
+        self.assertIn("IMMEDIATELY FREEZE feature advancement", standard)
+        self.assertTrue(
+            "exact commit SHA" in standard or "exact-SHA" in standard,
+            "Exact-SHA CI inspection requirement missing from ENGINEERING_STANDARD.md"
+        )
+        self.assertIn("forward-only repair commit", standard)
+        self.assertTrue(
+            "never blindly loosen or delete tests" in standard or "Never disable, suppress, or delete legitimate test assertions" in standard,
+            "Prohibition on suppressing tests missing from ENGINEERING_STANDARD.md"
+        )
+
+        # Core semantics in AGENTS.md
+        self.assertIn("IMMEDIATELY FREEZE ALL FEATURE ADVANCEMENT", agents)
+        self.assertIn("focused forward-only repair", agents)
+        self.assertIn("ENGINEERING_STANDARD.md", agents)
+
+    def test_full_ci_is_terminal_gate_not_routine_retry(self):
+        standard = read("ENGINEERING_STANDARD.md")
+        self.assertIn("FULL CI is a terminal mission gate, not a routine retry loop", standard)
+        self.assertIn("[eve-full]", standard)
+        self.assertIn("INCOMPLETE", standard)
+        self.assertIn("FAST for Intermediates", standard)
+
 
 if __name__ == "__main__":
     unittest.main()

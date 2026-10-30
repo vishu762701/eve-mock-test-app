@@ -53,6 +53,7 @@ Every engineer and autonomous agent operating on EVE must enforce nine sequentia
 - A red CI run stops all forward implementation: do not proceed to the next feature while CI is failing.
 - Diagnose failures from first actionable logs and implement focused, forward root-cause repairs on `main`.
 - Never disable, suppress, or delete legitimate test assertions to bypass failures. If GitHub Actions APIs cannot establish run status, mark it `UNKNOWN` and never claim `PASS`.
+- Enforce the mandatory stop-the-line state machine and failure category playbook defined in [Stop-the-line CI recovery: mandatory for every future mission](#stop-the-line-ci-recovery-mandatory-for-every-future-mission).
 
 ### G4: Functional behavior acceptance
 - Verify observable runtime behavior (e.g., tap dispatch, long-press gestures, drag state machines, coordinate translations, navigation transitions, persistence, admin authorization gates, normal-user read access, lifecycle survival on `onResume` / rotation, accessibility).
@@ -78,6 +79,7 @@ Every engineer and autonomous agent operating on EVE must enforce nine sequentia
 - Explicitly disclose material failures, architectural tradeoffs, and behavioral deviations.
 - Never silently roll back previous approved work, change secrets/credentials, weaken authorization guards or server-authoritative scoring, or substitute unauthorized code.
 - Escalate genuinely new product decisions, changed scope, or demonstrated legal/security blockers to the owner.
+- Follow the disciplined retry and fault-tree protocol: re-examine full logs and revise diagnostic hypotheses after two failed repairs; stop only for demonstrated external blockers or tool limits with a precise G7 checkpoint.
 
 ### Standardized mission acceptance report
 All completed or checkpointed missions must document results using the canonical report format defined in [docs/MISSION_ACCEPTANCE_TEMPLATE.md](file:///data/data/com.termux/files/home/eve-mock-test-app/docs/MISSION_ACCEPTANCE_TEMPLATE.md).
@@ -110,6 +112,66 @@ All completed or checkpointed missions must document results using the canonical
 - For each change update source, related call sites/resources and relevant test contracts together, including Light/Dark; never modify an assertion merely to hide a real regression. Classify failures by SHA/job/log and repair the actual cause; avoid endless reruns, suppressions, skipping checks, rewriting unrelated code or weakening security gates.
 - Do not stop work simply because the first or second build fails. Use FAST builds and targeted source/tests to diagnose and repair intermediate failures, without prematurely running FULL. If the final FULL fails, inspect the failing source/log/fixture, fix on main, use FAST for intermediate repair commits, and run FULL again ONLY on the repaired final implementation commit. Continue until the latest requested acceptance criteria and final FULL check pass within the active session. External tool/authentication/context limits require an exact resumable checkpoint (current main SHA, failed run/job, source cause, remaining tasks). No agent or GitHub Actions runner can continue forever or operate in the background after its session ends.
 - Every write to main must be a non-force fast-forward based on the current remote head with an expected-SHA lease; concurrent changes must be reconciled before retry. Never claim success using an earlier commit's green workflow. A 3-4 minute FAST build is a performance target, not a promise for FULL emulator verification.
+
+## Stop-the-line CI recovery: mandatory for every future mission
+Every engineer and autonomous agent operating in this repository is strictly bound by this stop-the-line recovery contract. If an authorized implementation causes ANY required build, compilation, lint, test, documentation, backend, Firebase Functions, native-device, or final APK verification job to fail, do NOT abandon the failed feature, label it complete, start the next feature, or skip the failed gate. Diagnose the exact failure, perform a focused root-cause repair in the SAME active mission, rerun the relevant validations, and continue the repair/verification cycle until the required gate is green or a demonstrated external blocker makes completion impossible within the available tools/session. Only after the failed feature's required checks pass may you advance to the next authorized feature.
+
+### A. Pre-flight / baseline
+1. **Repository & Task Inspection:** Before starting any authorized feature or repair: read `ENGINEERING_STANDARD.md`, `SOURCE_OF_TRUTH.md`, and `AGENTS.md`. Inspect the current source, callers, tests, and resources. Fetch the live remote `main` branch HEAD, record its exact commit SHA, and inspect the current required CI status at that exact SHA.
+2. **Baseline Status Classification:** Record whether the baseline is green, red, pending, skipped-by-design, or unknown. Never attribute a pre-existing failure to a new change without diff and log proof.
+3. **Stop on Red Baseline:** If required baseline checks are red, STOP feature advancement immediately. Diagnose the first actionable failure. Repair it only where current owner authorization covers it; otherwise disclose the unrelated blocker and request explicit expanded scope. Do not silently modify an unrelated product area.
+4. **Scoped Units of Change:** Plan one coherent feature at a time, with code, resources, Day/Night variants, callers, directly related tests, and license/security dependencies scoped together.
+
+### B. Pre-commit validation
+1. **Local Checks Where Supported:** Where the local environment supports it, execute: `git diff --check`; focused static/resource/compilation checks; Android app + unit-test + instrumentation-test SOURCE compilation (`:app:assembleDebug`, `:app:compileDebugUnitTestKotlin`, `:app:testDebugUnitTest`, `:app:compileDebugAndroidTestKotlin`); directly affected backend and Firebase Functions builds/tests; and relevant docs/governance checks (`node .github/scripts/verify-docs.mjs` and `python3 -B -m unittest discover -s .github/scripts/tests -v`).
+2. **Exact Tooling Alignment:** Use the project's actual Gradle and tool configuration; inspect `build.yml` and Gradle files. Do not guess a command, Java version, class, SDK, dependency, resource ID, or imported method.
+3. **Transparent Reporting for Limited Environments:** If local Android builds are impossible (for example, a limited Termux or API-only agent), do NOT claim local PASS. Mark the local check UNKNOWN; commit only a scoped, thoroughly inspected change, then use exact-SHA GitHub FAST validation as the remote gate and repair any resulting failure.
+4. **Multi-Qualifier Impact Audit:** Changing visual or shared components requires checking all affected callers, themes, layout qualifiers, dynamic overrides, accessible states, RTL/font-scale, and corresponding tests; do not stop after one Kotlin or XML edit.
+
+### C. Post-commit stop-the-line state machine
+- **Formal States:**
+  - Forward Flow: `NOT_STARTED` -> `IMPLEMENTING` -> `LOCAL_CHECKS` -> `COMMITTED` -> `CI_PENDING` -> `CI_GREEN` -> `NEXT_AUTHORIZED_FEATURE`
+  - Recovery Loop: `CI_PENDING` -> `CI_RED` -> `ROOT_CAUSE_ANALYSIS` -> `TARGETED_REPAIR` -> `LOCAL_CHECKS` -> `COMMITTED` -> `CI_PENDING` (repeat until `CI_GREEN`)
+  - Non-Pass Terminal States: `CI_UNKNOWN` and `EXTERNAL_BLOCKED`. Neither permits a PASS claim or feature advancement.
+1. **Exact-SHA Inspection:** After EACH intermediate main commit, locate the exact commit SHA's FAST workflow run(s), then inspect all required jobs. Only a completed SUCCESS for that SHA is a green gate. Check successful compile, tests, backend, Functions, and policy jobs as applicable.
+2. **Handling CI_PENDING:** While CI_PENDING, obtain completion and evidence using available foreground tools; do not silently advance. A skipped job is acceptable only when explicitly expected by the existing FAST/FULL job dependency or path filters, with the reason documented.
+3. **Freeze on CI_RED:** When CI_RED, IMMEDIATELY FREEZE feature advancement. Do not start another product feature, call the broken change complete, run a cosmetic next commit to mask the failure, or publish an APK.
+4. **Structured Failure Ledger:** Record failure category, exact SHA, run URL/ID, failing job/step, first actionable compiler/test/error message, file:line or assertion/fixture, and whether the cause was introduced by this commit.
+5. **Root-Cause Investigation:** Inspect relevant complete logs and source, imports, actual API/SDK versions, call graph, XML/theme resources, affected unit/androidTest files, backend tests, CI scripts, and current diff. Fix the source/root cause and directly dependent tests in the SAME unfinished feature scope.
+6. **Forward Repair Commit:** Run targeted local checks again where possible, then create a small forward-only repair commit on main. Recheck current remote HEAD before pushing. Verify its NEW exact-SHA FAST CI. Repeat until CI_GREEN; the previous failed run remains historical evidence, not a pass.
+7. **Fault Tree Prioritization:** If multiple jobs fail, make a fault tree and repair the earliest causal failures first; avoid blind shotgun edits. Never infer that the last stack-trace line is the primary cause.
+8. **Disciplined Retry Protocol:** Two unsuccessful repairs to an apparently identical error are NOT an automatic stop and NOT permission for infinite blind retries. Re-examine full raw logs, changed files, dependency graph, test fixtures and run environment, explicitly revise the hypothesis, add a focused regression test when useful, then use a materially different evidence-based repair. Stop only for a demonstrated blocker or unavoidable tool/session limit; leave a precise checkpoint.
+9. **Advancement Gate:** After CI_GREEN, confirm directly affected functional criteria. Only then move to the next ALREADY AUTHORIZED feature. For UI work, FAST green does not prove on-device pixel/gesture fidelity; preserve G4/G5 and final FULL requirements.
+
+### D. Failure category playbook — classify before repair
+- **Kotlin/Java compilation:** unknown symbol/import, incorrect API, missing dependency, signature, type inference, nullability, visibility; inspect real version and callers.
+- **Android resources/AAPT:** absent drawable/color/style/attr, qualifier mismatch, XML syntax, generated binding name; inspect every relevant variant.
+- **JVM unit test / test-source compilation:** production contract vs stale test expectation vs real regression; update evidence-backed assertions, never blindly loosen or delete tests.
+- **Android instrumentation SOURCE compilation:** check actual androidTest code separately from app compile. Passing assembleDebug is not enough.
+- **Native/emulator UI:** distinguish assertion/behavior, wrong color/shape/dimension/animation, accessibility, timing/flakiness, and verified runner/infrastructure errors. Inspect screenshots, raw instrumentation output and real UI code; do not inflate delays to hide regressions.
+- **Gradle/dependency/environment:** check dependency graph, SDK, Java/Gradle/AGP compatibility, access, cache, network; unchanged-code rerun is justified ONLY for evidence-backed transient failures.
+- **Backend/Functions/security:** honor module boundaries, token validation and data integrity; debug first failing test or compilation step without weakening API protections.
+- **Lint, licensing, signing, release/artifact:** correct policy violations rather than skipping gates; never publish a debug artifact as a verified release.
+- **Governance/docs:** use Verify Documentation and governance tests; preserve expected canonical entrypoint and security checks.
+
+### E. FULL CI is a terminal mission gate, not a routine retry loop
+1. **FAST for Intermediates:** Every ordinary intermediate feature or repair commit must run FAST only. Do NOT add [eve-full] to governance updates, intermediate fixes, documentation changes, or incomplete missions. Do not invent automatic mid-mission FULL checkpoints.
+2. **Terminal FULL Criteria:** Only when ALL owner-authorized mission requirements and applicable G4/G5 acceptance criteria are satisfied, use the existing mission-final [eve-full] trigger (or owner-authorized manual workflow_dispatch exception) to run six-job FULL: Android build/lint, backend, Firebase Functions, gesture native UI, three-button native UI, gated verified APK publication.
+3. **Handling FULL Failure:** If terminal FULL fails, that same mission is INCOMPLETE. Freeze the next feature. Diagnose FULL logs and native artifacts, make focused forward-only repair commits with FAST on each intermediate SHA, then trigger a NEW mission-final FULL at the repaired final SHA only when eligible. Never treat an older successful FULL as proof for the new SHA.
+4. **Artifact Integrity:** Verify each of the six required FULL jobs and the exact final SHA and APK checksum. A green FAST build, successful assembleDebug, or generic 'build passed' message is NOT final delivery.
+
+### F. External blocker, resume, and honest reporting
+1. **Honest Gate Classification:** If access is missing, owner credentials/authorization are needed, a security/legal/licensing blocker is demonstrated, GitHub API/CI is unavailable, or a hard session limit interrupts work: mark BLOCKED or UNKNOWN, do not pretend green, and do not move to the next feature.
+2. **G7 Resumable Checkpoint:** Before halting, write a G7 exact resume checkpoint into the CURRENT mission's existing acceptance report (or a tightly scoped existing checkpoint if no mission report exists): remote HEAD SHA, last known-good SHA, active unfinished feature, commit and run IDs/URLs, first actionable error, evidence, previous attempted repairs, local uncommitted work, and the NEXT SINGLE SAFE ACTION. Never claim asynchronous continuation.
+3. **Resumed Execution Protocol:** A resumed agent must inspect the remote state and checkpoint, resume the SAME first unfinished repair, and only advance when the gate becomes green; do not restart the mission or repeat completed work.
+4. **Rigorous Reporting:** Report VERIFIED evidence (path:line / exact-SHA CI URL), INFERRED possibilities, and UNKNOWN/EXTERNAL_BLOCKED facts distinctly. Keep unrelated findings in a separate, impact-ranked section; do not silently repair them.
+
+### G. Historical failure modes to prevent (examples, not current defect claims)
+- A previous EVE FAST run had unresolved chipSurfaceColor / TelegramThemeEngine symbols after a UI palette edit: compile against actual classes and imports before pushing.
+- A previous run failed because a new production layout changed a layout-count assertion: determine whether the new layout is intended, then update the full test contract with evidence.
+- A previous FULL failed in compileDebugAndroidTestKotlin due to invalid if expression/type mismatch in ApprovedUiRenderingTest.kt: compile androidTest sources in FAST.
+- A prior native run failed geometry, color, or dialog accessibility assertions: source compilation alone cannot confirm runtime UI acceptance.
+Historical runs may already be repaired. Never revert unrelated code based on this list, or treat stale failure examples as current HEAD facts.
 
 ## Failure prevention and root-cause workflow (all agents, all future missions)
 - Before changing CI or Gradle tasks, inspect **all** tests referencing the workflow, Gradle tasks, branch names or step names. Change source and contract checks atomically. Tests must enforce **behavior** (gates, dependencies, release safety) rather than brittle exact shell command strings or cosmetic step names. Run host Python checks before any build if tooling permits.
