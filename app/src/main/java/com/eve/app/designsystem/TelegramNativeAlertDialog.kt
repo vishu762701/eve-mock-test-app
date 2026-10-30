@@ -231,7 +231,9 @@ class TelegramNativeAlertDialog private constructor(
                             listener?.onClick(this@TelegramNativeAlertDialog, which)
                         } finally {
                             if (isShowing) {
-                                if (which == DialogInterface.BUTTON_NEGATIVE) cancel() else dismiss()
+                                // AlertDialog button actions dismiss; only Back/outside
+                                // cancellation dispatches OnCancelListener.
+                                dismiss()
                             }
                         }
                     }
@@ -295,6 +297,10 @@ class TelegramNativeAlertDialog private constructor(
         private val redButtons = mutableSetOf<Int>()
         private var cancelable = true
         private var dismissListener: DialogInterface.OnDismissListener? = null
+        private var cancelListener: DialogInterface.OnCancelListener? = null
+        fun setOnCancelListener(listener: DialogInterface.OnCancelListener?) = apply {
+            cancelListener = listener
+        }
         fun setCancelable(value: Boolean) = apply { cancelable = value }
         fun setOnDismissListener(listener: DialogInterface.OnDismissListener?) = apply {
             dismissListener = listener
@@ -340,6 +346,7 @@ class TelegramNativeAlertDialog private constructor(
         ).also { dialog ->
             dialog.setCancelable(cancelable)
             dialog.setCanceledOnTouchOutside(cancelable)
+            dialog.setOnCancelListener(cancelListener)
             dialog.setOnDismissListener(dismissListener)
         }
         fun show() = create().also { it.show() }

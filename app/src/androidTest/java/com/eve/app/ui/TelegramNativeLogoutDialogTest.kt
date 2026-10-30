@@ -328,4 +328,33 @@ class TelegramNativeLogoutDialogTest {
         }
     }
 
+
+    @Test fun sourceNativeCancelListenerFiresForOutsideOrBackWithoutCommitting() {
+        ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                var cancellations = 0
+                var confirmations = 0
+                val dialog = TelegramNativeAlertDialog.Builder(activity)
+                    .setTitle("Unsaved Changes")
+                    .setMessage("Do you want to save before switching?")
+                    .setOnCancelListener { cancellations++ }
+                    .setPositiveButton("Save") { _, _ -> confirmations++ }
+                    .setNegativeButton("Discard", null)
+                    .show()
+                dialog.cancel()
+                assertEquals(1, cancellations)
+                assertEquals(0, confirmations)
+                assertFalse(dialog.isShowing)
+                val discard = TelegramNativeAlertDialog.Builder(activity)
+                    .setTitle("Unsaved Changes")
+                    .setOnCancelListener { cancellations++ }
+                    .setNegativeButton("Discard", null)
+                    .show()
+                discard.getActionButton(DialogInterface.BUTTON_NEGATIVE)!!.performClick()
+                assertEquals("Negative action must dismiss without the Back-cancel callback", 1, cancellations)
+                assertFalse(discard.isShowing)
+            }
+        }
+    }
+
 }

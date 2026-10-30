@@ -1,7 +1,7 @@
 package com.eve.app.ui.admin
 
-import com.eve.app.designsystem.showDestructive
-import com.eve.app.designsystem.showTelegramSourceDialog
+import com.eve.app.designsystem.TelegramNativeAlertDialog
+import android.content.DialogInterface
 
 import com.eve.app.ui.common.EveBaseActivity
 
@@ -27,7 +27,6 @@ import com.eve.app.util.AppBulletin
 import com.eve.app.util.AppUndoBar
 import com.eve.app.util.Constants
 import com.eve.app.util.QuestionImportHelper
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import com.eve.app.data.model.AdminAuditLog
 import com.eve.app.data.repository.AuditLogRepository
@@ -265,7 +264,7 @@ class EditExamActivity : EveBaseActivity() {
             }
         }
 
-        val builder = MaterialAlertDialogBuilder(this)
+        val builder = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Bulk Question Import Preview")
             .setMessage(message)
 
@@ -278,7 +277,7 @@ class EditExamActivity : EveBaseActivity() {
             builder.setPositiveButton("OK", null)
         }
 
-        builder.showTelegramSourceDialog()
+        builder.show()
     }
 
     private fun importQuestions(questions: List<Question>) {
@@ -307,7 +306,7 @@ class EditExamActivity : EveBaseActivity() {
         val etExplanation = dialogView.findViewById<EditText>(R.id.etExplanation)
         val etTopic = dialogView.findViewById<EditText>(R.id.etTopic)
 
-        MaterialAlertDialogBuilder(this)
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle("Add New Question")
             .setView(dialogView)
             .setPositiveButton("Add") { _, _ ->
@@ -359,7 +358,7 @@ class EditExamActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .showTelegramSourceDialog()
+            .show()
     }
 
     private fun showQuestionDetails(q: Question) {
@@ -445,7 +444,7 @@ class EditExamActivity : EveBaseActivity() {
             }
         }
 
-        MaterialAlertDialogBuilder(this)
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle("Edit Question")
             .setView(dialogView)
             .setPositiveButton("Save") { _, _ ->
@@ -498,7 +497,7 @@ class EditExamActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .showTelegramSourceDialog()
+            .show()
     }
 
     companion object {
@@ -537,7 +536,7 @@ class EditExamActivity : EveBaseActivity() {
     }
 
     private fun confirmDeleteQuestion(q: Question) {
-        MaterialAlertDialogBuilder(this)
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle("Delete Question?")
             .setMessage("Are you sure? This cannot be undone.\n\n\"${q.questionText}\"")
             .setPositiveButton("Delete") { _, _ ->
@@ -575,6 +574,6 @@ class EditExamActivity : EveBaseActivity() {
                 )
             }
             .setNegativeButton("Cancel", null)
-            .showDestructive()
+            .makeRed(DialogInterface.BUTTON_POSITIVE).show()
     }
 }

@@ -18,11 +18,18 @@ class AdminDialogSourceContractTest {
         assertEquals("AdminActivity custom view dialogs must all apply TelegramDialogSourceBackground", 5, customBackgroundCount)
     }
 
-    @Test fun manageExamsActivityUsesSourceDialogsForPromptsAndDetails() {
+    @Test fun manageExamsUsesFourteenNativeSourceDerivedDialogsWithCancelHandling() {
         val source = File("src/main/java/com/eve/app/ui/admin/ManageExamsActivity.kt").readText()
-        assertTrue(source.contains("import com.eve.app.designsystem.showTelegramSourceDialog"))
-        val sourceDialogCount = source.split(".showTelegramSourceDialog()").size - 1
-        assertEquals("ManageExamsActivity must route all 14 plain dialog builders through source dialog adapter", 14, sourceDialogCount)
+        assertTrue(source.contains("import com.eve.app.designsystem.TelegramNativeAlertDialog"))
+        assertEquals("All 14 exam-management confirmations and notices must use the native host",
+            14, source.split("TelegramNativeAlertDialog.Builder(").size - 1)
+        assertTrue("The 14 native confirmations must show without Material adapters",
+            source.split(".show()").size - 1 >= 14)
+        assertTrue(source.contains(".setOnCancelListener {"))
+        assertTrue(source.contains("triggerAiTestGeneration(data)"))
+        assertTrue(source.contains("saveExamSettings {"))
+        val native = File("src/main/java/com/eve/app/designsystem/TelegramNativeAlertDialog.kt").readText()
+        assertTrue(native.contains("dialog.setOnCancelListener(cancelListener)"))
     }
 
     @Test fun adminDeleteFlowAppliesDestructiveAndSourceStyling() {
