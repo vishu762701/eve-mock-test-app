@@ -125,9 +125,15 @@ class TestActivity : EveBaseActivity() {
         AnalyticsHelper.logExamStart(this, examId, examName, examCategory)
 
         paletteAdapter = QuestionPaletteAdapter(approvedTestStyle = true) { pos ->
-            binding.viewPager.setCurrentItem(pos, true)
+            // Only revealed numbers exist in the adapter; guard programmatic calls too.
+            if (pos in 0 until totalQuestions && pos <= viewModel.furthestRevealedIndex) {
+                binding.viewPager.setCurrentItem(pos, true)
+            }
         }
         binding.rvQuestionPalette.adapter = paletteAdapter
+        // Future pages cannot be revealed with a swipe ahead of Save and Next.
+        // Previous and already-revealed positions remain available via the strip.
+        binding.viewPager.isUserInputEnabled = false
         binding.viewPager.clipChildren = false
         binding.viewPager.clipToPadding = false
         (binding.viewPager.getChildAt(0) as? androidx.recyclerview.widget.RecyclerView)?.apply {
@@ -154,11 +160,15 @@ class TestActivity : EveBaseActivity() {
             }
         }
         binding.btnNext.setOnClickListener {
+            if (submitted || viewModel.timeUp.value == true || totalQuestions == 0) return@setOnClickListener
             val current = binding.viewPager.currentItem
             if (current >= totalQuestions - 1) {
                 confirmSubmit()
             } else {
-                binding.viewPager.currentItem = current + 1
+                val next = current + 1
+                viewModel.revealThrough(next)
+                binding.viewPager.setCurrentItem(next, true)
+                viewModel.saveCurrentSession(examId, next)
             }
         }
         binding.btnClear.setOnClickListener {
@@ -183,6 +193,12 @@ class TestActivity : EveBaseActivity() {
 
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
+                // Defensive gate for unexpected programmatic navigation.
+                if (totalQuestions > 0 && position > viewModel.furthestRevealedIndex) {
+                    binding.viewPager.setCurrentItem(
+                        viewModel.furthestRevealedIndex.coerceIn(0, totalQuestions - 1), false)
+                    return
+                }
                 currentQuestionPosition = position
                 viewModel.markVisited(position)
                 updateNav(position)
@@ -405,6 +421,9 @@ class TestActivity : EveBaseActivity() {
                         if (restored in 0 until list.size) restored else 0
                     }
                     if (targetIndex > 0) {
+                        // Bookmarked deep links may legitimately open a later question.
+                        // A resumed session's prior reveal progress is restored separately.
+                        viewModel.revealThrough(targetIndex)
                         binding.viewPager.post {
                             binding.viewPager.setCurrentItem(targetIndex, false)
                         }
@@ -742,7 +761,9 @@ class TestActivity : EveBaseActivity() {
 
     private fun updatePalette(activePosition: Int) {
         if (totalQuestions <= 0) return
-        val items = (0 until totalQuestions).map { i ->
+        val visibleCount = ProgressiveQuestionStrip.visibleCount(
+            totalQuestions, viewModel.furthestRevealedIndex)
+        val items = (0 until visibleCount).map { i ->
             val state = QuestionPaletteAdapter.mapPaletteState(
                 answered = viewModel.getAnswer(i).isNotEmpty(),
                 visited = viewModel.isVisited(i),
@@ -755,7 +776,7 @@ class TestActivity : EveBaseActivity() {
             )
         }
         paletteAdapter.submit(items)
-        binding.rvQuestionPalette.scrollToPosition(activePosition)
+        binding.rvQuestionPalette.scrollToPosition(activePosition.coerceIn(0, items.lastIndex))
     }
 
     override fun onDestroy() {

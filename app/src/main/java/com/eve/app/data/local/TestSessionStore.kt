@@ -15,6 +15,8 @@ data class TestSession(
     val timeLimitSeconds: Long = 0L,
     val startedAt: Long = 0L,
     val currentQuestionIndex: Int = 0,
+    /** Last question circle disclosed by the student, not an answer/visit counter. */
+    val furthestRevealedIndex: Int = 0,
     val lastSavedAt: Long = System.currentTimeMillis()
 )
 

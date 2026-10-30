@@ -69,6 +69,13 @@ class TestViewModel : ViewModel() {
         private set
     var restoredQuestionIndex: Int = 0
         private set
+    /** Monotonic presentation state; never used for scoring or answer disclosure. */
+    var furthestRevealedIndex: Int = 0
+        private set
+
+    fun revealThrough(position: Int) {
+        if (position >= 0) furthestRevealedIndex = maxOf(furthestRevealedIndex, position)
+    }
 
     fun start(
         examId: String,
@@ -149,7 +156,7 @@ class TestViewModel : ViewModel() {
                                 return@launch
                             }
                             d.clientAttemptId?.takeIf { it.isNotBlank() }?.let {
-                                if (clientAttemptId != it) { answers.clear(); timeTaken.clear(); visited.clear(); marked.clear(); restoredQuestionIndex = 0 }
+                                if (clientAttemptId != it) { answers.clear(); timeTaken.clear(); visited.clear(); marked.clear(); restoredQuestionIndex = 0; furthestRevealedIndex = 0 }
                                 clientAttemptId = it
                             }
                             initialStartedAt = d.startedAt
@@ -291,13 +298,17 @@ class TestViewModel : ViewModel() {
                     remainingSec = session.remainingSeconds ?: session.timeLimitSeconds
                     existingSession = sessionStore.getSession(currentExamId, currentUserId)
                     session.clientAttemptId?.takeIf { it.isNotBlank() }?.let {
-                        if (clientAttemptId != it) { answers.clear(); timeTaken.clear(); visited.clear(); marked.clear(); restoredQuestionIndex = 0 }
+                        if (clientAttemptId != it) { answers.clear(); timeTaken.clear(); visited.clear(); marked.clear(); restoredQuestionIndex = 0; furthestRevealedIndex = 0 }
                         clientAttemptId = it
                     }
                 }
                 val restoredSession = existingSession
                 if (com.eve.app.data.local.TestSessionPolicy.canRestore(restoredSession, currentUserId, currentExamId, clientAttemptId)) {
                     checkNotNull(restoredSession)
+                    // The session has already passed owner/exam/clientAttemptId validation.
+                    // Old serialized sessions lack this field and safely default to zero.
+                    revealThrough(maxOf(restoredSession.furthestRevealedIndex,
+                        restoredSession.currentQuestionIndex))
                     list.forEachIndexed { idx, q ->
                         val sel = restoredSession.answers[q.id]
                         if (sel in listOf("A", "B", "C", "D")) answers[idx] = sel!!
@@ -454,6 +465,7 @@ class TestViewModel : ViewModel() {
             timeLimitSeconds = initialTimeLimitSeconds,
             startedAt = initialStartedAt,
             currentQuestionIndex = currentQuestionIndex,
+            furthestRevealedIndex = furthestRevealedIndex,
             lastSavedAt = System.currentTimeMillis()
         )
         com.eve.app.data.local.TestSessionStore(com.eve.app.EveApplication.instance).saveSession(session)
@@ -554,6 +566,7 @@ class TestViewModel : ViewModel() {
         bundle.putString("key_attempt_owner", currentUserId)
         bundle.putString("key_exam_key", currentExamId)
         bundle.putInt("key_current_q_index", currentIndex)
+        bundle.putInt("key_furthest_revealed_index", furthestRevealedIndex)
     }
 
     fun restoreFromBundle(bundle: android.os.Bundle, requestedExamKey: String) {
@@ -594,5 +607,6 @@ class TestViewModel : ViewModel() {
             if (it.isNotBlank()) clientAttemptId = it
         }
         restoredQuestionIndex = bundle.getInt("key_current_q_index", 0)
+        revealThrough(maxOf(restoredQuestionIndex, bundle.getInt("key_furthest_revealed_index", 0)))
     }
 }
