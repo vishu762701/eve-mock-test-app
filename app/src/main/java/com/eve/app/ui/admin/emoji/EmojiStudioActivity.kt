@@ -55,9 +55,13 @@ class EmojiStudioActivity : EveBaseActivity() {
         // Setup Telegram Action Bar
         binding.actionBar.setTitle("Animated Emoji")
         binding.actionBar.setSubtitle("Emoji Studio & Placements")
-        binding.actionBar.setBackButtonClickListener { finish() }
-        binding.actionBar.setOnSearchQueryListener { query ->
+        binding.actionBar.onBackPressed = { finish() }
+        binding.actionBar.onSearchTextChanged = { query ->
             searchQuery = query.trim().lowercase()
+            filterAndDisplayItems()
+        }
+        binding.actionBar.onSearchCollapsed = {
+            searchQuery = ""
             filterAndDisplayItems()
         }
 

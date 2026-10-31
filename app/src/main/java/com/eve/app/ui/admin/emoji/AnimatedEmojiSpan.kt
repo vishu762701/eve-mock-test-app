@@ -51,9 +51,9 @@ class AnimatedEmojiSpan(
             fm.bottom = fm.descent
         }
 
-        // Add 3dp horizontal spacing after emoji
-        val density = paint.density.takeIf { it > 0f } ?: 1f
-        return measuredSize + (3 * density).toInt()
+        // Add subtle horizontal spacing after emoji
+        val spacing = (paint.textSize * 0.18f).toInt().coerceAtLeast(2)
+        return measuredSize + spacing
     }
 
     override fun draw(

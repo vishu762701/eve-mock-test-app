@@ -56,6 +56,3 @@ INSERT OR IGNORE INTO emoji_packs (id, name, title, source, license_attribution,
 -- Global Telegram emoji switch (defaults to enabled: true)
 INSERT OR IGNORE INTO app_content (id, title, body, updated_at) VALUES
 ('telegram_emoji_global', 'Telegram Emoji Global Switch', '{"enabled":true}', unixepoch() * 1000);
-
--- Ensure target_category exists on notifications table
-ALTER TABLE notifications ADD COLUMN target_category TEXT DEFAULT 'All Users';

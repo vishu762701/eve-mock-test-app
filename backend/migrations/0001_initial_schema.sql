@@ -231,7 +231,8 @@ CREATE TABLE IF NOT EXISTS notifications (
     message TEXT NOT NULL,
     sent_at INTEGER NOT NULL,
     sent_by TEXT NOT NULL DEFAULT '',
-    type TEXT NOT NULL DEFAULT 'general'
+    type TEXT NOT NULL DEFAULT 'general',
+    target_category TEXT DEFAULT 'All Users'
 );
 CREATE INDEX IF NOT EXISTS idx_notifications_sent_at ON notifications (sent_at DESC);
 
