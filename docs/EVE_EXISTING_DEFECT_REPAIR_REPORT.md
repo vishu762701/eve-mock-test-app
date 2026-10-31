@@ -20,6 +20,10 @@ Baseline: `303119f2f2059cc94161240d5fa7cd41faaa6d0e`. Exact baseline FAST: https
 
 Local: documentation verifier and host Python suite pass; `git diff --check` passes. Android SDK/Gradle/device unavailable locally; JVM execution, Android compilation and native acceptance require exact-SHA remote CI. No local Android execution claimed.
 
-Status: INCOMPLETE until batch FAST and terminal FULL evidence is recorded. Next action: push the scoped repair batch with expected baseline SHA, inspect its exact-SHA FAST; repair any failure before final FULL. Native source-parity and physical-device criteria remain individually BLOCKED/UNKNOWN even if CI succeeds.
+Implementation: `78a77e11638bfd6532b063699d5b8af9612efbc7`; forward test integration repair: `396a84c4846864f3b197f1c5bc5ed9afc5f1d6fb`. Initial FAST https://github.com/vishu762701/eve-mock-test-app/actions/runs/41183525890 failed because two source tests expected the replaced comparison expressions (600 tests, 2 failures). Both now require the real shared confirmation guard and initiator UID; behavioral assertions were retained.
+
+Repaired exact-SHA FAST: https://github.com/vishu762701/eve-mock-test-app/actions/runs/41183587590 — SUCCESS (Android build/JVM/test-source compilation, backend, Firebase). Final boundary regression also checks UID case sensitivity independently of category case folding.
+
+Status: source repair and FAST VERIFIED; terminal FULL pending. Next action: inspect final implementation FULL run and APK checksum. Broader fidelity mission remains INCOMPLETE for the explicitly unavailable external evidence. Native source-parity and physical-device criteria remain individually BLOCKED/UNKNOWN even if CI succeeds.
 
 Final report must record actual implementation SHA, FAST/FULL URLs, six job outcomes and downloaded APK SHA-256. Background execution is never promised.

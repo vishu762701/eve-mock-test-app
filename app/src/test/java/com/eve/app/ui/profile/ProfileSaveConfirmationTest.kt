@@ -11,6 +11,10 @@ class ProfileSaveConfirmationTest {
         assertFalse(ProfileSaveConfirmation.matches(null, null, true, "bio", "bio"))
         assertFalse(ProfileSaveConfirmation.matches("", "", true, "bio", "bio"))
     }
+    @Test fun categoryCaseFoldingNeverAppliesToAccountIdentity() {
+        assertFalse(ProfileSaveConfirmation.matches("Alice", "alice", true, "OBC", "obc", true))
+        assertFalse(ProfileSaveConfirmation.matches(" ", " ", true, "OBC", "OBC", true))
+    }
     @Test fun successfulOwnerReadbackConfirmsOnlyTheExpectedValue() {
         assertTrue(ProfileSaveConfirmation.matches("alice", "alice", true, "OBC", "obc", true))
         assertTrue(ProfileSaveConfirmation.matches("alice", "alice", true, "", ""))
