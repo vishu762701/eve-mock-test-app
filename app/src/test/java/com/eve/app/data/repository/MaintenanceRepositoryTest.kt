@@ -56,4 +56,17 @@ class MaintenanceRepositoryTest {
         val repo = AdminRepository(api { _, _ -> ApiResponse<AppConfig>(false, error = "unavailable") })
         try { repo.getAppConfig(); fail("Read failure must throw") } catch (_: Exception) { }
     }
+    @Test fun configEditorSendsOnlyChangedFieldsAndReadsBack() = runBlocking {
+        val before = AppConfig(47, false, "Keep message", "live")
+        val after = before.copy(maintenance_message = "New message")
+        val calls = mutableListOf<String>()
+        val repo = AdminRepository(api { name, args ->
+            calls.add(name)
+            if (name == "updateAppConfig") assertEquals(mapOf("maintenance_message" to "New message"), args[0])
+            ApiResponse(true, after)
+        })
+        assertTrue(repo.updateAppConfig(after, before))
+        assertEquals(listOf("updateAppConfig", "getAppConfig"), calls)
+    }
+
 }

@@ -11,7 +11,12 @@ class AppConfigSourceConfirmationTest {
     @Test fun maintenanceUsesOfficialDialogAndRejectsDuplicatePrivilegedActions() {
         val block = source.substringAfter("private fun validateAndSaveConfig()")
             .substringBefore("private fun saveConfig(config: AppConfig)")
-        assertTrue(block.contains("if (maintenanceMode)"))
+        assertTrue("Only a deliberate off-to-on save needs enable confirmation",
+            block.contains("if (maintenanceMode && confirmedConfig?.maintenance_mode != true)"))
+        assertTrue(block.contains("if (configBusy) return"))
+        assertTrue(block.contains("if (confirmedConfig == null) { loadConfig(); return }"))
+        assertTrue("Every dismissal restores the confirmed server switch state",
+            block.contains("binding.switchMaintenanceMode.setCheckedSilently(confirmedConfig?.maintenance_mode ?: false)"))
         assertTrue(block.contains(
             "if (isFinishing || isDestroyed || maintenanceConfirmationDialog?.isShowing == true) return"))
         assertTrue(block.contains(".setTitle(\"Enable Maintenance Mode?\")"))
@@ -28,7 +33,10 @@ class AppConfigSourceConfirmationTest {
 
     @Test fun adminAuthorizationAndOwnerWindowCleanupArePreserved() {
         assertTrue(source.contains("AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true)"))
-        assertTrue(source.contains("adminRepo.updateAppConfig(config)"))
+        assertTrue(source.contains("adminRepo.updateAppConfig(config, confirmedConfig ?: throw IllegalStateException(\"Reload configuration\"))"))
+        val repository = File("src/main/java/com/eve/app/data/repository/AdminRepository.kt").readText()
+        assertTrue("Editor sends only deliberately changed fields", repository.contains("val changes = body.filter { (key, value) -> old[key] != value }"))
+        assertTrue("Success requires server readback", repository.contains("if (confirmed != config) throw Exception"))
         val destroy = source.substringAfter("override fun onDestroy()")
         assertTrue(destroy.contains("maintenanceConfirmationDialog?.dismiss()"))
         assertTrue(destroy.contains("maintenanceConfirmationDialog = null"))
