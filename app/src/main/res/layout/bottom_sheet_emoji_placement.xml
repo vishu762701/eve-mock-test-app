@@ -108,6 +108,13 @@
             android:maxLines="1" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- Telegram TextCell destructive action, backed by Worker-confirmed D1 delete. -->
+    <com.eve.app.ui.admin.tg.TextCell
+        android:id="@+id/rowRemovePlacement"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -262,30 +262,88 @@ class EmojiStudioActivity : EveBaseActivity() {
             }
         }
 
+        // This source-derived TextCell makes the existing Worker DELETE route
+        // reachable without bypassing permission checks or claiming early success.
+        sheetBinding.rowRemovePlacement.setText("Remove Placement", needDivider = false)
+        sheetBinding.rowRemovePlacement.setShowArrow(false)
+        sheetBinding.rowRemovePlacement.makeRed()
+        sheetBinding.rowRemovePlacement.contentDescription = "Remove emoji placement from target"
+        val canApply = item.id in serverItemIds
+        var requestRunning = false
+        fun selection(): Pair<String, String> {
+            val slot = when (sheetBinding.rgSlotType.checkedRadioButtonId) {
+                R.id.rbCategoryHeader -> "category_header"
+                R.id.rbBroadcast -> "broadcast"
+                else -> "exam_card"
+            }
+            return slot to sheetBinding.etTargetId.text?.toString()?.trim().orEmpty()
+        }
+        fun setRequestRunning(running: Boolean) {
+            requestRunning = running
+            sheetBinding.btnApplyPlacement.isEnabled = canApply && !running
+            sheetBinding.rowRemovePlacement.isEnabled = !running
+        }
+        sheetBinding.rowRemovePlacement.setOnClickListener {
+            if (requestRunning) return@setOnClickListener
+            val (slotType, targetId) = selection()
+            if (targetId.isBlank() || targetId.length > 128) {
+                AppBulletin.showError(this, "Enter a target ID containing 1-128 characters.")
+                return@setOnClickListener
+            }
+            TelegramNativeAlertDialog.Builder(this)
+                .setTitle("Remove Placement?")
+                .setMessage("Remove the emoji currently assigned to $slotType '$targetId'?")
+                .setPositiveButton("Remove") { _, _ ->
+                    if (!requestRunning) {
+                        setRequestRunning(true)
+                        lifecycleScope.launch {
+                            try {
+                                val result = emojiRepo.clearPlacement(slotType, targetId)
+                                if (result.isSuccess) {
+                                    dialog.dismiss()
+                                    AppBulletin.showSuccess(this@EmojiStudioActivity, "Emoji placement removed.")
+                                } else {
+                                    AppBulletin.showError(this@EmojiStudioActivity,
+                                        result.exceptionOrNull()?.toUserFriendlyMessage() ?: "Unable to remove placement.")
+                                }
+                            } finally {
+                                setRequestRunning(false)
+                            }
+                        }
+                    }
+                }
+                .setNegativeButton("Cancel", null)
+                .makeRed(DialogInterface.BUTTON_POSITIVE)
+                .show()
+        }
         sheetBinding.btnCancelPlacement.setOnClickListener { dialog.dismiss() }
-        sheetBinding.btnApplyPlacement.isEnabled = item.id in serverItemIds
-        if (item.id !in serverItemIds) sheetBinding.tvPlacementPackName.text = "Preview only: server catalogue update required."
+        sheetBinding.btnApplyPlacement.isEnabled = canApply
+        if (!canApply) sheetBinding.tvPlacementPackName.text = "Preview only: server catalogue update required."
         sheetBinding.btnApplyPlacement.setOnClickListener {
+            if (requestRunning) return@setOnClickListener
             val slotType = when (sheetBinding.rgSlotType.checkedRadioButtonId) {
                 R.id.rbCategoryHeader -> "category_header"
                 R.id.rbBroadcast -> "broadcast"
                 else -> "exam_card"
             }
             val targetId = sheetBinding.etTargetId.text?.toString()?.trim() ?: ""
-            if (targetId.isBlank()) {
-                AppBulletin.showError(this, "Target ID is required")
+            if (targetId.isBlank() || targetId.length > 128) {
+                AppBulletin.showError(this, "Enter a target ID containing 1-128 characters.")
                 return@setOnClickListener
             }
-
-            sheetBinding.btnApplyPlacement.isEnabled = false
+            setRequestRunning(true)
             lifecycleScope.launch {
-                val res = emojiRepo.setPlacement(slotType, targetId, item.id)
-                sheetBinding.btnApplyPlacement.isEnabled = true
-                if (res.isSuccess) {
-                    dialog.dismiss()
-                    AppBulletin.showSuccess(this@EmojiStudioActivity, "Placed ${item.altEmoji} on $slotType!")
-                } else {
-                    AppBulletin.showError(this@EmojiStudioActivity, res.exceptionOrNull()?.toUserFriendlyMessage() ?: "Failed to set placement")
+                try {
+                    val res = emojiRepo.setPlacement(slotType, targetId, item.id)
+                    if (res.isSuccess) {
+                        dialog.dismiss()
+                        AppBulletin.showSuccess(this@EmojiStudioActivity, "Placed ${item.altEmoji} on $slotType!")
+                    } else {
+                        AppBulletin.showError(this@EmojiStudioActivity,
+                            res.exceptionOrNull()?.toUserFriendlyMessage() ?: "Failed to set placement")
+                    }
+                } finally {
+                    setRequestRunning(false)
                 }
             }
         }

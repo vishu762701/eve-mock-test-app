@@ -164,8 +164,20 @@ class AdminHubTelegramFidelityTest {
         assertFalse("Recent Actions must not construct AndroidX AlertDialog", activityLog.contains("import androidx.appcompat.app.AlertDialog"))
         assertFalse("Emoji Studio must not construct AndroidX AlertDialog", emoji.contains("import androidx.appcompat.app.AlertDialog"))
         assertEquals("Recent Actions must use Telegram modal renderer", 1, activityLog.split("TelegramNativeAlertDialog.Builder(this)").size - 1)
-        assertEquals("All five Emoji Studio dialogs must use Telegram modal renderer", 5, emoji.split("TelegramNativeAlertDialog.Builder(this)").size - 1)
+        assertEquals("All six Emoji Studio dialogs must use Telegram modal renderer", 6, emoji.split("TelegramNativeAlertDialog.Builder(this)").size - 1)
         assertTrue("Delete confirmation must use destructive text role", emoji.contains("makeRed(DialogInterface.BUTTON_POSITIVE)"))
+    }
+
+    @Test
+    fun testEmojiPlacementCanBeRemovedOnlyAfterWorkerConfirmation() {
+        val activity = File("src/main/java/com/eve/app/ui/admin/emoji/EmojiStudioActivity.kt").readText()
+        val layout = File("src/main/res/layout/bottom_sheet_emoji_placement.xml").readText()
+        assertTrue("Removal must use the Telegram-derived TextCell", layout.contains("<com.eve.app.ui.admin.tg.TextCell"))
+        assertTrue("Removal row must exist", layout.contains("android:id=\"@+id/rowRemovePlacement\""))
+        assertTrue("Removal must call the actual Worker-backed repository", activity.contains("emojiRepo.clearPlacement(slotType, targetId)"))
+        assertTrue("Success must be conditional on server response", activity.contains("if (result.isSuccess)"))
+        assertTrue("Failure must be visible to admins", activity.contains("result.exceptionOrNull()?.toUserFriendlyMessage()"))
+        assertTrue("Destructive confirmation must be Telegram-rendered", activity.contains(".setTitle(\"Remove Placement?\")"))
     }
 
 }
