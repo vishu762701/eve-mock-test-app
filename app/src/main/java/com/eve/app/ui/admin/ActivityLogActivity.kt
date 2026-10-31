@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
+import com.eve.app.designsystem.TelegramNativeAlertDialog
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -303,7 +303,7 @@ class ActivityLogActivity : EveBaseActivity() {
             }
         }
 
-        AlertDialog.Builder(this)
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle(log.actionBadge)
             .setMessage(msg.toString().trimEnd())
             .setPositiveButton("Close", null)

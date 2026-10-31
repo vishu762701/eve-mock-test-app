@@ -1,10 +1,11 @@
 package com.eve.app.ui.admin.emoji
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
+import com.eve.app.designsystem.TelegramNativeAlertDialog
 import coil.load
 import com.eve.app.designsystem.TelegramSwitch
 import com.eve.app.data.remote.toUserFriendlyMessage
@@ -323,7 +324,7 @@ class EmojiStudioActivity : EveBaseActivity() {
 
             // Long press to delete pack
             cell.setOnLongClickListener {
-                AlertDialog.Builder(this)
+                TelegramNativeAlertDialog.Builder(this)
                     .setTitle("Delete Pack")
                     .setMessage("Permanently takedown and delete '${pack.title}' and all its emoji files?")
                     .setPositiveButton("Delete Permanently") { _, _ ->
@@ -340,6 +341,7 @@ class EmojiStudioActivity : EveBaseActivity() {
                         }
                     }
                     .setNegativeButton("Cancel", null)
+                    .makeRed(DialogInterface.BUTTON_POSITIVE)
                     .show()
                 true
             }
@@ -358,7 +360,7 @@ class EmojiStudioActivity : EveBaseActivity() {
         actions += "Upload Custom JSON/WebP/PNG" to {
             uploadPicker.launch(arrayOf("application/json", "image/webp", "image/png"))
         }
-        AlertDialog.Builder(this)
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle("Import Emoji")
             .setItems(actions.map { it.first }.toTypedArray()) { _, which -> actions[which].second() }
             .setNegativeButton("Cancel", null).show()
@@ -372,7 +374,7 @@ class EmojiStudioActivity : EveBaseActivity() {
             setSingleLine()
         }
 
-        AlertDialog.Builder(this)
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle("Import Telegram Pack")
             .setView(input)
             .setPositiveButton("Import") { _, _ ->
@@ -401,7 +403,7 @@ class EmojiStudioActivity : EveBaseActivity() {
 
     private fun showNotoImportDialog() {
         val categories = arrayOf("Popular (Smileys, Star, Fire)", "Study (Books, Graduation, Clock)")
-        AlertDialog.Builder(this)
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle("Import Google Noto Emoji")
             .setItems(categories) { _, which ->
                 val cat = if (which == 0) "popular" else "study"
@@ -478,7 +480,7 @@ class EmojiStudioActivity : EveBaseActivity() {
             .append("Premium Origin: ${if (item.premiumOrigin) "Yes (Telegram)" else "No"}\n")
             .append("Storage: ${item.storageKey ?: item.url}")
 
-        AlertDialog.Builder(this)
+        TelegramNativeAlertDialog.Builder(this)
             .setTitle("Emoji Details")
             .setMessage(details.toString())
             .setPositiveButton("OK", null)
