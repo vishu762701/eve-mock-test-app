@@ -62,8 +62,18 @@ class ChangePhoneActivity : EveBaseActivity() {
             try {
                 val res = ApiClient.apiService.updateProfile(mapOf("phone" to phoneToSave))
                 if (res.success) {
-                    setResult(Activity.RESULT_OK)
-                    finish()
+                    // A successful mutation response is not evidence that this account can read the value back.
+                    val confirmed = ApiClient.apiService.getProfile()
+                    if (confirmed.success && confirmed.data?.phone?.trim() == phoneToSave) {
+                        setResult(Activity.RESULT_OK)
+                        finish()
+                    } else {
+                        binding.btnDone.isEnabled = true
+                        AppBulletin.showError(
+                            this@ChangePhoneActivity,
+                            "Phone update could not be verified. Check the saved number before retrying."
+                        )
+                    }
                 } else {
                     binding.btnDone.isEnabled = true
                     AppBulletin.showError(this@ChangePhoneActivity, res.error ?: "Failed to update phone number")
