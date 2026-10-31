@@ -31,6 +31,7 @@ import { emojiRoutes, emojiAdminRoutes } from "./routes/emoji";
 import { questionRoutes } from "./routes/questions";
 import { SupabaseStorage } from "./supabase";
 import { AuthUser, Env } from "./types";
+import { getAdminPermissions, verifyFirebaseIdToken } from "./auth";
 
 type AppContext = Context<{ Bindings: Env; Variables: { user: AuthUser } }>;
 
@@ -122,30 +123,32 @@ app.get("/api/floating-link", async (c) => {
   }
 });
 
-// Helper: Verify caller has admin privileges or diagnostic authorization key
-function isDiagnosticAuthorized(c: AppContext): boolean {
-  // 1. Admin Firebase user
-  const user = c.get("user");
-  if (user && user.isAdmin) return true;
-
-  // 2. Secret diagnostic key passed via header
+// These diagnostic routes are registered BEFORE the general /api/* auth
+// middleware, so c.get("user") cannot establish Firebase identity here.
+// Verify the token against Google's keys and fetch admin rights from D1.
+async function isDiagnosticAuthorized(c: AppContext): Promise<boolean> {
   const authHeader = c.req.header("Authorization");
   const bearerToken = authHeader?.startsWith("Bearer ") ? authHeader.substring(7).trim() : null;
-  const diagKey =
-    c.req.header("X-Diagnostic-Key") ||
-    c.req.header("x-diagnostic-key") ||
-    bearerToken;
-
+  const diagKey = c.req.header("X-Diagnostic-Key") || c.req.header("x-diagnostic-key") || bearerToken;
   if (diagKey && c.env.DIAGNOSTIC_KEY && diagKey.trim() === c.env.DIAGNOSTIC_KEY.trim()) {
     return true;
   }
 
-  return false;
+  if (!bearerToken) return false;
+  try {
+    const identity = await verifyFirebaseIdToken(bearerToken, c.env.FIREBASE_PROJECT_ID);
+    if (!identity.emailVerified || !identity.email) return false;
+    const permissions = await getAdminPermissions(c.env.DB, identity.email);
+    return permissions?.rights.includes("view_analytics_logs") === true;
+  } catch {
+    // Invalid or expired Firebase tokens and missing D1 rights fail closed.
+    return false;
+  }
 }
 
 // Diagnostic Handler for D1
 async function handleD1Diagnostic(c: AppContext) {
-  if (!isDiagnosticAuthorized(c)) {
+  if (!await isDiagnosticAuthorized(c)) {
     return c.json(
       {
         success: false,
@@ -192,7 +195,7 @@ async function handleD1Diagnostic(c: AppContext) {
 
 // Diagnostic Handler for Supabase Storage
 async function handleStorageDiagnostic(c: AppContext) {
-  if (!isDiagnosticAuthorized(c)) {
+  if (!await isDiagnosticAuthorized(c)) {
     return c.json(
       {
         success: false,
