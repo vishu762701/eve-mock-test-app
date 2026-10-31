@@ -375,6 +375,46 @@
                         android:layout_marginStart="20dp"
                         android:background="@color/category_pill_unselected_bg" />
 
+                    <!-- Personal Bio; NOT the removed About navigation screen. -->
+                    <LinearLayout
+                        android:id="@+id/cellBio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="60dp"
+                        android:paddingVertical="10dp"
+                        android:clickable="true"
+                        android:enabled="false"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:gravity="center_vertical"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="20dp">
+
+                        <TextView
+                            android:id="@+id/tvBioValue"
+                            style="@style/TextAppearance.Eve.Telegram.SettingsLabel"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:maxLines="3"
+                            android:ellipsize="end"
+                            android:text="Bio unavailable until server update"
+                            tools:text="Learning together" />
+
+                        <TextView
+                            android:id="@+id/tvBioLabel"
+                            style="@style/TextAppearance.Eve.Telegram.SettingsDetail"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Bio" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="20dp"
+                        android:background="@color/category_pill_unselected_bg" />
+
                     <!-- Birthday -->
                     <LinearLayout
                         android:id="@+id/cellBirthday"

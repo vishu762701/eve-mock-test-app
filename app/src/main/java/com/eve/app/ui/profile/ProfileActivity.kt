@@ -64,6 +64,8 @@ class ProfileActivity : EveBaseActivity() {
     private var currentCategory: String = "General"
     private var currentPhone: String = ""
     private var currentUsername: String = ""
+    // Null means server Bio support has not been deployed; empty is a valid cleared Bio.
+    private var currentBio: String? = null
 
     private val pickPhotoLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -87,6 +89,13 @@ class ProfileActivity : EveBaseActivity() {
         }
 
     private val editPhoneLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                loadProfile()
+            }
+        }
+
+    private val editBioLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 loadProfile()
@@ -300,6 +309,14 @@ class ProfileActivity : EveBaseActivity() {
                 putExtra("current_username", currentUsername)
             }
             editUsernameLauncher.launch(intent)
+        }
+
+        // Optional Bio uses server capability detection, not optimistic local-only state.
+        binding.cellBio.setOnClickListener {
+            val bio = currentBio ?: return@setOnClickListener
+            editBioLauncher.launch(Intent(this, ChangeBioActivity::class.java).apply {
+                putExtra("current_bio", bio)
+            })
         }
 
         // Birthday cell
@@ -558,6 +575,9 @@ class ProfileActivity : EveBaseActivity() {
         val currentName = user.displayName?.takeIf { it.isNotBlank() } ?: "Student"
         binding.tvName.text = currentName
         binding.tvToolbarTitle.text = currentName
+        currentBio = null
+        binding.cellBio.isEnabled = false
+        binding.tvBioValue.text = "Bio unavailable until server update"
 
         lifecycleScope.launch {
             try {
@@ -590,6 +610,14 @@ class ProfileActivity : EveBaseActivity() {
                         "Set username"
                     }
                     binding.tvUsernameValue.text = displayUsername
+
+                    currentBio = profile.bio
+                    binding.cellBio.isEnabled = profile.bio != null
+                    binding.tvBioValue.text = when {
+                        profile.bio == null -> "Bio unavailable until server update"
+                        profile.bio.isBlank() -> "Add bio"
+                        else -> profile.bio
+                    }
 
                     // Birthday
                     currentDob = profile.dob

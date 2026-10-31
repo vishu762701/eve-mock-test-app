@@ -133,7 +133,8 @@ data class UserProfileResponse(
     val dob: String,
     val category: String,
     val username: String? = null,
-    val phone: String? = null
+    val phone: String? = null,
+    val bio: String? = null
 )
 
 data class UsernameCheckResponse(
