@@ -5,7 +5,7 @@
 
 ## 0. How to use this file
 - Read this file before starting any task.
-- The latest explicit owner request is the ONLY change scope: implement authorized outcomes and directly affected frontend/backend/resources/tests together when appropriate, never unrelated work. `ENGINEERING_STANDARD.md`, `AGENTS.md`, and backend-specific `backend/AGENTS.md` define workflow; `GEMINI.md` and `CLAUDE.md` are pointers. Security/data integrity and actual release obligations remain enforced.
+- The latest explicit owner request is the ONLY change scope: implement authorized outcomes and directly affected frontend/backend/resources/tests together when appropriate, never unrelated work. `ENGINEERING_STANDARD.md` defines workflow; agent files are pointers. Security/data integrity and actual release obligations remain enforced.
 - If this file and the actual code disagree, trust the code, and report the mismatch under "Noticed but not touched (outside scope)" in the Final Report.
 - Never claim current state from memory or older chats. Inspect real files and current remote HEAD/CI; use `git status` and `git log -1` only when a local checkout is accessible.
 
@@ -66,7 +66,7 @@ Source-traced Telegram UI, theme reveal, Lottie animations, existing tokens and 
 5. Automatically remove only files proven obsolete because of the current requested change; repository-wide cleanup requires a separate explicit owner request. Follow evidence rules in `ENGINEERING_STANDARD.md`.
 
 ## 4. Verification (run for the layer you changed; both if the change spans both)
-- `Build Eve APK` runs FAST on the final SHA of each pushed implementation batch, validating Android compilation, JVM tests/test source compilation, backend and Firebase. Multiple coherent commits may be pushed together without separate CI for each internal commit; each separately pushed batch needs its own FAST. Terminal `[eve-full]` or explicitly owner-requested manual dispatch enables all six FULL jobs, native tests, signing checks and gated `Eve-debug-apk` publication. A successful client build never proves live Worker/D1 migration or production contract parity.
+- `Build Eve APK` runs FAST on the final SHA of each pushed implementation batch, validating Android compilation, JVM tests/test source compilation, backend and Firebase. Each pushed batch needs its own exact-SHA FAST; follow the per-feature commit limit in `ENGINEERING_STANDARD.md`. Terminal `[eve-full]` or explicitly owner-requested manual dispatch enables all six FULL jobs, native tests, signing checks and gated `Eve-debug-apk` publication. A successful client build never proves live Worker/D1 migration or production contract parity.
 - Android: `./gradlew testDebugUnitTest` and `./gradlew assembleDebug`.
 - Backend (inside `backend/`): `npm test` and `npm run build`.
 - Run `git diff --check` when working in a checkout, targeted backend/API tests on server changes, and exact-SHA GitHub Actions after each pushed batch. Production Worker/D1 deployment stays explicitly manual-only.

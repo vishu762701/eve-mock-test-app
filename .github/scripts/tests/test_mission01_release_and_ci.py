@@ -16,22 +16,13 @@ NATIVE_TEST = ROOT / "app/src/androidTest/java/com/eve/app/ui/LockedFoundationTe
 class Mission01GateTest(unittest.TestCase):
     def test_official_telegram_fidelity_contract_survives_rule_cleanup(self):
         """A source-exact mission needs per-role evidence beyond a green build."""
-        entry = (ROOT / "AGENTS.md").read_text()
-        for requirement in (
-            "Telegram Mission 01 fidelity contract",
-            "source-mapping table",
-            "EVE path:line",
-            "Telegram path:line",
-            "verified source value or asset SHA-256",
-            "Day/Night",
-            "normal/pressed/disabled/selected/loading",
-            "RTL",
-            "accessibility",
-            "NOT FOUND",
-            "Green CI",
-        ):
-            self.assertIn(requirement, entry)
-        self.assertIn("never block unrelated tasks", entry)
+        standard = (ROOT / "ENGINEERING_STANDARD.md").read_text()
+        process = (ROOT / "docs/telegram-integration-process.md").read_text()
+        for requirement in ("path/lines or hashes", "Day/Night", "RTL", "accessibility",
+                            "EXACT", "ADAPTED", "NOT FOUND", "BLOCKED", "runtime behavior"):
+            self.assertIn(requirement, standard)
+        for requirement in ("upstream file:line", "EVE file:line", "runtime comparison"):
+            self.assertIn(requirement, process)
 
     def test_imported_icon_hashes_match_source_evidence(self):
         """Pin every imported density to the recorded upstream/EVE hash comparison.

@@ -10,28 +10,15 @@ def read(path):
 class ActiveDevelopmentPolicyTest(unittest.TestCase):
     def test_principal_engineer_owns_changes(self):
         rules = read("ENGINEERING_STANDARD.md")
-        self.assertIn("No UI/UX choice is permanently locked", rules)
-        self.assertIn("Accountable principal-engineer execution", rules)
-        self.assertIn("Automatic unused-file cleanup", rules)
-        self.assertIn("Official design / source reuse", rules)
+        for term in ("No UI/UX choice is permanently locked", "Own the complete authorized outcome",
+                     "Remove only files proven obsolete", "Do not silently broaden product scope"):
+            self.assertIn(term, rules)
 
-    def test_strict_owner_scope_and_official_only(self):
-        standard = read("ENGINEERING_STANDARD.md")
-        agent = read("AGENTS.md")
-        architecture = read("SOURCE_OF_TRUTH.md")
-        self.assertIn("Owner-authorized scope and exact official implementation", standard)
-        self.assertIn("Never use an alternative unless the owner explicitly authorizes it", standard)
-        self.assertIn("Do not silently add unrelated features", standard)
-        self.assertIn("Never use or build an alternative", agent)
-        self.assertIn("Do not delete unrelated orphan files", agent)
-        self.assertIn("ONLY change scope", architecture)
-
-    def test_no_blanket_source_requirement(self):
-        entry = read("AGENTS.md")
-        self.assertIn("Telegram source is necessary ONLY", entry)
-        self.assertIn("authenticated official Git checkout", entry)
-        self.assertIn("verified complete archive", entry)
-        self.assertIn("never block unrelated tasks", entry)
+    def test_official_source_scoped_to_requested_reuse(self):
+        rules = read("ENGINEERING_STANDARD.md")
+        for term in ("not unrelated work", "authenticate its official origin",
+                     "Do not substitute an unofficial implementation without owner permission"):
+            self.assertIn(term, rules)
 
     def test_historical_ui_not_forbidden_in_ci(self):
         build = read(".github/workflows/build.yml")

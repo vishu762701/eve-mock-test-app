@@ -72,41 +72,11 @@ for (const relPath of ['AGENTS.md', 'GEMINI.md', 'CLAUDE.md']) {
     error(`${relPath}: Missing reference to shared AGENTS.md policy`);
   }
 }
-// Fast Batch Engineering v6 invariants: check behavior, not deprecated microstep wording.
-const agent = fs.readFileSync(path.join(REPO_ROOT, 'AGENTS.md'), 'utf8');
+// The canonical policy is checked for key invariants; this is not proof of compliance.
 const engineering = fs.readFileSync(path.join(REPO_ROOT, 'ENGINEERING_STANDARD.md'), 'utf8');
-const architecture = fs.readFileSync(path.join(REPO_ROOT, 'SOURCE_OF_TRUTH.md'), 'utf8');
-const backendRulesPath = path.join(REPO_ROOT, 'backend/AGENTS.md');
-const backendRules = fs.existsSync(backendRulesPath) ? fs.readFileSync(backendRulesPath, 'utf8') : '';
-const starterFile = path.join(REPO_ROOT, 'docs/EVE_ONE_TIME_CHAT_STARTER.md');
-const starter = fs.existsSync(starterFile) ? fs.readFileSync(starterFile, 'utf8') : '';
-for (const [name, source, required] of [
-  ['AGENTS.md', agent, [
-    'Historical approvals do not lock UI', 'Engineering Governance Gates (G0–G8)',
-    'FAST BATCH IMPLEMENTATION', 'BATCH-END FAST VALIDATION', 'EXACT', 'ADAPTED', 'BLOCKED',
-    'never block unrelated tasks', 'Stop-the-Line CI Recovery Contract',
-    'Never use or build an alternative', 'Automatically delete only files rendered conclusively unused'
-  ]],
-  ['ENGINEERING_STANDARD.md', engineering, [
-    'No UI/UX choice is permanently locked', 'Owner-authorized scope and exact official implementation',
-    'Automatic unused-file cleanup', 'Accountable principal-engineer execution',
-    'Engineering governance gates (G0–G8)', 'Multiple coherent commits may be prepared and pushed together',
-    'final SHA', 'CI_RED', 'forward-only repair commit', 'exact-SHA',
-    'Never disable, suppress, or delete legitimate test assertions',
-    'FULL CI is a terminal mission gate', 'G7 exact resume checkpoint',
-    'Backend/server synchronization', 'manual-only', 'Never use an alternative unless the owner explicitly authorizes it'
-  ]],
-  ['SOURCE_OF_TRUTH.md', architecture, ['ONLY change scope', 'not standing requirements', 'backend/AGENTS.md']],
-  ['backend/AGENTS.md', backendRules, ['server-authoritative scoring', 'main', 'npm test', 'npm run build', 'confirm_production']],
-  ['docs/EVE_ONE_TIME_CHAT_STARTER.md', starter, [
-    'one-time new-chat engineering starter v6.0', 'INITIALIZATION VS AUTHORIZATION',
-    '/x10think', '/killcritic', 'FAST BATCH IMPLEMENTATION',
-    'Normal ChatGPT chat may stop', 'BOOTSTRAP RESPONSE ONLY'
-  ]]
-]) {
-  for (const term of required) {
-    if (!source.includes(term)) error(name + ': missing v6 contract: ' + term);
-  }
+for (const term of ['maximum two successful implementation commits', 'exact-SHA FAST',
+  'minimum complete functional subsystem', 'full commit SHA', 'separate explicit owner authorization']) {
+  if (!engineering.includes(term)) error('ENGINEERING_STANDARD.md: missing invariant: ' + term);
 }
 // Keep real workflow gates and release permissions intact.
 const buildWorkflow = fs.readFileSync(path.join(REPO_ROOT, '.github/workflows/build.yml'), 'utf8');

@@ -11,41 +11,22 @@ def read(path):
 
 
 class EngineeringGovernanceTest(unittest.TestCase):
-    def test_g0_g8_and_source_authenticity(self):
-        entry = read("AGENTS.md")
+    def test_canonical_policy_and_source_process(self):
         standard = read("ENGINEERING_STANDARD.md")
-        for gate in ("G0", "G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8"):
-            self.assertIn(gate, entry)
-            self.assertIn(gate, standard)
-        for label in ("EXACT", "ADAPTED", "NOT FOUND", "BLOCKED"):
-            self.assertIn(label, entry)
-            self.assertIn(label, standard)
-        self.assertIn("Never use or build an alternative", entry)
-
-    def test_batch_commits_without_microstep_tax(self):
-        standard = read("ENGINEERING_STANDARD.md")
-        entry = read("AGENTS.md")
-        self.assertIn("No fixed commit count", standard)
-        self.assertIn("Multiple coherent commits may be prepared and pushed together", standard)
-        self.assertIn("Multiple coherent commits may be prepared and pushed together", entry)
-        self.assertIn("final SHA of each pushed batch", standard)
-        self.assertIn("one FAST gate on its final SHA", standard)
-        self.assertIn("CI_RED halts", standard)
-        self.assertIn("focused forward-only repair commit", standard)
-        self.assertIn("Never disable, suppress, or delete legitimate test assertions", standard)
-        self.assertIn("terminal", standard.lower())
-        self.assertIn("[eve-full]", entry)
-
-    def test_no_obsolete_commit_ceiling_in_active_entrypoints(self):
+        process = read("docs/telegram-integration-process.md")
+        for term in ("maximum two successful implementation commits", "preferably one",
+                     "CI-failed commits do not count", "owner approval for an exception",
+                     "exact-SHA FAST", "minimum complete functional subsystem",
+                     "full commit SHA", "EXACT", "ADAPTED", "NOT FOUND", "BLOCKED"):
+            self.assertIn(term, standard)
+        for term in ("latest suitable official revision", "transitive classes", "lifecycle",
+                     "license", "runtime"):
+            self.assertIn(term, process)
+        for path in ("AGENTS.md", "backend/AGENTS.md", "GEMINI.md", "CLAUDE.md"):
+            self.assertIn("ENGINEERING_STANDARD.md", read(path))
         for path in ("AGENTS.md", "ENGINEERING_STANDARD.md", "SOURCE_OF_TRUTH.md",
-                     "backend/AGENTS.md", "GEMINI.md", "CLAUDE.md",
-                     "docs/EVE_ONE_TIME_CHAT_STARTER.md"):
-            content = read(path).lower()
-            for obsolete in (r"\bone commit per feature\b", r"\bone feature per commit\b",
-                             r"\beach commit (?:must|needs to) (?:pass|have) (?:fast|ci)\b"):
-                self.assertNotRegex(content, obsolete, path)
-        self.assertIn("minimum complete functional subsystem", read("ENGINEERING_STANDARD.md"))
-        self.assertIn("official Git checkout", read("AGENTS.md"))
+                     "backend/AGENTS.md", "docs/EVE_ONE_TIME_CHAT_STARTER.md"):
+            self.assertNotRegex(read(path), r"(?i)no fixed commit count|no commit limit")
 
     def test_every_main_push_triggers_build(self):
         workflow = read(".github/workflows/build.yml")
@@ -55,13 +36,9 @@ class EngineeringGovernanceTest(unittest.TestCase):
         self.assertNotRegex(push, r"(?m)^    paths:")
 
     def test_backend_rules_and_production_release_separation(self):
-        backend = read("backend/AGENTS.md")
         deployment = read(".github/workflows/deploy-worker.yml")
         standard = read("ENGINEERING_STANDARD.md")
-        for phrase in ("npm test", "npm run build", "server-authoritative scoring",
-                       "old-client", "manual", "confirm_production"):
-            self.assertIn(phrase, backend)
-        self.assertIn("Backend/server synchronization", standard)
+        self.assertIn("separate explicit owner authorization", standard)
         self.assertIn("workflow_dispatch:", deployment)
         self.assertNotRegex(deployment, r"(?m)^  push:")
         self.assertIn("if: ${{ inputs.confirm_production == true }}", deployment)
