@@ -174,12 +174,20 @@ export async function getOrAssignEveId(
 // POST /api/users/sync - On login / foreground heartbeat
 authRoutes.post("/sync", async (c) => {
   const user = c.get("user");
-  const body = await c.req.json().catch(() => ({}));
+  const body = await c.req.json().catch(() => null);
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return c.json({ success: false, error: "A profile object is required" }, 400);
+  }
+  if (body.displayName !== undefined && (typeof body.displayName !== "string" ||
+      !body.displayName.trim() || body.displayName.length > 100)) {
+    return c.json({ success: false, error: "Display name must contain 1-100 characters" }, 400);
+  }
   const db = c.env.DB;
   const now = Date.now();
 
   const displayName = String(body.displayName || user.displayName || "Student").trim();
-  const email = String(body.email || user.email || "").trim().toLowerCase();
+  // Identity comes from the verified token, never from editable profile input.
+  const email = user.email.trim().toLowerCase();
 
   await db
     .prepare(
@@ -328,113 +336,71 @@ authRoutes.get("/profile", async (c) => {
   });
 });
 
-// PUT /api/users/profile - Update profile details
+// PUT /api/users/profile - Android editors send one changed field at a time.
 authRoutes.put("/profile", async (c) => {
   const user = c.get("user");
-  const body = await c.req.json().catch(() => ({}));
-  const db = c.env.DB;
-  const now = Date.now();
+  const body = await c.req.json().catch(() => null);
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return c.json({ success: false, error: "A profile object is required" }, 400);
+  }
 
-  const displayName = String(body.displayName || "").trim();
-  const dob = String(body.dob || "").trim();
-  const category = String(body.category || "General").trim();
-  const rawUsername = body.username !== undefined ? String(body.username).trim() : undefined;
-  const rawPhone = body.phone !== undefined ? String(body.phone).trim() : undefined;
-
-  if (!displayName) {
+  const fields = {
+    displayName: { column: "display_name", max: 100 },
+    dob: { column: "dob", max: 32 },
+    category: { column: "category", max: 100 },
+    username: { column: "username", max: 33 },
+    phone: { column: "phone", max: 32 },
+  } as const;
+  const supplied: Record<string, string> = {};
+  const updatedColumns: string[] = [];
+  for (const [field, rule] of Object.entries(fields)) {
+    if (!Object.hasOwn(body, field)) continue;
+    if (typeof body[field] !== "string" || body[field].length > rule.max) {
+      return c.json({ success: false, error: `${field} must be text of at most ${rule.max} characters` }, 400);
+    }
+    supplied[field] = body[field].trim();
+    updatedColumns.push(rule.column);
+  }
+  if (updatedColumns.length === 0) {
+    return c.json({ success: false, error: "Provide at least one profile field to update" }, 400);
+  }
+  if (supplied.displayName === "") {
     return c.json({ success: false, error: "Display name cannot be empty" }, 400);
   }
-
-  let newUsername: string | undefined = undefined;
-  if (rawUsername !== undefined) {
-    const cleanUsername = rawUsername.startsWith("@") ? rawUsername.substring(1).trim() : rawUsername;
-    if (cleanUsername !== "") {
-      const validation = validateUsername(cleanUsername);
-      if (!validation.valid) {
-        return c.json({ success: false, error: validation.error }, 400);
-      }
-      newUsername = cleanUsername.toLowerCase();
+  if (supplied.username !== undefined) {
+    const clean = supplied.username.replace(/^@/, "").trim();
+    const validation = validateUsername(clean);
+    if (!validation.valid) return c.json({ success: false, error: validation.error }, 400);
+    supplied.username = clean.toLowerCase();
+  }
+  if (supplied.phone) {
+    const digits = supplied.phone.replace(/[^0-9]/g, "");
+    if (!/^\+?[0-9 -]+$/.test(supplied.phone) || digits.length < 7 || digits.length > 15) {
+      return c.json({ success: false, error: "Please enter a valid phone number (7-15 digits)" }, 400);
     }
   }
 
-  let newPhone: string | undefined = undefined;
-  if (rawPhone !== undefined) {
-    if (rawPhone !== "") {
-      // Light validation: allow optional leading +, digits, spaces, hyphens; length 7-20
-      if (!/^\+?[0-9\s\-]{7,20}$/.test(rawPhone)) {
-        return c.json({ success: false, error: "Please enter a valid phone number" }, 400);
-      }
-      newPhone = rawPhone;
-    } else {
-      newPhone = "";
-    }
-  }
-
+  const now = Date.now();
   try {
-    if (newUsername !== undefined && newPhone !== undefined) {
-      await db
-        .prepare(
-          `INSERT INTO users (id, email, display_name, dob, category, username, phone, created_at, last_active, last_updated)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-           ON CONFLICT(id) DO UPDATE SET
-             display_name = excluded.display_name,
-             dob = excluded.dob,
-             category = excluded.category,
-             username = excluded.username,
-             phone = excluded.phone,
-             last_updated = excluded.last_updated`
-        )
-        .bind(user.uid, user.email, displayName, dob, category, newUsername, newPhone, now, now, now)
-        .run();
-    } else if (newUsername !== undefined) {
-      await db
-        .prepare(
-          `INSERT INTO users (id, email, display_name, dob, category, username, created_at, last_active, last_updated)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-           ON CONFLICT(id) DO UPDATE SET
-             display_name = excluded.display_name,
-             dob = excluded.dob,
-             category = excluded.category,
-             username = excluded.username,
-             last_updated = excluded.last_updated`
-        )
-        .bind(user.uid, user.email, displayName, dob, category, newUsername, now, now, now)
-        .run();
-    } else if (newPhone !== undefined) {
-      await db
-        .prepare(
-          `INSERT INTO users (id, email, display_name, dob, category, phone, created_at, last_active, last_updated)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-           ON CONFLICT(id) DO UPDATE SET
-             display_name = excluded.display_name,
-             dob = excluded.dob,
-             category = excluded.category,
-             phone = excluded.phone,
-             last_updated = excluded.last_updated`
-        )
-        .bind(user.uid, user.email, displayName, dob, category, newPhone, now, now, now)
-        .run();
-    } else {
-      await db
-        .prepare(
-          `INSERT INTO users (id, email, display_name, dob, category, created_at, last_active, last_updated)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-           ON CONFLICT(id) DO UPDATE SET
-             display_name = excluded.display_name,
-             dob = excluded.dob,
-             category = excluded.category,
-             last_updated = excluded.last_updated`
-        )
-        .bind(user.uid, user.email, displayName, dob, category, now, now, now)
-        .run();
-    }
+    // Columns come only from the fixed allowlist above; values remain bound.
+    // Update only supplied fields, atomically preserving other concurrent edits.
+    await c.env.DB.prepare(
+      `INSERT INTO users (id, email, display_name, dob, category, username, phone, created_at, last_active, last_updated)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       ON CONFLICT(id) DO UPDATE SET
+         ${updatedColumns.map(column => `${column} = excluded.${column}`).join(", ")},
+         last_updated = excluded.last_updated`
+    ).bind(
+      user.uid, user.email, supplied.displayName ?? user.displayName ?? "Student",
+      supplied.dob ?? "", supplied.category ?? "General", supplied.username ?? null,
+      supplied.phone ?? "", now, now, now
+    ).run();
   } catch (e: any) {
     if (String(e).includes("UNIQUE constraint failed") || String(e).includes("idx_users_username_lower")) {
       return c.json({ success: false, error: "Sorry, this username is already taken." }, 409);
     }
     throw e;
   }
-
   return c.json({ success: true });
 });
 

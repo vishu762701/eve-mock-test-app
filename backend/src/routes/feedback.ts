@@ -25,7 +25,7 @@ feedbackRoutes.post("/messages", async (c) => {
   const body = await c.req.json().catch(() => ({}));
   const message = String(body.message || "").trim();
   const userName = String(body.userName || user.displayName || "Student").trim();
-  const userEmail = String(body.userEmail || user.email || "").trim();
+  const userEmail = user.email || "";
   const postId = body.postId ? String(body.postId) : null;
   const postTitle = body.postTitle ? String(body.postTitle) : null;
 

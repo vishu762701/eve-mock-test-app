@@ -4,6 +4,7 @@ import { DatabaseSync } from "node:sqlite";
 import { readFileSync, readdirSync } from "node:fs";
 import { Hono } from "hono";
 import { authRoutes, validateUsername, deriveDefaultUsername } from "../src/routes/auth.ts";
+import { feedbackRoutes } from "../src/routes/feedback.ts";
 
 function isolatedD1() {
   const sqlite = new DatabaseSync(":memory:");
@@ -54,6 +55,7 @@ function createTestApp(d1, user) {
     await next();
   });
   app.route("/api/users", authRoutes);
+  app.route("/api/feedback", feedbackRoutes);
   return app;
 }
 
@@ -93,6 +95,104 @@ test("validateUsername enforces Telegram-exact rules", () => {
   assert.equal(validateUsername("user.name").valid, false);
   assert.equal(validateUsername("user@eve").valid, false);
   assert.equal(validateUsername("user name").valid, false);
+});
+
+const profileUser = { uid: "profile-owner", email: "actual@example.test", displayName: "Original Name" };
+const originalProfile = { display_name: "Original Name", dob: "15/03/2004", category: "OBC", username: "original_user", phone: "+91 9876543210" };
+
+function seedProfile(sqlite) {
+  sqlite.prepare("INSERT INTO users (id, email, display_name, dob, category, username, phone, created_at, last_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
+    .run(profileUser.uid, profileUser.email, ...Object.values(originalProfile), 1, 1);
+}
+const profileRequest = (body, method = "PUT") => ({ method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+
+for (const [field, column, value] of [
+  ["displayName", "display_name", "विशु कुमार"],
+  ["username", "username", "new_username"],
+  ["phone", "phone", "+91 1234567890"],
+  ["dob", "dob", "20/04/2003"],
+  ["category", "category", "General"],
+]) {
+  test(`Android single-field ${field} update preserves all other profile fields`, async () => {
+    const { sqlite, d1 } = isolatedD1(); seedProfile(sqlite);
+    const app = createTestApp(d1, profileUser);
+    const response = await app.request("/api/users/profile", profileRequest({ [field]: value }));
+    assert.equal(response.status, 200);
+    const actual = sqlite.prepare("SELECT display_name, dob, category, username, phone FROM users WHERE id = ?").get(profileUser.uid);
+    assert.deepEqual({ ...actual }, { ...originalProfile, [column]: value });
+    const reload = await (await app.request("/api/users/profile")).json();
+    assert.equal(reload.data[field], value);
+  });
+}
+
+test("partial first profile save uses authenticated identity and preserves server-owned fields", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  const app = createTestApp(d1, profileUser);
+  const response = await app.request("/api/users/profile", profileRequest({ phone: "+91 1234567890", email: "forged@example.test", disabled: 1, id: "someone-else" }));
+  assert.equal(response.status, 200);
+  const row = sqlite.prepare("SELECT * FROM users WHERE id = ?").get(profileUser.uid);
+  assert.equal(row.email, profileUser.email);
+  assert.equal(row.display_name, profileUser.displayName);
+  assert.equal(row.disabled, 0);
+  assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM users").get().n, 1);
+});
+
+test("profile rejects malformed fields and punctuation-only phone without changing stored data", async () => {
+  const { sqlite, d1 } = isolatedD1(); seedProfile(sqlite);
+  const app = createTestApp(d1, profileUser);
+  for (const body of [null, [], {}, { displayName: {} }, { displayName: "x".repeat(101) },
+    { displayName: "" }, { phone: "-------" }, { phone: "+1234567890123456" },
+    { phone: 1234567 }, { username: null }, { dob: [] }, { category: "x".repeat(101) }]) {
+    assert.equal((await app.request("/api/users/profile", profileRequest(body))).status, 400, JSON.stringify(body));
+    const row = sqlite.prepare("SELECT display_name, dob, category, username, phone FROM users WHERE id = ?").get(profileUser.uid);
+    assert.deepEqual({ ...row }, originalProfile);
+  }
+});
+
+test("profile may explicitly clear phone and birthday without resetting other fields", async () => {
+  const { sqlite, d1 } = isolatedD1(); seedProfile(sqlite);
+  const app = createTestApp(d1, profileUser);
+  assert.equal((await app.request("/api/users/profile", profileRequest({ phone: "", dob: "" }))).status, 200);
+  const row = sqlite.prepare("SELECT display_name, dob, category, username, phone FROM users WHERE id = ?").get(profileUser.uid);
+  assert.deepEqual({ ...row }, { ...originalProfile, phone: "", dob: "" });
+});
+
+test("profile sync stores token email even when request tries to impersonate another account", async () => {
+  const { sqlite, d1 } = isolatedD1(); seedProfile(sqlite);
+  const app = createTestApp(d1, profileUser);
+  const response = await app.request("/api/users/sync", profileRequest({ email: "forged@example.test", displayName: "विशु" }, "POST"));
+  assert.equal(response.status, 200);
+  assert.equal(sqlite.prepare("SELECT email FROM users WHERE id = ?").get(profileUser.uid).email, profileUser.email);
+});
+
+test("concurrent independent profile edits both survive", async () => {
+  const { sqlite, d1 } = isolatedD1(); seedProfile(sqlite);
+  const app = createTestApp(d1, profileUser);
+  const responses = await Promise.all([
+    app.request("/api/users/profile", profileRequest({ displayName: "New Name" })),
+    app.request("/api/users/profile", profileRequest({ phone: "+91 1234567890" })),
+  ]);
+  assert.deepEqual(responses.map(r => r.status), [200, 200]);
+  const row = sqlite.prepare("SELECT display_name, dob, category, username, phone FROM users WHERE id = ?").get(profileUser.uid);
+  assert.deepEqual({ ...row }, { ...originalProfile, display_name: "New Name", phone: "+91 1234567890" });
+});
+
+test("profile sync rejects malformed names before creating user data", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  const app = createTestApp(d1, profileUser);
+  for (const body of [null, [], { displayName: {} }, { displayName: "" }, { displayName: "x".repeat(101) }]) {
+    assert.equal((await app.request("/api/users/sync", profileRequest(body, "POST"))).status, 400);
+    assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM users").get().n, 0);
+  }
+});
+
+test("private feedback identity uses authenticated email rather than the request body", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  const response = await createTestApp(d1, profileUser).request("/api/feedback/messages", profileRequest({ message: "Please review this", userEmail: "forged@example.test" }, "POST"));
+  assert.equal(response.status, 201);
+  const row = sqlite.prepare("SELECT user_id, user_email FROM feedback_messages").get();
+  assert.equal(row.user_id, profileUser.uid);
+  assert.equal(row.user_email, profileUser.email);
 });
 
 test("deriveDefaultUsername converts Eve ID to lowercase underscore format", () => {
