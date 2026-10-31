@@ -123,6 +123,7 @@ class ProfileActivity : EveBaseActivity() {
         setupScrollAndGooey()
         setupActions()
         setupProfileActionBounce()
+        setupProfileActionAccessibility()
         setupCells()
         setupAdminAndPremium(user.email)
 
@@ -276,6 +277,12 @@ class ProfileActivity : EveBaseActivity() {
         ProfileActionBounce.install(binding.btnSetPhoto)
         ProfileActionBounce.install(binding.btnEditInfo)
         ProfileActionBounce.install(binding.btnSettings)
+    }
+
+    private fun setupProfileActionAccessibility() {
+        ProfileActionAccessibility.install(
+            listOf(binding.btnSetPhoto, binding.btnEditInfo, binding.btnSettings)
+        )
     }
 
     private fun setupCells() {
