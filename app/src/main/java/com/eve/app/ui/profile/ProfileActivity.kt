@@ -121,6 +121,7 @@ class ProfileActivity : EveBaseActivity() {
 
         setupScrollAndGooey()
         setupActions()
+        setupProfileActionBounce()
         setupCells()
         setupAdminAndPremium(user.email)
 
@@ -252,6 +253,16 @@ class ProfileActivity : EveBaseActivity() {
         binding.btnSettings.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
+    }
+
+    /**
+     * Telegram ProfileActionsView.java:520-587 applies ButtonBounce to each
+     * active action, not to the entire scrolling container.
+     */
+    private fun setupProfileActionBounce() {
+        ProfileActionBounce.install(binding.btnSetPhoto)
+        ProfileActionBounce.install(binding.btnEditInfo)
+        ProfileActionBounce.install(binding.btnSettings)
     }
 
     private fun setupCells() {
