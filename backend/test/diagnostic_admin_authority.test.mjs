@@ -1,7 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import worker from "../src/index.ts";
+import workerModule from "../src/index.ts";
 import { isolatedD1 } from "./support/sqliteD1.mjs";
+
+// tsx's ESM bridge may expose the Worker default export under .default.
+const worker = workerModule.default || workerModule;
 
 test("diagnostics require signed Firebase identity, verified email, D1 membership and rights", async (t) => {
   const { sqlite, d1 } = isolatedD1();
