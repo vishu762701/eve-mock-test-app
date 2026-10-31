@@ -181,12 +181,142 @@ class ProfileGooeyView @JvmOverloads constructor(
         }, canvas)
     }
 
+    /**
+     * Telegram ProfileGooeyView.java:142-254 software path, with the original
+     * 6x downsample, dual color-matrix pass and blur/fade composition.
+     * Source native stack blur is adapted to Android Bitmap ARGB via ProfileStackBlur.
+     */
     private inner class CPUImpl : Impl {
-        override fun onSizeChanged(w: Int, h: Int) {}
+        private var bitmap: Bitmap? = null
+        private var bitmapCanvas: Canvas? = null
+        private val scaleConst = 6f
+        private var optimizedW = 0
+        private var optimizedH = 0
+        private var bitmapOrigW = 0
+        private var bitmapOrigH = 0
+
+        private val bitmapPaint = Paint(
+            Paint.FILTER_BITMAP_FLAG or Paint.ANTI_ALIAS_FLAG or Paint.DITHER_FLAG
+        ).apply {
+            isFilterBitmap = true
+            colorFilter = ColorMatrixColorFilter(floatArrayOf(
+                0f, 0f, 0f, 0f, 0f,
+                0f, 0f, 0f, 0f, 0f,
+                0f, 0f, 0f, 0f, 0f,
+                0f, 0f, 0f, 60f, -7500f
+            ))
+        }
+        private val bitmapPaint2 = Paint(
+            Paint.FILTER_BITMAP_FLAG or Paint.ANTI_ALIAS_FLAG or Paint.DITHER_FLAG
+        ).apply {
+            isFilterBitmap = true
+            xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP)
+        }
+
+        override fun onSizeChanged(w: Int, h: Int) {
+            bitmap?.recycle()
+            bitmap = null
+            bitmapCanvas = null
+            optimizedW = min(dp(120).toInt(), w).coerceAtLeast(0)
+            optimizedH = min(dp(220).toInt(), h).coerceAtLeast(0)
+            bitmapOrigW = optimizedW
+            bitmapOrigH = optimizedH + dp(BLACK_KING_BAR).toInt()
+            if (bitmapOrigW <= 0 || bitmapOrigH <= 0) return
+            val buffer = Bitmap.createBitmap(
+                (bitmapOrigW / scaleConst).toInt().coerceAtLeast(1),
+                (bitmapOrigH / scaleConst).toInt().coerceAtLeast(1),
+                Bitmap.Config.ARGB_8888
+            )
+            bitmap = buffer
+            bitmapCanvas = Canvas(buffer)
+        }
+
         override fun setIntensity(intensity: Float) {}
         override fun setBlurIntensity(intensity: Float) {}
+
         override fun draw(drawer: (Canvas) -> Unit, canvas: Canvas) {
-            drawer(canvas)
+            val buffer = bitmap
+            val offscreen = bitmapCanvas
+            if (buffer == null || buffer.isRecycled || offscreen == null) {
+                drawer(canvas)
+                return
+            }
+
+            val transition = (MathUtils.clamp(blurIntensity, 0.2f, 0.3f) - 0.2f) / 0.1f
+            val alpha = ((1f - transition) * 255f).toInt()
+            val offsetX = (width - optimizedW) / 2f
+
+            canvas.save()
+            canvas.translate(0f, -dp(BLACK_KING_BAR))
+            if (alpha != 255) {
+                buffer.eraseColor(0)
+                offscreen.save()
+                offscreen.scale(
+                    buffer.width.toFloat() / bitmapOrigW,
+                    buffer.height.toFloat() / bitmapOrigH
+                )
+                offscreen.translate(-offsetX, 0f)
+                drawer(offscreen)
+                offscreen.restore()
+
+                offscreen.save()
+                offscreen.scale(
+                    buffer.width.toFloat() / bitmapOrigW,
+                    buffer.height.toFloat() / bitmapOrigH
+                )
+                val info = notchInfo
+                if (info != null) {
+                    offscreen.save()
+                    offscreen.translate(-offsetX, dp(BLACK_KING_BAR))
+                    if (info.isLikelyCircle) {
+                        val rad = min(info.bounds.width(), info.bounds.height()) / 2f
+                        offscreen.drawCircle(
+                            info.bounds.centerX(),
+                            info.bounds.bottom - info.bounds.width() / 2f,
+                            rad, blackPaint
+                        )
+                    } else if (info.isAccurate) {
+                        offscreen.drawPath(info.path, blackPaint)
+                    } else {
+                        val rad = max(info.bounds.width(), info.bounds.height()) / 2f
+                        offscreen.drawRoundRect(info.bounds, rad, rad, blackPaint)
+                    }
+                    offscreen.restore()
+                } else {
+                    offscreen.drawRect(
+                        0f, 0f, optimizedW.toFloat(), dp(BLACK_KING_BAR), blackPaint
+                    )
+                }
+                offscreen.restore()
+
+                ProfileStackBlur.blurBitmap(
+                    buffer, (this@ProfileGooeyView.intensity * 2f / scaleConst).toInt()
+                )
+
+                canvas.save()
+                canvas.translate(offsetX, 0f)
+                canvas.saveLayer(
+                    0f, 0f, bitmapOrigW.toFloat(), bitmapOrigH.toFloat(), null
+                )
+                canvas.scale(
+                    bitmapOrigW.toFloat() / buffer.width,
+                    bitmapOrigH.toFloat() / buffer.height
+                )
+                canvas.drawBitmap(buffer, 0f, 0f, bitmapPaint)
+                canvas.drawBitmap(buffer, 0f, 0f, bitmapPaint2)
+                canvas.restore()
+                canvas.restore()
+            }
+            if (alpha != 0) {
+                if (alpha != 255) {
+                    canvas.saveLayerAlpha(
+                        offsetX, 0f, offsetX + optimizedW, optimizedH.toFloat(), alpha
+                    )
+                }
+                drawer(canvas)
+                if (alpha != 255) canvas.restore()
+            }
+            canvas.restore()
         }
     }
 
