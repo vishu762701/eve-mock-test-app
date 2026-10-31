@@ -12,6 +12,8 @@ class ProfileCategorySourceContractTest {
         assertFalse(xml.contains("com.eve.app.ui.common.TelegramRadioButton"))
         assertTrue(Regex("com.eve.app.ui.profile.TelegramProfileRadioCell").findAll(xml).count() == 4)
         assertTrue(row.contains("minimumHeight = dp(50)"))
+        assertTrue(row.contains("maxLines = 2"))
+        assertTrue(xml.contains("android:layout_height=\"wrap_content\""))
         assertTrue(row.contains("TelegramRadioIndicator"))
         assertTrue(row.contains("info.isCheckable = true"))
         assertTrue(row.contains("info.isChecked = isChecked"))

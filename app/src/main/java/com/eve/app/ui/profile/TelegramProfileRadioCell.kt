@@ -33,7 +33,7 @@ class TelegramProfileRadioCell @JvmOverloads constructor(
     private val radioDrawable = TelegramRadioIndicator(resources.displayMetrics.density, dp(22), ::motionEnabled)
     private val labelView = TextView(context).apply {
         setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
-        maxLines = 1
+        maxLines = 2
         ellipsize = TextUtils.TruncateAt.END
         gravity = Gravity.CENTER_VERTICAL or Gravity.START
         importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
@@ -59,10 +59,12 @@ class TelegramProfileRadioCell @JvmOverloads constructor(
         isFocusable = true
         importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
         minimumHeight = dp(50)
+        // Telegram RadioCell is 50dp. Grow only when larger system text needs room.
+        setPadding(0, dp(8), 0, dp(8))
         val selector = context.obtainStyledAttributes(intArrayOf(android.R.attr.selectableItemBackground))
         background = selector.getDrawable(0)
         selector.recycle()
-        addView(labelView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT).apply {
+        addView(labelView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, Gravity.START or Gravity.CENTER_VERTICAL).apply {
             marginStart = dp(20)
             marginEnd = dp(54)
         })
