@@ -169,62 +169,62 @@ class ProfileActivity : EveBaseActivity() {
 
     private fun setupScrollAndGooey() {
         val density = resources.displayMetrics.density
-        val collapseRange = 100f * density
-
         binding.profileScrollView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
-            val progress = (scrollY.toFloat() / collapseRange).coerceIn(0f, 1f)
+            renderProfileScrollState(scrollY, density)
+        }
+        // NestedScrollView restores saved scroll after layout. Reapply ALL
+        // header effects, not just button opacity, when recreated/rotated.
+        binding.profileScrollView.doOnLayout {
+            renderProfileScrollState(binding.profileScrollView.scrollY, density)
+        }
+    }
 
-            // Gooey avatar update (ProfileActivity.java:6039-6047)
-            binding.avatarGooey.setPullProgress(progress)
-            val blur = ((progress.coerceIn(0.2f, 0.7f) - 0.2f) / 0.5f).coerceAtMost(0.75f)
-            binding.avatarGooey.setBlurIntensity(blur)
-            binding.avatarGooey.setGooeyEnabled(progress > 0f && progress < 1f)
+    private fun renderProfileScrollState(scrollY: Int, density: Float) {
+        val progress = ProfileScrollState.progress(scrollY, density)
+        // Gooey avatar update (ProfileActivity.java:6039-6047)
+        binding.avatarGooey.setPullProgress(progress)
+        val blur = ((progress.coerceIn(0.2f, 0.7f) - 0.2f) / 0.5f).coerceAtMost(0.75f)
+        binding.avatarGooey.setBlurIntensity(blur)
+        binding.avatarGooey.setGooeyEnabled(progress > 0f && progress < 1f)
 
-            // Avatar translation towards notch & scale (ProfileActivity.java:8730-8740)
-            val endScale = binding.avatarGooey.getAvatarEndScale()
-            val currentScale = 1f - (1f - endScale) * progress
-            binding.avatarContainer.scaleX = currentScale
-            binding.avatarContainer.scaleY = currentScale
+        // Avatar translation towards notch & scale (ProfileActivity.java:8730-8740)
+        val endScale = binding.avatarGooey.getAvatarEndScale()
+        val currentScale = 1f - (1f - endScale) * progress
+        binding.avatarContainer.scaleX = currentScale
+        binding.avatarContainer.scaleY = currentScale
 
-            val info = binding.avatarGooey.notchInfo
-            binding.avatarContainer.translationY = if (info != null) {
-                // Telegram ProfileGooeyView.java:397-405 uses this center for
-                // the round front-camera mask. The EVE scroll trajectory is
-                // adapted because the renderer now lives outside the scroll.
-                val targetCenterY = if (info.isLikelyCircle) {
-                    info.bounds.bottom - info.bounds.width() / 2f
-                } else {
-                    info.bounds.centerY()
-                }
-                val initialCenterY = binding.avatarContainer.top +
-                    binding.avatarContainer.height / 2f
-                ProfileAvatarTrajectory.offsetToNotch(initialCenterY, targetCenterY, progress)
+        val info = binding.avatarGooey.notchInfo
+        binding.avatarContainer.translationY = if (info != null) {
+            // Telegram ProfileGooeyView.java:397-405 uses this center for
+            // the round front-camera mask. The EVE scroll trajectory is
+            // adapted because the renderer now lives outside the scroll.
+            val targetCenterY = if (info.isLikelyCircle) {
+                info.bounds.bottom - info.bounds.width() / 2f
             } else {
-                // Without a built-in cutout, retain the original scrolling
-                // header displacement and source dynamic status-bar offset.
-                val endOffset = binding.avatarGooey.getEndOffset(true, currentScale)
-                -scrollY.toFloat() + endOffset * progress
+                info.bounds.centerY()
             }
-
-            // Alpha fading of toolbar title vs avatar/name
-            binding.tvToolbarTitle.alpha = progress
-            val headerContentAlpha = (1f - progress * 1.5f).coerceIn(0f, 1f)
-            binding.tvName.alpha = headerContentAlpha
-            binding.tvStatus.alpha = headerContentAlpha
-
-            // Telegram ProfileActionsView.java:247-337 stages backgrounds and
-            // icon/text independently as the 74dp action area collapses.
-            ProfileActionsCollapse.applyTo(
-                listOf(binding.btnSetPhoto, binding.btnEditInfo, binding.btnSettings),
-                ProfileActionsCollapse.atScroll(scrollY.toFloat(), density)
-            )
+            val initialCenterY = binding.avatarContainer.top +
+                binding.avatarContainer.height / 2f
+            ProfileAvatarTrajectory.offsetToNotch(initialCenterY, targetCenterY, progress)
+        } else {
+            // Without a built-in cutout, retain the original scrolling
+            // header displacement and source dynamic status-bar offset.
+            val endOffset = binding.avatarGooey.getEndOffset(true, currentScale)
+            -scrollY.toFloat() + endOffset * progress
         }
-        binding.profileScrollView.post {
-            ProfileActionsCollapse.applyTo(
-                listOf(binding.btnSetPhoto, binding.btnEditInfo, binding.btnSettings),
-                ProfileActionsCollapse.atScroll(binding.profileScrollView.scrollY.toFloat(), density)
-            )
-        }
+
+        // Alpha fading of toolbar title vs avatar/name
+        binding.tvToolbarTitle.alpha = progress
+        val headerContentAlpha = (1f - progress * 1.5f).coerceIn(0f, 1f)
+        binding.tvName.alpha = headerContentAlpha
+        binding.tvStatus.alpha = headerContentAlpha
+
+        // Telegram ProfileActionsView.java:247-337 stages backgrounds and
+        // icon/text independently as the 74dp action area collapses.
+        ProfileActionsCollapse.applyTo(
+            listOf(binding.btnSetPhoto, binding.btnEditInfo, binding.btnSettings),
+            ProfileActionsCollapse.atScroll(scrollY.toFloat(), density)
+        )
     }
 
     private fun setupActions() {
