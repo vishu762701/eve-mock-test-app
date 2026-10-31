@@ -21,6 +21,7 @@ export interface Env {
   LEGACY_ANSWER_LEAK?: string;
   PREMIUM_WEBHOOK_SECRET?: string;   // Cloudflare Worker secret; required to accept payments
   PREMIUM_SANDBOX_ENABLED?: string; // Explicit "true" only on isolated admin test environments
+  TELEGRAM_BOT_TOKEN?: string;      // Cloudflare Worker secret for Telegram emoji import
 }
 
 export interface AuthUser {
@@ -363,3 +364,49 @@ export interface AdminAuditLogRow {
   metadata?: string | null;
   source?: string | null;
 }
+
+export interface EmojiPackRow {
+  id: string;
+  name: string;
+  title: string;
+  source: string; // 'telegram' | 'noto' | 'telegram-ui' | 'upload'
+  license_attribution?: string;
+  enabled: number;
+  created_at: number;
+  created_by?: string;
+}
+
+export interface EmojiItemRow {
+  id: string;
+  pack_id: string;
+  alt_emoji: string;
+  kind: string; // 'lottie' | 'static'
+  storage_key: string;
+  thumbnail_key?: string;
+  byte_size: number;
+  sha256?: string;
+  enabled: number;
+  premium_origin: number;
+  telegram_custom_emoji_id?: string;
+  source: string;
+  pack_name?: string;
+  uploader?: string;
+  created_at: number;
+}
+
+export interface EmojiPlacementRow {
+  id: string;
+  slot_type: string; // 'exam_card' | 'category_header' | 'broadcast'
+  target_id: string;
+  item_id: string;
+  updated_by?: string;
+  updated_at: number;
+}
+
+export interface EmojiPlacementPublic {
+  id: string;
+  url: string;
+  kind: string;
+  alt: string;
+}
+

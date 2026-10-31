@@ -49,7 +49,8 @@ class ExamAdapter(
 
     inner class HeaderVH(private val b: ItemCategoryHeaderBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(header: HomeListItem.Header) {
-            b.tvCategoryHeader.text = header.title
+            val categoryEmoji = com.eve.app.ui.admin.emoji.EmojiRenderer.getCategoryEmoji(header.title)
+            com.eve.app.ui.admin.emoji.EmojiRenderer.attachEmoji(b.tvCategoryHeader, header.title, categoryEmoji)
             b.tvCategoryHeader.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Token_Secondary)
             b.tvCategoryHeader.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.homeTextSecondary(b.root.context))
         }
@@ -69,7 +70,7 @@ class ExamAdapter(
 
         fun bind(exam: Exam, attempted: Boolean, isPinned: Boolean, attempt: com.eve.app.data.model.TestAttempt?, position: Int) {
             currentExamId = exam.id
-            b.tvExamName.text = exam.examName
+            com.eve.app.ui.admin.emoji.EmojiRenderer.attachEmoji(b.tvExamName, exam.examName, exam.emoji)
             b.tvExamTime.text = if (attempted) {
                 b.root.context.getString(com.eve.app.R.string.exam_submitted_tap_to_view)
             } else {

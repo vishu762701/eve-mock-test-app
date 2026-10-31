@@ -43,6 +43,7 @@
                     <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:hint="EWS Cutoff">
                         <com.google.android.material.textfield.TextInputEditText android:id="@+id/etCutoffEws" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="numberDecimal" style="@style/Widget.Eve.Token.Input" />
                     </com.eve.app.designsystem.DesignInputLayout>
+                    <com.google.android.material.button.MaterialButton android:id="@+id/btnPickEmoji" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_gap" android:text="✨ Pick Animated Emoji" />
                     <com.google.android.material.button.MaterialButton android:id="@+id/btnSaveExamDetails" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_section_gap" android:text="Save Exam Details" />
                 </LinearLayout>
             </com.eve.app.designsystem.DesignCardView>

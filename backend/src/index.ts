@@ -25,6 +25,7 @@ import { pollRoutes } from "./routes/polls";
 import { premiumRoutes } from "./routes/premium";
 import { reportRoutes, adminReportRoutes, adminAuditLogRoutes } from "./routes/reports";
 import { typographyRoutes } from "./routes/typographyPublished";
+import { emojiRoutes, emojiAdminRoutes } from "./routes/emoji";
 import { questionRoutes } from "./routes/questions";
 import { SupabaseStorage } from "./supabase";
 import { AuthUser, Env } from "./types";
@@ -275,6 +276,8 @@ app.route("/api/premium", premiumRoutes);
 app.route("/api/reports", reportRoutes);
 app.route("/api/admin/reports", adminReportRoutes);
 app.route("/api/admin/audit-log", adminAuditLogRoutes);
+app.route("/api/admin/emoji", emojiAdminRoutes);
+app.route("/api/emoji", emojiRoutes);
 app.route("/api/typography", typographyRoutes);
 
 // 6. Global Error Handling & 404

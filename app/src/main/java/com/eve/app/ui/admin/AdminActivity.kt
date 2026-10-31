@@ -182,7 +182,7 @@ class AdminActivity : EveBaseActivity() {
 
         binding.rowAnimatedEmoji.setTextAndLottie("Animated Emoji", R.raw.tg_fire_on, needDivider = false)
         binding.rowAnimatedEmoji.setOnClickListener {
-            AppBulletin.showSuccess(this, "Animated Emoji Studio (Configured in Mission 03 F4)")
+            startActivity(Intent(this, com.eve.app.ui.admin.emoji.EmojiStudioActivity::class.java))
         }
 
         // SECTION 2: PEOPLE
@@ -295,7 +295,7 @@ class AdminActivity : EveBaseActivity() {
             SearchItem("Syllabus", "CONTENT", listOf("syllabus", "पाठ्यक्रम", "pdf", "topics"), lottieRes = R.raw.tg_saved_messages, requiredRight = "manage_syllabus") { startActivity(Intent(this, ManageSyllabusActivity::class.java)) },
             SearchItem("Home Banner", "CONTENT", listOf("home banner", "बैनर", "promotions", "banner link"), iconRes = R.drawable.ic_image, requiredRight = "manage_content") { showHomeBannerOptionsDialog() },
             SearchItem("Floating Link", "CONTENT", listOf("floating link", "फ्लोटिंग लिंक", "quick link", "url"), iconRes = R.drawable.ic_link, requiredRight = "manage_content") { showFloatingLinkDialog() },
-            SearchItem("Animated Emoji", "CONTENT", listOf("animated emoji", "इमोजी", "stickers", "studio"), lottieRes = R.raw.tg_fire_on, requiredRight = "manage_content") { AppBulletin.showSuccess(this, "Animated Emoji Studio (Configured in Mission 03 F4)") },
+            SearchItem("Animated Emoji", "CONTENT", listOf("animated emoji", "इमोजी", "stickers", "studio"), lottieRes = R.raw.tg_fire_on, requiredRight = "manage_content") { startActivity(Intent(this, com.eve.app.ui.admin.emoji.EmojiStudioActivity::class.java)) },
             SearchItem("Users", "PEOPLE", listOf("users", "उपयोगकर्ता", "students", "ban user", "signups"), lottieRes = R.raw.tg_chats_archive, requiredRight = "manage_users") { startActivity(Intent(this, ManageUsersActivity::class.java)) },
             SearchItem("Admins and Rights", "PEOPLE", listOf("admins", "एडमिन", "admin rights", "permissions"), lottieRes = R.raw.tg_ic_admin, requiredRight = "manage_admins_rights") { startActivity(Intent(this, AdminsAndRightsActivity::class.java)) },
             SearchItem("Premium Management", "PEOPLE", listOf("premium", "प्रीमियम", "subscription", "grant premium"), lottieRes = R.raw.premium_star, requiredRight = "manage_premium") { startActivity(Intent(this, ManagePremiumActivity::class.java)) },

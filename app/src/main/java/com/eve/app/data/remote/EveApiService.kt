@@ -653,6 +653,59 @@ interface EveApiService {
         @Query("limit") limit: Int = 50,
         @Query("offset") offset: Int = 0
     ): ApiResponse<ExportExamsResponseDto>
+
+    // --- Animated Emoji System (Mission 03 F4) ---
+    @GET("api/admin/emoji/packs")
+    suspend fun getEmojiPacks(): ApiResponse<EmojiPacksResponseDto>
+
+    @POST("api/admin/emoji/packs")
+    suspend fun createEmojiPack(@Body body: CreateEmojiPackRequest): ApiResponse<EmojiPackDto>
+
+    @PUT("api/admin/emoji/packs/{id}/status")
+    suspend fun toggleEmojiPackStatus(
+        @Path("id") id: String,
+        @Body body: Map<String, Boolean>
+    ): ApiResponse<Map<String, Any>>
+
+    @PUT("api/admin/emoji/global-telegram-status")
+    suspend fun toggleGlobalTelegramEmojiStatus(
+        @Body body: Map<String, Boolean>
+    ): ApiResponse<Map<String, Any>>
+
+    @DELETE("api/admin/emoji/packs/{id}")
+    suspend fun deleteEmojiPack(@Path("id") id: String): ApiResponse<Map<String, Any>>
+
+    @GET("api/admin/emoji/items")
+    suspend fun getEmojiItems(
+        @Query("packId") packId: String? = null,
+        @Query("q") q: String? = null,
+        @Query("offset") offset: Int = 0,
+        @Query("limit") limit: Int = 50
+    ): ApiResponse<List<EmojiItemDto>>
+
+    @DELETE("api/admin/emoji/items/{id}")
+    suspend fun deleteEmojiItem(@Path("id") id: String): ApiResponse<Map<String, Any>>
+
+    @POST("api/admin/emoji/import/telegram")
+    suspend fun importTelegramEmoji(@Body body: ImportTelegramEmojiRequest): ApiResponse<ImportTelegramEmojiResponseDto>
+
+    @POST("api/admin/emoji/import/noto")
+    suspend fun importNotoEmoji(@Body body: ImportNotoEmojiRequest): ApiResponse<ImportNotoEmojiResponseDto>
+
+    @GET("api/admin/emoji/placements")
+    suspend fun getEmojiPlacements(): ApiResponse<List<EmojiPlacementDto>>
+
+    @POST("api/admin/emoji/placements")
+    suspend fun setEmojiPlacement(@Body body: SetEmojiPlacementRequest): ApiResponse<Map<String, Any>>
+
+    @DELETE("api/admin/emoji/placements")
+    suspend fun clearEmojiPlacement(
+        @Query("slotType") slotType: String,
+        @Query("targetId") targetId: String
+    ): ApiResponse<Map<String, Any>>
+
+    @GET("api/emoji/placements/public")
+    suspend fun getPublicEmojiPlacements(): ApiResponse<PublicEmojiDataDto>
 }
 
 data class MonthlyApiUsageDto(
@@ -699,6 +752,111 @@ data class UpdateAdminRightsRequest(
     val rights: List<String>,
     val customTitle: String? = null
 )
+
+data class EmojiPackDto(
+    val id: String = "",
+    val name: String = "",
+    val title: String = "",
+    val source: String = "",
+    val licenseAttribution: String? = null,
+    val enabled: Boolean = true,
+    val itemCount: Int = 0,
+    val createdAt: Long = 0L,
+    val createdBy: String? = null
+)
+
+data class EmojiPacksResponseDto(
+    val packs: List<EmojiPackDto> = emptyList(),
+    val globalTelegramEnabled: Boolean = true,
+    val telegramBotConfigured: Boolean = false
+)
+
+data class EmojiItemDto(
+    val id: String = "",
+    val packId: String = "",
+    val packTitle: String? = null,
+    val packSlug: String? = null,
+    val altEmoji: String = "",
+    val kind: String = "lottie",
+    val url: String = "",
+    val storageKey: String? = null,
+    val byteSize: Int = 0,
+    val sha256: String? = null,
+    val enabled: Boolean = true,
+    val premiumOrigin: Boolean = false,
+    val telegramCustomEmojiId: String? = null,
+    val source: String = "",
+    val createdAt: Long = 0L
+)
+
+data class EmojiPlacementDto(
+    val id: String = "",
+    val slotType: String = "",
+    val targetId: String = "",
+    val itemId: String = "",
+    val altEmoji: String = "",
+    val kind: String = "lottie",
+    val url: String = "",
+    val packTitle: String? = null,
+    val updatedBy: String? = null,
+    val updatedAt: Long = 0L
+)
+
+data class PublicEmojiDataDto(
+    val examPlacements: Map<String, EmojiItemSimpleDto> = emptyMap(),
+    val categoryPlacements: Map<String, EmojiItemSimpleDto> = emptyMap(),
+    val broadcastPlacements: Map<String, EmojiItemSimpleDto> = emptyMap()
+)
+
+data class EmojiItemSimpleDto(
+    val id: String = "",
+    val url: String = "",
+    val kind: String = "lottie",
+    val alt: String = ""
+)
+
+data class CreateEmojiPackRequest(
+    val name: String,
+    val title: String,
+    val source: String = "upload",
+    val licenseAttribution: String? = null
+)
+
+data class ImportTelegramEmojiRequest(
+    val packName: String? = null,
+    val customEmojiIds: List<String>? = null,
+    val offset: Int = 0,
+    val limit: Int = 5
+)
+
+data class ImportTelegramEmojiResponseDto(
+    val packId: String = "",
+    val packName: String = "",
+    val packTitle: String = "",
+    val totalStickers: Int = 0,
+    val offset: Int = 0,
+    val limit: Int = 5,
+    val importedCount: Int = 0,
+    val nextOffset: Int? = null,
+    val errors: List<String>? = null
+)
+
+data class ImportNotoEmojiRequest(
+    val category: String = "popular"
+)
+
+data class ImportNotoEmojiResponseDto(
+    val packId: String = "",
+    val importedCount: Int = 0,
+    val errors: List<String>? = null
+)
+
+data class SetEmojiPlacementRequest(
+    val slotType: String,
+    val targetId: String,
+    val itemId: String
+)
+
 
 
 

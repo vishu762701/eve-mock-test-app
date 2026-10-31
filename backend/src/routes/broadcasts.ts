@@ -4,8 +4,9 @@
 
 import { Hono } from "hono";
 import { requireAdmin, requirePermission } from "../middleware/authMiddleware";
-import { AuthUser, Env, NotificationRow } from "../types";
+import { AuthUser, EmojiPlacementPublic, Env, NotificationRow } from "../types";
 import { prepareAdminAuditLog, recordAdminAction } from "../util/auditLog";
+import { getActiveEmojiPlacements } from "./emoji";
 
 export const broadcastRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
@@ -29,6 +30,13 @@ broadcastRoutes.get("/", async (c) => {
   const eligible = isAdmin ? (results || []) : (results || []).filter(
     (r: any) => !r.target_category || r.target_category === "All Users"
   );
+
+  let broadcastPlacements = new Map<string, EmojiPlacementPublic>();
+  try {
+    const placements = await getActiveEmojiPlacements(db, c.env);
+    broadcastPlacements = placements.broadcastPlacements;
+  } catch {}
+
   const list = eligible.map((r: any) => ({
     id: r.id,
     title: r.title,
@@ -37,6 +45,7 @@ broadcastRoutes.get("/", async (c) => {
     ...(isAdmin ? { sentBy: r.sent_by } : {}),
     type: r.type,
     targetCategory: r.target_category || "All Users",
+    ...(broadcastPlacements.has(r.id) ? { emoji: broadcastPlacements.get(r.id) } : {}),
   }));
 
   return c.json({ success: true, data: list });

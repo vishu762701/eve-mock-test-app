@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="24dp">
+
+    <View
+        android:layout_width="36dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="14dp"
+        android:background="@drawable/design_pill_surface" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="8dp"
+        android:text="Packs &amp; Kill Switches"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <com.eve.app.ui.admin.tg.TextCheckCell
+        android:id="@+id/cellGlobalTelegramSwitch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.eve.app.ui.admin.tg.TextInfoPrivacyCell
+        android:id="@+id/cellTelegramBotStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.eve.app.ui.admin.tg.ShadowSectionCell
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.eve.app.ui.admin.tg.HeaderCell
+        android:id="@+id/headerPacksList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:id="@+id/containerPacks"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+</LinearLayout>

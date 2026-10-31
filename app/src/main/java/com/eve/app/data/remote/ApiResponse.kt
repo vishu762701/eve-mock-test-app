@@ -14,5 +14,7 @@ data class ApiResponse<T>(
     @SerializedName("serverNow")
     val serverNow: Long? = null,
     @SerializedName("pagination")
-    val pagination: com.eve.app.data.model.AdminUsersPagination? = null
+    val pagination: com.eve.app.data.model.AdminUsersPagination? = null,
+    @SerializedName("categoryEmoji")
+    val categoryEmoji: Map<String, com.eve.app.data.model.EmojiPlacement>? = null
 )

@@ -7,5 +7,6 @@ data class BroadcastMessage(
     val sentAt: Long = 0L,
     val sentBy: String = "",
     val type: String = "general",
-    val targetCategory: String = "All Users"
+    val targetCategory: String = "All Users",
+    val emoji: EmojiPlacement? = null
 )

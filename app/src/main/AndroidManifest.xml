@@ -107,6 +107,7 @@
         <activity android:name=".ui.admin.ManageUsersActivity" android:exported="false" />
         <activity android:name=".ui.admin.AppConfigActivity" android:exported="false" />
         <activity android:name=".ui.admin.ActivityLogActivity" android:exported="false" />
+        <activity android:name=".ui.admin.emoji.EmojiStudioActivity" android:exported="false" />
         <activity android:name=".ui.admin.FlaggedQuestionsActivity" android:exported="false" />
         <activity android:name=".ui.admin.ApiUsageActivity" android:exported="false" />
         <activity android:name=".ui.admin.ManageSyllabusActivity" android:exported="false" />

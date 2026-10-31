@@ -18,6 +18,7 @@ Date: 2026-10-22. **Not a claim that every Admin feature works.** Each item belo
 | Syllabus PDF upload | ManageSyllabusActivity.kt:86,131–395 | Syllabus repository | Auth gate/20MB bounded reader in source | Live provider success/failure NOT VERIFIED |
 | Banners | AdminActivity.kt:207 | HomeBannerRepository | Source present | Production publication/dedupe NOT VERIFIED |
 | Floating link | AdminActivity.kt:210; MainActivity.kt | FloatingLinkRepository | HTTPS validator present | Cross-account placement NOT VERIFIED |
+| Animated Emoji Studio | EmojiStudioActivity.kt; AdminActivity.kt | EmojiRepository / /api/admin/emoji/* | TELEGRAM ANIMATED EMOJI IN MISSION 03 (F4) | Telegram SelectAnimatedEmojiDialog/EmojiView look, segmented pack tabs, bare animations, Google Noto / Telegram Bot API import, custom upload, kill switches, surface placements on exam cards, category headers, and broadcasts (migration 0024); proved by emoji_system.test.mjs |
 | Send broadcast | SendNotificationActivity.kt:72,330–403 | POST /api/broadcasts / requireAdmin | Fresh UI gate and backend guard | Safe live push transport NOT VERIFIED; UI verified sending to All Users only with no dead category controls |
 | Flagged questions | AdminActivity.kt:224 | FlaggedQuestionsActivity.kt | Source present | Real moderation persistence NOT VERIFIED |
 | Student feedback and replies | AdminActivity.kt:227–234 | Feedback repository | Source present | Reply delivery/update NOT VERIFIED |

@@ -18,7 +18,8 @@ data class StoredNotification(
     val title: String,
     val body: String,
     val timestampMillis: Long,
-    val read: Boolean
+    val read: Boolean,
+    val emoji: com.eve.app.data.model.EmojiPlacement? = null
 )
 
 object NotificationStore {
@@ -130,6 +131,12 @@ object NotificationStore {
                 put("timestamp", item.sentAt)
                 put("sourceId", item.id)
                 put("read", false)
+                item.emoji?.let { em ->
+                    put("emoji_id", em.id)
+                    put("emoji_url", em.url)
+                    put("emoji_kind", em.kind)
+                    put("emoji_alt", em.alt)
+                }
             })
         }
         for (i in 0 until minOf(old.length(), MAX_STORED - incoming.size)) {
@@ -146,11 +153,20 @@ object NotificationStore {
         val array = readArray(notificationPrefs(context))
         return (0 until array.length()).map { i ->
             val obj = array.getJSONObject(i)
+            val emoji = if (obj.has("emoji_url")) {
+                com.eve.app.data.model.EmojiPlacement(
+                    id = obj.optString("emoji_id", ""),
+                    url = obj.optString("emoji_url", ""),
+                    kind = obj.optString("emoji_kind", "lottie"),
+                    alt = obj.optString("emoji_alt", "")
+                )
+            } else null
             StoredNotification(
                 title = obj.getString("title"),
                 body = obj.getString("body"),
                 timestampMillis = obj.getLong("timestamp"),
-                read = obj.optBoolean("read", false)
+                read = obj.optBoolean("read", false),
+                emoji = emoji
             )
         }
     }

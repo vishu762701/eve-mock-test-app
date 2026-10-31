@@ -75,6 +75,8 @@ Copyright (C) Nikolai Kudashov, 2013-2018; Telegram FZ-LLC.
 - `TelegramSegmentedTabs.kt`: derived from `TMessagesProj/src/main/java/org/telegram/ui/Components/FilterTabsView.java:80-160`
 - `NumberTextView.kt`: derived from `TMessagesProj/src/main/java/org/telegram/ui/Components/NumberTextView.java`
 - `TelegramUndoView.kt`: derived from `TMessagesProj/src/main/java/org/telegram/ui/Components/UndoView.java:120-200`
+- `AnimatedEmojiSpan.kt`: derived from `TMessagesProj/src/main/java/org/telegram/ui/Components/AnimatedEmojiSpan.java:230-330`
+- `EmojiStudioActivity.kt`: derived from Telegram `SelectAnimatedEmojiDialog.java` and `EmojiView.java`
 
 **Bundled Admin Lottie Icons (`app/src/main/res/raw/`):**
 - `tg_ic_admin.json`, `tg_ic_ban.json`, `tg_ic_unban.json`, `tg_ic_delete.json`, `tg_ic_pin.json`, `tg_ic_unpin.json`, `tg_ic_mute.json`, `tg_ic_unmute.json`, `tg_statistic_preload.json`, `tg_filters.json`, `tg_filter_new.json`, `tg_folder_in.json`, `tg_folder_out.json`, `tg_fire_on.json`, `tg_fire_off.json`, `tg_report_police.json`, `tg_chats_archive.json`, `tg_swipe_delete.json`, `tg_saved_messages.json`, `tg_qr_code_logo.json`, `tg_tab_poll.json`.
@@ -117,6 +119,14 @@ Outline SVG paths converted to Android VectorDrawable on their original 24-unit
 grid, with the owner's 2.75 stroke and round caps/joins. MIT License, Copyright
 (c) 2020–2026 Paweł Kuna. Full license: `app/src/main/assets/licenses/Tabler-LICENSE.txt`.
 Source: https://github.com/tabler/tabler-icons/tree/v3.49.0/icons/outline
+
+## Google Noto Animated Emoji
+
+- Source: https://fonts.google.com/noto/specimen/Noto+Color+Emoji and https://github.com/googlefonts/noto-emoji
+- Copyright (c) Google LLC.
+- License: Creative Commons Attribution 4.0 International (CC BY 4.0). Full license: https://creativecommons.org/licenses/by/4.0/
+- Format: Lottie JSON animations retrieved from official Google Fonts static CDN (`https://fonts.gstatic.com/s/e/notoemoji/latest/{codepoint}/lottie.json`).
+- Verified open license; attribution recorded in compliance with CC BY 4.0 obligations.
 
 ## Official Telegram ActionBar and search icon art (Mission 01 source import)
 

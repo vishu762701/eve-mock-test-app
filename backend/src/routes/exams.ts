@@ -7,8 +7,9 @@ import { deletionInfo, deleteUnused } from '../services/deletion';
 import { Hono } from "hono";
 import { requireAdmin, requirePermission } from "../middleware/authMiddleware";
 import { SupabaseStorage } from "../supabase";
-import { AuthUser, Env, ExamRow } from "../types";
+import { AuthUser, EmojiPlacementPublic, Env, ExamRow } from "../types";
 import { prepareAdminAuditLog, recordAdminAction } from "../util/auditLog";
+import { getActiveEmojiPlacements } from "./emoji";
 
 export const examRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
@@ -34,7 +35,7 @@ export function parseNegativeMarking(raw: string): { text: string; value: number
   return { text: trimmed, value: num };
 }
 
-function mapExamRow(row: ExamRow) {
+function mapExamRow(row: ExamRow, emojiPlacement?: EmojiPlacementPublic) {
   return {
     id: row.id,
     examName: row.exam_name,
@@ -59,6 +60,7 @@ function mapExamRow(row: ExamRow) {
     negativeMarkingValue: row.negative_marking_value ?? 0,
     parentExamId: row.parent_exam_id || "",
     publishMode: row.publish_mode || "inherit",
+    ...(emojiPlacement ? { emoji: emojiPlacement } : {}),
   };
 }
 
@@ -69,8 +71,16 @@ examRoutes.get("/", async (c) => {
     .prepare("SELECT * FROM exams ORDER BY exam_name ASC")
     .all<ExamRow>();
 
-  const list = (results || []).map(mapExamRow);
-  return c.json({ success: true, data: list });
+  let examPlacements = new Map<string, EmojiPlacementPublic>();
+  let categoryPlacements: Record<string, EmojiPlacementPublic> = {};
+  try {
+    const placements = await getActiveEmojiPlacements(db, c.env);
+    examPlacements = placements.examPlacements;
+    categoryPlacements = placements.categoryPlacements;
+  } catch {}
+
+  const list = (results || []).map((r) => mapExamRow(r, examPlacements.get(r.id)));
+  return c.json({ success: true, data: list, categoryEmoji: categoryPlacements });
 });
 
 // GET /api/exams/:id - Single exam details
@@ -83,7 +93,13 @@ examRoutes.get("/:id", async (c) => {
     return c.json({ success: false, error: "Exam not found" }, 404);
   }
 
-  return c.json({ success: true, data: mapExamRow(row) });
+  let emojiPlacement: EmojiPlacementPublic | undefined;
+  try {
+    const { examPlacements } = await getActiveEmojiPlacements(db, c.env);
+    emojiPlacement = examPlacements.get(id);
+  } catch {}
+
+  return c.json({ success: true, data: mapExamRow(row, emojiPlacement) });
 });
 
 // POST /api/exams - Create exam (Admin)

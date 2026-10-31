@@ -79,6 +79,9 @@ class EditExamActivity : EveBaseActivity() {
         setupForm()
 
         binding.btnSaveExamDetails.setOnClickListener { saveExamDetails() }
+        binding.btnPickEmoji.setOnClickListener {
+            startActivity(android.content.Intent(this, com.eve.app.ui.admin.emoji.EmojiStudioActivity::class.java))
+        }
         binding.btnAddQuestion.setOnClickListener { showAddQuestionDialog() }
         binding.btnBulkUpload.setOnClickListener {
             filePicker.launch("*/*")

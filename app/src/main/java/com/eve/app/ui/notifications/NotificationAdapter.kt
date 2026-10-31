@@ -18,7 +18,7 @@ class NotificationAdapter : RecyclerView.Adapter<NotificationAdapter.VH>() {
 
     inner class VH(private val b: ItemNotificationBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(item: StoredNotification) {
-            b.tvTitle.text = item.title
+            com.eve.app.ui.admin.emoji.EmojiRenderer.attachEmoji(b.tvTitle, item.title, item.emoji)
             b.tvBody.text = item.body
             b.tvTime.text = DateUtils.getRelativeTimeSpanString(
                 item.timestampMillis, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS
