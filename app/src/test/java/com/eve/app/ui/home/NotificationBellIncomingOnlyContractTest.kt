@@ -6,12 +6,16 @@ import org.junit.Test
 import java.io.File
 
 class NotificationBellIncomingOnlyContractTest {
-    @Test fun inboxClickDoesNotFalselyAnimateButIncomingEventsDo() {
+    @Test fun inboxTapAnimatesWithoutFabricatingIncomingNotificationAndIncomingEventsStillAnimate() {
         val src = File("src/main/java/com/eve/app/ui/home/MainActivity.kt").readText()
         val setup = src.substringAfter("private fun setupNotificationBell()")
             .substringBefore("private fun setupHomeBannerSurface()")
         val click = setup.substringAfter("binding.notificationAction.setOnClickListener")
-        assertFalse("Navigation is not notification arrival", click.contains("animateNotificationBell()"))
+        assertTrue("Owner-requested tap must animate using the existing asset", click.contains("animateNotificationBell()"))
+        assertTrue("Tap waits for a perceptible animation before navigating", click.contains("postDelayed(openInbox, 850L)"))
+        assertFalse("Navigation must not set the incoming-event queue", click.contains("pendingIncomingBellUntilResume"))
+        assertFalse("Navigation must not acknowledge inbox outside NotificationsActivity", click.contains("NotificationStore.markAllRead"))
+        assertTrue("Rapid taps must not dispatch duplicate inbox screens", click.contains("bellTapNavigationPending"))
         assertTrue("Local notification receiver still starts incoming animation",
             src.substringAfter("private val foregroundNotificationReceiver").substringBefore("private val notificationPermissionLauncher")
                 .contains("animateNotificationBell()") ||
