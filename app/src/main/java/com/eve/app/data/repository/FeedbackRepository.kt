@@ -5,6 +5,8 @@ import com.eve.app.data.model.FeedbackPost
 import com.eve.app.data.model.FeedbackPostReply
 import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.EveApiService
+import kotlinx.coroutines.CancellationException
+import com.eve.app.data.remote.toApiError
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -25,7 +27,7 @@ class FeedbackRepository(
         message: String,
         postId: String? = null,
         postTitle: String? = null
-    ): Result<Unit> = runCatching {
+    ): Result<Unit> = requestResult {
         val trimmed = message.trim()
         require(trimmed.isNotEmpty()) { "Message cannot be empty" }
         require(trimmed.length <= 1000) { "Message cannot exceed 1000 characters" }
@@ -44,22 +46,24 @@ class FeedbackRepository(
 
     suspend fun getFeedbackMessages(): List<FeedbackMessage> {
         val res = api.getFeedbackMessages()
-        return res.data ?: emptyList()
+        check(res.success && res.data != null) { res.error ?: "Unable to load feedback messages." }
+        return res.data
     }
 
-    suspend fun markAsRead(id: String): Result<Unit> = runCatching {
+    suspend fun markAsRead(id: String): Result<Unit> = requestResult {
         val res = api.markFeedbackRead(id)
         if (!res.success) throw Exception(res.error ?: "Failed to mark feedback as read")
     }
 
-    suspend fun deleteFeedbackMessage(id: String): Result<Unit> = runCatching {
+    suspend fun deleteFeedbackMessage(id: String): Result<Unit> = requestResult {
         val res = api.deleteFeedbackMessage(id)
         if (!res.success) throw Exception(res.error ?: "Failed to delete feedback message")
     }
 
-    suspend fun replyFeedbackMessage(id: String, replyText: String): Result<Unit> = runCatching {
+    suspend fun replyFeedbackMessage(id: String, replyText: String): Result<Unit> = requestResult {
         val trimmed = replyText.trim()
         require(trimmed.isNotEmpty()) { "Reply cannot be empty" }
+        require(trimmed.length <= 1000) { "Reply cannot exceed 1000 characters" }
         val res = api.replyFeedbackMessage(id, mapOf("reply" to trimmed))
         if (!res.success) throw Exception(res.error ?: "Failed to send reply")
     }
@@ -71,7 +75,7 @@ class FeedbackRepository(
         message: String,
         authorId: String,
         authorEmail: String
-    ): Result<String> = runCatching {
+    ): Result<String> = requestResult {
         val trimmedTitle = title.trim()
         val trimmedMessage = message.trim()
         require(trimmedTitle.isNotEmpty()) { "Title cannot be empty" }
@@ -89,28 +93,14 @@ class FeedbackRepository(
     }
 
     suspend fun getFeedbackPosts(): List<FeedbackPost> {
-        return try {
-            val res = api.getFeedbackPosts()
-            res.data ?: emptyList()
-        } catch (_: Exception) {
-            emptyList()
-        }
+        val res = api.getFeedbackPosts()
+        check(res.success && res.data != null) { res.error ?: "Unable to load feedback posts." }
+        return res.data
     }
 
-    fun observeFeedbackPosts(): Flow<List<FeedbackPost>> = flow {
-        try {
-            val res = api.getFeedbackPosts()
-            if (res.success && res.data != null) {
-                emit(res.data)
-            } else {
-                emit(emptyList())
-            }
-        } catch (_: Exception) {
-            emit(emptyList())
-        }
-    }
+    fun observeFeedbackPosts(): Flow<List<FeedbackPost>> = flow { emit(getFeedbackPosts()) }
 
-    suspend fun updateFeedbackPost(postId: String, title: String, message: String): Result<Unit> = runCatching {
+    suspend fun updateFeedbackPost(postId: String, title: String, message: String): Result<Unit> = requestResult {
         val trimmedTitle = title.trim()
         val trimmedMessage = message.trim()
         require(trimmedTitle.isNotEmpty()) { "Title cannot be empty" }
@@ -124,7 +114,7 @@ class FeedbackRepository(
         if (!res.success) throw Exception(res.error ?: "Failed to update feedback post")
     }
 
-    suspend fun deleteFeedbackPost(postId: String): Result<Unit> = runCatching {
+    suspend fun deleteFeedbackPost(postId: String): Result<Unit> = requestResult {
         val res = api.deleteFeedbackPost(postId)
         if (!res.success) throw Exception(res.error ?: "Failed to delete feedback post")
     }
@@ -137,7 +127,7 @@ class FeedbackRepository(
         name: String,
         email: String,
         text: String
-    ): Result<Unit> = runCatching {
+    ): Result<Unit> = requestResult {
         val trimmed = text.trim()
         require(trimmed.isNotEmpty()) { "Reply cannot be empty" }
         require(trimmed.length <= 1000) { "Reply cannot exceed 1000 characters" }
@@ -152,21 +142,22 @@ class FeedbackRepository(
     }
 
     suspend fun getRepliesForPost(postId: String): List<FeedbackPostReply> {
-        return try {
-            val res = api.getPostReplies(postId)
-            res.data ?: emptyList()
-        } catch (_: Exception) {
-            emptyList()
-        }
+        val res = api.getPostReplies(postId)
+        check(res.success && res.data != null) { res.error ?: "Unable to load replies." }
+        return res.data
     }
 
-    suspend fun markReplyAsRead(postId: String, replyId: String): Result<Unit> = runCatching {
+    suspend fun markReplyAsRead(postId: String, replyId: String): Result<Unit> = requestResult {
         val res = api.markReplyRead(postId, replyId)
         if (!res.success) throw Exception(res.error ?: "Failed to mark reply as read")
     }
 
-    suspend fun deleteSingleReply(postId: String, replyId: String): Result<Unit> = runCatching {
+    suspend fun deleteSingleReply(postId: String, replyId: String): Result<Unit> = requestResult {
         val res = api.deleteReply(postId, replyId)
         if (!res.success) throw Exception(res.error ?: "Failed to delete reply")
     }
+    private suspend fun <T> requestResult(block: suspend () -> T): Result<T> = try {
+        Result.success(block())
+    } catch (e: CancellationException) { throw e }
+    catch (e: Exception) { Result.failure(e.toApiError()) }
 }

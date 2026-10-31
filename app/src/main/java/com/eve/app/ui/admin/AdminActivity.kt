@@ -4,6 +4,8 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import kotlinx.coroutines.CancellationException
+import com.eve.app.data.remote.toUserFriendlyMessage
 import android.provider.OpenableColumns
 import android.text.Editable
 import android.text.InputType
@@ -953,7 +955,12 @@ class AdminActivity : EveBaseActivity() {
 
     private fun showManageFeedbackPostsDialog() {
         lifecycleScope.launch {
-            val posts = feedbackRepo.getFeedbackPosts()
+            val posts = try { feedbackRepo.getFeedbackPosts() }
+            catch (e: CancellationException) { throw e }
+            catch (e: Exception) {
+                AppBulletin.showError(this@AdminActivity, e.toUserFriendlyMessage())
+                return@launch
+            }
             if (posts.isEmpty()) {
                 TelegramNativeAlertDialog.Builder(this@AdminActivity)
                     .setTitle("Feedback Posts")
@@ -1021,24 +1028,30 @@ class AdminActivity : EveBaseActivity() {
         layout.addView(etTitle)
         layout.addView(etMessage)
 
-        TelegramNativeAlertDialog.Builder(this)
+        val dialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Edit Feedback Post")
             .setView(layout)
-            .setPositiveButton("Save") { _, _ ->
-                val newTitle = etTitle.text?.toString()?.trim().orEmpty()
-                val newMsg = etMessage.text?.toString()?.trim().orEmpty()
-                if (newTitle.isNotEmpty() && newMsg.isNotEmpty()) {
-                    lifecycleScope.launch {
-                        feedbackRepo.updateFeedbackPost(post.id, newTitle, newMsg).onSuccess {
-                            AppBulletin.showSuccess(this@AdminActivity, "Post updated")
-                        }.onFailure { err ->
-                            AppBulletin.showError(this@AdminActivity, "Failed: ${err.message}")
-                        }
-                    }
-                }
-            }
+            .setPositiveButton("Save", null)
             .setNegativeButton("Cancel", null)
-            .show()
+            .create()
+        dialog.show()
+        val saveButton = dialog.getActionButton(DialogInterface.BUTTON_POSITIVE)
+        saveButton?.setOnClickListener {
+            val newTitle = etTitle.text?.toString()?.trim().orEmpty()
+            val newMsg = etMessage.text?.toString()?.trim().orEmpty()
+            if (newTitle.isEmpty() || newMsg.isEmpty()) {
+                AppBulletin.showError(this, "Title and message are required.")
+                return@setOnClickListener
+            }
+            saveButton.isEnabled = false
+            lifecycleScope.launch {
+                feedbackRepo.updateFeedbackPost(post.id, newTitle, newMsg).onSuccess {
+                    dialog.dismiss()
+                    AppBulletin.showSuccess(this@AdminActivity, "Post updated")
+                }.onFailure { AppBulletin.showError(this@AdminActivity, it.toUserFriendlyMessage()) }
+                saveButton.isEnabled = true
+            }
+        }
     }
 
     private fun showPostRepliesDialog(post: FeedbackPost) {
@@ -1051,16 +1064,21 @@ class AdminActivity : EveBaseActivity() {
         dialogBinding.tvPostRepliesSnippet.text = post.message
 
         var currentReplies: List<FeedbackPostReply> = emptyList()
+        val pendingReplies = mutableSetOf<String>()
+        var dialogActive = true
+        dialog.setOnDismissListener { dialogActive = false }
 
         lateinit var repliesAdapter: PostRepliesAdapter
         repliesAdapter = PostRepliesAdapter(
             onMarkRead = { reply ->
+                if (!pendingReplies.add(reply.id)) return@PostRepliesAdapter
                 lifecycleScope.launch {
                     feedbackRepo.markReplyAsRead(post.id, reply.id).onSuccess {
                         currentReplies = currentReplies.map { if (it.id == reply.id) it.copy(read = true) else it }
                         repliesAdapter.submitList(currentReplies)
                         AppBulletin.showSuccess(this@AdminActivity, "Marked as read")
-                    }
+                    }.onFailure { AppBulletin.showError(this@AdminActivity, it.toUserFriendlyMessage()) }
+                    pendingReplies.remove(reply.id)
                 }
             },
             onDelete = { reply ->
@@ -1069,12 +1087,14 @@ class AdminActivity : EveBaseActivity() {
                     .setMessage("Delete reply from ${reply.name}?")
                     .setPositiveButton("Delete") { _, _ ->
                         lifecycleScope.launch {
+                            if (!pendingReplies.add(reply.id)) return@launch
                             feedbackRepo.deleteSingleReply(post.id, reply.id).onSuccess {
                                 currentReplies = currentReplies.filter { it.id != reply.id }
                                 repliesAdapter.submitList(currentReplies)
                                 dialogBinding.tvNoReplies.visibility = if (currentReplies.isEmpty()) View.VISIBLE else View.GONE
                                 AppBulletin.showSuccess(this@AdminActivity, "Reply deleted")
-                            }
+                            }.onFailure { AppBulletin.showError(this@AdminActivity, it.toUserFriendlyMessage()) }
+                            pendingReplies.remove(reply.id)
                         }
                     }
                     .setNegativeButton("Cancel", null)
@@ -1090,11 +1110,13 @@ class AdminActivity : EveBaseActivity() {
                 .setTitle("Delete Post?")
                 .setMessage("Delete '${post.title}' from Home screen? All its student replies will also be permanently deleted.")
                 .setPositiveButton("Delete") { _, _ ->
-                    dialog.dismiss()
+                    dialogBinding.btnDeletePostFromReplies.isEnabled = false
                     lifecycleScope.launch {
                         feedbackRepo.deleteFeedbackPost(post.id).onSuccess {
+                            dialog.dismiss()
                             AppBulletin.showSuccess(this@AdminActivity, "Post deleted")
-                        }
+                        }.onFailure { AppBulletin.showError(this@AdminActivity, it.toUserFriendlyMessage()) }
+                        dialogBinding.btnDeletePostFromReplies.isEnabled = true
                     }
                 }
                 .setNegativeButton("Cancel", null)
@@ -1105,10 +1127,17 @@ class AdminActivity : EveBaseActivity() {
 
         dialogBinding.progressBarReplies.visibility = View.VISIBLE
         lifecycleScope.launch {
-            currentReplies = feedbackRepo.getRepliesForPost(post.id)
-            dialogBinding.progressBarReplies.visibility = View.GONE
-            repliesAdapter.submitList(currentReplies)
-            dialogBinding.tvNoReplies.visibility = if (currentReplies.isEmpty()) View.VISIBLE else View.GONE
+            try {
+                val replies = feedbackRepo.getRepliesForPost(post.id)
+                if (dialogActive) {
+                    currentReplies = replies
+                    repliesAdapter.submitList(currentReplies)
+                    dialogBinding.tvNoReplies.visibility = if (currentReplies.isEmpty()) View.VISIBLE else View.GONE
+                }
+            } catch (e: CancellationException) { throw e }
+            catch (e: Exception) {
+                if (dialogActive) AppBulletin.showError(this@AdminActivity, e.toUserFriendlyMessage())
+            } finally { dialogBinding.progressBarReplies.visibility = View.GONE }
         }
 
         dialog.show()

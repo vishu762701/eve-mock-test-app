@@ -176,6 +176,7 @@ class FeedbackMessagesActivity : EveBaseActivity() {
             message.message
         }
         dialogBinding.tvOriginalMessageText.text = bodyText
+        dialogBinding.etReplyText.setText(message.replyText)
 
         dialogBinding.btnCancelReply.setOnClickListener {
             dialog.dismiss()
@@ -194,12 +195,12 @@ class FeedbackMessagesActivity : EveBaseActivity() {
                 try {
                     val result = repo.replyFeedbackMessage(message.id, replyText)
                     result.onSuccess {
-                        AppBulletin.showSuccess(this@FeedbackMessagesActivity, "Reply sent successfully!")
+                        AppBulletin.showSuccess(this@FeedbackMessagesActivity, "Reply saved.")
                         dialog.dismiss()
                         loadMessages()
                     }.onFailure { err ->
                         dialogBinding.btnSendReply.isEnabled = true
-                        AppBulletin.showError(this@FeedbackMessagesActivity, "Failed to send reply: ${err.message}")
+                        AppBulletin.showError(this@FeedbackMessagesActivity, "Failed to save reply: ${err.message}")
                     }
                 } catch (e: Exception) {
                     dialogBinding.btnSendReply.isEnabled = true

@@ -12,5 +12,7 @@ data class FeedbackMessage(
     val timestamp: Long = System.currentTimeMillis(),
     val read: Boolean = false,
     val postId: String? = null,
-    val postTitle: String? = null
+    val postTitle: String? = null,
+    val replyText: String = "",
+    val repliedAt: Long = 0L
 )

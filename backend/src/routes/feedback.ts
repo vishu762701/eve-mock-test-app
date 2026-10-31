@@ -3,7 +3,7 @@
 // ============================================================================
 
 import { Hono } from "hono";
-import { requireAdmin, requirePermission } from "../middleware/authMiddleware";
+import { requirePermission } from "../middleware/authMiddleware";
 import {
   AuthUser,
   Env,
@@ -11,7 +11,7 @@ import {
   FeedbackPostRow,
   FeedbackReplyRow,
 } from "../types";
-import { prepareAdminAuditLog, recordAdminAction } from "../util/auditLog";
+import { prepareAdminAuditLog } from "../util/auditLog";
 
 export const feedbackRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
@@ -55,8 +55,8 @@ feedbackRoutes.post("/messages", async (c) => {
 feedbackRoutes.get("/messages", requirePermission("moderate_feedback"), async (c) => {
   const db = c.env.DB;
   const { results } = await db
-    .prepare("SELECT * FROM feedback_messages ORDER BY timestamp DESC")
-    .all<FeedbackMessageRow>();
+    .prepare("SELECT fm.*, fr.reply_text AS saved_reply_text, fr.replied_at AS saved_replied_at FROM feedback_messages fm LEFT JOIN feedback_admin_replies fr ON fr.message_id = fm.id ORDER BY fm.timestamp DESC")
+    .all<FeedbackMessageRow & { saved_reply_text?: string; saved_replied_at?: number; reply_text?: string; replied_at?: number }>();
 
   const list = (results || []).map((r) => ({
     id: r.id,
@@ -68,6 +68,8 @@ feedbackRoutes.get("/messages", requirePermission("moderate_feedback"), async (c
     read: Boolean(r.read),
     postId: r.post_id,
     postTitle: r.post_title,
+    replyText: r.saved_reply_text ?? r.reply_text ?? "",
+    repliedAt: r.saved_replied_at ?? r.replied_at ?? 0,
   }));
 
   return c.json({ success: true, data: list });
@@ -84,8 +86,10 @@ feedbackRoutes.put("/messages/:id/read", requirePermission("moderate_feedback"),
     description: `Marked feedback message '${id}' as read`,
     targetType: "feedback_message",
     targetId: id,
+    condition: { sql: "changes() > 0", bindings: [] },
   });
-  await db.batch([updateStmt, auditStmt]);
+  const result = await db.batch([updateStmt, auditStmt]);
+  if (!result[0].meta.changes) return c.json({ success: false, error: "Feedback record not found." }, 404);
   return c.json({ success: true });
 });
 
@@ -100,8 +104,11 @@ feedbackRoutes.delete("/messages/:id", requirePermission("moderate_feedback"), a
     description: `Deleted feedback message '${id}'`,
     targetType: "feedback_message",
     targetId: id,
+    condition: { sql: "changes() > 0", bindings: [] },
   });
-  await db.batch([deleteStmt, auditStmt]);
+  const result = await db.batch([
+    db.prepare("DELETE FROM feedback_admin_replies WHERE message_id = ?").bind(id), deleteStmt, auditStmt]);
+  if (!result[1].meta.changes) return c.json({ success: false, error: "Feedback record not found." }, 404);
   return c.json({ success: true });
 });
 
@@ -112,39 +119,25 @@ feedbackRoutes.post("/messages/:id/reply", requirePermission("moderate_feedback"
   const body = await c.req.json().catch(() => ({}));
   const reply = String(body.reply || "").trim();
 
-  if (!reply) {
-    return c.json({ success: false, error: "Reply cannot be empty" }, 400);
+  if (typeof body.reply !== "string" || !reply || reply.length > 1000) {
+    return c.json({ success: false, error: "Reply must contain 1-1000 characters." }, 400);
   }
-
   const db = c.env.DB;
-  try {
-    await db.prepare("UPDATE feedback_messages SET read = 1 WHERE id = ?").bind(id).run();
-  } catch {}
-
-  try {
-    await db
-      .prepare("UPDATE feedback_messages SET reply_text = ?, replied_at = ? WHERE id = ?")
-      .bind(reply, Date.now(), id)
-      .run();
-  } catch {
-    try {
-      await db.prepare("ALTER TABLE feedback_messages ADD COLUMN reply_text TEXT DEFAULT ''").run();
-      await db.prepare("ALTER TABLE feedback_messages ADD COLUMN replied_at INTEGER DEFAULT 0").run();
-      await db
-        .prepare("UPDATE feedback_messages SET reply_text = ?, replied_at = ? WHERE id = ?")
-        .bind(reply, Date.now(), id)
-        .run();
-    } catch {}
+  if (!await db.prepare("SELECT id FROM feedback_messages WHERE id = ?").bind(id).first()) {
+    return c.json({ success: false, error: "Feedback message not found." }, 404);
   }
-
-  await recordAdminAction(db, user, {
-    actionType: "FEEDBACK_REPLIED",
-    description: `Replied to feedback message '${id}'`,
-    targetType: "feedback_message",
-    targetId: id,
+  const now = Date.now();
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "FEEDBACK_REPLIED", description: `Saved reply to feedback message '${id}'`,
+    targetType: "feedback_message", targetId: id,
+    condition: { sql: "changes() > 0", bindings: [] },
   });
-
-  return c.json({ success: true, data: { id, reply } });
+  const result = await db.batch([
+    db.prepare("INSERT INTO feedback_admin_replies(message_id,reply_text,replied_at) SELECT id,?,? FROM feedback_messages WHERE id = ? ON CONFLICT(message_id) DO UPDATE SET reply_text=excluded.reply_text,replied_at=excluded.replied_at").bind(reply, now, id),
+    db.prepare("UPDATE feedback_messages SET read = 1 WHERE id = ?").bind(id), auditStmt,
+  ]);
+  if (!result[0].meta.changes) return c.json({ success: false, error: "Feedback message not found." }, 404);
+  return c.json({ success: true, data: { id, reply, repliedAt: now } });
 });
 
 // ----------------------------------------------------------------------------
@@ -227,10 +220,11 @@ feedbackRoutes.put("/posts/:id", requirePermission("moderate_feedback"), async (
     targetType: "feedback_post",
     targetId: id,
     metadata: { title },
+    condition: { sql: "changes() > 0", bindings: [] },
   });
 
-  await db.batch([updateStmt, auditStmt]);
-
+  const result = await db.batch([updateStmt, auditStmt]);
+  if (!result[0].meta.changes) return c.json({ success: false, error: "Feedback post not found." }, 404);
   return c.json({ success: true });
 });
 
@@ -245,14 +239,15 @@ feedbackRoutes.delete("/posts/:id", requirePermission("moderate_feedback"), asyn
     description: `Deleted feedback post '${id}'`,
     targetType: "feedback_post",
     targetId: id,
+    condition: { sql: "changes() > 0", bindings: [] },
   });
 
-  await db.batch([
+  const result = await db.batch([
     db.prepare("DELETE FROM feedback_post_replies WHERE post_id = ?").bind(id),
     db.prepare("DELETE FROM feedback_posts WHERE id = ?").bind(id),
     auditStmt,
   ]);
-
+  if (!result[1].meta.changes) return c.json({ success: false, error: "Feedback post not found." }, 404);
   return c.json({ success: true });
 });
 
@@ -261,7 +256,7 @@ feedbackRoutes.delete("/posts/:id", requirePermission("moderate_feedback"), asyn
 // ----------------------------------------------------------------------------
 
 // GET /api/feedback/posts/:postId/replies - List replies for post
-feedbackRoutes.get("/posts/:postId/replies", async (c) => {
+feedbackRoutes.get("/posts/:postId/replies", requirePermission("moderate_feedback"), async (c) => {
   const postId = c.req.param("postId");
   const db = c.env.DB;
 
@@ -291,7 +286,7 @@ feedbackRoutes.post("/posts/:postId/replies", async (c) => {
   const body = await c.req.json().catch(() => ({}));
   const text = String(body.text || "").trim();
   const name = String(body.name || user.displayName || "Student").trim();
-  const email = String(body.email || user.email || "").trim();
+  const email = user.email || "";
 
   if (!text) {
     return c.json({ success: false, error: "Reply text cannot be empty" }, 400);
@@ -303,6 +298,7 @@ feedbackRoutes.post("/posts/:postId/replies", async (c) => {
   const id = crypto.randomUUID();
   const now = Date.now();
   const db = c.env.DB;
+  if (!await db.prepare("SELECT id FROM feedback_posts WHERE id = ?").bind(postId).first()) return c.json({ success: false, error: "Feedback post not found." }, 404);
 
   await db
     .prepare(
@@ -319,15 +315,18 @@ feedbackRoutes.post("/posts/:postId/replies", async (c) => {
 feedbackRoutes.put("/posts/:postId/replies/:replyId/read", requirePermission("moderate_feedback"), async (c) => {
   const user = c.get("user");
   const replyId = c.req.param("replyId");
+  const postId = c.req.param("postId");
   const db = c.env.DB;
-  const updateStmt = db.prepare("UPDATE feedback_post_replies SET read = 1 WHERE id = ?").bind(replyId);
+  const updateStmt = db.prepare("UPDATE feedback_post_replies SET read = 1 WHERE id = ? AND post_id = ?").bind(replyId, postId);
   const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
     actionType: "FEEDBACK_REPLY_READ",
     description: `Marked reply '${replyId}' as read`,
     targetType: "feedback_reply",
     targetId: replyId,
+    condition: { sql: "changes() > 0", bindings: [] },
   });
-  await db.batch([updateStmt, auditStmt]);
+  const result = await db.batch([updateStmt, auditStmt]);
+  if (!result[0].meta.changes) return c.json({ success: false, error: "Feedback record not found." }, 404);
   return c.json({ success: true });
 });
 
@@ -335,14 +334,17 @@ feedbackRoutes.put("/posts/:postId/replies/:replyId/read", requirePermission("mo
 feedbackRoutes.delete("/posts/:postId/replies/:replyId", requirePermission("moderate_feedback"), async (c) => {
   const user = c.get("user");
   const replyId = c.req.param("replyId");
+  const postId = c.req.param("postId");
   const db = c.env.DB;
-  const deleteStmt = db.prepare("DELETE FROM feedback_post_replies WHERE id = ?").bind(replyId);
+  const deleteStmt = db.prepare("DELETE FROM feedback_post_replies WHERE id = ? AND post_id = ?").bind(replyId, postId);
   const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
     actionType: "FEEDBACK_REPLY_DELETED",
     description: `Deleted feedback reply '${replyId}'`,
     targetType: "feedback_reply",
     targetId: replyId,
+    condition: { sql: "changes() > 0", bindings: [] },
   });
-  await db.batch([deleteStmt, auditStmt]);
+  const result = await db.batch([deleteStmt, auditStmt]);
+  if (!result[0].meta.changes) return c.json({ success: false, error: "Feedback record not found." }, 404);
   return c.json({ success: true });
 });
