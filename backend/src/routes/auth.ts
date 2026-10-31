@@ -276,7 +276,7 @@ authRoutes.get("/profile", async (c) => {
   let row: UserRow | null = null;
   try {
     row = await db
-      .prepare("SELECT id, eve_id, email, display_name, dob, category, username, phone, created_at, last_active FROM users WHERE id = ?")
+      .prepare("SELECT id, eve_id, email, display_name, dob, category, username, phone, bio, created_at, last_active FROM users WHERE id = ?")
       .bind(user.uid)
       .first<UserRow>();
   } catch (e: any) {
@@ -287,7 +287,7 @@ authRoutes.get("/profile", async (c) => {
       await db.prepare("ALTER TABLE users ADD COLUMN phone TEXT").run().catch(() => {});
       await db.prepare("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username_lower ON users (lower(username))").run().catch(() => {});
       row = await db
-        .prepare("SELECT id, eve_id, email, display_name, dob, category, username, phone, created_at, last_active FROM users WHERE id = ?")
+        .prepare("SELECT id, eve_id, email, display_name, dob, category, username, phone, bio, created_at, last_active FROM users WHERE id = ?")
         .bind(user.uid)
         .first<UserRow>();
     } else {
@@ -317,6 +317,7 @@ authRoutes.get("/profile", async (c) => {
         category: "General",
         username: username,
         phone: "",
+        bio: "",
       },
     });
   }
@@ -332,6 +333,7 @@ authRoutes.get("/profile", async (c) => {
       category: row.category,
       username: username,
       phone: row.phone || "",
+      bio: row.bio || "",
     },
   });
 });
@@ -350,6 +352,7 @@ authRoutes.put("/profile", async (c) => {
     category: { column: "category", max: 100 },
     username: { column: "username", max: 33 },
     phone: { column: "phone", max: 32 },
+    bio: { column: "bio", max: 160 },
   } as const;
   const supplied: Record<string, string> = {};
   const updatedColumns: string[] = [];
@@ -385,15 +388,15 @@ authRoutes.put("/profile", async (c) => {
     // Columns come only from the fixed allowlist above; values remain bound.
     // Update only supplied fields, atomically preserving other concurrent edits.
     await c.env.DB.prepare(
-      `INSERT INTO users (id, email, display_name, dob, category, username, phone, created_at, last_active, last_updated)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `INSERT INTO users (id, email, display_name, dob, category, username, phone, bio, created_at, last_active, last_updated)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
        ON CONFLICT(id) DO UPDATE SET
          ${updatedColumns.map(column => `${column} = excluded.${column}`).join(", ")},
          last_updated = excluded.last_updated`
     ).bind(
       user.uid, user.email, supplied.displayName ?? user.displayName ?? "Student",
       supplied.dob ?? "", supplied.category ?? "General", supplied.username ?? null,
-      supplied.phone ?? "", now, now, now
+      supplied.phone ?? "", supplied.bio ?? "", now, now, now
     ).run();
   } catch (e: any) {
     if (String(e).includes("UNIQUE constraint failed") || String(e).includes("idx_users_username_lower")) {

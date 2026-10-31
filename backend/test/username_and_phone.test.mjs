@@ -366,3 +366,55 @@ test("race condition & unique constraint: handles concurrent username collision"
   assert.equal(raceBody.success, false);
   assert.equal(raceBody.error, "Sorry, this username is already taken.");
 });
+
+test("profile bio save and authenticated readback survive other partial edits", async () => {
+  const { sqlite, d1 } = isolatedD1(); seedProfile(sqlite);
+  const app = createTestApp(d1, profileUser);
+  const bio = "Learning together.\nहिंदी में तैयारी • accessibility matters.";
+  const saved = await app.request("/api/users/profile", profileRequest({ bio }));
+  assert.equal(saved.status, 200);
+  assert.equal(sqlite.prepare("SELECT bio FROM users WHERE id = ?").get(profileUser.uid).bio, bio);
+  let readback = await (await app.request("/api/users/profile")).json();
+  assert.equal(readback.data.bio, bio);
+  assert.equal(readback.data.phone, originalProfile.phone);
+  assert.equal((await app.request("/api/users/profile", profileRequest({ username: "other_user" }))).status, 200);
+  readback = await (await app.request("/api/users/profile")).json();
+  assert.equal(readback.data.bio, bio, "Independent profile updates cannot overwrite bio");
+  assert.equal(readback.data.username, "other_user");
+
+  const cleared = await app.request("/api/users/profile", profileRequest({ bio: "" }));
+  assert.equal(cleared.status, 200);
+  assert.equal((await (await app.request("/api/users/profile")).json()).data.bio, "");
+});
+
+test("profile bio rejects unbounded or non-text payloads without mutation", async () => {
+  const { sqlite, d1 } = isolatedD1(); seedProfile(sqlite);
+  const app = createTestApp(d1, profileUser);
+  const before = sqlite.prepare("SELECT bio FROM users WHERE id = ?").get(profileUser.uid).bio;
+  for (const value of ["x".repeat(161), null, 12, [], {}, true]) {
+    const response = await app.request("/api/users/profile", profileRequest({ bio: value }));
+    assert.equal(response.status, 400, String(value));
+    assert.equal(sqlite.prepare("SELECT bio FROM users WHERE id = ?").get(profileUser.uid).bio, before);
+  }
+});
+
+test("only authenticated profile owner can write or read their private bio", async () => {
+  const { sqlite, d1 } = isolatedD1(); seedProfile(sqlite);
+  const other = { uid: "other-user", email: "other@example.test", displayName: "Other" };
+  const own = createTestApp(d1, profileUser);
+  const second = createTestApp(d1, other);
+  const saved = await own.request("/api/users/profile", profileRequest({ bio: "private profile", id: other.uid, email: other.email }));
+  assert.equal(saved.status, 200);
+  assert.equal(sqlite.prepare("SELECT bio FROM users WHERE id = ?").get(profileUser.uid).bio, "private profile");
+  const otherResponse = await (await second.request("/api/users/profile")).json();
+  assert.equal(otherResponse.data.bio, "", "Authenticated owner isolation is mandatory");
+  assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM users WHERE bio = ?").get("private profile").n, 1);
+});
+
+test("new profile has empty bio and migration is idempotent across persisted users", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  const app = createTestApp(d1, profileUser);
+  const initial = await (await app.request("/api/users/profile")).json();
+  assert.equal(initial.data.bio, "");
+  assert.equal(sqlite.prepare("PRAGMA table_info(users)").all().some(column => column.name === "bio"), true);
+});

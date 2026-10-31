@@ -279,6 +279,7 @@ export interface UserRow {
   fcm_token: string;
   username?: string | null;
   phone?: string | null;
+  bio?: string | null;
 }
 
 export interface PremiumConfigRow {
