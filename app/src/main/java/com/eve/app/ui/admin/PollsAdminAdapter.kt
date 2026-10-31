@@ -110,6 +110,9 @@ class PollsAdminAdapter(
                 onToggleStatus(poll)
             }
 
+            // Set runtime text on every bind; preview-only XML attributes never render on device.
+            binding.btnDeletePoll.text = "Delete"
+            binding.btnDeletePoll.contentDescription = "Delete poll"
             binding.btnDeletePoll.setOnClickListener {
                 onDelete(poll)
             }

@@ -16,7 +16,7 @@
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:gravity="end|center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
             <TextView android:id="@+id/tvTapToView" style="@style/TextAppearance.Eve.Token.Secondary.blue" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Tap to view results" />
             <com.google.android.material.button.MaterialButton android:id="@+id/btnToggleActive" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" ns1:text="Close Poll" />
-            <com.google.android.material.button.MaterialButton android:id="@+id/btnDeletePoll" style="@style/Widget.Eve.Token.Button.Destructive" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_card_gap" ns1:text="Delete" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnDeletePoll" style="@style/Widget.Eve.Token.Button.Destructive" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_card_gap" android:text="Delete" android:contentDescription="Delete poll" />
         </LinearLayout>
     </LinearLayout>
 </com.eve.app.designsystem.DesignCardView>
