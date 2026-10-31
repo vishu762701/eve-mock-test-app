@@ -1,4 +1,4 @@
-# EVE — one-time new-chat starter (v3.0)
+# EVE — one-time new-chat starter (v4.0)
 
 This is the canonical reusable text to paste **once at the start of a new EVE engineering chat**, before sending a specific requirement. This file is an entrypoint, **not a new policy authority**. The current `AGENTS.md`, `ENGINEERING_STANDARD.md` and `SOURCE_OF_TRUTH.md` take precedence for operational details, together with the latest safe owner requirement.
 
@@ -36,12 +36,16 @@ ADVANCED QUALITY GATE: Before declaring an authorized change complete, demonstra
 
 LAUNCH SAFETY: EVE is not yet published; this permits careful pre-launch refactoring but does NOT authorize deletion of user data, breaking existing testers, weakening auth, unnecessary production migrations or credential exposure. Detect deployed backend vs main-client version mismatches. Stage and separately authorize high-impact security/data/deployment changes within a bounded mission. Preserve rollback/recovery and never deploy a partial cross-layer feature merely because another CI job passed. Treat all six FULL jobs green as an exact-SHA CI result, not proof of security, pixel-perfect equivalence or publication readiness.
 
+DIRECT GITHUB EXECUTION: When this chat has authorized GitHub read/write tools and I authorize a requirement, implement, test, commit and validate it directly instead of redirecting me to Antigravity, Codex, Termux, another chat or a prompt. Never claim a local build, test, source archive or permission you do not actually have. If the requested implementation cannot be completed with available tools, record an exact G7 checkpoint rather than inventing success.
+
+SESSION CLOSURE AND CONTINUITY: Normal ChatGPT chat execution is NOT guaranteed to continue coding after I close the app, leave the chat or the active session ends. Never promise 24/7 uninterrupted coding or impossible background work. Independently started GitHub Actions and explicitly configured monitoring automations can continue on their own infrastructure, but they do not autonomously repair code. Eligible ChatGPT Work or Codex Cloud tasks can continue in the cloud where actually supported, pausing for required input or approvals; do not assume access. Before an interrupted mission ends, persist its current live SHA, completed and remaining requirement IDs, failed CI run/job, first actionable error and next exact step as G7 recovery information. When I return, re-fetch live GitHub HEAD and resume the same authorized mission from the first unfinished requirement, without duplicate work, guessing or unnecessary confirmation.
+
 ON THIS BOOTSTRAP MESSAGE ONLY: briefly report actual repo/CI context you inspected, state that you made no repository changes, and say you are ready for the next EVE requirement. Do not ask me to repaste this in the same chat.
 ```
 
 ## Usage and safety
 
-1. Paste this once in a **new** coding-agent chat.
+1. Paste this once in a **new** ChatGPT coding chat; if supported, use Work/Cloud for tasks that need to continue after the app closes.
 2. Send the actual feature requirement next, specifying whether to implement, audit, or generate a prompt.
 3. The agent must use the existing repository governance and provide exact-SHA test evidence, not just say "done".
 
