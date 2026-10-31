@@ -169,7 +169,7 @@ class ProfileActivity : EveBaseActivity() {
         binding.btnEditInfo.setOnClickListener {
             val user = FirebaseAuth.getInstance().currentUser
             val intent = Intent(this, ChangeNameActivity::class.java).apply {
-                putExtra("current_name", user?.displayName ?: binding.tvName.text.toString())
+                putExtra("current_name", binding.tvName.text.toString())
             }
             editInfoLauncher.launch(intent)
         }

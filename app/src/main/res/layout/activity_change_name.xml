@@ -54,13 +54,16 @@
             android:id="@+id/etName"
             style="@style/TextAppearance.Eve.Telegram.EditInput"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
             android:background="@null"
-            android:hint="Full Name"
+            android:hint="Display Name"
             android:textColorHint="@color/telegram_type_secondary"
-            android:inputType="textPersonName|textCapWords"
-            android:maxLines="1"
-            android:singleLine="true" />
+            android:inputType="textPersonName|textCapWords|textMultiLine"
+            android:maxLength="100"
+            android:minLines="2"
+            android:maxLines="5"
+            android:gravity="top|start" />
 
         <View
             android:id="@+id/lineName"
@@ -74,6 +77,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="Enter your name as you would like it to appear on your tests and profile." />
+            android:text="Your display name can include multiple words (up to 100 characters). Your @username is separate." />
     </LinearLayout>
 </LinearLayout>
