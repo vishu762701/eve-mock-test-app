@@ -7,6 +7,7 @@ import { Hono } from "hono";
 import { requireAdmin, requirePermission } from "../middleware/authMiddleware";
 import { AuthUser, Env, QuestionRow } from "../types";
 import { hideAnswers } from "../util/clientProtocol";
+import { getAdminPermissions } from "../auth";
 import { prepareAdminAuditLog } from "../util/auditLog";
 
 export const questionRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
@@ -131,7 +132,12 @@ questionRoutes.get("/exam/:examId", async (c) => {
   }
 
   const { results } = await db.prepare(query).bind(...params).all<QuestionRow>();
-  const shouldHide = hideAnswers(c);
+  // The Worker must enforce manage_questions even for authenticated admins.
+  // Admin membership by itself does not grant access to answer keys.
+  const user = c.get("user");
+  const canReadAnswers = user?.isAdmin === true &&
+    (await getAdminPermissions(db, user.email))?.rights.includes("manage_questions") === true;
+  const shouldHide = !canReadAnswers || hideAnswers(c);
   const list = (results || []).map((row) => {
     const q = mapQuestionRow(row);
     if (shouldHide) {
