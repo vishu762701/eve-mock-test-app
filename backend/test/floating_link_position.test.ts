@@ -1,44 +1,19 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import worker from "../src/index.js";
+import { isolatedD1 } from "./support/sqliteD1.mjs";
 
-function createMockDb() {
-  const store = new Map<string, { id: string; body: string; updated_at?: number; updated_by?: string }>();
-  return {
-    prepare(sql: string) {
-      let boundParams: any[] = [];
-      return {
-        bind(...params: any[]) {
-          boundParams = params;
-          return this;
-        },
-        async first<T = any>(): Promise<T | null> {
-          if (sql.includes("FROM admins")) return { email: "own.keni@gmail.com" } as T;
-          if (sql.includes("FROM app_content WHERE id = 'floating_link'")) {
-            const item = store.get("floating_link");
-            return (item || null) as T | null;
-          }
-          return null;
-        },
-        async run() {
-          if (sql.includes("DELETE FROM app_content WHERE id = 'floating_link'")) {
-            store.delete("floating_link");
-            return { success: true };
-          }
-          if (sql.includes("INSERT INTO app_content")) {
-            const [body, updated_at, updated_by] = boundParams;
-            store.set("floating_link", { id: "floating_link", body, updated_at, updated_by });
-            return { success: true };
-          }
-          return { success: true };
-        }
-      };
-    }
-  };
+// Real migration-backed D1 SQL, with atomic batch execution and audit records.
+// The previous map mock omitted D1.batch() and could not test privileged writes.
+function createTestDb() {
+  const { sqlite, d1 } = isolatedD1();
+  sqlite.prepare("INSERT INTO admins (email, created_at) VALUES (?, ?)")
+    .run("own.keni@gmail.com", Date.now());
+  return { sqlite, db: d1 };
 }
 
 test("floating-link endpoint handles plain string, json with coordinates, and validation", async () => {
-  const db = createMockDb();
+  const { sqlite, db } = createTestDb();
   const env: any = { DB: db, JWT_SECRET: "test-jwt-secret-with-sufficient-length-here" };
 
   // 1. Initial GET on empty returns success with empty url and null coordinates
@@ -108,5 +83,12 @@ test("floating-link endpoint handles plain string, json with coordinates, and va
   const json5: any = await res5.json();
   assert.equal(json5.data.x, 1.0);
   assert.equal(json5.data.y, 0.0);
+
+  assert.equal(
+    sqlite.prepare("SELECT COUNT(*) AS n FROM admin_audit_log WHERE action_type = 'FLOATING_LINK_UPDATED'").get().n,
+    3,
+    "Every successful floating-link update must commit its audit record",
+  );
+  sqlite.close();
 });
 
