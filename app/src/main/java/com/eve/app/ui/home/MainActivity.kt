@@ -482,6 +482,8 @@ class MainActivity : EveBaseActivity() {
         if (::binding.isInitialized) {
             // Invalidate asynchronous composition callbacks when Home is no longer visible.
             bellAnimationGeneration++
+            bellTapNavigationEpoch++
+            bellTapNavigationPending = false
             pendingBellGeneration = null
             binding.btnNotification.cancelAnimation()
             restoreNotificationBellIdle()
@@ -1440,11 +1442,14 @@ class MainActivity : EveBaseActivity() {
     // A broadcast/remote import can arrive during STARTED, before ON_RESUME.
     // Queue only that real event; Home/inbox navigation never sets this flag.
     private var pendingIncomingBellUntilResume = false
+    // A tap is navigation, not an incoming notification; keep its lifecycle state separate.
+    private var bellTapNavigationPending = false
+    private var bellTapNavigationEpoch = 0
 
     /** Original EVE asset: notification_bell.json (Git blob bff3b04887e06d0f144a641b8ec5c14f640c4dd4),
      * present since the historical e9bad22a commit. This is not an Apple asset or
      * a claim of official iOS animation provenance. Motion is triggered only by
-     * incoming NotificationStore events or newly imported broadcasts. */
+     * incoming NotificationStore events, newly imported broadcasts, or a real user tap. */
     private fun animateNotificationBell() {
         if (!::binding.isInitialized || !com.eve.app.designsystem.DesignMotion.enabled(this)) {
             pendingIncomingBellUntilResume = false
@@ -1521,11 +1526,37 @@ class MainActivity : EveBaseActivity() {
             }
         })
         binding.notificationAction.setOnClickListener {
-            // Opening the inbox is navigation, NOT an incoming notification.
-            // Unread state is acknowledged only from the inbox.
-            com.eve.app.util.EveNavigationHelper.navigate(
-                this, Intent(this, NotificationsActivity::class.java), binding.notificationAction
-            )
+            // A user tap must animate before navigation, without counting as new notification.
+            // Reject double taps and invalidate delayed dispatch on Activity pause/recreation.
+            if (bellTapNavigationPending || isFinishing || isDestroyed) return@setOnClickListener
+            bellTapNavigationPending = true
+            val tapEpoch = ++bellTapNavigationEpoch
+            val openInbox = {
+                if (tapEpoch == bellTapNavigationEpoch && !isFinishing && !isDestroyed &&
+                    lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                    // Read flags are changed only inside NotificationsActivity.
+                    com.eve.app.util.EveNavigationHelper.navigate(
+                        this, Intent(this, NotificationsActivity::class.java), binding.notificationAction
+                    )
+                } else {
+                    bellTapNavigationPending = false
+                }
+            }
+            if (!com.eve.app.designsystem.DesignMotion.enabled(this) ||
+                binding.btnNotification.composition == null ||
+                !lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                // Reduced motion, unloaded composition, or absent animation: never block the inbox.
+                openInbox()
+            } else {
+                animateNotificationBell()
+                if (binding.btnNotification.isAnimating) {
+                    // Display a perceptible original-EVE animation, then enter inbox;
+                    // onPause cancels the remainder, preventing an offscreen replay.
+                    binding.notificationAction.postDelayed(openInbox, 850L)
+                } else {
+                    openInbox()
+                }
+            }
         }
     }
 
