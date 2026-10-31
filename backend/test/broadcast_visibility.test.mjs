@@ -2,6 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { Hono } from "hono";
 import { broadcastRoutes } from "../src/routes/broadcasts.ts";
+import { HARDCODED_ADMIN_EMAILS } from "../src/auth.ts";
+
+const ownerEmail = [...HARDCODED_ADMIN_EMAILS][0];
 
 const stored = {
   id: "broadcast-1", title: "Exam schedule", message: "New test published",
@@ -39,7 +42,7 @@ for (const isAdmin of [false, true]) {
 function requestAsAdmin(method, endpoint, body, onPrepare = () => { throw new Error("Unexpected database access"); }) {
   const app = new Hono();
   app.use("*", async (c, next) => {
-    c.set("user", { uid: "admin-fixture", email: "admin@example.test", isAdmin: true });
+    c.set("user", { uid: "admin-fixture", email: ownerEmail, isAdmin: true });
     await next();
   });
   app.route("/api/broadcasts", broadcastRoutes);
@@ -120,7 +123,7 @@ test("targeted broadcasts fail closed before creating any D1 row", async () => {
 function adminDeletionFixture(changesById = {}) {
   const app = new Hono();
   app.use("*", async (c, next) => {
-    c.set("user", { uid: "admin", email: "admin@example.test", isAdmin: true });
+    c.set("user", { uid: "admin", email: ownerEmail, isAdmin: true });
     await next();
   });
   app.route("/api/broadcasts", broadcastRoutes);

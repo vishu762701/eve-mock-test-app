@@ -235,7 +235,14 @@ export async function getAdminPermissions(
   }
 
   try {
-    // Check if there is an explicit rights record for this admin
+    // A rights record must never outlive the membership that authorizes it.
+    const adminRow = await db
+      .prepare("SELECT email FROM admins WHERE LOWER(TRIM(email)) = ?")
+      .bind(normalized)
+      .first<{ email: string }>();
+    if (!adminRow) return null;
+
+    // Migration 0022 backfilled existing admins. Missing rights now grant none.
     const rightsRow = await db
       .prepare("SELECT rights, custom_title FROM admin_rights WHERE LOWER(TRIM(email)) = ?")
       .bind(normalized)
@@ -258,21 +265,7 @@ export async function getAdminPermissions(
       };
     }
 
-    // No explicit admin_rights row found. Check admins table
-    const adminRow = await db
-      .prepare("SELECT email FROM admins WHERE LOWER(TRIM(email)) = ?")
-      .bind(normalized)
-      .first<{ email: string }>();
-
-    if (adminRow) {
-      return {
-        isOwner: false,
-        rights: [...ALL_ADMIN_RIGHTS],
-        customTitle: "Admin",
-      };
-    }
-
-    return null;
+    return { isOwner: false, rights: [], customTitle: "Admin" };
   } catch (_e) {
     return null;
   }

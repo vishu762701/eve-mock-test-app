@@ -15,6 +15,7 @@ import { operationMonitor } from '../src/middleware/operationMonitor';
 import { runGeneration } from '../src/services/generation';
 import { handleScheduledTestGeneration } from '../src/cron/scheduledTestGeneration';
 import worker from '../src/index';
+import { HARDCODED_ADMIN_EMAILS } from '../src/auth';
 
 // Execute production route SQL on SQLite, including D1's transactional batch semantics.
 class LocalD1 {
@@ -57,7 +58,7 @@ const envFor = (DB: LocalD1) => ({ DB, GEMINI_API_KEY: 'test-only-key', GEMINI_M
 function harness(db: LocalD1, admin = false, overrides: Record<string, unknown> = {}) {
   const app = new Hono();
   app.use('*', operationMonitor);
-  app.use('*', async (c, next) => { c.set('user', { uid: 'u', email: 'student@example.com', displayName: 'Student', isAdmin: admin }); await next(); });
+  app.use('*', async (c, next) => { c.set('user', { uid: 'u', email: admin ? [...HARDCODED_ADMIN_EMAILS][0] : 'student@example.com', displayName: 'Student', isAdmin: admin }); await next(); });
   app.route('/api/banners', bannerRoutes as any); app.route('/api/exams', examRoutes as any); app.route('/api/questions', questionRoutes as any); app.route('/api/attempts', attemptRoutes as any); app.route('/api/generated-tests', generatedTestRoutes as any); app.route('/api/admin/system', monitoringRoutes as any); app.route('/api/admin', adminRoutes as any);
   app.onError((_e, c) => c.json({ success: false, error: 'Database operation failed' }, 500));
   return (path: string, body?: any, method?: string) => app.request(path, { method: method || (body ? 'POST' : 'GET'), headers: { 'Content-Type': 'application/json', 'X-Eve-Client': '2' }, body: body ? JSON.stringify(body) : undefined }, { ...envFor(db), ...overrides });

@@ -25,6 +25,7 @@ adminRoutes.get("/me", async (c) => {
   const user = c.get("user");
   const db = c.env.DB;
   const perms = await getAdminPermissions(db, user?.email);
+  if (!perms) return c.json({ success: false, error: "Admin permissions could not be verified" }, 403);
   return c.json({
     success: true,
     data: {
@@ -64,7 +65,7 @@ adminRoutes.get("/admins", async (c) => {
     return {
       email: a.email,
       isOwner,
-      rights: isOwner ? [...ALL_ADMIN_RIGHTS] : (rightsInfo?.rights || [...ALL_ADMIN_RIGHTS]),
+      rights: isOwner ? [...ALL_ADMIN_RIGHTS] : (rightsInfo?.rights || []),
       customTitle: isOwner ? "Owner" : (rightsInfo?.customTitle || "Admin"),
       createdAt: a.created_at || 0,
     };
@@ -77,6 +78,9 @@ adminRoutes.get("/admins", async (c) => {
 adminRoutes.post("/admins", requirePermission("manage_admins_rights"), async (c) => {
   const user = c.get("user");
   const body = await c.req.json().catch(() => ({}));
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return c.json({ success: false, error: "An admin object is required" }, 400);
+  }
   const email = String(body.email || "").trim().toLowerCase();
   const db = c.env.DB;
 
@@ -85,7 +89,14 @@ adminRoutes.post("/admins", requirePermission("manage_admins_rights"), async (c)
   }
 
   const callerPerms = await getAdminPermissions(db, user?.email);
-  const requestedRights: string[] = Array.isArray(body.rights) ? body.rights.map(String) : [];
+  if (!callerPerms) return c.json({ success: false, error: "Admin permissions could not be verified" }, 403);
+  if (body.rights !== undefined && (!Array.isArray(body.rights) ||
+      body.rights.some((right: unknown) => typeof right !== "string" || !ALL_ADMIN_RIGHTS.includes(right as AdminRight)))) {
+    return c.json({ success: false, error: "Rights must be an array of recognized admin permissions" }, 400);
+  }
+  // Old Android clients omit rights. Preserve owner defaults while limiting
+  // delegated creation to the caller's actual rights. An explicit [] means none.
+  const requestedRights: AdminRight[] = body.rights === undefined ? [...callerPerms.rights] : body.rights;
   const customTitle = body.customTitle !== undefined ? String(body.customTitle).trim().substring(0, 64) : "Admin";
 
   // Caller cannot grant rights they do not hold unless owner
@@ -98,9 +109,7 @@ adminRoutes.post("/admins", requirePermission("manage_admins_rights"), async (c)
     }
   }
 
-  const validRights = requestedRights.length > 0
-    ? requestedRights.filter((r) => ALL_ADMIN_RIGHTS.includes(r as any))
-    : [...ALL_ADMIN_RIGHTS];
+  const validRights = [...new Set(requestedRights)];
   const rightsJson = JSON.stringify(validRights);
   const now = Date.now();
 
@@ -150,6 +159,9 @@ adminRoutes.put("/admins/:email/rights", requirePermission("manage_admins_rights
   // 3. Resolve caller permissions
   const callerPerms = await getAdminPermissions(db, callerEmail);
   const targetPerms = await getAdminPermissions(db, targetEmail);
+  if (!callerPerms || !targetPerms) {
+    return c.json({ success: false, error: "Admin permissions could not be verified" }, 403);
+  }
 
   // 4. Caller cannot self-escalate
   if (callerEmail === targetEmail && !callerPerms?.isOwner) {
@@ -257,7 +269,14 @@ adminRoutes.delete("/admins/:email", requirePermission("manage_admins_rights"), 
   }
 
   // 4. Last holder of manage_admins_rights check
+  const callerPerms = await getAdminPermissions(db, actingEmail);
   const targetPerms = await getAdminPermissions(db, email);
+  if (!callerPerms || !targetPerms) {
+    return c.json({ success: false, error: "Admin permissions could not be verified" }, 403);
+  }
+  if (!callerPerms.isOwner && targetPerms.rights.some(right => !callerPerms.rights.includes(right))) {
+    return c.json({ success: false, error: "Cannot remove an administrator whose rights exceed yours" }, 403);
+  }
   if (targetPerms?.rights.includes("manage_admins_rights")) {
     const ownersCount = HARDCODED_ADMIN_EMAILS.size;
     const otherAdmins = await db.prepare("SELECT email, rights FROM admin_rights WHERE LOWER(TRIM(email)) != ?").bind(email).all<{ email: string; rights: string }>();

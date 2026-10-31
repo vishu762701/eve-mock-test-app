@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
 import { Hono } from 'hono';
 import { adminRoutes } from '../src/routes/admin.ts';
+import { HARDCODED_ADMIN_EMAILS } from '../src/auth.ts';
 
 // Real SQLite executes the production D1 SQL, not a mocked list/filter algorithm.
 function setup(count, admin = true) {
@@ -35,7 +36,7 @@ function setup(count, admin = true) {
   };
   const app = new Hono();
   app.use('*', async (c, next) => {
-    c.set('user', { uid: 'admin', email: 'admin@example.com', isAdmin: admin });
+    c.set('user', { uid: 'admin', email: admin ? [...HARDCODED_ADMIN_EMAILS][0] : 'student@example.com', isAdmin: admin });
     await next();
   });
   app.route('/api/admin', adminRoutes);

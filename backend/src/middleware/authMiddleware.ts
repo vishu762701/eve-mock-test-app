@@ -92,8 +92,8 @@ export function requirePermission(permission: AdminRight) {
       return next();
     }
 
-    // In mock/test environments where DB doesn't have admins/admin_rights tables,
-    // user.isAdmin === true grants baseline rights for unit tests unless perms was found.
-    return next();
+    // Missing membership or an unavailable permission store must fail closed.
+    // Tests must provide a real owner or explicit permissions, just like callers.
+    return c.json({ success: false, error: "Admin permissions could not be verified" }, 403);
   };
 }

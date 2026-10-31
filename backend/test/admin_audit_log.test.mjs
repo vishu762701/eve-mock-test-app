@@ -15,6 +15,12 @@ function isolatedD1() {
   for (const name of files) {
     sqlite.exec(readFileSync(new URL("../migrations/" + name, import.meta.url), "utf8"));
   }
+  // These route fixtures are actual delegated audit viewers, not an isAdmin bypass.
+  for (const email of ["legit@eve.app", "admin@eve.app", "admin1@eve.app"]) {
+    sqlite.prepare("INSERT INTO admins (email, created_at) VALUES (?, ?)").run(email, 1000);
+    sqlite.prepare("INSERT INTO admin_rights (email, rights, updated_at) VALUES (?, ?, ?)")
+      .run(email, JSON.stringify(["view_analytics_logs"]), 1000);
+  }
   return {
     sqlite,
     d1: {

@@ -5,7 +5,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { Hono } from "hono";
 import { adminRoutes } from "../src/routes/admin.ts";
 import { examRoutes } from "../src/routes/exams.ts";
-import { ALL_ADMIN_RIGHTS } from "../src/auth.ts";
+import { ALL_ADMIN_RIGHTS, HARDCODED_ADMIN_EMAILS } from "../src/auth.ts";
 
 function isolatedD1() {
   const sqlite = new DatabaseSync(":memory:");
@@ -229,4 +229,117 @@ test("Admin rights: Successful rights update generates ADMIN_RIGHTS_CHANGED audi
   assert.ok(auditRow);
   assert.equal(auditRow.action_type, "ADMIN_RIGHTS_CHANGED");
   assert.equal(auditRow.target_type, "admin");
+});
+
+function seedAdmin(sqlite, email, rights) {
+  sqlite.prepare("INSERT INTO admins (email, created_at) VALUES (?, ?)").run(email, 1000);
+  if (rights !== undefined) {
+    sqlite.prepare("INSERT INTO admin_rights (email, rights, updated_at) VALUES (?, ?, ?)")
+      .run(email, JSON.stringify(rights), 1000);
+  }
+  return { uid: email, email, isAdmin: true };
+}
+
+function jsonRequest(method, body) {
+  return { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) };
+}
+
+test("Admin rights: permission lookup failure cannot reach a protected write", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  const helper = seedAdmin(sqlite, "helper@eve.app", ["manage_exams"]);
+  let writes = 0;
+  const unavailable = {
+    ...d1,
+    prepare(sql) {
+      if (sql.includes("admin_rights")) throw new Error("permission store unavailable");
+      if (/INSERT|UPDATE|DELETE/.test(sql)) writes++;
+      return d1.prepare(sql);
+    },
+  };
+  const res = await createTestApp(unavailable, helper).request("/api/admin/config", jsonRequest("PUT", { maintenanceMode: true }));
+  assert.equal(res.status, 403);
+  assert.equal(writes, 0);
+});
+
+test("Admin rights: missing explicit rights never becomes all rights", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  const helper = seedAdmin(sqlite, "unconfigured@eve.app");
+  const app = createTestApp(d1, helper);
+  const res = await app.request("/api/admin/config", jsonRequest("PUT", { maintenanceMode: true }));
+  assert.equal(res.status, 403);
+  const me = await (await app.request("/api/admin/me")).json();
+  assert.deepEqual(me.data.rights, []);
+  const ownerApp = createTestApp(d1, { uid: "owner", email: [...HARDCODED_ADMIN_EMAILS][0], isAdmin: true });
+  const list = await (await ownerApp.request("/api/admin/admins")).json();
+  assert.deepEqual(list.data.find(x => x.email === helper.email).rights, []);
+});
+
+test("Admin rights: stale rights without active admin membership cannot authorize writes", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  const helper = seedAdmin(sqlite, "removed@eve.app", ["manage_exams"]);
+  sqlite.prepare("DELETE FROM admins WHERE email = ?").run(helper.email);
+  const app = createTestApp(d1, helper);
+  const res = await app.request("/api/exams", jsonRequest("POST", {}));
+  assert.equal(res.status, 403);
+  assert.equal((await app.request("/api/admin/me")).status, 403);
+});
+
+for (const [label, bodyRights, expected] of [
+  ["omitted", undefined, ["manage_admins_rights", "manage_exams"]],
+  ["empty", [], []],
+  ["selected", ["manage_exams"], ["manage_exams"]],
+]) {
+  test(`Admin rights: ${label} creation rights cannot exceed the delegating admin`, async () => {
+    const { sqlite, d1 } = isolatedD1();
+    const helper = seedAdmin(sqlite, "delegator@eve.app", ["manage_admins_rights", "manage_exams"]);
+    const app = createTestApp(d1, helper);
+    const body = { email: "new@eve.app", ...(bodyRights === undefined ? {} : { rights: bodyRights }) };
+    const res = await app.request("/api/admin/admins", jsonRequest("POST", body));
+    assert.equal(res.status, 201);
+    assert.deepEqual((await res.json()).data.rights, expected);
+    const row = sqlite.prepare("SELECT rights FROM admin_rights WHERE email = ?").get(body.email);
+    assert.deepEqual(JSON.parse(row.rights), expected);
+    const childApp = createTestApp(d1, { uid: "new", email: body.email, isAdmin: true });
+    assert.equal((await childApp.request("/api/admin/config", jsonRequest("PUT", { maintenanceMode: true }))).status, 403);
+  });
+}
+
+test("Admin rights: owner default creation remains compatible with existing Android clients", async () => {
+  const { d1 } = isolatedD1();
+  const app = createTestApp(d1, { uid: "owner", email: [...HARDCODED_ADMIN_EMAILS][0], isAdmin: true });
+  const res = await app.request("/api/admin/admins", jsonRequest("POST", { email: "new@eve.app" }));
+  assert.equal(res.status, 201);
+  assert.deepEqual((await res.json()).data.rights, [...ALL_ADMIN_RIGHTS]);
+});
+
+test("Admin rights: malformed creation rights never grant implicit privileges", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  const helper = seedAdmin(sqlite, "delegator@eve.app", ["manage_admins_rights"]);
+  const app = createTestApp(d1, helper);
+  for (const rights of [null, "manage_exams", {}, [1], ["unknown_permission"]]) {
+    const res = await app.request("/api/admin/admins", jsonRequest("POST", { email: "new@eve.app", rights }));
+    assert.equal(res.status, 400, JSON.stringify(rights));
+    assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM admins WHERE email = 'new@eve.app'").get().n, 0);
+  }
+});
+
+test("Admin rights: lesser admin cannot remove a more privileged admin", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  const helper = seedAdmin(sqlite, "helper@eve.app", ["manage_admins_rights"]);
+  seedAdmin(sqlite, "senior@eve.app", ["manage_admins_rights", "manage_users"]);
+  const res = await createTestApp(d1, helper).request("/api/admin/admins/senior@eve.app", { method: "DELETE" });
+  assert.equal(res.status, 403);
+  assert.ok(sqlite.prepare("SELECT email FROM admins WHERE email = 'senior@eve.app'").get());
+  assert.ok(sqlite.prepare("SELECT email FROM admin_rights WHERE email = 'senior@eve.app'").get());
+  assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM admin_audit_log WHERE action_type = 'ADMIN_REMOVED'").get().n, 0);
+});
+
+test("Admin rights: verified admin may remove a lesser privileged admin", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  const helper = seedAdmin(sqlite, "helper@eve.app", ["manage_admins_rights", "manage_exams"]);
+  seedAdmin(sqlite, "junior@eve.app", ["manage_exams"]);
+  const res = await createTestApp(d1, helper).request("/api/admin/admins/junior@eve.app", { method: "DELETE" });
+  assert.equal(res.status, 200);
+  assert.equal(sqlite.prepare("SELECT email FROM admins WHERE email = 'junior@eve.app'").get(), undefined);
+  assert.equal(sqlite.prepare("SELECT email FROM admin_rights WHERE email = 'junior@eve.app'").get(), undefined);
 });

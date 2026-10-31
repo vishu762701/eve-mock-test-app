@@ -5,7 +5,13 @@ import { readFileSync, readdirSync } from "node:fs";
 import { Hono } from "hono";
 import { adminRoutes } from "../src/routes/admin.ts";
 import { authMiddleware } from "../src/middleware/authMiddleware.ts";
-import { HARDCODED_ADMIN_EMAILS } from "../src/auth.ts";
+import { ALL_ADMIN_RIGHTS, HARDCODED_ADMIN_EMAILS } from "../src/auth.ts";
+
+function grantRights(sqlite, email, rights) {
+  sqlite.prepare("INSERT OR IGNORE INTO admins (email, created_at) VALUES (?, ?)").run(email, 1000);
+  sqlite.prepare("INSERT INTO admin_rights (email, rights, updated_at) VALUES (?, ?, ?)")
+    .run(email, JSON.stringify(rights), 1000);
+}
 
 function isolatedD1() {
   const sqlite = new DatabaseSync(":memory:");
@@ -115,6 +121,7 @@ test("Admin guards: DELETE /api/admin/admins/:email self, built-in, and last adm
   const adminUser = { uid: "admin_1", email: "dynadmin@eve.app", isAdmin: true };
   sqlite.prepare("INSERT INTO admins (email, created_at) VALUES ('dynadmin@eve.app', 1000)").run();
   sqlite.prepare("INSERT INTO admins (email, created_at) VALUES ('other@eve.app', 1000)").run();
+  grantRights(sqlite, adminUser.email, [...ALL_ADMIN_RIGHTS]);
 
   const app = createAdminApp(d1, adminUser);
 
@@ -142,6 +149,7 @@ test("Admin guards: DELETE /api/admin/admins/:email self, built-in, and last adm
 test("Admin guards: POST /api/admin/users/:id/status cannot disable self or any admin", async () => {
   const { sqlite, d1 } = isolatedD1();
   const actingAdmin = { uid: "admin_actor_uid", email: "acting@eve.app", isAdmin: true };
+  grantRights(sqlite, actingAdmin.email, ["manage_users"]);
 
   // Insert acting admin, another admin, and a regular student
   sqlite.prepare("INSERT INTO users (id, email, display_name, created_at, last_active, disabled) VALUES (?, ?, ?, ?, ?, ?)").run(
@@ -209,6 +217,7 @@ test("Admin guards: POST /api/admin/users/:id/status cannot disable self or any 
 test("Admin guards: Premium grant, extend, and revoke validation", async () => {
   const { sqlite, d1 } = isolatedD1();
   const admin = { uid: "admin_1", email: "admin@eve.app", isAdmin: true };
+  grantRights(sqlite, admin.email, ["manage_premium"]);
   sqlite.prepare("INSERT INTO users (id, email, display_name, created_at, last_active, disabled) VALUES (?, ?, ?, ?, ?, ?)").run(
     "user_prem", "prem@eve.app", "Prem Student", 1000, 2000, 0
   );
@@ -288,8 +297,9 @@ test("Admin guards: Premium grant, extend, and revoke validation", async () => {
 });
 
 test("Admin guards: PUT /api/admin/config type and boundary validation", async () => {
-  const { d1 } = isolatedD1();
+  const { sqlite, d1 } = isolatedD1();
   const admin = { uid: "admin_1", email: "admin@eve.app", isAdmin: true };
+  grantRights(sqlite, admin.email, ["manage_config_maintenance"]);
   const app = createAdminApp(d1, admin);
 
   // Reject negative minimum_supported_version_code

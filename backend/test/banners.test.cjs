@@ -14,6 +14,7 @@ require.extensions[".ts"] = (module, filename) => {
 
 const { Hono } = require("hono");
 const { bannerRoutes } = require("../src/routes/banners");
+const { HARDCODED_ADMIN_EMAILS } = require("../src/auth");
 
 class MockD1 {
   rows;
@@ -77,7 +78,7 @@ function makeApp(db, isAdmin = false) {
   app.use("*", async (c, next) => {
     c.set("user", {
       uid: "test-user",
-      email: isAdmin ? "admin@example.com" : "student@example.com",
+      email: isAdmin ? [...HARDCODED_ADMIN_EMAILS][0] : "student@example.com",
       displayName: "Test User",
       isAdmin,
     });
