@@ -125,6 +125,8 @@ data class SyllabusUploadResponse(
     val syllabusFileName: String
 )
 
+data class PresenceLeaseResponse(val expiresAt: Long)
+
 data class UserProfileResponse(
     val id: String,
     val eveId: String? = null,
@@ -134,7 +136,8 @@ data class UserProfileResponse(
     val category: String,
     val username: String? = null,
     val phone: String? = null,
-    val bio: String? = null
+    val bio: String? = null,
+    val isOnline: Boolean? = null
 )
 
 data class UsernameCheckResponse(
@@ -223,6 +226,12 @@ interface EveApiService {
 
     @PUT("api/users/profile")
     suspend fun updateProfile(@Body body: Map<String, @JvmSuppressWildcards Any>): ApiResponse<Unit>
+
+    @POST("api/users/presence")
+    suspend fun startPresence(@Body body: Map<String, String>): ApiResponse<PresenceLeaseResponse>
+
+    @retrofit2.http.HTTP(method = "DELETE", path = "api/users/presence", hasBody = true)
+    suspend fun endPresence(@Body body: Map<String, String>): ApiResponse<Unit>
 
     @POST("api/users/fcm-token")
     suspend fun updateFcmToken(@Body body: Map<String, String>): ApiResponse<Unit>

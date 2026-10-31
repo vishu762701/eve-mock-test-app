@@ -589,8 +589,8 @@ class ProfileActivity : EveBaseActivity() {
                     val eveId = profile.eveId ?: "--"
                     binding.tvEveId.text = eveId
 
-                    // Status is independent of verified role; EVE ID is never online presence.
-                    binding.tvStatus.text = if (eveId != "--") "Eve ID: $eveId" else "Student"
+                    // Only a server-authenticated foreground lease can establish online status.
+                    binding.tvStatus.text = ProfilePresenceStatus.label(profile.isOnline, eveId)
 
                     // Name
                     if (profile.displayName.isNotBlank()) {
