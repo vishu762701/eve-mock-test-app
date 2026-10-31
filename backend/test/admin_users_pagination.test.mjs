@@ -14,6 +14,13 @@ function setup(count, admin = true) {
     disabled INTEGER DEFAULT 0
   )`);
   sql.exec('CREATE TABLE admins (email TEXT PRIMARY KEY)');
+  // Match the Worker migration: privileged state changes and audit entries
+  // participate in the same D1 transaction, even in this focused fixture.
+  sql.exec(`CREATE TABLE admin_audit_log (
+    id TEXT PRIMARY KEY, action_type TEXT, description TEXT, admin_email TEXT,
+    timestamp INTEGER, actor_uid TEXT, target_type TEXT, target_id TEXT,
+    metadata TEXT, source TEXT
+  )`);
   sql.prepare('INSERT INTO admins (email) VALUES (?)').run([...HARDCODED_ADMIN_EMAILS][0]);
   const insert = sql.prepare('INSERT INTO users (id, eve_id, email, display_name, created_at, last_active, disabled) VALUES (?, ?, ?, ?, ?, ?, ?)');
   for (let i = 1; i <= count; i++) {
@@ -35,6 +42,18 @@ function setup(count, admin = true) {
         },
       };
     },
+    async batch(statements) {
+      sql.exec('BEGIN');
+      try {
+        const results = [];
+        for (const statement of statements) results.push(await statement.run());
+        sql.exec('COMMIT');
+        return results;
+      } catch (error) {
+        sql.exec('ROLLBACK');
+        throw error;
+      }
+    },
   };
   const app = new Hono();
   app.use('*', async (c, next) => {
@@ -54,6 +73,7 @@ function setup(count, admin = true) {
       }, { DB });
       return { status: response.status, json: await response.json() };
     },
+    auditCount: () => sql.prepare('SELECT COUNT(*) AS n FROM admin_audit_log').get().n,
     close: () => sql.close(),
   };
 }
@@ -137,6 +157,7 @@ test('filtered-page ban/unban reflects server-confirmed disabled state and missi
     assert.equal(after.json.pagination.total, 1);
     assert.equal((await f.changeStatus('u0250', false)).status, 200);
     assert.equal((await f.request('?page=1&q=EVE0250')).json.data[0].disabled, false);
+    assert.equal(f.auditCount(), 2, 'Both successful changes must have a server audit entry');
     const missing = await f.changeStatus('does-not-exist', true);
     assert.equal(missing.status, 404);
     assert.equal(missing.json.success, false);
