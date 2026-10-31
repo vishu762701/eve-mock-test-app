@@ -24,6 +24,27 @@ Implementation: `78a77e11638bfd6532b063699d5b8af9612efbc7`; forward test integra
 
 Repaired exact-SHA FAST: https://github.com/vishu762701/eve-mock-test-app/actions/runs/41183587590 — SUCCESS (Android build/JVM/test-source compilation, backend, Firebase). Final boundary regression also checks UID case sensitivity independently of category case folding.
 
-Status: source repair and FAST VERIFIED; terminal FULL pending. Next action: inspect final implementation FULL run and APK checksum. Broader fidelity mission remains INCOMPLETE for the explicitly unavailable external evidence. Native source-parity and physical-device criteria remain individually BLOCKED/UNKNOWN even if CI succeeds.
+Status: scoped source repair, FAST, terminal FULL and APK integrity VERIFIED. Broader Telegram fidelity remains source/device BLOCKED; this is not whole-app parity acceptance. Broader fidelity mission remains INCOMPLETE for the explicitly unavailable external evidence. Native source-parity and physical-device criteria remain individually BLOCKED/UNKNOWN even if CI succeeds.
 
-Final report must record actual implementation SHA, FAST/FULL URLs, six job outcomes and downloaded APK SHA-256. Background execution is never promised.
+## Final implementation and artifact evidence
+
+Final executable/test SHA: `fe32756e00a7fb1cfebea27510f73399dce7e01e`. FULL: https://github.com/vishu762701/eve-mock-test-app/actions/runs/41183928351 — all six jobs SUCCESS. Its Android job also passed FAST compilation/JVM/test-source checks.
+
+| Job | ID | Result |
+|---|---|---|
+| Android build/lint/JVM and test compilation | 124486844826 | SUCCESS |
+| backend | 124486844695 | SUCCESS |
+| firebase-functions | 124486844927 | SUCCESS |
+| Native UI (gesture) | 124487904549 | SUCCESS |
+| Native UI (three-button) | 124487904553 | SUCCESS |
+| Publish verified debug APK | 124489291139 | SUCCESS |
+
+Both native logs report 172 EVE screenshots, zero missing required theme pairs, zero warnings and ten geometry review candidates. Candidates are not demonstrated bugs. These are emulator results, not physical-device or matched Telegram reference comparisons.
+
+Artifact: [Eve-debug-apk 13036891052](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41183928351/artifacts/13036891052). Downloaded ZIP SHA-256 `6a78b4b6206e65304e8219ecb1d710875d71b50c4086c66166f8a0294b5198be` matches GitHub's artifact digest. Extracted APK: 16,589,207 bytes; SHA-256 `3a4ab5f2a364d8ec84639ddffc77e34209dc030a7a9beee38319046ae462862f`, independently computed and matched to publication's EXPECTED_SHA256. No installed-device identity claim.
+
+Changed production files: `app/src/main/java/com/eve/app/ui/profile/ProfileActivity.kt:379`, `ChangeBioActivity.kt:52`, new shared `ProfileSaveConfirmation.kt:4`. Tests: `ProfileSaveConfirmationTest.kt`, `ProfileCategorySourceContractTest.kt`, `ProfileBioFeatureGateTest.kt`. Starter and historical parity introduction were corrected; no new product behavior, permission change, schema or production dispatch.
+
+## G7 external-evidence checkpoint
+
+Executable repair is complete at the final SHA above; subsequent acceptance-record commits change documentation only. Remaining P1 fidelity evidence: original Telegram renderer/dependency source and matched frames absent from the supplied files. Physical cutout/high-refresh/installed-device checks UNKNOWN. Bio/presence production activation RELEASE BLOCKED by the explicit no-deployment scope. Next permitted action is verify the genuine source/reference artifacts when available and triage only demonstrated existing integration defects; do not replay completed fixes or deploy staged contracts. Background execution is never promised.
