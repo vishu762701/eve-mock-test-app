@@ -587,5 +587,7 @@ are ADAPTED, not a byte-exact Telegram subsystem or verified visual-equivalence 
 Username QR encoding uses ZXing Core 3.5.3 from
 https://github.com/zxing/zxing/tree/zxing-3.5.3 under Apache License 2.0;
 the full license ships in `app/src/main/assets/licenses/ZXing-LICENSE.txt`.
+The upstream project NOTICE is retained in `app/src/main/assets/licenses/ZXing-NOTICE.txt`,
+including the Barcode4J attribution relevant to bundled PDF417 encoder code.
 No Telegram identity, messaging, account service, credentials or network client is
 imported. The EVE-specific URI shares only a username and never establishes ownership.

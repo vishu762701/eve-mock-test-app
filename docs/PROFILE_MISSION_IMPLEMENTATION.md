@@ -19,8 +19,10 @@ reports were used as pointers and their cited official source was checked again.
 The upstream Java headers grant GPL v2 or later. The QR glyph is unchanged upstream
 asset material under the root GPL v2 license; no asset-specific later-version grant
 is invented. Full Telegram/GPL notices and release compatibility gates remain.
-ZXing Core 3.5.3 supplies actual QR encoding under Apache 2.0; its full license ships
-in APK assets. No Telegram account, messaging, network, credentials or keys enter EVE.
+ZXing Core 3.5.3 supplies actual QR encoding under Apache 2.0; its full license and
+upstream NOTICE ship in APK assets. The NOTICE retains Barcode4J attribution for
+the bundled PDF417 encoder; preserving the whole upstream notice does not add
+other barcode tools or JCommander to EVE. No Telegram account, messaging, network, credentials or keys enter EVE.
 Combined-work production distribution clearance remains a separate existing gate.
 
 ## Material source/property map
