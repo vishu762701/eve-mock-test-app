@@ -1,4 +1,4 @@
-"""Machine-checkable regression tests for EVE engineering governance and CI safety gates."""
+"""Regression tests for streamlined batch execution without removing real security/CI gates."""
 from pathlib import Path
 import re
 import unittest
@@ -6,134 +6,65 @@ import unittest
 ROOT = Path(__file__).resolve().parents[3]
 
 
-def read(rel_path: str) -> str:
-    return (ROOT / rel_path).read_text(encoding="utf-8")
+def read(path):
+    return (ROOT / path).read_text(encoding="utf-8")
 
 
 class EngineeringGovernanceTest(unittest.TestCase):
-    def test_authoritative_files_contain_g0_through_g8_gates(self):
+    def test_g0_g8_and_source_authenticity(self):
+        entry = read("AGENTS.md")
         standard = read("ENGINEERING_STANDARD.md")
-        agents = read("AGENTS.md")
-        gates = ["G0", "G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8"]
-        for gate in gates:
-            self.assertIn(gate, standard, f"Gate {gate} missing from ENGINEERING_STANDARD.md")
-            self.assertIn(gate, agents, f"Gate {gate} missing from AGENTS.md")
+        for gate in ("G0", "G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8"):
+            self.assertIn(gate, entry)
+            self.assertIn(gate, standard)
+        for label in ("EXACT", "ADAPTED", "NOT FOUND", "BLOCKED"):
+            self.assertIn(label, entry)
+            self.assertIn(label, standard)
+        self.assertIn("Never use or build an alternative", entry)
 
-        # Specific gate semantics in AGENTS.md and ENGINEERING_STANDARD.md
-        for term in (
-            "PRE-FLIGHT",
-            "OFFICIAL SOURCE",
-            "SERIAL CHANGE",
-            "FAST VALIDATION",
-            "FUNCTIONAL ACCEPTANCE",
-            "VISUAL ACCEPTANCE",
-            "COMPLETION",
-            "CONTINUITY",
-            "SAFE AUTO-CORRECTION",
-        ):
-            self.assertIn(term, agents, f"Term '{term}' missing from AGENTS.md")
-
-        # Source classification requirements
-        for classification in ("EXACT", "ADAPTED", "NOT FOUND", "BLOCKED"):
-            self.assertIn(classification, standard, f"Classification '{classification}' missing from ENGINEERING_STANDARD.md")
-            self.assertIn(classification, agents, f"Classification '{classification}' missing from AGENTS.md")
-
-    def test_intermediate_commits_forbidden_from_carrying_eve_full(self):
+    def test_batch_commits_without_microstep_tax(self):
         standard = read("ENGINEERING_STANDARD.md")
-        agents = read("AGENTS.md")
-        self.assertIn("Never add [eve-full] to intermediate commits", standard)
-        self.assertIn("Never append [eve-full] to intermediate commits", agents)
+        entry = read("AGENTS.md")
+        self.assertIn("No fixed commit count", standard)
+        self.assertIn("Multiple coherent commits may be prepared and pushed together", standard)
+        self.assertIn("Multiple coherent commits may be prepared and pushed together", entry)
+        self.assertIn("final SHA of each pushed batch", standard)
+        self.assertIn("one FAST gate on its final SHA", standard)
+        self.assertIn("CI_RED halts", standard)
+        self.assertIn("focused forward-only repair commit", standard)
+        self.assertIn("Never disable, suppress, or delete legitimate test assertions", standard)
+        self.assertIn("terminal", standard.lower())
+        self.assertIn("[eve-full]", entry)
 
-    def test_workflow_preserves_fast_vs_full_distinction(self):
+    def test_backend_rules_and_production_release_separation(self):
+        backend = read("backend/AGENTS.md")
+        deployment = read(".github/workflows/deploy-worker.yml")
+        standard = read("ENGINEERING_STANDARD.md")
+        for phrase in ("npm test", "npm run build", "server-authoritative scoring",
+                       "old-client", "manual", "confirm_production"):
+            self.assertIn(phrase, backend)
+        self.assertIn("Backend/server synchronization", standard)
+        self.assertIn("workflow_dispatch:", deployment)
+        self.assertNotRegex(deployment, r"(?m)^  push:")
+        self.assertIn("if: ${{ inputs.confirm_production == true }}", deployment)
+
+    def test_android_fast_full_and_apk_checks_preserved(self):
         workflow = read(".github/workflows/build.yml")
-        self.assertIn("full=false", workflow)
-        self.assertIn('COMMIT_MESSAGE" == *"[eve-full]"*', workflow)
-        self.assertIn('GITHUB_EVENT_NAME" == "workflow_dispatch"', workflow)
-        self.assertIn("steps.verification_profile.outputs.full == 'true'", workflow)
+        for item in ("full=false", "[eve-full]", ":app:testDebugUnitTest",
+                     "navigation: [gesture, three-button]",
+                     "needs: [build, backend, firebase-functions]",
+                     "needs: [build, native-ui, backend, firebase-functions]",
+                     "fail-on-cache-miss: true", "sha256sum --check --status"):
+            self.assertIn(item, workflow)
 
-    def test_no_ci_gate_disabled(self):
-        workflow = read(".github/workflows/build.yml")
-        # Ensure critical jobs exist
-        for job in ("build:", "native-ui:", "backend:", "firebase-functions:", "publish-apk:"):
-            self.assertIn(job, workflow, f"Critical job {job} missing from build.yml")
-
-        # Ensure dependencies are strictly gated
-        self.assertIn("needs: [build, backend, firebase-functions]", workflow)
-        self.assertIn("needs: [build, native-ui, backend, firebase-functions]", workflow)
-        self.assertIn("fail-on-cache-miss: true", workflow)
-        self.assertIn("sha256sum --check --status", workflow)
-        self.assertIn(":app:testDebugUnitTest", workflow)
-
-    def test_mission_acceptance_template_exists_and_complete(self):
-        template_path = ROOT / "docs/MISSION_ACCEPTANCE_TEMPLATE.md"
-        self.assertTrue(template_path.is_file(), "docs/MISSION_ACCEPTANCE_TEMPLATE.md must exist")
-        content = template_path.read_text(encoding="utf-8")
-        required_fields = [
-            "Baseline SHA",
-            "Final SHA",
-            "Mission Scope",
-            "Sequential Microstep Commit Ledger",
-            "FAST Run Result",
-            "Upstream Telegram Provenance",
-            "Functional Acceptance",
-            "Visual Fidelity",
-            "Regressions",
-            "Exceptions",
-            "Terminal FULL CI",
-            "VERIFIED",
-            "FAILED",
-            "UNKNOWN",
-            "BLOCKED",
-            "Remaining Actions",
-            "Resumable Continuation Checkpoint",
-        ]
-        for field in required_fields:
-            self.assertIn(field, content, f"Field '{field}' missing from docs/MISSION_ACCEPTANCE_TEMPLATE.md")
-
-    def test_agent_entrypoint_hierarchy_preserved(self):
+    def test_entrypoints_and_acceptance_template(self):
         for path in ("AGENTS.md", "GEMINI.md", "CLAUDE.md"):
-            content = read(path)
-            self.assertTrue(
-                content.startswith("Always read and follow ENGINEERING_STANDARD.md first. Then read SOURCE_OF_TRUTH.md."),
-                f"{path} does not start with canonical instruction entrypoint",
-            )
-
-    def test_stop_the_line_ci_recovery_governance_in_authoritative_files(self):
-        standard = read("ENGINEERING_STANDARD.md")
-        agents = read("AGENTS.md")
-
-        # Required section headers
-        self.assertIn("Stop-the-line CI recovery: mandatory for every future mission", standard)
-        self.assertIn("Stop-the-Line CI Recovery Contract", agents)
-
-        # State machine formal states
-        for term in ("CI_PENDING", "CI_RED", "CI_GREEN", "ROOT_CAUSE_ANALYSIS", "TARGETED_REPAIR", "EXTERNAL_BLOCKED"):
-            self.assertIn(term, standard, f"State machine term '{term}' missing from ENGINEERING_STANDARD.md")
-            self.assertIn(term, agents, f"State machine term '{term}' missing from AGENTS.md")
-
-        # Core semantics in ENGINEERING_STANDARD.md
-        self.assertIn("IMMEDIATELY FREEZE feature advancement", standard)
-        self.assertTrue(
-            "exact commit SHA" in standard or "exact-SHA" in standard,
-            "Exact-SHA CI inspection requirement missing from ENGINEERING_STANDARD.md"
-        )
-        self.assertIn("forward-only repair commit", standard)
-        self.assertTrue(
-            "never blindly loosen or delete tests" in standard or "Never disable, suppress, or delete legitimate test assertions" in standard,
-            "Prohibition on suppressing tests missing from ENGINEERING_STANDARD.md"
-        )
-
-        # Core semantics in AGENTS.md
-        self.assertIn("IMMEDIATELY FREEZE ALL FEATURE ADVANCEMENT", agents)
-        self.assertIn("focused forward-only repair", agents)
-        self.assertIn("ENGINEERING_STANDARD.md", agents)
-
-    def test_full_ci_is_terminal_gate_not_routine_retry(self):
-        standard = read("ENGINEERING_STANDARD.md")
-        self.assertIn("FULL CI is a terminal mission gate, not a routine retry loop", standard)
-        self.assertIn("[eve-full]", standard)
-        self.assertIn("INCOMPLETE", standard)
-        self.assertIn("FAST for Intermediates", standard)
+            self.assertTrue(read(path).startswith(
+                "Always read and follow ENGINEERING_STANDARD.md first. Then read SOURCE_OF_TRUTH.md."))
+        template = read("docs/MISSION_ACCEPTANCE_TEMPLATE.md")
+        for item in ("Batch Commit Ledger", "FAST CI Run ID", "Functional Acceptance",
+                     "Visual Fidelity", "Terminal FULL CI", "Resumable Continuation Checkpoint"):
+            self.assertIn(item, template)
 
 
 if __name__ == "__main__":

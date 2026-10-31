@@ -1,35 +1,32 @@
 Always read and follow ENGINEERING_STANDARD.md first. Then read SOURCE_OF_TRUTH.md.
 
-# Eve active-development agent entrypoint
-- Eve is under active development; any UI/UX or feature may be added, edited, replaced or removed at the owner's explicit request. **Change only the requested item(s) and minimum directly affected dependencies/tests**; never independently alter unrelated files or features. Historical approvals do not lock UI.
-- Implement the requested safe change across code, resources, callers, Day/Night, tests and docs. For an explicit feature removal, remove obsolete files after full dependency checks. Do not stop after providing a plan unless a plan/audit was requested.
-- Automatically delete only files rendered conclusively unused by the owner's requested change. Do not delete unrelated orphan files or do repo-wide cleanup without a separate explicit request; preserve real dependencies, migrations, licenses, security and user data.
-- Telegram ZIP is necessary ONLY for an explicitly source-exact transplant or provenance check. Validate its SHA-256 and EVE_MANIFEST.sha256 against THIRD_PARTY_NOTICES.md. Mark absent source files NOT FOUND, but never block unrelated tasks because Telegram source is missing. Original Eve UI design needs no Telegram ZIP.
-- Telegram Mission 01 fidelity contract (only for requested official Telegram comparisons/imports): provide a source-mapping table for every changed typography role, icon and icon state: property | EVE path:line | Telegram path:line | verified source value or asset SHA-256 | deviations. Inspect actual upstream source and EVE call sites, Day/Night tint, normal/pressed/disabled/selected/loading states, RTL, font scaling and accessibility. Mark unavailable source NOT FOUND and each non-exact mapping explicitly. Green CI, matching asset hashes and screenshots alone do not prove complete Telegram fidelity.
-- Work as an accountable principal engineer: establish acceptance criteria, inspect every affected layer, diagnose root cause, choose maintainable fixes, and verify source/CI at the exact SHA. Do not treat historical UI tests or comments as a veto on a safe redesign.
-- Official source requests must use verified genuine upstream code/documentation/assets, not guesses or visual approximations. **Never use or build an alternative unless the owner explicitly authorizes it.** If an exact item cannot be verified or used with required permission, report it BLOCKED; continue only other expressly requested tasks. Preserve existing release and legal checks.
-- Preserve security, legal/license obligations, server-authoritative exams, privacy and meaningful CI checks; use ENGINEERING_STANDARD.md for main-only safe commits, FAST/FULL and verification.
+# EVE — Fast Batch Engineering v6.0 shared agent entrypoint
 
-# Engineering Governance Gates (G0–G8)
-All agents working on EVE must enforce these nine non-negotiable sequential quality gates (detailed authoritatively in ENGINEERING_STANDARD.md):
-- **G0 PRE-FLIGHT:** Fetch live remote `main` HEAD, inspect source and caller graph, identify exact acceptance criteria, dependencies, current CI and regressions; proactively report material architectural or regression risks before modifying code.
-- **G1 OFFICIAL SOURCE:** For Telegram source-exact requests, verify upstream git revision and local archive SHA/manifest; map upstream `file:line`/asset hash to EVE `file:line`; classify every property as `EXACT`, `ADAPTED`, `NOT FOUND`, or `BLOCKED`. Never claim exact parity if only surface attributes or wrappers were copied. Preserve EVE backend/auth invariants and licensing obligations.
-- **G2 SERIAL CHANGE:** Deliver one coherent, reviewable implementation unit per commit with directly dependent code, resources, and tests changed together; never create multi-feature omnibus commits. Never append [eve-full] to intermediate commits. Do not split a single atomic fix unnaturally merely to inflate commit count.
-- **G3 FAST VALIDATION:** Inspect the exact SHA's required FAST CI run after each intermediate push; red CI halts progress to next feature until focused forward root-cause repair passes (see Stop-the-Line CI Recovery Contract). Never bypass or suppress failing tests. If CI status cannot be established via API, record `UNKNOWN` and do not claim `PASS`.
-- **G4 FUNCTIONAL ACCEPTANCE:** Verify real observable behavior (tap dispatch, gestures, drag, navigation, persistence, admin authorization, normal-user read access, lifecycle survival, accessibility) with tests and physical/emulator device evidence. Green CI or code presence alone is insufficient.
-- **G5 VISUAL ACCEPTANCE:** For UI work, capture matched official upstream and EVE states; verify Day and Night canvases, screen widths/insets, RTL, Hindi/Devanagari, and font scaling across all affected call sites. Never present synthetic or fake visual proof.
-- **G6 COMPLETION:** Build a requirement-by-requirement matrix using `VERIFIED`, `FAILED`, `UNKNOWN`, or `BLOCKED` with SHA-specific evidence links. Trigger terminal 6-job FULL CI via `[eve-full]` only on the final commit after all authorized criteria pass. Verify APK artifact checksum on final SHA. If legitimate blockers remain, report `INCOMPLETE`.
-- **G7 CONTINUITY:** If interrupted by tool, session, or context limits, preserve a precise resumable checkpoint recording: current HEAD SHA, completed microsteps, latest CI run ID and job status, first actionable failure, uncommitted changes, next exact action, and remaining acceptance criteria. Never promise unattended background continuation.
-- **G8 SAFE AUTO-CORRECTION:** Proactively diagnose and repair defects within authorized scope; explicitly disclose material failures and tradeoffs. Never silently roll back, alter credentials, weaken authorization/scoring rules, or substitute unofficial code. Escalate genuinely new product decisions or external blockers.
+- **Historical approvals do not lock UI.** Implement the owner's latest explicit scoped outcome, including affected callers, resources, tests and API contracts. Do not change unrelated features or start old missions without authorization.
+- **Automatically delete only files rendered conclusively unused by the owner's requested change.** Do not delete unrelated orphan files or data/migrations.
+- **Telegram ZIP is necessary ONLY** for a requested source-exact transplant/provenance check. Verify official upstream revision, archive checksum, relevant source hash, and manifest *when present*. Missing archives **never block unrelated tasks**.
+- **Telegram Mission 01 fidelity contract:** When official Telegram source is requested, provide a **source-mapping table** with **EVE path:line**, **Telegram path:line**, **verified source value or asset SHA-256**; check **Day/Night**, **normal/pressed/disabled/selected/loading**, **RTL**, fonts, motion and **accessibility**. Use `EXACT`, `ADAPTED`, `NOT FOUND`, `BLOCKED`; **Green CI** alone does not establish source fidelity.
+- **Never use or build an alternative** to requested official source without the owner's explicit permission. For explicitly authorized Telegram-derived EVE-only UI, combine genuine upstream components and disclose `ADAPTED` integration.
+- Preserve authentication, privacy, admin boundaries, server-authoritative exams, answer secrecy, licensing and controlled deployment. A task to streamline governance does not authorize weakening production security.
 
-# Stop-the-Line CI Recovery Contract (Mandatory for All Missions)
-- If ANY required CI check, compilation, unit/instrumentation test, lint, backend, Firebase Functions, or native emulator job fails on a commit, **IMMEDIATELY FREEZE ALL FEATURE ADVANCEMENT**.
-- Never abandon a failed feature, mark it complete, advance to the next feature, or push cosmetic commits to mask failures.
-- Diagnose the root cause from the first actionable error log, implement a focused forward-only repair on `main` within the active feature scope, and verify the new commit's exact-SHA CI run.
-- Repeat the repair/verification cycle until the gate is `CI_GREEN` or a demonstrated external blocker requires a G7 checkpoint.
-- Intermediate commits must run FAST CI only (never append `[eve-full]`). If terminal FULL fails, the mission is `INCOMPLETE` until repaired.
-- Detailed canonical rules, failure classifications, and the formal state machine (`CI_PENDING`, `CI_RED`, `CI_GREEN`, `ROOT_CAUSE_ANALYSIS`, `TARGETED_REPAIR`, `EXTERNAL_BLOCKED`) are defined authoritatively in [ENGINEERING_STANDARD.md](file:///data/data/com.termux/files/home/eve-mock-test-app/ENGINEERING_STANDARD.md#stop-the-line-ci-recovery-mandatory-for-every-future-mission).
+## Engineering Governance Gates (G0–G8)
 
-# Autonomous Execution Contract (No Redundant Confirmations)
-- For a user-approved EVE mission, execute its explicitly authorized scope serially from investigation through implementation, tests, main-only microcommits, FAST CI root-cause repair, required final FULL CI, and reporting. Enforce G0–G8 at each phase. Do not request fresh owner confirmation between internal phases, commits, test repairs, source inspections or workflow runs that are already authorized by the mission.
-- Only ask the owner when a genuinely NEW product decision, changed scope, third-party authorization/security credential, or a demonstrated non-negotiable implementation/legal blocker requires an action the agent cannot responsibly choose. Do not claim completed work or verified Telegram runtime equivalence without supporting evidence. If stopped by actual tool/session limits, provide an exact resumable checkpoint rather than claiming background continuation.
+- **G0 PRE-FLIGHT:** Inspect live `main` HEAD, latest CI, actual affected dependencies and acceptance conditions.
+- **G1 OFFICIAL SOURCE:** Validate upstream evidence only when source-exact reuse is requested; classify `EXACT/ADAPTED/NOT FOUND/BLOCKED`.
+- **G2 FAST BATCH IMPLEMENTATION:** No artificial per-property commit cap. **Multiple coherent commits may be prepared and pushed together**, including all relevant client/server/test changes. One commit is valid too. Don't duplicate finished work.
+- **G3 BATCH-END FAST VALIDATION:** Targeted pre-push checks; one successful exact-SHA FAST per pushed batch HEAD. Separate pushes require separate gates. Stop additional feature advancement on red; repair forward-only.
+- **G4 FUNCTIONAL ACCEPTANCE:** Test real impacted behavior, including auth/negative paths and persistence.
+- **G5 VISUAL ACCEPTANCE:** For affected UI compare native Day/Night, gestures, RTL/Hindi and accessibility; no fake screenshots.
+- **G6 COMPLETION:** Terminal `[eve-full]` only for mission-final implementation; verify six jobs and APK checksum, else `INCOMPLETE`.
+- **G7 CONTINUITY:** Brief actual-interruption checkpoint with SHA, completed requirement IDs, CI, first failure and next action; no repetitive microstep paperwork.
+- **G8 SAFE AUTO-CORRECTION:** Root-cause repairs, no weakened tests/security or unapproved deployment.
+
+## Stop-the-Line CI Recovery Contract
+
+A red required batch gate means **IMMEDIATELY FREEZE ALL FEATURE ADVANCEMENT**. Use `CI_PENDING → CI_RED → ROOT_CAUSE_ANALYSIS → TARGETED_REPAIR → CI_GREEN`; document `EXTERNAL_BLOCKED` when applicable. Read real error logs, do a **focused forward-only repair**, recheck exact-SHA CI, and do not skip legitimate tests. Unfinished implementation or red FULL is not complete.
+
+## Backend and execution authority
+
+- For backend features, apply `backend/AGENTS.md`: coordinate Android DTO/API, Cloudflare Worker, D1 and Firebase access rules together, with actual compatibility tests.
+- Backend commits do **not** automatically migrate or deploy production. Production Worker/D1 actions require a separate explicit release approval; never disable this gate to accelerate coding.
+- Main only, safe fast-forward with expected SHA; no PRs/branches/force-push. Direct GitHub work within current task authorization. Normal chat does not guarantee background coding.

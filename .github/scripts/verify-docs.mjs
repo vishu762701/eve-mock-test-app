@@ -72,94 +72,63 @@ for (const relPath of ['AGENTS.md', 'GEMINI.md', 'CLAUDE.md']) {
     error(`${relPath}: Missing reference to shared AGENTS.md policy`);
   }
 }
-// Guard the active-development contract rather than a historical visual style.
+// Fast Batch Engineering v6 invariants: check behavior, not deprecated microstep wording.
 const agent = fs.readFileSync(path.join(REPO_ROOT, 'AGENTS.md'), 'utf8');
 const engineering = fs.readFileSync(path.join(REPO_ROOT, 'ENGINEERING_STANDARD.md'), 'utf8');
 const architecture = fs.readFileSync(path.join(REPO_ROOT, 'SOURCE_OF_TRUTH.md'), 'utf8');
-if (!agent.includes('Historical approvals do not lock UI') ||
-    !engineering.includes('No UI/UX choice is permanently locked') ||
-    !architecture.includes('not standing requirements')) {
-  error('Active-development design freedom missing from the canonical rules');
+const backendRulesPath = path.join(REPO_ROOT, 'backend/AGENTS.md');
+const backendRules = fs.existsSync(backendRulesPath) ? fs.readFileSync(backendRulesPath, 'utf8') : '';
+const starterFile = path.join(REPO_ROOT, 'docs/EVE_ONE_TIME_CHAT_STARTER.md');
+const starter = fs.existsSync(starterFile) ? fs.readFileSync(starterFile, 'utf8') : '';
+for (const [name, source, required] of [
+  ['AGENTS.md', agent, [
+    'Historical approvals do not lock UI', 'Engineering Governance Gates (G0–G8)',
+    'FAST BATCH IMPLEMENTATION', 'BATCH-END FAST VALIDATION', 'EXACT', 'ADAPTED', 'BLOCKED',
+    'never block unrelated tasks', 'Stop-the-Line CI Recovery Contract',
+    'Never use or build an alternative', 'Automatically delete only files rendered conclusively unused'
+  ]],
+  ['ENGINEERING_STANDARD.md', engineering, [
+    'No UI/UX choice is permanently locked', 'Owner-authorized scope and exact official implementation',
+    'Automatic unused-file cleanup', 'Accountable principal-engineer execution',
+    'Engineering governance gates (G0–G8)', 'Multiple coherent commits may be prepared and pushed together',
+    'final SHA', 'CI_RED', 'forward-only repair commit', 'exact-SHA',
+    'Never disable, suppress, or delete legitimate test assertions',
+    'FULL CI is a terminal mission gate', 'G7 exact resume checkpoint',
+    'Backend/server synchronization', 'manual-only', 'Never use an alternative unless the owner explicitly authorizes it'
+  ]],
+  ['SOURCE_OF_TRUTH.md', architecture, ['ONLY change scope', 'not standing requirements', 'backend/AGENTS.md']],
+  ['backend/AGENTS.md', backendRules, ['server-authoritative scoring', 'main', 'npm test', 'npm run build', 'confirm_production']],
+  ['docs/EVE_ONE_TIME_CHAT_STARTER.md', starter, [
+    'one-time new-chat engineering starter v6.0', 'INITIALIZATION VS AUTHORIZATION',
+    '/x10think', '/killcritic', 'FAST BATCH IMPLEMENTATION',
+    'Normal ChatGPT chat may stop', 'BOOTSTRAP RESPONSE ONLY'
+  ]]
+]) {
+  for (const term of required) {
+    if (!source.includes(term)) error(name + ': missing v6 contract: ' + term);
+  }
 }
-if (!agent.includes('Automatically delete only files rendered conclusively unused by the owner') ||
-    !engineering.includes('Automatic unused-file cleanup — restricted to the owner')) {
-  error('Strictly scoped evidence-based unused-file cleanup contract is missing');
+// Keep real workflow gates and release permissions intact.
+const buildWorkflow = fs.readFileSync(path.join(REPO_ROOT, '.github/workflows/build.yml'), 'utf8');
+const workerWorkflow = fs.readFileSync(path.join(REPO_ROOT, '.github/workflows/deploy-worker.yml'), 'utf8');
+if (!buildWorkflow.includes('[eve-full]') || !buildWorkflow.includes(':app:testDebugUnitTest') ||
+    !buildWorkflow.includes('navigation: [gesture, three-button]') ||
+    !buildWorkflow.includes('sha256sum --check --status')) {
+  error('Android FAST/FULL compilation, native or APK integrity gate missing');
 }
-if (agent.includes('If Telegram source is unavailable in this session, STOP') ||
-    !agent.includes('never block unrelated tasks')) {
-  error('Telegram reference availability must not globally block Eve development');
-}
-if (!engineering.includes('Accountable principal-engineer execution') ||
-    !engineering.includes('Official design / source reuse')) {
-  error('Principal-engineer ownership or official-reference policy is missing');
-}
-if (!engineering.includes('Owner-authorized scope and exact official implementation') ||
-    !engineering.includes('Never use an alternative unless the owner explicitly authorizes it') ||
-    !agent.includes('Never use or build an alternative') ||
-    !architecture.includes('ONLY change scope')) {
-  error('Strict owner-requested change scope or verified official-only policy is missing');
-}
-if (!engineering.includes('Engineering governance gates (G0–G8)') ||
-    !agent.includes('Engineering Governance Gates (G0–G8)')) {
-  error('Engineering governance gates (G0–G8) missing from canonical rules');
-}
-// Stop-the-line CI recovery contract enforcement (mandatory for every future mission)
-if (!engineering.includes('Stop-the-line CI recovery: mandatory for every future mission') ||
-    !agent.includes('Stop-the-Line CI Recovery Contract')) {
-  error('Stop-the-line CI recovery section missing from canonical governance files');
-}
-if (!engineering.includes('IMMEDIATELY FREEZE') && !agent.includes('IMMEDIATELY FREEZE ALL FEATURE ADVANCEMENT')) {
-  error('Stop-the-line freeze requirement missing from canonical rules');
-}
-if (!engineering.includes('exact commit SHA') && !engineering.includes('exact-SHA')) {
-  error('Exact-SHA CI verification requirement missing from ENGINEERING_STANDARD.md');
-}
-if (!engineering.includes('forward-only repair commit') && !engineering.includes('focused forward-only repair')) {
-  error('Focused forward-only root-cause repair requirement missing from canonical rules');
-}
-if (!engineering.includes('never blindly loosen or delete tests') &&
-    !engineering.includes('Never disable, suppress, or delete legitimate test assertions')) {
-  error('Prohibition on disabling or suppressing tests missing from ENGINEERING_STANDARD.md');
-}
-if (!engineering.includes('FULL CI is a terminal mission gate, not a routine retry loop')) {
-  error('Terminal FULL CI retry procedure missing from ENGINEERING_STANDARD.md');
-}
-if (!engineering.includes('G7 exact resume checkpoint') && !engineering.includes('G7: Continuity')) {
-  error('Resumable continuation checkpoint requirement missing from ENGINEERING_STANDARD.md');
+if (!workerWorkflow.includes('workflow_dispatch:') || !workerWorkflow.includes('confirm_production:') ||
+    !workerWorkflow.includes('if: ${{ inputs.confirm_production == true }}') ||
+    /^  push:/m.test(workerWorkflow)) {
+  error('Worker production deployment must remain manually approved and independent of batch pushes');
 }
 if (!fs.existsSync(path.join(REPO_ROOT, 'docs/MISSION_ACCEPTANCE_TEMPLATE.md'))) {
-  error('docs/MISSION_ACCEPTANCE_TEMPLATE.md missing');
-}
-if (fs.readFileSync(path.join(REPO_ROOT, '.github/workflows/build.yml'), 'utf8').includes("Retired UI Studio references remain in active source")) {
-  error('CI must not hard-ban a safely reintroduced UI feature');
+  error('Missing mission acceptance template');
 }
 for (const doc of ['THIRD_PARTY_NOTICES.md', 'docs/telegram-release-compliance-gate.md', 'docs/telegram-gpl-audit-2026-10-24.md']) {
   const content = fs.readFileSync(path.join(REPO_ROOT, doc), 'utf8');
   if (content.includes('missing-source STOP rule') || content.includes('The STOP rule is in')) {
     error(doc + ': obsolete global missing-source STOP rule remains');
   }
-}
-
-// 1c. Verify the reusable one-time starter retains the crucial safety and
-// operational semantics across future doc-only edits. This is a policy
-// regression test, not evidence of runtime implementation or background work.
-const starterFile = path.join(REPO_ROOT, 'docs/EVE_ONE_TIME_CHAT_STARTER.md');
-if (fs.existsSync(starterFile)) {
-  const starter = fs.readFileSync(starterFile, 'utf8');
-  for (const clause of [
-    'one-time new-chat engineering starter v5.0',
-    'INITIALIZATION VS AUTHORIZATION',
-    'MODE: MAX-RIGOR (/x10think)',
-    'MODE: UNSPARED CRITICAL REVIEW (/killcritic)',
-    'SESSION EXECUTION REALITY',
-    'A NORMAL ChatGPT Chat turn does NOT guarantee uninterrupted coding',
-    'G7 CHECKPOINT MUST CONTAIN',
-    'BOOTSTRAP RESPONSE ONLY',
-  ]) {
-    if (!starter.includes(clause)) error(`One-time EVE starter missing required clause: ${clause}`);
-  }
-} else {
-  error('Missing canonical docs/EVE_ONE_TIME_CHAT_STARTER.md');
 }
 
 // 2. Discover all markdown files

@@ -1,7 +1,9 @@
 name: Deploy Eve Worker & Apply D1 Migrations
 
-# Mission release guard: production D1 migration and Worker release are NEVER
-# triggered by a normal main push. Explicit owner-initiated dispatch is required.
+# Fast Batch Engineering v6: backend/API/D1 changes can be staged together on main
+# with Android callers and tests, but normal pushes NEVER deploy production.
+# Explicit owner-approved manual dispatch is required for live D1 + Worker release.
+# Keep this gate intact; a green batch FAST/FULL does not migrate remote D1.
 on:
   workflow_dispatch:
     inputs:

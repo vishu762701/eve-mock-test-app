@@ -24,11 +24,11 @@
 
 ---
 
-## 2. Sequential Microstep Commit Ledger (G2 & G3)
+## 2. Batch Commit Ledger (G2 & G3)
 
-All changes delivered as isolated, single-responsibility micro-commits directly on `main` with intermediate FAST CI validation.
+Record meaningful commits, grouping by pushed batch. One or many coherent commits may be included in one batch; each pushed batch final SHA receives FAST CI. Do not create artificial microsteps or checkpoint-only commits.
 
-| Commit SHA | Commit Title / Purpose | Scope & Impact | FAST CI Run ID & URL | FAST Run Result (`SUCCESS` / `FAILED` / `UNKNOWN`) |
+| Batch Final SHA | Included Commit SHAs / Purpose | Scope & Impact | FAST CI Run ID & URL | FAST Run Result (`SUCCESS` / `FAILED` / `UNKNOWN`) |
 | :--- | :--- | :--- | :--- | :--- |
 | `[sha-1]` | `feat/fix(...)` | [Files touched & behavioral impact] | `[Run ID](https://...)` | `SUCCESS` |
 | `[sha-2]` | `feat/fix(...)` | [Files touched & behavioral impact] | `[Run ID](https://...)` | `SUCCESS` |
@@ -115,7 +115,7 @@ Triggered strictly on the mission-final commit via `[eve-full]` or owner `workfl
 ## 10. Resumable Continuation Checkpoint (G7) *(Populated only if interrupted)*
 
 - **Current Remote `main` HEAD:** `[SHA]`
-- **Completed Microsteps:** `[List of commits and titles]`
+- **Completed Requirement IDs / Batch Commits:** `[Short list without duplication]`
 - **Latest CI Run & Status:** `[Run ID, job, result]`
 - **First Actionable Failure:** `[None | Exact log snippet]`
 - **Uncommitted Workspace State:** `[Clean | list of modified files]`
