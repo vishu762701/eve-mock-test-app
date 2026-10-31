@@ -51,6 +51,21 @@ test("diagnostics require signed Firebase identity, verified email, D1 membershi
     const authorized = await request({ Authorization: "Bearer " + verified });
     assert.equal(authorized.status, 200);
     assert.equal((await authorized.json()).readWriteTest, "PASS");
+
+    // Rights and membership are resolved on every diagnostic request. A
+    // previously valid signed token must lose access immediately on revocation.
+    sqlite.prepare("UPDATE admin_rights SET rights=? WHERE email=?").run("[]", email);
+    assert.equal((await request({ Authorization: "Bearer " + verified })).status, 401,
+      "Revoking view_analytics_logs must immediately revoke diagnostics");
+    sqlite.prepare("UPDATE admin_rights SET rights=? WHERE email=?")
+      .run(JSON.stringify(["view_analytics_logs"]), email);
+    sqlite.prepare("DELETE FROM admins WHERE email=?").run(email);
+    assert.equal((await request({ Authorization: "Bearer " + verified })).status, 401,
+      "Stale rights without active D1 admin membership must fail closed");
+    sqlite.prepare("INSERT INTO admins (email, created_at) VALUES (?, ?)").run(email, 1);
+    assert.equal((await request({ Authorization: "Bearer " + verified })).status, 200,
+      "Restoring membership with explicit rights must restore verified access");
+
     assert.equal((await request({ Authorization: "Bearer " + await token({ email_verified: false }) })).status, 401);
     assert.equal((await request({ Authorization: "Bearer " + await token({ exp: 1 }) })).status, 401);
 
