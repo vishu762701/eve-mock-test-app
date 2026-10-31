@@ -440,29 +440,28 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:paddingHorizontal="20dp"
-                        android:paddingBottom="12dp"
+                        android:paddingBottom="8dp"
                         android:visibility="gone">
 
-                        <com.eve.app.ui.common.TelegramRadioButton
+                        <com.eve.app.ui.profile.TelegramProfileRadioCell
                             android:id="@+id/radioGeneral"
                             android:layout_width="match_parent"
                             android:layout_height="48dp"
                             android:text="General" />
 
-                        <com.eve.app.ui.common.TelegramRadioButton
+                        <com.eve.app.ui.profile.TelegramProfileRadioCell
                             android:id="@+id/radioObc"
                             android:layout_width="match_parent"
                             android:layout_height="48dp"
                             android:text="OBC" />
 
-                        <com.eve.app.ui.common.TelegramRadioButton
+                        <com.eve.app.ui.profile.TelegramProfileRadioCell
                             android:id="@+id/radioSc"
                             android:layout_width="match_parent"
                             android:layout_height="48dp"
                             android:text="SC" />
 
-                        <com.eve.app.ui.common.TelegramRadioButton
+                        <com.eve.app.ui.profile.TelegramProfileRadioCell
                             android:id="@+id/radioSt"
                             android:layout_width="match_parent"
                             android:layout_height="48dp"

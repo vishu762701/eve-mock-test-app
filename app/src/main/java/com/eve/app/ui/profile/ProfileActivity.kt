@@ -241,26 +241,41 @@ class ProfileActivity : EveBaseActivity() {
         }
     }
 
-    private fun selectCategory(cat: String) {
-        currentCategory = cat
-        updateCategoryRadios(cat)
-        binding.tvCategoryValue.text = cat
+    private var categorySaveInFlight = false
 
-        // Collapse category dropdown
+    private fun selectCategory(cat: String) {
+        if (categorySaveInFlight) return
+        // Close the radio list without claiming a persisted selection prematurely.
         binding.layoutCategoryOptions.visibility = View.GONE
         binding.ivCategoryArrow.animate().rotation(0f).setDuration(150).start()
+        if (cat.equals(currentCategory, ignoreCase = true)) return
 
-        // Save immediately to server
+        categorySaveInFlight = true
+        binding.cellCategory.isEnabled = false
         lifecycleScope.launch {
             try {
                 val res = ApiClient.apiService.updateProfile(mapOf("category" to cat))
                 if (res.success) {
-                    AppBulletin.showSuccess(this@ProfileActivity, "Category updated to $cat")
+                    val confirmed = ApiClient.apiService.getProfile()
+                    if (confirmed.success && confirmed.data?.category?.equals(cat, ignoreCase = true) == true) {
+                        currentCategory = cat
+                        updateCategoryRadios(cat)
+                        binding.tvCategoryValue.text = cat
+                        AppBulletin.showSuccess(this@ProfileActivity, "Category updated to $cat")
+                    } else {
+                        AppBulletin.showError(this@ProfileActivity,
+                            "Category update could not be verified. Refresh your profile before retrying.")
+                    }
                 } else {
                     AppBulletin.showError(this@ProfileActivity, res.error ?: "Failed to update category")
                 }
             } catch (e: Exception) {
                 AppBulletin.showError(this@ProfileActivity, e.localizedMessage ?: "Failed to update category")
+            } finally {
+                // Previous value remains selected on any error or stale server response.
+                updateCategoryRadios(currentCategory)
+                binding.cellCategory.isEnabled = true
+                categorySaveInFlight = false
             }
         }
     }
