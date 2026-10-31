@@ -145,4 +145,16 @@ class AdminHubTelegramFidelityTest {
         assertTrue("Subtitle changes must remeasure rights rows", check.contains("requestLayout() // Telegram TextCheckCell.java:148-153"))
     }
 
+    @Test
+    fun testAdminSearchSystemBackClosesSearchBeforeLeavingActivity() {
+        val actionBar = File("src/main/java/com/eve/app/ui/admin/tg/TelegramActionBar.kt").readText()
+        assertTrue("Search-back must be lifecycle bound", actionBar.contains("bindSystemBack(owner: OnBackPressedDispatcherOwner)"))
+        assertTrue("System Back must collapse expanded search", actionBar.contains("if (isSearchExpanded) {\n                    closeSearch()"))
+        assertTrue("Fallback Back must forward rather than recurse", actionBar.contains("isEnabled = false"))
+        for (activity in listOf("AdminActivity.kt", "ActivityLogActivity.kt", "emoji/EmojiStudioActivity.kt")) {
+            val source = File("src/main/java/com/eve/app/ui/admin/" + activity).readText()
+            assertTrue("Search-aware hardware Back missing for " + activity, source.contains(".bindSystemBack(this)"))
+        }
+    }
+
 }

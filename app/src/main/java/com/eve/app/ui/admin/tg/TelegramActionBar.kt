@@ -23,6 +23,8 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.OnBackPressedDispatcherOwner
 import com.eve.app.R
 import com.eve.app.theme.TelegramThemeEngine
 
@@ -66,6 +68,7 @@ class TelegramActionBar @JvmOverloads constructor(
     var onSearchTextChanged: ((String) -> Unit)? = null
     var onSearchCollapsed: (() -> Unit)? = null
     var onBackPressed: (() -> Unit)? = null
+    private var searchBackBound = false
 
     init {
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
@@ -195,6 +198,26 @@ class TelegramActionBar @JvmOverloads constructor(
         addView(searchContainer, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         // Keep back navigation above the opaque search background.
         backButton.bringToFront()
+    }
+
+    /**
+     * ADAPTED EVE activity navigation. Telegram's search field closes before
+     * the parent fragment exits; hardware/gesture Back must do the same.
+     * Register only after the activity's fresh AdminAccessGate succeeds.
+     */
+    fun bindSystemBack(owner: OnBackPressedDispatcherOwner) {
+        if (searchBackBound) return
+        searchBackBound = true
+        owner.onBackPressedDispatcher.addCallback(owner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (isSearchExpanded) {
+                    closeSearch()
+                } else {
+                    isEnabled = false
+                    owner.onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        })
     }
 
     fun setTitle(title: CharSequence) {

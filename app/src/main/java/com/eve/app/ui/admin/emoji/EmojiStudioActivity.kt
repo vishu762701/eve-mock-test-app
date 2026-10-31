@@ -70,6 +70,7 @@ class EmojiStudioActivity : EveBaseActivity() {
         binding.actionBar.setTitle("Animated Emoji")
         binding.actionBar.setSubtitle("Emoji Studio & Placements")
         binding.actionBar.onBackPressed = { finish() }
+        binding.actionBar.bindSystemBack(this)
         binding.actionBar.onSearchTextChanged = { query ->
             searchQuery = query.trim().lowercase()
             filterAndDisplayItems()

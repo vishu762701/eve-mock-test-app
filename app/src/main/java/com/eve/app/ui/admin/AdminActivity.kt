@@ -127,6 +127,7 @@ class AdminActivity : EveBaseActivity() {
         binding.telegramActionBar.setTitle("Admin Dashboard")
         binding.telegramActionBar.setSubtitle("EVE Control Center")
         binding.telegramActionBar.onBackPressed = { finish() }
+        binding.telegramActionBar.bindSystemBack(this)
 
         binding.telegramActionBar.onSearchTextChanged = { query ->
             performSearch(query)

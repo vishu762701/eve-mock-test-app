@@ -64,6 +64,7 @@ class ActivityLogActivity : EveBaseActivity() {
         binding.actionBar.setTitle("Recent Actions")
         binding.actionBar.setSubtitle("Audit log trail")
         binding.actionBar.onBackPressed = { finish() }
+        binding.actionBar.bindSystemBack(this)
         binding.actionBar.showFilterAction { showFilterSheet() }
 
         binding.actionBar.onSearchTextChanged = { query ->
