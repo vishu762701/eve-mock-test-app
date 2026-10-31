@@ -1,0 +1,9 @@
+{
+  "revision": "3de37c8cfb039452be7398909461da6288babf15",
+  "imports": [
+    {"upstream": "TMessagesProj/src/main/res/drawable-mdpi/greydivider.9.png", "eve": "app/src/main/res/drawable-mdpi/telegram_menu_greydivider.9.png", "sha256": "08fcaed4891c9dec8cd9774df438d5e367419886bb0a9b867f0c7eb8ff89df8b"},
+    {"upstream": "TMessagesProj/src/main/res/drawable-hdpi/greydivider.9.png", "eve": "app/src/main/res/drawable-hdpi/telegram_menu_greydivider.9.png", "sha256": "84f8905c4e97c8eefb64d6c5d88b9d8790e9ea4e254202cd06d8ac5eb6cfbb15"},
+    {"upstream": "TMessagesProj/src/main/res/drawable-xhdpi/greydivider.9.png", "eve": "app/src/main/res/drawable-xhdpi/telegram_menu_greydivider.9.png", "sha256": "daf5731b3290361fa2bfa4fc7fe934dace0d8018cc270bf9e32b36d153978d58"},
+    {"upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/greydivider.9.png", "eve": "app/src/main/res/drawable-xxhdpi/telegram_menu_greydivider.9.png", "sha256": "bcb4e022907ef3a3a23235a26a1ea230db37ce438966961282868de88a3300e2"}
+  ]
+}

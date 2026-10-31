@@ -36,6 +36,24 @@ class EngineeringGovernanceTest(unittest.TestCase):
         self.assertIn("terminal", standard.lower())
         self.assertIn("[eve-full]", entry)
 
+    def test_no_obsolete_commit_ceiling_in_active_entrypoints(self):
+        for path in ("AGENTS.md", "ENGINEERING_STANDARD.md", "SOURCE_OF_TRUTH.md",
+                     "backend/AGENTS.md", "GEMINI.md", "CLAUDE.md",
+                     "docs/EVE_ONE_TIME_CHAT_STARTER.md"):
+            content = read(path).lower()
+            for obsolete in (r"\bone commit per feature\b", r"\bone feature per commit\b",
+                             r"\beach commit (?:must|needs to) (?:pass|have) (?:fast|ci)\b"):
+                self.assertNotRegex(content, obsolete, path)
+        self.assertIn("minimum complete functional subsystem", read("ENGINEERING_STANDARD.md"))
+        self.assertIn("official Git checkout", read("AGENTS.md"))
+
+    def test_every_main_push_triggers_build(self):
+        workflow = read(".github/workflows/build.yml")
+        push = workflow.split("  push:\n", 1)[1].split("  pull_request:\n", 1)[0]
+        self.assertIn("branches: [ main ]", push)
+        self.assertNotIn("paths-ignore:", push)
+        self.assertNotRegex(push, r"(?m)^    paths:")
+
     def test_backend_rules_and_production_release_separation(self):
         backend = read("backend/AGENTS.md")
         deployment = read(".github/workflows/deploy-worker.yml")

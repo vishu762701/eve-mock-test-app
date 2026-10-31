@@ -28,7 +28,9 @@ class ActiveDevelopmentPolicyTest(unittest.TestCase):
 
     def test_no_blanket_source_requirement(self):
         entry = read("AGENTS.md")
-        self.assertIn("Telegram ZIP is necessary ONLY", entry)
+        self.assertIn("Telegram source is necessary ONLY", entry)
+        self.assertIn("authenticated official Git checkout", entry)
+        self.assertIn("verified complete archive", entry)
         self.assertIn("never block unrelated tasks", entry)
 
     def test_historical_ui_not_forbidden_in_ci(self):

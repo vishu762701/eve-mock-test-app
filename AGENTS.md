@@ -4,10 +4,12 @@ Always read and follow ENGINEERING_STANDARD.md first. Then read SOURCE_OF_TRUTH.
 
 - **Historical approvals do not lock UI.** Implement the owner's latest explicit scoped outcome, including affected callers, resources, tests and API contracts. Do not change unrelated features or start old missions without authorization.
 - **Automatically delete only files rendered conclusively unused by the owner's requested change.** Do not delete unrelated orphan files or data/migrations.
-- **Telegram ZIP is necessary ONLY** for a requested source-exact transplant/provenance check. Verify official upstream revision, archive checksum, relevant source hash, and manifest *when present*. Missing archives **never block unrelated tasks**.
+- **Telegram source is necessary ONLY** for a requested source-exact transplant/provenance check. Use an authenticated official Git checkout pinned to a full commit SHA or a verified complete archive; verify archive checksum and manifest when applicable, plus relevant source hashes. Missing archives **never block unrelated tasks**.
 - **Telegram Mission 01 fidelity contract:** When official Telegram source is requested, provide a **source-mapping table** with **EVE path:line**, **Telegram path:line**, **verified source value or asset SHA-256**; check **Day/Night**, **normal/pressed/disabled/selected/loading**, **RTL**, fonts, motion and **accessibility**. Use `EXACT`, `ADAPTED`, `NOT FOUND`, `BLOCKED`; **Green CI** alone does not establish source fidelity.
 - **Never use or build an alternative** to requested official source without the owner's explicit permission. For explicitly authorized Telegram-derived EVE-only UI, combine genuine upstream components and disclose `ADAPTED` integration.
 - Preserve authentication, privacy, admin boundaries, server-authoritative exams, answer secrecy, licensing and controlled deployment. A task to streamline governance does not authorize weakening production security.
+
+For each source-exact integration, trace the minimum complete functional subsystem and its dependencies; preserve upstream files unchanged where possible, isolate adapters, record unresolved dependencies and verify runtime behavior. Follow `docs/telegram-integration-process.md`; byte equality alone does not establish subsystem parity.
 
 ## Engineering Governance Gates (G0–G8)
 

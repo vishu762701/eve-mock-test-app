@@ -1,15 +1,9 @@
 name: Build Eve APK
 
 on:
+  # Every main batch, including governance-only changes, needs an exact-SHA gate.
   push:
     branches: [ main ]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - '.gitignore'
-      - '*.txt'
-      - '.github/workflows/docs.yml'
-      - '.github/scripts/verify-docs.mjs'
   pull_request:
     branches: [ main ]
     paths-ignore:
