@@ -1,16 +1,19 @@
 name: Deploy Eve Worker & Apply D1 Migrations
 
+# Mission release guard: production D1 migration and Worker release are NEVER
+# triggered by a normal main push. Explicit owner-initiated dispatch is required.
 on:
-  push:
-    branches: [ main, master ]
-    paths:
-      - 'backend/**'
-      - '!backend/**.md'
-      - '.github/workflows/deploy-worker.yml'
   workflow_dispatch:
+    inputs:
+      confirm_production:
+        description: 'I authorize LIVE production D1 migrations and Worker deployment'
+        required: true
+        type: boolean
+        default: false
 
 jobs:
   deploy:
+    if: ${{ inputs.confirm_production == true }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
