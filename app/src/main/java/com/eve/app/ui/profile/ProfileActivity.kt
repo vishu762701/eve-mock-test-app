@@ -360,46 +360,47 @@ class ProfileActivity : EveBaseActivity() {
             .show()
     }
 
-    private fun saveBirthday(dob: String) {
-        currentDob = dob
-        binding.tvBirthdayValue.text = formatTelegramBirthday(dob)
+    private var birthdaySaveInFlight = false
 
+    private fun saveBirthday(dob: String) {
+        if (birthdaySaveInFlight || dob == currentDob) return
+        if (!ProfileBirthday.isValid(dob)) {
+            AppBulletin.showError(this, "Please select a valid date of birth")
+            return
+        }
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        birthdaySaveInFlight = true
+        binding.cellBirthday.isEnabled = false
         lifecycleScope.launch {
             try {
-                val res = ApiClient.apiService.updateProfile(mapOf("dob" to dob))
-                if (res.success) {
-                    AppBulletin.showSuccess(this@ProfileActivity, "Birthday updated")
+                val response = ApiClient.apiService.updateProfile(mapOf("dob" to dob))
+                if (response.success) {
+                    val confirmed = ApiClient.apiService.getProfile()
+                    if (confirmed.success && confirmed.data?.dob == dob &&
+                        FirebaseAuth.getInstance().currentUser?.uid == userId) {
+                        currentDob = dob
+                        binding.tvBirthdayValue.text = formatTelegramBirthday(dob)
+                        AppBulletin.showSuccess(this@ProfileActivity, "Birthday updated")
+                    } else {
+                        AppBulletin.showError(this@ProfileActivity,
+                            "Birthday update could not be verified. Refresh your profile before retrying.")
+                    }
                 } else {
-                    AppBulletin.showError(this@ProfileActivity, res.error ?: "Failed to update birthday")
+                    AppBulletin.showError(this@ProfileActivity,
+                        response.error ?: "Failed to update birthday")
                 }
             } catch (e: Exception) {
-                AppBulletin.showError(this@ProfileActivity, e.localizedMessage ?: "Failed to update birthday")
+                AppBulletin.showError(this@ProfileActivity,
+                    e.localizedMessage ?: "Failed to update birthday")
+            } finally {
+                binding.cellBirthday.isEnabled = true
+                birthdaySaveInFlight = false
             }
         }
     }
 
-    private fun formatTelegramBirthday(dobString: String): String {
-        if (dobString.isBlank()) return "Add your birthday"
-        val parts = dobString.split("/")
-        if (parts.size != 3) return dobString
-        val d = parts[0].toIntOrNull() ?: return dobString
-        val m = parts[1].toIntOrNull() ?: return dobString
-        val y = parts[2].toIntOrNull() ?: return dobString
-
-        val cal = Calendar.getInstance()
-        cal.set(Calendar.YEAR, y)
-        cal.set(Calendar.MONTH, m - 1)
-        cal.set(Calendar.DAY_OF_MONTH, d)
-
-        val today = Calendar.getInstance()
-        var age = today.get(Calendar.YEAR) - y
-        if (today.get(Calendar.DAY_OF_YEAR) < cal.get(Calendar.DAY_OF_YEAR)) {
-            age--
-        }
-
-        val dateStr = SimpleDateFormat("MMM d, yyyy", Locale.US).format(cal.time)
-        return "$dateStr ($age years old)"
-    }
+    private fun formatTelegramBirthday(dobString: String): String =
+        ProfileBirthday.format(dobString)
 
     private fun setupAdminAndPremium(email: String?) {
         val setupAdminUi = {
