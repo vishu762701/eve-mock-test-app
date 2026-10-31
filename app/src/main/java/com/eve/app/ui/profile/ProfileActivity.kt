@@ -277,7 +277,9 @@ class ProfileActivity : EveBaseActivity() {
             // filled on dark; photo-viewer expansion crossfade remains unported.
             ProfileActionIcons.applyTo(
                 listOf(binding.btnSetPhoto, binding.btnEditInfo, binding.btnSettings),
-                darkSurface = palette.isDark
+                surfaceColor = androidx.core.content.ContextCompat.getColor(
+                    this, R.color.category_pill_unselected_bg
+                )
             )
         }
     }

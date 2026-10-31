@@ -15,6 +15,21 @@ import com.eve.app.R
 internal object ProfileActionIcons {
     data class Resources(val photo: Int, val edit: Int, val settings: Int)
 
+    /**
+     * AndroidUtilities.java:4925–4926 computes weighted perceived brightness
+     * (not gamma-corrected ColorUtils.calculateLuminance).
+     * ProfileActionsView.java:185–186 uses a strict > 0.72 threshold.
+     */
+    fun isLightButtonColor(color: Int): Boolean {
+        val r = (color ushr 16) and 0xff
+        val g = (color ushr 8) and 0xff
+        val b = color and 0xff
+        return (r * 0.2126f + g * 0.7152f + b * 0.0722f) / 255f > 0.72f
+    }
+
+    fun resourcesForColor(surfaceColor: Int): Resources =
+        resources(darkSurface = !isLightButtonColor(surfaceColor))
+
     fun resources(darkSurface: Boolean): Resources =
         if (darkSurface) {
             Resources(
@@ -30,9 +45,9 @@ internal object ProfileActionIcons {
             )
         }
 
-    fun applyTo(buttons: List<LinearLayout>, darkSurface: Boolean) {
+    fun applyTo(buttons: List<LinearLayout>, surfaceColor: Int) {
         require(buttons.size == 3)
-        val assets = resources(darkSurface)
+        val assets = resourcesForColor(surfaceColor)
         for ((index, asset) in listOf(assets.photo, assets.edit, assets.settings).withIndex()) {
             // Existing icon is the first child; preserve the button label,
             // click handler, source bounce physics, and content fade state.

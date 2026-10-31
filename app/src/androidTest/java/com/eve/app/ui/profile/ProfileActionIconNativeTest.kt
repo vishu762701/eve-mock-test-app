@@ -29,7 +29,14 @@ class ProfileActionIconNativeTest {
                 val binding = ActivityProfileBinding.inflate(LayoutInflater.from(context))
                 val buttons = listOf(binding.btnSetPhoto, binding.btnEditInfo, binding.btnSettings)
                 val before = buttons.map { (it.getChildAt(1) as TextView).text.toString() }
-                ProfileActionIcons.applyTo(buttons, night == Configuration.UI_MODE_NIGHT_YES)
+                val surface = androidx.core.content.ContextCompat.getColor(
+                    context, R.color.category_pill_unselected_bg
+                )
+                ProfileActionIcons.applyTo(buttons, surface)
+                assertEquals(
+                    night == Configuration.UI_MODE_NIGHT_NO,
+                    ProfileActionIcons.isLightButtonColor(surface)
+                )
                 for (button in buttons) {
                     val icon = button.getChildAt(0) as ImageView
                     assertNotNull(icon.drawable)

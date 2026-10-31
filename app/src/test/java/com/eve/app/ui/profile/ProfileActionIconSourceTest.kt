@@ -30,6 +30,15 @@ class ProfileActionIconSourceTest {
         }
     }
 
+    @Test fun perceivedBrightnessMatchesOfficialTelegramThreshold() {
+        assertTrue(ProfileActionIcons.isLightButtonColor(0xffe5e5ea.toInt()))
+        assertTrue(!ProfileActionIcons.isLightButtonColor(0xff1c1c1e.toInt()))
+        assertTrue(ProfileActionIcons.isLightButtonColor(0xffb8b8b8.toInt()))
+        assertTrue(!ProfileActionIcons.isLightButtonColor(0xffb7b7b7.toInt()))
+        assertTrue(!ProfileActionIcons.isLightButtonColor(0xff000000.toInt()))
+        assertTrue(ProfileActionIcons.isLightButtonColor(0xffffffff.toInt()))
+    }
+
     @Test fun lightActionButtonsUseOriginalOutlinesAndDarkUseOriginalFilledGlyphs() {
         val light = ProfileActionIcons.resources(darkSurface = false)
         val dark = ProfileActionIcons.resources(darkSurface = true)
@@ -39,7 +48,7 @@ class ProfileActionIconSourceTest {
         val source = File("src/main/java/com/eve/app/ui/profile/ProfileActivity.kt").readText()
         assertTrue(source.contains("override fun onApplyThemePalette("))
         assertTrue(source.contains("ProfileActionIcons.applyTo("))
-        assertTrue(source.contains("darkSurface = palette.isDark"))
+        assertTrue(source.contains("R.color.category_pill_unselected_bg"))
         assertTrue(source.contains("super.onApplyThemePalette(palette)"))
     }
 }
