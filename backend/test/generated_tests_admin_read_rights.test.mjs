@@ -51,7 +51,7 @@ test("an admin without manage_generated_tests cannot list or read unpublished ge
   const { sqlite, client, limitedEmail } = fixture();
   try {
     const request = client(limitedEmail);
-    const list = await request("/");
+    const list = await request("");
     assert.equal(list.status, 200);
     assert.deepEqual((await list.json()).data.map((entry) => entry.id), ["scheduled-1", "published-1"]);
     const draft = await request("/draft-1");
@@ -77,7 +77,7 @@ test("an authorized generated-test admin sees draft tests and their complete que
   const { sqlite, client, authorizedEmail } = fixture();
   try {
     const request = client(authorizedEmail);
-    const list = await request("/");
+    const list = await request("");
     assert.equal(list.status, 200);
     assert.equal((await list.json()).data.length, 3);
     const detail = await request("/draft-1");
