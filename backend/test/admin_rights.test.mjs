@@ -367,3 +367,25 @@ test("owner membership migration is idempotent and excludes forged owner titles"
   assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM admins").get().n, before);
   assert.equal(sqlite.prepare("SELECT email FROM admins WHERE email = 'forged@example.test'").get(), undefined);
 });
+
+test("Admin directory requires manage_admins_rights even for an authenticated admin", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  const email = "read-only-admin-directory@example.test";
+  sqlite.prepare("INSERT INTO admins (email, created_at) VALUES (?, ?)").run(email, 1);
+  sqlite.prepare("INSERT INTO admin_rights (email, rights, updated_at) VALUES (?, ?, ?)")
+    .run(email, JSON.stringify(["view_analytics_logs"]), 1);
+  const restricted = createTestApp(d1, { uid: "admin-readonly", email, isAdmin: true });
+  const denied = await restricted.request("http://localhost/api/admin/admins");
+  assert.equal(denied.status, 403);
+  assert.equal((await denied.json()).success, false);
+
+  // The same principal can still see their own rights, without seeing peers.
+  const own = await restricted.request("http://localhost/api/admin/me");
+  assert.equal(own.status, 200);
+  assert.deepEqual((await own.json()).data.rights, ["view_analytics_logs"]);
+
+  const owner = createTestApp(d1, { uid: "owner", email: [...HARDCODED_ADMIN_EMAILS][0], isAdmin: true });
+  const allowed = await owner.request("http://localhost/api/admin/admins");
+  assert.equal(allowed.status, 200);
+  assert.ok((await allowed.json()).data.some((item) => item.email === email));
+});

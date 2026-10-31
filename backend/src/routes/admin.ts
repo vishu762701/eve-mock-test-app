@@ -38,7 +38,7 @@ adminRoutes.get("/me", async (c) => {
 });
 
 // GET /api/admin/admins - List dynamic admins with rights and titles
-adminRoutes.get("/admins", async (c) => {
+adminRoutes.get("/admins", requirePermission("manage_admins_rights"), async (c) => {
   const db = c.env.DB;
   const { results: admins } = await db.prepare("SELECT email, created_at FROM admins ORDER BY email ASC").all<{ email: string; created_at?: number }>();
   const { results: rightsList } = await db.prepare("SELECT email, rights, custom_title, updated_at FROM admin_rights").all<{ email: string; rights: string; custom_title?: string | null; updated_at: number }>();
