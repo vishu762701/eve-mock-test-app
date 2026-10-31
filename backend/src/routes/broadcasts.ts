@@ -5,7 +5,8 @@
 import { Hono } from "hono";
 import { requireAdmin, requirePermission } from "../middleware/authMiddleware";
 import { AuthUser, EmojiPlacementPublic, Env, NotificationRow } from "../types";
-import { prepareAdminAuditLog, recordAdminAction } from "../util/auditLog";
+import { prepareAdminAuditLog } from "../util/auditLog";
+import { getAdminPermissions } from "../auth";
 import { getActiveEmojiPlacements } from "./emoji";
 
 export const broadcastRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
@@ -26,8 +27,10 @@ broadcastRoutes.get("/", async (c) => {
 
   // A category-limited notice has no verified server-side recipient membership
   // mapping. Fail closed for students rather than showing another audience's post.
-  const isAdmin = c.get("user")?.isAdmin === true;
-  const eligible = isAdmin ? (results || []) : (results || []).filter(
+  const user = c.get("user");
+  const canSendBroadcasts = user?.isAdmin === true &&
+    (await getAdminPermissions(db, user.email))?.rights.includes("send_broadcasts") === true;
+  const eligible = canSendBroadcasts ? (results || []) : (results || []).filter(
     (r: any) => !r.target_category || r.target_category === "All Users"
   );
 
@@ -42,7 +45,7 @@ broadcastRoutes.get("/", async (c) => {
     title: r.title,
     message: r.message,
     sentAt: r.sent_at,
-    ...(isAdmin ? { sentBy: r.sent_by } : {}),
+    ...(canSendBroadcasts ? { sentBy: r.sent_by } : {}),
     type: r.type,
     targetCategory: r.target_category || "All Users",
     ...(broadcastPlacements.has(r.id) ? { emoji: broadcastPlacements.get(r.id) } : {}),
@@ -140,18 +143,20 @@ broadcastRoutes.delete("/:id", requirePermission("send_broadcasts"), async (c) =
   if (!id || id.length > 128) {
     return c.json({ success: false, error: "Invalid broadcast ID" }, 400);
   }
-  const result = await db.prepare("DELETE FROM notifications WHERE id = ?").bind(id).run();
-  if ((result.meta?.changes ?? 0) < 1) {
-    return c.json({ success: false, error: "Broadcast not found or already deleted" }, 404);
-  }
-
-  await recordAdminAction(db, user, {
+  // Insert an audit entry only if the row exists, then delete it in the same
+  // D1 transaction. Stale IDs produce neither a deletion nor a fake log.
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
     actionType: "BROADCAST_DELETED",
     description: `Deleted broadcast '${id}'`,
     targetType: "broadcast",
     targetId: id,
+    condition: { sql: "EXISTS(SELECT 1 FROM notifications WHERE id = ?)", bindings: [id] },
   });
-
+  const deleteStmt = db.prepare("DELETE FROM notifications WHERE id = ?").bind(id);
+  const results = await db.batch([auditStmt, deleteStmt]);
+  if ((results[1]?.meta?.changes ?? 0) < 1) {
+    return c.json({ success: false, error: "Broadcast not found or already deleted" }, 404);
+  }
   return c.json({ success: true });
 });
 
@@ -169,26 +174,28 @@ broadcastRoutes.post("/bulk-delete", requirePermission("send_broadcasts"), async
   const db = c.env.DB;
   const statements = ids.map((id) => db.prepare("DELETE FROM notifications WHERE id = ?").bind(id));
 
-  // Count actual D1 changes, not requested IDs. A stale list must never show
-  // false deletion success. Bounded batches keep request memory predictable.
-  let deletedCount = 0;
-  for (let i = 0; i < statements.length; i += 50) {
-    const chunk = statements.slice(i, i + 50);
-    const results = await db.batch(chunk);
-    deletedCount += results.reduce((sum, result) => sum + (result.meta?.changes ?? 0), 0);
-  }
+  // A single D1 batch makes the entire request atomic: no partially deleted
+  // chunks, and no successful destructive mutation without a Recent Actions log.
+  // The audit describes requested IDs; only the response reports actual changes.
+  const placeholders = ids.map(() => "?").join(",");
+  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+    actionType: "BROADCAST_BULK_DELETED",
+    description: `Bulk broadcast deletion requested for ${ids.length} IDs`,
+    targetType: "broadcast",
+    targetId: "batch",
+    metadata: { requested: ids.length },
+    condition: {
+      sql: `EXISTS(SELECT 1 FROM notifications WHERE id IN (${placeholders}))`,
+      bindings: ids as string[],
+    },
+  });
+  const results = await db.batch([auditStmt, ...statements]);
+  const deletedCount = results.slice(1).reduce(
+    (sum, result) => sum + (result.meta?.changes ?? 0), 0
+  );
 
   if (deletedCount < 1) {
     return c.json({ success: false, error: "No matching broadcasts remain" }, 404);
   }
-
-  await recordAdminAction(db, user, {
-    actionType: "BROADCAST_BULK_DELETED",
-    description: `Bulk deleted ${deletedCount} broadcasts`,
-    targetType: "broadcast",
-    targetId: "batch",
-    metadata: { count: deletedCount, requested: ids.length },
-  });
-
   return c.json({ success: true, count: deletedCount, data: { count: deletedCount, requested: ids.length } });
 });

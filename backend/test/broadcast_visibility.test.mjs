@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { Hono } from "hono";
 import { broadcastRoutes } from "../src/routes/broadcasts.ts";
 import { HARDCODED_ADMIN_EMAILS } from "../src/auth.ts";
+import { isolatedD1 } from "./support/sqliteD1.mjs";
 
 const ownerEmail = [...HARDCODED_ADMIN_EMAILS][0];
 // This fixture's owner is a D1 member; isAdmin alone no longer authorizes writes.
@@ -23,11 +24,11 @@ const stored = {
 function makeApp(isAdmin) {
   const app = new Hono();
   app.use("*", async (c, next) => {
-    c.set("user", { uid: isAdmin ? "admin" : "student", email: "user@example.test", isAdmin });
+    c.set("user", { uid: isAdmin ? "admin" : "student", email: isAdmin ? ownerEmail : "user@example.test", isAdmin });
     await next();
   });
   app.route("/api/broadcasts", broadcastRoutes);
-  const env = { DB: { prepare: () => ({ bind: () => ({ all: async () => ({ results: [stored] }) }) }) } };
+  const env = { DB: withOwnerMembership({ prepare: () => ({ bind: () => ({ all: async () => ({ results: [stored] }) }) }) }) };
   return { app, env };
 }
 
@@ -129,41 +130,83 @@ test("targeted broadcasts fail closed before creating any D1 row", async () => {
 });
 
 function adminDeletionFixture(changesById = {}) {
+  const { sqlite, d1 } = isolatedD1();
+  const insert = sqlite.prepare(
+    "INSERT INTO notifications (id, title, message, sent_at, sent_by, type, target_category) VALUES (?, ?, ?, ?, ?, ?, ?)"
+  );
+  for (const [id, changes] of Object.entries(changesById)) {
+    if (changes > 0) insert.run(id, "Test", "Broadcast", 1, ownerEmail, "general", "All Users");
+  }
+
   const app = new Hono();
   app.use("*", async (c, next) => {
     c.set("user", { uid: "admin", email: ownerEmail, isAdmin: true });
     await next();
   });
   app.route("/api/broadcasts", broadcastRoutes);
-  const db = {
-    prepare: () => ({ bind: id => ({ id, run: async () => ({ meta: { changes: changesById[id] || 0 } }) }) }),
-    batch: async statements => statements.map(x => ({ meta: { changes: changesById[x.id] || 0 } }))
-  };
-  return { app, env: { DB: withOwnerMembership(db) } };
+  app.onError(() => new Response("Database operation failed", { status: 500 }));
+  return { app, env: { DB: d1 }, sqlite };
 }
 
 test("delete ID reports 404 for stale records, never fake success", async () => {
-  const { app, env } = adminDeletionFixture({ known: 1 });
-  const missing = await app.fetch(new Request("https://example.test/api/broadcasts/missing", { method: "DELETE" }), env, {});
-  assert.equal(missing.status, 404);
-  assert.equal((await missing.json()).success, false);
-  const found = await app.fetch(new Request("https://example.test/api/broadcasts/known", { method: "DELETE" }), env, {});
-  assert.equal(found.status, 200);
-  assert.equal((await found.json()).success, true);
+  const { app, env, sqlite } = adminDeletionFixture({ known: 1 });
+  try {
+    const missing = await app.fetch(new Request("https://example.test/api/broadcasts/missing", { method: "DELETE" }), env, {});
+    assert.equal(missing.status, 404);
+    assert.equal((await missing.json()).success, false);
+    const found = await app.fetch(new Request("https://example.test/api/broadcasts/known", { method: "DELETE" }), env, {});
+    assert.equal(found.status, 200);
+    assert.equal((await found.json()).success, true);
+    assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM admin_audit_log WHERE action_type = 'BROADCAST_DELETED'").get().n, 1);
+  } finally { sqlite.close(); }
 });
 
 test("bulk delete returns real changed row count and rejects all-stale requests", async () => {
-  const { app, env } = adminDeletionFixture({ yes: 1 });
-  const send = ids => app.fetch(new Request("https://example.test/api/broadcasts/bulk-delete", {
-    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids })
-  }), env, {});
-  const res = await send(["yes", "missing"]);
-  assert.equal(res.status, 200);
-  const json = await res.json();
-  assert.equal(json.success, true);
-  assert.equal(json.data.count, 1);
-  assert.equal(json.data.requested, 2);
-  const stale = await send(["missing"]);
-  assert.equal(stale.status, 404);
-  assert.equal((await stale.json()).success, false);
+  const { app, env, sqlite } = adminDeletionFixture({ yes: 1 });
+  try {
+    const send = ids => app.fetch(new Request("https://example.test/api/broadcasts/bulk-delete", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids })
+    }), env, {});
+    const res = await send(["yes", "missing"]);
+    assert.equal(res.status, 200);
+    const json = await res.json();
+    assert.equal(json.success, true);
+    assert.equal(json.data.count, 1);
+    assert.equal(json.data.requested, 2);
+    const stale = await send(["missing"]);
+    assert.equal(stale.status, 404);
+    assert.equal((await stale.json()).success, false);
+    assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM admin_audit_log WHERE action_type = 'BROADCAST_BULK_DELETED'").get().n, 1);
+  } finally { sqlite.close(); }
+});
+
+test("audit table unavailable rolls back broadcast deletion", async () => {
+  const { app, env, sqlite } = adminDeletionFixture({ keep: 1 });
+  try {
+    sqlite.exec("DROP TABLE admin_audit_log");
+    const res = await app.fetch(new Request("https://example.test/api/broadcasts/keep", { method: "DELETE" }), env, {});
+    assert.equal(res.status, 500);
+    assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM notifications WHERE id = 'keep'").get().n, 1);
+  } finally { sqlite.close(); }
+});
+
+test("limited admins cannot read targeted broadcasts or sender identity without send_broadcasts", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  try {
+    const email = "limited-broadcast-admin@example.test";
+    sqlite.prepare("INSERT INTO admins (email, created_at) VALUES (?, ?)").run(email, 1);
+    sqlite.prepare("INSERT INTO admin_rights (email, rights, updated_at) VALUES (?, ?, ?)")
+      .run(email, JSON.stringify(["view_analytics_logs"]), 1);
+    const insert = sqlite.prepare("INSERT INTO notifications (id, title, message, sent_at, sent_by, target_category) VALUES (?, ?, ?, ?, ?, ?)");
+    insert.run("all", "All", "For students", 1, ownerEmail, "All Users");
+    insert.run("restricted", "Other audience", "Private", 2, ownerEmail, "Other");
+    const app = new Hono();
+    app.use("*", async (c, next) => { c.set("user", { uid: email, email, isAdmin: true }); await next(); });
+    app.route("/api/broadcasts", broadcastRoutes);
+    const res = await app.request("http://localhost/api/broadcasts", {}, { DB: d1 });
+    assert.equal(res.status, 200);
+    const list = (await res.json()).data;
+    assert.deepEqual(list.map(x => x.id), ["all"]);
+    assert.equal(Object.hasOwn(list[0], "sentBy"), false);
+  } finally { sqlite.close(); }
 });
