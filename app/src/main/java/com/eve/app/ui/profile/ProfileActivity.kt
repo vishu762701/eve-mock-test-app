@@ -211,7 +211,19 @@ class ProfileActivity : EveBaseActivity() {
             val headerContentAlpha = (1f - progress * 1.5f).coerceIn(0f, 1f)
             binding.tvName.alpha = headerContentAlpha
             binding.tvStatus.alpha = headerContentAlpha
-            binding.layoutActions.alpha = headerContentAlpha
+
+            // Telegram ProfileActionsView.java:247-337 stages backgrounds and
+            // icon/text independently as the 74dp action area collapses.
+            ProfileActionsCollapse.applyTo(
+                listOf(binding.btnSetPhoto, binding.btnEditInfo, binding.btnSettings),
+                ProfileActionsCollapse.atScroll(scrollY.toFloat(), density)
+            )
+        }
+        binding.profileScrollView.post {
+            ProfileActionsCollapse.applyTo(
+                listOf(binding.btnSetPhoto, binding.btnEditInfo, binding.btnSettings),
+                ProfileActionsCollapse.atScroll(binding.profileScrollView.scrollY.toFloat(), density)
+            )
         }
     }
 
