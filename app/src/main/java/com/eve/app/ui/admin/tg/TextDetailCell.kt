@@ -11,6 +11,7 @@ import android.graphics.Paint
 import android.text.TextUtils
 import android.util.AttributeSet
 import android.util.TypedValue
+import android.view.View
 import android.view.Gravity
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -45,12 +46,13 @@ class TextDetailCell @JvmOverloads constructor(
             field = value
             setWillNotDraw(!value)
             invalidate()
+            requestLayout()
         }
 
     init {
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
         dividerPaint.color = palette.hairline
-        dividerPaint.strokeWidth = dp(0.75f).coerceAtLeast(1).toFloat()
+        dividerPaint.strokeWidth = 1f
         setWillNotDraw(false)
 
         val outValue = TypedValue()
@@ -88,12 +90,25 @@ class TextDetailCell @JvmOverloads constructor(
         this.needDivider = needDivider
     }
 
+    // Telegram TextDetailCell.java:187-193: fixed 60dp + 1px divider.
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val rowHeight = dp(60f) + (if (needDivider) 1 else 0)
+        super.onMeasure(
+            MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(rowHeight, MeasureSpec.EXACTLY)
+        )
+    }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         if (needDivider) {
             val start = dp(23f).toFloat()
-            val y = height - dividerPaint.strokeWidth
-            canvas.drawLine(start, y, width.toFloat(), y, dividerPaint)
+            val y = height - 1f
+            canvas.drawLine(
+                if (layoutDirection == View.LAYOUT_DIRECTION_RTL) 0f else start, y,
+                if (layoutDirection == View.LAYOUT_DIRECTION_RTL) width - start else width.toFloat(), y,
+                dividerPaint
+            )
         }
     }
 }

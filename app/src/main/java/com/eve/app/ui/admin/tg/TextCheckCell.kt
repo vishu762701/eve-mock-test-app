@@ -52,6 +52,7 @@ class TextCheckCell @JvmOverloads constructor(
             field = value
             setWillNotDraw(!value)
             invalidate()
+            requestLayout()
         }
 
     var isChecked: Boolean
@@ -130,6 +131,7 @@ class TextCheckCell @JvmOverloads constructor(
         } else {
             subtitleView.visibility = View.GONE
         }
+        requestLayout() // Telegram TextCheckCell.java:148-153: 50dp/64dp measurement.
     }
 
     fun setIcon(iconResId: Int) {

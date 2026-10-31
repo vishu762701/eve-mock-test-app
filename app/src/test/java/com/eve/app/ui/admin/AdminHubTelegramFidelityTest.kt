@@ -131,4 +131,18 @@ class AdminHubTelegramFidelityTest {
         assertTrue("Back button must remain clickable over search", source.contains("backButton.bringToFront()"))
     }
 
+    @Test
+    fun testSharedAdminCellsRetainTelegramRowMeasurementsAndRtl() {
+        val root = "src/main/java/com/eve/app/ui/admin/tg/"
+        val cell = File(root + "TextCell.kt").readText()
+        assertTrue("Telegram 50dp row must be explicit", cell.contains("val rowHeight = dp(50f)"))
+        assertTrue("Physical divider pixel must increase layout height", cell.contains("(if (needDivider) 1 else 0)"))
+        assertTrue("RTL must mirror divider inset", cell.contains("width - start"))
+        val detail = File(root + "TextDetailCell.kt").readText()
+        assertTrue("Telegram detail rows must be 60dp", detail.contains("val rowHeight = dp(60f)"))
+        assertTrue("Detail divider must be one physical pixel", detail.contains("height - 1f"))
+        val check = File(root + "TextCheckCell.kt").readText()
+        assertTrue("Subtitle changes must remeasure rights rows", check.contains("requestLayout() // Telegram TextCheckCell.java:148-153"))
+    }
+
 }

@@ -59,6 +59,7 @@ class TextCell @JvmOverloads constructor(
             field = value
             setWillNotDraw(!value)
             invalidate()
+            requestLayout() // Source row height gains one physical divider pixel.
         }
 
     var offsetFromImage: Int = dp(58f)
@@ -66,7 +67,8 @@ class TextCell @JvmOverloads constructor(
     init {
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
         dividerPaint.color = palette.hairline
-        dividerPaint.strokeWidth = dp(0.75f).coerceAtLeast(1).toFloat()
+        // Original Telegram TextCell.java:835-843 uses one physical divider pixel.
+        dividerPaint.strokeWidth = 1f
         setWillNotDraw(false)
 
         // Ripple feedback
@@ -242,12 +244,27 @@ class TextCell @JvmOverloads constructor(
         (textLayout.layoutParams as? LayoutParams)?.marginStart = offsetFromImage
     }
 
+    // Telegram TextCell.java:183-215: 50dp row plus a physical 1px divider.
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val rowHeight = dp(50f) + (if (needDivider) 1 else 0)
+        super.onMeasure(
+            MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(rowHeight, MeasureSpec.EXACTLY)
+        )
+    }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         if (needDivider) {
-            val start = offsetFromImage.toFloat()
-            val y = height - dividerPaint.strokeWidth
-            canvas.drawLine(start, y, width.toFloat(), y, dividerPaint)
+            val hasIcon = iconView.visibility == View.VISIBLE || lottieView.visibility == View.VISIBLE
+            val start = dp(if (hasIcon) 58f else 20f).toFloat()
+            val y = height - 1f
+            // Telegram TextCell.java:842: mirror the 58dp/20dp inset in RTL.
+            canvas.drawLine(
+                if (layoutDirection == View.LAYOUT_DIRECTION_RTL) 0f else start, y,
+                if (layoutDirection == View.LAYOUT_DIRECTION_RTL) width - start else width.toFloat(), y,
+                dividerPaint
+            )
         }
     }
 }
