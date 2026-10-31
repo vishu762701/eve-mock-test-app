@@ -120,7 +120,7 @@ class TelegramIconSourceRegistryTest {
         }
     }
 
-    @Test fun homeNotificationFallbackUsesPinnedTelegramBell() {
+    @Test fun homeUsesIndependentBellWhileSharedTelegramBellRemainsPinned() {
         val root = listOf(File(".."), File("."))
             .first { File(it, "docs/telegram-icon-source-registry.tsv").isFile }
         val registry = File(root, "docs/telegram-icon-source-registry.tsv").readLines()
@@ -131,7 +131,7 @@ class TelegramIconSourceRegistryTest {
         assertTrue(home.contains("android:id=\"@+id/ivNotificationIdle\""))
         val fallback = Regex("<ImageView[^>]*android:id=\"@\\+id/ivNotificationIdle\"[^>]*/>")
             .find(home)?.value ?: throw AssertionError("Home bell fallback missing")
-        assertTrue("Use the already hash-verified source bell", fallback.contains("android:src=\"@drawable/ic_bell\""))
-        assertTrue("Preserve existing Lottie", home.contains("app:lottie_rawRes=\"@raw/notification_bell\""))
+        assertTrue("Home must use its approved independent bell", fallback.contains("android:src=\"@drawable/ic_home_notification\""))
+        assertTrue("All Home animation frames use independent artwork", home.contains("app:lottie_rawRes=\"@raw/home_notification_bell\""))
     }
 }

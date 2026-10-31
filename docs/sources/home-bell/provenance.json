@@ -1,0 +1,11 @@
+{
+  "upstream": "https://github.com/tabler/tabler-icons",
+  "version": "v3.49.0",
+  "revision": "bbed884d15354b5cebf2493371f20dc2d5e83eaf",
+  "source_path": "icons/outline/bell.svg",
+  "license": "MIT",
+  "source_sha256": "7ef4f0c56a58fc7ea27ded1c2ee5bc753d63f8851ce85b33da48ddeefe53faf8",
+  "classification": "ADAPTED: vector conversion, cubic arc approximation and EVE-authored ringing motion; not Apple artwork",
+  "app/src/main/res/drawable/ic_home_notification.xml": "cf66b89484d3dd55f6721b62811bd32b07b1b6eaba88f15a0518fb98dc638e12",
+  "app/src/main/res/raw/home_notification_bell.json": "dbcd9b3f5a5d23e203f3c624ec7766989ddb4fe0bffda4fa821eb0cccbe989b4"
+}

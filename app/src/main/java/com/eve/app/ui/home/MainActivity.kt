@@ -1497,10 +1497,9 @@ class MainActivity : EveBaseActivity() {
     private var bellTapNavigationPending = false
     private var bellTapNavigationEpoch = 0
 
-    /** Original EVE asset: notification_bell.json (Git blob bff3b04887e06d0f144a641b8ec5c14f640c4dd4),
-     * present since the historical e9bad22a commit. This is not an Apple asset or
-     * a claim of official iOS animation provenance. Motion is triggered only by
-     * incoming NotificationStore events, newly imported broadcasts, or a real user tap. */
+    /** MIT Tabler bell in idle and animated states; independent EVE ring motion.
+     * No Apple artwork or Telegram bell frames are used by Home. Incoming-event,
+     * unread, reduced-motion and tap-navigation behavior is preserved. */
     private fun animateNotificationBell() {
         if (!::binding.isInitialized || !com.eve.app.designsystem.DesignMotion.enabled(this)) {
             pendingIncomingBellUntilResume = false
@@ -1542,7 +1541,7 @@ class MainActivity : EveBaseActivity() {
                 restoreNotificationBellIdle()
                 return
             }
-            // The original 140-frame/60fps Lottie lasts about 2333ms.
+            // The Home 140-frame/60fps composition lasts about 2333ms.
             // The old fixed 2200ms watchdog cut off its final frames.
             val safetyMs = ((bell.composition?.duration?.toLong() ?: 2400L) + 300L)
                 .coerceIn(2500L, 5000L)

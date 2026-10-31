@@ -548,3 +548,19 @@ Under Mission 01 authorization:
   - `ProfileGooeyView.kt` and `NotchInfoUtils.kt`: Ported from `ProfileGooeyView.java` and `NotchInfoUtils.java` for API 31+ `RenderEffect` liquid camera collapse with CPU fallback. Note: `ProfileMetaballView.java` is obsolete upstream (commented out at `ProfileActivity.java:391`) and replaced by `ProfileGooeyView.java`.
   - Profile and editing activities: `ProfileActivity.kt`, `ChangeNameActivity.kt`, `ChangeUsernameActivity.kt`, `ChangePhoneActivity.kt` adapting Telegram's profile structure, layout math, and edit workflows.
 - **Copyright/License:** Telegram Android contributors including DrKLO / Telegram FZ-LLC / Nikolai Kudashov. Upstream source is GNU GPL v2. EVE code is GPL-3.0-or-later. Upstream attribution and corresponding-source obligations are strictly preserved.
+
+## Home notification bell — owner-approved independent artwork
+
+The Home idle/fallback `ic_home_notification.xml` and animation
+`home_notification_bell.json` use the **MIT-licensed Tabler bell**, v3.49.0,
+[`bbed884d15354b5cebf2493371f20dc2d5e83eaf`](https://github.com/tabler/tabler-icons/tree/bbed884d15354b5cebf2493371f20dc2d5e83eaf),
+`icons/outline/bell.svg`. Copyright (c) 2020–2026 Paweł Kuna.
+Original SVG, full MIT license and conversion hashes are retained in
+`docs/sources/home-bell/`; the bundled MIT notice remains in
+`app/src/main/assets/licenses/Tabler-LICENSE.txt`.
+The Android vector conversion, cubic arc approximation and EVE-authored ringing
+motion are **ADAPTED**, not original Apple/iOS or Telegram artwork or animation.
+The owner explicitly approved an independent permissively licensed substitute
+in this mission after Apple's Android-use licensing limitation was established.
+Shared Telegram bell assets and historical EVE animation remain for unrelated
+notification inbox/reminder callers; Home no longer references them.

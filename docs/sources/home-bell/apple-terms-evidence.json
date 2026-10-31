@@ -1,0 +1,17 @@
+{
+  "retrieved_date": "2026-10-31",
+  "xcode": {
+    "url": "https://www.apple.com/legal/sla/docs/xcode.pdf",
+    "sha256": "5e6bd16bcba3dd591bde1c57f7c6f19f08a194c84cdc54485c4660f90e2a26ec",
+    "clause": "2.10 System-Provided Images",
+    "android_embedding_grant": "NOT ESTABLISHED"
+  },
+  "design_resources": {
+    "url": "https://developer.apple.com/support/downloads/terms/apple-design-resources/Apple-Design-Resources-License-20230621-English.pdf",
+    "sha256": "105d51d6e97e59dec5e8b133163c9b4555f2f4f284fcd8edad0bc1feed9a9fa4",
+    "clause": "2A-2B",
+    "android_embedding_grant": "NOT ESTABLISHED"
+  },
+  "exact_apple_bell_variant": "NOT FOUND; no Apple art copied",
+  "owner_decision": "Independent permissively licensed bell approved in chat"
+}
