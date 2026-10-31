@@ -43,7 +43,16 @@ export function sanitizeMetadata(metadata?: Record<string, any> | null): string 
   }
 
   const serialized = JSON.stringify(safeObj);
-  return serialized.length > 2048 ? serialized.substring(0, 2048) : serialized;
+  if (serialized.length <= 2048) return serialized;
+
+  // Truncating serialized JSON corrupts Recent Actions metadata. Keep only
+  // complete, sanitized entries that fit the bound.
+  const bounded: Record<string, any> = {};
+  for (const [key, value] of Object.entries(safeObj)) {
+    const candidate = JSON.stringify({ ...bounded, [key]: value });
+    if (candidate.length <= 2048) bounded[key] = value;
+  }
+  return JSON.stringify(bounded);
 }
 
 export function prepareAdminAuditLog(
@@ -73,37 +82,19 @@ export function prepareAdminAuditLog(
   return { id, stmt };
 }
 
+/**
+ * Administrative mutations and their audit records must commit atomically.
+ * A missing audit migration is an operational failure, never permission to
+ * execute privileged changes without a Recent Actions record.
+ */
 export async function runBatch(
   db: D1Database,
   statements: D1PreparedStatement[]
 ): Promise<any[]> {
-  if (typeof db.batch === "function") {
-    try {
-      return await db.batch(statements);
-    } catch (err: any) {
-      if (err?.message?.includes("no such table: admin_audit_log")) {
-        // If audit table is absent in mock, execute non-audit statements
-        const nonAudit = statements.slice(0, statements.length - 1);
-        if (nonAudit.length > 0) {
-          return await db.batch(nonAudit);
-        }
-      }
-      throw err;
-    }
-  } else {
-    const results = [];
-    for (const stmt of statements) {
-      try {
-        results.push(await stmt.run());
-      } catch (err: any) {
-        if (err?.message?.includes("no such table: admin_audit_log")) {
-          continue;
-        }
-        throw err;
-      }
-    }
-    return results;
+  if (typeof db.batch !== "function") {
+    throw new Error("Atomic D1 batch is required for audited admin changes.");
   }
+  return db.batch(statements);
 }
 
 export async function recordAdminAction(
@@ -112,13 +103,6 @@ export async function recordAdminAction(
   options: AuditActionOptions
 ): Promise<string> {
   const { id, stmt } = prepareAdminAuditLog(db, user, options);
-  try {
-    await stmt.run();
-  } catch (err: any) {
-    if (err?.message?.includes("no such table: admin_audit_log")) {
-      return id;
-    }
-    throw err;
-  }
+  await stmt.run();
   return id;
 }

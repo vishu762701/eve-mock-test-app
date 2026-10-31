@@ -5,7 +5,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { Hono } from "hono";
 import { adminAuditLogRoutes, adminReportRoutes } from "../src/routes/reports.ts";
 import { adminRoutes } from "../src/routes/admin.ts";
-import { prepareAdminAuditLog, recordAdminAction, sanitizeMetadata } from "../src/util/auditLog.ts";
+import { prepareAdminAuditLog, recordAdminAction, runBatch, sanitizeMetadata } from "../src/util/auditLog.ts";
 
 function isolatedD1() {
   const sqlite = new DatabaseSync(":memory:");
@@ -251,4 +251,40 @@ test("Batch atomicity: audit log is rolled back if mutation fails", async () => 
 
   const count = sqlite.prepare("SELECT COUNT(*) as c FROM admin_audit_log WHERE action_type = 'FAILED_MUTATION_TEST'").get();
   assert.equal(count.c, 0);
+});
+
+test("missing audit migration prevents admin mutation and rolls back its D1 batch", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  sqlite.exec("CREATE TABLE audit_guard_fixture (id TEXT PRIMARY KEY); DROP TABLE admin_audit_log");
+
+  const mutation = d1.prepare("INSERT INTO audit_guard_fixture (id) VALUES (?)").bind("should-rollback");
+  const audit = prepareAdminAuditLog(d1, { uid: "admin_1", email: "admin@eve.app", isAdmin: true }, {
+    actionType: "TEST_MUTATION",
+    description: "This should not be committed without an audit record",
+  }).stmt;
+
+  await assert.rejects(() => runBatch(d1, [mutation, audit]), /no such table: admin_audit_log/i);
+  assert.equal(sqlite.prepare("SELECT COUNT(*) AS count FROM audit_guard_fixture").get().count, 0);
+});
+
+test("single admin audit writes reject a missing audit table", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  sqlite.exec("DROP TABLE admin_audit_log");
+  await assert.rejects(() => recordAdminAction(d1, {
+    uid: "admin_1", email: "admin@eve.app", isAdmin: true,
+  }, { actionType: "TEST_MUTATION", description: "Fail closed" }), /no such table: admin_audit_log/i);
+});
+
+test("audited mutations require an atomic D1 batch", async () => {
+  await assert.rejects(() => runBatch({}, []), /Atomic D1 batch is required/i);
+});
+
+test("oversized sanitized audit metadata is valid bounded JSON", () => {
+  const payload = Object.fromEntries(Array.from({ length: 40 }, (_, i) => [`safe_${i}`, "x".repeat(180)]));
+  const result = sanitizeMetadata(payload);
+  assert.ok(result);
+  assert.ok(result.length <= 2048);
+  const parsed = JSON.parse(result);
+  assert.ok(Object.keys(parsed).length > 0);
+  assert.ok(Object.keys(parsed).length < 40);
 });
