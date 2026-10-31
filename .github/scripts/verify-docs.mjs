@@ -140,6 +140,28 @@ for (const doc of ['THIRD_PARTY_NOTICES.md', 'docs/telegram-release-compliance-g
   }
 }
 
+// 1c. Verify the reusable one-time starter retains the crucial safety and
+// operational semantics across future doc-only edits. This is a policy
+// regression test, not evidence of runtime implementation or background work.
+const starterFile = path.join(REPO_ROOT, 'docs/EVE_ONE_TIME_CHAT_STARTER.md');
+if (fs.existsSync(starterFile)) {
+  const starter = fs.readFileSync(starterFile, 'utf8');
+  for (const clause of [
+    'one-time new-chat engineering starter v5.0',
+    'INITIALIZATION VS AUTHORIZATION',
+    'MODE: MAX-RIGOR (/x10think)',
+    'MODE: UNSPARED CRITICAL REVIEW (/killcritic)',
+    'SESSION EXECUTION REALITY',
+    'A NORMAL ChatGPT Chat turn does NOT guarantee uninterrupted coding',
+    'G7 CHECKPOINT MUST CONTAIN',
+    'BOOTSTRAP RESPONSE ONLY',
+  ]) {
+    if (!starter.includes(clause)) error(`One-time EVE starter missing required clause: ${clause}`);
+  }
+} else {
+  error('Missing canonical docs/EVE_ONE_TIME_CHAT_STARTER.md');
+}
+
 // 2. Discover all markdown files
 function findMarkdownFiles(dir) {
   const files = [];
