@@ -407,6 +407,11 @@ class MainActivity : EveBaseActivity() {
 
         updateNotificationDot()
 
+        binding.maintenanceOverlay.visibility = View.VISIBLE
+        binding.drawerLayout.setDrawerLockMode(androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        binding.mainContentContainer.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+        binding.tvMaintenanceTitle.text = "Checking app availability"
+        binding.tvMaintenanceMessage.text = "Please wait while the server configuration is verified."
         checkAppConfigAndMaintenance()
 
         lifecycleScope.launch(lifecycleExceptionHandler) {
@@ -477,6 +482,8 @@ class MainActivity : EveBaseActivity() {
     }
 
     override fun onPause() {
+        configCheckJob?.cancel()
+        configCheckJob = null
         super.onPause()
         if (::binding.isInitialized) {
             // Invalidate asynchronous composition callbacks when Home is no longer visible.
@@ -492,39 +499,84 @@ class MainActivity : EveBaseActivity() {
         }
     }
 
+    private var configCheckJob: kotlinx.coroutines.Job? = null
+    private var lastConfirmedConfig: com.eve.app.data.model.AppConfig? = null
+
     private fun checkAppConfigAndMaintenance() {
-        lifecycleScope.launch(lifecycleExceptionHandler) {
-            val config = AppConfigManager.fetchAppConfig()
-            val email = FirebaseAuth.getInstance().currentUser?.email
-            val isAdmin = email?.let { adminRepo.isAdmin(it) } ?: false
+        if (configCheckJob?.isActive == true) return
+        binding.btnCheckMaintenanceAgain.setOnClickListener { checkAppConfigAndMaintenance() }
+        configCheckJob = lifecycleScope.launch(lifecycleExceptionHandler) {
+            binding.btnCheckMaintenanceAgain.isEnabled = false
+            try {
+                val config = AppConfigManager.fetchAppConfig()
+                lastConfirmedConfig = config
+                getSharedPreferences("public_app_config", MODE_PRIVATE).edit()
+                    .putString("confirmed", com.google.gson.Gson().toJson(config)).apply()
+                val email = FirebaseAuth.getInstance().currentUser?.email
+                val isAdmin = email?.let { adminRepo.isAdmin(it) } ?: false
 
-            // 1. Force update check (applies to all users)
-            if (AppConfigManager.isUpdateRequired(config)) {
-                binding.forceUpdateOverlay.visibility = View.VISIBLE
-                binding.maintenanceOverlay.visibility = View.GONE
-                binding.tvForceUpdateMessage.text =
-                    "A newer version (v${config.minimum_supported_version_code}+) is required to continue. Your current version is ${BuildConfig.VERSION_CODE}."
-                binding.btnForceUpdateNow.setOnClickListener {
-                    AppConfigManager.openUpdateLink(this@MainActivity)
+                // 1. Force update check (applies to all users)
+                if (AppConfigManager.isUpdateRequired(config)) {
+                    binding.forceUpdateOverlay.visibility = View.VISIBLE
+                    binding.maintenanceOverlay.visibility = View.GONE
+                    binding.tvForceUpdateMessage.text =
+                        "A newer version (v${config.minimum_supported_version_code}+) is required to continue. Your current version is ${BuildConfig.VERSION_CODE}."
+                    binding.btnForceUpdateNow.setOnClickListener {
+                        AppConfigManager.openUpdateLink(this@MainActivity)
+                    }
+                    return@launch
+                } else {
+                    binding.forceUpdateOverlay.visibility = View.GONE
                 }
-                return@launch
-            } else {
-                binding.forceUpdateOverlay.visibility = View.GONE
-            }
 
-            // 2. Maintenance mode check (admins can bypass)
-            if (AppConfigManager.isMaintenanceActive(config)) {
-                if (!isAdmin) {
-                    binding.maintenanceOverlay.visibility = View.VISIBLE
-                    binding.tvMaintenanceMessage.text = config.maintenance_message
-                    binding.btnCheckMaintenanceAgain.setOnClickListener {
-                        checkAppConfigAndMaintenance()
+                binding.tvMaintenanceTitle.text = "Scheduled Maintenance"
+                // Bypass requires the current identity's fresh Worker authorization.
+                // 2. Maintenance mode check (admins can bypass)
+                if (AppConfigManager.isMaintenanceActive(config)) {
+                    if (!isAdmin) {
+                        binding.maintenanceOverlay.visibility = View.VISIBLE
+                        binding.tvMaintenanceMessage.text = config.maintenance_message
+                        binding.btnCheckMaintenanceAgain.setOnClickListener {
+                            checkAppConfigAndMaintenance()
+                        }
+                    } else {
+                        binding.maintenanceOverlay.visibility = View.GONE
                     }
                 } else {
                     binding.maintenanceOverlay.visibility = View.GONE
                 }
-            } else {
-                binding.maintenanceOverlay.visibility = View.GONE
+                binding.drawerLayout.setDrawerLockMode(
+                    if (binding.maintenanceOverlay.visibility == View.VISIBLE || binding.forceUpdateOverlay.visibility == View.VISIBLE)
+                        androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+                    else androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_UNLOCKED)
+            } catch (cancel: kotlinx.coroutines.CancellationException) {
+                throw cancel
+            } catch (e: Exception) {
+                val cached = lastConfirmedConfig ?: runCatching {
+                    com.google.gson.Gson().fromJson(getSharedPreferences("public_app_config", MODE_PRIVATE)
+                        .getString("confirmed", null), com.eve.app.data.model.AppConfig::class.java)
+                }.getOrNull()
+                // Never convert unavailable or cached config into a confirmed off state.
+                binding.maintenanceOverlay.visibility = View.VISIBLE
+                binding.tvMaintenanceTitle.text = if (cached?.maintenance_mode == true) "Scheduled Maintenance" else "Connection required"
+                binding.tvMaintenanceMessage.text = if (cached?.maintenance_mode == true)
+                    cached.maintenance_message + "\n\nUnable to refresh. Please retry."
+                    else "Unable to verify app availability. Check your connection and retry."
+                binding.drawerLayout.setDrawerLockMode(androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                AppBulletin.showError(this@MainActivity, "Cannot refresh app configuration")
+            } finally {
+                binding.btnCheckMaintenanceAgain.isEnabled = true
+                val blocked = binding.maintenanceOverlay.visibility == View.VISIBLE || binding.forceUpdateOverlay.visibility == View.VISIBLE
+                binding.drawerLayout.setDrawerLockMode(if (blocked)
+                    androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+                    else androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_UNLOCKED)
+                if (blocked) {
+                    binding.mainContentContainer.clearFocus()
+                    androidx.core.view.ViewCompat.getWindowInsetsController(binding.root)
+                        ?.hide(androidx.core.view.WindowInsetsCompat.Type.ime())
+                }
+                binding.mainContentContainer.importantForAccessibility = if (blocked)
+                    View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS else View.IMPORTANT_FOR_ACCESSIBILITY_AUTO
             }
         }
     }

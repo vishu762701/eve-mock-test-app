@@ -23,6 +23,8 @@ class AppConfigActivity : EveBaseActivity() {
     private lateinit var binding: ActivityAppConfigBinding
     private val adminRepo = AdminRepository()
     private val auditLogRepo = AuditLogRepository()
+    private var confirmedConfig: AppConfig? = null
+    private var configBusy = false
     private var maintenanceConfirmationDialog: TelegramNativeAlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,10 +52,14 @@ class AppConfigActivity : EveBaseActivity() {
     }
 
     private fun loadConfig() {
+        if (configBusy) return
+        configBusy = true
+        binding.btnSaveConfig.isEnabled = false
         binding.progressBar.visibility = View.VISIBLE
         lifecycleScope.launch {
             try {
                 val config = adminRepo.getAppConfig()
+                confirmedConfig = config
                 binding.progressBar.visibility = View.GONE
                 binding.switchMaintenanceMode.isChecked = config.maintenance_mode
                 binding.etMaintenanceMessage.setText(config.maintenance_message)
@@ -63,18 +69,29 @@ class AppConfigActivity : EveBaseActivity() {
                 } else {
                     binding.rbPublishPaused.isChecked = true
                 }
+            } catch (cancel: kotlinx.coroutines.CancellationException) {
+                throw cancel
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
-                AppBulletin.showError(this@AppConfigActivity, "Failed to load config: ${e.toUserFriendlyMessage()}")
+                AppBulletin.showError(this@AppConfigActivity, "Failed to load config: ${e.toUserFriendlyMessage()}. Tap Save to retry loading.")
+            } finally {
+                configBusy = false
+                binding.btnSaveConfig.isEnabled = true
             }
         }
     }
 
     private fun validateAndSaveConfig() {
+        if (configBusy) return
+        if (confirmedConfig == null) { loadConfig(); return }
         val maintenanceMode = binding.switchMaintenanceMode.isChecked
         val message = binding.etMaintenanceMessage.text?.toString()?.trim().orEmpty()
         val minVersionStr = binding.etMinVersionCode.text?.toString()?.trim().orEmpty()
-        val minVersion = minVersionStr.toIntOrNull() ?: 1
+        val minVersion = minVersionStr.toIntOrNull()
+        if (minVersion == null || minVersion < 0 || message.length > 1000) {
+            AppBulletin.showError(this, "Enter a non-negative version and a message up to 1000 characters")
+            return
+        }
         val defaultPublishMode = if (binding.rbPublishLive.isChecked) "live" else "paused"
 
         val configToSave = AppConfig(
@@ -84,7 +101,7 @@ class AppConfigActivity : EveBaseActivity() {
             default_publish_mode = defaultPublishMode
         )
 
-        if (maintenanceMode) {
+        if (maintenanceMode && confirmedConfig?.maintenance_mode != true) {
             // Original AndroidUtilities.isSafeToShow() and one active
             // privileged window: don't stack server-impacting confirmations.
             if (isFinishing || isDestroyed || maintenanceConfirmationDialog?.isShowing == true) return
@@ -99,6 +116,7 @@ class AppConfigActivity : EveBaseActivity() {
             maintenanceConfirmationDialog = dialog
             dialog.setOnDismissListener {
                 if (maintenanceConfirmationDialog === dialog) maintenanceConfirmationDialog = null
+                binding.switchMaintenanceMode.setCheckedSilently(confirmedConfig?.maintenance_mode ?: false)
             }
         } else {
             saveConfig(configToSave)
@@ -106,19 +124,30 @@ class AppConfigActivity : EveBaseActivity() {
     }
 
     private fun saveConfig(config: AppConfig) {
+        if (configBusy) return
+        configBusy = true
+        binding.btnSaveConfig.isEnabled = false
         binding.progressBar.visibility = View.VISIBLE
         lifecycleScope.launch {
             try {
-                val success = adminRepo.updateAppConfig(config)
+                val success = adminRepo.updateAppConfig(config, confirmedConfig ?: throw IllegalStateException("Reload configuration"))
                 binding.progressBar.visibility = View.GONE
                 if (success) {
+                    confirmedConfig = config
+                    binding.switchMaintenanceMode.setCheckedSilently(config.maintenance_mode)
                     AppBulletin.showSuccess(this@AppConfigActivity, "Configuration saved successfully!")
                 } else {
                     AppBulletin.showError(this@AppConfigActivity, "Failed to save configuration")
                 }
+            } catch (cancel: kotlinx.coroutines.CancellationException) {
+                throw cancel
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
-                AppBulletin.showError(this@AppConfigActivity, "Error saving: ${e.toUserFriendlyMessage()}")
+                AppBulletin.showError(this@AppConfigActivity, "Save unconfirmed: ${e.toUserFriendlyMessage()}. Reload before retry.")
+                confirmedConfig = null
+            } finally {
+                configBusy = false
+                binding.btnSaveConfig.isEnabled = true
             }
         }
     }
@@ -168,6 +197,8 @@ class AppConfigActivity : EveBaseActivity() {
                         .setPositiveButton("OK", null)
                         .show()
                 }
+            } catch (cancel: kotlinx.coroutines.CancellationException) {
+                throw cancel
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
                 val errMsg = e.toUserFriendlyMessage()

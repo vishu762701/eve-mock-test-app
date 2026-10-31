@@ -123,8 +123,15 @@ class TelegramSwitch @JvmOverloads constructor(
                 setProgress(if (checked) 1.0f else 0.0f)
             }
             onCheckedChangeListener?.onCheckedChanged(this, checked)
-            sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_CLICKED)
+            sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED)
         }
+    }
+
+    /** Binding/restoration must not be interpreted as a user's change. */
+    fun setCheckedSilently(checked: Boolean, animated: Boolean = false) {
+        val listener = onCheckedChangeListener
+        onCheckedChangeListener = null
+        try { setChecked(checked, animated) } finally { onCheckedChangeListener = listener }
     }
 
     override fun toggle() {
@@ -132,6 +139,7 @@ class TelegramSwitch @JvmOverloads constructor(
     }
 
     override fun performClick(): Boolean {
+        if (!isEnabled) return false
         super.performClick()
         toggle()
         try {
@@ -143,6 +151,12 @@ class TelegramSwitch @JvmOverloads constructor(
 
     fun setOnCheckedChangeListener(listener: OnCheckedChangeListener?) {
         onCheckedChangeListener = listener
+    }
+
+    override fun onDetachedFromWindow() {
+        cancelCheckAnimator()
+        setProgress(if (isCheckedState) 1f else 0f)
+        super.onDetachedFromWindow()
     }
 
     private fun cancelCheckAnimator() {
@@ -268,7 +282,7 @@ class TelegramSwitch @JvmOverloads constructor(
     override fun onRestoreInstanceState(state: Parcelable?) {
         if (state is SavedState) {
             super.onRestoreInstanceState(state.superState)
-            setChecked(state.checked, animated = false)
+            setCheckedSilently(state.checked)
         } else {
             super.onRestoreInstanceState(state)
         }

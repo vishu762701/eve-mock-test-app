@@ -72,6 +72,10 @@ class AdminActivity : EveBaseActivity() {
     private var selectedExamForImageUpdate: Exam? = null
     private var onBannerImageSelected: ((Uri) -> Unit)? = null
     private var currentConfig: AppConfig? = null
+    private var maintenanceBusy = false
+    private var maintenanceReadRequired = true
+    private var adminUiReady = false
+    private var maintenanceDialog: TelegramNativeAlertDialog? = null
 
     private val pickBannerImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri != null) {
@@ -119,6 +123,7 @@ class AdminActivity : EveBaseActivity() {
             setupHubSections()
             setupSearchIndex()
             setupObservers()
+            adminUiReady = true
             loadData()
         }
     }
@@ -262,7 +267,9 @@ class AdminActivity : EveBaseActivity() {
         binding.headerSystem.setText("SYSTEM")
 
         binding.cellMaintenance.setTextAndCheck("Maintenance Mode", checked = false)
-        binding.cellMaintenance.setSubtitle("When active, students are blocked by notice")
+        binding.cellMaintenance.isEnabled = false
+        binding.cellMaintenance.checkBox.visibility = View.INVISIBLE
+        binding.cellMaintenance.setSubtitle("Loading confirmed server state…")
         binding.cellMaintenance.setOnCheckedChangeListener { _, isChecked ->
             handleMaintenanceToggle(isChecked)
         }
@@ -481,54 +488,96 @@ class AdminActivity : EveBaseActivity() {
             applyAdminPermissions(adminMe)
         }
 
+        loadMaintenanceConfig()
+    }
+
+    private fun loadMaintenanceConfig() {
+        if (maintenanceBusy) return
+        maintenanceBusy = true
+        binding.cellMaintenance.isEnabled = false
         lifecycleScope.launch {
             try {
                 val config = adminRepo.getAppConfig()
                 currentConfig = config
+                binding.cellMaintenance.checkBox.visibility = View.VISIBLE
+                maintenanceReadRequired = false
                 binding.cellMaintenance.isChecked = config.maintenance_mode
+                binding.cellMaintenance.setSubtitle("Confirmed server state")
                 binding.rowVersionStatus.setValue("v${BuildConfig.VERSION_NAME} (Min: ${config.minimum_supported_version_code})")
-            } catch (_: Exception) {}
+            } catch (cancel: kotlinx.coroutines.CancellationException) {
+                throw cancel
+            } catch (e: Exception) {
+                maintenanceReadRequired = true
+                binding.cellMaintenance.setSubtitle("Read failed — tap to retry")
+                AppBulletin.showError(this@AdminActivity, "Cannot read maintenance settings: ${e.message}")
+            } finally {
+                maintenanceBusy = false
+                binding.cellMaintenance.isEnabled = true
+            }
         }
     }
 
     private fun handleMaintenanceToggle(enable: Boolean) {
-        val config = currentConfig ?: AppConfig(
-            minimum_supported_version_code = 1,
-            maintenance_mode = false,
-            maintenance_message = "App is temporarily undergoing maintenance."
-        )
-
+        // Every rendered state comes from a confirmed read, never a fallback config.
+        currentConfig?.let { binding.cellMaintenance.isChecked = it.maintenance_mode }
+        if (maintenanceBusy || maintenanceDialog != null) return
+        if (maintenanceReadRequired) { loadMaintenanceConfig(); return }
+        val config = currentConfig ?: run { loadMaintenanceConfig(); return }
+        if (enable == config.maintenance_mode) return
         if (enable) {
-            binding.cellMaintenance.isChecked = false
-            TelegramNativeAlertDialog.Builder(this)
+            if (isFinishing || isDestroyed) return
+            binding.cellMaintenance.isEnabled = false
+            val dialog = TelegramNativeAlertDialog.Builder(this)
                 .setTitle("Enable Maintenance Mode?")
-                .setMessage("Are you sure? When maintenance mode is active, students opening the app will be blocked by a full-screen maintenance notice.")
-                .setPositiveButton("Enable Maintenance") { _, _ ->
-                    binding.cellMaintenance.isChecked = true
-                    val updated = config.copy(maintenance_mode = true)
-                    saveMaintenanceConfig(updated)
-                }
-                .setNegativeButton("Cancel") { _, _ ->
-                    binding.cellMaintenance.isChecked = false
-                }
+                .setMessage("Students returning to Home will see a blocking maintenance notice. Active exams are not interrupted.")
+                .setPositiveButton("Enable Maintenance") { _, _ -> saveMaintenanceConfig(true) }
+                .setNegativeButton("Cancel", null)
                 .show()
+            maintenanceDialog = dialog
+            dialog.setOnDismissListener {
+                maintenanceDialog = null
+                binding.cellMaintenance.isChecked = currentConfig?.maintenance_mode ?: false
+                binding.cellMaintenance.isEnabled = !maintenanceBusy
+            }
         } else {
-            val updated = config.copy(maintenance_mode = false)
-            saveMaintenanceConfig(updated)
+            saveMaintenanceConfig(false)
         }
     }
 
-    private fun saveMaintenanceConfig(config: AppConfig) {
+    private fun saveMaintenanceConfig(enable: Boolean) {
+        if (maintenanceBusy) return
+        maintenanceBusy = true
+        binding.cellMaintenance.isEnabled = false
         lifecycleScope.launch {
             try {
-                adminRepo.updateAppConfig(config)
-                currentConfig = config
-                AppBulletin.showSuccess(this@AdminActivity, "Maintenance settings saved")
+                val confirmed = adminRepo.updateMaintenanceMode(enable)
+                currentConfig = confirmed
+                binding.cellMaintenance.isChecked = confirmed.maintenance_mode
+                binding.cellMaintenance.setSubtitle("Confirmed server state")
+                AppBulletin.showSuccess(this@AdminActivity, "Maintenance settings saved and verified")
+            } catch (cancel: kotlinx.coroutines.CancellationException) {
+                throw cancel
             } catch (e: Exception) {
-                binding.cellMaintenance.isChecked = currentConfig?.maintenance_mode ?: false
-                AppBulletin.showError(this@AdminActivity, "Failed to update maintenance: ${e.message}")
+                // The write may have reached the server. Require a fresh read before retrying.
+                maintenanceReadRequired = true
+                binding.cellMaintenance.setSubtitle("Save unconfirmed — tap to reload")
+                AppBulletin.showError(this@AdminActivity, "Maintenance save unconfirmed: ${e.message}")
+            } finally {
+                maintenanceBusy = false
+                binding.cellMaintenance.isEnabled = true
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (adminUiReady && maintenanceDialog == null) loadMaintenanceConfig()
+    }
+
+    override fun onDestroy() {
+        maintenanceDialog?.dismiss()
+        maintenanceDialog = null
+        super.onDestroy()
     }
 
     private fun showExamsOptionsDialog() {

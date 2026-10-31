@@ -597,7 +597,10 @@ adminRoutes.get("/users/:id/attempts", requirePermission("manage_users"), async 
 
 // PUT /api/admin/config - Update app configuration
 adminRoutes.put("/config", requirePermission("manage_config_maintenance"), async (c) => {
-  const body = await c.req.json().catch(() => ({}));
+  const body = await c.req.json().catch(() => null);
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return c.json({ success: false, error: "Configuration must be a JSON object" }, 400);
+  }
   const db = c.env.DB;
 
   let prevConfig: any = {};
@@ -607,8 +610,14 @@ adminRoutes.put("/config", requirePermission("manage_config_maintenance"), async
       .first<{ body: string }>();
     if (existing && existing.body) {
       prevConfig = JSON.parse(existing.body);
+      if (!prevConfig || typeof prevConfig !== "object" || Array.isArray(prevConfig) ||
+          (prevConfig.maintenance_mode !== undefined && typeof prevConfig.maintenance_mode !== "boolean")) {
+        throw new Error("Invalid stored configuration");
+      }
     }
-  } catch {}
+  } catch {
+    return c.json({ success: false, error: "Cannot read current configuration; no changes saved" }, 503);
+  }
 
   // 1. Validate minimum_supported_version_code
   let minVersion = prevConfig.minimum_supported_version_code !== undefined ? Number(prevConfig.minimum_supported_version_code) : 1;
@@ -659,13 +668,16 @@ adminRoutes.put("/config", requirePermission("manage_config_maintenance"), async
     default_publish_mode: defaultPublishMode,
   };
 
+  const patch = Object.fromEntries(Object.entries(configObj).filter(([key]) =>
+    ["minimum_supported_version_code", "maintenance_mode", "maintenance_message", "default_publish_mode"].includes(key)
+      && body[key] !== undefined && body[key] !== null));
   try {
     const user = c.get("user");
     const saveStmt = db
       .prepare(
-        "INSERT INTO app_content (id, title, body, updated_at, updated_by) VALUES ('app_config', 'App Configuration', ?, ?, ?) ON CONFLICT(id) DO UPDATE SET body = excluded.body, updated_at = excluded.updated_at, updated_by = excluded.updated_by"
+        "INSERT INTO app_content (id, title, body, updated_at, updated_by) VALUES ('app_config', 'App Configuration', ?, ?, ?) ON CONFLICT(id) DO UPDATE SET body = json_patch(app_content.body, ?), updated_at = excluded.updated_at, updated_by = excluded.updated_by"
       )
-      .bind(JSON.stringify(configObj), Date.now(), user?.email || "admin");
+      .bind(JSON.stringify(configObj), Date.now(), user?.email || "admin", JSON.stringify(patch));
 
     const actionType = prevConfig.maintenance_mode !== maintenanceMode ? "MAINTENANCE_TOGGLED" : "CONFIG_UPDATED";
     const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
@@ -678,7 +690,9 @@ adminRoutes.put("/config", requirePermission("manage_config_maintenance"), async
 
     await runBatch(db, [saveStmt, auditStmt]);
 
-    return c.json({ success: true, data: configObj });
+    const saved = await db.prepare("SELECT body FROM app_content WHERE id = 'app_config'").first<{ body: string }>();
+    if (!saved) throw new Error("Configuration readback unavailable");
+    return c.json({ success: true, data: JSON.parse(saved.body) });
   } catch (err: any) {
     return c.json({ success: false, error: err.message }, 500);
   }

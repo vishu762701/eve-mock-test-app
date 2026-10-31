@@ -388,3 +388,53 @@ test("Admin premium grants persist exactly one matching server-owned audit entry
   assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM premium_entitlements WHERE user_id = ?").get("premium-target").n, 1);
   assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM admin_audit_log WHERE action_type = ? AND target_id = ?").get("PREMIUM_GRANTED", "premium-target").n, 1);
 });
+
+test("maintenance-only on/off writes preserve unrelated config and audit each write", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  const admin = { uid: "maintenance-owner", email: "maintenance@eve.test", isAdmin: true };
+  grantRights(sqlite, admin.email, ["manage_config_maintenance"]);
+  const original = { maintenance_mode: false, minimum_supported_version_code: 47, maintenance_message: "Please retry later", default_publish_mode: "live", future_setting: { keep: true } };
+  sqlite.prepare("INSERT INTO app_content (id,title,body,updated_at) VALUES ('app_config','Config',?,1)").run(JSON.stringify(original));
+  const app = createAdminApp(d1, admin);
+  for (const enabled of [true, false]) {
+    const response = await app.request("/api/admin/config", {
+      method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ maintenance_mode: enabled }),
+    });
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.deepEqual(body.data, { ...original, maintenance_mode: enabled });
+    assert.deepEqual(JSON.parse(sqlite.prepare("SELECT body FROM app_content WHERE id='app_config'").get().body), body.data);
+  }
+  assert.equal(sqlite.prepare("SELECT count(*) as n FROM admin_audit_log WHERE action_type='MAINTENANCE_TOGGLED'").get().n, 2);
+});
+
+test("config refuses corrupt prior storage and malformed requests without overwriting", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  const admin = { uid: "maintenance-owner", email: "maintenance@eve.test", isAdmin: true };
+  grantRights(sqlite, admin.email, ["manage_config_maintenance"]);
+  sqlite.prepare("INSERT INTO app_content (id,title,body,updated_at) VALUES ('app_config','Config','corrupt',1)").run();
+  const app = createAdminApp(d1, admin);
+  for (const [body, status] of [["{", 400], ["null", 400], ["[]", 400], ['{"maintenance_mode":true}', 503]]) {
+    const response = await app.request("/api/admin/config", { method: "PUT", headers: { "Content-Type": "application/json" }, body });
+    assert.equal(response.status, status);
+    assert.equal(sqlite.prepare("SELECT body FROM app_content WHERE id='app_config'").get().body, 'corrupt');
+  }
+});
+
+test("maintenance merge preserves an unrelated edit made after its initial read", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  const admin = { uid: "maintenance-owner", email: "maintenance@eve.test", isAdmin: true };
+  grantRights(sqlite, admin.email, ["manage_config_maintenance"]);
+  const original = { minimum_supported_version_code: 1, maintenance_mode: false, maintenance_message: "old", default_publish_mode: "paused" };
+  sqlite.prepare("INSERT INTO app_content (id,title,body,updated_at) VALUES ('app_config','Config',?,1)").run(JSON.stringify(original));
+  const realBatch = d1.batch;
+  d1.batch = async (statements) => {
+    sqlite.prepare("UPDATE app_content SET body = json_set(body, '$.maintenance_message', 'concurrent message', '$.minimum_supported_version_code', 82) WHERE id='app_config'").run();
+    return realBatch(statements);
+  };
+  const response = await createAdminApp(d1, admin).request("/api/admin/config", {
+    method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ maintenance_mode: true }),
+  });
+  assert.equal(response.status, 200);
+  assert.deepEqual((await response.json()).data, { ...original, maintenance_mode: true, maintenance_message: "concurrent message", minimum_supported_version_code: 82 });
+});

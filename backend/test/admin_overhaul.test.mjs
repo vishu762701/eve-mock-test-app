@@ -136,3 +136,28 @@ test("sub-exams hierarchy and home main exam filtering", () => {
   assert.equal(subExamsExam4.length, 0);
 });
 
+
+test("public maintenance read fails honestly on database and corrupt JSON errors", async () => {
+  for (const db of [
+    { prepare() { throw new Error("database offline"); } },
+    { prepare: () => ({ first: async () => ({ body: "invalid-json" }) }) },
+  ]) {
+    const res = await worker.fetch(new Request("https://example.test/api/app-config"), { DB: db }, {});
+    assert.equal(res.status, 503);
+    const data = await res.json();
+    assert.equal(data.success, false);
+    assert.equal(data.data, undefined);
+  }
+});
+
+test("public maintenance reads preserve active state and prevent caching", async () => {
+  const config = { maintenance_mode: true, maintenance_message: "रखरखाव ".repeat(100), minimum_supported_version_code: 4 };
+  const res = await worker.fetch(new Request("https://example.test/api/app-config"), {
+    DB: { prepare: () => ({ first: async () => ({ body: JSON.stringify(config) }) }) },
+  }, {});
+  assert.equal(res.status, 200);
+  assert.equal(res.headers.get("Cache-Control"), "no-store");
+  const body = await res.json();
+  assert.equal(body.data.maintenance_mode, true);
+  assert.equal(body.data.maintenance_message, config.maintenance_message);
+});

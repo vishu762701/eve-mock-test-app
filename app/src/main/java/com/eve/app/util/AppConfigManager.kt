@@ -12,13 +12,11 @@ import kotlinx.coroutines.withContext
 object AppConfigManager {
 
     suspend fun fetchAppConfig(): AppConfig = withContext(Dispatchers.IO) {
-        try {
-            val response = ApiClient.apiService.getAppConfig()
-            if (response.success && response.data != null) {
-                return@withContext response.data
-            }
-        } catch (_: Exception) {}
-        AppConfig()
+        val response = ApiClient.apiService.getAppConfig()
+        if (!response.success || response.data == null) {
+            throw java.io.IOException(response.error ?: "Configuration is unavailable")
+        }
+        response.data
     }
 
     fun isUpdateRequired(config: AppConfig): Boolean {

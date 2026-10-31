@@ -71,17 +71,24 @@ app.get("/api/health", (c) => {
 
 // Public App Config (Force Update & Maintenance Mode)
 app.get("/api/app-config", async (c) => {
+  c.header("Cache-Control", "no-store");
   const db = c.env.DB;
   try {
     const row = await db.prepare("SELECT body FROM app_content WHERE id = 'app_config'").first<{ body: string }>();
     if (row && row.body) {
       const config = JSON.parse(row.body);
+      if (!config || typeof config !== "object" || Array.isArray(config) ||
+          (config.maintenance_mode !== undefined && typeof config.maintenance_mode !== "boolean")) {
+        throw new Error("Invalid stored configuration");
+      }
       if (!config.default_publish_mode) {
         config.default_publish_mode = "paused";
       }
       return c.json({ success: true, data: config });
     }
-  } catch {}
+  } catch {
+    return c.json({ success: false, error: "App configuration unavailable" }, 503);
+  }
   return c.json({
     success: true,
     data: {

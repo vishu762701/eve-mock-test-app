@@ -58,7 +58,7 @@ class TextCheckCell @JvmOverloads constructor(
     var isChecked: Boolean
         get() = checkBox.isChecked
         set(value) {
-            checkBox.isChecked = value
+            checkBox.setCheckedSilently(value)
         }
 
     private var offsetFromImage = dp(21f)
@@ -111,17 +111,19 @@ class TextCheckCell @JvmOverloads constructor(
         val switchLp = LayoutParams(dp(37f), dp(20f), Gravity.END or Gravity.CENTER_VERTICAL).apply {
             marginEnd = dp(22f)
         }
+        checkBox.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
         addView(checkBox, switchLp)
 
         setOnClickListener {
-            checkBox.isChecked = !checkBox.isChecked
+            if (isEnabled) checkBox.isChecked = !checkBox.isChecked
         }
     }
 
     fun setTextAndCheck(text: CharSequence, checked: Boolean, needDivider: Boolean = true) {
         textView.text = text
+        contentDescription = text
         this.needDivider = needDivider
-        checkBox.isChecked = checked
+        checkBox.setCheckedSilently(checked)
     }
 
     fun setSubtitle(subtitle: CharSequence?) {
@@ -145,6 +147,19 @@ class TextCheckCell @JvmOverloads constructor(
 
     fun setOnCheckedChangeListener(listener: TelegramSwitch.OnCheckedChangeListener?) {
         checkBox.setOnCheckedChangeListener(listener)
+    }
+
+    override fun onInitializeAccessibilityNodeInfo(info: android.view.accessibility.AccessibilityNodeInfo) {
+        super.onInitializeAccessibilityNodeInfo(info)
+        info.className = "android.widget.Switch"
+        info.isCheckable = checkBox.visibility == View.VISIBLE
+        info.isChecked = isChecked
+        info.text = listOf(textView.text, subtitleView.text).filter { it.isNotBlank() }.joinToString(". ")
+    }
+
+    override fun setEnabled(enabled: Boolean) {
+        super.setEnabled(enabled)
+        checkBox.isEnabled = enabled
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {

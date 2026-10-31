@@ -134,17 +134,38 @@ class AdminRepository(
         return response.data
     }
 
-    suspend fun updateAppConfig(config: com.eve.app.data.model.AppConfig): Boolean {
+    suspend fun updateMaintenanceMode(enabled: Boolean): com.eve.app.data.model.AppConfig {
+        val response = api.updateAppConfig(mapOf("maintenance_mode" to enabled))
+        if (!response.success || response.data?.maintenance_mode != enabled) {
+            throw Exception(response.error ?: "Maintenance update was not acknowledged")
+        }
+        val confirmed = getAppConfig()
+        if (confirmed.maintenance_mode != enabled) throw Exception("Maintenance readback differs; reload before retry")
+        return confirmed
+    }
+
+    suspend fun updateAppConfig(config: com.eve.app.data.model.AppConfig, previous: com.eve.app.data.model.AppConfig): Boolean {
         val body = mapOf(
             "minimum_supported_version_code" to config.minimum_supported_version_code,
             "maintenance_mode" to config.maintenance_mode,
             "maintenance_message" to config.maintenance_message,
             "default_publish_mode" to config.default_publish_mode
         )
-        val response = api.updateAppConfig(body)
-        if (!response.success) {
-            throw Exception(response.error ?: "Failed to update app configuration")
+        val old = mapOf(
+            "minimum_supported_version_code" to previous.minimum_supported_version_code,
+            "maintenance_mode" to previous.maintenance_mode,
+            "maintenance_message" to previous.maintenance_message,
+            "default_publish_mode" to previous.default_publish_mode
+        )
+        val changes = body.filter { (key, value) -> old[key] != value }
+        if (changes.isNotEmpty()) {
+            val response = api.updateAppConfig(changes)
+            if (!response.success) {
+                throw Exception(response.error ?: "Failed to update app configuration")
+            }
         }
-        return response.success
+        val confirmed = getAppConfig()
+        if (confirmed != config) throw Exception("Configuration readback differs; reload before retry")
+        return true
     }
 }
