@@ -46,7 +46,12 @@ class ProfileActionsCollapseTest {
             .substringBefore("private fun setupActions()")
         assertTrue(scroll.contains("ProfileActionsCollapse.applyTo("))
         assertTrue(scroll.contains("ProfileActionsCollapse.atScroll(scrollY.toFloat(), density)"))
-        assertTrue(scroll.contains("binding.profileScrollView.post {"))
+        // The same source-fidelity alpha contract must now run for live gestures
+        // and restored scroll after layout, not only for an initial button-only post.
+        assertTrue(scroll.contains("binding.profileScrollView.doOnLayout {"))
+        assertTrue(scroll.contains("renderProfileScrollState(scrollY, density)"))
+        assertTrue(scroll.contains("renderProfileScrollState(binding.profileScrollView.scrollY, density)"))
+        assertTrue(scroll.contains("private fun renderProfileScrollState("))
         assertFalse(scroll.contains("binding.layoutActions.alpha = headerContentAlpha"))
     }
 }
