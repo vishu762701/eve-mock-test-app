@@ -2,6 +2,27 @@
 
 **Mission status: INCOMPLETE; do not label this report mission acceptance.**
 
+## Latest same-mission continuation (2026-10-31, supersedes older HEAD/next-step notes below)
+
+**Last verified FEATURE/REPAIR HEAD: `a2e406960c42ff46c3282bb9e7ea3aba7fc07ef0`**, FAST [41172328615](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41172328615) **SUCCESS** at exact SHA, after a focused forward-only test repair. This separate docs-only checkpoint commit may advance `main`; re-fetch live HEAD before writing. Mission is **INCOMPLETE**, no final 6-job FULL and no device-matched 100% parity proof, no verified APK digest, no production backend deployment.
+
+Additional commits made after the earlier G7 section (chronological; do not duplicate):
+- `0b7c70d87569ecce01c9edd7e44920f969d89344`: Telegram source-derived static Profile three-action geometry and tests, FAST [41168966936](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41168966936) **FAILED** due three hardcoded XML text sizes.
+- `efbe897cf6d8c0adeb18371073ebb9b8abd57820`: forward-only move of 11sp labels into `telegram_typography.xml` source style + test, FAST [41169322676](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41169322676) **SUCCESS**.
+- `ede73cd1725f17c74cf90ca59dff234e6eb53a31`: source-backed GPU liquid notch-mask/fade composition, FAST [41169772530](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41169772530) **SUCCESS**.
+- `c682314f936b73fc2100fe3fb65bee2e42da9d69`: original CPU fallback + RGBA stack-blur Kotlin port and unit/native test sources, FAST [41170178571](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41170178571) **SUCCESS**.
+- `5cd91b26c289f3964786564c479ec11398692c61`: source notch scale/no 0.2 floor and measured status-bar offset, FAST [41170541493](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41170541493) **SUCCESS**.
+- `69e4be8cd644888ad1ce32740b9a41553b22d2c1`: root full-window ProfileGooeyView behind NestedScrollView, gesture proxy, cutout trajectory, FAST [41170953336](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41170953336) **SUCCESS**.
+- `31b27c9bedff85a1c28e7ed8fc53c3ffcca2224f`: original Telegram three-action staged fade and collapsed hit gate, FAST [41171318552](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41171318552) **SUCCESS**.
+- `6eb87eafc7260ed1cac3554d43e9437248a0b747`: restore header via shared `renderProfileScrollState` from user scroll and `doOnLayout` persisted scroll; FAST [41171966036](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41171966036) **FAILED**: obsolete `ProfileActionsCollapseTest.kt:49` expected `profileScrollView.post`.
+- `a2e406960c42ff46c3282bb9e7ea3aba7fc07ef0`: focused forward-only test adaptation to assert both shared render paths rather than obsolete post, FAST [41172328615](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41172328615) **SUCCESS**, documentation workflow on previous SHA was green.
+
+**Current FID-04 proof:** `ProfileGooeyView.kt`, `ProfileStackBlur.kt`, `ProfileScrollState.kt`, `ProfileAvatarTrajectory.kt`, `ProfileActionsCollapse.kt`, `ProfileActivity.kt`, `activity_profile.xml` and per-feature provenance in `docs/EVE_PROFILE_*_PROVENANCE.md`. Many source numeric properties are exact, but original dependency-complete `ProfileActionsView` Canvas/animated icon/virtual accessibility renderer is **NOT** implemented, plus native camera-notch/motion frames unavailable. Don't call the Profile screen 100% exact. JVM and native-test *source compilation* in FAST are not Android device execution.
+
+**NEXT SAFE UNIT:** Inspect full original Telegram `ProfileActionsView.java` icon, Canvas, bounce and hit semantics against the latest EVE action row, choose one independent dependency-isolated source-backed implementation without replacing already completed parts; also examine API 24-36 actual camera cutout, Day/Night/RTL and TalkBack acceptance. Keep exact-SHA FAST green per commit. Backend Bio/real presence remains blocked by `backend/**` auto-production-deploy workflow until independently authorized safe rollout; official Apple bell exact asset still lacks verified redistribution rights. No final FULL until terminal acceptance gates. G7 is continuity evidence, not completion.
+
+
+
 Repository: `vishu762701/eve-mock-test-app`; branch: `main` only.
 Mission instructions: owner conversation dated 2026-10-31, FID-01 through FID-07 / A01–A13.
 Baseline initially observed: `e47f3a88885b5f73632472a7bcbcd8b3459a7ddb`.
