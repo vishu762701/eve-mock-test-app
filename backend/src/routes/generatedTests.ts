@@ -6,6 +6,7 @@ import { deletionInfo, deleteUnused } from '../services/deletion';
 import { runGeneration, GenerationBusyError } from "../services/generation";
 import { parseAndValidateQuestions } from "../ai/generator";
 import { hideAnswers } from "../util/clientProtocol";
+import { getAdminPermissions } from "../auth";
 import { Hono } from "hono";
 import { GeminiProviderError } from "../ai/generator";
 import { requireAdmin, requirePermission } from "../middleware/authMiddleware";
@@ -19,6 +20,8 @@ generatedTestRoutes.get("/", async (c) => {
   const user = c.get("user");
   const examId = c.req.query("examId");
   const db = c.env.DB;
+  // Admin membership alone must not disclose drafts or answer keys.
+  const canManage = user.isAdmin && (await getAdminPermissions(db, user.email))?.rights.includes("manage_generated_tests") === true;
 
   let query = "SELECT * FROM generated_tests";
   const params: any[] = [];
@@ -30,7 +33,7 @@ generatedTestRoutes.get("/", async (c) => {
   }
 
   // Non-admins only see 'live' or 'published' tests
-  if (!user.isAdmin) {
+  if (!canManage) {
     conditions.push("status IN ('live', 'published')");
   }
 
@@ -52,7 +55,7 @@ generatedTestRoutes.get("/", async (c) => {
     }
 
     let validationError = "";
-    if (user.isAdmin) {
+    if (canManage) {
       try { if (parseAndValidateQuestions(r.questions_json).length !== questionCount) throw new Error(); }
       catch { validationError = "Invalid questions, duplicate options, answer keys or question count"; }
     }
@@ -80,17 +83,18 @@ generatedTestRoutes.get("/:id", async (c) => {
   const user = c.get("user");
   const db = c.env.DB;
   const serverNow = Date.now();
+  const canManage = user.isAdmin && (await getAdminPermissions(db, user.email))?.rights.includes("manage_generated_tests") === true;
 
   const row = await db.prepare("SELECT * FROM generated_tests WHERE id = ?").bind(id).first<GeneratedTestRow>();
   if (!row) {
     return c.json({ success: false, error: "Test not found" }, 404);
   }
 
-  if (!user.isAdmin && row.status !== "live" && row.status !== "published") {
+  if (!canManage && row.status !== "live" && row.status !== "published") {
     return c.json({ success: false, error: "Test is not available" }, 403);
   }
 
-  if (!user.isAdmin && (row.available_from || 0) > serverNow) return c.json({ success: false, error: "Test not open yet" }, 403);
+  if (!canManage && (row.available_from || 0) > serverNow) return c.json({ success: false, error: "Test not open yet" }, 403);
   let questionCount = row.question_count;
   let questions: any[] = [];
   if (row.questions_json) {
@@ -106,7 +110,7 @@ generatedTestRoutes.get("/:id", async (c) => {
   try { if (parseAndValidateQuestions(row.questions_json).length !== questionCount) throw new Error(); }
   catch { validationError = "Invalid questions or answer keys"; }
   if (!Array.isArray(questions)) questions = [];
-  if (!user.isAdmin && validationError) return c.json({ success: false, error: "This test needs administrator repair before it can be attempted" }, 409);
+  if (!canManage && validationError) return c.json({ success: false, error: "This test needs administrator repair before it can be attempted" }, 409);
 
   return c.json({
     success: true,
@@ -122,7 +126,7 @@ generatedTestRoutes.get("/:id", async (c) => {
       status: row.status,
       questionCount: questionCount || 0,
       availableFrom: row.available_from || 0,
-      questions: hideAnswers(c) ? questions.map((q) => ({ ...q, correctAnswer: "", correct_answer: "", answer: "", explanation: "", explanationHi: "", explanation_hi: "" })) : questions,
+      questions: (!canManage || hideAnswers(c)) ? questions.map((q) => ({ ...q, correctAnswer: "", correct_answer: "", answer: "", explanation: "", explanationHi: "", explanation_hi: "" })) : questions,
     },
   });
 });
