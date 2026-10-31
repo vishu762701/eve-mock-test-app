@@ -251,32 +251,42 @@ class AdminViewModel : ViewModel() {
         }
     }
 
-    fun updateAdminRights(email: String, rights: List<String>, customTitle: String?, onDone: () -> Unit) {
+    fun updateAdminRights(
+        email: String,
+        rights: List<String>,
+        customTitle: String?,
+        onResult: (Result<Unit>) -> Unit
+    ) {
+        if (_busy.value) return
         viewModelScope.launch {
             _busy.value = true
             try {
                 adminRepo.updateAdminRights(email, rights, customTitle)
-                _message.value = "Admin permissions updated"
                 loadAdmins()
-                onDone()
+                onResult(Result.success(Unit))
             } catch (e: Exception) {
                 _message.value = e.toUserFriendlyMessage()
+                onResult(Result.failure(e))
+            } finally {
+                _busy.value = false
             }
-            _busy.value = false
         }
     }
 
-    fun removeAdmin(email: String) {
+    fun removeAdmin(email: String, onResult: (Result<Unit>) -> Unit) {
+        if (_busy.value) return
         viewModelScope.launch {
             _busy.value = true
             try {
                 adminRepo.removeAdmin(email)
-                _message.value = "Admin removed successfully"
                 loadAdmins()
+                onResult(Result.success(Unit))
             } catch (e: Exception) {
                 _message.value = e.toUserFriendlyMessage()
+                onResult(Result.failure(e))
+            } finally {
+                _busy.value = false
             }
-            _busy.value = false
         }
     }
 }

@@ -147,8 +147,8 @@ class AdminActivity : EveBaseActivity() {
 
         binding.tvAdminName.text = name
         binding.tvAdminEmail.text = email
-        val isOwner = email == "own.keni@gmail.com" || email == "admin@eve.app"
-        binding.tvAdminRole.text = if (isOwner) "Owner" else "Administrator"
+        // Display role comes only from Worker /api/admin/me, never email heuristics.
+        binding.tvAdminRole.text = "Administrator"
 
         val avatar = AvatarDrawable.create(this, name, email)
         binding.ivAdminAvatar.setImageDrawable(avatar)

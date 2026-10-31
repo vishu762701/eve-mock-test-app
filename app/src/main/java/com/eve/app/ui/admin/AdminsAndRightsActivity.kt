@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.data.remote.DynamicAdminItem
+import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.databinding.ActivityAdminsAndRightsBinding
 import com.eve.app.designsystem.TelegramNativeAlertDialog
 import com.eve.app.ui.common.EveBaseActivity
@@ -20,6 +21,7 @@ class AdminsAndRightsActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityAdminsAndRightsBinding
     private val viewModel: AdminViewModel by viewModels()
+    private var authorized: Boolean = false
 
     private val adminEmailAdapter = AdminEmailAdapter(
         onItemClick = { admin ->
@@ -37,6 +39,7 @@ class AdminsAndRightsActivity : EveBaseActivity() {
         binding.telegramActionBar.onBackPressed = { finish() }
 
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+            authorized = true
             setupUi()
             setupObservers()
             viewModel.loadAdmins()
@@ -45,7 +48,7 @@ class AdminsAndRightsActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.loadAdmins()
+        if (authorized) viewModel.loadAdmins()
     }
 
     private fun setupUi() {
@@ -89,8 +92,13 @@ class AdminsAndRightsActivity : EveBaseActivity() {
             .setTitle("Remove Admin?")
             .setMessage("Remove $email? This will revoke admin privileges and cannot be undone.")
             .setPositiveButton("Remove") { _, _ ->
-                viewModel.removeAdmin(email)
-                AppBulletin.showSuccess(this, "Admin removed")
+                viewModel.removeAdmin(email) { result ->
+                    result.onSuccess {
+                        AppBulletin.showSuccess(this, "Admin removed")
+                    }.onFailure {
+                        AppBulletin.showError(this, it.toUserFriendlyMessage())
+                    }
+                }
             }
             .setNegativeButton("Cancel", null)
             .makeRed(DialogInterface.BUTTON_POSITIVE).show()

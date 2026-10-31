@@ -14,6 +14,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import com.eve.app.R
 import com.eve.app.data.remote.DynamicAdminItem
+import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.databinding.ActivityAdminRightsEditBinding
 import com.eve.app.designsystem.TelegramNativeAlertDialog
 import com.eve.app.ui.admin.tg.TextCheckCell
@@ -180,9 +181,14 @@ class AdminRightsEditActivity : EveBaseActivity() {
             .setTitle("Dismiss Admin?")
             .setMessage("Are you sure you want to dismiss $targetEmail? This will revoke all administrative privileges.")
             .setPositiveButton("Dismiss") { _, _ ->
-                viewModel.removeAdmin(targetEmail)
-                AppBulletin.showSuccess(this, "Administrator dismissed")
-                finish()
+                viewModel.removeAdmin(targetEmail) { result ->
+                    result.onSuccess {
+                        AppBulletin.showSuccess(this, "Administrator dismissed")
+                        finish()
+                    }.onFailure {
+                        AppBulletin.showError(this, it.toUserFriendlyMessage())
+                    }
+                }
             }
             .setNegativeButton("Cancel", null)
             .makeRed(DialogInterface.BUTTON_POSITIVE)
@@ -232,9 +238,13 @@ class AdminRightsEditActivity : EveBaseActivity() {
         val selectedRights = getCurrentSelectedRights()
         val customTitle = binding.etCustomTitle.text?.toString()?.trim().takeIf { !it.isNullOrBlank() }
 
-        viewModel.updateAdminRights(targetEmail, selectedRights, customTitle) {
-            AppBulletin.showSuccess(this, "Admin permissions updated successfully")
-            finish()
+        viewModel.updateAdminRights(targetEmail, selectedRights, customTitle) { result ->
+            result.onSuccess {
+                AppBulletin.showSuccess(this, "Admin permissions updated successfully")
+                finish()
+            }.onFailure {
+                AppBulletin.showError(this, it.toUserFriendlyMessage())
+            }
         }
     }
 }
