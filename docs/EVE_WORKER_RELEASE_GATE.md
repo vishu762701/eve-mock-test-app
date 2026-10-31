@@ -17,3 +17,30 @@ Former `.github/workflows/deploy-worker.yml` automatically executed `wrangler d1
 **Go-live checklist:** Owner expressly authorizes production rollout; migration and client GET/PUT contracts have passed exact-SHA FAST and native FULL; data migration is backwards compatible; production secrets and D1 backup/rollback are assessed; manually dispatch with `confirm_production=true`; inspect migration and live smoke results. Never claim this staging change deployed Bio or enabled online presence.
 
 This is a release safety gate directly required by the ongoing Profile Bio/presence mission. All prior production Worker data remains untouched.
+
+## Approved rollout preflight
+
+An owner-approved rollout first dispatches with `confirm_production=true` and
+`preflight_only=true` (the default). This runs typecheck/tests and SELECT-only
+remote migration/schema inspection, then obtains a current D1 Time Travel
+recovery bookmark. It performs no migration, secret update, deployment or smoke
+write. Only schema metadata and migration names appear in logs, never account
+records or a database dump. Workflow concurrency serializes production operations.
+
+Review the reported pending suffix against the actual migration SQL. Unknown or
+gapped history, a runtime-added `bio` column without its migration record, absent
+legacy identity fields, incompatible schema or a missing recovery bookmark fails
+closed. Do not blindly rerun an ALTER or mark a migration applied to suppress drift.
+
+After successful preflight review and required exact-SHA CI, dispatch that same
+approved main revision with `preflight_only=false`. It repeats preflight immediately
+before migration, validates the complete migration history/schema afterward, then
+continues the existing secret/deploy/smoke steps. No data/compatibility columns are
+removed. Additive migrations stay in place if Worker code must be rolled back;
+assess schema compatibility before rollback. The recorded Time Travel bookmark is
+a retention-limited recovery point, not a permanent exported backup. Database
+restore can discard later user writes and requires a separate recovery assessment;
+this workflow never automatically restores a live database.
+
+Green workflow status alone is insufficient: inspect executed versus skipped smoke
+checks, public config readback and authenticated disposable-account behavior.

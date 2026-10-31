@@ -26,6 +26,22 @@ class ProductionDeployApprovalGateTest(unittest.TestCase):
         self.assertLess(yaml.index("if: ${{ inputs.confirm_production == true }}"),
                         yaml.index("wrangler d1 migrations apply eve-database --remote"))
 
+    def test_preflight_is_default_and_all_live_write_steps_are_guarded(self):
+        root = Path(__file__).resolve().parents[3]
+        yaml = (root / ".github/workflows/deploy-worker.yml").read_text()
+        self.assertRegex(yaml, r"preflight_only:\n(?:.*\n){3}        default: true")
+        self.assertIn("group: eve-production-worker", yaml)
+        self.assertIn("cancel-in-progress: false", yaml)
+        for name in ("Apply D1 Migrations", "Verify migrated remote schema before Worker deployment",
+                     "Configure Worker Secrets (if present)", "Deploy Cloudflare Worker",
+                     "Run Live Production Smoke Tests"):
+            step = yaml.split("- name: " + name + "\n", 1)[1].split("\n      - name:", 1)[0]
+            self.assertIn("if: ${{ inputs.preflight_only == false }}", step)
+        self.assertLess(yaml.index("run: node scripts/production-preflight.mjs\n"),
+                        yaml.index("wrangler d1 migrations apply"))
+        self.assertLess(yaml.index("run: node scripts/production-preflight.mjs --post-migration"),
+                        yaml.index("uses: cloudflare/wrangler-action@v3"))
+
 
 if __name__ == "__main__":
     unittest.main()
