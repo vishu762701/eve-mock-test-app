@@ -24,7 +24,10 @@ class ProfileCategorySourceContractTest {
         val selection = code.substringAfter("private fun selectCategory(cat: String)").substringBefore("private fun updateCategoryRadios")
         assertTrue(selection.indexOf("ApiClient.apiService.getProfile()") < selection.indexOf("currentCategory = cat"))
         assertTrue(selection.contains("categorySaveInFlight"))
-        assertTrue(selection.contains("confirmed.data?.category?.equals(cat, ignoreCase = true) == true"))
+        assertTrue(selection.contains("ProfileSaveConfirmation.matches("))
+        assertTrue(selection.contains("userId, FirebaseAuth.getInstance().currentUser?.uid"))
+        assertTrue(selection.contains("confirmed.success, cat, confirmed.data?.category"))
+        assertTrue(selection.contains("ignoreCase = true"))
         assertTrue(selection.contains("finally {"))
         assertFalse(selection.contains("currentCategory = cat\n        updateCategoryRadios"))
     }

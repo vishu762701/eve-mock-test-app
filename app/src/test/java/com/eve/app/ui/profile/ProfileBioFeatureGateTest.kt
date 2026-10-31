@@ -23,7 +23,9 @@ class ProfileBioFeatureGateTest {
         assertTrue(editor.contains("if (original == null)"))
         assertTrue(editor.contains("ApiClient.apiService.updateProfile(mapOf(\"bio\" to bio))"))
         assertTrue(editor.contains("val readback = ApiClient.apiService.getProfile()"))
-        assertTrue(editor.contains("readback.success && readback.data?.bio == bio"))
+        assertTrue(editor.contains("ProfileSaveConfirmation.matches("))
+        assertTrue(editor.contains("userId, FirebaseAuth.getInstance().currentUser?.uid"))
+        assertTrue(editor.contains("readback.success, bio, readback.data?.bio"))
         assertTrue(editor.contains("setResult(Activity.RESULT_OK)"))
         assertTrue(manifest.contains("android:name=\".ui.profile.ChangeBioActivity\""))
     }
