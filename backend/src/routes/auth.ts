@@ -268,6 +268,57 @@ authRoutes.get("/username/check", async (c) => {
   });
 });
 
+// The app reports short-lived, authenticated foreground leases. No client
+// timestamp or claimed user identity is trusted. Multiple devices are distinct.
+const PRESENCE_TTL_MS = 90_000;
+const presenceSessionIdPattern =
+  /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+
+export function isValidPresenceSessionId(value: unknown): value is string {
+  return typeof value === "string" && presenceSessionIdPattern.test(value);
+}
+
+// POST /api/users/presence - Claim one short authenticated foreground lease.
+authRoutes.post("/presence", async (c) => {
+  const user = c.get("user");
+  const body = await c.req.json().catch(() => null);
+  if (!body || typeof body !== "object" || Array.isArray(body) ||
+      !isValidPresenceSessionId(body.sessionId)) {
+    return c.json({ success: false, error: "A valid sessionId is required" }, 400);
+  }
+  const now = Date.now();
+  const db = c.env.DB;
+  // Safe for a freshly authenticated account before /sync has executed.
+  await db.prepare(
+    `INSERT INTO users (id, email, display_name, created_at, last_active)
+     VALUES (?, ?, ?, ?, ?)
+     ON CONFLICT(id) DO UPDATE SET last_active = excluded.last_active`
+  ).bind(user.uid, user.email, user.displayName || "Student", now, now).run();
+  // Bounded cleanup of expired multi-device leases; never delete active ones.
+  await db.prepare("DELETE FROM user_presence_sessions WHERE expires_at <= ?")
+    .bind(now).run();
+  await db.prepare(
+    `INSERT INTO user_presence_sessions (user_id, session_id, expires_at)
+     VALUES (?, ?, ?)
+     ON CONFLICT(user_id, session_id) DO UPDATE SET expires_at = excluded.expires_at`
+  ).bind(user.uid, body.sessionId, now + PRESENCE_TTL_MS).run();
+  return c.json({ success: true, data: { expiresAt: now + PRESENCE_TTL_MS } });
+});
+
+// DELETE /api/users/presence - Revoke only this device session on background.
+authRoutes.delete("/presence", async (c) => {
+  const user = c.get("user");
+  const body = await c.req.json().catch(() => null);
+  if (!body || typeof body !== "object" || Array.isArray(body) ||
+      !isValidPresenceSessionId(body.sessionId)) {
+    return c.json({ success: false, error: "A valid sessionId is required" }, 400);
+  }
+  await c.env.DB.prepare(
+    "DELETE FROM user_presence_sessions WHERE user_id = ? AND session_id = ?"
+  ).bind(user.uid, body.sessionId).run();
+  return c.json({ success: true });
+});
+
 // GET /api/users/profile - Get profile data
 authRoutes.get("/profile", async (c) => {
   const user = c.get("user");
@@ -295,6 +346,13 @@ authRoutes.get("/profile", async (c) => {
     }
   }
 
+  // Only the authenticated owner sees their online lease; last_active is not
+  // evidence of a currently connected device.
+  const activeSession = await db.prepare(
+    "SELECT 1 AS present FROM user_presence_sessions WHERE user_id = ? AND expires_at > ? LIMIT 1"
+  ).bind(user.uid, Date.now()).first<{ present: number }>();
+  const isOnline = Boolean(activeSession);
+
   let eveId = row?.eve_id;
   if (!eveId) {
     eveId = await getOrAssignEveId(db, user.uid, user.email, user.displayName);
@@ -318,6 +376,7 @@ authRoutes.get("/profile", async (c) => {
         username: username,
         phone: "",
         bio: "",
+        isOnline,
       },
     });
   }
@@ -334,6 +393,7 @@ authRoutes.get("/profile", async (c) => {
       username: username,
       phone: row.phone || "",
       bio: row.bio || "",
+      isOnline,
     },
   });
 });

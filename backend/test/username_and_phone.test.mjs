@@ -418,3 +418,51 @@ test("new profile has empty bio and migration is idempotent across persisted use
   assert.equal(initial.data.bio, "");
   assert.equal(sqlite.prepare("PRAGMA table_info(users)").all().some(column => column.name === "bio"), true);
 });
+
+test("presence lease is bounded, authenticated and multi-device safe", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  const userA = { uid: "presence-owner", email: "person@example.test", displayName: "Present Person" };
+  const userB = { uid: "presence-other", email: "other@example.test", displayName: "Other" };
+  const owner = createTestApp(d1, userA);
+  const other = createTestApp(d1, userB);
+  const session1 = "00000000-0000-4000-8000-000000000001";
+  const session2 = "00000000-0000-4000-8000-000000000002";
+
+  let data = await (await owner.request("/api/users/profile")).json();
+  assert.equal(data.data.isOnline, false);
+  assert.equal((await owner.request("/api/users/presence", profileRequest({ sessionId: session1 }, "POST"))).status, 200);
+  assert.equal((await owner.request("/api/users/presence", profileRequest({ sessionId: session2 }, "POST"))).status, 200);
+  data = await (await owner.request("/api/users/profile")).json();
+  assert.equal(data.data.isOnline, true);
+  assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM user_presence_sessions WHERE user_id = ?").get(userA.uid).n, 2);
+
+  // A different signed-in identity cannot revoke any session owned by userA.
+  assert.equal((await other.request("/api/users/presence", profileRequest({ sessionId: session1 }, "DELETE"))).status, 200);
+  data = await (await owner.request("/api/users/profile")).json();
+  assert.equal(data.data.isOnline, true);
+  assert.equal((await other.request("/api/users/profile").then(r => r.json())).data.isOnline, false);
+
+  assert.equal((await owner.request("/api/users/presence", profileRequest({ sessionId: session1 }, "DELETE"))).status, 200);
+  data = await (await owner.request("/api/users/profile")).json();
+  assert.equal(data.data.isOnline, true, "Other device remains online");
+  assert.equal((await owner.request("/api/users/presence", profileRequest({ sessionId: session2 }, "DELETE"))).status, 200);
+  data = await (await owner.request("/api/users/profile")).json();
+  assert.equal(data.data.isOnline, false);
+});
+
+test("expired or malformed presence never creates misleading online state", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  const user = { uid: "presence-owner", email: "person@example.test", displayName: "Student" };
+  const app = createTestApp(d1, user);
+  const session = "00000000-0000-4000-8000-000000000001";
+  for (const value of ["bad", 12, null, {}, [], "00000000-0000-4000-8000-000000000001' OR 1=1"]) {
+    assert.equal((await app.request("/api/users/presence", profileRequest({ sessionId: value }, "POST"))).status, 400);
+  }
+  assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM user_presence_sessions").get().n, 0);
+  assert.equal((await app.request("/api/users/presence", profileRequest({ sessionId: session }, "POST"))).status, 200);
+  sqlite.prepare("UPDATE user_presence_sessions SET expires_at = 1 WHERE user_id = ?").run(user.uid);
+  assert.equal((await (await app.request("/api/users/profile")).json()).data.isOnline, false);
+  assert.equal((await app.request("/api/users/presence", profileRequest({ sessionId: session }, "POST"))).status, 200);
+  assert.equal((await (await app.request("/api/users/profile")).json()).data.isOnline, true);
+  assert.equal(sqlite.prepare("SELECT expires_at FROM user_presence_sessions WHERE user_id = ?").get(user.uid).expires_at > Date.now(), true);
+});
