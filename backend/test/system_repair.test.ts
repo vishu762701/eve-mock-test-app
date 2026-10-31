@@ -501,3 +501,23 @@ test('incomplete media cleanup is reported and recorded without sensitive paths'
   assert.ok(!JSON.stringify(event).includes('banner.jpg')); assert.ok(!JSON.stringify(event).includes('test-only-key'));
  } finally { globalThis.fetch = original; }
 });
+
+test('generated-test deletion rolls back when Recent Actions schema is missing', async () => {
+  const db = new LocalD1(); seed(db); const admin = harness(db, true);
+  db.sqlite.exec('DROP TABLE admin_audit_log');
+  assert.equal((await admin('/api/generated-tests/test', undefined, 'DELETE')).status, 500);
+  assert.equal(db.count('generated_tests'), 1);
+});
+test('exam deletion rolls back all child data when Recent Actions schema is missing', async () => {
+  const db = new LocalD1(); seed(db); const admin = harness(db, true);
+  db.sqlite.exec('DROP TABLE admin_audit_log');
+  assert.equal((await admin('/api/exams/exam', undefined, 'DELETE')).status, 500);
+  assert.equal(db.count('exams'), 1); assert.equal(db.count('generated_tests'), 1);
+});
+test('generated-test deletion writes one atomic server action log', async () => {
+  const db = new LocalD1(); seed(db); const admin = harness(db, true);
+  assert.equal((await admin('/api/generated-tests/test', undefined, 'DELETE')).status, 200);
+  assert.equal(db.count('generated_tests'), 0);
+  const log = db.sqlite.prepare("SELECT action_type, target_id FROM admin_audit_log WHERE action_type = 'GENERATED_TEST_DELETED'").all();
+  assert.equal(log.length, 1); assert.equal(log[0].target_id, 'test');
+});

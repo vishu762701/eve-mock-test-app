@@ -1,4 +1,5 @@
-import { Env } from '../types';
+import { AuthUser, Env } from '../types';
+import { prepareAdminAuditLog } from '../util/auditLog';
 
 /** Counts only: never disclose student identifiers, tokens or answers. All saved
  * sessions remain protected, including paused/elapsed sessions awaiting a retry.
@@ -24,7 +25,7 @@ export async function deletionInfo(db: Env['DB'], id: string, kind: 'exam' | 'te
 }
 
 /** Recheck protections inside the atomic batch, closing the read/delete race. */
-export async function deleteUnused(db: Env['DB'], id: string, kind: 'exam' | 'test') {
+export async function deleteUnused(db: Env['DB'], id: string, kind: 'exam' | 'test', actor?: AuthUser) {
   const match = kind === 'exam'
     ? "exam_id = ?1 OR substr(exam_id, 1, length(?1) + 2) = ?1 || '__'"
     : "exam_id = ?1 OR substr(exam_id, -length(?1) - 2) = '__' || ?1";
@@ -36,6 +37,23 @@ export async function deleteUnused(db: Env['DB'], id: string, kind: 'exam' | 'te
     db.prepare(`DELETE FROM generated_tests WHERE exam_id = ?1 AND ${guard}`).bind(id),
     db.prepare(`DELETE FROM exams WHERE id = ?1 AND ${guard}`).bind(id),
   ] : [db.prepare(`DELETE FROM generated_tests WHERE id = ?1 AND ${guard}`).bind(id)];
+  // Audit and destructive write share a single D1 transaction. The same
+  // dependency guard prevents recording a non-existent or blocked deletion.
+  if (actor) {
+    const positionalGuard = guard.replaceAll('?1', '?');
+    const condition = {
+      sql: `EXISTS (SELECT 1 FROM ${kind === 'exam' ? 'exams' : 'generated_tests'} WHERE id = ? AND ${positionalGuard})`,
+      bindings: Array(1 + (guard.match(/\?1/g)?.length || 0)).fill(id),
+    };
+    const { stmt: auditStmt } = prepareAdminAuditLog(db, actor, {
+      actionType: kind === 'exam' ? 'EXAM_DELETED' : 'GENERATED_TEST_DELETED',
+      description: `Deleted ${kind === 'exam' ? 'exam' : 'generated test'} '${id}'`,
+      targetType: kind === 'exam' ? 'exam' : 'generated_test',
+      targetId: id,
+      condition,
+    });
+    statements.unshift(auditStmt);
+  }
   const result = await db.batch(statements);
   return result[result.length - 1].meta.changes === 1;
 }

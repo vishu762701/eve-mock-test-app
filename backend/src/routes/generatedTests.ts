@@ -200,17 +200,10 @@ generatedTestRoutes.delete("/:id", requirePermission("manage_generated_tests"), 
   const dependencies = await deletionInfo(db, id, 'test');
   if (!dependencies.canDelete) return c.json({ success: false, error: dependencies.message, code: dependencies.code, dependencies, requestId: c.res.headers.get('X-Request-ID') }, 409);
 
-  if (!await deleteUnused(db, id, 'test')) {
+  if (!await deleteUnused(db, id, 'test', user)) {
     const current = await deletionInfo(db, id, 'test');
     return c.json({ success: false, error: current.message || 'Record changed. Refresh before retrying.', code: current.code || 'DELETE_RECORD_CHANGED', dependencies: current, requestId: c.res.headers.get('X-Request-ID') }, 409);
   }
-
-  await recordAdminAction(db, user, {
-    actionType: "GENERATED_TEST_DELETED",
-    description: `Deleted generated test '${id}'`,
-    targetType: "generated_test",
-    targetId: id,
-  });
 
   return c.json({ success: true });
 });

@@ -430,17 +430,10 @@ examRoutes.delete("/:id", requirePermission("manage_exams"), async (c) => {
   if (!dependencies.canDelete) return c.json({ success: false, error: dependencies.message, code: dependencies.code, dependencies, requestId: c.res.headers.get('X-Request-ID') }, 409);
 
   const exam = await db.prepare("SELECT syllabus_url FROM exams WHERE id = ?").bind(id).first<ExamRow>();
-  if (!await deleteUnused(db, id, 'exam')) {
+  if (!await deleteUnused(db, id, 'exam', user)) {
     const current = await deletionInfo(db, id, 'exam');
     return c.json({ success: false, error: current.message || 'Record changed. Refresh before retrying.', code: current.code || 'DELETE_RECORD_CHANGED', dependencies: current, requestId: c.res.headers.get('X-Request-ID') }, 409);
   }
-
-  await recordAdminAction(db, user, {
-    actionType: "EXAM_DELETED",
-    description: `Deleted exam '${id}'`,
-    targetType: "exam",
-    targetId: id,
-  });
 
   const path = exam?.syllabus_url?.split('/eve-media/')[1];
   if (path && !await cleanupMedia(c.env, path, c.res.headers.get('X-Request-ID'))) {
