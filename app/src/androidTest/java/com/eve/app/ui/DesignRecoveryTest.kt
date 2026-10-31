@@ -148,12 +148,12 @@ class DesignRecoveryTest {
                     square.recycle()
                     val profile = ActivityProfileBinding.inflate(inflater)
                     profile.tvName.text = "आरती शर्मा / A very long student name"
-                    profile.tvEveId.text = "EV-12345678901234567890"
+                    profile.tvUsernameValue.text = "@a_long_public_username"
                     profile.tvMobileValue.text = "+91 98765 43210"
                     profile.tvUsernameValue.text = "@ev_wk96r9"
                     profile.tvBirthdayValue.text = "31/12/2000"
                     layout(profile.root)
-                    assertTrue(profile.btnCopyEveId.width >= dp(48))
+                    assertTrue(profile.btnProfileMenu.width >= dp(48))
                     assertTrue(profile.btnSetPhoto.height >= dp(48))
                     assertTrue(profile.btnEditInfo.height >= dp(48))
                     assertTrue(profile.btnSettings.height >= dp(48))
@@ -298,7 +298,7 @@ class DesignRecoveryTest {
                         activity.window.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
                         activity.setContentView(profile.root)
                         profile.tvName.text = "Aarti Sharma"
-                        profile.tvEveId.text = "EV-ABC123"
+                        profile.tvUsernameValue.text = "@ananya_eve"
                         profile.tvMobileValue.text = "+91 98765 43210"
                         profile.tvUsernameValue.text = "@aarti"
                         profile.tvBirthdayValue.text = "12/06/2001"

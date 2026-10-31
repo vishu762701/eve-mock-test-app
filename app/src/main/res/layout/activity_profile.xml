@@ -35,6 +35,9 @@
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_person"
                 app:shapeAppearanceOverlay="@style/ShapeCircle" />
+            <View android:id="@+id/profilePhotoScrim" android:layout_width="match_parent"
+                android:layout_height="match_parent" android:importantForAccessibility="no"
+                android:visibility="gone" />
         </FrameLayout>
     </com.eve.app.ui.profile.ProfileGooeyView>
 
@@ -60,8 +63,8 @@
                 android:layout_width="@dimen/design_touch_min"
                 android:layout_height="@dimen/design_touch_min"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Back"
-                android:src="@drawable/ic_back"
+                android:contentDescription="Personal QR code"
+                android:src="@drawable/telegram_profile_qr"
                 app:tint="@color/telegram_type_primary" />
 
             <TextView
@@ -73,11 +76,17 @@
                 android:layout_weight="1"
                 android:alpha="0"
                 android:text="Profile" />
+            <ImageButton
+                android:id="@+id/btnProfileMenu"
+                android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Profile options"
+                android:src="@drawable/ic_more_vert" app:tint="@color/telegram_type_primary" />
         </LinearLayout>
     </com.eve.app.ui.common.EveGlassToolbar>
 
     <!-- Scrollable content -->
-    <androidx.core.widget.NestedScrollView
+    <com.eve.app.ui.profile.ProfilePullScrollView
         android:id="@+id/profileScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -378,6 +387,7 @@
                     <!-- Personal Bio; NOT the removed About navigation screen. -->
                     <LinearLayout
                         android:id="@+id/cellBio"
+                        android:visibility="gone"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:minHeight="60dp"
@@ -409,7 +419,7 @@
                             android:text="Bio" />
                     </LinearLayout>
 
-                    <View
+                    <View android:id="@+id/bioDivider" android:visibility="gone"
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:layout_marginStart="20dp"
@@ -447,12 +457,16 @@
                             android:text="Date of Birth" />
                     </LinearLayout>
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginStart="20dp"
-                        android:background="@color/category_pill_unselected_bg" />
+                </LinearLayout>
+            </com.eve.app.designsystem.DesignCardView>
 
+            <!-- EVE category uses the existing server-backed selector in its own card. -->
+            <com.eve.app.designsystem.DesignCardView
+                android:id="@+id/cardCategory"
+                style="@style/Widget.Eve.Token.Card"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:layout_marginHorizontal="16dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
                     <!-- Category -->
                     <LinearLayout
                         android:id="@+id/cellCategory"
@@ -536,7 +550,7 @@
                 </LinearLayout>
             </com.eve.app.designsystem.DesignCardView>
 
-            <!-- Card 2: EVE Extras (Eve ID, Reminder, Admin actions) -->
+            <!-- EVE reminders retain their existing behavior. -->
             <com.eve.app.designsystem.DesignCardView
                 android:id="@+id/cardExtras"
                 style="@style/Widget.Eve.Token.Card"
@@ -549,60 +563,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
-
-                    <!-- EVE ID -->
-                    <LinearLayout
-                        android:id="@+id/cellEveId"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:minHeight="60dp"
-                        android:paddingVertical="10dp"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:foreground="?attr/selectableItemBackground"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingHorizontal="20dp">
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/tvEveId"
-                                style="@style/TextAppearance.Eve.Telegram.SettingsLabel"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:ellipsize="end"
-                                android:maxLines="1"
-                                tools:text="EV-WK96R9" />
-
-                            <TextView
-                                android:id="@+id/tvEveIdLabel"
-                                style="@style/TextAppearance.Eve.Telegram.SettingsDetail"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="EVE ID" />
-                        </LinearLayout>
-
-                        <ImageButton
-                            android:id="@+id/btnCopyEveId"
-                            android:layout_width="@dimen/design_touch_min"
-                            android:layout_height="@dimen/design_touch_min"
-                            android:background="?attr/selectableItemBackgroundBorderless"
-                            android:contentDescription="Copy EVE ID"
-                            android:src="@drawable/ic_copy"
-                            app:tint="@color/telegram_type_secondary" />
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginStart="20dp"
-                        android:background="@color/category_pill_unselected_bg" />
 
                     <!-- Daily Reminder with Telegram Switch -->
                     <LinearLayout
@@ -635,5 +595,5 @@
                 </LinearLayout>
             </com.eve.app.designsystem.DesignCardView>
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+    </com.eve.app.ui.profile.ProfilePullScrollView>
 </FrameLayout>

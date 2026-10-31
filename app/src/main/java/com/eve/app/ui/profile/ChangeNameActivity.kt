@@ -9,6 +9,7 @@ import android.app.Activity
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.data.remote.ApiClient
+import com.eve.app.data.remote.ProfileRequestOwner
 import com.eve.app.databinding.ActivityChangeNameBinding
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AppBulletin
@@ -19,6 +20,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 class ChangeNameActivity : EveBaseActivity() {
+    private var editorOwnerUid: String? = null
 
     private lateinit var binding: ActivityChangeNameBinding
 
@@ -26,6 +28,9 @@ class ChangeNameActivity : EveBaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityChangeNameBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        editorOwnerUid = FirebaseAuth.getInstance().currentUser?.uid
+        if (editorOwnerUid == null) { finish(); return }
+        ProfileEditorAccountGuard.bind(this, requireNotNull(editorOwnerUid))
 
         val user = FirebaseAuth.getInstance().currentUser
         val initialName = intent.getStringExtra("current_name") ?: user?.displayName ?: ""
@@ -42,6 +47,8 @@ class ChangeNameActivity : EveBaseActivity() {
     }
 
     private fun saveName() {
+        val ownerUid = editorOwnerUid ?: return
+        if (FirebaseAuth.getInstance().currentUser?.uid != ownerUid) { finish(); return }
         // EVE display names may contain many words; the canonical @username has separate rules.
         // Normalize whitespace to match the backend's bounded display_name column contract.
         val name = binding.etName.text.toString().trim().replace(Regex("\\s+"), " ")
@@ -54,11 +61,11 @@ class ChangeNameActivity : EveBaseActivity() {
         binding.etName.isEnabled = false
         lifecycleScope.launch {
             try {
-                val response = ApiClient.apiService.updateProfile(mapOf("displayName" to name))
+                val response = ApiClient.apiService.updateProfile(mapOf("displayName" to name), ProfileRequestOwner(ownerUid))
                 if (response.success) {
-                    val confirmed = ApiClient.apiService.getProfile()
+                    val confirmed = ApiClient.apiService.getProfile(ProfileRequestOwner(ownerUid))
                     if (confirmed.success && confirmed.data?.displayName == name &&
-                        FirebaseAuth.getInstance().currentUser?.uid == user.uid) {
+                        FirebaseAuth.getInstance().currentUser?.uid == user.uid && confirmed.data.id == ownerUid) {
                         // Firebase identity displayName is a secondary cache; EVE backend is authoritative.
                         try {
                             user.updateProfile(UserProfileChangeRequest.Builder().setDisplayName(name).build()).await()
@@ -75,6 +82,8 @@ class ChangeNameActivity : EveBaseActivity() {
                     AppBulletin.showError(this@ChangeNameActivity,
                         response.error ?: "Failed to update display name")
                 }
+            } catch (cancel: kotlinx.coroutines.CancellationException) {
+                throw cancel
             } catch (e: Exception) {
                 AppBulletin.showError(this@ChangeNameActivity,
                     e.localizedMessage ?: "Failed to update display name")

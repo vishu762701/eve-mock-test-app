@@ -8,11 +8,13 @@ package com.eve.app.ui.profile
 import android.app.Activity
 import android.graphics.Color
 import android.os.Bundle
+import com.google.firebase.auth.FirebaseAuth
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.data.remote.ApiClient
+import com.eve.app.data.remote.ProfileRequestOwner
 import com.eve.app.databinding.ActivityChangeUsernameBinding
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AppBulletin
@@ -22,6 +24,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class ChangeUsernameActivity : EveBaseActivity() {
+    private var editorOwnerUid: String? = null
 
     private lateinit var binding: ActivityChangeUsernameBinding
     private var currentUsername: String = ""
@@ -36,6 +39,9 @@ class ChangeUsernameActivity : EveBaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityChangeUsernameBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        editorOwnerUid = FirebaseAuth.getInstance().currentUser?.uid
+        if (editorOwnerUid == null) { finish(); return }
+        ProfileEditorAccountGuard.bind(this, requireNotNull(editorOwnerUid))
 
         currentUsername = intent.getStringExtra("current_username") ?: ""
         if (currentUsername.startsWith("@")) {
@@ -142,6 +148,8 @@ class ChangeUsernameActivity : EveBaseActivity() {
                     setStatus(res.error ?: "Sorry, this username is already taken.", COLOR_RED)
                     isUsernameValid = false
                 }
+            } catch (cancel: kotlinx.coroutines.CancellationException) {
+                throw cancel
             } catch (e: Exception) {
                 setStatus("Error checking username: ${e.localizedMessage ?: "Network error"}", COLOR_RED)
                 isUsernameValid = false
@@ -156,6 +164,8 @@ class ChangeUsernameActivity : EveBaseActivity() {
     }
 
     private fun saveUsername() {
+        val ownerUid = editorOwnerUid ?: return
+        if (FirebaseAuth.getInstance().currentUser?.uid != ownerUid) { finish(); return }
         val target = binding.etUsername.text.toString().trim().removePrefix("@")
         if (!isUsernameValid && !target.equals(currentUsername, ignoreCase = true)) {
             return
@@ -167,12 +177,13 @@ class ChangeUsernameActivity : EveBaseActivity() {
         binding.etUsername.isEnabled = false
         lifecycleScope.launch {
             try {
-                val res = ApiClient.apiService.updateProfile(mapOf("username" to normalizedTarget))
+                val res = ApiClient.apiService.updateProfile(mapOf("username" to normalizedTarget), ProfileRequestOwner(ownerUid))
                 if (res.success) {
                     // Only finish after the same authenticated profile can read the saved handle.
-                    val confirmed = ApiClient.apiService.getProfile()
+                    val confirmed = ApiClient.apiService.getProfile(ProfileRequestOwner(ownerUid))
                     val savedHandle = confirmed.data?.username?.removePrefix("@")
-                    if (confirmed.success && savedHandle?.equals(normalizedTarget, ignoreCase = true) == true) {
+                    if (confirmed.success && savedHandle?.equals(normalizedTarget, ignoreCase = true) == true && confirmed.data?.id == ownerUid &&
+                        FirebaseAuth.getInstance().currentUser?.uid == ownerUid) {
                         setResult(Activity.RESULT_OK)
                         finish()
                     } else {
@@ -186,6 +197,8 @@ class ChangeUsernameActivity : EveBaseActivity() {
                     binding.etUsername.isEnabled = true
                     AppBulletin.showError(this@ChangeUsernameActivity, res.error ?: "Failed to update username")
                 }
+            } catch (cancel: kotlinx.coroutines.CancellationException) {
+                throw cancel
             } catch (e: Exception) {
                 binding.btnDone.isEnabled = true
                 binding.etUsername.isEnabled = true

@@ -564,3 +564,28 @@ The owner explicitly approved an independent permissively licensed substitute
 in this mission after Apple's Android-use licensing limitation was established.
 Shared Telegram bell assets and historical EVE animation remain for unrelated
 notification inbox/reminder callers; Home no longer references them.
+
+## Telegram profile integration and EVE identity adapter
+
+Official source was re-authenticated through https://telegram.org/apps/android,
+which links `DrKLO/Telegram`; live HEAD and immutable GitHub tree/raw blobs pin
+`3de37c8cfb039452be7398909461da6288babf15`.
+`docs/sources/profile-mission/source-map.json` records hashes and exact asset pairs.
+The QR toolbar glyph `outline_header_qr_24.xml` is imported unchanged as
+`telegram_profile_qr.xml` (SHA-256
+`ddaffe85034df6a6d52ff14f8dd9d307127d9486859146015bc66267c89c1255`).
+Telegram's root GPL v2 license applies to the asset; an asset-specific “or later”
+grant is not asserted. Existing distribution compatibility/release gates remain.
+
+`ProfilePullScrollView.kt` and `ProfileHeaderExpansion.kt` are GPL-v2-or-later
+source-derived EVE adapters of the cited `ProfileActivity.java` paths, whose Java
+header grants v2 or later (Nikolai Kudashov and Telegram contributors). Existing
+Gooey/action/icon/typography adapters and notices are retained. The complete screen,
+parent/viewer rendering, EVE navigation, accessibility sizing and data integration
+are ADAPTED, not a byte-exact Telegram subsystem or verified visual-equivalence claim.
+
+Username QR encoding uses ZXing Core 3.5.3 from
+https://github.com/zxing/zxing/tree/zxing-3.5.3 under Apache License 2.0;
+the full license ships in `app/src/main/assets/licenses/ZXing-LICENSE.txt`.
+No Telegram identity, messaging, account service, credentials or network client is
+imported. The EVE-specific URI shares only a username and never establishes ownership.

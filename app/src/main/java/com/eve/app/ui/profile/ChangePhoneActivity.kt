@@ -7,9 +7,11 @@ package com.eve.app.ui.profile
 
 import android.app.Activity
 import android.os.Bundle
+import com.google.firebase.auth.FirebaseAuth
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.data.remote.ApiClient
+import com.eve.app.data.remote.ProfileRequestOwner
 import com.eve.app.databinding.ActivityChangePhoneBinding
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AppBulletin
@@ -17,6 +19,7 @@ import com.eve.app.util.EveNavigationHelper
 import kotlinx.coroutines.launch
 
 class ChangePhoneActivity : EveBaseActivity() {
+    private var editorOwnerUid: String? = null
 
     private lateinit var binding: ActivityChangePhoneBinding
 
@@ -24,6 +27,9 @@ class ChangePhoneActivity : EveBaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityChangePhoneBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        editorOwnerUid = FirebaseAuth.getInstance().currentUser?.uid
+        if (editorOwnerUid == null) { finish(); return }
+        ProfileEditorAccountGuard.bind(this, requireNotNull(editorOwnerUid))
 
         val currentPhone = intent.getStringExtra("current_phone") ?: ""
         if (currentPhone.isNotEmpty()) {
@@ -43,6 +49,8 @@ class ChangePhoneActivity : EveBaseActivity() {
     }
 
     private fun savePhone() {
+        val ownerUid = editorOwnerUid ?: return
+        if (FirebaseAuth.getInstance().currentUser?.uid != ownerUid) { finish(); return }
         val input = binding.etPhone.text.toString().trim()
         val digitsOnly = input.filter { it.isDigit() }
 
@@ -60,11 +68,12 @@ class ChangePhoneActivity : EveBaseActivity() {
 
         lifecycleScope.launch {
             try {
-                val res = ApiClient.apiService.updateProfile(mapOf("phone" to phoneToSave))
+                val res = ApiClient.apiService.updateProfile(mapOf("phone" to phoneToSave), ProfileRequestOwner(ownerUid))
                 if (res.success) {
                     // A successful mutation response is not evidence that this account can read the value back.
-                    val confirmed = ApiClient.apiService.getProfile()
-                    if (confirmed.success && confirmed.data?.phone?.trim() == phoneToSave) {
+                    val confirmed = ApiClient.apiService.getProfile(ProfileRequestOwner(ownerUid))
+                    if (confirmed.success && confirmed.data?.phone?.trim() == phoneToSave && confirmed.data.id == ownerUid &&
+                        FirebaseAuth.getInstance().currentUser?.uid == ownerUid) {
                         setResult(Activity.RESULT_OK)
                         finish()
                     } else {
@@ -78,6 +87,8 @@ class ChangePhoneActivity : EveBaseActivity() {
                     binding.btnDone.isEnabled = true
                     AppBulletin.showError(this@ChangePhoneActivity, res.error ?: "Failed to update phone number")
                 }
+            } catch (cancel: kotlinx.coroutines.CancellationException) {
+                throw cancel
             } catch (e: Exception) {
                 binding.btnDone.isEnabled = true
                 AppBulletin.showError(this@ChangePhoneActivity, e.localizedMessage ?: "Failed to update phone number")

@@ -22,7 +22,7 @@ class ProfileCategorySourceContractTest {
     @Test fun selectionOnlyChangesAfterConfirmedOwnerReadback() {
         val code = File("src/main/java/com/eve/app/ui/profile/ProfileActivity.kt").readText()
         val selection = code.substringAfter("private fun selectCategory(cat: String)").substringBefore("private fun updateCategoryRadios")
-        assertTrue(selection.indexOf("ApiClient.apiService.getProfile()") < selection.indexOf("currentCategory = cat"))
+        assertTrue(selection.indexOf("ApiClient.apiService.getProfile(ProfileRequestOwner(userId))") < selection.indexOf("currentCategory = cat"))
         assertTrue(selection.contains("categorySaveInFlight"))
         assertTrue(selection.contains("ProfileSaveConfirmation.matches("))
         assertTrue(selection.contains("userId, FirebaseAuth.getInstance().currentUser?.uid"))

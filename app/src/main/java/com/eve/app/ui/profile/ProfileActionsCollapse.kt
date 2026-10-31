@@ -19,12 +19,16 @@ internal object ProfileActionsCollapse {
     )
 
     fun atScroll(scrollY: Float, density: Float): State {
-        require(density > 0f)
-        val totalHeight = 74f * density
+        return atHeight(scrollY, density, 74f * density)
+    }
+
+    /** EVE large-font row uses the same source alpha stages over its real height. */
+    fun atHeight(scrollY: Float, density: Float, totalHeight: Float): State {
+        require(density > 0f && totalHeight > 20f * density)
         val currentHeight = (totalHeight - scrollY).coerceIn(0f, totalHeight)
         // Source targetHeight is 74dp - 8dp top - 12dp bottom = 54dp.
         val visibleContentHeight = (currentHeight - 20f * density).coerceAtLeast(0f)
-        val fraction = (visibleContentHeight / (54f * density)).coerceIn(0f, 1f)
+        val fraction = (visibleContentHeight / (totalHeight - 20f * density)).coerceIn(0f, 1f)
         val backgroundAlpha = ((fraction - 0.2f) / 0.8f).coerceIn(0f, 1f)
         val contentAlpha = ((fraction - 0.4f) / 0.6f).coerceIn(0f, 1f)
         return State(fraction, backgroundAlpha, contentAlpha, currentHeight >= 8f * density)

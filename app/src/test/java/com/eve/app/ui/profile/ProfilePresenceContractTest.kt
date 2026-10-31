@@ -8,10 +8,10 @@ import java.io.File
 
 class ProfilePresenceContractTest {
     @Test fun onlyServerAuthLeaseMayDisplayOnline() {
-        assertEquals("online", ProfilePresenceStatus.label(true, "EV-123456"))
-        assertEquals("offline", ProfilePresenceStatus.label(false, "EV-123456"))
-        assertEquals("Eve ID: EV-123456", ProfilePresenceStatus.label(null, "EV-123456"))
-        assertEquals("Student", ProfilePresenceStatus.label(null, "--"))
+        assertEquals("online", ProfilePresenceStatus.label(true))
+        assertEquals("offline", ProfilePresenceStatus.label(false))
+        assertEquals("Status unavailable", ProfilePresenceStatus.label(null))
+        assertEquals("Status unavailable", ProfilePresenceStatus.label(null))
     }
 
     @Test fun globalForegroundUsesShortMultiDeviceLeasesAndOldWorkerFailsClosed() {
@@ -32,7 +32,7 @@ class ProfilePresenceContractTest {
         }
         assertTrue(api.contains("val isOnline: Boolean? = null"))
         assertTrue(api.contains("hasBody = true"))
-        assertTrue(activity.contains("ProfilePresenceStatus.label(profile.isOnline, eveId)"))
+        assertTrue(activity.contains("ProfilePresenceStatus.label(profile.isOnline)"))
         assertFalse(activity.contains("binding.tvStatus.text = \"online\""))
     }
 }

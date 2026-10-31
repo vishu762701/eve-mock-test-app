@@ -10,7 +10,10 @@ import java.util.concurrent.TimeUnit
 class AuthInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val original = chain.request()
-        val user = FirebaseAuth.getInstance().currentUser ?: return chain.proceed(original)
+        val expectedOwner = original.tag(ProfileRequestOwner::class.java)
+        val user = FirebaseAuth.getInstance().currentUser
+        expectedOwner?.requireMatches(user?.uid)
+        if (user == null) return chain.proceed(original)
 
         val requestBuilder = original.newBuilder()
         try {
@@ -39,6 +42,7 @@ class AuthInterceptor : Interceptor {
             }
         }
 
+        expectedOwner?.requireMatches(FirebaseAuth.getInstance().currentUser?.uid)
         val response = chain.proceed(requestBuilder.build())
         if (response.code == 401) {
             val freshToken = try {
@@ -49,6 +53,7 @@ class AuthInterceptor : Interceptor {
             }
             if (!freshToken.isNullOrBlank()) {
                 response.close()
+                expectedOwner?.requireMatches(FirebaseAuth.getInstance().currentUser?.uid)
                 // Propagate network failure normally; never return the closed original response.
                 return chain.proceed(original.newBuilder().header("Authorization", "Bearer $freshToken").build())
             }

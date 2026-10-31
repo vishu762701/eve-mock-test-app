@@ -4,6 +4,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.eve.app.data.remote.ApiClient
+import com.eve.app.data.remote.ProfileRequestOwner
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +28,7 @@ object ProfilePresenceClient : DefaultLifecycleObserver {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var heartbeat: Job? = null
     private var session: String? = null
+    private var sessionOwnerUid: String? = null
     private var foreground = false
     @Volatile private var logoutInProgress = false
     @Volatile private var unsupportedByServer = false
@@ -57,13 +59,17 @@ object ProfilePresenceClient : DefaultLifecycleObserver {
     private fun startWhenAuthenticated() {
         if (logoutInProgress || unsupportedByServer ||
             FirebaseAuth.getInstance().currentUser == null) return
-        if (heartbeat?.isActive == true) return
+        val ownerUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        if (heartbeat?.isActive == true && sessionOwnerUid == ownerUid) return
+        if (sessionOwnerUid != null && sessionOwnerUid != ownerUid) stopSession()
+        sessionOwnerUid = ownerUid
         val id = UUID.randomUUID().toString()
         session = id
         heartbeat = scope.launch {
             while (isActive && !unsupportedByServer) {
+                if (FirebaseAuth.getInstance().currentUser?.uid != ownerUid) break
                 try {
-                    val res = ApiClient.apiService.startPresence(mapOf("sessionId" to id))
+                    val res = ApiClient.apiService.startPresence(mapOf("sessionId" to id), ProfileRequestOwner(ownerUid))
                     if (!res.success) break
                 } catch (error: HttpException) {
                     if (error.code() == 404) {
@@ -90,13 +96,15 @@ object ProfilePresenceClient : DefaultLifecycleObserver {
         previousHeartbeat?.cancel()
         heartbeat = null
         val previousSession = session
+        val previousOwner = sessionOwnerUid
         session = null
-        if (previousSession != null && !unsupportedByServer) {
+        sessionOwnerUid = null
+        if (previousSession != null && previousOwner != null && !unsupportedByServer && FirebaseAuth.getInstance().currentUser?.uid == previousOwner) {
             withContext(Dispatchers.IO) {
                 withTimeoutOrNull(1_500L) {
                     previousHeartbeat?.join()
                     try {
-                        ApiClient.apiService.endPresence(mapOf("sessionId" to previousSession))
+                        ApiClient.apiService.endPresence(mapOf("sessionId" to previousSession), ProfileRequestOwner(previousOwner))
                     } catch (_: Exception) {
                         // No invented success; offline is eventually guaranteed by TTL.
                     }
@@ -110,14 +118,18 @@ object ProfilePresenceClient : DefaultLifecycleObserver {
         retiringHeartbeat?.cancel()
         heartbeat = null
         val id = session ?: return
+        val retiringOwner = sessionOwnerUid
         session = null
+        sessionOwnerUid = null
         if (!unsupportedByServer) {
             scope.launch {
                 // Do not let a previous in-flight renewal race ahead of the
                 // foreground-session revoke request on app background.
                 retiringHeartbeat?.join()
                 try {
-                    ApiClient.apiService.endPresence(mapOf("sessionId" to id))
+                    if (retiringOwner != null && FirebaseAuth.getInstance().currentUser?.uid == retiringOwner) {
+                        ApiClient.apiService.endPresence(mapOf("sessionId" to id), ProfileRequestOwner(retiringOwner))
+                    }
                 } catch (_: Exception) {
                     // Server lease expiry is the authoritative offline fallback.
                 }

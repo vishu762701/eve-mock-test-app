@@ -23,11 +23,11 @@ class ProfilePresenceStatusNativeTest {
                 }
                 val context = ContextThemeWrapper(base.createConfigurationContext(configuration), R.style.Theme_Eve)
                 val binding = ActivityProfileBinding.inflate(LayoutInflater.from(context))
-                binding.tvStatus.text = ProfilePresenceStatus.label(null, "EV-ABC123")
-                assertEquals("Eve ID: EV-ABC123", binding.tvStatus.text.toString())
-                binding.tvStatus.text = ProfilePresenceStatus.label(true, "EV-ABC123")
+                binding.tvStatus.text = ProfilePresenceStatus.label(null)
+                assertEquals("Status unavailable", binding.tvStatus.text.toString())
+                binding.tvStatus.text = ProfilePresenceStatus.label(true)
                 assertEquals("online", binding.tvStatus.text.toString())
-                binding.tvStatus.text = ProfilePresenceStatus.label(false, "EV-ABC123")
+                binding.tvStatus.text = ProfilePresenceStatus.label(false)
                 assertEquals("offline", binding.tvStatus.text.toString())
             }
         }

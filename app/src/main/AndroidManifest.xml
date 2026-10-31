@@ -53,6 +53,14 @@
             android:name=".ui.home.MainActivity"
             android:exported="false"
             android:theme="@style/Theme.Eve.Home" />
+        <activity android:name=".ui.profile.UsernameCardActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="eve-mock-test" android:host="username" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".ui.profile.ProfileActivity"
             android:exported="false"

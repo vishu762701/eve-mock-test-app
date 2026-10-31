@@ -36,8 +36,9 @@ class ProfileBirthdayTest {
         val source = File("src/main/java/com/eve/app/ui/profile/ProfileActivity.kt").readText()
         val save = source.substringAfter("private fun saveBirthday(dob: String)")
             .substringBefore("private fun formatTelegramBirthday(")
-        assertTrue(save.indexOf("ApiClient.apiService.getProfile()") < save.indexOf("currentDob = dob"))
-        assertTrue(save.contains("confirmed.data?.dob == dob"))
+        assertTrue(save.indexOf("ApiClient.apiService.getProfile(ProfileRequestOwner(userId))") < save.indexOf("currentDob = dob"))
+        assertTrue(save.contains("confirmed.data?.id == userId"))
+        assertTrue(save.contains("confirmed.data.dob == dob"))
         assertTrue(save.contains("FirebaseAuth.getInstance().currentUser?.uid == userId"))
         assertTrue(save.contains("birthdaySaveInFlight = false"))
     }

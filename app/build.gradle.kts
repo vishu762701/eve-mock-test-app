@@ -138,6 +138,8 @@ dependencies {
     // Profile screen: Google account ki photo (remote URL) load karne ke liye lightweight image loader
     implementation("io.coil-kt:coil:2.6.0")
 
+    implementation("com.google.zxing:core:3.5.3")
+
     // Lottie animation library
     implementation("com.airbnb.android:lottie:6.4.1")
 

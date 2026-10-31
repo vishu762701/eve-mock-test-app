@@ -1,0 +1,483 @@
+{
+  "official_origin": "https://telegram.org/apps/android links https://github.com/DrKLO/Telegram",
+  "revision": "3de37c8cfb039452be7398909461da6288babf15",
+  "root_tree": "cc3c6ccf48e4167fdec764dfd04e765043f55093",
+  "authentication": "HTTPS official origin link, live git ls-remote HEAD, GitHub immutable commit/tree and raw-file Git blob matches; not a signed-commit assertion",
+  "files": [
+    {
+      "path": "TMessagesProj/src/main/java/org/telegram/ui/ProfileActivity.java",
+      "sha256": "d17d649fb34d13e1a8ec0fef74afd60b7643b2f920c8fa04dbd44799971e373b",
+      "git_blob": "7805f9d6d3a216972a18f9e367ad7199f2624555"
+    },
+    {
+      "path": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/BaseFragment.java",
+      "sha256": "17b39c2f7506307b7ed3a4e639b455617d28d6854a7f799cd103ac22540b122a",
+      "git_blob": "dc4244bc4825de0a75b9086321fc129c9f0b298b"
+    },
+    {
+      "path": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBar.java",
+      "sha256": "a1a1fb39b4dd0d9d455e4e8f1accd9fc2bcf21f47a6854ff11abb347c9377c1d",
+      "git_blob": "8d3b92d6a680224b9cc7b80f620b656f1184ee3a"
+    },
+    {
+      "path": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/Theme.java",
+      "sha256": "b2cc15c52f4b82ca79cee15c3e3d62f93c4b4e91e578e6da850fd279a1591e90",
+      "git_blob": "b56ee0d84558b738144f16961eeaec8b767bb993"
+    },
+    {
+      "path": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ThemeColors.java",
+      "sha256": "49f27ef5f1a33844ca8818feb4b737a96df8d8d4eaef50a20b11225c46c2000d",
+      "git_blob": "ba9c71fa39c7d0ed54d6d574396f6c35608fc1de"
+    },
+    {
+      "path": "TMessagesProj/src/main/java/org/telegram/ui/Components/ProfileActionsView.java",
+      "sha256": "67163d89b9a3f79c898de830457b9a69264cc89e55c90966a27babafe6b0f34b",
+      "git_blob": "ce74c418eb851e1c4234e1a5abedb6e98f85321a"
+    },
+    {
+      "path": "TMessagesProj/src/main/java/org/telegram/ui/Components/ProfileGooeyView.java",
+      "sha256": "9f7703afca9fd9d4d2d0165cdb325920b001ac787985212381fa19c5714b5d42",
+      "git_blob": "9edbab06b5e62cea1de60b6152d63af9e173284a"
+    },
+    {
+      "path": "TMessagesProj/src/main/java/org/telegram/ui/Components/ButtonBounce.java",
+      "sha256": "f7b5188cb84ce4f392d138ef9dd764911c19d227cf03e2a5c573eb6e7943acc6",
+      "git_blob": "0bfa7b714e9bcbf6f4a1ac9955f98adb416f37f6"
+    },
+    {
+      "path": "TMessagesProj/src/main/java/org/telegram/ui/Components/CubicBezierInterpolator.java",
+      "sha256": "747f7b8f511249f14bc1b567088d7e0da3639729263a6f56243eb61c2ba19387",
+      "git_blob": "3a9cae100e17a03abacf2f4df71db2b82757b968"
+    },
+    {
+      "path": "TMessagesProj/src/main/java/org/telegram/ui/Components/AvatarDrawable.java",
+      "sha256": "88719e087b946f9f54ebfdd8ad0918f8d0dd2ff7ac6a7e56f417a6f20eb1bf1c",
+      "git_blob": "99f855766bf3a0431f7501a4b81f4d24234431a4"
+    },
+    {
+      "path": "TMessagesProj/src/main/java/org/telegram/ui/Components/RecyclerListView.java",
+      "sha256": "05802fe15ab6f672f117277812c79edbef4a116721238c1529abf80cbbce2e64",
+      "git_blob": "e53a830224256333be38baa47dcb462b53b92e44"
+    },
+    {
+      "path": "TMessagesProj/src/main/java/org/telegram/ui/Components/BackupImageView.java",
+      "sha256": "ad8bc61ffec0bedfad77e96f52b7e885530da7079fb5b2ab89c5d47d6bedd835",
+      "git_blob": "cea9a426698f512823d1f128bcc71b4cb0e337f1"
+    },
+    {
+      "path": "TMessagesProj/src/main/java/org/telegram/ui/Components/ProfileGalleryView.java",
+      "sha256": "4889c202f84e9d701e08a5b418bfdcb4994f29a9b425f1c740143bf0a19d85ef",
+      "git_blob": "7a1a500f30e4bd0c8679778abd60b52cec7c289c"
+    },
+    {
+      "path": "TMessagesProj/src/main/java/org/telegram/ui/Cells/TextDetailCell.java",
+      "sha256": "7dac8418441e94da74b3d896cf4a827d05c2dba8b9a0fea6b559e05f6069880e",
+      "git_blob": "cd7466e0f23bafb3dc657a2098f2bba717d83591"
+    },
+    {
+      "path": "TMessagesProj/src/main/java/org/telegram/ui/Cells/TextCell.java",
+      "sha256": "688f0754fb988727ecde750a2edba1a67c329427180b13376c21d8657d573979",
+      "git_blob": "15b2ba87df60d6318314821e89594c6334a0ebf0"
+    },
+    {
+      "path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareActivity.java",
+      "sha256": "3e63371d627c670512c9363cf969816083abc126ea47e5af80762cfe53f78798",
+      "git_blob": "0ff0e9f1889b184d1130497b951caaaae3a8d3b5"
+    },
+    {
+      "path": "TMessagesProj/src/main/res/drawable/outline_header_qr_24.xml",
+      "sha256": "ddaffe85034df6a6d52ff14f8dd9d307127d9486859146015bc66267c89c1255",
+      "git_blob": "abfa31144a7c478aa9eb4e56910f2702bd73d8d5"
+    },
+    {
+      "path": "TMessagesProj/src/main/res/drawable/filled_profile_photo.xml",
+      "sha256": "25dd0210a22bd206b386a2777d62ba5e217a403e969e3acd12235cba9d5c9958",
+      "git_blob": "eeb444043a1604a691a408d6d4161f62d09ad76a"
+    },
+    {
+      "path": "TMessagesProj/src/main/res/drawable/outline_profile_photo.xml",
+      "sha256": "ee45ea29eea5709b788b70c7058eb2f1cccd285ef482fdf1eee534da867e56cc",
+      "git_blob": "11e2373136ba8ee9dba936df41a89cc74dcd7bea"
+    },
+    {
+      "path": "TMessagesProj/src/main/assets/night.attheme",
+      "sha256": "c93fb2934d2684888a5d9e72a36361c0789d6bc745db23043da7eb88155c5469",
+      "git_blob": "09c0321f0d0935f63e8d02a70b87f0f15302e447"
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643",
+      "git_blob": "d159169d1050894d3ea3b98e1c965c4058208fe1"
+    },
+    {
+      "path": "TMessagesProj/src/main/java/org/telegram/messenger/NotchInfoUtils.java",
+      "git_blob": "a7fc3b9c8ccf873e447bbaf8e0bf05dfde32ecfc",
+      "sha256": "fe186aa6b00ab0e86eb8374c2198a810d6c9ae8f76f168127b948628a56d8d28"
+    }
+  ],
+  "assets": [
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable/filled_profile_photo.xml",
+      "git_blob": "eeb444043a1604a691a408d6d4161f62d09ad76a",
+      "upstream_sha256": "25dd0210a22bd206b386a2777d62ba5e217a403e969e3acd12235cba9d5c9958",
+      "eve": "app/src/main/res/drawable/telegram_profile_photo.xml",
+      "eve_sha256": "25dd0210a22bd206b386a2777d62ba5e217a403e969e3acd12235cba9d5c9958",
+      "classification": "EXACT"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable/filled_profile_edit_24.xml",
+      "git_blob": "4419e6284f9fd2d67250165904636d5bdc459369",
+      "upstream_sha256": "31a142ccdd2f7abca3fa54c7b173c14aeda16a0dd8d8979265d53c60a3c654ba",
+      "eve": "app/src/main/res/drawable/telegram_profile_edit.xml",
+      "eve_sha256": "31a142ccdd2f7abca3fa54c7b173c14aeda16a0dd8d8979265d53c60a3c654ba",
+      "classification": "EXACT"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable/filled_profile_settings.xml",
+      "git_blob": "67dbfcfac15413f0308c65e0403a34ec76b2f87f",
+      "upstream_sha256": "56411bb903af5fa7df6d89e2b0fb97ef77fe7fd068240698175e1e668e78c3df",
+      "eve": "app/src/main/res/drawable/telegram_profile_settings.xml",
+      "eve_sha256": "56411bb903af5fa7df6d89e2b0fb97ef77fe7fd068240698175e1e668e78c3df",
+      "classification": "EXACT"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable/outline_profile_photo.xml",
+      "git_blob": "11e2373136ba8ee9dba936df41a89cc74dcd7bea",
+      "upstream_sha256": "ee45ea29eea5709b788b70c7058eb2f1cccd285ef482fdf1eee534da867e56cc",
+      "eve": "app/src/main/res/drawable/telegram_profile_outline_photo.xml",
+      "eve_sha256": "ee45ea29eea5709b788b70c7058eb2f1cccd285ef482fdf1eee534da867e56cc",
+      "classification": "EXACT"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable/outline_profile_edit_24.xml",
+      "git_blob": "6b30b4aec7ebcd8dabfa6ec48786777c8f326276",
+      "upstream_sha256": "c094e0cfa21d04020dea6e457012978bc2d20b47a5491644fb8cf9eac44db9e6",
+      "eve": "app/src/main/res/drawable/telegram_profile_outline_edit.xml",
+      "eve_sha256": "c094e0cfa21d04020dea6e457012978bc2d20b47a5491644fb8cf9eac44db9e6",
+      "classification": "EXACT"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable/outline_profile_settings.xml",
+      "git_blob": "eea35faa4a59b617603d8a9fad67a8b3c4b7ceef",
+      "upstream_sha256": "fccf34fe4e5d247b87d597fdf253ee943e0c26868e494cf767f7e6029f3d30ba",
+      "eve": "app/src/main/res/drawable/telegram_profile_outline_settings.xml",
+      "eve_sha256": "fccf34fe4e5d247b87d597fdf253ee943e0c26868e494cf767f7e6029f3d30ba",
+      "classification": "EXACT"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable/outline_header_qr_24.xml",
+      "git_blob": "abfa31144a7c478aa9eb4e56910f2702bd73d8d5",
+      "upstream_sha256": "ddaffe85034df6a6d52ff14f8dd9d307127d9486859146015bc66267c89c1255",
+      "eve": "app/src/main/res/drawable/telegram_profile_qr.xml",
+      "eve_sha256": "ddaffe85034df6a6d52ff14f8dd9d307127d9486859146015bc66267c89c1255",
+      "classification": "EXACT"
+    }
+  ],
+  "screen_classification": "ADAPTED; full Telegram account/gallery renderer is not imported; matched runtime equivalence is not established",
+  "reference_images": "NOT FOUND: no chat attachments received",
+  "eve_sources": [
+    {
+      "path": "app/src/main/java/com/eve/app/data/remote/AuthInterceptor.kt",
+      "sha256": "8274f730cedea20ca2769b6a8a3ca1925f1627025f831276860d3fe6001ca86a",
+      "functions": {
+        "intercept": 11
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/data/remote/ProfileRequestOwner.kt",
+      "sha256": "75aead4e745f33b2fab8b49036df10921e76d3f5dbfa68633ab9c7f7bfb70f81",
+      "functions": {
+        "requireMatches": 8
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/profile/ChangeBioActivity.kt",
+      "sha256": "88a72d38ac12422d65a63520b5dc231de8e0d0e2f21d746ffb464dafbab6fca0",
+      "functions": {
+        "onCreate": 22,
+        "saveBio": 50
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/profile/ChangeNameActivity.kt",
+      "sha256": "e8a094590151caa92064f2488b4d86a568eaa7fca3a284d0108acc231f67418d",
+      "functions": {
+        "onCreate": 27,
+        "saveName": 49
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/profile/ChangePhoneActivity.kt",
+      "sha256": "c0e8b245a0275454e48e736dc069f4738bafb6f0597d5f9c09f06ae46e274daf",
+      "functions": {
+        "onCreate": 26,
+        "savePhone": 51
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/profile/ChangeUsernameActivity.kt",
+      "sha256": "b0602654fd0bb1851a3076ae72fa60c642786e3f753389b0cc94d5ea26863ea9",
+      "functions": {
+        "onCreate": 38,
+        "beforeTextChanged": 63,
+        "onTextChanged": 64,
+        "afterTextChanged": 68,
+        "checkUsernameLocallyAndRemotely": 76,
+        "setStatus": 160,
+        "saveUsername": 166
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/profile/NotchInfoUtils.kt",
+      "sha256": "18a55d02bb1410c4c9dfa913c20a4ab93635354504dde993ee6a79ce9f2398a8",
+      "functions": {
+        "getInfo": 36
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/profile/ProfileActionAccessibility.kt",
+      "sha256": "4d219008f11638f172effebab44c3db078257bb6f45f0f1e355cdb32278f1710",
+      "functions": {
+        "install": 14,
+        "onInitializeAccessibilityNodeInfo": 39
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/profile/ProfileActionBounce.kt",
+      "sha256": "3c60ae4a85d8356fecc86107b9951ddb1ad218290794536806d78acdacd06436",
+      "functions": {
+        "install": 28,
+        "onViewAttachedToWindow": 32,
+        "onViewDetachedFromWindow": 33,
+        "animatePressed": 49,
+        "onAnimationEnd": 62,
+        "cancelAnimationAndReset": 75,
+        "onTouch": 85
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/profile/ProfileActionIcons.kt",
+      "sha256": "f0a1cfb5ea6c9fc3f6bd434c80e67beaa3083008c065ac23b5425b036d6408c3",
+      "functions": {
+        "isLightButtonColor": 24,
+        "resourcesForColor": 31,
+        "resources": 34,
+        "applyTo": 49
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/profile/ProfileActionsCollapse.kt",
+      "sha256": "8b1131bf1d1b583de19c0683de9265fc202b0460e18bc1b433ce3c860c1e3de1",
+      "functions": {
+        "atScroll": 21,
+        "atHeight": 26,
+        "applyTo": 37
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/profile/ProfileActivity.kt",
+      "sha256": "357c21d56cfe6f3856ec298e344e446d194fc5ef6ca15bd3fa2eeac7c130b218",
+      "functions": {
+        "onCreate": 122,
+        "handleOnBackPressed": 150,
+        "setupAvatarWindowHost": 182,
+        "positionFullWindowAvatarHost": 197,
+        "setupScrollAndGooey": 223,
+        "renderProfileScrollState": 245,
+        "setupActions": 296,
+        "onApplyThemePalette": 334,
+        "setupProfileActionBounce": 349,
+        "setupProfileActionAccessibility": 355,
+        "setupCells": 361,
+        "selectCategory": 423,
+        "updateCategoryRadios": 471,
+        "showBirthdayPicker": 479,
+        "dp": 498,
+        "updateDays": 527,
+        "saveBirthday": 556,
+        "formatTelegramBirthday": 599,
+        "setupAdminAndPremium": 602,
+        "loadProfile": 646,
+        "isProfileOwner": 714,
+        "hasProfilePhoto": 720,
+        "setPersonalEditingEnabled": 723,
+        "showPersonalQr": 727,
+        "showProfileOptions": 737,
+        "refreshPresence": 760,
+        "onResume": 776,
+        "onPause": 783,
+        "loadProfilePhoto": 789,
+        "previewSelectedPhoto": 801,
+        "cancelPhotoPreview": 814,
+        "savePendingPhoto": 820,
+        "showProgress": 833,
+        "dismissProgress": 855,
+        "onDestroy": 860
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/profile/ProfileAvatarTrajectory.kt",
+      "sha256": "9edce75db43910e43f7c133118bafd454f45074ab95f62b2f3f7c0c2101af249",
+      "functions": {
+        "offsetToNotch": 9
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/profile/ProfileBioCapability.kt",
+      "sha256": "793546096a62f108c0200a507b6d7011f3e21feb9da248a79fa1f469986fbb0f",
+      "functions": {
+        "apply": 12
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/profile/ProfileBirthday.kt",
+      "sha256": "fdbb0e7d39463c2a3579ac079caf4640add23fae56e2fad4af91c0fd8b6b3eb3",
+      "functions": {
+        "parsed": 18,
+        "isValid": 37,
+        "format": 51
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/profile/ProfileEditorAccountGuard.kt",
+      "sha256": "bf2778d47e29a0b2e04e66d195e8bdf0aa28bdf3530b78f7e751e5a6861903ec",
+      "functions": {
+        "bind": 10,
+        "onDestroy": 17
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/profile/ProfileGooeyMotionMath.kt",
+      "sha256": "e2588932d8c2bde33a8632faf15e847f299ca4d373956786a764c5bbde1c5906",
+      "functions": {
+        "imageAlphaUnclamped": 8,
+        "liquidBridgeHeight": 12
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/profile/ProfileGooeyView.kt",
+      "sha256": "e95fe25b20d913560179d583b5984613abd555ec608aa42a905e9da2a69bea3e",
+      "functions": {
+        "isReducedMotion": 48,
+        "isHighPerformance": 60,
+        "dp": 74,
+        "statusBarHeightPx": 81,
+        "onSizeChanged": 361,
+        "setIntensity": 363,
+        "setBlurIntensity": 374,
+        "draw": 383,
+        "getEndOffset": 124,
+        "getAvatarEndScale": 139,
+        "hasNotchInfo": 153,
+        "setPullProgress": 161,
+        "setGooeyEnabled": 172
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/profile/ProfileHeaderExpansion.kt",
+      "sha256": "658c01da0fa1cc8c24810c974aa292e3f6b7d711a2ea6a86e9284ef642b56efb",
+      "functions": {
+        "apply": 17
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/profile/ProfilePresenceStatus.kt",
+      "sha256": "07be8c8e910e6ed01baac305e6eeef405c7930b88ba39d391999a5c2adb7d19d",
+      "functions": {
+        "label": 8
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/profile/ProfilePullScrollView.kt",
+      "sha256": "5555af75937be738734c6546091cab6eb9285e928292c8f47d4a3f43e979bccb",
+      "functions": {
+        "updatePull": 50,
+        "onInterceptTouchEvent": 56,
+        "beginPull": 71,
+        "onTouchEvent": 85,
+        "finishDrag": 111,
+        "setExpanded": 119,
+        "settle": 125,
+        "onLayout": 140,
+        "restorePendingExpansionIfReady": 145,
+        "onSaveInstanceState": 152,
+        "onRestoreInstanceState": 153,
+        "onDetachedFromWindow": 157,
+        "writeToParcel": 167,
+        "createFromParcel": 170,
+        "newArray": 171
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/profile/ProfileQrPayload.kt",
+      "sha256": "91784ab5d8e58494d3ccd19f1e81e12abb0a55879d3ef20d74a81c746e6d9e03",
+      "functions": {
+        "normalize": 12,
+        "encode": 13,
+        "parse": 14,
+        "matrix": 25
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/profile/ProfileSaveConfirmation.kt",
+      "sha256": "abbc2b8eb1fb9ec78f0fb183cb59bdbbe82e9ffdcd6f662395c55259cfd5f264",
+      "functions": {
+        "matches": 5
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/profile/ProfileScrollState.kt",
+      "sha256": "148297e4f92206ff2416b9acddf84aa51f372e651193bf3ba635d609aecb036c",
+      "functions": {
+        "progress": 5
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/profile/ProfileStackBlur.kt",
+      "sha256": "d670377cf4b9e5ae20a790174478c591a336cbc778e85de9d3d9a44a3b2c562d",
+      "functions": {
+        "blurBitmap": 14,
+        "blurArgb": 26,
+        "loadColor": 39
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/profile/TelegramProfileRadioCell.kt",
+      "sha256": "8f27ce295213105a6d3425d4c4f9733358e4c846180410dbb98da7d6a89308de",
+      "functions": {
+        "dp": 28,
+        "motionEnabled": 29,
+        "applyPalette": 77,
+        "onAttachedToWindow": 83,
+        "onDetachedFromWindow": 89,
+        "onInitializeAccessibilityNodeInfo": 94
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/profile/UsernameCardActivity.kt",
+      "sha256": "0ec055f31cb199dd681e5aaff463e37f23c4cee9024cb51e925a4196736429e6",
+      "functions": {
+        "onCreate": 19,
+        "text": 29
+      }
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/util/ProfilePresenceClient.kt",
+      "sha256": "8136e66a415d4be0b466a8d53dd3dfe09931ce6d3bc576305c60273d820e2865",
+      "functions": {
+        "register": 36,
+        "onStart": 40,
+        "onStop": 45,
+        "onAuthChanged": 50,
+        "startWhenAuthenticated": 59,
+        "revokeBeforeLogout": 93,
+        "stopSession": 116
+      }
+    },
+    {
+      "path": "app/src/main/res/layout/activity_profile.xml",
+      "sha256": "f5772a43a08083b3cdf015cbe4349c49e60eef45b39317778cdfb9ac750813ad",
+      "functions": {}
+    }
+  ]
+}

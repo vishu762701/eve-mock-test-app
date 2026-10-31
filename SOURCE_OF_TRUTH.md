@@ -44,6 +44,8 @@ Source-traced Telegram UI, theme reveal, Lottie animations, existing tokens and 
 - Admin Typography Studio editor and draft/publish/write routes were retired, but the owner may safely redesign or restore them. Runtime `TypographyRepository`, fallback fonts and public published config GET may serve installed clients; investigate compatibility before altering. Retain the D1 migration and production records.
 - Admin Activity privileged views and data loads must be initialized **after** fresh `AdminAccessGate` authorization. Backend authorization is independently required for mutations.
 - Notification inbox merges local reminders/FCM and server broadcasts without discarding either; only the inbox acknowledges unread, never Home.
+- Profile: `ProfileActivity`, `ProfilePullScrollView` and `ProfileHeaderExpansion` host the EVE-adapted Telegram profile. User-visible identity uses the editable server username; immutable Firebase/D1 IDs and legacy API fields remain internal compatibility contracts. The registered `eve-mock-test://username/<username>` route opens a username-only card, never authentication or a private profile lookup. Profile/presence requests carry local `ProfileRequestOwner` metadata to bind queued work to its initiating account.
+- Maintenance enforcement is scoped to Home startup/resume/retry, with fresh Worker authorization for admin bypass; active exams and other activities are not server-wide blocked. Admin maintenance writes are partial, and success requires server readback. Unavailable configuration is not a confirmed maintenance-off state.
 
 ### B. Cloudflare Worker backend (`backend/`)
 - Technology: TypeScript, Hono, Cloudflare Workers.

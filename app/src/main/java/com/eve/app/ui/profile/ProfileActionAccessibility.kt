@@ -13,6 +13,23 @@ import android.widget.TextView
 internal object ProfileActionAccessibility {
     fun install(buttons: List<LinearLayout>) {
         require(buttons.size == 3)
+        // EVE accessibility accommodation: source 54dp buttons clip at 2x fonts.
+        // Keep the original dimensions at normal font sizes; reserve two real lines.
+        if (buttons.first().resources.configuration.fontScale > 1.4f) {
+            val density = buttons.first().resources.displayMetrics.density
+            val required = buttons.maxOf { button ->
+                val label = button.getChildAt(1) as TextView
+                val metrics = label.paint.fontMetricsInt
+                val textHeight = metrics.bottom - metrics.top + label.lineHeight + label.compoundPaddingTop + label.compoundPaddingBottom
+                val margins = (label.layoutParams as android.view.ViewGroup.MarginLayoutParams).topMargin
+                (button.getChildAt(0).layoutParams.height + margins + textHeight + button.paddingTop + button.paddingBottom)
+                    .coerceAtLeast((54 * density).toInt())
+            }
+            for (button in buttons) button.layoutParams = button.layoutParams.apply { height = required }
+            (buttons.first().parent as? LinearLayout)?.let { row ->
+                row.layoutParams = row.layoutParams.apply { height = required + row.paddingTop + row.paddingBottom }
+            }
+        }
         for (button in buttons) {
             val label = button.getChildAt(1) as TextView
             // A single TalkBack focus/click target, not a duplicate text child.

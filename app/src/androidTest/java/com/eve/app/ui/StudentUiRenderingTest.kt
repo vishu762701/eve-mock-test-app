@@ -196,7 +196,7 @@ class StudentUiRenderingTest {
                 submitList(List(5) { i -> ExamTestsListItem.TestItem(GeneratedTest(id = "$i"), "Mock Test ${i + 1}", "20 questions • 30 minutes", i == 1, i == 2, i == 3, "Opens tomorrow") })
             }).also { text(R.id.tvTitle, exam.examName) }
             "signup" -> { show(R.id.tilName); text(R.id.tvTagline, "Create your account"); text(R.id.btnSubmit, "Sign Up"); text(R.id.btnToggleMode, "Already have an account? Sign In") }
-            "profile" -> { assertNull("Student photos must retain their original image colours", root.findViewById<ImageView>(R.id.ivProfilePhoto).imageTintList); text(R.id.tvName, "Ananya Sharma"); text(R.id.tvEveId, "EV-ABC123"); text(R.id.tvMobileValue, "+91 98765 43210"); text(R.id.tvBirthdayValue, "12/04/2001"); show(R.id.chipPremium) }
+            "profile" -> { assertNull("Student photos must retain their original image colours", root.findViewById<ImageView>(R.id.ivProfilePhoto).imageTintList); text(R.id.tvName, "Ananya Sharma"); text(R.id.tvUsernameValue, "@ananya_eve"); text(R.id.tvMobileValue, "+91 98765 43210"); text(R.id.tvBirthdayValue, "12/04/2001"); show(R.id.chipPremium) }
             "settings" -> { root.findViewById<com.eve.app.designsystem.TelegramSwitch>(R.id.switchReminder).isChecked = true; text(R.id.tvDailyGoalValue, "3 tests per day"); text(R.id.tvLanguageValue, "English") }
             "result", "review", "result-leaderboard" -> {
                 val b = ActivityResultBinding.bind(root); ResultTabs.bind(b) {}

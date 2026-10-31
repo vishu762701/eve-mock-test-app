@@ -219,19 +219,19 @@ interface EveApiService {
     suspend fun syncUser(@Body body: Map<String, @JvmSuppressWildcards Any>): ApiResponse<Unit>
 
     @GET("api/users/profile")
-    suspend fun getProfile(): ApiResponse<UserProfileResponse>
+    suspend fun getProfile(@retrofit2.http.Tag owner: ProfileRequestOwner? = null): ApiResponse<UserProfileResponse>
 
     @GET("api/users/username/check")
     suspend fun checkUsername(@retrofit2.http.Query("u") username: String): ApiResponse<UsernameCheckResponse>
 
     @PUT("api/users/profile")
-    suspend fun updateProfile(@Body body: Map<String, @JvmSuppressWildcards Any>): ApiResponse<Unit>
+    suspend fun updateProfile(@Body body: Map<String, @JvmSuppressWildcards Any>, @retrofit2.http.Tag owner: ProfileRequestOwner? = null): ApiResponse<Unit>
 
     @POST("api/users/presence")
-    suspend fun startPresence(@Body body: Map<String, String>): ApiResponse<PresenceLeaseResponse>
+    suspend fun startPresence(@Body body: Map<String, String>, @retrofit2.http.Tag owner: ProfileRequestOwner? = null): ApiResponse<PresenceLeaseResponse>
 
     @retrofit2.http.HTTP(method = "DELETE", path = "api/users/presence", hasBody = true)
-    suspend fun endPresence(@Body body: Map<String, String>): ApiResponse<Unit>
+    suspend fun endPresence(@Body body: Map<String, String>, @retrofit2.http.Tag owner: ProfileRequestOwner? = null): ApiResponse<Unit>
 
     @POST("api/users/fcm-token")
     suspend fun updateFcmToken(@Body body: Map<String, String>): ApiResponse<Unit>

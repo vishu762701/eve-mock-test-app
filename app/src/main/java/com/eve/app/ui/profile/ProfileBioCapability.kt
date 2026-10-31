@@ -12,8 +12,10 @@ internal object ProfileBioCapability {
     fun apply(cell: View, value: TextView, authenticatedBio: String?) {
         // An XML default is not a substitute for explicit controller state.
         cell.isEnabled = authenticatedBio != null
+        cell.visibility = if (authenticatedBio == null) View.GONE else View.VISIBLE
+        cell.rootView.findViewById<View>(com.eve.app.R.id.bioDivider)?.visibility = cell.visibility
         value.text = when {
-            authenticatedBio == null -> "Bio unavailable until server update"
+            authenticatedBio == null -> ""
             authenticatedBio.isBlank() -> "Add bio"
             else -> authenticatedBio
         }

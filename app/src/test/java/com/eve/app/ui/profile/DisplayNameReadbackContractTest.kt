@@ -13,7 +13,10 @@ class DisplayNameReadbackContractTest {
         assertTrue(xml.contains("android:minLines=\"2\""))
         assertFalse(xml.contains("android:singleLine=\"true\""))
         val current = File("src/main/java/com/eve/app/ui/profile/ProfileActivity.kt").readText()
-        assertTrue(current.contains("putExtra(\"current_name\", binding.tvName.text.toString())"))
+        assertTrue("The name editor must receive the confirmed API value, never a display fallback",
+            current.contains("putExtra(\"current_name\", currentDisplayName)"))
+        assertTrue(current.contains("currentDisplayName = profile.displayName.orEmpty()"))
+        assertTrue(current.contains("if (!profileConfirmed) { loadProfile(); return@setOnClickListener }"))
     }
 
     @Test fun displayNameOnlyFinishesAfterAuthenticatedReadback() {
@@ -21,7 +24,7 @@ class DisplayNameReadbackContractTest {
         val method = code.substringAfter("private fun saveName()")
         assertTrue(method.contains("replace(Regex(\"\\\\s+\"), \" \")"))
         assertTrue(method.contains("name.length > 100"))
-        assertTrue(method.indexOf("ApiClient.apiService.getProfile()") < method.indexOf("setResult(Activity.RESULT_OK)"))
+        assertTrue(method.indexOf("ApiClient.apiService.getProfile(ProfileRequestOwner(ownerUid))") < method.indexOf("setResult(Activity.RESULT_OK)"))
         assertTrue(method.contains("confirmed.data?.displayName == name"))
         assertTrue(method.contains("FirebaseAuth.getInstance().currentUser?.uid == user.uid"))
         assertTrue(method.contains("binding.etName.isEnabled = true"))

@@ -95,9 +95,9 @@ class ProfileSettingsLoginTypographyAndColorTest {
         assertNotNull("tvStatus must exist", tvStatus)
         assertEquals("@style/TextAppearance.Eve.Telegram.ProfileStatus", tvStatus?.getAttribute("style"))
 
-        val tvEveId = findElementById(root, "tvEveId")
-        assertNotNull("tvEveId must exist", tvEveId)
-        assertEquals("@style/TextAppearance.Eve.Telegram.SettingsLabel", tvEveId?.getAttribute("style"))
+        val username = findElementById(root, "tvUsernameValue")
+        assertNotNull("Username must exist", username)
+        assertEquals("@style/TextAppearance.Eve.Telegram.SettingsLabel", username?.getAttribute("style"))
 
         val cellMobile = findElementById(root, "cellMobile")
         assertNotNull("cellMobile must exist", cellMobile)

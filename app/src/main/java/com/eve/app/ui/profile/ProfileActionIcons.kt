@@ -9,8 +9,9 @@ import com.eve.app.R
  * original glyphs by button brightness and parent expansion.
  *
  * EVE has light buttons in Day (#E5E5EA) and dark in Night (#1C1C1E).
- * The full-screen photo viewer "parentExpanded" transition is not present,
- * so this binding implements the source's stable 0f-expanded endpoints only.
+ * EVE's single-photo expansion retains the themed action surfaces below it.
+ * The upstream parentExpanded icon/shader crossfade remains unported; this
+ * binding implements verified stable light/dark endpoints and explicit ink.
  */
 internal object ProfileActionIcons {
     data class Resources(val photo: Int, val edit: Int, val settings: Int)
@@ -51,7 +52,11 @@ internal object ProfileActionIcons {
         for ((index, asset) in listOf(assets.photo, assets.edit, assets.settings).withIndex()) {
             // Existing icon is the first child; preserve the button label,
             // click handler, source bounce physics, and content fade state.
-            (buttons[index].getChildAt(0) as ImageView).setImageResource(asset)
+            (buttons[index].getChildAt(0) as ImageView).apply {
+                setImageResource(asset)
+                imageTintList = android.content.res.ColorStateList.valueOf(
+                    com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context).textPrimary)
+            }
         }
     }
 }

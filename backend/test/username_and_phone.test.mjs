@@ -466,3 +466,18 @@ test("expired or malformed presence never creates misleading online state", asyn
   assert.equal((await (await app.request("/api/users/profile")).json()).data.isOnline, true);
   assert.equal(sqlite.prepare("SELECT expires_at FROM user_presence_sessions WHERE user_id = ?").get(user.uid).expires_at > Date.now(), true);
 });
+
+test("Username identity presentation preserves immutable UID and legacy installed-client contracts", async () => {
+  const { sqlite, d1 } = isolatedD1(); seedProfile(sqlite);
+  const app = createTestApp(d1, profileUser);
+  const before = (await (await app.request('/api/users/profile')).json()).data;
+  assert.equal((await app.request('/api/users/profile', profileRequest({ username: 'public_username' }))).status, 200);
+  const after = (await (await app.request('/api/users/profile')).json()).data;
+  assert.equal(after.username, 'public_username');
+  assert.equal(after.id, before.id);
+  assert.equal(after.eveId, before.eveId);
+  for (const field of ['phone', 'dob', 'category', 'email', 'displayName']) assert.equal(after[field], before[field]);
+  const other = createTestApp(d1, { uid: 'another-account', email: 'other@example.test', displayName: 'Other' });
+  assert.equal((await other.request('/api/users/profile', profileRequest({ username: 'PUBLIC_USERNAME' }))).status, 409);
+  assert.equal((await (await app.request('/api/users/profile')).json()).data.id, profileUser.uid);
+});
