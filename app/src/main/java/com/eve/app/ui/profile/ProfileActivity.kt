@@ -34,6 +34,7 @@ import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.PremiumRepository
 import com.eve.app.databinding.ActivityProfileBinding
+import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.designsystem.TelegramNativeAlertDialog
 import com.eve.app.designsystem.TelegramRadialProgressView
 import com.eve.app.ui.common.EveBaseActivity
@@ -259,6 +260,18 @@ class ProfileActivity : EveBaseActivity() {
      * Telegram ProfileActionsView.java:520-587 applies ButtonBounce to each
      * active action, not to the entire scrolling container.
      */
+    override fun onApplyThemePalette(palette: TelegramThemeEngine.ResolvedPalette) {
+        super.onApplyThemePalette(palette)
+        if (::binding.isInitialized) {
+            // Stable Telegram icon variants: outline on light button surfaces,
+            // filled on dark; photo-viewer expansion crossfade remains unported.
+            ProfileActionIcons.applyTo(
+                listOf(binding.btnSetPhoto, binding.btnEditInfo, binding.btnSettings),
+                darkSurface = palette.isDark
+            )
+        }
+    }
+
     private fun setupProfileActionBounce() {
         ProfileActionBounce.install(binding.btnSetPhoto)
         ProfileActionBounce.install(binding.btnEditInfo)
