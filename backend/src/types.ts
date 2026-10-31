@@ -18,7 +18,6 @@ export interface Env {
   GEMINI_MODEL?: string;
   GEMINI_FALLBACK_MODELS?: string;
   DIAGNOSTIC_KEY?: string;           // Cloudflare secret or environment variable
-  LEGACY_ANSWER_LEAK?: string;
   PREMIUM_WEBHOOK_SECRET?: string;   // Cloudflare Worker secret; required to accept payments
   PREMIUM_SANDBOX_ENABLED?: string; // Explicit "true" only on isolated admin test environments
   TELEGRAM_BOT_TOKEN?: string;      // Cloudflare Worker secret for Telegram emoji import

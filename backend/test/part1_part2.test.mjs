@@ -1,87 +1,44 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { hideAnswers } from "../src/util/clientProtocol.ts";
 
 // ============================================================================
 // PART 1 & PART 2 BACKEND UNIT TESTS
 // ============================================================================
 
-// 1. hideAnswers logic tests
-test("hideAnswers: header >= 2 and LEGACY_ANSWER_LEAK behavior", () => {
-  function hideAnswersCheck({ isAdmin = false, clientHeader = null, legacyLeak = "on" }) {
-    if (isAdmin) return false;
-    const clientVersion = clientHeader ? parseInt(clientHeader, 10) : 0;
-    if ((!isNaN(clientVersion) && clientVersion >= 2) || legacyLeak !== "on") {
-      return true;
+// 1. Real production answer-visibility policy, including hostile legacy flags.
+function visibilityContext(user, header, legacyLeak) {
+  return {
+    get: (key) => (key === "user" ? user : undefined),
+    req: { header: () => header },
+    env: { LEGACY_ANSWER_LEAK: legacyLeak },
+  };
+}
+
+test("hideAnswers: non-admins cannot reveal answers through headers or legacy environment", () => {
+  for (const user of [undefined, null, { isAdmin: false }, { isAdmin: "true" }]) {
+    for (const header of [undefined, "1", "2", "999", "malformed"]) {
+      for (const legacyLeak of [undefined, "off", "on"]) {
+        assert.equal(
+          hideAnswers(visibilityContext(user, header, legacyLeak)),
+          true,
+          `Answer exposed to ${JSON.stringify(user)} with header=${header} flag=${legacyLeak}`,
+        );
+      }
     }
-    return false;
   }
-
-  // Admin always sees answers
-  assert.equal(hideAnswersCheck({ isAdmin: true, clientHeader: "2", legacyLeak: "off" }), false);
-  assert.equal(hideAnswersCheck({ isAdmin: true, clientHeader: "1", legacyLeak: "on" }), false);
-
-  // New client (X-Eve-Client >= 2) always has answers hidden
-  assert.equal(hideAnswersCheck({ isAdmin: false, clientHeader: "2", legacyLeak: "on" }), true);
-  assert.equal(hideAnswersCheck({ isAdmin: false, clientHeader: "3", legacyLeak: "on" }), true);
-
-  // Legacy client (X-Eve-Client missing or < 2) with LEGACY_ANSWER_LEAK = 'on' keeps legacy behavior (false)
-  assert.equal(hideAnswersCheck({ isAdmin: false, clientHeader: null, legacyLeak: "on" }), false);
-  assert.equal(hideAnswersCheck({ isAdmin: false, clientHeader: "1", legacyLeak: "on" }), false);
-
-  // Legacy client with LEGACY_ANSWER_LEAK = 'off' has answers hidden (true)
-  assert.equal(hideAnswersCheck({ isAdmin: false, clientHeader: null, legacyLeak: "off" }), true);
-  assert.equal(hideAnswersCheck({ isAdmin: false, clientHeader: "1", legacyLeak: "off" }), true);
 });
 
-test("non-admin request WITHOUT the X-Eve-Client header must not receive correct answers", () => {
-  const mockContext = {
-    get: (key) => {
-      if (key === "user") return { uid: "student-123", email: "student@example.com", isAdmin: false };
-      return undefined;
-    },
-    req: {
-      header: (_name) => undefined, // No X-Eve-Client header
-    },
-    env: {
-      LEGACY_ANSWER_LEAK: "off",
-    },
-  };
-
-  function hideAnswers(c) {
-    const user = c.get("user");
-    if (user && user.isAdmin) return false;
-    const clientHeader = c.req.header("X-Eve-Client") || c.req.header("x-eve-client");
-    const clientVersion = clientHeader ? parseInt(clientHeader, 10) : 0;
-    const legacyLeak = c.env?.LEGACY_ANSWER_LEAK;
-    if ((!isNaN(clientVersion) && clientVersion >= 2) || legacyLeak !== "on") {
-      return true;
-    }
-    return false;
+test("hideAnswers: server-authenticated admins retain answer access", () => {
+  const verifiedAdmin = { uid: "admin-test", isAdmin: true };
+  for (const legacyLeak of [undefined, "off", "on"]) {
+    assert.equal(hideAnswers(visibilityContext(verifiedAdmin, undefined, legacyLeak)), false);
   }
+});
 
-  const shouldHide = hideAnswers(mockContext);
-  assert.equal(shouldHide, true, "hideAnswers must return true for non-admin without X-Eve-Client header when LEGACY_ANSWER_LEAK is off");
-
-  const rawQuestion = {
-    id: "q-101",
-    examId: "exam-1",
-    questionText: "What is the speed of light?",
-    optionA: "3x10^8 m/s",
-    optionB: "1.5x10^8 m/s",
-    optionC: "3x10^6 m/s",
-    optionD: "300 m/s",
-    correctAnswer: "A",
-    explanation: "The speed of light in vacuum is approximately 300,000 km/s.",
-  };
-
-  const responseQuestion = { ...rawQuestion };
-  if (shouldHide) {
-    responseQuestion.correctAnswer = "";
-    responseQuestion.explanation = "";
-  }
-
-  assert.equal(responseQuestion.correctAnswer, "", "correctAnswer must be omitted for non-admin request without X-Eve-Client header");
-  assert.equal(responseQuestion.explanation, "", "explanation must be omitted for non-admin request without X-Eve-Client header");
+test("non-admin request without client version cannot reveal question answer fields", () => {
+  const shouldHide = hideAnswers(visibilityContext({ uid: "student-test", isAdmin: false }, undefined, "on"));
+  assert.equal(shouldHide, true);
 });
 
 // 2. Generated tests list metadata only
