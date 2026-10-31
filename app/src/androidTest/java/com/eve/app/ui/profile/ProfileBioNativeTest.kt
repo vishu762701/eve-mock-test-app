@@ -26,7 +26,13 @@ class ProfileBioNativeTest {
                 }
                 val context = ContextThemeWrapper(base.createConfigurationContext(config), R.style.Theme_Eve)
                 val profile = ActivityProfileBinding.inflate(LayoutInflater.from(context))
+                ProfileBioCapability.apply(profile.cellBio, profile.tvBioValue, null)
                 assertFalse("Disabled until server confirms Bio capability", profile.cellBio.isEnabled)
+                ProfileBioCapability.apply(profile.cellBio, profile.tvBioValue, "")
+                assertTrue("Authenticated empty Bio enables edit", profile.cellBio.isEnabled)
+                assertEquals("Add bio", profile.tvBioValue.text.toString())
+                ProfileBioCapability.apply(profile.cellBio, profile.tvBioValue, null)
+                assertFalse("Capability loss must fail closed", profile.cellBio.isEnabled)
                 assertTrue(profile.tvBioLabel.text.toString().contains("Bio"))
                 val editor = ActivityChangeBioBinding.inflate(LayoutInflater.from(context))
                 editor.etBio.setText("x".repeat(200))

@@ -50,6 +50,7 @@ class ProfileMissionIntegrationNativeTest {
                     assertEquals("Camera host must match window width", width, b.avatarGooey.width)
                     assertEquals("Camera host must match window height", height, b.avatarGooey.height)
                     assertEquals(width, b.profileScrollView.width)
+                    ProfileBioCapability.apply(b.cellBio, b.tvBioValue, null)
                     assertFalse("Old Worker must not expose a misleading Bio editor", b.cellBio.isEnabled)
                     assertEquals("Bio", b.tvBioLabel.text.toString())
 

@@ -106,6 +106,7 @@ class ProfileActivity : EveBaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        ProfileBioCapability.apply(binding.cellBio, binding.tvBioValue, null)
         binding.glassToolbar.bringToFront()
         setupAvatarWindowHost()
 
@@ -578,8 +579,7 @@ class ProfileActivity : EveBaseActivity() {
         binding.tvName.text = currentName
         binding.tvToolbarTitle.text = currentName
         currentBio = null
-        binding.cellBio.isEnabled = false
-        binding.tvBioValue.text = "Bio unavailable until server update"
+        ProfileBioCapability.apply(binding.cellBio, binding.tvBioValue, null)
 
         lifecycleScope.launch {
             try {
@@ -614,12 +614,7 @@ class ProfileActivity : EveBaseActivity() {
                     binding.tvUsernameValue.text = displayUsername
 
                     currentBio = profile.bio
-                    binding.cellBio.isEnabled = profile.bio != null
-                    binding.tvBioValue.text = when {
-                        profile.bio == null -> "Bio unavailable until server update"
-                        profile.bio.isBlank() -> "Add bio"
-                        else -> profile.bio
-                    }
+                    ProfileBioCapability.apply(binding.cellBio, binding.tvBioValue, profile.bio)
 
                     // Birthday
                     currentDob = profile.dob
