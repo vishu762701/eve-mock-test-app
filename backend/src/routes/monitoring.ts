@@ -64,7 +64,7 @@ monitoringRoutes.get('/operations', async (c) => {
   return c.json({ success: true, data: { jobs: jobs.results || [], failures: failures.results || [], submissions: submissions.results || [], nextOffset: [jobs, failures, submissions].some((r) => r.results?.length === 25) && offset < 10000 ? offset + 25 : null } });
 });
 
-monitoringRoutes.post('/jobs/:id/retry', async (c) => {
+monitoringRoutes.post('/jobs/:id/retry', requirePermission("manage_generated_tests"), async (c) => {
   const user = c.get('user');
   const job = await c.env.DB.prepare('SELECT * FROM generation_jobs WHERE id = ?').bind(c.req.param('id')).first<any>();
   if (!job) return c.json({ success: false, error: 'Generation job not found' }, 404);

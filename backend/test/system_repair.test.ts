@@ -95,6 +95,32 @@ test('generation validates counts, deduplicates request keys and rejects concurr
   } finally { globalThis.fetch = original; }
   assert.equal(db.count('generated_tests'), 1);
 });
+test('analytics viewers cannot retry generation without generation permission', async () => {
+  const db = new LocalD1();
+  const email = 'readonly-monitor@example.test';
+  db.sqlite.prepare('INSERT INTO admins (email, created_at) VALUES (?, ?)').run(email, 1);
+  db.sqlite.prepare('INSERT INTO admin_rights (email, rights, updated_at) VALUES (?, ?, ?)')
+    .run(email, JSON.stringify(['view_analytics_logs']), 1);
+  const app = new Hono();
+  app.use('*', async (c, next) => {
+    c.set('user', { uid: 'viewer', email, isAdmin: true });
+    await next();
+  });
+  app.route('/api/admin/system', monitoringRoutes as any);
+  const env = envFor(db);
+  assert.equal((await app.request('/api/admin/system/operations', {}, env)).status, 200);
+  const retry = () => app.request('/api/admin/system/jobs/missing/retry', { method: 'POST' }, env);
+  assert.equal((await retry()).status, 403);
+  assert.equal(db.count('generation_jobs'), 0);
+  db.sqlite.prepare('UPDATE admin_rights SET rights = ? WHERE email = ?')
+    .run(JSON.stringify(['view_analytics_logs', 'manage_generated_tests']), email);
+  // A permitted caller reaches the real job lookup without starting an AI request.
+  assert.equal((await retry()).status, 404);
+  db.sqlite.prepare('UPDATE admin_rights SET rights = ? WHERE email = ?')
+    .run(JSON.stringify(['manage_generated_tests']), email);
+  assert.equal((await retry()).status, 403);
+});
+
 test('students cannot generate or use admin monitors; unauthenticated submit rejected', async () => {
   const db = new LocalD1(); const request = harness(db);
   for (const name of ['overview', 'health', 'operations']) assert.equal((await request(`/api/admin/system/${name}`)).status, 403);
