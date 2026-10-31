@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:textSize="28sp"
+        android:textAppearance="@style/TextAppearance.Eve.LargeTitle"
         android:visibility="gone" />
 
     <com.airbnb.lottie.LottieAnimationView

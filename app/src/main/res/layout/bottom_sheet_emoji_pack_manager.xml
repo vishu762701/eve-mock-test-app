@@ -21,8 +21,7 @@
         android:paddingBottom="8dp"
         android:text="Packs &amp; Kill Switches"
         android:textColor="?android:attr/textColorPrimary"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        android:textAppearance="@style/TextAppearance.Eve.Title3.Emphasized" />
 
     <com.eve.app.ui.admin.tg.TextCheckCell
         android:id="@+id/cellGlobalTelegramSwitch"

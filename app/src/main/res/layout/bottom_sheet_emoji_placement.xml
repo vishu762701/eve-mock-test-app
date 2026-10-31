@@ -39,8 +39,7 @@
                 android:layout_height="wrap_content"
                 android:text="Use Animated Emoji"
                 android:textColor="?android:attr/textColorPrimary"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:textAppearance="@style/TextAppearance.Eve.Headline" />
 
             <TextView
                 android:id="@+id/tvPlacementPackName"
@@ -49,7 +48,7 @@
                 android:layout_marginTop="2dp"
                 android:text="Pack name"
                 android:textColor="?android:attr/textColorSecondary"
-                android:textSize="13sp" />
+                android:textAppearance="@style/TextAppearance.Eve.Footnote" />
         </LinearLayout>
     </LinearLayout>
 
@@ -60,8 +59,7 @@
         android:layout_marginBottom="8dp"
         android:text="Select Surface Slot"
         android:textColor="?android:attr/textColorPrimary"
-        android:textSize="14sp"
-        android:textStyle="bold" />
+        android:textAppearance="@style/TextAppearance.Eve.Subheadline.Emphasized" />
 
     <RadioGroup
         android:id="@+id/rgSlotType"
@@ -76,7 +74,7 @@
             android:layout_weight="1"
             android:checked="true"
             android:text="Exam Card"
-            android:textSize="13sp" />
+            android:textAppearance="@style/TextAppearance.Eve.Footnote" />
 
         <RadioButton
             android:id="@+id/rbCategoryHeader"
@@ -84,7 +82,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Category"
-            android:textSize="13sp" />
+            android:textAppearance="@style/TextAppearance.Eve.Footnote" />
 
         <RadioButton
             android:id="@+id/rbBroadcast"
@@ -92,7 +90,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Broadcast"
-            android:textSize="13sp" />
+            android:textAppearance="@style/TextAppearance.Eve.Footnote" />
     </RadioGroup>
 
     <com.google.android.material.textfield.TextInputLayout
