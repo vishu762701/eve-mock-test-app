@@ -126,6 +126,8 @@ class ChangeUsernameActivity : EveBaseActivity() {
             delay(300) // Telegram debounce 300ms
             try {
                 val res = ApiClient.apiService.checkUsername(name)
+                // A cancelled or delayed availability response must never validate newer input.
+                if (binding.etUsername.text.toString().trim().removePrefix("@") != name) return@launch
                 if (res.success && res.data != null) {
                     val data = res.data
                     if (data.available) {
@@ -159,19 +161,34 @@ class ChangeUsernameActivity : EveBaseActivity() {
             return
         }
 
+        checkJob?.cancel()
+        val normalizedTarget = target.lowercase(java.util.Locale.ROOT)
         binding.btnDone.isEnabled = false
+        binding.etUsername.isEnabled = false
         lifecycleScope.launch {
             try {
-                val res = ApiClient.apiService.updateProfile(mapOf("username" to target.lowercase()))
+                val res = ApiClient.apiService.updateProfile(mapOf("username" to normalizedTarget))
                 if (res.success) {
-                    setResult(Activity.RESULT_OK)
-                    finish()
+                    // Only finish after the same authenticated profile can read the saved handle.
+                    val confirmed = ApiClient.apiService.getProfile()
+                    val savedHandle = confirmed.data?.username?.removePrefix("@")
+                    if (confirmed.success && savedHandle?.equals(normalizedTarget, ignoreCase = true) == true) {
+                        setResult(Activity.RESULT_OK)
+                        finish()
+                    } else {
+                        binding.btnDone.isEnabled = true
+                        binding.etUsername.isEnabled = true
+                        AppBulletin.showError(this@ChangeUsernameActivity,
+                            "Username update could not be verified. Check your profile before retrying.")
+                    }
                 } else {
                     binding.btnDone.isEnabled = true
+                    binding.etUsername.isEnabled = true
                     AppBulletin.showError(this@ChangeUsernameActivity, res.error ?: "Failed to update username")
                 }
             } catch (e: Exception) {
                 binding.btnDone.isEnabled = true
+                binding.etUsername.isEnabled = true
                 AppBulletin.showError(this@ChangeUsernameActivity, e.localizedMessage ?: "Failed to update username")
             }
         }
