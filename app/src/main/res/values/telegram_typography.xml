@@ -114,6 +114,10 @@
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">@color/telegram_type_primary</item>
     </style>
+    <!-- ProfileActionsView.java:1029-1033: 11sp source label role; no hardcoded layout text sizes. -->
+    <style name="TextAppearance.Eve.Telegram.ProfileAction.Source" parent="TextAppearance.Eve.Telegram.ProfileAction">
+        <item name="android:textSize">11sp</item>
+    </style>
     <style name="TextAppearance.Eve.Telegram.NotificationTitle" parent="TextAppearance.Material3.BodyLarge">
         <item name="android:fontFamily">@font/telegram_roboto_medium</item>
         <item name="fontFamily">@font/telegram_roboto_medium</item>

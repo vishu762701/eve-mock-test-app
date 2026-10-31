@@ -197,8 +197,7 @@
                         app:tint="@color/telegram_type_primary" />
 
                     <TextView
-                        style="@style/TextAppearance.Eve.Telegram.ProfileAction"
-                        android:textSize="11sp"
+                        style="@style/TextAppearance.Eve.Telegram.ProfileAction.Source"
                         android:maxLines="2"
                         android:ellipsize="end"
                         android:layout_width="wrap_content"
@@ -228,8 +227,7 @@
                         app:tint="@color/telegram_type_primary" />
 
                     <TextView
-                        style="@style/TextAppearance.Eve.Telegram.ProfileAction"
-                        android:textSize="11sp"
+                        style="@style/TextAppearance.Eve.Telegram.ProfileAction.Source"
                         android:maxLines="2"
                         android:ellipsize="end"
                         android:layout_width="wrap_content"
@@ -259,8 +257,7 @@
                         app:tint="@color/telegram_type_primary" />
 
                     <TextView
-                        style="@style/TextAppearance.Eve.Telegram.ProfileAction"
-                        android:textSize="11sp"
+                        style="@style/TextAppearance.Eve.Telegram.ProfileAction.Source"
                         android:maxLines="2"
                         android:ellipsize="end"
                         android:layout_width="wrap_content"

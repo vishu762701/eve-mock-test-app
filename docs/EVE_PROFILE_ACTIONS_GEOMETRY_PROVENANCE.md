@@ -13,7 +13,7 @@ Original source: `TMessagesProj/src/main/java/org/telegram/ui/Components/Profile
 | Row inset 14dp | 134, 203-205, 253-270: horizontal inset `xpadding=14dp` | `activity_profile.xml` `layoutActions` marginHorizontal 14dp | EXACT numeric inset; layout ADAPTED |
 | Inter-action gap 7dp | 203-205, 253-270: `betweenPadding=xpadding / 2` | `activity_profile.xml` 3.5dp margin pair on adjacent actions | EXACT arithmetic gap; XML edge rounding ADAPTED |
 | Corner radius 16dp | 512-514: `getRoundRadius()=dp(16)` | `app/src/main/res/drawable/telegram_profile_action_surface.xml` | EXACT numeric radius; Android drawable ADAPTED |
-| Label 11sp | 1029-1033: `new Text(cs, 11, AndroidUtilities.bold())`, up to 3 lines, text scaling | `activity_profile.xml` action `TextView` textSize 11sp, two-line ellipsized | EXACT base size, ADAPTED line breaking/scale |
+| Label 11sp | 1029-1033: `new Text(cs, 11, AndroidUtilities.bold())`, up to 3 lines, text scaling | `telegram_typography.xml` `ProfileAction.Source` role 11sp, applied to `activity_profile.xml` labels with two-line ellipsis | EXACT base size, ADAPTED line breaking/scale |
 | Icons 24dp | 386-401, 1215-1234: 24dp action icon with filled/outline variants | Existing EVE `telegram_profile_photo/edit/settings` references | Icon dimension EXACT; icon-state switching NOT VERIFIED |
 | Background, scrim, bounce and motion | 176-215, 247-337, 407-504, 520-587, 994-1213: dynamic paints, alpha/scale and `ButtonBounce` | XML surface and selectable foreground | ADAPTED / NOT SOURCE-EXACT |
 | Font scale, RTL, Night, accessibility | Original Canvas text/virtual accessibility node, 1247+ | EVE TextViews, clickable focusable groups, theme token | ADAPTED; native device acceptance UNKNOWN |
