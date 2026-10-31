@@ -1,7 +1,6 @@
 package com.eve.app.util
 
 import android.content.Context
-import com.eve.app.EveApplication
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.HistoryRepository
 import com.google.firebase.auth.FirebaseAuth
@@ -13,35 +12,15 @@ object AttemptLimitManager {
     private const val PREFS_NAME = "eve_attempt_limits"
     private const val KEY_PREFIX = "attempt_count_"
 
-    /**
-     * Checks if given user email is an admin via backend / SessionManager.
-     * Constants.ADMIN_EMAILS is ONLY used as an emergency offline fallback when
-     * there is no network connection AND no cached admin status exists.
-     */
+    /** Local cache is a fresh Worker presentation hint, never an offline grant. */
     suspend fun isAdmin(email: String?, context: Context? = null): Boolean {
         if (email.isNullOrBlank()) return false
-        val cleanEmail = email.trim()
-        val cached = SessionManager.getCachedAdminStatus(cleanEmail, allowStale = false)
-        if (cached != null) return cached
-
-        val ctx = context ?: EveApplication.instance
-        if (!NetworkUtil.isOnline(ctx)) {
-            return SessionManager.getCachedAdminStatus(cleanEmail, allowStale = true)
-                ?: AdminRepository.isOfflineEmergencyAdmin(cleanEmail)
-        }
-        return try {
-            withTimeoutOrNull(2000L) {
-                AdminRepository().isAdmin(cleanEmail)
-            } ?: (SessionManager.getCachedAdminStatus(cleanEmail, allowStale = true) ?: AdminRepository.isOfflineEmergencyAdmin(cleanEmail))
-        } catch (_: Exception) {
-            SessionManager.getCachedAdminStatus(cleanEmail, allowStale = true) ?: AdminRepository.isOfflineEmergencyAdmin(cleanEmail)
-        }
+        return withTimeoutOrNull(2000L) { AdminRepository().isAdmin(email) } ?: false
     }
 
     fun isCurrentUserAdmin(): Boolean {
         val user = FirebaseAuth.getInstance().currentUser ?: return false
-        return SessionManager.getCachedAdminStatus(user.email, allowStale = true)
-            ?: AdminRepository.isOfflineEmergencyAdmin(user.email)
+        return SessionManager.getCachedAdminStatus(user.email, allowStale = false) == true
     }
 
     fun clearLocalForUser(context: Context, uid: String) {

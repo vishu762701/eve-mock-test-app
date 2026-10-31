@@ -27,31 +27,11 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Authenticated user ka lowercase email nikalta hai
-    function userEmail() {
-      return isSignedIn() && 'email' in request.auth.token ? request.auth.token.email.lower() : '';
-    }
-
-    // Hardcoded Admins list: Single source of truth is backend/src/auth.ts (HARDCODED_ADMIN_EMAILS).
-    // Firestore rules cannot query Cloudflare D1 directly, so keep this fallback list in sync with backend/src/auth.ts.
-    function isHardcodedAdmin() {
-      return userEmail() in [
-        'pronlike9@gmail.com',
-        'own.keni@gmail.com',
-        'anyqueairdrop@gmail.com',
-        'ghatisarkar56@gmail.com'
-      ];
-    }
-
-    // Dynamic Admins (agar kisi user ka email 'admins' collection me exist karta hai)
-    function isDynamicAdmin() {
-      return userEmail() != '' &&
-        exists(/databases/$(database)/documents/admins/$(userEmail()));
-    }
-
-    // Master Admin Check: chahe hardcoded ho ya dynamic admin doc exist kare
+    // Legacy client admin grants are retired. All administrative actions go
+    // through Worker token verification + D1 membership/permissions. Trusted
+    // Firebase Admin SDK jobs bypass client rules and check Worker rights.
     function isAdmin() {
-      return isSignedIn() && request.auth.token.email_verified == true && (isHardcodedAdmin() || isDynamicAdmin());
+      return false;
     }
 
     // ------------------------------------------------------------------------

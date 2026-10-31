@@ -13,6 +13,8 @@ function setup(count, admin = true) {
     dob TEXT, category TEXT, created_at INTEGER, last_active INTEGER,
     disabled INTEGER DEFAULT 0
   )`);
+  sql.exec('CREATE TABLE admins (email TEXT PRIMARY KEY)');
+  sql.prepare('INSERT INTO admins (email) VALUES (?)').run([...HARDCODED_ADMIN_EMAILS][0]);
   const insert = sql.prepare('INSERT INTO users (id, eve_id, email, display_name, created_at, last_active, disabled) VALUES (?, ?, ?, ?, ?, ?, ?)');
   for (let i = 1; i <= count; i++) {
     const key = String(i).padStart(4, '0');

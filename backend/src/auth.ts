@@ -177,7 +177,7 @@ export async function verifyFirebaseIdToken(token: string, projectId: string): P
     email,
     displayName: payload.name || "Student",
     emailVerified: payload.email_verified === true,
-    isAdmin: payload.email_verified === true && HARDCODED_ADMIN_EMAILS.has(email),
+    isAdmin: false, // D1 membership, resolved by middleware, alone grants admin authority.
   };
 }
 
@@ -207,17 +207,10 @@ export function isOwnerEmail(email?: string | null): boolean {
 export async function isUserAdmin(db: D1Database, email: string): Promise<boolean> {
   const cleanEmail = email.toLowerCase().trim();
   if (!cleanEmail) return false;
-  if (HARDCODED_ADMIN_EMAILS.has(cleanEmail)) return true;
 
-  try {
-    const res = await db
-      .prepare("SELECT 1 FROM admins WHERE LOWER(TRIM(email)) = ?")
-      .bind(cleanEmail)
-      .first();
-    return res !== null && res !== undefined;
-  } catch (_e) {
-    return false;
-  }
+  const res = await db.prepare("SELECT 1 FROM admins WHERE LOWER(TRIM(email)) = ?")
+    .bind(cleanEmail).first();
+  return res !== null && res !== undefined;
 }
 
 export async function getAdminPermissions(
@@ -226,13 +219,6 @@ export async function getAdminPermissions(
 ): Promise<{ isOwner: boolean; rights: AdminRight[]; customTitle: string | null } | null> {
   if (!email) return null;
   const normalized = email.toLowerCase().trim();
-  if (isOwnerEmail(normalized)) {
-    return {
-      isOwner: true,
-      rights: [...ALL_ADMIN_RIGHTS],
-      customTitle: "Owner",
-    };
-  }
 
   try {
     // A rights record must never outlive the membership that authorizes it.
@@ -241,6 +227,13 @@ export async function getAdminPermissions(
       .bind(normalized)
       .first<{ email: string }>();
     if (!adminRow) return null;
+    if (isOwnerEmail(normalized)) {
+      return {
+        isOwner: true,
+        rights: [...ALL_ADMIN_RIGHTS],
+        customTitle: "Owner",
+      };
+    }
 
     // Migration 0022 backfilled existing admins. Missing rights now grant none.
     const rightsRow = await db

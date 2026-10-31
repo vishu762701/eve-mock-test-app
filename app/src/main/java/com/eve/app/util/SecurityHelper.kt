@@ -21,14 +21,6 @@ object SecurityHelper {
         val currentUser = FirebaseAuth.getInstance().currentUser
         val email = currentUser?.email
 
-        // Fast path: check cached backend admin status, or fallback to offline emergency list
-        val cachedAdmin = SessionManager.getCachedAdminStatus(email, allowStale = true)
-            ?: AdminRepository.isOfflineEmergencyAdmin(email)
-        if (cachedAdmin) {
-            activity.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-            return
-        }
-
         // Apply protection immediately for non-admin or unverified states
         activity.window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
 
@@ -36,7 +28,8 @@ object SecurityHelper {
         if (currentUser != null && email != null) {
             activity.lifecycleScope.launch {
                 val isAdmin = adminRepo.isAdmin(email)
-                if (!activity.isFinishing && !activity.isDestroyed) {
+                if (!activity.isFinishing && !activity.isDestroyed &&
+                    FirebaseAuth.getInstance().currentUser?.uid == currentUser.uid) {
                     if (isAdmin) {
                         activity.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
                     } else {

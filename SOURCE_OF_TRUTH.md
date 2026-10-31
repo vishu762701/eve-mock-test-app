@@ -55,7 +55,7 @@ Source-traced Telegram UI, theme reveal, Lottie animations, existing tokens and 
 
 ### C. Firebase and security rules (`firestore.rules`, `functions/`)
 - `firestore.rules` enforces admin write authorization through `isAdmin()`.
-- Admin email sync: the hardcoded admin emails must stay identical in `Constants.ADMIN_EMAILS` (`app/src/main/java/com/eve/app/util/Constants.kt`) and in `isHardcodedAdmin()` (`firestore.rules`). Those two files are the only source of the list. Do not copy the emails into docs.
+- Admin authority comes from Worker-verified Firebase identity and D1 `admins` membership. Android has no email allowlist or offline grant. Existing owner protection is server-side and still requires D1 membership; migration 0027 stages existing owner membership. Optional Firebase privileged callables verify identity/rights through the Worker. Legacy Firestore rules remain a separate compatibility surface, never an Android admin authority. Do not copy admin emails into docs.
 - Lockfile rule: `functions/package-lock.json` is untracked and ignored. Never stage, commit, overwrite or delete it.
 
 ## 3. Safety and functional invariants (not UI freezes)

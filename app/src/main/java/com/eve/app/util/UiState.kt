@@ -6,12 +6,6 @@ sealed interface UiState<out T> {
     data class Error(val message: String) : UiState<Nothing>
 }
 
-/**
- * Emergency offline fallback ONLY when there is no network connection AND no cached admin status exists.
- * Admin authorization is authoritatively verified by the Cloudflare Worker backend (/api/auth/me)
- * and cached in SessionManager.
- */
-fun isHardcodedAdmin(email: String?): Boolean {
-    SessionManager.getCachedAdminStatus(email, allowStale = true)?.let { return it }
-    return email != null && Constants.ADMIN_EMAILS.any { it.equals(email.trim(), ignoreCase = true) }
-}
+/** Fresh Worker presentation hint; privileged screens always verify with the Worker. */
+fun hasFreshWorkerAdminHint(email: String?): Boolean =
+    SessionManager.getCachedAdminStatus(email, allowStale = false) == true

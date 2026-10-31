@@ -41,6 +41,7 @@ function load(db) {
     'firebase-admin/remote-config': { getRemoteConfig: () => ({}) },
     'crypto': crypto,
     './questionValidation': require('../questionValidation'),
+    './workerAdmin': require('../workerAdmin'),
   };
   const context = { exports: {}, require: (name) => { if (!(name in modules)) throw new Error(`Unexpected module ${name}`); return modules[name]; }, console, process: { env: {} }, setTimeout, fetch: () => { throw new Error('Network must not run'); }, AbortSignal };
   vm.runInNewContext(fs.readFileSync(require.resolve('../index.js'), 'utf8'), context);

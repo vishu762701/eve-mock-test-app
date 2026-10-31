@@ -3,7 +3,7 @@
 // ============================================================================
 
 import { Context, Next } from "hono";
-import { AdminRight, getAdminPermissions, isOwnerEmail, isUserAdmin, verifyFirebaseIdToken } from "../auth";
+import { AdminRight, getAdminPermissions, isUserAdmin, verifyFirebaseIdToken } from "../auth";
 import { AuthUser, Env } from "../types";
 
 export async function authMiddleware(c: Context<{ Bindings: Env; Variables: { user: AuthUser } }>, next: Next) {
@@ -41,7 +41,7 @@ export async function authMiddleware(c: Context<{ Bindings: Env; Variables: { us
   catch { return c.json({ success: false, error: "Invalid or expired authentication. Please sign in again." }, 401); }
   try {
     // Double check dynamic admin list from D1
-    const isAdmin = user.isAdmin || (user.emailVerified === true && await isUserAdmin(c.env.DB, user.email));
+    const isAdmin = user.emailVerified === true && await isUserAdmin(c.env.DB, user.email);
     user.isAdmin = isAdmin;
 
     const profile = await c.env.DB.prepare("SELECT disabled FROM users WHERE id = ?").bind(user.uid).first<{ disabled?: number }>();
@@ -78,10 +78,6 @@ export function requirePermission(permission: AdminRight) {
     const user = c.get("user");
     if (!user || !user.isAdmin) {
       return c.json({ success: false, error: "Admin privileges required" }, 403);
-    }
-
-    if (isOwnerEmail(user.email)) {
-      return next();
     }
 
     const perms = await getAdminPermissions(c.env.DB, user.email);

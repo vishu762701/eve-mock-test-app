@@ -22,3 +22,12 @@ backend/package-lock.json
 /LATEST_PROJECT_CODE.txt
 __pycache__/
 *.pyc
+
+firebase-tests/node_modules/
+firebase-tests/package-lock.json
+firebase-tests/*-debug.log
+firebase-tests/.firebase/
+
+/firestore-debug.log
+/storage-debug.log
+/firebase-debug.log

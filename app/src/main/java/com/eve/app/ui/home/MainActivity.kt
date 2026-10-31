@@ -87,7 +87,7 @@ import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.util.SessionManager
 import com.eve.app.util.UiState
 import com.eve.app.util.VibrationHelper
-import com.eve.app.util.isHardcodedAdmin
+import com.eve.app.util.hasFreshWorkerAdminHint
 import coil.load
 import coil.transform.CircleCropTransformation
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
@@ -377,8 +377,7 @@ class MainActivity : EveBaseActivity() {
         })
 
         Log.e("EVE_STARTUP", "stage: viewModel load")
-        val initialAdmin = SessionManager.getCachedAdminStatus(user.email, allowStale = true)
-            ?: isHardcodedAdmin(user.email)
+        val initialAdmin = hasFreshWorkerAdminHint(user.email)
         isAdminUser = initialAdmin
         if (initialAdmin) {
             showAdminButton()
@@ -389,7 +388,7 @@ class MainActivity : EveBaseActivity() {
             val admin = adminRepo.isAdmin(user.email)
             if (admin != isAdminUser) {
                 isAdminUser = admin
-                if (admin) showAdminButton()
+                if (admin) showAdminButton() else binding.btnAdmin.visibility = View.GONE
                 viewModel.loadForUser(user.uid, admin)
             }
         }

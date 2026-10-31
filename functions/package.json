@@ -11,7 +11,7 @@
   },
   "private": true,
   "scripts": {
-    "build": "node --check index.js && node --check questionValidation.js",
+    "build": "node --check index.js && node --check questionValidation.js && node --check workerAdmin.js",
     "test": "node --test test/*.test.js"
   }
 }

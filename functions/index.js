@@ -27,6 +27,7 @@
 
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { verifyWorkerAdmin } = require("./workerAdmin");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { defineSecret } = require("firebase-functions/params");
 const { initializeApp } = require("firebase-admin/app");
@@ -285,16 +286,8 @@ exports.submitAttempt = onCall(async (request) => {
     return resultFor(cached.data());
   }
 
-  // A student may submit a particular exam only once. Admins retain preview/retry access.
-  const adminEmails = new Set([
-    "pronlike9@gmail.com",
-    "own.keni@gmail.com",
-    "anyqueairdrop@gmail.com",
-    "ghatisarkar56@gmail.com"
-  ]);
-  const callerEmail = String(request.auth?.token?.email || "").toLowerCase();
-  const dynamicAdmin = callerEmail ? await db.collection("admins").doc(callerEmail).get() : { exists: false };
-  const isAdminCaller = request.auth.token.email_verified === true && (adminEmails.has(callerEmail) || dynamicAdmin.exists);
+  // Only the Worker may grant administrative preview/retry privileges.
+  const isAdminCaller = await verifyWorkerAdmin(request, "manage_generated_tests", fetch);
   const examName = String(data.examName || "Test").trim();
   const category = String(data.category || "").trim();
   const rawAnswers = Array.isArray(data.answers) ? data.answers : [];
@@ -539,21 +532,6 @@ exports.broadcastNotification = onDocumentCreated("notifications/{notificationId
  * PART E: Automated AI Question-Generation System
  * ============================================================================
  */
-
-const HARDCODED_ADMIN_EMAILS = new Set([
-  "pronlike9@gmail.com",
-  "own.keni@gmail.com",
-  "anyqueairdrop@gmail.com",
-  "ghatisarkar56@gmail.com"
-]);
-
-async function verifyIsAdmin(db, email) {
-  const callerEmail = String(email || "").toLowerCase().trim();
-  if (!callerEmail) return false;
-  if (HARDCODED_ADMIN_EMAILS.has(callerEmail)) return true;
-  const dynamicAdmin = await db.collection("admins").doc(callerEmail).get();
-  return dynamicAdmin.exists;
-}
 
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.5-flash-lite";
 
@@ -845,7 +823,7 @@ exports.triggerAiTestGeneration = onCall(
 
     const db = getFirestore();
     const callerEmail = String(request.auth?.token?.email || "");
-    const isAdmin = request.auth.token.email_verified === true && await verifyIsAdmin(db, callerEmail);
+    const isAdmin = await verifyWorkerAdmin(request, "manage_generated_tests", fetch);
     if (!isAdmin) {
       throw new HttpsError("permission-denied", "Admin privileges required.");
     }
@@ -1017,7 +995,7 @@ exports.updateRemoteConfigMaintenance = onCall(async (request) => {
 
   const db = getFirestore();
   const callerEmail = String(request.auth?.token?.email || "");
-  const isAdmin = request.auth.token.email_verified === true && await verifyIsAdmin(db, callerEmail);
+  const isAdmin = await verifyWorkerAdmin(request, "manage_config_maintenance", fetch);
   if (!isAdmin) {
     throw new HttpsError("permission-denied", "Admin privileges required.");
   }
@@ -1078,7 +1056,7 @@ exports.reformatQuestionExplanation = onCall(async (request) => {
   }
   const db = getFirestore();
   const callerEmail = String(request.auth?.token?.email || "");
-  const isAdmin = request.auth.token.email_verified === true && await verifyIsAdmin(db, callerEmail);
+  const isAdmin = await verifyWorkerAdmin(request, "manage_questions", fetch);
   if (!isAdmin) {
     throw new HttpsError("permission-denied", "Admin privileges required.");
   }

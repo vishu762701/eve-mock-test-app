@@ -5,7 +5,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { Hono } from "hono";
 import { adminRoutes } from "../src/routes/admin.ts";
 import { examRoutes } from "../src/routes/exams.ts";
-import { ALL_ADMIN_RIGHTS, HARDCODED_ADMIN_EMAILS } from "../src/auth.ts";
+import { ALL_ADMIN_RIGHTS, HARDCODED_ADMIN_EMAILS, isUserAdmin } from "../src/auth.ts";
 
 function isolatedD1() {
   const sqlite = new DatabaseSync(":memory:");
@@ -342,4 +342,28 @@ test("Admin rights: verified admin may remove a lesser privileged admin", async 
   assert.equal(res.status, 200);
   assert.equal(sqlite.prepare("SELECT email FROM admins WHERE email = 'junior@eve.app'").get(), undefined);
   assert.equal(sqlite.prepare("SELECT email FROM admin_rights WHERE email = 'junior@eve.app'").get(), undefined);
+});
+
+
+test("built-in owner authority requires active D1 membership", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  const email = [...HARDCODED_ADMIN_EMAILS][0];
+  const app = createTestApp(d1, { uid: "owner", email, isAdmin: true });
+  assert.equal(await isUserAdmin(d1, email), true);
+  sqlite.prepare("DELETE FROM admins WHERE email = ?").run(email);
+  assert.equal(await isUserAdmin(d1, email), false);
+  assert.equal((await app.request("/api/admin/me")).status, 403);
+  assert.equal((await app.request("/api/exams", jsonRequest("POST", {}))).status, 403);
+  assert.ok(sqlite.prepare("SELECT email FROM admin_rights WHERE email = ?").get(email));
+});
+
+test("owner membership migration is idempotent and excludes forged owner titles", async () => {
+  const { sqlite } = isolatedD1();
+  sqlite.prepare("INSERT INTO admin_rights (email, rights, custom_title, updated_at) VALUES (?, ?, ?, ?)")
+    .run("forged@example.test", "[]", "Owner", 1);
+  const migration = readFileSync(new URL("../migrations/0027_owner_admin_membership.sql", import.meta.url), "utf8");
+  const before = sqlite.prepare("SELECT COUNT(*) AS n FROM admins").get().n;
+  sqlite.exec(migration); sqlite.exec(migration);
+  assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM admins").get().n, before);
+  assert.equal(sqlite.prepare("SELECT email FROM admins WHERE email = 'forged@example.test'").get(), undefined);
 });

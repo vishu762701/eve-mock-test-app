@@ -37,6 +37,7 @@ class MockD1 {
         return { results: rows };
       },
       first: async () => {
+        if (sql.includes("FROM admins")) return { email: [...HARDCODED_ADMIN_EMAILS][0] };
         if (sql.includes("MAX(order_index)")) {
           return { max_order: this.rows.length ? Math.max(...this.rows.map((row) => row.order_index)) : null };
         }

@@ -1,17 +1,6 @@
 package com.eve.app.util
 
 object Constants {
-    // EMERGENCY OFFLINE FALLBACK ONLY:
-    // Admin authorization is authoritatively decided by the Cloudflare Worker backend (/api/auth/me)
-    // and cached in SessionManager. This list is strictly consulted as a last-resort emergency fallback
-    // ONLY when there is no network connection AND no cached admin status exists.
-    val ADMIN_EMAILS = setOf(
-        "pronlike9@gmail.com",
-        "own.keni@gmail.com",
-        "anyqueairdrop@gmail.com",
-        "ghatisarkar56@gmail.com"
-    )
-
     // Per wrong answer negative marking (0.0 = koi negative marking nahi)
     const val NEGATIVE_MARK = 0.0
 

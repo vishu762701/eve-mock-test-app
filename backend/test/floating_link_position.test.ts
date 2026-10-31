@@ -13,6 +13,7 @@ function createMockDb() {
           return this;
         },
         async first<T = any>(): Promise<T | null> {
+          if (sql.includes("FROM admins")) return { email: "own.keni@gmail.com" } as T;
           if (sql.includes("FROM app_content WHERE id = 'floating_link'")) {
             const item = store.get("floating_link");
             return (item || null) as T | null;

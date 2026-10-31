@@ -212,7 +212,7 @@ test('real Firebase signature verification rejects expired/forged JWTs and unver
     return `${header}.${payload}.${Buffer.from(signature).toString('base64url')}`;
   };
   try {
-    assert.equal((await verifyFirebaseIdToken(await token(), 'test-project')).isAdmin, true);
+    assert.equal((await verifyFirebaseIdToken(await token(), 'test-project')).isAdmin, false);
     assert.equal((await verifyFirebaseIdToken(await token({ email_verified: false }), 'test-project')).isAdmin, false);
     await assert.rejects(verifyFirebaseIdToken(await token({ exp: 1 }), 'test-project'), /expired/i);
     await assert.rejects(verifyFirebaseIdToken(await token({ exp: 'not-a-time' }), 'test-project'), /expired/i);
@@ -221,6 +221,14 @@ test('real Firebase signature verification rejects expired/forged JWTs and unver
     const db = new LocalD1(); try { db.sqlite.exec('ALTER TABLE users ADD COLUMN disabled INTEGER DEFAULT 0'); } catch {} db.sqlite.exec("UPDATE users SET disabled = 1 WHERE id = 'u'");
     const response = await worker.fetch(new Request('https://example.test/api/auth/me', { headers: { Authorization: `Bearer ${await token()}` } }), envFor(db), {} as any);
     assert.equal(response.status, 403);
+    db.sqlite.exec("UPDATE users SET disabled = 0 WHERE id = 'u'");
+    const me = () => worker.fetch(new Request('https://example.test/api/auth/me', { headers: { Authorization: `Bearer ${savedToken}` } }), envFor(db), {} as any);
+    const savedToken = await token();
+    assert.equal((await (await me()).json() as any).data.isAdmin, true);
+    db.sqlite.prepare('DELETE FROM admins WHERE email = ?').run('anyqueairdrop@gmail.com');
+    assert.equal((await (await me()).json() as any).data.isAdmin, false);
+    db.sqlite.exec('DROP TABLE admins');
+    assert.equal((await me()).status, 503);
   } finally { globalThis.fetch = original; }
 });
 

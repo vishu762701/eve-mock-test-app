@@ -1,0 +1,6 @@
+{
+  "name": "eve-firebase-authority-tests",
+  "private": true,
+  "scripts": { "test": "firebase emulators:exec --config ../firebase-tests.config.json --project demo-eve-authority --only firestore,storage 'node --test authority.test.mjs'" },
+  "devDependencies": { "@firebase/rules-unit-testing": "6.0.0", "firebase": "13.1.0", "firebase-tools": "15.34.2" }
+}

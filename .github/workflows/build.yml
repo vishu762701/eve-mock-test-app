@@ -232,6 +232,16 @@ jobs:
         run: |
           npm run build --prefix functions
           npm test --prefix functions
+      - name: Set up Java for Firebase rule emulators
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Verify Worker-only Firebase administrative authority
+        working-directory: firebase-tests
+        run: |
+          npm install --no-package-lock
+          npm test
 
   publish-apk:
     name: Publish verified debug APK

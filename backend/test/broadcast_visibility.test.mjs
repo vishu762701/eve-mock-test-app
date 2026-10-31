@@ -5,6 +5,14 @@ import { broadcastRoutes } from "../src/routes/broadcasts.ts";
 import { HARDCODED_ADMIN_EMAILS } from "../src/auth.ts";
 
 const ownerEmail = [...HARDCODED_ADMIN_EMAILS][0];
+// This fixture's owner is a D1 member; isAdmin alone no longer authorizes writes.
+function withOwnerMembership(db) {
+  return { ...db, prepare(sql) {
+    if (sql.includes("FROM admins")) return { bind: () => ({ first: async () => ({ email: ownerEmail }) }) };
+    return db.prepare(sql);
+  } };
+}
+
 
 const stored = {
   id: "broadcast-1", title: "Exam schedule", message: "New test published",
@@ -52,7 +60,7 @@ function requestAsAdmin(method, endpoint, body, onPrepare = () => { throw new Er
     init.body = JSON.stringify(body);
   }
   return app.fetch(new Request("https://example.test" + endpoint, init),
-    { DB: { prepare: onPrepare } }, {});
+    { DB: withOwnerMembership({ prepare: onPrepare }) }, {});
 }
 
 test("broadcast list rejects malformed limits before reading D1", async () => {
@@ -131,7 +139,7 @@ function adminDeletionFixture(changesById = {}) {
     prepare: () => ({ bind: id => ({ id, run: async () => ({ meta: { changes: changesById[id] || 0 } }) }) }),
     batch: async statements => statements.map(x => ({ meta: { changes: changesById[x.id] || 0 } }))
   };
-  return { app, env: { DB: db } };
+  return { app, env: { DB: withOwnerMembership(db) } };
 }
 
 test("delete ID reports 404 for stale records, never fake success", async () => {

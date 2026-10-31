@@ -44,7 +44,7 @@ import com.eve.app.util.EveNavigationHelper
 import com.eve.app.util.ProfilePhotoManager
 import com.eve.app.util.ReminderScheduler
 import com.eve.app.util.SessionManager
-import com.eve.app.util.isHardcodedAdmin
+import com.eve.app.util.hasFreshWorkerAdminHint
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -540,13 +540,12 @@ class ProfileActivity : EveBaseActivity() {
             binding.chipAdmin.visibility = View.VISIBLE
         }
 
-        val cachedAdmin = SessionManager.getCachedAdminStatus(email, allowStale = true)
-            ?: isHardcodedAdmin(email)
+        val cachedAdmin = hasFreshWorkerAdminHint(email)
         if (cachedAdmin) {
             setupAdminUi()
         }
         lifecycleScope.launch {
-            if (adminRepo.isAdmin(email)) setupAdminUi()
+            if (adminRepo.isAdmin(email)) setupAdminUi() else binding.chipAdmin.visibility = View.GONE
         }
 
         val updatePremiumBadge = { status: PremiumStatusDto? ->
