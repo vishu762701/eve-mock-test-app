@@ -446,25 +446,25 @@
                         <com.eve.app.ui.profile.TelegramProfileRadioCell
                             android:id="@+id/radioGeneral"
                             android:layout_width="match_parent"
-                            android:layout_height="48dp"
+                            android:layout_height="50dp"
                             android:text="General" />
 
                         <com.eve.app.ui.profile.TelegramProfileRadioCell
                             android:id="@+id/radioObc"
                             android:layout_width="match_parent"
-                            android:layout_height="48dp"
+                            android:layout_height="50dp"
                             android:text="OBC" />
 
                         <com.eve.app.ui.profile.TelegramProfileRadioCell
                             android:id="@+id/radioSc"
                             android:layout_width="match_parent"
-                            android:layout_height="48dp"
+                            android:layout_height="50dp"
                             android:text="SC" />
 
                         <com.eve.app.ui.profile.TelegramProfileRadioCell
                             android:id="@+id/radioSt"
                             android:layout_width="match_parent"
-                            android:layout_height="48dp"
+                            android:layout_height="50dp"
                             android:text="ST" />
                     </LinearLayout>
                 </LinearLayout>

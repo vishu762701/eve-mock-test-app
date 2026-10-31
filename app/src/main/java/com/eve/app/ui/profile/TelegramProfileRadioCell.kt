@@ -58,7 +58,7 @@ class TelegramProfileRadioCell @JvmOverloads constructor(
         isClickable = true
         isFocusable = true
         importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
-        minHeight = dp(50)
+        minimumHeight = dp(50)
         val selector = context.obtainStyledAttributes(intArrayOf(android.R.attr.selectableItemBackground))
         background = selector.getDrawable(0)
         selector.recycle()

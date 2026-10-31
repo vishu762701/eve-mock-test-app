@@ -11,7 +11,7 @@ class ProfileCategorySourceContractTest {
         val row = File("src/main/java/com/eve/app/ui/profile/TelegramProfileRadioCell.kt").readText()
         assertFalse(xml.contains("com.eve.app.ui.common.TelegramRadioButton"))
         assertTrue(Regex("com.eve.app.ui.profile.TelegramProfileRadioCell").findAll(xml).count() == 4)
-        assertTrue(row.contains("minHeight = dp(50)"))
+        assertTrue(row.contains("minimumHeight = dp(50)"))
         assertTrue(row.contains("TelegramRadioIndicator"))
         assertTrue(row.contains("info.isCheckable = true"))
         assertTrue(row.contains("info.isChecked = isChecked"))
