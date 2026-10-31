@@ -34,7 +34,8 @@ import com.eve.app.theme.TelegramThemeEngine
  * - Back button: 48x48dp
  * - Title: 20sp bold
  * - Subtitle: 14sp
- * - Smooth search expansion and collapse
+ * - ADAPTED search overlay; original Telegram ActionBar.java:1188-1275 uses 150ms alpha and 0.95 title scale.
+ * - Rapid search toggles cancel old animations and guard IME callbacks.
  */
 class TelegramActionBar @JvmOverloads constructor(
     context: Context,
@@ -60,6 +61,7 @@ class TelegramActionBar @JvmOverloads constructor(
 
     var isSearchExpanded: Boolean = false
         private set
+    private var searchAnimationGeneration: Int = 0
 
     var onSearchTextChanged: ((String) -> Unit)? = null
     var onSearchCollapsed: (() -> Unit)? = null
@@ -191,6 +193,8 @@ class TelegramActionBar @JvmOverloads constructor(
         })
 
         addView(searchContainer, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+        // Keep back navigation above the opaque search background.
+        backButton.bringToFront()
     }
 
     fun setTitle(title: CharSequence) {
@@ -209,10 +213,17 @@ class TelegramActionBar @JvmOverloads constructor(
     fun openSearch() {
         if (isSearchExpanded) return
         isSearchExpanded = true
+        val generation = ++searchAnimationGeneration
+        val wasVisible = searchContainer.visibility == View.VISIBLE
+        searchContainer.animate().setListener(null).cancel()
         searchContainer.visibility = View.VISIBLE
-        searchContainer.alpha = 0f
-        searchContainer.animate().alpha(1f).setDuration(180L).setListener(object : AnimatorListenerAdapter() {
+        if (!wasVisible) searchContainer.alpha = 0f
+        titlesContainer.animate().cancel()
+        // Telegram ActionBar.java:1207-1237,1275 - 150ms alpha/0.95 scale.
+        titlesContainer.animate().alpha(0f).scaleX(0.95f).scaleY(0.95f).setDuration(150L).start()
+        searchContainer.animate().alpha(1f).setDuration(150L).setListener(object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator) {
+                if (generation != searchAnimationGeneration || !isSearchExpanded || !isAttachedToWindow) return
                 searchEditText.requestFocus()
                 val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
                 imm?.showSoftInput(searchEditText, InputMethodManager.SHOW_IMPLICIT)
@@ -225,17 +236,30 @@ class TelegramActionBar @JvmOverloads constructor(
     fun closeSearch() {
         if (!isSearchExpanded) return
         isSearchExpanded = false
+        val generation = ++searchAnimationGeneration
+        searchContainer.animate().setListener(null).cancel()
         val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         imm?.hideSoftInputFromWindow(searchEditText.windowToken, 0)
+        searchEditText.clearFocus()
         searchEditText.setText("")
+        titlesContainer.animate().cancel()
+        titlesContainer.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(150L).start()
         searchContainer.animate().alpha(0f).setDuration(150L).setListener(object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator) {
+                if (generation != searchAnimationGeneration || isSearchExpanded) return
                 searchContainer.visibility = View.GONE
                 searchButton.visibility = View.VISIBLE
                 if (hasFilterAction) filterButton.visibility = View.VISIBLE
                 onSearchCollapsed?.invoke()
             }
         }).start()
+    }
+
+    override fun onDetachedFromWindow() {
+        searchAnimationGeneration++
+        searchContainer.animate().setListener(null).cancel()
+        titlesContainer.animate().cancel()
+        super.onDetachedFromWindow()
     }
 
     fun showFilterAction(onClick: () -> Unit) {

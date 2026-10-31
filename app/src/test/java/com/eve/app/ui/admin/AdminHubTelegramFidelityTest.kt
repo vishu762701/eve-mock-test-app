@@ -122,4 +122,13 @@ class AdminHubTelegramFidelityTest {
         assertTrue("Switch must keep Telegram 22dp margin", rights.contains("marginEnd = dp(22f)"))
     }
 
+    @Test
+    fun testTelegramAdminSearchUsesSourceTimingAndCancelsStaleTransitions() {
+        val source = File("src/main/java/com/eve/app/ui/admin/tg/TelegramActionBar.kt").readText()
+        assertTrue("Original ActionBar search timing must be retained", source.contains("setDuration(150L)"))
+        assertTrue("Search must retain Telegram's outgoing title scale", source.contains("scaleX(0.95f).scaleY(0.95f)"))
+        assertTrue("Search must cancel stale completion callbacks", source.contains("generation != searchAnimationGeneration"))
+        assertTrue("Back button must remain clickable over search", source.contains("backButton.bringToFront()"))
+    }
+
 }
