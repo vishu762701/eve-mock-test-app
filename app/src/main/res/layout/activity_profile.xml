@@ -139,7 +139,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="2dp"
-                tools:text="Admin" />
+                tools:text="Student" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipAdmin"
@@ -567,35 +567,6 @@
                             android:layout_height="24dp" />
                     </LinearLayout>
 
-                    <!-- Edit About Content (Admin only) -->
-                    <LinearLayout
-                        android:id="@+id/cellEditAbout"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:minHeight="60dp"
-                        android:paddingVertical="10dp"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:foreground="?attr/selectableItemBackground"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingHorizontal="20dp"
-                        android:visibility="gone">
-
-                        <TextView
-                            style="@style/TextAppearance.Eve.Telegram.SettingsLabel"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Edit About Content (Admin)" />
-
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:importantForAccessibility="no"
-                            android:src="@drawable/ic_chevron_right"
-                            app:tint="@color/telegram_type_secondary" />
-                    </LinearLayout>
                 </LinearLayout>
             </com.eve.app.designsystem.DesignCardView>
         </LinearLayout>

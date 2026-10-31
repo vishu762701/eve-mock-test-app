@@ -388,12 +388,9 @@ class ProfileActivity : EveBaseActivity() {
 
     private fun setupAdminAndPremium(email: String?) {
         val setupAdminUi = {
-            binding.tvStatus.text = "Admin"
+            // Admin is a single role badge; the profile status line is not a role badge.
+            // Real EVE presence is not yet server-authoritative: never fabricate "online".
             binding.chipAdmin.visibility = View.VISIBLE
-            binding.cellEditAbout.visibility = View.VISIBLE
-            binding.cellEditAbout.setOnClickListener {
-                startActivity(Intent(this, com.eve.app.ui.admin.EditAboutActivity::class.java))
-            }
         }
 
         val cachedAdmin = SessionManager.getCachedAdminStatus(email, allowStale = true)
@@ -450,10 +447,8 @@ class ProfileActivity : EveBaseActivity() {
                     val eveId = profile.eveId ?: "--"
                     binding.tvEveId.text = eveId
 
-                    // Status line (Admin for admins, or Eve ID)
-                    if (binding.chipAdmin.visibility != View.VISIBLE) {
-                        binding.tvStatus.text = if (eveId != "--") "Eve ID: $eveId" else "Student"
-                    }
+                    // Status is independent of verified role; EVE ID is never online presence.
+                    binding.tvStatus.text = if (eveId != "--") "Eve ID: $eveId" else "Student"
 
                     // Name
                     if (profile.displayName.isNotBlank()) {
