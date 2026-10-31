@@ -200,6 +200,7 @@ class ProfileGooeyView @JvmOverloads constructor(
 
         private val whole = RectF()
         private val wholeOptimized = RectF()
+        private val temp = RectF()
         private val blackNodePaint = Paint().apply {
             color = Color.BLACK
             blendMode = BlendMode.SRC_IN
@@ -269,26 +270,35 @@ class ProfileGooeyView @JvmOverloads constructor(
             effectNotchNode.setPosition(0, 0, rw, rh)
             wholeOptimized.set(0f, 0f, rw.toFloat(), rh.toFloat())
 
-            // 1. Record child into render buffer
+            // Telegram ProfileGooeyView.java:342-348: raw avatar buffer and alpha.
             var c = node.beginRecording()
             c.translate(-left, -top)
-            val imageAlpha = MathUtils.clamp(((1f - (pullProgress - 0.5f) / 0.5f) * 255).toInt(), 0, 255)
+            val imageAlphaNoClamp = ProfileGooeyMotionMath.imageAlphaUnclamped(pullProgress)
+            val imageAlpha = MathUtils.clamp(imageAlphaNoClamp, 0, 255)
             drawer(c)
             node.endRecording()
 
-            // 2. Blur buffer
-            val blurScaleFactor = factorMult / 4f + 1f + blurIntensity * 0.5f * factorMult + (factorMult - 1f) * 2f
+            // Original shader pipeline: an independent blurred child RenderNode.
+            val blurScaleFactor = factorMult / 4f + 1f +
+                blurIntensity * 0.5f * factorMult + (factorMult - 1f) * 2f
             c = blurNode.beginRecording()
             c.scale(1f / blurScaleFactor, 1f / blurScaleFactor, 0f, 0f)
             c.drawRenderNode(node)
             blurNode.endRecording()
 
-            // 3. Effect node with liquid bridge
+            // ProfileGooeyView.java:358-390: alpha-mask and reversible liquid bridge.
             val gooScaleFactor = 2f + factorMult
             c = effectNode.beginRecording()
             c.scale(1f / gooScaleFactor, 1f / gooScaleFactor, 0f, 0f)
-
-            val hBridge = MathUtils.clamp(pullProgress / 0.5f, 0f, 1f) * dp(7) * gooScaleFactor
+            if (imageAlpha < 255) {
+                c.saveLayer(wholeOptimized, null)
+                c.drawRenderNode(node)
+                c.drawRect(wholeOptimized, blackNodePaint)
+                c.restore()
+            }
+            val hBridge = ProfileGooeyMotionMath.liquidBridgeHeight(
+                pullProgress, dp(7) * gooScaleFactor
+            )
             if (childCount > 0) {
                 val child = getChildAt(0)
                 val cx = child.x + child.width * child.scaleX / 2f - left
@@ -303,11 +313,14 @@ class ProfileGooeyView @JvmOverloads constructor(
                 c.drawPath(path, blackPaint)
             }
             if (imageAlpha > 0) {
+                if (imageAlpha != 255) c.saveLayerAlpha(wholeOptimized, imageAlpha)
                 c.drawRenderNode(node)
+                if (imageAlpha != 255) c.restore()
             }
             effectNode.endRecording()
 
-            // 4. Notch cutout mask node
+            // ProfileGooeyView.java:392-432: circular / accurate / rounded /
+            // notchless bar mask, with the matching liquid cusp.
             c = effectNotchNode.beginRecording()
             c.scale(1f / gooScaleFactor, 1f / gooScaleFactor, 0f, 0f)
             val info = notchInfo
@@ -318,18 +331,77 @@ class ProfileGooeyView @JvmOverloads constructor(
                     val rad = min(info.bounds.width(), info.bounds.height()) / 2f
                     val cy = info.bounds.bottom - info.bounds.width() / 2f
                     c.drawCircle(info.bounds.centerX(), cy, rad, blackPaint)
-                } else {
+
+                    path.rewind()
+                    path.moveTo(info.bounds.centerX() - hBridge / 2f, cy)
+                    path.lineTo(info.bounds.centerX(), cy + rad + hBridge)
+                    path.lineTo(info.bounds.centerX() + hBridge / 2f, cy)
+                    path.close()
+                    c.drawPath(path, blackPaint)
+                } else if (info.isAccurate) {
                     c.drawPath(info.path, blackPaint)
+                } else {
+                    val rad = max(info.bounds.width(), info.bounds.height()) / 2f
+                    temp.set(info.bounds)
+                    c.drawRoundRect(temp, rad, rad, blackPaint)
+
+                    path.rewind()
+                    path.moveTo(temp.centerX() - hBridge / 2f, temp.bottom)
+                    path.lineTo(temp.centerX(), temp.bottom + hBridge)
+                    path.lineTo(temp.centerX() + hBridge / 2f, temp.bottom)
+                    path.close()
+                    c.drawPath(path, blackPaint)
                 }
+            } else {
+                c.drawRect(0f, 0f, rw.toFloat(), dp(BLACK_KING_BAR), blackPaint)
+                path.rewind()
+                path.moveTo((rw - hBridge) / 2f, dp(BLACK_KING_BAR))
+                path.lineTo(rw / 2f, dp(BLACK_KING_BAR) + hBridge)
+                path.lineTo((rw + hBridge) / 2f, dp(BLACK_KING_BAR))
+                path.close()
+                c.drawPath(path, blackPaint)
             }
             effectNotchNode.endRecording()
 
-            // 5. Draw to canvas
+            // ProfileGooeyView.java:434-482: filtered alpha composition and
+            // blurred image fade; a bare drawRenderNode loses the source effect.
             canvas.save()
             canvas.translate(left, top - dp(BLACK_KING_BAR))
-            canvas.scale(gooScaleFactor, gooScaleFactor, 0f, 0f)
-            canvas.drawRenderNode(effectNode)
+            if (info != null) {
+                canvas.clipRect(0f, info.bounds.top, rw.toFloat(), rh.toFloat())
+            }
+            canvas.saveLayer(wholeOptimized, filter)
+            canvas.scale(gooScaleFactor, gooScaleFactor)
             canvas.drawRenderNode(effectNotchNode)
+            canvas.drawRenderNode(effectNode)
+            canvas.restore()
+
+            val blurImageAlpha = MathUtils.clamp(imageAlphaNoClamp * 3 / 4, 0, 255)
+            if (blurImageAlpha < 255) {
+                canvas.saveLayer(wholeOptimized, null)
+                if (blurIntensity != 0f) {
+                    canvas.saveLayer(wholeOptimized, filter)
+                    canvas.scale(blurScaleFactor, blurScaleFactor)
+                    canvas.drawRenderNode(blurNode)
+                    canvas.restore()
+                } else {
+                    canvas.drawRenderNode(node)
+                }
+                canvas.drawRect(wholeOptimized, blackNodePaint)
+                canvas.restore()
+            }
+            if (blurImageAlpha > 0) {
+                if (blurImageAlpha != 255) canvas.saveLayerAlpha(wholeOptimized, blurImageAlpha)
+                if (blurIntensity != 0f) {
+                    canvas.saveLayer(wholeOptimized, filter)
+                    canvas.scale(blurScaleFactor, blurScaleFactor)
+                    canvas.drawRenderNode(blurNode)
+                    canvas.restore()
+                } else {
+                    canvas.drawRenderNode(node)
+                }
+                if (blurImageAlpha != 255) canvas.restore()
+            }
             canvas.restore()
         }
     }
