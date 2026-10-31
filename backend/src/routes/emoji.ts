@@ -968,8 +968,9 @@ emojiAdminRoutes.post("/placements", async (c) => {
       400
     );
   }
-  if (!targetId || !itemId) {
-    return c.json({ success: false, error: "targetId and itemId are required" }, 400);
+  if (!targetId || !itemId || targetId.length > 128 || itemId.length > 128) {
+    return c.json({ success: false, code: "INVALID_EMOJI_PLACEMENT",
+      error: "targetId and itemId must each contain 1-128 characters." }, 400);
   }
 
   const targetQuery = slotType === "exam_card" ? "SELECT id FROM exams WHERE id = ?"
@@ -1028,8 +1029,12 @@ emojiAdminRoutes.delete("/placements", async (c) => {
   const slotType = c.req.query("slotType") || "";
   const targetId = c.req.query("targetId") || "";
 
-  if (!slotType || !targetId) {
-    return c.json({ success: false, error: "slotType and targetId query params required" }, 400);
+  if (!["exam_card", "category_header", "broadcast"].includes(slotType)
+      || !targetId.trim() || targetId.length > 128) {
+    return c.json({
+      success: false, code: "INVALID_EMOJI_PLACEMENT",
+      error: "Provide a valid placement type and target ID (1-128 characters).",
+    }, 400);
   }
 
   const deleteStmt = db
@@ -1042,9 +1047,17 @@ emojiAdminRoutes.delete("/placements", async (c) => {
     targetType: "emoji_placement",
     targetId: `${slotType}:${targetId}`,
     metadata: { slotType, targetId },
+    condition: { sql: "changes() > 0", bindings: [] },
   });
 
-  await db.batch([deleteStmt, auditStmt]);
-
+  // Audit and delete are one atomic D1 transaction. Stale deletes must not
+  // fabricate success or an admin action.
+  const results = await db.batch([deleteStmt, auditStmt]);
+  if ((results[0]?.meta?.changes ?? 0) === 0) {
+    return c.json({
+      success: false, code: "EMOJI_PLACEMENT_NOT_FOUND",
+      error: "Emoji placement no longer exists. Refresh and retry.",
+    }, 404);
+  }
   return c.json({ success: true, message: "Placement cleared successfully." });
 });

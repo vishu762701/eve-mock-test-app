@@ -499,3 +499,61 @@ test("Telegram custom emoji pages preserve total/nextOffset; imported items have
   assert.equal(sqlite.prepare("SELECT count(*) AS n FROM admin_audit_log WHERE action_type='IMPORT_EMOJI_ITEM'").get().n,1);
   assert.equal(JSON.stringify(body).includes('secret-not-public'),false);
 });
+
+test("Emoji placements: stale deletion returns typed 404 without a phantom Recent Action", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  const app = createTestApp(d1, owner);
+  try {
+    const endpoint = "/api/admin/emoji/placements?slotType=exam_card&targetId=missing";
+    const response = await app.request(endpoint, { method: "DELETE" });
+    assert.equal(response.status, 404);
+    const body = await response.json();
+    assert.equal(body.code, "EMOJI_PLACEMENT_NOT_FOUND");
+    assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM admin_audit_log WHERE action_type='CLEAR_EMOJI_PLACEMENT'").get().n, 0);
+    for (const malformed of [
+      "/api/admin/emoji/placements?slotType=unknown&targetId=any",
+      "/api/admin/emoji/placements?slotType=exam_card&targetId=",
+      "/api/admin/emoji/placements?slotType=exam_card&targetId=" + "a".repeat(129),
+    ]) {
+      const invalid = await app.request(malformed, { method: "DELETE" });
+      assert.equal(invalid.status, 400);
+      assert.equal((await invalid.json()).code, "INVALID_EMOJI_PLACEMENT");
+    }
+  } finally { sqlite.close(); }
+});
+
+test("Emoji placements: create and delete commit exactly one server audit for each change", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  const app = createTestApp(d1, owner);
+  try {
+    sqlite.exec("INSERT INTO exams(id,exam_name,time_limit_minutes,category) VALUES('exam-place','Exam',60,'Science')");
+    const create = await app.request("/api/admin/emoji/placements",
+      jsonRequest({ slotType: "exam_card", targetId: "exam-place", itemId: "bundled_tg_fire_on" }));
+    assert.equal(create.status, 200);
+    const remove = await app.request("/api/admin/emoji/placements?slotType=exam_card&targetId=exam-place",
+      { method: "DELETE" });
+    assert.equal(remove.status, 200);
+    assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM emoji_placements WHERE target_id='exam-place'").get().n, 0);
+    assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM admin_audit_log WHERE action_type='CLEAR_EMOJI_PLACEMENT'").get().n, 1);
+    const retry = await app.request("/api/admin/emoji/placements?slotType=exam_card&targetId=exam-place",
+      { method: "DELETE" });
+    assert.equal(retry.status, 404);
+    assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM admin_audit_log WHERE action_type='CLEAR_EMOJI_PLACEMENT'").get().n, 1);
+  } finally { sqlite.close(); }
+});
+
+test("Emoji placements: audit outage cannot delete an existing student-visible placement", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  const app = createTestApp(d1, owner);
+  try {
+    sqlite.exec("INSERT INTO exams(id,exam_name,time_limit_minutes,category) VALUES('exam-place','Exam',60,'Science')");
+    const create = await app.request("/api/admin/emoji/placements",
+      jsonRequest({ slotType: "exam_card", targetId: "exam-place", itemId: "bundled_tg_fire_on" }));
+    assert.equal(create.status, 200);
+    sqlite.exec("DROP TABLE admin_audit_log");
+    const response = await app.request("/api/admin/emoji/placements?slotType=exam_card&targetId=exam-place",
+      { method: "DELETE" });
+    assert.equal(response.status, 500);
+    assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM emoji_placements WHERE target_id='exam-place'").get().n, 1);
+  } finally { sqlite.close(); }
+});
