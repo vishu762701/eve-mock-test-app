@@ -11,6 +11,7 @@ import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.EveNavigationHelper
 import kotlinx.coroutines.launch
+import com.google.firebase.auth.FirebaseAuth
 
 /** Authenticated personal Bio editor; never claims a save before server GET confirms it. */
 class ChangeBioActivity : EveBaseActivity() {
@@ -48,6 +49,7 @@ class ChangeBioActivity : EveBaseActivity() {
             binding.tvStatus.visibility = View.VISIBLE
             return
         }
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         binding.btnDone.isEnabled = false
         lifecycleScope.launch {
             try {
@@ -61,7 +63,10 @@ class ChangeBioActivity : EveBaseActivity() {
                     return@launch
                 }
                 val readback = ApiClient.apiService.getProfile()
-                if (readback.success && readback.data?.bio == bio) {
+                if (ProfileSaveConfirmation.matches(
+                        userId, FirebaseAuth.getInstance().currentUser?.uid,
+                        readback.success, bio, readback.data?.bio
+                    )) {
                     setResult(Activity.RESULT_OK)
                     finish()
                 } else {

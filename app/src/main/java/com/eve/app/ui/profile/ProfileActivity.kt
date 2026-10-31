@@ -376,6 +376,7 @@ class ProfileActivity : EveBaseActivity() {
         binding.ivCategoryArrow.animate().rotation(0f).setDuration(150).start()
         if (cat.equals(currentCategory, ignoreCase = true)) return
 
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         categorySaveInFlight = true
         binding.cellCategory.isEnabled = false
         lifecycleScope.launch {
@@ -383,7 +384,11 @@ class ProfileActivity : EveBaseActivity() {
                 val res = ApiClient.apiService.updateProfile(mapOf("category" to cat))
                 if (res.success) {
                     val confirmed = ApiClient.apiService.getProfile()
-                    if (confirmed.success && confirmed.data?.category?.equals(cat, ignoreCase = true) == true) {
+                    if (ProfileSaveConfirmation.matches(
+                            userId, FirebaseAuth.getInstance().currentUser?.uid,
+                            confirmed.success, cat, confirmed.data?.category,
+                            ignoreCase = true
+                        )) {
                         currentCategory = cat
                         updateCategoryRadios(cat)
                         binding.tvCategoryValue.text = cat

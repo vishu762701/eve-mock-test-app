@@ -1,6 +1,6 @@
 # Telegram parity sweep
 
-Source availability: Telegram source is not stored in this repository; the owner supplies it per session. See `SOURCE_OF_TRUTH.md` for attachment/hash requirements and `AGENTS.md` for the missing-source STOP rule.
+Source availability: Telegram source is not stored in this repository; the owner supplies it per session. See `SOURCE_OF_TRUTH.md` and `AGENTS.md`: unavailable source blocks only the affected exact-source claim; independent repairs can proceed. The tables below are historical evidence, not proof of current runtime parity.
 
 Source is the owner-supplied reference extracted outside git. Telegram paths below
 are paths inside that archive, not files committed to EVE. The original archive
