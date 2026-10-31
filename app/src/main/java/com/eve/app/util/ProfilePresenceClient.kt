@@ -12,6 +12,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import retrofit2.HttpException
 import java.util.UUID
 
@@ -26,6 +28,7 @@ object ProfilePresenceClient : DefaultLifecycleObserver {
     private var heartbeat: Job? = null
     private var session: String? = null
     private var foreground = false
+    @Volatile private var logoutInProgress = false
     @Volatile private var unsupportedByServer = false
 
     fun register() {
@@ -45,13 +48,14 @@ object ProfilePresenceClient : DefaultLifecycleObserver {
     fun onAuthChanged(authenticated: Boolean) {
         if (!authenticated) {
             stopSession()
+            logoutInProgress = false
         } else if (foreground) {
             startWhenAuthenticated()
         }
     }
 
     private fun startWhenAuthenticated() {
-        if (unsupportedByServer ||
+        if (logoutInProgress || unsupportedByServer ||
             FirebaseAuth.getInstance().currentUser == null) return
         if (heartbeat?.isActive == true) return
         val id = UUID.randomUUID().toString()
@@ -71,6 +75,32 @@ object ProfilePresenceClient : DefaultLifecycleObserver {
                     // automatically expires unless a successful renewal arrives.
                 }
                 delay(HEARTBEAT_MS)
+            }
+        }
+    }
+
+    /**
+     * Explicit logout requires revoking the authenticated lease BEFORE
+     * FirebaseAuth.signOut() removes the access token. Network failure must not
+     * prevent sign-out: server expires the lease after the bounded 90-second TTL.
+     */
+    suspend fun revokeBeforeLogout() {
+        logoutInProgress = true
+        val previousHeartbeat = heartbeat
+        previousHeartbeat?.cancel()
+        heartbeat = null
+        val previousSession = session
+        session = null
+        if (previousSession != null && !unsupportedByServer) {
+            withContext(Dispatchers.IO) {
+                withTimeoutOrNull(1_500L) {
+                    previousHeartbeat?.join()
+                    try {
+                        ApiClient.apiService.endPresence(mapOf("sessionId" to previousSession))
+                    } catch (_: Exception) {
+                        // No invented success; offline is eventually guaranteed by TTL.
+                    }
+                }
             }
         }
     }

@@ -111,6 +111,17 @@ class SettingsActivity : EveBaseActivity() {
     }
 
     private fun executeLogout() {
+        if (!binding.rowLogout.isEnabled) return
+        binding.rowLogout.isEnabled = false
+        lifecycleScope.launch {
+            // Revoke server presence while the Firebase access token still exists.
+            // This has a bounded timeout, never an indefinite logout blocker.
+            com.eve.app.util.ProfilePresenceClient.revokeBeforeLogout()
+            performLocalLogout()
+        }
+    }
+
+    private fun performLocalLogout() {
         com.eve.app.util.SessionManager.clear()
         val uid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
         com.eve.app.data.repository.PremiumRepository.clearCacheForLogout(uid, this)

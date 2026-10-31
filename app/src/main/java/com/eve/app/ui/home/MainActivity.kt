@@ -1831,7 +1831,18 @@ class MainActivity : EveBaseActivity() {
         finish()
     }
 
+    private var logoutPending = false
+
     private fun logout() {
+        if (logoutPending) return
+        logoutPending = true
+        lifecycleScope.launch {
+            com.eve.app.util.ProfilePresenceClient.revokeBeforeLogout()
+            performLocalLogout()
+        }
+    }
+
+    private fun performLocalLogout() {
         SessionManager.clear()
         val uid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
         com.eve.app.data.repository.PremiumRepository.clearCacheForLogout(uid, this)
