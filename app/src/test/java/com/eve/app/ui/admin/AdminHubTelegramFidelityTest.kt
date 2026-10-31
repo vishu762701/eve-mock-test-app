@@ -110,4 +110,16 @@ class AdminHubTelegramFidelityTest {
         assertTrue("AuditLogAdapter must support day grouping headers", adapterSource.contains("AuditLogListItem.Header"))
         assertTrue("AuditLogAdapter must support log entries", adapterSource.contains("AuditLogListItem.Entry"))
     }
+    @Test
+    fun testTelegramSourceExactAdminTabAndRightsMetrics() {
+        val tabs = File("src/main/java/com/eve/app/ui/admin/tg/TelegramSegmentedTabs.kt").readText()
+        assertTrue("Tabs must use Telegram 320ms indicator timing", tabs.contains("duration = 320L"))
+        assertTrue("Tabs must use Telegram EASE_OUT_QUINT control points", tabs.contains("PathInterpolator(0.23f, 1f, 0.32f, 1f)"))
+        assertTrue("Tabs must use the 14dp indicator radius", tabs.contains("dp(14f)"))
+        assertTrue("Tabs must keep Telegram's translucent selector", tabs.contains("indicatorPaint.alpha = 31"))
+        val rights = File("src/main/java/com/eve/app/ui/admin/tg/TextCheckCell.kt").readText()
+        assertTrue("Subtitle rows must expand to Telegram 64dp", rights.contains("64f else 50f"))
+        assertTrue("Switch must keep Telegram 22dp margin", rights.contains("marginEnd = dp(22f)"))
+    }
+
 }

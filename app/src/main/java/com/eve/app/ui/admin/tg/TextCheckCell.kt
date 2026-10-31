@@ -21,14 +21,15 @@ import com.eve.app.designsystem.TelegramSwitch
 import com.eve.app.theme.TelegramThemeEngine
 
 /**
- * Official Telegram TextCheckCell ported for EVE Admin Hub.
+ * ADAPTED EVE admin rights cell using source-exact Telegram row metrics.
  * Upstream: TMessagesProj/src/main/java/org/telegram/ui/Cells/TextCheckCell.java:70-120
  * - Height: 50dp
  * - Start padding: 21dp (or 58dp if icon present)
- * - Switch: 37x20dp on the right (21dp margin end)
+ * - Switch: 37x20dp, 22dp end margin (TextCheckCell.java:124-126)
  * - Text: 16sp
  * - Subtitle: 13sp
- * - Divider: hairline 1px at bottom
+ * - Row: 50dp single-line, 64dp with subtitle, plus 1px divider (TextCheckCell.java:147-154)
+ * - Divider: 1 physical pixel at bottom (TextCheckCell.java:395-403)
  */
 class TextCheckCell @JvmOverloads constructor(
     context: Context,
@@ -64,7 +65,7 @@ class TextCheckCell @JvmOverloads constructor(
     init {
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
         dividerPaint.color = palette.hairline
-        dividerPaint.strokeWidth = dp(0.75f).coerceAtLeast(1).toFloat()
+        dividerPaint.strokeWidth = 1f
         setWillNotDraw(false)
 
         val outValue = TypedValue()
@@ -107,7 +108,7 @@ class TextCheckCell @JvmOverloads constructor(
 
         // 3. Telegram Switch
         val switchLp = LayoutParams(dp(37f), dp(20f), Gravity.END or Gravity.CENTER_VERTICAL).apply {
-            marginEnd = dp(21f)
+            marginEnd = dp(22f)
         }
         addView(checkBox, switchLp)
 
@@ -144,12 +145,21 @@ class TextCheckCell @JvmOverloads constructor(
         checkBox.setOnCheckedChangeListener(listener)
     }
 
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val rowHeight = dp(if (subtitleView.visibility == View.VISIBLE) 64f else 50f) + (if (needDivider) 1 else 0)
+        super.onMeasure(
+            MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(rowHeight, MeasureSpec.EXACTLY)
+        )
+    }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         if (needDivider) {
-            val start = offsetFromImage.toFloat()
-            val y = height - dividerPaint.strokeWidth
-            canvas.drawLine(start, y, width.toFloat(), y, dividerPaint)
+            val start = if (iconView.visibility == View.VISIBLE) offsetFromImage.toFloat() else dp(20f).toFloat()
+            val y = height - 1f
+            canvas.drawLine(if (layoutDirection == View.LAYOUT_DIRECTION_RTL) 0f else start, y,
+                if (layoutDirection == View.LAYOUT_DIRECTION_RTL) width - start else width.toFloat(), y, dividerPaint)
         }
     }
 }

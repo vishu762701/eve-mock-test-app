@@ -13,18 +13,20 @@ import android.graphics.RectF
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.Gravity
-import android.view.animation.DecelerateInterpolator
+import android.view.animation.PathInterpolator
+import android.graphics.Typeface
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.eve.app.theme.TelegramThemeEngine
 
 /**
- * Official Telegram Segmented Pill Tabs ported for EVE Admin Hub.
- * Upstream: TMessagesProj/src/main/java/org/telegram/ui/Components/FilterTabsView.java:80-160
- * - Rounded pill indicator with 16dp corner radius
- * - Smooth DecelerateInterpolator animation between tabs
- * - Selected text: white/onAccent or accent, unselected: textSecondary
+ * ADAPTED EVE tabs based on the original Telegram FilterTabsView indicator.
+ * Verified archive: Telegram-master.zip SHA-256 0785365538ce05cf5bdf44a15d8fd5f5219f8193db0a2d124af9665fc63fd7b3
+ * FilterTabsView.java:915-918,1509-1512 -> indicator 14dp radius, 28dp tall, alpha 31.
+ * FilterTabsView.java:837,855-880 -> 320ms EASE_OUT_QUINT.
+ * CubicBezierInterpolator.java:13 -> (.23, 1, .32, 1).
+ * Tab layout remains EVE's equal-width LinearLayout (ADAPTED, not Telegram's RecyclerListView).
  */
 class TelegramSegmentedTabs @JvmOverloads constructor(
     context: Context,
@@ -54,18 +56,26 @@ class TelegramSegmentedTabs @JvmOverloads constructor(
     init {
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
         indicatorPaint.color = palette.accent
+        indicatorPaint.alpha = 31
         setWillNotDraw(false)
 
         tabContainer.orientation = LinearLayout.HORIZONTAL
         tabContainer.gravity = Gravity.CENTER_VERTICAL
         addView(tabContainer, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+        tabContainer.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            if (animator?.isRunning != true) updateIndicatorBounds(selectedIndex, animated = false)
+        }
     }
 
     fun setTabs(titles: List<String>, defaultIndex: Int = 0) {
+        animator?.cancel()
+        animator = null
+        currentIndicatorWidth = 0f
         tabs.clear()
         tabs.addAll(titles)
         tabViews.clear()
         tabContainer.removeAllViews()
+        selectedIndex = defaultIndex.coerceIn(0, (titles.size - 1).coerceAtLeast(0))
 
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
         val outValue = TypedValue()
@@ -75,12 +85,14 @@ class TelegramSegmentedTabs @JvmOverloads constructor(
             val tv = TextView(context).apply {
                 text = title
                 setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14f)
+                typeface = Typeface.DEFAULT_BOLD
                 gravity = Gravity.CENTER
                 includeFontPadding = false
                 isClickable = true
                 isFocusable = true
                 setBackgroundResource(outValue.resourceId)
-                setTextColor(if (index == defaultIndex) 0xFFFFFFFF.toInt() else palette.textSecondary)
+                setTextColor(if (index == selectedIndex) palette.accent else palette.textSecondary)
+                isSelected = index == selectedIndex
                 setOnClickListener { selectTab(index, animated = true) }
             }
             tabViews.add(tv)
@@ -88,19 +100,19 @@ class TelegramSegmentedTabs @JvmOverloads constructor(
             tabContainer.addView(tv, lp)
         }
 
-        selectedIndex = defaultIndex.coerceIn(0, (titles.size - 1).coerceAtLeast(0))
         post {
             updateIndicatorBounds(selectedIndex, animated = false)
         }
     }
 
     fun selectTab(index: Int, animated: Boolean = true) {
-        if (index !in tabs.indices || (index == selectedIndex && currentIndicatorWidth > 0)) return
+        if (index !in tabs.indices || index == selectedIndex) return
         selectedIndex = index
 
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
         for ((i, tv) in tabViews.withIndex()) {
-            tv.setTextColor(if (i == selectedIndex) 0xFFFFFFFF.toInt() else palette.textSecondary)
+            tv.setTextColor(if (i == selectedIndex) palette.accent else palette.textSecondary)
+            tv.isSelected = i == selectedIndex
         }
 
         updateIndicatorBounds(selectedIndex, animated)
@@ -110,8 +122,12 @@ class TelegramSegmentedTabs @JvmOverloads constructor(
     private fun updateIndicatorBounds(index: Int, animated: Boolean) {
         if (index !in tabViews.indices) return
         val tv = tabViews[index]
-        targetIndicatorX = tv.left.toFloat() + dp(4f)
-        targetIndicatorWidth = (tv.width - dp(8f)).coerceAtLeast(0).toFloat()
+        // The Telegram selector follows the label plus 12.5dp internal padding on both sides.
+        // Equal-width EVE tabs remain ADAPTED; text-driven geometry is source-derived.
+        val maxWidth = (tv.width - dp(8f)).coerceAtLeast(0).toFloat()
+        targetIndicatorWidth = (tv.paint.measureText(tv.text.toString()) + dp(25f))
+            .coerceAtLeast(dp(28f).toFloat()).coerceAtMost(maxWidth)
+        targetIndicatorX = tv.left.toFloat() + (tv.width - targetIndicatorWidth) / 2f
 
         if (!animated || currentIndicatorWidth == 0f) {
             currentIndicatorX = targetIndicatorX
@@ -124,8 +140,8 @@ class TelegramSegmentedTabs @JvmOverloads constructor(
         val startW = currentIndicatorWidth
         animator?.cancel()
         animator = ValueAnimator.ofFloat(0f, 1f).apply {
-            duration = 200L
-            interpolator = DecelerateInterpolator()
+            duration = 320L
+            interpolator = PathInterpolator(0.23f, 1f, 0.32f, 1f)
             addUpdateListener { va ->
                 val fraction = va.animatedFraction
                 currentIndicatorX = startX + (targetIndicatorX - startX) * fraction
@@ -138,12 +154,17 @@ class TelegramSegmentedTabs @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas) {
         if (currentIndicatorWidth > 0) {
-            val top = dp(4f).toFloat()
-            val bottom = (height - dp(4f)).toFloat()
-            indicatorRect.set(currentIndicatorX, top, currentIndicatorX + currentIndicatorWidth, bottom)
-            val radius = (bottom - top) / 2f
+            val center = height / 2f
+            val radius = dp(14f).toFloat()
+            indicatorRect.set(currentIndicatorX, center - radius, currentIndicatorX + currentIndicatorWidth, center + radius)
             canvas.drawRoundRect(indicatorRect, radius, radius, indicatorPaint)
         }
         super.onDraw(canvas)
+    }
+
+    override fun onDetachedFromWindow() {
+        animator?.cancel()
+        animator = null
+        super.onDetachedFromWindow()
     }
 }
