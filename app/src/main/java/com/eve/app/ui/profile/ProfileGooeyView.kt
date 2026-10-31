@@ -5,6 +5,7 @@
 
 package com.eve.app.ui.profile
 
+import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.content.Context
 import android.graphics.Bitmap
@@ -28,6 +29,8 @@ import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import androidx.core.math.MathUtils
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
@@ -69,6 +72,21 @@ class ProfileGooeyView @JvmOverloads constructor(
     private val density = resources.displayMetrics.density
     private fun dp(v: Float): Float = v * density
     private fun dp(v: Int): Float = v * density
+
+    /**
+     * Telegram uses AndroidUtilities.statusBarHeight, not a constant 24dp.
+     * Read the actual status inset first, with an unattached-view resource fallback.
+     */
+    @SuppressLint("DiscouragedApi")
+    private fun statusBarHeightPx(): Float {
+        val insets = ViewCompat.getRootWindowInsets(this)
+        val physicalHeight = insets?.getInsetsIgnoringVisibility(
+            WindowInsetsCompat.Type.statusBars()
+        )?.top ?: 0
+        if (physicalHeight > 0) return physicalHeight.toFloat()
+        val id = resources.getIdentifier("status_bar_height", "dimen", "android")
+        return if (id != 0) resources.getDimensionPixelSize(id).toFloat() else dp(24)
+    }
 
     private val blackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.BLACK }
     private val path = Path()
@@ -113,7 +131,7 @@ class ProfileGooeyView @JvmOverloads constructor(
             }
             -(dp(16) + h)
         } else {
-            val sb = if (occupyStatusBar) dp(24) else 0f
+            val sb = if (occupyStatusBar) statusBarHeightPx() else 0f
             -(sb + dp(16) + dp(AVATAR_SIZE_DP))
         }
     }
@@ -126,7 +144,7 @@ class ProfileGooeyView @JvmOverloads constructor(
             } else {
                 min(info.bounds.width(), info.bounds.height()) / dp(AVATAR_SIZE_DP)
             }
-            min(0.8f, max(0.2f, f))
+            min(0.8f, f)
         } else {
             0.8f
         }
