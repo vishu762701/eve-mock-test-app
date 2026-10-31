@@ -359,3 +359,32 @@ test("Admin guards: PUT /api/admin/config type and boundary validation", async (
   assert.equal(jsonOk.data.maintenance_mode, true);
   assert.equal(jsonOk.data.default_publish_mode, "live");
 });
+
+test("Admin grant and action log roll back together if audit schema is absent", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  const admin = { uid: "admin_fixture", email: "audit-admin@example.test", isAdmin: true };
+  grantRights(sqlite, admin.email, ["manage_premium"]);
+  sqlite.prepare("INSERT INTO users (id, email, display_name, created_at, last_active) VALUES (?, ?, ?, ?, ?)")
+    .run("premium-target", "premium-target@example.test", "Premium Target", 1, 1);
+  sqlite.exec("DROP TABLE admin_audit_log");
+  const response = await createAdminApp(d1, admin).request("http://localhost/api/admin/premium/users/grant", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId: "premium-target", durationDays: 30 }),
+  });
+  assert.equal(response.status, 500);
+  assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM premium_entitlements WHERE user_id = ?").get("premium-target").n, 0);
+});
+test("Admin premium grants persist exactly one matching server-owned audit entry", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  const admin = { uid: "admin_fixture", email: "audit-admin@example.test", isAdmin: true };
+  grantRights(sqlite, admin.email, ["manage_premium"]);
+  sqlite.prepare("INSERT INTO users (id, email, display_name, created_at, last_active) VALUES (?, ?, ?, ?, ?)")
+    .run("premium-target", "premium-target@example.test", "Premium Target", 1, 1);
+  const response = await createAdminApp(d1, admin).request("http://localhost/api/admin/premium/users/grant", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId: "premium-target", durationDays: 30 }),
+  });
+  assert.equal(response.status, 200);
+  assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM premium_entitlements WHERE user_id = ?").get("premium-target").n, 1);
+  assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM admin_audit_log WHERE action_type = ? AND target_id = ?").get("PREMIUM_GRANTED", "premium-target").n, 1);
+});

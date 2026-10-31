@@ -4,6 +4,7 @@
 
 import { Hono } from "hono";
 import { AuthUser, Env, PremiumConfigRow, PremiumEntitlementRow, PremiumOrderRow } from "../types";
+import { AuditActionOptions, prepareAdminAuditLog } from "../util/auditLog";
 
 export const premiumRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
@@ -73,7 +74,8 @@ export async function activateUserPremium(
   providerPaymentId: string,
   durationDays: number,
   isLifetime: boolean,
-  source: string = "PAYMENT"
+  source: string = "PAYMENT",
+  adminAudit?: { user: AuthUser; options: AuditActionOptions }
 ): Promise<PremiumEntitlementRow> {
   const now = Date.now();
 
@@ -98,7 +100,7 @@ export async function activateUserPremium(
     newExpiresAt = now + durationDays * 86400000;
   }
 
-  await db
+  const entitlementStmt = db
     .prepare(
       `INSERT INTO premium_entitlements (
          user_id, plan_id, plan_name, payment_order_id, payment_provider_id,
@@ -128,8 +130,16 @@ export async function activateUserPremium(
       source,
       now,
       now
-    )
-    .run();
+    );
+
+  // Payment webhooks keep their existing activation path. Admin-granted
+  // entitlements commit only if the server-owned action log also commits.
+  if (adminAudit) {
+    const { stmt: auditStmt } = prepareAdminAuditLog(db, adminAudit.user, adminAudit.options);
+    await db.batch([entitlementStmt, auditStmt]);
+  } else {
+    await entitlementStmt.run();
+  }
 
   return {
     user_id: userId,

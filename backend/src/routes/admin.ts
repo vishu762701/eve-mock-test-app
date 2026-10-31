@@ -1096,16 +1096,18 @@ adminRoutes.post("/premium/users/grant", requirePermission("manage_premium"), as
     user.email || "admin",
     durationDays,
     isLifetime,
-    "ADMIN_GRANTED"
+    "ADMIN_GRANTED",
+    {
+      user,
+      options: {
+        actionType: "PREMIUM_GRANTED",
+        description: `Granted ${isLifetime ? "Lifetime" : `${durationDays}d`} premium to user '${targetUid}'`,
+        targetType: "user",
+        targetId: targetUid,
+        metadata: { planName, durationDays, isLifetime },
+      },
+    }
   );
-
-  await recordAdminAction(db, user, {
-    actionType: "PREMIUM_GRANTED",
-    description: `Granted ${isLifetime ? "Lifetime" : `${durationDays}d`} premium to user '${targetUid}'`,
-    targetType: "user",
-    targetId: targetUid,
-    metadata: { planName, durationDays, isLifetime },
-  });
 
   return c.json({ success: true, data: entitlement });
 });
