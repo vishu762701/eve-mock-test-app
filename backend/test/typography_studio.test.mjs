@@ -7,9 +7,10 @@ const worker = workerModule.default || workerModule;
 
 test("Worker /api/typography/published endpoint returns valid schema and default config", async () => {
   const fakeDb = {
-    prepare: () => ({
-      first: async () => null
-    })
+    prepare: sql => {
+      const statement = { bind() { return this; }, first: async () => sql.includes('rate_limits') ? { count: 1, reset_at: Math.floor(Date.now() / 1000) + 60 } : null };
+      return statement;
+    }
   };
 
   const res = await worker.fetch(
@@ -32,9 +33,10 @@ test("Worker /api/typography/published endpoint returns valid schema and default
 
 test("Unauthenticated access to retired admin editor route remains denied by global auth", async () => {
   const fakeDb = {
-    prepare: () => ({
-      first: async () => null
-    })
+    prepare: sql => {
+      const statement = { bind() { return this; }, first: async () => sql.includes('rate_limits') ? { count: 1, reset_at: Math.floor(Date.now() / 1000) + 60 } : null };
+      return statement;
+    }
   };
 
   // Global auth intentionally returns 401 before an unknown admin route reaches the 404 handler.

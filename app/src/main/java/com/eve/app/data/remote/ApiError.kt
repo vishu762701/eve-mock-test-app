@@ -8,6 +8,11 @@ import java.net.SocketTimeoutException
 import java.util.concurrent.TimeoutException
 
 sealed class ApiError : Exception() {
+    var serverCode: String? = null
+        private set
+    var requestId: String? = null
+        private set
+
     abstract fun userMessage(isDebug: Boolean = BuildConfig.DEBUG): String
 
     data class BadRequest(val code: Int = 400, val serverMessage: String? = null) : ApiError() {
@@ -56,12 +61,18 @@ sealed class ApiError : Exception() {
         }
     }
 
+    data class RateLimited(val retryAfterSeconds: Long? = null, val serverMessage: String? = null) : ApiError() {
+        override fun userMessage(isDebug: Boolean): String = serverMessage?.takeIf { it.isNotBlank() }
+            ?: "Too many requests. Please wait before retrying."
+    }
+
     data class Server(val code: Int, val serverMessage: String? = null) : ApiError() {
         override fun userMessage(isDebug: Boolean): String {
             val sanitized = sanitizeErrorMessage(serverMessage)
             if (sanitized != null && sanitized != serverMessage) {
                 return sanitized
             }
+            if (!isDebug && code == 503) return "The service is temporarily unavailable. Please retry shortly."
             return if (isDebug) {
                 "[HTTP $code] Server Error: ${serverMessage ?: "Internal error"}"
             } else {
@@ -114,11 +125,15 @@ sealed class ApiError : Exception() {
                     }
 
                     var serverMsg: String? = null
+                    var serverCode: String? = null
+                    var requestId: String? = null
                     if (!errorBodyString.isNullOrBlank()) {
                         try {
                             val element = JsonParser.parseString(errorBodyString)
                             if (element.isJsonObject) {
                                 val json = element.asJsonObject
+                                serverCode = json.get("code")?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }?.asString
+                                requestId = json.get("requestId")?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }?.asString
                                 serverMsg = when {
                                     json.has("error") && !json.get("error").isJsonNull -> json.get("error").asString
                                     json.has("message") && !json.get("message").isJsonNull -> json.get("message").asString
@@ -134,13 +149,17 @@ sealed class ApiError : Exception() {
                     }
 
                     when (code) {
-                        400 -> BadRequest(code, serverMsg)
+                        400, 413, 415, 422 -> BadRequest(code, serverMsg)
                         401 -> SessionExpired(code, serverMsg)
                         403 -> Forbidden(code, serverMsg)
                         404 -> NotFound(code, serverMsg)
                         409 -> Conflict(code, serverMsg)
+                        429 -> RateLimited(throwable.response()?.headers()?.get("Retry-After")?.toLongOrNull(), serverMsg)
                         in 500..599 -> Server(code, serverMsg)
                         else -> Server(code, serverMsg)
+                    }.also { mapped ->
+                        mapped.serverCode = serverCode
+                        mapped.requestId = requestId
                     }
                 }
                 is SocketTimeoutException, is TimeoutException -> Timeout(throwable)
@@ -170,7 +189,7 @@ fun sanitizeErrorMessage(msg: String?): String? {
     if (
         lower.contains("gemini api error (5") ||
         lower.contains("high demand") ||
-        lower.contains("unavailable") ||
+        (lower.contains("unavailable") && (lower.contains("gemini") || lower.contains("ai service") || lower.contains("ai generation"))) ||
         lower.contains("temporary provider")
     ) {
         return "AI service is temporarily unavailable. Please try again shortly."

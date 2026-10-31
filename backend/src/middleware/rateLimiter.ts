@@ -3,11 +3,12 @@
 // ============================================================================
 
 import { Context, Next } from "hono";
+import { HTTPException } from "hono/http-exception";
 import { AuthUser, Env } from "../types";
 
 /**
  * Executes atomic upsert on rate_limits table using SQLite RETURNING.
- * Fails open on D1 database error.
+ * Fails closed on D1 database error.
  */
 export async function checkRateLimit(
   db: D1Database,
@@ -31,12 +32,13 @@ export async function checkRateLimit(
       .bind(key, resetAt, now, now, resetAt)
       .first<{ count: number; reset_at: number }>();
 
-    if (res && res.count > limit) {
+    if (!res || !Number.isFinite(res.count) || !Number.isFinite(res.reset_at)) throw new Error("Rate-limit store unavailable");
+    if (res.count > limit) {
       const retryAfter = Math.max(1, (res.reset_at || resetAt) - now);
       return { limited: true, retryAfter };
     }
   } catch (_e) {
-    // Fail open on D1 error
+    throw new HTTPException(503, { message: "Request protection is temporarily unavailable. Please retry." });
   }
 
   return { limited: false, retryAfter: 0 };

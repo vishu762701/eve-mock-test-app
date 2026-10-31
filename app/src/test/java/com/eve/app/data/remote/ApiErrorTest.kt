@@ -21,6 +21,44 @@ class ApiErrorTest {
     }
 
     @Test
+    fun rateLimitAndValidationKeepMachineCodesAndClearMessages() {
+        val limited = createHttpException(429, """{"error":"Please wait before retrying.","code":"RATE_LIMITED","requestId":"request-1"}""").toApiError()
+        assertTrue(limited is ApiError.RateLimited)
+        assertEquals("RATE_LIMITED", limited.serverCode)
+        assertEquals("request-1", limited.requestId)
+        assertEquals("Please wait before retrying.", limited.userMessage(false))
+        val invalid = createHttpException(422, """{"error":"Invalid exam duration.","code":"VALIDATION_FAILED"}""").toApiError()
+        assertTrue(invalid is ApiError.BadRequest)
+        assertEquals("VALIDATION_FAILED", invalid.serverCode)
+        assertEquals("Invalid exam duration.", invalid.userMessage(false))
+    }
+
+    @Test
+    fun genericServiceOutageIsNeverMisrepresentedAsAnAiFailure() {
+        val message = "Request protection is temporarily unavailable. Please retry."
+        assertEquals(message, sanitizeErrorMessage(message))
+        val unavailable = createHttpException(503, """{"error":"Database unavailable","code":"SERVICE_UNAVAILABLE"}""").toApiError()
+        assertEquals("The service is temporarily unavailable. Please retry shortly.", unavailable.userMessage(false))
+    }
+
+    @Test
+    fun retryAfterAndResponseMetadataRemainAvailableToTheClient() {
+        val raw = okhttp3.Response.Builder()
+            .request(okhttp3.Request.Builder().url("https://example.test").build())
+            .protocol(okhttp3.Protocol.HTTP_1_1).code(429).message("Too Many Requests")
+            .header("Retry-After", "12").build()
+        val response = Response.error<Any>("{}".toResponseBody("application/json".toMediaTypeOrNull()), raw)
+        val error = HttpException(response).toApiError() as ApiError.RateLimited
+        assertEquals(12L, error.retryAfterSeconds)
+        val envelope = com.google.gson.Gson().fromJson(
+            """{"success":false,"error":"Invalid field.","code":"INVALID_FIELD_TYPE","requestId":"request-2"}""",
+            ApiResponse::class.java
+        )
+        assertEquals("INVALID_FIELD_TYPE", envelope.errorCode)
+        assertEquals("request-2", envelope.requestId)
+    }
+
+    @Test
     fun test401SessionExpiredMapping() {
         val exception = createHttpException(401, """{"error": "Token has expired"}""")
         val apiError = exception.toApiError()

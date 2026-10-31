@@ -3,6 +3,8 @@
 // ============================================================================
 
 import { monitoringRoutes } from "./routes/monitoring";
+import { apiErrorContract, adminJsonContract } from "./middleware/apiContract";
+import { HTTPException } from "hono/http-exception";
 import { operationMonitor } from "./middleware/operationMonitor";
 import { Context, Hono } from "hono";
 import { cors } from "hono/cors";
@@ -34,6 +36,7 @@ type AppContext = Context<{ Bindings: Env; Variables: { user: AuthUser } }>;
 
 const app = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
+app.use("*", apiErrorContract);
 app.use("*", operationMonitor);
 
 // 1. CORS Middleware
@@ -251,6 +254,7 @@ app.use("/api/*", ipRateLimit());
 
 // 4. Authentication Middleware
 app.use("/api/*", authMiddleware);
+app.use("/api/*", adminJsonContract);
 
 // 5. Layer 2: Per-User Rate Limiting (General 120/60s, submit 10, start 20, generate-now 5)
 app.use("/api/*", userRateLimit());
@@ -286,6 +290,9 @@ app.notFound((c) => {
 });
 
 app.onError((err, c) => {
+  if (err instanceof HTTPException) {
+    return c.json({ success: false, error: err.status < 500 ? err.message : "Request protection is temporarily unavailable. Please retry." }, err.status);
+  }
   console.error("Unhandled Worker failure", { name: err.name });
   return c.json({ success: false, error: "The server could not complete this operation. Please retry.", requestId: c.res.headers.get("X-Request-ID") }, 500);
 });
