@@ -696,6 +696,9 @@ interface EveApiService {
     @DELETE("api/admin/emoji/items/{id}")
     suspend fun deleteEmojiItem(@Path("id") id: String): ApiResponse<Map<String, Any>>
 
+    @POST("api/admin/emoji/upload")
+    suspend fun uploadEmoji(@Body body: RequestBody): ApiResponse<EmojiItemDto>
+
     @POST("api/admin/emoji/import/telegram")
     suspend fun importTelegramEmoji(@Body body: ImportTelegramEmojiRequest): ApiResponse<ImportTelegramEmojiResponseDto>
 

@@ -1,10 +1,11 @@
+import { cleanupEmojiMedia } from "../services/mediaCleanup";
 // ============================================================================
 // Animated Emoji System Routes (Mission 03 F4)
 // Telegram packs, Google Noto animated emoji, custom uploads, and surface placements.
 // ============================================================================
 
 import { Hono } from "hono";
-import { requireAdmin, requirePermission } from "../middleware/authMiddleware";
+import { requirePermission } from "../middleware/authMiddleware";
 import { AuthUser, EmojiItemRow, EmojiPackRow, EmojiPlacementPublic, EmojiPlacementRow, Env } from "../types";
 import { SupabaseStorage } from "../supabase";
 import { prepareAdminAuditLog, recordAdminAction } from "../util/auditLog";
@@ -13,6 +14,17 @@ export const emojiRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser
 export const emojiAdminRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
 const MAX_ANIMATION_SIZE_BYTES = 300 * 1024; // 300 KB size cap
+
+async function saveImportedItem(db: D1Database, env: Env, user: AuthUser,
+  itemId: string, storageKey: string, statement: D1PreparedStatement): Promise<void> {
+  const old = await db.prepare("SELECT storage_key FROM emoji_items WHERE id = ?").bind(itemId).first<{ storage_key: string }>();
+  const { stmt: audit } = prepareAdminAuditLog(db, user, {
+    actionType: "IMPORT_EMOJI_ITEM", description: "Imported emoji asset", targetType: "emoji_item", targetId: itemId,
+  });
+  try { await db.batch([statement, audit]); }
+  catch (error) { await cleanupEmojiMedia(env, [storageKey]); throw error; }
+  if (old && old.storage_key !== storageKey) await cleanupEmojiMedia(env, [old.storage_key]);
+}
 
 export async function sha256Hex(data: ArrayBuffer | Uint8Array): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", data);
@@ -73,11 +85,12 @@ export function validateLottieJson(jsonStr: string): any {
   }
   if (Array.isArray(parsed.assets)) {
     for (const asset of parsed.assets) {
-      if (typeof asset.u === "string" && (asset.u.startsWith("http://") || asset.u.startsWith("https://"))) {
-        throw new Error("Security check failed: external network references in Lottie assets are prohibited");
-      }
-      if (typeof asset.p === "string" && (asset.p.startsWith("http://") || asset.p.startsWith("https://"))) {
-        throw new Error("Security check failed: external network references in Lottie assets are prohibited");
+      if (!asset || typeof asset !== "object") throw new Error("Invalid Lottie asset.");
+      for (const value of [asset.u, asset.p]) {
+        if (typeof value === "string" && !value.startsWith("data:") &&
+            (/^[a-z][a-z0-9+.-]*:/i.test(value) || value.startsWith("//"))) {
+          throw new Error("Security check failed: external network references in Lottie assets are prohibited");
+        }
       }
     }
   }
@@ -124,7 +137,7 @@ export async function getActiveEmojiPlacements(
   const broadcastPlacements = new Map<string, EmojiPlacementPublic>();
 
   for (const r of results || []) {
-    if (!globalTelegramEnabled && r.item_source === "telegram") {
+    if (!globalTelegramEnabled && (r.item_source === "telegram" || r.item_source === "telegram-ui")) {
       continue;
     }
     const url = r.storage_key.startsWith("res:raw/")
@@ -355,42 +368,28 @@ emojiAdminRoutes.delete("/packs/:id", async (c) => {
     return c.json({ success: false, error: "Emoji pack not found" }, 404);
   }
 
-  // 1. Fetch items to delete files from Supabase storage
-  const { results: items } = await db
-    .prepare("SELECT storage_key FROM emoji_items WHERE pack_id = ?")
-    .bind(id)
-    .all<{ storage_key: string }>();
-
-  const storage = new SupabaseStorage(c.env);
-  for (const item of items || []) {
-    if (item.storage_key && !item.storage_key.startsWith("res:raw/")) {
-      try {
-        await storage.deleteFile(item.storage_key);
-      } catch (_e) {}
-    }
-  }
-
-  // 2. Cascade delete pack and items in DB
-  const deletePlacements = db
-    .prepare("DELETE FROM emoji_placements WHERE item_id IN (SELECT id FROM emoji_items WHERE pack_id = ?)")
-    .bind(id);
-  const deleteItems = db.prepare("DELETE FROM emoji_items WHERE pack_id = ?").bind(id);
-  const deletePack = db.prepare("DELETE FROM emoji_packs WHERE id = ?").bind(id);
-
-  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
-    actionType: "DELETE_EMOJI_PACK",
-    description: `Permanently removed emoji pack '${pack.title}' (${pack.name}) and deleted files`,
-    targetType: "emoji_pack",
-    targetId: id,
-    metadata: { name: pack.name, title: pack.title, deletedItemsCount: items?.length || 0 },
+  const snapshotQuery = "SELECT json_group_array(json_object('id', id, 'key', storage_key)) AS snapshot FROM (SELECT id, storage_key FROM emoji_items WHERE pack_id = ? ORDER BY id)";
+  const snapshot = (await db.prepare(snapshotQuery).bind(id).first<{ snapshot: string }>())?.snapshot || "[]";
+  const items = JSON.parse(snapshot) as { id: string; key: string }[];
+  const { id: auditId, stmt: audit } = prepareAdminAuditLog(db, user, {
+    actionType: "DELETE_EMOJI_PACK", description: `Removed emoji pack '${pack.title}' (${pack.name})`,
+    targetType: "emoji_pack", targetId: id, metadata: { deletedItemsCount: items.length },
+    condition: {
+      sql: `EXISTS (SELECT 1 FROM emoji_packs WHERE id = ? AND created_at = ?) AND (${snapshotQuery.replace(" AS snapshot", "")}) = ?`,
+      bindings: [id, pack.created_at, id, snapshot],
+    },
   });
-
-  await db.batch([deletePlacements, deleteItems, deletePack, auditStmt]);
-
-  return c.json({
-    success: true,
-    message: `Emoji pack '${pack.title}' and ${items?.length || 0} items removed permanently.`,
-  });
+  const gate = "EXISTS (SELECT 1 FROM admin_audit_log WHERE id = ?)";
+  const result = await db.batch([
+    audit,
+    db.prepare(`DELETE FROM emoji_placements WHERE item_id IN (SELECT id FROM emoji_items WHERE pack_id = ?) AND ${gate}`).bind(id, auditId),
+    db.prepare(`DELETE FROM emoji_items WHERE pack_id = ? AND ${gate}`).bind(id, auditId),
+    db.prepare(`DELETE FROM emoji_packs WHERE id = ? AND ${gate}`).bind(id, auditId),
+  ]);
+  if (!result[3]?.meta?.changes) return c.json({ success: false, code: "EMOJI_CHANGED", error: "This pack changed. Refresh before deleting it." }, 409);
+  const mediaCleanupComplete = await cleanupEmojiMedia(c.env, items.map(item => item.key), c.res.headers.get("X-Request-ID"));
+  return c.json({ success: true, data: { mediaCleanupComplete }, message: "Emoji pack removed.",
+    ...(mediaCleanupComplete ? {} : { warning: "Pack removed. Some media cleanup could not be completed." }) });
 });
 
 // GET /api/admin/emoji/items - List emoji items with pagination and filters
@@ -398,8 +397,11 @@ emojiAdminRoutes.get("/items", async (c) => {
   const db = c.env.DB;
   const packId = c.req.query("packId")?.trim();
   const q = c.req.query("q")?.trim();
-  const offset = parseInt(c.req.query("offset") || "0", 10) || 0;
-  const limit = Math.min(100, Math.max(1, parseInt(c.req.query("limit") || "50", 10) || 50));
+  const offset = Number(c.req.query("offset") ?? "0");
+  const limit = Number(c.req.query("limit") ?? "50");
+  if (!Number.isSafeInteger(offset) || offset < 0 || !Number.isSafeInteger(limit) || limit < 1 || limit > 100) {
+    return c.json({ success: false, error: "offset must be a non-negative integer and limit must be 1-100." }, 400);
+  }
 
   let query = "SELECT i.*, p.title as pack_title, p.name as pack_slug FROM emoji_items i JOIN emoji_packs p ON i.pack_id = p.id WHERE 1=1";
   const params: any[] = [];
@@ -414,7 +416,7 @@ emojiAdminRoutes.get("/items", async (c) => {
     params.push(wildcard, wildcard, wildcard);
   }
 
-  query += " ORDER BY i.created_at DESC LIMIT ? OFFSET ?";
+  query += " ORDER BY i.created_at DESC, i.id DESC LIMIT ? OFFSET ?";
   params.push(limit, offset);
 
   const { results } = await db.prepare(query).bind(...params).all<any>();
@@ -452,27 +454,22 @@ emojiAdminRoutes.delete("/items/:id", async (c) => {
     return c.json({ success: false, error: "Emoji item not found" }, 404);
   }
 
-  if (item.storage_key && !item.storage_key.startsWith("res:raw/")) {
-    try {
-      const storage = new SupabaseStorage(c.env);
-      await storage.deleteFile(item.storage_key);
-    } catch (_e) {}
-  }
-
-  const deletePlacements = db.prepare("DELETE FROM emoji_placements WHERE item_id = ?").bind(id);
-  const deleteItem = db.prepare("DELETE FROM emoji_items WHERE id = ?").bind(id);
-
-  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
-    actionType: "DELETE_EMOJI_ITEM",
-    description: `Deleted emoji item ${item.alt_emoji} (${item.id}) from pack '${item.pack_name || item.pack_id}'`,
-    targetType: "emoji_item",
-    targetId: id,
-    metadata: { altEmoji: item.alt_emoji, storageKey: item.storage_key },
+  const { id: auditId, stmt: audit } = prepareAdminAuditLog(db, user, {
+    actionType: "DELETE_EMOJI_ITEM", description: `Removed emoji item ${item.alt_emoji}`,
+    targetType: "emoji_item", targetId: id,
+    condition: { sql: "EXISTS (SELECT 1 FROM emoji_items WHERE id = ? AND storage_key = ? AND created_at = ?)",
+      bindings: [id, item.storage_key, item.created_at] },
   });
-
-  await db.batch([deletePlacements, deleteItem, auditStmt]);
-
-  return c.json({ success: true, message: "Emoji item deleted successfully." });
+  const gate = "EXISTS (SELECT 1 FROM admin_audit_log WHERE id = ?)";
+  const result = await db.batch([
+    audit,
+    db.prepare(`DELETE FROM emoji_placements WHERE item_id = ? AND ${gate}`).bind(id, auditId),
+    db.prepare(`DELETE FROM emoji_items WHERE id = ? AND ${gate}`).bind(id, auditId),
+  ]);
+  if (!result[2]?.meta?.changes) return c.json({ success: false, code: "EMOJI_CHANGED", error: "This item changed. Refresh before deleting it." }, 409);
+  const mediaCleanupComplete = await cleanupEmojiMedia(c.env, [item.storage_key], c.res.headers.get("X-Request-ID"));
+  return c.json({ success: true, data: { mediaCleanupComplete }, message: "Emoji item removed.",
+    ...(mediaCleanupComplete ? {} : { warning: "Item removed. Some media cleanup could not be completed." }) });
 });
 
 // POST /api/admin/emoji/upload - Upload custom Lottie JSON or static WebP emoji
@@ -486,41 +483,58 @@ emojiAdminRoutes.post("/upload", async (c) => {
   let rawBytes: Uint8Array;
   let kind: "lottie" | "static" = "lottie";
 
-  if (contentType.includes("application/json")) {
-    const jsonBody = await c.req.json().catch(() => ({}));
-    if (jsonBody.animationData) {
-      const str = typeof jsonBody.animationData === "string" ? jsonBody.animationData : JSON.stringify(jsonBody.animationData);
-      validateLottieJson(str);
-      rawBytes = new TextEncoder().encode(str);
-    } else {
-      const str = JSON.stringify(jsonBody);
-      validateLottieJson(str);
-      rawBytes = new TextEncoder().encode(str);
+  let mime = "application/json";
+  try {
+    // Bound the stream, including JSON wrappers, before allocating/parsing it.
+    const reader = c.req.raw.body?.getReader();
+    const chunks: Uint8Array[] = [];
+    let total = 0;
+    if (reader) {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        total += value.length;
+        if (total > 1024 * 1024) { await reader.cancel(); return c.json({ success: false, error: "Upload request exceeds 1MB." }, 413); }
+        chunks.push(value);
+      }
     }
-    if (jsonBody.packId) packId = String(jsonBody.packId);
-    if (jsonBody.altEmoji) altEmoji = String(jsonBody.altEmoji);
-  } else {
-    const arrayBuffer = await c.req.arrayBuffer();
-    rawBytes = new Uint8Array(arrayBuffer);
+    const bytes = new Uint8Array(total);
+    let position = 0;
+    for (const chunk of chunks) { bytes.set(chunk, position); position += chunk.length; }
+    if (!total) return c.json({ success: false, error: "Empty upload body" }, 400);
     if (contentType.includes("image/webp") || contentType.includes("image/png")) {
       kind = "static";
+      const png = bytes.length >= 24 && [137,80,78,71,13,10,26,10].every((v,i) => bytes[i] === v);
+      const webp = bytes.length >= 16 && new TextDecoder().decode(bytes.slice(0,4)) === "RIFF" && new TextDecoder().decode(bytes.slice(8,12)) === "WEBP";
+      if ((!png && !webp) || (png && !contentType.includes("image/png")) || (webp && !contentType.includes("image/webp"))) {
+        return c.json({ success: false, error: "Image bytes do not match the PNG/WebP content type." }, 400);
+      }
+      mime = png ? "image/png" : "image/webp";
+      rawBytes = bytes;
     } else {
-      const str = new TextDecoder().decode(rawBytes);
+      const parsed = JSON.parse(new TextDecoder().decode(bytes));
+      const animation = parsed?.animationData ?? parsed;
+      const str = typeof animation === "string" ? animation : JSON.stringify(animation);
       validateLottieJson(str);
+      rawBytes = new TextEncoder().encode(str);
+      if (parsed.packId !== undefined) {
+        if (typeof parsed.packId !== "string") throw new Error("packId must be text.");
+        packId = parsed.packId;
+      }
+      if (parsed.altEmoji !== undefined) {
+        if (typeof parsed.altEmoji !== "string") throw new Error("altEmoji must be text.");
+        altEmoji = parsed.altEmoji;
+      }
     }
+  } catch (err) {
+    return c.json({ success: false, error: err instanceof SyntaxError ? "Invalid JSON animation." : (err as Error).message }, 400);
   }
-
-  if (rawBytes.length === 0) {
-    return c.json({ success: false, error: "Empty upload body" }, 400);
+  if (!rawBytes.length || rawBytes.length > MAX_ANIMATION_SIZE_BYTES) {
+    return c.json({ success: false, error: "Emoji must be between 1 byte and 300KB." }, 413);
   }
-  if (rawBytes.length > MAX_ANIMATION_SIZE_BYTES) {
-    return c.json(
-      {
-        success: false,
-        error: `File size (${rawBytes.length} bytes) exceeds maximum limit of ${MAX_ANIMATION_SIZE_BYTES} bytes (300KB)`,
-      },
-      400
-    );
+  if (!altEmoji.trim() || altEmoji.length > 100) return c.json({ success: false, error: "altEmoji must contain 1-100 characters." }, 400);
+  if (packId && !await db.prepare("SELECT id FROM emoji_packs WHERE id = ?").bind(packId).first()) {
+    return c.json({ success: false, error: "Emoji pack not found." }, 404);
   }
 
   // Ensure target pack exists or use custom pack
@@ -528,12 +542,16 @@ emojiAdminRoutes.post("/upload", async (c) => {
     let customPack = await db.prepare("SELECT id FROM emoji_packs WHERE source = 'upload' LIMIT 1").first<EmojiPackRow>();
     if (!customPack) {
       const newPackId = "pack_custom_uploads";
-      await db
-        .prepare(
+      const packInsert = db.prepare(
           "INSERT OR IGNORE INTO emoji_packs (id, name, title, source, license_attribution, enabled, created_at, created_by) VALUES (?, 'custom_uploads', 'Custom Uploads', 'upload', 'Admin user uploaded assets', 1, ?, ?)"
         )
         .bind(newPackId, Date.now(), user?.email || "admin")
-        .run();
+;
+      const { stmt: packAudit } = prepareAdminAuditLog(db, user, {
+        actionType: "CREATE_EMOJI_PACK", description: "Created custom uploads pack", targetType: "emoji_pack", targetId: newPackId,
+        condition: { sql: "changes() = 1", bindings: [] },
+      });
+      await db.batch([packInsert, packAudit]);
       packId = newPackId;
     } else {
       packId = customPack.id;
@@ -541,14 +559,14 @@ emojiAdminRoutes.post("/upload", async (c) => {
   }
 
   const hash = await sha256Hex(rawBytes);
-  const ext = kind === "lottie" ? "json" : "webp";
-  const storageKey = `emoji/uploads/${hash}.${ext}`;
+  const ext = kind === "lottie" ? "json" : mime === "image/png" ? "png" : "webp";
+  const storageKey = `emoji/uploads/${crypto.randomUUID()}/${hash}.${ext}`;
 
   const storage = new SupabaseStorage(c.env);
   const publicUrl = await storage.uploadFile(
     storageKey,
     rawBytes,
-    kind === "lottie" ? "application/json" : "image/webp"
+    mime
   );
 
   const id = `emoji_${crypto.randomUUID()}`;
@@ -570,7 +588,11 @@ emojiAdminRoutes.post("/upload", async (c) => {
     metadata: { altEmoji, kind, storageKey, byteSize: rawBytes.length, sha256: hash },
   });
 
-  await db.batch([insertStmt, auditStmt]);
+  try { await db.batch([insertStmt, auditStmt]); }
+  catch (error) {
+    await cleanupEmojiMedia(c.env, [storageKey], c.res.headers.get("X-Request-ID"));
+    throw error;
+  }
 
   return c.json(
     {
@@ -610,11 +632,18 @@ emojiAdminRoutes.post("/import/telegram", async (c) => {
   const body = await c.req.json().catch(() => ({}));
   let packName = String(body.packName || body.name || "").trim();
   const customEmojiIds: string[] = Array.isArray(body.customEmojiIds) ? body.customEmojiIds : [];
-  const offset = Math.max(0, parseInt(body.offset || "0", 10) || 0);
-  const limit = Math.min(10, Math.max(1, parseInt(body.limit || "5", 10) || 5));
+  const offset = Number(body.offset ?? 0);
+  const limit = Number(body.limit ?? 5);
+  if (!Number.isSafeInteger(offset) || offset < 0 || !Number.isSafeInteger(limit) || limit < 1 || limit > 10 ||
+      customEmojiIds.length > 100 || customEmojiIds.some(id => typeof id !== "string" || !/^\d{1,30}$/.test(id))) {
+    return c.json({ success: false, error: "Provide valid pagination and up to 100 numeric custom emoji IDs." }, 400);
+  }
 
-  if (packName.includes("addstickers/")) {
-    packName = packName.split("addstickers/")[1].split(/[?#/]/)[0].trim();
+  if (/add(?:stickers|emoji)\//.test(packName)) {
+    packName = packName.split(/add(?:stickers|emoji)\//)[1].split(/[?#/]/)[0].trim();
+  }
+  if (packName && !/^[a-zA-Z0-9_]{1,100}$/.test(packName)) {
+    return c.json({ success: false, error: "Provide a valid Telegram sticker pack name or link." }, 400);
   }
 
   if (!packName && customEmojiIds.length === 0) {
@@ -629,8 +658,7 @@ emojiAdminRoutes.post("/import/telegram", async (c) => {
       const getSetUrl = `https://api.telegram.org/bot${botToken}/getStickerSet?name=${encodeURIComponent(packName)}`;
       const setRes = await fetch(getSetUrl);
       if (!setRes.ok) {
-        const errText = await setRes.text();
-        return c.json({ success: false, error: `Telegram Bot API error (${setRes.status}): ${errText}` }, 400);
+        return c.json({ success: false, error: "Telegram could not load this sticker pack. Check the name and try again." }, 502);
       }
       const setData: any = await setRes.json();
       if (!setData.ok || !setData.result) {
@@ -650,7 +678,7 @@ emojiAdminRoutes.post("/import/telegram", async (c) => {
       stickers = data.result || [];
     }
   } catch (err: any) {
-    return c.json({ success: false, error: `Network error connecting to Telegram Bot API: ${err.message}` }, 502);
+    return c.json({ success: false, error: "Unable to connect to Telegram. Please retry." }, 502);
   }
 
   const packSlug = (packName || `tg_${customEmojiIds[0] || "custom"}`).toLowerCase().replace(/[^a-z0-9_-]/g, "_");
@@ -659,13 +687,16 @@ emojiAdminRoutes.post("/import/telegram", async (c) => {
 
   if (!packRow) {
     packId = `pack_tg_${packSlug}`;
-    await db
-      .prepare(
+    const packInsert = db.prepare(
         `INSERT INTO emoji_packs (id, name, title, source, license_attribution, enabled, created_at, created_by)
         VALUES (?, ?, ?, 'telegram', 'Telegram Official Sticker/Custom Emoji Pack. User-consented import.', 1, ?, ?)`
       )
       .bind(packId, packSlug, packTitle, Date.now(), user?.email || "admin")
-      .run();
+;
+    const { stmt: packAudit } = prepareAdminAuditLog(db, user, {
+      actionType: "CREATE_EMOJI_PACK", description: `Created imported emoji pack '${packTitle}'`, targetType: "emoji_pack", targetId: packId,
+    });
+    await db.batch([packInsert, packAudit]);
   } else {
     packId = packRow.id;
   }
@@ -716,7 +747,7 @@ emojiAdminRoutes.post("/import/telegram", async (c) => {
 
       const hash = await sha256Hex(finalBytes);
       const ext = kind === "lottie" ? "json" : "webp";
-      const storageKey = `emoji/telegram/${packSlug}/${hash}.${ext}`;
+      const storageKey = `emoji/telegram/${packSlug}/${crypto.randomUUID()}/${hash}.${ext}`;
 
       await storage.uploadFile(storageKey, finalBytes, kind === "lottie" ? "application/json" : "image/webp");
 
@@ -724,8 +755,7 @@ emojiAdminRoutes.post("/import/telegram", async (c) => {
       const altEmoji = sticker.emoji || "✨";
       const isPremium = Boolean(sticker.custom_emoji_id);
 
-      await db
-        .prepare(
+      const itemStatement = db.prepare(
           `INSERT INTO emoji_items 
           (id, pack_id, alt_emoji, kind, storage_key, byte_size, sha256, enabled, premium_origin, telegram_custom_emoji_id, source, pack_name, uploader, created_at)
           VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, 'telegram', ?, ?, ?)
@@ -745,11 +775,12 @@ emojiAdminRoutes.post("/import/telegram", async (c) => {
           user?.email || "admin",
           Date.now()
         )
-        .run();
+;
+      await saveImportedItem(db, c.env, user, itemId, storageKey, itemStatement);
 
       importedCount++;
     } catch (itemErr: any) {
-      errors.push(`Sticker ${sticker.emoji}: ${itemErr.message}`);
+      errors.push(`Sticker ${sticker.emoji || ""}: Import failed. Please retry.`);
     }
   }
 
@@ -761,7 +792,8 @@ emojiAdminRoutes.post("/import/telegram", async (c) => {
     metadata: { packName, packTitle, importedCount, offset, limit, totalStickers: stickers.length },
   });
 
-  const nextOffset = offset + limit < stickers.length ? offset + limit : null;
+  const totalStickers = packName ? stickers.length : customEmojiIds.length;
+  const nextOffset = offset + limit < totalStickers ? offset + limit : null;
 
   return c.json({
     success: true,
@@ -769,7 +801,7 @@ emojiAdminRoutes.post("/import/telegram", async (c) => {
       packId,
       packName,
       packTitle,
-      totalStickers: stickers.length,
+      totalStickers,
       offset,
       limit,
       importedCount,
@@ -813,7 +845,15 @@ emojiAdminRoutes.post("/import/noto", async (c) => {
     ? body.items
     : NOTO_PRESETS[category] || NOTO_PRESETS.popular;
 
+  if (itemsToImport.length > 20 || itemsToImport.some((item: any) =>
+      !item || typeof item.codepoint !== "string" || !/^[0-9a-f]{2,6}(?:_[0-9a-f]{2,6})*$/i.test(item.codepoint) ||
+      (item.alt !== undefined && (typeof item.alt !== "string" || item.alt.length > 100)))) {
+    return c.json({ success: false, error: "Provide up to 20 valid Unicode codepoints and text alternatives." }, 400);
+  }
   const packId = "pack_noto";
+  if (!await db.prepare("SELECT id FROM emoji_packs WHERE id = ?").bind(packId).first()) {
+    return c.json({ success: false, error: "The Noto pack was removed. Create or restore its pack before importing." }, 409);
+  }
   const storage = new SupabaseStorage(c.env);
   let importedCount = 0;
   const errors: string[] = [];
@@ -840,24 +880,24 @@ emojiAdminRoutes.post("/import/noto", async (c) => {
       }
 
       const hash = await sha256Hex(rawBytes);
-      const storageKey = `emoji/noto/${hash}.json`;
+      const storageKey = `emoji/noto/${crypto.randomUUID()}/${hash}.json`;
 
       await storage.uploadFile(storageKey, rawBytes, "application/json");
 
       const itemId = `emoji_noto_${codepoint}`;
-      await db
-        .prepare(
+      const itemStatement = db.prepare(
           `INSERT INTO emoji_items 
           (id, pack_id, alt_emoji, kind, storage_key, byte_size, sha256, enabled, premium_origin, source, pack_name, uploader, created_at)
           VALUES (?, ?, ?, 'lottie', ?, ?, ?, 1, 0, 'noto', 'Noto Animated Emoji', ?, ?)
           ON CONFLICT(id) DO UPDATE SET storage_key = excluded.storage_key, enabled = 1`
         )
         .bind(itemId, packId, alt, storageKey, rawBytes.length, hash, user?.email || "admin", Date.now())
-        .run();
+;
+      await saveImportedItem(db, c.env, user, itemId, storageKey, itemStatement);
 
       importedCount++;
     } catch (err: any) {
-      errors.push(`Error importing Noto ${codepoint}: ${err.message}`);
+      errors.push(`Error importing Noto ${codepoint}. Please retry.`);
     }
   }
 
@@ -930,6 +970,13 @@ emojiAdminRoutes.post("/placements", async (c) => {
   }
   if (!targetId || !itemId) {
     return c.json({ success: false, error: "targetId and itemId are required" }, 400);
+  }
+
+  const targetQuery = slotType === "exam_card" ? "SELECT id FROM exams WHERE id = ?"
+    : slotType === "broadcast" ? "SELECT id FROM notifications WHERE id = ?"
+    : "SELECT id FROM exams WHERE category = ? LIMIT 1";
+  if (!await db.prepare(targetQuery).bind(targetId).first()) {
+    return c.json({ success: false, code: "PLACEMENT_TARGET_NOT_FOUND", error: "Placement target not found. Refresh and check its ID or category name." }, 404);
   }
 
   const item = await db.prepare("SELECT * FROM emoji_items WHERE id = ?").bind(itemId).first<EmojiItemRow>();

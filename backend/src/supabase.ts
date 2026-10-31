@@ -46,6 +46,23 @@ export class SupabaseStorage {
     return this.getPublicUrl(cleanPath);
   }
 
+  /** Official Storage DELETE /object/:bucketName accepts { prefixes }; max 1000.
+   * https://supabase.com/docs/guides/storage/management/delete-objects */
+  async deleteFiles(paths: string[]): Promise<void> {
+    if (!paths.length) return;
+    const key = this.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+    if (!key) throw new Error("Storage credentials are unavailable");
+    const unique = [...new Set(paths.map(path => path.replace(/^\/+/, "")).filter(Boolean))];
+    for (let offset = 0; offset < unique.length; offset += 1000) {
+      const response = await fetch(`${this.env.SUPABASE_PROJECT_URL}/storage/v1/object/${this.env.SUPABASE_BUCKET_NAME}`, {
+        method: "DELETE", signal: AbortSignal.timeout(20000),
+        headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ prefixes: unique.slice(offset, offset + 1000) }),
+      });
+      if (!response.ok) throw new Error("Storage cleanup could not be completed");
+    }
+  }
+
   async deleteFile(path: string): Promise<void> {
     if (!this.env.SUPABASE_SERVICE_ROLE_KEY) {
       throw new Error(

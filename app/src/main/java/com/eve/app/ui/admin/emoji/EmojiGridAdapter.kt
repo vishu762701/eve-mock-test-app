@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
 import com.eve.app.R
 import com.eve.app.data.model.EmojiItem
 import com.eve.app.databinding.ItemEmojiGridBinding
@@ -49,7 +50,16 @@ class EmojiGridAdapter(
             b.ivStaticEmoji.visibility = View.GONE
             b.tvAltEmoji.visibility = View.VISIBLE
 
-            if (item.url.startsWith("res:raw/")) {
+            if (item.kind == "static" && item.url.isNotBlank()) {
+                b.ivStaticEmoji.visibility = View.VISIBLE
+                b.ivStaticEmoji.load(item.url) {
+                    listener(onSuccess = { _, _ ->
+                        if (bindingAdapterPosition != RecyclerView.NO_POSITION && items[bindingAdapterPosition].id == item.id) {
+                            b.tvAltEmoji.visibility = View.GONE
+                        }
+                    })
+                }
+            } else if (item.url.startsWith("res:raw/")) {
                 val rawName = item.url.removePrefix("res:raw/")
                 val resId = b.root.context.resources.getIdentifier(rawName, "raw", b.root.context.packageName)
                 if (resId != 0) {

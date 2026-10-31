@@ -1,23 +1,25 @@
 package com.eve.app.ui.admin.emoji
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import coil.load
+import com.eve.app.designsystem.TelegramSwitch
+import com.eve.app.data.remote.toUserFriendlyMessage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.withContext
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.eve.app.R
 import com.eve.app.data.model.EmojiItem
 import com.eve.app.data.model.EmojiPack
-import com.eve.app.data.remote.EmojiPacksResponseDto
 import com.eve.app.data.repository.EmojiRepository
 import com.eve.app.databinding.ActivityEmojiStudioBinding
 import com.eve.app.databinding.BottomSheetEmojiPackManagerBinding
 import com.eve.app.databinding.BottomSheetEmojiPlacementBinding
-import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.ui.admin.tg.TextCheckCell
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AdminAccessGate
@@ -33,12 +35,22 @@ class EmojiStudioActivity : EveBaseActivity() {
 
     private var allPacks: List<EmojiPack> = emptyList()
     private var allItems: List<EmojiItem> = emptyList()
+    private var serverItemIds: Set<String> = emptySet()
     private var displayedItems: List<EmojiItem> = emptyList()
 
     private var currentTabIndex = 0
     private var searchQuery = ""
     private var globalTelegramEnabled = true
     private var telegramBotConfigured = false
+    private var dataJob: Job? = null
+    private var importRunning = false
+    private var authorized = false
+    private var pendingUpload: android.net.Uri? = null
+    private val uploadPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            if (authorized) uploadCustom(uri) else pendingUpload = uri
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,8 +58,10 @@ class EmojiStudioActivity : EveBaseActivity() {
         setContentView(binding.root)
 
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+            authorized = true
             setupViews()
             loadData()
+            pendingUpload?.let { pendingUpload = null; uploadCustom(it) }
         }
     }
 
@@ -79,15 +93,21 @@ class EmojiStudioActivity : EveBaseActivity() {
     }
 
     private fun loadData() {
+        dataJob?.cancel()
         binding.progressLoading.visibility = View.VISIBLE
         binding.emptyState.visibility = View.GONE
 
-        lifecycleScope.launch {
+        dataJob = lifecycleScope.launch {
             val packsResult = emojiRepo.getPacks()
-            val itemsResult = emojiRepo.getItems(limit = 100)
+            val itemsResult = emojiRepo.getAllItems()
 
             binding.progressLoading.visibility = View.GONE
 
+            if (packsResult.isFailure || itemsResult.isFailure) {
+                AppBulletin.showError(this@EmojiStudioActivity,
+                    (packsResult.exceptionOrNull() ?: itemsResult.exceptionOrNull())!!.toUserFriendlyMessage())
+                return@launch
+            }
             if (packsResult.isSuccess) {
                 val data = packsResult.getOrNull()
                 allPacks = data?.packs?.map { dto ->
@@ -108,8 +128,11 @@ class EmojiStudioActivity : EveBaseActivity() {
             }
 
             val serverItems = itemsResult.getOrDefault(emptyList())
-            val bundledUiItems = getBundledTelegramUiItems()
-            allItems = bundledUiItems + serverItems
+            // Older Workers may omit bundled IDs. Preview remains available, placement
+            // requires an actual server item; never resurrect a deleted pack.
+            val bundledUiItems = if (allPacks.any { it.id == "pack_tg_ui" }) getBundledTelegramUiItems() else emptyList()
+            serverItemIds = serverItems.map { it.id }.toSet()
+            allItems = (serverItems + bundledUiItems).distinctBy { it.id }
 
             setupTabs()
             filterAndDisplayItems()
@@ -123,6 +146,7 @@ class EmojiStudioActivity : EveBaseActivity() {
                 tabTitles.add(pack.title)
             }
         }
+        currentTabIndex = 0
         binding.segmentedTabs.setTabs(tabTitles)
         binding.segmentedTabs.onTabSelectedListener = { pos ->
             currentTabIndex = pos
@@ -195,7 +219,7 @@ class EmojiStudioActivity : EveBaseActivity() {
                 kind = "lottie",
                 url = "res:raw/$resName",
                 storageKey = "res:raw/$resName",
-                byteSize = 1024,
+                byteSize = 0,
                 sha256 = null,
                 enabled = true,
                 premiumOrigin = false,
@@ -214,7 +238,9 @@ class EmojiStudioActivity : EveBaseActivity() {
         sheetBinding.tvPlacementEmojiTitle.text = "${item.altEmoji} Placement"
         sheetBinding.tvPlacementPackName.text = item.packTitle ?: item.source
 
-        if (item.url.startsWith("res:raw/")) {
+        if (item.kind == "static") {
+            sheetBinding.ivPlacementPreview.load(item.url)
+        } else if (item.url.startsWith("res:raw/")) {
             val resName = item.url.removePrefix("res:raw/")
             val resId = resources.getIdentifier(resName, "raw", packageName)
             if (resId != 0) {
@@ -235,6 +261,8 @@ class EmojiStudioActivity : EveBaseActivity() {
         }
 
         sheetBinding.btnCancelPlacement.setOnClickListener { dialog.dismiss() }
+        sheetBinding.btnApplyPlacement.isEnabled = item.id in serverItemIds
+        if (item.id !in serverItemIds) sheetBinding.tvPlacementPackName.text = "Preview only: server catalogue update required."
         sheetBinding.btnApplyPlacement.setOnClickListener {
             val slotType = when (sheetBinding.rgSlotType.checkedRadioButtonId) {
                 R.id.rbCategoryHeader -> "category_header"
@@ -247,13 +275,15 @@ class EmojiStudioActivity : EveBaseActivity() {
                 return@setOnClickListener
             }
 
-            dialog.dismiss()
+            sheetBinding.btnApplyPlacement.isEnabled = false
             lifecycleScope.launch {
                 val res = emojiRepo.setPlacement(slotType, targetId, item.id)
+                sheetBinding.btnApplyPlacement.isEnabled = true
                 if (res.isSuccess) {
+                    dialog.dismiss()
                     AppBulletin.showSuccess(this@EmojiStudioActivity, "Placed ${item.altEmoji} on $slotType!")
                 } else {
-                    AppBulletin.showError(this@EmojiStudioActivity, res.exceptionOrNull()?.message ?: "Failed to set placement")
+                    AppBulletin.showError(this@EmojiStudioActivity, res.exceptionOrNull()?.toUserFriendlyMessage() ?: "Failed to set placement")
                 }
             }
         }
@@ -272,24 +302,12 @@ class EmojiStudioActivity : EveBaseActivity() {
             globalTelegramEnabled,
             needDivider = true
         )
-        sheetBinding.cellGlobalTelegramSwitch.setOnCheckedChangeListener { _, checked ->
-            globalTelegramEnabled = checked
-            lifecycleScope.launch {
-                val res = emojiRepo.toggleGlobalTelegramStatus(checked)
-                if (res.isSuccess) {
-                    AppBulletin.showSuccess(this@EmojiStudioActivity, "Telegram emoji ${if (checked) "enabled" else "disabled"}")
-                } else {
-                    AppBulletin.showError(this@EmojiStudioActivity, "Failed to update global switch")
-                }
-            }
-        }
+        bindPersistedSwitch(sheetBinding.cellGlobalTelegramSwitch, globalTelegramEnabled,
+            save = { emojiRepo.toggleGlobalTelegramStatus(it) },
+            onSaved = { globalTelegramEnabled = it })
 
-        // Telegram Bot Status
-        if (telegramBotConfigured) {
-            sheetBinding.cellTelegramBotStatus.setText("Telegram Bot Token is configured. Sticker imports are active.")
-        } else {
-            sheetBinding.cellTelegramBotStatus.setText("Telegram Bot Token is not configured. Telegram import is unavailable.")
-        }
+        sheetBinding.cellTelegramBotStatus.visibility = if (telegramBotConfigured) View.VISIBLE else View.GONE
+        if (telegramBotConfigured) sheetBinding.cellTelegramBotStatus.setText("Telegram sticker imports are available.")
 
         sheetBinding.headerPacksList.setText("INSTALLED PACKS")
 
@@ -298,11 +316,9 @@ class EmojiStudioActivity : EveBaseActivity() {
         allPacks.forEach { pack ->
             val cell = TextCheckCell(this)
             cell.setTextAndCheck(pack.title, pack.enabled, needDivider = true)
-            cell.setOnCheckedChangeListener { _, checked ->
-                lifecycleScope.launch {
-                    emojiRepo.togglePackStatus(pack.id, checked)
-                }
-            }
+            bindPersistedSwitch(cell, pack.enabled,
+                save = { emojiRepo.togglePackStatus(pack.id, it) },
+                onSaved = { enabled -> allPacks = allPacks.map { if (it.id == pack.id) it.copy(enabled = enabled) else it } })
 
             // Long press to delete pack
             cell.setOnLongClickListener {
@@ -313,11 +329,12 @@ class EmojiStudioActivity : EveBaseActivity() {
                         lifecycleScope.launch {
                             val res = emojiRepo.deletePack(pack.id)
                             if (res.isSuccess) {
-                                AppBulletin.showSuccess(this@EmojiStudioActivity, "Pack removed permanently.")
+                                if (res.getOrNull() == true) AppBulletin.showSuccess(this@EmojiStudioActivity, "Pack removed.")
+                                else AppBulletin.showError(this@EmojiStudioActivity, "Pack removed. Some media cleanup could not be completed.")
                                 dialog.dismiss()
                                 loadData()
                             } else {
-                                AppBulletin.showError(this@EmojiStudioActivity, "Failed to delete pack")
+                                AppBulletin.showError(this@EmojiStudioActivity, res.exceptionOrNull()?.toUserFriendlyMessage() ?: "Failed to delete pack")
                             }
                         }
                     }
@@ -333,34 +350,21 @@ class EmojiStudioActivity : EveBaseActivity() {
     }
 
     private fun showImportOptionsDialog() {
-        val options = arrayOf(
-            "Import Telegram Sticker Pack",
-            "Import Google Noto Animated Emoji",
-            "Upload Custom JSON/WebP"
-        )
-
+        if (importRunning) return
+        val actions = mutableListOf<Pair<String, () -> Unit>>()
+        if (telegramBotConfigured) actions += "Import Telegram Sticker Pack" to { showTelegramImportDialog() }
+        actions += "Import Google Noto Animated Emoji" to { showNotoImportDialog() }
+        actions += "Upload Custom JSON/WebP/PNG" to {
+            uploadPicker.launch(arrayOf("application/json", "image/webp", "image/png"))
+        }
         AlertDialog.Builder(this)
             .setTitle("Import Emoji")
-            .setItems(options) { _, which ->
-                when (which) {
-                    0 -> showTelegramImportDialog()
-                    1 -> showNotoImportDialog()
-                    2 -> AppBulletin.showSuccess(this, "Upload Lottie JSON via Admin API")
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
+            .setItems(actions.map { it.first }.toTypedArray()) { _, which -> actions[which].second() }
+            .setNegativeButton("Cancel", null).show()
     }
 
     private fun showTelegramImportDialog() {
-        if (!telegramBotConfigured) {
-            AlertDialog.Builder(this)
-                .setTitle("Telegram Import Not Configured")
-                .setMessage("TELEGRAM_BOT_TOKEN is not configured on the Worker. Please set it as a Cloudflare Worker secret.")
-                .setPositiveButton("OK", null)
-                .show()
-            return
-        }
+        if (!telegramBotConfigured || importRunning) return
 
         val input = EditText(this).apply {
             hint = "Pack name or link (e.g. Duck or t.me/addstickers/...)"
@@ -373,20 +377,20 @@ class EmojiStudioActivity : EveBaseActivity() {
             .setPositiveButton("Import") { _, _ ->
                 val packName = input.text.toString().trim()
                 if (packName.isNotBlank()) {
-                    binding.progressLoading.visibility = View.VISIBLE
-                    lifecycleScope.launch {
-                        val res = emojiRepo.importTelegramPack(packName)
-                        binding.progressLoading.visibility = View.GONE
-                        if (res.isSuccess) {
-                            val info = res.getOrNull()
-                            AppBulletin.showSuccess(
-                                this@EmojiStudioActivity,
-                                "Imported ${info?.importedCount ?: 0} stickers from '${info?.packTitle}'"
-                            )
-                            loadData()
-                        } else {
-                            AppBulletin.showError(this@EmojiStudioActivity, res.exceptionOrNull()?.message ?: "Failed")
-                        }
+                    runImport {
+                        var offset = 0
+                        var count = 0
+                        val errors = mutableListOf<String>()
+                        do {
+                            val info = emojiRepo.importTelegramPack(packName, offset).getOrThrow()
+                            count += info.importedCount
+                            errors += info.errors.orEmpty()
+                            val next = info.nextOffset
+                            check(next == null || next > offset) { "Import did not progress. Please retry." }
+                            offset = next ?: -1
+                        } while (offset >= 0)
+                        if (errors.isNotEmpty()) throw IllegalStateException("Imported $count stickers. ${errors.first()}")
+                        "Imported $count stickers."
                     }
                 }
             }
@@ -400,20 +404,67 @@ class EmojiStudioActivity : EveBaseActivity() {
             .setTitle("Import Google Noto Emoji")
             .setItems(categories) { _, which ->
                 val cat = if (which == 0) "popular" else "study"
-                binding.progressLoading.visibility = View.VISIBLE
-                lifecycleScope.launch {
-                    val res = emojiRepo.importNotoEmoji(cat)
-                    binding.progressLoading.visibility = View.GONE
-                    if (res.isSuccess) {
-                        AppBulletin.showSuccess(this@EmojiStudioActivity, "Imported ${res.getOrNull()?.importedCount ?: 0} Noto animated emojis!")
-                        loadData()
-                    } else {
-                        AppBulletin.showError(this@EmojiStudioActivity, "Failed to import Noto emojis")
-                    }
+                runImport {
+                    val info = emojiRepo.importNotoEmoji(cat).getOrThrow()
+                    if (!info.errors.isNullOrEmpty()) throw IllegalStateException("Imported ${info.importedCount}. ${info.errors.first()}")
+                    "Imported ${info.importedCount} Noto animated emojis."
                 }
             }
             .setNegativeButton("Cancel", null)
             .show()
+    }
+
+    private fun runImport(action: suspend () -> String) {
+        if (importRunning) return
+        importRunning = true
+        binding.btnImport.isEnabled = false
+        binding.progressLoading.visibility = View.VISIBLE
+        lifecycleScope.launch {
+            try { AppBulletin.showSuccess(this@EmojiStudioActivity, action()) }
+            catch (e: kotlinx.coroutines.CancellationException) { throw e }
+            catch (e: Exception) { AppBulletin.showError(this@EmojiStudioActivity, e.toUserFriendlyMessage()) }
+            finally {
+                importRunning = false
+                binding.btnImport.isEnabled = true
+                binding.progressLoading.visibility = View.GONE
+            }
+            loadData() // Partial imports also need honest readback.
+        }
+    }
+
+    private fun uploadCustom(uri: android.net.Uri) = runImport {
+        val (bytes, mime) = withContext(Dispatchers.IO) {
+            val mime = contentResolver.getType(uri) ?: "application/json"
+            val bytes = contentResolver.openInputStream(uri)?.use(EmojiUploadReader::read)
+                ?: throw IllegalArgumentException("Unable to open the selected file.")
+            bytes to mime
+        }
+        emojiRepo.upload(bytes, mime).getOrThrow()
+        "Emoji uploaded."
+    }
+
+    private fun bindPersistedSwitch(cell: TextCheckCell, initial: Boolean,
+        save: suspend (Boolean) -> Result<Unit>, onSaved: (Boolean) -> Unit) {
+        var confirmed = initial
+        lateinit var listener: TelegramSwitch.OnCheckedChangeListener
+        listener = TelegramSwitch.OnCheckedChangeListener { _, checked ->
+            cell.isEnabled = false
+            cell.checkBox.isEnabled = false
+            lifecycleScope.launch {
+                val result = save(checked)
+                if (result.isSuccess) { confirmed = checked; onSaved(checked) }
+                else {
+                    cell.setOnCheckedChangeListener(null)
+                    cell.isChecked = confirmed
+                    cell.setOnCheckedChangeListener(listener)
+                    AppBulletin.showError(this@EmojiStudioActivity,
+                        result.exceptionOrNull()?.toUserFriendlyMessage() ?: "Update failed.")
+                }
+                cell.isEnabled = true
+                cell.checkBox.isEnabled = true
+            }
+        }
+        cell.setOnCheckedChangeListener(listener)
     }
 
     private fun showItemDetailsDialog(item: EmojiItem) {
@@ -422,7 +473,7 @@ class EmojiStudioActivity : EveBaseActivity() {
             .append("Source: ${item.source}\n")
             .append("Pack: ${item.packTitle ?: item.packSlug ?: "N/A"}\n")
             .append("Kind: ${item.kind}\n")
-            .append("Size: ${item.byteSize} bytes\n")
+            .append("Size: ${if (item.byteSize > 0) "${item.byteSize} bytes" else "Not registered on server"}\n")
             .append("Premium Origin: ${if (item.premiumOrigin) "Yes (Telegram)" else "No"}\n")
             .append("Storage: ${item.storageKey ?: item.url}")
 

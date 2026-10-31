@@ -1,5 +1,7 @@
 package com.eve.app.ui.admin.emoji
 
+import coil.imageLoader
+import coil.request.ImageRequest
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.provider.Settings
@@ -80,6 +82,20 @@ object EmojiRenderer {
         val placeholder = emoji.alt.ifBlank { " " }
         builder.append(placeholder)
         val spanEnd = builder.length
+
+        if (emoji.kind == "static") {
+            textView.text = builder
+            val boundText = textView.text
+            context.imageLoader.enqueue(ImageRequest.Builder(context).data(emoji.url).target { drawable ->
+                if (textView.text === boundText) {
+                    val span = AnimatedEmojiSpan(textView, emoji, staticDrawable = drawable)
+                    val result = SpannableStringBuilder(builder)
+                    result.setSpan(span, spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    textView.text = result
+                }
+            }.build())
+            return
+        }
 
         // Check if cached in memory
         val cached = compositionCache.get(emoji.url)

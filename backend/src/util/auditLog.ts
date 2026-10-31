@@ -7,6 +7,8 @@ export interface AuditActionOptions {
   targetId?: string | null;
   metadata?: Record<string, any> | null;
   source?: "server" | "client";
+  // Internal callers supply constant SQL only; all resource values stay bound.
+  condition?: { sql: string; bindings: (string | number | null)[] };
 }
 
 const FORBIDDEN_METADATA_KEY_REGEX = /(token|secret|password|auth|answer|option|questiontext|credential|phone|username|api_?key|secret_?key)/i;
@@ -63,9 +65,10 @@ export function prepareAdminAuditLog(
   const stmt = db
     .prepare(
       `INSERT INTO admin_audit_log (id, action_type, description, admin_email, timestamp, actor_uid, target_type, target_id, metadata, source)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?${options.condition ? ` WHERE ${options.condition.sql}` : ""}`
     )
-    .bind(id, actionType, description, adminEmail, now, actorUid, targetType, targetId, metadata, source);
+    .bind(id, actionType, description, adminEmail, now, actorUid, targetType, targetId, metadata, source,
+      ...(options.condition?.bindings || []));
 
   return { id, stmt };
 }

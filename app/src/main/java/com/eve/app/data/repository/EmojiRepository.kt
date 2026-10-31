@@ -1,8 +1,10 @@
 package com.eve.app.data.repository
 
-import android.util.Log
 import com.eve.app.data.model.*
 import com.eve.app.data.remote.*
+import kotlinx.coroutines.CancellationException
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -18,7 +20,8 @@ class EmojiRepository(
                 Result.failure(Exception(response.error ?: "Failed to fetch emoji packs"))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            if (e is CancellationException) throw e
+            Result.failure(e.toApiError())
         }
     }
 
@@ -50,7 +53,34 @@ class EmojiRepository(
                 Result.failure(Exception(response.error ?: "Failed to fetch emoji items"))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            if (e is CancellationException) throw e
+            Result.failure(e.toApiError())
+        }
+    }
+
+    /** Stable server ordering plus deduplication keeps every page reachable. */
+    suspend fun getAllItems(): Result<List<EmojiItem>> {
+        val items = linkedMapOf<String, EmojiItem>()
+        var offset = 0
+        while (true) {
+            val page = getItems(offset = offset, limit = 100).getOrElse { return Result.failure(it) }
+            val previousSize = items.size
+            page.forEach { items[it.id] = it }
+            if (page.size < 100) return Result.success(items.values.toList())
+            if (items.size == previousSize) return Result.failure(Exception("Emoji catalogue changed. Please reload."))
+            offset += page.size
+        }
+    }
+
+    suspend fun upload(bytes: ByteArray, mime: String): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            require(bytes.isNotEmpty() && bytes.size <= 300 * 1024) { "Emoji must be between 1 byte and 300KB." }
+            val response = api.uploadEmoji(bytes.toRequestBody(mime.toMediaType()))
+            if (response.success && response.data != null) Result.success(Unit)
+            else Result.failure(Exception(response.error ?: "Emoji upload failed."))
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            Result.failure(e.toApiError())
         }
     }
 
@@ -59,7 +89,8 @@ class EmojiRepository(
             val response = api.toggleEmojiPackStatus(id, mapOf("enabled" to enabled))
             if (response.success) Result.success(Unit) else Result.failure(Exception(response.error ?: "Failed"))
         } catch (e: Exception) {
-            Result.failure(e)
+            if (e is CancellationException) throw e
+            Result.failure(e.toApiError())
         }
     }
 
@@ -68,16 +99,18 @@ class EmojiRepository(
             val response = api.toggleGlobalTelegramEmojiStatus(mapOf("enabled" to enabled))
             if (response.success) Result.success(Unit) else Result.failure(Exception(response.error ?: "Failed"))
         } catch (e: Exception) {
-            Result.failure(e)
+            if (e is CancellationException) throw e
+            Result.failure(e.toApiError())
         }
     }
 
-    suspend fun deletePack(id: String): Result<Unit> = withContext(Dispatchers.IO) {
+    suspend fun deletePack(id: String): Result<Boolean> = withContext(Dispatchers.IO) {
         try {
             val response = api.deleteEmojiPack(id)
-            if (response.success) Result.success(Unit) else Result.failure(Exception(response.error ?: "Failed"))
+            if (response.success) Result.success(response.data?.get("mediaCleanupComplete") != false) else Result.failure(Exception(response.error ?: "Failed"))
         } catch (e: Exception) {
-            Result.failure(e)
+            if (e is CancellationException) throw e
+            Result.failure(e.toApiError())
         }
     }
 
@@ -86,7 +119,8 @@ class EmojiRepository(
             val response = api.deleteEmojiItem(id)
             if (response.success) Result.success(Unit) else Result.failure(Exception(response.error ?: "Failed"))
         } catch (e: Exception) {
-            Result.failure(e)
+            if (e is CancellationException) throw e
+            Result.failure(e.toApiError())
         }
     }
 
@@ -99,7 +133,8 @@ class EmojiRepository(
                 Result.failure(Exception(response.error ?: "Failed to import Telegram pack"))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            if (e is CancellationException) throw e
+            Result.failure(e.toApiError())
         }
     }
 
@@ -112,7 +147,8 @@ class EmojiRepository(
                 Result.failure(Exception(response.error ?: "Failed to import Noto emoji"))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            if (e is CancellationException) throw e
+            Result.failure(e.toApiError())
         }
     }
 
@@ -139,7 +175,8 @@ class EmojiRepository(
                 Result.failure(Exception(response.error ?: "Failed to fetch placements"))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            if (e is CancellationException) throw e
+            Result.failure(e.toApiError())
         }
     }
 
@@ -148,7 +185,8 @@ class EmojiRepository(
             val response = api.setEmojiPlacement(SetEmojiPlacementRequest(slotType, targetId, itemId))
             if (response.success) Result.success(Unit) else Result.failure(Exception(response.error ?: "Failed"))
         } catch (e: Exception) {
-            Result.failure(e)
+            if (e is CancellationException) throw e
+            Result.failure(e.toApiError())
         }
     }
 
@@ -157,7 +195,8 @@ class EmojiRepository(
             val response = api.clearEmojiPlacement(slotType, targetId)
             if (response.success) Result.success(Unit) else Result.failure(Exception(response.error ?: "Failed"))
         } catch (e: Exception) {
-            Result.failure(e)
+            if (e is CancellationException) throw e
+            Result.failure(e.toApiError())
         }
     }
 
@@ -170,7 +209,8 @@ class EmojiRepository(
                 Result.failure(Exception(response.error ?: "Failed to fetch public placements"))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            if (e is CancellationException) throw e
+            Result.failure(e.toApiError())
         }
     }
 }

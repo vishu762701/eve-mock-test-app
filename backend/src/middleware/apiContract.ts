@@ -42,6 +42,7 @@ const numericFields = new Set(['timeLimitMinutes', 'questionCount', 'durationDay
 export const adminJsonContract: MiddlewareHandler<{ Bindings: Env; Variables: { user: AuthUser } }> = async (c, next) => {
   if (!c.get('user')?.isAdmin || !['POST', 'PUT', 'PATCH'].includes(c.req.method) ||
       !c.req.header('Content-Type')?.toLowerCase().includes('application/json') || c.req.raw.body === null) return next();
+  if (c.req.path === '/api/admin/emoji/upload') return next();
   let body: unknown;
   try { body = await c.req.raw.clone().json(); }
   catch { return c.json({ success: false, code: 'INVALID_JSON', error: 'Provide a valid JSON object.' }, 400); }
