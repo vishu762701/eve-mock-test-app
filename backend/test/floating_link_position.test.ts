@@ -7,8 +7,7 @@ import { isolatedD1 } from "./support/sqliteD1.mjs";
 // The previous map mock omitted D1.batch() and could not test privileged writes.
 function createTestDb() {
   const { sqlite, d1 } = isolatedD1();
-  sqlite.prepare("INSERT INTO admins (email, created_at) VALUES (?, ?)")
-    .run("own.keni@gmail.com", Date.now());
+  // Migration 0027 already seeds the owner membership. Do not insert it twice.
   return { sqlite, db: d1 };
 }
 
