@@ -5,7 +5,38 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     style="@style/Widget.Eve.Token.Screen">
+
+    <!-- ProfileActivity.java:5354-5359: original gooey host is full-window,
+         not a 120dp-high child of the scrolling avatar slot. It is drawn
+         behind NestedScrollView; the scroll child owns touch dispatch. -->
+    <com.eve.app.ui.profile.ProfileGooeyView
+        android:id="@+id/avatarGooey"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:importantForAccessibility="noHideDescendants">
+
+        <FrameLayout
+            android:id="@+id/avatarContainer"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="top|center_horizontal"
+            android:layout_marginTop="66dp">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/ivProfilePhoto"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:contentDescription="Profile photo"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_person"
+                app:shapeAppearanceOverlay="@style/ShapeCircle" />
+        </FrameLayout>
+    </com.eve.app.ui.profile.ProfileGooeyView>
 
     <!-- Top Glass Toolbar -->
     <com.eve.app.ui.common.EveGlassToolbar
@@ -61,7 +92,8 @@
             android:orientation="vertical"
             android:paddingTop="56dp">
 
-            <!-- Avatar & Gooey Container -->
+            <!-- Gesture/accessibility target in the scrolling header. Original
+                 ImageView now renders behind the scroll in the full-window host. -->
             <FrameLayout
                 android:id="@+id/avatarOuterContainer"
                 android:layout_width="match_parent"
@@ -69,29 +101,15 @@
                 android:clipChildren="false"
                 android:clipToPadding="false">
 
-                <com.eve.app.ui.profile.ProfileGooeyView
-                    android:id="@+id/avatarGooey"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:clipChildren="false"
-                    android:clipToPadding="false">
-
-                    <FrameLayout
-                        android:id="@+id/avatarContainer"
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
-                        android:layout_gravity="center">
-
-                        <com.google.android.material.imageview.ShapeableImageView
-                            android:id="@+id/ivProfilePhoto"
-                            android:layout_width="100dp"
-                            android:layout_height="100dp"
-                            android:contentDescription="Profile photo"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/ic_person"
-                            app:shapeAppearanceOverlay="@style/ShapeCircle" />
-                    </FrameLayout>
-                </com.eve.app.ui.profile.ProfileGooeyView>
+                <View
+                    android:id="@+id/avatarTouchTarget"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="Profile photo"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless" />
             </FrameLayout>
 
             <!-- Photo actions (Cancel / Save when picking photo) -->

@@ -13,6 +13,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.NumberPicker
@@ -20,6 +22,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.doOnLayout
 import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.lifecycleScope
 import coil.load
@@ -45,6 +50,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import kotlin.math.roundToInt
 
 class ProfileActivity : EveBaseActivity() {
 
@@ -91,6 +97,7 @@ class ProfileActivity : EveBaseActivity() {
         binding = ActivityProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.glassToolbar.bringToFront()
+        setupAvatarWindowHost()
 
         val user = FirebaseAuth.getInstance().currentUser
         if (user == null) {
@@ -121,6 +128,45 @@ class ProfileActivity : EveBaseActivity() {
         loadProfile()
     }
 
+    /**
+     * Telegram ProfileActivity.java:5354-5359 renders ProfileGooeyView in a
+     * MATCH_PARENT avatar host. EVE keeps the scroll gesture target in its
+     * NestedScrollView and paints the real photo behind it, at window scale.
+     */
+    private fun setupAvatarWindowHost() {
+        val contentRoot = findViewById<ViewGroup>(android.R.id.content)
+        // The original profile camera transition is allowed to draw into the
+        // system cutout, not clipped at the padded content root boundary.
+        contentRoot?.clipChildren = false
+        contentRoot?.clipToPadding = false
+        binding.root.clipChildren = false
+        binding.root.clipToPadding = false
+
+        binding.root.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            positionFullWindowAvatarHost()
+        }
+        binding.root.doOnLayout { positionFullWindowAvatarHost() }
+    }
+
+    private fun positionFullWindowAvatarHost() {
+        val contentRoot = findViewById<ViewGroup>(android.R.id.content)
+        val insets = ViewCompat.getRootWindowInsets(binding.root)
+        val physicalTop = insets?.getInsets(
+            WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.displayCutout()
+        )?.top ?: 0
+        // SystemBarHelper may have padded android.R.id.content before dispatch
+        // reaches this child. Prefer the authoritative larger inset.
+        val statusTop = maxOf(physicalTop, contentRoot?.paddingTop ?: 0)
+        val image = binding.avatarContainer
+        val params = image.layoutParams as FrameLayout.LayoutParams
+        val desiredTop = (66f * resources.displayMetrics.density).roundToInt() + statusTop
+        if (params.topMargin != desiredTop) {
+            params.topMargin = desiredTop
+            image.layoutParams = params
+        }
+        binding.avatarGooey.translationY = -statusTop.toFloat()
+    }
+
     private fun setupScrollAndGooey() {
         val density = resources.displayMetrics.density
         val collapseRange = 100f * density
@@ -140,8 +186,25 @@ class ProfileActivity : EveBaseActivity() {
             binding.avatarContainer.scaleX = currentScale
             binding.avatarContainer.scaleY = currentScale
 
-            val endOffset = binding.avatarGooey.getEndOffset(true, currentScale)
-            binding.avatarContainer.translationY = endOffset * progress
+            val info = binding.avatarGooey.notchInfo
+            binding.avatarContainer.translationY = if (info != null) {
+                // Telegram ProfileGooeyView.java:397-405 uses this center for
+                // the round front-camera mask. The EVE scroll trajectory is
+                // adapted because the renderer now lives outside the scroll.
+                val targetCenterY = if (info.isLikelyCircle) {
+                    info.bounds.bottom - info.bounds.width() / 2f
+                } else {
+                    info.bounds.centerY()
+                }
+                val initialCenterY = binding.avatarContainer.top +
+                    binding.avatarContainer.height / 2f
+                ProfileAvatarTrajectory.offsetToNotch(initialCenterY, targetCenterY, progress)
+            } else {
+                // Without a built-in cutout, retain the original scrolling
+                // header displacement and source dynamic status-bar offset.
+                val endOffset = binding.avatarGooey.getEndOffset(true, currentScale)
+                -scrollY.toFloat() + endOffset * progress
+            }
 
             // Alpha fading of toolbar title vs avatar/name
             binding.tvToolbarTitle.alpha = progress
@@ -156,7 +219,7 @@ class ProfileActivity : EveBaseActivity() {
         binding.btnSetPhoto.setOnClickListener {
             pickPhotoLauncher.launch("image/*")
         }
-        binding.ivProfilePhoto.setOnClickListener {
+        binding.avatarTouchTarget.setOnClickListener {
             pickPhotoLauncher.launch("image/*")
         }
         binding.btnCancelPhoto.setOnClickListener {
