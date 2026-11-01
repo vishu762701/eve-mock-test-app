@@ -651,3 +651,18 @@ boundary; it does not change the source popup drawing/animation bodies. AOSP API
 24/API 36 implementation was inspected as evidence, not copied. See the forward
 repair section of `docs/PROFILE_REGRESSION_REPAIR.md` and its original failed FULL
 run. No lint/release safeguard is suppressed.
+
+
+### Telegram personal QR control icons (2026-11-01 internal development)
+
+Official origin: \`https://github.com/DrKLO/Telegram\`, full revision
+\`3de37c8cfb039452be7398909461da6288babf15\`.
+Copied unchanged from \`TMessagesProj/src/main/res/drawable-{mdpi,hdpi,xhdpi,xxhdpi}/\`
+for \`msg_close.webp\`, \`msg_qr_scan.webp\`, \`msg_share.webp\`,
+\`msg_download.webp\` into EVE \`eve_qr_close.webp\`, \`eve_qr_qr_scan.webp\`,
+\`eve_qr_share.webp\`, \`eve_qr_download.webp\` (16 byte-identical files,
+corresponding density qualifiers). Source and imported Git blobs match. See
+\`docs/PROFILE_REGRESSION_REPAIR.md\` for source-based static QR adaptation.
+Telegram root LICENSE contains GNU GPL v2; rights to each asset and combined
+GPLv3-EVE redistributability are not assumed. This does not authorize
+production distribution; the fail-closed release approval remains mandatory.

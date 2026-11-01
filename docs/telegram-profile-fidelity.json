@@ -53,15 +53,18 @@
         "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrRender.java"
       ],
       "eve_paths": [
-        "app/src/main/java/com/eve/app/ui/profile/UsernameCardActivity.kt"
+        "app/src/main/java/com/eve/app/ui/profile/UsernameCardActivity.kt",
+        "app/src/main/java/com/eve/app/ui/profile/TelegramQrSceneView.kt"
       ],
       "tests": [
-        "app/src/androidTest/java/com/eve/app/ui/profile/ProfileMissionIntegrationNativeTest.kt"
+        "app/src/androidTest/java/com/eve/app/ui/profile/ProfileMissionIntegrationNativeTest.kt",
+        "app/src/androidTest/java/com/eve/app/ui/profile/TelegramQrSceneNativeTest.kt"
       ],
       "source_map": "docs/PROFILE_REGRESSION_REPAIR.md",
       "remaining_gaps": [
-        "EVE currently renders its own plain ScrollView and bitmap instead of Telegram QrShare scene/glass renderer.",
-        "Telegram-only scan, sharing, emoji, backdrop and permissions require explicit EVE contract mapping and native acceptance."
+        "Static QR card/source geometry and original icon assets are adapted, but complete Telegram QrShareView/QrRender/QrCodeLayer glass and motion subsystem remains unported.",
+        "Telegram animated themes, emoji/gift services and live QrScanOverlay are not present; EVE uses local QR palettes and a photo camera scan.",
+        "Matched upstream-device screenshots, 60-120Hz motion, large-font/RTL and real-device render acceptance remain outstanding."
       ]
     }
   ]

@@ -304,3 +304,40 @@ An animation which never settles or a window which never dismisses still fails,
 with the last observed visual/window state. No test, navigation mode or native gate
 is excluded. This is another evidence-backed CI fixture synchronization repair;
 the official header/actions draft remains outside the repository while gates are red.
+
+## EVE personal QR: source-backed static scene replacement (2026-11-01)
+
+The former plain ScrollView/raw black-square bitmap and Material buttons have
+been replaced with an immersive EVE QR canvas, secured sharing/saving controls,
+camera still-image decoding and EVE's existing username-only deep-link contract.
+Reference source: official \`DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15\`,
+the user ZIP \`Telegrammaster.zip\`, SHA-256
+\`4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10\`.
+The official repository master HEAD and four source blobs were inspected again
+before the adaptation. Original static card geometry comes from
+\`QrShareView.java:1879-1881,2046-2061,3808-3819,3858-3869,4060-4099\`;
+rounded QR finder/cell rules from \`TelegramQRCodeWriter.java\` and
+\`QrCodeLayer.java:86-132\`. EVE implementation is
+\`ui/profile/TelegramQrSceneView.kt\` and \`UsernameCardActivity.kt\`.
+
+The four original icon glyphs \`msg_close\`, \`msg_qr_scan\`, \`msg_share\`,
+\`msg_download\`, all four mdpi/hdpi/xhdpi/xxhdpi densities, are copied as
+byte-identical upstream Git blobs under \`eve_qr_*\` and were compared to Git
+object SHA-1 at import. They remain subject to per-asset licensing review.
+No Telegram app icon, credentials, auth, user photos or phone numbers were
+imported. Existing FileProvider \`file_paths.xml\` is reused for an explicit
+user-initiated image share and Android's CreateDocument for saving; no broad
+storage permission is requested. The camera chooser decodes an EVE-only QR
+still frame; it is NOT Telegram's live QrScanOverlay.
+
+**Fidelity: ADAPTED, NOT EXACT.** The source visual ratios are preserved
+where feasible, but the screen does not contain the original 7,217-line
+QrShareView renderer, QrRender/blur scene, animated QrCodeLayer particles,
+GL glass, animated logo, emoji/gift marketplace, server themes, paid username
+links, real-time scanner or original source motion. The EVE center emblem and
+fallback palette are explicitly original-app integrations. No fake Telegram
+account feature is shown. Native source-raster scanning/theme/rotation test
+\`TelegramQrSceneNativeTest\` is added for both navigation modes when FULL
+runs. Matched Telegram/EVE frames at the same build/device, 60/90/120Hz
+motion and signed-in real-device comparison remain UNKNOWN. A passing CI run
+does not change the \`personal-qr\` acceptance status from OPEN.
