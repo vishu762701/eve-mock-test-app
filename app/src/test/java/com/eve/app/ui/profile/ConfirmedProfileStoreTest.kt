@@ -101,4 +101,29 @@ class ConfirmedProfileStoreTest {
             assertNull(store.peek("alice"))
         } finally { scope.cancel() }
     }
+
+    @Test fun malformedJsonCannotReplaceTheLastConfirmedFieldsOrSeedAWarmOpen() = runBlocking {
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        try {
+            val gson = com.google.gson.Gson()
+            var response = profile()
+            val store = ConfirmedProfileStore(scope, { "alice" }, { 0L }) { response }
+            store.get("alice")
+            for (missing in listOf("displayName", "dob", "category")) {
+                val json = gson.toJsonTree(profile()).asJsonObject.apply { remove(missing) }
+                response = gson.fromJson(json, UserProfileResponse::class.java)
+                store.invalidate("alice")
+                try { store.get("alice"); fail("Missing $missing was accepted into the cache") }
+                catch (_: IllegalStateException) {}
+                assertEquals(profile(), store.peek("alice"))
+                try { store.accept("alice", response); fail("Malformed readback was accepted") }
+                catch (_: IllegalStateException) {}
+                assertEquals(profile(), store.peek("alice"))
+            }
+            val cold = ConfirmedProfileStore(scope, { "alice" }, { 0L }) { response }
+            try { cold.get("alice"); fail("Malformed cold response was accepted") }
+            catch (_: IllegalStateException) {}
+            assertNull(cold.peek("alice"))
+        } finally { scope.cancel() }
+    }
 }

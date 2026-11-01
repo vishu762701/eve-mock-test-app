@@ -61,7 +61,8 @@ internal class ConfirmedProfileStore(
     /** Successful write/readback supersedes every earlier revalidation. */
     @Synchronized fun accept(uid: String, profile: UserProfileResponse) {
         setOwner(currentUid())
-        check(owner == uid && profile.id == uid) { "Profile account did not match" }
+        check(owner == uid) { "Profile account did not match" }
+        validate(uid, profile)
         invalidate(uid)
         confirmed = profile
         confirmedAt = now()
@@ -83,7 +84,7 @@ internal class ConfirmedProfileStore(
                             if (currentUid() != uid || owner != uid || generation != version) {
                                 throw CancellationException("Superseded profile response")
                             }
-                            check(result.id == uid) { "Profile account did not match" }
+                            validate(uid, result)
                             confirmed = result
                             confirmedAt = now()
                         }
@@ -100,5 +101,18 @@ internal class ConfirmedProfileStore(
         // not cancel a shared request needed by another waiter or the next screen.
         request.start()
         return request.await()
+    }
+
+    private fun validate(uid: String, profile: UserProfileResponse) {
+        check(profile.id == uid) { "Profile account did not match" }
+        // Gson can produce nulls for missing JSON fields even though the Kotlin
+        // DTO declares these core fields non-null. Never cache such a response:
+        // warm-open rendering runs before the network error handler is entered.
+        val name: String? = profile.displayName
+        val birthday: String? = profile.dob
+        val category: String? = profile.category
+        check(name != null && birthday != null && category != null) {
+            "Profile response was incomplete"
+        }
     }
 }

@@ -719,8 +719,8 @@ class ProfileActivity : EveBaseActivity() {
             binding.tvBirthdayValue.text = formatTelegramBirthday(currentDob)
         }
         if (!categorySaveInFlight) {
-            currentCategory = profile.category.ifBlank { "General" }
-            binding.tvCategoryValue.text = currentCategory
+            currentCategory = profile.category.orEmpty()
+            binding.tvCategoryValue.text = currentCategory.ifBlank { "Select category" }
             updateCategoryRadios(currentCategory)
         }
         profileConfirmed = true

@@ -231,3 +231,31 @@ Day/Night section and popup paint paths. Its first attempt hit a Robolectric
 keyguard-shadow limitation in the debug Activity; the probe used a plain themed
 AppCompat host thereafter. This is host graphics evidence only, not native device
 or reference parity. Probe code/images are outside the repository.
+
+## Confirmed-cache malformed-response follow-up
+
+A real Gson decode fixture reproduced an additional cache validation defect: Gson
+can construct a UserProfileResponse with null core fields even though Kotlin marks
+them non-null. The initial store accepted such a response after checking only its
+identity; a warm open could then render it outside the load error handler.
+`malformedJsonCannotReplaceTheLastConfirmedFieldsOrSeedAWarmOpen` failed against
+that implementation before the repair. It removes each of displayName/dob/category
+from actual JSON, checks revalidation and write/readback acceptance, and checks a
+cold cache. This is not a string/name/constant assertion.
+
+The store now validates core field presence before caching either a GET response
+or a confirmed readback. Rejection preserves the last confirmed fields; a cold
+malformed response does not seed the cache. Legitimate empty birthdays remain
+valid. The UI also preserves a confirmed empty category as “Select category”
+instead of displaying a fabricated saved General selection. No server data is
+rewritten, no new endpoint is introduced, and optional Bio/presence capability
+semantics remain unchanged.
+
+Local validation passed `testDebugUnitTest` (**650 tests**, including seven store
+cases), `lintDebug` (zero errors), `compileDebugAndroidTestKotlin` and `assembleDebug`.
+This follow-up changes confirmed-state handling; popup rendering is unchanged.
+For the per-feature commit record, the original repair batch and this follow-up
+are the two confirmed-cache implementation batches; the original batch and the
+API-36 forward repair are the two normal-popup implementation batches. The shared
+section surface/card is in the original batch only. Record the actual FAST/FULL
+outcomes separately; none of this asserts complete mission or visual acceptance.
