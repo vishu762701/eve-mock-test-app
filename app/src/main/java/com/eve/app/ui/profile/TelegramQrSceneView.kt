@@ -49,9 +49,13 @@ internal class TelegramQrSceneView(
     }
     private val bounds = RectF()
     private val modulePath = Path()
-    private var qrBitmap: Bitmap? = null
-    private var qrBitmapColor: Int? = null
-    private val qrBitmapPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+    private val qrLayer = com.eve.app.telegram.qr.QrCodeLayer()
+    private var qrCode: com.eve.app.telegram.qr.QrCodeLayer.Code? = null
+    private val qrLogoInk = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.WHITE
+        textAlign = Paint.Align.CENTER
+        typeface = Typeface.create("sans-serif", Typeface.BOLD)
+    }
     var systemTop = 0
         set(value) { field = value; invalidate() }
     var systemBottom = 0
@@ -296,7 +300,7 @@ internal class TelegramQrSceneView(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         drawScene(canvas, width.toFloat(), height.toFloat())
-        if (selectedEmojis.isNotEmpty() && isShown) postInvalidateOnAnimation()
+        if ((selectedEmojis.isNotEmpty() || qrLayer.isAnimating()) && isShown) postInvalidateOnAnimation()
     }
 
     private fun mix(a: Int, b: Int, t: Float): Int {
@@ -403,7 +407,7 @@ internal class TelegramQrSceneView(
         val size = cw * .70f
         val qLeft = x + (cw - size) / 2f
         val qTop = y + cw * .12f
-        drawModules(canvas, qLeft, qTop, size, if (export) 1f else qrBuild)
+        drawModules(canvas, qLeft, qTop, size, if (export) 1f else qrBuild, export)
         val caption = "@" + username.uppercase(Locale.ROOT)
         labelPaint.color = qrColor()
         for (pt in floatArrayOf(30f, 25f, 19f)) {
@@ -417,40 +421,41 @@ internal class TelegramQrSceneView(
     }
 
     private fun qrColor(): Int = colors[palette][2]
-    /** Upstream rounded-module renderer; only the center brand is supplied by EVE. */
-    private fun drawModules(canvas: Canvas, left: Float, top: Float, size: Float, build: Float) {
-        val color = qrColor()
-        if (qrBitmap == null || qrBitmapColor != color) {
-            val writer = com.eve.app.telegram.qr.TelegramQRCodeWriter()
-            writer.setCenterDrawable(object : Drawable() {
-                private val circle = Paint(Paint.ANTI_ALIAS_FLAG).apply { this.color = color }
-                private val letter = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                    this.color = Color.WHITE
-                    typeface = Typeface.create("sans-serif", Typeface.BOLD)
-                    textAlign = Paint.Align.CENTER
-                }
-                override fun draw(target: Canvas) {
-                    val radius = bounds.width() / 2f
-                    target.drawCircle(bounds.exactCenterX(), bounds.exactCenterY(), radius, circle)
-                    letter.textSize = bounds.height() * .65f
-                    target.drawText("E", bounds.exactCenterX(),
-                        bounds.exactCenterY() - (letter.ascent() + letter.descent()) / 2f, letter)
-                }
-                override fun setAlpha(alpha: Int) { circle.alpha = alpha; letter.alpha = alpha }
-                override fun setColorFilter(filter: android.graphics.ColorFilter?) { circle.colorFilter = filter }
-                @Deprecated("Drawable opacity is not used")
-                override fun getOpacity() = android.graphics.PixelFormat.TRANSLUCENT
-            })
-            val hints = mapOf<com.google.zxing.EncodeHintType, Any>(
-                com.google.zxing.EncodeHintType.ERROR_CORRECTION to ErrorCorrectionLevel.M,
-                com.google.zxing.EncodeHintType.MARGIN to 0)
-            // The old bitmap is released by GC, so an outstanding hardware display list never sees a recycled bitmap.
-            qrBitmap = writer.encode(link, dp(240f).toInt(), dp(240f).toInt(), hints, null,
-                .75f, Color.WHITE, color)
-            qrBitmapColor = color
+    /** Cache the source writer's white QR mask so palette changes only recolor it. */
+    private fun ensureQrCode(): com.eve.app.telegram.qr.QrCodeLayer.Code? {
+        qrCode?.let { return it }
+        val mark = object : Drawable() {
+            private val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.WHITE }
+            override fun draw(target: Canvas) {
+                target.drawCircle(bounds.exactCenterX(), bounds.exactCenterY(),
+                    bounds.width() / 2f, fill)
+            }
+            override fun setAlpha(alpha: Int) { fill.alpha = alpha }
+            override fun setColorFilter(filter: android.graphics.ColorFilter?) { fill.colorFilter = filter }
+            @Deprecated("Drawable opacity is not used")
+            override fun getOpacity() = android.graphics.PixelFormat.TRANSLUCENT
         }
-        qrBitmapPaint.alpha = (build.coerceIn(0f, 1f) * 255).toInt()
-        canvas.drawBitmap(requireNotNull(qrBitmap), null, RectF(left, top, left + size, top + size), qrBitmapPaint)
+        val data = com.eve.app.telegram.qr.QrCodeLayer.build(
+            link, dp(240f).toInt(), ErrorCorrectionLevel.M, .75f, mark
+        ) ?: return null
+        qrCode = data
+        qrLayer.assemble(data)
+        return data
+    }
+
+    /** Java source module/halftone animation with EVE's white E drawn above the mask. */
+    private fun drawModules(canvas: Canvas, left: Float, top: Float, size: Float, build: Float,
+                            export: Boolean = false) {
+        val data = ensureQrCode() ?: return
+        val layer = if (export) com.eve.app.telegram.qr.QrCodeLayer().apply { set(data) } else qrLayer
+        layer.setColor(qrColor())
+        layer.setCardBounds(bounds.left, bounds.top, bounds.right, bounds.bottom)
+        if (!export) layer.setBuildOverride(build)
+        layer.draw(canvas, left, top, size)
+        val markSide = size * com.eve.app.telegram.qr.QrCodeLayer.logoShare(data)
+        qrLogoInk.textSize = markSide * .65f
+        canvas.drawText("E", left + size / 2f,
+            top + size / 2f - (qrLogoInk.ascent() + qrLogoInk.descent()) / 2f, qrLogoInk)
     }
 
     /** Local rendering without accessing the private profile or Telegram servers. */
