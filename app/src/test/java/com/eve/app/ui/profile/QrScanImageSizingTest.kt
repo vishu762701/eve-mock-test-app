@@ -1,6 +1,7 @@
 package com.eve.app.ui.profile
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /** Actual bounds algorithm tests, not a string-only scanner contract. */
@@ -30,9 +31,9 @@ class QrScanImageSizingTest {
                 val sample = QrScanImageSizing.sampleSize(width, height)
                 if (sample == 0) continue
                 assertEquals(0, sample and (sample - 1))
-                assert(width.toLong() / sample <= QrScanImageSizing.MAX_SIDE)
-                assert(height.toLong() / sample <= QrScanImageSizing.MAX_SIDE)
-                assert(width.toLong() / sample * (height.toLong() / sample) <= QrScanImageSizing.MAX_PIXELS)
+                assertTrue(width.toLong() / sample <= QrScanImageSizing.MAX_SIDE)
+                assertTrue(height.toLong() / sample <= QrScanImageSizing.MAX_SIDE)
+                assertTrue(width.toLong() / sample * (height.toLong() / sample) <= QrScanImageSizing.MAX_PIXELS)
             }
         }
     }

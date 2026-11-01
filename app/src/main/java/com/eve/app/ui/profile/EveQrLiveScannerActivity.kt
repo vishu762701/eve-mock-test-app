@@ -245,9 +245,11 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
                 // Read only image metadata first. A fixed sample size either wastes
                 // memory for huge gallery files or destroys small QR modules.
                 val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-                contentResolver.openInputStream(uri)?.use { input ->
+                val boundsInput = contentResolver.openInputStream(uri)
+                    ?: throw IllegalArgumentException("Unable to read image bounds")
+                boundsInput.use { input ->
                     BitmapFactory.decodeStream(input, null, bounds)
-                } ?: throw IllegalArgumentException("Unable to read image bounds")
+                }
                 val sample = QrScanImageSizing.sampleSize(bounds.outWidth, bounds.outHeight)
                 if (sample == 0) throw IllegalArgumentException("Unsafe image dimensions")
                 bitmap = contentResolver.openInputStream(uri)?.use { input ->
