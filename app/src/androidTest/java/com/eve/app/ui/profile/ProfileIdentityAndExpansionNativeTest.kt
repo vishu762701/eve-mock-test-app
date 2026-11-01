@@ -60,7 +60,6 @@ class ProfileIdentityAndExpansionNativeTest {
                 val photo = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888)
                 Canvas(photo).drawColor(0xFF527CA8.toInt())
                 b.ivProfilePhoto.setImageBitmap(photo)
-                ProfileBioCapability.apply(b.cellBio, b.tvBioValue, null)
                 layout()
                 val tint = (b.btnSetPhoto.getChildAt(0) as android.widget.ImageView).imageTintList!!.defaultColor
                 val brightness = androidx.core.graphics.ColorUtils.calculateLuminance(tint)
