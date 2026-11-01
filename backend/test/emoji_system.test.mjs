@@ -557,3 +557,35 @@ test("Emoji placements: audit outage cannot delete an existing student-visible p
     assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM emoji_placements WHERE target_id='exam-place'").get().n, 1);
   } finally { sqlite.close(); }
 });
+
+
+// Public QR emoji retrieval: no admin privilege, disabled assets stay hidden,
+// global source takedown is honored and internal storage keys never leave the server.
+test("QR emoji catalogue is safe for student accounts and respects content flags", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  const student = createTestApp(d1, { uid: "student_1", email: "student@example.test", isAdmin: false });
+  const initial = await student.request("/api/emoji/items/public?limit=5");
+  assert.equal(initial.status, 200);
+  const payload = await initial.json();
+  assert.equal(payload.success, true);
+  assert.ok(payload.data.length > 0);
+  assert.ok(payload.data.every(x => x.enabled && x.kind === "lottie"));
+  assert.ok(payload.data.every(x => !("storageKey" in x) && !("uploader" in x)));
+  assert.ok(payload.data.some(x => x.url.startsWith("res:raw/")));
+
+  sqlite.prepare("UPDATE emoji_items SET enabled = 0 WHERE id = 'bundled_tg_fire_on'").run();
+  const afterItemDisable = await (await student.request("/api/emoji/items/public?limit=100")).json();
+  assert.ok(afterItemDisable.data.every(x => x.id !== "bundled_tg_fire_on"));
+
+  sqlite.prepare("UPDATE emoji_packs SET enabled = 0 WHERE id = 'pack_tg_ui'").run();
+  const afterPackDisable = await (await student.request("/api/emoji/items/public")).json();
+  assert.ok(afterPackDisable.data.every(x => x.source !== "telegram-ui"));
+
+  sqlite.prepare("UPDATE emoji_packs SET enabled = 1 WHERE id = 'pack_tg_ui'").run();
+  sqlite.prepare("UPDATE app_content SET body = '{\"enabled\":false}' WHERE id = 'telegram_emoji_global'").run();
+  const afterGlobalDisable = await (await student.request("/api/emoji/items/public")).json();
+  assert.ok(afterGlobalDisable.data.every(x => x.source !== "telegram-ui" && x.source !== "telegram"));
+
+  assert.equal((await student.request("/api/emoji/items/public?limit=101")).status, 400);
+  assert.equal((await student.request("/api/emoji/items/public?offset=-1")).status, 400);
+});

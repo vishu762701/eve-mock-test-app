@@ -191,6 +191,55 @@ emojiRoutes.get("/placements/public", async (c) => {
   });
 });
 
+/**
+ * QR customization is available to signed-in EVE users, not just admins.
+ * Only public, enabled animation assets are listed. Never expose storage keys,
+ * upload rights, disabled packs/items, private user state or payment data.
+ * The global Telegram-source takedown switch applies here as on placements.
+ */
+emojiRoutes.get("/items/public", async (c) => {
+  const offset = Number(c.req.query("offset") ?? "0");
+  const limit = Number(c.req.query("limit") ?? "24");
+  if (!Number.isSafeInteger(offset) || offset < 0 ||
+      !Number.isSafeInteger(limit) || limit < 1 || limit > 100) {
+    return c.json({ success: false, error: "Invalid pagination" }, 400);
+  }
+  const db = c.env.DB;
+  const settings = await db.prepare("SELECT body FROM app_content WHERE id = 'telegram_emoji_global'")
+    .first<{ body: string }>().catch(() => null);
+  let telegramEnabled = true;
+  try { if (settings?.body && JSON.parse(settings.body).enabled === false) telegramEnabled = false; }
+  catch { /* invalid switch is not an authorization grant */ }
+  const sourceFilter = telegramEnabled ? "" : " AND i.source NOT IN ('telegram', 'telegram-ui')";
+  const query = `SELECT i.id, i.pack_id, p.title AS pack_title, p.name AS pack_slug,
+    i.alt_emoji, i.kind, i.storage_key, i.sha256, i.source, i.created_at, i.premium_origin
+    FROM emoji_items i JOIN emoji_packs p ON i.pack_id = p.id
+    WHERE i.enabled = 1 AND p.enabled = 1 AND i.kind = 'lottie'${sourceFilter}
+    ORDER BY i.created_at DESC, i.id DESC LIMIT ? OFFSET ?`;
+  const rows = await db.prepare(query).bind(limit, offset).all<{
+    id: string; pack_id: string; pack_title: string; pack_slug: string;
+    alt_emoji: string; kind: string; storage_key: string; sha256: string | null;
+    source: string; created_at: number; premium_origin: number;
+  }>();
+  const storage = new SupabaseStorage(c.env);
+  const data = (rows.results ?? []).map((item) => ({
+    id: item.id,
+    packId: item.pack_id,
+    packTitle: item.pack_title,
+    packSlug: item.pack_slug,
+    altEmoji: item.alt_emoji,
+    kind: item.kind,
+    url: item.storage_key.startsWith("res:raw/")
+      ? item.storage_key : storage.getPublicUrl(item.storage_key),
+    sha256: item.sha256,
+    source: item.source,
+    createdAt: item.created_at,
+    enabled: true,
+    premiumOrigin: Boolean(item.premium_origin),
+  }));
+  return c.json({ success: true, data, offset, limit });
+});
+
 // ============================================================================
 // Protected Admin Emoji Endpoints (requirePermission("manage_content"))
 // ============================================================================

@@ -25,6 +25,26 @@ class EmojiRepository(
         }
     }
 
+    /** Public QR assets: never call admin catalogue routes from a student screen. */
+    suspend fun getPublicQrItems(limit: Int = 24): Result<List<EmojiItem>> = withContext(Dispatchers.IO) {
+        try {
+            val response = api.getPublicQrEmojiItems(limit = limit)
+            if (!response.success || response.data == null) {
+                return@withContext Result.failure(Exception(response.error ?: "QR emoji catalogue unavailable"))
+            }
+            Result.success(response.data.filter { it.enabled && it.kind == "lottie" }.map { dto ->
+                EmojiItem(id = dto.id, packId = dto.packId, packTitle = dto.packTitle,
+                    packSlug = dto.packSlug, altEmoji = dto.altEmoji, kind = dto.kind,
+                    url = dto.url, sha256 = dto.sha256, enabled = dto.enabled,
+                    premiumOrigin = dto.premiumOrigin, source = dto.source,
+                    createdAt = dto.createdAt)
+            })
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            Result.failure(e.toApiError())
+        }
+    }
+
     suspend fun getItems(packId: String? = null, q: String? = null, offset: Int = 0, limit: Int = 50): Result<List<EmojiItem>> = withContext(Dispatchers.IO) {
         try {
             val response = api.getEmojiItems(packId, q, offset, limit)

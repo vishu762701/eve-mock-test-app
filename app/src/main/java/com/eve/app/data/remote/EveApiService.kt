@@ -685,6 +685,13 @@ interface EveApiService {
     @DELETE("api/admin/emoji/packs/{id}")
     suspend fun deleteEmojiPack(@Path("id") id: String): ApiResponse<Map<String, Any>>
 
+    /** Read-only enabled animated QR assets for authenticated non-admin users. */
+    @GET("api/emoji/items/public")
+    suspend fun getPublicQrEmojiItems(
+        @Query("offset") offset: Int = 0,
+        @Query("limit") limit: Int = 24
+    ): ApiResponse<List<EmojiItemDto>>
+
     @GET("api/admin/emoji/items")
     suspend fun getEmojiItems(
         @Query("packId") packId: String? = null,

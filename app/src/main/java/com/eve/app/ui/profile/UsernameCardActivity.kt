@@ -324,7 +324,7 @@ class UsernameCardActivity : EveBaseActivity() {
         }
         sheet.show()
         lifecycleScope.launch {
-            val items = EmojiRepository().getItems(limit = 24).getOrElse {
+            val items = EmojiRepository().getPublicQrItems(limit = 24).getOrElse {
                 loading.text = "Animated catalogue unavailable. Standard emoji motion still works."
                 return@launch
             }
