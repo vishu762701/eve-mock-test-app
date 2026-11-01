@@ -3,7 +3,7 @@ package com.eve.app.ui.profile
 import android.content.Context
 import android.graphics.Bitmap
 import android.view.View
-import androidx.test.core.app.ApplicationProvider
+import org.robolectric.RuntimeEnvironment
 import com.google.zxing.BinaryBitmap
 import com.google.zxing.RGBLuminanceSource
 import com.google.zxing.common.HybridBinarizer
@@ -28,7 +28,7 @@ class TelegramQrRasterTest {
     }
 
     @Test fun renderedQrRemainsDecodableAcrossColorScenesAndDeviceWidths() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
+        val context = RuntimeEnvironment.getApplication()
         val link = "eve-mock-test://username/test_name"
         for ((w, h) in listOf(420 to 900, 360 to 780)) {
             val view = TelegramQrSceneView(context, "test_name", link)
