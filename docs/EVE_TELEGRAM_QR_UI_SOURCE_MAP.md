@@ -16,3 +16,9 @@ Archive SHA-256: 4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c1
 
 EVE QR payload stays local to `eve-mock-test://username/...`, never Telegram authentication.
 Source-based motion and visual behavior are not proven pixel/frame-identical. Release GPL compatibility remains unresolved per docs/telegram-release-compliance-gate.md.
+
+## Animated QR emoji upgrade (2026-11-01)
+
+- Upstream `QrShareView.java:175,972-992,3171-3233,3239-3269,3369-3407` → `QrEmojiPattern.kt` and `TelegramQrSceneView.kt`: original six-pick toggle, hashed 86dp × 70dp staggered lattice, 20% omissions, independent 9–20s orbit, pop-in (380ms + 300ms spread), breath/rotation. **ADAPTED** to EVE Canvas and login-free identity. No upstream source files copied wholesale.
+- Upstream `QrEmojiPanel.java:56-95,122-138` → `UsernameCardActivity.kt`: EVE emoji catalogue is queried through the existing authenticated `EmojiRepository`; an on-device Lottie preview and animated scene use real EVE-hosted compositions. Presets remain Unicode glyphs. **ADAPTED**, not original Telegram custom emoji documents, keyboard, pack layout or RenderNode effects.
+- EVE GIFTS, paid messages and persisted multi-emoji account themes remain **NOT IMPLEMENTED**; this stage alters only QR emoji rendering/selection and does not introduce charges. EVE QR source-exact acceptance remains OPEN.

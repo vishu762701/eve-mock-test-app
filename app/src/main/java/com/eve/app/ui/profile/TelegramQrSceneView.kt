@@ -2,6 +2,9 @@ package com.eve.app.ui.profile
 
 import android.content.Context
 import android.animation.ValueAnimator
+import android.graphics.drawable.Drawable
+import com.airbnb.lottie.LottieCompositionFactory
+import com.airbnb.lottie.LottieDrawable
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.os.SystemClock
@@ -72,8 +75,14 @@ internal class TelegramQrSceneView(
     private var openingAnimator: ValueAnimator? = null
     private var paletteAnimator: ValueAnimator? = null
     private var glideAnimator: ValueAnimator? = null
-    private var emoji: String? = null
-    val selectedEmoji: String? get() = emoji
+    private var selectedEmojis: List<QrEmojiChoice> = emptyList()
+    val selectedEmoji: String? get() = selectedEmojis.firstOrNull()?.alt
+    val emojiChoices: List<QrEmojiChoice> get() = selectedEmojis.toList()
+    private val animations = mutableMapOf<String, LottieDrawable>()
+    private val animationLoading = mutableSetOf<String>()
+    private var fieldPauseStarted = 0L
+    private var fieldPausedMs = 0L
+    private var selectionStartedAt = SystemClock.uptimeMillis()
     private val emojiPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         textAlign = Paint.Align.CENTER
         alpha = 110
@@ -102,9 +111,77 @@ internal class TelegramQrSceneView(
             start()
         }
     }
+    /** Legacy single-emoji entry remains supported for existing saved QR preferences. */
     fun setEmoji(value: String?) {
-        emoji = value?.takeIf { it.isNotBlank() }
+        setEmojiChoices(value?.takeIf { it.isNotBlank() }?.let {
+            listOf(QrEmojiPattern.standard(it))
+        } ?: emptyList())
+    }
+
+    fun toggleEmoji(choice: QrEmojiChoice) =
+        setEmojiChoices(QrEmojiPattern.toggle(selectedEmojis, choice))
+
+    fun setEmojiChoices(choices: List<QrEmojiChoice>) {
+        selectedEmojis = choices.distinctBy { it.key }.takeLast(QrEmojiPattern.MAX_SELECTED)
+        selectionStartedAt = SystemClock.uptimeMillis()
+        if (isAttachedToWindow) loadSelectedAnimations()
         invalidate()
+    }
+
+    private fun loadSelectedAnimations() {
+        for (entry in selectedEmojis) {
+            if (entry.source.isBlank() || animations.containsKey(entry.key) ||
+                !animationLoading.add(entry.key)) continue
+            val task = when {
+                entry.source.startsWith("res:raw/") -> {
+                    val name = entry.source.removePrefix("res:raw/")
+                    val id = resources.getIdentifier(name, "raw", context.packageName)
+                    if (id == 0) {
+                        animationLoading.remove(entry.key)
+                        continue
+                    }
+                    LottieCompositionFactory.fromRawRes(context, id)
+                }
+                entry.source.startsWith("https://") ->
+                    LottieCompositionFactory.fromUrl(context, entry.source)
+                else -> {
+                    animationLoading.remove(entry.key)
+                    continue
+                }
+            }
+            val key = entry.key
+            task.addListener { composition ->
+                animationLoading.remove(key)
+                if (!isAttachedToWindow || selectedEmojis.none { it.key == key }) return@addListener
+                val drawable = LottieDrawable().apply {
+                    this.composition = composition
+                    repeatCount = ValueAnimator.INFINITE
+                    callback = object : Drawable.Callback {
+                        override fun invalidateDrawable(who: Drawable) { postInvalidateOnAnimation() }
+                        override fun scheduleDrawable(who: Drawable, what: Runnable, whenMillis: Long) {
+                            postDelayed(what, (whenMillis - SystemClock.uptimeMillis()).coerceAtLeast(0L))
+                        }
+                        override fun unscheduleDrawable(who: Drawable, what: Runnable) {
+                            removeCallbacks(what)
+                        }
+                    }
+                    start()
+                }
+                animations.put(key, drawable)?.stop()
+                invalidate()
+            }.addFailureListener {
+                animationLoading.remove(key)
+                // No invented substitute for missing animated source frames.
+                invalidate()
+            }
+        }
+        animations.keys.toList().filter { key -> selectedEmojis.none { it.key == key } }
+            .forEach { animations.remove(it)?.stop() }
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        loadSelectedAnimations()
     }
 
     private fun setReveal(value: Float, opening: Boolean) {
@@ -153,6 +230,9 @@ internal class TelegramQrSceneView(
         glideAnimator?.cancel()
         tracker?.recycle()
         tracker = null
+        animations.values.forEach { it.stop(); it.callback = null }
+        animations.clear()
+        animationLoading.clear()
     }
 
     override fun onDetachedFromWindow() {
@@ -169,6 +249,7 @@ internal class TelegramQrSceneView(
                 downX = event.x; downY = event.y
                 startPanX = panX; startPanY = panY
                 dragging = false
+                fieldPauseStarted = SystemClock.uptimeMillis()
                 return true
             }
             MotionEvent.ACTION_MOVE -> {
@@ -204,11 +285,19 @@ internal class TelegramQrSceneView(
                 }
                 tracker?.recycle()
                 tracker = null
+                if (fieldPauseStarted != 0L) {
+                    fieldPausedMs += SystemClock.uptimeMillis() - fieldPauseStarted
+                    fieldPauseStarted = 0L
+                }
                 return true
             }
             MotionEvent.ACTION_CANCEL -> {
                 tracker?.recycle(); tracker = null
                 dragging = false
+                if (fieldPauseStarted != 0L) {
+                    fieldPausedMs += SystemClock.uptimeMillis() - fieldPauseStarted
+                    fieldPauseStarted = 0L
+                }
                 return true
             }
         }
@@ -218,7 +307,7 @@ internal class TelegramQrSceneView(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         drawScene(canvas, width.toFloat(), height.toFloat())
-        if (emoji != null && isShown) postInvalidateOnAnimation()
+        if (selectedEmojis.isNotEmpty() && isShown) postInvalidateOnAnimation()
     }
 
     private fun mix(a: Int, b: Int, t: Float): Int {
@@ -231,21 +320,67 @@ internal class TelegramQrSceneView(
         return channel(24) or channel(16) or channel(8) or channel(0)
     }
 
+    /**
+     * Source-traced hex-staggered field, orbit, per-node breath and staggered pop.
+     * Custom emoji draw actual Lottie frames on this Canvas; standard Unicode emoji
+     * use the device glyph, as the upstream does for non-custom emoji.
+     */
     private fun drawPattern(canvas: Canvas, w: Float, h: Float) {
-        val symbol = emoji ?: return
-        val elapsed = (SystemClock.uptimeMillis() - startedAt) / 1000f
-        emojiPaint.textSize = dp(27f)
-        emojiPaint.alpha = 115
-        canvas.save()
-        canvas.rotate(-.763f * elapsed, w / 2f, h / 2f)
-        for (index in 0 until 42) {
-            val column = index % 6
-            val row = index / 6
-            val x = (column + .3f) * w / 5.5f + panX - dp(20f)
-            val y = (row + .2f) * h / 6.8f + panY - dp(12f) - elapsed * dp(6.2f) % h
-            canvas.drawText(symbol, x, (y + h) % h, emojiPaint)
+        if (selectedEmojis.isEmpty()) return
+        val now = SystemClock.uptimeMillis()
+        val movingMs = now - startedAt - fieldPausedMs -
+            (if (fieldPauseStarted != 0L) now - fieldPauseStarted else 0L)
+        val motion = movingMs.coerceAtLeast(0L) / 1000f
+        val elapsed = (now - selectionStartedAt).coerceAtLeast(0L).toFloat()
+        val dx = dp(QrEmojiPattern.COLUMN_DP)
+        val dy = dp(QrEmojiPattern.ROW_DP)
+        val margin = dp(117f)
+        val r0 = kotlin.math.floor((-margin - panY) / dy).toInt() - 1
+        val r1 = kotlin.math.ceil((h + margin - panY) / dy).toInt() + 1
+        for (row in r0..r1) {
+            val shift = if ((row and 1) == 0) 0f else dx / 2f
+            val c0 = kotlin.math.floor((-margin - panX - shift) / dx).toInt() - 1
+            val c1 = kotlin.math.ceil((w + margin - panX - shift) / dx).toInt() + 1
+            for (col in c0..c1) {
+                val seed = QrEmojiPattern.hash(row, col)
+                if (QrEmojiPattern.fraction(seed * 53.1) < .2f) continue
+                val phase = (seed * 2.0 * Math.PI).toFloat()
+                val radius = dp(3f + 7f * QrEmojiPattern.fraction(seed * 31.7))
+                val period = 9f + 11f * QrEmojiPattern.fraction(seed * 37.1)
+                val direction = if (QrEmojiPattern.fraction(seed * 43.3) < .5f) -1f else 1f
+                val angle = direction * 2f * Math.PI.toFloat() * motion / period + phase
+                val x = col * dx + shift + panX + radius * kotlin.math.cos(angle)
+                val y = row * dy + panY + radius * kotlin.math.sin(angle) +
+                    kotlin.math.sin(motion * .45f + phase) * dp(3f)
+                if (x < -margin || x > w + margin || y < -margin || y > h + margin) continue
+                val q = col - row / 2
+                val index = Math.floorMod(q - row, selectedEmojis.size)
+                val entry = selectedEmojis[index]
+                val big = (row and 1) == 0
+                val baseSize = dp(38f) * (if (big) 1.3f else .9f) *
+                    (.92f + .16f * seed.toFloat()) * (if (big) .9f else 1f)
+                val scale = QrEmojiPattern.appear(elapsed, seed) *
+                    (1f + .03f * kotlin.math.sin(motion * 1.3f + phase * 2f))
+                if (scale <= .01f) continue
+                val rotate = (seed.toFloat() - .5f) * 26f +
+                    4f * kotlin.math.sin(motion * .3f + phase) - .763f * motion
+                canvas.save()
+                canvas.translate(x, y)
+                canvas.rotate(rotate)
+                canvas.scale(scale, scale)
+                val drawable = animations[entry.key]
+                if (drawable != null) {
+                    val half = (baseSize / 2f).toInt()
+                    drawable.setBounds(-half, -half, half, half)
+                    drawable.draw(canvas)
+                } else if (entry.source.isBlank()) {
+                    emojiPaint.textSize = baseSize
+                    emojiPaint.alpha = 115
+                    canvas.drawText(entry.alt, 0f, -(emojiPaint.ascent() + emojiPaint.descent()) / 2f, emojiPaint)
+                }
+                canvas.restore()
+            }
         }
-        canvas.restore()
     }
 
     private fun drawScene(canvas: Canvas, w: Float, h: Float, export: Boolean = false) {

@@ -1,6 +1,11 @@
 package com.eve.app.ui.profile
 
 import android.content.ClipData
+import android.widget.ScrollView
+import com.airbnb.lottie.LottieAnimationView
+import com.eve.app.data.repository.EmojiRepository
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import android.content.ClipboardManager
 import android.content.Intent
 import android.content.res.ColorStateList
@@ -77,7 +82,15 @@ class UsernameCardActivity : EveBaseActivity() {
                 ". This shared card does not verify account ownership."
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
             setPalette(savedInstanceState?.getInt("qr_palette", 0) ?: 0)
-            setEmoji(savedInstanceState?.getString("qr_emoji"))
+            val keys = savedInstanceState?.getStringArrayList("qr_emoji_keys")
+            val alts = savedInstanceState?.getStringArrayList("qr_emoji_alts")
+            val sources = savedInstanceState?.getStringArrayList("qr_emoji_sources")
+            if (keys != null && alts != null && sources != null &&
+                keys.size == alts.size && alts.size == sources.size) {
+                setEmojiChoices(keys.indices.map { QrEmojiChoice(keys[it], alts[it], sources[it]) })
+            } else {
+                setEmoji(savedInstanceState?.getString("qr_emoji"))
+            }
         }
         root.addView(scene, FrameLayout.LayoutParams(-1, -1))
 
@@ -157,6 +170,10 @@ class UsernameCardActivity : EveBaseActivity() {
     }
 
     private fun showQrPicker(emojis: Boolean) {
+        if (emojis) {
+            showAnimatedEmojiPicker()
+            return
+        }
         val sheet = BottomSheetDialog(this)
         val panel = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -204,6 +221,125 @@ class UsernameCardActivity : EveBaseActivity() {
         panel.addView(grid)
         sheet.setContentView(panel)
         sheet.show()
+    }
+
+    private fun showAnimatedEmojiPicker() {
+        val sheet = BottomSheetDialog(this)
+        val panel = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(px(12), px(12), px(12), px(20))
+            background = glassBackground(24)
+        }
+        val title = TextView(this).apply {
+            text = "EVE Animated Emojis"
+            gravity = Gravity.CENTER
+            setTextColor(Color.WHITE)
+            textSize = 19f
+        }
+        panel.addView(title, LinearLayout.LayoutParams(-1, px(44)))
+        val count = TextView(this).apply {
+            setTextColor(Color.WHITE)
+            textSize = 13f
+            gravity = Gravity.CENTER
+        }
+        fun updateCount() {
+            count.text = "${scene.emojiChoices.size}/${QrEmojiPattern.MAX_SELECTED} selected"
+        }
+        updateCount()
+        panel.addView(count, LinearLayout.LayoutParams(-1, px(30)))
+        val clear = TextView(this).apply {
+            text = "Clear selection"
+            gravity = Gravity.CENTER
+            setTextColor(Color.WHITE)
+            contentDescription = "Clear all selected QR emojis"
+            isClickable = true
+            isFocusable = true
+            setOnClickListener { scene.setEmojiChoices(emptyList()); updateCount() }
+        }
+        panel.addView(clear, LinearLayout.LayoutParams(-1, px(48)))
+        val grid = GridLayout(this).apply { columnCount = 4 }
+        val width = (resources.displayMetrics.widthPixels - px(44)) / 4
+        fun addChoice(choice: QrEmojiChoice, animated: Boolean) {
+            val host = FrameLayout(this).apply {
+                isClickable = true
+                isFocusable = true
+                contentDescription = "Toggle " + choice.alt + " QR emoji"
+                background = GradientDrawable().apply {
+                    cornerRadius = px(14).toFloat()
+                    setColor(0xFF303338.toInt())
+                }
+            }
+            val widget: View = if (animated) {
+                LottieAnimationView(this).apply {
+                    repeatCount = android.animation.ValueAnimator.INFINITE
+                    if (choice.source.startsWith("res:raw/")) {
+                        val id = resources.getIdentifier(
+                            choice.source.removePrefix("res:raw/"), "raw", packageName)
+                        if (id != 0) setAnimation(id)
+                    } else if (choice.source.startsWith("https://")) {
+                        setAnimationFromUrl(choice.source)
+                    }
+                    playAnimation()
+                }
+            } else {
+                TextView(this).apply {
+                    text = choice.alt
+                    textSize = 27f
+                    gravity = Gravity.CENTER
+                    setTextColor(Color.WHITE)
+                }
+            }
+            host.addView(widget, FrameLayout.LayoutParams(-1, -1))
+            host.alpha = if (scene.emojiChoices.any { it.key == choice.key }) 1f else .78f
+            host.setOnClickListener {
+                scene.toggleEmoji(choice)
+                host.alpha = if (scene.emojiChoices.any { it.key == choice.key }) 1f else .78f
+                updateCount()
+            }
+            grid.addView(host, GridLayout.LayoutParams().apply {
+                this.width = width - px(5)
+                height = px(55)
+                setMargins(px(2), px(3), px(2), px(3))
+            })
+        }
+        listOf("❤️","🔥","😎","🤩","❄️","🌸","🎉","🚀","🗿","🏆","👻","💸",
+            "🎮","💎","🦄","🧸","🐶","🦊","🐱","🐵","🐥").forEach {
+            addChoice(QrEmojiPattern.standard(it), false)
+        }
+        val loading = TextView(this).apply {
+            text = "Loading EVE animated emoji catalogue"
+            gravity = Gravity.CENTER
+            setTextColor(Color.WHITE)
+        }
+        panel.addView(loading, LinearLayout.LayoutParams(-1, px(42)))
+        val scroll = ScrollView(this).apply { addView(grid) }
+        panel.addView(scroll, LinearLayout.LayoutParams(-1, px(340)))
+        sheet.setContentView(panel)
+        sheet.setOnDismissListener {
+            // Stop all offscreen picker animations; scene owns selected live frames.
+            for (i in 0 until grid.childCount) {
+                val host = grid.getChildAt(i) as? FrameLayout ?: continue
+                (host.getChildAt(0) as? LottieAnimationView)?.cancelAnimation()
+            }
+        }
+        sheet.show()
+        lifecycleScope.launch {
+            val items = EmojiRepository().getItems(limit = 24).getOrElse {
+                loading.text = "Animated catalogue unavailable. Standard emoji motion still works."
+                return@launch
+            }
+            if (!sheet.isShowing) return@launch
+            var added = 0
+            for (item in items) {
+                if (!item.enabled || item.kind != "lottie" || item.url.isBlank()) continue
+                if (!item.url.startsWith("https://") && !item.url.startsWith("res:raw/")) continue
+                addChoice(QrEmojiPattern.custom(item.id, item.altEmoji, item.url), true)
+                added++
+                if (added >= 12) break
+            }
+            loading.text = if (added == 0) "No animated EVE emoji assets are available" else
+                "$added animated EVE emojis"
+        }
     }
 
     private fun glassBackground(radius: Int): GradientDrawable = GradientDrawable().apply {
@@ -312,6 +448,9 @@ class UsernameCardActivity : EveBaseActivity() {
         if (::scene.isInitialized) {
             outState.putInt("qr_palette", scene.selectedPalette)
             outState.putString("qr_emoji", scene.selectedEmoji)
+            outState.putStringArrayList("qr_emoji_keys", ArrayList(scene.emojiChoices.map { it.key }))
+            outState.putStringArrayList("qr_emoji_alts", ArrayList(scene.emojiChoices.map { it.alt }))
+            outState.putStringArrayList("qr_emoji_sources", ArrayList(scene.emojiChoices.map { it.source }))
         }
         super.onSaveInstanceState(outState)
     }

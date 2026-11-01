@@ -60,6 +60,13 @@ class TelegramQrSceneNativeTest {
                     image.recycle()
                 }
                 scene.setPalette(2)
+                val selected = QrEmojiPattern.standard("🔥")
+                scene.setEmojiChoices(listOf(selected))
+                assertEquals(listOf(selected), scene.emojiChoices)
+                val animatedScene = scene.renderShareImage()
+                assertNotNull(animatedScene)
+                assertEquals(link, decode(animatedScene!!))
+                animatedScene.recycle()
             }
             scenario.recreate()
             scenario.onActivity { activity ->
