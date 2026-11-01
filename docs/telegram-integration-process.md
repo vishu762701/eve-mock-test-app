@@ -8,17 +8,19 @@ Keep verbatim imports unchanged where possible, with upstream path, revision, di
 
 For each property and integration path record upstream file:line and revision → dependency edges → EVE file:line → production-path tests and runtime comparison → EXACT, ADAPTED, NOT FOUND or BLOCKED, with evidence and limitations. EXACT requires the actual unchanged upstream implementation (hash or diff verified) in the stated scope; modified code is ADAPTED even if believed equivalent. EXACT is not a label for the whole component merely because one asset matches. Compare actual behavior, cancellation, gestures, measurement, lifecycle, Day/Night, RTL, insets and accessibility where relevant. Green compilation and static screenshots are insufficient on their own.
 
-## Gated workflow for source-exact tasks
+## Continuous workflow for an already-authorized source-exact task
 
-Run these phases in order for each screen or feature. Do not start a later phase before the earlier one is finished. Phases A and B may be presented in one reply, but implementation waits for owner approval.
+**Owner authorization is the feature requirement itself.** Do not request a second approval for the same scoped task. Complete these phases in order inside one execution; keep the source map and checkpoint current. A genuinely new product/UX choice, security or data change, licensing exception or production deployment still requires an explicit owner decision. A missing source file or failing build blocks the affected claim, not unrelated authorized work.
 
-**Phase A: Analysis (no code, no commits).** Pin the upstream full commit SHA. List the upstream files you actually opened, with path and line ranges. Describe layout structure, spacing, colors, fonts, assets, states, and every user action (tap, long press, swipe, scroll, search) with what each does. Mark each item UI-only, needs local logic, or needs Telegram backend (cannot be copied). Anything not opened or not found is NOT FOUND or UNKNOWN. Do not guess.
+**Phase A: Analysis.** Identify the latest suitable official upstream revision and pin its full commit SHA. Inspect actual upstream entry points, caller graph, source files, resources, motion and behavior. Record which files and line ranges were actually opened and which features depend on Telegram accounts or servers and cannot be transplanted. Mark unknown evidence UNKNOWN.
 
-**Phase B: Mapping (no code, no commits).** For each upstream item give the EVE file to change or create, the dependency disposition (included, EVE adapter, excluded with reason, or unresolved), a proposed Firebase/Worker-compatible adaptation for every backend-dependent function, and the license/provenance note per `THIRD_PARTY_NOTICES.md`. Present the plan and wait for explicit owner approval. Any change to the plan after approval needs new approval.
+**Phase B: Mapping.** Trace each source element into its EVE integration path, dependencies, themes and resources. Classify source code and adaptations EXACT, ADAPTED, NOT FOUND or BLOCKED. Keep EVE authentication, admin permissions, scoring and server APIs isolated. Record copyright, license, origin and distribution implications before importing.
 
-**Phase C: Implementation.** Change only files named in the approved Phase B. Work in small locally verified pieces, UI first, then functions; these pieces are not separate commits (commit limits stay as in `ENGINEERING_STANDARD.md`). Do not fake backend features.
+**Phase C: Implementation.** Within the authorized scope, implement the mapped subsystem and directly required integrations, resources and tests. No arbitrary UI lookalikes, invented animation parameters or cosmetic-only ports presented as source-exact. Preserve unrelated EVE flows. Resolve compile/runtime failures before starting another feature. Use no more than two *successful* implementation commits per feature, preferably one; CI-failed repairs are forward-only.
 
-**Final report.** One parity table row per element or function: upstream path:lines@SHA | EVE file:lines | EXACT / ADAPTED (reason) / NOT FOUND / BLOCKED, followed by the requirement ledger result. Never call the result exact unless every row is EXACT.
+**Phase D: Verification.** Run local and exact-SHA CI gates on actual code paths, then emulator/device comparisons for pixels, physics, cancellation, lifecycle, Day/Night, RTL, insets, accessibility and state restoration. If tooling is unavailable, mark it BLOCKED and continue only independent work. Never treat Python tests or a compiling APK as proof of 100% source parity.
+
+**Final report.** Per-element parity ledger: upstream path:lines@SHA | EVE file:lines | EXACT / ADAPTED (reason) / NOT FOUND / BLOCKED, followed by MET / NOT MET / BLOCKED for every requested requirement. Record precise test commands, CI run, omissions, scope decisions and the first unfinished requirement.
 
 ## Byte verification for recorded assets
 

@@ -9,9 +9,9 @@ Inspect live main, relevant code, tests and exact-SHA CI; implement only the own
 This summary adds no independent policy. Full text: ENGINEERING_STANDARD.md section 0, which wins if the two ever differ.
 
 1. The latest explicit owner instruction wins. Never replace it with your own design.
-2. First restate the request as numbered requirements. Anything not listed stays unchanged.
-3. No silent deviation. If something cannot be done as stated, stop and report before changing code.
-4. Unclear, contradictory or wrong instruction: criticize directly, recommend an option, wait. After the owner decides, implement that decision exactly.
-5. Decide alone only routine engineering. Behavior, UI, scope, data and dependencies are the owner's decisions.
-6. Telegram source-exact work: Analysis, then Mapping, then wait for owner approval, then implement.
+2. Record the explicitly authorized requirement ledger; keep all unrelated behavior unchanged.
+3. No silent feature substitutions or invented EXACT claims; continue safe authorized work and report unresolved items.
+4. Investigate blockers using source, tests and CI. Ask only for genuinely unresolved product, legal, security, data or deployment decisions.
+5. Own the technical implementation, dependencies, build repairs and tests within the approved product scope.
+6. Telegram source-exact work: Analyze, map, implement and verify continuously when the feature is already authorized; do not ask for redundant second approval.
 7. Never say exact, identical, complete or done without evidence for every requirement. The final report lists each requirement as MET, NOT MET or BLOCKED.

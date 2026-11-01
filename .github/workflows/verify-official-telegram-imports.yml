@@ -1,0 +1,29 @@
+name: Verify Official Telegram Verbatim Imports
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'docs/telegram-verbatim-imports.json'
+      - 'app/src/main/res/drawable-*/telegram_menu_greydivider.9.png'
+      - 'app/src/main/java/org/telegram/**'
+      - 'app/src/main/java/com/eve/app/telegram/**'
+      - '.github/scripts/verify_telegram_imports.py'
+      - '.github/scripts/verify-official-telegram-imports.sh'
+      - '.github/workflows/verify-official-telegram-imports.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pinned-verbatim-imports:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          filter: blob:none
+      - name: Verify immutable source bytes from official DrKLO/Telegram
+        run: bash .github/scripts/verify-official-telegram-imports.sh

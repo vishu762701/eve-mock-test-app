@@ -5,7 +5,7 @@
 
 ## 0. How to use this file
 - Read this file before starting any task.
-- The latest explicit owner request is the ONLY change scope: implement authorized outcomes and directly affected frontend/backend/resources/tests together when appropriate, never unrelated work. `ENGINEERING_STANDARD.md` defines workflow, and its section 0 (owner-instruction fidelity) applies to every task: never substitute, simplify or reinterpret the owner's requested behavior, and stop and ask when it cannot be done as stated. Agent files are pointers. Security/data integrity and actual release obligations remain enforced.
+- The latest explicit owner request is the ONLY change scope: implement authorized outcomes and directly affected frontend/backend/resources/tests together when appropriate, never unrelated work. `ENGINEERING_STANDARD.md` defines workflow, and its section 0 (owner-instruction fidelity) applies to every task: never substitute, simplify or reinterpret the owner's requested behavior; resolve routine technical blockers autonomously and escalate unresolved product, security or legal decisions. Agent files are pointers. Security/data integrity and actual release obligations remain enforced.
 - If this file and the actual code disagree, trust the code, and report the mismatch under "Noticed but not touched (outside scope)" in the Final Report.
 - Never claim current state from memory or older chats. Inspect real files and current remote HEAD/CI; use `git status` and `git log -1` only when a local checkout is accessible.
 
