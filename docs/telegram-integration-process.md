@@ -11,3 +11,27 @@ For each property and integration path record upstream file:line and revision â†
 ## Byte verification for recorded assets
 
 `python3 .github/scripts/verify_telegram_imports.py --upstream /path/to/authenticated/telegram` compares the recorded upstream Git objects and EVE files with their recorded SHA-256 values. It requires the checkout HEAD to match the full revision. `docs/telegram-verbatim-imports.json` currently covers only four popup divider assets; it is not a complete inventory. The verifier does not authenticate the checkout, discover dependencies, assess license or prove runtime behavior. Its regression tests execute real Git fixtures in the normal CI host-test suite.
+
+## Fail-closed acceptance claims for Profile and QR
+
+The tracked scope contract is `docs/telegram-profile-fidelity.json`; CI runs
+`python3 .github/scripts/verify_telegram_acceptance.py` on every main push.
+The targets `profile-shell`, `profile-overflow` and `personal-qr` are
+currently OPEN: compile success or passing emulator tests cannot change this.
+During source-exact work, update the dependency/source map and list unresolved
+subsystems instead of renaming adapted pieces EXACT. Run
+`python3 .github/scripts/verify_telegram_acceptance.py --require-accepted personal-qr`
+(or the relevant target) before reporting that target source-exact complete.
+This *must fail* until a complete native reference screenshot, matched EVE
+capture, motion trace, native test report, comparison report with actual human
+review and licensing disposition exist and are SHA-256-pinned. Evidence must be
+permission-cleared and anonymized before committing; never commit real phone
+numbers, usernames, photos, auth data or private screenshots.
+
+This validator checks evidence existence/checksums, source-map linkage and
+claim consistency. It **does not** inspect the original Telegram executable,
+automatically compare pixels/frames or certify animation, accessibility, source
+completeness or GPL compatibility. An ACCEPTED claim still requires actually
+reviewed frames and real-device behavior on matched device/build/viewport,
+including Day/Night, RTL, font scale, inset/cutout and interruptions. The
+`OPEN` contract passing CI is deliberately NOT an accepted Telegram UI.

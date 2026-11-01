@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "official_source": "https://github.com/DrKLO/Telegram",
+  "source_commit": "3de37c8cfb039452be7398909461da6288babf15",
+  "archive_sha256": "4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10",
+  "targets": [
+    {
+      "id": "profile-shell",
+      "status": "OPEN",
+      "upstream_paths": [
+        "TMessagesProj/src/main/java/org/telegram/ui/ProfileActivity.java",
+        "TMessagesProj/src/main/java/org/telegram/ui/Components/ProfileActionsView.java",
+        "TMessagesProj/src/main/java/org/telegram/ui/Components/ProfileGooeyView.java"
+      ],
+      "eve_paths": [
+        "app/src/main/java/com/eve/app/ui/profile/ProfileActivity.kt",
+        "app/src/main/res/layout/activity_profile.xml"
+      ],
+      "tests": [
+        "app/src/androidTest/java/com/eve/app/ui/profile/ProfileActionsCollapseNativeTest.kt"
+      ],
+      "source_map": "docs/PROFILE_REGRESSION_REPAIR.md",
+      "remaining_gaps": [
+        "Original Telegram parent layout and ProfileActionsView canvas renderer are not completely integrated.",
+        "Matched native scroll, cutout, orientation, font and motion frame comparisons are still missing."
+      ]
+    },
+    {
+      "id": "profile-overflow",
+      "status": "OPEN",
+      "upstream_paths": [
+        "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarPopupWindow.java",
+        "TMessagesProj/src/main/java/org/telegram/ui/ProfileActivity.java"
+      ],
+      "eve_paths": [
+        "app/src/main/java/com/eve/app/ui/profile/ProfileOverflowPopup.kt"
+      ],
+      "tests": [
+        "app/src/androidTest/java/com/eve/app/ui/profile/ProfileOverflowNativeTest.kt"
+      ],
+      "source_map": "docs/PROFILE_REGRESSION_REPAIR.md",
+      "remaining_gaps": [
+        "Telegram profile-specific blur3 captured scene and popup backdrop are not ported end-to-end.",
+        "Native matched popup screenshots and interrupted animation comparisons remain unverified."
+      ]
+    },
+    {
+      "id": "personal-qr",
+      "status": "OPEN",
+      "upstream_paths": [
+        "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareActivity.java",
+        "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareView.java",
+        "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrRender.java"
+      ],
+      "eve_paths": [
+        "app/src/main/java/com/eve/app/ui/profile/UsernameCardActivity.kt"
+      ],
+      "tests": [
+        "app/src/androidTest/java/com/eve/app/ui/profile/ProfileMissionIntegrationNativeTest.kt"
+      ],
+      "source_map": "docs/PROFILE_REGRESSION_REPAIR.md",
+      "remaining_gaps": [
+        "EVE currently renders its own plain ScrollView and bitmap instead of Telegram QrShare scene/glass renderer.",
+        "Telegram-only scan, sharing, emoji, backdrop and permissions require explicit EVE contract mapping and native acceptance."
+      ]
+    }
+  ]
+}

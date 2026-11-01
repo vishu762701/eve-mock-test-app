@@ -78,6 +78,9 @@ jobs:
         with:
           gradle-version: 8.7
 
+      - name: Check scoped Telegram acceptance claims
+        run: python3 .github/scripts/verify_telegram_acceptance.py
+
       - name: Verify native UI runner and visual evidence contracts
         run: python3 -B -m unittest discover -s .github/scripts/tests -v
 
