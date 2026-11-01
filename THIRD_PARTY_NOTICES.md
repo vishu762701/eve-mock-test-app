@@ -4,6 +4,17 @@ This repository contains third-party components and assets. Keep license obligat
 
 **Development-stage official-reference policy:** Exact official code/art/assets require verified upstream source, identity and appropriate use permissions; public design guidance is not blanket copying permission. Never silently substitute independently authored or other assets unless the owner expressly authorizes them. If the exact source/rights are unavailable, report that item as BLOCKED, continue only other authorized work, and keep third-party attribution and production release obligations.
 
+## tlottie test fixture adaptation — 2026-11-01
+
+The pinned MIT-licensed `dkaraush/tlottie@31f1b542f88e7b4be9a01e749920d857535fc715`
+`src/tests/dos.rs` now has an **ADAPTED test-only fixture**: the hostile dense model
+is constructed after bounded parsing, with separate parser rejection assertions.
+Production renderer/parser/limits and all existing renderer assertions are unchanged.
+The source manifest records both upstream and adapted digests. Original MIT notices
+remain. See [repair and verification evidence](docs/NATIVE_RENDERER_TEST_REPAIR.md).
+Earlier byte-identical vendor statements describe the original import; this test
+file is the explicit exception. No GPL release clearance is implied.
+
 ## Telegram QR Java QrCodeLayer integration — 2026-11-01
 
 - Official source: [DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15](https://github.com/DrKLO/Telegram/commit/3de37c8cfb039452be7398909461da6288babf15), `TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrCodeLayer.java` (Git blob `b9b5fcb69f538dfbc7dd87f628fe261ce1e69923`). The EVE port lives at `app/src/main/java/com/eve/app/telegram/qr/QrCodeLayer.java`.

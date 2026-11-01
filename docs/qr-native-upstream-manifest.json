@@ -601,8 +601,9 @@
       "upstream_path": "src/tests/dos.rs",
       "eve_path": "app/src/main/cpp/vendor/tlottie/src/tests/dos.rs",
       "upstream_sha256": "6f844e937afebcef3742df80724086da6694eea064c3ad3c0cba41bd41489b89",
-      "eve_sha256": "6f844e937afebcef3742df80724086da6694eea064c3ad3c0cba41bd41489b89",
-      "classification": "EXACT bytes; runtime acceptance OPEN"
+      "eve_sha256": "4be55bb4ab88ca9c71ad2affda50c0b16295258fadc6a032fa50b7d292912edb",
+      "classification": "ADAPTED test fixture only; production renderer/parser/limits unchanged",
+      "adaptations": "Dense 700000-vertex renderer fixture constructed in test memory after bounded two-vertex parse; separate assertions retain normal rejection and ParseMemory rejection with original authored-data test bypass. No renderer assertions, budgets or test cases removed. See docs/NATIVE_RENDERER_TEST_REPAIR.md."
     },
     {
       "upstream_repository": "https://github.com/dkaraush/tlottie",

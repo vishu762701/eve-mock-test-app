@@ -81,6 +81,12 @@ jobs:
       - name: Prepare pinned Telegram QR native renderer toolchain
         run: bash .github/scripts/prepare-qr-native.sh
 
+      # Exercise the same optimized CPU/C API feature set used by the JNI build.
+      # Serial scheduling keeps per-frame wall-clock DoS budgets independent of
+      # test-worker contention; assertions and upstream time/memory caps stay intact.
+      - name: Verify pinned native renderer security and C API tests
+        run: cargo +1.99.1 test --locked --release --lib --features c-api --manifest-path app/src/main/cpp/vendor/tlottie/Cargo.toml -- --test-threads=1
+
       - name: Check scoped Telegram acceptance claims
         run: python3 .github/scripts/verify_telegram_acceptance.py
 

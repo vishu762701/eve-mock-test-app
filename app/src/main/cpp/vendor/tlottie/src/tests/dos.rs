@@ -650,8 +650,12 @@ fn gradient_opacity_stop_lut_json(stop_count: usize) -> String {
 }
 
 fn dense_in_bounds_raster_edge_storm_json() -> String {
+  dense_in_bounds_raster_edge_storm_json_with_vertices(700_000)
+}
+
+fn dense_in_bounds_raster_edge_storm_json_with_vertices(count: usize) -> String {
   let mut verts = String::new();
-  for i in 0..700_000 {
+  for i in 0..count {
     if i > 0 {
       verts.push(',');
     }
@@ -2655,23 +2659,64 @@ fn single_vertex_closed_dashed_bezier_stays_bounded() {
   assert_lottie!(json);
 }
 
+// EVE fixture repair: retain the upstream hostile geometry without raising any
+// parser/renderer limit or adding a production bypass. Test-only model mutation
+// isolates the renderer from the separately asserted parser security boundary.
+fn dense_in_bounds_raster_edge_storm_model() -> Composition {
+  use crate::math::Vec2;
+  use crate::model::Shape;
+  use crate::property::Property;
+
+  let json = dense_in_bounds_raster_edge_storm_json_with_vertices(2);
+  let mut composition = Composition::parse(json.as_bytes(), &Limits::default()).unwrap();
+  let layer = composition.layers.first_mut().unwrap();
+  let Some(Shape::Group(group)) = layer.shapes.first_mut() else { panic!("expected fixture group") };
+  let Some(Shape::Path(path)) = group.shapes.first_mut() else { panic!("expected fixture path") };
+  let Property::Static(data) = &mut path.path else { panic!("expected static fixture path") };
+  data.vertices = (0..700_000).map(|i| Vec2::new(if i % 2 == 0 { 1.0 } else { 63.0 }, (1 + i % 62) as f32)).collect();
+  data.in_tangents.resize(data.vertices.len(), Vec2::new(0.0, 0.0));
+  data.out_tangents.resize(data.vertices.len(), Vec2::new(0.0, 0.0));
+  composition
+}
+
+#[test]
+fn dense_edge_fixture_preserves_parser_memory_boundary() {
+  let json = dense_in_bounds_raster_edge_storm_json();
+  // Normal parsing must reject hostile authored paths before rendering.
+  assert!(matches!(Composition::parse(json.as_bytes(), &Limits::default()), Err(Error::LimitExceeded(_))));
+  // Even the pre-existing test-only authored-data bypass must retain the
+  // independent cumulative parser allocation cap. Never widen it for this test.
+  assert!(matches!(
+    crate::composition::parse::with_limits_check(false, || Composition::parse(json.as_bytes(), &Limits::default())),
+    Err(Error::LimitExceeded(crate::Limit::ParseMemory))
+  ));
+}
+
 #[test]
 fn renderer_rejects_generated_work_after_successful_parse() {
   // Parsing MUST succeed with its resource checks bypassed. A parser error
   // cannot satisfy these renderer-specific assertions.
   for (case, (json, frame)) in [
-    (animated_repeater_product_json().to_string(), 1.0),
-    (dense_in_bounds_raster_edge_storm_json(), 0.0),
-    (many_fills_over_large_path_json(), 0.0),
-    (curve_flattening_json(Limits::default().max_path_points + 1), 0.0),
-    (gradient_opacity_stop_lut_json(Limits::default().max_gradient_stop_values + 1), 0.0),
-    (inverted_difference_masks_json(Limits::default().max_masks_per_layer + 1), 0.0),
-    (trim_cleared_repeater_arena_json(9_990), 0.0),
+    (Some(animated_repeater_product_json().to_string()), 1.0),
+    (None, 0.0),
+    (Some(many_fills_over_large_path_json()), 0.0),
+    (Some(curve_flattening_json(Limits::default().max_path_points + 1)), 0.0),
+    (Some(gradient_opacity_stop_lut_json(Limits::default().max_gradient_stop_values + 1)), 0.0),
+    (Some(inverted_difference_masks_json(Limits::default().max_masks_per_layer + 1)), 0.0),
+    (Some(trim_cleared_repeater_arena_json(9_990)), 0.0),
   ]
   .into_iter()
   .enumerate()
   {
-    let composition = crate::composition::parse::with_limits_check(false, || Composition::parse(json.as_bytes(), &Limits::default())).unwrap();
+    let composition = match json {
+      Some(json) => crate::composition::parse::with_limits_check(false, || Composition::parse(json.as_bytes(), &Limits::default()))
+        .unwrap_or_else(|error| panic!("renderer fixture {case} failed to parse: {error:?}")),
+      // Construct oversized generated geometry only AFTER a normally bounded parse.
+      // The full JSON exceeds the parser memory budget, which must stay enforced.
+      // Renderer regressions must reach both render calls rather than accept that
+      // earlier parser rejection as evidence of a renderer limit.
+      None => dense_in_bounds_raster_edge_storm_model(),
+    };
     let mut renderer = CPURenderer::new(composition);
     let mut rgba = vec![0; 64 * 64];
     let mut alpha = vec![0; 64 * 64];
