@@ -11,6 +11,12 @@ class HomeAvailabilityRequest(
     private val configTimeoutMs: Long = 8_000L,
     private val adminTimeoutMs: Long = 5_000L
 ) {
+    companion object {
+        // Disk-cached OFF must not bypass a fresh cold-start verification.
+        fun canReuseConfirmedOffOnThemeChange(themeRecreation: Boolean, confirmedOff: Boolean) =
+            themeRecreation && confirmedOff
+    }
+
     suspend fun config(): AppConfig = withTimeoutOrNull(configTimeoutMs) { fetch() }
         ?: throw IOException("Configuration request timed out")
 

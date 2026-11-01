@@ -7,6 +7,12 @@ import org.junit.Test
 import java.io.IOException
 
 class HomeAvailabilityRequestTest {
+    @Test fun themeRecreationReusesOnlyItsOwnConfirmedOff() {
+        assertTrue(HomeAvailabilityRequest.canReuseConfirmedOffOnThemeChange(true, true))
+        assertFalse(HomeAvailabilityRequest.canReuseConfirmedOffOnThemeChange(true, false))
+        assertFalse(HomeAvailabilityRequest.canReuseConfirmedOffOnThemeChange(false, true))
+        assertFalse(HomeAvailabilityRequest.canReuseConfirmedOffOnThemeChange(false, false))
+    }
     @Test fun confirmedOffNeverWaitsForAuthorization() = runBlocking {
         var authCalls = 0
         val request = HomeAvailabilityRequest({ AppConfig(maintenance_mode = false) }, {

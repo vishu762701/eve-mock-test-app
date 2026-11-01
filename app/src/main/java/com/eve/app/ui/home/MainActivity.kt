@@ -407,11 +407,15 @@ class MainActivity : EveBaseActivity() {
 
         updateNotificationDot()
 
-        binding.maintenanceOverlay.visibility = View.VISIBLE
-        binding.drawerLayout.setDrawerLockMode(androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-        binding.mainContentContainer.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
-        binding.tvMaintenanceTitle.text = "Checking app availability"
-        binding.tvMaintenanceMessage.text = "Please wait while the server configuration is verified."
+        // Unknown availability is a neutral gate, never a confirmed maintenance page.
+        // Only a theme recreation may reuse its own server-confirmed OFF result.
+        binding.availabilityCheckingOverlay.visibility =
+            if (HomeAvailabilityRequest.canReuseConfirmedOffOnThemeChange(
+                    ThemeManager.isThemeRecreation(this, savedInstanceState),
+                    savedInstanceState?.getBoolean("home_availability_confirmed_off", false) == true
+                )) View.GONE else View.VISIBLE
+        binding.maintenanceOverlay.visibility = View.GONE
+        updateAvailabilityInteraction()
         // onResume owns the first request as well as subsequent refreshes.
 
         lifecycleScope.launch(lifecycleExceptionHandler) {
@@ -518,6 +522,7 @@ class MainActivity : EveBaseActivity() {
                 val config = availabilityRequest.config()
                 if (generation != configCheckGeneration) return@launch
                 lastConfirmedConfig = config
+                binding.availabilityCheckingOverlay.visibility = View.GONE
                 getSharedPreferences("public_app_config", MODE_PRIVATE).edit()
                     .putString("confirmed", com.google.gson.Gson().toJson(config)).apply()
 
@@ -566,16 +571,11 @@ class MainActivity : EveBaseActivity() {
                 throw cancel
             } catch (e: Exception) {
                 if (generation != configCheckGeneration) return@launch
-                val cached = lastConfirmedConfig ?: runCatching {
-                    com.google.gson.Gson().fromJson(getSharedPreferences("public_app_config", MODE_PRIVATE)
-                        .getString("confirmed", null), com.eve.app.data.model.AppConfig::class.java)
-                }.getOrNull()
-                // Never convert unavailable or cached config into a confirmed off state.
+                // A failed request cannot establish current maintenance status.
+                binding.availabilityCheckingOverlay.visibility = View.GONE
                 binding.maintenanceOverlay.visibility = View.VISIBLE
-                binding.tvMaintenanceTitle.text = if (cached?.maintenance_mode == true) "Scheduled Maintenance" else "Connection required"
-                binding.tvMaintenanceMessage.text = if (cached?.maintenance_mode == true)
-                    cached.maintenance_message + "\n\nUnable to refresh. Please retry."
-                    else "Unable to verify app availability. Check your connection and retry."
+                binding.tvMaintenanceTitle.text = "Connection required"
+                binding.tvMaintenanceMessage.text = "Unable to verify app availability. Check your connection and retry."
                 binding.drawerLayout.setDrawerLockMode(androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
                 AppBulletin.showError(this@MainActivity, "Cannot refresh app configuration")
             } finally {
@@ -589,7 +589,8 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun updateAvailabilityInteraction() {
-        val blocked = binding.maintenanceOverlay.visibility == View.VISIBLE || binding.forceUpdateOverlay.visibility == View.VISIBLE
+        val blocked = binding.availabilityCheckingOverlay.visibility == View.VISIBLE ||
+            binding.maintenanceOverlay.visibility == View.VISIBLE || binding.forceUpdateOverlay.visibility == View.VISIBLE
         if (blocked) pendingDrawerDestination = null
         binding.drawerLayout.setDrawerLockMode(if (blocked)
             DrawerLayout.LOCK_MODE_LOCKED_CLOSED else DrawerLayout.LOCK_MODE_UNLOCKED)
@@ -1691,8 +1692,18 @@ class MainActivity : EveBaseActivity() {
         } catch (_: Exception) { }
     }
 
+    private fun hasConfirmedAvailableContent() =
+        ::binding.isInitialized && binding.maintenanceOverlay.visibility == View.GONE &&
+            binding.forceUpdateOverlay.visibility == View.GONE &&
+            binding.availabilityCheckingOverlay.visibility == View.GONE
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
+        outState.putBoolean(
+            "home_availability_confirmed_off",
+            lastConfirmedConfig?.let { !it.maintenance_mode && !AppConfigManager.isUpdateRequired(it) } == true &&
+                hasConfirmedAvailableContent()
+        )
         outState.putBoolean("key_empty_played", hasEmptyPlayed)
         outState.putBoolean(HomeGreetingMotion.KEY_HAS_ANIMATED_GREETING, hasAnimatedWelcome)
         if (::binding.isInitialized) {
