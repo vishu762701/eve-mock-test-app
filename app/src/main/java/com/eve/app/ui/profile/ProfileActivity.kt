@@ -82,8 +82,6 @@ class ProfileActivity : EveBaseActivity() {
     private var currentCategory: String = "General"
     private var currentPhone: String = ""
     private var currentUsername: String = ""
-    // Null means server Bio support has not been deployed; empty is a valid cleared Bio.
-    private var currentBio: String? = null
 
     private val pickPhotoLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -119,20 +117,10 @@ class ProfileActivity : EveBaseActivity() {
             }
         }
 
-    private val editBioLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                profileOwnerUid?.let { ProfileSession.store.invalidate(it) }
-                profileLoadJob?.cancel()
-                loadProfile()
-            }
-        }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        ProfileBioCapability.apply(binding.cellBio, binding.tvBioValue, null)
         binding.glassToolbar.bringToFront()
         setupAvatarWindowHost()
 
@@ -408,15 +396,6 @@ class ProfileActivity : EveBaseActivity() {
                 putExtra("current_username", currentUsername)
             }
             editUsernameLauncher.launch(intent)
-        }
-
-        // Optional Bio uses server capability detection, not optimistic local-only state.
-        binding.cellBio.setOnClickListener {
-            if (!isProfileOwner()) return@setOnClickListener
-            val bio = currentBio ?: return@setOnClickListener
-            editBioLauncher.launch(Intent(this, ChangeBioActivity::class.java).apply {
-                putExtra("current_bio", bio)
-            })
         }
 
         // Birthday cell
@@ -722,8 +701,6 @@ class ProfileActivity : EveBaseActivity() {
         binding.tvMobileValue.text = currentPhone.ifBlank { "Add phone number" }
         currentUsername = profile.username.orEmpty()
         binding.tvUsernameValue.text = if (currentUsername.isBlank()) "Set username" else "@${currentUsername.removePrefix("@")}"
-        currentBio = profile.bio
-        ProfileBioCapability.apply(binding.cellBio, binding.tvBioValue, profile.bio)
         if (!birthdaySaveInFlight) {
             currentDob = profile.dob
             binding.tvBirthdayValue.text = formatTelegramBirthday(currentDob)
