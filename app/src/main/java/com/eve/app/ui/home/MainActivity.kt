@@ -1518,8 +1518,8 @@ class MainActivity : EveBaseActivity() {
     private var bellTapNavigationPending = false
     private var bellTapNavigationEpoch = 0
 
-    /** MIT Tabler bell in idle and animated states; independent EVE ring motion.
-     * No Apple artwork or Telegram bell frames are used by Home. Incoming-event,
+    /** Notifications empty-state artwork in idle and animated states.
+     * Historical repository artwork is reused; no external source claim. Incoming-event,
      * unread, reduced-motion and tap-navigation behavior is preserved. */
     private fun animateNotificationBell() {
         if (!::binding.isInitialized || !com.eve.app.designsystem.DesignMotion.enabled(this)) {

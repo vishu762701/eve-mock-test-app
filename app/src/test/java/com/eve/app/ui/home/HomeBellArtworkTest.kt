@@ -15,13 +15,15 @@ class HomeBellArtworkTest {
         assertTrue(home.contains("@raw/home_notification_bell"))
         assertFalse(home.contains("@drawable/ic_bell\""))
         assertFalse(home.contains("@raw/notification_bell\""))
-        val provenance = File("../docs/sources/home-bell/provenance.json").readText()
-        for (path in listOf("src/main/res/drawable/ic_home_notification.xml", "src/main/res/raw/home_notification_bell.json")) {
-            assertTrue("Artifact digest must match recorded source conversion", provenance.contains(sha(path)))
+        val source = com.google.gson.JsonParser.parseString(File("src/main/res/raw/notification_bell.json").readText()).asJsonObject
+        val homeAnimation = com.google.gson.JsonParser.parseString(File("src/main/res/raw/home_notification_bell.json").readText()).asJsonObject
+        val originalLayers = source.getAsJsonArray("layers")
+        val homeLayers = homeAnimation.getAsJsonArray("layers")
+        for (index in 0 until originalLayers.size()) {
+            assertEquals("Bell paths must be the inbox paths", originalLayers[index].asJsonObject["shapes"], homeLayers[index].asJsonObject["shapes"])
         }
-        assertTrue(provenance.contains(sha("../docs/sources/home-bell/bell.svg")))
-        assertTrue(File("../docs/sources/home-bell/LICENSE").readText().contains("MIT License"))
-        assertTrue(File("src/main/assets/licenses/Tabler-LICENSE.txt").readText().contains("Permission is hereby granted"))
+        assertEquals(source["fr"], homeAnimation["fr"])
+        assertEquals(source["op"], homeAnimation["op"])
     }
 
     @Test fun replacingHomeNeverDeletesSharedInboxAndReminderArtwork() {
