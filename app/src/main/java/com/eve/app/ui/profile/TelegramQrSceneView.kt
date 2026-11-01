@@ -3,8 +3,9 @@ package com.eve.app.ui.profile
 import android.content.Context
 import android.animation.ValueAnimator
 import android.graphics.drawable.Drawable
-import com.airbnb.lottie.LottieCompositionFactory
-import com.airbnb.lottie.LottieDrawable
+import com.eve.app.telegram.animation.NativeQrDrawable
+import com.eve.app.telegram.animation.QrAnimationAssets
+import kotlinx.coroutines.*
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.os.SystemClock
@@ -48,24 +49,22 @@ internal class TelegramQrSceneView(
     }
     private val bounds = RectF()
     private val modulePath = Path()
-    private val matrix = Encoder.encode(link, ErrorCorrectionLevel.H).matrix
+    private var qrBitmap: Bitmap? = null
+    private var qrBitmapColor: Int? = null
+    private val qrBitmapPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
     var systemTop = 0
         set(value) { field = value; invalidate() }
     var systemBottom = 0
         set(value) { field = value; invalidate() }
     // Original backdrop color references; EVE drawing/shaders are independently adapted.
-    private val colors = arrayOf(
-        intArrayOf(0xFF363738.toInt(), 0xFF0E0F0F.toInt(), 0xFF161819.toInt()),
-        intArrayOf(0xFF3FB1FF.toInt(), 0xFF166ACE.toInt(), 0xFF0075F1.toInt()),
-        intArrayOf(0xFF5C6985.toInt(), 0xFF354057.toInt(), 0xFF354057.toInt()),
-        intArrayOf(0xFF7ECB82.toInt(), 0xFF459E5A.toInt(), 0xFF026B22.toInt()),
-        intArrayOf(0xFFB789E4.toInt(), 0xFF8A5ABC.toInt(), 0xFF5B10AB.toInt()),
-        intArrayOf(0xFFB77A77.toInt(), 0xFF814C52.toInt(), 0xFF551C22.toInt()),
-        intArrayOf(0xFFD19A3A.toInt(), 0xFFC06F47.toInt(), 0xFF9D3907.toInt()),
-        intArrayOf(0xFF78C585.toInt(), 0xFF42A171.toInt(), 0xFF006532.toInt())
-    )
+    private val colors = Array(com.eve.app.telegram.qr.QrPalettes.count()) { index ->
+        intArrayOf(com.eve.app.telegram.qr.QrPalettes.center(index),
+            com.eve.app.telegram.qr.QrPalettes.edge(index),
+            com.eve.app.telegram.qr.QrPalettes.ink(index))
+    }
     val paletteCount: Int get() = colors.size
     fun palettePreviewColor(index: Int): Int = colors[index.coerceIn(0, colors.lastIndex)][0]
+    fun paletteName(index: Int): String = com.eve.app.telegram.qr.QrPalettes.name(index)
     private var palette = 0
     private var previousPalette = 0
     private var paletteBlend = 1f
@@ -78,7 +77,8 @@ internal class TelegramQrSceneView(
     private var selectedEmojis: List<QrEmojiChoice> = emptyList()
     val selectedEmoji: String? get() = selectedEmojis.firstOrNull()?.alt
     val emojiChoices: List<QrEmojiChoice> get() = selectedEmojis.toList()
-    private val animations = mutableMapOf<String, LottieDrawable>()
+    private val animations = mutableMapOf<String, NativeQrDrawable>()
+    private var assetScope: CoroutineScope? = null
     private val animationLoading = mutableSetOf<String>()
     private var fieldPauseStarted = 0L
     private var fieldPausedMs = 0L
@@ -129,58 +129,43 @@ internal class TelegramQrSceneView(
     }
 
     private fun loadSelectedAnimations() {
+        val scope = assetScope ?: return
         for (entry in selectedEmojis) {
             if (entry.source.isBlank() || animations.containsKey(entry.key) ||
                 !animationLoading.add(entry.key)) continue
-            val task = when {
-                entry.source.startsWith("res:raw/") -> {
-                    val name = entry.source.removePrefix("res:raw/")
-                    val id = resources.getIdentifier(name, "raw", context.packageName)
-                    if (id == 0) {
-                        animationLoading.remove(entry.key)
-                        continue
-                    }
-                    LottieCompositionFactory.fromRawRes(context, id)
-                }
-                entry.source.startsWith("https://") ->
-                    LottieCompositionFactory.fromUrl(context, entry.source)
-                else -> {
-                    animationLoading.remove(entry.key)
-                    continue
-                }
-            }
-            val key = entry.key
-            task.addListener { composition ->
-                animationLoading.remove(key)
-                if (!isAttachedToWindow || selectedEmojis.none { it.key == key }) return@addListener
-                val drawable = LottieDrawable().apply {
-                    this.composition = composition
-                    repeatCount = ValueAnimator.INFINITE
-                    callback = object : Drawable.Callback {
+            scope.launch {
+                try {
+                    val json = QrAnimationAssets.json(context.applicationContext, entry.source)
+                    ensureActive()
+                    if (!isAttachedToWindow || selectedEmojis.none { it.key == entry.key }) return@launch
+                    val drawable = NativeQrDrawable.fromJson(json, dp(140f).toInt())
+                    drawable.callback = object : Drawable.Callback {
                         override fun invalidateDrawable(who: Drawable) { postInvalidateOnAnimation() }
                         override fun scheduleDrawable(who: Drawable, what: Runnable, whenMillis: Long) {
                             postDelayed(what, (whenMillis - SystemClock.uptimeMillis()).coerceAtLeast(0L))
                         }
-                        override fun unscheduleDrawable(who: Drawable, what: Runnable) {
-                            removeCallbacks(what)
-                        }
+                        override fun unscheduleDrawable(who: Drawable, what: Runnable) { removeCallbacks(what) }
                     }
-                    start()
+                    animations.put(entry.key, drawable)?.close()
+                    if (com.eve.app.designsystem.DesignMotion.enabled(context)) drawable.start()
+                    invalidate()
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (_: Exception) {
+                    // Missing/invalid source remains unavailable; never fabricate animation frames.
+                    invalidate()
+                } finally {
+                    animationLoading.remove(entry.key)
                 }
-                animations.put(key, drawable)?.stop()
-                invalidate()
-            }.addFailureListener {
-                animationLoading.remove(key)
-                // No invented substitute for missing animated source frames.
-                invalidate()
             }
         }
         animations.keys.toList().filter { key -> selectedEmojis.none { it.key == key } }
-            .forEach { animations.remove(it)?.stop() }
+            .forEach { animations.remove(it)?.close() }
     }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        assetScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
         loadSelectedAnimations()
     }
 
@@ -230,8 +215,12 @@ internal class TelegramQrSceneView(
         glideAnimator?.cancel()
         tracker?.recycle()
         tracker = null
-        animations.values.forEach { it.stop(); it.callback = null }
+        assetScope?.cancel()
+        assetScope = null
+        animations.values.forEach { it.close() }
         animations.clear()
+        qrBitmap = null
+        qrBitmapColor = null
         animationLoading.clear()
     }
 
@@ -428,58 +417,40 @@ internal class TelegramQrSceneView(
     }
 
     private fun qrColor(): Int = colors[palette][2]
-    private fun finder(x: Int, y: Int, n: Int) =
-        (x < 7 && y < 7) || (x >= n - 7 && y < 7) || (x < 7 && y >= n - 7)
-    private fun dark(x: Int, y: Int, n: Int) =
-        x in 0 until n && y in 0 until n && matrix.get(x, y).toInt() == 1
-
-    /** Source-inspired connected-corner and finder nests, adapted from TelegramQRCodeWriter. */
+    /** Upstream rounded-module renderer; only the center brand is supplied by EVE. */
     private fun drawModules(canvas: Canvas, left: Float, top: Float, size: Float, build: Float) {
-        val n = matrix.width
-        if (n <= 0) return
-        val cell = size / n
         val color = qrColor()
-        paint.color = color
-        val radius = cell * .33f
-        val logoStart = (n - 5) / 2
-        for (cy in 0 until n) for (cx in 0 until n) {
-            if (!dark(cx, cy, n) || finder(cx, cy, n) ||
-                (cx in logoStart until logoStart + 5 && cy in logoStart until logoStart + 5)) continue
-            if (build < 1f && ((cx * 31 + cy * 17) % 101) / 101f > build) continue
-            val a = FloatArray(8) { radius }
-            if (dark(cx, cy - 1, n)) for (i in 0..3) a[i] = 0f
-            if (dark(cx, cy + 1, n)) for (i in 4..7) a[i] = 0f
-            if (dark(cx - 1, cy, n)) for (i in intArrayOf(0,1,6,7)) a[i] = 0f
-            if (dark(cx + 1, cy, n)) for (i in 2..5) a[i] = 0f
-            modulePath.rewind()
-            modulePath.addRoundRect(RectF(left + cx * cell, top + cy * cell,
-                left + (cx + 1) * cell + .05f, top + (cy + 1) * cell + .05f),
-                a, Path.Direction.CW)
-            canvas.drawPath(modulePath, paint)
+        if (qrBitmap == null || qrBitmapColor != color) {
+            val writer = com.eve.app.telegram.qr.TelegramQRCodeWriter()
+            writer.setCenterDrawable(object : Drawable() {
+                private val circle = Paint(Paint.ANTI_ALIAS_FLAG).apply { this.color = color }
+                private val letter = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    this.color = Color.WHITE
+                    typeface = Typeface.create("sans-serif", Typeface.BOLD)
+                    textAlign = Paint.Align.CENTER
+                }
+                override fun draw(target: Canvas) {
+                    val radius = bounds.width() / 2f
+                    target.drawCircle(bounds.exactCenterX(), bounds.exactCenterY(), radius, circle)
+                    letter.textSize = bounds.height() * .65f
+                    target.drawText("E", bounds.exactCenterX(),
+                        bounds.exactCenterY() - (letter.ascent() + letter.descent()) / 2f, letter)
+                }
+                override fun setAlpha(alpha: Int) { circle.alpha = alpha; letter.alpha = alpha }
+                override fun setColorFilter(filter: android.graphics.ColorFilter?) { circle.colorFilter = filter }
+                @Deprecated("Drawable opacity is not used")
+                override fun getOpacity() = android.graphics.PixelFormat.TRANSLUCENT
+            })
+            val hints = mapOf<com.google.zxing.EncodeHintType, Any>(
+                com.google.zxing.EncodeHintType.ERROR_CORRECTION to ErrorCorrectionLevel.M,
+                com.google.zxing.EncodeHintType.MARGIN to 0)
+            // The old bitmap is released by GC, so an outstanding hardware display list never sees a recycled bitmap.
+            qrBitmap = writer.encode(link, dp(240f).toInt(), dp(240f).toInt(), hints, null,
+                .75f, Color.WHITE, color)
+            qrBitmapColor = color
         }
-        drawFinder(canvas, left, top, cell, color)
-        drawFinder(canvas, left + (n - 7) * cell, top, cell, color)
-        drawFinder(canvas, left, top + (n - 7) * cell, cell, color)
-        val mx = left + size / 2f
-        val my = top + size / 2f
-        canvas.drawCircle(mx, my, cell * 3f, white)
-        paint.color = color
-        canvas.drawCircle(mx, my, cell * 2.45f, paint)
-        labelPaint.color = Color.WHITE
-        labelPaint.typeface = Typeface.create("sans-serif", Typeface.BOLD)
-        labelPaint.textSize = cell * 3f
-        canvas.drawText("E", mx, my - (labelPaint.ascent() + labelPaint.descent()) / 2f, labelPaint)
-        labelPaint.typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD)
-    }
-
-    private fun drawFinder(canvas: Canvas, x: Float, y: Float, cell: Float, color: Int) {
-        paint.color = color
-        bounds.set(x, y, x + 7 * cell, y + 7 * cell)
-        canvas.drawRoundRect(bounds, cell * 1.65f, cell * 1.65f, paint)
-        bounds.inset(cell, cell)
-        canvas.drawRoundRect(bounds, cell * 1.1f, cell * 1.1f, white)
-        bounds.inset(cell, cell)
-        canvas.drawRoundRect(bounds, cell * .65f, cell * .65f, paint)
+        qrBitmapPaint.alpha = (build.coerceIn(0f, 1f) * 255).toInt()
+        canvas.drawBitmap(requireNotNull(qrBitmap), null, RectF(left, top, left + size, top + size), qrBitmapPaint)
     }
 
     /** Local rendering without accessing the private profile or Telegram servers. */

@@ -4,6 +4,15 @@ This repository contains third-party components and assets. Keep license obligat
 
 **Development-stage official-reference policy:** Exact official code/art/assets require verified upstream source, identity and appropriate use permissions; public design guidance is not blanket copying permission. Never silently substitute independently authored or other assets unless the owner expressly authorizes them. If the exact source/rights are unavailable, report that item as BLOCKED, continue only other authorized work, and keep third-party attribution and production release obligations.
 
+## Telegram QR native renderer and dashboard tabs — 2026-11-01
+
+Internal development integration, **not source-exact screen acceptance or production distribution clearance**.
+
+- Official Telegram revision: [`3de37c8cfb039452be7398909461da6288babf15`](https://github.com/DrKLO/Telegram/commit/3de37c8cfb039452be7398909461da6288babf15). `TMessagesProj/jni/lottie.cpp` and `Components/RLottieNative.java` are copied unchanged. QR drawing/glass helpers and pager dependencies have documented package/host adaptations. Original headers are retained. `TelegramQRCodeWriter.java` retains its Apache-2.0 notice; other Telegram components remain subject to their per-file grants and the existing release compliance gate.
+- Telegram's official gitlink selects [`dkaraush/tlottie@31f1b542f88e7b4be9a01e749920d857535fc715`](https://github.com/dkaraush/tlottie/tree/31f1b542f88e7b4be9a01e749920d857535fc715). The CPU renderer source, C API header, Cargo manifest/lock and MIT license are vendored unchanged in `app/src/main/cpp/vendor/tlottie/`. Copyright (c) 2026-present dkaraush. The full MIT permission and warranty notice is retained there.
+- Build adapters: Rust 1.99.1, NDK 27.2.12479018 and CMake 3.22.1. EVE loads the bundled library; no Telegram accounts, protocol client, signing material or login is imported.
+- [Per-file SHA-256 source manifest](docs/qr-native-upstream-manifest.json) records source identity and adaptations. [Implementation checkpoint](docs/QR_NATIVE_ADMIN_CHECKPOINT.md) records missing parity, upstream test failures and remaining work. No acceptance status or release approval is changed by this batch.
+
 ## Telegram for Android
 
 ### Mission 06 additionally authenticated official revision (2026-10-28)

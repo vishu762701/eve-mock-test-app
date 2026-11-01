@@ -18,6 +18,14 @@ val appVersionName = System.getenv("APP_VERSION_NAME") ?: "1.0"
 android {
     namespace = "com.eve.app"
     compileSdk = 36
+    ndkVersion = "27.2.12479018"
+
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
+    }
 
     defaultConfig {
         applicationId = "com.eve.app"
@@ -26,6 +34,10 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         versionCode = appVersionCode
         versionName = appVersionName
+        ndk {
+            abiFilters += (project.findProperty("eve.nativeAbis")?.toString()?.split(",")
+                ?: listOf("arm64-v8a", "armeabi-v7a", "x86_64", "x86"))
+        }
     }
 
     signingConfigs {

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="adminSectionsPager" type="id" />
+    <string-array name="admin_dashboard_sections">
+        <item>Content</item>
+        <item>People</item>
+        <item>Communication</item>
+        <item>Insights</item>
+        <item>System</item>
+    </string-array>
+</resources>

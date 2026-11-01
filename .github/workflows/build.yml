@@ -78,6 +78,9 @@ jobs:
         with:
           gradle-version: 8.7
 
+      - name: Prepare pinned Telegram QR native renderer toolchain
+        run: bash .github/scripts/prepare-qr-native.sh
+
       - name: Check scoped Telegram acceptance claims
         run: python3 .github/scripts/verify_telegram_acceptance.py
 

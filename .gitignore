@@ -4,6 +4,8 @@ local.properties
 .idea/
 build/
 app/build/
+app/.cxx/
+app/src/main/cpp/vendor/tlottie/target/
 .DS_Store
 *.local
 .secret.local

@@ -75,6 +75,7 @@ class AdminActivity : EveBaseActivity() {
     private var maintenanceBusy = false
     private var maintenanceReadRequired = true
     private var adminUiReady = false
+    private var dashboardPager: AdminDashboardPager? = null
     private var maintenanceDialog: TelegramNativeAlertDialog? = null
 
     private val pickBannerImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -121,11 +122,22 @@ class AdminActivity : EveBaseActivity() {
             setupActionBar()
             setupHeaderBlock()
             setupHubSections()
+            dashboardPager = AdminDashboardPager(binding.scrollAdminHub, savedInstanceState?.getInt("admin_section") ?: 0)
             setupSearchIndex()
             setupObservers()
             adminUiReady = true
             loadData()
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putInt("admin_section", dashboardPager?.currentSection ?: 0)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onApplyThemePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+        super.onApplyThemePalette(palette)
+        dashboardPager?.refreshTheme()
     }
 
     private fun setupActionBar() {
@@ -344,6 +356,7 @@ class AdminActivity : EveBaseActivity() {
 
         if (adminMe.isOwner) {
             setupSearchIndex(null)
+            dashboardPager?.refreshAccess()
             return
         }
 
@@ -405,6 +418,7 @@ class AdminActivity : EveBaseActivity() {
         binding.rowEditAbout.visibility = if (has("manage_content")) View.VISIBLE else View.GONE
 
         setupSearchIndex(adminMe)
+        dashboardPager?.refreshAccess()
     }
 
     private fun performSearch(query: String) {

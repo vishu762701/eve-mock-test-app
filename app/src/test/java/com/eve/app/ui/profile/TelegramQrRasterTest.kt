@@ -17,7 +17,7 @@ import org.robolectric.annotation.GraphicsMode
 
 /** Real rendered bitmap scan, not a string/source assertion. */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [35])
+@Config(sdk = [35], application = android.app.Application::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class TelegramQrRasterTest {
     private fun decode(bitmap: Bitmap): String {
@@ -37,7 +37,7 @@ class TelegramQrRasterTest {
             view.measure(View.MeasureSpec.makeMeasureSpec(w, View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(h, View.MeasureSpec.EXACTLY))
             view.layout(0, 0, w, h)
-            for (palette in 0..2) {
+            for (palette in 0 until view.paletteCount) {
                 view.setPalette(palette)
                 val image = view.renderShareImage()
                 assertNotNull(image)

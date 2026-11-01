@@ -1,0 +1,734 @@
+{
+  "scope": "Source identity only. NOT visual or feature acceptance.",
+  "files": [
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "Cargo.lock",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/Cargo.lock",
+      "upstream_sha256": "3a6a1d95f32f7610ef148c77ac1eaac4d391e854e87c94198de694064efd28e4",
+      "eve_sha256": "3a6a1d95f32f7610ef148c77ac1eaac4d391e854e87c94198de694064efd28e4",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "Cargo.toml",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/Cargo.toml",
+      "upstream_sha256": "4311146371b303f24c08cd4471f0418c33775d4576e3ca4823e76a0a97d5a210",
+      "eve_sha256": "4311146371b303f24c08cd4471f0418c33775d4576e3ca4823e76a0a97d5a210",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "LICENSE",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/LICENSE",
+      "upstream_sha256": "9c00f2e6db74aedafec31c1e479c8c3fa296f269ad763103de9764bc044e2700",
+      "eve_sha256": "9c00f2e6db74aedafec31c1e479c8c3fa296f269ad763103de9764bc044e2700",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "include/tlottie.h",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/include/tlottie.h",
+      "upstream_sha256": "931c3d41798da4e4cfc5b85d2b32274141c6efff2a781a5e77df97e3b55303db",
+      "eve_sha256": "931c3d41798da4e4cfc5b85d2b32274141c6efff2a781a5e77df97e3b55303db",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/bindings/c_api.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/bindings/c_api.rs",
+      "upstream_sha256": "455d4768b8fcdf86c4c75f7c72184f657f8630343ca873fb32452b845a321bd5",
+      "eve_sha256": "455d4768b8fcdf86c4c75f7c72184f657f8630343ca873fb32452b845a321bd5",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/bindings/mod.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/bindings/mod.rs",
+      "upstream_sha256": "8b0bfee2f7fae7d9d904a63991d1aa4f45c29adf76a010babb7f575c2903c7ff",
+      "eve_sha256": "8b0bfee2f7fae7d9d904a63991d1aa4f45c29adf76a010babb7f575c2903c7ff",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/bindings/wasm.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/bindings/wasm.rs",
+      "upstream_sha256": "a9cb01da298527a334cd1ed3df017b928ea6ef4f9f3f9daa9dab6a0ca993dfa8",
+      "eve_sha256": "a9cb01da298527a334cd1ed3df017b928ea6ef4f9f3f9daa9dab6a0ca993dfa8",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/cli/main.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/cli/main.rs",
+      "upstream_sha256": "51aa428981618df10e0ed77a72baf3c44899e494d15b44d5b1300628becb2061",
+      "eve_sha256": "51aa428981618df10e0ed77a72baf3c44899e494d15b44d5b1300628becb2061",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/cli/png.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/cli/png.rs",
+      "upstream_sha256": "608e83bd33becfebc2be6aca5ad13344740f687cf382e5eb467fbd76352ec0a6",
+      "eve_sha256": "608e83bd33becfebc2be6aca5ad13344740f687cf382e5eb467fbd76352ec0a6",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/compat.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/compat.rs",
+      "upstream_sha256": "f968e2678fb55ef28f2e6ff9deef3ed95ea759ad3c340fd994f270719519814d",
+      "eve_sha256": "f968e2678fb55ef28f2e6ff9deef3ed95ea759ad3c340fd994f270719519814d",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/composition/json.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/composition/json.rs",
+      "upstream_sha256": "3d8624ebac891691df16509f4e1beff5d00fdcac05aeb78cff36771871a6b344",
+      "eve_sha256": "3d8624ebac891691df16509f4e1beff5d00fdcac05aeb78cff36771871a6b344",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/composition/limits.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/composition/limits.rs",
+      "upstream_sha256": "9b24667d72d14d75e5523562ec7dcfab603efcdc3046b883a57c26b93ce1707e",
+      "eve_sha256": "9b24667d72d14d75e5523562ec7dcfab603efcdc3046b883a57c26b93ce1707e",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/composition/mod.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/composition/mod.rs",
+      "upstream_sha256": "58f3a1dcb62420a028ab02a6fc776d16861bbde7d6c06621f74fa1f5c9e8d2d2",
+      "eve_sha256": "58f3a1dcb62420a028ab02a6fc776d16861bbde7d6c06621f74fa1f5c9e8d2d2",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/composition/model.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/composition/model.rs",
+      "upstream_sha256": "6e6b01ccc8d75fd097765fc3ff8064adb9854c11423777c24db786694bdc044f",
+      "eve_sha256": "6e6b01ccc8d75fd097765fc3ff8064adb9854c11423777c24db786694bdc044f",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/composition/options.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/composition/options.rs",
+      "upstream_sha256": "ee3b28371d86e3294fb4e2921448747e7cca091ba1eab1727836bd0b6de5d5fd",
+      "eve_sha256": "ee3b28371d86e3294fb4e2921448747e7cca091ba1eab1727836bd0b6de5d5fd",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/composition/parse.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/composition/parse.rs",
+      "upstream_sha256": "3f1d451af515ec447cd622e6c9146e7be07d3971a54d78d4c06d63c37e06087c",
+      "eve_sha256": "3f1d451af515ec447cd622e6c9146e7be07d3971a54d78d4c06d63c37e06087c",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/composition/property.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/composition/property.rs",
+      "upstream_sha256": "5dbe3415f8c1a098a4aad696ae6f34f81281a472e70772e4183c1ccc223977dc",
+      "eve_sha256": "5dbe3415f8c1a098a4aad696ae6f34f81281a472e70772e4183c1ccc223977dc",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/composition/swizzle.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/composition/swizzle.rs",
+      "upstream_sha256": "c8385dbdab0ba92adfe9f775a4cdeb79e9cf32dfdf949e78aeb6de46ac81c4d3",
+      "eve_sha256": "c8385dbdab0ba92adfe9f775a4cdeb79e9cf32dfdf949e78aeb6de46ac81c4d3",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/composition/tests/json.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/composition/tests/json.rs",
+      "upstream_sha256": "416231210b2362cb4ac900d872d8757473c35a6719bda10de9a715c37236b2cb",
+      "eve_sha256": "416231210b2362cb4ac900d872d8757473c35a6719bda10de9a715c37236b2cb",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/composition/tests/parse.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/composition/tests/parse.rs",
+      "upstream_sha256": "2dc5762d2d5273b1e881de35e052fe6f20da9ae4f33d5ccfbf792066353c9817",
+      "eve_sha256": "2dc5762d2d5273b1e881de35e052fe6f20da9ae4f33d5ccfbf792066353c9817",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/composition/tests/property.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/composition/tests/property.rs",
+      "upstream_sha256": "1285ff2271d84138d14b6f25b4dfc6e5e3e701a4be91b6e4c0c54ba7c02f2cd1",
+      "eve_sha256": "1285ff2271d84138d14b6f25b4dfc6e5e3e701a4be91b6e4c0c54ba7c02f2cd1",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/composition/tests/swizzle.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/composition/tests/swizzle.rs",
+      "upstream_sha256": "992803f27c577bd20811e082b88089ac551107246868767d7b1baef6f461f88d",
+      "eve_sha256": "992803f27c577bd20811e082b88089ac551107246868767d7b1baef6f461f88d",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/error.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/error.rs",
+      "upstream_sha256": "dd265f0f22406f8cede04d3139df4e289038f45bd09189536992be3ef35b6c04",
+      "eve_sha256": "dd265f0f22406f8cede04d3139df4e289038f45bd09189536992be3ef35b6c04",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/lib.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/lib.rs",
+      "upstream_sha256": "f704b487e860f1550b69fa3f33e86556da791df5c3923a048af2a2db12a73212",
+      "eve_sha256": "f704b487e860f1550b69fa3f33e86556da791df5c3923a048af2a2db12a73212",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/math.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/math.rs",
+      "upstream_sha256": "922b8aa4a689eb292ce2faad9bac25f5eb2220591f0d2148ae60af4b5b2bff9f",
+      "eve_sha256": "922b8aa4a689eb292ce2faad9bac25f5eb2220591f0d2148ae60af4b5b2bff9f",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/no_std_runtime.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/no_std_runtime.rs",
+      "upstream_sha256": "518b5c85cce2a8d17e5742ab7f96583cacc54bc5a1bdb679abc3c0178b295058",
+      "eve_sha256": "518b5c85cce2a8d17e5742ab7f96583cacc54bc5a1bdb679abc3c0178b295058",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/pixel.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/pixel.rs",
+      "upstream_sha256": "024ed6b1a6122e9f70076a2d617045bc4c6a92c5fed70713056da5a0988a41cc",
+      "eve_sha256": "024ed6b1a6122e9f70076a2d617045bc4c6a92c5fed70713056da5a0988a41cc",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/alpha_backend.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/alpha_backend.rs",
+      "upstream_sha256": "64b078ce1082f2419c2b53a1921f469aa39e72296507e56b14a275af2debf70a",
+      "eve_sha256": "64b078ce1082f2419c2b53a1921f469aa39e72296507e56b14a275af2debf70a",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/backend.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/backend.rs",
+      "upstream_sha256": "2142ba4744dc54b48dddeac63acdc2336eb09ee8f0e79f4063b550229e5ae126",
+      "eve_sha256": "2142ba4744dc54b48dddeac63acdc2336eb09ee8f0e79f4063b550229e5ae126",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/canvas.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/canvas.rs",
+      "upstream_sha256": "74ea231ebe143dcbf865d5ca5ca032957de37419bfbcc66aafa23e84771c46d5",
+      "eve_sha256": "74ea231ebe143dcbf865d5ca5ca032957de37419bfbcc66aafa23e84771c46d5",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/cells.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/cells.rs",
+      "upstream_sha256": "c2b4dc8fc824eeb6fc5960284edbb9e1643d340e3d4af6974a03761624084fa7",
+      "eve_sha256": "c2b4dc8fc824eeb6fc5960284edbb9e1643d340e3d4af6974a03761624084fa7",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/coverage.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/coverage.rs",
+      "upstream_sha256": "4e6f606463abaf1e252b65ce28d6f323c4107e556376fe1b596b5f5dedf645e0",
+      "eve_sha256": "4e6f606463abaf1e252b65ce28d6f323c4107e556376fe1b596b5f5dedf645e0",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/executor.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/executor.rs",
+      "upstream_sha256": "220ad3c26bf240691ebf79bec6c2ba7def83e1fedbd64d43290fe386ff5b6187",
+      "eve_sha256": "220ad3c26bf240691ebf79bec6c2ba7def83e1fedbd64d43290fe386ff5b6187",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/gradient.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/gradient.rs",
+      "upstream_sha256": "faccae6a70bd1c6f7ff0af57b42a417b07740f2ff04fee6fd369a3165c953a11",
+      "eve_sha256": "faccae6a70bd1c6f7ff0af57b42a417b07740f2ff04fee6fd369a3165c953a11",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/mapped_accumulator.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/mapped_accumulator.rs",
+      "upstream_sha256": "78aa18c91fd48f9014023dc30af91b0aa216aebcbc756ead7d841c3645b9d45b",
+      "eve_sha256": "78aa18c91fd48f9014023dc30af91b0aa216aebcbc756ead7d841c3645b9d45b",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/mapped_surface.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/mapped_surface.rs",
+      "upstream_sha256": "93079399f6e3b47f125d24395036cd91c46f14333560cab7c1fdb3240052bef6",
+      "eve_sha256": "93079399f6e3b47f125d24395036cd91c46f14333560cab7c1fdb3240052bef6",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/mod.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/mod.rs",
+      "upstream_sha256": "410438e6cd89f31aa444d1b5e4f5cc2119546d9cf2ff9d673f1949df17356413",
+      "eve_sha256": "410438e6cd89f31aa444d1b5e4f5cc2119546d9cf2ff9d673f1949df17356413",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/raster.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/raster.rs",
+      "upstream_sha256": "e019f2dba219c175463bef425f2505d934210d75f1f26b262794cff0f35b2e0f",
+      "eve_sha256": "e019f2dba219c175463bef425f2505d934210d75f1f26b262794cff0f35b2e0f",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/renderer.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/renderer.rs",
+      "upstream_sha256": "e3a001cbf2ba1add915410018eb59a6dbc3b24c7ea9f2856e32065d638ca4476",
+      "eve_sha256": "e3a001cbf2ba1add915410018eb59a6dbc3b24c7ea9f2856e32065d638ca4476",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/simd/avx2.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/simd/avx2.rs",
+      "upstream_sha256": "3ed8a6d741f4dbc6f5e8c2d55f0597719b3d3036a8e4e06ba10423c4a7363492",
+      "eve_sha256": "3ed8a6d741f4dbc6f5e8c2d55f0597719b3d3036a8e4e06ba10423c4a7363492",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/simd/avx512.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/simd/avx512.rs",
+      "upstream_sha256": "d842964a9b30bcdfa8512fa2acd9d6f760d79f7a8317bcfa40f83e4af70d5226",
+      "eve_sha256": "d842964a9b30bcdfa8512fa2acd9d6f760d79f7a8317bcfa40f83e4af70d5226",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/simd/cpuid.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/simd/cpuid.rs",
+      "upstream_sha256": "59284dffc75e523121e4aabb99867f8d7b21cffb4b0822b29c5a0aa18531672a",
+      "eve_sha256": "59284dffc75e523121e4aabb99867f8d7b21cffb4b0822b29c5a0aa18531672a",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/simd/neon.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/simd/neon.rs",
+      "upstream_sha256": "76b239464d33a1671a217dc29cb953455a91ff260d47b8f6459fe650016ca257",
+      "eve_sha256": "76b239464d33a1671a217dc29cb953455a91ff260d47b8f6459fe650016ca257",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/simd/sse2.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/simd/sse2.rs",
+      "upstream_sha256": "8172dadf530ce3a3bcf7d9f96badd576287fca94248a331db1a09facdb7dc619",
+      "eve_sha256": "8172dadf530ce3a3bcf7d9f96badd576287fca94248a331db1a09facdb7dc619",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/simd/wasm.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/simd/wasm.rs",
+      "upstream_sha256": "38f1cf44d38e44218fe58e28249734464eb854e67048b037d9fb116db8daff0a",
+      "eve_sha256": "38f1cf44d38e44218fe58e28249734464eb854e67048b037d9fb116db8daff0a",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/simd.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/simd.rs",
+      "upstream_sha256": "d3f5459db273101683aa80f63eec4960d541bacf3dcc2b860e4b951ca779805a",
+      "eve_sha256": "d3f5459db273101683aa80f63eec4960d541bacf3dcc2b860e4b951ca779805a",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/tests/alpha_simd.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/tests/alpha_simd.rs",
+      "upstream_sha256": "933a2b84a92234fb04b3847d6e248d8f43fdf03d74b1e027e8fa742e00c0a69b",
+      "eve_sha256": "933a2b84a92234fb04b3847d6e248d8f43fdf03d74b1e027e8fa742e00c0a69b",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/tests/cells.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/tests/cells.rs",
+      "upstream_sha256": "f90d69fcfc4fce5ece913ec0b45671d4569fa198b5196d2e8b628b4e1252b6e6",
+      "eve_sha256": "f90d69fcfc4fce5ece913ec0b45671d4569fa198b5196d2e8b628b4e1252b6e6",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/tests/cov_cache.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/tests/cov_cache.rs",
+      "upstream_sha256": "eaf92d62b557d7bee7f9da8e20e21b88a483c3c7cdc0f3ffc044a1a4886aee54",
+      "eve_sha256": "eaf92d62b557d7bee7f9da8e20e21b88a483c3c7cdc0f3ffc044a1a4886aee54",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/tests/gradient.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/tests/gradient.rs",
+      "upstream_sha256": "82652eebfc290d127b33316312130cbec4280659a601d9b91e490388b69d7404",
+      "eve_sha256": "82652eebfc290d127b33316312130cbec4280659a601d9b91e490388b69d7404",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/tests/mask_bounds.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/tests/mask_bounds.rs",
+      "upstream_sha256": "171f47bd3178d65b1c6db2d84c39c23daaf5c667cfa60c4d74ead6b5c7da6972",
+      "eve_sha256": "171f47bd3178d65b1c6db2d84c39c23daaf5c667cfa60c4d74ead6b5c7da6972",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/tests/pipeline_equivalence.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/tests/pipeline_equivalence.rs",
+      "upstream_sha256": "3e5b45d2aac02670ad4c9f1393c5573ae53d94255ece3494d65efc96f1e8e28c",
+      "eve_sha256": "3e5b45d2aac02670ad4c9f1393c5573ae53d94255ece3494d65efc96f1e8e28c",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/tests/raster.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/tests/raster.rs",
+      "upstream_sha256": "a41d65766712b13dca4ffdc153c9687173f42e75e3340ddf12deabd704f3b1dc",
+      "eve_sha256": "a41d65766712b13dca4ffdc153c9687173f42e75e3340ddf12deabd704f3b1dc",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/cpu/tests/simd.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/cpu/tests/simd.rs",
+      "upstream_sha256": "e8dd7b36bc56da567b24a0e3dbee3fd03dd9aab10738b1e4a8861ec1e9b04dde",
+      "eve_sha256": "e8dd7b36bc56da567b24a0e3dbee3fd03dd9aab10738b1e4a8861ec1e9b04dde",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/frame/budget.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/frame/budget.rs",
+      "upstream_sha256": "4dd7424487af818f87b40fc36ebb06309d4a2c03357ebd293e4c89f913ab6f32",
+      "eve_sha256": "4dd7424487af818f87b40fc36ebb06309d4a2c03357ebd293e4c89f913ab6f32",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/frame/evaluator.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/frame/evaluator.rs",
+      "upstream_sha256": "e59cd232cf2bdc22d656f06b27297123aff5931531876db5f86b26962a440e19",
+      "eve_sha256": "e59cd232cf2bdc22d656f06b27297123aff5931531876db5f86b26962a440e19",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/frame/geometry.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/frame/geometry.rs",
+      "upstream_sha256": "47d3c922f3bc660d8bcd856be73bf644bb907000397391a6e24839e87f763d90",
+      "eve_sha256": "47d3c922f3bc660d8bcd856be73bf644bb907000397391a6e24839e87f763d90",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/frame/mod.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/frame/mod.rs",
+      "upstream_sha256": "43ce02059b58a4eeb7ab9fcab640477a81e5047214c60bfa43e284d4e526ff3d",
+      "eve_sha256": "43ce02059b58a4eeb7ab9fcab640477a81e5047214c60bfa43e284d4e526ff3d",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/frame/renderer.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/frame/renderer.rs",
+      "upstream_sha256": "d98ff4bdd171afdf3a8a2d6b2a25a7813bd694d7326796be078738d727f0ca11",
+      "eve_sha256": "d98ff4bdd171afdf3a8a2d6b2a25a7813bd694d7326796be078738d727f0ca11",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/frame/stroke.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/frame/stroke.rs",
+      "upstream_sha256": "5a8e716bea9dcfca5fd1eea3d02e0b13fb2344d3efa0df56c8e0909ea8d0c864",
+      "eve_sha256": "5a8e716bea9dcfca5fd1eea3d02e0b13fb2344d3efa0df56c8e0909ea8d0c864",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/frame/tests/geometry.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/frame/tests/geometry.rs",
+      "upstream_sha256": "baeb2045aabb857b82bd5df9a5f5f66c7f3b6947b9ca5dcf5d5f8081c85292cc",
+      "eve_sha256": "baeb2045aabb857b82bd5df9a5f5f66c7f3b6947b9ca5dcf5d5f8081c85292cc",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/frame/tests/stroke.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/frame/tests/stroke.rs",
+      "upstream_sha256": "5768aaa9c04c75200d4774b69c8db440922b3640d92e70956967b970ed809f74",
+      "eve_sha256": "5768aaa9c04c75200d4774b69c8db440922b3640d92e70956967b970ed809f74",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/frame/tests/walker.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/frame/tests/walker.rs",
+      "upstream_sha256": "05e24f74e13aebacff005ca5d5f6145ca591dcc8dceecf8b8609b492a5221e29",
+      "eve_sha256": "05e24f74e13aebacff005ca5d5f6145ca591dcc8dceecf8b8609b492a5221e29",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/frame/walker.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/frame/walker.rs",
+      "upstream_sha256": "10f4fa16946ce2905de6b47534bd2b06fe05d7ab70913b42d65c20172a734df7",
+      "eve_sha256": "10f4fa16946ce2905de6b47534bd2b06fe05d7ab70913b42d65c20172a734df7",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/mod.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/mod.rs",
+      "upstream_sha256": "8a79ce3912286cfea6a88c9319aef5bc49f59d6d3ed249fe5413ca64c0d1fadf",
+      "eve_sha256": "8a79ce3912286cfea6a88c9319aef5bc49f59d6d3ed249fe5413ca64c0d1fadf",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/renderer/options.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/renderer/options.rs",
+      "upstream_sha256": "71d62922bc5bd5fc533df2d29b8535388bca3d7f958b5d39636c064d5a8b7034",
+      "eve_sha256": "71d62922bc5bd5fc533df2d29b8535388bca3d7f958b5d39636c064d5a8b7034",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/tests/dos.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/tests/dos.rs",
+      "upstream_sha256": "6f844e937afebcef3742df80724086da6694eea064c3ad3c0cba41bd41489b89",
+      "eve_sha256": "6f844e937afebcef3742df80724086da6694eea064c3ad3c0cba41bd41489b89",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/tests/pixel.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/tests/pixel.rs",
+      "upstream_sha256": "9c7e48586ae2449528a75804f250554cab6602d62cbc2215a12948f013bc32bc",
+      "eve_sha256": "9c7e48586ae2449528a75804f250554cab6602d62cbc2215a12948f013bc32bc",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/dkaraush/tlottie",
+      "revision": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "upstream_path": "src/wasm_runtime.rs",
+      "eve_path": "app/src/main/cpp/vendor/tlottie/src/wasm_runtime.rs",
+      "upstream_sha256": "7cb8f035eec379a214b8a4ec81f5afa172eb76e4b4c7643a18937a01376a7b25",
+      "eve_sha256": "7cb8f035eec379a214b8a4ec81f5afa172eb76e4b4c7643a18937a01376a7b25",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/jni/lottie.cpp",
+      "eve_path": "app/src/main/cpp/telegram_lottie.cpp",
+      "upstream_sha256": "22f89b2a46cfb20e238a7ef63bc7a0fbbe509c456bef569a1d06b3b2b993d81f",
+      "eve_sha256": "22f89b2a46cfb20e238a7ef63bc7a0fbbe509c456bef569a1d06b3b2b993d81f",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/messenger/TelegramQRCodeWriter.java",
+      "eve_path": "app/src/main/java/com/eve/app/telegram/qr/TelegramQRCodeWriter.java",
+      "upstream_sha256": "36642571ec6b5e7ad6f68b98a56116c127dd69fdc0ee4ee3e1e55c6f5dca3803",
+      "eve_sha256": "3431f00c29ccfc88318961c4916584c7a102b8faf0696fe94f3d389ca4295ea8",
+      "classification": "ADAPTED; see QR_NATIVE_ADMIN_CHECKPOINT.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/Components/PagerSlidingTabStrip.java",
+      "eve_path": "app/src/main/java/com/eve/app/telegram/components/PagerSlidingTabStrip.java",
+      "upstream_sha256": "d974ed31efd85e56bdfba9d9fd97804108c487afbfb8d08535c3ac61ba7cd399",
+      "eve_sha256": "ffa04e3c8768806e5f9c2f256429dac04eb51149ac2544662effda50ec95efeb",
+      "classification": "ADAPTED; see QR_NATIVE_ADMIN_CHECKPOINT.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/Components/AnimatedFloat.java",
+      "eve_path": "app/src/main/java/com/eve/app/telegram/components/AnimatedFloat.java",
+      "upstream_sha256": "6e744c109b675b42b53faada749f3ffb38cc5ea3f25347ce8f2b39e10d306bb9",
+      "eve_sha256": "9c7b825ed2fd277a9521808b5f2834393e29ed2c3ac90d0a0d66f06be3400149",
+      "classification": "ADAPTED; see QR_NATIVE_ADMIN_CHECKPOINT.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/Components/ScaleStateListAnimator.java",
+      "eve_path": "app/src/main/java/com/eve/app/telegram/components/ScaleStateListAnimator.java",
+      "upstream_sha256": "85f2574068783bae3c920b9f94141e93c873b69e36b88b2a28fa0c1c4077b9ce",
+      "eve_sha256": "50079247265351c89ad1cf142c266b9a2516c15f8a180ffdff6e0283ff66b87d",
+      "classification": "ADAPTED; see QR_NATIVE_ADMIN_CHECKPOINT.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/Components/CubicBezierInterpolator.java",
+      "eve_path": "app/src/main/java/com/eve/app/telegram/components/CubicBezierInterpolator.java",
+      "upstream_sha256": "747f7b8f511249f14bc1b567088d7e0da3639729263a6f56243eb61c2ba19387",
+      "eve_sha256": "8d8be05501da02afc1a008e7bd65ce26d5ce1428eb86137f4bc1da8471df305d",
+      "classification": "ADAPTED; see QR_NATIVE_ADMIN_CHECKPOINT.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/Components/RLottieNative.java",
+      "eve_path": "app/src/main/java/org/telegram/ui/Components/RLottieNative.java",
+      "upstream_sha256": "08c05cc0be95b2c079248211b0d2dfed9b5e2a383972780aeebc080b33823a89",
+      "eve_sha256": "08c05cc0be95b2c079248211b0d2dfed9b5e2a383972780aeebc080b33823a89",
+      "classification": "EXACT bytes; runtime acceptance OPEN"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrRender.java",
+      "eve_path": "app/src/main/java/com/eve/app/telegram/qr/QrRender.java",
+      "upstream_sha256": "86b505b2e828988e1bef52e255c1999bc393622cbe220e3da2c49d5ade7a1922",
+      "eve_sha256": "9607ed5f0f4f7d8d5c49df174f53a0848fecef286c6d7d37b1dd8e39207c11fd",
+      "classification": "ADAPTED; see QR_NATIVE_ADMIN_CHECKPOINT.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrGlass.java",
+      "eve_path": "app/src/main/java/com/eve/app/telegram/qr/QrGlass.java",
+      "upstream_sha256": "b2f77e4fd14ede12dbd17d2d9b51239caefe96e25167e933e3464e60c50ce5a5",
+      "eve_sha256": "e2622ce2ee2efad2a49fcb7d991b1a1b2120144f374f4cca963a798d53263007",
+      "classification": "ADAPTED; see QR_NATIVE_ADMIN_CHECKPOINT.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/RimTune.java",
+      "eve_path": "app/src/main/java/com/eve/app/telegram/qr/RimTune.java",
+      "upstream_sha256": "78d1aa25e70d782e428947a8090ef91fc89a59f57bddfe6a6e69cfeffaa409d8",
+      "eve_sha256": "494d4f1f46df2d6357e503c3939ee257e9827aa9ee07641ec8ac353f3ba7fba2",
+      "classification": "ADAPTED; see QR_NATIVE_ADMIN_CHECKPOINT.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/RimPainter.java",
+      "eve_path": "app/src/main/java/com/eve/app/telegram/qr/RimPainter.java",
+      "upstream_sha256": "fe3061b1e90411d2978ce0d9e45b44d0a52103aa099ea43badb40099f35fcafe",
+      "eve_sha256": "128cee268378c396a5479578d8aa943b23e3c25f7acb7a9f687b929b9d9d8df2",
+      "classification": "ADAPTED; see QR_NATIVE_ADMIN_CHECKPOINT.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/Backdrops.java",
+      "eve_path": "app/src/main/java/com/eve/app/telegram/qr/Backdrops.java",
+      "upstream_sha256": "7cbe0f7455b00b575e9dca89611798be68667e354ccb81ffabf1db417b427dea",
+      "eve_sha256": "fa8946fcd009724e4edb0b2d394f05d347c290813b13f8ef6d7769f8160e2d07",
+      "classification": "ADAPTED; see QR_NATIVE_ADMIN_CHECKPOINT.md"
+    }
+  ]
+}

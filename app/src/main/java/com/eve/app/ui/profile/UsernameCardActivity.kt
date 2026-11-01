@@ -43,29 +43,12 @@ class UsernameCardActivity : EveBaseActivity() {
     private lateinit var username: String
     private lateinit var qrLink: String
     private var qrClosing = false
+    private var gallerySaveInProgress = false
+    private val galleryPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) saveToGallery() else AppBulletin.showError(this, "Storage access is needed to save the QR image")
+    }
     private val dp: Float get() = resources.displayMetrics.density
     private fun px(value: Int) = (value * dp).toInt()
-
-    private val saveDocument = registerForActivityResult(
-        ActivityResultContracts.CreateDocument("image/png")
-    ) { uri ->
-        if (uri == null || !::scene.isInitialized) return@registerForActivityResult
-        val image = scene.renderShareImage()
-        if (image == null) {
-            AppBulletin.showError(this, "QR image is not ready")
-            return@registerForActivityResult
-        }
-        try {
-            contentResolver.openOutputStream(uri)?.use { out ->
-                check(image.compress(Bitmap.CompressFormat.PNG, 100, out))
-            } ?: error("No output stream available")
-            AppBulletin.showSuccess(this, "QR image saved")
-        } catch (_: Exception) {
-            AppBulletin.showError(this, "Couldn't save QR image")
-        } finally {
-            image.recycle()
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,7 +81,7 @@ class UsernameCardActivity : EveBaseActivity() {
         val scan = scanButton { startActivity(Intent(this, EveQrLiveScannerActivity::class.java)) }
         val share = icon(R.drawable.eve_qr_share, "Share QR image") { shareImage() }
         val save = icon(R.drawable.eve_qr_download, "Save QR image") {
-            saveDocument.launch("EVE-" + username + "-QR.png")
+            saveToGallery()
         }
         val tools = LinearLayout(this).apply {
             gravity = Gravity.CENTER
@@ -175,51 +158,38 @@ class UsernameCardActivity : EveBaseActivity() {
             return
         }
         val sheet = BottomSheetDialog(this)
-        val panel = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(px(14), px(18), px(14), px(24))
-            background = glassBackground(24)
+        val grid = GridLayout(this).apply {
+            columnCount = 6
+            setPadding(px(10), px(12), px(10), px(12))
         }
-        val title = TextView(this).apply {
-            text = if (emojis) "QR Emojis" else "QR Colors"
-            setTextColor(Color.WHITE)
-            textSize = 19f
-            gravity = Gravity.CENTER
-        }
-        panel.addView(title, LinearLayout.LayoutParams(-1, px(48)))
-        val grid = GridLayout(this).apply { columnCount = 4 }
-        val cellWidth = (resources.displayMetrics.widthPixels - px(48)) / 4
-        val symbols = listOf("None", "✨", "⭐", "🔥", "🌸", "🦋", "💎", "💙",
-            "🌙", "🎓", "📚", "🎯", "🌈", "☀️", "🌿", "🌊", "🎵", "⚡", "🍀", "🌟")
-        val names = listOf("Black", "Neon Blue", "Midnight", "Mint",
-            "Lavender", "Rosewood", "Orange", "Emerald")
-        val count = if (emojis) symbols.size else scene.paletteCount
-        for (index in 0 until count) {
-            val item = TextView(this).apply {
-                gravity = Gravity.CENTER
-                setTextColor(Color.WHITE)
-                text = if (emojis) symbols[index] else names[index]
-                textSize = if (emojis) 26f else 11f
+        val cell = (resources.displayMetrics.widthPixels - px(40)) / 6
+        for (index in 0 until scene.paletteCount) {
+            val swatch = View(this).apply {
+                isClickable = true
+                isFocusable = true
+                contentDescription = scene.paletteName(index)
+                isSelected = scene.selectedPalette == index
                 background = GradientDrawable().apply {
-                    cornerRadius = px(18).toFloat()
-                    setColor(if (emojis) 0xFF303338.toInt() else scene.palettePreviewColor(index))
-                    setStroke(px(1), 0x556D7072)
+                    shape = GradientDrawable.OVAL
+                    setColor(scene.palettePreviewColor(index))
+                    setStroke(px(if (isSelected) 3 else 1), if (isSelected) Color.WHITE else 0x336D7072)
                 }
-                contentDescription = if (emojis) "Use " + symbols[index] + " QR emoji" else "Use " + names[index] + " QR color"
+                com.eve.app.telegram.components.ScaleStateListAnimator.apply(this, .025f, 1.2f)
                 setOnClickListener {
-                    if (emojis) scene.setEmoji(symbols[index].takeUnless { it == "None" })
-                    else scene.setPalette(index)
+                    scene.setPalette(index)
                     sheet.dismiss()
                 }
             }
-            grid.addView(item, GridLayout.LayoutParams().apply {
-                width = cellWidth - px(5)
-                height = px(54)
-                setMargins(px(2), px(3), px(2), px(3))
+            grid.addView(swatch, GridLayout.LayoutParams().apply {
+                width = cell - px(8)
+                height = cell - px(8)
+                setMargins(px(4), px(4), px(4), px(4))
             })
         }
-        panel.addView(grid)
-        sheet.setContentView(panel)
+        sheet.setContentView(ScrollView(this).apply {
+            background = glassBackground(24)
+            addView(grid)
+        })
         sheet.show()
     }
 
@@ -342,12 +312,8 @@ class UsernameCardActivity : EveBaseActivity() {
         }
     }
 
-    private fun glassBackground(radius: Int): GradientDrawable = GradientDrawable().apply {
-        shape = GradientDrawable.RECTANGLE
-        cornerRadius = px(radius).toFloat()
-        setColor(0xBB343638.toInt())
-        setStroke(px(1), 0x776D7072)
-    }
+    private fun glassBackground(radius: Int): android.graphics.drawable.Drawable =
+        com.eve.app.telegram.qr.QrControlBackground(px(radius).toFloat())
 
     private fun icon(drawable: Int, description: String, action: () -> Unit): FrameLayout {
         val host = FrameLayout(this).apply {
@@ -396,6 +362,36 @@ class UsernameCardActivity : EveBaseActivity() {
         })
         host.addView(pill, FrameLayout.LayoutParams(-2, px(40), Gravity.CENTER))
         return host
+    }
+
+    private fun saveToGallery() {
+        if (gallerySaveInProgress) return
+        if (android.os.Build.VERSION.SDK_INT <= 28 &&
+            androidx.core.content.ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            galleryPermission.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            return
+        }
+        val bitmap = scene.renderShareImage() ?: run {
+            AppBulletin.showError(this, "QR image is not ready")
+            return
+        }
+        gallerySaveInProgress = true
+        lifecycleScope.launch {
+            try {
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    QrGalleryWriter.save(applicationContext, bitmap, username)
+                }
+                AppBulletin.showSuccess(this@UsernameCardActivity, "QR code saved to Gallery")
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                AppBulletin.showError(this@UsernameCardActivity, "Couldn't save QR image")
+            } finally {
+                bitmap.recycle()
+                gallerySaveInProgress = false
+            }
+        }
     }
 
     private fun shareImage() {
