@@ -15,6 +15,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.eve.app.R
 import com.eve.app.databinding.ActivityProfileBinding
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -75,6 +76,22 @@ class ProfileActionsGeometryNativeTest {
                 val x = row.paddingLeft + dp(4f)
                 val y = dp(14f)
                 assertTrue("Source Canvas should paint the first action", Color.alpha(expanded.getPixel(x, y)) > 0)
+                // Source ButtonBounce scales the actually painted action,
+                // not the transparent native click/accessibility wrapper.
+                row.setPressScale(actions[0], 0.96f)
+                val pressed = render()
+                assertFalse("0.04 source bounce must change real Canvas pixels", expanded.sameAs(pressed))
+                assertEquals(1f, actions[0].scaleX, 0.001f)
+                pressed.recycle()
+                row.setPressScale(actions[0], 1f)
+                // Day/Night surface and icon repaint must not be a stale XML bitmap.
+                row.setActionColor(Color.BLACK)
+                val dark = render()
+                row.setActionColor(Color.WHITE)
+                val light = render()
+                assertFalse("Canvas reacts to the resolved theme surface", dark.sameAs(light))
+                dark.recycle()
+                light.recycle()
                 expanded.recycle()
                 ProfileActionsCollapse.applyTo(actions, ProfileActionsCollapse.atScroll(dp(74f).toFloat(), density))
                 val collapsed = render()

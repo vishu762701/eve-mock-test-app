@@ -192,7 +192,9 @@
                 app:chipIcon="@drawable/ic_star_filled"
                 app:chipIconTint="@color/design_role_premium_text" />
 
-            <!-- Telegram ProfileActionsView static source-derived row geometry; see docs/EVE_PROFILE_ACTIONS_GEOMETRY_PROVENANCE.md. Canvas motion is not yet ported. -->
+            <!-- Telegram MODE_MY_PROFILE Canvas renderer + native hit/a11y adapters.
+                 Source map: docs/EVE_PROFILE_ACTIONS_GEOMETRY_PROVENANCE.md.
+                 Original RenderNode/avatar shader and dynamic action lifecycle remain unported. -->
             <com.eve.app.ui.profile.ProfileActionsCanvasLayout
                 android:id="@+id/layoutActions"
                 android:layout_width="match_parent"

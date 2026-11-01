@@ -47,3 +47,12 @@ other profile modes, account and network dependencies are intentionally
 excluded. No change to existing profile actions, storage, Firebase or Worker
 logic. Source tests and compiled native tests do not prove matched Telegram
 screenshots, device motion, cutout alignment or GPL distribution clearance.
+ 
+### Native Canvas visual-behavior regression
+
+`ProfileActionsGeometryNativeTest` checks actual day/night row geometry,
+rendered first action pixel alpha, no painted pixels at terminal collapse,
+real bitmap differences during Telegram's 0.04 painted bounce, stable native
+click-view geometry, and repainting when the resolved surface color changes.
+This is device-executed evidence only when both native FULL jobs complete.
+No assert threshold or source animation timing has been reduced to pass tests.

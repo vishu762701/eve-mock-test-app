@@ -50,7 +50,6 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
     private val density = resources.displayMetrics.density
     private fun dp(v: Float): Float = v * density
     private val surfacePaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val iconPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
     private val rect = RectF()
     private val pressScale = floatArrayOf(1f, 1f, 1f)
     private val filledRes = intArrayOf(
@@ -144,7 +143,7 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
                 val img = host.getChildAt(0) as? ImageView
                 val label = host.getChildAt(1) as? TextView
                 if (img != null && label != null) {
-                    paintContent(canvas, index, left, right, top, itemHeight,
+                    paintContent(canvas, left, right, top, itemHeight,
                         mix, textColor, label, first[index], second[index])
                 }
             }
@@ -153,7 +152,7 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
     }
 
     private fun paintContent(
-        canvas: Canvas, index: Int, left: Float, right: Float, top: Float,
+        canvas: Canvas, left: Float, right: Float, top: Float,
         itemHeight: Float, mix: Float, textColor: Int,
         label: TextView, filledIcon: android.graphics.drawable.Drawable?,
         outlineIcon: android.graphics.drawable.Drawable?
