@@ -17,3 +17,17 @@ Source and AndroidTest contracts:
 - FAST runs JVM tests / AndroidTest source compilation. This document does not claim AndroidTest device execution.
 
 **Unmodified:** Backend/schema, auth, activity navigation, profile data, other screens. No production deployment. Final source-matched native screenshots, true full-window header geometry, CPU/GPU hardware frame comparison and six-job FULL are pending.
+
+## Fully-collapsed Gooey visibility endpoint (2026-11-01)
+
+Original Telegram `ProfileActivity.java:6039-6054` at the pinned source SHA
+`3de37c8cfb039452be7398909461da6288babf15` changes the
+`avatarGooey` visibility to `GONE` whenever `pullUpProgress >= 1`, restoring
+`VISIBLE` before full collapse. EVE previously disabled Gooey animation at
+that endpoint without changing visibility. `ProfileScrollState.applyGooeyVisibility`
+now applies the source visibility endpoint for both normal/restored scroll and
+reentry into photo-expanded mode, with a Day/Night native layout test and JVM
+scroll-integration regression guard. **EXACT** for the visibility condition;
+**ADAPTED** for EVE's NestedScrollView progress mapping. This does not prove
+camera alignment, native mask frame parity, profile parent layout equivalence,
+or complete ProfileActionsView rendering. Native tests run only with FULL CI.

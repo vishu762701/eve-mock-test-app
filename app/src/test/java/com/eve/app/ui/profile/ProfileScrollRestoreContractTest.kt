@@ -18,6 +18,16 @@ class ProfileScrollRestoreContractTest {
         assertEquals(0.5f, ProfileScrollState.progress(100, 2f), 0.0001f)
     }
 
+    @Test fun fullCollapseGooeyEndpointIsWiredOnRestoredAndUserScroll() {
+        val source = File("src/main/java/com/eve/app/ui/profile/ProfileActivity.kt").readText()
+        val render = source.substringAfter("private fun renderProfileScrollState(")
+            .substringBefore("private fun setupActions(")
+        assertTrue(render.contains("ProfileScrollState.applyGooeyVisibility(binding.avatarGooey, progress)"))
+        val expanded = source.substringAfter("binding.profileScrollView.onExpansionChanged =")
+            .substringBefore("binding.profileScrollView.setOnScrollChangeListener")
+        assertTrue(expanded.contains("ProfileScrollState.applyGooeyVisibility(binding.avatarGooey, 0f)"))
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun invalidDisplayDensityDoesNotProduceNaNState() {
         ProfileScrollState.progress(100, 0f)

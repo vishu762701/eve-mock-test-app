@@ -251,6 +251,9 @@ class ProfileActivity : EveBaseActivity() {
         }
         binding.profileScrollView.onExpansionChanged = { fraction ->
             expansionFraction = fraction
+            // Expanded photo mode must restore the window renderer even after
+            // a prior fully-collapsed camera endpoint.
+            if (fraction > 0f) ProfileScrollState.applyGooeyVisibility(binding.avatarGooey, 0f)
             positionFullWindowAvatarHost()
             if (fraction == 0f) renderProfileScrollState(binding.profileScrollView.scrollY, density)
         }
@@ -272,6 +275,9 @@ class ProfileActivity : EveBaseActivity() {
         val blur = ((progress.coerceIn(0.2f, 0.7f) - 0.2f) / 0.5f).coerceAtMost(0.75f)
         binding.avatarGooey.setBlurIntensity(blur)
         binding.avatarGooey.setGooeyEnabled(progress > 0f && progress < 1f)
+        // Telegram ProfileActivity.java:6053 hides the entire renderer at
+        // its fully absorbed camera endpoint, then restores it on reverse scroll.
+        ProfileScrollState.applyGooeyVisibility(binding.avatarGooey, progress)
 
         // Avatar translation towards notch & scale (ProfileActivity.java:8730-8740)
         val endScale = binding.avatarGooey.getAvatarEndScale()

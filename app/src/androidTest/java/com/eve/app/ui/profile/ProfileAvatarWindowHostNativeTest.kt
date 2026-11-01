@@ -39,6 +39,19 @@ class ProfileAvatarWindowHostNativeTest {
                     binding.avatarGooey.importantForAccessibility
                 )
                 assertEquals(ViewGroup.LayoutParams.MATCH_PARENT, binding.profileScrollView.layoutParams.height)
+                // ProfileActivity.java:6053: absorbed into camera at full collapse;
+                // scroll reversal and photo expansion restore the same renderer.
+                ProfileScrollState.applyGooeyVisibility(binding.avatarGooey, 0.0f)
+                assertEquals(View.VISIBLE, binding.avatarGooey.visibility)
+                ProfileScrollState.applyGooeyVisibility(binding.avatarGooey, 0.999f)
+                assertEquals(View.VISIBLE, binding.avatarGooey.visibility)
+                ProfileScrollState.applyGooeyVisibility(binding.avatarGooey, 1.0f)
+                assertEquals(View.GONE, binding.avatarGooey.visibility)
+                ProfileScrollState.applyGooeyVisibility(binding.avatarGooey, 0.5f)
+                assertEquals(View.VISIBLE, binding.avatarGooey.visibility)
+                ProfileScrollState.applyGooeyVisibility(binding.avatarGooey, 1.0f)
+                ProfileScrollState.applyGooeyVisibility(binding.avatarGooey, 0.0f)
+                assertEquals(View.VISIBLE, binding.avatarGooey.visibility)
             }
         }
     }
