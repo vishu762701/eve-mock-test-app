@@ -280,12 +280,14 @@ class ProfileActivity : EveBaseActivity() {
         ProfileScrollState.applyGooeyVisibility(binding.avatarGooey, progress)
 
         // Avatar translation towards notch & scale (ProfileActivity.java:8730-8740)
-        val endScale = binding.avatarGooey.getAvatarEndScale()
-        val currentScale = 1f - (1f - endScale) * progress
+        val info = binding.avatarGooey.notchInfo
+        val currentScale = ProfileAvatarTrajectory.sourceAvatarScale(
+            progress,
+            info?.takeIf { it.isLikelyCircle }?.bounds?.width(),
+            density
+        )
         binding.avatarContainer.scaleX = currentScale
         binding.avatarContainer.scaleY = currentScale
-
-        val info = binding.avatarGooey.notchInfo
         binding.avatarContainer.translationY = if (info != null) {
             // Telegram ProfileGooeyView.java:397-405 uses this center for
             // the round front-camera mask. The EVE scroll trajectory is

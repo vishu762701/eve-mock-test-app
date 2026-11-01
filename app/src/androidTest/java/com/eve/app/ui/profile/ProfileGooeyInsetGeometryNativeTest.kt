@@ -18,6 +18,12 @@ class ProfileGooeyInsetGeometryNativeTest {
             bounds.set(0f, 0f, 12f * d, 12f * d)
         }
         assertEquals(0.1f, view.getAvatarEndScale(), 0.001f)
+        // ProfileGooeyView end scale controls mask paint; avatar motion uses
+        // the separate ProfileActivity.java:8735-8740 half-notch formula.
+        assertEquals(0.06f,
+            ProfileAvatarTrajectory.sourceAvatarScale(1f, 12f * d, d), 0.001f)
+        assertEquals(0.96f,
+            ProfileAvatarTrajectory.sourceAvatarScale(0f, 12f * d, d), 0.001f)
     }
 
     @Test fun noCutoutOffsetIncludesRealPlatformStatusHeight() {

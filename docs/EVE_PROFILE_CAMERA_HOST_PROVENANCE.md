@@ -24,3 +24,19 @@ Files and impact:
 - `ProfileAvatarWindowHostNativeTest`: Day/Night inflation and accessibility hierarchy (must be **executed** in native FULL; FAST compiles but does not run it).
 
 **Known risks/remaining acceptance:** status-bar cutout metadata returned from OEM resources can differ from visible `DisplayCutout`; runtime cutout and landscape checks, photo touch/drag flings, scrolling under the toolbar, rotation, RTL, 200% font, 60/90/120Hz matched videos and TalkBack still require hardware/emulator verification. Original Telegram `ProfileActionsView` drawing physics remains separate. No backend, schema, login, navigation, storage or production deploy changes.
+
+## Profile avatar scale correction at the camera endpoint (2026-11-01)
+
+Original `ProfileActivity.java:8730-8740` (pinned
+`DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`)
+uses `avatarScale = lerp(intoSize, 96, diff) / 100` where `intoSize`
+is 24dp without a circular notch or half the notch width in dp. The EVE
+adapter incorrectly used `1 - (1 - getAvatarEndScale()) * progress`, which
+mixed **mask** scaling from `ProfileGooeyView` with the independent **avatar**
+scale: a no-notch 100dp avatar ended at 80% instead of 24%; start was 100%
+instead of 96%. `ProfileAvatarTrajectory.sourceAvatarScale` now applies the
+original source numeric mapping with `diff = 1 - EVE scroll progress`.
+Unit tests enforce the full no-notch and circular-notch endpoints across screen
+densities, and the native inset fixture checks an actual 12dp circular case.
+Classification: **EXACT source formula**, **ADAPTED scroll/diff input** and
+parent layout. Does NOT establish cutout matched-frame parity or full screen.

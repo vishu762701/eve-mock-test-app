@@ -36,6 +36,20 @@ class ProfileAvatarWindowHostContractTest {
         assertTrue(code.contains("WindowInsetsCompat.Type.displayCutout()"))
     }
 
+    @Test fun sourceAvatarScaleIsNotAnEveEightyPercentShrink() {
+        for (density in listOf(1f, 2f, 3.5f)) {
+            assertEquals(0.96f, ProfileAvatarTrajectory.sourceAvatarScale(0f, null, density), 0.0001f)
+            assertEquals(0.60f, ProfileAvatarTrajectory.sourceAvatarScale(0.5f, null, density), 0.0001f)
+            assertEquals(0.24f, ProfileAvatarTrajectory.sourceAvatarScale(1f, null, density), 0.0001f)
+            assertEquals(0.06f, ProfileAvatarTrajectory.sourceAvatarScale(1f, 12f * density, density), 0.0001f)
+            assertEquals(0.51f, ProfileAvatarTrajectory.sourceAvatarScale(0.5f, 12f * density, density), 0.0001f)
+            assertEquals(0.24f, ProfileAvatarTrajectory.sourceAvatarScale(3f, null, density), 0.0001f)
+        }
+        val wiring = File("src/main/java/com/eve/app/ui/profile/ProfileActivity.kt").readText()
+        assertTrue(wiring.contains("ProfileAvatarTrajectory.sourceAvatarScale("))
+        assertFalse(wiring.contains("1f - (1f - endScale) * progress"))
+    }
+
     @Test fun interpolationStartsAtRealAvatarCenterAndEndsAtNotchCenter() {
         assertEquals(0f, ProfileAvatarTrajectory.offsetToNotch(120f, 16f, 0f), 0.0001f)
         assertEquals(-52f, ProfileAvatarTrajectory.offsetToNotch(120f, 16f, 0.5f), 0.0001f)
