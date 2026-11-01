@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera.any" android:required="false" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Phase 12: Android 13+ par notification dikhane se pehle yeh permission maangni padti hai -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -53,6 +55,7 @@
             android:name=".ui.home.MainActivity"
             android:exported="false"
             android:theme="@style/Theme.Eve.Home" />
+        <activity android:name=".ui.profile.EveQrLiveScannerActivity" android:exported="false" android:theme="@style/Theme.Eve.Profile" />
         <activity android:name=".ui.profile.UsernameCardActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

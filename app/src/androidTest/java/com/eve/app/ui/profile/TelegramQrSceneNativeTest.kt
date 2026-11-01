@@ -47,8 +47,8 @@ class TelegramQrSceneNativeTest {
                 assertTrue("Real laid out QR canvas", scene.width > 250 && scene.height > 400)
                 val controls = descendants(root).filter { it.isClickable && it.contentDescription != null }
                     .map { it.contentDescription.toString() }
-                for (action in listOf("Close QR screen", "Scan EVE QR using camera photo",
-                        "Share QR image", "Save QR image", "Change QR color", "Copy EVE profile link")) {
+                for (action in listOf("Close QR screen", "Scan EVE QR using live camera",
+                        "Share QR image", "Save QR image", "Change QR color", "Change QR emoji", "Copy EVE profile link")) {
                     assertTrue("Missing actual accessible QR action: " + action, action in controls)
                 }
                 for (palette in 0..2) {

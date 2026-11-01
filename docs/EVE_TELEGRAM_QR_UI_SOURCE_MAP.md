@@ -12,7 +12,7 @@ Archive SHA-256: 4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c1
 | QrCodeLayer.java:139-154 assembly | TelegramQrSceneView.kt | ADAPTED: progressive module appearance, not original particle pool |
 | Backdrops.java:8-22 color values | TelegramQrSceneView.kt | ADAPTED: eight local reference palettes, not live Telegram server palette |
 | QrShareServer.java:27-47 account themes/paid messages | none | NOT APPLICABLE: EVE username QR, no Telegram identity |
-| QrScanOverlay.java | UsernameCardActivity.kt | NOT DONE in this UI batch |
+| QrScanOverlay.java:101-102,370-396,429-456 | EveQrLiveScannerActivity.kt, UsernameCardActivity.kt | ADAPTED: on-demand CameraX live scanning, gallery import, EVE-only links; source-timed 390ms/330ms enter/exit |
 
 EVE QR payload stays local to `eve-mock-test://username/...`, never Telegram authentication.
 Source-based motion and visual behavior are not proven pixel/frame-identical. Release GPL compatibility remains unresolved per docs/telegram-release-compliance-gate.md.

@@ -26,10 +26,6 @@ import androidx.core.view.WindowInsetsCompat
 import com.eve.app.R
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AppBulletin
-import com.google.zxing.BinaryBitmap
-import com.google.zxing.RGBLuminanceSource
-import com.google.zxing.common.HybridBinarizer
-import com.google.zxing.qrcode.QRCodeReader
 import java.io.File
 
 /**
@@ -66,28 +62,6 @@ class UsernameCardActivity : EveBaseActivity() {
         }
     }
 
-    // Android's camera Activity returns a still; this is not Telegram's live scanner.
-    private val scanPhoto = registerForActivityResult(
-        ActivityResultContracts.TakePicturePreview()
-    ) { photo ->
-        if (photo == null) return@registerForActivityResult
-        try {
-            val pixels = IntArray(photo.width * photo.height)
-            photo.getPixels(pixels, 0, photo.width, 0, 0, photo.width, photo.height)
-            val source = RGBLuminanceSource(photo.width, photo.height, pixels)
-            val code = QRCodeReader().decode(BinaryBitmap(HybridBinarizer(source))).text
-            if (ProfileQrPayload.parse(code) == null) {
-                AppBulletin.showError(this, "Only EVE username QR links are supported")
-            } else {
-                startActivity(Intent(this, UsernameCardActivity::class.java).setData(Uri.parse(code)))
-            }
-        } catch (_: Exception) {
-            AppBulletin.showError(this, "QR not detected. Try a clearer photo.")
-        } finally {
-            photo.recycle()
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         username = ProfileQrPayload.parse(intent?.dataString.orEmpty()) ?: run {
@@ -108,10 +82,7 @@ class UsernameCardActivity : EveBaseActivity() {
         root.addView(scene, FrameLayout.LayoutParams(-1, -1))
 
         val close = icon(R.drawable.eve_qr_close, "Close QR screen") { finishWithMotion() }
-        val scan = scanButton {
-            try { scanPhoto.launch(null) }
-            catch (_: Exception) { AppBulletin.showError(this, "No camera available") }
-        }
+        val scan = scanButton { startActivity(Intent(this, EveQrLiveScannerActivity::class.java)) }
         val share = icon(R.drawable.eve_qr_share, "Share QR image") { shareImage() }
         val save = icon(R.drawable.eve_qr_download, "Save QR image") {
             saveDocument.launch("EVE-" + username + "-QR.png")
@@ -263,7 +234,7 @@ class UsernameCardActivity : EveBaseActivity() {
 
     private fun scanButton(onClick: () -> Unit): FrameLayout {
         val host = FrameLayout(this).apply {
-            contentDescription = "Scan EVE QR using camera photo"
+            contentDescription = "Scan EVE QR using live camera"
             isFocusable = true
             isClickable = true
             setOnClickListener { onClick() }
