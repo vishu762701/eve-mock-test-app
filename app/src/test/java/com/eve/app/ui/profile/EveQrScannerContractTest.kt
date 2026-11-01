@@ -21,5 +21,11 @@ class EveQrScannerContractTest {
         assertTrue(scanner.contains("QrScanImageSizing.sampleSize"))
         assertTrue(scanner.contains("isDestroyed || isFinishing || closing"))
         assertFalse(scanner.contains("inSampleSize = 4"))
+        // Upstream QrScanOverlay.java:101-112 uses exactly these source curves
+        // and a 150ms decode interval; UI geometry remains ADAPTED.
+        assertTrue(scanner.contains("CubicBezierInterpolator(0.05, 0.7, 0.1, 1.0)"))
+        assertTrue(scanner.contains("CubicBezierInterpolator(0.3, 0.0, 0.1, 1.0)"))
+        assertTrue(scanner.contains("now - lastScanAt < 150L"))
+
     }
 }

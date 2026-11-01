@@ -154,7 +154,11 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         ViewCompat.requestApplyInsets(root)
         root.alpha = 0f
         root.scaleX = .94f; root.scaleY = .94f
-        root.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(390L).start()
+        root.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(390L)
+            // Upstream QrScanOverlay.java:101-102 uses STRETCH (0.05, .7, .1, 1.0).
+            // Geometry remains EVE-adapted: this is not the upstream button morph.
+            .setInterpolator(org.telegram.ui.Components.CubicBezierInterpolator(0.05, 0.7, 0.1, 1.0))
+            .start()
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() { closeWithMotion() }
         })
@@ -217,7 +221,7 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         try {
             if (completed.get() || closing) return
             val now = SystemClock.elapsedRealtime()
-            if (now - lastScanAt < 180L) return
+            if (now - lastScanAt < 150L) return
             lastScanAt = now
             val plane = frame.planes.firstOrNull() ?: return
             val stride = plane.rowStride
@@ -304,6 +308,8 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         closing = true
         completed.set(true)
         root.animate().alpha(0f).scaleX(.94f).scaleY(.94f).setDuration(330L)
+            // Upstream QrScanOverlay.java:101-102 close: (0.3, 0.0, 0.1, 1.0).
+            .setInterpolator(org.telegram.ui.Components.CubicBezierInterpolator(0.3, 0.0, 0.1, 1.0))
             .withEndAction { finish() }.start()
     }
 
