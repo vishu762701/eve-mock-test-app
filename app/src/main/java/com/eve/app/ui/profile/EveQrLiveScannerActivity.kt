@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.BitmapFactory
 import android.graphics.Color
-import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.SystemClock
@@ -168,11 +167,9 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         })
     }
 
-    private fun glass() = GradientDrawable().apply {
-        cornerRadius = dp(20).toFloat()
-        setColor(0xCC343638.toInt())
-        setStroke(dp(1), 0x666D7072)
-    }
+    // One EVE adapter uses the existing Telegram QrGlass sheen/rim implementation.
+    // The camera-backdrop blur remains separate and NOT MET.
+    private fun glass() = com.eve.app.telegram.qr.QrControlBackground(dp(20).toFloat())
     private fun actionButton(title: String, description: String, onTap: () -> Unit) = TextView(this).apply {
         text = title
         textSize = 15f

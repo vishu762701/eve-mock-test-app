@@ -12,6 +12,7 @@ Upstream inspected: `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`,
 | 25% dim, 14dp radius, 4dp strokes, 28dp corner arms | same | ADAPTED |
 | Begin camera only after 390ms opening | `app/src/main/java/com/eve/app/ui/profile/EveQrLiveScannerActivity.kt` | ADAPTED |
 | Release CameraX/torch before scanner dismissal | same | ADAPTED |
+| Source-derived sheen/rim for close, gallery and torch controls | `EveQrLiveScannerActivity.kt` using existing Java `QrControlBackground` → `QrGlass` | ADAPTED (no live blur) |
 | Real Telegram button-to-screen morph/snapshot blur | not imported | NOT MET |
 | On-device frame, RTL, cutout, permissions, camera behavior | native evidence not yet collected | UNKNOWN |
 
