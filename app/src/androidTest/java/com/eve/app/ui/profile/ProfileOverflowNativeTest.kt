@@ -27,18 +27,23 @@ class ProfileOverflowNativeTest {
             lateinit var anchor: android.widget.ImageButton
             var movement = 0
             var initialY = 0
+            var initialAnchorY = 0
             scenario.onActivity { activity ->
                 val density = activity.resources.displayMetrics.density
                 movement = (40 * density).toInt()
                 scroll = android.widget.ScrollView(activity)
-                val content = android.widget.FrameLayout(activity)
+                // ScrollView measures its child UNSPECIFIED vertically: a fixed
+                // LayoutParams height alone does not establish scroll extent.
+                val content = android.widget.FrameLayout(activity).apply {
+                    minimumHeight = (2000 * density).toInt()
+                }
                 anchor = android.widget.ImageButton(activity)
                 content.addView(anchor, android.widget.FrameLayout.LayoutParams(
                     (48 * density).toInt(), (48 * density).toInt()).apply {
                     gravity = android.view.Gravity.TOP or android.view.Gravity.END
                     topMargin = (200 * density).toInt()
                 })
-                scroll.addView(content, android.widget.FrameLayout.LayoutParams(-1, (2000 * density).toInt()))
+                scroll.addView(content, android.widget.FrameLayout.LayoutParams(-1, -2))
                 activity.setContentView(scroll)
             }
             inst.waitForIdleSync()
@@ -50,11 +55,16 @@ class ProfileOverflowNativeTest {
             scenario.onActivity {
                 assertTrue(popup.isShowing)
                 initialY = IntArray(2).also(sourceWindow(popup).contentView::getLocationOnScreen)[1]
+                initialAnchorY = IntArray(2).also(anchor::getLocationOnScreen)[1]
                 scroll.scrollTo(0, movement)
             }
             android.os.SystemClock.sleep(160)
             inst.waitForIdleSync()
             scenario.onActivity {
+                assertEquals("The fixture must actually perform the requested scroll", movement, scroll.scrollY)
+                val anchorY = IntArray(2).also(anchor::getLocationOnScreen)[1]
+                assertEquals("The anchor itself must move before testing popup tracking",
+                    (initialAnchorY - movement).toFloat(), anchorY.toFloat(), 2f)
                 val afterY = IntArray(2).also(sourceWindow(popup).contentView::getLocationOnScreen)[1]
                 assertEquals("Public PopupWindow anchor tracking must follow a real scroll",
                     (initialY - movement).toFloat(), afterY.toFloat(), 2f)
@@ -88,7 +98,16 @@ class ProfileOverflowNativeTest {
             inst.waitForIdleSync()
             for (collapsed in listOf(false, true)) {
                 scenario.onActivity {
+                    // Real category options provide content taller than this
+                    // fixture viewport; do not label a clamped scroll as motion.
+                    b.layoutCategoryOptions.visibility = if (collapsed) View.VISIBLE else View.GONE
+                }
+                inst.waitForIdleSync()
+                android.os.SystemClock.sleep(120)
+                scenario.onActivity {
                     b.profileScrollView.scrollTo(0, if (collapsed) 1000 else 0)
+                    if (collapsed) assertTrue("Exercise a real scrolled body", b.profileScrollView.scrollY > 0)
+                    else assertEquals(0, b.profileScrollView.scrollY)
                     popup = ProfileOverflowPopup(b.btnProfileMenu)
                     popup.show(true, { usernameCalls++ }, { copyCalls++ })
                 }

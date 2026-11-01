@@ -259,3 +259,29 @@ are the two confirmed-cache implementation batches; the original batch and the
 API-36 forward repair are the two normal-popup implementation batches. The shared
 section surface/card is in the original batch only. Record the actual FAST/FULL
 outcomes separately; none of this asserts complete mission or visual acceptance.
+
+## Forward repair of native fixture scroll extent
+
+FULL run [41268555468](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41268555468)
+passed Android build/lint/signing and backend/Firebase, but both native modes
+failed the new public-anchor tracking assertion: expected y=483, actual y=588.
+The actual menu callbacks, missing-link disabled state, Back/outside dismissal,
+reopening and grouped-section/expanded-photo fixtures passed in both modes.
+
+A local Android SDK-35 ScrollView measurement probe reproduced the fixture defect:
+with a 780px viewport, the child measured 248px and requested scrollY=40 clamped to
+0 despite its nominal 2000px LayoutParams height. With a real 2000px minimum child
+height, actual scrollY was 40. AOSP Android 15 `ScrollView.java:1520-1533` measures
+child height as UNSPECIFIED, explaining this result; this source was inspected,
+not imported. Probe code/XML are outside the repository.
+
+The native fixture now establishes real scroll extent with minimumHeight and a
+wrap-content child. It additionally asserts the actual scroll distance AND the
+anchor's screen displacement before retaining the original unchanged popup
+40dp-displacement assertion. The profile-layout menu fixture opens its real
+category options before requesting its scrolled offset and asserts scrollY > 0;
+it no longer treats a clamped request as an actual second position. This does not
+claim the fixture runs the complete signed-in ProfileActivity collapsed header.
+No product rendering code, assertion tolerance, runner gate or expected popup
+movement is changed. The failed FULL run remains evidence. This is a focused
+verification-fixture repair, not another popup implementation batch.
