@@ -67,12 +67,15 @@ class TelegramQrSceneNativeTest {
                 assertNotNull(animatedScene)
                 assertEquals(link, decode(animatedScene!!))
                 animatedScene.recycle()
+                scene.setEmojiChoices(listOf(QrEmojiPattern.custom("fixture-fire", "Fire", "res:raw/tg_fire_on")))
             }
             scenario.recreate()
             scenario.onActivity { activity ->
                 val scene = descendants(activity.findViewById(android.R.id.content))
                     .filterIsInstance<TelegramQrSceneView>().single()
                 assertEquals("QR palette must survive configuration recreation", 2, scene.selectedPalette)
+                assertEquals("Animated EVE choice/source must survive configuration recreation",
+                    listOf(QrEmojiPattern.custom("fixture-fire", "Fire", "res:raw/tg_fire_on")), scene.emojiChoices)
             }
         }
     }

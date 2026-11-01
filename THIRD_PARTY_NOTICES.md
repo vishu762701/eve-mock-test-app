@@ -4,6 +4,23 @@ This repository contains third-party components and assets. Keep license obligat
 
 **Development-stage official-reference policy:** Exact official code/art/assets require verified upstream source, identity and appropriate use permissions; public design guidance is not blanket copying permission. Never silently substitute independently authored or other assets unless the owner expressly authorizes them. If the exact source/rights are unavailable, report that item as BLOCKED, continue only other authorized work, and keep third-party attribution and production release obligations.
 
+## Telegram QR animated picker renderer — 2026-11-01
+
+`QrEmojiCell.java`, `EmojiPickOverlay.java` and `QrEmojiGrid.java` adapt the original
+Java QR cell, complete selection overlay and grid masking from official
+`DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`.
+Telegram contributors retain applicable copyright/GPL rights. The upstream files
+have no per-file later-version header; the root GPLv2 text and existing per-file
+license/combined-distribution review remain applicable and unresolved. No rights
+clearance is inferred from their public availability.
+
+EVE adapters supply catalogue Drawables and lifecycle ownership; no Telegram
+accounts, document IDs, premiums, backend or credentials are imported. Adaptations,
+Git object hashes and file digests are recorded in `docs/qr-native-upstream-manifest.json`
+and [the source map](docs/QR_EMOJI_PICKER_SOURCE_MAP.md). Complete corresponding
+source and all existing production release safeguards remain required. Full QR
+screen fidelity and production redistribution are not accepted by this import.
+
 ## tlottie test fixture adaptation — 2026-11-01
 
 The pinned MIT-licensed `dkaraush/tlottie@31f1b542f88e7b4be9a01e749920d857535fc715`

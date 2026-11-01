@@ -20,6 +20,13 @@ public final class QrPalettes {
         return "Neon Blue".equals(name(position)) ? 0xFF0075F1
                 : QrPaletteInk.contrastMatchedQr(center(position), edge(position));
     }
+    /** Original QrShareView.shadeFor: own-hue 10% glass tint (lines 711-715). */
+    public static int shade(int position) {
+        final double[] lab = new double[3];
+        androidx.core.graphics.ColorUtils.colorToLAB(center(position), lab);
+        return androidx.core.graphics.ColorUtils.setAlphaComponent(
+                androidx.core.graphics.ColorUtils.LABToColor(Math.min(96, lab[0] + 24), lab[1] * 0.75, lab[2] * 0.75), 0x1A);
+    }
     public static int pattern(int position) { return Backdrops.PATTERN[index(position)]; }
     private static int index(int position) {
         if (position < 0 || position >= count()) throw new IndexOutOfBoundsException("QR palette " + position);

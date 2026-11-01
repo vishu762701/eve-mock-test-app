@@ -674,8 +674,9 @@
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/Components/CubicBezierInterpolator.java",
       "eve_path": "app/src/main/java/com/eve/app/telegram/components/CubicBezierInterpolator.java",
       "upstream_sha256": "747f7b8f511249f14bc1b567088d7e0da3639729263a6f56243eb61c2ba19387",
-      "eve_sha256": "8d8be05501da02afc1a008e7bd65ce26d5ce1428eb86137f4bc1da8471df305d",
-      "classification": "ADAPTED; see QR_NATIVE_ADMIN_CHECKPOINT.md"
+      "eve_sha256": "5665fab791574b447bba842e19a5da9b847966d3f1ea931c8e85edbeeeb9ff5b",
+      "classification": "ADAPTED EVE compatibility facade; canonical algorithm imported unchanged separately",
+      "adaptations": "Reconciled prior deee53b30b511288d9279ba9a08db9187d84b6b6: typed static constants and constructors subclass canonical org.telegram.ui.Components.CubicBezierInterpolator. No duplicate interpolation implementation. See docs/telegram-interpolator-bridge.md."
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
@@ -730,6 +731,60 @@
       "upstream_sha256": "7cbe0f7455b00b575e9dca89611798be68667e354ccb81ffabf1db417b427dea",
       "eve_sha256": "fa8946fcd009724e4edb0b2d394f05d347c290813b13f8ef6d7769f8160e2d07",
       "classification": "ADAPTED; see QR_NATIVE_ADMIN_CHECKPOINT.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrEmojiPanel.java",
+      "upstream_blob": "809c5dbbe58749c1427af9cb4415ce832ea955a7",
+      "upstream_lines": "517-630",
+      "eve_path": "app/src/main/java/com/eve/app/telegram/qr/QrEmojiCell.java",
+      "upstream_sha256": "d78acaaaf73b524f314548f61b6743321a09f11a5ac1e0b95323de18009c7c27",
+      "eve_sha256": "271b7d254873a67f316068b9740677820c88843290249c3a87e0fdee51245786",
+      "classification": "ADAPTED; runtime parity OPEN",
+      "adaptations": "Original Java draw/press/measure bodies; EVE Drawable/key ownership, accessible labels, playback lifecycle and reduced-motion settlement replace document/account loader.",
+      "source_map": "docs/QR_EMOJI_PICKER_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/EmojiPickOverlay.java",
+      "upstream_blob": "ca935677c164fc16b25798a5747dd71316e38026",
+      "upstream_lines": "1-572",
+      "eve_path": "app/src/main/java/com/eve/app/telegram/qr/EmojiPickOverlay.java",
+      "upstream_sha256": "d0353a554403484d2960f7e446d601421f0957eb70c42ae0ac3d8c7b40b5265e",
+      "eve_sha256": "f18715ff8ae3bf5329ece14ffe4296882c37ae2645e6450f8618f81c327e9411",
+      "classification": "ADAPTED; runtime parity OPEN",
+      "adaptations": "Package/units/public adapter access and QrEmojiCell replace upstream bindings; plain EVE Drawable replaces Telegram text-color document filtering; reduced-motion endpoints added. Original enabled-motion selection, spring, island and scrollbar algorithms retained.",
+      "source_map": "docs/QR_EMOJI_PICKER_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrEmojiPanel.java",
+      "upstream_blob": "809c5dbbe58749c1427af9cb4415ce832ea955a7",
+      "upstream_lines": "493-515",
+      "eve_path": "app/src/main/java/com/eve/app/telegram/qr/QrEmojiGrid.java",
+      "upstream_sha256": "d78acaaaf73b524f314548f61b6743321a09f11a5ac1e0b95323de18009c7c27",
+      "eve_sha256": "6343df87a94f380ab95c76e1f61e76294754f2387ddb244997605cd475566695",
+      "classification": "ADAPTED; runtime parity OPEN",
+      "adaptations": "Extracted Java grid layer with AndroidX RecyclerView superclass; source Java nine-stop bottom mask and picked-island cut from QrShareActivity:506-518,593-609,659-669; no unavailable pack-strip mask.",
+      "source_map": "docs/QR_EMOJI_PICKER_SOURCE_MAP.md",
+      "additional_upstream": {
+        "path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareActivity.java",
+        "revision": "3de37c8cfb039452be7398909461da6288babf15",
+        "sha256": "3e63371d627c670512c9363cf969816083abc126ea47e5af80762cfe53f78798",
+        "lines": "506-518,593-609,659-669"
+      }
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/Components/CubicBezierInterpolator.java",
+      "eve_path": "app/src/main/java/org/telegram/ui/Components/CubicBezierInterpolator.java",
+      "upstream_sha256": "747f7b8f511249f14bc1b567088d7e0da3639729263a6f56243eb61c2ba19387",
+      "eve_sha256": "747f7b8f511249f14bc1b567088d7e0da3639729263a6f56243eb61c2ba19387",
+      "classification": "EXACT bytes of canonical Java class only; not screen/runtime parity"
     }
   ]
 }

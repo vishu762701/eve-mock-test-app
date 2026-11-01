@@ -7,7 +7,6 @@ import com.eve.app.data.model.ExamAnalytics
 import com.eve.app.data.model.FeedbackMessage
 import com.eve.app.data.model.TestAttempt
 import com.eve.app.util.AppConfigManager
-import com.eve.app.util.Constants
 import com.eve.app.util.QuestionImportHelper
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -16,14 +15,21 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import com.eve.app.data.remote.EveApiService
+import kotlinx.coroutines.runBlocking
+import okhttp3.OkHttpClient
+import okhttp3.Protocol
+import okhttp3.Response
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.ResponseBody.Companion.toResponseBody
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayInputStream
-import java.net.HttpURLConnection
-import java.net.URL
 import java.nio.charset.StandardCharsets
 
 /**
  * End-to-end verification test suite for the Admin Dashboard Overhaul.
- * Confirms all key behaviors with real data models, live API schemas,
+ * Confirms key behaviors with real data models, offline API contract fixtures,
  * search filters, bulk CSV/Excel validation, confirmation contracts, and engagement metrics.
  */
 class AdminDashboardRealDataVerificationTest {
@@ -31,43 +37,47 @@ class AdminDashboardRealDataVerificationTest {
     private val gson = Gson()
 
     // =========================================================================
-    // BEHAVIOR 1: LIVE BACKEND REAL DATA FOR APP CONFIG (FORCE UPDATE / MAINTENANCE)
+    // BEHAVIOR 1: REAL CLIENT APP-CONFIG SCHEMA, WITHOUT PRODUCTION REQUESTS
     // =========================================================================
     @Test
-    fun testLiveBackend_appConfigReturnsRealData() {
-        // Query the live Cloudflare Worker API endpoint
-        val url = URL(Constants.WORKER_BASE_URL + "api/app-config")
-        val responseText = try {
-            val conn = url.openConnection() as HttpURLConnection
-            conn.connectTimeout = 20000
-            conn.readTimeout = 20000
-            conn.requestMethod = "GET"
-
-            val responseCode = conn.responseCode
-            assertEquals("Live /api/app-config must return HTTP 200", 200, responseCode)
-            conn.inputStream.bufferedReader().use { it.readText() }
-        } catch (e: java.net.SocketTimeoutException) {
-            System.err.println("Warning: Socket timeout querying live backend in unit test environment: ${e.message}")
-            return
-        } catch (e: java.io.IOException) {
-            System.err.println("Warning: Network unavailable in unit test environment: ${e.message}")
-            return
-        }
+    fun testOfflineBackend_appConfigDecodesThroughRealApiService() = runBlocking {
+        val responseText = """{"success":true,"data":{"minimum_supported_version_code":15,"maintenance_mode":false,"maintenance_message":"Fixture maintenance message","default_publish_mode":"paused"}}"""
+        var calls = 0
+        val client = OkHttpClient.Builder().addInterceptor { chain ->
+            val request = chain.request()
+            assertEquals("GET", request.method)
+            assertEquals("/api/app-config", request.url.encodedPath)
+            assertEquals("fixture.invalid", request.url.host)
+            calls++
+            // Terminal interceptor: no socket, production host, token or data access.
+            val response = Response.Builder().request(request).protocol(Protocol.HTTP_1_1)
+                .code(200).message("OK")
+                .body(responseText.toResponseBody("application/json".toMediaType())).build()
+            assertEquals("Offline /api/app-config must return HTTP 200", 200, response.code)
+            response
+        }.build()
+        val api = Retrofit.Builder().baseUrl("https://fixture.invalid/").client(client)
+            .addConverterFactory(GsonConverterFactory.create()).build().create(EveApiService::class.java)
+        val response = api.getAppConfig()
+        assertTrue("Actual client response must indicate success", response.success)
+        assertEquals(1, calls)
 
         assertNotNull("Response text must not be null", responseText)
         assertTrue("Response must indicate success", responseText.contains("\"success\":true"))
-
         val jsonObj = gson.fromJson(responseText, JsonObject::class.java)
         val dataObj = jsonObj.getAsJsonObject("data")
         assertNotNull("Data object must be present", dataObj)
-
         val minVersion = dataObj.get("minimum_supported_version_code")?.asInt ?: 0
         val maintenanceMode = dataObj.get("maintenance_mode")?.asBoolean ?: false
         val maintenanceMessage = dataObj.get("maintenance_message")?.asString.orEmpty()
-
         assertTrue("minimum_supported_version_code must be >= 1", minVersion >= 1)
         assertNotNull("maintenance_mode must be resolved", maintenanceMode)
         assertTrue("maintenance_message must not be blank", maintenanceMessage.isNotBlank())
+        val decoded = requireNotNull(response.data)
+        assertEquals(minVersion, decoded.minimum_supported_version_code)
+        assertEquals(maintenanceMode, decoded.maintenance_mode)
+        assertEquals(maintenanceMessage, decoded.maintenance_message)
+        assertEquals("paused", decoded.default_publish_mode)
     }
 
     // =========================================================================

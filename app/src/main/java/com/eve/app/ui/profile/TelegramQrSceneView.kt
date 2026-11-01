@@ -82,6 +82,7 @@ internal class TelegramQrSceneView(
     val selectedEmoji: String? get() = selectedEmojis.firstOrNull()?.alt
     val emojiChoices: List<QrEmojiChoice> get() = selectedEmojis.toList()
     private val animations = mutableMapOf<String, NativeQrDrawable>()
+    private val legacyGlyphs = mutableMapOf<String, Drawable>()
     private var assetScope: CoroutineScope? = null
     private val animationLoading = mutableSetOf<String>()
     private var fieldPauseStarted = 0L
@@ -128,9 +129,28 @@ internal class TelegramQrSceneView(
     fun setEmojiChoices(choices: List<QrEmojiChoice>) {
         selectedEmojis = choices.distinctBy { it.key }.takeLast(QrEmojiPattern.MAX_SELECTED)
         selectionStartedAt = SystemClock.uptimeMillis()
+        legacyGlyphs.keys.retainAll(selectedEmojis.map { it.key }.toSet())
         if (isAttachedToWindow) loadSelectedAnimations()
         invalidate()
     }
+
+    /** Shared read-only frame for the original picked-items overlay; scene retains ownership. */
+    fun emojiDrawable(key: String): Drawable? = animations[key] ?: selectedEmojis
+        .firstOrNull { it.key == key && it.source.isBlank() }?.let { legacy ->
+            // Existing saved standard glyphs remain visibly standard; never an animated document.
+            legacyGlyphs.getOrPut(key) { object : Drawable() {
+                private val glyph = Paint(Paint.ANTI_ALIAS_FLAG).apply { textAlign = Paint.Align.CENTER }
+                override fun draw(canvas: Canvas) {
+                    glyph.textSize = bounds.height().toFloat()
+                    canvas.drawText(legacy.alt, bounds.exactCenterX(),
+                        bounds.exactCenterY() - (glyph.ascent() + glyph.descent()) / 2f, glyph)
+                }
+                override fun setAlpha(alpha: Int) { glyph.alpha = alpha }
+                override fun setColorFilter(filter: android.graphics.ColorFilter?) { glyph.colorFilter = filter }
+                @Deprecated("Drawable opacity is not used")
+                override fun getOpacity() = android.graphics.PixelFormat.TRANSLUCENT
+            } }
+        }
 
     private fun loadSelectedAnimations() {
         val scope = assetScope ?: return
@@ -151,7 +171,7 @@ internal class TelegramQrSceneView(
                         override fun unscheduleDrawable(who: Drawable, what: Runnable) { removeCallbacks(what) }
                     }
                     animations.put(entry.key, drawable)?.close()
-                    if (com.eve.app.designsystem.DesignMotion.enabled(context)) drawable.start()
+                    refreshEmojiPlayback()
                     invalidate()
                 } catch (cancelled: CancellationException) {
                     throw cancelled
@@ -185,6 +205,10 @@ internal class TelegramQrSceneView(
     fun animateOpen() {
         openingAnimator?.cancel()
         closing = false
+        if (!com.eve.app.designsystem.DesignMotion.enabled(context)) {
+            setReveal(1f, true)
+            return
+        }
         setReveal(0f, true)
         openingAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
             duration = TelegramQrMotion.OPEN_MS
@@ -201,6 +225,11 @@ internal class TelegramQrSceneView(
         if (closing) return
         closing = true
         openingAnimator?.cancel()
+        if (!com.eve.app.designsystem.DesignMotion.enabled(context)) {
+            setReveal(0f, false)
+            onClosed()
+            return
+        }
         openingAnimator = ValueAnimator.ofFloat(1f, 0f).apply {
             duration = TelegramQrMotion.CLOSE_MS
             interpolator = LinearInterpolator()
@@ -223,9 +252,20 @@ internal class TelegramQrSceneView(
         assetScope = null
         animations.values.forEach { it.close() }
         animations.clear()
+        legacyGlyphs.clear()
         // Source Code atlas is owned by QrCodeLayer; discard our handle only.
         qrCode = null
         animationLoading.clear()
+    }
+
+    fun refreshEmojiPlayback() {
+        val run = isShown && windowVisibility == VISIBLE && com.eve.app.designsystem.DesignMotion.enabled(context)
+        animations.values.forEach { if (run) it.start() else it.stop() }
+    }
+
+    override fun onWindowVisibilityChanged(visibility: Int) {
+        super.onWindowVisibilityChanged(visibility)
+        if (isAttachedToWindow) refreshEmojiPlayback()
     }
 
     override fun onDetachedFromWindow() {
@@ -299,8 +339,10 @@ internal class TelegramQrSceneView(
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+        val motionEnabled = com.eve.app.designsystem.DesignMotion.enabled(context)
+        refreshEmojiPlayback()
         drawScene(canvas, width.toFloat(), height.toFloat())
-        if ((selectedEmojis.isNotEmpty() || qrLayer.isAnimating()) && isShown) postInvalidateOnAnimation()
+        if (((motionEnabled && selectedEmojis.isNotEmpty()) || qrLayer.isAnimating()) && isShown) postInvalidateOnAnimation()
     }
 
     private fun mix(a: Int, b: Int, t: Float): Int {
@@ -323,7 +365,8 @@ internal class TelegramQrSceneView(
         val now = SystemClock.uptimeMillis()
         val movingMs = now - startedAt - fieldPausedMs -
             (if (fieldPauseStarted != 0L) now - fieldPauseStarted else 0L)
-        val motion = movingMs.coerceAtLeast(0L) / 1000f
+        val motionEnabled = com.eve.app.designsystem.DesignMotion.enabled(context)
+        val motion = if (motionEnabled) movingMs.coerceAtLeast(0L) / 1000f else 0f
         val elapsed = (now - selectionStartedAt).coerceAtLeast(0L).toFloat()
         val dx = dp(QrEmojiPattern.COLUMN_DP)
         val dy = dp(QrEmojiPattern.ROW_DP)
@@ -352,7 +395,7 @@ internal class TelegramQrSceneView(
                 val big = (row and 1) == 0
                 val baseSize = dp(38f) * (if (big) 1.3f else .9f) *
                     (.92f + .16f * seed.toFloat()) * (if (big) .9f else 1f)
-                val scale = QrEmojiPattern.appear(elapsed, seed) *
+                val scale = if (!motionEnabled) 1f else QrEmojiPattern.appear(elapsed, seed) *
                     (1f + .03f * kotlin.math.sin(motion * 1.3f + phase * 2f))
                 if (scale <= .01f) continue
                 val rotate = (seed.toFloat() - .5f) * 26f +

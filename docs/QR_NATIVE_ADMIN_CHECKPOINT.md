@@ -89,3 +89,16 @@ Additional focused checks: **160 real raster decodes** (80 palettes × 2 screen 
 Revert this implementation commit with a forward-only revert; do not reset or force-push main. New source files can only be removed together with their build/JNI/call-site changes; deleting native files alone breaks the build. Existing backend/migrations and unrelated profile/maintenance/notifications are unchanged.
 
 Next: resolve the upstream renderer-test conflict with the pinned source (without weakening limits); finish dependency-complete QrShareView/emoji/scanner scene adapters, restore source gift UI against actual authorized EVE data, replace remaining Material/Unicode substitutes, collect device evidence, then run the final gate. A green checkpoint build is not feature acceptance.
+
+
+## Final-mission continuation (2026-11-01)
+
+See `TELEGRAM_FINAL_MISSION_CHECKPOINT.md` for the active requirement ledger and
+`NATIVE_RENDERER_TEST_REPAIR.md` for the native fixture repair. The optimized CPU/C API
+suite passes 243 tests without changing production limits; exact-SHA FAST
+41358042268 is green at dc3b7ee7329b2517cbb4ac0d63e65e75f5a3c50b.
+The earlier unchanged-vendor statement now has a documented test-only exception.
+`QR_EMOJI_PICKER_SOURCE_MAP.md` records the original Java cells, selection overlay
+and grid masks replacing the Unicode/Airbnb picker. Complete QrShareView/QrEmojiPanel
+service/sheet integration and matched runtime fidelity remain OPEN. No old checkpoint
+is a claim that newer components are absent or that the mission is accepted.
