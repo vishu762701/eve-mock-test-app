@@ -80,7 +80,7 @@ NDK 27.2.12479018, CMake 3.22.1, Rust 1.99.1. JDK and test-JVM proxy setup were
 repaired outside the repository; no TLS validation was disabled.
 
 The four picker tests pass. AndroidTest source compilation, lint (zero errors,
-1643 existing warnings) and x86_64 debug APK assembly pass. The bundled
+1643 warnings) and x86_64 debug APK assembly pass. The bundled
 `libeve_qr_animation.so` has **0x4000** LOAD alignment in all three segments.
 The existing raster test also passes **160 actual QR decodes** (80 palettes x two
 sizes). Native test execution, matching Telegram hardware/video and the full
@@ -113,3 +113,9 @@ Four picker cases, AndroidTest compilation, lint and x86_64 assembly all pass.
 The console contains a bare SDK-35 worker-thread shutdown exception fragment without
 stack; cause remains UNKNOWN despite green JUnit XML. This is reported in the active
 checkpoint and is not converted into evidence of device acceptance.
+
+Exact-SHA FAST [41360696652](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41360696652)
+is green at `24e79891acb3cdf875d24dcff295b372475e01b2`; source-import/docs workflows
+are also green. The shutdown fragment also exists in pre-picker dc3b7ee7 remote
+logs, so it is not first introduced by these picker changes. Its cause remains
+unresolved. No FULL/native-device acceptance or published APK is inferred.

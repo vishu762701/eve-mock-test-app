@@ -32,9 +32,9 @@ No branches, resets, production calls, deployment or migration are authorized he
 | R13 | Native engine verified, existing failures resolved | vendored tlottie/JNI/CMake | official tlottie gitlink | Rust/NDK/C++ | NOT MET | first unfinished dependency: 3 previously recorded Rust test failures |
 | R14 | Security and production-data invariants | existing auth/Worker/D1/Firebase | EVE contract | no deployments/data changes | UNKNOWN | no changes yet; final diff review required |
 | R15 | Provenance and distribution safeguards | manifests/notices/release gate | pinned source/license | per-file GPL review | NOT MET | existing byte manifests; combined release obligations OPEN |
-| R16 | Exact-SHA FAST for pushed batches | protected build.yml | n/a | GitHub Actions | NOT MET | baseline green; no new batch yet |
+| R16 | Exact-SHA FAST for pushed implementation batches | protected build.yml | n/a | GitHub Actions | MET | dc3b7ee7 / 41358042268 and 24e79891 / 41360696652 green; this evidence-only follow-up requires its own head check |
 | R17 | Mission-final six-job FULL and verified APK | protected build.yml | n/a | all feasible requirements | NOT MET | must not label an intermediate run mission-final |
-| R18 | Main-only commits, checkpoint and honest final report | this record | n/a | successful feature gates | NOT MET | ongoing |
+| R18 | Main-only commits, checkpoint and honest reporting | this record | n/a | successful feature gates | MET | two coherent implementation batches; no branches/PR/reset/force push; mission explicitly PARTIAL |
 
 ## Native verification batch
 
@@ -83,7 +83,7 @@ Local commands/results (Gradle 8.7 / JDK 21 / Platform 36):
 
 - `:app:testDebugUnitTest`: **677 tests, 151 suites, 0 failed/error/skipped**.
 - `:app:compileDebugAndroidTestKotlin`: passed, including new native picker test.
-- `:app:lintDebug`: **0 errors**, 1643 warnings; no suppression/baseline changes.
+- `:app:lintDebug`: **0 errors**, 1643 warnings (not all triaged); no suppression/baseline changes.
 - `:app:assembleDebug -Peve.nativeAbis=x86_64`: passed; local development APK,
   not a mission-final artifact. Actual JNI library packaged; all three LOAD segments
   have `0x4000` (16KiB) alignment. Other ABIs require remote FAST build verification.
@@ -114,9 +114,8 @@ No limitation is represented as owner-accepted. Profile/Admin/Home/student/Quiz,
 full theme/accessibility/device matrix and final native acceptance remain open in
 the requirement ledger. GPL release clearance remains unapproved.
 
-Next action for this batch: push the coherent picker implementation to main;
-observe its exact-SHA FAST and repair any failing gate before unrelated work.
-Then trace QrShareView's full scene draw/composition/recolor/open-close/cancellation
+The picker batch is pushed and exact-SHA FAST is green (evidence below).
+Next implementation action: trace QrShareView's full scene draw/composition/recolor/open-close/cancellation
 entry points into the existing Java QrCodeLayer/QrRender/QrGlass and Canvas host,
 keeping Telegram account/network/premium services excluded. Complete that minimum
 source subsystem and matched native runtime evidence before changing its OPEN claim.
@@ -126,3 +125,67 @@ open. Verified GitHub APK artifact and final checksum: NOT AVAILABLE. Do not dis
 a premature run and describe it as mission-final; do not bypass publication gates.
 Local `/dev/kvm` is absent; no local emulator/device or 60/90/120Hz/reference match
 is claimed. No production deployment, migration, signing or GPL gate override occurred.
+
+
+## Latest observed main implementation and exact-SHA CI
+
+Current fetched **implementation main SHA**:
+`24e79891acb3cdf875d24dcff295b372475e01b2`.
+This evidence-only checkpoint commit follows that implementation SHA; on resume,
+fetch `origin/main` and inspect the checkpoint commit's own FAST before new edits.
+
+| Commit | Scoped delivery | Exact-SHA evidence |
+|---|---|---|
+| `dc3b7ee7329b2517cbb4ac0d63e65e75f5a3c50b` | native security fixture repair + protected build-job step | [FAST 41358042268](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41358042268) SUCCESS |
+| `24e79891acb3cdf875d24dcff295b372475e01b2` | original Java QR picker atoms / EVE lifecycle + restoration / offline config contract test | [FAST 41360696652](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41360696652) SUCCESS; [source import 41360696800](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41360696800) SUCCESS; [docs 41360696660](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41360696660) SUCCESS |
+
+Both FAST runs passed Android build/JVM/AndroidTest compilation, native Rust tests,
+backend and Firebase. Native navigation and publication were intentionally skipped;
+neither run is FULL or screen acceptance. Remote native suite: 243 passed, 0
+failed/ignored (2.67s at 24e79891). Local broad JVM: 677 passed, 0 failed/error/skipped.
+All three local x86_64 libraries (QR engine and both CameraX JNI libraries) have
+`0x4000` LOAD alignment. All four ABIs compile in remote FAST; final all-ABI APK
+inspection/publication still requires the protected FULL artifact.
+
+The bare SDK-35 shutdown fragment is present in **both** remote build logs,
+including dc3b7ee7 before the new picker code. It predates that picker integration;
+its cause is still UNKNOWN, not silently suppressed. CI's actual JVM task is green.
+GitHub's approval-variable read returned HTTP 403; the current value of
+`EVE_GPL_RELEASE_APPROVED` is UNKNOWN. No variable was written. The release workflow
+file and its fail-closed condition are unchanged; documented license review remains
+OPEN. No production-ready or legally cleared distribution claim is made.
+
+## File / commit mapping
+
+All paths below are repository-relative. Original source files retain their
+upstream/adapter attribution; full line/hash maps are in the linked source reports.
+
+| Commit | Changed files |
+|---|---|
+| dc3b7ee7 | `.github/workflows/build.yml`; `app/src/main/cpp/vendor/tlottie/src/tests/dos.rs`; `docs/NATIVE_RENDERER_TEST_REPAIR.md`; `docs/TELEGRAM_FINAL_MISSION_CHECKPOINT.md`; `docs/qr-native-upstream-manifest.json`; `THIRD_PARTY_NOTICES.md` |
+| 24e79891 | `app/src/main/java/com/eve/app/telegram/qr/QrEmojiCell.java`; `app/src/main/java/com/eve/app/telegram/qr/EmojiPickOverlay.java`; `app/src/main/java/com/eve/app/telegram/qr/QrEmojiGrid.java`; `app/src/main/java/com/eve/app/telegram/qr/QrPalettes.java` |
+| 24e79891 | `app/src/main/java/com/eve/app/ui/profile/QrEmojiPickerGrid.kt`; `app/src/main/java/com/eve/app/ui/profile/TelegramQrSceneView.kt`; `app/src/main/java/com/eve/app/ui/profile/UsernameCardActivity.kt` |
+| 24e79891 | `app/src/test/java/com/eve/app/ui/profile/QrEmojiPickerGridTest.kt`; `app/src/test/java/com/eve/app/ui/admin/AdminDashboardRealDataVerificationTest.kt`; `app/src/androidTest/java/com/eve/app/ui/profile/QrEmojiPickerNativeTest.kt`; `app/src/androidTest/java/com/eve/app/ui/profile/TelegramQrSceneNativeTest.kt` |
+| 24e79891 | `THIRD_PARTY_NOTICES.md`; `docs/qr-native-upstream-manifest.json`; `docs/telegram-profile-fidelity.json`; `docs/QR_EMOJI_PICKER_SOURCE_MAP.md`; `docs/QR_NATIVE_ADMIN_CHECKPOINT.md`; `docs/TELEGRAM_FINAL_MISSION_CHECKPOINT.md` |
+
+## Resume verification commands
+
+The managed workspace toolchain is outside Git under `/workspace/toolchains`.
+Use JDK `/workspace/toolchains/jdk-21.0.13+9`, SDK
+`/workspace/toolchains/android-sdk`, Gradle `/workspace/toolchains/gradle-8.7/bin/gradle`.
+Apply the environment runtime skill's proxy/CA configuration to Gradle **and** test
+JVMs; do not disable TLS validation. The repository continues to build with Gradle.
+
+```
+gradle :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64
+cargo +1.99.1 test --locked --release --lib --features c-api --manifest-path app/src/main/cpp/vendor/tlottie/Cargo.toml -- --test-threads=1
+python3 -B -m unittest discover -s .github/scripts/tests -v
+node .github/scripts/verify-docs.mjs
+python3 .github/scripts/verify_telegram_acceptance.py
+git diff --check
+```
+
+Do not rerun completed implementation or treat a previous report as the live head.
+First unfinished **product requirement** remains R2/A1 full source QR scene;
+remaining source sheet/shared-cache/runtime A2 work and scanner morph A4 follow.
+Other workstream requirements remain as listed above. Final status: **PARTIAL**.
