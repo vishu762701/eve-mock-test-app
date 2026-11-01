@@ -26,6 +26,7 @@ class EveQrScannerContractTest {
         assertTrue(scanner.contains("CubicBezierInterpolator(0.05, 0.7, 0.1, 1.0)"))
         assertTrue(scanner.contains("CubicBezierInterpolator(0.3, 0.0, 0.1, 1.0)"))
         assertTrue(scanner.contains("now - lastScanAt < 150L"))
+        assertTrue(scanner.contains("QrScannerFrameOverlay(this)"))
 
     }
 }

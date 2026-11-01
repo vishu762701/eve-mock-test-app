@@ -54,14 +54,25 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
     private lateinit var root: FrameLayout
     private lateinit var preview: PreviewView
     private var closing = false
+    private var cameraRequestStarted = false
     private var torchOn = false
     private var lastScanAt = 0L
     private var lastRejectedAt = 0L
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 
     private val permission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (closing || completed.get() || isFinishing || isDestroyed) return@registerForActivityResult
         if (granted) startLiveCamera()
         else AppBulletin.showError(this, "Camera access is needed for live scanning; Gallery remains available")
+    }
+
+    /** QrScanOverlay.java:453-485 starts the camera after the 390ms opening. */
+    private fun requestCameraAfterOpening() {
+        if (cameraRequestStarted || closing || completed.get() || isFinishing || isDestroyed) return
+        cameraRequestStarted = true
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
+            PackageManager.PERMISSION_GRANTED) startLiveCamera()
+        else permission.launch(Manifest.permission.CAMERA)
     }
     private val gallery = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) scanGallery(uri)
@@ -85,16 +96,8 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         }
         root.addView(preview, FrameLayout.LayoutParams(-1, -1))
 
-        val targetWidth = (resources.displayMetrics.widthPixels - dp(48)).coerceAtMost(dp(280))
-        val target = View(this).apply {
-            background = GradientDrawable().apply {
-                cornerRadius = dp(30).toFloat()
-                setColor(Color.TRANSPARENT)
-                setStroke(dp(3), Color.WHITE)
-            }
-            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        }
-        root.addView(target, FrameLayout.LayoutParams(targetWidth, targetWidth, Gravity.CENTER))
+        // QrScanOverlay.java:579-599,659-708. Source geometry, EVE CameraX host.
+        root.addView(QrScannerFrameOverlay(this), FrameLayout.LayoutParams(-1, -1))
         val caption = TextView(this).apply {
             text = "Scan an EVE username QR"
             gravity = Gravity.CENTER
@@ -158,13 +161,11 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
             // Upstream QrScanOverlay.java:101-102 uses STRETCH (0.05, .7, .1, 1.0).
             // Geometry remains EVE-adapted: this is not the upstream button morph.
             .setInterpolator(org.telegram.ui.Components.CubicBezierInterpolator(0.05, 0.7, 0.1, 1.0))
+            .withEndAction { requestCameraAfterOpening() }
             .start()
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() { closeWithMotion() }
         })
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
-            PackageManager.PERMISSION_GRANTED) startLiveCamera()
-        else permission.launch(Manifest.permission.CAMERA)
     }
 
     private fun glass() = GradientDrawable().apply {
@@ -307,6 +308,10 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         if (closing || isFinishing) return
         closing = true
         completed.set(true)
+        // Telegram closes camera before the exit animation; EVE unbinds CameraX.
+        camera?.cameraControl?.enableTorch(false)
+        provider?.unbindAll()
+        camera = null
         root.animate().alpha(0f).scaleX(.94f).scaleY(.94f).setDuration(330L)
             // Upstream QrScanOverlay.java:101-102 close: (0.3, 0.0, 0.1, 1.0).
             .setInterpolator(org.telegram.ui.Components.CubicBezierInterpolator(0.3, 0.0, 0.1, 1.0))
