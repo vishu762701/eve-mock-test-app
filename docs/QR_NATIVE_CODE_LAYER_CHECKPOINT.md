@@ -19,3 +19,7 @@ EVE adapter selects the upstream hardware `QrRender.hasVertices()` predicate onl
 Device performance/frames require evidence. Existing Firebase/Worker routes unchanged.
 Existing native QR raster decode and end-to-end visual tests must pass before any
 claim of screen fidelity. Production GPL gate remains unchanged.
+
+Release/compliance checkpoint: `THIRD_PARTY_NOTICES.md` now records the precise
+upstream Git blob, port classification and OPEN combined-distribution gate.
+The exact-SHA FAST CI proves compilation/tests, not real-device pixel parity.

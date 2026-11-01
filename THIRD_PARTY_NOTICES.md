@@ -4,6 +4,12 @@ This repository contains third-party components and assets. Keep license obligat
 
 **Development-stage official-reference policy:** Exact official code/art/assets require verified upstream source, identity and appropriate use permissions; public design guidance is not blanket copying permission. Never silently substitute independently authored or other assets unless the owner expressly authorizes them. If the exact source/rights are unavailable, report that item as BLOCKED, continue only other authorized work, and keep third-party attribution and production release obligations.
 
+## Telegram QR Java QrCodeLayer integration — 2026-11-01
+
+- Official source: [DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15](https://github.com/DrKLO/Telegram/commit/3de37c8cfb039452be7398909461da6288babf15), `TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrCodeLayer.java` (Git blob `b9b5fcb69f538dfbc7dd87f628fe261ce1e69923`). The EVE port lives at `app/src/main/java/com/eve/app/telegram/qr/QrCodeLayer.java`.
+- **ADAPTED original Java source:** original QR mask atlas, halftone, GPU/Canvas particle routines are retained; the package, display units, access for EVE host and device-performance classifier are adapted. `TelegramQrSceneView.kt` provides the EVE-only username link and E logo. This is **not** original Telegram QR screen parity.
+- Telegram Android copyright and GPL terms still apply to derived source. Exact per-file grant and combined GPLv3 APK distribution obligations require release-compliance review. No release approval is implied. See `docs/QR_NATIVE_CODE_LAYER_CHECKPOINT.md` and `docs/telegram-release-compliance-gate.md`. Telegram login, credentials and server infrastructure were not imported.
+
 ## Telegram QR native renderer and dashboard tabs — 2026-11-01
 
 Internal development integration, **not source-exact screen acceptance or production distribution clearance**.

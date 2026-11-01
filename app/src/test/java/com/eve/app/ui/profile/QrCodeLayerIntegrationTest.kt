@@ -19,6 +19,9 @@ class QrCodeLayerIntegrationTest {
         assertTrue(host.contains("QrCodeLayer.logoShare(data)"))
         assertTrue(host.contains("layer.setCardBounds(bounds.left"))
         assertTrue(host.contains("if (export)"))
+        val notices = File("../THIRD_PARTY_NOTICES.md").readText()
+        assertTrue(notices.contains("b9b5fcb69f538dfbc7dd87f628fe261ce1e69923"))
+        assertTrue(notices.contains("QR Java QrCodeLayer integration"))
         assertFalse(host.contains("qrBitmap"))
         assertTrue(host.contains("qrCode = null"))
     }
