@@ -7,6 +7,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.eve.app.R
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
@@ -24,6 +25,9 @@ class HomeDrawerNavigationNativeTest {
                 val drawer = activity.findViewById<DrawerLayout>(R.id.drawerLayout)
                 val content = activity.findViewById<FrameLayout>(R.id.homeContentHost)
                 val panel = activity.findViewById<View>(R.id.navDrawerPanel)
+                assertEquals("DrawerLayout must have exactly one content host and one drawer", 2, drawer.childCount)
+                assertSame(content, activity.findViewById<View>(R.id.maintenanceOverlay).parent)
+                assertSame(content, activity.findViewById<View>(R.id.forceUpdateOverlay).parent)
                 assertSame(drawer, content.parent)
                 assertSame(drawer, panel.parent)
                 assertTrue("Native DrawerLayout must draw panel after content", drawer.indexOfChild(panel) > drawer.indexOfChild(content))
