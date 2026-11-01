@@ -5,7 +5,7 @@
 
 ## 0. How to use this file
 - Read this file before starting any task.
-- The latest explicit owner request is the ONLY change scope: implement authorized outcomes and directly affected frontend/backend/resources/tests together when appropriate, never unrelated work. `ENGINEERING_STANDARD.md` defines workflow; agent files are pointers. Security/data integrity and actual release obligations remain enforced.
+- The latest explicit owner request is the ONLY change scope: implement authorized outcomes and directly affected frontend/backend/resources/tests together when appropriate, never unrelated work. `ENGINEERING_STANDARD.md` defines workflow, and its section 0 (owner-instruction fidelity) applies to every task: never substitute, simplify or reinterpret the owner's requested behavior, and stop and ask when it cannot be done as stated. Agent files are pointers. Security/data integrity and actual release obligations remain enforced.
 - If this file and the actual code disagree, trust the code, and report the mismatch under "Noticed but not touched (outside scope)" in the Final Report.
 - Never claim current state from memory or older chats. Inspect real files and current remote HEAD/CI; use `git status` and `git log -1` only when a local checkout is accessible.
 
@@ -13,7 +13,7 @@
 EVE is actively being developed: **No visual component, layout, color, blur, theme, typography, navigation, animation, icon, size or feature is permanently locked.** The owner's latest safe scoped requirement can add, replace or remove any UI/UX feature. Current code and historical Telegram/iOS audits are reference snapshots only. Update resources and regression tests alongside approved changes. Keep equivalent accessibility and data/security protections.
 
 ## Telegram reference only for source-exact tasks
-Telegram reference archives, approved SHA-256 values, internal manifests and GPL evidence are in `THIRD_PARTY_NOTICES.md`. For source-exact copying/comparison, authenticate an official Git checkout pinned to a full commit SHA or verify an appropriate source archive; absent source files are NOT FOUND. See `docs/telegram-integration-process.md`. Never impose source ZIP verification on ordinary Eve fixes, original UI/UX work, backend tasks or repository cleanup.
+Telegram reference archives, approved SHA-256 values, internal manifests and GPL evidence are in `THIRD_PARTY_NOTICES.md`. For source-exact copying/comparison, authenticate an official Git checkout pinned to a full commit SHA or verify an appropriate source archive; absent source files are NOT FOUND. See `docs/telegram-integration-process.md`, including its gated Analysis, Mapping, Approval, Implementation workflow. Never impose source ZIP verification on ordinary Eve fixes, original UI/UX work, backend tasks or repository cleanup.
 
 ## Current implementation, not frozen defaults
 Source-traced Telegram UI, theme reveal, Lottie animations, existing tokens and `EveBottomPillBar` are current implementations, **not standing requirements**. Edit them only when the owner asks. For owner-requested official components, use real verified upstream references; never use an alternative without explicit permission. Preserve all unrelated functionality, Hindi/Devanagari and accessibility.
