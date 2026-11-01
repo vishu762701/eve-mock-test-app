@@ -96,7 +96,7 @@ class UsernameCardActivity : EveBaseActivity() {
         val root = FrameLayout(this)
         scene = TelegramQrSceneView(this, username, qrLink).apply {
             contentDescription = "QR code for public EVE username, at " + username +
-                ". Username cards do not prove account ownership."
+                ". This shared card does not verify account ownership."
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
             setPalette(savedInstanceState?.getInt("qr_palette", 0) ?: 0)
         }
