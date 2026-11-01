@@ -285,3 +285,22 @@ claim the fixture runs the complete signed-in ProfileActivity collapsed header.
 No product rendering code, assertion tolerance, runner gate or expected popup
 movement is changed. The failed FULL run remains evidence. This is a focused
 verification-fixture repair, not another popup implementation batch.
+
+## Forward repair of native animation synchronization
+
+FULL [41270395258](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41270395258)
+passed the gesture suite, Android/lint/signing, backend and Firebase gates.
+Three-button failed `actualMenuAnchorsDispatchesDismissesAndReopens` at its row
+alpha endpoint: a fixed 400ms sleep sampled 0.9939506 instead of 1.0. The real
+scroll/anchor displacement test passed after the previous fixture correction.
+Sampling before a child animator's terminal frame is consistent with native frame
+scheduling; it is not proof that source animation duration should be changed.
+
+The test now observes actual popup scale/background alpha/row alpha/row translation
+until terminal state, with a hard three-second bound. Dismissal similarly waits for
+the actual window state. The existing exact endpoint assertions and tolerances,
+popup displacement, product animation code/timings and runner timeouts are retained.
+An animation which never settles or a window which never dismisses still fails,
+with the last observed visual/window state. No test, navigation mode or native gate
+is excluded. This is another evidence-backed CI fixture synchronization repair;
+the official header/actions draft remains outside the repository while gates are red.

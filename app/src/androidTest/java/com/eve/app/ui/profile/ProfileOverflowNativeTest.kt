@@ -19,6 +19,36 @@ class ProfileOverflowNativeTest {
         ProfileOverflowPopup::class.java.getDeclaredField("window").apply { isAccessible = true }
             .get(popup) as ActionBarPopupWindow
 
+    /** Observe real terminal frames; wall-clock sleep does not synchronize animators. */
+    private fun awaitPopupState(
+        scenario: ActivityScenario<RepairVerificationActivity>,
+        popup: ProfileOverflowPopup,
+        visible: Boolean
+    ) {
+        val deadline = android.os.SystemClock.uptimeMillis() + 3000
+        var observed = "not sampled"
+        do {
+            var settled = false
+            scenario.onActivity {
+                val showing = popup.isShowing
+                observed = "showing=$showing"
+                if (!visible) settled = !showing
+                else if (showing) {
+                    val root = sourceWindow(popup).contentView as ActionBarPopupWindow.ActionBarPopupWindowLayout
+                    val rows = (0 until root.itemsCount).map(root::getItemAt)
+                    observed += ", scale=${root.backScaleY}, alpha=${root.backAlpha}, rows=" +
+                        rows.joinToString { "${it.alpha}/${it.translationY}" }
+                    settled = kotlin.math.abs(root.backScaleY - 1f) < .001f && root.backAlpha == 255 &&
+                        rows.all { (!it.isEnabled || kotlin.math.abs(it.alpha - 1f) < .001f) &&
+                            kotlin.math.abs(it.translationY) < .01f }
+                }
+            }
+            if (settled) return
+            android.os.SystemClock.sleep(16)
+        } while (android.os.SystemClock.uptimeMillis() < deadline)
+        fail("Popup did not reach its expected terminal state in 3s: $observed")
+    }
+
     @Test fun publicPlatformAnchorTrackingFollowsScrollAndDetachesOnDismiss() {
         val inst = InstrumentationRegistry.getInstrumentation()
         ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
@@ -51,7 +81,7 @@ class ProfileOverflowNativeTest {
                 popup = ProfileOverflowPopup(anchor)
                 popup.show(true, {}, {})
             }
-            android.os.SystemClock.sleep(400)
+            awaitPopupState(scenario, popup, visible = true)
             scenario.onActivity {
                 assertTrue(popup.isShowing)
                 initialY = IntArray(2).also(sourceWindow(popup).contentView::getLocationOnScreen)[1]
@@ -76,7 +106,7 @@ class ProfileOverflowNativeTest {
                 assertFalse(popup.isShowing)
                 popup.show(true, {}, {})
             }
-            android.os.SystemClock.sleep(400)
+            awaitPopupState(scenario, popup, visible = true)
             scenario.onActivity {
                 assertTrue("The same owner can reopen after public anchor detachment", popup.isShowing)
                 popup.dismiss(immediate = true)
@@ -111,7 +141,7 @@ class ProfileOverflowNativeTest {
                     popup = ProfileOverflowPopup(b.btnProfileMenu)
                     popup.show(true, { usernameCalls++ }, { copyCalls++ })
                 }
-                android.os.SystemClock.sleep(400)
+                awaitPopupState(scenario, popup, visible = true)
                 scenario.onActivity {
                     assertTrue(popup.isShowing)
                     val window = sourceWindow(popup)
@@ -133,24 +163,24 @@ class ProfileOverflowNativeTest {
                     // Actual source row callback, not a duplicate test handler.
                     root.getItemAt(if (collapsed) 1 else 0).performClick()
                 }
-                android.os.SystemClock.sleep(200)
+                awaitPopupState(scenario, popup, visible = false)
                 scenario.onActivity { assertFalse(popup.isShowing) }
             }
             assertEquals(1, usernameCalls)
             assertEquals(1, copyCalls)
             scenario.onActivity { popup.show(false, { usernameCalls++ }, { copyCalls++ }) }
-            android.os.SystemClock.sleep(400)
+            awaitPopupState(scenario, popup, visible = true)
             scenario.onActivity {
                 val root = sourceWindow(popup).contentView as ActionBarPopupWindow.ActionBarPopupWindowLayout
                 assertFalse("Absent username cannot copy a fabricated link", root.getItemAt(1).isEnabled)
             }
             inst.sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK)
-            android.os.SystemClock.sleep(200)
+            awaitPopupState(scenario, popup, visible = false)
             scenario.onActivity {
                 assertFalse(popup.isShowing)
                 popup.show(true, { usernameCalls++ }, { copyCalls++ })
             }
-            android.os.SystemClock.sleep(400)
+            awaitPopupState(scenario, popup, visible = true)
             val outside = Rect()
             scenario.onActivity { b.root.getWindowVisibleDisplayFrame(outside) }
             val downTime = android.os.SystemClock.uptimeMillis()
@@ -161,7 +191,7 @@ class ProfileOverflowNativeTest {
                 inst.uiAutomation.injectInputEvent(event, true)
                 event.recycle()
             }
-            android.os.SystemClock.sleep(200)
+            awaitPopupState(scenario, popup, visible = false)
             scenario.onActivity { assertFalse("Outside tap dismisses the source window", popup.isShowing) }
         }
     }
