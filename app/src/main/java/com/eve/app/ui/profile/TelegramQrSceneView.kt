@@ -223,8 +223,8 @@ internal class TelegramQrSceneView(
         assetScope = null
         animations.values.forEach { it.close() }
         animations.clear()
-        qrBitmap = null
-        qrBitmapColor = null
+        // Source Code atlas is owned by QrCodeLayer; discard our handle only.
+        qrCode = null
         animationLoading.clear()
     }
 

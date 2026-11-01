@@ -19,5 +19,7 @@ class QrCodeLayerIntegrationTest {
         assertTrue(host.contains("QrCodeLayer.logoShare(data)"))
         assertTrue(host.contains("layer.setCardBounds(bounds.left"))
         assertTrue(host.contains("if (export)"))
+        assertFalse(host.contains("qrBitmap"))
+        assertTrue(host.contains("qrCode = null"))
     }
 }
