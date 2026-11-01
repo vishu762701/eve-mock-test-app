@@ -371,3 +371,9 @@ modes when FULL runs); JVM contract guards parameters and recycling wiring.
 fast repeated-opening and scrolling hardware frames, fallback handling on
 non-software drawable hosts, GPL distribution review and complete source
 factory dependency port. A green compilation is not pixel/motion acceptance.
+
+## EVE QR UI + live scanner follow-up (2026-11-01)
+
+New UI adaptation commit 35a7533fbed68a3438643874af82ce86dee18427 adds local standard-emoji field, eight source-referenced palette selections and source-timed opening/closing and gesture equations while preserving EVE username payloads. Scanner commit 5b8b40f5be8296c2d2a4efd6b3963726eac858b5 replaces still-photo-only scanning with CameraX live preview, camera permission on demand, local gallery scanning, torch, and EVE-only link routing. It is explicitly **ADAPTED**, not Telegram-renderer-identical.
+
+The previously reported static QR scene was an earlier implementation snapshot. The actual upstream `QrShareView`, `QrRender`, `QrCodeLayer`, `QrScanOverlay`, `QrEmojiPanel` and MTProto services remain outside the EVE integration boundary. The `personal-qr` fidelity target stays OPEN until matched on-device source/runtime acceptance and distribution rights are reviewed.

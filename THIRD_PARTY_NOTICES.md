@@ -666,3 +666,13 @@ corresponding density qualifiers). Source and imported Git blobs match. See
 Telegram root LICENSE contains GNU GPL v2; rights to each asset and combined
 GPLv3-EVE redistributability are not assumed. This does not authorize
 production distribution; the fail-closed release approval remains mandatory.
+
+### EVE local QR adaptation and camera scanner (2026-11-01)
+
+Upstream reference: official DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15, verified attached archive SHA-256 4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10. EVE implementation SHAs: UI 35a7533fbed68a3438643874af82ce86dee18427 and scanner 5b8b40f5be8296c2d2a4efd6b3963726eac858b5.
+
+EVE's newly authored `TelegramQrMotion.kt`, modified `TelegramQrSceneView.kt` and `EveQrLiveScannerActivity.kt` are adaptations of publicly observable Telegram QR motion and layout parameters. They are **not** verbatim imports or source-identical implementations of the original QR rendering hierarchy. The reference parameters include opening 860ms / closing 200ms, scan overlay open 390ms / close 330ms, QR assembly 380ms, theme transition 600ms and the source-described spring/rubber/glide mechanics. Selected palette RGB values are source-referenced data from `ui/QrShare/Backdrops.java`; the drawing implementation is EVE-authored. See `docs/EVE_TELEGRAM_QR_UI_SOURCE_MAP.md`.
+
+The EVE QR encodes `eve-mock-test://username/...` and only handles local EVE deep links. Telegram accounts, MTProto credentials, paid-message tokens, server gifts/themes and custom Telegram media are not imported. The CameraX/ZXing pipeline scans frames and gallery images locally and requires an explicit camera permission request.
+
+**Production distribution not cleared:** the reference archive's root license is GPL v2. Individual source and palette/asset grants, EVE's GPLv3 combination, Android dependencies, notice/source-delivery obligations and matching signed APK inspection require review. The release approval gate remains unchanged. A successful build, a source SHA comparison or public repository availability does not satisfy this review.

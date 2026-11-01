@@ -67,9 +67,9 @@
       ],
       "source_map": "docs/PROFILE_REGRESSION_REPAIR.md",
       "remaining_gaps": [
-        "Static QR card/source geometry and original icon assets are adapted, but complete Telegram QrShareView/QrRender/QrCodeLayer glass and motion subsystem remains unported.",
-        "Telegram animated themes, emoji/gift services and live QrScanOverlay are not present; EVE uses local QR palettes and a photo camera scan.",
-        "Matched upstream-device screenshots, 60-120Hz motion, large-font/RTL and real-device render acceptance remain outstanding."
+        "Local EVE QR Canvas now implements source-traced reveal/open/close, a progressive QR build, eight palette selections, device-standard emoji patterns and touch/fling, but the original Telegram QrShareView/QrRender/QrCodeLayer particle/glass/RenderNode subsystem is not imported and visual/frame parity is unproven.",
+        "CameraX live scanner, on-device gallery decoding and flashlight support replace EVE's still-camera prototype, but Telegram's actual QrScanOverlay implementation, Telegram link processing, custom emoji pack assets, collectible gift animations and MTProto-backed themes are not included. EVE's username-only QR has a different backend contract.",
+        "Matched upstream/EVE same-device screenshots, motion traces at 60/90/120Hz, Android real camera/permission verification, Day/Night, RTL, 200% font, system inset/cutout and accessibility validation remain outstanding. Release GPL compatibility remains unapproved."
       ]
     }
   ]
