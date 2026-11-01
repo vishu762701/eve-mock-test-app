@@ -295,13 +295,12 @@
             </LinearLayout>
 
             <!-- Card 1: Personal Information -->
-            <com.eve.app.designsystem.DesignCardView
+            <com.eve.app.ui.profile.TelegramProfileSection
                 android:id="@+id/cardPersonalInfo"
-                style="@style/Widget.Eve.Token.Card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_marginHorizontal="16dp">
+                android:layout_marginHorizontal="12dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -458,14 +457,13 @@
                     </LinearLayout>
 
                 </LinearLayout>
-            </com.eve.app.designsystem.DesignCardView>
+            </com.eve.app.ui.profile.TelegramProfileSection>
 
-            <!-- EVE category uses the existing server-backed selector in its own card. -->
-            <com.eve.app.designsystem.DesignCardView
+            <!-- EVE category and reminder share one Telegram grouped-section surface. -->
+            <com.eve.app.ui.profile.TelegramProfileSection
                 android:id="@+id/cardCategory"
-                style="@style/Widget.Eve.Token.Card"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:layout_marginTop="16dp" android:layout_marginHorizontal="16dp">
+                android:layout_marginTop="16dp" android:layout_marginHorizontal="12dp">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
                     <!-- Category -->
                     <LinearLayout
@@ -547,22 +545,11 @@
                             android:layout_height="wrap_content"
                             android:text="ST" />
                     </LinearLayout>
-                </LinearLayout>
-            </com.eve.app.designsystem.DesignCardView>
-
-            <!-- EVE reminders retain their existing behavior. -->
-            <com.eve.app.designsystem.DesignCardView
-                android:id="@+id/cardExtras"
-                style="@style/Widget.Eve.Token.Card"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginHorizontal="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1px"
+                        android:layout_marginStart="20dp"
+                        android:background="@color/category_pill_unselected_bg" />
 
                     <!-- Daily Reminder with Telegram Switch -->
                     <LinearLayout
@@ -593,7 +580,7 @@
                     </LinearLayout>
 
                 </LinearLayout>
-            </com.eve.app.designsystem.DesignCardView>
+            </com.eve.app.ui.profile.TelegramProfileSection>
         </LinearLayout>
     </com.eve.app.ui.profile.ProfilePullScrollView>
 </FrameLayout>

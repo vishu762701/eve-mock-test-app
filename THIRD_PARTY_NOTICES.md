@@ -607,3 +607,38 @@ and asset-specific redistribution permission remain UNKNOWN; no Apple, Telegram
 or Tabler provenance is claimed for this artwork. No new external asset was copied.
 Retain this limitation for release review and obtain original provenance before
 claiming asset licensing clearance.
+
+## Profile regression repair — official normal ActionBar popup and grouped sections
+
+Pinned upstream: `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`
+(official 13.1.1 HEAD rechecked through Git and immutable GitHub objects).
+See `docs/sources/profile-mission/regression-source-map.json` for authenticated
+source hashes and eight unchanged static menu asset pairs across four densities.
+`menu_username_change.webp` / `msg_link2.webp` are renamed with a `profile_` prefix.
+These assets have the upstream root GPL v2 license; no asset-specific later-version
+grant is asserted.
+
+`ui/profile/popup/ActionBarPopupWindow.java`, `PopupSwipeBackLayout.java`,
+`CubicBezierInterpolator.java`, `Easings.java`, the static-icon selection from
+`ActionBarMenuSubItem.java`, and extracted `AndroidUtilities`, `LayoutHelper`,
+`Theme.RippleRadMaskDrawable` / `BaseCell.RippleDrawableSafe` methods are adapted
+from the authenticated official files. Java headers in ActionBarPopupWindow,
+AndroidUtilities, LayoutHelper, Theme and BaseCell retain the GPL v2-or-later
+permission (Copyright Nikolai Kudashov, 2013–2018). Files without a per-file grant
+remain covered by the root GPL v2 evidence only; do not infer a later-version grant.
+The original attributed source and modifications must accompany any distribution
+as applicable. Existing combined-work release compliance gates remain unchanged.
+
+EVE isolates package/resource/theme/density/identity/destination adapters. Telegram
+account selection, account notification locking, downloaded emoji/image/check-box
+menu variants, and the unused Telegram menu slider type are excluded. The actual
+normal popup renderer and swipe-back measurement/drawing parent remain included.
+No Telegram authentication, messaging, service calls or credentials enter EVE.
+
+`TelegramProfileSection.kt` adapts `RecyclerListView.setSections()` and
+`drawBackgroundRect()` to fixed EVE groups: 12dp outside margin, 16dp section radius,
+no Material card content padding/elevation/state animator, upstream optional shadow
+paint values with the upstream default disabled. Category and Daily Practice
+Reminder are EVE business rows in one section, explicitly ADAPTED. Entire-screen
+visual parity and the complete ProfileActionsView / QrShareView subsystems are not
+asserted by these imports. See `docs/PROFILE_REGRESSION_REPAIR.md` for boundaries.

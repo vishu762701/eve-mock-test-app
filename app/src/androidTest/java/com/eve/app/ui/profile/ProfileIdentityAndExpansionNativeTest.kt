@@ -67,6 +67,22 @@ class ProfileIdentityAndExpansionNativeTest {
                 assertTrue("Source action ink must contrast in both themes", if (dark) brightness > .8 else brightness < .2)
                 val column = b.cardPersonalInfo.parent as ViewGroup
                 assertEquals(column.indexOfChild(b.cardPersonalInfo) + 1, column.indexOfChild(b.cardCategory))
+                assertTrue(b.cardPersonalInfo is TelegramProfileSection)
+                assertTrue(b.cardCategory is TelegramProfileSection)
+                assertSame("Reminder and category must share their row container",
+                    b.cellCategory.parent, b.cellReminder.parent)
+                assertSame(b.cellCategory.parent, b.layoutCategoryOptions.parent)
+                assertEquals("No global Material card padding", 0, b.cardCategory.paddingTop)
+                assertEquals(0f, b.cardCategory.elevation, 0f)
+                val reminderBeforeExpansion = b.cellReminder.top
+                b.layoutCategoryOptions.visibility = View.VISIBLE
+                layout()
+                assertTrue("Options expand within the shared surface",
+                    b.cellReminder.top > reminderBeforeExpansion)
+                assertTrue("Reminder remains within the section", b.cellReminder.bottom <= (b.cellReminder.parent as View).height)
+                b.layoutCategoryOptions.visibility = View.GONE
+                layout()
+                assertEquals(reminderBeforeExpansion, b.cellReminder.top)
                 assertEquals("Personal QR code", b.btnBack.contentDescription.toString())
                 assertTrue(b.btnProfileMenu.width >= (48 * density).toInt())
                 assertTrue(b.btnBack.width >= (48 * density).toInt())

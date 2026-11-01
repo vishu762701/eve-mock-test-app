@@ -1,0 +1,245 @@
+{
+  "revision": "3de37c8cfb039452be7398909461da6288babf15",
+  "official_origin": "https://telegram.org/apps links https://github.com/DrKLO/Telegram",
+  "root_tree": "3de37c8cfb039452be7398909461da6288babf15",
+  "authentication": "HTTPS official-origin link, git ls-remote HEAD, immutable raw bytes compared to GitHub Git-tree blob SHA-1. Not a signed-commit claim.",
+  "sources": [
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ProfileActivity.java",
+      "git_blob_sha1": "7805f9d6d3a216972a18f9e367ad7199f2624555",
+      "sha256": "d17d649fb34d13e1a8ec0fef74afd60b7643b2f920c8fa04dbd44799971e373b",
+      "lines": 17053
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/SharedConfig.java",
+      "git_blob_sha1": "7efb06c5ece86d7ad5d7843f0f865f65c0d05d82",
+      "sha256": "25346ad03c25face9e7c1ed1fc176fd838ccc13859d87b81a8241edd22e25994",
+      "lines": 1870
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/AndroidUtilities.java",
+      "git_blob_sha1": "efa8e2956c84582b5215083c605e7a9756560748",
+      "sha256": "6acc294fa98d5628c0e669f31cf5235e655d79934d06e684d3b4ea6d6f7de4cb",
+      "lines": 7081
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarPopupWindow.java",
+      "git_blob_sha1": "6a9dc814bbfdd56f36ac4e5f8ab70fe179b231ea",
+      "sha256": "4f4ccd178f82abf4e9cb1cdff330b57d34df9340bf23a2d86d75e1fe429a05c3",
+      "lines": 1141
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarMenuSubItem.java",
+      "git_blob_sha1": "3d452aabdf320aae2ebd4a8cfed26bc2902e6df8",
+      "sha256": "c3e9b530875ca77a70a628adb533de6ba059ce57184ed3a24249f5b2034ed271",
+      "lines": 435
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/Theme.java",
+      "git_blob_sha1": "b56ee0d84558b738144f16961eeaec8b767bb993",
+      "sha256": "b2cc15c52f4b82ca79cee15c3e3d62f93c4b4e91e578e6da850fd279a1591e90",
+      "lines": 10159
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/BaseCell.java",
+      "git_blob_sha1": "f352ac78dc0438bd50f6c62ce2a438137540159b",
+      "sha256": "a77dd0fe9fad11b3a4d9f055da0492faa7ef9cd171a105d3b9b217372624b183",
+      "lines": 167
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/TextCheckCell.java",
+      "git_blob_sha1": "0137db4a960a2ff8da29c88ac0eaeb4d314035d7",
+      "sha256": "0df18711d7d178c3e9d1a5f9345b858a292f2516ad8c1252bffd9f1bbd000143",
+      "lines": 455
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/TextDetailCell.java",
+      "git_blob_sha1": "cd7466e0f23bafb3dc657a2098f2bba717d83591",
+      "sha256": "7dac8418441e94da74b3d896cf4a827d05c2dba8b9a0fea6b559e05f6069880e",
+      "lines": 326
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/LayoutHelper.java",
+      "git_blob_sha1": "c5f76ad602d0a99081812a3bcc90cf962f0012d9",
+      "sha256": "eb94f013d5cb4376133190b837d89b1f9224c48a5f21e269396d189f0c534ec3",
+      "lines": 271
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/RecyclerListView.java",
+      "git_blob_sha1": "e53a830224256333be38baa47dcb462b53b92e44",
+      "sha256": "05802fe15ab6f672f117277812c79edbef4a116721238c1529abf80cbbce2e64",
+      "lines": 3915
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/Easings.java",
+      "git_blob_sha1": "6d7e8b0c3ed8e7b7bb4f7c769c6c9c50013d0d16",
+      "sha256": "ba04283b54726919dab9e2c4fa3e14963af2a0cee62b196eac58a10007ebac11",
+      "lines": 18
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/ProfileGooeyView.java",
+      "git_blob_sha1": "9edbab06b5e62cea1de60b6152d63af9e173284a",
+      "sha256": "9f7703afca9fd9d4d2d0165cdb325920b001ac787985212381fa19c5714b5d42",
+      "lines": 496
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/CubicBezierInterpolator.java",
+      "git_blob_sha1": "3a9cae100e17a03abacf2f4df71db2b82757b968",
+      "sha256": "747f7b8f511249f14bc1b567088d7e0da3639729263a6f56243eb61c2ba19387",
+      "lines": 84
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/PopupSwipeBackLayout.java",
+      "git_blob_sha1": "ed34092728a5cfe22622c1ab4f87a05e0ad5fd04",
+      "sha256": "2a74af84c2e87b7fb35523cfd03603ca73a705d88fbb681dc7d6f9af2a4ff2cc",
+      "lines": 543
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/ProfileActionsView.java",
+      "git_blob_sha1": "ce74c418eb851e1c4234e1a5abedb6e98f85321a",
+      "sha256": "67163d89b9a3f79c898de830457b9a69264cc89e55c90966a27babafe6b0f34b",
+      "lines": 1356
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareActivity.java",
+      "git_blob_sha1": "0ff0e9f1889b184d1130497b951caaaae3a8d3b5",
+      "sha256": "3e63371d627c670512c9363cf969816083abc126ea47e5af80762cfe53f78798",
+      "lines": 1165
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrCodeLayer.java",
+      "git_blob_sha1": "b9b5fcb69f538dfbc7dd87f628fe261ce1e69923",
+      "sha256": "78491b93af81c44006729af7640e083261b33348eea400dc5cd9f0ed605e59ea",
+      "lines": 925
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareView.java",
+      "git_blob_sha1": "c2a57a19bd96d6b71da270c1e80dd9519d4ca26d",
+      "sha256": "2cea11d8e6d9a12652f21e69b6dba47f2c9b3da0ffc0ba847632122174dfa56a",
+      "lines": 7217
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/Backdrops.java",
+      "git_blob_sha1": "4eecb5e6729ab61055318f39aad0584362e08795",
+      "sha256": "7cbe0f7455b00b575e9dca89611798be68667e354ccb81ffabf1db417b427dea",
+      "lines": 136
+    }
+  ],
+  "assets": [
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/menu_username_change.webp",
+      "eve": "app/src/main/res/drawable-hdpi/profile_menu_username_change.webp",
+      "git_blob_sha1": "95f211af46f7c30216a96dedb4a3fb34fabb96bc",
+      "sha256": "e49d0a278bef64865bc14ab27a8dbf2d87f0bddc68b48858806622b5cc0b4033",
+      "classification": "EXACT bytes; filenames only renamed"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_link2.webp",
+      "eve": "app/src/main/res/drawable-hdpi/profile_msg_link2.webp",
+      "git_blob_sha1": "fe117ded0b58bad2be7d46ce3ea5f925a0fee355",
+      "sha256": "14be126366b4e0add4a5c05cd1097e40d63d4cde3bdad9cbb45f1cc24cf3f6a9",
+      "classification": "EXACT bytes; filenames only renamed"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/menu_username_change.webp",
+      "eve": "app/src/main/res/drawable-mdpi/profile_menu_username_change.webp",
+      "git_blob_sha1": "829ef203e9f82ef35612a0f3806a1a4e826715e3",
+      "sha256": "a086ee67645e31a82e3f99ea79b4eadcce017da4577865c21ec778d42fe99c6c",
+      "classification": "EXACT bytes; filenames only renamed"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_link2.webp",
+      "eve": "app/src/main/res/drawable-mdpi/profile_msg_link2.webp",
+      "git_blob_sha1": "4f5936c55c19afa75d2d40466a6b02ec468b7e3d",
+      "sha256": "106337afb932b661aac2bb861bc463b1909820f12f177b3acac8f5efe40c6757",
+      "classification": "EXACT bytes; filenames only renamed"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/menu_username_change.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/profile_menu_username_change.webp",
+      "git_blob_sha1": "80591a2ca81a628707a7c9cf64b190e664de8897",
+      "sha256": "a5d94de48882e81f7beaa9b3552e56618657be1f0a8ca6be1ebe76b58e03e469",
+      "classification": "EXACT bytes; filenames only renamed"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_link2.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/profile_msg_link2.webp",
+      "git_blob_sha1": "e43c041401138a50437effc96d675a8c99b73768",
+      "sha256": "d1f47c4626cb37ae5512b0731b6c505362cc0f826d38519be8280207ad16b717",
+      "classification": "EXACT bytes; filenames only renamed"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/menu_username_change.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/profile_menu_username_change.webp",
+      "git_blob_sha1": "ccc2d89623d79a8afd764173cddbacf8f3c3b1c4",
+      "sha256": "576bbfb38621e66777dfbb8f326310d73d1a0b12094e6698b7935b011a3dd8fc",
+      "classification": "EXACT bytes; filenames only renamed"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_link2.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/profile_msg_link2.webp",
+      "git_blob_sha1": "87767ace2bd7c31f7c950bc3678f3a6cbff5c7ba",
+      "sha256": "925259bb8e660810b943de7cb49cae47a6566be63a290e99c2664f6c0a9cfca3",
+      "classification": "EXACT bytes; filenames only renamed"
+    }
+  ],
+  "runtime": "See PROFILE_REGRESSION_REPAIR.md and exact-SHA CI. Byte identity is not visual parity.",
+  "integrations": [
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarPopupWindow.java",
+      "upstream_line": 452,
+      "eve": "app/src/main/java/com/eve/app/ui/profile/popup/ActionBarPopupWindow.java",
+      "eve_line": 450,
+      "classification": "ADAPTED package/theme/resource bindings; source drawing body retained"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarPopupWindow.java",
+      "upstream_line": 916,
+      "eve": "app/src/main/java/com/eve/app/ui/profile/popup/ActionBarPopupWindow.java",
+      "eve_line": 914,
+      "classification": "ADAPTED enclosing class; normal source entrance retained"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarPopupWindow.java",
+      "upstream_line": 1024,
+      "eve": "app/src/main/java/com/eve/app/ui/profile/popup/ActionBarPopupWindow.java",
+      "eve_line": 1020,
+      "classification": "ADAPTED account notification locking excluded"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/PopupSwipeBackLayout.java",
+      "upstream_line": 153,
+      "eve": "app/src/main/java/com/eve/app/ui/profile/popup/PopupSwipeBackLayout.java",
+      "eve_line": 155,
+      "classification": "ADAPTED package/theme/density bindings"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarMenuSubItem.java",
+      "upstream_line": 206,
+      "eve": "app/src/main/java/com/eve/app/ui/profile/popup/ActionBarMenuSubItem.java",
+      "eve_line": 70,
+      "classification": "ADAPTED static icon subset"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/Theme.java",
+      "upstream_line": 5296,
+      "eve": "app/src/main/java/com/eve/app/ui/profile/popup/Theme.java",
+      "eve_line": 28,
+      "classification": "ADAPTED utility binding; source mask body retained"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/RecyclerListView.java",
+      "upstream_line": 3591,
+      "eve": "app/src/main/java/com/eve/app/ui/profile/TelegramProfileSection.kt",
+      "eve_line": 48,
+      "classification": "ADAPTED fixed section host"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarMenuItem.java",
+      "upstream_line": 1888,
+      "eve": "app/src/main/java/com/eve/app/ui/profile/ProfileOverflowPopup.kt",
+      "eve_line": 24,
+      "classification": "ADAPTED EVE Activity/anchor/callbacks"
+    }
+  ]
+}

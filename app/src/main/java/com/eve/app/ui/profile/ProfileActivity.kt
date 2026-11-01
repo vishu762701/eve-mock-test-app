@@ -37,6 +37,7 @@ import coil.load
 import com.eve.app.R
 import com.eve.app.data.model.PremiumStatusDto
 import com.eve.app.data.remote.ApiClient
+import com.eve.app.data.remote.UserProfileResponse
 import com.eve.app.data.remote.ProfileRequestOwner
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.PremiumRepository
@@ -75,7 +76,7 @@ class ProfileActivity : EveBaseActivity() {
     private var presenceSequence = 0L
     private var expansionFraction = 0f
     private var qrNavigationPending = false
-    private var profileOptionsDialog: TelegramNativeAlertDialog? = null
+    private var profileOptionsPopup: ProfileOverflowPopup? = null
     private var profileAuthListener: FirebaseAuth.AuthStateListener? = null
     private var currentDob: String = ""
     private var currentCategory: String = "General"
@@ -94,6 +95,8 @@ class ProfileActivity : EveBaseActivity() {
     private val editInfoLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
+                profileOwnerUid?.let { ProfileSession.store.invalidate(it) }
+                profileLoadJob?.cancel()
                 loadProfile()
             }
         }
@@ -101,6 +104,8 @@ class ProfileActivity : EveBaseActivity() {
     private val editUsernameLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
+                profileOwnerUid?.let { ProfileSession.store.invalidate(it) }
+                profileLoadJob?.cancel()
                 loadProfile()
             }
         }
@@ -108,6 +113,8 @@ class ProfileActivity : EveBaseActivity() {
     private val editPhoneLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
+                profileOwnerUid?.let { ProfileSession.store.invalidate(it) }
+                profileLoadJob?.cancel()
                 loadProfile()
             }
         }
@@ -115,6 +122,8 @@ class ProfileActivity : EveBaseActivity() {
     private val editBioLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
+                profileOwnerUid?.let { ProfileSession.store.invalidate(it) }
+                profileLoadJob?.cancel()
                 loadProfile()
             }
         }
@@ -159,6 +168,14 @@ class ProfileActivity : EveBaseActivity() {
         })
 
         setupScrollAndGooey()
+        if (savedInstanceState == null) {
+            ProfileSession.store.position(user.uid)?.let { position ->
+                binding.profileScrollView.doOnLayout {
+                    binding.profileScrollView.scrollTo(0, position.scrollY)
+                    binding.profileScrollView.setExpanded(position.expanded, animated = false)
+                }
+            }
+        }
         setupActions()
         setupProfileActionBounce()
         setupProfileActionAccessibility()
@@ -166,10 +183,15 @@ class ProfileActivity : EveBaseActivity() {
         setupAdminAndPremium(user.email)
 
         loadProfilePhoto()
+        ProfileSession.store.peek(user.uid)?.let { renderConfirmedProfile(it) }
         loadProfile()
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                while (isActive) { refreshPresence(); delay(30_000L) }
+                while (isActive) {
+                    // Share the initial/revalidation request with profile rendering.
+                    refreshPresence()
+                    delay(30_000L)
+                }
             }
         }
     }
@@ -334,6 +356,7 @@ class ProfileActivity : EveBaseActivity() {
     override fun onApplyThemePalette(palette: TelegramThemeEngine.ResolvedPalette) {
         super.onApplyThemePalette(palette)
         if (::binding.isInitialized) {
+            profileOptionsPopup?.dismiss(immediate = true)
             // Stable Telegram icon variants: outline on light button surfaces,
             // filled on dark; photo-viewer expansion crossfade remains unported.
             ProfileActionIcons.applyTo(
@@ -442,6 +465,7 @@ class ProfileActivity : EveBaseActivity() {
                             confirmed.success, cat, confirmed.data?.category,
                             ignoreCase = true
                         )) {
+                        ProfileSession.store.accept(userId, confirmed.data!!)
                         saveVerified = true
                         currentCategory = cat
                         updateCategoryRadios(cat)
@@ -459,7 +483,10 @@ class ProfileActivity : EveBaseActivity() {
             } catch (e: Exception) {
                 AppBulletin.showError(this@ProfileActivity, e.localizedMessage ?: "Failed to update category")
             } finally {
-                if (!saveVerified) { profileConfirmed = false; setPersonalEditingEnabled(false) }
+                if (!saveVerified) {
+                    ProfileSession.store.invalidate(userId)
+                    profileConfirmed = false; setPersonalEditingEnabled(false)
+                }
                 // Previous value remains selected on any error or stale server response.
                 updateCategoryRadios(currentCategory)
                 binding.cellCategory.isEnabled = profileConfirmed
@@ -571,6 +598,7 @@ class ProfileActivity : EveBaseActivity() {
                     val confirmed = ApiClient.apiService.getProfile(ProfileRequestOwner(userId))
                     if (confirmed.success && confirmed.data?.id == userId && confirmed.data.dob == dob &&
                         FirebaseAuth.getInstance().currentUser?.uid == userId) {
+                        ProfileSession.store.accept(userId, confirmed.data)
                         saveVerified = true
                         currentDob = dob
                         binding.tvBirthdayValue.text = formatTelegramBirthday(dob)
@@ -589,7 +617,10 @@ class ProfileActivity : EveBaseActivity() {
                 AppBulletin.showError(this@ProfileActivity,
                     e.localizedMessage ?: "Failed to update birthday")
             } finally {
-                if (!saveVerified) { profileConfirmed = false; setPersonalEditingEnabled(false) }
+                if (!saveVerified) {
+                    ProfileSession.store.invalidate(userId)
+                    profileConfirmed = false; setPersonalEditingEnabled(false)
+                }
                 binding.cellBirthday.isEnabled = profileConfirmed
                 birthdaySaveInFlight = false
             }
@@ -646,69 +677,54 @@ class ProfileActivity : EveBaseActivity() {
     private fun loadProfile() {
         val user = FirebaseAuth.getInstance().currentUser ?: run { finish(); return }
         if (user.uid != profileOwnerUid) { finish(); return }
-        profileLoadJob?.cancel()
-        profileConfirmed = false
-        setPersonalEditingEnabled(false)
+        if (profileLoadJob?.isActive == true) return
         val requestSequence = ++presenceSequence
         val currentName = user.displayName?.takeIf { it.isNotBlank() } ?: "Student"
         if (binding.tvName.text.isNullOrBlank()) {
             binding.tvName.text = currentName
             binding.tvToolbarTitle.text = currentName
         }
-        currentBio = null
-        ProfileBioCapability.apply(binding.cellBio, binding.tvBioValue, null)
-
+        // Preserve confirmed rows, editing and image/scroll state during revalidation.
         profileLoadJob = lifecycleScope.launch {
             try {
-                val res = ApiClient.apiService.getProfile(ProfileRequestOwner(user.uid))
-                if (!res.success || res.data == null) throw java.io.IOException(res.error ?: "Profile unavailable")
+                val profile = ProfileSession.store.get(user.uid)
                 if (FirebaseAuth.getInstance().currentUser?.uid != user.uid) return@launch
-                if (res.data.id != user.uid) throw java.io.IOException("Profile account did not match")
-                if (res.success && res.data != null) {
-                    val profile = res.data
-                    if (requestSequence == presenceSequence) binding.tvStatus.text = ProfilePresenceStatus.label(profile.isOnline)
-                    // The visible fallback is not an editable server-confirmed name.
-                    currentDisplayName = profile.displayName.orEmpty()
-                    // Name
-                    if (profile.displayName.orEmpty().isNotBlank()) {
-                        binding.tvName.text = profile.displayName
-                        binding.tvToolbarTitle.text = profile.displayName
-                    }
-
-                    // Mobile
-                    currentPhone = profile.phone ?: ""
-                    binding.tvMobileValue.text = if (currentPhone.isNotBlank()) currentPhone else "Add phone number"
-
-                    // Username
-                    currentUsername = profile.username ?: ""
-                    val displayUsername = if (currentUsername.isNotBlank()) {
-                        if (currentUsername.startsWith("@")) currentUsername else "@$currentUsername"
-                    } else {
-                        "Set username"
-                    }
-                    binding.tvUsernameValue.text = displayUsername
-
-                    currentBio = profile.bio
-                    ProfileBioCapability.apply(binding.cellBio, binding.tvBioValue, profile.bio)
-
-                    // Birthday
-                    currentDob = profile.dob.orEmpty()
-                    binding.tvBirthdayValue.text = formatTelegramBirthday(currentDob)
-
-                    // Category
-                    currentCategory = profile.category.orEmpty().ifBlank { "General" }
-                    binding.tvCategoryValue.text = currentCategory
-                    updateCategoryRadios(currentCategory)
-                    profileConfirmed = true
-                    setPersonalEditingEnabled(true)
-                }
+                renderConfirmedProfile(profile)
+                if (requestSequence == presenceSequence) binding.tvStatus.text = ProfilePresenceStatus.label(profile.isOnline)
             } catch (cancel: CancellationException) {
                 throw cancel
             } catch (e: Exception) {
                 if (requestSequence == presenceSequence) binding.tvStatus.text = ProfilePresenceStatus.label(null)
-                AppBulletin.showError(this@ProfileActivity, "Profile could not be refreshed. Use Profile options → Retry refresh.")
+                AppBulletin.showError(this@ProfileActivity, if (profileConfirmed)
+                    "Could not check for profile updates. Showing the last confirmed information."
+                    else "Profile unavailable. Check your connection and reopen your profile.")
             }
         }
+    }
+
+    private fun renderConfirmedProfile(profile: UserProfileResponse) {
+        if (profile.id != profileOwnerUid || !isProfileOwner()) return
+        currentDisplayName = profile.displayName.orEmpty()
+        val name = currentDisplayName.ifBlank { "Student" }
+        binding.tvName.text = name
+        binding.tvToolbarTitle.text = name
+        currentPhone = profile.phone.orEmpty()
+        binding.tvMobileValue.text = currentPhone.ifBlank { "Add phone number" }
+        currentUsername = profile.username.orEmpty()
+        binding.tvUsernameValue.text = if (currentUsername.isBlank()) "Set username" else "@${currentUsername.removePrefix("@")}"
+        currentBio = profile.bio
+        ProfileBioCapability.apply(binding.cellBio, binding.tvBioValue, profile.bio)
+        if (!birthdaySaveInFlight) {
+            currentDob = profile.dob
+            binding.tvBirthdayValue.text = formatTelegramBirthday(currentDob)
+        }
+        if (!categorySaveInFlight) {
+            currentCategory = profile.category.ifBlank { "General" }
+            binding.tvCategoryValue.text = currentCategory
+            updateCategoryRadios(currentCategory)
+        }
+        profileConfirmed = true
+        setPersonalEditingEnabled(true)
     }
 
     private fun isProfileOwner(): Boolean {
@@ -721,7 +737,9 @@ class ProfileActivity : EveBaseActivity() {
         !FirebaseAuth.getInstance().currentUser?.photoUrl?.toString().isNullOrBlank()
 
     private fun setPersonalEditingEnabled(enabled: Boolean) {
-        for (view in listOf(binding.cellMobile, binding.cellUsername, binding.cellBirthday, binding.cellCategory)) view.isEnabled = enabled
+        for (view in listOf(binding.cellMobile, binding.cellUsername)) view.isEnabled = enabled
+        binding.cellBirthday.isEnabled = enabled && !birthdaySaveInFlight
+        binding.cellCategory.isEnabled = enabled && !categorySaveInFlight
     }
 
     private fun showPersonalQr() {
@@ -735,26 +753,18 @@ class ProfileActivity : EveBaseActivity() {
     }
 
     private fun showProfileOptions() {
-        if (isFinishing || isDestroyed || profileOptionsDialog?.isShowing == true) return
-        val labels = mutableListOf("Retry refresh", "Edit info", "Settings")
-        if (profileConfirmed && ProfileQrPayload.normalize(currentUsername) != null) labels.add("Copy username")
-        labels.add("Close profile")
-        val dialog = TelegramNativeAlertDialog.Builder(this).setTitle("Profile options")
-            .setItems(labels.toTypedArray()) { _, index ->
-                when (labels[index]) {
-                    "Retry refresh" -> loadProfile()
-                    "Edit info" -> binding.btnEditInfo.performClick()
-                    "Settings" -> binding.btnSettings.performClick()
-                    "Copy username" -> {
-                        (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
-                            .setPrimaryClip(ClipData.newPlainText("Username", "@${ProfileQrPayload.normalize(currentUsername)}"))
-                        AppBulletin.showSuccess(this, "Username copied")
-                    }
-                    "Close profile" -> finish()
-                }
-            }.setNegativeButton("Cancel", null).show()
-        profileOptionsDialog = dialog
-        dialog.setOnDismissListener { if (profileOptionsDialog === dialog) profileOptionsDialog = null }
+        if (!isProfileOwner() || isFinishing || isDestroyed) return
+        if (profileOptionsPopup?.isShowing == true) { profileOptionsPopup?.dismiss(); return }
+        profileOptionsPopup = ProfileOverflowPopup(binding.btnProfileMenu).also { popup ->
+            popup.show(profileConfirmed && ProfileQrPayload.normalize(currentUsername) != null,
+                onUsername = { binding.cellUsername.performClick() },
+                onCopyLink = {
+                    val payload = ProfileQrPayload.encode(currentUsername) ?: return@show
+                    (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
+                        .setPrimaryClip(ClipData.newPlainText("Profile link", payload))
+                    AppBulletin.showSuccess(this, "Profile link copied")
+                }, canEdit = profileConfirmed)
+        }
     }
 
     private suspend fun refreshPresence() {
@@ -762,9 +772,10 @@ class ProfileActivity : EveBaseActivity() {
         if (uid == null || uid != profileOwnerUid) { finish(); return }
         val sequence = ++presenceSequence
         try {
-            val response = ApiClient.apiService.getProfile(ProfileRequestOwner(uid))
-            val value = response.data?.takeIf { response.success && it.id == uid }?.isOnline
+            val profile = ProfileSession.store.get(uid)
             if (sequence == presenceSequence && FirebaseAuth.getInstance().currentUser?.uid == uid) {
+                renderConfirmedProfile(profile)
+                val value = profile.isOnline
                 binding.tvStatus.text = ProfilePresenceStatus.label(value)
             }
         } catch (cancel: CancellationException) { throw cancel }
@@ -777,10 +788,14 @@ class ProfileActivity : EveBaseActivity() {
         super.onResume()
         qrNavigationPending = false
         if (profileOwnerUid != null && FirebaseAuth.getInstance().currentUser?.uid != profileOwnerUid) { finish(); return }
-        if (::binding.isInitialized && profileOwnerUid != null && profileLoadJob?.isActive != true) loadProfile()
     }
 
     override fun onPause() {
+        profileOptionsPopup?.dismiss(immediate = true)
+        if (::binding.isInitialized) profileOwnerUid?.let { uid ->
+            ProfileSession.store.rememberPosition(uid, ConfirmedProfileStore.Position(
+                binding.profileScrollView.scrollY, binding.profileScrollView.isExpanded))
+        }
         presenceSequence++
         if (::binding.isInitialized) binding.tvStatus.text = ProfilePresenceStatus.label(null)
         super.onPause()
@@ -862,8 +877,8 @@ class ProfileActivity : EveBaseActivity() {
         birthdayDialog = null
         profileAuthListener?.let { FirebaseAuth.getInstance().removeAuthStateListener(it) }
         profileAuthListener = null
-        profileOptionsDialog?.dismiss()
-        profileOptionsDialog = null
+        profileOptionsPopup?.dismiss(immediate = true)
+        profileOptionsPopup = null
         progressDialog?.dismiss()
         progressDialog = null
         super.onDestroy()

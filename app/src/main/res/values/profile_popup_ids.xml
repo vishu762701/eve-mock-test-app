@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="profile_popup_width_tag" type="id" />
+    <item name="profile_popup_object_tag" type="id" />
+    <item name="profile_popup_fit_width_tag" type="id" />
+</resources>
