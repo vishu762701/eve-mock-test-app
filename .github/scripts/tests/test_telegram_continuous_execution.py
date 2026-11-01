@@ -15,6 +15,10 @@ class TelegramContinuousExecutionContractTest(unittest.TestCase):
         self.assertIn("Owner authorization is the feature requirement itself", process)
         self.assertIn("Never treat Python tests or a compiling APK as proof", process)
         self.assertIn("exact-SHA FAST", standard)
+        self.assertNotIn("needs owner approval first", standard)
+        source_of_truth = read("SOURCE_OF_TRUTH.md")
+        self.assertIn("continuous Analysis, Mapping, Implementation and Verification", source_of_truth)
+        self.assertNotIn("gated Analysis, Mapping, Approval", source_of_truth)
         self.assertIn("separate explicit owner authorization", standard)
 
     def test_telegram_source_verification_is_pinned_and_official(self):
