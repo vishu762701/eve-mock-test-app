@@ -12,10 +12,13 @@ import android.os.Bundle
 import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -38,6 +41,7 @@ class UsernameCardActivity : EveBaseActivity() {
     private lateinit var scene: TelegramQrSceneView
     private lateinit var username: String
     private lateinit var qrLink: String
+    private var qrClosing = false
     private val dp: Float get() = resources.displayMetrics.density
     private fun px(value: Int) = (value * dp).toInt()
 
@@ -99,10 +103,11 @@ class UsernameCardActivity : EveBaseActivity() {
                 ". This shared card does not verify account ownership."
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
             setPalette(savedInstanceState?.getInt("qr_palette", 0) ?: 0)
+            setEmoji(savedInstanceState?.getString("qr_emoji"))
         }
         root.addView(scene, FrameLayout.LayoutParams(-1, -1))
 
-        val close = icon(R.drawable.eve_qr_close, "Close QR screen") { finish() }
+        val close = icon(R.drawable.eve_qr_close, "Close QR screen") { finishWithMotion() }
         val scan = scanButton {
             try { scanPhoto.launch(null) }
             catch (_: Exception) { AppBulletin.showError(this, "No camera available") }
@@ -127,9 +132,10 @@ class UsernameCardActivity : EveBaseActivity() {
                 isFocusable = true
                 setOnClickListener { click() }
             }
-        tools.addView(tool("Colors", "Change QR color") {
-            scene.setPalette((scene.selectedPalette + 1) % 3)
-        }, LinearLayout.LayoutParams(0, px(48), 1f))
+        tools.addView(tool("Colors", "Change QR color") { showQrPicker(false) },
+            LinearLayout.LayoutParams(0, px(48), 1f))
+        tools.addView(tool("Emoji", "Change QR emoji") { showQrPicker(true) },
+            LinearLayout.LayoutParams(0, px(48), 1f))
         tools.addView(tool("Copy", "Copy EVE profile link") {
             (getSystemService(CLIPBOARD_SERVICE) as ClipboardManager)
                 .setPrimaryClip(ClipData.newPlainText("EVE profile link", qrLink))
@@ -140,7 +146,7 @@ class UsernameCardActivity : EveBaseActivity() {
         val scanParams = FrameLayout.LayoutParams(-2, px(48), Gravity.TOP or Gravity.END)
         val shareParams = FrameLayout.LayoutParams(px(48), px(48), Gravity.BOTTOM or Gravity.START)
         val saveParams = FrameLayout.LayoutParams(px(48), px(48), Gravity.BOTTOM or Gravity.END)
-        val toolsParams = FrameLayout.LayoutParams(px(152), px(48), Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL)
+        val toolsParams = FrameLayout.LayoutParams(px(224), px(48), Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL)
         root.addView(close, closeParams)
         root.addView(scan, scanParams)
         root.addView(share, shareParams)
@@ -167,6 +173,66 @@ class UsernameCardActivity : EveBaseActivity() {
         }
         setContentView(root)
         ViewCompat.requestApplyInsets(root)
+        if (savedInstanceState == null) scene.post { if (!isFinishing) scene.animateOpen() }
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() { finishWithMotion() }
+        })
+    }
+
+    private fun finishWithMotion() {
+        if (qrClosing || isFinishing) return
+        qrClosing = true
+        if (::scene.isInitialized) scene.animateClosed { finish() } else finish()
+    }
+
+    private fun showQrPicker(emojis: Boolean) {
+        val sheet = BottomSheetDialog(this)
+        val panel = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(px(14), px(18), px(14), px(24))
+            background = glassBackground(24)
+        }
+        val title = TextView(this).apply {
+            text = if (emojis) "QR Emojis" else "QR Colors"
+            setTextColor(Color.WHITE)
+            textSize = 19f
+            gravity = Gravity.CENTER
+        }
+        panel.addView(title, LinearLayout.LayoutParams(-1, px(48)))
+        val grid = GridLayout(this).apply { columnCount = 4 }
+        val cellWidth = (resources.displayMetrics.widthPixels - px(48)) / 4
+        val symbols = listOf("None", "✨", "⭐", "🔥", "🌸", "🦋", "💎", "💙",
+            "🌙", "🎓", "📚", "🎯", "🌈", "☀️", "🌿", "🌊", "🎵", "⚡", "🍀", "🌟")
+        val names = listOf("Black", "Neon Blue", "Midnight", "Mint",
+            "Lavender", "Rosewood", "Orange", "Emerald")
+        val count = if (emojis) symbols.size else scene.paletteCount
+        for (index in 0 until count) {
+            val item = TextView(this).apply {
+                gravity = Gravity.CENTER
+                setTextColor(Color.WHITE)
+                text = if (emojis) symbols[index] else names[index]
+                textSize = if (emojis) 26f else 11f
+                background = GradientDrawable().apply {
+                    cornerRadius = px(18).toFloat()
+                    setColor(if (emojis) 0xFF303338.toInt() else scene.palettePreviewColor(index))
+                    setStroke(px(1), 0x556D7072)
+                }
+                contentDescription = if (emojis) "Use " + symbols[index] + " QR emoji" else "Use " + names[index] + " QR color"
+                setOnClickListener {
+                    if (emojis) scene.setEmoji(symbols[index].takeUnless { it == "None" })
+                    else scene.setPalette(index)
+                    sheet.dismiss()
+                }
+            }
+            grid.addView(item, GridLayout.LayoutParams().apply {
+                width = cellWidth - px(5)
+                height = px(54)
+                setMargins(px(2), px(3), px(2), px(3))
+            })
+        }
+        panel.addView(grid)
+        sheet.setContentView(panel)
+        sheet.show()
     }
 
     private fun glassBackground(radius: Int): GradientDrawable = GradientDrawable().apply {
@@ -272,7 +338,10 @@ class UsernameCardActivity : EveBaseActivity() {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        if (::scene.isInitialized) outState.putInt("qr_palette", scene.selectedPalette)
+        if (::scene.isInitialized) {
+            outState.putInt("qr_palette", scene.selectedPalette)
+            outState.putString("qr_emoji", scene.selectedEmoji)
+        }
         super.onSaveInstanceState(outState)
     }
 }

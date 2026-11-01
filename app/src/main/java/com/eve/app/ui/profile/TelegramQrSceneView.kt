@@ -1,6 +1,13 @@
 package com.eve.app.ui.profile
 
 import android.content.Context
+import android.animation.ValueAnimator
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.os.SystemClock
+import android.view.MotionEvent
+import android.view.VelocityTracker
+import android.view.animation.LinearInterpolator
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -15,6 +22,7 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import com.google.zxing.qrcode.encoder.Encoder
 import java.util.Locale
 import kotlin.math.min
+import kotlin.math.hypot
 
 /**
  * EVE's local-only username QR renderer. Static card geometry and rounded QR
@@ -42,26 +50,215 @@ internal class TelegramQrSceneView(
         set(value) { field = value; invalidate() }
     var systemBottom = 0
         set(value) { field = value; invalidate() }
+    // Original backdrop color references; EVE drawing/shaders are independently adapted.
+    private val colors = arrayOf(
+        intArrayOf(0xFF363738.toInt(), 0xFF0E0F0F.toInt(), 0xFF161819.toInt()),
+        intArrayOf(0xFF3FB1FF.toInt(), 0xFF166ACE.toInt(), 0xFF0075F1.toInt()),
+        intArrayOf(0xFF5C6985.toInt(), 0xFF354057.toInt(), 0xFF354057.toInt()),
+        intArrayOf(0xFF7ECB82.toInt(), 0xFF459E5A.toInt(), 0xFF026B22.toInt()),
+        intArrayOf(0xFFB789E4.toInt(), 0xFF8A5ABC.toInt(), 0xFF5B10AB.toInt()),
+        intArrayOf(0xFFB77A77.toInt(), 0xFF814C52.toInt(), 0xFF551C22.toInt()),
+        intArrayOf(0xFFD19A3A.toInt(), 0xFFC06F47.toInt(), 0xFF9D3907.toInt()),
+        intArrayOf(0xFF78C585.toInt(), 0xFF42A171.toInt(), 0xFF006532.toInt())
+    )
+    val paletteCount: Int get() = colors.size
+    fun palettePreviewColor(index: Int): Int = colors[index.coerceIn(0, colors.lastIndex)][0]
     private var palette = 0
+    private var previousPalette = 0
+    private var paletteBlend = 1f
+    private var sceneScale = 1f
+    private var qrBuild = 1f
+    private var closing = false
+    private var openingAnimator: ValueAnimator? = null
+    private var paletteAnimator: ValueAnimator? = null
+    private var glideAnimator: ValueAnimator? = null
+    private var emoji: String? = null
+    val selectedEmoji: String? get() = emoji
+    private val emojiPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        textAlign = Paint.Align.CENTER
+        alpha = 110
+    }
+    private val startedAt = SystemClock.uptimeMillis()
+    private var panX = 0f
+    private var panY = 0f
+    private var startPanX = 0f
+    private var startPanY = 0f
+    private var downX = 0f
+    private var downY = 0f
+    private var dragging = false
+    private var tracker: VelocityTracker? = null
+
     val selectedPalette: Int get() = palette
-    fun setPalette(index: Int) { palette = index.coerceIn(0, 2); invalidate() }
+    fun setPalette(index: Int) {
+        val target = index.coerceIn(0, colors.lastIndex)
+        if (target == palette) return
+        paletteAnimator?.cancel()
+        previousPalette = palette
+        palette = target
+        paletteBlend = 0f
+        paletteAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
+            duration = TelegramQrMotion.WAVE_MS
+            addUpdateListener { paletteBlend = it.animatedValue as Float; invalidate() }
+            start()
+        }
+    }
+    fun setEmoji(value: String?) {
+        emoji = value?.takeIf { it.isNotBlank() }
+        invalidate()
+    }
+
+    private fun setReveal(value: Float, opening: Boolean) {
+        val eased = TelegramQrMotion.reveal(value, opening)
+        translationY = dp(64f) * (1f - eased)
+        alpha = (eased / .35f).coerceIn(0f, 1f)
+        sceneScale = if (opening) .9f + .1f * eased else .92f + .08f * eased
+        qrBuild = if (opening) (value * TelegramQrMotion.OPEN_MS / TelegramQrMotion.QR_BUILD_MS).coerceIn(0f, 1f) else 1f
+        invalidate()
+    }
+
+    fun animateOpen() {
+        openingAnimator?.cancel()
+        closing = false
+        setReveal(0f, true)
+        openingAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
+            duration = TelegramQrMotion.OPEN_MS
+            interpolator = LinearInterpolator()
+            addUpdateListener { setReveal(it.animatedValue as Float, true) }
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) { if (!closing) setReveal(1f, true) }
+            })
+            start()
+        }
+    }
+
+    fun animateClosed(onClosed: () -> Unit) {
+        if (closing) return
+        closing = true
+        openingAnimator?.cancel()
+        openingAnimator = ValueAnimator.ofFloat(1f, 0f).apply {
+            duration = TelegramQrMotion.CLOSE_MS
+            interpolator = LinearInterpolator()
+            addUpdateListener { setReveal(it.animatedValue as Float, false) }
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) { onClosed() }
+            })
+            start()
+        }
+    }
+
+    fun stopMotion() {
+        openingAnimator?.removeAllListeners()
+        openingAnimator?.cancel()
+        paletteAnimator?.cancel()
+        glideAnimator?.cancel()
+        tracker?.recycle()
+        tracker = null
+    }
+
+    override fun onDetachedFromWindow() {
+        stopMotion()
+        super.onDetachedFromWindow()
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        when (event.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                glideAnimator?.cancel()
+                tracker?.recycle()
+                tracker = VelocityTracker.obtain().also { it.addMovement(event) }
+                downX = event.x; downY = event.y
+                startPanX = panX; startPanY = panY
+                dragging = false
+                return true
+            }
+            MotionEvent.ACTION_MOVE -> {
+                tracker?.addMovement(event)
+                val dx = event.x - downX
+                val dy = event.y - downY
+                if (hypot(dx.toDouble(), dy.toDouble()) > dp(8f)) dragging = true
+                if (dragging) {
+                    panX = startPanX + TelegramQrMotion.rubber(dx, width.toFloat())
+                    panY = startPanY + TelegramQrMotion.rubber(dy, height.toFloat())
+                    invalidate()
+                }
+                return true
+            }
+            MotionEvent.ACTION_UP -> {
+                tracker?.addMovement(event)
+                if (dragging) {
+                    tracker?.computeCurrentVelocity(1000)
+                    val limit = dp(TelegramQrMotion.MAX_FLING_DP_PER_SEC)
+                    val vx = (tracker?.xVelocity ?: 0f).coerceIn(-limit, limit)
+                    val vy = (tracker?.yVelocity ?: 0f).coerceIn(-limit, limit)
+                    val x0 = panX; val y0 = panY
+                    glideAnimator = ValueAnimator.ofFloat(0f, .6f).apply {
+                        duration = 600
+                        addUpdateListener {
+                            val t = it.animatedValue as Float
+                            panX = x0 + TelegramQrMotion.glide(vx, t)
+                            panY = y0 + TelegramQrMotion.glide(vy, t)
+                            invalidate()
+                        }
+                        start()
+                    }
+                }
+                tracker?.recycle()
+                tracker = null
+                return true
+            }
+            MotionEvent.ACTION_CANCEL -> {
+                tracker?.recycle(); tracker = null
+                dragging = false
+                return true
+            }
+        }
+        return true
+    }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         drawScene(canvas, width.toFloat(), height.toFloat())
+        if (emoji != null && isShown) postInvalidateOnAnimation()
     }
 
-    private fun drawScene(canvas: Canvas, w: Float, h: Float) {
-        if (w <= 0 || h <= 0) return
-        val bg = when (palette) {
-            1 -> intArrayOf(0xFF203748.toInt(), 0xFF101C2B.toInt())
-            2 -> intArrayOf(0xFF333031.toInt(), 0xFF161819.toInt())
-            else -> intArrayOf(0xFF292B2B.toInt(), 0xFF131719.toInt())
+    private fun mix(a: Int, b: Int, t: Float): Int {
+        val k = t.coerceIn(0f, 1f)
+        fun channel(shift: Int): Int {
+            val av = a ushr shift and 255
+            val bv = b ushr shift and 255
+            return (av + (bv - av) * k).toInt() shl shift
         }
+        return channel(24) or channel(16) or channel(8) or channel(0)
+    }
+
+    private fun drawPattern(canvas: Canvas, w: Float, h: Float) {
+        val symbol = emoji ?: return
+        val elapsed = (SystemClock.uptimeMillis() - startedAt) / 1000f
+        emojiPaint.textSize = dp(27f)
+        emojiPaint.alpha = 115
+        canvas.save()
+        canvas.rotate(-.763f * elapsed, w / 2f, h / 2f)
+        for (index in 0 until 42) {
+            val column = index % 6
+            val row = index / 6
+            val x = (column + .3f) * w / 5.5f + panX - dp(20f)
+            val y = (row + .2f) * h / 6.8f + panY - dp(12f) - elapsed * dp(6.2f) % h
+            canvas.drawText(symbol, x, (y + h) % h, emojiPaint)
+        }
+        canvas.restore()
+    }
+
+    private fun drawScene(canvas: Canvas, w: Float, h: Float, export: Boolean = false) {
+        if (w <= 0 || h <= 0) return
+        val newColor = colors[palette]
+        val oldColor = colors[previousPalette]
+        val bg = intArrayOf(mix(oldColor[0], newColor[0], if (export) 1f else paletteBlend),
+            mix(oldColor[1], newColor[1], if (export) 1f else paletteBlend))
         paint.shader = RadialGradient(w / 2f, h * .47f, h * .72f,
             bg, null, Shader.TileMode.CLAMP)
         canvas.drawRect(0f, 0f, w, h, paint)
         paint.shader = null
+        drawPattern(canvas, w, h)
         val available = (h - systemTop - systemBottom - dp(174f)).coerceAtLeast(dp(120f))
         val cw = min(w * .745f, available / 1.07f)
         val ch = cw * 1.07f
@@ -71,6 +268,8 @@ internal class TelegramQrSceneView(
             .coerceAtLeast(systemTop + dp(72f))
         val y = rest.coerceIn(systemTop + dp(72f), upper)
         bounds.set(x, y, x + cw, y + ch)
+        canvas.save()
+        if (!export) canvas.scale(sceneScale, sceneScale, w / 2f, y + ch / 2f)
         paint.color = 0x25000000
         paint.setShadowLayer(dp(20f), 0f, dp(4f), 0x25000000)
         canvas.drawRoundRect(bounds, dp(30f), dp(30f), paint)
@@ -80,7 +279,7 @@ internal class TelegramQrSceneView(
         val size = cw * .70f
         val qLeft = x + (cw - size) / 2f
         val qTop = y + cw * .12f
-        drawModules(canvas, qLeft, qTop, size)
+        drawModules(canvas, qLeft, qTop, size, if (export) 1f else qrBuild)
         val caption = "@" + username.uppercase(Locale.ROOT)
         labelPaint.color = qrColor()
         for (pt in floatArrayOf(30f, 25f, 19f)) {
@@ -90,20 +289,17 @@ internal class TelegramQrSceneView(
         val middle = (qTop + size + y + ch) / 2f
         val baseline = middle - (labelPaint.ascent() + labelPaint.descent()) / 2f - dp(4f)
         canvas.drawText(caption, w / 2f, baseline, labelPaint)
+        canvas.restore()
     }
 
-    private fun qrColor(): Int = when (palette) {
-        1 -> 0xFF166ACE.toInt()
-        2 -> 0xFF2D3032.toInt()
-        else -> Color.BLACK
-    }
+    private fun qrColor(): Int = colors[palette][2]
     private fun finder(x: Int, y: Int, n: Int) =
         (x < 7 && y < 7) || (x >= n - 7 && y < 7) || (x < 7 && y >= n - 7)
     private fun dark(x: Int, y: Int, n: Int) =
         x in 0 until n && y in 0 until n && matrix.get(x, y).toInt() == 1
 
     /** Source-inspired connected-corner and finder nests, adapted from TelegramQRCodeWriter. */
-    private fun drawModules(canvas: Canvas, left: Float, top: Float, size: Float) {
+    private fun drawModules(canvas: Canvas, left: Float, top: Float, size: Float, build: Float) {
         val n = matrix.width
         if (n <= 0) return
         val cell = size / n
@@ -114,6 +310,7 @@ internal class TelegramQrSceneView(
         for (cy in 0 until n) for (cx in 0 until n) {
             if (!dark(cx, cy, n) || finder(cx, cy, n) ||
                 (cx in logoStart until logoStart + 5 && cy in logoStart until logoStart + 5)) continue
+            if (build < 1f && ((cx * 31 + cy * 17) % 101) / 101f > build) continue
             val a = FloatArray(8) { radius }
             if (dark(cx, cy - 1, n)) for (i in 0..3) a[i] = 0f
             if (dark(cx, cy + 1, n)) for (i in 4..7) a[i] = 0f
@@ -154,7 +351,7 @@ internal class TelegramQrSceneView(
     fun renderShareImage(): Bitmap? {
         if (width <= 0 || height <= 0) return null
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        drawScene(Canvas(bitmap), width.toFloat(), height.toFloat())
+        drawScene(Canvas(bitmap), width.toFloat(), height.toFloat(), export = true)
         return bitmap
     }
 }
