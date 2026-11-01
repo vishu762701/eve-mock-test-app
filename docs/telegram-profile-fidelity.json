@@ -33,15 +33,17 @@
         "TMessagesProj/src/main/java/org/telegram/ui/ProfileActivity.java"
       ],
       "eve_paths": [
-        "app/src/main/java/com/eve/app/ui/profile/ProfileOverflowPopup.kt"
+        "app/src/main/java/com/eve/app/ui/profile/ProfileOverflowPopup.kt",
+        "app/src/main/java/com/eve/app/ui/profile/ProfilePopupBlurBackdrop.kt"
       ],
       "tests": [
-        "app/src/androidTest/java/com/eve/app/ui/profile/ProfileOverflowNativeTest.kt"
+        "app/src/androidTest/java/com/eve/app/ui/profile/ProfileOverflowNativeTest.kt",
+        "app/src/test/java/com/eve/app/ui/profile/ProfilePopupBlurContractTest.kt"
       ],
       "source_map": "docs/PROFILE_REGRESSION_REPAIR.md",
       "remaining_gaps": [
-        "Telegram profile-specific blur3 captured scene and popup backdrop are not ported end-to-end.",
-        "Native matched popup screenshots and interrupted animation comparisons remain unverified."
+        "Original Telegram ScrimOptions/Blur3 global multi-window capture, RenderNode-backed drawable factory, liquid-glass and ViewPositionWatcher are not yet integrated; EVE now uses a source-parameterized transient current-window snapshot, stack blur and popup paint adapter.",
+        "Source-exact screenshot/animation comparison of popup on signed-in hardware with GPU cutout, Day/Night, font scale and dynamic window movement remains unverified."
       ]
     },
     {

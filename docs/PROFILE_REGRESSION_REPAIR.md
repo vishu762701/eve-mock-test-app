@@ -341,3 +341,33 @@ account feature is shown. Native source-raster scanning/theme/rotation test
 runs. Matched Telegram/EVE frames at the same build/device, 60/90/120Hz
 motion and signed-in real-device comparison remain UNKNOWN. A passing CI run
 does not change the \`personal-qr\` acceptance status from OPEN.
+
+## Profile-specific captured popup blur (2026-11-01)
+
+At source revision `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`,
+`ProfileActivity.java:4073-4090,16979-16996` installs a Blur3 source bitmap
+factory on its three-dot menu. The chain is `ScrimOptions.java:349-368` ->
+`AndroidUtilities.java:6032-6094` (15x sampled global window capture and
+15-radius stack blur) -> `BlurredBackgroundSourceBitmap` and
+`BlurredBackgroundProviderImpl.java:97-110` (Day 82.5%, Night 85% submenu
+fill, top/bottom stroke/shadow) -> `ActionBarMenuItem.java:757-765` (12dp
+corners and 8dp padding).
+
+EVE now captures the *attached current window before popup opens* into a
+transient downscaled bitmap, runs the existing Telegram-derived
+`ProfileStackBlur`, applies the source options saturation/brightness color
+matrix, and paints it in the actual `ActionBarPopupWindowLayout` background.
+The source nine-patch is kept as a fallback for unavailable captures. Unlike
+Telegram's complete Blur3 pipeline, EVE intentionally excludes Telegram's
+multi-account/global-window inventory, glass engine, RenderNode backend and
+ViewPositionWatcher, so overall classification is **ADAPTED**, not EXACT. The
+bitmap is never saved to disk and is explicitly recycled on popup dismissal,
+including lifecycle/theme teardown. The popup's existing anchor, Back/outside,
+row animation, callbacks and keyboard behavior remain unchanged. Existing
+native popup test now checks the real attached backdrop (both navigation
+modes when FULL runs); JVM contract guards parameters and recycling wiring.
+
+**Still open:** matched screenshots/video on the same Telegram build/device,
+fast repeated-opening and scrolling hardware frames, fallback handling on
+non-software drawable hosts, GPL distribution review and complete source
+factory dependency port. A green compilation is not pixel/motion acceptance.

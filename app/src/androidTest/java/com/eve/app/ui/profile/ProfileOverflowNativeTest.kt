@@ -147,7 +147,12 @@ class ProfileOverflowNativeTest {
                     val window = sourceWindow(popup)
                     val root = window.contentView as ActionBarPopupWindow.ActionBarPopupWindowLayout
                     assertNotNull("Original source swipe-back parent is mounted", root.swipeBack)
-                    assertTrue(root.backgroundDrawable is android.graphics.drawable.NinePatchDrawable)
+                    // Captured scene is provided by the actual popup background
+                    // factory, never a decorative view laid over its rows.
+                    val backdrop = root.backgroundDrawable
+                    assertTrue("Source-backed profile blur is attached to the real popup",
+                        backdrop is ProfilePopupBlurBackdrop)
+                    assertFalse((backdrop as ProfilePopupBlurBackdrop).isReleased)
                     assertEquals(2, root.itemsCount)
                     assertEquals(1f, root.backScaleY, .001f)
                     val frame = Rect().also(b.btnProfileMenu::getWindowVisibleDisplayFrame)

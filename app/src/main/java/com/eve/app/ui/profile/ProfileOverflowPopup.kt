@@ -41,6 +41,10 @@ internal class ProfileOverflowPopup(private val anchor: View) {
             R.drawable.telegram_dialog_popup_fixed_alert4, provider,
             ActionBarPopupWindow.ActionBarPopupWindowLayout.FLAG_USE_SWIPEBACK)
         layout.setFitItems(true)
+        // Capture the scene before the popup enters the window. This isolates
+        // Telegram's scrim bitmap/colors from EVE's account and network code.
+        val blurBackdrop = ProfilePopupBlurBackdrop.capture(anchor, layout, palette)
+        if (blurBackdrop != null) layout.setBackgroundDrawable(blurBackdrop)
         val popup = ActionBarPopupWindow(layout, -2, -2, true)
         window = popup
         val motion = Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) > 0f
@@ -84,7 +88,10 @@ internal class ProfileOverflowPopup(private val anchor: View) {
             View.MeasureSpec.makeMeasureSpec(frame.height(), View.MeasureSpec.AT_MOST))
         popup.width = layout.measuredWidth
         popup.height = layout.measuredHeight
-        popup.setOnDismissListener { if (window === popup) window = null }
+        popup.setOnDismissListener {
+            blurBackdrop?.release()
+            if (window === popup) window = null
+        }
         // ActionBarMenuItem.updateOrShowPopup: right edge of the triggering item,
         // menu content starts at the ActionBar's top rather than below it.
         popup.showAsDropDown(anchor, anchor.width - layout.measuredWidth, -anchor.height)
