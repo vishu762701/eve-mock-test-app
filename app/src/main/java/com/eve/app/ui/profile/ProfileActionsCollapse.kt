@@ -35,6 +35,7 @@ internal object ProfileActionsCollapse {
     }
 
     fun applyTo(buttons: List<LinearLayout>, state: State) {
+        (buttons.firstOrNull()?.parent as? ProfileActionsCanvasLayout)?.setCollapseState(state)
         val backgroundAlphaByte = (state.backgroundAlpha * 255f).roundToInt()
         for (button in buttons) {
             val drawable = button.background?.mutate()

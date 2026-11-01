@@ -367,11 +367,13 @@ class ProfileActivity : EveBaseActivity() {
             profileOptionsPopup?.dismiss(immediate = true)
             // Stable Telegram icon variants: outline on light button surfaces,
             // filled on dark; photo-viewer expansion crossfade remains unported.
+            val surface = androidx.core.content.ContextCompat.getColor(
+                this, R.color.category_pill_unselected_bg
+            )
+            binding.layoutActions.setActionColor(surface)
             ProfileActionIcons.applyTo(
                 listOf(binding.btnSetPhoto, binding.btnEditInfo, binding.btnSettings),
-                surfaceColor = androidx.core.content.ContextCompat.getColor(
-                    this, R.color.category_pill_unselected_bg
-                )
+                surfaceColor = surface
             )
             if (expansionFraction > 0) positionFullWindowAvatarHost()
         }

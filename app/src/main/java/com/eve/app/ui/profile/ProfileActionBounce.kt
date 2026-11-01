@@ -55,8 +55,7 @@ internal class ProfileActionBounce private constructor(private val view: View) :
         next.addUpdateListener {
             pressProgress = it.animatedValue as Float
             val scale = 1f - SCALE_DIFF * pressProgress
-            view.scaleX = scale
-            view.scaleY = scale
+            applyScale(scale)
         }
         next.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator) {
@@ -64,12 +63,23 @@ internal class ProfileActionBounce private constructor(private val view: View) :
                     animator = null
                     pressProgress = if (pressed) 1f else 0f
                     val scale = 1f - SCALE_DIFF * pressProgress
-                    view.scaleX = scale
-                    view.scaleY = scale
+                    applyScale(scale)
                 }
             }
         })
         next.start()
+    }
+
+    private fun applyScale(scale: Float) {
+        val target = view.parent as? ProfileActionsCanvasLayout
+        if (target != null) {
+            view.scaleX = 1f
+            view.scaleY = 1f
+            target.setPressScale(view, scale)
+        } else {
+            view.scaleX = scale
+            view.scaleY = scale
+        }
     }
 
     private fun cancelAnimationAndReset() {
@@ -77,8 +87,7 @@ internal class ProfileActionBounce private constructor(private val view: View) :
         animator = null
         isDown = false
         pressProgress = 0f
-        view.scaleX = 1f
-        view.scaleY = 1f
+        applyScale(1f)
     }
 
     @SuppressLint("ClickableViewAccessibility")

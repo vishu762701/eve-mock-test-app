@@ -9,9 +9,9 @@ import java.io.File
 class ProfileActionsGeometryContractTest {
     @Test fun profileActionRowUsesVerifiedTelegramStaticMetrics() {
         val xml = File("src/main/res/layout/activity_profile.xml").readText()
-        val row = xml.substringAfter("android:id=\"@+id/layoutActions\"").substringBefore("</LinearLayout>")
+        val row = xml.substringAfter("android:id=\"@+id/layoutActions\"").substringBefore("</com.eve.app.ui.profile.ProfileActionsCanvasLayout>")
         assertTrue(row.contains("android:layout_height=\"74dp\""))
-        assertTrue(row.contains("android:layout_marginHorizontal=\"14dp\""))
+        assertTrue(row.contains("android:paddingHorizontal=\"14dp\""))
         assertTrue(row.contains("android:paddingTop=\"8dp\""))
         assertTrue(row.contains("android:paddingBottom=\"12dp\""))
 
@@ -24,7 +24,7 @@ class ProfileActionsGeometryContractTest {
             val item = xml.substringAfter("android:id=\"@+id/$id\"").substringBefore("</LinearLayout>")
             assertTrue("$id uses 54dp", item.contains("android:layout_height=\"54dp\""))
             assertTrue("$id uses source spacing", item.contains(spacing))
-            assertTrue("$id has isolated source-radius surface", item.contains("@drawable/telegram_profile_action_surface"))
+            assertTrue("$id is a transparent clickable native wrapper", item.contains("@android:color/transparent"))
             assertTrue("$id labels use source text role", item.contains("style=\"@style/TextAppearance.Eve.Telegram.ProfileAction.Source\""))
             assertFalse("$id text size must be defined by its role", item.contains("android:textSize="))
             assertFalse("$id must not use the global pill surface", item.contains("@drawable/design_pill_surface"))
@@ -32,8 +32,9 @@ class ProfileActionsGeometryContractTest {
         val typography = File("src/main/res/values/telegram_typography.xml").readText()
         val role = typography.substringAfter("<style name=\"TextAppearance.Eve.Telegram.ProfileAction.Source\"").substringBefore("</style>")
         assertTrue(role.contains("<item name=\"android:textSize\">11sp</item>"))
-        val surface = File("src/main/res/drawable/telegram_profile_action_surface.xml").readText()
-        assertTrue(surface.contains("android:radius=\"16dp\""))
-        assertTrue(surface.contains("@color/category_pill_unselected_bg"))
+        val renderer = File("src/main/java/com/eve/app/ui/profile/ProfileActionsCanvasLayout.kt").readText()
+        assertTrue(renderer.contains("val radius = dp(16f)"))
+        assertTrue(renderer.contains("canvas.drawRoundRect(rect, radius, radius, surfacePaint)"))
+        assertTrue(renderer.contains("textLayout.draw(canvas)"))
     }
 }

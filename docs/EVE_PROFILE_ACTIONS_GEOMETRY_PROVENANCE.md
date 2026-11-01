@@ -24,3 +24,26 @@ This change **does not transplant the original 1,356-line `ProfileActionsView.ja
 Regression proof requested: `ProfileActionsGeometryContractTest` JVM source test; `ProfileActionsGeometryNativeTest` Day/Night inflation, native layout and focus/click metrics. Compilation by FAST is **not** native test execution. Native motion and source-matched screenshots remain mandatory before final acceptance.
 
 No backend, production deployment, credentials, auth, photo storage, navigation destination or other screen style token changed. Source is GPL v2 or later per original file notice; preserve attribution and distribution obligations.
+ 
+## Self-profile Canvas renderer replacement (2026-11-01)
+
+Official `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`,
+`Components/ProfileActionsView.java:116-141,176-224,247-337,383-464,510-587,
+1027-1034,1214-1234`. EVE `ProfileActionsCanvasLayout.kt` paints the
+MODE_MY_PROFILE surfaces, icons and labels in one Canvas drawing path.
+Three invisible but measured native button children remain as exact existing
+app click/keyboard/TalkBack targets for Set Photo, Edit Info and Settings.
+Original 14/7dp horizontal inset/gap, 8/54/12dp vertical metrics, 16dp radius,
+two alpha stages, icon bounds, original byte-identical icons, and painted
+ButtonBounce scaling are now mapped. Source parent-expanded fill/outline
+crossfade is applied by `ProfileHeaderExpansion`; app theme updates use the
+existing shared source color instead of changing unrelated screens.
+
+Classification: **ADAPTED**, not full 100%-exact upstream View. EVE uses
+`StaticLayout` and native accessible hit wrappers, not Telegram's internal
+`Text`, virtual `AccessibilityNodeProvider`, `AnimatedFloat` or complete
+`RenderNode` avatar-masked background. Source GIF/call/notification/voice,
+other profile modes, account and network dependencies are intentionally
+excluded. No change to existing profile actions, storage, Firebase or Worker
+logic. Source tests and compiled native tests do not prove matched Telegram
+screenshots, device motion, cutout alignment or GPL distribution clearance.

@@ -16,6 +16,7 @@ import kotlin.math.roundToInt
 internal object ProfileHeaderExpansion {
     fun apply(binding: ActivityProfileBinding, fraction: Float, statusTop: Int) {
         val f = fraction.coerceIn(0f, 1f)
+        binding.layoutActions.setParentExpanded(f)
         val density = binding.root.resources.displayMetrics.density
         val size = (100 * density + (binding.root.width.coerceAtLeast((100 * density).toInt()) - 100 * density) * f).roundToInt()
         val image = binding.avatarContainer

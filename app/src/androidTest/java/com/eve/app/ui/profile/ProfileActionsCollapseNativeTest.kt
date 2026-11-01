@@ -30,6 +30,7 @@ class ProfileActionsCollapseNativeTest {
 
                 val mid = ProfileActionsCollapse.atScroll(20f * density, density)
                 ProfileActionsCollapse.applyTo(buttons, mid)
+                assertEquals(mid, b.layoutActions.renderedState)
                 buttons.forEach { button ->
                     assertTrue(button.isEnabled)
                     assertEquals((mid.backgroundAlpha * 255f).toInt().toFloat(),
@@ -42,6 +43,7 @@ class ProfileActionsCollapseNativeTest {
                 ProfileActionsCollapse.applyTo(
                     buttons, ProfileActionsCollapse.atScroll(74f * density, density)
                 )
+                assertEquals(0f, b.layoutActions.renderedState.backgroundAlpha, 0.0001f)
                 buttons.forEach { button ->
                     assertFalse(button.isEnabled)
                     assertEquals(0, button.background.alpha)
@@ -50,6 +52,7 @@ class ProfileActionsCollapseNativeTest {
                 ProfileActionsCollapse.applyTo(
                     buttons, ProfileActionsCollapse.atScroll(0f, density)
                 )
+                assertEquals(1f, b.layoutActions.renderedState.contentAlpha, 0.0001f)
                 buttons.forEach { button ->
                     assertTrue(button.isEnabled)
                     assertEquals(255, button.background.alpha)
