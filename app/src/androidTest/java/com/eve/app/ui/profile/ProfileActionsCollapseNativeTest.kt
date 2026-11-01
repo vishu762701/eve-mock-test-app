@@ -1,6 +1,10 @@
 package com.eve.app.ui.profile
 
 import android.content.res.Configuration
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.view.View
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -27,14 +31,38 @@ class ProfileActionsCollapseNativeTest {
                 val b = ActivityProfileBinding.inflate(LayoutInflater.from(context))
                 val buttons = listOf(b.btnSetPhoto, b.btnEditInfo, b.btnSettings)
                 val density = context.resources.displayMetrics.density
+                val width = (360f * density).toInt()
+                val height = (74f * density).toInt()
+                val row = b.layoutActions
+                row.measure(
+                    View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
+                )
+                row.layout(0, 0, row.measuredWidth, row.measuredHeight)
+                fun paintAlpha(): Int {
+                    val bmp = Bitmap.createBitmap(row.width, row.height, Bitmap.Config.ARGB_8888)
+                    try {
+                        row.draw(Canvas(bmp))
+                        return Color.alpha(bmp.getPixel(
+                            row.paddingLeft + (10f * density).toInt(),
+                            (14f * density).toInt()
+                        ))
+                    } finally {
+                        bmp.recycle()
+                    }
+                }
+                val expandedAlpha = paintAlpha()
+                assertTrue("Source Canvas paints opaque expanded action", expandedAlpha > 0)
 
                 val mid = ProfileActionsCollapse.atScroll(20f * density, density)
                 ProfileActionsCollapse.applyTo(buttons, mid)
                 assertEquals(mid, b.layoutActions.renderedState)
+                assertEquals(mid.backgroundAlpha, row.renderedState.backgroundAlpha, 0.0001f)
+                val middleAlpha = paintAlpha()
+                assertTrue("Actual Canvas alpha must fade while scrolling",
+                    middleAlpha > 0 && middleAlpha < expandedAlpha)
                 buttons.forEach { button ->
                     assertTrue(button.isEnabled)
-                    assertEquals((mid.backgroundAlpha * 255f).toInt().toFloat(),
-                        button.background.alpha.toFloat(), 1f)
                     for (index in 0 until button.childCount) {
                         assertEquals(mid.contentAlpha, button.getChildAt(index).alpha, 0.001f)
                     }
@@ -43,19 +71,21 @@ class ProfileActionsCollapseNativeTest {
                 ProfileActionsCollapse.applyTo(
                     buttons, ProfileActionsCollapse.atScroll(74f * density, density)
                 )
-                assertEquals(0f, b.layoutActions.renderedState.backgroundAlpha, 0.0001f)
+                assertEquals(0f, row.renderedState.backgroundAlpha, 0.0001f)
+                assertEquals("Source Canvas terminal collapse must be transparent", 0, paintAlpha())
                 buttons.forEach { button ->
                     assertFalse(button.isEnabled)
-                    assertEquals(0, button.background.alpha)
                 }
 
                 ProfileActionsCollapse.applyTo(
                     buttons, ProfileActionsCollapse.atScroll(0f, density)
                 )
-                assertEquals(1f, b.layoutActions.renderedState.contentAlpha, 0.0001f)
+                assertEquals(1f, row.renderedState.contentAlpha, 0.0001f)
+                assertEquals(1f, row.renderedState.backgroundAlpha, 0.0001f)
+                assertEquals("Reverse scroll must restore real Canvas opacity",
+                    expandedAlpha, paintAlpha())
                 buttons.forEach { button ->
                     assertTrue(button.isEnabled)
-                    assertEquals(255, button.background.alpha)
                     for (index in 0 until button.childCount) {
                         assertEquals(1f, button.getChildAt(index).alpha, 0.001f)
                     }

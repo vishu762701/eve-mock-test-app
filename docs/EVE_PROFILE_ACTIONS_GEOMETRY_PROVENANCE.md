@@ -56,3 +56,20 @@ real bitmap differences during Telegram's 0.04 painted bounce, stable native
 click-view geometry, and repainting when the resolved surface color changes.
 This is device-executed evidence only when both native FULL jobs complete.
 No assert threshold or source animation timing has been reduced to pass tests.
+
+
+### Native FULL forward repair
+
+FULL run 41280788633 failed in both navigation modes on
+`ProfileActionsCollapseNativeTest.kt:36`. Actual assertion:
+`expected:<136.0> but was:<0.0>`. The test still read the alpha of a
+transparent *native hit wrapper* introduced by the Canvas renderer; that
+drawable has no visible fill, so its alpha no longer represents the painted
+source action. This was a **stale test fixture**, not evidence that the
+Canvas alpha calculation changed.
+
+The fixture now measures/layouts the real parent, paints it to an in-memory
+bitmap and checks that actual action pixels transition full > middle > zero
+and return to the full endpoint on reverse scroll. It still asserts native
+touch enabled gating and child content alpha; no behavior is bypassed or
+threshold reduced. Both original failing native modes remain mandatory.
