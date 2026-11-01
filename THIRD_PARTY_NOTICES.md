@@ -591,3 +591,19 @@ The upstream project NOTICE is retained in `app/src/main/assets/licenses/ZXing-N
 including the Barcode4J attribution relevant to bundled PDF417 encoder code.
 No Telegram identity, messaging, account service, credentials or network client is
 imported. The EVE-specific URI shares only a username and never establishes ownership.
+
+## Home reuse of the existing Notifications empty-state bell
+
+The owner's newer instruction replaces the Tabler Home artwork described above.
+Home now reuses `res/raw/notification_bell.json`'s existing paths and keyframes;
+`home_notification_bell.json` changes only canvas padding and root translation.
+The idle vector is a cubic-path conversion of frame zero, not a traced screenshot.
+The historical file entered this repository in commit
+`e9bad22a81ad5617dc2cca72a7f08583cb75e220`. Its embedded name is
+`Lottie Files_Icon_Notifications`; no author, original URL or asset-specific license
+was found in the file or introduction history. Repository GPL-3.0 does not by
+itself establish the original contributor's rights to this asset. External origin
+and asset-specific redistribution permission remain UNKNOWN; no Apple, Telegram
+or Tabler provenance is claimed for this artwork. No new external asset was copied.
+Retain this limitation for release review and obtain original provenance before
+claiming asset licensing clearance.

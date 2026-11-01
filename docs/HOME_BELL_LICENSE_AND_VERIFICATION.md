@@ -1,3 +1,20 @@
+# Current Home bell reuse
+
+The current owner instruction supersedes the historical Tabler decision below.
+Home reuses the Notifications empty-state `notification_bell.json` paths and
+keyframes. `home_notification_bell.json` adds canvas padding only; the static
+`ic_home_notification.xml` is its frame-zero cubic geometry. The existing 48dp
+control and 24dp fallback bounds remain, with about 20dp visible artwork.
+Existing tap, incoming-event, unread, interruption and reduced-motion handling
+remain in MainActivity. The original inbox resource and system notification icons
+remain unchanged.
+
+The original asset-specific license and external author are UNKNOWN. See the
+new Home reuse entry in THIRD_PARTY_NOTICES.md. Repository history establishes
+existing use, not external redistribution clearance.
+
+The following is retained as historical evidence of the superseded artwork.
+
 # Home notification bell
 
 ## Owner decision and Apple evidence

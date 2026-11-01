@@ -2012,36 +2012,7 @@ class MainActivity : EveBaseActivity() {
             com.eve.app.designsystem.DesignPress.bind(row)
         }
 
-        binding.layoutDrawerProfile.setOnClickListener {
-            navigateFromDrawer(Intent(this, ProfileActivity::class.java))
-        }
-        binding.layoutDrawerPremium.setOnClickListener {
-            navigateFromDrawer(Intent(this, com.eve.app.ui.premium.PremiumActivity::class.java))
-        }
-        binding.layoutDrawerPerformance.setOnClickListener {
-            navigateFromDrawer(Intent(this, PerformanceActivity::class.java))
-        }
-        binding.layoutDrawerLeaderboard.setOnClickListener {
-            navigateFromDrawer(Intent(this, LeaderboardActivity::class.java).apply {
-                putExtra(Constants.EXTRA_EXAM_ID, "overall")
-                putExtra(Constants.EXTRA_EXAM_NAME, "Overall Leaderboard")
-            })
-        }
-        binding.layoutDrawerSyllabus.setOnClickListener {
-            navigateFromDrawer(Intent(this, SyllabusActivity::class.java))
-        }
-        binding.layoutDrawerTopic.setOnClickListener {
-            navigateFromDrawer(Intent(this, PracticeActivity::class.java))
-        }
-        binding.layoutDrawerPyq.setOnClickListener {
-            navigateFromDrawer(Intent(this, PyqActivity::class.java))
-        }
-        binding.layoutDrawerMistakes.setOnClickListener {
-            navigateFromDrawer(Intent(this, com.eve.app.ui.mistakes.MistakesActivity::class.java))
-        }
-        binding.layoutDrawerSettings.setOnClickListener {
-            navigateFromDrawer(Intent(this, SettingsActivity::class.java))
-        }
+        HomeDrawerActions.bind(binding, ::navigateFromDrawer)
     }
 
     private fun updateDrawerHeader(user: com.google.firebase.auth.FirebaseUser) {
