@@ -17,5 +17,9 @@ class EveQrScannerContractTest {
         assertFalse(scanner.contains("startActivity(Intent(Intent.ACTION_VIEW"))
         assertEquals("test_name", ProfileQrPayload.parse("eve-mock-test://username/test_name"))
         assertNull(ProfileQrPayload.parse("https://t.me/example"))
+        assertTrue(scanner.contains("inJustDecodeBounds = true"))
+        assertTrue(scanner.contains("QrScanImageSizing.sampleSize"))
+        assertTrue(scanner.contains("isDestroyed || isFinishing || closing"))
+        assertFalse(scanner.contains("inSampleSize = 4"))
     }
 }

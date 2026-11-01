@@ -238,23 +238,44 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
     }
 
     private fun scanGallery(uri: Uri) {
-        if (worker.isShutdown) return
+        if (worker.isShutdown || closing || completed.get()) return
         worker.execute {
             var bitmap: android.graphics.Bitmap? = null
             try {
+                // Read only image metadata first. A fixed sample size either wastes
+                // memory for huge gallery files or destroys small QR modules.
+                val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                contentResolver.openInputStream(uri)?.use { input ->
+                    BitmapFactory.decodeStream(input, null, bounds)
+                } ?: throw IllegalArgumentException("Unable to read image bounds")
+                val sample = QrScanImageSizing.sampleSize(bounds.outWidth, bounds.outHeight)
+                if (sample == 0) throw IllegalArgumentException("Unsafe image dimensions")
                 bitmap = contentResolver.openInputStream(uri)?.use { input ->
-                    BitmapFactory.decodeStream(input, null, BitmapFactory.Options().apply { inSampleSize = 4 })
+                    BitmapFactory.decodeStream(input, null, BitmapFactory.Options().apply {
+                        inSampleSize = sample
+                        inScaled = false
+                        inPreferredConfig = android.graphics.Bitmap.Config.RGB_565
+                    })
                 }
                 val image = bitmap ?: throw IllegalArgumentException("Unsupported image")
+                if (image.width <= 0 || image.height <= 0 ||
+                    image.width.toLong() * image.height > QrScanImageSizing.MAX_PIXELS) {
+                    throw IllegalArgumentException("Decoded image exceeds QR scan limits")
+                }
                 val pixels = IntArray(image.width * image.height)
                 image.getPixels(pixels, 0, image.width, 0, 0, image.width, image.height)
                 val result = decode(RGBLuminanceSource(image.width, image.height, pixels))
                 runOnUiThread {
+                    if (isDestroyed || isFinishing || closing || completed.get()) return@runOnUiThread
                     if (result == null) AppBulletin.showError(this, "No QR detected in image")
                     else handleLink(result)
                 }
             } catch (_: Exception) {
-                runOnUiThread { if (!isFinishing) AppBulletin.showError(this, "Unable to scan image") }
+                runOnUiThread {
+                    if (!isDestroyed && !isFinishing && !closing && !completed.get()) {
+                        AppBulletin.showError(this, "Unable to scan image")
+                    }
+                }
             } finally {
                 bitmap?.recycle()
             }
