@@ -19,6 +19,61 @@ class ProfileOverflowNativeTest {
         ProfileOverflowPopup::class.java.getDeclaredField("window").apply { isAccessible = true }
             .get(popup) as ActionBarPopupWindow
 
+    @Test fun publicPlatformAnchorTrackingFollowsScrollAndDetachesOnDismiss() {
+        val inst = InstrumentationRegistry.getInstrumentation()
+        ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
+            lateinit var scroll: android.widget.ScrollView
+            lateinit var popup: ProfileOverflowPopup
+            lateinit var anchor: android.widget.ImageButton
+            var movement = 0
+            var initialY = 0
+            scenario.onActivity { activity ->
+                val density = activity.resources.displayMetrics.density
+                movement = (40 * density).toInt()
+                scroll = android.widget.ScrollView(activity)
+                val content = android.widget.FrameLayout(activity)
+                anchor = android.widget.ImageButton(activity)
+                content.addView(anchor, android.widget.FrameLayout.LayoutParams(
+                    (48 * density).toInt(), (48 * density).toInt()).apply {
+                    gravity = android.view.Gravity.TOP or android.view.Gravity.END
+                    topMargin = (200 * density).toInt()
+                })
+                scroll.addView(content, android.widget.FrameLayout.LayoutParams(-1, (2000 * density).toInt()))
+                activity.setContentView(scroll)
+            }
+            inst.waitForIdleSync()
+            scenario.onActivity {
+                popup = ProfileOverflowPopup(anchor)
+                popup.show(true, {}, {})
+            }
+            android.os.SystemClock.sleep(400)
+            scenario.onActivity {
+                assertTrue(popup.isShowing)
+                initialY = IntArray(2).also(sourceWindow(popup).contentView::getLocationOnScreen)[1]
+                scroll.scrollTo(0, movement)
+            }
+            android.os.SystemClock.sleep(160)
+            inst.waitForIdleSync()
+            scenario.onActivity {
+                val afterY = IntArray(2).also(sourceWindow(popup).contentView::getLocationOnScreen)[1]
+                assertEquals("Public PopupWindow anchor tracking must follow a real scroll",
+                    (initialY - movement).toFloat(), afterY.toFloat(), 2f)
+                popup.dismiss(immediate = true)
+                scroll.scrollTo(0, movement * 2)
+            }
+            inst.waitForIdleSync()
+            scenario.onActivity {
+                assertFalse(popup.isShowing)
+                popup.show(true, {}, {})
+            }
+            android.os.SystemClock.sleep(400)
+            scenario.onActivity {
+                assertTrue("The same owner can reopen after public anchor detachment", popup.isShowing)
+                popup.dismiss(immediate = true)
+            }
+        }
+    }
+
     @Test fun actualMenuAnchorsDispatchesDismissesAndReopens() {
         val inst = InstrumentationRegistry.getInstrumentation()
         ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->

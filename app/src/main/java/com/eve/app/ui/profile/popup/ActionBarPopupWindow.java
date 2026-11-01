@@ -57,15 +57,11 @@ import androidx.annotation.Nullable;
 
 
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ActionBarPopupWindow extends PopupWindow {
 
-    private static Method layoutInScreenMethod;
-    private static final Field superListenerField;
     private static DecelerateInterpolator decelerateInterpolator = new DecelerateInterpolator();
     private AnimatorSet windowAnimatorSet;
     private boolean animationEnabled = true;
@@ -74,23 +70,8 @@ public class ActionBarPopupWindow extends PopupWindow {
     private long outEmptyTime = -1;
     private boolean scaleOut;
 
-    static {
-        Field f = null;
-        try {
-            f = PopupWindow.class.getDeclaredField("mOnScrollChangedListener");
-            f.setAccessible(true);
-        } catch (NoSuchFieldException e) {
-            /* ignored */
-        }
-        superListenerField = f;
-    }
-
-    private static final ViewTreeObserver.OnScrollChangedListener NOP = () -> {
-        /* do nothing */
-    };
-
-    private ViewTreeObserver.OnScrollChangedListener mSuperScrollListener;
-    private ViewTreeObserver mViewTreeObserver;
+    // EVE minSdk 24+: PopupWindow owns public anchor attachment/scroll tracking.
+    // Do not replace its private listener: target API 36 blocks that field.
 
     public void setScaleOut(boolean b) {
         scaleOut = b;
@@ -712,16 +693,10 @@ public class ActionBarPopupWindow extends PopupWindow {
         animationEnabled = value;
     }
 
-    @SuppressWarnings("PrivateAPI")
+    /** Public API on Q+; older normal anchored menus use platform defaults. */
     public void setLayoutInScreen(boolean value) {
-        try {
-            if (layoutInScreenMethod == null) {
-                layoutInScreenMethod = PopupWindow.class.getDeclaredMethod("setLayoutInScreenEnabled", boolean.class);
-                layoutInScreenMethod.setAccessible(true);
-            }
-            layoutInScreenMethod.invoke(this, true);
-        } catch (Exception e) {
-            android.util.Log.e("ProfilePopup", "Popup operation failed", e);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            setIsLaidOutInScreen(value);
         }
     }
 
@@ -741,42 +716,16 @@ public class ActionBarPopupWindow extends PopupWindow {
                 return false;
             });
         }
-        if (superListenerField != null) {
-            try {
-                mSuperScrollListener = (ViewTreeObserver.OnScrollChangedListener) superListenerField.get(this);
-                superListenerField.set(this, NOP);
-            } catch (Exception e) {
-                mSuperScrollListener = null;
-            }
-        }
+
     }
 
     public void setDismissAnimationDuration(int value) {
         dismissAnimationDuration = value;
     }
 
-    private void unregisterListener() {
-        if (mSuperScrollListener != null && mViewTreeObserver != null) {
-            if (mViewTreeObserver.isAlive()) {
-                mViewTreeObserver.removeOnScrollChangedListener(mSuperScrollListener);
-            }
-            mViewTreeObserver = null;
-        }
-    }
 
-    private void registerListener(View anchor) {
-        if (mSuperScrollListener != null) {
-            ViewTreeObserver vto = (anchor.getWindowToken() != null) ? anchor.getViewTreeObserver() : null;
-            if (vto != mViewTreeObserver) {
-                if (mViewTreeObserver != null && mViewTreeObserver.isAlive()) {
-                    mViewTreeObserver.removeOnScrollChangedListener(mSuperScrollListener);
-                }
-                if ((mViewTreeObserver = vto) != null) {
-                    vto.addOnScrollChangedListener(mSuperScrollListener);
-                }
-            }
-        }
-    }
+
+
 
     public void dimBehind() {
         dimBehind(0.2f);
@@ -832,7 +781,6 @@ public class ActionBarPopupWindow extends PopupWindow {
     public void showAsDropDown(View anchor, int xoff, int yoff) {
         try {
             super.showAsDropDown(anchor, xoff, yoff);
-            registerListener(anchor);
         } catch (Exception e) {
             android.util.Log.e("ProfilePopup", "Popup operation failed", e);
         }
@@ -995,19 +943,16 @@ public class ActionBarPopupWindow extends PopupWindow {
     @Override
     public void update(View anchor, int xoff, int yoff, int width, int height) {
         super.update(anchor, xoff, yoff, width, height);
-        registerListener(anchor);
     }
 
     @Override
     public void update(View anchor, int width, int height) {
         super.update(anchor, width, height);
-        registerListener(anchor);
     }
 
     @Override
     public void showAtLocation(View parent, int gravity, int x, int y) {
         super.showAtLocation(parent, gravity, x, y);
-        unregisterListener();
     }
 
     @Override
@@ -1075,7 +1020,6 @@ public class ActionBarPopupWindow extends PopupWindow {
                     } catch (Exception ignore) {
 
                     }
-                    unregisterListener();
 
                 }
             });
@@ -1087,7 +1031,6 @@ public class ActionBarPopupWindow extends PopupWindow {
             } catch (Exception ignore) {
 
             }
-            unregisterListener();
         }
     }
 

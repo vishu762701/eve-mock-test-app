@@ -76,6 +76,14 @@ Lottie/emoji classes. EVE font scaling and TalkBack labels are explicit adaptati
 Theme roles use the existing source-mapped submenu palette, not generic surface
 roles. Lifecycle/theme teardown dismisses immediately. Overall classification:
 **ADAPTED**, pending device/reference acceptance; eight icon files are EXACT bytes.
+A material remaining difference is the profile-specific backdrop: upstream
+`ProfileActivity.java:4073-4090,16959-16985` captures the scene and configures
+`setBlurredBackgroundFactory(scrimBlur3Factory, ...messageMenuBackground(...))`.
+This batch integrates the actual normal nine-patch renderer/fallback, but does not
+include that complete blur3 scene-capture/provider/drawable pipeline. It must not
+be called the complete official profile overflow or verified screenshot parity.
+Profile color persistence, Hindi strings and the full RTL/font/reference matrix
+also remain outside the demonstrated acceptance of this batch.
 
 ### Shared grouped rows and affected surfaces
 
@@ -186,3 +194,40 @@ release clearance; (high) authenticated live Bio/presence and account-isolation 
 the recorded rollout; (medium) reminder OS notification permission availability and
 real delivery; (medium) local-only profile-photo synchronization limits. Existing
 maintenance/drawer/bell checkpoints and changes are preserved.
+
+## Forward repair of the first FULL failure: target API 36
+
+The first FULL run [41267282568](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41267282568)
+failed `lintDebug` on the imported upstream private
+`PopupWindow.mOnScrollChangedListener` reflection. `SoonBlockedPrivateApi` correctly
+identifies this as blocked for EVE's target API 36. No lint suppression, baseline,
+target downgrade or skipped test is introduced.
+
+The legacy listener interception/re-registration workaround is removed. EVE's
+minimum API 24 already provides automatic anchor attachment, scroll tracking and
+detachment through public `showAsDropDown` / `update` / `dismiss`. Source evidence:
+AOSP `core/java/android/widget/PopupWindow.java`, official mirror
+[`android-7.0.0_r1:2191-2224`](https://github.com/aosp-mirror/platform_frameworks_base/blob/android-7.0.0_r1/core/java/android/widget/PopupWindow.java#L2191)
+and
+[`android-16.0.0_r1:2460-2504`](https://github.com/aosp-mirror/platform_frameworks_base/blob/android-16.0.0_r1/core/java/android/widget/PopupWindow.java#L2460).
+These were inspected, not imported. The unused private layout-in-screen reflection
+is also replaced with public `setIsLaidOutInScreen` on API 29+, with the normal
+anchored platform behavior on older supported releases. EVE's profile menu does
+not request layout-in-screen mode.
+
+This is an explicit **ADAPTED platform compatibility boundary**. Original popup
+drawing, measurement, row cascade, interpolation and exit animation remain sourced.
+`ProfileOverflowNativeTest.publicPlatformAnchorTrackingFollowsScrollAndDetachesOnDismiss`
+uses an actual scrolling anchor/window, verifies its screen displacement, then
+dismisses, scrolls and reopens. Both native navigation modes must execute it in
+FULL. The failed run remains failure evidence; a green FAST does not replace FULL.
+
+Local forward-repair validation passed: `lintDebug` (zero errors),
+`testDebugUnitTest` (649 tests, zero failures), `compileDebugAndroidTestKotlin`
+and `assembleDebug`. The additional real scrolling-anchor native test compiles;
+its actual device execution still belongs to the repaired SHA's FULL gate.
+A temporary, uncommitted Robolectric native-graphics probe also rendered the actual
+Day/Night section and popup paint paths. Its first attempt hit a Robolectric
+keyguard-shadow limitation in the debug Activity; the probe used a plain themed
+AppCompat host thereafter. This is host graphics evidence only, not native device
+or reference parity. Probe code/images are outside the repository.

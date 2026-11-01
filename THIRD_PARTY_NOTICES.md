@@ -642,3 +642,12 @@ paint values with the upstream default disabled. Category and Daily Practice
 Reminder are EVE business rows in one section, explicitly ADAPTED. Entire-screen
 visual parity and the complete ProfileActionsView / QrShareView subsystems are not
 asserted by these imports. See `docs/PROFILE_REGRESSION_REPAIR.md` for boundaries.
+
+The profile popup's legacy private PopupWindow listener interception and private
+layout-in-screen reflection are removed for EVE target API 36 compatibility.
+Public platform anchor tracking owns attachment/scroll/detachment on EVE minSdk 24+;
+public layout-in-screen API is used only on API 29+. This is an ADAPTED platform
+boundary; it does not change the source popup drawing/animation bodies. AOSP API
+24/API 36 implementation was inspected as evidence, not copied. See the forward
+repair section of `docs/PROFILE_REGRESSION_REPAIR.md` and its original failed FULL
+run. No lint/release safeguard is suppressed.

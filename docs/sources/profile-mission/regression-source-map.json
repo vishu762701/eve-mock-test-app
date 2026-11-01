@@ -189,57 +189,92 @@
       "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarPopupWindow.java",
       "upstream_line": 452,
       "eve": "app/src/main/java/com/eve/app/ui/profile/popup/ActionBarPopupWindow.java",
-      "eve_line": 450,
-      "classification": "ADAPTED package/theme/resource bindings; source drawing body retained"
+      "eve_line": 431,
+      "classification": "ADAPTED package/theme/resource bindings; source drawing body retained",
+      "eve_file_sha256": "0fd8ab0f8ee205054aed52c2852916c3be8c6b8aa989bc5684b99955d6a348f9"
     },
     {
       "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarPopupWindow.java",
       "upstream_line": 916,
       "eve": "app/src/main/java/com/eve/app/ui/profile/popup/ActionBarPopupWindow.java",
-      "eve_line": 914,
-      "classification": "ADAPTED enclosing class; normal source entrance retained"
+      "eve_line": 862,
+      "classification": "ADAPTED enclosing class; normal source entrance retained",
+      "eve_file_sha256": "0fd8ab0f8ee205054aed52c2852916c3be8c6b8aa989bc5684b99955d6a348f9"
     },
     {
       "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarPopupWindow.java",
       "upstream_line": 1024,
       "eve": "app/src/main/java/com/eve/app/ui/profile/popup/ActionBarPopupWindow.java",
-      "eve_line": 1020,
-      "classification": "ADAPTED account notification locking excluded"
+      "eve_line": 965,
+      "classification": "ADAPTED account notification locking excluded",
+      "eve_file_sha256": "0fd8ab0f8ee205054aed52c2852916c3be8c6b8aa989bc5684b99955d6a348f9"
     },
     {
       "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/PopupSwipeBackLayout.java",
       "upstream_line": 153,
       "eve": "app/src/main/java/com/eve/app/ui/profile/popup/PopupSwipeBackLayout.java",
       "eve_line": 155,
-      "classification": "ADAPTED package/theme/density bindings"
+      "classification": "ADAPTED package/theme/density bindings",
+      "eve_file_sha256": "048a7ac140a039f297937c192cadd7cdf7bb87e6e7757ee6133d7ab75e4e49c0"
     },
     {
       "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarMenuSubItem.java",
       "upstream_line": 206,
       "eve": "app/src/main/java/com/eve/app/ui/profile/popup/ActionBarMenuSubItem.java",
       "eve_line": 70,
-      "classification": "ADAPTED static icon subset"
+      "classification": "ADAPTED static icon subset",
+      "eve_file_sha256": "7dcb5624296461410d73ad3cff1804fbefcf7aa63e59ffdcc6ae7e8e8919b630"
     },
     {
       "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/Theme.java",
       "upstream_line": 5296,
       "eve": "app/src/main/java/com/eve/app/ui/profile/popup/Theme.java",
       "eve_line": 28,
-      "classification": "ADAPTED utility binding; source mask body retained"
+      "classification": "ADAPTED utility binding; source mask body retained",
+      "eve_file_sha256": "218105cd6f18c94a7e0c58c49a40dfe44d2a6acfc94dff2f9aa8da199068b091"
     },
     {
       "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/RecyclerListView.java",
       "upstream_line": 3591,
       "eve": "app/src/main/java/com/eve/app/ui/profile/TelegramProfileSection.kt",
       "eve_line": 48,
-      "classification": "ADAPTED fixed section host"
+      "classification": "ADAPTED fixed section host",
+      "eve_file_sha256": "ff5ab535277735e19ef7c198edf55c5c0b64bb5d6345efe47c630c27805e5cf6"
     },
     {
       "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarMenuItem.java",
       "upstream_line": 1888,
       "eve": "app/src/main/java/com/eve/app/ui/profile/ProfileOverflowPopup.kt",
       "eve_line": 24,
-      "classification": "ADAPTED EVE Activity/anchor/callbacks"
+      "classification": "ADAPTED EVE Activity/anchor/callbacks",
+      "eve_file_sha256": "a468fd6103f3e53f73a9de5905d4142d1d46e92d7f82fab16226f2be550c5efa"
+    }
+  ],
+  "platform_compatibility": {
+    "classification": "ADAPTED",
+    "reason": "EVE target API 36 blocks the historical private PopupWindow scroll-listener reflection. Removed interception/re-registration; public platform anchor tracking applies on minSdk 24+. Public layout-in-screen API on 29+ replaces private reflection. No safeguards suppressed.",
+    "failed_full_run": "https://github.com/vishu762701/eve-mock-test-app/actions/runs/41267282568",
+    "platform_evidence": [
+      "https://github.com/aosp-mirror/platform_frameworks_base/blob/android-7.0.0_r1/core/java/android/widget/PopupWindow.java#L2191",
+      "https://github.com/aosp-mirror/platform_frameworks_base/blob/android-16.0.0_r1/core/java/android/widget/PopupWindow.java#L2460"
+    ],
+    "native_test": "ProfileOverflowNativeTest.publicPlatformAnchorTrackingFollowsScrollAndDetachesOnDismiss"
+  },
+  "known_unintegrated_profile_dependencies": [
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ProfileActivity.java:4073-4090,16959-16985",
+      "dependency": "blur3 scene capture/source/provider/drawable factory",
+      "classification": "NOT FOUND in EVE; actual normal nine-patch fallback integrated, profile backdrop parity not accepted"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/ProfileActionsView.java",
+      "dependency": "complete parent-linked actions/header/gallery render hierarchy",
+      "classification": "ADAPTED existing helpers; full source renderer not integrated"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareView.java",
+      "dependency": "complete personal QR presentation/render/controls/scanner",
+      "classification": "NOT FOUND in EVE; custom UsernameCardActivity remains, not accepted"
     }
   ]
 }
