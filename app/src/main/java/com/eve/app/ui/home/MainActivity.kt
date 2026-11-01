@@ -412,7 +412,7 @@ class MainActivity : EveBaseActivity() {
         binding.mainContentContainer.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
         binding.tvMaintenanceTitle.text = "Checking app availability"
         binding.tvMaintenanceMessage.text = "Please wait while the server configuration is verified."
-        checkAppConfigAndMaintenance()
+        // onResume owns the first request as well as subsequent refreshes.
 
         lifecycleScope.launch(lifecycleExceptionHandler) {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -482,6 +482,7 @@ class MainActivity : EveBaseActivity() {
     }
 
     override fun onPause() {
+        configCheckGeneration++
         configCheckJob?.cancel()
         configCheckJob = null
         super.onPause()
@@ -499,21 +500,26 @@ class MainActivity : EveBaseActivity() {
         }
     }
 
+    private val availabilityRequest = HomeAvailabilityRequest(
+        fetch = { AppConfigManager.fetchAppConfig() },
+        verifyAdmin = { adminRepo.isAdmin(FirebaseAuth.getInstance().currentUser?.email) }
+    )
+    private var configCheckGeneration = 0
     private var configCheckJob: kotlinx.coroutines.Job? = null
     private var lastConfirmedConfig: com.eve.app.data.model.AppConfig? = null
 
     private fun checkAppConfigAndMaintenance() {
         if (configCheckJob?.isActive == true) return
         binding.btnCheckMaintenanceAgain.setOnClickListener { checkAppConfigAndMaintenance() }
+        val generation = ++configCheckGeneration
         configCheckJob = lifecycleScope.launch(lifecycleExceptionHandler) {
             binding.btnCheckMaintenanceAgain.isEnabled = false
             try {
-                val config = AppConfigManager.fetchAppConfig()
+                val config = availabilityRequest.config()
+                if (generation != configCheckGeneration) return@launch
                 lastConfirmedConfig = config
                 getSharedPreferences("public_app_config", MODE_PRIVATE).edit()
                     .putString("confirmed", com.google.gson.Gson().toJson(config)).apply()
-                val email = FirebaseAuth.getInstance().currentUser?.email
-                val isAdmin = email?.let { adminRepo.isAdmin(it) } ?: false
 
                 // 1. Force update check (applies to all users)
                 if (AppConfigManager.isUpdateRequired(config)) {
@@ -533,6 +539,13 @@ class MainActivity : EveBaseActivity() {
                 // Bypass requires the current identity's fresh Worker authorization.
                 // 2. Maintenance mode check (admins can bypass)
                 if (AppConfigManager.isMaintenanceActive(config)) {
+                    // Render the confirmed notice before authorization, never leave a
+                    // generic startup spinner waiting on Firebase or the admin API.
+                    binding.maintenanceOverlay.visibility = View.VISIBLE
+                    binding.tvMaintenanceMessage.text = config.maintenance_message
+                    updateAvailabilityInteraction()
+                    val isAdmin = availabilityRequest.adminBypass(config)
+                    if (generation != configCheckGeneration) return@launch
                     if (!isAdmin) {
                         binding.maintenanceOverlay.visibility = View.VISIBLE
                         binding.tvMaintenanceMessage.text = config.maintenance_message
@@ -552,6 +565,7 @@ class MainActivity : EveBaseActivity() {
             } catch (cancel: kotlinx.coroutines.CancellationException) {
                 throw cancel
             } catch (e: Exception) {
+                if (generation != configCheckGeneration) return@launch
                 val cached = lastConfirmedConfig ?: runCatching {
                     com.google.gson.Gson().fromJson(getSharedPreferences("public_app_config", MODE_PRIVATE)
                         .getString("confirmed", null), com.eve.app.data.model.AppConfig::class.java)
@@ -565,20 +579,27 @@ class MainActivity : EveBaseActivity() {
                 binding.drawerLayout.setDrawerLockMode(androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
                 AppBulletin.showError(this@MainActivity, "Cannot refresh app configuration")
             } finally {
-                binding.btnCheckMaintenanceAgain.isEnabled = true
-                val blocked = binding.maintenanceOverlay.visibility == View.VISIBLE || binding.forceUpdateOverlay.visibility == View.VISIBLE
-                binding.drawerLayout.setDrawerLockMode(if (blocked)
-                    androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED
-                    else androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_UNLOCKED)
-                if (blocked) {
-                    binding.mainContentContainer.clearFocus()
-                    androidx.core.view.ViewCompat.getWindowInsetsController(binding.root)
-                        ?.hide(androidx.core.view.WindowInsetsCompat.Type.ime())
+                // A cancelled old request must not re-enable or redraw a newer one.
+                if (generation == configCheckGeneration) {
+                    binding.btnCheckMaintenanceAgain.isEnabled = true
+                    updateAvailabilityInteraction()
                 }
-                binding.mainContentContainer.importantForAccessibility = if (blocked)
-                    View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS else View.IMPORTANT_FOR_ACCESSIBILITY_AUTO
             }
         }
+    }
+
+    private fun updateAvailabilityInteraction() {
+        val blocked = binding.maintenanceOverlay.visibility == View.VISIBLE || binding.forceUpdateOverlay.visibility == View.VISIBLE
+        if (blocked) pendingDrawerDestination = null
+        binding.drawerLayout.setDrawerLockMode(if (blocked)
+            DrawerLayout.LOCK_MODE_LOCKED_CLOSED else DrawerLayout.LOCK_MODE_UNLOCKED)
+        if (blocked) {
+            binding.mainContentContainer.clearFocus()
+            androidx.core.view.ViewCompat.getWindowInsetsController(binding.root)
+                ?.hide(androidx.core.view.WindowInsetsCompat.Type.ime())
+        }
+        binding.mainContentContainer.importantForAccessibility = if (blocked)
+            View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS else View.IMPORTANT_FOR_ACCESSIBILITY_AUTO
     }
 
     /**
@@ -1915,6 +1936,7 @@ class MainActivity : EveBaseActivity() {
     private var pendingDrawerDestination: Intent? = null
 
     private fun navigateFromDrawer(intent: Intent) {
+        if (binding.maintenanceOverlay.visibility == View.VISIBLE || binding.forceUpdateOverlay.visibility == View.VISIBLE) return
         if (pendingDrawerDestination != null) return // Reject duplicate rapid taps.
         if (!binding.drawerLayout.isDrawerVisible(GravityCompat.START)) {
             com.eve.app.util.EveNavigationHelper.navigate(this, intent)
@@ -1956,7 +1978,9 @@ class MainActivity : EveBaseActivity() {
                 // scrim and window animation, avoiding overlapping transitions.
                 val destination = pendingDrawerDestination
                 pendingDrawerDestination = null
-                if (destination != null && !isFinishing && !isDestroyed) {
+                if (destination != null && !isFinishing && !isDestroyed &&
+                    binding.maintenanceOverlay.visibility != View.VISIBLE &&
+                    binding.forceUpdateOverlay.visibility != View.VISIBLE) {
                     com.eve.app.util.EveNavigationHelper.navigate(this@MainActivity, destination)
                 } else if (binding.btnMenu.isAttachedToWindow) {
                     binding.btnMenu.requestFocus()

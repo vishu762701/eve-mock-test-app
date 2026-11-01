@@ -10,6 +10,12 @@ import java.util.concurrent.TimeUnit
 class AuthInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val original = chain.request()
+        // This endpoint is public. Token refresh must never delay availability or
+        // admin write readback; all authenticated routes retain the normal path.
+        if (original.method == "GET" && original.url.encodedPath == "/api/app-config") {
+            return chain.proceed(original.newBuilder().removeHeader("Authorization")
+                .header("Cache-Control", "no-cache").build())
+        }
         val expectedOwner = original.tag(ProfileRequestOwner::class.java)
         val user = FirebaseAuth.getInstance().currentUser
         expectedOwner?.requireMatches(user?.uid)
