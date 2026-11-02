@@ -1,5 +1,17 @@
 # Third Party Notices
 
+
+## Telegram Java QR light-band scene — 2026-11-02
+
+`app/src/main/java/com/eve/app/telegram/qr/QrSceneShine.java`
+adapts original Java auto-sweep, curved shine field, and coarse 12dp raster
+from official `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`,
+`TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareView.java`
+(lines 2488-2559,2561-2562,2805-2838,3111-3160).
+Copyright Telegram contributors. Root GPLv2 / per-file and combined
+redistribution review remain unresolved; no production release approval.
+
+
 ## Telegram Java QR pattern item transition adaptation — 2026-11-02
 
 `app/src/main/java/com/eve/app/telegram/qr/QrPatternSwap.java`

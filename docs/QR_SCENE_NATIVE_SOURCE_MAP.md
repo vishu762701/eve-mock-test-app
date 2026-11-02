@@ -168,3 +168,23 @@ CI and Android native matched visual/gesture comparison remain required.
 Original per-pattern frame atlas, GPU shimmer and picker sheet composition
 are still NOT MET. EVE six-selection/authentication and upstream GPL
 release obligations remain unchanged.
+
+## R2/A1 original Java background shimmer raster (2026-11-02)
+
+Current status: ADAPTED; full pattern/scene fidelity remains NOT MET.
+Pinned official Telegram revision: `3de37c8cfb039452be7398909461da6288babf15`.
+Opened `QrShareView.java:2488-2559,2561-2562,2805-2838,3111-3160` and
+current `RimTune.java`, `QrBackdropScene.java`, `TelegramQrSceneView.kt`.
+
+| Upstream reference | EVE production path | Classification / dependencies |
+|---|---|---|
+| `QrShareView.java:2805-2838,3111-3160@3de37c8...` | `app/src/main/java/com/eve/app/telegram/qr/QrSceneShine.java` | ADAPTED original Java time/phased curved/cylindrical auto-sweep; EVE motion and root-open gate; source tilt disabled by current SHINE_TILT=0 |
+| `QrShareView.java:2488-2559@3de37c8...` | `QrSceneShine.draw()` | ADAPTED original 12dp coarse bitmap, valueNoise, BG_STR/BG_W/BG_NOISE math; EVE allocation cap/close |
+| `QrShareView.java:2833-2838@3de37c8...` | `QrBackdropScene.drawBackground()` | ADAPTED draw background light ahead of actual shared Drawable pattern, through existing RenderNode scene sampling |
+| `QrShareView.java:154-155,1264-1305,3260-3289,3459@3de37c8...` | existing `NativeQrDrawable` frame sharing | Existing EVE ADAPTED cache; upstream's "atlas" comments do NOT implement an active emoji GPU atlas; actual emoji draws per Drawable. Source explicitly avoids drawVertices on gift symbols due device performance. No invented GPU batching is claimed. |
+
+Production Java rendered pixel test `QrSceneShineTest.java` checks the original
+intro/opaque-pixel band and skip on reduced motion, reveal and dispose.
+It does NOT verify real GPU blur, screen matched frames, touch physics
+or GLSL/tilt/light on native devices. Existing QR username/auth, six choices
+and gallery export remain EVE-owned. Source GPL/release disposition OPEN.

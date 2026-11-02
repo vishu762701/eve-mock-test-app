@@ -374,3 +374,20 @@ read from GitHub after push, never filled speculatively.
 
 First next unaccepted scope: source-compatible per-pattern atlas/scene
 shimmer and picker-sheet morph, then scanner and remaining whole mission.
+
+## 2026-11-02 R2/A1 background light-band Java increment
+
+Baseline `50e26ee6e5198b647fe470e0b090420c9dc480f0`, official upstream `3de37c8cfb039452be7398909461da6288babf15`.
+The official actual QR emoji field uses reusable Drawables; its ensureAtlases
+only initializes gift loaders, not a missing active emoji GPU atlas. No invented
+atlas/texture renderer was added.
+
+| ID | Requirement | Current code | Upstream reference | Dependencies | Status | Verification evidence |
+|---|---|---|---|---|---|---|
+| R2.A1-light | Background shimmer auto sweep, curved/cylinder noise/raster | QrSceneShine, QrBackdropScene, TelegramQrSceneView | QrShareView:2488-2559,2805-2838,3111-3160 | RimTune, RenderNode scene, motion policy | UNKNOWN pending exact-SHA CI; full runtime NOT MET | Java Robolectric pixel/reduced-motion checks added |
+| R2.A1-frames | Original animated-emoji draw/cache phase on real device | Existing NativeQrDrawable with previousEmojis | QrShareView:1264,3260-3410 | original Telegram ImageReceiver excluded | NOT MET | native frame/timing comparison not accepted |
+| R2.A1-runtime | GPU glass, input, native 60/90/120Hz and GPL | QR activity and CI | QrShareView/QrShareActivity | device/legal source-review | NOT MET | no matched runtime evidence; license gate remains fail-closed |
+
+Next unfinished scope: source per-symbol reflective shine/gesture sampling and
+native matched-device validation, then picker sheet + scanner. Whole mission
+FULL and published APK still unaccepted.

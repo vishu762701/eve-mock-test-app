@@ -125,6 +125,7 @@ internal class TelegramQrSceneView(
         previousEmojis = if (animate) selectedEmojis else null
         swapStartedAt = now
         selectedEmojis = next
+        backdrop.setEmojiPatternEnabled(next.isNotEmpty())
         cardMotion.changeEmojis(now, animate)
         pruneInactiveAnimations()
         if (isAttachedToWindow) loadSelectedAnimations()

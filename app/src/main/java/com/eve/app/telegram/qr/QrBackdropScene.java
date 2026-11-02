@@ -29,6 +29,8 @@ public final class QrBackdropScene implements AutoCloseable {
     private static final long WAVE_MS = 600;
     private static final int BLUR_DS = 9;
     private final View host;
+    private final QrSceneShine shine = new QrSceneShine();
+    private boolean hasEmojiPattern;
     private Scene scene = colorScene(0), oldScene;
     private float wave = 1f, waveX, waveY;
     private long waveStart;
@@ -82,7 +84,9 @@ public final class QrBackdropScene implements AutoCloseable {
     }
 
     public boolean isAnimating() { return wave < 1f && oldScene != null; }
+    public void setEmojiPatternEnabled(boolean enabled) { hasEmojiPattern = enabled; }
     public void step(long now, boolean motionEnabled) {
+        shine.step(now, motionEnabled && hasEmojiPattern, width, height);
         if (wave < 1f) {
             wave = motionEnabled ? Math.min(1f, Math.max(0f, (now - waveStart) / (float) WAVE_MS)) : 1f;
             if (wave >= 1f) oldScene = null;
@@ -122,7 +126,7 @@ public final class QrBackdropScene implements AutoCloseable {
                 blurNode = QrRender.createNode("eveQrBlur");
             }
             final Canvas source = QrRender.beginRecording(bgNode, width, height);
-            drawBackground(source, pattern, corner);
+            drawBackground(source, pattern, corner, openDone);
             QrRender.endRecording(bgNode);
             if (blurBuiltVersion != RimTune.version) {
                 blurBuiltVersion = RimTune.version;
@@ -134,7 +138,7 @@ public final class QrBackdropScene implements AutoCloseable {
             QrRender.endRecording(blurNode);
             QrRender.draw(canvas, bgNode);
         } else {
-            drawBackground(canvas, pattern, corner);
+            drawBackground(canvas, pattern, corner, openDone);
             // A previous hardware frame must not be sampled after a software or
             // reveal frame. The current low-res picture is the source stand-in.
             clearNodes();
@@ -144,9 +148,11 @@ public final class QrBackdropScene implements AutoCloseable {
 
     public interface RunnablePattern { void draw(Canvas canvas); }
 
-    private void drawBackground(Canvas canvas, RunnablePattern pattern, float corner) {
+    private void drawBackground(Canvas canvas, RunnablePattern pattern,
+                                float corner, boolean fullyOpened) {
         final boolean waving = isAnimating();
         drawBackdrop(canvas, width, height, waving, corner);
+        if (hasEmojiPattern) shine.draw(canvas, width, height, fullyOpened);
         pattern.draw(canvas);
         if (waving && backdropRingOn) drawBackdropBitmap(canvas, backdropRing);
     }
@@ -332,6 +338,8 @@ public final class QrBackdropScene implements AutoCloseable {
     @Override public void close() {
         clearNodes();
         releaseBitmaps();
+        shine.close();
+        hasEmojiPattern = false;
         glassConsumers.clear();
         oldScene = null;
         wave = 1f;
