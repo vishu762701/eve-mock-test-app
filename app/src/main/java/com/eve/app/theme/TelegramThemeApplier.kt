@@ -55,6 +55,11 @@ object TelegramThemeApplier {
                 view.updateTheme(palette)
                 return
             }
+            is com.eve.app.ui.profile.TelegramProfileRadioCell -> {
+                // The row owns its label and custom radio Drawable colors.
+                view.updatePalette(palette)
+                return
+            }
             is DesignSegmentedTabs -> {
                 // TabLayout owns its selected/unselected label colors. Recursing into
                 // its child TextViews would classify onAccent BLACK/WHITE as a generic

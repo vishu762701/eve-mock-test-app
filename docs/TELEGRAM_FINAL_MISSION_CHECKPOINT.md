@@ -6,7 +6,7 @@ Status: PARTIAL. This is a continuation record, not screen acceptance.
 
 ## Live verified implementation pointer — 2026-11-02
 
-Latest verified implementation main: **372b108a0b1b1c957566c53eeb7fd69b139e7a3e**.
+Latest verified implementation main: **381a76a610a3f1847f59a4c48939d7f2e4e6aea8**.
 Official Telegram rechecked after implementation: **3de37c8cfb039452be7398909461da6288babf15**.
 Reconcile this pointer with the carrying implementation commit and live main/CI on restart.
 
@@ -30,6 +30,7 @@ Reconcile this pointer with the carrying implementation commit and live main/CI 
 | Confirmed exam rename contract/form | 196c59d55b9710fcfb99bb1f2b4e8629f6bb9aee | [41469072072](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41469072072) SUCCESS |
 | Profile editor draft account restoration | 2212767c4de9e0d23edd4439ff5bba0ab85215a3 | [41472089611](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41472089611) attempt 2 SUCCESS |
 | Username source role/localized accessible status | 372b108a0b1b1c957566c53eeb7fd69b139e7a3e | [41475078791](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41475078791) SUCCESS |
+| Shared question-response integrity | 381a76a610a3f1847f59a4c48939d7f2e4e6aea8 | [41479914039](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41479914039) SUCCESS |
 
 Each FAST passed Android build/JVM/AndroidTest source compilation, all four ABI
 builds, pinned Rust security/C API, backend and Firebase. Historical scanner-batch docs 41403654877
@@ -1318,3 +1319,29 @@ Admin/student requirements. ProfilePopupBlurBackdrop has one prior implementatio
 commit (89254123); inspect real paint/runtime/source before changes. Complete
 mission remains NOT MET. Production Worker/D1 deployment and GPL review remain
 separate; no release variable touched. Unavailable hardware does not block code.
+
+## Authorized category live-theme repair
+
+Recovered main 381a76a610a3f1847f59a4c48939d7f2e4e6aea8 FAST 41479914039 SUCCESS,
+docs 41479913807 SUCCESS. Owner explicitly authorized ONE additional category
+repair commit: "Haan, ek additional repair commit authorize hai". Reviewed archive
+patch/hash applied without conflict; source/test bytes unchanged from review.
+Existing row updatePalette is called by canonical ThemeApplier, preserving same
+indicator/selection/animation/click/geometry and prior color-role adaptation.
+Source map, two preceding successful category SHAs and approval are recorded in
+EVE_PROFILE_CATEGORY_PROVENANCE.md. Final local broad checks PASS: 816 JVM tests /
+189 suites, zero failures/errors/skips; AndroidTest compile/lint/x86_64 assemble,
+helpers59/docs/acceptance/diff PASS. Carrying exact-SHA FAST mandatory; this is the
+single specifically authorized third category repair, not unlimited iterations.
+
+First next action: observe carrying FAST, repair red. Then prioritize newly traced
+EditExam question-action visibility/permission + active duplicated question form
+callbacks, C1/C5, over cosmetic popup rim work. EditExam only gates manage_exams
+while question mutations require manage_questions; Worker enforcement preserved.
+Question UPDATE/DELETE zero-row fake success/false audit and UI Undo contract need
+actual handler tests, never guessed restore semantics or live writes. Current
+source has one active EditExam add button and separately built dialog using the
+same dialog_add_question layout; canonical ManageQuestions builder already handles
+confirmed/invalid/failed submissions. Reuse it if compatible without creating
+another ViewModel/state owner or removing destinations. Full mission NOT MET;
+QR/reference/physical/FULL/GPL/release gates remain OPEN. No production deployment.

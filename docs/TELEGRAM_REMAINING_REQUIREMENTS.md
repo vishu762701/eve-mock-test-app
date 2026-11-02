@@ -680,3 +680,33 @@ repair commit authorize hai". ONE additional category live-theme repair commit i
 now authorized, with mandatory exact-SHA FAST. Original review patch/hash remains
 unchanged; apply only after the carrying question-response gate succeeds. This is
 not permission for further cosmetic category iterations or another release/deploy.
+
+## B4/F1 authorized category live-theme repair integration
+
+Owner explicitly authorized ONE additional repair commit beyond the two already
+successful category commits. Reviewed patch 236f8f9716ba51d0b14bbf7dec20a688cd63328ebac0227bfa03a6d11699e757
+applied cleanly after main 381a76a610a3f1847f59a4c48939d7f2e4e6aea8 exact-SHA FAST
+41479914039 SUCCESS / docs 41479913807 SUCCESS. No approval re-requested. Existing
+color method becomes updatePalette and canonical theme traversal calls it. No new
+renderer/state owner/style change. Original EVE accent/secondary adaptation is
+preserved, not silently relabeled original radioBackground keys. Upstream mutation
+mapping and exact hashes are in EVE_PROFILE_CATEGORY_PROVENANCE.md. Native
+unselected-ring test fails before repair; selected-dot preservation control passes.
+Both pass after repair, including state/accessibility/callback preservation.
+
+Final local serial unit/AndroidTest-compile/lint/x86_64 assemble PASS: 816 tests /
+189 suites, zero failures/errors/skips; helpers59/docs/claims/diff PASS. Own carrying
+FAST required. This consumes the specifically authorized third category repair;
+no further cosmetic iteration authorized by that exception. Whole category/save/
+rotation/device/source reference acceptance remains NOT MET. No API/scoring/data/
+permission/deployment or legal-gate changes.
+
+Next higher-priority actual C1/C5 finding: EditExamActivity entry verifies
+manage_exams but exposes add/import/edit/delete question actions that require
+manage_questions on Worker. Its independently implemented add form also duplicates
+the canonical active ManageQuestions form and auto-dismisses failed validation.
+Investigate/fix that real control path before cosmetic popup alpha refinement;
+Worker authorization already denies wrong rights. Also UPDATE/DELETE missing
+question rows currently return false success/audit; existing Undo uses UPDATE after
+hard delete, so do not claim restore works. Trace contracts before any data/Undo
+behavior decision. No live mutations authorized.
