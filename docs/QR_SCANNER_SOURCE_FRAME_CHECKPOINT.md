@@ -106,3 +106,17 @@ EveQrScannerContractTest binds CameraX transform and source delay callers.
 Actual device rotation, camera preview transforms, yellow outline
 pixel/frame timings, hardware and 60/90/120Hz parity remain UNKNOWN.
 Whole scanner/QR source parity NOT MET. Combined GPL release review OPEN.
+
+## Scan-found pixel-test graphics-mode repair (2026-11-02)
+
+The first exact-SHA FAST run failed because the new overlay JVM test
+imported AndroidX ApplicationProvider without a matching unit-test
+dependency. The forward-only first repair uses existing Robolectric
+RuntimeEnvironment, preserving assertions. That FAST compiled but
+both source yellow-pixel checks failed under Robolectric legacy Canvas
+graphics mode. Existing EVE QR pixel tests use native Skia graphics.
+This second forward-only correction opts both new pixel test suites
+into GraphicsMode.Mode.NATIVE without deleting, weakening or skipping
+either assertion. Exact-SHA Android FAST success and hardware
+acceptance must be checked separately. No production renderer,
+permissions, signing or source-license gates changed.

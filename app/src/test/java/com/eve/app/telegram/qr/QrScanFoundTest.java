@@ -9,9 +9,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import org.robolectric.annotation.GraphicsMode;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk=35, application=Application.class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
 public class QrScanFoundTest {
     private static final float[] FOUR = {30,30,90,30,90,90,30,90};
 
