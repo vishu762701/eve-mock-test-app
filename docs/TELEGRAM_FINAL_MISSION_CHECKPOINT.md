@@ -1056,3 +1056,33 @@ latest owner's seven actions using existing destinations/logout confirmation;
 audit existing popup source maps, lifecycle/scroll and older whitelist tests.
 No third poll refinement, QR-only iteration, release gate bypass or production
 deployment. Full ledger remains NOT MET/BLOCKED where previously documented.
+
+
+## Gate 2 seven-action canonical Home popup
+
+Base main 936e93aae0273daea08ea0e14fd6f9538d60f7b7 exact-SHA FAST 41409105317
+SUCCESS, backend/Firebase SUCCESS, native navigation/publication skipped. D4 filter
+callback is source/host/FAST verified; physical matrix remains OPEN.
+
+Current canonical TelegramMenuPopup and MainActivity now wire all seven owner
+actions: Theme, History, Bookmarks, Mistake Notebook, Topic-wise Test, PYQ, Logout.
+Existing destination Activities and existing logout/presence/cache flow reused;
+new native confirmation is single-window guarded and disposed on host teardown.
+Existing scroll cap, source roles/assets, shadow, radial selectors, motion and
+back/outside behavior preserved. Latest owner requirement supersedes old tests
+removing four actions; assertions now require all seven accessible source rows.
+Actual popup host test verifies six callbacks after dismissal and no duplicate
+callback from stale rows; stale-row case first failed, then isShowing guard fixed.
+
+Final local serial :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin
+:app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64 PASS: 770 tests / 179 suites,
+zero failures/errors/skips. Python helpers 59/docs/claim/diff PASS. Initial missing
+string reference and old removed-row assertion repaired without weakening current
+requirements. Expanded Android fixture compiles, no physical run claimed. Source
+map/dependencies/remaining limits in TELEGRAM_REMAINING_REQUIREMENTS.md latest entry.
+
+Carrying seven-action commit needs exact-SHA FAST before next feature. Next action:
+observe FAST, repair red if any, then Gate 2 shared dialogs/drawer/search/toolbar
+production caller audit and first reproducible independent gap. Preserve both poll
+commits, Profile/native and QR code; all whole-screen source/device acceptance
+remains NOT MET/OPEN as recorded. No FULL/release/deploy/legal gate bypass.

@@ -357,7 +357,11 @@ class MainActivity : EveBaseActivity() {
                     }
                 },
                 onHistory = { com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, HistoryActivity::class.java), anchor) },
-                onBookmarks = { com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, BookmarksActivity::class.java), anchor) }
+                onBookmarks = { com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, BookmarksActivity::class.java), anchor) },
+                onMistakes = { com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, com.eve.app.ui.mistakes.MistakesActivity::class.java), anchor) },
+                onTopic = { com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, PracticeActivity::class.java), anchor) },
+                onPyq = { com.eve.app.util.EveNavigationHelper.navigate(this, Intent(this, PyqActivity::class.java), anchor) },
+                onLogout = { confirmLogout() }
             ).also { it.show(anchor) }
         }
 
@@ -1680,6 +1684,8 @@ class MainActivity : EveBaseActivity() {
     override fun onDestroy() {
         // A stale popup window belongs to the old Activity. Its 150ms animated
         // dismiss must not outlive configuration/process teardown or run an action.
+        logoutConfirmation?.dismiss()
+        logoutConfirmation = null
         homeOverflowPopup?.dismissForHostTeardown()
         homeOverflowPopup = null
         TelegramThemeEngine.removeThemeChangeListener(categoryPaletteListener)
@@ -1887,6 +1893,20 @@ class MainActivity : EveBaseActivity() {
     private fun goToLogin() {
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
+    }
+
+    private var logoutConfirmation: com.eve.app.designsystem.TelegramNativeAlertDialog? = null
+    private fun confirmLogout() {
+        if (logoutPending || isFinishing || isDestroyed || logoutConfirmation?.isShowing == true) return
+        val dialog = com.eve.app.designsystem.TelegramNativeAlertDialog.Builder(this)
+            .setTitle(getString(R.string.home_menu_logout))
+            .setMessage(getString(R.string.home_logout_confirmation))
+            .setNegativeButton(getString(android.R.string.cancel), null)
+            .setPositiveButton(getString(R.string.home_menu_logout)) { _, _ -> logout() }
+            .create()
+        logoutConfirmation = dialog
+        dialog.setOnDismissListener { if (logoutConfirmation === dialog) logoutConfirmation = null }
+        dialog.show()
     }
 
     private var logoutPending = false

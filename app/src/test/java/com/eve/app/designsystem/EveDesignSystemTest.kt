@@ -261,15 +261,13 @@ class EveDesignSystemTest {
         assertNotNull("Overflow must scroll inside capped viewport", scroll)
         assertEquals("vertical", scroll?.designAttribute("android:scrollbars"))
         assertEquals("insideOverlay", scroll?.designAttribute("android:scrollbarStyle"))
-        for (id in listOf("cardTheme", "menuRowHistory", "menuRowBookmarks")) {
+        for (id in listOf("cardTheme", "menuRowHistory", "menuRowBookmarks", "menuRowMistakes", "menuRowTopic", "menuRowPyq", "menuRowLogout")) {
             val row = findElementById(root, id)
             assertNotNull("Missing action $id", row)
             assertEquals("48dp", row?.designAttribute("android:minHeight"))
             assertEquals("wrap_content", row?.designAttribute("android:layout_height"))
         }
-        for (id in listOf("menuRowMistakes", "menuRowTopic", "menuRowPyq", "menuRowLogout")) {
-            assertNull("Removed action $id must not exist in overflow popup", findElementById(root, id))
-        }
+
     }
 
     @Test

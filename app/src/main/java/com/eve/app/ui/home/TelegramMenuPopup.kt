@@ -30,7 +30,11 @@ class TelegramMenuPopup(
     private val context: Context,
     private val onThemeToggle: (originX: Int, originY: Int, iconWidth: Int, iconHeight: Int) -> Unit,
     private val onHistory: () -> Unit,
-    private val onBookmarks: () -> Unit
+    private val onBookmarks: () -> Unit,
+    private val onMistakes: () -> Unit,
+    private val onTopic: () -> Unit,
+    private val onPyq: () -> Unit,
+    private val onLogout: () -> Unit
 ) : PopupWindow(context) {
 
     private val binding: PopupTelegramMenuBinding =
@@ -41,7 +45,8 @@ class TelegramMenuPopup(
     private var anchorViewRef: View? = null
     internal var dimOverlay: TelegramPopupDimOverlay? = null
     private fun actionRows(): List<LinearLayout> = listOf(
-        binding.cardTheme, binding.menuRowHistory, binding.menuRowBookmarks
+        binding.cardTheme, binding.menuRowHistory, binding.menuRowBookmarks,
+        binding.menuRowMistakes, binding.menuRowTopic, binding.menuRowPyq, binding.menuRowLogout
     )
 
     init {
@@ -168,6 +173,10 @@ class TelegramMenuPopup(
         binding.menuRowBookmarks.setOnClickListener {
             dismissWithAction { onBookmarks() }
         }
+        binding.menuRowMistakes.setOnClickListener { dismissWithAction(onMistakes) }
+        binding.menuRowTopic.setOnClickListener { dismissWithAction(onTopic) }
+        binding.menuRowPyq.setOnClickListener { dismissWithAction(onPyq) }
+        binding.menuRowLogout.setOnClickListener { dismissWithAction(onLogout) }
     }
 
     fun show(anchorView: View) {
@@ -291,7 +300,7 @@ class TelegramMenuPopup(
     }
 
     private fun dismissWithAction(action: () -> Unit) {
-        if (isDismissing) return
+        if (isDismissing || !isShowing) return
         isDismissing = true
         dimOverlay?.dismiss(animated = true)
         dimOverlay = null

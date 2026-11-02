@@ -48,4 +48,5 @@
     <string name="qr_scanner_gallery">Scan QR from gallery</string>
     <string name="qr_scanner_torch_on">Turn on camera flashlight</string>
     <string name="qr_scanner_torch_off">Turn off camera flashlight</string>
+    <string name="home_logout_confirmation">Are you sure you want to log out?</string>
 </resources>

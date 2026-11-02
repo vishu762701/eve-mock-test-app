@@ -46,7 +46,7 @@ class HomeOverflowPopupNativeTest {
             }
             instrumentation.waitForIdleSync()
             scenario.onActivity { activity ->
-                popup = TelegramMenuPopup(activity, { _, _, _, _ -> }, {}, {})
+                popup = TelegramMenuPopup(activity, { _, _, _, _ -> }, {}, {}, {}, {}, {}, {})
                 popup.show(anchor)
             }
             instrumentation.waitForIdleSync()
@@ -94,7 +94,7 @@ class HomeOverflowPopupNativeTest {
                 assertTrue("Theme toggle must retain its official source icon",
                     themeIcon.drawable != null)
                 val scroll = root.findViewById<ScrollView>(R.id.menuScroll)
-                val rows = intArrayOf(R.id.cardTheme, R.id.menuRowHistory, R.id.menuRowBookmarks)
+                val rows = intArrayOf(R.id.cardTheme, R.id.menuRowHistory, R.id.menuRowBookmarks, R.id.menuRowMistakes, R.id.menuRowTopic, R.id.menuRowPyq, R.id.menuRowLogout)
                 for (id in rows) {
                     val row = root.findViewById<View>(id)
                     assertTrue("Source-isolated Telegram radial ripple must be assigned to each action: $id",
@@ -140,7 +140,7 @@ class HomeOverflowPopupNativeTest {
                 assertTrue("Original source row entrance must settle without whole-popup scaling",
                     kotlin.math.abs(root.scaleX - 1f) < 0.001f &&
                     kotlin.math.abs(root.scaleY - 1f) < 0.001f)
-                for (id in intArrayOf(R.id.cardTheme, R.id.menuRowHistory, R.id.menuRowBookmarks)) {
+                for (id in intArrayOf(R.id.cardTheme, R.id.menuRowHistory, R.id.menuRowBookmarks, R.id.menuRowMistakes, R.id.menuRowTopic, R.id.menuRowPyq, R.id.menuRowLogout)) {
                     val row = root.findViewById<View>(id)
                     assertTrue("Original row cascade must end at zero Y and full alpha: $id",
                         kotlin.math.abs(row.translationY) < 0.01f &&

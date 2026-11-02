@@ -11,7 +11,7 @@ import org.w3c.dom.Element
 /** Three retained EVE overflow actions remain reachable as 48dp+ standalone accessibility targets. */
 class HomeMenuAccessibilityContractTest {
     private val rowIds = listOf(
-        "cardTheme", "menuRowHistory", "menuRowBookmarks"
+        "cardTheme", "menuRowHistory", "menuRowBookmarks", "menuRowMistakes", "menuRowTopic", "menuRowPyq", "menuRowLogout"
     )
 
     @Test fun popupLabelGeometryMatchesOfficialTelegramSourceTextInset() {
@@ -52,10 +52,7 @@ class HomeMenuAccessibilityContractTest {
             assertEquals(1, element.getElementsByTagName("ImageView").length)
             assertEquals(1, element.getElementsByTagName("TextView").length)
         }
-        for (removedId in listOf("menuRowMistakes", "menuRowTopic", "menuRowPyq", "menuRowLogout")) {
-            val removedElement = elements.firstOrNull { it.getAttribute("android:id") == "@+id/$removedId" }
-            assertTrue("Removed action $removedId must not exist in overflow popup", removedElement == null)
-        }
+
     }
 
     @Test fun originalTelegramRadialPopupMaskIsAppliedWithExactRowCorners() {

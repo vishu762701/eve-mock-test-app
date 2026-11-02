@@ -557,7 +557,7 @@ class RepairRegressionTest {
                         scenario.onActivity { act ->
                             popup = com.eve.app.ui.home.TelegramMenuPopup(act,
                                 onThemeToggle = { x, y, w, h -> calls++; ThemeSwitchAnimator.animateAt(act, x, y, !startDark, w, h) },
-                                onHistory = {}, onBookmarks = {})
+                                onHistory = {}, onBookmarks = {}, onMistakes = {}, onTopic = {}, onPyq = {}, onLogout = {})
                             popup.show(act.homeBinding!!.btnOverflow)
                             if (popupPhase == "running") {
                                 val view = popup.contentView

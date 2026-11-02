@@ -327,3 +327,33 @@ seven actions. After D4 exact-SHA FAST SUCCESS, extend this canonical popup with
 Mistake Notebook, Topic-wise Test, PYQ and Logout callbacks to existing destinations/
 logout confirmation; inspect existing source maps/row geometry/scroll/lifecycle
 and previous whitelist tests before changes. No alternate popup or duplicate screen.
+
+Gate 1 D4 commit 936e93aae0273daea08ea0e14fd6f9538d60f7b7 exact-SHA FAST
+41409105317 SUCCESS. Gate 2 authorized seven-action popup: current three-row
+implementation and old tests explicitly removing four rows are superseded by the
+latest owner instruction. Extend existing popup/scroll/row source primitives,
+existing MistakesActivity/PracticeActivity/PyqActivity and logout flow; no alternate
+screen, auth change or new asset import. ADAPTED EVE menu destinations.
+
+Gate 2 seven menu actions: MET for wired production destinations and host popup
+callbacks, ADAPTED. Existing TelegramMenuPopup/row/scroll/source background and
+motion retained; all seven rows participate in accessibility/selector/animation.
+MainActivity binds MistakesActivity, PracticeActivity, PyqActivity and a single
+logout confirmation to its existing presence-revoke/cache-clear/sign-out flow.
+Confirmation is disposed on teardown; its message uses English/Hindi resources.
+A new actual-popup test clicks all six non-theme actions, checks dismissal before
+callback and rejects stale detached-row repeat callbacks. This last case failed
+before the isShowing guard and passes after it. Existing theme handoff tests stay.
+Old removed-row assertions are superseded by latest owner's explicit seven-action
+requirement; all-seven geometry/accessibility checks replace them, not disabled.
+
+Source mapping: original ItemOptions.java:1390-1407, ActionBarMenuSubItem.java:91-98
+and ActionBarPopupWindow.java:1024-1069 at full pin
+3de37c8cfb039452be7398909461da6288babf15 -> existing TelegramMenuPopup.kt /
+popup_telegram_menu.xml / TelegramPopupSourceMotion.kt: ADAPTED native EVE host,
+unchanged source-based background/roles/timing; seven destinations are EVE business
+callbacks, not an official Telegram equivalent. No new source/asset transplant.
+Matched native appearance/Back/IME/large-font matrix remains OPEN; compiled native
+fixture now checks seven rows. Final serial local broad Gradle PASS: 770 JVM tests
+/ 179 suites, zero failures/errors/skips, AndroidTest compilation/lint/x86_64 APK.
+Python helper 59/docs/claim/diff checks PASS. Carrying commit requires FAST.
