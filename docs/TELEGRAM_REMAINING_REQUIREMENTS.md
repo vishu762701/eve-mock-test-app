@@ -58,12 +58,12 @@ release-variable change or legal self-certification is authorized.
 | C1 | Audit all exam/question/poll admin actions | AdminActivity/content activities | Telegram navigation/rows ADAPTED, no business equivalent | Android/API/Worker | NOT MET | full current action matrix not recovered | inventory callers and authorization/tests |
 | C2 | Users/admin/roles/broadcast/notifications/feedback | admin production activities | authentic primitives only; ranges UNKNOWN | Firebase/Worker | NOT MET | full current action matrix pending | audit each real handler/role |
 | C3 | AI/settings/maintenance/analytics/all actual sections | admin pager and bound original rows | PagerSlidingTabStrip@T + EVE business | fresh AdminAccessGate/Worker | NOT MET | prior bound pager test | enumerate all real actions/error states |
-| C4 | Poll destructive text/server-confirmed success | existing polls UI/API | EVE business/source dialogs | Android themes/Worker response | NOT MET pending audit | known regression to reverify | trace text colors and mutation callbacks |
+| C4 | Poll destructive text/server-confirmed success | existing polls UI/API | EVE business/source dialogs | Android themes/Worker response | NOT MET full device acceptance | scoped response/row controls: 14c9e61b / FAST 41406623011 and a8433b64 / FAST 41407181451; green work preserved | device labels/whole action matrix; no duplicate poll iteration |
 | C5 | Refresh/nav/rotation/concurrency/role separation | admin Activities/ViewModels | ADAPTED Telegram primitives | mocked server/device | NOT MET | no complete action/lifecycle matrix | verify without live production writes |
 | D1 | Home seven overflow actions/source popup/dialogs | MainActivity/shared popup/dialogs | ActionBarMenuItem/PopupWindow@T | current destinations | NOT MET | earlier reports; fresh caller audit pending | inspect seven actions and anchoring |
 | D2 | Drawer gestures/insets/scrim/Night pure black | Home drawer | DrawerLayoutContainer@T + owner #000000 exception | Android input | NOT MET full acceptance | existing implementation preserved | test drag/fling/navigation/theme matrix |
 | D3 | Toolbar seam/search/IME/rapid/theme/Back/restore | MainActivity/HomeAppearance | source parent/search audit UNKNOWN | Activity/IME | NOT MET | no fresh full evidence | inspect source and shared callers |
-| D4 | All/Other one selection; selected no-op | current Home filters | EVE filter adapter | discovery data contract | NOT MET pending verification | existing tests need recovery | run actual selection tests |
+| D4 | All/Other one selection; selected no-op | canonical HomeAppearance renderer + live selection getter | FilterTabsView source property / EVE filter adapter | discovery data contract | MET scoped callbacks | 936e93aa / FAST 41409105317; actual reused Chip callback tests retained in 883-test suite | physical appearance/motion matrix remains D5/F |
 | D5 | Exam cards/navigation/shared colors/resources/RTL | EVE shared components | source rows/tokens; exact ranges UNKNOWN | all callers | NOT MET | whole-screen matrix absent | inspect shared components before layout edits |
 | D6 | Bell provenance/tap/incoming/unread | licensed bell and notification store | Apple provenance not asserted | existing inbox semantics | NOT MET pending fresh verification | bell provenance/report/tests exist | verify no read-on-Home acknowledgement |
 | E1 | History/bookmarks/notebook/topics/PYQs | existing student Activities | applicable Telegram primitives UNKNOWN | existing APIs/user isolation | NOT MET | fresh inventory pending | audit each production screen |
@@ -972,3 +972,36 @@ Question Delete/Undo decision remains explicitly unanswered; generic resume is
 not approval. Related P2 limitation: existing QuestionAnalytics API has no days
 parameter (all-time aggregates); this batch does not invent range-specific question
 statistics. QR acceptance remains OPEN and does not block independent work.
+
+## C1/C5 EditExam metadata-only save integrity (critical reprioritization)
+
+Base 980a92cf4a10e4b16b0a691303b4c340ad30bf6e FAST 41535796716 SUCCESS,
+docs 41535796467 SUCCESS. Read-only tracing exposed a higher-impact data defect
+than the queued lost picker URI: Save fabricates Exam defaults after a failed or
+pending metadata read, and sends hidden count/negative-marking/publish/parent
+settings although this form edits only name, time, category and cutoffs. Actual
+sole ExamRepository.updateExam production caller is EditExamActivity; other full
+settings/AI editors call different repository methods. Worker exams.ts preserves
+omitted settings. Reprioritize this scoped save contract before picker recovery.
+R1: no metadata mutation before a confirmed matching exam snapshot. R2: send only
+this form's edited fields, preserving server-owned/unshown settings and planned
+count. R3: bounded pending save, retryable failure, confirmed success and stale-
+account/host rejection. R4: validate time against existing Worker 1..600 contract.
+R5: preserve existing category/drafts through same-account/exam recreation without
+restoring another account/exam's state. No scoring/API/backend production change,
+new permission, parallel form or state manager. Original picker and Undo gaps stay
+OPEN; no combined-app/device/source/legal completion implied.
+
+## C1/C5 metadata save integrity and cutoff backing
+
+Base 980a92cf4a10e4b16b0a691303b4c340ad30bf6e FAST 41535796716 / docs
+41535796467 SUCCESS; the Analytics/report read-ownership carrying gate is verified.
+Higher-impact default/hidden-settings metadata writes reprioritized before queued
+picker recovery. Complete scoped ledger, source relationships, caller chain,
+fail-before evidence and rollout limits: EXAM_METADATA_SAVE_CONTRACT.md.
+Current local Android883/198 suites, AndroidTest compile/lint (0 errors/1629 warnings)/x86_64 assemble and backend318/TypeScript PASS; carrying FAST pending.
+No production migration/deployment. Cutoff persistence is development-stage only;
+old deployed service cannot falsely confirm it because client verifies readback.
+First next independent action after carrying FAST: pending fresh-gate picker URI
+recovery. Undo product answer remains pending. Whole mission/QR/device/FULL/legal
+acceptance remains OPEN/NOT MET. Existing successful feature/commit ledger preserved.

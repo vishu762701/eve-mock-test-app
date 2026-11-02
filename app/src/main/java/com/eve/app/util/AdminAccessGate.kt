@@ -20,6 +20,8 @@ object AdminAccessGate {
         protectedRoot: View,
         requireFreshServer: Boolean = false,
         requiredRight: String? = null,
+        restorationScope: String? = null,
+        isRestoring: Boolean = false,
         onAuthorized: (com.eve.app.data.remote.AdminMeData) -> Unit
     ) {
         // INVISIBLE prevents focus/touch and content disclosure while the async
@@ -30,6 +32,24 @@ object AdminAccessGate {
         if (user == null || email.isNullOrBlank()) {
             activity.finish()
             return
+        }
+
+        // Optional draft ownership uses this existing gate, never a second auth/state manager.
+        if (restorationScope != null) {
+            val key = "eve.admin.gate.owner"
+            val restored = activity.savedStateRegistry.consumeRestoredStateForKey(key)
+            if (isRestoring && (restored?.getString("uid") != user.uid ||
+                    restored.getString("email")?.equals(email, ignoreCase = true) != true ||
+                    restored.getString("scope") != restorationScope)) {
+                activity.finish()
+                return
+            }
+            activity.savedStateRegistry.registerSavedStateProvider(key) {
+                android.os.Bundle().apply {
+                    putString("uid", user.uid); putString("email", email)
+                    putString("scope", restorationScope)
+                }
+            }
         }
 
         // The verified screen remains bound to the identity that initiated its gate.

@@ -6,7 +6,7 @@ Status: PARTIAL. This is a continuation record, not screen acceptance.
 
 ## Live verified implementation pointer — 2026-11-02
 
-Latest verified implementation main: **9cf0523ed859b68e70c03911b09d08dce97a2634**.
+Latest verified implementation main: **980a92cf4a10e4b16b0a691303b4c340ad30bf6e**.
 Official Telegram rechecked after implementation: **3de37c8cfb039452be7398909461da6288babf15**.
 Reconcile this pointer with the carrying implementation commit and live main/CI on restart.
 
@@ -35,6 +35,7 @@ Reconcile this pointer with the carrying implementation commit and live main/CI 
 | Server question mutation/audit confirmation | 5bf15f8444dd65d5e947b43a538404db701a500f | [41523395700](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41523395700) SUCCESS |
 | EditExam nested rights/canonical Add/account-bound gate | e83b2d4c918340d18da5bddb934bfddd2abdb80e | [41527865210](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41527865210) SUCCESS |
 | Question review target/rights/response confirmation | 9cf0523ed859b68e70c03911b09d08dce97a2634 | [41532575336](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41532575336) SUCCESS |
+| Analytics/report filter read ownership and truthful states | 980a92cf4a10e4b16b0a691303b4c340ad30bf6e | [41535796716](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41535796716) SUCCESS |
 
 Each FAST passed Android build/JVM/AndroidTest source compilation, all four ABI
 builds, pinned Rust security/C API, backend and Firebase. Historical scanner-batch docs 41403654877
@@ -1556,3 +1557,17 @@ Question Delete/Undo decision remains explicitly unanswered; generic resume is
 not approval. Related P2 limitation: existing QuestionAnalytics API has no days
 parameter (all-time aggregates); this batch does not invent range-specific question
 statistics. QR acceptance remains OPEN and does not block independent work.
+
+## C1/C5 metadata save integrity and cutoff backing
+
+Base 980a92cf4a10e4b16b0a691303b4c340ad30bf6e FAST 41535796716 / docs
+41535796467 SUCCESS; the Analytics/report read-ownership carrying gate is verified.
+Higher-impact default/hidden-settings metadata writes reprioritized before queued
+picker recovery. Complete scoped ledger, source relationships, caller chain,
+fail-before evidence and rollout limits: EXAM_METADATA_SAVE_CONTRACT.md.
+Current local Android883/198 suites, AndroidTest compile/lint (0 errors/1629 warnings)/x86_64 assemble and backend318/TypeScript PASS; carrying FAST pending.
+No production migration/deployment. Cutoff persistence is development-stage only;
+old deployed service cannot falsely confirm it because client verifies readback.
+First next independent action after carrying FAST: pending fresh-gate picker URI
+recovery. Undo product answer remains pending. Whole mission/QR/device/FULL/legal
+acceptance remains OPEN/NOT MET. Existing successful feature/commit ledger preserved.

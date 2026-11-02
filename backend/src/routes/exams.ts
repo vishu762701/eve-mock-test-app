@@ -35,6 +35,45 @@ export function parseNegativeMarking(raw: string): { text: string; value: number
   return { text: trimmed, value: num };
 }
 
+const cutoffCategories = new Set(["General", "OBC", "SC", "ST", "EWS"]);
+function normalizeCutoffs(value: unknown): Record<string, number> | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const result: Record<string, number> = {};
+  for (const [category, cutoff] of Object.entries(value)) {
+    if (!cutoffCategories.has(category) || typeof cutoff !== "number" || !Number.isFinite(cutoff) || cutoff < 0) return null;
+    result[category] = cutoff;
+  }
+  return result;
+}
+function storedCutoffs(raw: string | undefined): Record<string, number> {
+  const value = normalizeCutoffs(JSON.parse(raw || "{}"));
+  if (!value) throw new Error("Stored exam cutoff settings are invalid");
+  return value;
+}
+
+/** Shared destination guard for both name-edit entry points. Values remain bound. */
+function examDestinationGuard(name?: string, parent?: string): { sql: string; bindings: string[] } {
+  if (name === undefined && parent === undefined) return { sql: "1", bindings: [] };
+  const nameSql = name === undefined ? "exams.exam_name" : "?";
+  const parentSql = parent === undefined ? "exams.parent_exam_id" : "?";
+  const pair = [...(name === undefined ? [] : [name]), ...(parent === undefined ? [] : [parent])];
+  return {
+    sql: `((LOWER(exams.exam_name) = LOWER(${nameSql}) AND COALESCE(exams.parent_exam_id, '') = COALESCE(${parentSql}, ''))
+      OR NOT EXISTS (SELECT 1 FROM exams AS sibling WHERE LOWER(sibling.exam_name) = LOWER(${nameSql})
+      AND COALESCE(sibling.parent_exam_id, '') = COALESCE(${parentSql}, '') AND sibling.id != exams.id))`,
+    bindings: [...pair, ...pair],
+  };
+}
+/** A fresh audit witness gates the existing denormalized-name updates. */
+function examNameCascades(db: D1Database, id: string, name: string, auditId: string): D1PreparedStatement[] {
+  return [
+    db.prepare("UPDATE generated_tests SET exam_name = ? WHERE exam_id = ? AND EXISTS (SELECT 1 FROM admin_audit_log WHERE id = ?)").bind(name, id, auditId),
+    db.prepare("UPDATE attempts SET exam_name = ? WHERE exam_id = ? AND EXISTS (SELECT 1 FROM admin_audit_log WHERE id = ?)").bind(name, id, auditId),
+    db.prepare("UPDATE leaderboard SET exam_name = ? WHERE exam_id = ? AND EXISTS (SELECT 1 FROM admin_audit_log WHERE id = ?)").bind(name, id, auditId),
+    db.prepare("UPDATE bookmarks SET exam_name = ? WHERE exam_id = ? AND EXISTS (SELECT 1 FROM admin_audit_log WHERE id = ?)").bind(name, id, auditId),
+  ];
+}
+
 function mapExamRow(row: ExamRow, emojiPlacement?: EmojiPlacementPublic) {
   return {
     id: row.id,
@@ -43,6 +82,7 @@ function mapExamRow(row: ExamRow, emojiPlacement?: EmojiPlacementPublic) {
     category: row.category,
     syllabus: row.syllabus || "",
     questionCount: row.question_count,
+    cutoffs: storedCutoffs(row.cutoffs_json),
     customPromptNotes: row.custom_prompt_notes || "",
     autoGenerationEnabled: Boolean(row.auto_generation_enabled),
     autoGenTime: row.auto_gen_time,
@@ -209,7 +249,9 @@ examRoutes.post("/", requirePermission("manage_exams"), async (c) => {
 // PUT /api/exams/:id - Full settings update (Admin)
 examRoutes.put("/:id", requirePermission("manage_exams"), async (c) => {
   const id = c.req.param("id") || "";
-  const body = await c.req.json().catch(() => ({}));
+  const body = await c.req.json().catch(() => null);
+  if (!body || typeof body !== "object" || Array.isArray(body)) return c.json({ success: false, error: "Provide exam settings" }, 400);
+  if (body.examName !== undefined && typeof body.examName !== "string") return c.json({ success: false, error: "Provide a nonempty exam name" }, 400);
   const db = c.env.DB;
 
   const existing = await db.prepare("SELECT * FROM exams WHERE id = ?").bind(id).first<ExamRow>();
@@ -244,6 +286,12 @@ examRoutes.put("/:id", requirePermission("manage_exams"), async (c) => {
 
   const testNumber = body.testNumber !== undefined ? String(body.testNumber).trim() : existing.test_number;
   const questionCount = body.questionCount !== undefined ? Number(body.questionCount) : existing.question_count;
+  let cutoffsJson = existing.cutoffs_json || "{}";
+  if (body.cutoffs !== undefined) {
+    const cutoffs = normalizeCutoffs(body.cutoffs);
+    if (!cutoffs) return c.json({ success: false, error: "Cutoffs must contain non-negative numeric General/OBC/SC/ST/EWS values" }, 400);
+    cutoffsJson = JSON.stringify(cutoffs);
+  }
   const autoGenEnabled = body.autoGenEnabled !== undefined
     ? (body.autoGenEnabled ? 1 : 0)
     : (body.autoGenerationEnabled !== undefined ? (body.autoGenerationEnabled ? 1 : 0) : existing.auto_generation_enabled);
@@ -292,54 +340,54 @@ examRoutes.put("/:id", requirePermission("manage_exams"), async (c) => {
     }
   }
 
+  // Omitted columns retain their WRITE-time values rather than an earlier snapshot.
+  const assignments: string[] = [];
+  const values: (string | number)[] = [];
+  const add = (column: string, value: string | number, provided: boolean) => {
+    if (provided) { assignments.push(`${column} = ?`); values.push(value); }
+  };
+  add("exam_name", examName, body.examName !== undefined);
+  add("time_limit_minutes", minutes, body.timeLimitMinutes != null);
+  add("category", category, body.category !== undefined);
+  add("test_number", testNumber, body.testNumber !== undefined);
+  add("question_count", questionCount, body.questionCount !== undefined);
+  add("auto_generation_enabled", autoGenEnabled, body.autoGenEnabled !== undefined || body.autoGenerationEnabled !== undefined);
+  add("auto_gen_time", autoGenTime, body.autoGenTime !== undefined);
+  add("syllabus_url", syllabusUrl, body.syllabusUrl !== undefined);
+  add("syllabus_file_name", syllabusFileName, body.syllabusFileName !== undefined);
+  add("generation_prompt", generationPrompt, body.generationPrompt !== undefined);
+  add("negative_marking_text", negText, body.negativeMarkingText != null);
+  add("negative_marking_value", negValue, body.negativeMarkingText != null);
+  add("parent_exam_id", parentExamId, body.parentExamId !== undefined);
+  add("publish_mode", publishMode, body.publishMode != null);
+  add("cutoffs_json", cutoffsJson, body.cutoffs !== undefined);
+  if (!assignments.length) return c.json({ success: false, error: "No editable exam fields provided" }, 400);
+  const destination = examDestinationGuard(body.examName !== undefined ? examName : undefined,
+    body.parentExamId !== undefined ? parentExamId : undefined);
+  const updateStmt = db.prepare(`UPDATE exams SET ${assignments.join(", ")} WHERE id = ? AND ${destination.sql}`)
+    .bind(...values, id, ...destination.bindings);
   const user = c.get("user");
-  const updateStmt = db
-    .prepare(
-      `UPDATE exams SET
-        exam_name = ?,
-        time_limit_minutes = ?,
-        category = ?,
-        test_number = ?,
-        question_count = ?,
-        auto_generation_enabled = ?,
-        auto_gen_time = ?,
-        syllabus_url = ?,
-        syllabus_file_name = ?,
-        generation_prompt = ?,
-        negative_marking_text = ?,
-        negative_marking_value = ?,
-        parent_exam_id = ?,
-        publish_mode = ?
-       WHERE id = ?`
-    )
-    .bind(
-      examName,
-      minutes,
-      category,
-      testNumber,
-      questionCount,
-      autoGenEnabled,
-      autoGenTime,
-      syllabusUrl,
-      syllabusFileName,
-      generationPrompt,
-      negText,
-      negValue,
-      parentExamId,
-      publishMode,
-      id
-    );
-
-  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+  const { id: auditId, stmt: auditStmt } = prepareAdminAuditLog(db, user, {
     actionType: "EXAM_EDITED",
     description: `Updated exam '${examName}' (${id})`,
-    targetType: "exam",
-    targetId: id,
-    metadata: { examName, category, minutes, publishMode },
+    targetType: "exam", targetId: id,
+    metadata: {
+      ...(body.examName !== undefined ? { examName } : {}),
+      ...(body.category !== undefined ? { category } : {}),
+      ...(body.timeLimitMinutes != null ? { minutes } : {}),
+      ...(body.publishMode != null ? { publishMode } : {}),
+      updatedFields: assignments.map(x => x.split(" ")[0]),
+    },
+    condition: { sql: "changes() = 1", bindings: [] },
   });
-
-  await db.batch([updateStmt, auditStmt]);
-
+  const results = await db.batch([updateStmt, auditStmt,
+    ...(body.examName !== undefined ? examNameCascades(db, id, examName, auditId) : [])]);
+  if (results[0]?.meta?.changes === 0) {
+    const exists = await db.prepare("SELECT 1 FROM exams WHERE id = ?").bind(id).first();
+    if (!exists) return c.json({ success: false, error: "Exam not found" }, 404);
+    return c.json({ success: false, error: "An exam with this name already exists here" }, 409);
+  }
+  if (results[0]?.meta?.changes !== 1 || results[1]?.meta?.changes !== 1) throw new Error("Exam update confirmation unavailable");
   return c.json({ success: true });
 });
 
@@ -387,20 +435,12 @@ examRoutes.put("/:id/rename", requirePermission("manage_exams"), async (c) => {
     condition: { sql: "changes() = 1", bindings: [] },
   });
 
+  const destination = examDestinationGuard(newName);
   const results = await db.batch([
-    db.prepare(`UPDATE exams SET exam_name = ? WHERE id = ? AND (
-      LOWER(exam_name) = LOWER(?) OR NOT EXISTS (
-        SELECT 1 FROM exams AS sibling WHERE LOWER(sibling.exam_name) = LOWER(?)
-        AND COALESCE(sibling.parent_exam_id, '') = COALESCE(exams.parent_exam_id, '')
-        AND sibling.id != exams.id
-      ))`).bind(newName, id, newName, newName),
+    db.prepare(`UPDATE exams SET exam_name = ? WHERE id = ? AND ${destination.sql}`)
+      .bind(newName, id, ...destination.bindings),
     auditStmt,
-    // A new audit ID witnesses a successful target write. Missing/conflicting
-    // targets cannot mutate denormalized historical names.
-    db.prepare("UPDATE generated_tests SET exam_name = ? WHERE exam_id = ? AND EXISTS (SELECT 1 FROM admin_audit_log WHERE id = ?)").bind(newName, id, auditId),
-    db.prepare("UPDATE attempts SET exam_name = ? WHERE exam_id = ? AND EXISTS (SELECT 1 FROM admin_audit_log WHERE id = ?)").bind(newName, id, auditId),
-    db.prepare("UPDATE leaderboard SET exam_name = ? WHERE exam_id = ? AND EXISTS (SELECT 1 FROM admin_audit_log WHERE id = ?)").bind(newName, id, auditId),
-    db.prepare("UPDATE bookmarks SET exam_name = ? WHERE exam_id = ? AND EXISTS (SELECT 1 FROM admin_audit_log WHERE id = ?)").bind(newName, id, auditId),
+    ...examNameCascades(db, id, newName, auditId),
   ]);
   if (results[0]?.meta?.changes === 0) {
     const exists = await db.prepare("SELECT 1 FROM exams WHERE id = ?").bind(id).first();

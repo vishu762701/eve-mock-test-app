@@ -85,4 +85,8 @@
     <string name="analytics_telemetry_unavailable_detail">यह स्क्रीन क्रैश-रहित उपयोगकर्ताओं, क्रैश और ANR के आँकड़े प्राप्त नहीं करती। ताज़ा रिपोर्ट के लिए Firebase कंसोल खोलें।</string>
     <string name="admin_reports_empty_technical">कोई तकनीकी या बग रिपोर्ट लंबित नहीं है।</string>
     <string name="admin_reports_empty_content">कोई चिह्नित प्रश्न लंबित नहीं है।</string>
+    <string name="exam_metadata_unavailable">परीक्षा का विवरण उपलब्ध नहीं है। सहेजने से पहले यह संपादक दोबारा खोलें।</string>
+    <string name="exam_minutes_range">1 से 600 के बीच मिनट दर्ज करें</string>
+    <string name="exam_cutoff_invalid">%1$s कटऑफ के लिए शून्य या उससे बड़ी संख्या दर्ज करें</string>
+    <string name="exam_metadata_unconfirmed">परीक्षा के सभी बदलावों की पुष्टि नहीं हो सकी। दोबारा प्रयास करने से पहले संपादक फिर खोलें।</string>
 </resources>

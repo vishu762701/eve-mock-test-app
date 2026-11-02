@@ -84,4 +84,8 @@
     <string name="analytics_telemetry_unavailable_detail">Crash-free users, crashes and ANRs are not fetched by this screen. Open Firebase Console for current reports.</string>
     <string name="admin_reports_empty_technical">No pending technical or bug reports.</string>
     <string name="admin_reports_empty_content">No pending flagged questions.</string>
+    <string name="exam_metadata_unavailable">Exam details are unavailable. Reopen this editor before saving.</string>
+    <string name="exam_minutes_range">Enter minutes between 1 and 600</string>
+    <string name="exam_cutoff_invalid">Enter a non-negative number for %1$s cutoff</string>
+    <string name="exam_metadata_unconfirmed">Exam changes could not be fully confirmed. Reload the editor before retrying.</string>
 </resources>

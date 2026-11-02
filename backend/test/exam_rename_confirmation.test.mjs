@@ -65,8 +65,13 @@ function fixture(t, rights = ["manage_exams"]) {
   // D1 serializes atomic batches; serialize this SQLite connection equivalently.
   const runBatch = d1.batch.bind(d1);
   let batchQueue = Promise.resolve();
+  let nextBatchHook = null;
   d1.batch = statements => {
-    const pending = batchQueue.then(() => runBatch(statements));
+    const pending = batchQueue.then(async () => {
+      const hook=nextBatchHook; nextBatchHook=null;
+      if(hook) await hook();
+      return runBatch(statements);
+    });
     batchQueue = pending.catch(() => {});
     return pending;
   };
@@ -76,7 +81,10 @@ function fixture(t, rights = ["manage_exams"]) {
   app.onError((_,c) => c.json({success:false,error:"Transaction failed"},500));
   app.route("/api/exams",examRoutes);
   return { sqlite,
+    beforeNextBatch: hook => { nextBatchHook=hook; },
     send: (id,body) => app.request(`/api/exams/${id}/rename`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}),
+    sendMetadata: (id,body) => app.request(`/api/exams/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}),
+    readExam: id => app.request(`/api/exams/${id}`),
     audits: () => sqlite.prepare("SELECT COUNT(*) AS n FROM admin_audit_log").get().n,
   };
 }
@@ -145,4 +153,89 @@ test("late cascade failure rolls back target, earlier cascades and audit",async 
   sqlite.exec("CREATE TRIGGER reject_bookmark_rename BEFORE UPDATE ON bookmarks BEGIN SELECT RAISE(ABORT, 'injected late failure'); END");
   assert.equal((await send("exam",{newName:"New"})).status,500);
   assert.deepEqual(names(sqlite,"exam"),Array(5).fill("Old")); assert.equal(audits(),0);
+});
+
+// Existing metadata fields must not overwrite hidden exam settings.
+test("metadata persists cutoff settings and preserves hidden settings",async t=>{
+  const {sqlite,sendMetadata,readExam}=fixture(t); seed(sqlite,"parent","Parent"); seed(sqlite,"exam","Old","parent");
+  sqlite.prepare("UPDATE exams SET question_count=100, negative_marking_text='1/3', negative_marking_value=?, publish_mode='live', auto_generation_enabled=0, auto_gen_time='13:00', generation_prompt='Existing prompt' WHERE id='exam'").run(1/3);
+  const cutoffs={General:70.5,OBC:65};
+  assert.equal((await sendMetadata("exam",{examName:"Edited",timeLimitMinutes:45,category:"Custom",cutoffs})).status,200);
+  const row=sqlite.prepare("SELECT * FROM exams WHERE id='exam'").get();
+  assert.equal(row.exam_name,"Edited"); assert.equal(row.time_limit_minutes,45); assert.equal(row.category,"Custom");
+  assert.equal(row.question_count,100); assert.equal(row.negative_marking_text,"1/3"); assert.equal(row.negative_marking_value,1/3);
+  assert.equal(row.parent_exam_id,"parent"); assert.equal(row.publish_mode,"live"); assert.equal(row.auto_generation_enabled,0);
+  assert.equal(row.auto_gen_time,"13:00"); assert.equal(row.generation_prompt,"Existing prompt");
+  assert.deepEqual(JSON.parse(row.cutoffs_json),cutoffs);
+  const verified=await (await readExam("exam")).json(); assert.equal(verified.success,true); assert.deepEqual(verified.data.cutoffs,cutoffs);
+});
+test("metadata rejects malformed cutoffs before changes or audit",async t=>{
+  const {sqlite,sendMetadata,audits}=fixture(t); seed(sqlite,"exam","Old");
+  for(const cutoffs of [null,[],{General:-1},{General:"70"},{Unknown:1},{General:null}])
+    assert.equal((await sendMetadata("exam",{examName:"Must not change",cutoffs})).status,400);
+  assert.equal(sqlite.prepare("SELECT exam_name FROM exams WHERE id='exam'").get().exam_name,"Old"); assert.equal(audits(),0);
+});
+test("metadata omission preserves cutoffs and clearing is explicit",async t=>{
+  const {sqlite,sendMetadata,readExam}=fixture(t); seed(sqlite,"exam","Old");
+  sqlite.prepare("UPDATE exams SET cutoffs_json=? WHERE id='exam'").run(JSON.stringify({General:80}));
+  assert.equal((await sendMetadata("exam",{examName:"New"})).status,200);
+  assert.deepEqual((await (await readExam("exam")).json()).data.cutoffs,{General:80});
+  assert.equal((await sendMetadata("exam",{cutoffs:{}})).status,200);
+  assert.deepEqual((await (await readExam("exam")).json()).data.cutoffs,{});
+});
+test("metadata cutoffs require Worker manage_exams",async t=>{
+  const {sqlite,sendMetadata,audits}=fixture(t,["manage_questions"]); seed(sqlite,"exam","Old");
+  assert.equal((await sendMetadata("exam",{cutoffs:{General:70}})).status,403);
+  assert.equal(sqlite.prepare("SELECT cutoffs_json FROM exams WHERE id='exam'").get().cutoffs_json,"{}"); assert.equal(audits(),0);
+});
+test("cutoff migration preserves old exam settings and defaults to empty",()=>{
+  const sqlite=new DatabaseSync(":memory:");
+  try {
+    const directory=new URL("../migrations/",import.meta.url);
+    for(const file of readdirSync(directory).filter(x=>x.endsWith(".sql")&&x!=="0030_exam_cutoff_settings.sql").sort()) sqlite.exec(readFileSync(new URL(file,directory),"utf8"));
+    sqlite.prepare("INSERT INTO exams(id,exam_name,question_count,negative_marking_text,negative_marking_value,publish_mode) VALUES('old','Existing',100,'1/3',?,'live')").run(1/3);
+    sqlite.exec(readFileSync(new URL("0030_exam_cutoff_settings.sql",directory),"utf8"));
+    const row=sqlite.prepare("SELECT * FROM exams WHERE id='old'").get();
+    assert.equal(row.exam_name,"Existing"); assert.equal(row.question_count,100); assert.equal(row.negative_marking_text,"1/3");
+    assert.equal(row.negative_marking_value,1/3); assert.equal(row.publish_mode,"live"); assert.equal(row.cutoffs_json,"{}");
+  } finally { sqlite.close(); }
+});
+
+test("metadata name edits preserve canonical denormalized-name consistency",async t=>{
+  const {sqlite,sendMetadata}=fixture(t); seed(sqlite,"exam","Old");
+  assert.equal((await sendMetadata("exam",{examName:"Renamed"})).status,200);
+  assert.deepEqual(names(sqlite,"exam"),Array(5).fill("Renamed"));
+});
+test("metadata omission preserves an independent committed hidden-settings edit",async t=>{
+  const {sqlite,sendMetadata,beforeNextBatch}=fixture(t); seed(sqlite,"parent","Parent"); seed(sqlite,"exam","Old");
+  beforeNextBatch(()=>sqlite.prepare("UPDATE exams SET question_count=120,negative_marking_text='1/4',negative_marking_value=0.25,parent_exam_id='parent',publish_mode='paused' WHERE id='exam'").run());
+  assert.equal((await sendMetadata("exam",{examName:"Renamed",category:"UPSC",cutoffs:{General:70}})).status,200);
+  const row=sqlite.prepare("SELECT * FROM exams WHERE id='exam'").get();
+  assert.equal(row.question_count,120); assert.equal(row.negative_marking_text,"1/4"); assert.equal(row.negative_marking_value,0.25);
+  assert.equal(row.parent_exam_id,"parent"); assert.equal(row.publish_mode,"paused");
+});
+test("metadata write-time deletion cannot report success or create false audit",async t=>{
+  const {sqlite,sendMetadata,beforeNextBatch,audits}=fixture(t); seed(sqlite,"exam","Old");
+  beforeNextBatch(()=>sqlite.prepare("DELETE FROM exams WHERE id='exam'").run());
+  assert.equal((await sendMetadata("exam",{examName:"New",cutoffs:{General:70}})).status,404); assert.equal(audits(),0);
+});
+test("metadata write-time sibling collision rejects all changes",async t=>{
+  const {sqlite,sendMetadata,beforeNextBatch,audits}=fixture(t); seed(sqlite,"exam","Old");
+  beforeNextBatch(()=>seed(sqlite,"sibling","Taken"));
+  assert.equal((await sendMetadata("exam",{examName:"Taken",cutoffs:{General:70}})).status,409);
+  assert.deepEqual(names(sqlite,"exam"),Array(5).fill("Old")); assert.equal(audits(),0);
+  assert.equal(sqlite.prepare("SELECT cutoffs_json FROM exams WHERE id='exam'").get().cutoffs_json,"{}");
+});
+test("metadata audit failure rolls back fields and cutoff configuration",async t=>{
+  const {sqlite,sendMetadata,audits}=fixture(t); seed(sqlite,"exam","Old");
+  sqlite.exec("CREATE TRIGGER deny_metadata_audit BEFORE INSERT ON admin_audit_log BEGIN SELECT RAISE(ABORT,'audit unavailable'); END");
+  assert.equal((await sendMetadata("exam",{examName:"New",cutoffs:{General:70}})).status,500);
+  assert.deepEqual(names(sqlite,"exam"),Array(5).fill("Old")); assert.equal(audits(),0);
+  assert.equal(sqlite.prepare("SELECT cutoffs_json FROM exams WHERE id='exam'").get().cutoffs_json,"{}");
+});
+test("metadata rejects malformed bodies and unknown-only field sets",async t=>{
+  const {sqlite,sendMetadata,audits}=fixture(t); seed(sqlite,"exam","Old");
+  for(const body of [null,[],{},{unknown:true},{examName:null},{examName:7},{examName:[]},{examName:{}}])
+    assert.equal((await sendMetadata("exam",body)).status,400);
+  assert.equal(sqlite.prepare("SELECT exam_name FROM exams WHERE id='exam'").get().exam_name,"Old"); assert.equal(audits(),0);
 });

@@ -63,6 +63,7 @@ export interface ExamRow {
   negative_marking_value: number;
   parent_exam_id?: string;
   publish_mode?: string;
+  cutoffs_json?: string;
 }
 
 export interface QuestionRow {

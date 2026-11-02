@@ -28,6 +28,8 @@ import com.eve.app.util.AppUndoBar
 import com.eve.app.util.Constants
 import com.eve.app.util.QuestionImportHelper
 import kotlinx.coroutines.launch
+import com.google.firebase.auth.FirebaseAuth
+import com.eve.app.util.AdminIdentityGuard
 import com.eve.app.data.model.AdminAuditLog
 import com.eve.app.data.repository.AuditLogRepository
 import com.eve.app.designsystem.TelegramRadialProgressView
@@ -44,6 +46,19 @@ class EditExamActivity : EveBaseActivity() {
     private var examCategory: String = ""
     private var timeLimit: Int = 30
 
+    // Origin metadata for this existing editor; the Worker/gate still own permissions.
+    private var editorOwnerUid = ""
+    private var editorOwnerEmail = ""
+    private val editorIdentityCurrent: Boolean
+        get() {
+            val live = FirebaseAuth.getInstance().currentUser
+            return !isFinishing && !isDestroyed && AdminIdentityGuard.allowed(true,
+                editorOwnerUid, editorOwnerEmail, live?.uid, live?.email)
+        }
+    private var metadataSaveInFlight = false
+    private var metadataViewStateRestored = true
+    private var restoreMetadataDraft = false
+    private var restoredMetadataCategory: String? = null
     private var currentExam: Exam? = null
     private var currentQuestions: MutableList<Question> = mutableListOf()
 
@@ -51,7 +66,7 @@ class EditExamActivity : EveBaseActivity() {
     private var canManageContent = false
     private var addQuestionDialog: TelegramNativeAlertDialog? = null
     private val questionActionsAllowed: Boolean
-        get() = canManageQuestions && !isFinishing && !isDestroyed
+        get() = canManageQuestions && editorIdentityCurrent
 
     private val questionAdapter = QuestionManageAdapter(
         onEdit = { question -> showQuestionDetails(question) },
@@ -67,10 +82,20 @@ class EditExamActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val origin = FirebaseAuth.getInstance().currentUser
+        editorOwnerUid = origin?.uid.orEmpty()
+        editorOwnerEmail = origin?.email.orEmpty()
         binding = ActivityEditExamBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        metadataViewStateRestored = savedInstanceState == null
+        restoreMetadataDraft = savedInstanceState?.getBoolean("edit_exam_metadata_ready") == true
+        restoredMetadataCategory = savedInstanceState?.getString("edit_exam_metadata_category")
+        setMetadataEditingEnabled(false)
 
-        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_exams") { permissions ->
+        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_exams",
+            restorationScope = "edit_exam:" + intent.getStringExtra(Constants.EXTRA_EXAM_ID).orEmpty(),
+            isRestoring = savedInstanceState != null) { permissions ->
+        if (!editorIdentityCurrent) { finish(); return@requireAdmin }
         canManageQuestions = permissions.isOwner || "manage_questions" in permissions.rights
         canManageContent = permissions.isOwner || "manage_content" in permissions.rights
         binding.btnAddQuestion.visibility = if (canManageQuestions) View.VISIBLE else View.GONE
@@ -88,11 +113,11 @@ class EditExamActivity : EveBaseActivity() {
         binding.rvQuestions.adapter = questionAdapter
 
         setupCategorySpinner()
-        setupForm()
+        if (!restoreMetadataDraft) setupForm()
 
         binding.btnSaveExamDetails.setOnClickListener { saveExamDetails() }
         binding.btnPickEmoji.setOnClickListener {
-            if (!canManageContent || isFinishing || isDestroyed) return@setOnClickListener
+            if (!canManageContent || !editorIdentityCurrent) return@setOnClickListener
             startActivity(android.content.Intent(this, com.eve.app.ui.admin.emoji.EmojiStudioActivity::class.java))
         }
         binding.btnAddQuestion.setOnClickListener { showAddQuestionDialog() }
@@ -107,18 +132,66 @@ class EditExamActivity : EveBaseActivity() {
 
     private fun setupCategorySpinner() {
         val adapter = ArrayAdapter(
-            this, android.R.layout.simple_spinner_dropdown_item, Constants.CATEGORIES
+            this, android.R.layout.simple_spinner_dropdown_item, Constants.CATEGORIES.toMutableList()
         )
         binding.spCategory.adapter = adapter
+        restoredMetadataCategory?.let { selectMetadataCategory(it) }
     }
 
     private fun setupForm() {
         binding.etExamName.setText(examName)
         binding.etExamMinutes.setText(timeLimit.toString())
 
-        val catIndex = Constants.CATEGORIES.indexOfFirst { it.equals(examCategory, ignoreCase = true) }
-        if (catIndex >= 0) {
-            binding.spCategory.setSelection(catIndex)
+        selectMetadataCategory(examCategory, allowExisting = currentExam != null)
+    }
+
+    private fun selectMetadataCategory(category: String, allowExisting: Boolean = true) {
+        @Suppress("UNCHECKED_CAST")
+        val adapter = binding.spCategory.adapter as? ArrayAdapter<String> ?: return
+        var index = (0 until adapter.count).firstOrNull { adapter.getItem(it).equals(category, ignoreCase = true) } ?: -1
+        if (index < 0 && allowExisting && category.isNotBlank()) {
+            adapter.add(category)
+            index = adapter.count - 1
+        }
+        if (index >= 0) binding.spCategory.setSelection(index)
+    }
+
+    private fun setMetadataEditingEnabled(enabled: Boolean) {
+        for (view in listOf(binding.etExamName, binding.etExamMinutes, binding.spCategory,
+            binding.etCutoffGeneral, binding.etCutoffObc, binding.etCutoffSc,
+            binding.etCutoffSt, binding.etCutoffEws, binding.btnSaveExamDetails)) view.isEnabled = enabled
+    }
+
+    /** Android owns text/cursor restoration; only the positional Spinner needs a stable identity. */
+    private fun publishMetadataForm() {
+        val exam = currentExam ?: return
+        if (!metadataViewStateRestored || !editorIdentityCurrent) return
+        if (!restoreMetadataDraft) {
+            setupForm()
+            binding.etCutoffGeneral.setText(exam.cutoffs["General"]?.toString().orEmpty())
+            binding.etCutoffObc.setText(exam.cutoffs["OBC"]?.toString().orEmpty())
+            binding.etCutoffSc.setText(exam.cutoffs["SC"]?.toString().orEmpty())
+            binding.etCutoffSt.setText(exam.cutoffs["ST"]?.toString().orEmpty())
+            binding.etCutoffEws.setText(exam.cutoffs["EWS"]?.toString().orEmpty())
+        } else {
+            restoredMetadataCategory?.let { selectMetadataCategory(it) }
+        }
+        restoredMetadataCategory = null
+        setMetadataEditingEnabled(!metadataSaveInFlight)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        metadataViewStateRestored = true
+        publishMetadataForm()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("edit_exam_metadata_ready", currentExam != null || restoreMetadataDraft)
+        if (::binding.isInitialized) {
+            outState.putString("edit_exam_metadata_category",
+                restoredMetadataCategory ?: binding.spCategory.selectedItem?.toString())
         }
     }
 
@@ -129,33 +202,33 @@ class EditExamActivity : EveBaseActivity() {
         lifecycleScope.launch {
             try {
                 val exams = examRepo.getExams()
-                currentExam = exams.find { it.id == examId }
-                currentExam?.let {
-                    examName = it.examName
-                    examCategory = it.categoryOrOther
-                    timeLimit = it.timeLimitMinutes
-                    setupForm()
-
-                    // Populate category cutoffs
-                    binding.etCutoffGeneral.setText(it.cutoffs["General"]?.toString().orEmpty())
-                    binding.etCutoffObc.setText(it.cutoffs["OBC"]?.toString().orEmpty())
-                    binding.etCutoffSc.setText(it.cutoffs["SC"]?.toString().orEmpty())
-                    binding.etCutoffSt.setText(it.cutoffs["ST"]?.toString().orEmpty())
-                    binding.etCutoffEws.setText(it.cutoffs["EWS"]?.toString().orEmpty())
-                }
+                if (!editorIdentityCurrent) return@launch
+                val exam = exams.find { it.id == examId }
+                    ?: throw IllegalStateException(getString(R.string.exam_metadata_unavailable))
+                currentExam = exam
+                examName = exam.examName
+                examCategory = exam.categoryOrOther
+                timeLimit = exam.timeLimitMinutes
+                publishMetadataForm()
 
                 loadQuestions()
-            } catch (e: Exception) {
-                binding.progressBar.visibility = View.GONE
-                AppBulletin.showError(this@EditExamActivity, "Failed to load exam: ${e.toUserFriendlyMessage()}")
+            } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
+            catch (e: Exception) {
+                if (editorIdentityCurrent) {
+                    binding.progressBar.visibility = View.GONE
+                    setMetadataEditingEnabled(false)
+                    AppBulletin.showError(this@EditExamActivity, "Failed to load exam: ${e.toUserFriendlyMessage()}")
+                }
             }
         }
     }
 
     private fun loadQuestions() {
+        if (!editorIdentityCurrent) return
         lifecycleScope.launch {
             try {
                 val questions = examRepo.getQuestions(examId)
+                if (!editorIdentityCurrent) return@launch
                 currentQuestions = questions.toMutableList()
                 binding.progressBar.visibility = View.GONE
 
@@ -166,58 +239,81 @@ class EditExamActivity : EveBaseActivity() {
                     if (currentQuestions.isEmpty()) View.VISIBLE else View.GONE
                 binding.rvQuestions.visibility =
                     if (currentQuestions.isEmpty()) View.GONE else View.VISIBLE
-            } catch (e: Exception) {
-                binding.progressBar.visibility = View.GONE
-                AppBulletin.showError(this@EditExamActivity, "Failed to load questions: ${e.toUserFriendlyMessage()}")
+            } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
+            catch (e: Exception) {
+                if (editorIdentityCurrent) {
+                    binding.progressBar.visibility = View.GONE
+                    AppBulletin.showError(this@EditExamActivity, "Failed to load questions: ${e.toUserFriendlyMessage()}")
+                }
             }
         }
     }
 
     private fun saveExamDetails() {
+        if (!editorIdentityCurrent || metadataSaveInFlight) return
+        val baseExam = currentExam?.takeIf { it.id == examId } ?: run {
+            AppBulletin.showError(this, getString(R.string.exam_metadata_unavailable))
+            return
+        }
         val newName = binding.etExamName.text?.toString()?.trim().orEmpty()
         val newMinutes = binding.etExamMinutes.text?.toString()?.trim()?.toIntOrNull()
-        val selectedCategory = binding.spCategory.selectedItem?.toString() ?: Constants.CATEGORY_OTHER
+        val selectedLabel = binding.spCategory.selectedItem?.toString() ?: Constants.CATEGORY_OTHER
+        val selectedCategory = baseExam.categoryOrOther.takeIf { it.equals(selectedLabel, ignoreCase = true) } ?: selectedLabel
 
         if (newName.length < 2) {
             AppBulletin.showError(this, "Exam name must be at least 2 characters")
             return
         }
-        if (newMinutes == null || newMinutes <= 0) {
-            AppBulletin.showError(this, "Please enter a valid time limit in minutes")
+        if (newMinutes == null || newMinutes !in 1..600) {
+            AppBulletin.showError(this, getString(R.string.exam_minutes_range))
             return
         }
 
-        val cutoffsMap = mutableMapOf<String, Double>()
-        binding.etCutoffGeneral.text?.toString()?.trim()?.toDoubleOrNull()?.let { cutoffsMap["General"] = it }
-        binding.etCutoffObc.text?.toString()?.trim()?.toDoubleOrNull()?.let { cutoffsMap["OBC"] = it }
-        binding.etCutoffSc.text?.toString()?.trim()?.toDoubleOrNull()?.let { cutoffsMap["SC"] = it }
-        binding.etCutoffSt.text?.toString()?.trim()?.toDoubleOrNull()?.let { cutoffsMap["ST"] = it }
-        binding.etCutoffEws.text?.toString()?.trim()?.toDoubleOrNull()?.let { cutoffsMap["EWS"] = it }
+        val cutoffsMap = baseExam.cutoffs.toMutableMap()
+        for ((category, field) in listOf("General" to binding.etCutoffGeneral, "OBC" to binding.etCutoffObc,
+            "SC" to binding.etCutoffSc, "ST" to binding.etCutoffSt, "EWS" to binding.etCutoffEws)) {
+            val raw = field.text?.toString()?.trim().orEmpty()
+            if (raw.isEmpty()) { cutoffsMap.remove(category); continue }
+            val cutoff = raw.toDoubleOrNull()
+            if (cutoff == null || !cutoff.isFinite() || cutoff < 0) {
+                AppBulletin.showError(this, getString(R.string.exam_cutoff_invalid, category))
+                return
+            }
+            cutoffsMap[category] = cutoff
+        }
 
-        val baseExam = currentExam ?: Exam(id = examId)
         val updatedExam = baseExam.copy(
             id = examId,
             examName = newName,
             timeLimitMinutes = newMinutes,
             category = selectedCategory,
-            questionCount = currentQuestions.size,
             cutoffs = cutoffsMap
         )
 
+        metadataSaveInFlight = true
+        setMetadataEditingEnabled(false)
         binding.progressBar.visibility = View.VISIBLE
         lifecycleScope.launch {
             try {
                 examRepo.updateExam(updatedExam)
-
-                currentExam = updatedExam
-                examName = newName
-                examCategory = selectedCategory
-                timeLimit = newMinutes
-                binding.progressBar.visibility = View.GONE
-                AppBulletin.showSuccess(this@EditExamActivity, "Exam details updated successfully")
-            } catch (e: Exception) {
-                binding.progressBar.visibility = View.GONE
-                AppBulletin.showError(this@EditExamActivity, "Failed to update exam: ${e.toUserFriendlyMessage()}")
+                if (editorIdentityCurrent) {
+                    currentExam = updatedExam
+                    examName = newName
+                    examCategory = selectedCategory
+                    timeLimit = newMinutes
+                    AppBulletin.showSuccess(this@EditExamActivity, "Exam details updated successfully")
+                }
+            } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
+            catch (e: Exception) {
+                if (editorIdentityCurrent) AppBulletin.showError(this@EditExamActivity,
+                    if (e is com.eve.app.data.repository.ExamUpdateNotVerifiedException) getString(R.string.exam_metadata_unconfirmed)
+                    else "Failed to update exam: ${e.toUserFriendlyMessage()}")
+            } finally {
+                metadataSaveInFlight = false
+                if (editorIdentityCurrent) {
+                    binding.progressBar.visibility = View.GONE
+                    setMetadataEditingEnabled(currentExam != null && metadataViewStateRestored)
+                }
             }
         }
     }
@@ -290,16 +386,21 @@ class EditExamActivity : EveBaseActivity() {
     }
 
     private fun importQuestions(questions: List<Question>) {
+        if (!questionActionsAllowed || questions.any { it.examId != examId }) return
         binding.progressBar.visibility = View.VISIBLE
         lifecycleScope.launch {
             try {
                 val added = examRepo.addQuestions(questions)
+                if (!questionActionsAllowed) return@launch
                 binding.progressBar.visibility = View.GONE
                 AppBulletin.showSuccess(this@EditExamActivity, "Successfully imported $added questions!")
                 loadQuestions()
-            } catch (e: Exception) {
-                binding.progressBar.visibility = View.GONE
-                AppBulletin.showError(this@EditExamActivity, "Import failed: ${e.toUserFriendlyMessage()}")
+            } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
+            catch (e: Exception) {
+                if (questionActionsAllowed) {
+                    binding.progressBar.visibility = View.GONE
+                    AppBulletin.showError(this@EditExamActivity, "Import failed: ${e.toUserFriendlyMessage()}")
+                }
             }
         }
     }
@@ -377,6 +478,7 @@ class EditExamActivity : EveBaseActivity() {
         }
 
         btnReformatAi.setOnClickListener {
+            if (!questionActionsAllowed) return@setOnClickListener
             val currentExp = etExplanation.text?.toString()?.trim().orEmpty()
             val correctOpt = when (rgCorrectAnswer.checkedRadioButtonId) {
                 R.id.rbA -> "A"
@@ -406,6 +508,7 @@ class EditExamActivity : EveBaseActivity() {
                         "explanation" to currentExp
                     )
                     val result = com.eve.app.data.remote.ApiClient.apiService.reformatExplanation(payload)
+                    if (!questionActionsAllowed) return@launch
                     val reformatted = result.data?.get("reformattedExplanation")
                     if (result.success && !reformatted.isNullOrBlank()) {
                         etExplanation.setText(reformatted)
@@ -415,13 +518,18 @@ class EditExamActivity : EveBaseActivity() {
                         etExplanation.setText(fallback)
                         AppBulletin.show(this@EditExamActivity, "AI unavailable; formatted locally (not by AI).")
                     }
-                } catch (e: Exception) {
-                    val fallback = formatKeyPointsLocally(correctOpt, currentExp)
-                    etExplanation.setText(fallback)
-                    AppBulletin.show(this@EditExamActivity, "AI unavailable; formatted locally (not by AI).")
+                } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
+                catch (e: Exception) {
+                    if (questionActionsAllowed) {
+                        val fallback = formatKeyPointsLocally(correctOpt, currentExp)
+                        etExplanation.setText(fallback)
+                        AppBulletin.show(this@EditExamActivity, "AI unavailable; formatted locally (not by AI).")
+                    }
                 } finally {
-                    pbReformat.visibility = View.GONE
-                    btnReformatAi.isEnabled = true
+                    if (questionActionsAllowed) {
+                        pbReformat.visibility = View.GONE
+                        btnReformatAi.isEnabled = true
+                    }
                 }
             }
         }
@@ -430,6 +538,7 @@ class EditExamActivity : EveBaseActivity() {
             .setTitle("Edit Question")
             .setView(dialogView)
             .setPositiveButton("Save") { _, _ ->
+                if (!questionActionsAllowed) return@setPositiveButton
                 val newQText = etQuestionText.text?.toString()?.trim().orEmpty()
                 val newOptA = etOptionA.text?.toString()?.trim().orEmpty()
                 val newOptB = etOptionB.text?.toString()?.trim().orEmpty()
@@ -465,6 +574,7 @@ class EditExamActivity : EveBaseActivity() {
                 lifecycleScope.launch {
                     try {
                         examRepo.updateQuestion(updatedQ)
+                        if (!questionActionsAllowed) return@launch
                         val idx = currentQuestions.indexOfFirst { it.id == q.id }
                         if (idx >= 0) {
                             currentQuestions[idx] = updatedQ
@@ -472,9 +582,12 @@ class EditExamActivity : EveBaseActivity() {
                         }
                         binding.progressBar.visibility = View.GONE
                         AppBulletin.showSuccess(this@EditExamActivity, "Question updated successfully")
-                    } catch (e: Exception) {
-                        binding.progressBar.visibility = View.GONE
-                        AppBulletin.showError(this@EditExamActivity, "Failed to update question: ${e.toUserFriendlyMessage()}")
+                    } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
+                    catch (e: Exception) {
+                        if (questionActionsAllowed) {
+                            binding.progressBar.visibility = View.GONE
+                            AppBulletin.showError(this@EditExamActivity, "Failed to update question: ${e.toUserFriendlyMessage()}")
+                        }
                     }
                 }
             }
@@ -533,8 +646,9 @@ class EditExamActivity : EveBaseActivity() {
                 lifecycleScope.launch {
                     try {
                         examRepo.deleteQuestion(q.id)
-                    } catch (e: Exception) {
-                        AppBulletin.showError(this@EditExamActivity, "Failed to delete question: ${e.toUserFriendlyMessage()}")
+                    } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
+                    catch (e: Exception) {
+                        if (questionActionsAllowed) AppBulletin.showError(this@EditExamActivity, "Failed to delete question: ${e.toUserFriendlyMessage()}")
                     }
                 }
 
@@ -550,9 +664,10 @@ class EditExamActivity : EveBaseActivity() {
                         lifecycleScope.launch {
                             try {
                                 examRepo.updateQuestion(q)
-                                AppBulletin.showSuccess(this@EditExamActivity, "Question restored")
-                            } catch (e: Exception) {
-                                AppBulletin.showError(this@EditExamActivity, "Failed to restore question: ${e.toUserFriendlyMessage()}")
+                                if (questionActionsAllowed) AppBulletin.showSuccess(this@EditExamActivity, "Question restored")
+                            } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
+                            catch (e: Exception) {
+                                if (questionActionsAllowed) AppBulletin.showError(this@EditExamActivity, "Failed to restore question: ${e.toUserFriendlyMessage()}")
                             }
                         }
                     }

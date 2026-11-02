@@ -53,7 +53,8 @@ Source-traced Telegram UI, theme reveal, Lottie animations, existing tokens and 
 - Database: Cloudflare D1 (incremental migrations in `backend/migrations/`).
 - Media storage: Supabase Storage (banner images, exam question media).
 - Authentication: Firebase Auth ID token verification via `/api/auth/me`.
-- Answer integrity: during active tests, answers are hidden for non-admin students (`hideAnswers`, checked via the `X-Eve-Client` header). Score evaluation, negative marking, attempt deduplication (`clientAttemptId`) and rank calculation happen on the server (`POST /api/attempts/submit`). Admin endpoints require an authenticated admin email.
+- Answer integrity: `hideAnswers` uses the server-verified admin principal, never a client version header. Question-bank reads additionally require fresh `manage_questions` permission to disclose answer keys. Score evaluation, negative marking, attempt deduplication (`clientAttemptId`) and rank calculation happen on the server (`POST /api/attempts/submit`). Administrative endpoints independently enforce authenticated server permissions.
+- Exam metadata saves own name, time, category and cutoff settings, verify authenticated API readback, and omit unedited hidden settings. Cutoffs use `exams.cutoffs_json` through the existing exam GET/PUT routes. They feed the existing result presentation without changing server score evaluation. Migration/deployment remains separately controlled.
 
 ### C. Firebase and security rules (`firestore.rules`, `functions/`)
 - `firestore.rules` enforces admin write authorization through `isAdmin()`.

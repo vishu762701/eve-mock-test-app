@@ -162,20 +162,23 @@ class ExamRepository(
         return res.message
     }
 
+    /** EditExam's metadata form owns these four fields; omitted settings stay server-authoritative. */
     suspend fun updateExam(exam: Exam) {
         val data = mapOf<String, Any>(
             "examName" to exam.examName.trim(),
             "timeLimitMinutes" to exam.timeLimitMinutes,
             "category" to exam.categoryOrOther,
-            "questionCount" to exam.questionCount,
-            "cutoffs" to exam.cutoffs,
-            "negativeMarkingText" to exam.negativeMarkingText,
-            "negativeMarkingValue" to exam.negativeMarkingValue,
-            "parentExamId" to exam.parentExamId.trim(),
-            "publishMode" to exam.publishMode.trim()
+            "cutoffs" to exam.cutoffs
         )
         val res = api.updateExam(exam.id, data)
         if (!res.success) throw Exception(res.error ?: "Failed to update exam")
+        val verified = api.getExam(exam.id)
+        val actual = verified.data
+        if (!verified.success || actual == null || actual.id != exam.id ||
+            actual.examName != exam.examName.trim() || actual.timeLimitMinutes != exam.timeLimitMinutes ||
+            actual.categoryOrOther != exam.categoryOrOther || actual.cutoffs != exam.cutoffs) {
+            throw ExamUpdateNotVerifiedException()
+        }
     }
 
     suspend fun updateExamFullSettings(
@@ -324,3 +327,6 @@ class ExamRepository(
         if (!res.success) throw Exception(res.error ?: "Failed to delete generated test")
     }
 }
+
+/** A successful PUT acknowledgement is not proof that every visible field persisted. */
+class ExamUpdateNotVerifiedException : IllegalStateException("Exam changes were not fully verified. Reload before retrying.")
