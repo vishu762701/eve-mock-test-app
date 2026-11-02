@@ -751,3 +751,60 @@ AppUndoBar.kt:48 documents immediate deletion; original UndoView.java:384-403,
 1701-1702@3de37c8cfb039452be7398909461da6288babf15 applies callback on expiry and
 cancels it for Undo. No choice/approval inferred from generic resume message.
 Continue independent fresh-role/active-form work; never fake a restored question.
+
+## C1/C5 EditExam child actions and canonical Add presentation
+
+Base main 5bf15f8444dd65d5e947b43a538404db701a500f exact-SHA FAST 41523395700
+SUCCESS, docs 41523395561 SUCCESS. R1: use fresh returned rights for question
+Add/import/edit/delete (manage_questions) and Emoji Studio (manage_content), while
+preserving manage_exams entry/metadata editing. R2: stale privileged controls must
+not invoke callbacks after identity replacement. R3: consolidate the TWO actual
+active Add Question form builders (ManageQuestions and EditExam) into the existing
+canonical presentation, retaining each screen's repository/state owner and title.
+R4: active EditExam Add form retains invalid/failed drafts, bounded pending submit,
+confirmed success and teardown. No new screen/ViewModel/auth bypass/role/API.
+Unused similarly named AdminActivity forms remain untouched. Undo product choice
+is independent/PENDING; no unsupported restore implementation assumed.
+
+C1/C5 EditExam scoped integration: fresh returned rights now own question controls
+and Emoji Studio visibility; question callbacks/rows recheck current host permission
+state. Read-only exam role does not display a fabricated Correct answer label.
+Shared AdminAccessGate binds its host to the initiating UID/email, hides protected
+root and finishes on replacement/signout, and removes the listener on destruction.
+This is UI defense in depth, never Worker authority or a local admin grant.
+
+Two verified active Add builders now share createAddQuestionDialog in the existing
+ManageQuestions source file. Its stateless submit/busy callbacks let EditExam keep
+its OWN repository/list rather than adding a redundant AdminViewModel. Existing
+screen titles preserved. Invalid/failed/pending/success behavior is the same
+canonical native renderer; EditExam owns one window and dismisses on teardown.
+Unused AdminActivity private Add form remains untouched; Analytics/Flagged uses of
+the same XML are EDIT workflows and were not mistaken for duplicate Add paths.
+
+| Source property | Actual EVE caller | Classification / reason | Evidence / uncertainty |
+|---|---|---|---|
+| AlertDialog.java:1161-1173,1526-1528@3de37c8cfb039452be7398909461da6288babf15 existing dismiss policy | canonical createAddQuestionDialog -> EditExamActivity/ManageQuestionsActivity | ADAPTED existing Kotlin/native renderer with EVE domain submit callbacks; no new imported code/assets | real protected Activity/widget callbacks + real ManageQuestions form/VM/repository test; full device geometry OPEN |
+| No Telegram exam/admin auth subsystem imported | AdminAccessGate + EditExam fresh snapshot + QuestionManageAdapter callbacks | ADAPTED EVE server-owned authorization boundary, no client authority | actual gate/Activity lifecycle with isolated SDK/repository boundaries; real Worker denied-role tests in predecessor; not end-to-end Firebase proof |
+
+Actual EditExamActionIntegrationTest before repair: 4 failures (invalid Add closes,
+question/emoji wrong-right exposure, identity replacement), 1 owner/denied-entry
+control passes. Seven expanded production Activity tests now PASS: role visibility,
+owner access, denied entry no data reads, stale bound rows after identity change,
+invalid draft, held pending/duplicate tap/denial/retry/success/list refresh, destroy/
+late result no old-host reload, listener cleanup. Synthetic data/auth repositories
+are test-only; no shipped auth bypass or production write. Source dialog contract
+assertions retain all four modal paths, original mutations/cancel/destructive UI;
+they now check three local builders + the one canonical Add call and mapped input
+fields in their actual new owner. No assertion removed merely to hide a failure.
+
+Final serial Gradle unit/AndroidTest-compile/lint/x86_64 assemble PASS: 823 tests /
+190 suites, zero failures/errors/skips; helpers59/docs/claims/diff PASS. Backend
+unchanged from exact-SHA predecessor (307 PASS); no redundant local Node rerun.
+Required carrying FAST pending. Whole Admin/rotation/device acceptance NOT MET.
+Undo semantics still awaiting explicit product answer; no fake restore fix claimed.
+Known independent next issue: Analytics/Flagged editors expose question editing
+under other entry rights and use ID OR text matching, which can select wrong same-
+text question even when an authoritative ID is present. Fix that concrete target/
+action path after this gate; do not silently fallback to an arbitrary question.
+Bulk picker result restoration while fresh gate is pending is also OPEN; current
+callbacks fail closed instead of importing without fresh rights/context.

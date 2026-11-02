@@ -47,9 +47,16 @@ class EditExamActivity : EveBaseActivity() {
     private var currentExam: Exam? = null
     private var currentQuestions: MutableList<Question> = mutableListOf()
 
+    private var canManageQuestions = false
+    private var canManageContent = false
+    private var addQuestionDialog: TelegramNativeAlertDialog? = null
+    private val questionActionsAllowed: Boolean
+        get() = canManageQuestions && !isFinishing && !isDestroyed
+
     private val questionAdapter = QuestionManageAdapter(
         onEdit = { question -> showQuestionDetails(question) },
-        onDelete = { question -> confirmDeleteQuestion(question) }
+        onDelete = { question -> confirmDeleteQuestion(question) },
+        canManage = { questionActionsAllowed }
     )
 
     private val filePicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -63,7 +70,12 @@ class EditExamActivity : EveBaseActivity() {
         binding = ActivityEditExamBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_exams") {
+        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_exams") { permissions ->
+        canManageQuestions = permissions.isOwner || "manage_questions" in permissions.rights
+        canManageContent = permissions.isOwner || "manage_content" in permissions.rights
+        binding.btnAddQuestion.visibility = if (canManageQuestions) View.VISIBLE else View.GONE
+        binding.btnBulkUpload.visibility = if (canManageQuestions) View.VISIBLE else View.GONE
+        binding.btnPickEmoji.visibility = if (canManageContent) View.VISIBLE else View.GONE
 
         examId = intent.getStringExtra(Constants.EXTRA_EXAM_ID).orEmpty()
         examName = intent.getStringExtra(Constants.EXTRA_EXAM_NAME).orEmpty()
@@ -80,10 +92,12 @@ class EditExamActivity : EveBaseActivity() {
 
         binding.btnSaveExamDetails.setOnClickListener { saveExamDetails() }
         binding.btnPickEmoji.setOnClickListener {
+            if (!canManageContent || isFinishing || isDestroyed) return@setOnClickListener
             startActivity(android.content.Intent(this, com.eve.app.ui.admin.emoji.EmojiStudioActivity::class.java))
         }
         binding.btnAddQuestion.setOnClickListener { showAddQuestionDialog() }
         binding.btnBulkUpload.setOnClickListener {
+            if (!questionActionsAllowed) return@setOnClickListener
             filePicker.launch("*/*")
         }
 
@@ -209,6 +223,7 @@ class EditExamActivity : EveBaseActivity() {
     }
 
     private fun handleFileSelected(uri: Uri) {
+        if (!questionActionsAllowed) return
         val fileName = getFileName(uri) ?: "upload.csv"
         try {
             contentResolver.openInputStream(uri)?.use { stream ->
@@ -290,72 +305,49 @@ class EditExamActivity : EveBaseActivity() {
     }
 
     private fun showAddQuestionDialog() {
-        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_question, null)
-        val etQuestion = dialogView.findViewById<EditText>(R.id.etQuestionText)
-        val etOptA = dialogView.findViewById<EditText>(R.id.etOptionA)
-        val etOptB = dialogView.findViewById<EditText>(R.id.etOptionB)
-        val etOptC = dialogView.findViewById<EditText>(R.id.etOptionC)
-        val etOptD = dialogView.findViewById<EditText>(R.id.etOptionD)
-        val rgCorrect = dialogView.findViewById<RadioGroup>(R.id.rgCorrectAnswer)
-        val etExplanation = dialogView.findViewById<EditText>(R.id.etExplanation)
-        val etTopic = dialogView.findViewById<EditText>(R.id.etTopic)
+        if (!questionActionsAllowed || addQuestionDialog?.isShowing == true) return
+        val exam = currentExam
+        if (exam == null) {
+            AppBulletin.showError(this, "Exam details are unavailable. Reload before adding a question.")
+            return
+        }
+        val dialog = createAddQuestionDialog(this, exam, title = "Add New Question",
+            submit = ::submitAddedQuestion)
+        addQuestionDialog = dialog
+        dialog.setOnDismissListener { if (addQuestionDialog === dialog) addQuestionDialog = null }
+        dialog.show()
+    }
 
-        TelegramNativeAlertDialog.Builder(this)
-            .setTitle("Add New Question")
-            .setView(dialogView)
-            .setPositiveButton("Add") { _, _ ->
-                val qText = etQuestion.text?.toString()?.trim().orEmpty()
-                val a = etOptA.text?.toString()?.trim().orEmpty()
-                val b = etOptB.text?.toString()?.trim().orEmpty()
-                val c = etOptC.text?.toString()?.trim().orEmpty()
-                val d = etOptD.text?.toString()?.trim().orEmpty()
-                val exp = etExplanation.text?.toString()?.trim().orEmpty()
-                val topic = etTopic.text?.toString()?.trim().orEmpty()
-
-                val correct = when (rgCorrect.checkedRadioButtonId) {
-                    R.id.rbA -> "A"
-                    R.id.rbB -> "B"
-                    R.id.rbC -> "C"
-                    R.id.rbD -> "D"
-                    else -> "A"
-                }
-
-                if (qText.isBlank() || a.isBlank() || b.isBlank() || c.isBlank() || d.isBlank()) {
-                    AppBulletin.showError(this, "Question and all 4 options are required")
-                    return@setPositiveButton
-                }
-
-                val newQuestion = Question(
-                    id = "",
-                    examId = examId,
-                    questionText = qText,
-                    optionA = a,
-                    optionB = b,
-                    optionC = c,
-                    optionD = d,
-                    correctAnswer = correct,
-                    explanation = exp,
-                    topic = topic
-                )
-
-                binding.progressBar.visibility = View.VISIBLE
-                lifecycleScope.launch {
-                    try {
-                        examRepo.addQuestion(newQuestion)
-                        binding.progressBar.visibility = View.GONE
-                        AppBulletin.showSuccess(this@EditExamActivity, "Question added")
-                        loadQuestions()
-                    } catch (e: Exception) {
-                        binding.progressBar.visibility = View.GONE
-                        AppBulletin.showError(this@EditExamActivity, "Failed to add question: ${e.toUserFriendlyMessage()}")
-                    }
-                }
+    private fun submitAddedQuestion(question: Question, onFailure: (String) -> Unit, onDone: () -> Unit) {
+        if (!questionActionsAllowed) return
+        lifecycleScope.launch {
+            binding.progressBar.visibility = View.VISIBLE
+            var confirmed = false
+            try {
+                examRepo.addQuestion(question)
+                confirmed = true
+            } catch (cancel: kotlinx.coroutines.CancellationException) {
+                throw cancel
+            } catch (e: Exception) {
+                onFailure("Failed to add question: ${e.toUserFriendlyMessage()}")
+            } finally {
+                binding.progressBar.visibility = View.GONE
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+            if (confirmed && questionActionsAllowed) {
+                onDone()
+                loadQuestions()
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        addQuestionDialog?.dismiss()
+        addQuestionDialog = null
+        super.onDestroy()
     }
 
     private fun showQuestionDetails(q: Question) {
+        if (!questionActionsAllowed) return
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edit_question_details, null)
         val etQuestionText = dialogView.findViewById<EditText>(R.id.etQuestionText)
         val etOptionA = dialogView.findViewById<EditText>(R.id.etOptionA)
@@ -526,10 +518,12 @@ class EditExamActivity : EveBaseActivity() {
     }
 
     private fun confirmDeleteQuestion(q: Question) {
+        if (!questionActionsAllowed) return
         TelegramNativeAlertDialog.Builder(this)
             .setTitle("Delete Question?")
             .setMessage("Are you sure? This cannot be undone.\n\n\"${q.questionText}\"")
             .setPositiveButton("Delete") { _, _ ->
+                if (!questionActionsAllowed) return@setPositiveButton
                 val prevList = currentQuestions.toMutableList()
                 val updated = prevList.filter { it.id != q.id }
                 currentQuestions = updated.toMutableList()
@@ -549,6 +543,7 @@ class EditExamActivity : EveBaseActivity() {
                     message = "Question deleted",
                     timeLeftMs = AppUndoBar.TIME_IMPORTANT,
                     onUndo = {
+                        if (!questionActionsAllowed) return@show
                         currentQuestions = prevList
                         questionAdapter.submit(currentQuestions)
                         binding.tvQuestionsHeader.text = "Questions (${currentQuestions.size})"

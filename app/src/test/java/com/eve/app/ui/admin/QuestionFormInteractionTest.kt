@@ -51,7 +51,7 @@ class QuestionFormInteractionTest {
         } as EveApiService
         val vm=AdminViewModel(ExamRepository(api))
         val store=ViewModelStore().apply { put("editor",vm) }
-        val dialog=createAddQuestionDialog(controller.get(),Exam(id="exam",examName="Exam"),vm)
+        val dialog=createAddQuestionDialog(controller.get(),Exam(id="exam",examName="Exam"),isBusy={vm.busy.value},submit=vm::addQuestion)
         try {
             dialog.show()
             val add=requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_POSITIVE))

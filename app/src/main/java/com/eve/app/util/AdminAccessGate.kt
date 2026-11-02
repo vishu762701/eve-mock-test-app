@@ -2,6 +2,8 @@ package com.eve.app.util
 
 import android.view.View
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.ui.common.EveBaseActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -29,6 +31,22 @@ object AdminAccessGate {
             activity.finish()
             return
         }
+
+        // The verified screen remains bound to the identity that initiated its gate.
+        val auth = FirebaseAuth.getInstance()
+        val identityListener = FirebaseAuth.AuthStateListener { state ->
+            val live = state.currentUser
+            if (live?.uid != user.uid || live?.email?.equals(email, ignoreCase = true) != true) {
+                protectedRoot.visibility = View.INVISIBLE
+                activity.finish()
+            }
+        }
+        auth.addAuthStateListener(identityListener)
+        activity.lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onDestroy(owner: LifecycleOwner) {
+                auth.removeAuthStateListener(identityListener)
+            }
+        })
 
         activity.lifecycleScope.launch {
             val permissions = try {

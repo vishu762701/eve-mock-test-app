@@ -6,7 +6,7 @@ Status: PARTIAL. This is a continuation record, not screen acceptance.
 
 ## Live verified implementation pointer — 2026-11-02
 
-Latest verified implementation main: **d2b649f5bac8f4b86549ff854385bafbf3d97c6a**.
+Latest verified implementation main: **5bf15f8444dd65d5e947b43a538404db701a500f**.
 Official Telegram rechecked after implementation: **3de37c8cfb039452be7398909461da6288babf15**.
 Reconcile this pointer with the carrying implementation commit and live main/CI on restart.
 
@@ -32,6 +32,7 @@ Reconcile this pointer with the carrying implementation commit and live main/CI 
 | Username source role/localized accessible status | 372b108a0b1b1c957566c53eeb7fd69b139e7a3e | [41475078791](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41475078791) SUCCESS |
 | Shared question-response integrity | 381a76a610a3f1847f59a4c48939d7f2e4e6aea8 | [41479914039](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41479914039) SUCCESS |
 | Category live-palette repair (owner exception) | d2b649f5bac8f4b86549ff854385bafbf3d97c6a | [41481845128](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41481845128) SUCCESS |
+| Server question mutation/audit confirmation | 5bf15f8444dd65d5e947b43a538404db701a500f | [41523395700](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41523395700) SUCCESS |
 
 Each FAST passed Android build/JVM/AndroidTest source compilation, all four ABI
 builds, pinned Rust security/C API, backend and Firebase. Historical scanner-batch docs 41403654877
@@ -1380,3 +1381,41 @@ cannot restore. Full C1/C5/global/device/reference/FULL/GPL acceptance NOT MET.
 First next action: verify carrying FAST, then independently repair real role/form
 caller path, incorporating actual Undo answer only when it arrives. No speculative
 QR work, source parity inflation, license variable change or production deploy.
+
+## EditExam child-action authorization / canonical Add form
+
+Base 5bf15f8444dd65d5e947b43a538404db701a500f FAST 41523395700 SUCCESS, docs
+41523395561 SUCCESS. Server question confirmation batch has 307 backend tests
+PASS, no production deployment. Owner Undo timing/API choice is STILL PENDING;
+generic resume was not its answer. Continue independent authorized work.
+
+Actual protected EditExam Activity tests isolate ONLY auth/data boundaries and
+reproduce 4 failures/1 passing owner+denied-entry control. Fresh child rights and
+host identity lifetime are now wired into production controls; same canonical Add
+presentation handles both real active creation entrypoints without another VM/
+repository/state owner. EditExam retains its list/repository, title and mutation;
+window owned/dismissed on destroy. Shared AdminAccessGate hides/closes stale UID/
+email host and cleans listener. Question row callbacks guard stale host rights.
+Seven expanded actual Activity tests + existing real canonical form/VM/repo tests
+PASS. Local serial broad Gradle PASS: 823 tests /190 suites, zero failures/errors/
+skips; AndroidTest compile/lint/x86_64 assemble, helpers59/docs/acceptance/diff PASS.
+No backend/scoring/answer API or new permission change. Source ADAPTED existing
+native dialog policy + EVE authorization adapter; no whole-device parity claim.
+
+Existing source assertions updated for canonical ownership while preserving four
+modal workflows, original inputs/mutations, cancel and destructive styling checks;
+no gate/legitimate assertion suppressed. Other dialog_add_question XML callers
+Analytics/Flagged EDIT existing records; unused AdminActivity Add private method
+has no caller. Neither was deleted by name or confused with an active duplicate.
+
+First next action: verify carrying FAST; repair red. Then PRIORITIZE newly traced
+Analytics/Flagged question edit target identity and nested-rights bug: their lookup
+uses id == target OR questionText == text, so a first same-text row can override the
+provided authoritative ID. Entry rights are view_analytics_logs/moderate_feedback,
+not manage_questions. Trace real handlers/adapters, add meaningful regressions,
+fix with one canonical target resolver and fresh action bindings, preserve existing
+roles/data/score and do not invent support for unavailable generated-question IDs.
+Also OPEN: EditExam bulk-picker result/context restoration through pending fresh
+permission after recreation; current callback fails closed. Undo decision pending;
+implement its chosen model only on actual owner answer. Source/UI/native/FULL/GPL
+acceptance remains NOT MET; QR remains preserved/OPEN, no speculative iterations.

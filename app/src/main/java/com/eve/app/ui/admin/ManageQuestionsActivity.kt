@@ -60,7 +60,8 @@ class ManageQuestionsActivity : EveBaseActivity() {
 
     private val questionAdapter = QuestionManageAdapter(
         onEdit = { q -> showQuestionDetails(q) },
-        onDelete = { q -> confirmDeleteQuestion(q) }
+        onDelete = { q -> confirmDeleteQuestion(q) },
+        canManage = { !isFinishing && !isDestroyed }
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -150,7 +151,7 @@ class ManageQuestionsActivity : EveBaseActivity() {
 
     private fun showAddQuestionDialog(selectedExam: Exam) {
         if (isFinishing || isDestroyed || addQuestionDialog?.isShowing == true) return
-        val dialog = createAddQuestionDialog(this, selectedExam, viewModel)
+        val dialog = createAddQuestionDialog(this, selectedExam, isBusy = { viewModel.busy.value }, submit = viewModel::addQuestion)
         addQuestionDialog = dialog
         dialog.setOnDismissListener { if (addQuestionDialog === dialog) addQuestionDialog = null }
         dialog.show()
@@ -365,7 +366,9 @@ internal fun bindQuestionExamChoices(spinner: android.widget.Spinner, exams: Lis
 
 /** Canonical question form presentation; authorization stays at the Activity/Worker entry points. */
 internal fun createAddQuestionDialog(activity: android.app.Activity, selectedExam: Exam,
-                                     viewModel: AdminViewModel): TelegramNativeAlertDialog {
+                                     isBusy: () -> Boolean = { false },
+                                     title: CharSequence = "Add Question to ${selectedExam.examName}",
+                                     submit: (Question, (String) -> Unit, () -> Unit) -> Unit): TelegramNativeAlertDialog {
         var submitting = false
         lateinit var dialog: TelegramNativeAlertDialog
         val dialogView = activity.layoutInflater.inflate(R.layout.dialog_add_question, null)
@@ -388,10 +391,10 @@ internal fun createAddQuestionDialog(activity: android.app.Activity, selectedExa
         val etTopic = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etTopic)
 
         dialog = TelegramNativeAlertDialog.Builder(activity)
-            .setTitle("Add Question to ${selectedExam.examName}")
+            .setTitle(title)
             .setView(dialogView)
             .setPositiveButton("Add") { _, _ ->
-                if (submitting || viewModel.busy.value) return@setPositiveButton
+                if (submitting || isBusy()) return@setPositiveButton
                 val qText = etQuestion.text?.toString()?.trim().orEmpty()
                 val a = etOptA.text?.toString()?.trim().orEmpty()
                 val b = etOptB.text?.toString()?.trim().orEmpty()
@@ -438,7 +441,7 @@ internal fun createAddQuestionDialog(activity: android.app.Activity, selectedExa
                 addButton?.setText(R.string.question_form_submitting)
                 dialog.getActionButton(android.content.DialogInterface.BUTTON_NEGATIVE)?.isEnabled = false
                 dialog.setCancelable(false)
-                viewModel.addQuestion(newQuestion, onFailure = { message ->
+                submit(newQuestion, { message ->
                     submitting = false
                     if (dialog.isShowing && !activity.isFinishing && !activity.isDestroyed) {
                         addButton?.text = addLabel
