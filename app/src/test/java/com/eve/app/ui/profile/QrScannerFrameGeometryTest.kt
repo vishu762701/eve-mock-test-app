@@ -18,10 +18,22 @@ class QrScannerFrameGeometryTest {
 
     @Test fun cameraLifecycleMatchesSourceOrdering() {
         val s = File("src/main/java/com/eve/app/ui/profile/EveQrLiveScannerActivity.kt").readText()
-        assertTrue(s.contains(".withEndAction { requestCameraAfterOpening() }"))
         assertTrue(s.contains("if (cameraRequestStarted || closing || completed.get()"))
         assertTrue(s.contains("QrScannerFrameOverlay(this)"))
-        assertTrue(s.indexOf("provider?.unbindAll()\n        camera = null") <
-            s.indexOf(".withEndAction { finish() }.start()"))
+        // The source 390ms shape morph now owns completion, not ViewPropertyAnimator.
+        assertTrue(s.contains("root.animateSourceOpen { requestCameraAfterOpening() }"))
+        assertTrue(s.contains("root.setAlreadyOpened()"))
+        val close = s.substringAfter("private fun closeScanner(destination: Uri?) {")
+            .substringBefore("override fun onDestroy()")
+        val snapshot = close.indexOf("root.captureCloseFrame(preview)")
+        val release = close.indexOf("provider?.unbindAll()")
+        val beginMorph = close.indexOf("root.animateSourceClose {")
+        val finished = close.indexOf("finish()")
+        assertTrue("close must capture before unbinding CameraX", snapshot >= 0 && snapshot < release)
+        assertTrue("close must release camera before morph", release >= 0 && release < beginMorph)
+        assertTrue("finish must occur after close animation callback",
+            beginMorph >= 0 && beginMorph < finished)
+        assertTrue("duplicate results must be rejected before scanner dismissal",
+            s.contains("if (!completed.compareAndSet(false, true)) return"))
     }
 }
