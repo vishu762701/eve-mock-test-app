@@ -208,7 +208,10 @@ class UsernameCardActivity : EveBaseActivity() {
         val panel = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(px(12), px(12), px(12), px(20))
-            background = glassBackground(24)
+            background = glassBackground(28)
+        }
+        val morph = QrPickerSheetSurface(this).apply {
+            addView(panel, FrameLayout.LayoutParams(-1, -2))
         }
         val title = TextView(this).apply {
             text = "EVE Animated Emojis"
@@ -260,9 +263,10 @@ class UsernameCardActivity : EveBaseActivity() {
         loading.minimumHeight = px(42)
         panel.addView(loading, LinearLayout.LayoutParams(-1, -2))
         panel.addView(grid, LinearLayout.LayoutParams(-1, px(340)))
-        sheet.setContentView(panel)
+        sheet.setContentView(morph)
         var catalogueJob: kotlinx.coroutines.Job? = null
         sheet.setOnDismissListener {
+            morph.dispose()
             catalogueJob?.cancel()
             emojiPickerScroll = grid.saveScrollState()
             if (emojiPicker === sheet) {
@@ -285,7 +289,10 @@ class UsernameCardActivity : EveBaseActivity() {
             }
             // Wait for sheet measure: the source pivot is the visible glass bottom.
             grid.post {
-                if (sheet.isShowing && emojiPickerGrid === grid) grid.animateSourceOpen()
+                if (sheet.isShowing && emojiPickerGrid === grid) {
+                    morph.animateSourceOpen()
+                    grid.animateSourceOpen()
+                }
             }
         }
         catalogueJob = lifecycleScope.launch {

@@ -428,3 +428,24 @@ payload, permission, release gate or product setting is changed.
 
 Next piece: parent morph/cascade/blur of A2, source-driven scanner button
 morph, then other unfinished mission workstreams. No production GPL clearance.
+
+## A2 sheet island-to-panel source geometry (2026-11-02)
+
+Verified precommit live baseline `b33ad5a78d6d267838ea01ca172378e950f13729`; upstream source
+`3de37c8cfb039452be7398909461da6288babf15`. Source Java `QrPickerSheetMorph`, Kotlin
+`QrPickerSheetSurface`, real Activity picker caller, JVM motion tests,
+picker source map and notices changed in this one feature batch.
+Explicit open gaps: the surrounding Material modal/drag differs from
+Telegram's all-in-scene compositor; controls, selection and owned
+animated Drawables remain EVE-native; mobile GPU/device acceptance and
+license review are not yet proven.
+
+| ID | Requirement | Current code | Upstream reference | Dependencies | Status | Verification evidence |
+|---|---|---|---|---|---|---|
+| R3.A2.shape | Original 420ms cubic sheet shape 144x40 to 10dp inset/radius 28.17 | QrPickerSheetMorph + QrPickerSheetSurface + UsernameCardActivity | QrShareView:5317-5433 | EVE Material host + QR glass Drawable | UNKNOWN before exact-SHA FAST | new 3 JVM geometry/curve tests, device comparison OPEN |
+| R3.A2.parent | Complete native sheet parent/drag/cascade/glass lift | existing BottomSheetDialog / QrEmojiPickerGrid | QrShareView:5317-5570, QrShareActivity:532-758 | entire source scene/compositor | NOT MET | native source parity/GPU frame matrix absent |
+
+Next first unfinished requirement: finish original source sheet parent
+and close/cascade/blur compositor and run matched physical Android UI
+tests. After that scanner morph, remaining QR/Profile/Admin/Home/student,
+quiz/theme/RTL/CI/release gates. Whole mission PARTIAL.

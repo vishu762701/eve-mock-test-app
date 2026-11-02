@@ -157,3 +157,21 @@ settled 1.0 identity and the source safe division. The real
 `QrEmojiPickerGridTest.kt` covers attached animation transform and detach
 reset without network calls. CI/runtime acceptance remains separate and
 the combined Telegram license review OPEN.
+
+## A2 native QR sheet island geometry and opening clip (2026-11-02)
+
+**ADAPTED / full source sheet parity NOT MET.** Official Telegram Android
+`DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`, `QrShareView.java:5317-5433`:
+`SHEET_EASE = cubic-bezier(0.16,1,0.3,1)`, opening 420ms, closing
+360ms, 144x40dp original island, 10dp sheet insets, 28.17dp
+target radius, and source opening `contentA = clamp(sheet / 0.8)`.
+
+Source local mapping:
+- `app/src/main/java/com/eve/app/telegram/qr/QrPickerSheetMorph.java`: Java source motion/geometry extraction and 170ms close content math. Source x-inverted cubic solved by bounded iteration. **ADAPTED** EVE host origin Y from its modal panel, not Telegram original QrShareView bottom bar and inset contract.
+- `app/src/main/java/com/eve/app/ui/profile/QrPickerSheetSurface.kt`: clip actual picker children through moving rounded island and fade. **ADAPTED** EVE dialog parent remains Material; input/back/outside tap/cancellation stay native, not a Telegram exact-screen claim.
+- `app/src/main/java/com/eve/app/ui/profile/UsernameCardActivity.kt`: real Android picker caller wraps existing panel in surface and opens concurrently with original source grid scaling.
+- `app/src/test/java/com/eve/app/telegram/qr/QrPickerSheetMorphTest.java`: source geometry, alpha, timing/ease monotonicity and endpoints.
+
+Material parent slide/drag, original independent elevated blur/lift, full
+per-row dismissal cascade and physical GPU motion parity remain **NOT MET**.
+GPLv2/per-file combined-distribution review remains OPEN.

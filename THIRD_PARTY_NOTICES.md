@@ -1,5 +1,17 @@
 # Third Party Notices
 
+## Telegram QR picker sheet island motion — 2026-11-02
+
+`app/src/main/java/com/eve/app/telegram/qr/QrPickerSheetMorph.java`
+is an ADAPTED Java extraction from official
+`DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`,
+`TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareView.java`
+(lines 5317-5433). EVE integrates the result through the
+`QrPickerSheetSurface.kt` modal host. Telegram contributors retain
+rights; root GPLv2, per-file grants and combined-app distribution
+review remain unresolved. No production clearance is implied.
+
+
 ## Telegram QR picker opening Java motion — 2026-11-02
 
 The related original `QrShareActivity.java:663-676` overlay-to-scaled-grid
