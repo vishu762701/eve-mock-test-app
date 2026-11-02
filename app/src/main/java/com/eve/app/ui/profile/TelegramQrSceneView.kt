@@ -104,6 +104,10 @@ internal class TelegramQrSceneView(
 
     fun drawControlBackdrop(canvas: Canvas, owner: View): Boolean = backdrop.drawControlBackdrop(canvas, owner)
 
+    /** Source sheet-only GPU lift adapter; EVE Activity owns the visible dialog. */
+    fun drawPickerSheetBackdrop(canvas: Canvas, owner: View, progress: Float): Boolean =
+        backdrop.drawPickerSheetBackdrop(canvas, owner, progress)
+
     /** Legacy single-emoji entry remains supported for existing saved QR preferences. */
     fun setEmoji(value: String?) {
         setEmojiChoices(value?.takeIf { it.isNotBlank() }?.let {
