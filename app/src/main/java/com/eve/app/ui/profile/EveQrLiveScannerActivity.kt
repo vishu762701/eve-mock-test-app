@@ -58,7 +58,8 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
     private var cameraRequestStarted = false
     private var cameraBinding = false
     private var permissionDialog: TelegramNativeAlertDialog? = null
-    private var torchOn = false
+    private val torchState = QrTorchGate()
+    private lateinit var torchButton: TextView
     private var lastScanAt = 0L
     private var lastRejectedAt = 0L
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
@@ -169,14 +170,8 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         val galleryButton = actionButton("Gallery", "Scan QR from gallery") {
             gallery.launch("image/*")
         }
-        val torchButton = actionButton("Flashlight", "Toggle camera torch") {
-            val current = camera
-            if (current?.cameraInfo?.hasFlashUnit() == true) {
-                torchOn = !torchOn
-                current.cameraControl.enableTorch(torchOn)
-            } else {
-                AppBulletin.showError(this, "Flashlight unavailable")
-            }
+        torchButton = actionButton("Flashlight", "Turn on camera flashlight") {
+            toggleTorch()
         }
         buttons.addView(galleryButton, LinearLayout.LayoutParams(dp(126), dp(48)))
         buttons.addView(torchButton, LinearLayout.LayoutParams(dp(126), dp(48)).apply { leftMargin = dp(12) })
@@ -223,6 +218,39 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         setOnClickListener { onTap() }
     }
 
+    /** Source checks camera session; EVE CameraX futures own the resulting UI state. */
+    private fun toggleTorch() {
+        val active = camera
+        if (closing || isDestroyed || isFinishing ||
+            active?.cameraInfo?.hasFlashUnit() != true) {
+            if (!closing) AppBulletin.showError(this, "Flashlight unavailable")
+            return
+        }
+        val request = torchState.request() ?: return
+        val future = try {
+            active.cameraControl.enableTorch(request.enable)
+        } catch (_: Exception) {
+            torchState.complete(request, false)
+            AppBulletin.showError(this, "Unable to change flashlight")
+            return
+        }
+        future.addListener({
+            val success = runCatching { future.get() }.isSuccess
+            if (!torchState.complete(request, success)) return@addListener
+            if (!closing && !isDestroyed && !isFinishing) {
+                updateTorchButton()
+                if (!success) AppBulletin.showError(this, "Unable to change flashlight")
+            }
+        }, ContextCompat.getMainExecutor(this))
+    }
+
+    private fun updateTorchButton() {
+        if (!::torchButton.isInitialized) return
+        torchButton.isSelected = torchState.enabled
+        torchButton.contentDescription = if (torchState.enabled)
+            "Turn off camera flashlight" else "Turn on camera flashlight"
+    }
+
     private fun startLiveCamera() {
         if (cameraBinding || provider != null || closing || completed.get() ||
             isFinishing || isDestroyed) return
@@ -247,6 +275,8 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
                 analyzer.setAnalyzer(worker) { frame -> analyzeFrame(frame) }
                 camera = service.bindToLifecycle(this, CameraSelector.DEFAULT_BACK_CAMERA, cameraPreview, analyzer)
                 provider = service
+                torchState.reset()
+                updateTorchButton()
             } catch (_: Exception) {
                 AppBulletin.showError(this, "Unable to start camera. Gallery is still available.")
             }
@@ -360,6 +390,8 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         // Original QrScanOverlay captures the final texture before releasing
         // its camera. Keep only an in-memory half-sized preview until closed.
         if (::root.isInitialized) root.captureCloseFrame(preview)
+        torchState.reset()
+        updateTorchButton()
         camera?.cameraControl?.enableTorch(false)
         provider?.unbindAll()
         camera = null
@@ -388,6 +420,7 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         permissionDialog = null
         if (::root.isInitialized) root.dispose()
         provider?.unbindAll()
+        torchState.reset()
         cameraBinding = false
         worker.shutdownNow()
         super.onDestroy()

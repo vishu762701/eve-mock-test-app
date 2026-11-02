@@ -539,3 +539,26 @@ No backend, Firebase, signing, license gate or scoring changes.
 Next: original yellow found-outline with camera image-to-view transforms;
 native permission/rotation/torch/gallery tests and wider mission still open.
 Root GPL/per-file combined distribution and final FULL remain unaccepted.
+
+## R5 scanner torch async integration checkpoint (2026-11-02)
+
+Baseline main 963c8a7322ee155cbe68c0291b5805074485a117,
+exact-SHA FAST 41385170876 SUCCESS. Official Telegram pin
+3de37c8cfb039452be7398909461da6288babf15.
+New QrTorchGate and production EveQrLiveScannerActivity use
+CameraX future completion before reflecting flashlight state,
+reject rapid taps and discard stale callbacks. Native tests
+remain required after the pushed SHA. No changes to backend,
+auth, Firebase contracts, scoring, signing, release gates or
+source licenses.
+
+| ID | Requirement | Code | Upstream | Status | Evidence |
+|---|---|---|---|---|---|
+| R5.torch | Accurate async torch state and accessible button | EveQrLiveScannerActivity, QrTorchGate | QrScanOverlay:783-787,914-922 | UNKNOWN before new FAST | 3 gate JVM tests + scanner source contract |
+| R5.device | Flash hardware, background/rotation | same | EVE CameraX | UNKNOWN | Real device matrix pending |
+| R5.found | Four-point original found QR outline | QrScannerFrameOverlay | QrScanOverlay:700-782 | NOT MET | Camera image-to-preview geometry and valid points pending |
+
+Next unfinished requirement: source-constrained four-point scan-found
+feedback and camera/gallery/torch permission runtime validation,
+then original QR/Profile/Admin/Home/student/Quiz/theme and FULL.
+Production GPL/per-file combined distribution approval remains OPEN.

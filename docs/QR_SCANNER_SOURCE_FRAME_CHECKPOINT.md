@@ -59,3 +59,17 @@ single-in-flight binding guard; the permission dialog is discarded on
 Activity destruction. This never auto-grants, bypasses or hides a
 permission. Source contract tests cover actual integration, while
 real hardware denial, settings-return and rotation remain UNKNOWN.
+
+## R5 CameraX torch result ownership (2026-11-02)
+
+ADAPTED original session-aware flashlight behavior from
+DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15,
+QrScanOverlay.java:783-787,914-922. EVE retains its CameraX owner.
+The real scanner button now calls CameraX enableTorch and updates
+selected/accessibility status only upon successful future completion.
+QrTorchGate.kt prevents rapid duplicate requests, retains state
+when the future fails and ignores callbacks from previous camera
+generations (close/rotate/rebind). QrTorchGateTest.kt covers success,
+failure and old-generation rejection. Real camera hardware and
+60/90/120Hz/source glass parity remain UNKNOWN/NOT MET; license
+and release review remain OPEN.
