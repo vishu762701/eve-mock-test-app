@@ -21,11 +21,9 @@ class ChangeBioActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        editorOwnerUid = ProfileEditorAccountGuard.bind(this, savedInstanceState) ?: return
         binding = ActivityChangeBioBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        editorOwnerUid = FirebaseAuth.getInstance().currentUser?.uid
-        if (editorOwnerUid == null) { finish(); return }
-        ProfileEditorAccountGuard.bind(this, requireNotNull(editorOwnerUid))
 
         // A missing field means production has not yet deployed Bio. Fail closed.
         val original = intent.getStringExtra("current_bio")

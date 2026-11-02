@@ -334,6 +334,7 @@ class ProfileActivity : EveBaseActivity() {
             if (!profileConfirmed) { loadProfile(); return@setOnClickListener }
             val user = FirebaseAuth.getInstance().currentUser
             val intent = Intent(this, ChangeNameActivity::class.java).apply {
+                putExtra(ProfileEditorAccountGuard.EXTRA_OWNER_UID, profileOwnerUid)
                 putExtra("current_name", currentDisplayName)
             }
             editInfoLauncher.launch(intent)
@@ -384,6 +385,7 @@ class ProfileActivity : EveBaseActivity() {
         binding.cellMobile.setOnClickListener {
             if (!isProfileOwner()) return@setOnClickListener
             val intent = Intent(this, ChangePhoneActivity::class.java).apply {
+                putExtra(ProfileEditorAccountGuard.EXTRA_OWNER_UID, profileOwnerUid)
                 putExtra("current_phone", currentPhone)
             }
             editPhoneLauncher.launch(intent)
@@ -393,6 +395,7 @@ class ProfileActivity : EveBaseActivity() {
         binding.cellUsername.setOnClickListener {
             if (!isProfileOwner()) return@setOnClickListener
             val intent = Intent(this, ChangeUsernameActivity::class.java).apply {
+                putExtra(ProfileEditorAccountGuard.EXTRA_OWNER_UID, profileOwnerUid)
                 putExtra("current_username", currentUsername)
             }
             editUsernameLauncher.launch(intent)

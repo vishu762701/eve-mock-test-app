@@ -6,7 +6,7 @@ Status: PARTIAL. This is a continuation record, not screen acceptance.
 
 ## Live verified implementation pointer — 2026-11-02
 
-Latest verified implementation main: **03c07dc45031b9c2361db53e7ba650dca729bdce**.
+Latest verified implementation main: **196c59d55b9710fcfb99bb1f2b4e8629f6bb9aee**.
 Official Telegram rechecked after implementation: **3de37c8cfb039452be7398909461da6288babf15**.
 Reconcile this pointer with the carrying implementation commit and live main/CI on restart.
 
@@ -27,6 +27,7 @@ Reconcile this pointer with the carrying implementation commit and live main/CI 
 | Confirmed Home exam-list contract | e1885471f913d7499116f9e4fe6fa1a6ae31d5bf | [41457197984](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41457197984) SUCCESS |
 | Shared dismiss policy/question form retention | 412edc6ed80ca867635cbcf8cee06e56196728f4 | [41462667732](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41462667732) SUCCESS |
 | C5 selected question-list request ownership | 03c07dc45031b9c2361db53e7ba650dca729bdce | [41466628937](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41466628937) SUCCESS |
+| Confirmed exam rename contract/form | 196c59d55b9710fcfb99bb1f2b4e8629f6bb9aee | [41469072072](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41469072072) SUCCESS |
 
 Each FAST passed Android build/JVM/AndroidTest source compilation, all four ABI
 builds, pinned Rust security/C API, backend and Firebase. Historical scanner-batch docs 41403654877
@@ -1222,3 +1223,31 @@ logs. Native authenticated rotation/process-death draft restoration remains OPEN
 Carrying commit needs exact-SHA FAST; on red repair before unrelated features.
 
 Rename final local verification: serial `./gradlew :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64` PASS (794 JVM tests / 185 suites, zero failures/errors/skips). `cd backend && npm test && npm run build` PASS (299 tests, no failures/skips); eight new real-handler cases. CI helpers 59, docs, structural acceptance and diff checks PASS. Bare historical SDK 35 Main Thread line still UNKNOWN in successful JVM suite. Carrying exact-SHA FAST required; FULL/native/reference/legal acceptance not established. After green continue remaining shared-dialog/Home/Profile production paths; next Profile category/data restoration/identity audit, preserving no Add bio/About and existing confirmed-store/request-owner mechanisms.
+
+## Profile editor restoration ownership continuation
+
+Recovered clean main 196c59d55b9710fcfb99bb1f2b4e8629f6bb9aee FAST 41469072072
+SUCCESS, docs 41469072384 SUCCESS. Official Telegram HEAD rechecked unchanged
+3de37c8cfb039452be7398909461da6288babf15. Rename Android+Worker coherent batch has
+one successful implementation commit; no production deploy. Whole mission NOT MET.
+
+Existing editor guard rebound current Firebase identity after recreation, losing
+draft ownership. Current implementation saves original owner with native registry,
+passes owner metadata from three active Profile callers, rejects mismatched/unknown
+restoration before inflation, and retains existing live listener cleanup. Protects
+Name/Phone/Username and retained Bio compatibility Activity; no visible Bio/About
+row restored. Actual production Activity tests use only synthetic SDK boundary,
+not an auth bypass in shipped code. Fixture bootstrap errors separated from real
+fail-before evidence (two test failures, two existing behaviors pass). Fixed
+original tests pass; expanded per-editor tests/broad checks pending below. Existing
+API readbacks/queued-request owner metadata/Worker authorization unchanged.
+
+First action on interruption: inspect this carrying commit/local changes and CI.
+Finish required broad checks/FAST, repair red before new implementation. Then
+continue full ledger Home/shared/Profile functionality; pending-request restoration
+and device/reference matrix remain OPEN, not claimed solved by draft ownership.
+No production deploy/migration, scoring/security downgrade, new account service,
+GPL variable change or speculative QR iteration. Source classification ADAPTED EVE
+adapter, not exact Telegram account implementation.
+
+B4 ownership final local verification: serial `./gradlew :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64` PASS; 805 JVM tests / 186 suites, zero failures/errors/skips. Eleven new Activity lifecycle tests PASS; Python helpers 59/docs/structural acceptance/diff PASS. Existing backend unchanged from predecessor FAST (299 tests). Historical bare SDK 35 Main Thread warning persists UNKNOWN; no suppression. Exact-SHA FAST required. Next independent Profile investigation: username availability callback cancellation/error ordering, field pending-save restoration and remaining source UI paths; preserve this ownership guard and no Bio/About rows. Full mission/device/GPL/FULL acceptance NOT MET.

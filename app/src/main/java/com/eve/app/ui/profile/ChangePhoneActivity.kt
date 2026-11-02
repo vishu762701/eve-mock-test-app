@@ -25,11 +25,9 @@ class ChangePhoneActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        editorOwnerUid = ProfileEditorAccountGuard.bind(this, savedInstanceState) ?: return
         binding = ActivityChangePhoneBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        editorOwnerUid = FirebaseAuth.getInstance().currentUser?.uid
-        if (editorOwnerUid == null) { finish(); return }
-        ProfileEditorAccountGuard.bind(this, requireNotNull(editorOwnerUid))
 
         val currentPhone = intent.getStringExtra("current_phone") ?: ""
         if (currentPhone.isNotEmpty()) {

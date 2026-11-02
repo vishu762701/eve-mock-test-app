@@ -529,3 +529,47 @@ source visual acceptance remain NOT MET. Worker protection is staged only until
 a separately authorized deployment; no production safety claim is inferred.
 
 Rename final local verification: serial `./gradlew :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64` PASS (794 JVM tests / 185 suites, zero failures/errors/skips). `cd backend && npm test && npm run build` PASS (299 tests, no failures/skips); eight new real-handler cases. CI helpers 59, docs, structural acceptance and diff checks PASS. Bare historical SDK 35 Main Thread line still UNKNOWN in successful JVM suite. Carrying exact-SHA FAST required; FULL/native/reference/legal acceptance not established. After green continue remaining shared-dialog/Home/Profile production paths; next Profile category/data restoration/identity audit, preserving no Add bio/About and existing confirmed-store/request-owner mechanisms.
+
+## B4/C5 profile editor restoration ownership
+
+Base 196c59d55b9710fcfb99bb1f2b4e8629f6bb9aee exact-SHA FAST 41469072072 SUCCESS,
+docs 41469072384 SUCCESS. No concurrent changes. R1: restored editor drafts must
+remain tied to the account that created them, never acquire the newly current
+Firebase identity. R2: bind fresh editor launch metadata to the initiating profile
+owner; reject mismatched/restored-unverifiable ownership before private view-state
+restoration. R3: preserve same-account native draft restoration and existing live
+auth listener teardown, server readback/request-owner checks and all four retained
+editor implementations. Do not re-add visible Bio/About or change profile data/API.
+Existing bind only checks current identity on each onCreate, losing original owner
+across destruction; scoped NOT MET pending actual Activity regression evidence.
+This is EVE identity isolation, not an imported Telegram account subsystem.
+
+B4 restoration scoped implementation uses the EXISTING ProfileEditorAccountGuard
+and native SavedStateRegistry. Original owner UID is saved privately with the
+editor's existing OS view state; no account repository/preferences/API introduced.
+Profile's three active editor launches carry their initiating owner. Restored
+unknown/mismatched ownership and delayed mismatched launch finish BEFORE inflating
+private controls. Same-owner recreation restores native text normally. Existing
+auth listener still closes on replacement and unregisters on destroy. A legacy
+restored draft without verifiable owner is closed instead of rebound to a possibly
+different user; fresh legacy internal launches retain current-account compatibility.
+All four editors remain non-exported. No Bio/About row or backend schema change.
+
+| Upstream reference | EVE production path:lines | Classification / reason | Verification / limits |
+|---|---|---|---|
+| No Telegram authentication/account subsystem imported (owner exclusion) | ProfileEditorAccountGuard.kt:14-38 -> ChangeName/Phone/Username/BioActivity.onCreate, before binding inflation | ADAPTED EVE identity adapter; native SavedStateRegistry ownership around existing source-derived editors | actual four Activity lifecycle/native draft tests with SDK identity boundary isolated; real Firebase/OS-kill/device acceptance OPEN |
+| Existing source-derived Profile action/cells, unchanged geometry | ProfileActivity.kt:337,388,398 | ADAPTED launch ownership metadata only; no visual parity claim or new renderer | delayed launch rejected by actual targets; authenticated Profile launcher/runtime matrix OPEN |
+
+ProfileEditorRestorationTest uses actual production Activities/guard/native saved
+view state, not an isolated selector. Test-only SDK shell returns immutable synthetic
+identities/listeners, skips SDK initialization, carries no credentials and performs
+no Firebase/API writes. Fixture bootstrap failures (SDK shell construction and
+setup(null)) were fixed first; they are not product regression evidence. With the
+working fixture, two original tests FAIL before repair (restored identity and
+fresh delayed launch), while same-owner draft and live signout tests PASS. Fixed
+four-test run PASS; expanded per-editor rejection and unknown-owner cases cover all
+retained editor paths. These are host lifecycle evidence, not physical-device or
+real Firebase authentication proof. Pending-save/process-death reconciliation and
+whole Profile/source visual acceptance remain OPEN/NOT MET.
+
+B4 ownership final local verification: serial `./gradlew :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64` PASS; 805 JVM tests / 186 suites, zero failures/errors/skips. Eleven new Activity lifecycle tests PASS; Python helpers 59/docs/structural acceptance/diff PASS. Existing backend unchanged from predecessor FAST (299 tests). Historical bare SDK 35 Main Thread warning persists UNKNOWN; no suppression. Exact-SHA FAST required. Next independent Profile investigation: username availability callback cancellation/error ordering, field pending-save restoration and remaining source UI paths; preserve this ownership guard and no Bio/About rows. Full mission/device/GPL/FULL acceptance NOT MET.

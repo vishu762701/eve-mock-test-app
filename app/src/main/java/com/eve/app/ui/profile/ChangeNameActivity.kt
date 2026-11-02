@@ -26,11 +26,9 @@ class ChangeNameActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        editorOwnerUid = ProfileEditorAccountGuard.bind(this, savedInstanceState) ?: return
         binding = ActivityChangeNameBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        editorOwnerUid = FirebaseAuth.getInstance().currentUser?.uid
-        if (editorOwnerUid == null) { finish(); return }
-        ProfileEditorAccountGuard.bind(this, requireNotNull(editorOwnerUid))
 
         val user = FirebaseAuth.getInstance().currentUser
         val initialName = intent.getStringExtra("current_name") ?: user?.displayName ?: ""

@@ -37,11 +37,9 @@ class ChangeUsernameActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        editorOwnerUid = ProfileEditorAccountGuard.bind(this, savedInstanceState) ?: return
         binding = ActivityChangeUsernameBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        editorOwnerUid = FirebaseAuth.getInstance().currentUser?.uid
-        if (editorOwnerUid == null) { finish(); return }
-        ProfileEditorAccountGuard.bind(this, requireNotNull(editorOwnerUid))
 
         currentUsername = intent.getStringExtra("current_username") ?: ""
         if (currentUsername.startsWith("@")) {
