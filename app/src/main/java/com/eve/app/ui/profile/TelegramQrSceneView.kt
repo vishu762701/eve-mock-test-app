@@ -1,7 +1,6 @@
 package com.eve.app.ui.profile
 
 import android.content.Context
-import android.animation.ValueAnimator
 import android.graphics.drawable.Drawable
 import com.eve.app.telegram.animation.NativeQrDrawable
 import com.eve.app.telegram.animation.QrAnimationAssets
@@ -21,7 +20,6 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import com.google.zxing.qrcode.encoder.Encoder
 import java.util.Locale
 import kotlin.math.min
-import kotlin.math.hypot
 
 /**
  * EVE's local-only username QR renderer. Static card geometry and rounded QR
@@ -73,7 +71,7 @@ internal class TelegramQrSceneView(
     private val shadow = com.eve.app.telegram.qr.QrCardShadow(this)
     private var revealing = false
     private val cardMotion = com.eve.app.telegram.qr.QrCardMotion()
-    private var glideAnimator: ValueAnimator? = null
+    private val patternField = com.eve.app.telegram.qr.QrPatternField(density)
     private var selectedEmojis: List<QrEmojiChoice> = emptyList()
     val selectedEmoji: String? get() = selectedEmojis.firstOrNull()?.alt
     val emojiChoices: List<QrEmojiChoice> get() = selectedEmojis.toList()
@@ -89,13 +87,6 @@ internal class TelegramQrSceneView(
         alpha = 110
     }
     private val startedAt = SystemClock.uptimeMillis()
-    private var panX = 0f
-    private var panY = 0f
-    private var startPanX = 0f
-    private var startPanY = 0f
-    private var downX = 0f
-    private var downY = 0f
-    private var dragging = false
     private var tracker: VelocityTracker? = null
 
     val selectedPalette: Int get() = palette
@@ -107,6 +98,8 @@ internal class TelegramQrSceneView(
         val now = SystemClock.uptimeMillis()
         val animate = isLaidOut && isAttachedToWindow && com.eve.app.designsystem.DesignMotion.enabled(context)
         backdrop.setPalette(target, width / 2f, cy, now, animate)
+        if (animate) patternField.beginWave(width / 2f, cy, now)
+        else patternField.cancelWave()
         cardMotion.recolor(now, animate)
         invalidate()
     }
@@ -223,9 +216,9 @@ internal class TelegramQrSceneView(
         shadow.close()
         cardMotion.clear()
         backdrop.close()
-        glideAnimator?.cancel()
         tracker?.recycle()
         tracker = null
+        patternField.clear()
         assetScope?.cancel()
         assetScope = null
         animations.values.forEach { it.close() }
@@ -252,67 +245,38 @@ internal class TelegramQrSceneView(
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        val now = SystemClock.uptimeMillis()
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                glideAnimator?.cancel()
+                // Source isBackdropAt: do not swallow taps inside the QR card.
+                if (bounds.contains(event.x, event.y)) return false
+                patternField.advance(now, com.eve.app.designsystem.DesignMotion.enabled(context))
                 tracker?.recycle()
                 tracker = VelocityTracker.obtain().also { it.addMovement(event) }
-                downX = event.x; downY = event.y
-                startPanX = panX; startPanY = panY
-                dragging = false
-                fieldPauseStarted = SystemClock.uptimeMillis()
+                patternField.onDown(event.x, event.y)
                 return true
             }
             MotionEvent.ACTION_MOVE -> {
                 tracker?.addMovement(event)
-                val dx = event.x - downX
-                val dy = event.y - downY
-                if (hypot(dx.toDouble(), dy.toDouble()) > dp(8f)) dragging = true
-                if (dragging) {
-                    panX = startPanX + TelegramQrMotion.rubber(dx, width.toFloat())
-                    panY = startPanY + TelegramQrMotion.rubber(dy, height.toFloat())
-                    invalidate()
-                }
+                patternField.onMove(event.x, event.y, width.toFloat(), height.toFloat())
+                invalidate()
                 return true
             }
-            MotionEvent.ACTION_UP -> {
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 tracker?.addMovement(event)
-                if (dragging) {
+                if (event.actionMasked == MotionEvent.ACTION_UP &&
+                    com.eve.app.designsystem.DesignMotion.enabled(context)) {
                     tracker?.computeCurrentVelocity(1000)
-                    val limit = dp(TelegramQrMotion.MAX_FLING_DP_PER_SEC)
-                    val vx = (tracker?.xVelocity ?: 0f).coerceIn(-limit, limit)
-                    val vy = (tracker?.yVelocity ?: 0f).coerceIn(-limit, limit)
-                    val x0 = panX; val y0 = panY
-                    glideAnimator = ValueAnimator.ofFloat(0f, .6f).apply {
-                        duration = 600
-                        addUpdateListener {
-                            val t = it.animatedValue as Float
-                            panX = x0 + TelegramQrMotion.glide(vx, t)
-                            panY = y0 + TelegramQrMotion.glide(vy, t)
-                            invalidate()
-                        }
-                        start()
-                    }
-                }
+                    patternField.onUp(tracker?.xVelocity ?: 0f,
+                        tracker?.yVelocity ?: 0f, now)
+                } else patternField.onCancel(now)
                 tracker?.recycle()
                 tracker = null
-                if (fieldPauseStarted != 0L) {
-                    fieldPausedMs += SystemClock.uptimeMillis() - fieldPauseStarted
-                    fieldPauseStarted = 0L
-                }
-                return true
-            }
-            MotionEvent.ACTION_CANCEL -> {
-                tracker?.recycle(); tracker = null
-                dragging = false
-                if (fieldPauseStarted != 0L) {
-                    fieldPausedMs += SystemClock.uptimeMillis() - fieldPauseStarted
-                    fieldPauseStarted = 0L
-                }
+                invalidate()
                 return true
             }
         }
-        return true
+        return super.onTouchEvent(event)
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -334,17 +298,20 @@ internal class TelegramQrSceneView(
         val movingMs = now - startedAt - fieldPausedMs -
             (if (fieldPauseStarted != 0L) now - fieldPauseStarted else 0L)
         val motionEnabled = com.eve.app.designsystem.DesignMotion.enabled(context)
-        val motion = if (motionEnabled) movingMs.coerceAtLeast(0L) / 1000f else 0f
+        patternField.advance(now, motionEnabled)
+        val motion = if (motionEnabled) patternField.motionSeconds() else 0f
         val elapsed = (now - selectionStartedAt).coerceAtLeast(0L).toFloat()
         val dx = dp(QrEmojiPattern.COLUMN_DP)
         val dy = dp(QrEmojiPattern.ROW_DP)
         val margin = dp(117f)
-        val r0 = kotlin.math.floor((-margin - panY) / dy).toInt() - 1
-        val r1 = kotlin.math.ceil((h + margin - panY) / dy).toInt() + 1
+        val ox = patternField.offsetX()
+        val oy = patternField.offsetY()
+        val r0 = kotlin.math.floor((-margin - oy) / dy).toInt() - 1
+        val r1 = kotlin.math.ceil((h + margin - oy) / dy).toInt() + 1
         for (row in r0..r1) {
             val shift = if ((row and 1) == 0) 0f else dx / 2f
-            val c0 = kotlin.math.floor((-margin - panX - shift) / dx).toInt() - 1
-            val c1 = kotlin.math.ceil((w + margin - panX - shift) / dx).toInt() + 1
+            val c0 = kotlin.math.floor((-margin - ox - shift) / dx).toInt() - 1
+            val c1 = kotlin.math.ceil((w + margin - ox - shift) / dx).toInt() + 1
             for (col in c0..c1) {
                 val seed = QrEmojiPattern.hash(row, col)
                 if (QrEmojiPattern.fraction(seed * 53.1) < .2f) continue
@@ -353,36 +320,47 @@ internal class TelegramQrSceneView(
                 val period = 9f + 11f * QrEmojiPattern.fraction(seed * 37.1)
                 val direction = if (QrEmojiPattern.fraction(seed * 43.3) < .5f) -1f else 1f
                 val angle = direction * 2f * Math.PI.toFloat() * motion / period + phase
-                val x = col * dx + shift + panX + radius * kotlin.math.cos(angle)
-                val y = row * dy + panY + radius * kotlin.math.sin(angle) +
+                val x = col * dx + shift + ox + radius * kotlin.math.cos(angle)
+                val y = row * dy + oy + radius * kotlin.math.sin(angle) +
                     kotlin.math.sin(motion * .45f + phase) * dp(3f)
                 if (x < -margin || x > w + margin || y < -margin || y > h + margin) continue
                 val q = col - row / 2
                 val index = Math.floorMod(q - row, selectedEmojis.size)
                 val entry = selectedEmojis[index]
                 val big = (row and 1) == 0
-                val baseSize = dp(38f) * (if (big) 1.3f else .9f) *
-                    (.92f + .16f * seed.toFloat()) * (if (big) .9f else 1f)
+                val placementSize = dp(38f) * (if (big) 1.3f else .9f) *
+                    (.92f + .16f * seed.toFloat())
+                if (!patternField.place(x, y, placementSize, w.toInt(), h.toInt(),
+                    bounds.centerY(), 0, row, col,
+                    1f + kotlin.math.max(0f, placementSize / dp(24f) - 1f) * .8f,
+                    true)) continue
+                val baseSize = if (big) placementSize * .9f else placementSize
                 val scale = if (!motionEnabled) 1f else QrEmojiPattern.appear(elapsed, seed) *
                     (1f + .03f * kotlin.math.sin(motion * 1.3f + phase * 2f))
                 if (scale <= .01f) continue
                 val rotate = (seed.toFloat() - .5f) * 26f +
-                    4f * kotlin.math.sin(motion * .3f + phase) - .763f * motion
-                canvas.save()
-                canvas.translate(x, y)
-                canvas.rotate(rotate)
-                canvas.scale(scale, scale)
+                    4f * kotlin.math.sin(motion * .3f + phase)
+                val saved = canvas.save()
+                canvas.translate(patternField.x, patternField.y)
+                canvas.rotate(rotate + patternField.rotation)
+                val sizedScale = scale * patternField.scale * (1f + patternField.pulse)
+                canvas.scale(sizedScale, sizedScale)
                 val drawable = animations[entry.key]
                 if (drawable != null) {
                     val half = (baseSize / 2f).toInt()
                     drawable.setBounds(-half, -half, half, half)
-                    drawable.draw(canvas)
+                    if (patternField.alpha < .995f) {
+                        val layer = canvas.saveLayerAlpha(-half.toFloat(), -half.toFloat(),
+                            half.toFloat(), half.toFloat(), (255f * patternField.alpha).toInt())
+                        drawable.draw(canvas)
+                        canvas.restoreToCount(layer)
+                    } else drawable.draw(canvas)
                 } else if (entry.source.isBlank()) {
                     emojiPaint.textSize = baseSize
-                    emojiPaint.alpha = 115
+                    emojiPaint.alpha = (115f * patternField.alpha).toInt()
                     canvas.drawText(entry.alt, 0f, -(emojiPaint.ascent() + emojiPaint.descent()) / 2f, emojiPaint)
                 }
-                canvas.restore()
+                canvas.restoreToCount(saved)
             }
         }
     }

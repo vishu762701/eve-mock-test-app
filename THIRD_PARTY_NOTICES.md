@@ -1,5 +1,17 @@
 # Third Party Notices
 
+## Telegram QR Java pattern and gesture physics — 2026-11-02
+
+`app/src/main/java/com/eve/app/telegram/qr/QrPatternField.java` is
+an ADAPTED Java extraction of original field/gesture algorithms from official
+`DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`,
+`TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareView.java`
+(lines 208-229,2565-2787,3210-3218,3369-3407,6637-6768).
+Telegram contributors retain rights. Root GPL version 2 and per-file/
+combined-distribution review are unresolved. No production release
+approval is implied. See `docs/QR_SCENE_NATIVE_SOURCE_MAP.md`.
+
+
 This repository contains third-party components and assets. Keep license obligations even when older files are retired.
 
 **Development-stage official-reference policy:** Exact official code/art/assets require verified upstream source, identity and appropriate use permissions; public design guidance is not blanket copying permission. Never silently substitute independently authored or other assets unless the owner expressly authorizes them. If the exact source/rights are unavailable, report that item as BLOCKED, continue only other authorized work, and keep third-party attribution and production release obligations.

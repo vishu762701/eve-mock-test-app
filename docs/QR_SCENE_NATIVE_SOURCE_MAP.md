@@ -116,3 +116,29 @@ Test input (plus host platform/JDK compiler inputs), so future native byte chang
 rerun pixel tests. It removes one extra C++ EOF blank line and updates the EVE
 hash; no source rendering math changes. The full local command passes again with
 688 tests, lint and assembly; require the follow-up's own exact-SHA FAST on resume.
+
+## R2/A1 pattern Java placement / wave / gesture increment (2026-11-02)
+
+Status: **ADAPTED, NOT MET for full R2/A1 and personal-qr**.
+Upstream official `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`
+opened: `QrShareView.java:135-166,208-229,1264-1305,2565-2787,
+3210-3218,3369-3407,6637-6768`. Exact source-backed algorithms:
+`NodeSprings` bounded array and 220/0.62 dynamics; node key/wave impulse,
+card radial scale/alpha, 90dp exponential edge squeeze and 12dp final fade;
+idle drift/touch threshold, pan continuity, vector-clamped velocity,
+0.35s exponential glide and stretch damping.
+
+| Upstream path:lines@SHA | EVE path | Classification / dependency |
+|---|---|---|
+| `QrShareView.java:2565-2740@3de37c8...` | `app/src/main/java/com/eve/app/telegram/qr/QrPatternField.java` | ADAPTED Java implementation; source springs/placement with EVE palette callback and injected density |
+| `QrShareView.java:208-229,2742-2787,6637-6768@3de37c8...` | `QrPatternField.java`, `app/src/main/java/com/eve/app/ui/profile/TelegramQrSceneView.kt` | ADAPTED source pan/release/easing with Kotlin MotionEvent adapter and reduced-motion policy |
+| `QrShareView.java:3369-3407@3de37c8...` | `TelegramQrSceneView.drawPattern()` | ADAPTED source lattice placement; EVE selected native Drawable frames instead of Telegram Document/AnimatedEmojiDrawable |
+| `QrShareView.java:1264-1305,2843-2867@3de37c8...` | existing EVE NativeQrDrawable frame cache | NOT MET original atlas, item swap compositor or gift loader; excluding account/document services intentionally |
+
+New `app/src/test/java/com/eve/app/telegram/qr/QrPatternFieldTest.java`
+exercises production Java geometry, wave impulses, gesture interruption and
+bounded state cleanup. Live Android GPU behavior, compositor transitions,
+60/90/120Hz motion, picker morph, and full native screenshot comparison remain
+unaccepted. Existing source library, authentication, six-pick selection,
+QR payload and export behavior remain retained. The source original shine
+pipeline is not imported. GPL combined-release review remains OPEN.

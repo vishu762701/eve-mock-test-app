@@ -338,3 +338,21 @@ place/wave-push at 2568-2662, node key and `NodeSprings` at 2663-2740, atlases v
 ensureAtlases:1264 and source input handler:6637 onward. These are investigation
 locations, not imported/accepted implementations. Do not import gift documents or
 account services into the EVE native-asset adapter.
+
+## 2026-11-02 recovery continuation — R2/A1 pattern physics increment
+
+Live baseline `5ced5663d6d669650a19379ca92a6f4873d38ae7`; official upstream pinned
+`3de37c8cfb039452be7398909461da6288babf15`. This change scopes the
+first unfinished original pattern-placement/node-wave/gesture subsystem,
+with its production Kotlin caller, Java host tests, provenance and notice.
+Existing QR backdrop/scene/picker/native/security/CI work is retained.
+No backend, scoring, accounts, release variables or migrations are changed.
+
+| ID | Requirement | Current code | Upstream reference | Dependencies | Status | Verification evidence |
+|---|---|---|---|---|---|---|
+| R2.A1-field | Source Java field placement, springs and gestures | QrPatternField / TelegramQrSceneView | QrShareView:208-229,2565-2787,3369-3407,6637-6768 | Canvas, Drawable, Android MotionEvent | UNKNOWN before exact-SHA CI; screen acceptance OPEN | Four Java production-path JVM tests added; native comparisons pending |
+| R2.A1-atlas | Original emoji pattern atlas and swap compositor | Existing EVE shared NativeQrDrawable cache | QrShareView:1264,2843,3364 | Telegram document loader must not be imported | NOT MET | Source atlas/item old-new transitions absent |
+| R2.A1-acceptance | Matched-device motion and GPL clearance | Existing fidelity/release contracts | upstream Android source and licenses | camera/device; redistribution review | NOT MET | No verified human-reviewed frames or legal clearance |
+
+Next unfinished piece remains A1 source old/new pattern swap/cache/shine,
+then picker-sheet morph. FULL mission and personal-qr remain NOT MET.
