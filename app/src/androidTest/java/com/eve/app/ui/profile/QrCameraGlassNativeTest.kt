@@ -18,6 +18,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.eve.app.ui.RepairVerificationActivity
+import com.eve.app.R
+import com.eve.app.telegram.qr.QrScannerControl
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,8 +53,11 @@ class QrCameraGlassNativeTest {
                     addView(Stripes(activity), FrameLayout.LayoutParams(-1, -1))
                 }
                 root.addView(preview, FrameLayout.LayoutParams(-1, -1))
-                val side = (120 * activity.resources.displayMetrics.density).toInt()
-                control = View(activity).apply { background = root.scannerGlass(side / 4f) }
+                val density = activity.resources.displayMetrics.density
+                val side = (72 * density).toInt()
+                control = QrScannerControl(activity,
+                    requireNotNull(activity.getDrawable(R.drawable.eve_qr_flashlight)),
+                    true, 56, root.scannerGlass(28 * density))
                 root.addView(control, FrameLayout.LayoutParams(side, side, Gravity.CENTER))
                 activity.setContentView(root)
                 root.setAlreadyOpened()

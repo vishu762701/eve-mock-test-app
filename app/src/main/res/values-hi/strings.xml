@@ -43,4 +43,10 @@
     <string name="all_caught_up">सब पूरा हो गया!</string>
     <string name="learned">सीख लिया</string>
     <string name="mark_as_learned">सीख लिया चिह्नित करें</string>
+
+    <string name="qr_scanner_title">EVE यूज़रनेम QR स्कैन करें</string>
+    <string name="qr_scanner_close">स्कैनर बंद करें</string>
+    <string name="qr_scanner_gallery">गैलरी से QR स्कैन करें</string>
+    <string name="qr_scanner_torch_on">कैमरे की फ्लैशलाइट चालू करें</string>
+    <string name="qr_scanner_torch_off">कैमरे की फ्लैशलाइट बंद करें</string>
 </resources>

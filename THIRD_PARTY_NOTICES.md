@@ -902,3 +902,16 @@ The font retains embedded Copyright 2011 Google Inc. All Rights Reserved;
 it has no embedded license name IDs13/14. No new font redistribution clearance
 is inferred: font-specific and combined-app human legal review remain OPEN,
 with the existing release gate unchanged. See docs/QR_CARD_CAPTION_SOURCE_MAP.md.
+
+## Telegram scanner source controls — 2026-11-02
+
+QrScannerLayout.java and QrScannerControl.java ADAPT original Java from official
+DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15,
+QrScanOverlay.java:328-350,579-599,689-701,770-802,867-920. BackDrawable.java
+retains the original Java and GPLv2-or-later header, Copyright Nikolai Kudashov
+2013-2018, with mechanical package/unit provider adaptations. Telegram contributors
+retain copyright under the root/per-file terms. Eight renamed qr_flashlight and
+qr_gallery assets match source bytes; existing telegram_roboto_medium.ttf matches
+rmedium.ttf at the current pin. No new font is introduced by this batch. Source
+identity, dependency scope and runtime limitations: QR_SCANNER_CONTROLS_SOURCE_MAP.md
+and native upstream manifest. Human combined-app release review remains OPEN.

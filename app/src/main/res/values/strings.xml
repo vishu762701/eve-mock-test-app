@@ -42,4 +42,10 @@
     <string name="all_caught_up">All Caught Up!</string>
     <string name="learned">Learned</string>
     <string name="mark_as_learned">Mark as learned</string>
+
+    <string name="qr_scanner_title">Scan an EVE username QR</string>
+    <string name="qr_scanner_close">Close scanner</string>
+    <string name="qr_scanner_gallery">Scan QR from gallery</string>
+    <string name="qr_scanner_torch_on">Turn on camera flashlight</string>
+    <string name="qr_scanner_torch_off">Turn off camera flashlight</string>
 </resources>

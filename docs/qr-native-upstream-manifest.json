@@ -970,9 +970,10 @@
       "upstream_lines": "108-112,804-879",
       "eve_path": "app/src/main/java/com/eve/app/telegram/qr/QrScannerGlass.java",
       "upstream_sha256": "ef7945b3cfa1228422c8013a6b8299169e059026bec6e28229637ae35399ea54",
-      "eve_sha256": "c9b9526cacf730162fda98a0800cac4800512d4e2f2de43ea20809bcce97233b",
+      "eve_sha256": "917016dfe47feed0b0ad06cec0112fc858c417264eb2905d3923fe357efb3d72",
       "classification": "ADAPTED; source Java camera layer/glass, CameraX host and Android power-save adapter; physical camera parity OPEN",
-      "source_map": "docs/QR_SCANNER_CAMERA_GLASS_SOURCE_MAP.md"
+      "source_map": "docs/QR_SCANNER_CAMERA_GLASS_SOURCE_MAP.md",
+      "controls_source_map": "docs/QR_SCANNER_CONTROLS_SOURCE_MAP.md"
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
@@ -981,9 +982,10 @@
       "upstream_lines": "370-425,490-546,994-1063",
       "eve_path": "app/src/main/java/com/eve/app/ui/profile/EveQrLiveScannerActivity.kt",
       "upstream_sha256": "ef7945b3cfa1228422c8013a6b8299169e059026bec6e28229637ae35399ea54",
-      "eve_sha256": "7f394e8a2461352bf54dc4f645c46b9b8c2d76201b45fff83855b63783538e31",
+      "eve_sha256": "9153307be66f46adac35480de4f74b1bf9bde869071f6638592910a3a2a0a50d",
       "classification": "ADAPTED EVE CameraX/Activity/lifecycle host; full scanner/reference acceptance OPEN",
-      "source_map": "docs/QR_SCANNER_SOURCE_FRAME_CHECKPOINT.md"
+      "source_map": "docs/QR_SCANNER_SOURCE_FRAME_CHECKPOINT.md",
+      "controls_source_map": "docs/QR_SCANNER_CONTROLS_SOURCE_MAP.md"
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
@@ -992,9 +994,10 @@
       "upstream_lines": "429-479,517-546,601-623",
       "eve_path": "app/src/main/java/com/eve/app/ui/profile/QrScanMorphLayout.kt",
       "upstream_sha256": "ef7945b3cfa1228422c8013a6b8299169e059026bec6e28229637ae35399ea54",
-      "eve_sha256": "cce4523abe9c3b55738219bf4e74e39909aa4e2c187b0a1e4dfb700cb8f43dd1",
+      "eve_sha256": "d107cadd11c3c1cf36676900cebb301c4f0047c529dc2c0746601181d22ca12c",
       "classification": "ADAPTED EVE CameraX/Activity/lifecycle host; full scanner/reference acceptance OPEN",
-      "source_map": "docs/QR_SCANNER_SOURCE_FRAME_CHECKPOINT.md"
+      "source_map": "docs/QR_SCANNER_SOURCE_FRAME_CHECKPOINT.md",
+      "controls_source_map": "docs/QR_SCANNER_CONTROLS_SOURCE_MAP.md"
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
@@ -1228,6 +1231,174 @@
       "classification": "EXACT font bytes only; release license review OPEN",
       "adaptations": "Asset renamed only; embedded Google copyright retained. No embedded license IDs13/14; human font/combined-app review remains required.",
       "source_map": "docs/QR_CARD_CAPTION_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrScanOverlay.java",
+      "upstream_blob": "504a8503ead35f6e88e3d12fee7cd3af98946c0e",
+      "upstream_lines": "579-599",
+      "eve_path": "app/src/main/java/com/eve/app/telegram/qr/QrScannerLayout.java",
+      "upstream_sha256": "ef7945b3cfa1228422c8013a6b8299169e059026bec6e28229637ae35399ea54",
+      "eve_sha256": "92561efdc3e5bbc2b4914d2fded85eb3a4d45ac0514bc10bba72caba2c699846",
+      "classification": "ADAPTED original Java geometry; runtime acceptance OPEN",
+      "adaptations": "EVE complete group fit to measured compact-window bars and close row, no arbitrary individual offsets; source portrait geometry retained.",
+      "source_map": "docs/QR_SCANNER_CONTROLS_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrScanOverlay.java",
+      "upstream_blob": "504a8503ead35f6e88e3d12fee7cd3af98946c0e",
+      "upstream_lines": "689-701,770-802,867-920",
+      "eve_path": "app/src/main/java/com/eve/app/telegram/qr/QrScannerControl.java",
+      "upstream_sha256": "ef7945b3cfa1228422c8013a6b8299169e059026bec6e28229637ae35399ea54",
+      "eve_sha256": "aba17714f82365acbf2638f0767b8069543c9c5a40125cd5777985f1e91dca98",
+      "classification": "ADAPTED original Java control rendering/press; runtime acceptance OPEN",
+      "adaptations": "Native accessible View/click/keyboard/hit targets replace source single overlay dispatcher. Source visual circles/icons/press/torch fill retained; EVE confirmed torch future state.",
+      "source_map": "docs/QR_SCANNER_CONTROLS_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/BackDrawable.java",
+      "upstream_blob": "dc1165e78c4b709b0227c1527d52eb631564996d",
+      "upstream_lines": "1-171",
+      "eve_path": "app/src/main/java/com/eve/app/telegram/qr/BackDrawable.java",
+      "upstream_sha256": "c8aae99ed4b7e34296dc1e75db32d1e15ef6db6d34ec323444ee7ca930277d88",
+      "eve_sha256": "32832d46aece001d820bbe5047ece1ae0621be41a209cfa8d772931ba33b7ed9",
+      "classification": "ADAPTED mechanical package/unit imports only",
+      "adaptations": "Original Java draw/animation bodies retained. QrUiUnits replaces AndroidUtilities dp/lerp; unused Telegram Utilities import removed. Original GPLv2-or-later notice retained.",
+      "source_map": "docs/QR_SCANNER_CONTROLS_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/res/drawable-mdpi/qr_flashlight.webp",
+      "upstream_blob": "104e066e88d7375f50a6fdba2871e27070aef2ce",
+      "upstream_lines": "binary",
+      "eve_path": "app/src/main/res/drawable-mdpi/eve_qr_flashlight.webp",
+      "upstream_sha256": "58936aed129971f825f73bc2a0c38a356fd323d174df21d2e07348b1af988314",
+      "eve_sha256": "58936aed129971f825f73bc2a0c38a356fd323d174df21d2e07348b1af988314",
+      "classification": "EXACT asset bytes only; screen/runtime acceptance OPEN",
+      "adaptations": "Resource renamed only, no redistribution clearance inferred.",
+      "source_map": "docs/QR_SCANNER_CONTROLS_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/res/drawable-mdpi/qr_gallery.webp",
+      "upstream_blob": "7f4551fd204ecf92e54032ef11a4e1ee47d1152a",
+      "upstream_lines": "binary",
+      "eve_path": "app/src/main/res/drawable-mdpi/eve_qr_gallery.webp",
+      "upstream_sha256": "484b83078e040ca96d054cb1f2fc3924b93d029197da9afb2fb1ec8ab502351b",
+      "eve_sha256": "484b83078e040ca96d054cb1f2fc3924b93d029197da9afb2fb1ec8ab502351b",
+      "classification": "EXACT asset bytes only; screen/runtime acceptance OPEN",
+      "adaptations": "Resource renamed only, no redistribution clearance inferred.",
+      "source_map": "docs/QR_SCANNER_CONTROLS_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/res/drawable-hdpi/qr_flashlight.webp",
+      "upstream_blob": "6cac15e2de1e11260f185e4fd9c08fe31ea8a52e",
+      "upstream_lines": "binary",
+      "eve_path": "app/src/main/res/drawable-hdpi/eve_qr_flashlight.webp",
+      "upstream_sha256": "5ac49313028f5cb20aa9f8c24f2827070a9b75c10ed0afeadd71cc9f4f1eaa24",
+      "eve_sha256": "5ac49313028f5cb20aa9f8c24f2827070a9b75c10ed0afeadd71cc9f4f1eaa24",
+      "classification": "EXACT asset bytes only; screen/runtime acceptance OPEN",
+      "adaptations": "Resource renamed only, no redistribution clearance inferred.",
+      "source_map": "docs/QR_SCANNER_CONTROLS_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/res/drawable-hdpi/qr_gallery.webp",
+      "upstream_blob": "2e6014bbc66bde901a5351db71ecbe4ef87344d0",
+      "upstream_lines": "binary",
+      "eve_path": "app/src/main/res/drawable-hdpi/eve_qr_gallery.webp",
+      "upstream_sha256": "aa19a6559f936abf0076d995c43d3fe747b5a7e41fc0e0997963dad8b5ce7124",
+      "eve_sha256": "aa19a6559f936abf0076d995c43d3fe747b5a7e41fc0e0997963dad8b5ce7124",
+      "classification": "EXACT asset bytes only; screen/runtime acceptance OPEN",
+      "adaptations": "Resource renamed only, no redistribution clearance inferred.",
+      "source_map": "docs/QR_SCANNER_CONTROLS_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/res/drawable-xhdpi/qr_flashlight.webp",
+      "upstream_blob": "db7a173c1610b9be421f4dc0df89652dc071f4c9",
+      "upstream_lines": "binary",
+      "eve_path": "app/src/main/res/drawable-xhdpi/eve_qr_flashlight.webp",
+      "upstream_sha256": "65f9f232dec0955476ad8b75197e6cfd613570a30131f0db3931a6d6da84d8da",
+      "eve_sha256": "65f9f232dec0955476ad8b75197e6cfd613570a30131f0db3931a6d6da84d8da",
+      "classification": "EXACT asset bytes only; screen/runtime acceptance OPEN",
+      "adaptations": "Resource renamed only, no redistribution clearance inferred.",
+      "source_map": "docs/QR_SCANNER_CONTROLS_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/res/drawable-xhdpi/qr_gallery.webp",
+      "upstream_blob": "3202fc1e5bff336fcfaad1f9b0a00275bfc363f1",
+      "upstream_lines": "binary",
+      "eve_path": "app/src/main/res/drawable-xhdpi/eve_qr_gallery.webp",
+      "upstream_sha256": "def9dcc4c02a22520dc9aaf9918f4ffa77aef466d9c1b85807b25fa8cd31fe02",
+      "eve_sha256": "def9dcc4c02a22520dc9aaf9918f4ffa77aef466d9c1b85807b25fa8cd31fe02",
+      "classification": "EXACT asset bytes only; screen/runtime acceptance OPEN",
+      "adaptations": "Resource renamed only, no redistribution clearance inferred.",
+      "source_map": "docs/QR_SCANNER_CONTROLS_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/res/drawable-xxhdpi/qr_flashlight.webp",
+      "upstream_blob": "bb3bc9551da19f5b6a6df3c2d2e85eab0b644e32",
+      "upstream_lines": "binary",
+      "eve_path": "app/src/main/res/drawable-xxhdpi/eve_qr_flashlight.webp",
+      "upstream_sha256": "8849a3d20065553ec264ebea3a61e664df329625d37993f7b11ecacb1fa50708",
+      "eve_sha256": "8849a3d20065553ec264ebea3a61e664df329625d37993f7b11ecacb1fa50708",
+      "classification": "EXACT asset bytes only; screen/runtime acceptance OPEN",
+      "adaptations": "Resource renamed only, no redistribution clearance inferred.",
+      "source_map": "docs/QR_SCANNER_CONTROLS_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/res/drawable-xxhdpi/qr_gallery.webp",
+      "upstream_blob": "da2adc857d1da61a57981f9e1ccdad2bc530bec2",
+      "upstream_lines": "binary",
+      "eve_path": "app/src/main/res/drawable-xxhdpi/eve_qr_gallery.webp",
+      "upstream_sha256": "5ca865848c13360438bac923748be04b3f5f5c1c22ea9139298b949c092f3362",
+      "eve_sha256": "5ca865848c13360438bac923748be04b3f5f5c1c22ea9139298b949c092f3362",
+      "classification": "EXACT asset bytes only; screen/runtime acceptance OPEN",
+      "adaptations": "Resource renamed only, no redistribution clearance inferred.",
+      "source_map": "docs/QR_SCANNER_CONTROLS_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/assets/fonts/rmedium.ttf",
+      "upstream_blob": "aba251d159c783048b352d17f6581d406f2a6ddb",
+      "upstream_lines": "binary",
+      "eve_path": "app/src/main/res/font/telegram_roboto_medium.ttf",
+      "upstream_sha256": "c4a17ec40f13be4a229e34893e3e04f19dd190f48b4908e0649402cb2229e9cb",
+      "eve_sha256": "c4a17ec40f13be4a229e34893e3e04f19dd190f48b4908e0649402cb2229e9cb",
+      "classification": "EXACT existing font bytes only; release review OPEN",
+      "adaptations": "Reused existing licensed Telegram Roboto medium font, newly compared against current official pin; no binary change.",
+      "source_map": "docs/QR_SCANNER_CONTROLS_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrScanOverlay.java",
+      "upstream_lines": "579-599,659-742",
+      "eve_path": "app/src/main/java/com/eve/app/ui/profile/QrScannerFrameOverlay.kt",
+      "upstream_sha256": "ef7945b3cfa1228422c8013a6b8299169e059026bec6e28229637ae35399ea54",
+      "eve_sha256": "2130d966c9eaaa9d082501ea9a76707c2c8e95c4533adac317efcf5e65f0a534",
+      "classification": "ADAPTED Kotlin frame/found host; full runtime acceptance OPEN",
+      "adaptations": "Existing source frame/found drawing retained; measured compact composition now supplies actual frame/scale. Original cached corner bitmap optimization not yet imported.",
+      "source_map": "docs/QR_SCANNER_CONTROLS_SOURCE_MAP.md"
     }
   ]
 }

@@ -6,9 +6,9 @@ Status: PARTIAL. This is a continuation record, not screen acceptance.
 
 ## Live verified implementation pointer — 2026-11-02
 
-Latest verified implementation main: **66574962d7dc1eb484ec81fb8440112d0279fc5d**.
+Latest verified implementation main: **3b2245bc0743ebd45d89e708eb6a899de0cb7e0a**.
 Official Telegram rechecked after implementation: **3de37c8cfb039452be7398909461da6288babf15**.
-This evidence-only carrying commit must be reconciled with live main/CI on restart.
+Reconcile this pointer with the carrying implementation commit and live main/CI on restart.
 
 | Scoped delivery | Commit | Exact-SHA FAST |
 |---|---|---|
@@ -16,24 +16,26 @@ This evidence-only carrying commit must be reconciled with live main/CI on resta
 | A3.4/A3.6 scanner lifetime/results | 2e5655911e0755a0b3a1892a15d4bafd683631dd | [41394531948](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41394531948) SUCCESS |
 | C1-C3/C5 confirmed rights/entries | 40a7bb30fcc2bbb3468d482a0ec6a9e4633e811b | [41395975426](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41395975426) SUCCESS |
 | A1 ready-frame item appearance | 66574962d7dc1eb484ec81fb8440112d0279fc5d | [41397993734](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41397993734) SUCCESS |
+| A1 card/caption and A4 export isolation | 3b2245bc0743ebd45d89e708eb6a899de0cb7e0a | [41402360574](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41402360574) SUCCESS |
 
 Each FAST passed Android build/JVM/AndroidTest source compilation, all four ABI
-builds, pinned Rust security/C API, backend and Firebase. Latest docs 41397993663
-and verbatim-import 41397993706 SUCCESS. Native navigation and publication skipped;
-no protected verified APK artifact/checksum. Local: 745 JVM tests, 243 Rust tests,
+builds, pinned Rust security/C API, backend and Firebase. Latest verified docs 41402360616
+and verbatim-import 41402360702 SUCCESS. Native navigation and publication skipped;
+no protected verified APK artifact/checksum. Verified card batch local: 753 JVM tests, 243 Rust tests,
 288 backend tests, 19 Functions tests and 59 CI helper tests pass; lint 0 errors /
-1645 warnings. Source inventory 101 entries + 4 verbatim popup assets match pinned
+1646 warnings. Source inventory 116 entries + 4 verbatim popup assets match pinned
 Git/EVE bytes. Local x86_64 APK package com.eve.app and all four ELF libraries'
 LOAD alignment 0x4000 verified, not a final published APK or screen acceptance.
 
-Whole requirement ledger remains TELEGRAM_REMAINING_REQUIREMENTS.md. These four
+Whole requirement ledger remains TELEGRAM_REMAINING_REQUIREMENTS.md. These five
 scoped engineering increments are MET at source/host/FAST integration level, all
 ADAPTED. Full A1/A2/A3/A4/Profile/Admin/Home/student/exam/theme fidelity remains
 NOT MET. Physical camera/GPU/reference/device matrix and human GPL review remain
 BLOCKED/unavailable; missing gift/service data is not fabricated. Strict personal-qr
 acceptance still rejects acceptance. Mission-final protected FULL is not eligible.
-First unfinished: full A1 card/type/parent composition and scanner control geometry/
-press physics; continue all independent ledger requirements without restarting or
+First unfinished: scene parent/picker compositor and scanner corner caching; the
+latest scanner-controls entry below carries its pending exact-SHA validation.
+Continue all independent ledger requirements without restarting or
 replacing the successful subsystems. No production deployment/migration, signing,
 release variable, payment, scoring or backend authority changed. P2 historical bare
 SDK35 shutdown exception remains UNKNOWN despite green JUnit. No new development
@@ -882,3 +884,37 @@ NOT MET; no final FULL, published APK or legal acceptance. First unfinished sour
 implementation: QrScanOverlay original controls/title placement and press/torch
 interpolation through EVE CameraX host. Then all remaining Profile/Admin/Home/
 student/exam/theme and native-reference requirements in the full live ledger.
+
+
+## A3 original scanner controls/title continuation — 2026-11-02
+
+Carrying base main 3b2245bc0743ebd45d89e708eb6a899de0cb7e0a exact-SHA FAST
+41402360574 SUCCESS; docs 41402360616 and import verification 41402360702 SUCCESS.
+Build includes all four ABIs/pinned native tests/backend/Firebase, with native
+navigation and publication skipped. Official source pin unchanged. Previous source
+card/caption/export work remains intact; its full runtime acceptance stays OPEN.
+
+QrScannerLayout.java and QrScannerControl.java extract original Java source geometry,
+round icon controls, title placement, press convergence and confirmed-torch fill.
+Original BackDrawable.java draw/animation bodies match after reversing mechanical
+package/unit changes. Eight icons and existing Roboto medium match upstream bytes.
+EVE native click/accessibility nodes and measured complete-group compact fit are
+ADAPTED; actual Gallery contract, CameraX, permissions, futures, found coordinates,
+allowlist and session cancellation remain. English/Hindi labels are resources.
+See QR_SCANNER_CONTROLS_SOURCE_MAP.md; inventory now 129 upstream/EVE identities.
+
+Serial local broad Gradle testDebugUnitTest/compileDebugAndroidTestKotlin/lintDebug/
+assembleDebug (-Peve.nativeAbis=x86_64) PASS: 757 JVM tests / 174 suites, zero
+failures/errors/skips, lint zero errors / 1646 warnings. Final focused four control
+tests and compilation of the updated real-control HWUI fixture PASS. Actual native
+HWUI fixture is not executed locally; no camera/device/reference proof inferred.
+Python CI helpers 59, docs/claims/four verbatim imports/diff and all129 identities
+PASS. No native engine or backend change. Historical bare SDK35 teardown fragment
+still UNKNOWN despite green JUnit.
+
+The carrying scanner implementation commit requires its own exact-SHA FAST.
+Whole A1/A2/A3/A4/B/C/D/E/F remains NOT MET as in the ledger; human legal review,
+physical/reference matrix and final protected FULL/APK remain unavailable/not eligible.
+Next source action: finish scanner original cached corner renderer and scene parent/
+picker gesture/compositor gaps, then remaining Profile/Admin/Home/student requirements.
+Do not replay prior successful commits or treat unavailable hardware as a global stop.

@@ -28,6 +28,11 @@ import kotlin.math.abs
 
 /** ADAPTED Telegram QrScanOverlay button-to-screen clipping host; CameraX remains EVE-owned. */
 internal class QrScanMorphLayout(context: Context) : FrameLayout(context) {
+    var onScannerLayout: (() -> Unit)? = null
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        onScannerLayout?.invoke()
+    }
     companion object { const val EXTRA_ORIGIN = "eve_qr_scanner_button_screen_bounds" }
     private val source = QrScanMorph()
     private val fromScreen = RectF()

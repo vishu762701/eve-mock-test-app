@@ -38,12 +38,13 @@ public final class QrScannerGlass extends Drawable {
     @Override public void draw(Canvas canvas) {
         if (alpha <= 0) return;
         rect.set(getBounds());
+        final float drawRadius = Math.min(radius, Math.min(rect.width(), rect.height()) / 2f);
         final int white = (int) (255 * Math.max(0f, Math.min(1f, RimTune.v[RimTune.FILL] / 100f)));
         final boolean allowed = blurAllowed.getAsBoolean();
         boolean sampled = false;
         if (allowed && backdrop != null && getCallback() instanceof View) {
             path.rewind();
-            path.addRoundRect(rect, radius, radius, Path.Direction.CW);
+            path.addRoundRect(rect, drawRadius, drawRadius, Path.Direction.CW);
             final int save = canvas.save();
             canvas.clipPath(path);
             // Source's alpha is supplied by the scanner parent; Drawable alpha
@@ -57,9 +58,9 @@ public final class QrScannerGlass extends Drawable {
                 ColorUtils.compositeColors(0x00FFFFFF | (white << 24),
                         allowed ? FLAT_SHADE : NO_BLUR_SHADE));
         fill.setAlpha((int) (Color.alpha(fill.getColor()) * alpha / 255f));
-        canvas.drawRoundRect(rect, radius, radius, fill);
-        QrGlass.drawSheenRound(canvas, rect, radius, false, alpha / 255f);
-        rim.draw(canvas, rect, radius, RimTune.BIG, alpha / 255f);
+        canvas.drawRoundRect(rect, drawRadius, drawRadius, fill);
+        QrGlass.drawSheenRound(canvas, rect, drawRadius, false, alpha / 255f);
+        rim.draw(canvas, rect, drawRadius, RimTune.BIG, alpha / 255f);
     }
 
     @Override public void setAlpha(int value) { alpha = Math.max(0, Math.min(255, value)); invalidateSelf(); }

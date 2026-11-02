@@ -3,7 +3,6 @@ package com.eve.app.ui.profile
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.ColorStateList
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.net.Uri
@@ -14,8 +13,6 @@ import android.os.SystemClock
 import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
@@ -38,6 +35,9 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import com.eve.app.R
+import com.eve.app.telegram.qr.QrScannerControl
+import com.eve.app.telegram.qr.QrScannerLayout
+import com.eve.app.telegram.qr.BackDrawable
 import com.eve.app.telegram.qr.QrScanFound
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AppBulletin
@@ -77,7 +77,7 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
     private var galleryRequested = false
     private var permissionDialog: TelegramNativeAlertDialog? = null
     private val torchState = QrTorchGate()
-    private lateinit var torchButton: TextView
+    private lateinit var torchButton: QrScannerControl
     private var lastScanAt = 0L
     private var lastRejectedAt = 0L
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
@@ -191,52 +191,68 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         frameOverlay = QrScannerFrameOverlay(this)
         root.addView(frameOverlay, FrameLayout.LayoutParams(-1, -1))
         val caption = TextView(this).apply {
-            text = "Scan an EVE username QR"
+            setText(R.string.qr_scanner_title)
             gravity = Gravity.CENTER
-            textSize = 17f
+            setTextSize(android.util.TypedValue.COMPLEX_UNIT_DIP, 22f)
+            typeface = androidx.core.content.res.ResourcesCompat.getFont(context, R.font.telegram_roboto_medium)
             setTextColor(Color.WHITE)
-            background = glass()
-            setPadding(dp(12), dp(9), dp(12), dp(9))
+            includeFontPadding = false
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
         }
-        root.addView(caption, FrameLayout.LayoutParams(-2, -2, Gravity.CENTER_HORIZONTAL or Gravity.BOTTOM).apply {
-            bottomMargin = dp(114)
+        root.addView(caption, FrameLayout.LayoutParams(-1, -2).apply {
+            leftMargin = dp(36); rightMargin = dp(36)
         })
-
-        val close = ImageView(this).apply {
-            setImageResource(R.drawable.eve_qr_close)
-            imageTintList = ColorStateList.valueOf(Color.WHITE)
-            contentDescription = "Close scanner"
-            setPadding(dp(12), dp(12), dp(12), dp(12))
-            isClickable = true
-            isFocusable = true
-            background = glass()
+        val close = QrScannerControl(this, BackDrawable(true).apply {
+            setColor(Color.WHITE); setRotatedColor(Color.WHITE)
+        }, false, 40, root.scannerGlass(dp(20).toFloat())).apply {
+            contentDescription = getString(R.string.qr_scanner_close)
             setOnClickListener { closeWithMotion() }
         }
-        val closeParams = FrameLayout.LayoutParams(dp(48), dp(48), Gravity.TOP or Gravity.START).apply {
-            leftMargin = dp(12)
-        }
-        root.addView(close, closeParams)
-
-        val buttons = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER
-        }
-        val galleryButton = actionButton("Gallery", "Scan QR from gallery") {
+        fun iconControl(icon: Int, torch: Boolean, description: Int, action: () -> Unit) =
+            QrScannerControl(this, requireNotNull(ContextCompat.getDrawable(this, icon)).mutate().apply {
+                setTint(Color.WHITE)
+            }, torch, 56, root.scannerGlass(dp(28).toFloat())).apply {
+                contentDescription = getString(description)
+                setOnClickListener { action() }
+            }
+        val galleryButton = iconControl(R.drawable.eve_qr_gallery, false, R.string.qr_scanner_gallery) {
             launchGallery()
         }
-        torchButton = actionButton("Flashlight", "Turn on camera flashlight") {
+        torchButton = iconControl(R.drawable.eve_qr_flashlight, true, R.string.qr_scanner_torch_on) {
             toggleTorch()
         }
-        buttons.addView(galleryButton, LinearLayout.LayoutParams(dp(126), dp(48)))
-        buttons.addView(torchButton, LinearLayout.LayoutParams(dp(126), dp(48)).apply { leftMargin = dp(12) })
-        val buttonsParams = FrameLayout.LayoutParams(-2, dp(48), Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL)
-        root.addView(buttons, buttonsParams)
+        root.addView(close, FrameLayout.LayoutParams(dp(56), dp(56)))
+        root.addView(galleryButton, FrameLayout.LayoutParams(dp(72), dp(72)))
+        root.addView(torchButton, FrameLayout.LayoutParams(dp(72), dp(72)))
+        val sourceLayout = QrScannerLayout()
+        var insetTop = 0
+        var insetBottom = 0
+        root.onScannerLayout = {
+            if (sourceLayout.sample(root.width, root.height, resources.displayMetrics.density,
+                    insetTop, insetBottom, caption.measuredHeight)) {
+                fun place(view: QrScannerControl, rect: android.graphics.RectF, scale: Float) {
+                    val hit = maxOf(dp(48), kotlin.math.ceil(rect.width() + dp(16) * scale).toInt())
+                    val left = kotlin.math.round(rect.centerX() - hit / 2f).toInt()
+                    val top = kotlin.math.round(rect.centerY() - hit / 2f).toInt()
+                    view.layout(left, top, left + hit, top + hit)
+                    view.setCompositionScale(scale)
+                }
+                place(close, sourceLayout.close, 1f)
+                place(galleryButton, sourceLayout.gallery, sourceLayout.scale)
+                place(torchButton, sourceLayout.flash, sourceLayout.scale)
+                val titleLeft = kotlin.math.round((root.width-caption.measuredWidth*sourceLayout.scale)/2f).toInt()
+                val titleTop = kotlin.math.round(sourceLayout.titleTop).toInt()
+                caption.pivotX = 0f; caption.pivotY = 0f
+                caption.scaleX = sourceLayout.scale; caption.scaleY = sourceLayout.scale
+                caption.layout(titleLeft, titleTop, titleLeft + caption.measuredWidth, titleTop + caption.measuredHeight)
+                frameOverlay.setSourceFrame(sourceLayout.frame, sourceLayout.scale)
+            }
+        }
         ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            closeParams.topMargin = bars.top + dp(10)
-            buttonsParams.bottomMargin = bars.bottom + dp(20)
-            close.layoutParams = closeParams
-            buttons.layoutParams = buttonsParams
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+            insetTop = bars.top
+            insetBottom = bars.bottom
+            root.requestLayout()
             insets
         }
         setContentView(root)
@@ -255,20 +271,6 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() { closeWithMotion() }
         })
-    }
-
-    // Original scanner-specific glass fill, sheen/rim and camera RenderNode.
-    private fun glass() = root.scannerGlass(dp(20).toFloat())
-    private fun actionButton(title: String, description: String, onTap: () -> Unit) = TextView(this).apply {
-        text = title
-        textSize = 15f
-        gravity = Gravity.CENTER
-        setTextColor(Color.WHITE)
-        contentDescription = description
-        background = glass()
-        isClickable = true
-        isFocusable = true
-        setOnClickListener { onTap() }
     }
 
     /** Source checks camera session; EVE CameraX futures own the resulting UI state. */
@@ -301,7 +303,7 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         if (!::torchButton.isInitialized) return
         torchButton.isSelected = torchState.enabled
         torchButton.contentDescription = if (torchState.enabled)
-            "Turn off camera flashlight" else "Turn on camera flashlight"
+            getString(R.string.qr_scanner_torch_off) else getString(R.string.qr_scanner_torch_on)
     }
 
     private fun startLiveCamera() {

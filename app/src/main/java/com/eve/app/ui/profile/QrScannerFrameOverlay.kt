@@ -45,6 +45,15 @@ internal class QrScannerFrameOverlay(context: Context) : View(context) {
     private val path = Path()
     private val rect = RectF()
     private val found = QrScanFound(dp)
+    private var sourceFrame: RectF? = null
+    private var compositionScale = 1f
+
+    fun setSourceFrame(frame: RectF, scale: Float) {
+        if (sourceFrame == frame && compositionScale == scale) return
+        sourceFrame = RectF(frame)
+        compositionScale = scale
+        invalidate()
+    }
 
     /** Four real ZXing points already mapped to preview-local display coordinates. */
     fun showFound(mappedPoints: FloatArray): Boolean {
@@ -65,8 +74,11 @@ internal class QrScannerFrameOverlay(context: Context) : View(context) {
         if (width <= 0 || height <= 0) return
         val needsFrame = found.advance()
         val bounds = QrScannerFrameGeometry.bounds(width, height, dp)
-        rect.set(bounds.left, bounds.top, bounds.right, bounds.bottom)
-        val radius = 14f * dp
+        val measured = sourceFrame
+        if (measured != null) rect.set(measured)
+        else rect.set(bounds.left, bounds.top, bounds.right, bounds.bottom)
+        val radius = 14f * dp * compositionScale
+        stroke.strokeWidth = 4f * dp * compositionScale
         path.reset()
         path.fillType = Path.FillType.EVEN_ODD
         path.addRect(0f, 0f, width.toFloat(), height.toFloat(), Path.Direction.CW)
@@ -74,7 +86,7 @@ internal class QrScannerFrameOverlay(context: Context) : View(context) {
         canvas.drawPath(path, dim)
         // Source QrScanOverlay.drawScanner fades white arms as foundK rises.
         stroke.alpha = (255f * (1f - found.progress())).toInt().coerceIn(0, 255)
-        val arm = 28f * dp
+        val arm = 28f * dp * compositionScale
         for (corner in 0 until 4) {
             val right = corner == 1 || corner == 2
             val bottom = corner >= 2

@@ -190,3 +190,34 @@ bitmap PNG decode and live geometry/ink tests also pass. No native code changed.
 Exact-SHA FAST is required after the carrying implementation commit; whole mission
 remains PARTIAL. First unfinished source implementation: scanner controls/title
 geometry and press/torch visual interpolation, followed by the remaining ledger.
+
+
+## A3 scanner controls/title continuation (2026-11-02)
+
+Authorized requirement ledger recorded before integration:
+
+| ID | Requirement | Existing implementation | Upstream file:lines@SHA | Dependencies | Status | Verification evidence | Next action |
+|---|---|---|---|---|---|---|---|
+| A3.controls | Original round Gallery/torch, title above frame, close and press feedback | 126dp text pills, bottom caption, static 48dp close | QrScanOverlay.java:328-350,579-599,659-708,770-802,867-920; BackDrawable.java; ActionBar.java:1914-1920; AndroidUtilities.java:253-270@3de37c8cfb039452be7398909461da6288babf15 | existing glass/live backdrop, source glyphs and Roboto medium, EVE native accessibility/actions | NOT MET | actual source and production callers opened; camera lifecycle/torch futures already implemented and preserved | extract original Java geometry/draw/press, native accessible hit targets, measured compact-window fit; test production actions/cancellation |
+
+Dependency/license disposition: source root GPLv2 and BackDrawable GPLv2-or-later
+header retained. Existing telegram_roboto_medium.ttf is compared with source
+rmedium.ttf before reuse; source qr_flashlight/qr_gallery density assets preserve
+actual Git identities. Keep original Java draw/geometry; Kotlin host owns CameraX,
+permissions/Gallery/deep-link allowlist and fresh torch-future state. Telegram camera,
+account, LiteMode, recognition and network services remain excluded. No new
+permission, backend/API or production-release scope is authorized by this batch.
+Compact windows must fit the whole frame/title/control composition to measured
+safe bounds; no arbitrary offsets or delay hide clipping. Whole scanner device
+parity remains NOT MET; human combined-app release gate remains fail closed.
+
+Scoped A3.controls Java/integration is MET for source/host tests, ADAPTED; scanner
+whole-screen and physical-runtime requirements remain NOT MET. Source map is
+QR_SCANNER_CONTROLS_SOURCE_MAP.md. Serial broad local Gradle verification: 757
+JVM tests / 174 suites, no failures/errors/skips, AndroidTest compilation, lint
+0 errors / 1646 warnings and x86_64 debug APK PASS. Updated real-control HWUI fixture
+compiles, not executed. Python CI helpers 59 PASS; 129 upstream/EVE identities,
+docs/claim/import/diff checks PASS. Exact-SHA FAST pending the carrying scanner
+commit; base card commit 3b2245bc0743ebd45d89e708eb6a899de0cb7e0a FAST
+41402360574, docs 41402360616, imports 41402360702 all SUCCESS. Native and release
+limits unchanged. Next: source corner-bitmap renderer and parent/picker gaps.
