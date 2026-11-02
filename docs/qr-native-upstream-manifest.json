@@ -905,7 +905,7 @@
       "upstream_lines": "2095-2121,2140-2175,3573-3806",
       "eve_path": "app/src/main/java/com/eve/app/ui/profile/TelegramQrSceneView.kt",
       "upstream_sha256": "2cea11d8e6d9a12652f21e69b6dba47f2c9b3da0ffc0ba847632122174dfa56a",
-      "eve_sha256": "1cf55dc5aa816077cd6cee33051f45bea84531b1c72ae21a977934007f4a9925",
+      "eve_sha256": "0e1fab5438c1eed8faad7368b67daf193341df3cfe5f59f5c495659248d788a0",
       "classification": "ADAPTED EVE host; full QR/runtime acceptance OPEN",
       "adaptations": "EVE Kotlin scene integration adapter around imported Java/C++; current EVE insets/card geometry, username QR/E mark/native asset loader retained. Source export crop uses independent scene snapshot; no transient build/reveal/card scale in export. Existing Kotlin pattern/gesture approximation remains ADAPTED and unaccepted.",
       "source_map": "docs/QR_SCENE_NATIVE_SOURCE_MAP.md",
@@ -913,7 +913,9 @@
         "previous_recorded_eve_sha256": "60cf5fd4e205ae31492b9872b0c65c96d56a7d60373e2c06174d8e06b37d7c7b",
         "reason": "Previous successful main feature commits changed this EVE adapter without refreshing this digest. Official upstream bytes/revision are unchanged; current file hash is reconciled, not classified EXACT. Later source-map/checkpoint sections supersede original import descriptions.",
         "latest_file_commit": "caf429b0b50468876ce38d8ff21f1217ab61cf5f"
-      }
+      },
+      "appearance_source_map": "docs/QR_EMOJI_APPEARANCE_SOURCE_MAP.md",
+      "appearance_upstream_lines": "1015-1016,3171-3180,3245-3250,3281-3334,3369-3411,3596-3652"
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
@@ -991,6 +993,28 @@
       "eve_sha256": "cce4523abe9c3b55738219bf4e74e39909aa4e2c187b0a1e4dfb700cb8f43dd1",
       "classification": "ADAPTED EVE CameraX/Activity/lifecycle host; full scanner/reference acceptance OPEN",
       "source_map": "docs/QR_SCANNER_SOURCE_FRAME_CHECKPOINT.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareView.java",
+      "upstream_lines": "1015-1016,3171-3180,3187-3192,3245-3250,3281-3304",
+      "eve_path": "app/src/main/java/com/eve/app/telegram/qr/QrEmojiAppearance.java",
+      "upstream_sha256": "2cea11d8e6d9a12652f21e69b6dba47f2c9b3da0ffc0ba847632122174dfa56a",
+      "eve_sha256": "fdc9e48dc65f5f39b99a31a3e062f225a5404670edeeba8ee3b8eed49e5ebdc0",
+      "classification": "ADAPTED; Original Java appearance/seed/backOut; EVE six-item bounds, injected clock/readiness, per-pattern ownership; full device/source acceptance OPEN",
+      "source_map": "docs/QR_EMOJI_APPEARANCE_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareView.java",
+      "upstream_lines": "3314-3334",
+      "eve_path": "app/src/main/java/com/eve/app/telegram/animation/NativeQrDrawable.kt",
+      "upstream_sha256": "2cea11d8e6d9a12652f21e69b6dba47f2c9b3da0ffc0ba847632122174dfa56a",
+      "eve_sha256": "24d0fd47501354a5011601d9eb4656a9086c38fe585ce6dd4ff4687664c49f3f",
+      "classification": "ADAPTED; EVE-owned Drawable/native frame adapter, not original ImageReceiver/RLottieDrawable; native readiness/frozen export/failure stop; full device/source acceptance OPEN",
+      "source_map": "docs/QR_EMOJI_APPEARANCE_SOURCE_MAP.md"
     }
   ]
 }

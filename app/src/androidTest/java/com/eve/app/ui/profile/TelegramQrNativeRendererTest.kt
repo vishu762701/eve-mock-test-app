@@ -45,4 +45,33 @@ class TelegramQrNativeRendererTest {
             } finally { released.recycle() }
         } finally { animation.recycle() }
     }
+
+    @Test fun nativeDrawableReadinessAndFrozenExportFrameUseOwnedRealPixels() {
+        // EVE synthetic solid fixture: unlike a genuine intro animation, its
+        // first frame is deliberately opaque, so frame-readiness is observable.
+        val json = """{"v":"5.7.4","fr":30,"ip":0,"op":60,"w":128,"h":128,"layers":[{"ddd":0,"ind":1,"ty":1,"nm":"test-solid","sr":1,"ks":{"o":{"a":0,"k":100},"r":{"a":0,"k":0},"p":{"a":0,"k":[64,64,0]},"a":{"a":0,"k":[64,64,0]},"s":{"a":0,"k":[100,100,100]}},"sw":128,"sh":128,"sc":"#ff0000","ip":0,"op":60,"st":0,"bm":0}]}"""
+        val drawable = com.eve.app.telegram.animation.NativeQrDrawable.fromJson(json, 128)
+        val image = Bitmap.createBitmap(128, 128, Bitmap.Config.ARGB_8888)
+        try {
+            drawable.setBounds(0, 0, 128, 128)
+            drawable.start()
+            assertTrue("Actual native frame available", drawable.prepareFrame())
+            drawable.drawFrame(android.graphics.Canvas(image), false)
+            val before = IntArray(128 * 128).also { image.getPixels(it, 0, 128, 0, 0, 128, 128) }
+            assertTrue("Owned frame contains actual rendered pixels", before.any { it ushr 24 > 0 })
+            val frameIndex = drawable.javaClass.getDeclaredField("renderedFrame").apply { isAccessible = true }
+            val cached = frameIndex.getInt(drawable)
+            android.os.SystemClock.sleep(100) // advance real playback time by three fixture frames
+            image.eraseColor(android.graphics.Color.TRANSPARENT)
+            // Export deliberately keeps the cached frame while playback remains running.
+            drawable.drawFrame(android.graphics.Canvas(image), false)
+            val after = IntArray(128 * 128).also { image.getPixels(it, 0, 128, 0, 0, 128, 128) }
+            assertArrayEquals(before, after)
+            assertEquals("Export did not advance the native frame index", cached, frameIndex.getInt(drawable))
+            assertTrue(drawable.isRunning)
+        } finally { drawable.close(); image.recycle() }
+        assertFalse("Closed resources never claim a ready frame", drawable.prepareFrame())
+        drawable.close()
+    }
+
 }

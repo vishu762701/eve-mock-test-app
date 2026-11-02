@@ -116,3 +116,25 @@ next concrete source implementation is that appearance path with retained EVE
 native-frame ownership, selection/recycle/rapid-load cancellation and export rules,
 then source scanner controls and all previously open requirements. Device/GPU,
 matched reference, six-job FULL and legal release acceptance are still pending.
+
+## A1 source appearance code delivery
+
+Current base 40a7bb30fcc2bbb3468d482a0ec6a9e4633e811b is exact-SHA green at
+FAST 41395975426 (docs 41395975313). A1 appearance is now implemented through
+original Java QrEmojiAppearance + actual SceneView/native Drawable adapters:
+ready-only post-open seeded pop, picked-later swap isolation, separate old/new
+arrays, reduced motion and frozen export. All 745 JVM tests, lint (0 errors),
+AndroidTest compilation and x86_64 assembly pass. Source manifest 101 entries and
+four verbatim assets match; synthetic readiness fixture renders via host C API.
+Source map: QR_EMOJI_APPEARANCE_SOURCE_MAP.md. The carrying batch requires its own
+FAST; no Android device execution or whole-scene acceptance is inferred.
+
+Completed engineering increments in this continuation: scanner camera source glass,
+scanner pause/rebind/delayed-result ownership, admin fresh per-destination rights,
+source ready-frame item appearance; each is scoped ADAPTED development integration.
+Remaining overall A1 hierarchy/card/type/parent geometry, source picker parent/drag,
+scanner controls/physical transforms and complete B/C/D/E/F runtime/UI/action
+requirements remain NOT MET. Device/reference/GPL/service dependencies remain
+BLOCKED as listed. Mission-final FULL and protected verified APK remain NOT MET.
+No new owner decision is needed for continued development; legal/distribution,
+production deploy/migration and actual unavailable service decisions remain separate.

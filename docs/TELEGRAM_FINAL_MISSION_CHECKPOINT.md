@@ -1,5 +1,7 @@
 # EVE Telegram final mission checkpoint
 
+> Active continuation: see the latest entry below and TELEGRAM_REMAINING_REQUIREMENTS.md. Whole mission is PARTIAL; historical next-action paragraphs are superseded by the current source/CI state.
+
 Status: PARTIAL. This is a continuation record, not screen acceptance.
 
 ## Recovery (2026-11-01)
@@ -768,3 +770,43 @@ appearance path, test late frames/rapid selections/export/reduced motion, then
 source scanner control layout/press physics and remaining ledger items. Physical
 camera/GPU/matched references, Profile/Admin/Home/student/Quiz app-wide acceptance,
 protected mission-final six-job FULL/APK and human GPL review are still NOT MET/BLOCKED.
+
+## A1 real-frame emoji appearance continuation
+
+Base fetched main 40a7bb30fcc2bbb3468d482a0ec6a9e4633e811b; exact-SHA FAST
+41395975426 SUCCESS (Android/all four ABI/JVM/AndroidTest compilation, native
+243 tests, backend/Firebase); docs 41395975313 SUCCESS. All prior source QR,
+scanner permission/torch/found/lifecycle and fresh Admin rights work remains.
+Original source pin: 3de37c8cfb039452be7398909461da6288babf15.
+
+Original Java QrEmojiAppearance now supplies ready-item timestamps, per-screen
+seeded 300ms spread, 380ms pop and source backOut. Actual SceneView root reveal,
+current/outgoing patterns, late native frames, picked-later sentinel, reduced motion,
+export and cleanup are integrated. NativeQrDrawable checks real JNI frame return,
+freezes the cached frame for export and stops a failed renderer instead of retrying
+for every lattice node. Source map, dependencies, licensing and known adaptations:
+QR_EMOJI_APPEARANCE_SOURCE_MAP.md. No invented reflective emoji light/GPU atlas,
+Unicode preset, gifts, premium service or backend/auth/scoring change.
+
+Stable local Gradle tasks (:app:testDebugUnitTest :app:compileDebugAndroidTestKotlin
+:app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64) PASS:
+745 tests / 171 suites, zero failures/errors/skips; lint 0 errors / 1645 warnings.
+The new five source math/readiness/isolation/export tests pass alongside all old
+actual QR raster decodes. The new real Android JNI readiness/frozen-frame/close
+fixture compiles but is NOT executed locally. Its synthetic solid JSON was rendered
+by the same optimized host C API: parse OK, render status 0, 16,384 visible pixels.
+No host result is represented as physical Android/GPU evidence. Recorded source
+inventory: 101 entries match authenticated Git blobs and current EVE SHA-256;
+four verbatim popup imports also match. Python CI helpers 59 pass; docs/claim/diff
+checks pass. Pinned Rust 243/backend 288/Functions 19 evidence remains as above.
+
+The carrying implementation SHA needs exact-SHA FAST. Current overall status:
+NOT MET for whole A1/A2/A3/A4/Profile/Admin/Home/student/exam/theme source fidelity
+and original-versus-EVE/native matrix; BLOCKED locally for physical hardware,
+matched reference captures and human GPL distribution approval. No premature final
+FULL, production deployment/migration, release-variable change or published APK.
+The concrete next implementation action is source whole-scene card/typography/
+parent geometry and original scanner control layout/press physics, followed by all
+remaining ledger requirements. Active source engine/permissions/security repairs
+must be preserved. The historical bare SDK35 thread shutdown fragment remains
+unresolved despite green JUnit; no hidden/suppressed failure or legal clearance claim.

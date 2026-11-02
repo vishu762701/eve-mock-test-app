@@ -877,3 +877,14 @@ camera/account infrastructure; Android power-save replaces LiteMode.
 Telegram contributors retain copyright; root GPLv2/per-file and combined-app
 redistribution review remains OPEN. No production release approval is implied.
 See docs/QR_SCANNER_CAMERA_GLASS_SOURCE_MAP.md and the native source manifest.
+
+## Telegram QR ready-item appearance — 2026-11-02
+
+`QrEmojiAppearance.java` ADAPTS original Java from official
+DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15,
+QrShareView.java:1015-1016,3171-3180,3187-3192,3245-3250,3281-3304.
+Original timestamps, seeded appearance and backOut are integrated through EVE
+owned native frames; Telegram ImageReceiver/account/document services are excluded.
+Telegram contributors retain copyright. Root GPLv2/per-file and combined-app
+release obligations remain OPEN; production clearance is not inferred. See
+QR_EMOJI_APPEARANCE_SOURCE_MAP.md and the recorded source manifest.
