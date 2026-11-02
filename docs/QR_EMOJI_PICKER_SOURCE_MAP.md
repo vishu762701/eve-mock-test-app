@@ -119,3 +119,24 @@ is green at `24e79891acb3cdf875d24dcff295b372475e01b2`; source-import/docs workf
 are also green. The shutdown fragment also exists in pre-picker dc3b7ee7 remote
 logs, so it is not first introduced by these picker changes. Its cause remains
 unresolved. No FULL/native-device acceptance or published APK is inferred.
+
+## A2 source Java picker grid opening transform — 2026-11-02
+
+Status **ADAPTED, not complete sheet-morph parity**. Opened pinned
+`DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`
+`QrShareActivity.java:532-569,613-663,685-758` and
+`QrShareView.java:1904-1918`.
+
+| Upstream path:lines@SHA | EVE path | Classification / dependency |
+|---|---|---|
+| `QrShareActivity.java:542-569@3de37c8...` | `app/src/main/java/com/eve/app/telegram/qr/QrPickerOpenMotion.java`; `app/src/main/java/com/eve/app/ui/profile/QrEmojiPickerGrid.kt` | ADAPTED actual source Java scale 0.75→1, 420ms cubic easing and 0.55 fade relation; EVE animator uses time progress for sheet progress because its Material sheet lacks source morph variable |
+| `QrShareActivity.java:553-568@3de37c8...` | `QrEmojiPickerGrid.animateSourceOpen()`; `UsernameCardActivity.showAnimatedEmojiPicker()` | ADAPTED visible-bottom pivot, initial transform after sheet measurement; cancellation/reduced-motion settle; existing AndroidX grid/overlay |
+| `QrShareActivity.java:613-663,685-758@3de37c8...` | existing `QrEmojiGrid` and EVE `BottomSheetDialog` | NOT MET: exact original parent sheet shape/morph, row-cascade/alpha mask, pack strip and liquid glass/blur; no claim of native sheet equivalence |
+
+`QrPickerOpenMotionTest.java` exercises source transform endpoints,
+easing, clamping and alpha. This is a source-authentic *math extraction*,
+but the sheet presentation is ADAPTED, with original Telegram
+account/pack/premium services still excluded. Actual native Android
+open/close visual and gesture comparison remains OPEN. EVE catalogue
+ownership, six-selection restoration, accessibility and release gates are
+unchanged.

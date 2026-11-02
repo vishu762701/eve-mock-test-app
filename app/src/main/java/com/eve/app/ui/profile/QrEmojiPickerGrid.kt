@@ -1,6 +1,10 @@
 package com.eve.app.ui.profile
 
 import android.content.Context
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ValueAnimator
+import android.view.animation.LinearInterpolator
 import android.graphics.drawable.Drawable
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +17,7 @@ import com.eve.app.telegram.animation.QrAnimationAssets
 import com.eve.app.telegram.qr.EmojiPickOverlay
 import com.eve.app.telegram.qr.QrEmojiGrid
 import com.eve.app.telegram.qr.QrEmojiCell
+import com.eve.app.telegram.qr.QrPickerOpenMotion
 import kotlinx.coroutines.*
 
 /** EVE catalogue/lifecycle adapter for the original Java QR cells and selection overlay. */
@@ -28,6 +33,7 @@ internal class QrEmojiPickerGrid(
 ) : FrameLayout(context) {
     private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
     private var assetScope: CoroutineScope? = null
+    private var sourceOpenAnimator: ValueAnimator? = null
     private val holders = mutableSetOf<Holder>()
     private var choices = emptyList<QrEmojiChoice>()
     private var pendingScroll: android.os.Parcelable? = null
@@ -145,6 +151,58 @@ internal class QrEmojiPickerGrid(
         updatePicks()
     }
 
+    /**
+     * ADAPTED source QrShareActivity.gridFades opening transform. The RecyclerView
+     * uses source 420ms ease-out scale from 0.75 to 1, pivoting at the visible
+     * glass bottom, with the source's 0.55 sheet-progress fade relation.
+     * The outer Material sheet is not the upstream native morph compositor.
+     */
+    fun animateSourceOpen() {
+        sourceOpenAnimator?.cancel()
+        sourceOpenAnimator = null
+        if (!isAttachedToWindow || grid.width <= 0 || grid.height <= 0 ||
+            !DesignMotion.enabled(context)) {
+            settleSourceOpen()
+            return
+        }
+        updateSourceOpenPivot()
+        val animator = ValueAnimator.ofFloat(0f, 1f)
+        sourceOpenAnimator = animator
+        animator.duration = QrPickerOpenMotion.REVEAL_MS
+        animator.interpolator = LinearInterpolator()
+        animator.addUpdateListener { animation ->
+            val progress = animation.animatedValue as Float
+            val scale = QrPickerOpenMotion.scale(progress)
+            grid.scaleX = scale
+            grid.scaleY = scale
+            grid.alpha = QrPickerOpenMotion.alpha(progress)
+        }
+        animator.addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator) {
+                if (sourceOpenAnimator === animation) {
+                    sourceOpenAnimator = null
+                    settleSourceOpen()
+                }
+            }
+        })
+        grid.scaleX = QrPickerOpenMotion.scale(0f)
+        grid.scaleY = grid.scaleX
+        grid.alpha = QrPickerOpenMotion.alpha(0f)
+        animator.start()
+    }
+
+    private fun updateSourceOpenPivot() {
+        grid.pivotX = grid.width / 2f
+        grid.pivotY = (grid.height - grid.paddingBottom).toFloat()
+            .coerceIn(0f, grid.height.toFloat())
+    }
+
+    private fun settleSourceOpen() {
+        grid.scaleX = 1f
+        grid.scaleY = 1f
+        grid.alpha = 1f
+    }
+
     fun setItems(items: List<QrEmojiChoice>) {
         choices = items.filter { it.source.startsWith("https://") || it.source.startsWith("res:raw/") }
             .distinctBy { it.key }
@@ -182,6 +240,7 @@ internal class QrEmojiPickerGrid(
         manager.spanCount = (w / dp(48).coerceAtLeast(1)).coerceAtLeast(1)
         overlay.gridCutY(h.toFloat())
         overlay.setGlassRight(w.toFloat())
+        if (sourceOpenAnimator != null) updateSourceOpenPivot()
     }
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
@@ -196,6 +255,9 @@ internal class QrEmojiPickerGrid(
     }
 
     override fun onDetachedFromWindow() {
+        sourceOpenAnimator?.cancel()
+        sourceOpenAnimator = null
+        settleSourceOpen()
         assetScope?.cancel()
         assetScope = null
         holders.forEach { it.release() }

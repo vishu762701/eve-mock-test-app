@@ -283,6 +283,10 @@ class UsernameCardActivity : EveBaseActivity() {
             grid.layoutParams = (grid.layoutParams as LinearLayout.LayoutParams).apply {
                 height = minOf(px(340), (available - fixed - px(24)).coerceAtLeast(px(48)))
             }
+            // Wait for sheet measure: the source pivot is the visible glass bottom.
+            grid.post {
+                if (sheet.isShowing && emojiPickerGrid === grid) grid.animateSourceOpen()
+            }
         }
         catalogueJob = lifecycleScope.launch {
             val items = EmojiRepository().getPublicQrItems(limit = 24).getOrElse {

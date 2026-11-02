@@ -1,5 +1,17 @@
 # Third Party Notices
 
+## Telegram QR picker opening Java motion — 2026-11-02
+
+`app/src/main/java/com/eve/app/telegram/qr/QrPickerOpenMotion.java`
+adapts grid-opening equations from official
+`DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`,
+`TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareActivity.java`
+(lines 542-569) and `QrShareView.java:1904-1918`.
+Copyright Telegram contributors. The official root GPLv2
+and unresolved per-file/combined-app release obligations apply;
+this is not production distribution clearance.
+
+
 
 ## Telegram Java QR light-band scene — 2026-11-02
 

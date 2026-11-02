@@ -391,3 +391,23 @@ atlas/texture renderer was added.
 Next unfinished scope: source per-symbol reflective shine/gesture sampling and
 native matched-device validation, then picker sheet + scanner. Whole mission
 FULL and published APK still unaccepted.
+
+## A2 picker opening source transition increment — 2026-11-02
+
+Previous live base `acb0fec72f4aaa635c869e3325e38f79dd47c49c`, original Telegram pin remains
+`3de37c8cfb039452be7398909461da6288babf15`. First unfinished
+picker opening transform implemented through Java `QrPickerOpenMotion`
+and `QrEmojiPickerGrid`/Activity production integration. No duplicated
+R2 pattern field, slot compositor or Java shine code. The unit tests cover
+source 420ms cubic scaling and sheet fade constants; CI and device
+validation must be recorded from the actual commit SHA.
+
+| ID | Requirement | Current code | Upstream reference | Dependencies | Status | Verification evidence |
+|---|---|---|---|---|---|---|
+| R3.A2-open | 420ms source emoji-grid scale and fade | QrPickerOpenMotion, QrEmojiPickerGrid, UsernameCardActivity | QrShareActivity:542-569 | Activity sheet, RecyclerView | UNKNOWN until exact-SHA CI | New host JVM math tests, runtime still OPEN |
+| R3.A2-sheet | Original shape/cascade/compositor/blur and complete picker | Current EVE BottomSheetDialog | QrShareActivity:532-758 | original view parent, pack and Telegram services excluded | NOT MET | Source full sheet not imported |
+| R2.A1-source | Source patterns and atlas comments | Existing Java field/slot/shine, shared native frame | QrShareView:1264,3364 | EVE native Drawable cache | NOT MET full fidelity | Current upstream ensureAtlases does not actually implement emoji texture batching; do not invent it |
+
+Remaining first required work: original source picker sheet shape,
+row cascade and correct glass composition; scanner morph, native device
+matrix and remaining mission subsystems follow. GPL release review OPEN.
