@@ -27,6 +27,8 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
     private val examRepo = ExamRepository()
     private lateinit var adapter: FlaggedQuestionsAdapter
     private var isTechnicalSelected: Boolean = false
+    private var reportReadGeneration = 0L
+    private var reportLoadJob: kotlinx.coroutines.Job? = null
     private var canManageQuestions = false
     private var canManageExams = false
     private var editorLoadInFlight = false
@@ -38,6 +40,7 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityFlaggedQuestionsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        isTechnicalSelected = savedInstanceState?.getBoolean("admin_report_technical") ?: false
 
         com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "moderate_feedback") { permissions ->
             canManageQuestions = permissions.isOwner || "manage_questions" in permissions.rights
@@ -51,50 +54,74 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
         binding.btnBack.setOnClickListener { finish() }
         binding.btnRefresh.setOnClickListener { loadFlaggedQuestions() }
 
-        binding.chipGroupReportType.setOnCheckedStateChangeListener { _, checkedIds ->
-            isTechnicalSelected = (checkedIds.firstOrNull() == binding.chipTechnicalIssues.id)
-            loadFlaggedQuestions()
-        }
+        // Assist-style chip defaults are not checkable; these two are actual filters.
+        binding.chipContentIssues.isCheckable = true
+        binding.chipTechnicalIssues.isCheckable = true
+        binding.chipGroupReportType.isSelectionRequired = true
+        binding.chipGroupReportType.check(if (isTechnicalSelected) R.id.chipTechnicalIssues else R.id.chipContentIssues)
 
         adapter = FlaggedQuestionsAdapter(
-            onEdit = { item -> showEditDialog(item) },
-            onDismiss = { item -> confirmDismissFlag(item) },
+            onEdit = { item -> if (matchesReportType(item)) showEditDialog(item) },
+            onDismiss = { item -> if (matchesReportType(item)) confirmDismissFlag(item) },
             canEdit = { questionActionsAllowed },
             canDismiss = { !isFinishing && !isDestroyed }
         )
 
         binding.rvFlaggedQuestions.layoutManager = LinearLayoutManager(this)
         binding.rvFlaggedQuestions.adapter = adapter
+        binding.chipGroupReportType.setOnCheckedStateChangeListener { _, checkedIds ->
+            val technical = checkedIds.contains(R.id.chipTechnicalIssues)
+            if (technical == isTechnicalSelected) return@setOnCheckedStateChangeListener
+            isTechnicalSelected = technical
+            adapter.submit(emptyList())
+            loadFlaggedQuestions()
+        }
     }
 
     private fun loadFlaggedQuestions() {
+        if (isFinishing || isDestroyed) return
+        val technical = isTechnicalSelected
+        val request = ++reportReadGeneration
+        reportLoadJob?.cancel()
+        fun isCurrent() = request == reportReadGeneration && technical == isTechnicalSelected && !isFinishing && !isDestroyed
         binding.progressBar.visibility = View.VISIBLE
         binding.tvEmpty.visibility = View.GONE
-        lifecycleScope.launch {
+        reportLoadJob = lifecycleScope.launch {
             try {
-                val list = flagRepo.getPendingFlaggedQuestions(isTechnical = isTechnicalSelected)
+                val list = flagRepo.getPendingFlaggedQuestions(isTechnical = technical)
+                if (!isCurrent()) return@launch
                 binding.progressBar.visibility = View.GONE
                 adapter.submit(list)
                 if (list.isEmpty()) {
                     binding.tvEmpty.visibility = View.VISIBLE
-                    binding.tvEmpty.text = if (isTechnicalSelected) {
-                        "🎉 No pending technical / bug reports!\nAll systems operational."
+                    binding.tvEmpty.text = if (technical) {
+                        getString(R.string.admin_reports_empty_technical)
                     } else {
-                        "🎉 No pending flagged questions!\nAll reported issues have been resolved."
+                        getString(R.string.admin_reports_empty_content)
                     }
                 } else {
                     binding.tvEmpty.visibility = View.GONE
                 }
             } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
             catch (e: Exception) {
-                binding.progressBar.visibility = View.GONE
-                AppBulletin.showError(this@FlaggedQuestionsActivity, "Failed to load flags: ${e.message}")
+                if (isCurrent()) {
+                    binding.progressBar.visibility = View.GONE
+                    AppBulletin.showError(this@FlaggedQuestionsActivity, "Failed to load flags: ${e.message}")
+                }
             }
         }
     }
 
+    private fun matchesReportType(item: AggregatedFlaggedQuestion) =
+        (item.reportType == "technical") == isTechnicalSelected
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("admin_report_technical", isTechnicalSelected)
+    }
+
     private fun confirmDismissFlag(item: AggregatedFlaggedQuestion) {
-        if (isFinishing || isDestroyed) return
+        if (isFinishing || isDestroyed || !matchesReportType(item)) return
         val title = if (isTechnicalSelected) "Dismiss Bug Report?" else "Dismiss Flag?"
         val msg = if (isTechnicalSelected) {
             "Mark this technical issue as resolved? (${item.flagCount} report(s))"
@@ -106,7 +133,7 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
             .setTitle(title)
             .setMessage(msg)
             .setPositiveButton("Dismiss") { _, _ ->
-                if (isFinishing || isDestroyed) return@setPositiveButton
+                if (isFinishing || isDestroyed || !matchesReportType(item)) return@setPositiveButton
                 binding.progressBar.visibility = View.VISIBLE
                 lifecycleScope.launch {
                     try {
@@ -130,14 +157,14 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
     }
 
     private fun showEditDialog(item: AggregatedFlaggedQuestion) {
-        if (!questionActionsAllowed || editorLoadInFlight || questionEditor?.isShowing == true) return
+        if (!questionActionsAllowed || !matchesReportType(item) || editorLoadInFlight || questionEditor?.isShowing == true) return
         editorLoadInFlight = true
         lifecycleScope.launch {
             binding.progressBar.visibility = View.VISIBLE
             try {
                 val fullQuestion = resolveQuestionEditorTarget(examRepo.getQuestions(item.examId),
                     item.examId, item.questionId, item.questionText)
-                if (!questionActionsAllowed) return@launch
+                if (!questionActionsAllowed || !matchesReportType(item)) return@launch
                 if (fullQuestion == null) {
                     AppBulletin.showError(this@FlaggedQuestionsActivity, "Question is unavailable or ambiguous. Reload before editing.")
                     return@launch
@@ -185,6 +212,8 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
     }
 
     override fun onDestroy() {
+        reportReadGeneration++
+        reportLoadJob?.cancel()
         questionEditor?.dismiss(); questionEditor = null
         super.onDestroy()
     }

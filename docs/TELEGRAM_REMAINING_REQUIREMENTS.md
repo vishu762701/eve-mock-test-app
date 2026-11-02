@@ -892,3 +892,83 @@ through existing owners, then fix scoped request ownership; do not create parall
 state owners. Question Delete/Undo product choice remains explicitly unanswered;
 no generic resume message is treated as an answer. Bulk-picker pending-gate URI
 restoration also remains OPEN. QR acceptance stays OPEN; no speculative QR work.
+
+## C3/C5 Analytics and report-filter read ownership
+
+Base 9cf0523ed859b68e70c03911b09d08dce97a2634 exact-SHA FAST 41532575336
+SUCCESS, docs 41532575497 SUCCESS; build/backend/Firebase passed, native UI and
+verified publication skipped. R1: only the latest selected range/exam/refresh may
+publish Analytics success or failure; obsolete exam reads must not start question
+reads. R2: only the current report-type request may replace rows/empty state or
+hide loading; old actionable rows must not survive a type change. R3: actual
+controls and lifecycle restoration must agree with the selected request, with
+selected-item no-op and no extra state owner. R4: cancellation/teardown must not
+publish stale UI. R5: the Analytics screen must not present hardcoded 99.8% crash-
+free/zero-crash/zero-ANR values as fetched telemetry. Keep existing console link;
+no new Firebase telemetry permissions, service or invented data. Reproduce through
+existing production owners, then scoped regression tests; no speculative QR work.
+
+## C3/C5 Analytics/report read ownership implementation and evidence
+
+Base main 9cf0523ed859b68e70c03911b09d08dce97a2634 exact-SHA FAST
+[41532575336](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41532575336)
+SUCCESS, docs 41532575497 SUCCESS. That predecessor's R1-R5 question-review
+integration is verified; full screen/device/source parity remains OPEN. Its FAST
+skipped native UI/publication, with no verified APK artifact.
+
+Current R1-R5 code/host scope: canonical Analytics ViewModel cancels the prior job,
+generation-checks before a dependent question read and before success/error, and
+invalidates on clear. Existing Flagged Activity does the same in its original
+lifecycle owner; switching type removes old actionable rows and invalidates stale
+bound Edit/Dismiss callbacks. No parallel repository/renderer/ViewModel introduced.
+Both existing controls restore selected requests before initial protected loads;
+saved Activity state is persistence, not a new data owner. Selected filter taps are
+no-ops. Native report chips inherited non-checkable Material Assist defaults;
+only these TWO actual filter controls now enable checkability/single selection.
+Shared Assist style, Home filters and existing UIArc rendering/physics untouched.
+
+Analytics no longer displays static 99.8%, zero fatal crashes/ANRs or an unverified
+Crashlytics Active badge. Existing console link remains; English/Hindi unavailable
+copy explains that this screen does not fetch telemetry. Empty report lists state
+only no pending reports, never unproven all-systems-operational health. Actual
+telemetry integration remains unavailable, not fabricated or marked working.
+
+| Property / upstream relationship | EVE path:lines | Classification / evidence |
+|---|---|---|
+| EVE request/selection ownership; no Telegram exam/Worker subsystem transplanted | AdminAnalyticsViewModel.kt:28-59; AdminAnalyticsActivity.kt:45,76,86,127-135 | ADAPTED EVE business integration; real repository/ViewModel transport-order tests plus actual protected Activity filter/recreation callbacks |
+| Existing native report controls/lifecycle | FlaggedQuestionsActivity.kt:58-120,124,136,160,167,214 | ADAPTED existing EVE/Material controls, not claimed original Telegram tabs; real native callbacks, reordered transport, stale actions and destruction tests |
+| Existing dialog primitive remains AlertDialog.java:1161-1173,1526-1528@3de37c8cfb039452be7398909461da6288babf15 | existing TelegramNativeAlertDialog -> canonical question editor, unchanged by this batch | ADAPTED existing source-derived host; predecessor source map/tests retained, no new imported source/assets or source-value claims |
+| Existing EVE telemetry display contract, no upstream service imported | activity_admin_analytics.xml:28-38; English/Hindi strings; Flagged empty-state strings | ADAPTED truthful unavailable/empty states; actual Activity English and Hindi/RTL/Night resources tested; real telemetry/service/device acceptance NOT MET |
+
+Fail-before evidence: four actual Analytics ViewModel/repository ordering cases
+failed (old range/refresh overwrite, old failure, unnecessary obsolete second
+read); one actual Analytics Activity telemetry case failed. Three initial report
+Activity tests exposed non-checkable filters; one stopped at the missing second
+request. These are NOT counted as a completed stale-report-response reproduction.
+After enabling the real filters, expanded native callbacks exercise actual
+out-of-order results, empty/error states, live stale-row actions and teardown.
+Expanded 29 scoped cases PASS: six real VM/repository, eight real Flagged Activity,
+two actual Analytics filter/recreated Activity, and thirteen retained/extended
+question-review Activity tests. An early setup(null) harness error was corrected
+to setup() for a fresh Activity; no product assertion was suppressed.
+
+Full local integration PASS: 862 tests / 196 suites, zero failures/errors/skips;
+./gradlew :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug
+:app:assembleDebug -Peve.nativeAbis=x86_64 (3m39s). Lint 0 errors / 1634 warnings.
+Focused command selected AnalyticsReadOwnershipTest, AnalyticsFilterActivityTest,
+ReportReadOwnershipTest and QuestionReviewActivityTest (29 PASS). Helpers59,
+docs/acceptance structure/four upstream byte imports/diff PASS. R1-R5 MET at scoped
+code/host level; carrying commit/exact-SHA FAST integration PENDING. Backend unchanged
+from the green predecessor (307 tests); no production request/write/deployment,
+migration, auth/scoring/data contract change or new permission. Whole C3/C5 and
+source/device acceptance remain NOT MET; qualified human GPL/FULL/publication
+safeguards remain intact. Historical bare SDK35 shutdown exception remains UNKNOWN.
+
+Next independent implementation after carrying FAST SUCCESS: inspect EditExam's
+bulk-picker Activity-result callback while the fresh AdminAccessGate is pending;
+reproduce lost selected URI, then retain/consume it once only under the verified
+same account/exam. No new permission, parallel import flow or production writes.
+Question Delete/Undo decision remains explicitly unanswered; generic resume is
+not approval. Related P2 limitation: existing QuestionAnalytics API has no days
+parameter (all-time aggregates); this batch does not invent range-specific question
+statistics. QR acceptance remains OPEN and does not block independent work.

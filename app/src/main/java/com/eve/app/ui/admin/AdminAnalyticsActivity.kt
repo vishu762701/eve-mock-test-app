@@ -41,6 +41,15 @@ class AdminAnalyticsActivity : EveBaseActivity() {
         binding = ActivityAdminAnalyticsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Restore the visible range before STARTED can issue its first protected read.
+        savedInstanceState?.getString("admin_analytics_range")?.let { name ->
+            binding.chipGroupTimeRange.check(when (name) {
+                AnalyticsTimeRange.LAST_7_DAYS.name -> R.id.chipLast7Days
+                AnalyticsTimeRange.LAST_30_DAYS.name -> R.id.chipLast30Days
+                else -> R.id.chipAllTime
+            })
+        }
+
         com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "view_analytics_logs") { permissions ->
             canManageQuestions = permissions.isOwner || "manage_questions" in permissions.rights
             canManageExams = permissions.isOwner || "manage_exams" in permissions.rights
@@ -63,13 +72,8 @@ class AdminAnalyticsActivity : EveBaseActivity() {
             }
         }
 
-        binding.chipGroupTimeRange.setOnCheckedStateChangeListener { _, checkedIds ->
-            val timeRange = when {
-                checkedIds.contains(R.id.chipLast7Days) -> AnalyticsTimeRange.LAST_7_DAYS
-                checkedIds.contains(R.id.chipLast30Days) -> AnalyticsTimeRange.LAST_30_DAYS
-                else -> AnalyticsTimeRange.ALL_TIME
-            }
-            viewModel.load(timeRange)
+        binding.chipGroupTimeRange.setOnCheckedStateChangeListener { _, _ ->
+            viewModel.load(selectedTimeRange())
         }
 
         binding.rvExams.layoutManager = LinearLayoutManager(this)
@@ -79,7 +83,7 @@ class AdminAnalyticsActivity : EveBaseActivity() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.load()
+                viewModel.load(selectedTimeRange())
                 launch {
                     viewModel.state.collect { state ->
                         when (state) {
@@ -118,6 +122,17 @@ class AdminAnalyticsActivity : EveBaseActivity() {
                 }
             }
         }
+    }
+
+    private fun selectedTimeRange(): AnalyticsTimeRange = when (binding.chipGroupTimeRange.checkedChipId) {
+        R.id.chipLast7Days -> AnalyticsTimeRange.LAST_7_DAYS
+        R.id.chipLast30Days -> AnalyticsTimeRange.LAST_30_DAYS
+        else -> AnalyticsTimeRange.ALL_TIME
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("admin_analytics_range", selectedTimeRange().name)
     }
 
     private fun showEditQuestionDialog(qa: QuestionAnalytics) {

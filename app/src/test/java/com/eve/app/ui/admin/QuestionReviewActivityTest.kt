@@ -167,4 +167,17 @@ class QuestionReviewActivityTest {
         }
     }
 
+    @Test fun analyticsDoesNotPresentUnfetchedCrashTelemetryAsMeasuredData()=exercise(AdminAnalyticsActivity::class.java) { host,_ ->
+        assertFalse(host.findViewById<TextView>(R.id.tvCrashFreePercentage).text.toString().contains("99.8"))
+        assertFalse(host.findViewById<TextView>(R.id.tvTopCrashIssues).text.toString().contains("0 fatal crashes"))
+        assertEquals(View.VISIBLE,host.findViewById<View>(R.id.btnOpenCrashlyticsConsole).visibility)
+    }
+
+    @Test @Config(qualifiers="hi-rIN-ldrtl-night")
+    fun analyticsUnavailableTelemetryUsesHindiNightResources()=exercise(AdminAnalyticsActivity::class.java) { host,_ ->
+        assertEquals(host.getString(R.string.analytics_telemetry_unavailable),host.findViewById<TextView>(R.id.tvCrashFreePercentage).text.toString())
+        assertEquals(host.getString(R.string.analytics_telemetry_unavailable_detail),host.findViewById<TextView>(R.id.tvTopCrashIssues).text.toString())
+        assertTrue(host.findViewById<TextView>(R.id.tvCrashFreePercentage).text.toString().contains("उपलब्ध"))
+    }
+
 }

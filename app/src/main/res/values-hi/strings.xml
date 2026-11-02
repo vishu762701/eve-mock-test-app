@@ -79,4 +79,10 @@
     <string name="username_save_failed">यूज़रनेम नहीं बदला जा सका</string>
     <string name="username_help">आप EVE पर एक यूज़रनेम चुन सकते हैं। दूसरे लोग इस यूज़रनेम से आपको खोज सकते हैं।\n\nआप a-z, 0-9 और अंडरस्कोर का उपयोग कर सकते हैं। कम से कम 5 अक्षर ज़रूरी हैं।</string>
     <string name="question_form_saving">सहेजा जा रहा है…</string>
+    <string name="analytics_telemetry_console">Firebase कंसोल</string>
+    <string name="analytics_telemetry_unavailable">उपलब्ध नहीं</string>
+    <string name="analytics_telemetry_source">प्रमाणित आँकड़े Firebase कंसोल में देखें</string>
+    <string name="analytics_telemetry_unavailable_detail">यह स्क्रीन क्रैश-रहित उपयोगकर्ताओं, क्रैश और ANR के आँकड़े प्राप्त नहीं करती। ताज़ा रिपोर्ट के लिए Firebase कंसोल खोलें।</string>
+    <string name="admin_reports_empty_technical">कोई तकनीकी या बग रिपोर्ट लंबित नहीं है।</string>
+    <string name="admin_reports_empty_content">कोई चिह्नित प्रश्न लंबित नहीं है।</string>
 </resources>

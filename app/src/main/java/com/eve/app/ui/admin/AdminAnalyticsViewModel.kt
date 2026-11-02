@@ -24,8 +24,9 @@ data class AdminAnalyticsUi(
     val selectedExamId: String = ""
 )
 
-class AdminAnalyticsViewModel : ViewModel() {
-    private val repo = AdminAnalyticsRepository()
+class AdminAnalyticsViewModel(private val repo: AdminAnalyticsRepository = AdminAnalyticsRepository()) : ViewModel() {
+    private var readGeneration = 0L
+    private var loadJob: kotlinx.coroutines.Job? = null
     private val _state = MutableStateFlow<UiState<AdminAnalyticsUi>>(UiState.Loading)
     val state: StateFlow<UiState<AdminAnalyticsUi>> = _state.asStateFlow()
 
@@ -35,16 +36,27 @@ class AdminAnalyticsViewModel : ViewModel() {
     fun load(timeRange: AnalyticsTimeRange = currentTimeRange, examId: String = currentExamId) {
         currentTimeRange = timeRange
         currentExamId = examId
-        viewModelScope.launch {
+        val request = ++readGeneration
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             _state.value = UiState.Loading
-            _state.value = try {
+            try {
                 val exams = repo.getExamAnalytics(timeRange.days)
+                if (request != readGeneration) return@launch
                 val questions = repo.getQuestionAnalytics(examId.ifBlank { null })
-                UiState.Success(AdminAnalyticsUi(exams, questions, timeRange, examId))
+                if (request == readGeneration) {
+                    _state.value = UiState.Success(AdminAnalyticsUi(exams, questions, timeRange, examId))
+                }
             } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
             catch (e: Exception) {
-                UiState.Error(e.message ?: "Failed to load analytics")
+                if (request == readGeneration) _state.value = UiState.Error(e.message ?: "Failed to load analytics")
             }
         }
     }
+    override fun onCleared() {
+        readGeneration++
+        loadJob?.cancel()
+        super.onCleared()
+    }
+
 }
