@@ -142,3 +142,29 @@ bounded state cleanup. Live Android GPU behavior, compositor transitions,
 unaccepted. Existing source library, authentication, six-pick selection,
 QR payload and export behavior remain retained. The source original shine
 pipeline is not imported. GPL combined-release review remains OPEN.
+
+## R2/A1 source Java old/new emoji slot compositor (2026-11-02)
+
+Official source `QrShareView.java:198-211,1218-1260,2837-2872,
+3187-3212,3369-3411@3de37c8cfb039452be7398909461da6288babf15` opened against the pinned Git
+revision. Original `slotScale` and `backOut` equations, 0.18s shrink,
+0.135s incoming start, 0.315s growth and 0.3s per-cell delay are in Java
+`app/src/main/java/com/eve/app/telegram/qr/QrPatternSwap.java`.
+`TelegramQrSceneView.kt` retains the current and outgoing EVE selected
+Drawables until the last 0.75s pattern swap settles; same-key slots are
+unchanged, others use source old/new transforms. Rapid subsequent selections
+replace the last outgoing set without retaining accumulated old patterns.
+Export draws the target only and does not advance the live pattern clock.
+
+| Upstream path:lines@SHA | EVE file | Classification |
+|---|---|---|
+| QrShareView.java:3187-3212@3de37c8cfb039452be7398909461da6288babf15 | QrPatternSwap.java:17-40 | EXACT source equation bodies, ADAPTED public helper and class |
+| QrShareView.java:3369-3411@3de37c8cfb039452be7398909461da6288babf15 | TelegramQrSceneView.kt:drawPattern/drawEmojiSlot | ADAPTED EVE animation cache and local-only scene hosting |
+| QrShareView.java:1218-1260,2837-2872@3de37c8cfb039452be7398909461da6288babf15 | TelegramQrSceneView.kt:setEmojiChoices/loadSelectedAnimations | ADAPTED lifecycle and replacement/retention boundary; no Telegram account or gift loading |
+
+`QrPatternSwapTest.java` tests source curve/delay, no-old pattern
+pop, negative odd lattice rows, and transition expiry. Exact-SHA
+CI and Android native matched visual/gesture comparison remain required.
+Original per-pattern frame atlas, GPU shimmer and picker sheet composition
+are still NOT MET. EVE six-selection/authentication and upstream GPL
+release obligations remain unchanged.

@@ -356,3 +356,21 @@ No backend, scoring, accounts, release variables or migrations are changed.
 
 Next unfinished piece remains A1 source old/new pattern swap/cache/shine,
 then picker-sheet morph. FULL mission and personal-qr remain NOT MET.
+
+## 2026-11-02 R2/A1 additional source slot compositor batch
+
+Baseline prior to change: `eb21b088d8d806500a48170c10d77f468432a9b1` whose exact-SHA FAST
+[41372927365](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41372927365)
+was SUCCESS. This batch adds `QrPatternSwap.java`, host JVM regression
+tests, EVE QR live pattern renderer and source documentation. No backend
+or release/security configuration was changed. Commit SHA and CI must be
+read from GitHub after push, never filled speculatively.
+
+| ID | Requirement | Current code | Upstream reference | Dependencies | Status | Verification evidence |
+|---|---|---|---|---|---|---|
+| R2.A1-swap | Original Java per-cell old/new shrink/overshoot and expiry | QrPatternSwap + TelegramQrSceneView | QrShareView:1218,2837,3187,3369 | EVE native Drawable cache | UNKNOWN until CI; screen NOT MET | New four-case pure Java regression tests, native device still OPEN |
+| R2.A1-atlas | Original per-pattern texture pooling and shimmer | EVE shared-frame drawable/scene | QrShareView:1264,3050+,3364 | upstream account-dependent animated documents | NOT MET | No original source atlas/lighting compositor |
+| R2.A1-runtime | Matched Android runtime visuals and export | Existing EVE source-adapted QR screen | QrShareActivity/QrShareView | Device, GPU/blur, lifecycle | NOT MET | Native matched evidence absent |
+
+First next unaccepted scope: source-compatible per-pattern atlas/scene
+shimmer and picker-sheet morph, then scanner and remaining whole mission.

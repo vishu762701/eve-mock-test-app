@@ -1,5 +1,19 @@
 # Third Party Notices
 
+## Telegram Java QR pattern item transition adaptation — 2026-11-02
+
+`app/src/main/java/com/eve/app/telegram/qr/QrPatternSwap.java`
+adapts original Java slot and lattice transition logic from official
+`DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`,
+`TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareView.java`
+(lines 198-211,1218-1260,2837-2872,3187-3212,3369-3411).
+Telegram contributors' copyright and root GPLv2 apply; source grants
+and combined release compatibility remain unresolved. The EVE Kotlin host
+retains native animation frames for each transition without importing
+Telegram account/document/network services. No production clearance
+or original-screen parity is implied.
+
+
 ## Telegram QR Java pattern and gesture physics — 2026-11-02
 
 `app/src/main/java/com/eve/app/telegram/qr/QrPatternField.java` is

@@ -73,20 +73,18 @@ internal class TelegramQrSceneView(
     private val cardMotion = com.eve.app.telegram.qr.QrCardMotion()
     private val patternField = com.eve.app.telegram.qr.QrPatternField(density)
     private var selectedEmojis: List<QrEmojiChoice> = emptyList()
+    private var previousEmojis: List<QrEmojiChoice>? = null
+    private var swapStartedAt = 0L
     val selectedEmoji: String? get() = selectedEmojis.firstOrNull()?.alt
     val emojiChoices: List<QrEmojiChoice> get() = selectedEmojis.toList()
     private val animations = mutableMapOf<String, NativeQrDrawable>()
     private val legacyGlyphs = mutableMapOf<String, Drawable>()
     private var assetScope: CoroutineScope? = null
     private val animationLoading = mutableSetOf<String>()
-    private var fieldPauseStarted = 0L
-    private var fieldPausedMs = 0L
-    private var selectionStartedAt = SystemClock.uptimeMillis()
     private val emojiPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         textAlign = Paint.Align.CENTER
         alpha = 110
     }
-    private val startedAt = SystemClock.uptimeMillis()
     private var tracker: VelocityTracker? = null
 
     val selectedPalette: Int get() = palette
@@ -119,11 +117,16 @@ internal class TelegramQrSceneView(
     fun setEmojiChoices(choices: List<QrEmojiChoice>) {
         val next = choices.distinctBy { it.key }.takeLast(QrEmojiPattern.MAX_SELECTED)
         if (selectedEmojis == next) return
+        val now = SystemClock.uptimeMillis()
+        val animate = isLaidOut && isAttachedToWindow &&
+            com.eve.app.designsystem.DesignMotion.enabled(context)
+        // Source setPattern: on interruption the visible target becomes the old
+        // pattern. A discarded older transition is released, not accumulated.
+        previousEmojis = if (animate) selectedEmojis else null
+        swapStartedAt = now
         selectedEmojis = next
-        cardMotion.changeEmojis(SystemClock.uptimeMillis(),
-            isLaidOut && isAttachedToWindow && com.eve.app.designsystem.DesignMotion.enabled(context))
-        selectionStartedAt = SystemClock.uptimeMillis()
-        legacyGlyphs.keys.retainAll(selectedEmojis.map { it.key }.toSet())
+        cardMotion.changeEmojis(now, animate)
+        pruneInactiveAnimations()
         if (isAttachedToWindow) loadSelectedAnimations()
         invalidate()
     }
@@ -177,8 +180,16 @@ internal class TelegramQrSceneView(
                 }
             }
         }
-        animations.keys.toList().filter { key -> selectedEmojis.none { it.key == key } }
-            .forEach { animations.remove(it)?.close() }
+        pruneInactiveAnimations()
+    }
+
+    /** Keep outgoing animation frames until the source's last staggered slot settles. */
+    private fun pruneInactiveAnimations() {
+        val activeKeys = (selectedEmojis + (previousEmojis ?: emptyList())).map { it.key }.toSet()
+        animations.keys.toList().filter { it !in activeKeys }.forEach {
+            animations.remove(it)?.close()
+        }
+        legacyGlyphs.keys.retainAll(activeKeys)
     }
 
     override fun onAttachedToWindow() {
@@ -219,6 +230,7 @@ internal class TelegramQrSceneView(
         tracker?.recycle()
         tracker = null
         patternField.clear()
+        previousEmojis = null
         assetScope?.cancel()
         assetScope = null
         animations.values.forEach { it.close() }
@@ -284,7 +296,9 @@ internal class TelegramQrSceneView(
         val motionEnabled = com.eve.app.designsystem.DesignMotion.enabled(context)
         refreshEmojiPlayback()
         drawScene(canvas, width.toFloat(), height.toFloat())
-        if (((motionEnabled && selectedEmojis.isNotEmpty()) || qrLayer.isAnimating() || backdrop.isAnimating || cardMotion.isAnimating(SystemClock.uptimeMillis())) && isShown) postInvalidateOnAnimation()
+        if (((motionEnabled && (selectedEmojis.isNotEmpty() || previousEmojis != null)) ||
+            qrLayer.isAnimating() || backdrop.isAnimating ||
+            cardMotion.isAnimating(SystemClock.uptimeMillis())) && isShown) postInvalidateOnAnimation()
     }
 
     /**
@@ -292,15 +306,28 @@ internal class TelegramQrSceneView(
      * Custom emoji draw actual Lottie frames on this Canvas; standard Unicode emoji
      * use the device glyph, as the upstream does for non-custom emoji.
      */
-    private fun drawPattern(canvas: Canvas, w: Float, h: Float) {
-        if (selectedEmojis.isEmpty()) return
+    /**
+     * ADAPTED source QrShareView.drawEmojiFieldInner and drawEmojiSwap:
+     * compare stable item keys per lattice slot, preserve an outgoing native frame,
+     * shrink it then grow the incoming one with the original delay/backOut.
+     * Export uses the settled target only and never advances live motion clocks.
+     */
+    private fun drawPattern(canvas: Canvas, w: Float, h: Float, export: Boolean) {
         val now = SystemClock.uptimeMillis()
-        val movingMs = now - startedAt - fieldPausedMs -
-            (if (fieldPauseStarted != 0L) now - fieldPauseStarted else 0L)
-        val motionEnabled = com.eve.app.designsystem.DesignMotion.enabled(context)
-        patternField.advance(now, motionEnabled)
+        val motionEnabled = !export && com.eve.app.designsystem.DesignMotion.enabled(context)
+        if (!export) {
+            patternField.advance(now, motionEnabled)
+            if (previousEmojis != null && !com.eve.app.telegram.qr.QrPatternSwap.isActive(
+                    now - swapStartedAt, motionEnabled)) {
+                previousEmojis = null
+                pruneInactiveAnimations()
+            }
+        }
+        val old = if (export) null else previousEmojis
+        val target = selectedEmojis
+        if (target.isEmpty() && old.isNullOrEmpty()) return
+        val elapsed = (now - swapStartedAt).coerceAtLeast(0L) / 1000f
         val motion = if (motionEnabled) patternField.motionSeconds() else 0f
-        val elapsed = (now - selectionStartedAt).coerceAtLeast(0L).toFloat()
         val dx = dp(QrEmojiPattern.COLUMN_DP)
         val dy = dp(QrEmojiPattern.ROW_DP)
         val margin = dp(117f)
@@ -324,45 +351,67 @@ internal class TelegramQrSceneView(
                 val y = row * dy + oy + radius * kotlin.math.sin(angle) +
                     kotlin.math.sin(motion * .45f + phase) * dp(3f)
                 if (x < -margin || x > w + margin || y < -margin || y > h + margin) continue
-                val q = col - row / 2
-                val index = Math.floorMod(q - row, selectedEmojis.size)
-                val entry = selectedEmojis[index]
                 val big = (row and 1) == 0
-                val placementSize = dp(38f) * (if (big) 1.3f else .9f) *
+                val size = dp(38f) * (if (big) 1.3f else .9f) *
                     (.92f + .16f * seed.toFloat())
-                if (!patternField.place(x, y, placementSize, w.toInt(), h.toInt(),
-                    bounds.centerY(), 0, row, col,
-                    1f + kotlin.math.max(0f, placementSize / dp(24f) - 1f) * .8f,
-                    true)) continue
-                val baseSize = if (big) placementSize * .9f else placementSize
-                val scale = if (!motionEnabled) 1f else QrEmojiPattern.appear(elapsed, seed) *
-                    (1f + .03f * kotlin.math.sin(motion * 1.3f + phase * 2f))
-                if (scale <= .01f) continue
+                if (!patternField.place(x, y, size, w.toInt(), h.toInt(),
+                        bounds.centerY(), 0, row, col,
+                        1f + kotlin.math.max(0f, size / dp(24f) - 1f) * .8f,
+                        motionEnabled)) continue
+                val visualSize = if (big) size * .9f else size
                 val rotate = (seed.toFloat() - .5f) * 26f +
                     4f * kotlin.math.sin(motion * .3f + phase)
-                val saved = canvas.save()
-                canvas.translate(patternField.x, patternField.y)
-                canvas.rotate(rotate + patternField.rotation)
-                val sizedScale = scale * patternField.scale * (1f + patternField.pulse)
-                canvas.scale(sizedScale, sizedScale)
-                val drawable = animations[entry.key]
-                if (drawable != null) {
-                    val half = (baseSize / 2f).toInt()
-                    drawable.setBounds(-half, -half, half, half)
-                    if (patternField.alpha < .995f) {
-                        val layer = canvas.saveLayerAlpha(-half.toFloat(), -half.toFloat(),
-                            half.toFloat(), half.toFloat(), (255f * patternField.alpha).toInt())
-                        drawable.draw(canvas)
-                        canvas.restoreToCount(layer)
-                    } else drawable.draw(canvas)
-                } else if (entry.source.isBlank()) {
-                    emojiPaint.textSize = baseSize
-                    emojiPaint.alpha = (115f * patternField.alpha).toInt()
-                    canvas.drawText(entry.alt, 0f, -(emojiPaint.ascent() + emojiPaint.descent()) / 2f, emojiPaint)
+                val breath = if (motionEnabled)
+                    1f + .03f * kotlin.math.sin(motion * 1.3f + phase * 2f)
+                    else 1f
+                val oldEntry = old?.takeIf { it.isNotEmpty() }?.let {
+                    it[com.eve.app.telegram.qr.QrPatternSwap.slotIndex(row, col, it.size)]
                 }
-                canvas.restoreToCount(saved)
+                val newEntry = target.takeIf { it.isNotEmpty() }?.let {
+                    it[com.eve.app.telegram.qr.QrPatternSwap.slotIndex(row, col, it.size)]
+                }
+                if (old == null || (oldEntry != null && oldEntry.key == newEntry?.key)) {
+                    if (newEntry != null) drawEmojiSlot(canvas, newEntry, visualSize, rotate,
+                        breath, 1f)
+                } else {
+                    val delay = com.eve.app.telegram.qr.QrPatternSwap.delaySeconds(seed)
+                    val time = elapsed - delay
+                    if (oldEntry != null) drawEmojiSlot(canvas, oldEntry, visualSize, rotate,
+                        breath, com.eve.app.telegram.qr.QrPatternSwap.slotScale(time, true, false))
+                    if (newEntry != null) drawEmojiSlot(canvas, newEntry, visualSize, rotate,
+                        breath, com.eve.app.telegram.qr.QrPatternSwap.slotScale(time, false,
+                            old.isEmpty()))
+                }
             }
         }
+    }
+
+    private fun drawEmojiSlot(canvas: Canvas, entry: QrEmojiChoice, size: Float,
+                              rotation: Float, breath: Float, slotScale: Float) {
+        if (slotScale <= .01f) return
+        val drawable = animations[entry.key]
+        if (drawable == null && entry.source.isNotBlank()) return // no fake frame
+        val saved = canvas.save()
+        canvas.translate(patternField.x, patternField.y)
+        canvas.rotate(rotation + patternField.rotation)
+        val scale = slotScale * breath * patternField.scale * (1f + patternField.pulse)
+        canvas.scale(scale, scale)
+        if (drawable != null) {
+            val half = (size / 2f).toInt()
+            drawable.setBounds(-half, -half, half, half)
+            if (patternField.alpha < .995f) {
+                val layer = canvas.saveLayerAlpha(-half.toFloat(), -half.toFloat(),
+                    half.toFloat(), half.toFloat(), (255f * patternField.alpha).toInt())
+                drawable.draw(canvas)
+                canvas.restoreToCount(layer)
+            } else drawable.draw(canvas)
+        } else {
+            emojiPaint.textSize = size
+            emojiPaint.alpha = (115f * patternField.alpha).toInt()
+            canvas.drawText(entry.alt, 0f,
+                -(emojiPaint.ascent() + emojiPaint.descent()) / 2f, emojiPaint)
+        }
+        canvas.restoreToCount(saved)
     }
 
     private fun updateCardBounds(w: Float, h: Float) {
@@ -390,7 +439,7 @@ internal class TelegramQrSceneView(
             renderer.step(SystemClock.uptimeMillis(), com.eve.app.designsystem.DesignMotion.enabled(context))
         }
         try {
-            renderer.draw(canvas, { target -> drawPattern(target, w, h) }, !revealing && !export,
+            renderer.draw(canvas, { target -> drawPattern(target, w, h, export) }, !revealing && !export,
                 if (!export && revealing) com.eve.app.telegram.qr.QrRender.screenCornerRadius(this) else 0f)
             frameQrColor = renderer.qrColor()
         } finally {
