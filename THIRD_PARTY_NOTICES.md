@@ -888,3 +888,17 @@ owned native frames; Telegram ImageReceiver/account/document services are exclud
 Telegram contributors retain copyright. Root GPLv2/per-file and combined-app
 release obligations remain OPEN; production clearance is not inferred. See
 QR_EMOJI_APPEARANCE_SOURCE_MAP.md and the recorded source manifest.
+
+## Telegram QR card/caption and source font — 2026-11-02
+
+QrCardLayout.java and QrCardCaption.java ADAPT original Java from official
+DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15,
+QrShareView.java:1879-1881,2046-2061,3858-3892,4060-4109, with extracted
+SettingsSearchCell.java:40-79 and StaticLayoutEx.java:56-145. Telegram
+contributors / Nikolai Kudashov retain their notices; root GPLv2 and these
+per-file GPLv2-or-later notices apply. The exact-byte renamed qr_at glyphs
+and rcondensedbold.ttf identities are in the native upstream manifest.
+The font retains embedded Copyright 2011 Google Inc. All Rights Reserved;
+it has no embedded license name IDs13/14. No new font redistribution clearance
+is inferred: font-specific and combined-app human legal review remain OPEN,
+with the existing release gate unchanged. See docs/QR_CARD_CAPTION_SOURCE_MAP.md.

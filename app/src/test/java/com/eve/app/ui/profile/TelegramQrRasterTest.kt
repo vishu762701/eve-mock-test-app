@@ -52,6 +52,35 @@ class TelegramQrRasterTest {
         } finally { view.stopMotion() }
     }
 
+    @Test fun exportDuringPickerKeepsLiveGeometryAndInkAndLongUsernameScans() {
+        val username = "w".repeat(32)
+        val link = "eve-mock-test://username/$username"
+        val view = TelegramQrSceneView(RuntimeEnvironment.getApplication(), username, link)
+        val boundsField = view.javaClass.getDeclaredField("bounds").apply { isAccessible = true }
+        val inkField = view.javaClass.getDeclaredField("frameQrColor").apply { isAccessible = true }
+        try {
+            for ((w, h) in listOf(400 to 900, 780 to 360)) {
+                view.measure(View.MeasureSpec.makeMeasureSpec(w, View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(h, View.MeasureSpec.EXACTLY))
+                view.layout(0, 0, w, h)
+                view.setCardViewport(60f, h - 60f)
+                val live = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+                try {
+                    for (progress in listOf(0f, .7f, 1f, .2f, 0f)) {
+                        view.setPickerPlacement(progress, h * .48f)
+                        view.draw(android.graphics.Canvas(live))
+                        val before = android.graphics.RectF(boundsField.get(view) as android.graphics.RectF)
+                        val ink = inkField.getInt(view)
+                        val exported = requireNotNull(view.renderShareImage())
+                        try { assertEquals(link, decode(exported)) } finally { exported.recycle() }
+                        assertEquals(before, boundsField.get(view))
+                        assertEquals(ink, inkField.getInt(view))
+                    }
+                } finally { live.recycle() }
+            }
+        } finally { view.stopMotion() }
+    }
+
     @Test fun renderedQrRemainsDecodableAcrossColorScenesAndDeviceWidths() {
         val context = RuntimeEnvironment.getApplication()
         val link = "eve-mock-test://username/test_name"

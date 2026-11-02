@@ -18,7 +18,6 @@ import android.graphics.Typeface
 import android.view.View
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import com.google.zxing.qrcode.encoder.Encoder
-import java.util.Locale
 import kotlin.math.min
 
 /**
@@ -36,9 +35,29 @@ internal class TelegramQrSceneView(
     private fun dp(v: Float) = v * density
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val white = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.WHITE }
-    private val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD)
-        textAlign = Paint.Align.CENTER
+    private val caption = com.eve.app.telegram.qr.QrCardCaption(context, username)
+    private val liveCard = com.eve.app.telegram.qr.QrCardLayout()
+    private val exportCard = com.eve.app.telegram.qr.QrCardLayout()
+    private var viewportTop = Float.NaN
+    private var viewportBottom = Float.NaN
+    private var pickerProgress = 0f
+    private var pickerTop = 0f
+
+    fun setCardViewport(top: Float, bottom: Float) {
+        if (!top.isFinite() || !bottom.isFinite() || bottom <= top) return
+        if (top == viewportTop && bottom == viewportBottom) return
+        viewportTop = top
+        viewportBottom = bottom
+        invalidate()
+    }
+
+    fun setPickerPlacement(progress: Float, top: Float) {
+        if (!progress.isFinite() || !top.isFinite()) return
+        val fraction = progress.coerceIn(0f, 1f)
+        if (pickerProgress == fraction && pickerTop == top) return
+        pickerProgress = fraction
+        pickerTop = top
+        invalidate()
     }
     private val bounds = RectF()
     private val modulePath = Path()
@@ -331,7 +350,7 @@ internal class TelegramQrSceneView(
      * shrink it then grow the incoming one with the original delay/backOut.
      * Export uses the settled target only and never advances live motion clocks.
      */
-    private fun drawPattern(canvas: Canvas, w: Float, h: Float, export: Boolean) {
+    private fun drawPattern(canvas: Canvas, w: Float, h: Float, export: Boolean, cardCenterY: Float) {
         val now = SystemClock.uptimeMillis()
         val motionEnabled = !export && com.eve.app.designsystem.DesignMotion.enabled(context)
         if (!export) {
@@ -375,7 +394,7 @@ internal class TelegramQrSceneView(
                 val size = dp(38f) * (if (big) 1.3f else .9f) *
                     (.92f + .16f * seed.toFloat())
                 if (!patternField.place(x, y, size, w.toInt(), h.toInt(),
-                        bounds.centerY(), 0, row, col,
+                        cardCenterY, 0, row, col,
                         1f + kotlin.math.max(0f, size / dp(24f) - 1f) * .8f,
                         motionEnabled)) continue
                 val visualSize = if (big) size * .9f else size
@@ -445,60 +464,53 @@ internal class TelegramQrSceneView(
         canvas.restoreToCount(saved)
     }
 
-    private fun updateCardBounds(w: Float, h: Float) {
-        val available = (h - systemTop - systemBottom - dp(174f)).coerceAtLeast(dp(120f))
-        val cw = min(w * .745f, available / 1.07f)
-        val ch = cw * 1.07f
-        val x = (w - cw) / 2f
-        val rest = h * .468f - ch / 2f - dp(15f) + dp(16f)
-        val upper = (h - systemBottom - dp(100f) - ch)
-            .coerceAtLeast(systemTop + dp(72f))
-        val y = rest.coerceIn(systemTop + dp(72f), upper)
-        bounds.set(x, y, x + cw, y + ch)
+    private fun updateCardBounds(w: Int, h: Int, export: Boolean): com.eve.app.telegram.qr.QrCardLayout? {
+        val card = if (export) exportCard else liveCard
+        val top = if (viewportTop.isFinite()) maxOf(systemTop.toFloat(), viewportTop) else systemTop.toFloat()
+        val bottom = if (viewportBottom.isFinite()) minOf(h - systemBottom.toFloat(), viewportBottom)
+            else h - systemBottom.toFloat()
+        if (!card.sample(w, h, density, systemTop.toFloat(), top, bottom,
+                if (export) 0f else pickerProgress, pickerTop)) return null
+        if (!export) bounds.set(card.bounds)
+        return card
     }
 
     private fun drawScene(canvas: Canvas, w: Float, h: Float, export: Boolean = false) {
         if (w <= 0 || h <= 0) return
-        updateCardBounds(w, h)
-        val cw = bounds.width()
-        val ch = bounds.height()
-        val x = bounds.left
-        val y = bounds.top
+        val card = updateCardBounds(w.toInt(), h.toInt(), export) ?: return
         val renderer = if (export) backdrop.snapshot() else backdrop
-        renderer.setGeometry(w.toInt(), h.toInt(), bounds.centerY())
+        renderer.setGeometry(w.toInt(), h.toInt(), card.bounds.centerY())
         if (!export) {
             renderer.step(SystemClock.uptimeMillis(), com.eve.app.designsystem.DesignMotion.enabled(context))
         }
+        val ink: Int
         try {
-            renderer.draw(canvas, { target -> drawPattern(target, w, h, export) }, !revealing && !export,
+            renderer.draw(canvas, { target -> drawPattern(target, w, h, export, card.bounds.centerY()) },
+                !revealing && !export,
                 if (!export && revealing) com.eve.app.telegram.qr.QrRender.screenCornerRadius(this) else 0f)
-            frameQrColor = renderer.qrColor()
+            ink = renderer.qrColor()
+            if (!export) frameQrColor = ink
         } finally {
             if (export) renderer.close()
         }
-        canvas.save()
+        val save = canvas.save()
         if (!export) {
             val scale = sceneScale * cardMotion.scale(SystemClock.uptimeMillis(),
                 com.eve.app.designsystem.DesignMotion.enabled(context))
-            canvas.scale(scale, scale, w / 2f, y + ch / 2f)
+            canvas.scale(scale, scale, card.bounds.centerX(), card.bounds.centerY())
         }
-        shadow.draw(canvas, bounds, qrColor(), export)
-        canvas.drawRoundRect(bounds, dp(30f), dp(30f), white)
-
-        val size = cw * .70f
-        val qLeft = x + (cw - size) / 2f
-        val qTop = y + cw * .12f
-        drawModules(canvas, qLeft, qTop, size, if (export) 1f else qrBuild, export)
-        val caption = "@" + username.uppercase(Locale.ROOT)
-        labelPaint.color = qrColor()
-        for (pt in floatArrayOf(30f, 25f, 19f)) {
-            labelPaint.textSize = dp(pt)
-            if (labelPaint.measureText(caption) <= cw - dp(40f) || pt == 19f) break
-        }
-        val middle = (qTop + size + y + ch) / 2f
-        val baseline = middle - (labelPaint.ascent() + labelPaint.descent()) / 2f - dp(4f)
-        canvas.drawText(caption, w / 2f, baseline, labelPaint)
-        canvas.restore()
+        // Preserve the complete original card, including typography, corner and
+        // shadow geometry, when fitting a compact window between native controls.
+        canvas.translate(card.bounds.left, card.bounds.top)
+        canvas.scale(card.fitScale, card.fitScale)
+        shadow.draw(canvas, card.localCard, ink, export)
+        canvas.drawRoundRect(card.localCard, dp(30f), dp(30f), white)
+        val size = card.sourceWidth * .70f
+        val qLeft = (card.sourceWidth - size) / 2f
+        val qTop = card.sourceWidth * .12f
+        drawModules(canvas, qLeft, qTop, size, if (export) 1f else qrBuild, export, card.localCard, ink)
+        caption.draw(canvas, card.localCard, qTop + size, ink)
+        canvas.restoreToCount(save)
     }
 
     private var frameQrColor = colors[0][2]
@@ -527,11 +539,11 @@ internal class TelegramQrSceneView(
 
     /** Java source module/halftone animation with EVE's white E drawn above the mask. */
     private fun drawModules(canvas: Canvas, left: Float, top: Float, size: Float, build: Float,
-                            export: Boolean = false) {
+                            export: Boolean, card: RectF, ink: Int) {
         val data = ensureQrCode() ?: return
         val layer = if (export) com.eve.app.telegram.qr.QrCodeLayer().apply { set(data) } else qrLayer
-        layer.setColor(qrColor())
-        layer.setCardBounds(bounds.left, bounds.top, bounds.right, bounds.bottom)
+        layer.setColor(ink)
+        layer.setCardBounds(card.left, card.top, card.right, card.bottom)
         if (!export) layer.setBuildOverride(build)
         layer.draw(canvas, left, top, size)
         val markSide = size * com.eve.app.telegram.qr.QrCodeLayer.logoShare(data)
@@ -543,9 +555,9 @@ internal class TelegramQrSceneView(
     /** Local rendering without accessing the private profile or Telegram servers. */
     fun renderShareImage(): Bitmap? {
         if (width <= 0 || height <= 0) return null
-        updateCardBounds(width.toFloat(), height.toFloat())
+        val card = updateCardBounds(width, height, true) ?: return null
         val shareHeight = min(height, (width * 1.92f).toInt())
-        val cardCenter = if (bounds.isEmpty) height * .468f else bounds.centerY()
+        val cardCenter = card.bounds.centerY()
         val top = (cardCenter - shareHeight / 2f).toInt().coerceIn(0, height - shareHeight)
         val bitmap = try { Bitmap.createBitmap(width, shareHeight, Bitmap.Config.ARGB_8888) }
             catch (_: OutOfMemoryError) { return null }

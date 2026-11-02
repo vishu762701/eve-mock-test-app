@@ -135,6 +135,16 @@ class UsernameCardActivity : EveBaseActivity() {
         root.addView(share, shareParams)
         root.addView(save, saveParams)
         root.addView(tools, toolsParams)
+        val updateCardViewport = View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            if (root.width > 0 && close.height > 0 && share.height > 0) {
+                scene.setCardViewport(maxOf(close.bottom, scan.bottom).toFloat(),
+                    minOf(share.top, save.top, tools.top).toFloat())
+            }
+        }
+        // Insets can reposition chrome without changing the root's bounds.
+        for (view in arrayOf(root, close, scan, share, save, tools)) {
+            view.addOnLayoutChangeListener(updateCardViewport)
+        }
         fun layout(top: Int, bottom: Int) {
             scene.systemTop = top
             scene.systemBottom = bottom
@@ -224,6 +234,16 @@ class UsernameCardActivity : EveBaseActivity() {
         }
         val morph = QrPickerSheetSurface(this).apply {
             addView(panel, FrameLayout.LayoutParams(-1, -2))
+        }
+        val sheetLocation = IntArray(2)
+        val sceneLocation = IntArray(2)
+        morph.onSourceFrame = { progress ->
+            if (morph.height > 0 && morph.isAttachedToWindow) {
+                morph.getLocationOnScreen(sheetLocation)
+                scene.getLocationOnScreen(sceneLocation)
+                // Source sheet target has the same 10dp top inset as its sides.
+                scene.setPickerPlacement(progress, (sheetLocation[1] - sceneLocation[1] + px(10)).toFloat())
+            } else if (progress == 0f) scene.setPickerPlacement(0f, 0f)
         }
         // Source sheet-only 1/8-res blur/lift; button controls retain their
         // independent 1/9-res blur. EVE dialogue remains an adapted host.

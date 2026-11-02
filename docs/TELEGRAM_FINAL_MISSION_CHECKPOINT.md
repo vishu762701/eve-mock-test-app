@@ -846,3 +846,39 @@ parent geometry and original scanner control layout/press physics, followed by a
 remaining ledger requirements. Active source engine/permissions/security repairs
 must be preserved. The historical bare SDK35 thread shutdown fragment remains
 unresolved despite green JUnit; no hidden/suppressed failure or legal clearance claim.
+
+
+## A1 card/caption and A4 export isolation continuation — 2026-11-02
+
+Recovered/refetched main e4dd748651a4b7abecc52f5c9be204fd67a1a64f; its FAST
+41399010870 and docs 41399010801 SUCCESS, no artifacts. Official Telegram HEAD
+re-fetched, unchanged 3de37c8cfb039452be7398909461da6288babf15; optional submodule,
+workspace/hardware and human release limitations remain as recorded above.
+
+QrCardLayout.java and QrCardCaption.java extract original Java card/rest/sheet rise,
+condensed glyph/StaticLayout and caption drawing. Exact source font and 12 glyph
+bytes are renamed only; root/per-file/font legal review stays OPEN. EVE measured
+chrome/compact fit, locale-independent username, native accessibility controls and
+Material modal adapter are explicit ADAPTED integration. Actual picker progress
+now lifts the scene card, dismissal clears progress/callback, and both root and
+child layout changes refresh viewport bounds. Independent export geometry/ink
+keeps the live card/gesture bounds intact. Existing native/QR/scanner/Admin paths,
+backend/scoring/identity contracts and fail-closed release gate are preserved.
+Source map: QR_CARD_CAPTION_SOURCE_MAP.md. Manifest now records 116 identities.
+
+Serial local broad Gradle (:app:testDebugUnitTest :app:compileDebugAndroidTestKotlin
+:app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64) PASS: 753 tests / 173
+suites, zero failures/errors/skips. New geometry, actual font/glyph raster,
+30/25/19 fitting, long32-character identity, Turkish locale, interrupted picker
+export/live-state isolation and dismissal tests pass. Existing real PNG/ZXing
+portrait/landscape/color scenes remain decodable. One old renderer source-text
+guard needed the new local card parameter; its actual assertions are preserved.
+Python CI helpers 59, docs, claim consistency, four verbatim imports and all116
+pinned identities PASS. AndroidTest compiles; no physical test is inferred. The
+historical bare SDK35 teardown fragment remains UNKNOWN, despite green JUnit.
+
+The carrying implementation commit still requires exact-SHA FAST. Whole mission
+NOT MET; no final FULL, published APK or legal acceptance. First unfinished source
+implementation: QrScanOverlay original controls/title placement and press/torch
+interpolation through EVE CameraX host. Then all remaining Profile/Admin/Home/
+student/exam/theme and native-reference requirements in the full live ledger.

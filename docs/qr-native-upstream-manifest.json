@@ -905,7 +905,7 @@
       "upstream_lines": "2095-2121,2140-2175,3573-3806",
       "eve_path": "app/src/main/java/com/eve/app/ui/profile/TelegramQrSceneView.kt",
       "upstream_sha256": "2cea11d8e6d9a12652f21e69b6dba47f2c9b3da0ffc0ba847632122174dfa56a",
-      "eve_sha256": "0e1fab5438c1eed8faad7368b67daf193341df3cfe5f59f5c495659248d788a0",
+      "eve_sha256": "0435198c3b26343c436fd8358752b454924952d1b4d448e4bf95f201fb60aa5f",
       "classification": "ADAPTED EVE host; full QR/runtime acceptance OPEN",
       "adaptations": "EVE Kotlin scene integration adapter around imported Java/C++; current EVE insets/card geometry, username QR/E mark/native asset loader retained. Source export crop uses independent scene snapshot; no transient build/reveal/card scale in export. Existing Kotlin pattern/gesture approximation remains ADAPTED and unaccepted.",
       "source_map": "docs/QR_SCENE_NATIVE_SOURCE_MAP.md",
@@ -915,7 +915,8 @@
         "latest_file_commit": "caf429b0b50468876ce38d8ff21f1217ab61cf5f"
       },
       "appearance_source_map": "docs/QR_EMOJI_APPEARANCE_SOURCE_MAP.md",
-      "appearance_upstream_lines": "1015-1016,3171-3180,3245-3250,3281-3334,3369-3411,3596-3652"
+      "appearance_upstream_lines": "1015-1016,3171-3180,3245-3250,3281-3334,3369-3411,3596-3652",
+      "card_source_map": "docs/QR_CARD_CAPTION_SOURCE_MAP.md"
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
@@ -925,7 +926,7 @@
       "upstream_lines": "819-848",
       "eve_path": "app/src/main/java/com/eve/app/ui/profile/UsernameCardActivity.kt",
       "upstream_sha256": "3e63371d627c670512c9363cf969816083abc126ea47e5af80762cfe53f78798",
-      "eve_sha256": "77384c2d46057d0fbd3fa8843fe9fa5f7b543fdfa58b0d0ed055058b7fcbc721",
+      "eve_sha256": "a6844d0f31bcb951aa9b2d8b5c017587db9e5dc2d32353bb7944115cc596103f",
       "classification": "ADAPTED EVE host; full QR/runtime acceptance OPEN",
       "adaptations": "EVE Activity adapter binds root/controls to original Java reveal and scene-sampling glass; transparent QR-specific theme and refresh after EVE theme/system-bar sync replace Telegram fragment container. Existing EVE catalogue/save/share and validated public link routing retained.",
       "source_map": "docs/QR_SCENE_NATIVE_SOURCE_MAP.md",
@@ -933,7 +934,8 @@
         "previous_recorded_eve_sha256": "3fcfd14e8d99ff91912497d6f052ef0c706bf196700542581009ff4e1160382e",
         "reason": "Previous successful main feature commits changed this EVE adapter without refreshing this digest. Official upstream bytes/revision are unchanged; current file hash is reconciled, not classified EXACT. Later source-map/checkpoint sections supersede original import descriptions.",
         "latest_file_commit": "44ec4a3a52217b3e35c9144efff713e9a2bd3233"
-      }
+      },
+      "card_source_map": "docs/QR_CARD_CAPTION_SOURCE_MAP.md"
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
@@ -1015,6 +1017,217 @@
       "eve_sha256": "24d0fd47501354a5011601d9eb4656a9086c38fe585ce6dd4ff4687664c49f3f",
       "classification": "ADAPTED; EVE-owned Drawable/native frame adapter, not original ImageReceiver/RLottieDrawable; native readiness/frozen export/failure stop; full device/source acceptance OPEN",
       "source_map": "docs/QR_EMOJI_APPEARANCE_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareView.java",
+      "upstream_blob": "c2a57a19bd96d6b71da270c1e80dd9519d4ca26d",
+      "upstream_lines": "1879-1881,2046-2061,3808-3819",
+      "eve_path": "app/src/main/java/com/eve/app/telegram/qr/QrCardLayout.java",
+      "upstream_sha256": "2cea11d8e6d9a12652f21e69b6dba47f2c9b3da0ffc0ba847632122174dfa56a",
+      "eve_sha256": "fbd3d6465446215a453a0a98af761dd657d135330798ad959fdc89ac80ae1432",
+      "classification": "ADAPTED original Java card geometry; runtime acceptance OPEN",
+      "adaptations": "Username-only free card; measured EVE control viewport, uniform compact-window fit; original source rest and sheet rise.",
+      "source_map": "docs/QR_CARD_CAPTION_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareView.java",
+      "upstream_blob": "c2a57a19bd96d6b71da270c1e80dd9519d4ca26d",
+      "upstream_lines": "3858-3892,4060-4109",
+      "eve_path": "app/src/main/java/com/eve/app/telegram/qr/QrCardCaption.java",
+      "upstream_sha256": "2cea11d8e6d9a12652f21e69b6dba47f2c9b3da0ffc0ba847632122174dfa56a",
+      "eve_sha256": "91f0fa6806b27a48dfa5507ae448e2ae00d619dce8494cb8c00077aa4975ea9c",
+      "classification": "ADAPTED original Java caption layout; runtime acceptance OPEN",
+      "adaptations": "SettingsSearchCell.java:40-79 and StaticLayoutEx.java:56-145 extracted transitively; Locale.ROOT identity, EVE RTL provider, compact caption fit; API24+ username-only branch, no Telegram services.",
+      "source_map": "docs/QR_CARD_CAPTION_SOURCE_MAP.md",
+      "upstream_dependencies": [
+        {
+          "path": "TMessagesProj/src/main/java/org/telegram/ui/Cells/SettingsSearchCell.java",
+          "lines": "40-79",
+          "revision": "3de37c8cfb039452be7398909461da6288babf15",
+          "sha256": "cd7a94d5f840ece76ba0619f74afc6141a9408399737672b3fe81c0f59e7346c",
+          "disposition": "ADAPTED minimum Java caption branches; see source map"
+        },
+        {
+          "path": "TMessagesProj/src/main/java/org/telegram/ui/Components/StaticLayoutEx.java",
+          "lines": "56-145",
+          "revision": "3de37c8cfb039452be7398909461da6288babf15",
+          "sha256": "9ec3376f74a2e5f35110ca7f954922f4ddbd219a2fe54b5f7c7932bb17d2b258",
+          "disposition": "ADAPTED minimum Java caption branches; see source map"
+        }
+      ]
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/res/drawable-mdpi/qr_at_large.webp",
+      "upstream_blob": "e01dec7e772f07d17fd3d9bf056d437d60e5c41e",
+      "upstream_lines": "binary",
+      "eve_path": "app/src/main/res/drawable-mdpi/eve_qr_at_large.webp",
+      "upstream_sha256": "42820740e4bca39e939acdae3ed34ea03a158cdebddeb9434c90682cdffa65d8",
+      "eve_sha256": "42820740e4bca39e939acdae3ed34ea03a158cdebddeb9434c90682cdffa65d8",
+      "classification": "EXACT asset bytes only; visual acceptance OPEN",
+      "adaptations": "Resource renamed only; no screen equivalence or redistribution clearance implied.",
+      "source_map": "docs/QR_CARD_CAPTION_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/res/drawable-mdpi/qr_at_medium.webp",
+      "upstream_blob": "fb225356c522cec025f8688268c507b262db2e3e",
+      "upstream_lines": "binary",
+      "eve_path": "app/src/main/res/drawable-mdpi/eve_qr_at_medium.webp",
+      "upstream_sha256": "d7f50484a24ae5e0e91019547821da8fe9a85c38a7cda42ed6bafefd4d0886fb",
+      "eve_sha256": "d7f50484a24ae5e0e91019547821da8fe9a85c38a7cda42ed6bafefd4d0886fb",
+      "classification": "EXACT asset bytes only; visual acceptance OPEN",
+      "adaptations": "Resource renamed only; no screen equivalence or redistribution clearance implied.",
+      "source_map": "docs/QR_CARD_CAPTION_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/res/drawable-mdpi/qr_at_small.webp",
+      "upstream_blob": "c2dad3e08ddc8ae849062b88f20b1b5721f39e6c",
+      "upstream_lines": "binary",
+      "eve_path": "app/src/main/res/drawable-mdpi/eve_qr_at_small.webp",
+      "upstream_sha256": "8bf8b6399518bbc63965020313c1c9609a898d6ea9c765ba3fdc1a5bdddf8f8c",
+      "eve_sha256": "8bf8b6399518bbc63965020313c1c9609a898d6ea9c765ba3fdc1a5bdddf8f8c",
+      "classification": "EXACT asset bytes only; visual acceptance OPEN",
+      "adaptations": "Resource renamed only; no screen equivalence or redistribution clearance implied.",
+      "source_map": "docs/QR_CARD_CAPTION_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/res/drawable-hdpi/qr_at_large.webp",
+      "upstream_blob": "f1fb763594073deef7806e111778a2cb56d096dd",
+      "upstream_lines": "binary",
+      "eve_path": "app/src/main/res/drawable-hdpi/eve_qr_at_large.webp",
+      "upstream_sha256": "38c7cfbe5f753f7a21e110432ae35c54ca2172835e9367b94a6d9e3f0f654424",
+      "eve_sha256": "38c7cfbe5f753f7a21e110432ae35c54ca2172835e9367b94a6d9e3f0f654424",
+      "classification": "EXACT asset bytes only; visual acceptance OPEN",
+      "adaptations": "Resource renamed only; no screen equivalence or redistribution clearance implied.",
+      "source_map": "docs/QR_CARD_CAPTION_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/res/drawable-hdpi/qr_at_medium.webp",
+      "upstream_blob": "c76a89f4e3b9e5614267c5c164d9a0a37bbcdc41",
+      "upstream_lines": "binary",
+      "eve_path": "app/src/main/res/drawable-hdpi/eve_qr_at_medium.webp",
+      "upstream_sha256": "c4412b2fbd8a47250371940a696efad334a0f8f22d28d70b90e7340f61fbad67",
+      "eve_sha256": "c4412b2fbd8a47250371940a696efad334a0f8f22d28d70b90e7340f61fbad67",
+      "classification": "EXACT asset bytes only; visual acceptance OPEN",
+      "adaptations": "Resource renamed only; no screen equivalence or redistribution clearance implied.",
+      "source_map": "docs/QR_CARD_CAPTION_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/res/drawable-hdpi/qr_at_small.webp",
+      "upstream_blob": "83241142aa0fb56de2bc6c5db882554eceb8fdf8",
+      "upstream_lines": "binary",
+      "eve_path": "app/src/main/res/drawable-hdpi/eve_qr_at_small.webp",
+      "upstream_sha256": "26b98f6e91c9521c5e4eee804777191747fe104fd28286e3761044fd8fc776db",
+      "eve_sha256": "26b98f6e91c9521c5e4eee804777191747fe104fd28286e3761044fd8fc776db",
+      "classification": "EXACT asset bytes only; visual acceptance OPEN",
+      "adaptations": "Resource renamed only; no screen equivalence or redistribution clearance implied.",
+      "source_map": "docs/QR_CARD_CAPTION_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/res/drawable-xhdpi/qr_at_large.webp",
+      "upstream_blob": "1e2b2d2ba0689fc04ff889accd9dde278c6669be",
+      "upstream_lines": "binary",
+      "eve_path": "app/src/main/res/drawable-xhdpi/eve_qr_at_large.webp",
+      "upstream_sha256": "ebcd79bce4ff2378a55e2d8b28261741ce08181a71e07361ef26868c5e95e0c8",
+      "eve_sha256": "ebcd79bce4ff2378a55e2d8b28261741ce08181a71e07361ef26868c5e95e0c8",
+      "classification": "EXACT asset bytes only; visual acceptance OPEN",
+      "adaptations": "Resource renamed only; no screen equivalence or redistribution clearance implied.",
+      "source_map": "docs/QR_CARD_CAPTION_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/res/drawable-xhdpi/qr_at_medium.webp",
+      "upstream_blob": "ad079a5d95bc1cb5eb117e2ef708a5a2a7609970",
+      "upstream_lines": "binary",
+      "eve_path": "app/src/main/res/drawable-xhdpi/eve_qr_at_medium.webp",
+      "upstream_sha256": "84b8411c4829248246575ec9ca68d47ae12176ba4db9d09f5bcd446509b64150",
+      "eve_sha256": "84b8411c4829248246575ec9ca68d47ae12176ba4db9d09f5bcd446509b64150",
+      "classification": "EXACT asset bytes only; visual acceptance OPEN",
+      "adaptations": "Resource renamed only; no screen equivalence or redistribution clearance implied.",
+      "source_map": "docs/QR_CARD_CAPTION_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/res/drawable-xhdpi/qr_at_small.webp",
+      "upstream_blob": "a959448e13a770a69208c4d66f99245215247736",
+      "upstream_lines": "binary",
+      "eve_path": "app/src/main/res/drawable-xhdpi/eve_qr_at_small.webp",
+      "upstream_sha256": "59763ecdd7ea22506752ca7548c89d81dc6d7fc7259653573fada7c20d025cac",
+      "eve_sha256": "59763ecdd7ea22506752ca7548c89d81dc6d7fc7259653573fada7c20d025cac",
+      "classification": "EXACT asset bytes only; visual acceptance OPEN",
+      "adaptations": "Resource renamed only; no screen equivalence or redistribution clearance implied.",
+      "source_map": "docs/QR_CARD_CAPTION_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/res/drawable-xxhdpi/qr_at_large.webp",
+      "upstream_blob": "b2b7afe619d62d3f475aed1994f2ab010ccc92ff",
+      "upstream_lines": "binary",
+      "eve_path": "app/src/main/res/drawable-xxhdpi/eve_qr_at_large.webp",
+      "upstream_sha256": "8e5b733f5c8e60d6a68be265046f30a9f0cedf036d82df06570ea8e7cf5794d9",
+      "eve_sha256": "8e5b733f5c8e60d6a68be265046f30a9f0cedf036d82df06570ea8e7cf5794d9",
+      "classification": "EXACT asset bytes only; visual acceptance OPEN",
+      "adaptations": "Resource renamed only; no screen equivalence or redistribution clearance implied.",
+      "source_map": "docs/QR_CARD_CAPTION_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/res/drawable-xxhdpi/qr_at_medium.webp",
+      "upstream_blob": "44e409b93223cba9530e478655fe6f2acb8eb344",
+      "upstream_lines": "binary",
+      "eve_path": "app/src/main/res/drawable-xxhdpi/eve_qr_at_medium.webp",
+      "upstream_sha256": "90dda88581645737063feebd4a37f0a59eaf335c03637efe0ea5bfd32b9bee1c",
+      "eve_sha256": "90dda88581645737063feebd4a37f0a59eaf335c03637efe0ea5bfd32b9bee1c",
+      "classification": "EXACT asset bytes only; visual acceptance OPEN",
+      "adaptations": "Resource renamed only; no screen equivalence or redistribution clearance implied.",
+      "source_map": "docs/QR_CARD_CAPTION_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/res/drawable-xxhdpi/qr_at_small.webp",
+      "upstream_blob": "d07847e78366c639ab43dbc20cdb99b4187e46a0",
+      "upstream_lines": "binary",
+      "eve_path": "app/src/main/res/drawable-xxhdpi/eve_qr_at_small.webp",
+      "upstream_sha256": "5f47887e672407e064631651ba0a18f2d8bccf75248e507ea18f5234b2d25256",
+      "eve_sha256": "5f47887e672407e064631651ba0a18f2d8bccf75248e507ea18f5234b2d25256",
+      "classification": "EXACT asset bytes only; visual acceptance OPEN",
+      "adaptations": "Resource renamed only; no screen equivalence or redistribution clearance implied.",
+      "source_map": "docs/QR_CARD_CAPTION_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/assets/fonts/rcondensedbold.ttf",
+      "upstream_blob": "ca4a1221f15af53adacb6419dd629b844b347aae",
+      "upstream_lines": "binary",
+      "eve_path": "app/src/main/assets/fonts/eve_qr_condensed_bold.ttf",
+      "upstream_sha256": "95fba758c813b14b70649a846ec51462b817567f7761fb2f3d4208fca025d573",
+      "eve_sha256": "95fba758c813b14b70649a846ec51462b817567f7761fb2f3d4208fca025d573",
+      "classification": "EXACT font bytes only; release license review OPEN",
+      "adaptations": "Asset renamed only; embedded Google copyright retained. No embedded license IDs13/14; human font/combined-app review remains required.",
+      "source_map": "docs/QR_CARD_CAPTION_SOURCE_MAP.md"
     }
   ]
 }

@@ -24,6 +24,7 @@ internal class QrPickerSheetSurface(context: Context) : FrameLayout(context) {
     private var progress = 0f
     private var closing = false
     private var closeAlpha = 1f
+    var onSourceFrame: ((Float) -> Unit)? = null
 
     init {
         setWillNotDraw(false)
@@ -51,6 +52,7 @@ internal class QrPickerSheetSurface(context: Context) : FrameLayout(context) {
         a.interpolator = LinearInterpolator()
         a.addUpdateListener {
             progress = QrPickerSheetMorph.sourceEase(it.animatedValue as Float)
+            onSourceFrame?.invoke(progress)
             invalidate()
         }
         a.addListener(object : AnimatorListenerAdapter() {
@@ -80,6 +82,7 @@ internal class QrPickerSheetSurface(context: Context) : FrameLayout(context) {
             !DesignMotion.enabled(context)) {
             progress = 0f
             closeAlpha = 0f
+            onSourceFrame?.invoke(0f)
             invalidate()
             onClosed()
             return
@@ -93,6 +96,7 @@ internal class QrPickerSheetSurface(context: Context) : FrameLayout(context) {
         a.addUpdateListener { frame ->
             val fraction = frame.animatedValue as Float
             progress = from * (1f - QrPickerSheetMorph.sourceEase(fraction))
+            onSourceFrame?.invoke(progress)
             closeAlpha = minOf(fromAlpha, QrPickerSheetMorph.closeContent(
                 (fraction * QrPickerSheetMorph.CLOSE_MS).toLong()))
             invalidate()
@@ -103,6 +107,7 @@ internal class QrPickerSheetSurface(context: Context) : FrameLayout(context) {
                     animator = null
                     progress = 0f
                     closeAlpha = 0f
+                    onSourceFrame?.invoke(0f)
                     invalidate()
                     onClosed()
                 }
@@ -115,6 +120,7 @@ internal class QrPickerSheetSurface(context: Context) : FrameLayout(context) {
         progress = 1f
         closing = false
         closeAlpha = 1f
+        onSourceFrame?.invoke(progress)
         invalidate()
     }
 
@@ -128,6 +134,7 @@ internal class QrPickerSheetSurface(context: Context) : FrameLayout(context) {
 
     override fun dispatchDraw(canvas: Canvas) {
         if (width <= 0 || height <= 0) return
+        onSourceFrame?.invoke(progress)
         geometry.sample(width, height, progress)
         clipPath.rewind()
         clipPath.addRoundRect(geometry.left, geometry.top, geometry.right,
@@ -145,7 +152,12 @@ internal class QrPickerSheetSurface(context: Context) : FrameLayout(context) {
         val previous = animator
         animator = null
         previous?.cancel()
-        settle()
+        progress = 0f
+        closing = false
+        closeAlpha = 0f
+        onSourceFrame?.invoke(0f)
+        onSourceFrame = null
+        invalidate()
     }
 
     override fun onDetachedFromWindow() {

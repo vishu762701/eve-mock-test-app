@@ -152,3 +152,41 @@ Full requirement rows above retain their overall NOT MET/BLOCKED status. All fou
 increments are ADAPTED, not original whole-screen EXACT. Latest implementation
 66574962d7dc1eb484ec81fb8440112d0279fc5d is green; exact links, counts and next action
 are at the top of TELEGRAM_FINAL_MISSION_CHECKPOINT.md. Whole mission PARTIAL.
+
+## Resume: A1 card/caption/parent composition (2026-11-02)
+
+Live recovery: e4dd748651a4b7abecc52f5c9be204fd67a1a64f clean main,
+FAST 41399010870 and docs 41399010801 SUCCESS; artifact count zero. No concurrent
+changes found. Official HEAD re-fetched, unchanged 3de37c8cfb039452be7398909461da6288babf15;
+required tlottie remains at 31f1b542f88e7b4be9a01e749920d857535fc715. Optional
+uninitialized submodules and previous 8 GiB workspace limitation remain documented.
+
+| ID | Requirement | Existing implementation | Upstream file:lines@SHA | Dependencies | Status | Verification evidence | Next action |
+|---|---|---|---|---|---|---|---|
+| A1.card-composition | Source card size/rest/picker rise with responsive fitting | Kotlin bounds/independent Material sheet, no source card rise | QrShareView:1879-1881,2046-2061,3808-3819@3de37c8cfb039452be7398909461da6288babf15 | measured EVE chrome, source sheet fraction | NOT MET | live code opened; body ratio already source-derived; ad hoc fit reserves and missing rise remain | extract Java geometry, fit to measured viewport, bind actual sheet progress |
+| A1.caption | Original condensed font/@ glyph/30-25-19 fitting/StaticLayout | plain system-font single-line @ text | QrShareView:3858-3892,4060-4109; SettingsSearchCell:40-79; StaticLayoutEx:56-145@same full SHA | exact source font and three density-qualified glyphs | NOT MET | all source paths opened; current long username can overrun card | integrate Java layout/span with source assets, bounded compact-window fit and RTL |
+| A4.export-isolation | Export rest layout without mutating live card or ink state | export samples member bounds/frameQrColor | QrShareView:2095-2121@same full SHA | independent geometry/backdrop/frame | NOT MET | inspected production path | independent export metrics and ink, test during interrupted open sheet |
+
+License boundary before copying: official root GPLv2 applies; SettingsSearchCell
+and StaticLayoutEx carry GPLv2-or-later headers. Roboto Condensed Bold embeds
+Copyright 2011 Google Inc. All Rights Reserved and no embedded license IDs 13/14.
+No new font-specific redistribution clearance is inferred; preserve attribution,
+record binary identity and retain the existing combined/per-file human release
+review gate. Development source integration is already authorized. Telegram
+account, paid/temporary link, premium and username-burst services stay excluded;
+EVE remains username-only/free. Existing working QR/scanner/native/admin subsystems
+are preserved. Whole mission is NOT MET; no legal/device acceptance claimed.
+
+Scoped implementation result: A1.card-composition and A1.caption are MET for
+source-derived code/host integration; A4.export-isolation is MET for the exercised
+live-state invariant. All three remain ADAPTED, with full device/screen parity NOT
+MET. Source map: QR_CARD_CAPTION_SOURCE_MAP.md. Local serial broad Gradle run
+(:app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug
+:app:assembleDebug -Peve.nativeAbis=x86_64) PASS: 753 JVM tests / 173 suites,
+zero failures/errors/skips. Python CI helpers 59 PASS, docs/claim/import/diff checks
+PASS, 116 source/EVE identities match pinned Git blobs. A stale local-coordinate
+source guard was updated without removing renderer or branding assertions; real
+bitmap PNG decode and live geometry/ink tests also pass. No native code changed.
+Exact-SHA FAST is required after the carrying implementation commit; whole mission
+remains PARTIAL. First unfinished source implementation: scanner controls/title
+geometry and press/torch visual interpolation, followed by the remaining ledger.

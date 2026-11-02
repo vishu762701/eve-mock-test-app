@@ -17,7 +17,10 @@ class QrCodeLayerIntegrationTest {
         assertTrue(host.contains("qrLayer.assemble(data)"))
         assertTrue(host.contains("qrLayer.isAnimating()"))
         assertTrue(host.contains("QrCodeLayer.logoShare(data)"))
-        assertTrue(host.contains("layer.setCardBounds(bounds.left"))
+        // QR geometry is local to the uniformly scaled card. Export supplies
+        // independent card metrics instead of mutating the live gesture bounds.
+        assertTrue(host.contains("layer.setCardBounds(card.left, card.top, card.right, card.bottom)"))
+        assertTrue(host.contains("export, card.localCard, ink"))
         assertTrue(host.contains("if (export)"))
         val notices = File("../THIRD_PARTY_NOTICES.md").readText()
         assertTrue(notices.contains("b9b5fcb69f538dfbc7dd87f628fe261ce1e69923"))

@@ -91,6 +91,8 @@ class QrPickerSheetSurfaceTest {
         val image = Bitmap.createBitmap(400, 700, Bitmap.Config.ARGB_8888)
         try {
             var count = 0
+            val frames = mutableListOf<Float>()
+            surface.onSourceFrame = { frames += it }
             surface.animateSourceOpen()
             shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(80))
             surface.animateSourceClose { count++ }
@@ -99,6 +101,10 @@ class QrPickerSheetSurfaceTest {
             finally { event.recycle() }
             shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(440))
             assertEquals(1, count)
+            assertEquals(0f, frames.last())
+            surface.dispose()
+            assertNull(surface.onSourceFrame)
+            assertEquals(0f, surface.sourceSheetProgress())
             image.eraseColor(Color.TRANSPARENT)
             surface.draw(Canvas(image))
             assertEquals(Color.TRANSPARENT, image.getPixel(200, 350))
