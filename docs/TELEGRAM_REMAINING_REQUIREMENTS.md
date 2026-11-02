@@ -808,3 +808,87 @@ text question even when an authoritative ID is present. Fix that concrete target
 action path after this gate; do not silently fallback to an arbitrary question.
 Bulk picker result restoration while fresh gate is pending is also OPEN; current
 callbacks fail closed instead of importing without fresh rights/context.
+
+## C1/C2/C5 Analytics/Flagged question edit identity and response integrity
+
+Base e83b2d4c918340d18da5bddb934bfddd2abdb80e FAST 41527865210 SUCCESS, docs
+41527865279 SUCCESS. R1: authoritative question ID wins over duplicate text;
+unknown ID never edits another row. Legacy ID-less fallback must be unique and
+within the requested exam. R2: fresh manage_questions controls nested edits;
+parent analytics/moderation rights alone do not grant it; Exam Editor neutral
+navigation also needs manage_exams. R3: reuse canonical field presentation for
+both same-layout EDIT workflows, preserve each domain repository/action/title and
+copy existing question metadata, validate/preserve failed/pending input. R4: report
+load failure cannot become fake all-resolved; grouping cannot resolve another
+exam's same-text reports. R5: failed boolean flag resolution cannot report success.
+No new APIs, migration, score/answer exposure, Telegram service or state owner.
+Undo product choice remains separately pending; do not infer its answer here.
+
+## C1/C2/C5 question review target, nested rights and response integrity
+
+Recovery base e83b2d4c918340d18da5bddb934bfddd2abdb80e: exact-SHA FAST
+[41527865210](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41527865210)
+SUCCESS, documentation 41527865279 SUCCESS, no published artifacts. Live main and
+official Telegram HEAD rechecked; upstream remains
+3de37c8cfb039452be7398909461da6288babf15 (tree
+cc3c6ccf48e4167fdec764dfd04e765043f55093), official origin, tlottie gitlink
+31f1b542f88e7b4be9a01e749920d857535fc715. Optional uninitialized submodules are
+not claimed verified. Existing successful QR/Home/Profile/poll code preserved.
+
+R1: resolve known question ID exclusively within the requested exam; no same-text
+replacement for a missing known ID. Legacy ID-less reports retain unique scoped
+text/legacy-ID compatibility. Ambiguous, cross-exam and unidentified targets fail
+closed. R2: actual Analytics and Flagged row callbacks use the fresh gate's
+manage_questions right; parent view_analytics_logs/moderate_feedback alone does
+not grant question editing, and Exam Editor navigation needs manage_exams.
+R3: both actual same-layout EDIT workflows now use createQuestionEditorDialog in
+ManageQuestionsActivity, extending the existing canonical presentation rather
+than adding a renderer/Activity/ViewModel. Add callers renamed with it. Existing
+ID, Hindi fields, topic, PYQ and other metadata survive edits. Missing correct
+answer requires selection instead of silently choosing A. Invalid, pending and
+failed drafts stay open; owned windows dismiss on teardown, stale account callbacks
+cannot submit. R4: failed/missing analytics/report data raises an error, never fake
+zero/all-resolved success; valid empty lists and sort order remain supported.
+Legacy report grouping is scoped by exam/type/identity, not global text. R5: an
+updated question plus failed report dismissal is explicitly partial and retains
+the draft, never a fully successful edit. Cancellation propagates in touched paths.
+
+| Upstream property | EVE path:lines | Classification and evidence |
+|---|---|---|
+| TMessagesProj/src/main/java/org/telegram/ui/ActionBar/AlertDialog.java:1161-1173,1526-1528@3de37c8cfb039452be7398909461da6288babf15 | ManageQuestionsActivity.kt:368-487 -> AdminAnalyticsActivity.kt:123 / FlaggedQuestionsActivity.kt:132 | ADAPTED existing native Kotlin renderer/button-dismiss policy plus EVE validation and async action callbacks; actual Activity/native dialog tests, not whole original UI parity |
+| No Telegram exam-question/admin backend equivalent imported | QuestionEditorTarget.kt:6; AdminAnalyticsRepository.kt:10; FlaggedQuestionRepository.kt:62 | ADAPTED EVE identity/data contracts; real repository response tests and protected Activity callers; no source transplant or license change |
+
+Complete caller chain: fresh AdminAccessGate -> existing row adapters -> original
+Activity lifecycle/repository owner -> scoped target resolver -> shared native
+form -> ExamRepository.updateQuestion -> authenticated Worker questions.ts:265
+manage_questions. Flag resolution additionally requires existing Worker
+moderate_feedback reports.ts:162. No new API, local authority, answer exposure,
+production request/deploy/migration, scoring, auth, or user-data changes.
+
+Before repair: four real protected Activity cases failed (wrong same-text target,
+nested-right exposure); four real repository cases failed (false empty/zero,
+cross-exam grouping, swallowed cancellation). Expanded tests include eleven
+protected Activity cases, five target-resolution cases and five real repository
+cases. Test auth/transport boundaries are isolated fixtures, never shipped grants.
+Two broad source-contract assertions initially failed because they assumed local
+builders. They now trace the actual canonical native host, view, cancel/dismiss
+policy and mutation callbacks; no native/authority/destructive assertions removed.
+
+Local final integration PASS: 844 tests / 193 suites, zero failures/errors/skips;
+./gradlew :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug
+:app:assembleDebug -Peve.nativeAbis=x86_64 (JDK21/Gradle8.7). Lint 0 errors / 1634
+warnings. Helpers59, documentation, acceptance-claim structure, four verbatim
+upstream imports and git diff --check PASS. Backend unchanged from green base
+(307 tests in prior exact-SHA FAST); no redundant local Node run claimed. Bare
+SDK35 Main Thread shutdown exception recurred without a stack trace; UNKNOWN P2,
+not converted into a device/runtime PASS. Carrying commit/exact-SHA FAST pending.
+R1-R5 MET at scoped code/host level, pending FAST integration; whole Admin/source/
+runtime acceptance NOT MET.
+Physical GPU/camera/reference/accessibility/navigation matrix and qualified human
+GPL review remain OPEN/BLOCKED; no FULL or verified publication claimed.
+First next independent defect: concurrent Analytics time-range loads (and Flagged
+report-type loads) can publish stale results after a newer selection. Reproduce
+through existing owners, then fix scoped request ownership; do not create parallel
+state owners. Question Delete/Undo product choice remains explicitly unanswered;
+no generic resume message is treated as an answer. Bulk-picker pending-gate URI
+restoration also remains OPEN. QR acceptance stays OPEN; no speculative QR work.

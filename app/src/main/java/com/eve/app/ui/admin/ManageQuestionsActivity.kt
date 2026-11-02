@@ -151,7 +151,7 @@ class ManageQuestionsActivity : EveBaseActivity() {
 
     private fun showAddQuestionDialog(selectedExam: Exam) {
         if (isFinishing || isDestroyed || addQuestionDialog?.isShowing == true) return
-        val dialog = createAddQuestionDialog(this, selectedExam, isBusy = { viewModel.busy.value }, submit = viewModel::addQuestion)
+        val dialog = createQuestionEditorDialog(this, selectedExam, isBusy = { viewModel.busy.value }, submit = viewModel::addQuestion)
         addQuestionDialog = dialog
         dialog.setOnDismissListener { if (addQuestionDialog === dialog) addQuestionDialog = null }
         dialog.show()
@@ -365,9 +365,15 @@ internal fun bindQuestionExamChoices(spinner: android.widget.Spinner, exams: Lis
 }
 
 /** Canonical question form presentation; authorization stays at the Activity/Worker entry points. */
-internal fun createAddQuestionDialog(activity: android.app.Activity, selectedExam: Exam,
+internal fun createQuestionEditorDialog(activity: android.app.Activity, selectedExam: Exam,
                                      isBusy: () -> Boolean = { false },
                                      title: CharSequence = "Add Question to ${selectedExam.examName}",
+                                     initialQuestion: Question? = null,
+                                     positiveLabel: CharSequence = "Add",
+                                     submittingLabel: Int = R.string.question_form_submitting,
+                                     successMessage: String = "Question added successfully!",
+                                     neutralLabel: CharSequence? = null,
+                                     onNeutral: (() -> Unit)? = null,
                                      submit: (Question, (String) -> Unit, () -> Unit) -> Unit): TelegramNativeAlertDialog {
         var submitting = false
         lateinit var dialog: TelegramNativeAlertDialog
@@ -390,11 +396,22 @@ internal fun createAddQuestionDialog(activity: android.app.Activity, selectedExa
         val etExplanation = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etExplanation)
         val etTopic = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etTopic)
 
+        initialQuestion?.let { question ->
+            etQuestion.setText(question.questionText)
+            etOptA.setText(question.optionA); etOptB.setText(question.optionB)
+            etOptC.setText(question.optionC); etOptD.setText(question.optionD)
+            etExplanation.setText(question.explanation); etTopic.setText(question.topic)
+            when (question.correctAnswer.uppercase(java.util.Locale.ROOT)) {
+                "A" -> rgCorrect.check(R.id.rbA); "B" -> rgCorrect.check(R.id.rbB)
+                "C" -> rgCorrect.check(R.id.rbC); "D" -> rgCorrect.check(R.id.rbD)
+                else -> rgCorrect.clearCheck()
+            }
+        }
         dialog = TelegramNativeAlertDialog.Builder(activity)
             .setTitle(title)
             .setView(dialogView)
-            .setPositiveButton("Add") { _, _ ->
-                if (submitting || isBusy()) return@setPositiveButton
+            .setPositiveButton(positiveLabel) { _, _ ->
+                if (submitting || isBusy() || activity.isFinishing || activity.isDestroyed || !dialog.isShowing) return@setPositiveButton
                 val qText = etQuestion.text?.toString()?.trim().orEmpty()
                 val a = etOptA.text?.toString()?.trim().orEmpty()
                 val b = etOptB.text?.toString()?.trim().orEmpty()
@@ -420,9 +437,7 @@ internal fun createAddQuestionDialog(activity: android.app.Activity, selectedExa
                     return@setPositiveButton
                 }
 
-                val newQuestion = Question(
-                    id = "",
-                    examId = selectedExam.id,
+                val newQuestion = (initialQuestion ?: Question(id = "", examId = selectedExam.id)).copy(
                     questionText = qText,
                     optionA = a,
                     optionB = b,
@@ -438,8 +453,9 @@ internal fun createAddQuestionDialog(activity: android.app.Activity, selectedExa
                 val addButton = dialog.getActionButton(android.content.DialogInterface.BUTTON_POSITIVE)
                 val addLabel = addButton?.text
                 addButton?.isEnabled = false
-                addButton?.setText(R.string.question_form_submitting)
+                addButton?.setText(submittingLabel)
                 dialog.getActionButton(android.content.DialogInterface.BUTTON_NEGATIVE)?.isEnabled = false
+                dialog.getActionButton(android.content.DialogInterface.BUTTON_NEUTRAL)?.isEnabled = false
                 dialog.setCancelable(false)
                 submit(newQuestion, { message ->
                     submitting = false
@@ -447,17 +463,25 @@ internal fun createAddQuestionDialog(activity: android.app.Activity, selectedExa
                         addButton?.text = addLabel
                         addButton?.isEnabled = true
                         dialog.getActionButton(android.content.DialogInterface.BUTTON_NEGATIVE)?.isEnabled = true
+                        dialog.getActionButton(android.content.DialogInterface.BUTTON_NEUTRAL)?.isEnabled = true
                         dialog.setCancelable(true)
                         showFormError(message)
                     }
                 }) {
                     if (dialog.isShowing && !activity.isFinishing && !activity.isDestroyed) {
                         dialog.dismiss()
-                        AppBulletin.showSuccess(activity, "Question added successfully!")
+                        AppBulletin.showSuccess(activity, successMessage)
                     }
                 }
             }
             .setNegativeButton("Cancel") { owner, _ -> if (!submitting) owner.dismiss() }
+            .apply {
+                if (neutralLabel != null && onNeutral != null) {
+                    setNeutralButton(neutralLabel) { owner, _ ->
+                        if (!submitting) { owner.dismiss(); onNeutral() }
+                    }
+                }
+            }
             .create()
         dialog.setDismissDialogByButtons(false)
         return dialog

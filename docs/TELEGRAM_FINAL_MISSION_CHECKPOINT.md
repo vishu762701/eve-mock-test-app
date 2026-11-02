@@ -6,7 +6,7 @@ Status: PARTIAL. This is a continuation record, not screen acceptance.
 
 ## Live verified implementation pointer — 2026-11-02
 
-Latest verified implementation main: **5bf15f8444dd65d5e947b43a538404db701a500f**.
+Latest verified implementation main: **e83b2d4c918340d18da5bddb934bfddd2abdb80e**.
 Official Telegram rechecked after implementation: **3de37c8cfb039452be7398909461da6288babf15**.
 Reconcile this pointer with the carrying implementation commit and live main/CI on restart.
 
@@ -33,6 +33,7 @@ Reconcile this pointer with the carrying implementation commit and live main/CI 
 | Shared question-response integrity | 381a76a610a3f1847f59a4c48939d7f2e4e6aea8 | [41479914039](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41479914039) SUCCESS |
 | Category live-palette repair (owner exception) | d2b649f5bac8f4b86549ff854385bafbf3d97c6a | [41481845128](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41481845128) SUCCESS |
 | Server question mutation/audit confirmation | 5bf15f8444dd65d5e947b43a538404db701a500f | [41523395700](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41523395700) SUCCESS |
+| EditExam nested rights/canonical Add/account-bound gate | e83b2d4c918340d18da5bddb934bfddd2abdb80e | [41527865210](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41527865210) SUCCESS |
 
 Each FAST passed Android build/JVM/AndroidTest source compilation, all four ABI
 builds, pinned Rust security/C API, backend and Firebase. Historical scanner-batch docs 41403654877
@@ -1419,3 +1420,72 @@ Also OPEN: EditExam bulk-picker result/context restoration through pending fresh
 permission after recreation; current callback fails closed. Undo decision pending;
 implement its chosen model only on actual owner answer. Source/UI/native/FULL/GPL
 acceptance remains NOT MET; QR remains preserved/OPEN, no speculative iterations.
+
+## C1/C2/C5 question review target, nested rights and response integrity
+
+Recovery base e83b2d4c918340d18da5bddb934bfddd2abdb80e: exact-SHA FAST
+[41527865210](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41527865210)
+SUCCESS, documentation 41527865279 SUCCESS, no published artifacts. Live main and
+official Telegram HEAD rechecked; upstream remains
+3de37c8cfb039452be7398909461da6288babf15 (tree
+cc3c6ccf48e4167fdec764dfd04e765043f55093), official origin, tlottie gitlink
+31f1b542f88e7b4be9a01e749920d857535fc715. Optional uninitialized submodules are
+not claimed verified. Existing successful QR/Home/Profile/poll code preserved.
+
+R1: resolve known question ID exclusively within the requested exam; no same-text
+replacement for a missing known ID. Legacy ID-less reports retain unique scoped
+text/legacy-ID compatibility. Ambiguous, cross-exam and unidentified targets fail
+closed. R2: actual Analytics and Flagged row callbacks use the fresh gate's
+manage_questions right; parent view_analytics_logs/moderate_feedback alone does
+not grant question editing, and Exam Editor navigation needs manage_exams.
+R3: both actual same-layout EDIT workflows now use createQuestionEditorDialog in
+ManageQuestionsActivity, extending the existing canonical presentation rather
+than adding a renderer/Activity/ViewModel. Add callers renamed with it. Existing
+ID, Hindi fields, topic, PYQ and other metadata survive edits. Missing correct
+answer requires selection instead of silently choosing A. Invalid, pending and
+failed drafts stay open; owned windows dismiss on teardown, stale account callbacks
+cannot submit. R4: failed/missing analytics/report data raises an error, never fake
+zero/all-resolved success; valid empty lists and sort order remain supported.
+Legacy report grouping is scoped by exam/type/identity, not global text. R5: an
+updated question plus failed report dismissal is explicitly partial and retains
+the draft, never a fully successful edit. Cancellation propagates in touched paths.
+
+| Upstream property | EVE path:lines | Classification and evidence |
+|---|---|---|
+| TMessagesProj/src/main/java/org/telegram/ui/ActionBar/AlertDialog.java:1161-1173,1526-1528@3de37c8cfb039452be7398909461da6288babf15 | ManageQuestionsActivity.kt:368-487 -> AdminAnalyticsActivity.kt:123 / FlaggedQuestionsActivity.kt:132 | ADAPTED existing native Kotlin renderer/button-dismiss policy plus EVE validation and async action callbacks; actual Activity/native dialog tests, not whole original UI parity |
+| No Telegram exam-question/admin backend equivalent imported | QuestionEditorTarget.kt:6; AdminAnalyticsRepository.kt:10; FlaggedQuestionRepository.kt:62 | ADAPTED EVE identity/data contracts; real repository response tests and protected Activity callers; no source transplant or license change |
+
+Complete caller chain: fresh AdminAccessGate -> existing row adapters -> original
+Activity lifecycle/repository owner -> scoped target resolver -> shared native
+form -> ExamRepository.updateQuestion -> authenticated Worker questions.ts:265
+manage_questions. Flag resolution additionally requires existing Worker
+moderate_feedback reports.ts:162. No new API, local authority, answer exposure,
+production request/deploy/migration, scoring, auth, or user-data changes.
+
+Before repair: four real protected Activity cases failed (wrong same-text target,
+nested-right exposure); four real repository cases failed (false empty/zero,
+cross-exam grouping, swallowed cancellation). Expanded tests include eleven
+protected Activity cases, five target-resolution cases and five real repository
+cases. Test auth/transport boundaries are isolated fixtures, never shipped grants.
+Two broad source-contract assertions initially failed because they assumed local
+builders. They now trace the actual canonical native host, view, cancel/dismiss
+policy and mutation callbacks; no native/authority/destructive assertions removed.
+
+Local final integration PASS: 844 tests / 193 suites, zero failures/errors/skips;
+./gradlew :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug
+:app:assembleDebug -Peve.nativeAbis=x86_64 (JDK21/Gradle8.7). Lint 0 errors / 1634
+warnings. Helpers59, documentation, acceptance-claim structure, four verbatim
+upstream imports and git diff --check PASS. Backend unchanged from green base
+(307 tests in prior exact-SHA FAST); no redundant local Node run claimed. Bare
+SDK35 Main Thread shutdown exception recurred without a stack trace; UNKNOWN P2,
+not converted into a device/runtime PASS. Carrying commit/exact-SHA FAST pending.
+R1-R5 MET at scoped code/host level, pending FAST integration; whole Admin/source/
+runtime acceptance NOT MET.
+Physical GPU/camera/reference/accessibility/navigation matrix and qualified human
+GPL review remain OPEN/BLOCKED; no FULL or verified publication claimed.
+First next independent defect: concurrent Analytics time-range loads (and Flagged
+report-type loads) can publish stale results after a newer selection. Reproduce
+through existing owners, then fix scoped request ownership; do not create parallel
+state owners. Question Delete/Undo product choice remains explicitly unanswered;
+no generic resume message is treated as an answer. Bulk-picker pending-gate URI
+restoration also remains OPEN. QR acceptance stays OPEN; no speculative QR work.

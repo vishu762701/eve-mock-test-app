@@ -4,18 +4,13 @@ import com.eve.app.ui.common.EveBaseActivity
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.widget.EditText
-import android.widget.RadioGroup
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.R
-import com.eve.app.data.model.Question
 import com.eve.app.data.model.QuestionAnalytics
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.ExamRepository
@@ -33,14 +28,22 @@ class AdminAnalyticsActivity : EveBaseActivity() {
     private val adminRepo = AdminRepository()
     private val examRepo = ExamRepository()
     private val examAdapter = AnalyticsExamAdapter()
-    private val questionAdapter = AnalyticsQuestionAdapter(onEdit = { q -> showEditQuestionDialog(q) })
+    private var canManageQuestions = false
+    private var canManageExams = false
+    private var editorLoadInFlight = false
+    private var questionEditor: TelegramNativeAlertDialog? = null
+    private val questionActionsAllowed: Boolean
+        get() = canManageQuestions && !isFinishing && !isDestroyed
+    private val questionAdapter = AnalyticsQuestionAdapter(onEdit = { q -> showEditQuestionDialog(q) }, canEdit = { questionActionsAllowed })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAdminAnalyticsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "view_analytics_logs") {
+        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "view_analytics_logs") { permissions ->
+            canManageQuestions = permissions.isOwner || "manage_questions" in permissions.rights
+            canManageExams = permissions.isOwner || "manage_exams" in permissions.rights
             setup()
         }
     }
@@ -118,104 +121,57 @@ class AdminAnalyticsActivity : EveBaseActivity() {
     }
 
     private fun showEditQuestionDialog(qa: QuestionAnalytics) {
-        val examId = qa.examId
-        val targetId = qa.questionId.ifBlank { qa.id }
-
+        if (!questionActionsAllowed || editorLoadInFlight || questionEditor?.isShowing == true) return
+        editorLoadInFlight = true
         lifecycleScope.launch {
             binding.progress.visibility = View.VISIBLE
-            val fullQuestion = try {
-                val list = examRepo.getQuestions(examId)
-                list.find { it.id == targetId || it.questionText == qa.questionText }
-            } catch (_: Exception) {
-                null
-            }
-            binding.progress.visibility = View.GONE
-
-            val dialogView = LayoutInflater.from(this@AdminAnalyticsActivity)
-                .inflate(R.layout.dialog_add_question, null)
-            val etQuestion = dialogView.findViewById<EditText>(R.id.etQuestionText)
-            val etOptA = dialogView.findViewById<EditText>(R.id.etOptionA)
-            val etOptB = dialogView.findViewById<EditText>(R.id.etOptionB)
-            val etOptC = dialogView.findViewById<EditText>(R.id.etOptionC)
-            val etOptD = dialogView.findViewById<EditText>(R.id.etOptionD)
-            val rgCorrect = dialogView.findViewById<RadioGroup>(R.id.rgCorrectAnswer)
-            val etExplanation = dialogView.findViewById<EditText>(R.id.etExplanation)
-            val etTopic = dialogView.findViewById<EditText>(R.id.etTopic)
-
-            etQuestion.setText(fullQuestion?.questionText ?: qa.questionText)
-            etOptA.setText(fullQuestion?.optionA.orEmpty())
-            etOptB.setText(fullQuestion?.optionB.orEmpty())
-            etOptC.setText(fullQuestion?.optionC.orEmpty())
-            etOptD.setText(fullQuestion?.optionD.orEmpty())
-            etExplanation.setText(fullQuestion?.explanation.orEmpty())
-            etTopic.setText(fullQuestion?.topic ?: qa.topic)
-
-            when (fullQuestion?.correctAnswer?.uppercase()) {
-                "A" -> rgCorrect.check(R.id.rbA)
-                "B" -> rgCorrect.check(R.id.rbB)
-                "C" -> rgCorrect.check(R.id.rbC)
-                "D" -> rgCorrect.check(R.id.rbD)
-                else -> rgCorrect.check(R.id.rbA)
-            }
-
-            TelegramNativeAlertDialog.Builder(this@AdminAnalyticsActivity)
-                .setTitle("Edit Question")
-                .setView(dialogView)
-                .setPositiveButton("Save Changes") { _, _ ->
-                    val qText = etQuestion.text?.toString()?.trim().orEmpty()
-                    val a = etOptA.text?.toString()?.trim().orEmpty()
-                    val b = etOptB.text?.toString()?.trim().orEmpty()
-                    val c = etOptC.text?.toString()?.trim().orEmpty()
-                    val d = etOptD.text?.toString()?.trim().orEmpty()
-                    val exp = etExplanation.text?.toString()?.trim().orEmpty()
-                    val topic = etTopic.text?.toString()?.trim().orEmpty()
-
-                    val correct = when (rgCorrect.checkedRadioButtonId) {
-                        R.id.rbA -> "A"
-                        R.id.rbB -> "B"
-                        R.id.rbC -> "C"
-                        R.id.rbD -> "D"
-                        else -> "A"
-                    }
-
-                    if (qText.isBlank()) {
-                        AppBulletin.showError(this@AdminAnalyticsActivity, "Question text cannot be empty")
-                        return@setPositiveButton
-                    }
-
-                    val updated = (fullQuestion ?: Question(id = targetId, examId = examId)).copy(
-                        questionText = qText,
-                        optionA = a,
-                        optionB = b,
-                        optionC = c,
-                        optionD = d,
-                        correctAnswer = correct,
-                        explanation = exp,
-                        topic = topic
-                    )
-
-                    lifecycleScope.launch {
-                        try {
-                            binding.progress.visibility = View.VISIBLE
-                            examRepo.updateQuestion(updated)
-                            binding.progress.visibility = View.GONE
-                            AppBulletin.showSuccess(this@AdminAnalyticsActivity, "Question updated successfully")
-                            viewModel.load()
-                        } catch (e: Exception) {
-                            binding.progress.visibility = View.GONE
-                            AppBulletin.showError(this@AdminAnalyticsActivity, "Failed to update question: ${e.message}")
+            try {
+                val fullQuestion = resolveQuestionEditorTarget(examRepo.getQuestions(qa.examId),
+                    qa.examId, qa.questionId, qa.questionText, legacyId = qa.id)
+                if (!questionActionsAllowed) return@launch
+                if (fullQuestion == null) {
+                    AppBulletin.showError(this@AdminAnalyticsActivity, "Question is unavailable or ambiguous. Reload before editing.")
+                    return@launch
+                }
+                val dialog = createQuestionEditorDialog(this@AdminAnalyticsActivity,
+                    com.eve.app.data.model.Exam(id = fullQuestion.examId, examName = qa.examName),
+                    isBusy = { !questionActionsAllowed }, title = "Edit Question", initialQuestion = fullQuestion,
+                    positiveLabel = "Save Changes", submittingLabel = R.string.question_form_saving,
+                    successMessage = "Question updated successfully",
+                    neutralLabel = if (canManageExams) "Open in Exam Editor" else null,
+                    onNeutral = {
+                        if (canManageExams && !isFinishing && !isDestroyed) {
+                            startActivity(Intent(this@AdminAnalyticsActivity, EditExamActivity::class.java).apply {
+                                putExtra(Constants.EXTRA_EXAM_ID, qa.examId)
+                                putExtra(Constants.EXTRA_EXAM_NAME, qa.examName)
+                            })
                         }
-                    }
+                    }) { updated, onFailure, onDone ->
+                        lifecycleScope.launch {
+                            binding.progress.visibility = View.VISIBLE
+                            var confirmed = false
+                            try {
+                                examRepo.updateQuestion(updated)
+                                confirmed = true
+                            } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
+                            catch (error: Exception) { onFailure(error.message ?: "Failed to update question") }
+                            finally { binding.progress.visibility = View.GONE }
+                            if (confirmed && questionActionsAllowed) { onDone(); viewModel.load() }
+                        }
                 }
-                .setNeutralButton("Open in Exam Editor") { _, _ ->
-                    val intent = Intent(this@AdminAnalyticsActivity, EditExamActivity::class.java).apply {
-                        putExtra(Constants.EXTRA_EXAM_ID, qa.examId)
-                        putExtra(Constants.EXTRA_EXAM_NAME, qa.examName)
-                    }
-                    startActivity(intent)
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
+                questionEditor = dialog
+                dialog.setOnDismissListener { if (questionEditor === dialog) questionEditor = null }
+                dialog.show()
+            } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
+            catch (error: Exception) {
+                if (!isFinishing && !isDestroyed) AppBulletin.showError(this@AdminAnalyticsActivity,
+                    error.message ?: "Failed to load question")
+            } finally { editorLoadInFlight = false; binding.progress.visibility = View.GONE }
         }
+    }
+
+    override fun onDestroy() {
+        questionEditor?.dismiss(); questionEditor = null
+        super.onDestroy()
     }
 }

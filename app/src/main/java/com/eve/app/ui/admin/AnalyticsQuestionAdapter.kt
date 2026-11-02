@@ -2,13 +2,15 @@ package com.eve.app.ui.admin
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.data.model.QuestionAnalytics
 import com.eve.app.databinding.ItemAnalyticsQuestionBinding
 import java.util.Locale
 
 class AnalyticsQuestionAdapter(
-    private val onEdit: ((QuestionAnalytics) -> Unit)? = null
+    private val onEdit: ((QuestionAnalytics) -> Unit)? = null,
+    private val canEdit: () -> Boolean = { true }
 ) : RecyclerView.Adapter<AnalyticsQuestionAdapter.VH>() {
     private var items: List<QuestionAnalytics> = emptyList()
     fun submit(value: List<QuestionAnalytics>) { items = value; notifyDataSetChanged() }
@@ -21,9 +23,10 @@ class AnalyticsQuestionAdapter(
                 Locale.US, "%.1f%% wrong • %d wrong / %d attempted • %d unattempted",
                 x.wrongRate, x.wrong, x.attempts, x.unattempted
             )
-            b.btnEditQuestion.setOnClickListener {
-                onEdit?.invoke(x)
-            }
+            val allowed = onEdit != null && canEdit()
+            b.btnEditQuestion.visibility = if (allowed) View.VISIBLE else View.GONE
+            b.btnEditQuestion.isEnabled = allowed
+            b.btnEditQuestion.setOnClickListener { if (canEdit()) onEdit?.invoke(x) }
         }
     }
     override fun onCreateViewHolder(p: ViewGroup, t: Int) =

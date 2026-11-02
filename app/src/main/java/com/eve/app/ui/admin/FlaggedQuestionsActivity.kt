@@ -5,16 +5,11 @@ import com.eve.app.ui.common.EveBaseActivity
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.widget.EditText
-import android.widget.RadioGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.R
 import com.eve.app.data.model.AggregatedFlaggedQuestion
-import com.eve.app.data.model.Question
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.data.repository.FlaggedQuestionRepository
@@ -32,13 +27,21 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
     private val examRepo = ExamRepository()
     private lateinit var adapter: FlaggedQuestionsAdapter
     private var isTechnicalSelected: Boolean = false
+    private var canManageQuestions = false
+    private var canManageExams = false
+    private var editorLoadInFlight = false
+    private var questionEditor: TelegramNativeAlertDialog? = null
+    private val questionActionsAllowed: Boolean
+        get() = canManageQuestions && !isFinishing && !isDestroyed
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityFlaggedQuestionsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "moderate_feedback") {
+        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "moderate_feedback") { permissions ->
+            canManageQuestions = permissions.isOwner || "manage_questions" in permissions.rights
+            canManageExams = permissions.isOwner || "manage_exams" in permissions.rights
             setupUi()
             loadFlaggedQuestions()
         }
@@ -55,7 +58,9 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
 
         adapter = FlaggedQuestionsAdapter(
             onEdit = { item -> showEditDialog(item) },
-            onDismiss = { item -> confirmDismissFlag(item) }
+            onDismiss = { item -> confirmDismissFlag(item) },
+            canEdit = { questionActionsAllowed },
+            canDismiss = { !isFinishing && !isDestroyed }
         )
 
         binding.rvFlaggedQuestions.layoutManager = LinearLayoutManager(this)
@@ -80,7 +85,8 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
                 } else {
                     binding.tvEmpty.visibility = View.GONE
                 }
-            } catch (e: Exception) {
+            } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
+            catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
                 AppBulletin.showError(this@FlaggedQuestionsActivity, "Failed to load flags: ${e.message}")
             }
@@ -100,6 +106,7 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
             .setTitle(title)
             .setMessage(msg)
             .setPositiveButton("Dismiss") { _, _ ->
+                if (isFinishing || isDestroyed) return@setPositiveButton
                 binding.progressBar.visibility = View.VISIBLE
                 lifecycleScope.launch {
                     try {
@@ -111,7 +118,8 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
                         } else {
                             AppBulletin.showError(this@FlaggedQuestionsActivity, "Failed to dismiss reports")
                         }
-                    } catch (e: Exception) {
+                    } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
+                    catch (e: Exception) {
                         binding.progressBar.visibility = View.GONE
                         AppBulletin.showError(this@FlaggedQuestionsActivity, "Error: ${e.message}")
                     }
@@ -122,102 +130,62 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
     }
 
     private fun showEditDialog(item: AggregatedFlaggedQuestion) {
+        if (!questionActionsAllowed || editorLoadInFlight || questionEditor?.isShowing == true) return
+        editorLoadInFlight = true
         lifecycleScope.launch {
             binding.progressBar.visibility = View.VISIBLE
-            val fullQuestion = try {
-                val questions = examRepo.getQuestions(item.examId)
-                questions.find { it.id == item.questionId || it.questionText == item.questionText }
-            } catch (_: Exception) {
-                null
-            }
-            binding.progressBar.visibility = View.GONE
-
-            val dialogView = LayoutInflater.from(this@FlaggedQuestionsActivity)
-                .inflate(R.layout.dialog_add_question, null)
-            val etQuestion = dialogView.findViewById<EditText>(R.id.etQuestionText)
-            val etOptA = dialogView.findViewById<EditText>(R.id.etOptionA)
-            val etOptB = dialogView.findViewById<EditText>(R.id.etOptionB)
-            val etOptC = dialogView.findViewById<EditText>(R.id.etOptionC)
-            val etOptD = dialogView.findViewById<EditText>(R.id.etOptionD)
-            val rgCorrect = dialogView.findViewById<RadioGroup>(R.id.rgCorrectAnswer)
-            val etExplanation = dialogView.findViewById<EditText>(R.id.etExplanation)
-            val etTopic = dialogView.findViewById<EditText>(R.id.etTopic)
-
-            etQuestion.setText(fullQuestion?.questionText ?: item.questionText)
-            etOptA.setText(fullQuestion?.optionA.orEmpty())
-            etOptB.setText(fullQuestion?.optionB.orEmpty())
-            etOptC.setText(fullQuestion?.optionC.orEmpty())
-            etOptD.setText(fullQuestion?.optionD.orEmpty())
-            etExplanation.setText(fullQuestion?.explanation.orEmpty())
-            etTopic.setText(fullQuestion?.topic.orEmpty())
-
-            when (fullQuestion?.correctAnswer?.uppercase()) {
-                "A" -> rgCorrect.check(R.id.rbA)
-                "B" -> rgCorrect.check(R.id.rbB)
-                "C" -> rgCorrect.check(R.id.rbC)
-                "D" -> rgCorrect.check(R.id.rbD)
-                else -> rgCorrect.check(R.id.rbA)
-            }
-
-            TelegramNativeAlertDialog.Builder(this@FlaggedQuestionsActivity)
-                .setTitle("Review & Edit Question")
-                .setView(dialogView)
-                .setPositiveButton("Save Changes") { _, _ ->
-                    val qText = etQuestion.text?.toString()?.trim().orEmpty()
-                    val a = etOptA.text?.toString()?.trim().orEmpty()
-                    val b = etOptB.text?.toString()?.trim().orEmpty()
-                    val c = etOptC.text?.toString()?.trim().orEmpty()
-                    val d = etOptD.text?.toString()?.trim().orEmpty()
-                    val exp = etExplanation.text?.toString()?.trim().orEmpty()
-                    val topic = etTopic.text?.toString()?.trim().orEmpty()
-
-                    val correct = when (rgCorrect.checkedRadioButtonId) {
-                        R.id.rbA -> "A"
-                        R.id.rbB -> "B"
-                        R.id.rbC -> "C"
-                        R.id.rbD -> "D"
-                        else -> "A"
-                    }
-
-                    if (qText.isBlank()) {
-                        AppBulletin.showError(this@FlaggedQuestionsActivity, "Question text cannot be empty")
-                        return@setPositiveButton
-                    }
-
-                    val updated = (fullQuestion ?: Question(id = item.questionId, examId = item.examId)).copy(
-                        questionText = qText,
-                        optionA = a,
-                        optionB = b,
-                        optionC = c,
-                        optionD = d,
-                        correctAnswer = correct,
-                        explanation = exp,
-                        topic = topic
-                    )
-
-                    lifecycleScope.launch {
-                        try {
-                            binding.progressBar.visibility = View.VISIBLE
-                            examRepo.updateQuestion(updated)
-                            flagRepo.dismissFlags(item.flagIds)
-                            binding.progressBar.visibility = View.GONE
-                            AppBulletin.showSuccess(this@FlaggedQuestionsActivity, "Question updated & flags resolved!")
-                            loadFlaggedQuestions()
-                        } catch (e: Exception) {
-                            binding.progressBar.visibility = View.GONE
-                            AppBulletin.showError(this@FlaggedQuestionsActivity, "Failed to update: ${e.message}")
+            try {
+                val fullQuestion = resolveQuestionEditorTarget(examRepo.getQuestions(item.examId),
+                    item.examId, item.questionId, item.questionText)
+                if (!questionActionsAllowed) return@launch
+                if (fullQuestion == null) {
+                    AppBulletin.showError(this@FlaggedQuestionsActivity, "Question is unavailable or ambiguous. Reload before editing.")
+                    return@launch
+                }
+                val dialog = createQuestionEditorDialog(this@FlaggedQuestionsActivity,
+                    com.eve.app.data.model.Exam(id = fullQuestion.examId, examName = item.examName),
+                    isBusy = { !questionActionsAllowed }, title = "Review & Edit Question", initialQuestion = fullQuestion,
+                    positiveLabel = "Save Changes", submittingLabel = R.string.question_form_saving,
+                    successMessage = "Question updated & flags resolved!",
+                    neutralLabel = if (canManageExams) "Open in Exam Editor" else null,
+                    onNeutral = {
+                        if (canManageExams && !isFinishing && !isDestroyed) {
+                            startActivity(Intent(this@FlaggedQuestionsActivity, EditExamActivity::class.java).apply {
+                                putExtra(Constants.EXTRA_EXAM_ID, item.examId)
+                                putExtra(Constants.EXTRA_EXAM_NAME, item.examName)
+                            })
                         }
-                    }
+                    }) { updated, onFailure, onDone ->
+                        lifecycleScope.launch {
+                            binding.progressBar.visibility = View.VISIBLE
+                            var questionSaved = false
+                            var confirmed = false
+                            try {
+                                examRepo.updateQuestion(updated)
+                                questionSaved = true
+                                confirmed = flagRepo.dismissFlags(item.flagIds)
+                                if (!confirmed) onFailure("Question updated, but reports were not resolved. Retry or refresh reports.")
+                            } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
+                            catch (error: Exception) {
+                                onFailure(if (questionSaved) "Question updated, but reports could not be resolved. Retry or refresh reports."
+                                    else error.message ?: "Failed to update question")
+                            } finally { binding.progressBar.visibility = View.GONE }
+                            if (confirmed && questionActionsAllowed) { onDone(); loadFlaggedQuestions() }
+                        }
                 }
-                .setNeutralButton("Open in Exam Editor") { _, _ ->
-                    val intent = Intent(this@FlaggedQuestionsActivity, EditExamActivity::class.java).apply {
-                        putExtra(Constants.EXTRA_EXAM_ID, item.examId)
-                        putExtra(Constants.EXTRA_EXAM_NAME, item.examName)
-                    }
-                    startActivity(intent)
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
+                questionEditor = dialog
+                dialog.setOnDismissListener { if (questionEditor === dialog) questionEditor = null }
+                dialog.show()
+            } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
+            catch (error: Exception) {
+                if (!isFinishing && !isDestroyed) AppBulletin.showError(this@FlaggedQuestionsActivity,
+                    error.message ?: "Failed to load question")
+            } finally { editorLoadInFlight = false; binding.progressBar.visibility = View.GONE }
         }
+    }
+
+    override fun onDestroy() {
+        questionEditor?.dismiss(); questionEditor = null
+        super.onDestroy()
     }
 }

@@ -77,4 +77,5 @@
     <string name="username_save_unverified">Username update could not be verified. Check your profile before retrying.</string>
     <string name="username_save_failed">Failed to update username</string>
     <string name="username_help">You can choose a username on EVE. Other people can find you by this username.\n\nYou can use a-z, 0-9 and underscores. Minimum length is 5 characters.</string>
+    <string name="question_form_saving">Saving…</string>
 </resources>

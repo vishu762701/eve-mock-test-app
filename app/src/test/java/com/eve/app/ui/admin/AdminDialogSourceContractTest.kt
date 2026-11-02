@@ -70,7 +70,12 @@ class AdminDialogSourceContractTest {
         for (path in activities) {
             val content = File(path).readText()
             assertTrue("$path must import native Telegram host", content.contains("import com.eve.app.designsystem.TelegramNativeAlertDialog"))
-            assertTrue("$path must use native Telegram host", content.contains("TelegramNativeAlertDialog.Builder("))
+            if (path.endsWith("AdminAnalyticsActivity.kt")) {
+                assertTrue("Analytics must use the canonical native editor", content.contains("createQuestionEditorDialog(this@AdminAnalyticsActivity,"))
+                assertCanonicalQuestionEditorUsesNativeHost()
+            } else {
+                assertTrue("$path must use native Telegram host", content.contains("TelegramNativeAlertDialog.Builder("))
+            }
             assertTrue("$path must not open the obsolete Material adapter", !content.contains(".showTelegramSourceDialog()"))
         }
         val syllabus = File(activities[0]).readText()
@@ -109,6 +114,19 @@ class AdminDialogSourceContractTest {
         val flagged = File("src/main/java/com/eve/app/ui/admin/FlaggedQuestionsActivity.kt").readText()
         assertTrue(flagged.contains("flagRepo.dismissFlags("))
         assertTrue(flagged.contains("examRepo.updateQuestion(updated)"))
-        assertTrue(flagged.contains(".setView(dialogView)"))
+        assertTrue(flagged.contains("createQuestionEditorDialog(this@FlaggedQuestionsActivity,"))
+        assertTrue("Flag dismissal still uses the native confirmation host", flagged.contains("TelegramNativeAlertDialog.Builder(this)"))
+        assertTrue("Combined success needs confirmed report resolution", flagged.contains("confirmed = flagRepo.dismissFlags(item.flagIds)"))
+        assertCanonicalQuestionEditorUsesNativeHost()
     }
+    private fun assertCanonicalQuestionEditorUsesNativeHost() {
+        val shared = File("src/main/java/com/eve/app/ui/admin/ManageQuestionsActivity.kt")
+            .readText().substringAfter("internal fun createQuestionEditorDialog(")
+            .substringBefore("internal fun createRenameExamDialog(")
+        assertTrue(shared.contains("TelegramNativeAlertDialog.Builder(activity)"))
+        assertTrue(shared.contains(".setView(dialogView)"))
+        assertTrue(shared.contains("dialog.setDismissDialogByButtons(false)"))
+        assertTrue(shared.contains(".setNegativeButton(\"Cancel\"") )
+    }
+
 }

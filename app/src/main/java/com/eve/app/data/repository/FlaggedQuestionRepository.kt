@@ -50,6 +50,8 @@ class FlaggedQuestionRepository(
                 Log.e("FlaggedRepo", "Failed to submit report for q=$questionId: $err")
                 Result.failure(Exception(err))
             }
+        } catch (cancel: kotlinx.coroutines.CancellationException) {
+            throw cancel
         } catch (e: Exception) {
             Log.e("FlaggedRepo", "Exception submitting report for questionId=$questionId", e)
             Result.failure(e)
@@ -62,10 +64,11 @@ class FlaggedQuestionRepository(
             val typeParam = if (isTechnical) "technical" else "content"
             val response = api.getAdminReports(type = typeParam)
             if (!response.success || response.data == null) {
-                return@withContext emptyList()
+                throw Exception(response.error ?: "Report response did not include data")
             }
 
             val rawList = response.data.map { dto ->
+                check(!dto.id.isNullOrBlank()) { "Report response did not include an identifier" }
                 FlaggedQuestion(
                     id = dto.id,
                     questionId = dto.questionId,
@@ -82,8 +85,15 @@ class FlaggedQuestionRepository(
                 )
             }
 
-            // Group by questionId or questionText
-            val grouped = rawList.groupBy { if (it.questionId.isNotBlank()) it.questionId else it.questionText }
+            // A legacy text identity is scoped to its exam/type, never another exam's reports.
+            val grouped = rawList.groupBy {
+                val identity = when {
+                    it.questionId.isNotBlank() -> "id:${it.questionId}"
+                    it.questionText.isNotBlank() -> "text:${it.questionText}"
+                    else -> "report:${it.id}"
+                }
+                Triple(it.examId, it.reportType, identity)
+            }
             grouped.map { (_, flags) ->
                 val first = flags.first()
                 val allReasons = flags.map { it.reason }.filter { it.isNotBlank() }.distinct()
@@ -104,9 +114,11 @@ class FlaggedQuestionRepository(
                     reportType = first.reportType
                 )
             }.sortedByDescending { it.flagCount }
+        } catch (cancel: kotlinx.coroutines.CancellationException) {
+            throw cancel
         } catch (e: Exception) {
             Log.e("FlaggedRepo", "Error fetching pending flagged questions", e)
-            emptyList()
+            throw e
         }
     }
 
@@ -116,6 +128,8 @@ class FlaggedQuestionRepository(
         try {
             val response = api.dismissReportBatch(mapOf("ids" to flagIds))
             response.success
+        } catch (cancel: kotlinx.coroutines.CancellationException) {
+            throw cancel
         } catch (e: Exception) {
             Log.e("FlaggedRepo", "Error dismissing flags: $flagIds", e)
             false
@@ -127,6 +141,8 @@ class FlaggedQuestionRepository(
         try {
             val response = api.deleteReport(reportId)
             response.success
+        } catch (cancel: kotlinx.coroutines.CancellationException) {
+            throw cancel
         } catch (e: Exception) {
             Log.e("FlaggedRepo", "Error deleting report: $reportId", e)
             false

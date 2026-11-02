@@ -41,7 +41,8 @@ class AdminAnalyticsViewModel : ViewModel() {
                 val exams = repo.getExamAnalytics(timeRange.days)
                 val questions = repo.getQuestionAnalytics(examId.ifBlank { null })
                 UiState.Success(AdminAnalyticsUi(exams, questions, timeRange, examId))
-            } catch (e: Exception) {
+            } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
+            catch (e: Exception) {
                 UiState.Error(e.message ?: "Failed to load analytics")
             }
         }

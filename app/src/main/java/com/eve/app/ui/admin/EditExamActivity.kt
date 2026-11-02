@@ -311,7 +311,7 @@ class EditExamActivity : EveBaseActivity() {
             AppBulletin.showError(this, "Exam details are unavailable. Reload before adding a question.")
             return
         }
-        val dialog = createAddQuestionDialog(this, exam, title = "Add New Question",
+        val dialog = createQuestionEditorDialog(this, exam, title = "Add New Question",
             submit = ::submitAddedQuestion)
         addQuestionDialog = dialog
         dialog.setOnDismissListener { if (addQuestionDialog === dialog) addQuestionDialog = null }

@@ -9,7 +9,9 @@ import com.eve.app.databinding.ItemFlaggedQuestionBinding
 
 class FlaggedQuestionsAdapter(
     private val onEdit: (AggregatedFlaggedQuestion) -> Unit,
-    private val onDismiss: (AggregatedFlaggedQuestion) -> Unit
+    private val onDismiss: (AggregatedFlaggedQuestion) -> Unit,
+    private val canEdit: () -> Boolean = { true },
+    private val canDismiss: () -> Boolean = { true }
 ) : RecyclerView.Adapter<FlaggedQuestionsAdapter.VH>() {
 
     private var items: List<AggregatedFlaggedQuestion> = emptyList()
@@ -40,8 +42,11 @@ class FlaggedQuestionsAdapter(
                 b.tvComments.visibility = View.GONE
             }
 
-            b.btnEditQuestion.setOnClickListener { onEdit(item) }
-            b.btnDismissFlag.setOnClickListener { onDismiss(item) }
+            b.btnEditQuestion.visibility = if (canEdit()) View.VISIBLE else View.GONE
+            b.btnEditQuestion.isEnabled = canEdit()
+            b.btnDismissFlag.isEnabled = canDismiss()
+            b.btnEditQuestion.setOnClickListener { if (canEdit()) onEdit(item) }
+            b.btnDismissFlag.setOnClickListener { if (canDismiss()) onDismiss(item) }
         }
     }
 
