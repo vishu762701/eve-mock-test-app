@@ -32,7 +32,7 @@ class AppConfigSourceConfirmationTest {
     }
 
     @Test fun adminAuthorizationAndOwnerWindowCleanupArePreserved() {
-        assertTrue(source.contains("AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true)"))
+        assertTrue(source.contains("AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = \"manage_config_maintenance\")"))
         assertTrue(source.contains("adminRepo.updateAppConfig(config, confirmedConfig ?: throw IllegalStateException(\"Reload configuration\"))"))
         val repository = File("src/main/java/com/eve/app/data/repository/AdminRepository.kt").readText()
         assertTrue("Editor sends only deliberately changed fields", repository.contains("val changes = body.filter { (key, value) -> old[key] != value }"))

@@ -32,7 +32,7 @@ class FeedbackReplySourceDialogContractTest {
         assertTrue(reply.contains("dialogBinding.btnSendReply.isEnabled = true"))
         assertTrue(reply.contains("if (replyText.isBlank())"))
         assertTrue("Server authorization gate remains unchanged",
-            source.contains("AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true)"))
+            source.contains("AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = \"moderate_feedback\")"))
         assertTrue("Delete undo flow remains unchanged",
             source.contains("AppUndoBar.show(") &&
                 source.contains(".makeRed(DialogInterface.BUTTON_POSITIVE).show()"))

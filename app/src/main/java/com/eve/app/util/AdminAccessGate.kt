@@ -17,7 +17,8 @@ object AdminAccessGate {
         activity: EveBaseActivity,
         protectedRoot: View,
         requireFreshServer: Boolean = false,
-        onAuthorized: () -> Unit
+        requiredRight: String? = null,
+        onAuthorized: (com.eve.app.data.remote.AdminMeData) -> Unit
     ) {
         // INVISIBLE prevents focus/touch and content disclosure while the async
         // authorization check is unresolved. No privileged listeners/data loads yet.
@@ -30,27 +31,29 @@ object AdminAccessGate {
         }
 
         activity.lifecycleScope.launch {
-            val authorized = try {
-                if (requireFreshServer) {
-                    AdminRepository().isAdminFresh(user.uid, email)
-                } else {
-                    AdminRepository().isAdmin(email)
-                }
+            val permissions = try {
+                val repository = AdminRepository()
+                AdminPermissionSnapshot.load(email, requiredRight,
+                    membership = {
+                        if (requireFreshServer) repository.isAdminFresh(user.uid, email)
+                        else repository.isAdmin(email)
+                    },
+                    permissions = { repository.getAdminMe() })
             } catch (cancel: CancellationException) {
                 throw cancel
             } catch (_: Exception) {
-                false
+                null
             }
             if (activity.isFinishing || activity.isDestroyed) return@launch
             val current = FirebaseAuth.getInstance().currentUser
             if (!AdminIdentityGuard.allowed(
-                    authorized, user.uid, email, current?.uid, current?.email
+                    permissions != null, user.uid, email, current?.uid, current?.email
                 )) {
                 activity.finish()
                 return@launch
             }
             protectedRoot.visibility = View.VISIBLE
-            onAuthorized()
+            onAuthorized(requireNotNull(permissions))
         }
     }
 }

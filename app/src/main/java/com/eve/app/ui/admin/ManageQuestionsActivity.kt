@@ -68,7 +68,11 @@ class ManageQuestionsActivity : EveBaseActivity() {
         binding.telegramActionBar.setTitle("Manage Questions")
         binding.telegramActionBar.onBackPressed = { finish() }
 
-        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_questions") { permissions ->
+            val canManageExams = permissions.isOwner || "manage_exams" in permissions.rights
+            for (control in listOf(binding.btnEditExamImage, binding.btnRenameExam, binding.btnDeleteExam)) {
+                control.visibility = if (canManageExams) View.VISIBLE else View.GONE
+            }
             setupUi()
             setupObservers()
             viewModel.loadExams()

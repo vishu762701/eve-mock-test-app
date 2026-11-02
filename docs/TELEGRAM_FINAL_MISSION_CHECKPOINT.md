@@ -726,3 +726,45 @@ Next independent engineering action after this batch's own green FAST: fail-clos
 Admin pending-rights visibility and fresh per-screen right checks, preserving Worker
 authorization and every legitimate source-tab action. Remaining original scanner
 control geometry/physics and matched physical-device matrix are not accepted.
+
+## Admin destination rights/confirmed dashboard continuation
+
+Base fetched main 2e5655911e0755a0b3a1892a15d4bafd683631dd, exact-SHA
+FAST 41394531948 SUCCESS and docs 41394531950 SUCCESS. Scanner lifecycle
+734-test local/remote batch preserved. Both source scanner batches are now green;
+FAST native navigation/publication skipped and artifact lists empty.
+
+New scope C1/C2/C3/C5: shared AdminAccessGate now requires the fresh server
+membership AND validated /admin/me metadata before revealing any protected root,
+then rechecks current UID/email. Each privileged destination supplies its actual
+Worker right; confirmed metadata is passed to dashboard setup so loading/failure
+cannot expose all default actions. All 21 destination screens plus hub and extra
+ManageUsers resume guard are integrated (23 calls). Existing source pager/tab and
+row callbacks remain. Questions exam edits and monitor generation retry require
+their compound rights. All four AdminViewModel callers traced; constructor no
+longer issues unrelated directory/statistics requests. Missing server response
+throws instead of synthesized permissions. Server authority/rights definitions,
+Firebase/Worker/D1/scoring, data, production deployments, QR-free decision and GPL
+release/signing gates remain unchanged. Source/action map: ADMIN_RIGHTS_CONTINUATION.md.
+
+Local stable validation: :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin
+:app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64 SUCCESS (53s).
+740 tests / 170 suites, zero failures/errors/skips; lint 0 errors / 1645 warnings.
+109 scoped admin/policy/identity cases pass, including 13x13 role pairing,
+server owner, real malformed Gson metadata, pending/cancelled/failed permissions,
+foreign identity, and offline actual repository missing-data handling.
+Two existing source guards initially failed because the confirmed callback variable
+and retry-right predicate changed; updated guards retain all behavioral assertions.
+One overlapping local run polluted a reused log; the final serial broad log and
+JUnit XML are clean. No assertion/lint/CI/auth gate weakened. Pinned source 99-file
+inventory and unchanged native renderer evidence remain as above.
+
+This batch needs its own exact-SHA FAST after push. Whole mission remains PARTIAL.
+Source A1 follow-up discovered by actually opening QrShareView:3171-3180,3245-3304:
+original emoji have no band-reflective lighting; that old pending atlas/shine claim
+must not drive invented code. Actual ready-item seeded appearance/popIn is missing
+from EVE drawEmojiSlot. Next concrete source action: integrate that original Java
+appearance path, test late frames/rapid selections/export/reduced motion, then
+source scanner control layout/press physics and remaining ledger items. Physical
+camera/GPU/matched references, Profile/Admin/Home/student/Quiz app-wide acceptance,
+protected mission-final six-job FULL/APK and human GPL review are still NOT MET/BLOCKED.

@@ -34,7 +34,7 @@ class AdminRightsNetworkAuthorityTest {
     @Test
     fun adminHeaderMustNotInferOwnerFromClientEmailAllowlist() {
         val hub = source("AdminActivity")
-        assertTrue(hub.contains("applyAdminPermissions(adminMe)"))
+        assertTrue(hub.contains("applyAdminPermissions(permissions)"))
         assertTrue(hub.contains("adminMe.isOwner"))
         assertFalse(hub.contains("email == \"own.keni@gmail.com\""))
         assertFalse(hub.contains("email == \"admin@eve.app\""))

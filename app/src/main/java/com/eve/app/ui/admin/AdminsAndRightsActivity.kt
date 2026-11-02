@@ -38,7 +38,7 @@ class AdminsAndRightsActivity : EveBaseActivity() {
         binding.telegramActionBar.setTitle("Admins and Rights")
         binding.telegramActionBar.onBackPressed = { finish() }
 
-        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_admins_rights") {
             authorized = true
             setupUi()
             setupObservers()

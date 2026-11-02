@@ -83,7 +83,7 @@ class ManageSyllabusActivity : EveBaseActivity() {
 
         binding.btnBack.setOnClickListener { finish() }
 
-        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_syllabus") {
             adminAccessGranted = true
             setupRecyclerView()
             setupAddSyllabusForm()

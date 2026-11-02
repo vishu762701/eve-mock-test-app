@@ -89,3 +89,30 @@ remaining audited subsystems. This is continuation, not a restart or final repor
 Source camera glass commit 7bb581b1b95d7e4e79489db77dfa50c3f9b92b6a: FAST [41392841830](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41392841830) SUCCESS, docs 41392841837 and source imports 41392841829 SUCCESS. Native renderer 243 tests green; all four ABI build tasks pass. FAST artifacts: zero. Full screen/device/legal acceptance stays open.
 
 A3.4/A3.6 next code batch implements pause/rebind ticket ownership, explicit found navigation cancellation, resumed Gallery delivery and pending permission/Gallery restoration. Ten focused JVM tests, including two actual scanner Activity lifecycle tests, and lint/AndroidTest compilation pass. Final broad/CI evidence must come from the carrying implementation commit.
+
+## Admin rights integration batch
+
+At 2e5655911e0755a0b3a1892a15d4bafd683631dd, exact-SHA FAST 41394531948 and
+docs 41394531950 SUCCESS. No published artifact/native navigation execution.
+C1/C2/C3/C5 entry-control implementation now verifies fresh Worker membership and
+validated permission snapshot before showing protected UI, checks the actual right
+at all 21 destinations plus dashboard (23 existing calls including resume), binds
+UID/email to the current account, and propagates cancellation. Pending/malformed/
+failed rights never grant all dashboard actions. Questions exam edits and monitor
+retry need their extra rights; ViewModel construction no longer requests unrelated
+privileged directories/statistics. Full source/handler map: ADMIN_RIGHTS_CONTINUATION.md.
+Local broad verification: 740 tests, 170 suites, zero failures/errors/skips;
+AndroidTest compilation, lint zero errors and x86_64 assembly pass. Exact-SHA FAST
+is required for this carrying batch; whole Admin fidelity/action/device matrix stays
+NOT MET. No backend/deploy/data/role definition changes or local authority added.
+
+Fresh A1 source inspection clarifies a historical gap: QrShareView:3245-3304
+explicitly says the light band does NOT light/enlarge emoji. Per-symbol reflective
+lighting is NOT FOUND in that emoji branch and must not be invented. The actual
+missing source behavior is ready-item popIn: QrShareView:3171-3180,3281-3304,
+with seeded 300ms delay + 380ms item appearance; current EVE drawEmojiSlot has no
+such ready-frame appearance gate. First unfinished overall A1 remains NOT MET;
+next concrete source implementation is that appearance path with retained EVE
+native-frame ownership, selection/recycle/rapid-load cancellation and export rules,
+then source scanner controls and all previously open requirements. Device/GPU,
+matched reference, six-job FULL and legal release acceptance are still pending.

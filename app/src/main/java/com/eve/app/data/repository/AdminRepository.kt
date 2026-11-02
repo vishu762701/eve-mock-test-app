@@ -41,7 +41,7 @@ class AdminRepository(
         if (!response.success) {
             throw Exception(response.error ?: "Failed to fetch admin permissions")
         }
-        return response.data ?: AdminMeData()
+        return response.data ?: throw IllegalStateException("Admin permissions response is incomplete")
     }
 
     /** Dynamic admins from D1 */

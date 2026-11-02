@@ -62,7 +62,7 @@ class ManageUsersActivity : EveBaseActivity() {
         binding = ActivityManageUsersBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.btnBack.setOnClickListener { finish() }
-        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_users") {
             authorizedUid = FirebaseAuth.getInstance().currentUser?.uid
             gateReady = true
             setupAdminControls()
@@ -78,7 +78,7 @@ class ManageUsersActivity : EveBaseActivity() {
             gateReady = false
             binding.root.visibility = View.INVISIBLE
             requestJob?.cancel()
-            AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+            AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_users") {
                 authorizedUid = FirebaseAuth.getInstance().currentUser?.uid
                 gateReady = true
                 loadUsers()

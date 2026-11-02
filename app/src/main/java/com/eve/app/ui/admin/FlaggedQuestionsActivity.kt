@@ -38,7 +38,7 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
         binding = ActivityFlaggedQuestionsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "moderate_feedback") {
             setupUi()
             loadFlaggedQuestions()
         }

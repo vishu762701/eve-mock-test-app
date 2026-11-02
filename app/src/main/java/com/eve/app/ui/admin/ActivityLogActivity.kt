@@ -53,7 +53,7 @@ class ActivityLogActivity : EveBaseActivity() {
         binding = ActivityActivityLogBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "view_analytics_logs") {
             setupViews()
             reloadLogs()
         }

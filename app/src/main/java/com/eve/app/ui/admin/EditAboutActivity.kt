@@ -29,7 +29,7 @@ class EditAboutActivity : EveBaseActivity() {
         binding = ActivityEditAboutBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_content") {
 
         binding.btnBack.setOnClickListener { handleBack() }
         binding.btnSave.setOnClickListener { saveCurrent() }

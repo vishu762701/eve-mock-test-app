@@ -58,7 +58,7 @@ class EmojiStudioActivity : EveBaseActivity() {
         binding = ActivityEmojiStudioBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_content") {
             authorized = true
             setupViews()
             loadData()

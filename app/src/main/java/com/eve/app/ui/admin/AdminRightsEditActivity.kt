@@ -72,7 +72,7 @@ class AdminRightsEditActivity : EveBaseActivity() {
         initialRights = rightsList.toSet()
         initialCustomTitle = intent.getStringExtra(EXTRA_CUSTOM_TITLE) ?: (if (isOwner) "Owner" else "Admin")
 
-        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_admins_rights") {
             setupActionBar()
             setupIdentityHeader()
             setupCustomTitleSection()

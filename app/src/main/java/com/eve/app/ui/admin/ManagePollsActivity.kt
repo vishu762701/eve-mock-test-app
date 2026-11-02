@@ -39,7 +39,7 @@ class ManagePollsActivity : EveBaseActivity() {
 
         binding.btnBack.setOnClickListener { finish() }
 
-        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "moderate_feedback") {
             setupAdminControls()
             loadPolls()
         }

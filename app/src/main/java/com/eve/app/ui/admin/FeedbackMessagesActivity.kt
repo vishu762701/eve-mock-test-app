@@ -33,7 +33,7 @@ class FeedbackMessagesActivity : EveBaseActivity() {
         binding = ActivityFeedbackMessagesBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "moderate_feedback") {
 
         binding.btnBack.setOnClickListener { finish() }
         binding.btnRefresh.setOnClickListener { loadMessages() }

@@ -40,7 +40,7 @@ class AdminAnalyticsActivity : EveBaseActivity() {
         binding = ActivityAdminAnalyticsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "view_analytics_logs") {
             setup()
         }
     }

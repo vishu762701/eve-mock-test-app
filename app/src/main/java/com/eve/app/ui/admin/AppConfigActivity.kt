@@ -32,7 +32,7 @@ class AppConfigActivity : EveBaseActivity() {
         binding = ActivityAppConfigBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_config_maintenance") {
 
         binding.btnBack.setOnClickListener { finish() }
 

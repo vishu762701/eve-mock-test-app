@@ -31,6 +31,7 @@ class SystemMonitorActivity : EveBaseActivity() {
     private var offset = 0
     private var nextOffset: Int? = null
     private var loading = false
+    private var canRetryGeneration = false
     private var retryConfirmationDialog: TelegramNativeAlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,7 +40,8 @@ class SystemMonitorActivity : EveBaseActivity() {
         content = binding.layoutMonitorContent
         setContentView(binding.root)
 
-        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "view_analytics_logs") { permissions ->
+        canRetryGeneration = permissions.isOwner || "manage_generated_tests" in permissions.rights
         binding.btnBack.setOnClickListener { finish() }
         refresh = button(content, "Refresh / Retry") { offset = 0; load() }
         progress = com.eve.app.designsystem.TelegramRadialProgressView(this).also {
@@ -124,7 +126,7 @@ class SystemMonitorActivity : EveBaseActivity() {
                     jobs.forEach { element ->
                         val job = element.asJsonObject
                         text(operations, "${job.string("exam_name")} • ${job.string("status")}\nRequested ${job.string("requested_count")}, generated ${job.string("generated_count")}, failed ${job.string("failed_count")}\nStarted ${time(job, "started_at")} • completed ${time(job, "completed_at")}\n${job.string("error_category")}\nJob ${job.string("id")}")
-                        if (job.string("status") == "failed" && job.get("retryable").asInt == 1) {
+                        if (canRetryGeneration && job.string("status") == "failed" && job.get("retryable").asInt == 1) {
                             button(operations, "Retry ${job.string("exam_name")}") { confirmRetry(job.string("id")) }
                         }
                     }
@@ -161,7 +163,7 @@ class SystemMonitorActivity : EveBaseActivity() {
     private fun confirmRetry(id: String) {
         // Telegram AlertDialog.java:325-328: never present a stale Activity window;
         // keep only one owner-controlled Retry confirmation visible.
-        if (loading || isFinishing || isDestroyed || retryConfirmationDialog?.isShowing == true) return
+        if (!canRetryGeneration || loading || isFinishing || isDestroyed || retryConfirmationDialog?.isShowing == true) return
         val dialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Retry generation?")
             .setMessage("Uses the current exam syllabus and settings. A complete validated test will be created only if generation succeeds.")

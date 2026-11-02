@@ -63,7 +63,7 @@ class EditExamActivity : EveBaseActivity() {
         binding = ActivityEditExamBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_exams") {
 
         examId = intent.getStringExtra(Constants.EXTRA_EXAM_ID).orEmpty()
         examName = intent.getStringExtra(Constants.EXTRA_EXAM_NAME).orEmpty()

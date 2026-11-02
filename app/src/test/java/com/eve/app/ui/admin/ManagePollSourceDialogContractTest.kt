@@ -23,7 +23,7 @@ class ManagePollSourceDialogContractTest {
 
     @Test fun serverMutationValidationAndSystemDatePickerMustNotChange() {
         val code = File("src/main/java/com/eve/app/ui/admin/ManagePollsActivity.kt").readText()
-        assertTrue(code.contains("AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true)"))
+        assertTrue(code.contains("AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = \"moderate_feedback\")"))
         assertTrue(code.contains("if (question.isBlank())"))
         assertTrue(code.contains("if (options.size < 2)"))
         assertTrue(code.contains("dialogBinding.btnSubmitPoll.isEnabled = false"))

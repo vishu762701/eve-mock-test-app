@@ -117,16 +117,17 @@ class AdminActivity : EveBaseActivity() {
         binding = ActivityAdminBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) {
+        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) { permissions ->
             binding.progressBarAdmin.visibility = View.GONE
             setupActionBar()
             setupHeaderBlock()
             setupHubSections()
             dashboardPager = AdminDashboardPager(binding.scrollAdminHub, savedInstanceState?.getInt("admin_section") ?: 0)
-            setupSearchIndex()
+            setupSearchIndex(permissions)
             setupObservers()
+            applyAdminPermissions(permissions)
             adminUiReady = true
-            loadData()
+            loadData(permissions)
         }
     }
 
@@ -306,7 +307,7 @@ class AdminActivity : EveBaseActivity() {
         }
     }
 
-    private fun setupSearchIndex(adminMe: AdminMeData? = null) {
+    private fun setupSearchIndex(adminMe: AdminMeData) {
         searchItems.clear()
         val allCandidates = listOf(
             SearchItem("Exams", "CONTENT", listOf("exams", "परीक्षा", "mock tests", "manage exams"), lottieRes = R.raw.tg_folder_in, requiredRight = "manage_exams") { showExamsOptionsDialog() },
@@ -332,12 +333,12 @@ class AdminActivity : EveBaseActivity() {
             SearchItem("System Health & Operations", "INSIGHTS", listOf("system health", "operations", "health monitor"), iconRes = R.drawable.ic_maintenance, requiredRight = "view_analytics_logs") { startActivity(Intent(this, SystemMonitorActivity::class.java)) },
             SearchItem("API Usage & Cost Monitor", "INSIGHTS", listOf("api usage", "cost monitor", "usage tracker", "gemini calls"), lottieRes = R.raw.tg_statistic_preload, requiredRight = "view_analytics_logs") { startActivity(Intent(this, ApiUsageActivity::class.java)) },
             SearchItem("App Config & Maintenance", "SYSTEM", listOf("app config", "maintenance", "रखरखाव", "config"), iconRes = R.drawable.ic_maintenance, requiredRight = "manage_config_maintenance") { startActivity(Intent(this, AppConfigActivity::class.java)) },
-            SearchItem("Version Status", "SYSTEM", listOf("version status", "वर्जन", "build info", "min version"), iconRes = R.drawable.ic_info) { startActivity(Intent(this, AppConfigActivity::class.java)) },
+            SearchItem("Version Status", "SYSTEM", listOf("version status", "वर्जन", "build info", "min version"), iconRes = R.drawable.ic_info, requiredRight = "manage_config_maintenance") { startActivity(Intent(this, AppConfigActivity::class.java)) },
             SearchItem("Export All Exam Data", "SYSTEM", listOf("export data", "निर्यात", "backup json", "download exams"), iconRes = R.drawable.ic_download, requiredRight = "export_data") { exportExamData() },
             SearchItem("Edit About / Privacy / Terms", "SYSTEM", listOf("edit about", "privacy policy", "terms of service"), iconRes = R.drawable.ic_edit, requiredRight = "manage_content") { startActivity(Intent(this, EditAboutActivity::class.java)) }
         )
 
-        val allowed = if (adminMe == null || adminMe.isOwner) {
+        val allowed = if (adminMe.isOwner) {
             allCandidates
         } else {
             allCandidates.filter { it.requiredRight == null || adminMe.rights.contains(it.requiredRight) }
@@ -345,8 +346,7 @@ class AdminActivity : EveBaseActivity() {
         searchItems.addAll(allowed)
     }
 
-    private fun applyAdminPermissions(adminMe: AdminMeData?) {
-        if (adminMe == null) return
+    private fun applyAdminPermissions(adminMe: AdminMeData) {
 
         if (!adminMe.customTitle.isNullOrBlank()) {
             binding.tvAdminRole.text = adminMe.customTitle
@@ -354,8 +354,13 @@ class AdminActivity : EveBaseActivity() {
             binding.tvAdminRole.text = if (adminMe.isOwner) "Owner" else "Administrator"
         }
 
+        val canConfigure = adminMe.isOwner || "manage_config_maintenance" in adminMe.rights
+        binding.rowVersionStatus.isEnabled = canConfigure
+        binding.rowVersionStatus.isClickable = canConfigure
+        if (!canConfigure) binding.rowVersionStatus.setOnClickListener(null)
+
         if (adminMe.isOwner) {
-            setupSearchIndex(null)
+            setupSearchIndex(adminMe)
             dashboardPager?.refreshAccess()
             return
         }
@@ -495,13 +500,9 @@ class AdminActivity : EveBaseActivity() {
         }
     }
 
-    private fun loadData() {
+    private fun loadData(permissions: AdminMeData) {
         viewModel.loadExams()
-        viewModel.loadUserStats()
-        viewModel.loadAdminMe { adminMe ->
-            applyAdminPermissions(adminMe)
-        }
-
+        if (permissions.isOwner || "manage_users" in permissions.rights) viewModel.loadUserStats()
         loadMaintenanceConfig()
     }
 

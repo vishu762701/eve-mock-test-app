@@ -46,11 +46,8 @@ class AdminViewModel : ViewModel() {
     private val _message = MutableStateFlow<String?>(null)
     val message: StateFlow<String?> = _message.asStateFlow()
 
-    init {
-        loadExams()
-        loadAdmins()
-        loadUserStats()
-    }
+    // Activities explicitly load only their authorized data after AdminAccessGate.
+    // Construction must not issue directory/stats requests for unrelated rights.
 
     fun loadUserStats() {
         viewModelScope.launch {
