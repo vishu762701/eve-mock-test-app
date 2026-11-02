@@ -599,5 +599,42 @@
       "line": 101,
       "argb": "FF000000"
     }
-  ]
+  ],
+  "username_status_roles_current_source": {
+    "upstream": "https://github.com/DrKLO/Telegram",
+    "commit": "3de37c8cfb039452be7398909461da6288babf15",
+    "sources": [
+      {
+        "path": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ThemeColors.java",
+        "lines": "94,96,106",
+        "sha256": "49f27ef5f1a33844ca8818feb4b737a96df8d8d4eaef50a20b11225c46c2000d"
+      },
+      {
+        "path": "TMessagesProj/src/main/java/org/telegram/ui/ChangeUsernameActivity.java",
+        "lines": "1205-1280,1288-1353",
+        "sha256": "623912f68d022b8a631ab6af392933f153bbd34f3ff9c0fa4f8625bdb6dbef0f"
+      },
+      {
+        "path": "TMessagesProj/src/main/assets/night.attheme",
+        "lines": "145,178,425",
+        "sha256": "c93fb2934d2684888a5d9e72a36361c0789d6bc745db23043da7eb88155c5469"
+      }
+    ],
+    "roles": {
+      "windowBackgroundWhiteGreenText": {
+        "day": "#FF26972C",
+        "night_signed_argb": -10371737
+      },
+      "text_RedRegular": {
+        "day": "#FFCC2929",
+        "night_signed_argb": -1152913
+      },
+      "windowBackgroundWhiteGrayText8": {
+        "day": "#FF6D6D72",
+        "night_signed_argb": -8553091
+      }
+    },
+    "classification": "ADAPTED",
+    "reason": "Source scalar roles feed existing accessibleForeground policy on EVE field canvases; source bytes unchanged, no whole-screen parity claim. EVE keeps five-character backend minimum instead of Telegram-specific four-character availability flow."
+  }
 }

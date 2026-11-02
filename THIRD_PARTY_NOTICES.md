@@ -915,3 +915,19 @@ qr_gallery assets match source bytes; existing telegram_roboto_medium.ttf matche
 rmedium.ttf at the current pin. No new font is introduced by this batch. Source
 identity, dependency scope and runtime limitations: QR_SCANNER_CONTROLS_SOURCE_MAP.md
 and native upstream manifest. Human combined-app release review remains OPEN.
+
+## Telegram username status theme roles — 2026-11-02
+
+The existing `TelegramColorRoles.kt` / `TelegramThemeEngine.kt` and adapted
+`ChangeUsernameActivity.kt` use official `DrKLO/Telegram` revision
+`3de37c8cfb039452be7398909461da6288babf15`, `ActionBar/ThemeColors.java:94,96,106`,
+`ChangeUsernameActivity.java:1205-1353` and `assets/night.attheme:145,178,425`.
+Exact file SHA-256 and scalar provenance are in
+`docs/color-migration/source-role-contract.json`. Original Telegram contributors
+retain copyright; ChangeUsernameActivity carries its GPL-2.0-or-later notice,
+while ThemeColors has no separate header grant and remains subject to upstream
+root LICENSE and combined-work review. EVE applies its existing contrast policy,
+localized native labels and EVE's five-character backend contract: ADAPTED, not
+an exact Telegram screen. No Telegram accounts/network imported. Distribution
+review and `EVE_GPL_RELEASE_APPROVED` remain unapproved; this notice grants no
+combined APK redistribution clearance.

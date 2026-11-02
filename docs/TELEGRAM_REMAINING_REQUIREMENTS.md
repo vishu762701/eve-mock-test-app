@@ -573,3 +573,47 @@ real Firebase authentication proof. Pending-save/process-death reconciliation an
 whole Profile/source visual acceptance remain OPEN/NOT MET.
 
 B4 ownership final local verification: serial `./gradlew :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64` PASS; 805 JVM tests / 186 suites, zero failures/errors/skips. Eleven new Activity lifecycle tests PASS; Python helpers 59/docs/structural acceptance/diff PASS. Existing backend unchanged from predecessor FAST (299 tests). Historical bare SDK 35 Main Thread warning persists UNKNOWN; no suppression. Exact-SHA FAST required. Next independent Profile investigation: username availability callback cancellation/error ordering, field pending-save restoration and remaining source UI paths; preserve this ownership guard and no Bio/About rows. Full mission/device/GPL/FULL acceptance NOT MET.
+
+## B4/F1 username status roles and accessible localized rendering
+
+Base 2212767c4de9e0d23edd4439ff5bba0ab85215a3 FAST 41472089611 attempt 2 SUCCESS,
+docs 41472089940 SUCCESS. Attempt 1 failed only CMake 3.22.1 remote TLS handshake
+in prepare-qr-native; unchanged exact-SHA rerun passed. No gate weakened or bypassed.
+R1: replace current hardcoded available/error/checking ink with real source theme
+roles through the canonical engine and live palette callbacks. R2: retain current
+EVE 5-character/server uniqueness contract (official source now accepts four for
+its Telegram-specific availability service); classify validation ADAPTED. R3:
+localize existing editor labels/status/help in English/Hindi, preserve real API
+errors, and expose status changes to accessibility. No new screen/state owner,
+Telegram network dependency or API/scoring/identity change. Status NOT MET before
+actual native status/contrast/theme tests. Full editor geometry/reference still OPEN.
+
+Username rendering scoped implementation: original ThemeColors scalars and existing
+byte-identical night.attheme roles now resolve through TelegramColorRoles / the
+canonical ResolvedPalette. All three statuses repaint from current palette without
+retyping; semantic tag prevents generic theme repaint from taking ownership. The
+existing accessibleForeground policy adjusts ink for both actual field canvases;
+normal underline uses current accent, invalid underline uses error role. Existing
+validation, 300ms debounce, cancellation, same-input response guard and server
+save/readback remain unchanged. Empty status clears semantic error paint. Source
+comment corrected from false Telegram-exact claim: official source now checks four
+characters; EVE backend auth.ts:18 requires five and is preserved.
+
+| Official upstream path:lines@SHA | EVE production property | Classification / reason | Evidence |
+|---|---|---|---|
+| ActionBar/ThemeColors.java:94,96,106@3de37c8cfb039452be7398909461da6288babf15 | theme/TelegramColorRoles.kt three status defaults | EXACT scalar values only, not file/screen; no invented defaults | direct parsed original/EVE numeric comparison PASS, hashes in color-migration/source-role-contract.json |
+| assets/night.attheme:145,178,425@same full SHA | assets/themes/night.attheme -> canonical role resolver | EXACT existing asset bytes; resolved ink ADAPTED by existing contrast policy | full-byte cmp + SHA-256 c93fb2934d2684888a5d9e72a36361c0789d6bc745db23043da7eb88155c5469 |
+| ChangeUsernameActivity.java:1205-1280,1288-1353@same full SHA | ChangeUsernameActivity.kt:setStatus/onApplyThemePalette + activity_change_username.xml | ADAPTED semantic source roles, EVE 5-character validation/network contract, native Kotlin editor and accessible ink/localized text | four actual Activity/View callback tests fail before repair, pass after; matched geometry/device parity OPEN |
+
+English/Hindi resources cover existing local status/help/title/Back/Done labels and
+fallback failures. Real server errors are preserved; no fabricated translation of
+server meaning. Status is a polite live region. Actual native tests cover available,
+invalid and checking colors/contrast, live Day/Night callback without retyping,
+Hindi/RTL/200% validation and native accessibility property. Checking test tears down
+before its 300ms debounce; no availability request or account write performed.
+Same-account and mismatch lifecycle regression suite still passes. These tests do
+not prove TalkBack announcements or full small-window/font geometry on devices.
+THIRD_PARTY_NOTICES updated; ThemeColors has no per-file header grant, so root GPL
+and combined-work legal gate remain OPEN; no self-certified redistribution.
+
+Username final local checks: `./gradlew :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64` PASS; 809 tests / 187 suites, zero failures/errors/skips. Four new actual Activity status/theme/contrast/localization tests PASS. Python helper 59/docs/claims/diff PASS; three source scalar comparisons and Night full-byte identity PASS. Bare historical SDK 35 Main Thread line still UNKNOWN; no suppression. Exact-SHA FAST required; complete Profile/F1/source visual/device acceptance NOT MET.

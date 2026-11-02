@@ -20,7 +20,7 @@
             android:layout_width="@dimen/design_touch_min"
             android:layout_height="@dimen/design_touch_min"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Back"
+            android:contentDescription="@string/username_back"
             android:src="@drawable/ic_back"
             app:tint="@color/telegram_type_primary" />
 
@@ -31,14 +31,14 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:text="Username" />
+            android:text="@string/username_title" />
 
         <ImageButton
             android:id="@+id/btnDone"
             android:layout_width="@dimen/design_touch_min"
             android:layout_height="@dimen/design_touch_min"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Done"
+            android:contentDescription="@string/username_done"
             android:src="@drawable/ic_ab_done"
             app:tint="@color/telegram_type_primary" />
     </LinearLayout>
@@ -72,7 +72,7 @@
                 android:layout_weight="1"
                 android:layout_marginStart="4dp"
                 android:background="@null"
-                android:hint="username"
+                android:hint="@string/username_hint"
                 android:textColorHint="@color/telegram_type_secondary"
                 android:inputType="textNoSuggestions|textVisiblePassword"
                 android:maxLines="1"
@@ -87,6 +87,7 @@
 
         <TextView
             android:id="@+id/tvStatus"
+            android:accessibilityLiveRegion="polite"
             style="@style/TextAppearance.Eve.Telegram.EditHelp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -100,6 +101,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:lineSpacingExtra="4dp"
-            android:text="You can choose a username on Eve. If you do, other people will be able to find you by this username.\n\nYou can use a-z, 0-9 and underscores. Minimum length is 5 characters." />
+            android:text="@string/username_help" />
     </LinearLayout>
 </LinearLayout>

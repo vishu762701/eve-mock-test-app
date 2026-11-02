@@ -78,7 +78,10 @@ object TelegramThemeEngine {
         val filterTabSelector: Int = actionSelector,
         val bulletinBackground: Int = 0xEA272F38.toInt(),
         val bulletinInfo: Int = 0xFFFFFFFF.toInt(),
-        val bulletinAction: Int = 0xFF85CAFF.toInt()
+        val bulletinAction: Int = 0xFF85CAFF.toInt(),
+        val statusSuccess: Int = textPrimary,
+        val statusError: Int = textPrimary,
+        val statusPending: Int = textSecondary
     )
 
     // Fixed original-source defaults. Old accent/preset choices are migrated, not layered over them.
@@ -454,7 +457,15 @@ object TelegramThemeEngine {
             filterTabSelector = role("actionBarTabSelector"),
             bulletinBackground = role("undo_background"),
             bulletinInfo = role("undo_infoColor"),
-            bulletinAction = role("undo_cancelColor")
+            bulletinAction = role("undo_cancelColor"),
+            // ChangeUsernameActivity.java:1208-1350 source roles. EVE keeps its
+            // existing accessible-foreground policy on the actual field canvases.
+            statusSuccess = TelegramColorRoles.accessibleForeground(
+                role("windowBackgroundWhiteGreenText"), listOf(surface, windowBg)),
+            statusError = TelegramColorRoles.accessibleForeground(
+                role("text_RedRegular"), listOf(surface, windowBg)),
+            statusPending = TelegramColorRoles.accessibleForeground(
+                role("windowBackgroundWhiteGrayText8"), listOf(surface, windowBg))
         )
     }
 

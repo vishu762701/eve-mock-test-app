@@ -6,7 +6,7 @@ Status: PARTIAL. This is a continuation record, not screen acceptance.
 
 ## Live verified implementation pointer — 2026-11-02
 
-Latest verified implementation main: **196c59d55b9710fcfb99bb1f2b4e8629f6bb9aee**.
+Latest verified implementation main: **2212767c4de9e0d23edd4439ff5bba0ab85215a3**.
 Official Telegram rechecked after implementation: **3de37c8cfb039452be7398909461da6288babf15**.
 Reconcile this pointer with the carrying implementation commit and live main/CI on restart.
 
@@ -28,6 +28,7 @@ Reconcile this pointer with the carrying implementation commit and live main/CI 
 | Shared dismiss policy/question form retention | 412edc6ed80ca867635cbcf8cee06e56196728f4 | [41462667732](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41462667732) SUCCESS |
 | C5 selected question-list request ownership | 03c07dc45031b9c2361db53e7ba650dca729bdce | [41466628937](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41466628937) SUCCESS |
 | Confirmed exam rename contract/form | 196c59d55b9710fcfb99bb1f2b4e8629f6bb9aee | [41469072072](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41469072072) SUCCESS |
+| Profile editor draft account restoration | 2212767c4de9e0d23edd4439ff5bba0ab85215a3 | [41472089611](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41472089611) attempt 2 SUCCESS |
 
 Each FAST passed Android build/JVM/AndroidTest source compilation, all four ABI
 builds, pinned Rust security/C API, backend and Firebase. Historical scanner-batch docs 41403654877
@@ -1251,3 +1252,30 @@ GPL variable change or speculative QR iteration. Source classification ADAPTED E
 adapter, not exact Telegram account implementation.
 
 B4 ownership final local verification: serial `./gradlew :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64` PASS; 805 JVM tests / 186 suites, zero failures/errors/skips. Eleven new Activity lifecycle tests PASS; Python helpers 59/docs/structural acceptance/diff PASS. Existing backend unchanged from predecessor FAST (299 tests). Historical bare SDK 35 Main Thread warning persists UNKNOWN; no suppression. Exact-SHA FAST required. Next independent Profile investigation: username availability callback cancellation/error ordering, field pending-save restoration and remaining source UI paths; preserve this ownership guard and no Bio/About rows. Full mission/device/GPL/FULL acceptance NOT MET.
+
+## Username source theme/localization continuation
+
+Base 2212767c4de9e0d23edd4439ff5bba0ab85215a3 FAST 41472089611 attempt 2 SUCCESS,
+docs 41472089940 SUCCESS. First attempt stopped at transient CMake SDK TLS handshake;
+failed job rerun at unchanged SHA passed, no source/gate changes or suppression.
+Generated Gradle cache entries were trimmed locally to free ~300MiB; source,
+dependencies and evidence logs preserved. Official upstream remains pinned at
+3de37c8cfb039452be7398909461da6288babf15. No concurrent implementation overwritten.
+
+Four actual Username Activity tests reproduce hardcoded status contrast/missing
+Hindi failure before repair. Existing canonical color roles/palette and Activity
+callback now use original three source role values, existing accessibleForeground
+policy, native semantic status/live region and localized English/Hindi resources.
+Actual source-file hashes, night byte comparison and source properties are recorded
+in color-migration/source-role-contract.json and current requirement ledger.
+Five-character EVE username contract is intentionally retained, classified ADAPTED
+against source's Telegram-specific four-character flow. No Telegram accounts/API,
+backend mutation, scoring, new renderer, Bio/About row or QR implementation change.
+
+Carrying exact-SHA FAST required after broad checks. First next action on resume:
+reconcile local/main and carrying CI; repair red before another feature. Then
+continue actual pending profile/edit/lifecycle and remaining Home/shared/Admin/
+student paths, preserving completed work. Whole UI/device/reference/GPL/FULL/APK
+acceptance still NOT MET; no protected FULL eligibility or release approval implied.
+
+Username final local checks: `./gradlew :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64` PASS; 809 tests / 187 suites, zero failures/errors/skips. Four new actual Activity status/theme/contrast/localization tests PASS. Python helper 59/docs/claims/diff PASS; three source scalar comparisons and Night full-byte identity PASS. Bare historical SDK 35 Main Thread line still UNKNOWN; no suppression. Exact-SHA FAST required; complete Profile/F1/source visual/device acceptance NOT MET.

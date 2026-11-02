@@ -62,4 +62,20 @@
     <string name="exam_rename_duplicate">\'%2$s\' श्रेणी में \'%1$s\' नाम की परीक्षा पहले से मौजूद है</string>
     <string name="exam_renaming">नाम बदला जा रहा है…</string>
     <string name="exam_rename_success">परीक्षा का नाम \'%1$s\' किया गया</string>
+    <string name="username_title">यूज़रनेम</string>
+    <string name="username_hint">यूज़रनेम</string>
+    <string name="username_back">वापस</string>
+    <string name="username_done">हो गया</string>
+    <string name="username_invalid">यह यूज़रनेम मान्य नहीं है।</string>
+    <string name="username_invalid_number">यूज़रनेम किसी अंक से शुरू नहीं हो सकता।</string>
+    <string name="username_too_short">यूज़रनेम में कम से कम 5 अक्षर होने चाहिए।</string>
+    <string name="username_too_long">यूज़रनेम में 32 से अधिक अक्षर नहीं होने चाहिए।</string>
+    <string name="username_available">%1$s उपलब्ध है।</string>
+    <string name="username_checking">यूज़रनेम की जाँच हो रही है…</string>
+    <string name="username_taken">यह यूज़रनेम पहले से लिया जा चुका है।</string>
+    <string name="username_check_error">यूज़रनेम की जाँच नहीं हो सकी: %1$s</string>
+    <string name="username_network_error">नेटवर्क में समस्या</string>
+    <string name="username_save_unverified">यूज़रनेम का बदलाव सत्यापित नहीं हो सका। दोबारा कोशिश करने से पहले अपनी प्रोफ़ाइल जाँचें।</string>
+    <string name="username_save_failed">यूज़रनेम नहीं बदला जा सका</string>
+    <string name="username_help">आप EVE पर एक यूज़रनेम चुन सकते हैं। दूसरे लोग इस यूज़रनेम से आपको खोज सकते हैं।\n\nआप a-z, 0-9 और अंडरस्कोर का उपयोग कर सकते हैं। कम से कम 5 अक्षर ज़रूरी हैं।</string>
 </resources>

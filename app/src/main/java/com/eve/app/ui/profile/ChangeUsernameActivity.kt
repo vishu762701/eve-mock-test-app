@@ -6,7 +6,8 @@
 package com.eve.app.ui.profile
 
 import android.app.Activity
-import android.graphics.Color
+import com.eve.app.R
+import com.eve.app.theme.TelegramThemeEngine
 import android.os.Bundle
 import com.google.firebase.auth.FirebaseAuth
 import android.text.Editable
@@ -31,15 +32,15 @@ class ChangeUsernameActivity : EveBaseActivity() {
     private var checkJob: Job? = null
     private var isUsernameValid: Boolean = false
 
-    private val COLOR_GREEN = 0xFF4FA348.toInt()
-    private val COLOR_RED = 0xFFE53935.toInt()
-    private val COLOR_GRAY = 0xFF707579.toInt()
+    private enum class StatusRole { AVAILABLE, INVALID, CHECKING }
+    private var statusRole: StatusRole? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         editorOwnerUid = ProfileEditorAccountGuard.bind(this, savedInstanceState) ?: return
         binding = ActivityChangeUsernameBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.tvStatus.tag = "semantic_status"
 
         currentUsername = intent.getStringExtra("current_username") ?: ""
         if (currentUsername.startsWith("@")) {
@@ -75,22 +76,24 @@ class ChangeUsernameActivity : EveBaseActivity() {
         checkJob?.cancel()
         if (name.isEmpty()) {
             binding.tvStatus.visibility = View.GONE
+            statusRole = null
+            applyStatusPalette(TelegramThemeEngine.resolveCurrentPalette(this))
             isUsernameValid = false
             return
         }
 
         binding.tvStatus.visibility = View.VISIBLE
 
-        // Telegram-exact rules (ChangeUsernameActivity.java:1198-1280)
+        // ADAPTED ChangeUsernameActivity.java:1205-1280: EVE retains its server minimum of 5, not Telegram service-specific 4.
         if (name.startsWith("_") || name.endsWith("_")) {
-            setStatus("Sorry, this username is invalid.", COLOR_RED)
+            setStatus(getString(R.string.username_invalid), StatusRole.INVALID)
             isUsernameValid = false
             return
         }
 
         val firstChar = name[0]
         if (firstChar in '0'..'9') {
-            setStatus("Sorry, a username can't start with a number.", COLOR_RED)
+            setStatus(getString(R.string.username_invalid_number), StatusRole.INVALID)
             isUsernameValid = false
             return
         }
@@ -98,32 +101,32 @@ class ChangeUsernameActivity : EveBaseActivity() {
         for (ch in name) {
             val validChar = (ch in '0'..'9') || (ch in 'a'..'z') || (ch in 'A'..'Z') || ch == '_'
             if (!validChar) {
-                setStatus("Sorry, this username is invalid.", COLOR_RED)
+                setStatus(getString(R.string.username_invalid), StatusRole.INVALID)
                 isUsernameValid = false
                 return
             }
         }
 
         if (name.length < 5) {
-            setStatus("A username must have at least 5 characters.", COLOR_RED)
+            setStatus(getString(R.string.username_too_short), StatusRole.INVALID)
             isUsernameValid = false
             return
         }
 
         if (name.length > 32) {
-            setStatus("The username must not exceed 32 characters.", COLOR_RED)
+            setStatus(getString(R.string.username_too_long), StatusRole.INVALID)
             isUsernameValid = false
             return
         }
 
         // Current username check
         if (name.equals(currentUsername, ignoreCase = true)) {
-            setStatus(String.format("%1\$s is available.", name), COLOR_GREEN)
+            setStatus(getString(R.string.username_available, name), StatusRole.AVAILABLE)
             isUsernameValid = true
             return
         }
 
-        setStatus("Checking username...", COLOR_GRAY)
+        setStatus(getString(R.string.username_checking), StatusRole.CHECKING)
         isUsernameValid = false
 
         checkJob = lifecycleScope.launch {
@@ -135,30 +138,45 @@ class ChangeUsernameActivity : EveBaseActivity() {
                 if (res.success && res.data != null) {
                     val data = res.data
                     if (data.available) {
-                        setStatus(String.format("%1\$s is available.", name), COLOR_GREEN)
+                        setStatus(getString(R.string.username_available, name), StatusRole.AVAILABLE)
                         isUsernameValid = true
                     } else {
-                        val errMsg = data.error ?: "Sorry, this username is already taken."
-                        setStatus(errMsg, COLOR_RED)
+                        val errMsg = data.error ?: getString(R.string.username_taken)
+                        setStatus(errMsg, StatusRole.INVALID)
                         isUsernameValid = false
                     }
                 } else {
-                    setStatus(res.error ?: "Sorry, this username is already taken.", COLOR_RED)
+                    setStatus(res.error ?: getString(R.string.username_taken), StatusRole.INVALID)
                     isUsernameValid = false
                 }
             } catch (cancel: kotlinx.coroutines.CancellationException) {
                 throw cancel
             } catch (e: Exception) {
-                setStatus("Error checking username: ${e.localizedMessage ?: "Network error"}", COLOR_RED)
+                setStatus(getString(R.string.username_check_error, e.localizedMessage ?: getString(R.string.username_network_error)), StatusRole.INVALID)
                 isUsernameValid = false
             }
         }
     }
 
-    private fun setStatus(text: String, color: Int) {
+    private fun setStatus(text: String, role: StatusRole) {
         binding.tvStatus.text = text
-        binding.tvStatus.setTextColor(color)
-        binding.lineUsername.setBackgroundColor(if (color == COLOR_RED) color else 0xFF229AF0.toInt())
+        statusRole = role
+        applyStatusPalette(TelegramThemeEngine.resolveCurrentPalette(this))
+    }
+
+    override fun onApplyThemePalette(palette: TelegramThemeEngine.ResolvedPalette) {
+        super.onApplyThemePalette(palette)
+        if (::binding.isInitialized) applyStatusPalette(palette)
+    }
+
+    private fun applyStatusPalette(palette: TelegramThemeEngine.ResolvedPalette) {
+        val ink = when (statusRole) {
+            StatusRole.AVAILABLE -> palette.statusSuccess
+            StatusRole.INVALID -> palette.statusError
+            StatusRole.CHECKING, null -> palette.statusPending
+        }
+        binding.tvStatus.setTextColor(ink)
+        binding.lineUsername.setBackgroundColor(if (statusRole == StatusRole.INVALID) ink else palette.accent)
     }
 
     private fun saveUsername() {
@@ -188,19 +206,19 @@ class ChangeUsernameActivity : EveBaseActivity() {
                         binding.btnDone.isEnabled = true
                         binding.etUsername.isEnabled = true
                         AppBulletin.showError(this@ChangeUsernameActivity,
-                            "Username update could not be verified. Check your profile before retrying.")
+                            getString(R.string.username_save_unverified))
                     }
                 } else {
                     binding.btnDone.isEnabled = true
                     binding.etUsername.isEnabled = true
-                    AppBulletin.showError(this@ChangeUsernameActivity, res.error ?: "Failed to update username")
+                    AppBulletin.showError(this@ChangeUsernameActivity, res.error ?: getString(R.string.username_save_failed))
                 }
             } catch (cancel: kotlinx.coroutines.CancellationException) {
                 throw cancel
             } catch (e: Exception) {
                 binding.btnDone.isEnabled = true
                 binding.etUsername.isEnabled = true
-                AppBulletin.showError(this@ChangeUsernameActivity, e.localizedMessage ?: "Failed to update username")
+                AppBulletin.showError(this@ChangeUsernameActivity, e.localizedMessage ?: getString(R.string.username_save_failed))
             }
         }
     }

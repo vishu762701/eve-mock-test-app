@@ -17,6 +17,10 @@ object TelegramColorRoles {
         "windowBackgroundWhite" to 0xFFFFFFFF.toInt(),
         "windowBackgroundWhiteBlackText" to 0xFF1A1D21.toInt(),
         "windowBackgroundWhiteGrayText" to 0xFF808384.toInt(),
+        // ThemeColors.java:94,96,106 at 3de37c8cfb039452be7398909461da6288babf15.
+        "windowBackgroundWhiteGreenText" to 0xFF26972C.toInt(),
+        "text_RedRegular" to 0xFFCC2929.toInt(),
+        "windowBackgroundWhiteGrayText8" to 0xFF6D6D72.toInt(),
         "dialogBackground" to 0xFFFFFFFF.toInt(),
         "dialogTextBlack" to 0xFF1A1D21.toInt(),
         "dialogTextGray" to 0xFF348BC1.toInt(),

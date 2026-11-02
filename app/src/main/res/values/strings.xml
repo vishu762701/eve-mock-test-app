@@ -61,4 +61,20 @@
     <string name="exam_rename_duplicate">An exam named \'%1$s\' already exists in category \'%2$s\'</string>
     <string name="exam_renaming">Renaming…</string>
     <string name="exam_rename_success">Renamed exam to \'%1$s\'</string>
+    <string name="username_title">Username</string>
+    <string name="username_hint">username</string>
+    <string name="username_back">Back</string>
+    <string name="username_done">Done</string>
+    <string name="username_invalid">Sorry, this username is invalid.</string>
+    <string name="username_invalid_number">Sorry, a username can\'t start with a number.</string>
+    <string name="username_too_short">A username must have at least 5 characters.</string>
+    <string name="username_too_long">The username must not exceed 32 characters.</string>
+    <string name="username_available">%1$s is available.</string>
+    <string name="username_checking">Checking username…</string>
+    <string name="username_taken">Sorry, this username is already taken.</string>
+    <string name="username_check_error">Error checking username: %1$s</string>
+    <string name="username_network_error">Network error</string>
+    <string name="username_save_unverified">Username update could not be verified. Check your profile before retrying.</string>
+    <string name="username_save_failed">Failed to update username</string>
+    <string name="username_help">You can choose a username on EVE. Other people can find you by this username.\n\nYou can use a-z, 0-9 and underscores. Minimum length is 5 characters.</string>
 </resources>
