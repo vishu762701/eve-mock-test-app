@@ -103,3 +103,16 @@ No backend, scoring, Firebase identity, Worker authorization, D1, production-dat
 secret, app-link validation, media API, Home Night drawer or Profile Bio behavior is
 changed by this scene integration. Release signing/GPL safeguards stay enforced.
 Local debug assembly is development evidence, not a published mission-final APK.
+
+
+Exact-SHA implementation FAST [41369816744](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41369816744)
+passes at `544c371f0ce9419ee1b56892cda8e44d2d37759e`, including all four native
+ABI builds, 243 Rust tests, JVM/AndroidTest compilation, backend and Firebase.
+Source-import/docs/dependency workflows also pass. Its artifacts list is empty;
+FAST neither executes the native UI matrix nor publishes the final APK.
+
+The focused follow-up declares the compiled host renderer as an actual Gradle
+Test input (plus host platform/JDK compiler inputs), so future native byte changes
+rerun pixel tests. It removes one extra C++ EOF blank line and updates the EVE
+hash; no source rendering math changes. The full local command passes again with
+688 tests, lint and assembly; require the follow-up's own exact-SHA FAST on resume.

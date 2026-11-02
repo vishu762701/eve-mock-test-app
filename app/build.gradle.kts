@@ -188,6 +188,8 @@ val compileQrBackdropHost by tasks.registering(Exec::class) {
     val jdk = File(System.getProperty("java.home"))
     val os = System.getProperty("os.name").lowercase()
     val platform = if (os.contains("mac")) "darwin" else if (os.contains("win")) "win32" else "linux"
+    inputs.property("hostJavaVersion", System.getProperty("java.version"))
+    inputs.property("hostPlatform", platform)
     inputs.files("src/main/cpp/telegram_qr_backdrop.cpp", "src/test/cpp/qr_bitmap_host.cpp", "src/test/cpp/include/android/bitmap.h")
     outputs.file(qrBackdropHostLibrary)
     doFirst { qrBackdropHostLibrary.get().asFile.parentFile.mkdirs() }
@@ -197,5 +199,6 @@ val compileQrBackdropHost by tasks.registering(Exec::class) {
 }
 tasks.withType<org.gradle.api.tasks.testing.Test>().configureEach {
     dependsOn(compileQrBackdropHost)
+    inputs.file(qrBackdropHostLibrary).withPropertyName("qrBackdropHostLibrary")
     systemProperty("eve.qr.backdrop.hostLibrary", qrBackdropHostLibrary.get().asFile.absolutePath)
 }

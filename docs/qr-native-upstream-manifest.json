@@ -798,7 +798,7 @@
       "upstream_lines": "1211-1377",
       "eve_path": "app/src/main/cpp/telegram_qr_backdrop.cpp",
       "upstream_sha256": "9aacc48c8bfe77253bb7e1341c0bdf8fd497f8bccb6596bbd3b7beba4443588e",
-      "eve_sha256": "7dd6afc5bc1a03db862c706246d89bb8a0480e3090bec505dca2eda10d55c0fb",
+      "eve_sha256": "29d1a76a5374ed50187afdae4bdcb9478df77a319cfbfb225b13c1be4a2c9e7d",
       "classification": "ADAPTED; full QR/runtime acceptance OPEN",
       "adaptations": "Isolated original native raster; minimal JNI/AndroidBitmap/math headers, renamed JNI binding and acquired-array cleanup on allocation failure. Gradient/wave/ring pixel math unchanged.",
       "source_map": "docs/QR_SCENE_NATIVE_SOURCE_MAP.md"

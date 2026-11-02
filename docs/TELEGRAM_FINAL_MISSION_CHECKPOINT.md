@@ -32,7 +32,7 @@ No branches, resets, production calls, deployment or migration are authorized he
 | R13 | Native engine verified, existing failures resolved | vendored tlottie/JNI/CMake and original backdrop C++ | official tlottie gitlink/image.cpp | Rust/NDK/C++ | NOT MET | Rust fixture repaired and 243 tests green; native host raster passes; all-ABI/device/final APK acceptance remains |
 | R14 | Preserve security and production-data invariants | existing auth/Worker/D1/Firebase unchanged | EVE contract | no deployments/data changes | MET | scoped diff review: no backend/auth/scoring/data/permissions/link-validation changes; bounded native input adapter; no production test requests introduced |
 | R15 | Provenance and distribution safeguards | manifests/notices/release gate | pinned source/license | per-file GPL review | NOT MET | existing byte manifests; combined release obligations OPEN |
-| R16 | Exact-SHA FAST for pushed implementation batches | protected build.yml | n/a | GitHub Actions | NOT MET | earlier dc3b7ee7, 24e79891 and cdee4932 FAST green; active A1 batch must pass its own exact-SHA gate |
+| R16 | Exact-SHA FAST for pushed implementation batches | protected build.yml | n/a | GitHub Actions | MET | dc3b7ee7, 24e79891, cdee4932 and A1 544c371f / 41369816744 green; carrying follow-up requires live exact-head reconciliation below |
 | R17 | Mission-final six-job FULL and verified APK | protected build.yml | n/a | all feasible requirements | NOT MET | must not label an intermediate run mission-final |
 | R18 | Main-only commits, checkpoint and honest reporting | this record | n/a | successful feature gates | MET | two coherent implementation batches; no branches/PR/reset/force push; mission explicitly PARTIAL |
 
@@ -220,8 +220,9 @@ No release clearance, account service, fake gifts or backend changes are implied
 ## A1 scene implementation verification (2026-11-02)
 
 Pre-batch fetched main: `cdee49324290c27995833d178e7eaa0e97de2eb9`.
-This checkpoint is carried in the coherent A1 backdrop/card/reveal implementation
-commit; obtain that candidate with `git log -- docs/QR_SCENE_NATIVE_SOURCE_MAP.md`.
+Implementation commit: `544c371f0ce9419ee1b56892cda8e44d2d37759e`.
+This checkpoint is updated by its single focused native-test-input follow-up;
+obtain the carrying commit with `git log -- docs/QR_SCENE_NATIVE_SOURCE_MAP.md`.
 All source adaptations and line maps are in that report and the 95-entry native/QR
 provenance manifest. Original C++ helpers and pixel/release body compare byte-equal
 to the pinned image.cpp sections; only includes/JNI binding/null-allocation cleanup
@@ -286,4 +287,54 @@ then replace the remaining Kotlin pattern/gesture approximation with original
 Java where compatible. Preserve username payloads, six-pick EVE assets and all
 security contracts. Complete source sheet/morph A2 and scanner A4 follow; all other
 NOT MET/UNKNOWN rows still apply. Before advancing, require exact-SHA FAST for this
-batch and repair any failure. FAST run ID is pending push; FULL is not yet eligible.
+batch and repair any failure. FAST 41369816744 at the implementation SHA is green; FULL is not yet eligible.
+
+
+## Exact-SHA A1 CI and forward recovery update (2026-11-02)
+
+Live main fetched before this follow-up is
+`544c371f0ce9419ee1b56892cda8e44d2d37759e`.
+FAST [41369816744](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41369816744)
+**SUCCESS** at that exact SHA: Android/JVM/AndroidTest compilation, backend and
+Firebase Functions/rules all pass. All four `buildCMakeDebug` targets (arm64-v8a,
+armeabi-v7a, x86, x86_64) execute successfully. Native Rust security/C API tests:
+243 passed / 0 failed / 0 ignored (2.61s). New host C++ renderer compiles and the
+JVM task passes. Source-verbatim 41369816777, docs 41369816731 and dependency
+provenance 41369816701 also succeed at the same SHA. GitHub artifacts API returns
+an empty list for this FAST run; it publishes no APK and is not FULL acceptance.
+
+The first staged diff check detected one extra EOF blank line in the new C++
+file; the compound shell did not stop before commit/push. This forward-only
+follow-up removes it, refreshes its manifest SHA-256, and leaves all original
+rendering math unchanged. No amend/reset/history rewrite occurred. It also declares
+the generated host native library as a JVM Test input: changed renderer bytes must
+invalidate Gradle's up-to-date test state. Host platform/JDK versions are compiler
+task inputs. The dependency omission did not invalidate the first fresh CI tests;
+this repair protects incremental and future native edits.
+
+Final stable follow-up local run:
+`gradle :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64`:
+**688 tests / 153 suites / zero failures, errors or skips**, lint **0 errors /
+1643 warnings**, AndroidTest compile and debug assembly PASS. Native renderer
+host task and JVM tests execute again after the dependency declaration. APK
+contents/alignment and local-only SHA-256 above are unchanged. Final staged
+whitespace and 95-entry provenance checks pass. All earlier limitations remain.
+
+Commit mapping: 544c371f contains all 31 scene/native/host/resource/test/provenance
+paths listed in the preceding groups; this single follow-up changes only
+`app/build.gradle.kts`, `app/src/main/cpp/telegram_qr_backdrop.cpp` (EOF),
+`docs/qr-native-upstream-manifest.json`, `docs/QR_SCENE_NATIVE_SOURCE_MAP.md` and
+this checkpoint. This is at most two successful implementation commits for this
+backdrop/card/reveal subsystem. No unrelated feature is included.
+
+The follow-up's own SHA/run ID cannot be self-embedded before committing. On
+resume fetch main and query the Build Eve APK run whose headSha exactly equals
+the fetched commit; require its success before advancing. The final live-head
+result must be reported separately once observed. Do not infer it from 544c371f's
+success. **Current next action:** push this focused follow-up, observe its exact-SHA
+FAST, diagnose any failure, then resume the first unfinished R2 pattern subsystem.
+Read-only next-source recovery located `Pattern` at QrShareView:135-166,
+place/wave-push at 2568-2662, node key and `NodeSprings` at 2663-2740, atlases via
+ensureAtlases:1264 and source input handler:6637 onward. These are investigation
+locations, not imported/accepted implementations. Do not import gift documents or
+account services into the EVE native-asset adapter.

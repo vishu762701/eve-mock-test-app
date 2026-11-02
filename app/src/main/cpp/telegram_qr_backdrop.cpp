@@ -177,4 +177,3 @@ extern "C" JNIEXPORT void Java_com_eve_app_telegram_qr_QrBackdropNative_generate
     env->ReleaseIntArrayElements(colors, cs, JNI_ABORT);
     env->ReleaseFloatArrayElements(geom, g, JNI_ABORT);
 }
-
