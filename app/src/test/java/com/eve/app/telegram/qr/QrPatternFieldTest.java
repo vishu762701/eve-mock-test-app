@@ -23,10 +23,10 @@ public class QrPatternFieldTest {
     @Test public void disabledMotionHasStableGeometryAndEdgeFade() {
         QrPatternField f = new QrPatternField(1f);
         f.advance(1000, false);
-        assertTrue(f.place(45, 110, 28, 400, 800, 300, 0, 1, 1, 1f, false));
+        assertTrue(f.place(-50, 110, 28, 400, 800, 300, 0, 1, 1, 1f, false));
         float x = f.x, y = f.y, a = f.alpha;
         assertTrue(x > 0 && x < 90 && a > 0 && a < 1);
-        assertTrue(f.place(45, 110, 28, 400, 800, 300, 0, 1, 1, 1f, false));
+        assertTrue(f.place(-50, 110, 28, 400, 800, 300, 0, 1, 1, 1f, false));
         assertEquals(x, f.x, 0f);
         assertEquals(y, f.y, 0f);
         assertFalse(f.place(-10000, 110, 28, 400, 800, 300, 0, 1, 1, 1f, false));
