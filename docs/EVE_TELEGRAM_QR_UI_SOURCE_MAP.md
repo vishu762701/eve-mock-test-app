@@ -24,3 +24,16 @@ Source-based motion and visual behavior are not proven pixel/frame-identical. Re
 - EVE GIFTS, paid messages and persisted multi-emoji account themes remain **NOT IMPLEMENTED**; this stage alters only QR emoji rendering/selection and does not introduce charges. EVE QR source-exact acceptance remains OPEN.
 
 - The EVE QR animated catalogue uses new read-only authenticated `GET /api/emoji/items/public`. Existing `/api/admin/emoji/items` remains strictly admin-only. The public endpoint filters disabled items/packs, respects the Telegram-source kill switch, caps pagination, and returns asset URLs without storage keys. QR uses `EmojiRepository.getPublicQrItems`. No production deployment performed.
+
+## QR scan overlay button shape (2026-11-02)
+
+`QrScanOverlay.java:99-112,168-195,370-479,517-546,561-568,601-623`
+at official source SHA `3de37c8cfb039452be7398909461da6288babf15`
+maps to `QrScanMorph.java` (original Java source geometry/curves),
+`QrScanMorphLayout.kt` (ADAPTED EVE full-screen clip/snapshot host),
+`UsernameCardActivity.kt` (actual button screen-origin),
+`EveQrLiveScannerActivity.kt` (EVE CameraX caller and EVE-only
+routing), and AndroidManifest (existing translucent `Theme.Eve.QrScene`).
+No original Telegram CameraController, session, MTProto or account
+code is imported. Exact GPU/backend/camera behavior and GPL
+distribution clearance remain NOT MET.

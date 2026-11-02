@@ -50,7 +50,7 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
     private val completed = AtomicBoolean(false)
     private var provider: ProcessCameraProvider? = null
     private var camera: Camera? = null
-    private lateinit var root: FrameLayout
+    private lateinit var root: QrScanMorphLayout
     private lateinit var preview: PreviewView
     private var closing = false
     private var cameraRequestStarted = false
@@ -87,7 +87,11 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         window.statusBarColor = Color.TRANSPARENT
         window.navigationBarColor = Color.BLACK
 
-        root = FrameLayout(this).apply { setBackgroundColor(Color.BLACK) }
+        window.setBackgroundDrawable(
+            android.graphics.drawable.ColorDrawable(Color.TRANSPARENT))
+        root = QrScanMorphLayout(this).apply {
+            setOrigin(intent?.getFloatArrayExtra(QrScanMorphLayout.EXTRA_ORIGIN))
+        }
         preview = PreviewView(this).apply {
             implementationMode = PreviewView.ImplementationMode.COMPATIBLE
             scaleType = PreviewView.ScaleType.FILL_CENTER
@@ -154,14 +158,17 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         }
         setContentView(root)
         ViewCompat.requestApplyInsets(root)
-        root.alpha = 0f
-        root.scaleX = .94f; root.scaleY = .94f
-        root.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(390L)
-            // Upstream QrScanOverlay.java:101-102 uses STRETCH (0.05, .7, .1, 1.0).
-            // Geometry remains EVE-adapted: this is not the upstream button morph.
-            .setInterpolator(org.telegram.ui.Components.CubicBezierInterpolator(0.05, 0.7, 0.1, 1.0))
-            .withEndAction { requestCameraAfterOpening() }
-            .start()
+        @Suppress("DEPRECATION")
+        overridePendingTransition(0, 0)
+        // Real source geometry expands from the supplying QR screen's scan
+        // button. Restored/rotated screens start at their settled target.
+        if (savedInstanceState != null) {
+            root.setAlreadyOpened()
+            root.post { requestCameraAfterOpening() }
+        } else root.post {
+            if (!closing && !isFinishing && !isDestroyed)
+                root.animateSourceOpen { requestCameraAfterOpening() }
+        }
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() { closeWithMotion() }
         })
@@ -297,26 +304,35 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
             return
         }
         if (!completed.compareAndSet(false, true)) return
-        startActivity(Intent(this, UsernameCardActivity::class.java).setData(Uri.parse(link)))
-        finish()
+        closeScanner(Uri.parse(link))
     }
 
-    private fun closeWithMotion() {
+    private fun closeWithMotion() = closeScanner(null)
+
+    private fun closeScanner(destination: Uri?) {
         if (closing || isFinishing) return
         closing = true
         completed.set(true)
-        // Telegram closes camera before the exit animation; EVE unbinds CameraX.
+        // Original QrScanOverlay captures the final texture before releasing
+        // its camera. Keep only an in-memory half-sized preview until closed.
+        if (::root.isInitialized) root.captureCloseFrame(preview)
         camera?.cameraControl?.enableTorch(false)
         provider?.unbindAll()
         camera = null
-        root.animate().alpha(0f).scaleX(.94f).scaleY(.94f).setDuration(330L)
-            // Upstream QrScanOverlay.java:101-102 close: (0.3, 0.0, 0.1, 1.0).
-            .setInterpolator(org.telegram.ui.Components.CubicBezierInterpolator(0.3, 0.0, 0.1, 1.0))
-            .withEndAction { finish() }.start()
+        root.animateSourceClose {
+            if (!isDestroyed) {
+                if (destination != null)
+                    startActivity(Intent(this, UsernameCardActivity::class.java)
+                        .setData(destination))
+                finish()
+                @Suppress("DEPRECATION")
+                overridePendingTransition(0, 0)
+            }
+        }
     }
 
     override fun onDestroy() {
-        if (::root.isInitialized) root.animate().cancel()
+        if (::root.isInitialized) root.dispose()
         provider?.unbindAll()
         worker.shutdownNow()
         super.onDestroy()

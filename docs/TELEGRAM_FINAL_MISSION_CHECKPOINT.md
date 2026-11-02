@@ -498,3 +498,25 @@ tests matrix/quantization and updates source/rights maps.
 
 Next unresolved: full Telegram source sheet compositor/runtime and
 scanner source morph. Mission-final FULL/license release remain OPEN.
+
+## QR scanner source button-to-screen morph (2026-11-02)
+
+Live precommit `caf429b0b50468876ce38d8ff21f1217ab61cf5f`; previous source picker glass repair's
+exact-SHA FAST `41380609101` SUCCESS. Pinned original Telegram
+`3de37c8cfb039452be7398909461da6288babf15`.
+This coherent scoped scanner feature adds original Java geometry,
+Kotlin Canvas/CameraX host, real scan-button Activity caller,
+translucent QR theme, two source tests, contract tests,
+provenance and notices. No backend, Firebase, auth, admin rules,
+release variables, signing, scoring or production migration touched.
+
+| ID | Requirement | Current code | Upstream source | Dependencies | Status | Verification evidence |
+|---|---|---|---|---|---|---|
+| R5.scan-button | Original source 390ms button-to-screen and 330ms reverse geometry | QrScanMorph, QrScanMorphLayout, UsernameCardActivity, EveQrLiveScannerActivity | QrScanOverlay:99-112,168-195,370-479,561-568,601-623 | EVE QR translucent theme / Activity / CameraX | UNKNOWN until exact-SHA FAST | production-path source contract and Java tests; physical motion OPEN |
+| R5.camera-order | Start after open, bounded ephemeral close preview, release before close | EveQrLiveScannerActivity / QrScanMorphLayout | QrScanOverlay:386-403,481-546 | existing CameraX + own username QR parser | UNKNOWN device | EVE permission/gallery/duplicate-result existing checks retained |
+| R5.runtime | Match original scan-found polygon, hardware glass and camera lifecycle matrix | EVE QrScannerFrameOverlay | QrScanOverlay:579-708 and full camera dependency | device GPU, real permission lifecycle | NOT MET | original found corners/visual matrix and full permission paths not verified |
+
+Next unfinished: original found-code outline plus camera/gallery/torch
+permissions, rotation, rapid cancellation and native runtime; then
+remaining QR/Profile/Admin/Home/student/Quiz/theme and FULL/release gates.
+Root GPLv2 and combined-app distribution decision remain OPEN.

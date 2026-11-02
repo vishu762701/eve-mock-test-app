@@ -23,8 +23,13 @@ class EveQrScannerContractTest {
         assertFalse(scanner.contains("inSampleSize = 4"))
         // Upstream QrScanOverlay.java:101-112 uses exactly these source curves
         // and a 150ms decode interval; UI geometry remains ADAPTED.
-        assertTrue(scanner.contains("CubicBezierInterpolator(0.05, 0.7, 0.1, 1.0)"))
-        assertTrue(scanner.contains("CubicBezierInterpolator(0.3, 0.0, 0.1, 1.0)"))
+        val source = File("src/main/java/com/eve/app/telegram/qr/QrScanMorph.java").readText()
+        assertTrue(source.contains("CubicBezierInterpolator(0.05, 0.7, 0.1, 1.0)"))
+        assertTrue(source.contains("CubicBezierInterpolator(0.3, 0.0, 0.1, 1.0)"))
+        assertTrue(scanner.contains("root.animateSourceOpen"))
+        assertTrue(scanner.contains("root.animateSourceClose"))
+        assertTrue(scanner.contains("root.captureCloseFrame(preview)"))
+        assertTrue(manifest.contains("android:theme=\"@style/Theme.Eve.QrScene\""))
         assertTrue(scanner.contains("now - lastScanAt < 150L"))
         assertTrue(scanner.contains("QrScannerFrameOverlay(this)"))
         assertTrue(scanner.contains("QrControlBackground(dp(20).toFloat())"))

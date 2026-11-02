@@ -82,7 +82,19 @@ class UsernameCardActivity : EveBaseActivity() {
         root.addView(scene, FrameLayout.LayoutParams(-1, -1))
 
         val close = icon(R.drawable.eve_qr_close, "Close QR screen") { finishWithMotion() }
-        val scan = scanButton { startActivity(Intent(this, EveQrLiveScannerActivity::class.java)) }
+        val scan = scanButton { button ->
+            val xy = IntArray(2)
+            button.getLocationOnScreen(xy)
+            val side = minOf(button.width, button.height).toFloat()
+            val cx = xy[0] + button.width / 2f
+            val cy = xy[1] + button.height / 2f
+            val from = floatArrayOf(cx - side / 2f, cy - side / 2f,
+                cx + side / 2f, cy + side / 2f)
+            startActivity(Intent(this, EveQrLiveScannerActivity::class.java)
+                .putExtra(QrScanMorphLayout.EXTRA_ORIGIN, from))
+            @Suppress("DEPRECATION")
+            overridePendingTransition(0, 0)
+        }
         val share = icon(R.drawable.eve_qr_share, "Share QR image") { shareImage() }
         val save = icon(R.drawable.eve_qr_download, "Save QR image") {
             saveToGallery()
@@ -339,12 +351,12 @@ class UsernameCardActivity : EveBaseActivity() {
         return host
     }
 
-    private fun scanButton(onClick: () -> Unit): FrameLayout {
+    private fun scanButton(onClick: (View) -> Unit): FrameLayout {
         val host = FrameLayout(this).apply {
             contentDescription = "Scan EVE QR using live camera"
             isFocusable = true
             isClickable = true
-            setOnClickListener { onClick() }
+            setOnClickListener { onClick(this) }
         }
         val pill = LinearLayout(this).apply {
             gravity = Gravity.CENTER

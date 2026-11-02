@@ -1,5 +1,17 @@
 # Third Party Notices
 
+## Telegram QR scan button source geometry — 2026-11-02
+
+`app/src/main/java/com/eve/app/telegram/qr/QrScanMorph.java`
+is an ADAPTED isolated Java implementation from official source
+`DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`,
+`TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrScanOverlay.java`
+(lines 99-112,429-479,561-568,601-623). Telegram contributors
+retain copyright; root GPLv2/per-file grants and combined EVE APK
+redistribution compatibility remain unresolved. This source
+adaptation does not authorize production redistribution.
+
+
 ## Telegram QR sheet RenderNode blur and luminance lift — 2026-11-02
 
 `app/src/main/java/com/eve/app/telegram/qr/QrPickerSheetLift.java`

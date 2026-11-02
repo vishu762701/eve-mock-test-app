@@ -57,7 +57,7 @@
             android:name=".ui.home.MainActivity"
             android:exported="false"
             android:theme="@style/Theme.Eve.Home" />
-        <activity android:name=".ui.profile.EveQrLiveScannerActivity" android:exported="false" android:theme="@style/Theme.Eve.Profile" />
+        <activity android:name=".ui.profile.EveQrLiveScannerActivity" android:exported="false" android:theme="@style/Theme.Eve.QrScene" />
         <activity android:name=".ui.profile.UsernameCardActivity" android:exported="true"
             android:theme="@style/Theme.Eve.QrScene">
             <intent-filter>
