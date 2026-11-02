@@ -530,7 +530,7 @@ a separately authorized deployment; no production safety claim is inferred.
 
 Rename final local verification: serial `./gradlew :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64` PASS (794 JVM tests / 185 suites, zero failures/errors/skips). `cd backend && npm test && npm run build` PASS (299 tests, no failures/skips); eight new real-handler cases. CI helpers 59, docs, structural acceptance and diff checks PASS. Bare historical SDK 35 Main Thread line still UNKNOWN in successful JVM suite. Carrying exact-SHA FAST required; FULL/native/reference/legal acceptance not established. After green continue remaining shared-dialog/Home/Profile production paths; next Profile category/data restoration/identity audit, preserving no Add bio/About and existing confirmed-store/request-owner mechanisms.
 
-## B4/C5 profile editor restoration ownership
+## B5/B7 profile editor restoration ownership
 
 Base 196c59d55b9710fcfb99bb1f2b4e8629f6bb9aee exact-SHA FAST 41469072072 SUCCESS,
 docs 41469072384 SUCCESS. No concurrent changes. R1: restored editor drafts must
@@ -544,7 +544,7 @@ Existing bind only checks current identity on each onCreate, losing original own
 across destruction; scoped NOT MET pending actual Activity regression evidence.
 This is EVE identity isolation, not an imported Telegram account subsystem.
 
-B4 restoration scoped implementation uses the EXISTING ProfileEditorAccountGuard
+B5/B7 restoration scoped implementation uses the EXISTING ProfileEditorAccountGuard
 and native SavedStateRegistry. Original owner UID is saved privately with the
 editor's existing OS view state; no account repository/preferences/API introduced.
 Profile's three active editor launches carry their initiating owner. Restored
@@ -572,9 +572,9 @@ retained editor paths. These are host lifecycle evidence, not physical-device or
 real Firebase authentication proof. Pending-save/process-death reconciliation and
 whole Profile/source visual acceptance remain OPEN/NOT MET.
 
-B4 ownership final local verification: serial `./gradlew :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64` PASS; 805 JVM tests / 186 suites, zero failures/errors/skips. Eleven new Activity lifecycle tests PASS; Python helpers 59/docs/structural acceptance/diff PASS. Existing backend unchanged from predecessor FAST (299 tests). Historical bare SDK 35 Main Thread warning persists UNKNOWN; no suppression. Exact-SHA FAST required. Next independent Profile investigation: username availability callback cancellation/error ordering, field pending-save restoration and remaining source UI paths; preserve this ownership guard and no Bio/About rows. Full mission/device/GPL/FULL acceptance NOT MET.
+B5/B7 ownership final local verification: serial `./gradlew :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64` PASS; 805 JVM tests / 186 suites, zero failures/errors/skips. Eleven new Activity lifecycle tests PASS; Python helpers 59/docs/structural acceptance/diff PASS. Existing backend unchanged from predecessor FAST (299 tests). Historical bare SDK 35 Main Thread warning persists UNKNOWN; no suppression. Exact-SHA FAST required. Next independent Profile investigation: username availability callback cancellation/error ordering, field pending-save restoration and remaining source UI paths; preserve this ownership guard and no Bio/About rows. Full mission/device/GPL/FULL acceptance NOT MET.
 
-## B4/F1 username status roles and accessible localized rendering
+## B5/B7/F1 username status roles and accessible localized rendering
 
 Base 2212767c4de9e0d23edd4439ff5bba0ab85215a3 FAST 41472089611 attempt 2 SUCCESS,
 docs 41472089940 SUCCESS. Attempt 1 failed only CMake 3.22.1 remote TLS handshake
@@ -617,3 +617,66 @@ THIRD_PARTY_NOTICES updated; ThemeColors has no per-file header grant, so root G
 and combined-work legal gate remain OPEN; no self-certified redistribution.
 
 Username final local checks: `./gradlew :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64` PASS; 809 tests / 187 suites, zero failures/errors/skips. Four new actual Activity status/theme/contrast/localization tests PASS. Python helper 59/docs/claims/diff PASS; three source scalar comparisons and Night full-byte identity PASS. Bare historical SDK 35 Main Thread line still UNKNOWN; no suppression. Exact-SHA FAST required; complete Profile/F1/source visual/device acceptance NOT MET.
+
+## C5/E1/E3 shared question-response integrity
+
+Base main 372b108a0b1b1c957566c53eeb7fd69b139e7a3e FAST 41475078791 SUCCESS,
+docs 41475079226 SUCCESS. Category live-theme repair is separately tested/archived
+pending explicit owner commit-limit exception; it is NOT applied to this tree.
+R1: missing question data must not masquerade as confirmed empty questions.
+R2: preserve valid empty arrays, existing order/mock/topic/PYQ filters and cancellation.
+R3: actual Admin VM refresh must retain confirmed same-exam rows on malformed data.
+Canonical ExamRepository.getQuestions feeds AdminViewModel/EditExam/analytics/flagged
+questions/results and Test/Practice/PYQ filters. Worker questions.ts:134-153 always
+returns a nonnull mapped array and independently enforces manage_questions/answer
+redaction. No API/permissions/scoring/answer model change. EVE business validation,
+no Telegram exam-question contract/equivalence claim. Scoped NOT MET before tests.
+
+Requirement-ID normalization: prior editor continuation labels called B4 refer to
+the owner's workstream summary, but the authoritative table above uses B4 for
+category, B5 for editable fields and B7 for identity/lifecycle. Those continuation
+headings are normalized to B5/B7 here; no requirement or evidence is dropped.
+
+Category B4/F1 local repair remains NOT MET integration, pending one explicit
+commit-limit exception. Both existing successful category commits were checked
+live (feb9c888 / FAST 41163967661, 14a62972 / FAST 41165900930). Concrete native
+ring failure reproduced; local repair passes 811 tests/188 suites, AndroidTest
+compile/lint/x86_64 assemble and helpers59/docs/claims/diff. Patch, full source map,
+files and metadata are safely archived under
+/workspace/pending-category-theme-repair/; repair.patch SHA-256
+236f8f9716ba51d0b14bbf7dec20a688cd63328ebac0227bfa03a6d11699e757.
+It is NOT applied to main, committed or pushed. Owner question asks only for the
+mandatory third-commit exception under ENGINEERING_STANDARD.md:31; no approval
+by silence. `git apply --check` passed against base 372b108a. Reconcile before
+applying if authorized; keep continuing independent requirements otherwise.
+
+C5/E1/E3 scoped implementation rejects success without data and Gson null question
+entries in the existing getQuestions method. Valid [] and API order remain intact;
+no filtering/dropping malformed rows as if valid. All existing mock/topic/PYQ
+wrappers share this guard. No correct-answer/nonblank-answer requirement added:
+server-redacted student answers remain valid and scoring stays server-authoritative.
+
+Evidence: initial real repository + actual Admin VM tests fail before repair
+(malformed success becomes empty; confirmed rows erased). Separate real Gson
+[null] test also fails before repair. New four repository tests and one added
+VM refresh test pass after repair; existing request-generation/spinner/old-write
+regressions preserved. The VM result/error retention is executed host evidence;
+full authenticated Activity error presentation/device matrix is not inferred.
+Worker questions.ts:134-153 actual mapped-array/redaction path unchanged; no
+production reads/writes/deploy/migration or new source import. Source relationship:
+EVE business contract -> ExamRepository.kt:getQuestions -> existing callers,
+ADAPTED integration, no official Telegram exam-question equivalent/EXACT claim.
+
+Final serial local Gradle unit/AndroidTest-compile/lint/x86_64 assemble PASS: 814
+JVM tests / 188 suites, no failures/errors/skips. CI helpers 59/docs/acceptance/
+diff PASS. The category review patch is NOT active in these results. Bare SDK 35
+Main Thread line still UNKNOWN, not suppressed. Carrying exact-SHA FAST required;
+whole C5/E1/E3/Admin/student acceptance NOT MET. First next independent UI
+investigation after green: actual Profile popup backdrop paint/alpha lifecycle;
+preserve already integrated source-based blur and do not fabricate Blur3 parity.
+
+Owner decision received during question-response preparation: "Haan, ek additional
+repair commit authorize hai". ONE additional category live-theme repair commit is
+now authorized, with mandatory exact-SHA FAST. Original review patch/hash remains
+unchanged; apply only after the carrying question-response gate succeeds. This is
+not permission for further cosmetic category iterations or another release/deploy.

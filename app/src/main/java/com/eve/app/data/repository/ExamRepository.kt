@@ -57,10 +57,15 @@ class ExamRepository(
 
     suspend fun getQuestions(examId: String): List<Question> {
         val res = api.getQuestions(examId)
-        if (!res.success) {
+        if (!res.success || res.data == null) {
             throw Exception(res.error ?: "Failed to fetch questions")
         }
-        return res.data ?: emptyList()
+        // Gson can produce null elements despite the Kotlin nonnull DTO type.
+        val nullableRows: List<Question?> = res.data
+        if (nullableRows.any { it == null }) {
+            throw Exception("Failed to fetch questions")
+        }
+        return res.data
     }
 
     /** Phase 19 gap-fix: mock test me PYQ tagged questions mix nahi hone chahiye. */

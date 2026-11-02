@@ -116,6 +116,13 @@ class QuestionListOwnershipTest {
         assertNull(vm.message.value)
         assertTrue(vm.questions.value.isEmpty())
     }
+    @Test fun malformedRefreshCannotEraseConfirmedQuestionRows() = exercise {
+        load("exam"); answer(0, "Confirmed")
+        load("exam")
+        reads[1].reply.resume(ApiResponse<List<Question>>(true, null)); idle()
+        assertEquals("Confirmed", vm.questions.value.single().questionText)
+        assertEquals("Failed to fetch questions", vm.message.value)
+    }
     @Test fun actualSpinnerCallbacksPreserveIdentityAcrossReorderAndRecreation() = exercise {
         val controller = Robolectric.buildActivity(Activity::class.java)
         controller.get().setTheme(R.style.Theme_Eve)

@@ -6,7 +6,7 @@ Status: PARTIAL. This is a continuation record, not screen acceptance.
 
 ## Live verified implementation pointer — 2026-11-02
 
-Latest verified implementation main: **2212767c4de9e0d23edd4439ff5bba0ab85215a3**.
+Latest verified implementation main: **372b108a0b1b1c957566c53eeb7fd69b139e7a3e**.
 Official Telegram rechecked after implementation: **3de37c8cfb039452be7398909461da6288babf15**.
 Reconcile this pointer with the carrying implementation commit and live main/CI on restart.
 
@@ -29,6 +29,7 @@ Reconcile this pointer with the carrying implementation commit and live main/CI 
 | C5 selected question-list request ownership | 03c07dc45031b9c2361db53e7ba650dca729bdce | [41466628937](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41466628937) SUCCESS |
 | Confirmed exam rename contract/form | 196c59d55b9710fcfb99bb1f2b4e8629f6bb9aee | [41469072072](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41469072072) SUCCESS |
 | Profile editor draft account restoration | 2212767c4de9e0d23edd4439ff5bba0ab85215a3 | [41472089611](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41472089611) attempt 2 SUCCESS |
+| Username source role/localized accessible status | 372b108a0b1b1c957566c53eeb7fd69b139e7a3e | [41475078791](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41475078791) SUCCESS |
 
 Each FAST passed Android build/JVM/AndroidTest source compilation, all four ABI
 builds, pinned Rust security/C API, backend and Firebase. Historical scanner-batch docs 41403654877
@@ -1251,7 +1252,7 @@ No production deploy/migration, scoring/security downgrade, new account service,
 GPL variable change or speculative QR iteration. Source classification ADAPTED EVE
 adapter, not exact Telegram account implementation.
 
-B4 ownership final local verification: serial `./gradlew :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64` PASS; 805 JVM tests / 186 suites, zero failures/errors/skips. Eleven new Activity lifecycle tests PASS; Python helpers 59/docs/structural acceptance/diff PASS. Existing backend unchanged from predecessor FAST (299 tests). Historical bare SDK 35 Main Thread warning persists UNKNOWN; no suppression. Exact-SHA FAST required. Next independent Profile investigation: username availability callback cancellation/error ordering, field pending-save restoration and remaining source UI paths; preserve this ownership guard and no Bio/About rows. Full mission/device/GPL/FULL acceptance NOT MET.
+B5/B7 ownership final local verification: serial `./gradlew :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64` PASS; 805 JVM tests / 186 suites, zero failures/errors/skips. Eleven new Activity lifecycle tests PASS; Python helpers 59/docs/structural acceptance/diff PASS. Existing backend unchanged from predecessor FAST (299 tests). Historical bare SDK 35 Main Thread warning persists UNKNOWN; no suppression. Exact-SHA FAST required. Next independent Profile investigation: username availability callback cancellation/error ordering, field pending-save restoration and remaining source UI paths; preserve this ownership guard and no Bio/About rows. Full mission/device/GPL/FULL acceptance NOT MET.
 
 ## Username source theme/localization continuation
 
@@ -1279,3 +1280,41 @@ student paths, preserving completed work. Whole UI/device/reference/GPL/FULL/APK
 acceptance still NOT MET; no protected FULL eligibility or release approval implied.
 
 Username final local checks: `./gradlew :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64` PASS; 809 tests / 187 suites, zero failures/errors/skips. Four new actual Activity status/theme/contrast/localization tests PASS. Python helper 59/docs/claims/diff PASS; three source scalar comparisons and Night full-byte identity PASS. Bare historical SDK 35 Main Thread line still UNKNOWN; no suppression. Exact-SHA FAST required; complete Profile/F1/source visual/device acceptance NOT MET.
+
+## Shared question-response integrity continuation
+
+Base live main 372b108a0b1b1c957566c53eeb7fd69b139e7a3e FAST 41475078791 SUCCESS,
+docs 41475079226 SUCCESS. Existing canonical getQuestions converted missing data
+to empty success; same-exam VM refresh erased confirmed rows. Actual repository/
+Gson/VM fail-before tests reproduce missing data and null entries. Guard now
+rejects them, preserving valid arrays/order/mock/topic/PYQ filters, cancellation,
+request ownership and server-redacted answers. No backend/scoring/schema change.
+Five added host tests pass. Final serial local unit/AndroidTest-compile/lint/
+x86_64 assemble PASS: 814 tests / 188 suites, zero failures/errors/skips; helpers
+59/docs/claims/diff PASS. Required carrying exact-SHA FAST still pending at commit.
+
+Category B4/F1 theme repair was separately prepared and tested: native unselected
+ring remains stale after live theme traversal. Small existing-component repair
+passes 811 tests /188 suites and broad local checks, but category already has TWO
+successful feature commits verified LIVE: feb9c888 / FAST 41163967661 SUCCESS,
+14a62972 / FAST 41165900930 SUCCESS. Owner exception requested asynchronously
+under ENGINEERING_STANDARD.md:31; owner explicitly answered "Haan, ek additional repair commit authorize hai" while this question-response batch was being prepared. ONE additional coherent category repair commit is authorized after the current required FAST. Patch is NOT applied,
+committed or pushed; local tree restored only after archived copies/hash checks.
+Review /workspace/pending-category-theme-repair/REVIEW.md; repair.patch SHA-256
+236f8f9716ba51d0b14bbf7dec20a688cd63328ebac0227bfa03a6d11699e757;
+base 372b108a0b1b1c957566c53eeb7fd69b139e7a3e, git apply --check PASS. Full copied
+source/tests/map + metadata.json retained in same archive. If authorized later,
+reconcile current main, apply reviewed patch, run checks and exact-SHA FAST. Do
+not treat this external local artifact as an integrated main implementation.
+
+Ledger IDs normalized: editor restoration/status batches belong B5/B7 (fields/
+identity), not B4 (category). Nothing dropped; old evidence/commits preserved.
+Latest successful UI status source scalar+Night identity evidence and legal notice
+remain on main. No new QR iteration, device pass, legal release or FULL/APK claim.
+
+First next action: observe carrying FAST; repair red before another feature. Then
+continue actual Profile popup backdrop paint/alpha lifecycle and Home/shared/
+Admin/student requirements. ProfilePopupBlurBackdrop has one prior implementation
+commit (89254123); inspect real paint/runtime/source before changes. Complete
+mission remains NOT MET. Production Worker/D1 deployment and GPL review remain
+separate; no release variable touched. Unavailable hardware does not block code.
