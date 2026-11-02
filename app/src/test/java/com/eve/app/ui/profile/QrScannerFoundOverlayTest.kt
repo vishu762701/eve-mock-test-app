@@ -4,7 +4,7 @@ import android.app.Application
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
-import androidx.test.core.app.ApplicationProvider
+import org.robolectric.RuntimeEnvironment
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -15,7 +15,7 @@ import org.robolectric.annotation.Config
 @Config(sdk = [35], application = Application::class)
 class QrScannerFoundOverlayTest {
     @Test fun realOverlayOnlyDrawsValidFourPointFoundCode() {
-        val overlay = QrScannerFrameOverlay(ApplicationProvider.getApplicationContext())
+        val overlay = QrScannerFrameOverlay(RuntimeEnvironment.getApplication())
         overlay.layout(0, 0, 240, 320)
         assertFalse(overlay.showFound(floatArrayOf(30f, 30f, 100f, 30f, 100f, 100f)))
         assertFalse(overlay.showFound(floatArrayOf(30f, 30f, 100f, 30f, 100f, 100f,
