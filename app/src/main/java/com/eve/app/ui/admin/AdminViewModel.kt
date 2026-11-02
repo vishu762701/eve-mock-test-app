@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
 import com.eve.app.data.remote.toUserFriendlyMessage
 
 class AdminViewModel(private val repo: ExamRepository = ExamRepository()) : ViewModel() {
@@ -72,18 +73,35 @@ class AdminViewModel(private val repo: ExamRepository = ExamRepository()) : View
         }
     }
 
+    var questionExamId: String = ""
+        private set
+    private var questionRequestGeneration = 0L
+
     fun loadQuestions(examId: String) {
+        val generation = ++questionRequestGeneration
+        if (questionExamId != examId) _questions.value = emptyList()
+        questionExamId = examId
         if (examId.isEmpty()) {
             _questions.value = emptyList()
             return
         }
         viewModelScope.launch {
             try {
-                _questions.value = repo.getQuestions(examId)
+                val questions = repo.getQuestions(examId)
+                if (generation == questionRequestGeneration) _questions.value = questions
+            } catch (cancel: CancellationException) {
+                throw cancel
             } catch (e: Exception) {
-                _message.value = e.message ?: "Failed to load questions"
+                if (generation == questionRequestGeneration) {
+                    _message.value = e.message ?: "Failed to load questions"
+                }
             }
         }
+    }
+
+    /** A completed write refreshes its own exam only while that exam is still selected. */
+    fun refreshQuestions(examId: String) {
+        if (questionExamId == examId && examId.isNotEmpty()) loadQuestions(examId)
     }
 
     fun addExam(name: String, minutes: Int, category: String, imageUrl: String = "", onDone: () -> Unit) {
@@ -156,7 +174,7 @@ class AdminViewModel(private val repo: ExamRepository = ExamRepository()) : View
             try {
                 val n = repo.addQuestions(questions)
                 _message.value = "$n questions uploaded successfully"
-                questions.firstOrNull()?.examId?.let { loadQuestions(it) }
+                questions.firstOrNull()?.examId?.let { refreshQuestions(it) }
                 onDone()
             } catch (e: Exception) {
                 _message.value = e.message ?: "Upload failed (check permissions)"
@@ -171,7 +189,7 @@ class AdminViewModel(private val repo: ExamRepository = ExamRepository()) : View
             try {
                 repo.addQuestion(q)
                 _message.value = "Question uploaded successfully"
-                loadQuestions(q.examId)
+                refreshQuestions(q.examId)
                 onDone()
             } catch (cancel: kotlinx.coroutines.CancellationException) {
                 throw cancel
@@ -191,7 +209,7 @@ class AdminViewModel(private val repo: ExamRepository = ExamRepository()) : View
             try {
                 repo.updateQuestion(q)
                 _message.value = "Question updated successfully"
-                loadQuestions(q.examId)
+                refreshQuestions(q.examId)
                 onDone()
             } catch (e: Exception) {
                 _message.value = e.message ?: "Failed to update question"
@@ -206,7 +224,7 @@ class AdminViewModel(private val repo: ExamRepository = ExamRepository()) : View
             try {
                 repo.deleteQuestion(q.id)
                 _message.value = "Question deleted successfully"
-                loadQuestions(q.examId)
+                refreshQuestions(q.examId)
             } catch (e: Exception) {
                 _message.value = e.message ?: "Failed to delete question"
             }

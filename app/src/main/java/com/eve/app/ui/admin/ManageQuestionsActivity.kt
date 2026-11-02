@@ -114,17 +114,8 @@ class ManageQuestionsActivity : EveBaseActivity() {
                 launch {
                     viewModel.exams.collect { examList ->
                         exams = examList
-                        val examNames = examList.map { "${it.examName} (${it.categoryOrOther})" }
-                        val adapter = ArrayAdapter(this@ManageQuestionsActivity, android.R.layout.simple_spinner_item, examNames)
-                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                        binding.spExam.adapter = adapter
-
-                        if (examList.isNotEmpty()) {
-                            val pos = binding.spExam.selectedItemPosition.coerceAtLeast(0).coerceAtMost(examList.size - 1)
-                            viewModel.loadQuestions(examList[pos].id)
-                        } else {
-                            updateQuestionsUi(emptyList())
-                        }
+                        bindQuestionExamChoices(binding.spExam, examList, viewModel)
+                        if (examList.isEmpty()) updateQuestionsUi(emptyList())
                     }
                 }
                 launch {
@@ -133,15 +124,6 @@ class ManageQuestionsActivity : EveBaseActivity() {
                     }
                 }
             }
-        }
-
-        binding.spExam.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                if (position in exams.indices) {
-                    viewModel.loadQuestions(exams[position].id)
-                }
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
     }
 
@@ -349,7 +331,7 @@ class ManageQuestionsActivity : EveBaseActivity() {
             try {
                 val added = examRepo.addQuestions(questions)
                 AppBulletin.showSuccess(this@ManageQuestionsActivity, "Successfully imported $added questions!")
-                viewModel.loadQuestions(examId)
+                viewModel.refreshQuestions(examId)
             } catch (e: Exception) {
                 AppBulletin.showError(this@ManageQuestionsActivity, "Import failed: ${e.message}")
             }
@@ -374,6 +356,31 @@ class ManageQuestionsActivity : EveBaseActivity() {
         super.onDestroy()
     }
 
+}
+
+/** The single production spinner binding; identity survives adapter rebuilds and reordering. */
+internal fun bindQuestionExamChoices(spinner: android.widget.Spinner, exams: List<Exam>,
+                                    viewModel: AdminViewModel) {
+    val selectedId = viewModel.questionExamId
+    spinner.onItemSelectedListener = null
+    spinner.adapter = ArrayAdapter(spinner.context, android.R.layout.simple_spinner_item,
+        exams.map { "${it.examName} (${it.categoryOrOther})" }).apply {
+        setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+    }
+    if (exams.isEmpty()) {
+        viewModel.loadQuestions("")
+    } else {
+        val position = exams.indexOfFirst { it.id == selectedId }.coerceAtLeast(0)
+        spinner.setSelection(position)
+        viewModel.loadQuestions(exams[position].id)
+    }
+    spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+            val exam = exams.getOrNull(position) ?: return
+            if (exam.id != viewModel.questionExamId) viewModel.loadQuestions(exam.id)
+        }
+        override fun onNothingSelected(parent: AdapterView<*>?) = Unit
+    }
 }
 
 /** Canonical question form presentation; authorization stays at the Activity/Worker entry points. */

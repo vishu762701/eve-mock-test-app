@@ -441,3 +441,39 @@ or permission schema changed. Local serial broad Gradle PASS: 782 tests / 183
 suites, zero failures/errors/skips; AndroidTest compile/lint/x86_64 assemble PASS.
 Python helpers 59/docs/claim/diff PASS. Carrying commit requires FAST; whole shared
 dialog/Admin/native/reference acceptance remains NOT MET/OPEN.
+
+## C5 question-list request ownership (active recovery)
+
+R1: Only the current selected exam/request may publish questions or load errors.
+R2: Selection changes/empty selection must invalidate older requests and remove
+old-exam rows; confirmed same-exam refresh may retain its existing rows.
+R3: Mutation/import refresh must not select an obsolete exam after navigation.
+R4: Preserve the selected exam identity across list refresh/reordering, using the
+existing ViewModel and spinner; no second state owner or screen. Existing server
+rights/API/scoring contracts stay unchanged. Whole rotation/process-death editor
+restoration remains OPEN; this race is an independently implementable prerequisite.
+Base 412edc6ed80ca867635cbcf8cee06e56196728f4 FAST 41462667732 SUCCESS and docs
+41462667822 SUCCESS. Official HEAD rechecked unchanged 3de37c8cfb039452be7398909461da6288babf15.
+Before repair: AdminViewModel.loadQuestions has no request/context guard; active
+ManageQuestions spinner and mutation callbacks call it with captured exam IDs.
+C5 scoped status NOT MET pending real VM/repository out-of-order response tests.
+
+C5 scoped implementation: existing AdminViewModel owns the selected exam ID and
+monotonic read generation. Older success/error cannot publish after any later load,
+including empty selection; cancellation propagates. Switching exam clears actionable
+old rows immediately, while same-exam refresh retains confirmed rows. All VM
+question mutations and the active bulk-import completion use refreshQuestions,
+which does not change selection. The existing spinner binding is extracted in the
+same production file, preserving identity across adapter reorder/rebind and
+suppressing its selected-item duplicate event. No second repository/state owner.
+QuestionListOwnershipTest drives real VM/repository transport continuations and
+actual Spinner callbacks; the first six tests all FAILED before repair with
+specific obsolete data/error/request assertions. The spinner recreation check uses
+a new View with the retained VM; it is NOT authenticated Activity rotation or
+process-death proof. No Telegram question-admin business equivalent is claimed.
+
+| Telegram reference | EVE active path | Classification / reason | Evidence / uncertainty |
+|---|---|---|---|
+| No Telegram EVE exam-question request contract | AdminViewModel.kt:loadQuestions/refreshQuestions; ManageQuestionsActivity.kt:bindQuestionExamChoices/importQuestionsForSelectedExam | ADAPTED EVE business ownership around existing Telegram-derived screen primitives; no new upstream code/assets | held real repository responses + native Spinner callbacks; fresh gate/Worker unchanged; full Admin/device/process restoration NOT MET |
+
+C5 local final checks: `./gradlew :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64` PASS; 791 tests / 184 suites, zero failures/errors/skips. Nine new ownership tests PASS; initial six fail-before evidence in question-list-before.log. Python CI helpers 59/docs/acceptance/diff PASS. Historical bare SDK 35 Main Thread exception also appeared in this successful suite; root cause remains UNKNOWN, not suppressed. FAST still required for carrying commit.

@@ -1177,3 +1177,22 @@ all green Home/menu (two commits), poll (two commits), Profile and QR work. No
 production deployment/migration, scoring change, legal/FULL/release bypass. Whole
 mission NOT MET. The source onTouchEvent=false DrawerLayoutContainer finding stays
 a scoped trace limitation, never an invented drawer physics implementation.
+
+## C5 selected question-list ownership continuation
+
+Recovered clean main 412edc6ed80ca867635cbcf8cee06e56196728f4; exact-SHA FAST
+41462667732 SUCCESS, docs 41462667822 SUCCESS. Official Telegram HEAD unchanged
+3de37c8cfb039452be7398909461da6288babf15; no upstream imports changed. Gate 2
+shared question-editor lifecycle tracing exposed a prerequisite C5 race: old exam
+reads and mutation completions could replace current exam rows. Implemented in the
+existing VM and spinner caller; no parallel state owner/screen. First six real
+VM/repository tests reproduced failures before repair; actual Spinner callbacks
+also cover reorder/rebind/new-View retained identity/fallback/no-op. Detailed scoped
+ledger and limits in TELEGRAM_REMAINING_REQUIREMENTS.md latest C5 entry. This is
+not a full editor rotation/process-death solution; that stays OPEN. No production
+writes/deploy/migration, scoring changes or QR work. Carrying commit requires its
+exact-SHA FAST; on red repair before unrelated implementation. Next eligible step
+after green: active shared-dialog validation/server-failure callers (including
+ManageQuestions promptRenameExam), then remaining full Home/Profile/Admin ledger.
+
+C5 local final checks: `./gradlew :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64` PASS; 791 tests / 184 suites, zero failures/errors/skips. Nine new ownership tests PASS; initial six fail-before evidence in question-list-before.log. Python CI helpers 59/docs/acceptance/diff PASS. Historical bare SDK 35 Main Thread exception also appeared in this successful suite; root cause remains UNKNOWN, not suppressed. FAST still required for carrying commit.
