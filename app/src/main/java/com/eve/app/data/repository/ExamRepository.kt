@@ -40,11 +40,11 @@ class ExamRepository(
 
     suspend fun getExams(): List<Exam> {
         val res = api.getExams()
-        if (!res.success) {
+        if (!res.success || res.data == null) {
             throw Exception(res.error ?: "Failed to fetch exams")
         }
         res.categoryEmoji?.let { com.eve.app.ui.admin.emoji.EmojiRenderer.setCategoryEmojiMap(it) }
-        return (res.data ?: emptyList()).sortedBy { it.examName }
+        return res.data.sortedBy { it.examName }
     }
 
     suspend fun getExam(id: String): Exam? {

@@ -378,3 +378,23 @@ Serial broad Gradle PASS: 772 tests / 179 suites, zero failures/errors/skips;
 AndroidTest compilation/lint/x86_64 assemble PASS. Python helpers 59/docs/claims/diff
 PASS. This is the second planned implementation commit for the seven-action
 feature; remaining matched native/source-screen evidence stays OPEN.
+
+Gate 2 Home exam-load integrity requirement recorded before code: existing
+ExamRepository.getExams treats success=true/data=null as an empty list. Actual
+HomeViewModel.load then saves/publishes that fabricated empty dataset, replacing
+valid cached exams; AdminViewModel/EditExam/Settings also call this repository.
+Repair the canonical response validation only; preserve confirmed empty list,
+sorting, category emoji mapping, cancellation and server contracts. EVE business
+adaptation, no Telegram equivalent/transplant. Scoring/locks/timers/backend remain
+unchanged. First reproduce malformed success with actual repository test.
+
+Home exam-list integrity scoped repository contract MET locally: malformed
+success/null now throws through existing error handling instead of fabricating an
+empty dataset. Regression first failed on old code, then passes; confirmed empty,
+nonempty ordering, denied response with stale data and cancellation are tested.
+HomeViewModel cache preservation follows inspected caller control flow (INFERRED
+from code, not an authenticated Activity/device test). Worker GET /api/exams
+returns an array on confirmed success; deployed API/scoring/attempt logic unchanged.
+Serial broad Gradle PASS: 775 JVM tests / 180 suites, zero failures/errors/skips;
+AndroidTest compilation/lint/x86_64 assemble PASS. Python helpers 59/docs/claim/diff
+PASS. Carrying commit still requires exact-SHA FAST.

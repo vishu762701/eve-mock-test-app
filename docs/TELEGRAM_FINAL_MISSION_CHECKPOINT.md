@@ -6,7 +6,7 @@ Status: PARTIAL. This is a continuation record, not screen acceptance.
 
 ## Live verified implementation pointer — 2026-11-02
 
-Latest verified implementation main: **a6c0e042f58135d234b450e50c3c5f96ce38757c**.
+Latest verified implementation main: **bc139bd3b2cc236d20d399e64e41531bf812d269**.
 Official Telegram rechecked after implementation: **3de37c8cfb039452be7398909461da6288babf15**.
 Reconcile this pointer with the carrying implementation commit and live main/CI on restart.
 
@@ -1114,3 +1114,34 @@ gaps only. Drawer currently also has existing Topic/PYQ/Mistakes destinations;
 these are active navigation entries, not duplicate renderers/screens. They are not
 removed merely because overflow links the same destination. No production deploy,
 migration, FULL/release gate bypass or claimed device pass. Full ledger NOT MET.
+
+
+## Home exam-list integrity continuation
+
+Fetched main bc139bd3b2cc236d20d399e64e41531bf812d269 and its exact-SHA FAST
+41413589407 SUCCESS, docs 41413589354 SUCCESS. No concurrent changes. Seven-action
+Home menu feature has TWO successful implementation commits (a6c0e042 and
+bc139bd3); preserve it and do not start cosmetic third iterations. Official HEAD
+rechecked unchanged 3de37c8cfb039452be7398909461da6288babf15.
+
+Actual HomeViewModel.load saves/publishes ExamRepository.getExams output. Missing
+data in a success response previously became empty and could replace valid cache.
+Canonical repository now rejects missing data while retaining valid empty/sorted
+lists, category mapping, existing error type and cancellation. All actual callers
+(Home, Admin, EditExam, Settings and repository filters) remain on this same method.
+Worker GET /api/exams:68-84 confirms nonnull array contract. No backend/scoring/
+locks/timer/answer/data migration change. EVE business validation, no Telegram
+transplant/parity claim. Three actual repository tests include before/after failure.
+Cache retention is inferred from caller flow, not claimed as native/authenticated
+end-to-end verification.
+
+Serial local broad Gradle (:app:testDebugUnitTest :app:compileDebugAndroidTestKotlin
+:app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64) PASS: 775 JVM tests / 180
+suites, no failures/errors/skips. Python helpers 59/docs/claims/diff PASS. Carrying
+commit requires exact-SHA FAST. First next action: observe FAST, fix red if any,
+then continue Gate 2 actual Home/dialog/drawer/search/toolbar callers and remaining
+full ledger. Latest official DrawerLayoutContainer.java is a 214-line host whose
+onTouchEvent returns false; do not transplant it as if it contains classic drawer
+physics. A complete matching active source subsystem has not been established;
+preserve current working AndroidX gesture owner rather than inventing source math.
+Native/reference/physical matrix and GPL/FULL/release remain OPEN/NOT MET.
