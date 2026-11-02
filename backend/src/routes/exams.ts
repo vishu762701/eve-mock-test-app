@@ -368,29 +368,48 @@ examRoutes.put("/:id/rename", requirePermission("manage_exams"), async (c) => {
   const user = c.get("user");
   const id = c.req.param("id") || "";
   const body = await c.req.json().catch(() => ({}));
-  const newName = String(body.newName || "").trim();
+  // Canonical newName plus compatibility for already-installed Android clients.
+  const rawName = body && !Array.isArray(body) && typeof body === "object"
+    ? (body.newName !== undefined ? body.newName : body.examName) : undefined;
+  if (typeof rawName !== "string" || !rawName.trim()) {
+    return c.json({ success: false, error: "Provide a nonempty new exam name" }, 400);
+  }
+  const newName = rawName.trim();
   const db = c.env.DB;
 
-  if (!newName) {
-    return c.json({ success: false, error: "New exam name cannot be empty" }, 400);
-  }
-
-  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+  const { id: auditId, stmt: auditStmt } = prepareAdminAuditLog(db, user, {
     actionType: "EXAM_RENAMED",
     description: `Renamed exam '${id}' to '${newName}'`,
     targetType: "exam",
     targetId: id,
     metadata: { newName },
+    // Immediately follows the target UPDATE in this atomic batch.
+    condition: { sql: "changes() = 1", bindings: [] },
   });
 
-  await db.batch([
-    db.prepare("UPDATE exams SET exam_name = ? WHERE id = ?").bind(newName, id),
-    db.prepare("UPDATE generated_tests SET exam_name = ? WHERE exam_id = ?").bind(newName, id),
-    db.prepare("UPDATE attempts SET exam_name = ? WHERE exam_id = ?").bind(newName, id),
-    db.prepare("UPDATE leaderboard SET exam_name = ? WHERE exam_id = ?").bind(newName, id),
-    db.prepare("UPDATE bookmarks SET exam_name = ? WHERE exam_id = ?").bind(newName, id),
+  const results = await db.batch([
+    db.prepare(`UPDATE exams SET exam_name = ? WHERE id = ? AND (
+      LOWER(exam_name) = LOWER(?) OR NOT EXISTS (
+        SELECT 1 FROM exams AS sibling WHERE LOWER(sibling.exam_name) = LOWER(?)
+        AND COALESCE(sibling.parent_exam_id, '') = COALESCE(exams.parent_exam_id, '')
+        AND sibling.id != exams.id
+      ))`).bind(newName, id, newName, newName),
     auditStmt,
+    // A new audit ID witnesses a successful target write. Missing/conflicting
+    // targets cannot mutate denormalized historical names.
+    db.prepare("UPDATE generated_tests SET exam_name = ? WHERE exam_id = ? AND EXISTS (SELECT 1 FROM admin_audit_log WHERE id = ?)").bind(newName, id, auditId),
+    db.prepare("UPDATE attempts SET exam_name = ? WHERE exam_id = ? AND EXISTS (SELECT 1 FROM admin_audit_log WHERE id = ?)").bind(newName, id, auditId),
+    db.prepare("UPDATE leaderboard SET exam_name = ? WHERE exam_id = ? AND EXISTS (SELECT 1 FROM admin_audit_log WHERE id = ?)").bind(newName, id, auditId),
+    db.prepare("UPDATE bookmarks SET exam_name = ? WHERE exam_id = ? AND EXISTS (SELECT 1 FROM admin_audit_log WHERE id = ?)").bind(newName, id, auditId),
   ]);
+  if (results[0]?.meta?.changes === 0) {
+    const exists = await db.prepare("SELECT 1 FROM exams WHERE id = ?").bind(id).first();
+    if (!exists) return c.json({ success: false, error: "Exam not found" }, 404);
+    return c.json({ success: false, error: "An exam with this name already exists here" }, 409);
+  }
+  if (results[0]?.meta?.changes !== 1 || results[1]?.meta?.changes !== 1) {
+    throw new Error("Exam rename confirmation unavailable");
+  }
 
   return c.json({ success: true });
 });

@@ -53,4 +53,12 @@
     <string name="home_menu_day_mode">Day Mode</string>
     <string name="home_menu_dark_mode">Dark Mode</string>
     <string name="question_form_submitting">Adding…</string>
+    <string name="exam_rename_title">Rename Exam</string>
+    <string name="exam_rename_message">Rename \'%1$s\' (%2$s)</string>
+    <string name="exam_rename_action">Rename</string>
+    <string name="exam_rename_hint">Enter new exam name</string>
+    <string name="exam_rename_too_short">Exam name must be at least 2 characters</string>
+    <string name="exam_rename_duplicate">An exam named \'%1$s\' already exists in category \'%2$s\'</string>
+    <string name="exam_renaming">Renaming…</string>
+    <string name="exam_rename_success">Renamed exam to \'%1$s\'</string>
 </resources>

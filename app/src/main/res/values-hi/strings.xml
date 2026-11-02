@@ -54,4 +54,12 @@
     <string name="home_menu_day_mode">दिन मोड</string>
     <string name="home_menu_dark_mode">डार्क मोड</string>
     <string name="question_form_submitting">जोड़ा जा रहा है…</string>
+    <string name="exam_rename_title">परीक्षा का नाम बदलें</string>
+    <string name="exam_rename_message">\'%1$s\' (%2$s) का नाम बदलें</string>
+    <string name="exam_rename_action">नाम बदलें</string>
+    <string name="exam_rename_hint">परीक्षा का नया नाम लिखें</string>
+    <string name="exam_rename_too_short">परीक्षा का नाम कम से कम 2 अक्षरों का होना चाहिए</string>
+    <string name="exam_rename_duplicate">\'%2$s\' श्रेणी में \'%1$s\' नाम की परीक्षा पहले से मौजूद है</string>
+    <string name="exam_renaming">नाम बदला जा रहा है…</string>
+    <string name="exam_rename_success">परीक्षा का नाम \'%1$s\' किया गया</string>
 </resources>

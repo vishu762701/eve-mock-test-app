@@ -477,3 +477,55 @@ process-death proof. No Telegram question-admin business equivalent is claimed.
 | No Telegram EVE exam-question request contract | AdminViewModel.kt:loadQuestions/refreshQuestions; ManageQuestionsActivity.kt:bindQuestionExamChoices/importQuestionsForSelectedExam | ADAPTED EVE business ownership around existing Telegram-derived screen primitives; no new upstream code/assets | held real repository responses + native Spinner callbacks; fresh gate/Worker unchanged; full Admin/device/process restoration NOT MET |
 
 C5 local final checks: `./gradlew :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64` PASS; 791 tests / 184 suites, zero failures/errors/skips. Nine new ownership tests PASS; initial six fail-before evidence in question-list-before.log. Python CI helpers 59/docs/acceptance/diff PASS. Historical bare SDK 35 Main Thread exception also appeared in this successful suite; root cause remains UNKNOWN, not suppressed. FAST still required for carrying commit.
+
+## C1/C5 active exam rename contract and shared form retention
+
+Predecessor 03c07dc45031b9c2361db53e7ba650dca729bdce FAST 41466628937 SUCCESS,
+docs 41466628886 SUCCESS. No concurrent main changes; successful C5 ownership batch
+preserved. R1: repair real Android examName/Worker newName payload mismatch while
+preserving installed-client compatibility. R2: missing/invalid/denied/duplicate
+rename must not report success or create false audit/cascade changes. R3: retain
+invalid/server-failed names in the SAME source-adapted native dialog, gate pending
+requests, own teardown and close only on confirmed save. R4: preserve current
+manage_exams Worker right, existing rename cascade/data/scoring contracts, and
+fresh Android entry gate. No deployment/migration authorized. Scope NOT MET before
+repair; full configuration/process-death editor restoration remains independently
+OPEN. No official Telegram exam-renaming business subsystem exists; reuse the
+existing ADAPTED AlertDialog button-dismiss policy, not another renderer.
+
+Rename scoped implementation: canonical Android repository now sends newName.
+Worker also accepts installed clients' examName only when newName is absent;
+invalid canonical values never silently fall back. Malformed types/empty names
+fail without writes. Target update checks the EXISTING full-exam-update sibling
+name rule (same normalized parent), in the atomic write itself. Unchanged names
+preserve existing legacy behavior. Audit immediately follows UPDATE and requires
+changes()=1. Its fresh unique audit ID gates all four existing name cascades;
+missing/conflicting targets cannot mutate historical rows or emit false audit.
+D1 result confirmation is mandatory; missing targets return 404, conflicts 409.
+No scoring, attempt identity, schema, question data or role contract changes.
+
+Active ManageQuestions rename uses its original builder body extracted in the same
+file for actual callback tests. One owned window is dismissed on teardown. Existing
+source-adapted native dialog policy retains invalid/server-failed input; pending
+controls/input/Back are locked; explicit failure restores retry and visible native
+EditText error; success alone dismisses. Labels/errors/loading have English/Hindi
+resources. Old private AdminActivity.rename helper has no caller found; it stays
+untouched rather than being falsely called a duplicate active implementation.
+
+| Upstream path:lines@SHA | EVE production path | Classification / technical reason | Evidence / limits |
+|---|---|---|---|
+| ActionBar/AlertDialog.java:1161-1173,1526-1528@3de37c8cfb039452be7398909461da6288babf15 | designsystem/TelegramNativeAlertDialog.kt:setDismissDialogByButtons -> ui/admin/ManageQuestionsActivity.kt:createRenameExamDialog | ADAPTED existing Kotlin renderer's native button policy with EVE form validation/async state; no new source import | actual Dialog/EditText/action callbacks; native authenticated rotation/full visual parity OPEN |
+| No Telegram EVE exam rename/backend contract | ExamRepository.kt:renameExam -> AdminViewModel.kt:renameExam; backend/src/routes/exams.ts:PUT /:id/rename | ADAPTED EVE business integration; fresh manage_exams middleware/cascade preserved | real VM/repository transport plus actual Hono handler/all-migration isolated SQLite; production deployment NOT performed |
+
+Fail-before: both actual form tests fail (invalid/unconfirmed dismissal, plus
+old examName payload assertion); four of six initial real Worker cases fail
+(legacy payload, malformed value, missing target fake success, sibling conflict).
+Scoped passing tests include actual pending/rapid/denied/retry/success form path
+and Hindi/RTL/Night/200% error/cancel path. No assertion/gate deleted. The SQLite
+fixture serializes batches to model D1 atomic batches; concurrent sibling rename
+and late-cascade/audit-trigger rollback are host evidence, not deployed D1 proof.
+Full editor rotation/process-death restore, complete Admin matrix and native
+source visual acceptance remain NOT MET. Worker protection is staged only until
+a separately authorized deployment; no production safety claim is inferred.
+
+Rename final local verification: serial `./gradlew :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64` PASS (794 JVM tests / 185 suites, zero failures/errors/skips). `cd backend && npm test && npm run build` PASS (299 tests, no failures/skips); eight new real-handler cases. CI helpers 59, docs, structural acceptance and diff checks PASS. Bare historical SDK 35 Main Thread line still UNKNOWN in successful JVM suite. Carrying exact-SHA FAST required; FULL/native/reference/legal acceptance not established. After green continue remaining shared-dialog/Home/Profile production paths; next Profile category/data restoration/identity audit, preserving no Add bio/About and existing confirmed-store/request-owner mechanisms.

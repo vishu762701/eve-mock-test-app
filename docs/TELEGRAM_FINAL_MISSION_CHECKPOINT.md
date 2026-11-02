@@ -6,7 +6,7 @@ Status: PARTIAL. This is a continuation record, not screen acceptance.
 
 ## Live verified implementation pointer — 2026-11-02
 
-Latest verified implementation main: **e1885471f913d7499116f9e4fe6fa1a6ae31d5bf**.
+Latest verified implementation main: **03c07dc45031b9c2361db53e7ba650dca729bdce**.
 Official Telegram rechecked after implementation: **3de37c8cfb039452be7398909461da6288babf15**.
 Reconcile this pointer with the carrying implementation commit and live main/CI on restart.
 
@@ -23,9 +23,13 @@ Reconcile this pointer with the carrying implementation commit and live main/CI 
 | Poll Worker atomic status/audit | a8433b6484b7141f881aa5fb271808703c042302 | [41407181451](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41407181451) SUCCESS |
 | D4 live filter callbacks | 936e93aae0273daea08ea0e14fd6f9538d60f7b7 | [41409105317](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41409105317) SUCCESS |
 | Seven Home menu actions, first batch | a6c0e042f58135d234b450e50c3c5f96ce38757c | [41411244614](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41411244614) SUCCESS |
+| Seven Home menu labels/source assets, second batch | bc139bd3b2cc236d20d399e64e41531bf812d269 | [41413589407](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41413589407) SUCCESS |
+| Confirmed Home exam-list contract | e1885471f913d7499116f9e4fe6fa1a6ae31d5bf | [41457197984](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41457197984) SUCCESS |
+| Shared dismiss policy/question form retention | 412edc6ed80ca867635cbcf8cee06e56196728f4 | [41462667732](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41462667732) SUCCESS |
+| C5 selected question-list request ownership | 03c07dc45031b9c2361db53e7ba650dca729bdce | [41466628937](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41466628937) SUCCESS |
 
 Each FAST passed Android build/JVM/AndroidTest source compilation, all four ABI
-builds, pinned Rust security/C API, backend and Firebase. Latest verified docs 41403654877
+builds, pinned Rust security/C API, backend and Firebase. Historical scanner-batch docs 41403654877
 and verbatim-import 41403654789 SUCCESS. Native navigation and publication skipped;
 no protected verified APK artifact/checksum. Verified scanner batch local: 757 JVM tests, 243 Rust tests,
 288 backend tests, 19 Functions tests and 59 CI helper tests pass; lint 0 errors /
@@ -33,7 +37,7 @@ no protected verified APK artifact/checksum. Verified scanner batch local: 757 J
 Git/EVE bytes. Local x86_64 APK package com.eve.app and all four ELF libraries'
 LOAD alignment 0x4000 verified, not a final published APK or screen acceptance.
 
-Whole requirement ledger remains TELEGRAM_REMAINING_REQUIREMENTS.md. These six
+Whole requirement ledger remains TELEGRAM_REMAINING_REQUIREMENTS.md. These scoped
 scoped engineering increments are MET at source/host/FAST integration level, all
 ADAPTED. Full A1/A2/A3/A4/Profile/Admin/Home/student/exam/theme fidelity remains
 NOT MET. Physical camera/GPU/reference/device matrix and human GPL review remain
@@ -1196,3 +1200,25 @@ after green: active shared-dialog validation/server-failure callers (including
 ManageQuestions promptRenameExam), then remaining full Home/Profile/Admin ledger.
 
 C5 local final checks: `./gradlew :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64` PASS; 791 tests / 184 suites, zero failures/errors/skips. Nine new ownership tests PASS; initial six fail-before evidence in question-list-before.log. Python CI helpers 59/docs/acceptance/diff PASS. Historical bare SDK 35 Main Thread exception also appeared in this successful suite; root cause remains UNKNOWN, not suppressed. FAST still required for carrying commit.
+
+## Active exam rename continuation
+
+Base main 03c07dc45031b9c2361db53e7ba650dca729bdce exact-SHA FAST 41466628937
+SUCCESS, docs 41466628886 SUCCESS; artifact list empty (FAST publication skipped).
+No concurrent changes on fetch. Active shared-dialog caller audit found Android
+examName vs Worker newName mismatch, invalid form auto-dismissal, unobserved errors,
+and missing-target false Worker success. Coherent fix covers existing repository,
+VM, same dialog renderer, gated Activity caller, English/Hindi resources and Worker
+route, preserving installed-client alias and existing transactional name cascades.
+No production deploy/migration. Source classification ADAPTED; see current ledger.
+C5 selected-list ownership and all earlier green Home/Profile/QR/poll work preserved.
+
+Fail-before evidence: two actual form tests fail; four of six original isolated
+Worker cases fail. Fixture extraction keeps the sole real production form/caller,
+not a competing implementation. First backend command had an incorrect relative
+path; subsequent TypeScript check caught required condition.bindings, repaired
+locally. Final uniquely named logs/results are authoritative, not overlapping early
+logs. Native authenticated rotation/process-death draft restoration remains OPEN.
+Carrying commit needs exact-SHA FAST; on red repair before unrelated features.
+
+Rename final local verification: serial `./gradlew :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64` PASS (794 JVM tests / 185 suites, zero failures/errors/skips). `cd backend && npm test && npm run build` PASS (299 tests, no failures/skips); eight new real-handler cases. CI helpers 59, docs, structural acceptance and diff checks PASS. Bare historical SDK 35 Main Thread line still UNKNOWN in successful JVM suite. Carrying exact-SHA FAST required; FULL/native/reference/legal acceptance not established. After green continue remaining shared-dialog/Home/Profile production paths; next Profile category/data restoration/identity audit, preserving no Add bio/About and existing confirmed-store/request-owner mechanisms.

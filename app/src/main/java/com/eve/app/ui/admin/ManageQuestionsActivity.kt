@@ -36,6 +36,7 @@ class ManageQuestionsActivity : EveBaseActivity() {
     private var exams: List<Exam> = emptyList()
     private var selectedExamForImageUpdate: Exam? = null
     private var addQuestionDialog: TelegramNativeAlertDialog? = null
+    private var renameExamDialog: TelegramNativeAlertDialog? = null
 
     private val pickEditExamImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         val exam = selectedExamForImageUpdate ?: return@registerForActivityResult
@@ -193,34 +194,11 @@ class ManageQuestionsActivity : EveBaseActivity() {
             return
         }
 
-        val input = android.widget.EditText(this).apply {
-            setText(exam.examName)
-            setSelection(text.length)
-            hint = "Enter new exam name"
-            val padding = resources.getDimensionPixelSize(R.dimen.design_input_padding)
-            setPadding(padding, 0, padding, 0)
-        }
-
-        TelegramNativeAlertDialog.Builder(this)
-            .setTitle("Rename Exam")
-            .setMessage("Rename '${exam.examName}' (${exam.categoryOrOther})")
-            .setView(input)
-            .setPositiveButton("Rename") { _, _ ->
-                val newName = input.text.toString().trim()
-                if (newName.length < 2) {
-                    AppBulletin.showError(this, "Exam name must be at least 2 characters")
-                    return@setPositiveButton
-                }
-                if (exams.any { it.id != exam.id && it.categoryOrOther.equals(exam.categoryOrOther, ignoreCase = true) && it.examName.trim().equals(newName, ignoreCase = true) }) {
-                    AppBulletin.showError(this, "An exam named '$newName' already exists in category '${exam.categoryOrOther}'")
-                    return@setPositiveButton
-                }
-                viewModel.renameExam(exam.id, newName) {
-                    AppBulletin.showSuccess(this@ManageQuestionsActivity, "Renamed exam to '$newName'")
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
+        if (isFinishing || isDestroyed || renameExamDialog?.isShowing == true) return
+        val dialog = createRenameExamDialog(this, exam, { exams }, viewModel)
+        renameExamDialog = dialog
+        dialog.setOnDismissListener { if (renameExamDialog === dialog) renameExamDialog = null }
+        dialog.show()
     }
 
     private fun confirmDeleteExam() {
@@ -351,6 +329,8 @@ class ManageQuestionsActivity : EveBaseActivity() {
         return name ?: uri.lastPathSegment
     }
     override fun onDestroy() {
+        renameExamDialog?.dismiss()
+        renameExamDialog = null
         addQuestionDialog?.dismiss()
         addQuestionDialog = null
         super.onDestroy()
@@ -478,4 +458,66 @@ internal fun createAddQuestionDialog(activity: android.app.Activity, selectedExa
             .create()
         dialog.setDismissDialogByButtons(false)
         return dialog
+}
+
+/** Existing active rename form; server permissions remain independent of local validation. */
+internal fun createRenameExamDialog(activity: android.app.Activity, exam: Exam,
+                                   exams: () -> List<Exam>, viewModel: AdminViewModel): TelegramNativeAlertDialog {
+    var submitting = false
+    lateinit var dialog: TelegramNativeAlertDialog
+    val input = android.widget.EditText(activity).apply {
+        setText(exam.examName)
+        setSelection(text.length)
+        hint = activity.getString(R.string.exam_rename_hint)
+        val padding = resources.getDimensionPixelSize(R.dimen.design_input_padding)
+        setPadding(padding, 0, padding, 0)
+    }
+    fun showError(message: String) {
+        input.error = message
+        input.requestFocus()
+    }
+    dialog = TelegramNativeAlertDialog.Builder(activity)
+        .setTitle(activity.getString(R.string.exam_rename_title))
+        .setMessage(activity.getString(R.string.exam_rename_message, exam.examName, exam.categoryOrOther))
+        .setView(input)
+        .setPositiveButton(activity.getString(R.string.exam_rename_action)) { _, _ ->
+            if (submitting || viewModel.busy.value) return@setPositiveButton
+            val newName = input.text.toString().trim()
+            if (newName.length < 2) {
+                showError(activity.getString(R.string.exam_rename_too_short))
+                return@setPositiveButton
+            }
+            if (exams().any { it.id != exam.id && it.categoryOrOther.equals(exam.categoryOrOther, ignoreCase = true) && it.examName.trim().equals(newName, ignoreCase = true) }) {
+                showError(activity.getString(R.string.exam_rename_duplicate, newName, exam.categoryOrOther))
+                return@setPositiveButton
+            }
+            submitting = true
+            input.error = null
+            input.isEnabled = false
+            val button = dialog.getActionButton(DialogInterface.BUTTON_POSITIVE)
+            button?.isEnabled = false
+            button?.setText(R.string.exam_renaming)
+            dialog.getActionButton(DialogInterface.BUTTON_NEGATIVE)?.isEnabled = false
+            dialog.setCancelable(false)
+            viewModel.renameExam(exam.id, newName, onFailure = { message ->
+                submitting = false
+                if (dialog.isShowing && !activity.isFinishing && !activity.isDestroyed) {
+                    input.isEnabled = true
+                    button?.setText(R.string.exam_rename_action)
+                    button?.isEnabled = true
+                    dialog.getActionButton(DialogInterface.BUTTON_NEGATIVE)?.isEnabled = true
+                    dialog.setCancelable(true)
+                    showError(message)
+                }
+            }) {
+                if (dialog.isShowing && !activity.isFinishing && !activity.isDestroyed) {
+                    dialog.dismiss()
+                    AppBulletin.showSuccess(activity, activity.getString(R.string.exam_rename_success, newName))
+                }
+            }
+        }
+        .setNegativeButton(activity.getString(R.string.cancel)) { owner, _ -> if (!submitting) owner.dismiss() }
+        .create()
+    dialog.setDismissDialogByButtons(false)
+    return dialog
 }

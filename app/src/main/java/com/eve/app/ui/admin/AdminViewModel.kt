@@ -149,7 +149,7 @@ class AdminViewModel(private val repo: ExamRepository = ExamRepository()) : View
         }
     }
 
-    fun renameExam(examId: String, newName: String, onDone: () -> Unit) {
+    fun renameExam(examId: String, newName: String, onFailure: (String) -> Unit = {}, onDone: () -> Unit) {
         viewModelScope.launch {
             _busy.value = true
             try {
@@ -157,10 +157,15 @@ class AdminViewModel(private val repo: ExamRepository = ExamRepository()) : View
                 _message.value = "Exam renamed successfully"
                 loadExams()
                 onDone()
+            } catch (cancel: CancellationException) {
+                throw cancel
             } catch (e: Exception) {
-                _message.value = e.message ?: "Failed to rename exam"
+                val message = e.message ?: "Failed to rename exam"
+                _message.value = message
+                onFailure(message)
+            } finally {
+                _busy.value = false
             }
-            _busy.value = false
         }
     }
 

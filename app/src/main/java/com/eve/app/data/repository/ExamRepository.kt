@@ -147,7 +147,7 @@ class ExamRepository(
 
     suspend fun renameExam(examId: String, newName: String) {
         val trimmed = newName.trim()
-        val res = api.renameExam(examId, mapOf("examName" to trimmed))
+        val res = api.renameExam(examId, mapOf("newName" to trimmed))
         if (!res.success) throw Exception(res.error ?: "Failed to rename exam")
     }
 
