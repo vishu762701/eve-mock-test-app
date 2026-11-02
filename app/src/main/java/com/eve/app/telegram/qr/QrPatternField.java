@@ -9,7 +9,8 @@ package com.eve.app.telegram.qr;
  */
 public final class QrPatternField {
     private final float density;
-    private final NodeSprings nodes = new NodeSprings();
+    // Package-scoped only for the source-spring host regression harness.
+    final NodeSprings nodes = new NodeSprings();
     private long clockOrigin = -1, lastFrame = -1, waveStart, glideStart, springStart;
     private float motionT, idleK = 1f, idleResumeAt = -1f;
     private float wanderX, wanderY, panX, panY, baseX, baseY;
