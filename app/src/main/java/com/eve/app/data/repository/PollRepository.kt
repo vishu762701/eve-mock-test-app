@@ -10,7 +10,10 @@ class PollRepository(
 
     suspend fun getPolls(): List<Poll> {
         val res = api.getPolls()
-        return (res.data ?: emptyList()).sortedByDescending { it.isCurrentlyActive }
+        if (!res.success || res.data == null) {
+            throw IllegalStateException(res.error ?: "Failed to load polls")
+        }
+        return res.data.sortedByDescending { it.isCurrentlyActive }
     }
 
     suspend fun getActivePoll(): Poll? {
@@ -37,7 +40,8 @@ class PollRepository(
         if (!res.success || res.data == null) {
             throw IllegalStateException(res.error ?: "Failed to create poll")
         }
-        return res.data["id"] ?: ""
+        return res.data["id"]?.takeIf { it.isNotBlank() }
+            ?: throw IllegalStateException("Poll creation could not be verified: missing server ID")
     }
 
     suspend fun updatePollStatus(pollId: String, active: Boolean) {

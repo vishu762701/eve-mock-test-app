@@ -951,3 +951,26 @@ Existing ManagePollsActivity -> PollRepository -> EveApiService -> authenticated
 Worker moderate_feedback routes must retain role/data contracts. Continue full
 Profile/Admin/Home/Exam/shared ledger; all whole-screen requirements remain NOT MET.
 No final FULL/release, legal variable change, deployment or production data write.
+
+
+## Admin poll response continuation
+
+Recovered main 66f3eea0ad5ffae629e2e2cf5cd8d5f78f508861; exact-SHA FAST
+41405867198 SUCCESS and docs 41405867218 SUCCESS. Profile lifecycle repair is
+verified at source/host/FAST level; hardware acceptance stays OPEN.
+
+C4.poll-response: PollRepository now rejects failed/null list responses and
+creation responses without a nonblank server ID. ManagePollsActivity propagates
+cancellation rather than displaying a failure after its lifecycle ends. Existing
+fresh moderate_feedback gate, Worker authentication/permissions, vote contracts,
+source dialogs and deletion flow remain unchanged. No backend deployment/write.
+Before repair, two focused tests reproduced the false-success defects. After
+repair, protocol and actual Day/Night bound-row label/callback tests pass. Broad
+local unit/AndroidTest compilation/lint/x86_64 assemble PASS; counts recorded in
+TELEGRAM_REMAINING_REQUIREMENTS.md. This carrying commit requires exact-SHA FAST.
+
+Next: observe this poll commit's FAST, repair any red gate, then continue Admin
+mutation/action audit and Home/Exam/shared requirements. Worker poll status handling
+of a nonexistent ID is a separately identified unverified confirmation gap; inspect
+with isolated database tests before changing it. QR code remains untouched and
+acceptance OPEN. Whole mission NOT MET; device/reference/legal/FULL limits remain.

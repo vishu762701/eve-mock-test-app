@@ -22,6 +22,7 @@ import com.eve.app.data.repository.PollRepository
 import com.eve.app.databinding.ActivityManagePollsBinding
 import com.eve.app.databinding.DialogCreatePollBinding
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
@@ -84,6 +85,8 @@ class ManagePollsActivity : EveBaseActivity() {
                     binding.emptyStateView.hide()
                     adapter.submitList(list)
                 }
+            } catch (cancel: CancellationException) {
+                throw cancel
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
                 binding.swipeRefresh.isRefreshing = false
@@ -106,6 +109,8 @@ class ManagePollsActivity : EveBaseActivity() {
                     if (newStatus) "Poll reopened" else "Poll closed"
                 )
                 loadPolls()
+            } catch (cancel: CancellationException) {
+                throw cancel
             } catch (e: Exception) {
                 AppBulletin.showError(this@ManagePollsActivity, "Failed to update poll: ${e.message}")
             }
@@ -223,6 +228,8 @@ class ManagePollsActivity : EveBaseActivity() {
                     AppBulletin.showSuccess(this@ManagePollsActivity, "Poll created successfully")
                     dialog.dismiss()
                     loadPolls()
+                } catch (cancel: CancellationException) {
+                    throw cancel
                 } catch (e: Exception) {
                     dialogBinding.btnSubmitPoll.isEnabled = true
                     AppBulletin.showError(this@ManagePollsActivity, "Failed to create poll: ${e.message}")

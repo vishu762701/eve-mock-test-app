@@ -259,3 +259,25 @@ The carrying Profile commit requires exact-SHA FAST. Next concrete non-QR defect
 C4 PollRepository.getPolls turns failed/null responses into empty success, and
 createPoll accepts an empty server ID; trace existing callers/Worker and repair
 failure handling without changing authorized roles or deploying backend code.
+
+
+## C4 Poll failure/success contract
+
+| ID | Requirement | Existing implementation | Upstream file:lines@SHA | Dependencies | Status | Verification evidence | Next action |
+|---|---|---|---|---|---|---|---|
+| C4.poll-response | Failed load must show error, create requires confirmed nonblank server ID | ManagePollsActivity.loadPolls catches thrown errors; PollRepository currently converts false/null list to empty and missing ID to empty string | EVE business adapter; no Telegram poll-admin business equivalent | EveApiService /api/polls; Worker authMiddleware + moderate_feedback for POST/PUT/DELETE; existing source dialog | NOT MET | Actual Activity/repository/API/Worker opened; no live writes | Repair only repository response validation, test false/null/empty/valid/cancellation and real bound row visibility |
+
+Preserve current fresh Android gate and independent Worker permission checks,
+option/date/delete controls and all poll/vote data contracts. No new screen/state
+owner, backend deployment or migration. This is ADAPTED EVE business handling;
+Telegram source primitives already integrated remain unchanged. Server success
+with no ID cannot serve as confirmation of the created entity. Whole Admin
+acceptance remains NOT MET until action/runtime/security matrix is verified.
+
+
+C4.poll-response scoped code/host behavior MET (EVE business adaptation, no
+Telegram business equivalent). 766 JVM tests / 177 suites, zero failures/errors/
+skips; AndroidTest compilation, lint and x86_64 assemble PASS. Day/Night production
+adapter labels/callbacks pass. Exact-SHA FAST required after carrying commit.
+Full Admin action/rotation/concurrency/security acceptance remains NOT MET.
+Profile commit 66f3eea0ad5ffae629e2e2cf5cd8d5f78f508861 FAST 41405867198 SUCCESS.
