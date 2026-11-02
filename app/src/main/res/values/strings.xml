@@ -52,4 +52,5 @@
     <string name="home_menu_bookmarks">Bookmarks</string>
     <string name="home_menu_day_mode">Day Mode</string>
     <string name="home_menu_dark_mode">Dark Mode</string>
+    <string name="question_form_submitting">Adding…</string>
 </resources>

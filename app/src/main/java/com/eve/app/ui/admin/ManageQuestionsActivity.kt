@@ -25,6 +25,7 @@ import com.eve.app.util.AppBulletin
 import com.eve.app.util.ExamImageHelper
 import com.eve.app.util.QuestionImportHelper
 import kotlinx.coroutines.launch
+import androidx.core.view.doOnLayout
 
 class ManageQuestionsActivity : EveBaseActivity() {
 
@@ -34,6 +35,7 @@ class ManageQuestionsActivity : EveBaseActivity() {
 
     private var exams: List<Exam> = emptyList()
     private var selectedExamForImageUpdate: Exam? = null
+    private var addQuestionDialog: TelegramNativeAlertDialog? = null
 
     private val pickEditExamImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         val exam = selectedExamForImageUpdate ?: return@registerForActivityResult
@@ -164,64 +166,11 @@ class ManageQuestionsActivity : EveBaseActivity() {
     }
 
     private fun showAddQuestionDialog(selectedExam: Exam) {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_add_question, null)
-        val etQuestion = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etQuestionText)
-        val etOptA = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etOptionA)
-        val etOptB = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etOptionB)
-        val etOptC = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etOptionC)
-        val etOptD = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etOptionD)
-        val rgCorrect = dialogView.findViewById<android.widget.RadioGroup>(R.id.rgCorrectAnswer)
-        val etExplanation = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etExplanation)
-        val etTopic = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etTopic)
-
-        TelegramNativeAlertDialog.Builder(this)
-            .setTitle("Add Question to ${selectedExam.examName}")
-            .setView(dialogView)
-            .setPositiveButton("Add") { _, _ ->
-                val qText = etQuestion.text?.toString()?.trim().orEmpty()
-                val a = etOptA.text?.toString()?.trim().orEmpty()
-                val b = etOptB.text?.toString()?.trim().orEmpty()
-                val c = etOptC.text?.toString()?.trim().orEmpty()
-                val d = etOptD.text?.toString()?.trim().orEmpty()
-                val exp = etExplanation.text?.toString()?.trim().orEmpty()
-                val topic = etTopic.text?.toString()?.trim().orEmpty()
-
-                if (qText.isBlank() || a.isBlank() || b.isBlank() || c.isBlank() || d.isBlank()) {
-                    AppBulletin.showError(this, "Question text and all 4 options are required")
-                    return@setPositiveButton
-                }
-
-                val correct = when (rgCorrect.checkedRadioButtonId) {
-                    R.id.rbA -> "A"
-                    R.id.rbB -> "B"
-                    R.id.rbC -> "C"
-                    R.id.rbD -> "D"
-                    else -> ""
-                }
-                if (correct.isBlank()) {
-                    AppBulletin.showError(this, "Please select the correct option")
-                    return@setPositiveButton
-                }
-
-                val newQuestion = Question(
-                    id = "",
-                    examId = selectedExam.id,
-                    questionText = qText,
-                    optionA = a,
-                    optionB = b,
-                    optionC = c,
-                    optionD = d,
-                    correctAnswer = correct,
-                    explanation = exp,
-                    topic = topic
-                )
-
-                viewModel.addQuestion(newQuestion) {
-                    AppBulletin.showSuccess(this@ManageQuestionsActivity, "Question added successfully!")
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
+        if (isFinishing || isDestroyed || addQuestionDialog?.isShowing == true) return
+        val dialog = createAddQuestionDialog(this, selectedExam, viewModel)
+        addQuestionDialog = dialog
+        dialog.setOnDismissListener { if (addQuestionDialog === dialog) addQuestionDialog = null }
+        dialog.show()
     }
 
     private fun showEditExamImageDialog() {
@@ -419,4 +368,107 @@ class ManageQuestionsActivity : EveBaseActivity() {
         }
         return name ?: uri.lastPathSegment
     }
+    override fun onDestroy() {
+        addQuestionDialog?.dismiss()
+        addQuestionDialog = null
+        super.onDestroy()
+    }
+
+}
+
+/** Canonical question form presentation; authorization stays at the Activity/Worker entry points. */
+internal fun createAddQuestionDialog(activity: android.app.Activity, selectedExam: Exam,
+                                     viewModel: AdminViewModel): TelegramNativeAlertDialog {
+        var submitting = false
+        lateinit var dialog: TelegramNativeAlertDialog
+        val dialogView = activity.layoutInflater.inflate(R.layout.dialog_add_question, null)
+        val errorLabel = dialogView.findViewById<android.widget.TextView>(R.id.tvQuestionFormError)
+        fun showFormError(message: String) {
+            errorLabel.text = message
+            errorLabel.visibility = View.VISIBLE
+            errorLabel.doOnLayout { label ->
+                if (dialog.isShowing) label.requestRectangleOnScreen(
+                    android.graphics.Rect(0, 0, label.width, label.height), true)
+            }
+        }
+        val etQuestion = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etQuestionText)
+        val etOptA = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etOptionA)
+        val etOptB = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etOptionB)
+        val etOptC = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etOptionC)
+        val etOptD = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etOptionD)
+        val rgCorrect = dialogView.findViewById<android.widget.RadioGroup>(R.id.rgCorrectAnswer)
+        val etExplanation = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etExplanation)
+        val etTopic = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etTopic)
+
+        dialog = TelegramNativeAlertDialog.Builder(activity)
+            .setTitle("Add Question to ${selectedExam.examName}")
+            .setView(dialogView)
+            .setPositiveButton("Add") { _, _ ->
+                if (submitting || viewModel.busy.value) return@setPositiveButton
+                val qText = etQuestion.text?.toString()?.trim().orEmpty()
+                val a = etOptA.text?.toString()?.trim().orEmpty()
+                val b = etOptB.text?.toString()?.trim().orEmpty()
+                val c = etOptC.text?.toString()?.trim().orEmpty()
+                val d = etOptD.text?.toString()?.trim().orEmpty()
+                val exp = etExplanation.text?.toString()?.trim().orEmpty()
+                val topic = etTopic.text?.toString()?.trim().orEmpty()
+
+                if (qText.isBlank() || a.isBlank() || b.isBlank() || c.isBlank() || d.isBlank()) {
+                    showFormError("Question text and all 4 options are required")
+                    return@setPositiveButton
+                }
+
+                val correct = when (rgCorrect.checkedRadioButtonId) {
+                    R.id.rbA -> "A"
+                    R.id.rbB -> "B"
+                    R.id.rbC -> "C"
+                    R.id.rbD -> "D"
+                    else -> ""
+                }
+                if (correct.isBlank()) {
+                    showFormError("Please select the correct option")
+                    return@setPositiveButton
+                }
+
+                val newQuestion = Question(
+                    id = "",
+                    examId = selectedExam.id,
+                    questionText = qText,
+                    optionA = a,
+                    optionB = b,
+                    optionC = c,
+                    optionD = d,
+                    correctAnswer = correct,
+                    explanation = exp,
+                    topic = topic
+                )
+
+                submitting = true
+                errorLabel.visibility = View.GONE
+                val addButton = dialog.getActionButton(android.content.DialogInterface.BUTTON_POSITIVE)
+                val addLabel = addButton?.text
+                addButton?.isEnabled = false
+                addButton?.setText(R.string.question_form_submitting)
+                dialog.getActionButton(android.content.DialogInterface.BUTTON_NEGATIVE)?.isEnabled = false
+                dialog.setCancelable(false)
+                viewModel.addQuestion(newQuestion, onFailure = { message ->
+                    submitting = false
+                    if (dialog.isShowing && !activity.isFinishing && !activity.isDestroyed) {
+                        addButton?.text = addLabel
+                        addButton?.isEnabled = true
+                        dialog.getActionButton(android.content.DialogInterface.BUTTON_NEGATIVE)?.isEnabled = true
+                        dialog.setCancelable(true)
+                        showFormError(message)
+                    }
+                }) {
+                    if (dialog.isShowing && !activity.isFinishing && !activity.isDestroyed) {
+                        dialog.dismiss()
+                        AppBulletin.showSuccess(activity, "Question added successfully!")
+                    }
+                }
+            }
+            .setNegativeButton("Cancel") { owner, _ -> if (!submitting) owner.dismiss() }
+            .create()
+        dialog.setDismissDialogByButtons(false)
+        return dialog
 }

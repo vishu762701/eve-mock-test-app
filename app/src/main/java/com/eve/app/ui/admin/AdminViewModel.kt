@@ -15,9 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.eve.app.data.remote.toUserFriendlyMessage
 
-class AdminViewModel : ViewModel() {
-
-    private val repo = ExamRepository()
+class AdminViewModel(private val repo: ExamRepository = ExamRepository()) : ViewModel() {
     private val adminRepo = AdminRepository()
     private val userStatsRepo = UserStatsRepository()
 
@@ -167,7 +165,7 @@ class AdminViewModel : ViewModel() {
         }
     }
 
-    fun addQuestion(q: Question, onDone: () -> Unit) {
+    fun addQuestion(q: Question, onFailure: (String) -> Unit = {}, onDone: () -> Unit) {
         viewModelScope.launch {
             _busy.value = true
             try {
@@ -175,10 +173,15 @@ class AdminViewModel : ViewModel() {
                 _message.value = "Question uploaded successfully"
                 loadQuestions(q.examId)
                 onDone()
+            } catch (cancel: kotlinx.coroutines.CancellationException) {
+                throw cancel
             } catch (e: Exception) {
-                _message.value = e.message ?: "Upload failed (check permissions)"
+                val message = e.message ?: "Upload failed (check permissions)"
+                _message.value = message
+                onFailure(message)
+            } finally {
+                _busy.value = false
             }
-            _busy.value = false
         }
     }
 

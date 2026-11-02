@@ -1,6 +1,6 @@
 /*
  * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15:
- * ActionBar/AlertDialog.java:302-318,489-504,809-821,920,1137-1215.
+ * ActionBar/AlertDialog.java:157,302-318,489-504,809-821,920,1137-1215,1526-1528.
  * Copyright Nikolai Kudashov, 2013-2018. GPL-2.0-or-later.
  *
  * Dependency-isolated ADAPTED port of the Telegram message-confirmation path.
@@ -61,6 +61,10 @@ class TelegramNativeAlertDialog private constructor(
 
     private fun dp(value: Int) = (value * context.resources.displayMetrics.density + 0.5f).toInt()
     private val actionButtons = mutableMapOf<Int, TextView>()
+    // ADAPTED AlertDialog.java:157,1526-1528: custom forms own validated dismissal.
+    private var dismissDialogByButtons = true
+    fun setDismissDialogByButtons(value: Boolean) { dismissDialogByButtons = value }
+
     fun getActionButton(which: Int): TextView? = actionButtons[which]
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -230,7 +234,7 @@ class TelegramNativeAlertDialog private constructor(
                         try {
                             listener?.onClick(this@TelegramNativeAlertDialog, which)
                         } finally {
-                            if (isShowing) {
+                            if (isShowing && dismissDialogByButtons) {
                                 // AlertDialog button actions dismiss; only Back/outside
                                 // cancellation dispatches OnCancelListener.
                                 dismiss()

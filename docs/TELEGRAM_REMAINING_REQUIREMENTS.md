@@ -398,3 +398,46 @@ returns an array on confirmed success; deployed API/scoring/attempt logic unchan
 Serial broad Gradle PASS: 775 JVM tests / 180 suites, zero failures/errors/skips;
 AndroidTest compilation/lint/x86_64 assemble PASS. Python helpers 59/docs/claim/diff
 PASS. Carrying commit still requires exact-SHA FAST.
+
+Gate 2 shared native-dialog retention: base e1885471f913d7499116f9e4fe6fa1a6ae31d5bf
+FAST 41457197984 SUCCESS. Official AlertDialog.java:157,1161-1173,1526-1528 at
+3de37c8cfb039452be7398909461da6288babf15 exposes dismissDialogByButtons; EVE's
+existing renderer omits it and always dismisses. Active ManageQuestionsActivity
+showAddQuestionDialog early validation returns therefore close the form; server
+errors only enter an unobserved VM message on this screen. Scope: source-derived
+button-dismiss policy in existing renderer, explicit active-form validation/save
+retention, one editor window, duplicate-submit gate and teardown cleanup. Preserve
+default confirmation dismissal and all authorization/API/question/scoring contracts.
+AdminActivity's similarly named old private add dialog has no active caller found;
+it is not deleted or treated as a second active implementation.
+
+Shared button-dismiss policy and question form runtime retention scoped MET locally.
+NativeDialogDismissPolicyTest exercises actual Dialog/EditText/default confirmation
+behavior in Day/Night. Restoring old unconditional policy made all 3 tests FAIL;
+source policy makes them PASS. QuestionSubmitConfirmationTest verifies real VM/repo
+denial/success/cancellation with isolated API. QuestionFormInteractionTest executes
+the SAME canonical createAddQuestionDialog used by the gated Activity, through its
+real ViewModel and repository, replacing only API transport with held continuations:
+invalid input -> no request; pending -> one request/disabled controls; denial ->
+inline accessible error + preserved draft; retry -> server success closes dialog.
+No role grant/authentication pass inferred from these UI fixtures. Fresh Activity
+gate/independent Worker authorization remain unchanged. Existing private form body
+moved into a stateless builder in the same file to test actual callbacks without
+bypassing the protected Activity; no alternate renderer/repository/state manager.
+
+| Upstream path:lines@SHA | EVE path:entry | Classification | Evidence / limits |
+|---|---|---|---|
+| ActionBar/AlertDialog.java:157,1161-1173,1526-1528@3de37c8cfb039452be7398909461da6288babf15 | designsystem/TelegramNativeAlertDialog.kt:63,235 | ADAPTED scalar policy/setter in existing Kotlin renderer; defaults unchanged, custom forms explicitly own dismissal | actual dialog tests; complete renderer visual parity OPEN |
+| EVE business form; no official Telegram exam-question equivalent | ui/admin/ManageQuestionsActivity.kt:createAddQuestionDialog; AdminViewModel.kt:addQuestion | ADAPTED validation, confirmed-save callbacks, inline errors, busy controls and teardown | actual production form/VM/repo host tests; rotation/process-death draft/request restoration OPEN |
+
+Inline error lives inside the dialog (Activity bulletin otherwise renders behind
+its window), uses native live-region text and measured rectangle scrolling.
+Default builder confirmations keep automatic dismissal; Cancel explicitly dismisses
+retained forms. Pending submission locks duplicate taps/Back/cancel. Permanent
+host destruction dismisses the owned window. AdminViewModel exposes optional
+failure callback and propagates cancellation; all-default injected repository keeps
+its no-arg Activity factory and no unauthorized eager loads. No question/API/scoring
+or permission schema changed. Local serial broad Gradle PASS: 782 tests / 183
+suites, zero failures/errors/skips; AndroidTest compile/lint/x86_64 assemble PASS.
+Python helpers 59/docs/claim/diff PASS. Carrying commit requires FAST; whole shared
+dialog/Admin/native/reference acceptance remains NOT MET/OPEN.

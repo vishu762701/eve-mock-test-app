@@ -6,7 +6,7 @@ Status: PARTIAL. This is a continuation record, not screen acceptance.
 
 ## Live verified implementation pointer — 2026-11-02
 
-Latest verified implementation main: **bc139bd3b2cc236d20d399e64e41531bf812d269**.
+Latest verified implementation main: **e1885471f913d7499116f9e4fe6fa1a6ae31d5bf**.
 Official Telegram rechecked after implementation: **3de37c8cfb039452be7398909461da6288babf15**.
 Reconcile this pointer with the carrying implementation commit and live main/CI on restart.
 
@@ -1145,3 +1145,35 @@ onTouchEvent returns false; do not transplant it as if it contains classic drawe
 physics. A complete matching active source subsystem has not been established;
 preserve current working AndroidX gesture owner rather than inventing source math.
 Native/reference/physical matrix and GPL/FULL/release remain OPEN/NOT MET.
+
+
+## Gate 2 shared dialog policy / active question-form retention
+
+Base main e1885471f913d7499116f9e4fe6fa1a6ae31d5bf FAST 41457197984 SUCCESS,
+docs 41457198260 SUCCESS. No concurrent implementation overwritten. Added actual
+upstream AlertDialog dismissDialogByButtons policy to existing native renderer;
+no new dialog system. Actual gated ManageQuestionsActivity owns one editor window,
+canonical builder retains invalid/server-failed drafts, shows inline live-region
+errors, disables pending submit/cancel and closes only on server success. Existing
+VM/repository/Worker authorization remains canonical; optional failure callback and
+cancellation fix avoid silent failure. Constructor injection enables real VM/repo
+handler tests without eager authorized reads or production request execution.
+
+Old unconditional dismiss policy was transiently restored: 3 actual Dialog tests
+failed, fixed policy passes. Actual production form -> VM -> repo test uses held
+API continuations for validation/pending/double tap/denial/retry/success. Two initial
+fixture issues (async OnDismiss assertion and layout script selector) repaired;
+no legitimate assertion or gate removed. Final serial local Gradle unit/AndroidTest
+compile/lint/x86_64 assemble PASS: 782 tests / 183 suites, no failures/errors/skips.
+Python helpers 59/docs/claims/diff PASS. Source/adaptation map and exact limitations
+are in TELEGRAM_REMAINING_REQUIREMENTS.md latest entry.
+
+Carrying commit requires its own exact-SHA FAST. Native/authenticated UI, TalkBack,
+matched appearance, rotation/process-death draft/pending-request restoration remain
+OPEN, not claimed passed. Exact next action: observe carrying FAST; repair red
+before new feature. Then continue Gate 2 remaining shared-dialog callers and form
+state/lifecycle, drawer/search/toolbar source tracing before later gates. Preserve
+all green Home/menu (two commits), poll (two commits), Profile and QR work. No
+production deployment/migration, scoring change, legal/FULL/release bypass. Whole
+mission NOT MET. The source onTouchEvent=false DrawerLayoutContainer finding stays
+a scoped trace limitation, never an invented drawer physics implementation.
