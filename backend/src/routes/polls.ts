@@ -135,6 +135,9 @@ pollRoutes.put("/:id/status", requirePermission("moderate_feedback"), async (c) 
   const user = c.get("user");
   const id = c.req.param("id");
   const body = await c.req.json().catch(() => ({}));
+  if (typeof body?.active !== "boolean") {
+    return c.json({ success: false, error: "active must be a boolean" }, 400);
+  }
   const active = body.active ? 1 : 0;
   const db = c.env.DB;
 
@@ -145,8 +148,12 @@ pollRoutes.put("/:id/status", requirePermission("moderate_feedback"), async (c) 
     targetType: "poll",
     targetId: id,
     metadata: { active: Boolean(active) },
+    condition: { sql: "changes() = 1", bindings: [] },
   });
-  await db.batch([updateStmt, auditStmt]);
+  const results = await db.batch([updateStmt, auditStmt]);
+  if (results[0].meta.changes !== 1) {
+    return c.json({ success: false, error: "Poll not found" }, 404);
+  }
   return c.json({ success: true });
 });
 

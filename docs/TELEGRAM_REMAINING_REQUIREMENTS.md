@@ -281,3 +281,17 @@ skips; AndroidTest compilation, lint and x86_64 assemble PASS. Day/Night product
 adapter labels/callbacks pass. Exact-SHA FAST required after carrying commit.
 Full Admin action/rotation/concurrency/security acceptance remains NOT MET.
 Profile commit 66f3eea0ad5ffae629e2e2cf5cd8d5f78f508861 FAST 41405867198 SUCCESS.
+
+
+C4.poll-status-server: NOT MET before repair. Existing Worker PUT accepts malformed
+active values and returns success/audit for nonexistent IDs. Authorized scope:
+validate boolean input and confirm actual UPDATE row count, conditional audit in
+the same transaction; isolated SQLite route tests, no deployment/migration.
+
+C4.poll-status-server scoped handler behavior MET locally: 291 backend tests PASS,
+TypeScript build PASS. Actual Hono + migrated isolated SQLite verifies null/invalid
+input rejection, zero-row 404 without audit, valid update with audit, denied server
+right despite local isAdmin=true, and atomic rollback on audit insertion failure.
+No production deployment/migration is authorized or performed. Server business
+validation is EVE-owned; no upstream Telegram poll-admin equivalent is claimed.
+Exact-SHA FAST is required after the coherent second poll implementation commit.

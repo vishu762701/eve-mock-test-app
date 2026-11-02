@@ -974,3 +974,37 @@ mutation/action audit and Home/Exam/shared requirements. Worker poll status hand
 of a nonexistent ID is a separately identified unverified confirmation gap; inspect
 with isolated database tests before changing it. QR code remains untouched and
 acceptance OPEN. Whole mission NOT MET; device/reference/legal/FULL limits remain.
+
+
+## Live continuation: Worker poll status confirmation (uncommitted)
+
+Fetched main remains 14c9e61be42fd7b969d5788b9ddf37d406df9ce4, no concurrent
+changes. Exact-SHA FAST 41406623011 is still IN PROGRESS (Android build; backend
+and Firebase jobs SUCCESS). Do not push over/cancel this required validation.
+
+Pending local files: backend/src/routes/polls.ts and
+backend/test/poll_status_confirmation.test.mjs plus requirement ledger. Worker PUT
+now rejects non-boolean active, conditions audit on changes()=1 in the same D1
+batch, and returns 404 for zero updated rows. Existing authorization is untouched.
+Actual isolated SQLite/Hono test passes for malformed input, missing row/no audit,
+and successful update/audit. Full backend npm test: 289 PASS, zero failures/skips;
+npm run build PASS. Initial npm command used repository root by mistake; rerun
+from backend/ completed successfully. No deployment, migration or production write.
+
+Exact next action: wait for FAST 41406623011; repair red before proceeding. Then
+review pending Worker diff, add denied-role/transaction rollback cases if needed,
+run final docs/diff checks, commit coherent second poll fix to main, and verify
+its exact-SHA FAST. Continue remaining Admin/Home/Exam/shared work; QR remains OPEN
+and unchanged. Whole mission NOT MET; device/legal/FULL limits unchanged.
+
+
+Worker poll review result: added real server-right denial and injected audit-failure
+rollback cases, plus JSON null validation. Final local backend npm test: 291 PASS,
+0 failures/skips; npm run build PASS. The conditional audit uses the immediately
+preceding UPDATE changes() inside the same D1 batch; zero-row updates return 404.
+Ready for coherent second poll commit once base FAST 41406623011 finishes.
+Remaining whole Admin/Home/Exam/shared acceptance stays NOT MET.
+
+Base 14c9e61be42fd7b969d5788b9ddf37d406df9ce4 exact-SHA FAST 41406623011
+SUCCESS observed before push; no concurrent remote commit. Worker status fix is
+the second coherent poll implementation batch. Its carrying SHA requires FAST.
