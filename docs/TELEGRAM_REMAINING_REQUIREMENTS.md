@@ -138,3 +138,17 @@ requirements remain NOT MET. Device/reference/GPL/service dependencies remain
 BLOCKED as listed. Mission-final FULL and protected verified APK remain NOT MET.
 No new owner decision is needed for continued development; legal/distribution,
 production deploy/migration and actual unavailable service decisions remain separate.
+
+## Verified implementation integration status
+
+| Scoped requirement | Status | Exact-SHA evidence |
+|---|---|---|
+| A3.2 source camera glass integration (not whole device parity) | MET | 7bb581b1 / FAST 41392841830 SUCCESS |
+| A3.4/A3.6 pause/bind/result/permission restoration integration | MET | 2e565591 / FAST 41394531948 SUCCESS |
+| C1/C2/C3/C5 fresh destination rights and confirmed dashboard integration | MET | 40a7bb30 / FAST 41395975426 SUCCESS |
+| A1 ready-frame seeded source appearance and frozen export integration | MET | 66574962 / FAST 41397993734 SUCCESS |
+
+Full requirement rows above retain their overall NOT MET/BLOCKED status. All four
+increments are ADAPTED, not original whole-screen EXACT. Latest implementation
+66574962d7dc1eb484ec81fb8440112d0279fc5d is green; exact links, counts and next action
+are at the top of TELEGRAM_FINAL_MISSION_CHECKPOINT.md. Whole mission PARTIAL.

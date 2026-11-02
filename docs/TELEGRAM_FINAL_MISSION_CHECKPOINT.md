@@ -4,6 +4,42 @@
 
 Status: PARTIAL. This is a continuation record, not screen acceptance.
 
+## Live verified implementation pointer — 2026-11-02
+
+Latest verified implementation main: **66574962d7dc1eb484ec81fb8440112d0279fc5d**.
+Official Telegram rechecked after implementation: **3de37c8cfb039452be7398909461da6288babf15**.
+This evidence-only carrying commit must be reconciled with live main/CI on restart.
+
+| Scoped delivery | Commit | Exact-SHA FAST |
+|---|---|---|
+| A3.2 source camera glass | 7bb581b1b95d7e4e79489db77dfa50c3f9b92b6a | [41392841830](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41392841830) SUCCESS |
+| A3.4/A3.6 scanner lifetime/results | 2e5655911e0755a0b3a1892a15d4bafd683631dd | [41394531948](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41394531948) SUCCESS |
+| C1-C3/C5 confirmed rights/entries | 40a7bb30fcc2bbb3468d482a0ec6a9e4633e811b | [41395975426](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41395975426) SUCCESS |
+| A1 ready-frame item appearance | 66574962d7dc1eb484ec81fb8440112d0279fc5d | [41397993734](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41397993734) SUCCESS |
+
+Each FAST passed Android build/JVM/AndroidTest source compilation, all four ABI
+builds, pinned Rust security/C API, backend and Firebase. Latest docs 41397993663
+and verbatim-import 41397993706 SUCCESS. Native navigation and publication skipped;
+no protected verified APK artifact/checksum. Local: 745 JVM tests, 243 Rust tests,
+288 backend tests, 19 Functions tests and 59 CI helper tests pass; lint 0 errors /
+1645 warnings. Source inventory 101 entries + 4 verbatim popup assets match pinned
+Git/EVE bytes. Local x86_64 APK package com.eve.app and all four ELF libraries'
+LOAD alignment 0x4000 verified, not a final published APK or screen acceptance.
+
+Whole requirement ledger remains TELEGRAM_REMAINING_REQUIREMENTS.md. These four
+scoped engineering increments are MET at source/host/FAST integration level, all
+ADAPTED. Full A1/A2/A3/A4/Profile/Admin/Home/student/exam/theme fidelity remains
+NOT MET. Physical camera/GPU/reference/device matrix and human GPL review remain
+BLOCKED/unavailable; missing gift/service data is not fabricated. Strict personal-qr
+acceptance still rejects acceptance. Mission-final protected FULL is not eligible.
+First unfinished: full A1 card/type/parent composition and scanner control geometry/
+press physics; continue all independent ledger requirements without restarting or
+replacing the successful subsystems. No production deployment/migration, signing,
+release variable, payment, scoring or backend authority changed. P2 historical bare
+SDK35 shutdown exception remains UNKNOWN despite green JUnit. No new development
+owner decision is required; production/license/distribution decisions stay separate.
+
+
 ## Recovery (2026-11-01)
 
 Fetched live `main`: `1488ae8a9b3505cfd9e11befa85e3dd3cc5d0a39`; clean checkout.
