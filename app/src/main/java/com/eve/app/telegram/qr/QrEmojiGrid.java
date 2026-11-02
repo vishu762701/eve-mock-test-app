@@ -25,6 +25,8 @@ public final class QrEmojiGrid extends RecyclerView {
     private EmojiPickOverlay overlay;
     private final RectF cut = new RectF();
     private final float[] radiusAlpha = new float[2];
+    private final int[] cutOverlayLocation = new int[2];
+    private final int[] cutGridLocation = new int[2];
     private final Path cutPath = new Path();
     private final Paint cutPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint fadePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -53,11 +55,32 @@ public final class QrEmojiGrid extends RecyclerView {
         fadePaint.setShader(new LinearGradient(0, h - dp(10), 0, h, cols, pos, Shader.TileMode.CLAMP));
     }
 
+    /**
+     * Original QrShareActivity.java:663-676: overlay island coordinates must be
+     * projected through screen space into the scaled RecyclerView canvas.
+     * No allocation per frame, including the source 0.75→1 opening grow.
+     */
+    static void mapIslandCut(RectF rect, float[] radiusAlpha,
+                             int[] overlayLocation, int[] gridLocation,
+                             float scaleX, float scaleY) {
+        final float sx = scaleX > 0.01f ? scaleX : 1f;
+        final float sy = scaleY > 0.01f ? scaleY : 1f;
+        final float dx = overlayLocation[0] - gridLocation[0];
+        final float dy = overlayLocation[1] - gridLocation[1];
+        rect.set((rect.left + dx) / sx, (rect.top + dy) / sy,
+                 (rect.right + dx) / sx, (rect.bottom + dy) / sy);
+        radiusAlpha[0] /= sy;
+    }
+
     @Override protected void dispatchDraw(Canvas canvas) {
         final int save = canvas.saveLayer(0, 0, getWidth(), getHeight(), null);
         if (overlay != null) overlay.drawUnder(canvas, this);
         super.dispatchDraw(canvas);
         if (overlay != null && overlay.islandCut(cut, radiusAlpha)) {
+            overlay.getLocationOnScreen(cutOverlayLocation);
+            getLocationOnScreen(cutGridLocation);
+            mapIslandCut(cut, radiusAlpha, cutOverlayLocation, cutGridLocation,
+                         getScaleX(), getScaleY());
             cutPath.rewind();
             cutPath.addRoundRect(cut, radiusAlpha[0], radiusAlpha[0], Path.Direction.CW);
             cutPaint.setAlpha((int) (255 * radiusAlpha[1]));

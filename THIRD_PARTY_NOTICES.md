@@ -2,6 +2,10 @@
 
 ## Telegram QR picker opening Java motion — 2026-11-02
 
+The related original `QrShareActivity.java:663-676` overlay-to-scaled-grid
+mask coordinate transform is also adapted in `QrEmojiGrid.java`.
+Existing Telegram GPL/source-distribution obligations remain OPEN.
+
 `app/src/main/java/com/eve/app/telegram/qr/QrPickerOpenMotion.java`
 adapts grid-opening equations from official
 `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`,

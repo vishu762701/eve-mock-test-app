@@ -411,3 +411,20 @@ validation must be recorded from the actual commit SHA.
 Remaining first required work: original source picker sheet shape,
 row cascade and correct glass composition; scanner morph, native device
 matrix and remaining mission subsystems follow. GPL release review OPEN.
+
+## A2 follow-up — source island cut in scaled grid (2026-11-02)
+
+Follow-up to `c18a07139dc48080b31e15098deea6f618824513`: preserve its production picker grow. Adapt
+`QrShareActivity.java:663-676` in `QrEmojiGrid.java` so the selected
+island mask stays aligned while the RecyclerView's 420ms source scale is
+0.75→1. Java geometry regressions and Robolectric actual-picker
+detach cancellation test added. No backend, access rule, native dependency,
+payload, permission, release gate or product setting is changed.
+
+| ID | Requirement | Current code | Upstream reference | Dependencies | Status | Evidence |
+|---|---|---|---|---|---|---|
+| R3.A2-mask | Opening picker overlay cut aligned with scaled grid | QrEmojiGrid/mapIslandCut; QrEmojiPickerGrid | QrShareActivity:663-676 | location transforms, Canvas | UNKNOWN until exact-SHA FAST | Java cut tests + actual-picker lifecycle JVM test; device pending |
+| R3.A2-morph | Complete original sheet parent shape and glass/cascade | EVE BottomSheetDialog | QrShareActivity:532-758 | Telegram parent/scene compositor | NOT MET | Native matched frame/motion comparison absent |
+
+Next piece: parent morph/cascade/blur of A2, source-driven scanner button
+morph, then other unfinished mission workstreams. No production GPL clearance.

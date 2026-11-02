@@ -174,4 +174,24 @@ class QrEmojiPickerGridTest {
         assertFalse(frame.running)
         host.pause().stop().destroy()
     }
+    @Test fun sourceOpeningTransformSettlesAndResetsWhenPickerDetaches() {
+        val host = Robolectric.buildActivity(Activity::class.java).setup().visible()
+        val picker = QrEmojiPickerGrid(host.get(), { emptyList() }, {}, { null })
+        host.get().setContentView(picker)
+        layout(picker)
+        val grid = picker.getChildAt(0) as androidx.recyclerview.widget.RecyclerView
+        picker.animateSourceOpen()
+        assertTrue(grid.scaleX in .75f..1f)
+        assertTrue(grid.scaleY in .75f..1f)
+        assertTrue(grid.alpha in 0f..1f)
+        if (com.eve.app.designsystem.DesignMotion.enabled(host.get())) {
+            assertEquals((grid.height - grid.paddingBottom).toFloat(),
+                grid.pivotY, 1f)
+        }
+        host.get().setContentView(View(host.get()))
+        assertEquals(1f, grid.scaleX, 0f)
+        assertEquals(1f, grid.scaleY, 0f)
+        assertEquals(1f, grid.alpha, 0f)
+        host.pause().stop().destroy()
+    }
 }

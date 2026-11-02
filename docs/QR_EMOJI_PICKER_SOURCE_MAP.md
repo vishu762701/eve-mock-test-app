@@ -140,3 +140,20 @@ account/pack/premium services still excluded. Actual native Android
 open/close visual and gesture comparison remains OPEN. EVE catalogue
 ownership, six-selection restoration, accessibility and release gates are
 unchanged.
+
+## A2 native grid opening island-cut coordinate correction — 2026-11-02
+
+Source opened `QrShareActivity.java:663-676@3de37c8cfb039452be7398909461da6288babf15`.
+The picker overlay remains in unscaled parent coordinates while the source
+grid opens 0.75→1, so directly cutting its `islandRect` in the scaled
+RecyclerView's Canvas was incorrect. `QrEmojiGrid.mapIslandCut()` now uses
+the original overlay→screen→scaled-grid transform and the source radius
+division by grid `scaleY`, reusing two location arrays per frame.
+**ADAPTED** from source Java inside EVE AndroidX RecyclerView and overlay;
+the unported Telegram parent compositor remains NOT MET.
+
+`QrEmojiGridCutTest.java` validates 0.75-scale island/radius geometry,
+settled 1.0 identity and the source safe division. The real
+`QrEmojiPickerGridTest.kt` covers attached animation transform and detach
+reset without network calls. CI/runtime acceptance remains separate and
+the combined Telegram license review OPEN.
