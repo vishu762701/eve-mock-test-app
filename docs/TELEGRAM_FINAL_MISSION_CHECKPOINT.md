@@ -590,3 +590,42 @@ rotation and valid-point display verification; complete original
 scanner live blur/source glass and further QR/Profile/Admin/Home/
 student/quiz/theme requirements. Mission-final six-job FULL and
 verified published APK still NOT MET. GPL review remains OPEN.
+
+
+## Same mission checkpoint: R5 scan-found Java source integration (2026-11-02)
+
+Current **verified** live main before this evidence-only change:
+2f9727862b355f87b676dbc3d15be542074895f3.
+Original upstream pin unchanged:
+3de37c8cfb039452be7398909461da6288babf15.
+The original Java QrScanFound.java, EVE Canvas overlay, real
+CameraX shared-ViewPort ImageProxy/PreviewView transformation,
+genuine four-point ZXing-only policy and source 450ms found
+delay are implemented. Current production code in
+EveQrLiveScannerActivity.kt / QrScannerFrameOverlay.kt.
+No Telegram account/network/camera infrastructure, migrations,
+production secrets, auth/scoring or CI/security bypasses added.
+
+| ID | Requirement | Current code | Upstream reference | Dependencies | Status | Evidence |
+|---|---|---|---|---|---|---|
+| R5.found-source | Source yellow #FFFFDE07 6dp 18%-arm 0.3 approach and genuine four-point-only display | QrScanFound.java; QrScannerFrameOverlay.kt | QrScanOverlay.java:108-112,346-355,700-782 | Java Canvas + EVE view | MET scoped | FAST 41388793850 SUCCESS, native Robolectric pixel + four-point/rotation tests green |
+| R5.found-transform | ImageProxy original pixel coordinates to displayed PreviewView, source conditional 450ms delay | EveQrLiveScannerActivity.kt | QrScanOverlay.java:994-1011,1040-1063 | CameraX 1.4.2, shared ViewPort | MET source-contract/compile, UNKNOWN physical runtime | FAST 41388793850 compiled/tests; hardware display matrix unverified |
+| R5.found-device | Actual scanner 60/90/120Hz, crop/rotation, 3-button/gestures, gallery/torch/permissions | Existing Activity/overlay | full QrScanOverlay | Physical Android device/GPU | NOT MET | Native UI matrix skipped in FAST; no comparable source playback |
+| Mission FULL/production | Protected six-job FULL, published checksum, license clearance | release gate | Telegram GPLv2/per-file | authorized review and final mission acceptance | NOT MET | No FULL/verified artifact; approval variable value UNKNOWN |
+
+Source implementation commit ff4bc279 failed first FAST
+41387565607 because of test-only ApplicationProvider import.
+First repair 3d52de7 failed FAST 41387986583 because new
+pixel tests used Robolectric legacy graphics (two red/yellow raster
+assertions). Second repair 2f972786 uses established native
+Skia graphics and **passes** exact-SHA FAST 41388793850.
+All prior QR picker/wave/scanner/permissions/torch changes preserved.
+Latest docs job 41388793852 SUCCESS. Native Rust tests 243
+passed, no job gate weakened. Historical bare SDK35 thread
+exception remains UNKNOWN and present in green JVM log.
+
+First next requirement: real Android CameraX-to-preview coordinate
+and gallery/camera/torch/permission runtime acceptance, plus
+Telegram source scanner live blur/glass and content-fidelity gaps.
+Profile/Admin/Home/Student/Quiz/theme/release/FULL remain open.
+This checkpoint does not claim whole QR or mission completeness.

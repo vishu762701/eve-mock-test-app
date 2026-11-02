@@ -120,3 +120,35 @@ into GraphicsMode.Mode.NATIVE without deleting, weakening or skipping
 either assertion. Exact-SHA Android FAST success and hardware
 acceptance must be checked separately. No production renderer,
 permissions, signing or source-license gates changed.
+
+
+## R5 scan-found exact-SHA acceptance checkpoint (2026-11-02)
+
+Source implementation commit ff4bc279241006c960c3dc76fdb5a92bfd5e0ba1
+followed by two forward-only repairs: 3d52de7ed64177a4e24e8f57d9258ec2509cfd49
+(the test's missing AndroidX ApplicationProvider replaced with existing
+Robolectric RuntimeEnvironment) and
+2f9727862b355f87b676dbc3d15be542074895f3
+(both real Canvas pixel tests run with the repository's existing
+GraphicsMode.NATIVE, without weakening assertions).
+
+Exact-SHA FAST 41388793850 at 2f972786 **SUCCESS**:
+Android build and JVM suite, Backend and Firebase are green; pinned
+native Rust security/C API suite: 243 passed / 0 failed.
+Docs 41388793852 SUCCESS. Native navigation and verified APK
+publication were SKIPPED by FAST. This is development acceptance
+of the SOURCE-BACKED isolated geometry, not physical-camera or
+screen-level Telegram parity.
+
+R5.found-shape is MET for scoped source math/native Robolectric pixels.
+R5.found-map builds and source-contract unit assertions pass; real
+CameraX ImageProxy-to-PreviewView crop/rotation, first-found timing,
+camera/gallery/torch/permission navigation and 60/90/120Hz device
+fidelity remain UNKNOWN or NOT MET. No on-device evidence or
+production release clearance exists. The preexisting bare
+"SDK 35 Main Thread" exception fragment remains UNKNOWN despite a
+successful JVM task, and was not hidden or suppressed.
+Next exact action: add actual Android device matrix evidence for
+CameraX preview mapping, camera/gallery/torch permission and
+scanner morph, then original scanner live glass/blur compositor,
+without importing Telegram account/camera services.
