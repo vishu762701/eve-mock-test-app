@@ -32,6 +32,8 @@ internal class QrPickerSheetSurface(context: Context) : FrameLayout(context) {
         alpha = 1f
     }
 
+    fun sourceSheetProgress(): Float = progress
+
     fun animateSourceOpen() {
         val previous = animator
         animator = null

@@ -36,8 +36,9 @@ public final class QrBackdropScene implements AutoCloseable {
     private long waveStart;
     private float cardCY;
     private int width, height;
-    private Object bgNode, blurNode;
-    private int blurBuiltVersion = -1;
+    private Object bgNode, blurNode, sheetLiftNode;
+    private int blurBuiltVersion = -1, sheetLiftVersion = -1, sheetLiftCenter;
+    private float sheetLiftBuiltK = -1f;
     private final WeakHashMap<View, Boolean> glassConsumers = new WeakHashMap<>();
     private final int[] sceneLocation = new int[2], controlLocation = new int[2];
 
@@ -171,6 +172,47 @@ public final class QrBackdropScene implements AutoCloseable {
         } else {
             drawBackdropBitmap(canvas, backdrop);
         }
+        canvas.restore();
+        return true;
+    }
+
+    /**
+     * Original QrShareView.liftedBlur/setLiftEffect isolated to the QR picker.
+     * Render source backdrop in a 1/8-size RenderNode then apply source
+     * variable-radius blur/contrast/brightness. The dialog does not import
+     * Telegram accounts or gift content; pre-31 uses scene stand-in.
+     */
+    public boolean drawPickerSheetBackdrop(Canvas canvas, View control, float progress) {
+        if (backdrop == null || control == null) return false;
+        if (!QrRender.hasEffects() || !canvas.isHardwareAccelerated() ||
+            !QrRender.hasDisplayList(bgNode)) {
+            return drawControlBackdrop(canvas, control);
+        }
+        glassConsumers.put(control, Boolean.TRUE);
+        host.getLocationOnScreen(sceneLocation);
+        control.getLocationOnScreen(controlLocation);
+        if (sheetLiftNode == null) sheetLiftNode = QrRender.createNode("eveQrSheetLift");
+        final float k = QrPickerSheetLift.quantized(progress);
+        final int center = scene != null ? scene.center : Color.BLACK;
+        if (sheetLiftBuiltK != k || sheetLiftVersion != RimTune.version ||
+            sheetLiftCenter != center) {
+            sheetLiftBuiltK = k;
+            sheetLiftVersion = RimTune.version;
+            sheetLiftCenter = center;
+            QrRender.setBlurAndColorMatrix(sheetLiftNode, QrPickerSheetLift.blurRadius(k),
+                QrPickerSheetLift.colorMatrix(center, k));
+        }
+        final int ds = QrPickerSheetLift.DOWNSAMPLE;
+        final Canvas recorded = QrRender.beginRecording(sheetLiftNode,
+            (width + ds - 1) / ds, (height + ds - 1) / ds);
+        recorded.scale(1f / ds, 1f / ds);
+        QrRender.draw(recorded, bgNode);
+        QrRender.endRecording(sheetLiftNode);
+        canvas.save();
+        canvas.translate(sceneLocation[0] - controlLocation[0],
+            sceneLocation[1] - controlLocation[1]);
+        canvas.scale(ds, ds);
+        QrRender.draw(canvas, sheetLiftNode);
         canvas.restore();
         return true;
     }
@@ -330,9 +372,11 @@ public final class QrBackdropScene implements AutoCloseable {
         if (QrRender.hasNodes()) {
             QrRender.discardNode(bgNode);
             QrRender.discardNode(blurNode);
+            QrRender.discardNode(sheetLiftNode);
         }
-        bgNode = blurNode = null;
-        blurBuiltVersion = -1;
+        bgNode = blurNode = sheetLiftNode = null;
+        blurBuiltVersion = sheetLiftVersion = -1;
+        sheetLiftBuiltK = -1f;
     }
 
     @Override public void close() {

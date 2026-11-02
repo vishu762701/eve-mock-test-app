@@ -1,5 +1,15 @@
 # Third Party Notices
 
+## Telegram QR sheet RenderNode blur and luminance lift — 2026-11-02
+
+`app/src/main/java/com/eve/app/telegram/qr/QrPickerSheetLift.java`
+ADAPTS original Java `QrShareView.java:4730-4767,4793-4828` from
+`DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`.
+Telegram contributors retain copyright. Applicable root GPLv2,
+per-file grants and combined-app corresponding source/distribution
+review remain OPEN; no release approval implied.
+
+
 ## Telegram QR picker closing/cascade adaptation — 2026-11-02
 
 `app/src/main/java/com/eve/app/telegram/qr/QrPickerCloseCascade.java`

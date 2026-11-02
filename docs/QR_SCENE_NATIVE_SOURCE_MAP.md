@@ -188,3 +188,22 @@ intro/opaque-pixel band and skip on reduced motion, reveal and dispose.
 It does NOT verify real GPU blur, screen matched frames, touch physics
 or GLSL/tilt/light on native devices. Existing QR username/auth, six choices
 and gallery export remain EVE-owned. Source GPL/release disposition OPEN.
+
+## A2 independent source Java sheet RenderNode blur and color lift (2026-11-02)
+
+**ADAPTED, not full Telegram sheet parity.** Inspected official
+`DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`
+`QrShareView.java:4730-4767,4793-4828`. Original `LIFT_DS=8`
+records the QR scene backdrop into a separate RenderNode, applies
+stronger blur ramp `BLUR→SH_BLUR` plus luminance-aware
+contrast/brightness matrix, and quantizes the effect to 1/50 steps.
+Mapped to `QrPickerSheetLift.java` and
+`QrBackdropScene.drawPickerSheetBackdrop()`; legacy and software paths
+use original already-adapted scene stand-in, while the separate sheet
+node is discarded at detach. EVE `UsernameCardActivity` wires the
+actual picker panel background to this source blur using the current
+`QrPickerSheetSurface` fraction. Source Java is ADAPTED for EVE's
+dialog window/Drawable resources; independent source sheet window,
+rim/packs/overscroll gestures and physical GPU frame parity are
+NOT MET. `QrPickerSheetLiftTest.java` exercises quantization, blur,
+color matrix/luminance endpoints. Production GPL review remains OPEN.

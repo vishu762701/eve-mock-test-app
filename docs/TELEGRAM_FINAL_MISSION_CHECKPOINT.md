@@ -480,3 +480,21 @@ the source-map and third-party notices were updated.
 Next: source sheet blur/lift compositor or source scanner morph
 after exact-SHA FAST; all QR/Profile/Admin/Home/student/quiz/RTL and
 mission-final FULL acceptance remain PARTIAL/NOT MET.
+
+## A2 separate source sheet blur/lift (2026-11-02)
+
+Baseline `3650a3e6c1eb794574f1b102f69ce5e3a198047c`, exact-SHA FAST 41379437122 SUCCESS for preceding
+A2 source closing/choreography. Official upstream
+`3de37c8cfb039452be7398909461da6288babf15`.
+This coherent feature isolates `QrShareView:4730-4767,4793-4828`
+source Java 1/8-resolution sheet blur/color lift, integrates it into
+production `QrBackdropScene` and `UsernameCardActivity` panel,
+tests matrix/quantization and updates source/rights maps.
+
+| ID | Requirement | Current code | Upstream reference | Dependencies | Status | Evidence |
+|---|---|---|---|---|---|---|
+| R3.A2.glass-node | Independent 1/8 blurred node, brightness/contrast lift | QrPickerSheetLift / QrBackdropScene / UsernameCardActivity | QrShareView:4730-4767,4793-4828 | RenderEffect API31, source QR node | UNKNOWN until exact-SHA FAST | Java matrix/motion tests, GPU device evidence OPEN |
+| R3.A2.full-parent | Exact in-scene sheet/scroll, rim and gestures | EVE existing Material modal | QrShareView:5317-5570 | native original scene compositor | NOT MET | Matched original-device frames and cancellation matrix absent |
+
+Next unresolved: full Telegram source sheet compositor/runtime and
+scanner source morph. Mission-final FULL/license release remain OPEN.

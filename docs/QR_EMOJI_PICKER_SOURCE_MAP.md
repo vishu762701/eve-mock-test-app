@@ -207,3 +207,13 @@ JVM tests: `QrPickerCloseCascadeTest.java`,
 `QrPickerSheetSurfaceTest.kt`. New SHA CI and physical GPU rendering
 must be checked separately. Material modal parent/blur lift still
 differs from Telegram. GPL source/combined distribution review OPEN.
+
+## A2 picker independent glass node (2026-11-02)
+
+Source `QrShareView.java:4730-4767,4793-4828`: original 1/8
+RenderNode blur plus RGB lift now ADAPTED in `QrBackdropScene`,
+`QrPickerSheetLift` and the actual picker panel background callback.
+The QR toolbar continues using its separate 1/9 control blur.
+Legacy Android draws the scene stand-in. This is not a declaration
+of original Telegram parent rendering parity. Matched mobile GPU
+results, source/native dialog compositing and legal review remain OPEN.

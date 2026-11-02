@@ -213,6 +213,12 @@ class UsernameCardActivity : EveBaseActivity() {
         val morph = QrPickerSheetSurface(this).apply {
             addView(panel, FrameLayout.LayoutParams(-1, -2))
         }
+        // Source sheet-only 1/8-res blur/lift; button controls retain their
+        // independent 1/9-res blur. EVE dialogue remains an adapted host.
+        panel.background = com.eve.app.telegram.qr.QrControlBackground(
+            px(28).toFloat()) { canvas, owner ->
+            scene.drawPickerSheetBackdrop(canvas, owner, morph.sourceSheetProgress())
+        }
         val title = TextView(this).apply {
             text = "EVE Animated Emojis"
             gravity = Gravity.CENTER
