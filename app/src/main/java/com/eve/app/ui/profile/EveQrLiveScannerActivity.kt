@@ -24,6 +24,10 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
+import androidx.camera.core.UseCaseGroup
+import androidx.camera.view.transform.CoordinateTransform
+import androidx.camera.view.transform.ImageProxyTransformFactory
+import androidx.camera.view.transform.OutputTransform
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
@@ -31,6 +35,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import com.eve.app.R
+import com.eve.app.telegram.qr.QrScanFound
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AppBulletin
 import com.google.zxing.BinaryBitmap
@@ -54,6 +59,8 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
     private var camera: Camera? = null
     private lateinit var root: QrScanMorphLayout
     private lateinit var preview: PreviewView
+    private lateinit var frameOverlay: QrScannerFrameOverlay
+    @Volatile private var sharedViewPort = false
     private var closing = false
     private var cameraRequestStarted = false
     private var cameraBinding = false
@@ -135,7 +142,8 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         root.addView(preview, FrameLayout.LayoutParams(-1, -1))
 
         // QrScanOverlay.java:579-599,659-708. Source geometry, EVE CameraX host.
-        root.addView(QrScannerFrameOverlay(this), FrameLayout.LayoutParams(-1, -1))
+        frameOverlay = QrScannerFrameOverlay(this)
+        root.addView(frameOverlay, FrameLayout.LayoutParams(-1, -1))
         val caption = TextView(this).apply {
             text = "Scan an EVE username QR"
             gravity = Gravity.CENTER
@@ -273,7 +281,13 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
                 val analyzer = ImageAnalysis.Builder()
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build()
                 analyzer.setAnalyzer(worker) { frame -> analyzeFrame(frame) }
-                camera = service.bindToLifecycle(this, CameraSelector.DEFAULT_BACK_CAMERA, cameraPreview, analyzer)
+                // CameraX's shared ViewPort makes analysis-to-preview geometry
+                // well-defined across crop, rotation and FILL_CENTER.
+                val viewPort = preview.viewPort
+                val group = UseCaseGroup.Builder().addUseCase(cameraPreview).addUseCase(analyzer)
+                sharedViewPort = viewPort != null
+                if (viewPort != null) group.setViewPort(viewPort)
+                camera = service.bindToLifecycle(this, CameraSelector.DEFAULT_BACK_CAMERA, group.build())
                 provider = service
                 torchState.reset()
                 updateTorchButton()
@@ -283,19 +297,31 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         }, ContextCompat.getMainExecutor(this))
     }
 
-    private fun decode(source: LuminanceSource): String? {
+    /** ZXing returns four corners only if it actually detects four points. */
+    private data class DecodedQr(val text: String, val originalPoints: FloatArray?)
+
+    private fun decode(source: LuminanceSource): DecodedQr? {
         var rotated = source
-        repeat(4) {
+        repeat(4) { turns ->
             val result = runCatching {
-                QRCodeReader().decode(BinaryBitmap(HybridBinarizer(rotated))).text
+                QRCodeReader().decode(BinaryBitmap(HybridBinarizer(rotated)))
             }.getOrNull()
-            if (result != null) return result
+            if (result != null) {
+                val points = result.resultPoints?.takeIf { it.size == 4 }?.let { found ->
+                    val xy = FloatArray(8) { i ->
+                        if (i % 2 == 0) found[i / 2].x else found[i / 2].y
+                    }
+                    QrScanFound.toUnrotated(xy, source.width, source.height, turns)
+                }
+                return DecodedQr(result.text, points)
+            }
             if (!rotated.isRotateSupported) return null
             rotated = rotated.rotateCounterClockwise()
         }
         return null
     }
 
+    @OptIn(androidx.camera.view.TransformExperimental::class)
     private fun analyzeFrame(frame: ImageProxy) {
         try {
             if (completed.get() || closing) return
@@ -312,7 +338,31 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
             buffer.rewind()
             buffer.get(bytes, 0, minOf(bytes.size, buffer.remaining()))
             val source = PlanarYUVLuminanceSource(bytes, stride, h, 0, 0, w, h, false)
-            decode(source)?.let { result -> runOnUiThread { handleLink(result) } }
+            decode(source)?.let { detected ->
+                // ImageProxy is closed in finally. Snapshot its transform while
+                // valid; only map actual four-point results on the UI thread.
+                val transform: OutputTransform? =
+                    if (sharedViewPort && detected.originalPoints != null) {
+                        runCatching {
+                            ImageProxyTransformFactory().apply {
+                                isUsingCropRect = true
+                                isUsingRotationDegrees = false
+                            }.getOutputTransform(frame)
+                        }.getOrNull()
+                    } else null
+                runOnUiThread {
+                    if (isDestroyed || closing || isFinishing || completed.get()) return@runOnUiThread
+                    val local = if (transform != null && detected.originalPoints != null) {
+                        runCatching {
+                            val target = preview.outputTransform ?: error("Preview transform unavailable")
+                            val xy = detected.originalPoints.copyOf()
+                            CoordinateTransform(transform, target).mapPoints(xy)
+                            xy
+                        }.getOrNull()
+                    } else null
+                    handleLink(detected.text, local)
+                }
+            }
         } catch (_: Exception) {
             // Malformed camera frames are not user-visible authentication failures.
         } finally {
@@ -353,7 +403,7 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
                 runOnUiThread {
                     if (isDestroyed || isFinishing || closing || completed.get()) return@runOnUiThread
                     if (result == null) AppBulletin.showError(this, "No QR detected in image")
-                    else handleLink(result)
+                    else handleLink(result.text)
                 }
             } catch (_: Exception) {
                 runOnUiThread {
@@ -367,7 +417,7 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         }
     }
 
-    private fun handleLink(link: String) {
+    private fun handleLink(link: String, localPoints: FloatArray? = null) {
         if (isFinishing || closing || completed.get()) return
         if (ProfileQrPayload.parse(link) == null) {
             val now = SystemClock.elapsedRealtime()
@@ -378,7 +428,16 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
             return
         }
         if (!completed.compareAndSet(false, true)) return
-        closeScanner(Uri.parse(link))
+        val destination = Uri.parse(link)
+        val outlined = localPoints != null && ::frameOverlay.isInitialized &&
+            frameOverlay.showFound(localPoints)
+        if (outlined) {
+            // Exact source delay only when four genuine finder/alignment points
+            // can be rendered. Back/destroy during delay must cancel navigation.
+            root.postDelayed({
+                if (!closing && !isFinishing && !isDestroyed) closeScanner(destination)
+            }, QrScanFound.FOUND_DELAY_MS)
+        } else closeScanner(destination)
     }
 
     private fun closeWithMotion() = closeScanner(null)
@@ -395,6 +454,7 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         camera?.cameraControl?.enableTorch(false)
         provider?.unbindAll()
         camera = null
+        sharedViewPort = false
         root.animateSourceClose {
             if (!isDestroyed) {
                 if (destination != null)
@@ -421,6 +481,7 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         if (::root.isInitialized) root.dispose()
         provider?.unbindAll()
         torchState.reset()
+        sharedViewPort = false
         cameraBinding = false
         worker.shutdownNow()
         super.onDestroy()

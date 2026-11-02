@@ -562,3 +562,31 @@ Next unfinished requirement: source-constrained four-point scan-found
 feedback and camera/gallery/torch permission runtime validation,
 then original QR/Profile/Admin/Home/student/Quiz/theme and FULL.
 Production GPL/per-file combined distribution approval remains OPEN.
+
+
+## 2026-11-02 continuation: R5 QR scanned-code found overlay
+
+Baseline before implementation: main
+813a2b927ff1de25e5c05795323ae4a5d72a78e5,
+exact-SHA FAST 41386124717 SUCCESS (Android/JVM/Backend/Firebase).
+Official Telegram source pin
+3de37c8cfb039452be7398909461da6288babf15.
+This continuation adds the original Java QrScanFound source equations,
+a real QR frame Canvas caller, exact four-point detection policy,
+CameraX shared-ViewPort analysis-to-preview mapping, source found delay,
+focused tests and provenance. The old/repaired scanner motion and
+permissions work are preserved. No Telegram accounts, MTProto, original
+Telegram camera service or network/documents imported; no production
+data, server auth, scoring, CI gate, GPL approval or signing changes.
+
+| ID | Requirement | Current code | Upstream ref | Dependencies | Status | Evidence |
+|---|---|---|---|---|---|
+| R5.found-shape | Source yellow 6dp rounded 18% outline and 0.3 approach | QrScanFound.java / QrScannerFrameOverlay.kt | QrScanOverlay:700-782 | Java Canvas/paint, four genuine ZXing points | UNKNOWN pending exact-SHA CI | New Java pixels/rotation and real overlay JVM tests |
+| R5.found-map | Crop/rotation-correct camera-to-preview mapping and four-point-only 450ms delay | EveQrLiveScannerActivity.kt | QrScanOverlay:994-1011,1040-1063 | CameraX ImageProxy/PreviewView shared ViewPort | UNKNOWN pending device matrix | Source contract + buffer-rotation JVM tests; actual CameraX device evidence absent |
+| R5.found-runtime | Physical preview orientation and found-timing fidelity | EVE CameraX | Original QrScanOverlay renderer | Emulator/device, navigation, real QR | NOT MET | No matched Android reference frames/60-90-120Hz measurement |
+
+Next after exact-SHA FAST: real Android camera/gallery/torch/denial,
+rotation and valid-point display verification; complete original
+scanner live blur/source glass and further QR/Profile/Admin/Home/
+student/quiz/theme requirements. Mission-final six-job FULL and
+verified published APK still NOT MET. GPL review remains OPEN.

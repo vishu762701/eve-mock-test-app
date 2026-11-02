@@ -852,3 +852,14 @@ gates remain OPEN and unchanged. Corresponding derived source, source identities
 precise adaptations, test limitations and license dependencies are recorded in
 `docs/qr-native-upstream-manifest.json` and `docs/QR_SCENE_NATIVE_SOURCE_MAP.md`.
 The C++ host bitmap API shim is EVE test infrastructure, excluded from APKs.
+
+
+## Telegram QR scan-found outline Java adaptation — 2026-11-02
+
+app/src/main/java/com/eve/app/telegram/qr/QrScanFound.java adapts the
+original Java QrScanOverlay.java:108-112,346-355,700-782,994-1011,
+1040-1063, official DrKLO/Telegram revision
+3de37c8cfb039452be7398909461da6288babf15. Telegram contributors
+retain copyright. Root Telegram GPLv2/per-file and combined EVE APK
+redistribution obligations require independent legal review; source
+adaptation and green development builds grant no production clearance.

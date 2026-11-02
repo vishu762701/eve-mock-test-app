@@ -7,6 +7,7 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
 import android.view.View
+import com.eve.app.telegram.qr.QrScanFound
 import kotlin.math.min
 
 /**
@@ -43,6 +44,16 @@ internal class QrScannerFrameOverlay(context: Context) : View(context) {
     }
     private val path = Path()
     private val rect = RectF()
+    private val found = QrScanFound(dp)
+
+    /** Four real ZXing points already mapped to preview-local display coordinates. */
+    fun showFound(mappedPoints: FloatArray): Boolean {
+        val accepted = found.show(mappedPoints, width.toFloat(), height.toFloat())
+        if (accepted) invalidate()
+        return accepted
+    }
+
+    fun clearFound() { found.clear(); invalidate() }
 
     init {
         importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
@@ -52,6 +63,7 @@ internal class QrScannerFrameOverlay(context: Context) : View(context) {
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         if (width <= 0 || height <= 0) return
+        val needsFrame = found.advance()
         val bounds = QrScannerFrameGeometry.bounds(width, height, dp)
         rect.set(bounds.left, bounds.top, bounds.right, bounds.bottom)
         val radius = 14f * dp
@@ -60,6 +72,8 @@ internal class QrScannerFrameOverlay(context: Context) : View(context) {
         path.addRect(0f, 0f, width.toFloat(), height.toFloat(), Path.Direction.CW)
         path.addRoundRect(rect, radius, radius, Path.Direction.CW)
         canvas.drawPath(path, dim)
+        // Source QrScanOverlay.drawScanner fades white arms as foundK rises.
+        stroke.alpha = (255f * (1f - found.progress())).toInt().coerceIn(0, 255)
         val arm = 28f * dp
         for (corner in 0 until 4) {
             val right = corner == 1 || corner == 2
@@ -77,5 +91,12 @@ internal class QrScannerFrameOverlay(context: Context) : View(context) {
             canvas.drawPath(path, stroke)
             canvas.restoreToCount(save)
         }
+        found.draw(canvas)
+        if (needsFrame) postInvalidateOnAnimation()
+    }
+
+    override fun onDetachedFromWindow() {
+        found.clear()
+        super.onDetachedFromWindow()
     }
 }

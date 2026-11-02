@@ -73,3 +73,36 @@ generations (close/rotate/rebind). QrTorchGateTest.kt covers success,
 failure and old-generation rejection. Real camera hardware and
 60/90/120Hz/source glass parity remain UNKNOWN/NOT MET; license
 and release review remain OPEN.
+
+
+## R5 authentic scan-found outline with CameraX display mapping (2026-11-02)
+
+The official pinned Telegram Java QrScanOverlay.java at
+DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15 was
+inspected at 108-112, 346-355, 700-782, 994-1011 and 1040-1063.
+The source uses four genuine QR points (no synthetic finder corners),
+color #FFFFDE07, 6dp round-capped strokes, 18% neighbor arms,
+a 0.5-to-1.1 centroid zoom, approach factor 0.3, fades white frame
+corners and defers completion by 450ms only when a polygon is available.
+
+| Original source | EVE production path | Status |
+|---|---|---|
+| QrScanOverlay.java:108-112,346-355,700-782 | app/src/main/java/com/eve/app/telegram/qr/QrScanFound.java; QrScannerFrameOverlay.kt | ADAPTED Java source geometry, original color/stroke/animator math, source-only four-point policy |
+| QrScanOverlay.java:994-1011,1040-1063 | EveQrLiveScannerActivity.decode/handleLink | ADAPTED actual ZXing four-point extraction and source 450ms delay, EVE username-only link security |
+| EVE CameraX frame/preview contract | EveQrLiveScannerActivity.analyzeFrame/startLiveCamera | ADAPTED explicit CameraX shared ViewPort, ImageProxyTransformFactory with raw unrotated coordinates, CoordinateTransform to PreviewView, skip overlay if reliable transform unavailable |
+
+CameraX 1.4.2's own shared ViewPort and transform APIs provide
+crop/rotation/FILL_CENTER mapping instead of hard-coded screen ratios.
+The original Java source language remains Java; Android View integration
+remains Kotlin. QR image decode uses real ZXing four result points
+only when available; three finder points never fabricate a rectangle
+or add the 450ms delay. The original EVE CameraX/ZXing, Gallery,
+permission, torch, duplicate-result guard and safe EVE deep-link
+routing remain intact.
+
+New QrScanFoundTest.java validates source pixels/rotation/polygon policy;
+QrScannerFoundOverlayTest.kt validates production Canvas integration;
+EveQrScannerContractTest binds CameraX transform and source delay callers.
+Actual device rotation, camera preview transforms, yellow outline
+pixel/frame timings, hardware and 60/90/120Hz parity remain UNKNOWN.
+Whole scanner/QR source parity NOT MET. Combined GPL release review OPEN.

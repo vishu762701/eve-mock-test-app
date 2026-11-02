@@ -29,6 +29,15 @@ class EveQrScannerContractTest {
         assertTrue(scanner.contains("root.animateSourceOpen"))
         assertTrue(scanner.contains("root.animateSourceClose"))
         assertTrue(scanner.contains("root.captureCloseFrame(preview)"))
+        // Found-code pixels come from real ZXing result points mapped by
+        // CameraX with the same shared ViewPort, never approximate corners.
+        assertTrue(scanner.contains("result.resultPoints?.takeIf { it.size == 4 }"))
+        assertTrue(scanner.contains("QrScanFound.toUnrotated"))
+        assertTrue(scanner.contains("ImageProxyTransformFactory()"))
+        assertTrue(scanner.contains("CoordinateTransform(transform, target).mapPoints(xy)"))
+        assertTrue(scanner.contains("UseCaseGroup.Builder()"))
+        assertTrue(scanner.contains("group.setViewPort(viewPort)"))
+        assertTrue(scanner.contains("QrScanFound.FOUND_DELAY_MS"))
         assertTrue(scanner.contains("shouldShowRequestPermissionRationale"))
         assertTrue(scanner.contains("TelegramNativeAlertDialog.Builder(this)"))
         assertTrue(scanner.contains("Settings.ACTION_APPLICATION_DETAILS_SETTINGS"))
