@@ -726,3 +726,30 @@ The EVE QR encodes `eve-mock-test://username/...` and only handles local EVE dee
 - `app/src/main/java/com/eve/app/ui/profile/QrEmojiPattern.kt` contains source-derived numeric placement/selection behavior, including a deterministic hash and six-selection cap. `TelegramQrSceneView.kt` renders EVE-hosted animated Lottie content with an ADAPTED canvas field. `UsernameCardActivity.kt` hosts EVE's own picker; no Telegram account/network API or proprietary credentials are imported.
 - EVE's authenticated read-only endpoint `/api/emoji/items/public` lists only enabled animated assets, with disabled-pack and global-source switch enforcement. Admin-only write endpoints remain restricted. Current user-facing QR themes are free; no paid messaging or collectible gifts are represented as working.
 - No source-exact or pixel-identical QR acceptance is claimed. The production release GPL gate and `EVE_GPL_RELEASE_APPROVED` safeguard remain unchanged.
+
+### Original native QR backdrop and Java scene subsystem (2026-11-02 development)
+
+Official `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`,
+`TMessagesProj/jni/image.cpp:1211-1377`, is isolated as
+`app/src/main/cpp/telegram_qr_backdrop.cpp` and compiled in C++ into
+`libeve_qr_backdrop.so`. Original gradient, circular-wave antialiasing and
+premultiplied glowing-ring algorithms remain; the JNI name, minimal headers and
+allocation-failure cleanup are adaptations. No unrelated image/account/network
+subsystem is included. `QrBackdropNative.java` supplies a bounded EVE JNI adapter.
+
+Original Java from `QrShareView.java:124-134,685-724,1534-1575,2095-2121,
+2140-2175,2260-2426,3573-3806,4533-4583` and transition driving from
+`QrShareActivity.java:819-848` are extracted/adapted into `QrBackdropScene.java`,
+`QrCardShadow.java`, `QrCardMotion.java`, `QrSceneReveal.java` and the existing EVE scene/control hosts.
+They retain their original implementation languages. EVE supplies view ownership,
+public username payloads, existing bounded animated assets, lifecycle, reduced
+motion and Activity integration. The old Kotlin reveal-math copy delegates to the
+canonical extracted Java equations. The complete Telegram QR screen is not EXACT.
+
+Telegram contributors retain the original rights. The upstream root LICENSE is
+GPL version 2; no absent per-file later-version grant or redistribution clearance
+is assumed. Existing combined-app/license review and production release-compliance
+gates remain OPEN and unchanged. Corresponding derived source, source identities,
+precise adaptations, test limitations and license dependencies are recorded in
+`docs/qr-native-upstream-manifest.json` and `docs/QR_SCENE_NATIVE_SOURCE_MAP.md`.
+The C++ host bitmap API shim is EVE test infrastructure, excluded from APKs.

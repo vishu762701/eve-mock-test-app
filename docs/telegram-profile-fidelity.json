@@ -66,7 +66,13 @@
         "app/src/main/java/com/eve/app/telegram/qr/QrEmojiCell.java",
         "app/src/main/java/com/eve/app/telegram/qr/EmojiPickOverlay.java",
         "app/src/main/java/com/eve/app/telegram/qr/QrEmojiGrid.java",
-        "app/src/main/java/com/eve/app/ui/profile/QrEmojiPickerGrid.kt"
+        "app/src/main/java/com/eve/app/ui/profile/QrEmojiPickerGrid.kt",
+        "app/src/main/cpp/telegram_qr_backdrop.cpp",
+        "app/src/main/java/com/eve/app/telegram/qr/QrBackdropNative.java",
+        "app/src/main/java/com/eve/app/telegram/qr/QrBackdropScene.java",
+        "app/src/main/java/com/eve/app/telegram/qr/QrCardShadow.java",
+        "app/src/main/java/com/eve/app/telegram/qr/QrSceneReveal.java",
+        "app/src/main/java/com/eve/app/telegram/qr/QrCardMotion.java"
       ],
       "tests": [
         "app/src/androidTest/java/com/eve/app/ui/profile/ProfileMissionIntegrationNativeTest.kt",
@@ -74,12 +80,15 @@
         "app/src/test/java/com/eve/app/ui/profile/QrEmojiPatternTest.kt",
         "backend/test/emoji_system.test.mjs",
         "app/src/test/java/com/eve/app/ui/profile/QrEmojiPickerGridTest.kt",
-        "app/src/androidTest/java/com/eve/app/ui/profile/QrEmojiPickerNativeTest.kt"
+        "app/src/androidTest/java/com/eve/app/ui/profile/QrEmojiPickerNativeTest.kt",
+        "app/src/test/java/com/eve/app/telegram/qr/QrBackdropSceneTest.kt",
+        "app/src/test/java/com/eve/app/telegram/qr/QrSceneRevealTest.kt",
+        "app/src/androidTest/java/com/eve/app/ui/profile/QrBackdropNativeTest.kt"
       ],
       "source_map": "docs/PROFILE_REGRESSION_REPAIR.md",
       "remaining_gaps": [
         "Original Java QR cells, selection overlay (badges/island/scrollbar) and grid masks are integrated through an ADAPTED AndroidX/EVE catalogue host. The picker offers actual animated EVE assets only. The source sheet compositor, pack/recent/premium services, matched device rendering and complete accessibility matrix remain unverified. Legacy restored standard glyphs are compatibility data, never Telegram animated documents.",
-        "EVE Canvas integrates the original Java QrCodeLayer particle renderer and source-derived QrGlass/Rim helpers, palettes, reveal and gesture equations, but full QrShareView/RenderNode/blur scene composition, original sheet morph and visual/frame parity remain incomplete.",
+        "Original C++ backdrop and Java wave/ink/shadow/card-bounce/reveal algorithms now run through ADAPTED EVE scene hosts; supported API31 hardware frames record backdrop/pattern/ring and downsampled blur for controls. Host native-raster pixels, 160 QR decodes and reveal/cancellation endpoints are tested. Device GPU blur, source sheet morph, complete pattern gesture/scene transitions plus visual/frame parity remain unaccepted; the complete QrShareView is not imported.",
         "CameraX live scanner, on-device gallery decoding and flashlight support replace EVE's still-camera prototype, but Telegram's actual QrScanOverlay implementation, Telegram link processing, custom emoji pack assets, collectible gift animations and MTProto-backed themes are not included. EVE's username-only QR has a different backend contract.",
         "Matched upstream/EVE same-device screenshots, motion traces at 60/90/120Hz, Android real camera/permission verification, Day/Night, RTL, 200% font, system inset/cutout and accessibility validation remain outstanding. Release GPL compatibility remains unapproved."
       ]

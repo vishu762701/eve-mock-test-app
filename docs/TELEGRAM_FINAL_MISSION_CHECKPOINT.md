@@ -29,10 +29,10 @@ No branches, resets, production calls, deployment or migration are authorized he
 | R10 | Remaining student screens complete | settings/history/etc | shared Telegram components | existing business actions | UNKNOWN | whole-screen audit/runtime acceptance remains |
 | R11 | Mock Test/Result preserve correctness and integrate Quiz UI | TestActivity/QuestionAdapter/ResultActivity | quiz/radio components | authoritative server scoring | UNKNOWN | no scoring changes authorized; full UI evidence remains |
 | R12 | Theme/motion/RTL/accessibility/device matrix | shared themes/motion | source tokens/physics | real devices 60/90/120Hz | NOT MET | Home drawer Night #000000 exception retained; matrix incomplete |
-| R13 | Native engine verified, existing failures resolved | vendored tlottie/JNI/CMake | official tlottie gitlink | Rust/NDK/C++ | NOT MET | first unfinished dependency: 3 previously recorded Rust test failures |
-| R14 | Security and production-data invariants | existing auth/Worker/D1/Firebase | EVE contract | no deployments/data changes | UNKNOWN | no changes yet; final diff review required |
+| R13 | Native engine verified, existing failures resolved | vendored tlottie/JNI/CMake and original backdrop C++ | official tlottie gitlink/image.cpp | Rust/NDK/C++ | NOT MET | Rust fixture repaired and 243 tests green; native host raster passes; all-ABI/device/final APK acceptance remains |
+| R14 | Preserve security and production-data invariants | existing auth/Worker/D1/Firebase unchanged | EVE contract | no deployments/data changes | MET | scoped diff review: no backend/auth/scoring/data/permissions/link-validation changes; bounded native input adapter; no production test requests introduced |
 | R15 | Provenance and distribution safeguards | manifests/notices/release gate | pinned source/license | per-file GPL review | NOT MET | existing byte manifests; combined release obligations OPEN |
-| R16 | Exact-SHA FAST for pushed implementation batches | protected build.yml | n/a | GitHub Actions | MET | dc3b7ee7 / 41358042268 and 24e79891 / 41360696652 green; this evidence-only follow-up requires its own head check |
+| R16 | Exact-SHA FAST for pushed implementation batches | protected build.yml | n/a | GitHub Actions | NOT MET | earlier dc3b7ee7, 24e79891 and cdee4932 FAST green; active A1 batch must pass its own exact-SHA gate |
 | R17 | Mission-final six-job FULL and verified APK | protected build.yml | n/a | all feasible requirements | NOT MET | must not label an intermediate run mission-final |
 | R18 | Main-only commits, checkpoint and honest reporting | this record | n/a | successful feature gates | MET | two coherent implementation batches; no branches/PR/reset/force push; mission explicitly PARTIAL |
 
@@ -189,3 +189,101 @@ Do not rerun completed implementation or treat a previous report as the live hea
 First unfinished **product requirement** remains R2/A1 full source QR scene;
 remaining source sheet/shared-cache/runtime A2 work and scanner morph A4 follow.
 Other workstream requirements remain as listed above. Final status: **PARTIAL**.
+
+## Resume 2026-11-02 — active A1 scene batch
+
+Fetched live main `cdee49324290c27995833d178e7eaa0e97de2eb9`, clean checkout;
+FAST 41361717397 and docs 41361717394 are successful. All earlier successful
+native/picker work remains. Official Telegram fetched master still resolves to
+`3de37c8cfb039452be7398909461da6288babf15`; no upstream pin changes.
+
+First unfinished product requirement remains R2/A1. Active implementation scope:
+original native backdrop raster + Java scene recolor wave/QR ink, scene glass
+composition/cleanup, source card shadow and whole-layer reveal integration.
+Required source dependency discovered: `TMessagesProj/jni/image.cpp:1211-1377`
+`generateQrBackdrop`, not an Android gradient approximation. Its only imported
+native dependencies are JNI, AndroidBitmap and math; unrelated image/network/
+account code is excluded. Java source is kept Java, C++ kept C++.
+
+| ID | Requirement | Current code | Upstream reference | Dependencies | Status | Verification evidence |
+|---|---|---|---|---|---|---|
+| R2.1 | Original background raster and recolor wave subsystem | C++ telegram_qr_backdrop + Java QrBackdropScene | QrShareView:1534-1575,2260-2426; image.cpp:1211-1366 | JNI, AndroidBitmap, QrPalettes | MET | same production native raster runs in host tests; original helpers/pixel body compared unchanged; interrupted target and independent snapshot tested; whole-screen runtime acceptance separate |
+| R2.2 | Wave-following QR ink and colored card shadow algorithms | Java QrBackdropScene/QrCardShadow | QrShareView:3573-3588,3690-3806 | existing QrCodeLayer, Java mask | MET | LAB wave ink settlement, colored soft shadow pixels, disposal/recreation and 162 real QR/PNG decodes |
+| R2.3 | Glass scene sampling and supported native blur acceptance | Java scene nodes and QrControlBackground | QrShareView:2140-2175,4533-4583 | QrRender, source backdrop, screen origin | NOT MET | CPU stand-in exact screen-offset pixels and cleanup pass; API31 GPU blur implemented/compiled, matching device evidence absent |
+| R2.4 | Whole-layer reveal and snapshot platform acceptance | QrSceneReveal + Activity root/translucent theme + independent source crop | QrShareView:2095-2121,3591-3686 | Activity host, EVE branding | NOT MET | source equations/root/control endpoints, interrupted/duplicate close, stale callback cancellation, reduced motion and rotation-before-draw PNG pass; actual Android window/navigation matrix pending |
+| R2.5 | Card recolor bounce and emoji pulse algorithms | original Java QrCardMotion | QrShareView:1043,1534-1542,1578-1596,3668-3687 | monotonic frame clock and motion policy | MET | original 320ms peak/undershoot, source continuation, 360ms dip and reduced-motion settlement tested; full-device physics not inferred |
+
+Original root GPLv2/per-file review and production release gate remain applicable.
+No release clearance, account service, fake gifts or backend changes are implied.
+
+
+## A1 scene implementation verification (2026-11-02)
+
+Pre-batch fetched main: `cdee49324290c27995833d178e7eaa0e97de2eb9`.
+This checkpoint is carried in the coherent A1 backdrop/card/reveal implementation
+commit; obtain that candidate with `git log -- docs/QR_SCENE_NATIVE_SOURCE_MAP.md`.
+All source adaptations and line maps are in that report and the 95-entry native/QR
+provenance manifest. Original C++ helpers and pixel/release body compare byte-equal
+to the pinned image.cpp sections; only includes/JNI binding/null-allocation cleanup
+are adapted. Java rendering/motion stays Java. Existing native/picker work is preserved.
+
+Final stable local command:
+
+```
+gradle :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64
+```
+
+Result: **688 tests, 153 suites, zero failures/errors/skips**; AndroidTest source
+compilation, resource/Java/Kotlin/C++ compilation, lint and x86_64 debug assembly
+PASS. Lint: **0 errors, 1643 warnings**, no suppression or baseline change.
+Eleven added JVM tests cover actual original native gradient/wave/ring pixels,
+invalid-boundary rejection, interruption/snapshot state, cross-view glass sampling,
+source shadow/bounce/pulse, reveal/cancellation/no-motion and real PNG after rotation.
+Existing 160 palette-size QR decodes and two rotation PNG decodes pass.
+Actual packaged-JNI test and scene export assertions are compiled in AndroidTest;
+not executed locally. The workspace still has no usable local device/KVM matrix.
+
+59 Python CI-helper tests PASS. Docs/acceptance-claim checks, pinned official
+verbatim-import comparison and 95 original/EVE SHA-256 provenance checks PASS.
+An initial lint pass read a changing source snapshot and flagged one indentation
+error; explicit statement braces plus the subsequent stable-source full reruns
+pass. No gate/assertion was weakened. The pre-existing bare SDK-35 shutdown
+fragment without stack remains visible with green JUnit; cause still UNKNOWN.
+
+The local x86_64 APK contains `libeve_qr_backdrop.so`, `libeve_qr_animation.so`,
+`libimage_processing_util_jni.so` and `libsurface_util_jni.so`. All LOAD segments
+have `0x4000` alignment; no host test library is packaged. Local-only SHA-256:
+`19a3102e291951505d034e3f61edbb58f0c754cfd01446213af0471126a8c46e`.
+This is not an Actions artifact, all-ABI final verification, release clearance or
+mission-final APK. Published artifact and mission-final FULL remain **NOT MET**.
+
+Changed-file groups in this implementation commit:
+
+- Native production: CMakeLists.txt and telegram_qr_backdrop.cpp; Gradle host-test
+  compilation, JNI headers/shim/bridge/shadow and Robolectric config are test-only.
+- Java production: QrBackdropNative, QrBackdropScene, QrCardMotion, QrCardShadow,
+  QrSceneReveal, QrRender disposal hook and QrControlBackground scene sampling.
+- EVE integration: TelegramQrSceneView, canonical-delegating TelegramQrMotion,
+  UsernameCardActivity, QR-only manifest/theme; existing auth/routing/exports remain.
+- Tests: QrBackdropSceneTest, QrSceneRevealTest, TelegramQrMotionTest,
+  TelegramQrRasterTest, QrBackdropNativeTest and TelegramQrSceneNativeTest.
+- Documentation: THIRD_PARTY_NOTICES, QR_SCENE_NATIVE_SOURCE_MAP,
+  qr-native-upstream-manifest, telegram-profile-fidelity and this checkpoint.
+
+Security review: no Worker/auth/API/scoring/D1/Firebase/production-data changes,
+new permissions, external-link routing, secrets or network calls. Native arrays,
+finite values and small mutable RGBA buffers are validated; pinned allocations
+are released on failure. New asynchronous shadow work has generation ownership;
+late results recycle their bitmap. Window/input ownership is scoped to QR; the
+whole root consumes touches while revealing. GPL/signing/distribution gates stay
+unchanged and unresolved combined release review remains OPEN.
+
+**First unfinished requirement:** R2/A1 full original pattern/scene behavior and
+matching Android GPU/window verification. **Exact next implementation action:**
+open the pinned QrShareView Pattern/place/wave-push/shared-cache and input callers,
+map their minimum dependency graph to EVE's existing native Drawable catalogue,
+then replace the remaining Kotlin pattern/gesture approximation with original
+Java where compatible. Preserve username payloads, six-pick EVE assets and all
+security contracts. Complete source sheet/morph A2 and scanner A4 follow; all other
+NOT MET/UNKNOWN rows still apply. Before advancing, require exact-SHA FAST for this
+batch and repair any failure. FAST run ID is pending push; FULL is not yet eligible.

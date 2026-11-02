@@ -63,7 +63,7 @@ class UsernameCardActivity : EveBaseActivity() {
         @Suppress("DEPRECATION")
         emojiPickerScroll = savedInstanceState?.getParcelable("qr_picker_scroll")
 
-        val root = FrameLayout(this)
+        val root = FrameLayout(this).apply { isClickable = true }
         scene = TelegramQrSceneView(this, username, qrLink).apply {
             contentDescription = "QR code for public EVE username, at " + username +
                 ". This shared card does not verify account ownership."
@@ -142,6 +142,7 @@ class UsernameCardActivity : EveBaseActivity() {
             layout(bars.top, bars.bottom)
             insets
         }
+        scene.bindSceneLayer(root, arrayOf(close, scan, share, save, tools))
         setContentView(root)
         ViewCompat.requestApplyInsets(root)
         if (savedInstanceState == null) scene.post { if (!isFinishing) scene.animateOpen() }
@@ -299,7 +300,7 @@ class UsernameCardActivity : EveBaseActivity() {
     }
 
     private fun glassBackground(radius: Int): android.graphics.drawable.Drawable =
-        com.eve.app.telegram.qr.QrControlBackground(px(radius).toFloat())
+        com.eve.app.telegram.qr.QrControlBackground(px(radius).toFloat(), scene::drawControlBackdrop)
 
     private fun icon(drawable: Int, description: String, action: () -> Unit): FrameLayout {
         val host = FrameLayout(this).apply {
@@ -412,6 +413,9 @@ class UsernameCardActivity : EveBaseActivity() {
             isAppearanceLightStatusBars = false
             isAppearanceLightNavigationBars = false
         }
+        window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(Color.TRANSPARENT))
+        if (::scene.isInitialized) scene.refreshReveal()
+        else findViewById<View>(android.R.id.content)?.setBackgroundColor(Color.TRANSPARENT)
         window.statusBarColor = Color.TRANSPARENT
         window.navigationBarColor = Color.BLACK
     }

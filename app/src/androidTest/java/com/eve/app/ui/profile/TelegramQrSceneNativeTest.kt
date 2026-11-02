@@ -55,6 +55,8 @@ class TelegramQrSceneNativeTest {
                     scene.setPalette(palette)
                     val image = scene.renderShareImage()
                     assertNotNull(image)
+                    assertEquals(scene.width, image!!.width)
+                    assertEquals(minOf(scene.height, (scene.width * 1.92f).toInt()), image.height)
                     assertEquals("Rounded source-mapped QR scene must remain decodable",
                         link, decode(image!!))
                     image.recycle()

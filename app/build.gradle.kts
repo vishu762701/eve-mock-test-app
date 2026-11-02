@@ -1,3 +1,5 @@
+import java.io.File
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -177,4 +179,23 @@ dependencies {
 // SHA-256) for failing JVM tests. This does not change any test result or gate.
 tasks.withType<org.gradle.api.tasks.testing.Test>().configureEach {
     testLogging.exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+}
+
+// The same C++ backdrop raster runs in JVM pixel tests. Only its AndroidBitmap
+// API boundary is supplied by a test-only bridge; no production fallback/mock.
+val qrBackdropHostLibrary = layout.buildDirectory.file("host-native/${System.mapLibraryName("eve_qr_backdrop_host")}")
+val compileQrBackdropHost by tasks.registering(Exec::class) {
+    val jdk = File(System.getProperty("java.home"))
+    val os = System.getProperty("os.name").lowercase()
+    val platform = if (os.contains("mac")) "darwin" else if (os.contains("win")) "win32" else "linux"
+    inputs.files("src/main/cpp/telegram_qr_backdrop.cpp", "src/test/cpp/qr_bitmap_host.cpp", "src/test/cpp/include/android/bitmap.h")
+    outputs.file(qrBackdropHostLibrary)
+    doFirst { qrBackdropHostLibrary.get().asFile.parentFile.mkdirs() }
+    commandLine("c++", "-std=c++17", if (platform == "darwin") "-dynamiclib" else "-shared", "-fPIC", "-O2",
+        "-I${jdk}/include", "-I${jdk}/include/$platform", "-Isrc/test/cpp/include",
+        "src/main/cpp/telegram_qr_backdrop.cpp", "src/test/cpp/qr_bitmap_host.cpp", "-o", qrBackdropHostLibrary.get().asFile.absolutePath)
+}
+tasks.withType<org.gradle.api.tasks.testing.Test>().configureEach {
+    dependsOn(compileQrBackdropHost)
+    systemProperty("eve.qr.backdrop.hostLibrary", qrBackdropHostLibrary.get().asFile.absolutePath)
 }

@@ -35,3 +35,8 @@ add_library(eve_qr_animation SHARED telegram_lottie.cpp)
 target_include_directories(eve_qr_animation PRIVATE vendor/tlottie/include)
 target_link_options(eve_qr_animation PRIVATE "-Wl,-z,max-page-size=16384")
 target_link_libraries(eve_qr_animation PRIVATE tlottie jnigraphics z log android dl m)
+
+# Dependency-isolated original Telegram image.cpp QR backdrop subsystem.
+add_library(eve_qr_backdrop SHARED telegram_qr_backdrop.cpp)
+target_link_options(eve_qr_backdrop PRIVATE "-Wl,-z,max-page-size=16384")
+target_link_libraries(eve_qr_backdrop PRIVATE jnigraphics m)

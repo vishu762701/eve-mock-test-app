@@ -6,20 +6,15 @@ import android.graphics.drawable.Drawable
 import com.eve.app.telegram.animation.NativeQrDrawable
 import com.eve.app.telegram.animation.QrAnimationAssets
 import kotlinx.coroutines.*
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.VelocityTracker
-import android.view.animation.LinearInterpolator
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
-import android.graphics.RadialGradient
 import android.graphics.RectF
-import android.graphics.Shader
 import android.graphics.Typeface
 import android.view.View
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
@@ -70,13 +65,14 @@ internal class TelegramQrSceneView(
     fun palettePreviewColor(index: Int): Int = colors[index.coerceIn(0, colors.lastIndex)][0]
     fun paletteName(index: Int): String = com.eve.app.telegram.qr.QrPalettes.name(index)
     private var palette = 0
-    private var previousPalette = 0
-    private var paletteBlend = 1f
+    private val backdrop = com.eve.app.telegram.qr.QrBackdropScene(this)
     private var sceneScale = 1f
     private var qrBuild = 1f
     private var closing = false
-    private var openingAnimator: ValueAnimator? = null
-    private var paletteAnimator: ValueAnimator? = null
+    private var reveal: com.eve.app.telegram.qr.QrSceneReveal? = null
+    private val shadow = com.eve.app.telegram.qr.QrCardShadow(this)
+    private var revealing = false
+    private val cardMotion = com.eve.app.telegram.qr.QrCardMotion()
     private var glideAnimator: ValueAnimator? = null
     private var selectedEmojis: List<QrEmojiChoice> = emptyList()
     val selectedEmoji: String? get() = selectedEmojis.firstOrNull()?.alt
@@ -106,16 +102,17 @@ internal class TelegramQrSceneView(
     fun setPalette(index: Int) {
         val target = index.coerceIn(0, colors.lastIndex)
         if (target == palette) return
-        paletteAnimator?.cancel()
-        previousPalette = palette
         palette = target
-        paletteBlend = 0f
-        paletteAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
-            duration = TelegramQrMotion.WAVE_MS
-            addUpdateListener { paletteBlend = it.animatedValue as Float; invalidate() }
-            start()
-        }
+        val cy = if (bounds.isEmpty) height * .468f else bounds.centerY()
+        val now = SystemClock.uptimeMillis()
+        val animate = isLaidOut && isAttachedToWindow && com.eve.app.designsystem.DesignMotion.enabled(context)
+        backdrop.setPalette(target, width / 2f, cy, now, animate)
+        cardMotion.recolor(now, animate)
+        invalidate()
     }
+
+    fun drawControlBackdrop(canvas: Canvas, owner: View): Boolean = backdrop.drawControlBackdrop(canvas, owner)
+
     /** Legacy single-emoji entry remains supported for existing saved QR preferences. */
     fun setEmoji(value: String?) {
         setEmojiChoices(value?.takeIf { it.isNotBlank() }?.let {
@@ -127,7 +124,11 @@ internal class TelegramQrSceneView(
         setEmojiChoices(QrEmojiPattern.toggle(selectedEmojis, choice))
 
     fun setEmojiChoices(choices: List<QrEmojiChoice>) {
-        selectedEmojis = choices.distinctBy { it.key }.takeLast(QrEmojiPattern.MAX_SELECTED)
+        val next = choices.distinctBy { it.key }.takeLast(QrEmojiPattern.MAX_SELECTED)
+        if (selectedEmojis == next) return
+        selectedEmojis = next
+        cardMotion.changeEmojis(SystemClock.uptimeMillis(),
+            isLaidOut && isAttachedToWindow && com.eve.app.designsystem.DesignMotion.enabled(context))
         selectionStartedAt = SystemClock.uptimeMillis()
         legacyGlyphs.keys.retainAll(selectedEmojis.map { it.key }.toSet())
         if (isAttachedToWindow) loadSelectedAnimations()
@@ -191,60 +192,37 @@ internal class TelegramQrSceneView(
         super.onAttachedToWindow()
         assetScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
         loadSelectedAnimations()
+        shadow.prepare(colors[palette][2])
     }
 
-    private fun setReveal(value: Float, opening: Boolean) {
-        val eased = TelegramQrMotion.reveal(value, opening)
-        translationY = dp(64f) * (1f - eased)
-        alpha = (eased / .35f).coerceIn(0f, 1f)
-        sceneScale = if (opening) .9f + .1f * eased else .92f + .08f * eased
-        qrBuild = if (opening) (value * TelegramQrMotion.OPEN_MS / TelegramQrMotion.QR_BUILD_MS).coerceIn(0f, 1f) else 1f
-        invalidate()
+    fun bindSceneLayer(layer: View, controls: Array<View>) {
+        reveal?.close()
+        reveal = com.eve.app.telegram.qr.QrSceneReveal(layer, controls) { scale, build, active ->
+            sceneScale = scale
+            qrBuild = build
+            revealing = active
+            invalidate()
+        }
     }
+
+    fun refreshReveal() { reveal?.refresh() }
 
     fun animateOpen() {
-        openingAnimator?.cancel()
         closing = false
-        if (!com.eve.app.designsystem.DesignMotion.enabled(context)) {
-            setReveal(1f, true)
-            return
-        }
-        setReveal(0f, true)
-        openingAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
-            duration = TelegramQrMotion.OPEN_MS
-            interpolator = LinearInterpolator()
-            addUpdateListener { setReveal(it.animatedValue as Float, true) }
-            addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) { if (!closing) setReveal(1f, true) }
-            })
-            start()
-        }
+        reveal?.open(com.eve.app.designsystem.DesignMotion.enabled(context))
     }
 
     fun animateClosed(onClosed: () -> Unit) {
         if (closing) return
         closing = true
-        openingAnimator?.cancel()
-        if (!com.eve.app.designsystem.DesignMotion.enabled(context)) {
-            setReveal(0f, false)
-            onClosed()
-            return
-        }
-        openingAnimator = ValueAnimator.ofFloat(1f, 0f).apply {
-            duration = TelegramQrMotion.CLOSE_MS
-            interpolator = LinearInterpolator()
-            addUpdateListener { setReveal(it.animatedValue as Float, false) }
-            addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) { onClosed() }
-            })
-            start()
-        }
+        reveal?.close(com.eve.app.designsystem.DesignMotion.enabled(context), onClosed) ?: onClosed()
     }
 
     fun stopMotion() {
-        openingAnimator?.removeAllListeners()
-        openingAnimator?.cancel()
-        paletteAnimator?.cancel()
+        reveal?.close()
+        shadow.close()
+        cardMotion.clear()
+        backdrop.close()
         glideAnimator?.cancel()
         tracker?.recycle()
         tracker = null
@@ -342,17 +320,7 @@ internal class TelegramQrSceneView(
         val motionEnabled = com.eve.app.designsystem.DesignMotion.enabled(context)
         refreshEmojiPlayback()
         drawScene(canvas, width.toFloat(), height.toFloat())
-        if (((motionEnabled && selectedEmojis.isNotEmpty()) || qrLayer.isAnimating()) && isShown) postInvalidateOnAnimation()
-    }
-
-    private fun mix(a: Int, b: Int, t: Float): Int {
-        val k = t.coerceIn(0f, 1f)
-        fun channel(shift: Int): Int {
-            val av = a ushr shift and 255
-            val bv = b ushr shift and 255
-            return (av + (bv - av) * k).toInt() shl shift
-        }
-        return channel(24) or channel(16) or channel(8) or channel(0)
+        if (((motionEnabled && selectedEmojis.isNotEmpty()) || qrLayer.isAnimating() || backdrop.isAnimating || cardMotion.isAnimating(SystemClock.uptimeMillis())) && isShown) postInvalidateOnAnimation()
     }
 
     /**
@@ -419,17 +387,7 @@ internal class TelegramQrSceneView(
         }
     }
 
-    private fun drawScene(canvas: Canvas, w: Float, h: Float, export: Boolean = false) {
-        if (w <= 0 || h <= 0) return
-        val newColor = colors[palette]
-        val oldColor = colors[previousPalette]
-        val bg = intArrayOf(mix(oldColor[0], newColor[0], if (export) 1f else paletteBlend),
-            mix(oldColor[1], newColor[1], if (export) 1f else paletteBlend))
-        paint.shader = RadialGradient(w / 2f, h * .47f, h * .72f,
-            bg, null, Shader.TileMode.CLAMP)
-        canvas.drawRect(0f, 0f, w, h, paint)
-        paint.shader = null
-        drawPattern(canvas, w, h)
+    private fun updateCardBounds(w: Float, h: Float) {
         val available = (h - systemTop - systemBottom - dp(174f)).coerceAtLeast(dp(120f))
         val cw = min(w * .745f, available / 1.07f)
         val ch = cw * 1.07f
@@ -439,12 +397,34 @@ internal class TelegramQrSceneView(
             .coerceAtLeast(systemTop + dp(72f))
         val y = rest.coerceIn(systemTop + dp(72f), upper)
         bounds.set(x, y, x + cw, y + ch)
+    }
+
+    private fun drawScene(canvas: Canvas, w: Float, h: Float, export: Boolean = false) {
+        if (w <= 0 || h <= 0) return
+        updateCardBounds(w, h)
+        val cw = bounds.width()
+        val ch = bounds.height()
+        val x = bounds.left
+        val y = bounds.top
+        val renderer = if (export) backdrop.snapshot() else backdrop
+        renderer.setGeometry(w.toInt(), h.toInt(), bounds.centerY())
+        if (!export) {
+            renderer.step(SystemClock.uptimeMillis(), com.eve.app.designsystem.DesignMotion.enabled(context))
+        }
+        try {
+            renderer.draw(canvas, { target -> drawPattern(target, w, h) }, !revealing && !export,
+                if (!export && revealing) com.eve.app.telegram.qr.QrRender.screenCornerRadius(this) else 0f)
+            frameQrColor = renderer.qrColor()
+        } finally {
+            if (export) renderer.close()
+        }
         canvas.save()
-        if (!export) canvas.scale(sceneScale, sceneScale, w / 2f, y + ch / 2f)
-        paint.color = 0x25000000
-        paint.setShadowLayer(dp(20f), 0f, dp(4f), 0x25000000)
-        canvas.drawRoundRect(bounds, dp(30f), dp(30f), paint)
-        paint.clearShadowLayer()
+        if (!export) {
+            val scale = sceneScale * cardMotion.scale(SystemClock.uptimeMillis(),
+                com.eve.app.designsystem.DesignMotion.enabled(context))
+            canvas.scale(scale, scale, w / 2f, y + ch / 2f)
+        }
+        shadow.draw(canvas, bounds, qrColor(), export)
         canvas.drawRoundRect(bounds, dp(30f), dp(30f), white)
 
         val size = cw * .70f
@@ -463,7 +443,8 @@ internal class TelegramQrSceneView(
         canvas.restore()
     }
 
-    private fun qrColor(): Int = colors[palette][2]
+    private var frameQrColor = colors[0][2]
+    private fun qrColor(): Int = frameQrColor
     /** Cache the source writer's white QR mask so palette changes only recolor it. */
     private fun ensureQrCode(): com.eve.app.telegram.qr.QrCodeLayer.Code? {
         qrCode?.let { return it }
@@ -504,8 +485,21 @@ internal class TelegramQrSceneView(
     /** Local rendering without accessing the private profile or Telegram servers. */
     fun renderShareImage(): Bitmap? {
         if (width <= 0 || height <= 0) return null
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        drawScene(Canvas(bitmap), width.toFloat(), height.toFloat(), export = true)
-        return bitmap
+        updateCardBounds(width.toFloat(), height.toFloat())
+        val shareHeight = min(height, (width * 1.92f).toInt())
+        val cardCenter = if (bounds.isEmpty) height * .468f else bounds.centerY()
+        val top = (cardCenter - shareHeight / 2f).toInt().coerceIn(0, height - shareHeight)
+        val bitmap = try { Bitmap.createBitmap(width, shareHeight, Bitmap.Config.ARGB_8888) }
+            catch (_: OutOfMemoryError) { return null }
+        try {
+            val canvas = Canvas(bitmap)
+            canvas.translate(0f, -top.toFloat())
+            drawScene(canvas, width.toFloat(), height.toFloat(), export = true)
+            canvas.setBitmap(null)
+            return bitmap
+        } catch (failure: Throwable) {
+            bitmap.recycle()
+            throw failure
+        }
     }
 }

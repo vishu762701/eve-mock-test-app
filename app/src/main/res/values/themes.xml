@@ -229,6 +229,13 @@
     <style name="Theme.Eve.Profile" parent="Theme.Eve">
         <item name="android:windowAnimationStyle">@style/Eve.WindowAnimation</item>
     </style>
+    <!-- The source QR layer reveals the calling screen while it moves. -->
+    <style name="Theme.Eve.QrScene" parent="Theme.Eve">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
     <style name="ThemeOverlay.Eve.HighContrast" parent="">
         <item name="colorPrimary">@color/accent</item>
         <item name="colorOnSurfaceVariant">@color/text_secondary</item>

@@ -58,7 +58,8 @@
             android:exported="false"
             android:theme="@style/Theme.Eve.Home" />
         <activity android:name=".ui.profile.EveQrLiveScannerActivity" android:exported="false" android:theme="@style/Theme.Eve.Profile" />
-        <activity android:name=".ui.profile.UsernameCardActivity" android:exported="true">
+        <activity android:name=".ui.profile.UsernameCardActivity" android:exported="true"
+            android:theme="@style/Theme.Eve.QrScene">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />

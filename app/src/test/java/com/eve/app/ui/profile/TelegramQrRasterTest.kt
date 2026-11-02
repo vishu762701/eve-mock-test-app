@@ -27,6 +27,31 @@ class TelegramQrRasterTest {
             RGBLuminanceSource(bitmap.width, bitmap.height, pixels)))).text
     }
 
+    @Test fun exportImmediatelyAfterRotationUsesCurrentGeometryAndProducesARealPng() {
+        val link = "eve-mock-test://username/test_name"
+        val view = TelegramQrSceneView(RuntimeEnvironment.getApplication(), "test_name", link)
+        try {
+            for ((w, h) in listOf(360 to 780, 780 to 360)) {
+                view.measure(View.MeasureSpec.makeMeasureSpec(w, View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(h, View.MeasureSpec.EXACTLY))
+                view.layout(0, 0, w, h)
+                val image = requireNotNull(view.renderShareImage())
+                try {
+                    val output = java.io.ByteArrayOutputStream()
+                    assertTrue(image.compress(Bitmap.CompressFormat.PNG, 100, output))
+                    val bytes = output.toByteArray()
+                    assertArrayEquals(byteArrayOf(-119, 80, 78, 71, 13, 10, 26, 10), bytes.copyOfRange(0, 8))
+                    val decoded = requireNotNull(android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size))
+                    try {
+                        assertEquals(w, decoded.width)
+                        assertEquals(minOf(h, (w * 1.92f).toInt()), decoded.height)
+                        assertEquals(link, decode(decoded))
+                    } finally { decoded.recycle() }
+                } finally { image.recycle() }
+            }
+        } finally { view.stopMotion() }
+    }
+
     @Test fun renderedQrRemainsDecodableAcrossColorScenesAndDeviceWidths() {
         val context = RuntimeEnvironment.getApplication()
         val link = "eve-mock-test://username/test_name"
@@ -42,9 +67,11 @@ class TelegramQrRasterTest {
                 val image = view.renderShareImage()
                 assertNotNull(image)
                 try {
+                    assertEquals(w, image!!.width)
+                    assertEquals(minOf(h, (w * 1.92f).toInt()), image.height)
                     assertEquals("QR must decode after real Canvas rendering at " +
                         w + "x" + h + ", palette=" + palette,
-                        link, decode(image!!))
+                        link, decode(image))
                 } finally {
                     image?.recycle()
                 }

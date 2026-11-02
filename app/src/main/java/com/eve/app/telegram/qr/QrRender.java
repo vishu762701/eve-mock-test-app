@@ -94,6 +94,12 @@ public final class QrRender {
             RenderEffect.createBlurEffect(radius, radius, Shader.TileMode.CLAMP)));
     }
 
+    /** EVE lifecycle adapter: release display lists when the owning QR view detaches. */
+    @RequiresApi(Build.VERSION_CODES.Q)
+    public static void discardNode(Object node) {
+        if (node != null) ((RenderNode) node).discardDisplayList();
+    }
+
     /* Clips */
 
     /** Clips the path out; before Android 8 the same through the difference op (deprecated only later). */
