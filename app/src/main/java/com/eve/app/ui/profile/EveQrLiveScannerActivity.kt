@@ -140,6 +140,9 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
             contentDescription = "Live EVE QR camera preview"
         }
         root.addView(preview, FrameLayout.LayoutParams(-1, -1))
+        preview.previewStreamState.observe(this) { stream ->
+            root.setPreviewStreaming(stream == PreviewView.StreamState.STREAMING && !closing)
+        }
 
         // QrScanOverlay.java:579-599,659-708. Source geometry, EVE CameraX host.
         frameOverlay = QrScannerFrameOverlay(this)
@@ -211,9 +214,8 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         })
     }
 
-    // One EVE adapter uses the existing Telegram QrGlass sheen/rim implementation.
-    // The camera-backdrop blur remains separate and NOT MET.
-    private fun glass() = com.eve.app.telegram.qr.QrControlBackground(dp(20).toFloat())
+    // Original scanner-specific glass fill, sheen/rim and camera RenderNode.
+    private fun glass() = root.scannerGlass(dp(20).toFloat())
     private fun actionButton(title: String, description: String, onTap: () -> Unit) = TextView(this).apply {
         text = title
         textSize = 15f
@@ -321,7 +323,7 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         return null
     }
 
-    @OptIn(androidx.camera.view.TransformExperimental::class)
+    @androidx.annotation.OptIn(androidx.camera.view.TransformExperimental::class)
     private fun analyzeFrame(frame: ImageProxy) {
         try {
             if (completed.get() || closing) return

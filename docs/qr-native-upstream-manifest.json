@@ -770,7 +770,7 @@
       "upstream_lines": "493-515",
       "eve_path": "app/src/main/java/com/eve/app/telegram/qr/QrEmojiGrid.java",
       "upstream_sha256": "d78acaaaf73b524f314548f61b6743321a09f11a5ac1e0b95323de18009c7c27",
-      "eve_sha256": "6343df87a94f380ab95c76e1f61e76294754f2387ddb244997605cd475566695",
+      "eve_sha256": "bd70eca82d536a0069a3b5721c161e47dba17cfa40a63f2b2a41eb6a7c857058",
       "classification": "ADAPTED; runtime parity OPEN",
       "adaptations": "Extracted Java grid layer with AndroidX RecyclerView superclass; source Java nine-stop bottom mask and picked-island cut from QrShareActivity:506-518,593-609,659-669; no unavailable pack-strip mask.",
       "source_map": "docs/QR_EMOJI_PICKER_SOURCE_MAP.md",
@@ -779,6 +779,11 @@
         "revision": "3de37c8cfb039452be7398909461da6288babf15",
         "sha256": "3e63371d627c670512c9363cf969816083abc126ea47e5af80762cfe53f78798",
         "lines": "506-518,593-609,659-669"
+      },
+      "digest_reconciliation": {
+        "previous_recorded_eve_sha256": "6343df87a94f380ab95c76e1f61e76294754f2387ddb244997605cd475566695",
+        "reason": "Previous successful main feature commits changed this EVE adapter without refreshing this digest. Official upstream bytes/revision are unchanged; current file hash is reconciled, not classified EXACT. Later source-map/checkpoint sections supersede original import descriptions.",
+        "latest_file_commit": "b33ad5a78d6d267838ea01ca172378e950f13729"
       }
     },
     {
@@ -824,10 +829,15 @@
       "upstream_lines": "124-134,685-724,1534-1575,2140-2175,2260-2426,3573-3588",
       "eve_path": "app/src/main/java/com/eve/app/telegram/qr/QrBackdropScene.java",
       "upstream_sha256": "2cea11d8e6d9a12652f21e69b6dba47f2c9b3da0ffc0ba847632122174dfa56a",
-      "eve_sha256": "df572666247607b91e37f6d36cdb04f118a83971ab415cf03a3a7d46f26e2862",
+      "eve_sha256": "22823e84397004fc8b181edc9b379253f9933661436a51b821763aa8bc3f6f2f",
       "classification": "ADAPTED; full QR/runtime acceptance OPEN",
       "adaptations": "Original Java scene geometry, wave and ink math, bitmap cache and blur nodes extracted. EVE host/card/palette/clock and weak separate control-view consumers replace monolithic Telegram canvas/account classes. Blur is API31 hardware after reveal; original high-end-device early-blur exception excluded. Independent export cache and explicit bitmap/display-list disposal added.",
-      "source_map": "docs/QR_SCENE_NATIVE_SOURCE_MAP.md"
+      "source_map": "docs/QR_SCENE_NATIVE_SOURCE_MAP.md",
+      "digest_reconciliation": {
+        "previous_recorded_eve_sha256": "df572666247607b91e37f6d36cdb04f118a83971ab415cf03a3a7d46f26e2862",
+        "reason": "Previous successful main feature commits changed this EVE adapter without refreshing this digest. Official upstream bytes/revision are unchanged; current file hash is reconciled, not classified EXACT. Later source-map/checkpoint sections supersede original import descriptions.",
+        "latest_file_commit": "08008e97ea5e93d5c9c881cda01eaa5958b0cec7"
+      }
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
@@ -895,10 +905,15 @@
       "upstream_lines": "2095-2121,2140-2175,3573-3806",
       "eve_path": "app/src/main/java/com/eve/app/ui/profile/TelegramQrSceneView.kt",
       "upstream_sha256": "2cea11d8e6d9a12652f21e69b6dba47f2c9b3da0ffc0ba847632122174dfa56a",
-      "eve_sha256": "60cf5fd4e205ae31492b9872b0c65c96d56a7d60373e2c06174d8e06b37d7c7b",
+      "eve_sha256": "1cf55dc5aa816077cd6cee33051f45bea84531b1c72ae21a977934007f4a9925",
       "classification": "ADAPTED EVE host; full QR/runtime acceptance OPEN",
       "adaptations": "EVE Kotlin scene integration adapter around imported Java/C++; current EVE insets/card geometry, username QR/E mark/native asset loader retained. Source export crop uses independent scene snapshot; no transient build/reveal/card scale in export. Existing Kotlin pattern/gesture approximation remains ADAPTED and unaccepted.",
-      "source_map": "docs/QR_SCENE_NATIVE_SOURCE_MAP.md"
+      "source_map": "docs/QR_SCENE_NATIVE_SOURCE_MAP.md",
+      "digest_reconciliation": {
+        "previous_recorded_eve_sha256": "60cf5fd4e205ae31492b9872b0c65c96d56a7d60373e2c06174d8e06b37d7c7b",
+        "reason": "Previous successful main feature commits changed this EVE adapter without refreshing this digest. Official upstream bytes/revision are unchanged; current file hash is reconciled, not classified EXACT. Later source-map/checkpoint sections supersede original import descriptions.",
+        "latest_file_commit": "caf429b0b50468876ce38d8ff21f1217ab61cf5f"
+      }
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
@@ -908,10 +923,15 @@
       "upstream_lines": "819-848",
       "eve_path": "app/src/main/java/com/eve/app/ui/profile/UsernameCardActivity.kt",
       "upstream_sha256": "3e63371d627c670512c9363cf969816083abc126ea47e5af80762cfe53f78798",
-      "eve_sha256": "3fcfd14e8d99ff91912497d6f052ef0c706bf196700542581009ff4e1160382e",
+      "eve_sha256": "77384c2d46057d0fbd3fa8843fe9fa5f7b543fdfa58b0d0ed055058b7fcbc721",
       "classification": "ADAPTED EVE host; full QR/runtime acceptance OPEN",
       "adaptations": "EVE Activity adapter binds root/controls to original Java reveal and scene-sampling glass; transparent QR-specific theme and refresh after EVE theme/system-bar sync replace Telegram fragment container. Existing EVE catalogue/save/share and validated public link routing retained.",
-      "source_map": "docs/QR_SCENE_NATIVE_SOURCE_MAP.md"
+      "source_map": "docs/QR_SCENE_NATIVE_SOURCE_MAP.md",
+      "digest_reconciliation": {
+        "previous_recorded_eve_sha256": "3fcfd14e8d99ff91912497d6f052ef0c706bf196700542581009ff4e1160382e",
+        "reason": "Previous successful main feature commits changed this EVE adapter without refreshing this digest. Official upstream bytes/revision are unchanged; current file hash is reconciled, not classified EXACT. Later source-map/checkpoint sections supersede original import descriptions.",
+        "latest_file_commit": "44ec4a3a52217b3e35c9144efff713e9a2bd3233"
+      }
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
@@ -925,6 +945,30 @@
       "classification": "ADAPTED EVE host; full QR/runtime acceptance OPEN",
       "adaptations": "EVE Kotlin compatibility adapter now delegates reveal to canonical extracted Java QrSceneReveal; duplicate Kotlin reveal math removed. Existing adapted glide/rubber math remains pending original full gesture integration.",
       "source_map": "docs/QR_SCENE_NATIVE_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/messenger/camera/CameraView.java",
+      "upstream_blob": "07e769e5b9ae9a0a8af68bb7db0766c8517e31fd",
+      "upstream_lines": "1012-1035,1096-1106",
+      "eve_path": "app/src/main/java/com/eve/app/telegram/qr/QrCameraBackdrop.java",
+      "upstream_sha256": "7d7282bd77973ea0b978aa4418148a57bf793a5c542cc5ebdb85aaadee28723a",
+      "eve_sha256": "bdf177c81e2b280c2be124fd3e536680a92c67455cd3bef76b2b64eaf7c24b05",
+      "classification": "ADAPTED; source Java camera layer/glass, CameraX host and Android power-save adapter; physical camera parity OPEN",
+      "source_map": "docs/QR_SCANNER_CAMERA_GLASS_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrScanOverlay.java",
+      "upstream_blob": "504a8503ead35f6e88e3d12fee7cd3af98946c0e",
+      "upstream_lines": "108-112,804-879",
+      "eve_path": "app/src/main/java/com/eve/app/telegram/qr/QrScannerGlass.java",
+      "upstream_sha256": "ef7945b3cfa1228422c8013a6b8299169e059026bec6e28229637ae35399ea54",
+      "eve_sha256": "c9b9526cacf730162fda98a0800cac4800512d4e2f2de43ea20809bcce97233b",
+      "classification": "ADAPTED; source Java camera layer/glass, CameraX host and Android power-save adapter; physical camera parity OPEN",
+      "source_map": "docs/QR_SCANNER_CAMERA_GLASS_SOURCE_MAP.md"
     }
   ]
 }

@@ -629,3 +629,66 @@ and gallery/camera/torch/permission runtime acceptance, plus
 Telegram source scanner live blur/glass and content-fidelity gaps.
 Profile/Admin/Home/Student/Quiz/theme/release/FULL remain open.
 This checkpoint does not claim whole QR or mission completeness.
+
+## 2026-11-02 continuation — scanner camera-layer source glass
+
+Recovered clean main 58b415857bce257de4ca966a7174ff74b9ae910d; exact-SHA FAST
+41389589665 and docs 41389589728 SUCCESS, no artifacts; native/publication skipped.
+Latest official Telegram HTTPS Git HEAD remains
+3de37c8cfb039452be7398909461da6288babf15, tree
+cc3c6ccf48e4167fdec764dfd04e765043f55093. telegram.org/apps official link checked.
+No duplicate implementation or concurrent remote main change found before edits.
+The full new owner-scope ledger is TELEGRAM_REMAINING_REQUIREMENTS.md; previous
+feature/commit/CI records above are retained. Whole mission remains PARTIAL.
+
+A3.2 source gap implemented: original Java CameraView preview-child recording and
+32dp DECAL blur, original QrScanOverlay glass fill/fallback/sheens/rim, screen-space
+control sampling and RAM-only closing blurred shader. New QrCameraBackdrop.java /
+QrScannerGlass.java integrate through QrScanMorphLayout and the actual CameraX
+Activity. No live bitmap readback, new permission, backend/Worker/Firebase/scoring,
+account service, production mutation or release gate change. Source map:
+QR_SCANNER_CAMERA_GLASS_SOURCE_MAP.md. Everything is ADAPTED, not screen EXACT.
+PowerManager substitutes for Telegram LiteMode; source controls/layout and actual
+TextureView/permission/torch/rotation/reference acceptance remain NOT MET.
+
+All 97 recorded native/QR manifest entries match authenticated official Git blobs
+and EVE digests; 4 preexisting stale EVE hashes are reconciled with their actual
+successful main file commits recorded in JSON. Four verbatim popup assets match.
+This is the recorded inventory, not a claim that it inventories the entire app.
+Superproject tags/tree fetched. Full recursive optional media/codec/account clones
+were attempted but exceed the 8 GiB executor alongside Android tooling. Unused
+partial clones discarded; required tlottie is checked out at exact official gitlink
+31f1b542f88e7b4be9a01e749920d857535fc715. Other submodules are uninitialized and
+not asserted verified. Source files/pins imported into EVE are unchanged.
+
+Local verification so far:
+- Optimized Rust C API command: 243 passed, zero failed/ignored (2.17s).
+- Focused source camera-glass and production scanner contract: 4 passed.
+- Broad JVM JUnit XML: 727 tests / 167 suites, zero failed/error/skipped.
+- AndroidTest compilation passes, including synthetic HWUI/PixelCopy camera-glass
+  fixture. It has NOT run on Android. Actual camera is not simulated as device proof.
+- Backend npm run build and npm test: 288 passed, zero failed/skipped.
+- Functions JS syntax checks and node --test functions/test/*.test.js: 19 passed.
+- CI Python helper suite: 59 passed. Docs/claim/import/diff checks pass.
+- Stable local :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64 passes (2m17s); lint 0 errors / 1645 warnings. This local debug APK is not a protected published artifact.
+
+Local setup failures: overlapping Gradle attempts raced on generated resource JSON;
+subsequent runs are serial. Installed Java runtime lacked JNI headers/jlink; full
+JDK21 installed outside Git with normal proxy/CA trust. First new fallback pixel
+test sampled low-alpha transparent-buffer unpremultiplication (red 26 vs 28); fixture
+now uses the real scanner's opaque backing and retains visible color/clip assertions.
+Backend has no npm lockfile; npm ci correctly rejected it, then repository-supported
+npm install --no-package-lock + build/tests passed. No production test/assertion,
+lint, TLS, native security cap or CI gate was weakened. The historical bare SDK35
+thread-shutdown exception fragment remains present/UNKNOWN in otherwise passing JVM.
+
+No local /dev/kvm; after installing platform tools adb devices is empty. Physical
+camera/reference/60-90-120Hz/native navigation evidence is unavailable locally.
+No premature mission-final FULL, published APK or legal clearance is claimed.
+First overall unfinished requirement stays full A1 source/runtime acceptance;
+next independent gaps include remaining source scanner control/lifecycle behavior
+and an observed dashboard pending-rights visibility path (all default actions can
+remain visible when its second rights fetch fails; Worker authorization is separate).
+The carrying implementation commit requires its own exact-SHA FAST before advancing.
+
+Local lint initially found five missing endFrame API guards and ten preexisting CameraX Java-marker opt-in errors. Explicit QrRender.hasEffects guard plus androidx.annotation.OptIn repair all 15 without suppressions, baselines or target changes. Stable-source rerun passed. Temporary upstream checkout was shallow-compacted after fetching tags to reclaim build space; current commit/tree and required tlottie objects remain verified; fetched tag IDs are retained in workspace evidence. No EVE/shared history was rewritten.

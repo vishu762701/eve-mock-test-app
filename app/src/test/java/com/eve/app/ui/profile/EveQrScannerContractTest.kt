@@ -51,7 +51,8 @@ class EveQrScannerContractTest {
         assertTrue(manifest.contains("android:theme=\"@style/Theme.Eve.QrScene\""))
         assertTrue(scanner.contains("now - lastScanAt < 150L"))
         assertTrue(scanner.contains("QrScannerFrameOverlay(this)"))
-        assertTrue(scanner.contains("QrControlBackground(dp(20).toFloat())"))
+        assertTrue(scanner.contains("root.scannerGlass(dp(20).toFloat())"))
+        assertTrue(scanner.contains("preview.previewStreamState.observe(this)"))
         assertFalse(scanner.contains("GradientDrawable"))
 
     }

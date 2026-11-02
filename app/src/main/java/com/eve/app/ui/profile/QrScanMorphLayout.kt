@@ -12,6 +12,9 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
+import android.os.PowerManager
+import com.eve.app.telegram.qr.QrCameraBackdrop
+import com.eve.app.telegram.qr.QrScannerGlass
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.LinearInterpolator
@@ -36,6 +39,35 @@ internal class QrScanMorphLayout(context: Context) : FrameLayout(context) {
     private var closing = false
     private var animator: ValueAnimator? = null
     private var snapshot: ImageView? = null
+    private val cameraBackdrop = QrCameraBackdrop()
+    private var previewStreaming = false
+
+    // Telegram LiteMode is account/app infrastructure. EVE uses Android's
+    // power-save setting and the same API31 effect boundary instead.
+    private fun cameraBlurAllowed(): Boolean = QrRender.hasEffects() &&
+        context.getSystemService(PowerManager::class.java)?.isPowerSaveMode != true
+
+    fun setPreviewStreaming(streaming: Boolean) {
+        previewStreaming = streaming
+        if (!streaming) cameraBackdrop.discardLive()
+        invalidate()
+    }
+
+    fun scannerGlass(radius: Float) = QrScannerGlass(radius,
+        { canvas, owner -> cameraBackdrop.draw(canvas, owner, this, cameraBlurAllowed()) },
+        { cameraBlurAllowed() })
+
+    override fun drawChild(canvas: Canvas, child: View, drawingTime: Long): Boolean {
+        if (child !is PreviewView) return super.drawChild(canvas, child, drawingTime)
+        val recording = cameraBackdrop.beginFrame(canvas, width, height,
+            resources.displayMetrics.density,
+            previewStreaming && !closing && progress >= 1f && cameraBlurAllowed())
+        return try {
+            super.drawChild(recording, child, drawingTime)
+        } finally {
+            cameraBackdrop.endFrame(canvas, width, height)
+        }
+    }
 
     init {
         setWillNotDraw(false)
@@ -110,6 +142,27 @@ internal class QrScanMorphLayout(context: Context) : FrameLayout(context) {
             catch (_: OutOfMemoryError) { null }
         if (scaled !== original) original.recycle()
         if (scaled == null) return
+        if (cameraBlurAllowed()) {
+            // QrScanOverlay:540-546: half-size closing frame -> 1/8 copy,
+            // radius-6 stack blur. This bounded copy is RAM-only and owned
+            // by the Java compositor until detach/dispose.
+            var blur: Bitmap? = null
+            try {
+                blur = Bitmap.createScaledBitmap(scaled,
+                    (scaled.width / 8).coerceAtLeast(1),
+                    (scaled.height / 8).coerceAtLeast(1), true)
+                if (blur === scaled) blur = scaled.copy(Bitmap.Config.ARGB_8888, true)
+                blur?.let { ProfileStackBlur.blurBitmap(it, 6) }
+                cameraBackdrop.setSnapshotBlur(blur)
+                blur = null // ownership transferred
+            } catch (_: RuntimeException) {
+                // Keep source flat glass when a closing blur cannot be built.
+            } catch (_: OutOfMemoryError) {
+                // A failed optional blur must not prevent Back/closing.
+            } finally {
+                blur?.recycle()
+            }
+        }
         val frame = ImageView(context).apply {
             scaleType = ImageView.ScaleType.CENTER_CROP
             setImageBitmap(scaled)
@@ -175,6 +228,8 @@ internal class QrScanMorphLayout(context: Context) : FrameLayout(context) {
 
     fun dispose() {
         stopAnimator()
+        previewStreaming = false
+        cameraBackdrop.dispose()
         val image = snapshot
         snapshot = null
         if (image != null) {

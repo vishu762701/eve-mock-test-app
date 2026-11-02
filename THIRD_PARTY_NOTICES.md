@@ -863,3 +863,17 @@ original Java QrScanOverlay.java:108-112,346-355,700-782,994-1011,
 retain copyright. Root Telegram GPLv2/per-file and combined EVE APK
 redistribution obligations require independent legal review; source
 adaptation and green development builds grant no production clearance.
+
+## Telegram scanner live camera glass — 2026-11-02
+
+`QrCameraBackdrop.java` ADAPTS original Java from official
+DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15,
+`messenger/camera/CameraView.java:1012-1035,1096-1106` and
+`ui/QrShare/QrScanOverlay.java:517-546,804-879` (under
+TMessagesProj/src/main/java/org/telegram). `QrScannerGlass.java`
+adapts the latter's source white fill, fallback, sheen and rim.
+EVE's Kotlin CameraX host records only its preview layer, replacing Telegram's
+camera/account infrastructure; Android power-save replaces LiteMode.
+Telegram contributors retain copyright; root GPLv2/per-file and combined-app
+redistribution review remains OPEN. No production release approval is implied.
+See docs/QR_SCANNER_CAMERA_GLASS_SOURCE_MAP.md and the native source manifest.
