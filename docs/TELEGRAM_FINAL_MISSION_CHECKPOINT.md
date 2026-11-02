@@ -449,3 +449,15 @@ Next first unfinished requirement: finish original source sheet parent
 and close/cascade/blur compositor and run matched physical Android UI
 tests. After that scanner morph, remaining QR/Profile/Admin/Home/student,
 quiz/theme/RTL/CI/release gates. Whole mission PARTIAL.
+
+## A2 island morph follow-up test and input gating (2026-11-02)
+
+Following exact-SHA FAST success for `0ccbaaa5d6cd865bff8a634f24bd912365045d58` on
+`Build Eve APK #41377373314`, the same A2 island morph feature gets
+one focused forward-only follow-up: `QrPickerSheetSurface` suppresses
+hidden controls while source sheet fraction <0.5; attached native-canvas
+Robolectric pixel/input regression is added alongside source-map evidence.
+Source `QrShareView.java:6654-6729`, original pin
+`3de37c8cfb039452be7398909461da6288babf15`. The FOLLOW-UP SHA's
+own FAST must be checked separately. Full parent compositor/source
+sheet-sheet parity, device matrix, licensing and mission FULL remain NOT MET.

@@ -4,6 +4,7 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.Context
+import android.view.MotionEvent
 import android.graphics.Canvas
 import android.graphics.Path
 import android.widget.FrameLayout
@@ -62,6 +63,14 @@ internal class QrPickerSheetSurface(context: Context) : FrameLayout(context) {
         progress = 1f
         invalidate()
     }
+
+    // QrShareView.onTouchEvent only routes sheet input after sheet > 0.5.
+    // Never allow invisible controls inside the expanding clip to activate.
+    override fun onInterceptTouchEvent(event: MotionEvent): Boolean =
+        if (progress < .5f) true else super.onInterceptTouchEvent(event)
+
+    override fun onTouchEvent(event: MotionEvent): Boolean =
+        if (progress < .5f) true else super.onTouchEvent(event)
 
     override fun dispatchDraw(canvas: Canvas) {
         if (width <= 0 || height <= 0) return

@@ -175,3 +175,15 @@ Source local mapping:
 Material parent slide/drag, original independent elevated blur/lift, full
 per-row dismissal cascade and physical GPU motion parity remain **NOT MET**.
 GPLv2/per-file combined-distribution review remains OPEN.
+
+## A2 clip/touch production-path regression (2026-11-02)
+
+Source `QrShareView.java:6654-6729` keeps input routing gated by the
+open sheet/picker state; `QrPickerSheetSurface.kt` now consumes touches
+while its island-to-panel clip is below 0.5. This avoids a Material sheet
+child responding while visually hidden. **ADAPTED**, same EVE/Telegram
+code boundary; existing native Material dialog/back/outside taps remain.
+`QrPickerSheetSurfaceTest.kt` paints the actual attached Java/Kotlin
+production container and checks source inset shape after the 420ms
+animation, transparent pre-open content, and hidden-control input gating
+using local Robolectric SDK 35 graphics. Physical device/GPU fidelity OPEN.
