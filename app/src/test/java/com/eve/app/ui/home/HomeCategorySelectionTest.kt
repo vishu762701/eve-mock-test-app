@@ -77,7 +77,8 @@ class HomeCategorySelectionTest {
         assertTrue(viewModel.contains("SavedStateHandle"))
         assertTrue(viewModel.contains("savedStateHandle[SELECTED_CATEGORY_STATE_KEY] = category"))
         assertTrue(viewModel.contains("publishExamState(exams)"))
-        assertTrue(activity.contains("group.check(selectedChip.id)"))
+        assertTrue(appearance.contains("group.check(selectedChip.id)"))
+        assertTrue(activity.contains("currentSelection = { viewModel.selectedCategory.value }"))
         assertTrue(appearance.contains("values.filter { it != Constants.CATEGORY_ALL }"))
     }
 }

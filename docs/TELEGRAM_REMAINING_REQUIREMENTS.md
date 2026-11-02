@@ -295,3 +295,35 @@ right despite local isAdmin=true, and atomic rollback on audit insertion failure
 No production deployment/migration is authorized or performed. Server business
 validation is EVE-owned; no upstream Telegram poll-admin equivalent is claimed.
 Exact-SHA FAST is required after the coherent second poll implementation commit.
+
+
+D4 stale Home filter callback: base a8433b6484b7141f881aa5fb271808703c042302
+FAST 41407181451 SUCCESS, official upstream rechecked unchanged full pin
+3de37c8cfb039452be7398909461da6288babf15. Existing Activity renderChips captures
+creation-time selected; existing ViewModel owns current selection/no-op/persistence/
+fallback. Scope: move that same chip renderer into existing HomeAppearance for
+actual production callback testing, supply live selection getter, preserve reuse/
+check/palette/touch geometry. No new selection owner/component. Functional EVE
+adaptation, source FilterTabs geometry unchanged; full native matrix stays OPEN.
+
+D4 production callback repair: HomeAppearance.renderCategoryChips now contains
+the existing reused-chip presentation path. MainActivity supplies
+viewModel.selectedCategory.value through a live getter and the existing
+selectCategory method; no second selection owner. Native callbacks reject only
+the currently selected category. Before/fixed regression: all three actual native
+chip callback tests FAIL with the old captured guard and PASS with live state.
+They cover repeated/rapid All/Other/SSC, selected no-op event counts, reused-view
+identity, reordering/recreation/fallback, stable measured widths, Day/Night and
+Hindi/RTL 200% font. Existing SavedStateHandle/fallback/touch-target native tests
+remain; physical restoration/TalkBack/navigation/reference matrix stays OPEN.
+
+| Upstream path:lines@SHA | EVE path:lines | Classification | Evidence |
+|---|---|---|---|
+| FilterTabsView.java:388-400,649-659@3de37c8cfb039452be7398909461da6288babf15 (existing unchanged visual property) | HomeAppearance.kt:31; MainActivity.kt renderChips; existing EveDesignSystem.createCategoryChip | ADAPTED EVE category callback contract; no new Telegram transplant or visual equivalence claim | Actual production renderer/callback tests; source geometry untouched |
+
+Next Gate 2 source/code gap found by live caller audit: TelegramMenuPopup currently
+binds only Theme/History/Bookmarks. Latest owner instruction explicitly requires
+seven actions. After D4 exact-SHA FAST SUCCESS, extend this canonical popup with
+Mistake Notebook, Topic-wise Test, PYQ and Logout callbacks to existing destinations/
+logout confirmation; inspect existing source maps/row geometry/scroll/lifecycle
+and previous whitelist tests before changes. No alternate popup or duplicate screen.

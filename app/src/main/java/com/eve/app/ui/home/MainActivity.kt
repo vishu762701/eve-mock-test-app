@@ -1879,33 +1879,9 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun renderChips(categories: List<String>, selected: String) {
-        if (binding.chipGroupCategory.childCount == categories.size) {
-            val same = (0 until binding.chipGroupCategory.childCount).all { i ->
-                (binding.chipGroupCategory.getChildAt(i) as? Chip)?.text?.toString() == categories[i]
-            }
-            if (same) {
-                val group = binding.chipGroupCategory
-                val selectedChip = (0 until group.childCount)
-                    .mapNotNull { group.getChildAt(it) as? Chip }
-                    .firstOrNull { it.text.toString() == selected }
-                // A single group.check() transfers selection atomically. Per-chip unchecked
-                // mutations can fight selectionRequired, especially when moving back to All.
-                if (selectedChip != null && group.checkedChipId != selectedChip.id) {
-                    group.check(selectedChip.id)
-                }
-                refreshInstantiatedCategoryChips()
-                return
-            }
-        }
-        binding.chipGroupCategory.removeAllViews()
-        categories.forEach { category ->
-            val chip = HomeAppearance.categoryChip(this, category, selected) {
-                if (category != selected) {
-                    viewModel.selectCategory(category)
-                }
-            }
-            binding.chipGroupCategory.addView(chip)
-        }
+        HomeAppearance.renderCategoryChips(binding.chipGroupCategory, categories, selected,
+            currentSelection = { viewModel.selectedCategory.value },
+            onSelect = viewModel::selectCategory)
     }
 
     private fun goToLogin() {

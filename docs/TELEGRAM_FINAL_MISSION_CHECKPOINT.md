@@ -1008,3 +1008,51 @@ Remaining whole Admin/Home/Exam/shared acceptance stays NOT MET.
 Base 14c9e61be42fd7b969d5788b9ddf37d406df9ce4 exact-SHA FAST 41406623011
 SUCCESS observed before push; no concurrent remote commit. Worker status fix is
 the second coherent poll implementation batch. Its carrying SHA requires FAST.
+
+
+## Live pointer after Worker push
+
+main a8433b6484b7141f881aa5fb271808703c042302 pushed fast-forward; working tree
+was clean immediately after push. Base poll FAST 41406623011 SUCCESS. Current
+exact-SHA FAST 41407181451 is IN PROGRESS; docs 41407181426 also triggered. Local
+291 backend tests and TypeScript build PASS. No production deploy/migration.
+
+Next confirmed source-level functional gap outside QR: D4 MainActivity.renderChips
+reuses chips when categories match, but initial onSelect closure tests
+category != selected against the creation-time selected argument. After selection
+changes, returning to the original selected category can be ignored. Existing
+HomeViewModel.selectCategory already compares current state and handles no-op,
+validation/persistence. Exact next action after green Worker FAST: remove stale
+Activity guard and dispatch to that existing state owner; add a real repeated
+All -> Other -> All callback/state regression test. Do not add a second selection
+owner or recreate chips to hide the closure bug. Whole mission remains NOT MET.
+
+
+## Home D4 live-selection callback implementation
+
+Recovered main a8433b6484b7141f881aa5fb271808703c042302; exact-SHA Worker FAST
+41407181451 SUCCESS. Official upstream HEAD rechecked unchanged full pin
+3de37c8cfb039452be7398909461da6288babf15. Existing local checkpoint preserved.
+HomeAppearance now hosts the same canonical chip rendering code previously in
+MainActivity.renderChips. Activity passes current ViewModel selection getter and
+existing selectCategory action; reused callbacks no longer capture obsolete state.
+No new state owner, visual component, backend change or QR change.
+
+Meaningful regression: 3 actual renderer/native callback tests FAIL under old
+captured guard and PASS under live getter. Repeated All/Other/named transitions,
+selected no-op event counts, chip reuse, reordering, presentation recreation,
+fallback, stable measured widths, Day/Night/Hindi/RTL/200% font are exercised.
+Existing ViewModel persistence and native touch fixtures remain. Source map and
+limits: TELEGRAM_REMAINING_REQUIREMENTS.md D4 entry; all adaptation, no EXACT claim.
+
+Serial local :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug
+:app:assembleDebug -Peve.nativeAbis=x86_64 PASS: 769 JVM tests / 178 suites, no
+failures/errors/skips. Python helpers 59/docs/claim/diff PASS. Physical device and
+whole-screen/source-motion acceptance remain OPEN. Carrying commit needs FAST.
+
+Next action: verify carrying D4 exact-SHA FAST, repair red before moving on. Then
+Gate 2 extend existing TelegramMenuPopup from current Theme/History/Bookmarks to
+latest owner's seven actions using existing destinations/logout confirmation;
+audit existing popup source maps, lifecycle/scroll and older whitelist tests.
+No third poll refinement, QR-only iteration, release gate bypass or production
+deployment. Full ledger remains NOT MET/BLOCKED where previously documented.

@@ -28,6 +28,44 @@ object HomeAppearance {
             onSelect = onSelect
         )
 
+    /** Reuse native chips; callbacks read the current authoritative selection. */
+    fun renderCategoryChips(group: HomeCategoryChipGroup, categories: List<String>, selected: String,
+                            currentSelection: () -> String, onSelect: (String) -> Unit) {
+        fun refreshPalette() {
+            for (index in 0 until group.childCount) {
+                (group.getChildAt(index) as? Chip)?.let {
+                    EveDesignSystem.Components.refreshCategoryChipPalette(it)
+                }
+            }
+        }
+        if (group.childCount == categories.size) {
+            val same = (0 until group.childCount).all { i ->
+                (group.getChildAt(i) as? Chip)?.text?.toString() == categories[i]
+            }
+            if (same) {
+                val selectedChip = (0 until group.childCount)
+                    .mapNotNull { group.getChildAt(it) as? Chip }
+                    .firstOrNull { it.text.toString() == selected }
+                // A single group.check() transfers selection atomically. Per-chip unchecked
+                // mutations can fight selectionRequired, especially when moving back to All.
+                if (selectedChip != null && group.checkedChipId != selectedChip.id) {
+                    group.check(selectedChip.id)
+                }
+                refreshPalette()
+                return
+            }
+        }
+        group.removeAllViews()
+        categories.forEach { category ->
+            val chip = categoryChip(group.context, category, selected) {
+                if (category != currentSelection()) {
+                    onSelect(category)
+                }
+            }
+            group.addView(chip)
+        }
+    }
+
     fun applyTopBarDepth(topBarContainer: View, searchTopBar: View? = null) {
         EveDesignSystem.Components.applyHomeTopBarDepth(topBarContainer, searchTopBar)
     }
