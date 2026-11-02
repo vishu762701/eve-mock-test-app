@@ -187,3 +187,23 @@ code boundary; existing native Material dialog/back/outside taps remain.
 production container and checks source inset shape after the 420ms
 animation, transparent pre-open content, and hidden-control input gating
 using local Robolectric SDK 35 graphics. Physical device/GPU fidelity OPEN.
+
+## A2 QR picker original close and cell cascade (2026-11-02)
+
+Status: **ADAPTED**, full picker parity **NOT MET**. Official upstream:
+`DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`.
+`QrShareView.java:5317-5352` closes sheet over 360ms with source
+cubic-bezier, fading content over 170ms with exponent 1.7.
+`QrShareActivity.java:609-632` closes visible emoji rows top-first
+over 150ms with source `1 - .4u²` size ramp.
+Source parent `QrShareView.sheetProgress` is connected through EVE
+`QrPickerSheetSurface.animateSourceClose()` and
+`QrPickerMorphDialog.cancel()/dismiss()` (Back, drag, outside),
+while `QrEmojiPickerGrid.animateSourceClose()` applies the original
+row algorithm in `QrPickerCloseCascade.java` to the real Java cells.
+Interrupted opening starts closing from the currently visible fraction;
+reduced motion and Activity teardown dismiss without retention.
+JVM tests: `QrPickerCloseCascadeTest.java`,
+`QrPickerSheetSurfaceTest.kt`. New SHA CI and physical GPU rendering
+must be checked separately. Material modal parent/blur lift still
+differs from Telegram. GPL source/combined distribution review OPEN.

@@ -461,3 +461,22 @@ Source `QrShareView.java:6654-6729`, original pin
 `3de37c8cfb039452be7398909461da6288babf15`. The FOLLOW-UP SHA's
 own FAST must be checked separately. Full parent compositor/source
 sheet-sheet parity, device matrix, licensing and mission FULL remain NOT MET.
+
+## A2 close choreography (2026-11-02)
+
+Precommit live HEAD `480cb2a7a714af8682669332e91f89759ffe4eb2`; official source
+`3de37c8cfb039452be7398909461da6288babf15`.
+Previously completed A2 opening/clip commits and FAST green preserved.
+This scoped close choreography integrates original Java source timings,
+real picker cell closing and dialog Back/outside/drag dismissal paths;
+the source-map and third-party notices were updated.
+
+| ID | Requirement | Current code | Upstream reference | Dependencies | Status | Verification |
+|---|---|---|---|---|---|---|
+| R3.A2.close | 360ms close + 170ms content fade, interrupted open | QrPickerSheetSurface, QrPickerMorphDialog | QrShareView:5317-5352 | Material dialog window/cancellation | UNKNOWN before exact-SHA FAST | source math and Robolectric view test |
+| R3.A2.cascade | 150ms top-first cell closing | QrPickerCloseCascade, QrEmojiPickerGrid | QrShareActivity:609-632 | QrEmojiCell and RecyclerView | UNKNOWN before exact-SHA FAST | pure Java regression tests |
+| R3.A2.glass | Original in-scene sheet blur/lift and full morph | EVE Material modal | QrShareView:4740-4790,5317-5570 | original RenderNode GPU | NOT MET | native runtime and licensing OPEN |
+
+Next: source sheet blur/lift compositor or source scanner morph
+after exact-SHA FAST; all QR/Profile/Admin/Home/student/quiz/RTL and
+mission-final FULL acceptance remain PARTIAL/NOT MET.

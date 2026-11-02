@@ -1,5 +1,16 @@
 # Third Party Notices
 
+## Telegram QR picker closing/cascade adaptation — 2026-11-02
+
+`app/src/main/java/com/eve/app/telegram/qr/QrPickerCloseCascade.java`
+adapts original Java from `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`,
+`QrShareActivity.java:609-632`. `QrPickerSheetSurface.kt` closes
+using `QrShareView.java:5317-5352` with the previously adapted Java
+motion host. Telegram contributors retain copyright. Root GPLv2,
+per-file grants and combined-app source/distribution review remain
+OPEN; neither a passing build nor this adaptation grants release clearance.
+
+
 ## Telegram QR picker sheet island motion — 2026-11-02
 
 `app/src/main/java/com/eve/app/telegram/qr/QrPickerSheetMorph.java`

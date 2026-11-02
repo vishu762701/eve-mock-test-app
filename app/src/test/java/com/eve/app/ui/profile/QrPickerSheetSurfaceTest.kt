@@ -78,4 +78,35 @@ class QrPickerSheetSurfaceTest {
             activity.pause().stop().destroy()
         }
     }
+
+    @Test fun closingInterruptedOpeningFinishesOnlyOnce() {
+        val activity = Robolectric.buildActivity(Activity::class.java).setup().visible()
+        val surface = QrPickerSheetSurface(activity.get())
+        surface.addView(View(activity.get()).apply { setBackgroundColor(Color.RED) },
+            FrameLayout.LayoutParams(-1, -1))
+        activity.get().setContentView(surface)
+        surface.measure(View.MeasureSpec.makeMeasureSpec(400, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(700, View.MeasureSpec.EXACTLY))
+        surface.layout(0, 0, 400, 700)
+        val image = Bitmap.createBitmap(400, 700, Bitmap.Config.ARGB_8888)
+        try {
+            var count = 0
+            surface.animateSourceOpen()
+            shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(80))
+            surface.animateSourceClose { count++ }
+            val event = MotionEvent.obtain(0, 10, MotionEvent.ACTION_DOWN, 200f, 300f, 0)
+            try { assertTrue(surface.onInterceptTouchEvent(event)) }
+            finally { event.recycle() }
+            shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(440))
+            assertEquals(1, count)
+            image.eraseColor(Color.TRANSPARENT)
+            surface.draw(Canvas(image))
+            assertEquals(Color.TRANSPARENT, image.getPixel(200, 350))
+        } finally {
+            surface.dispose()
+            activity.get().setContentView(View(activity.get()))
+            image.recycle()
+            activity.pause().stop().destroy()
+        }
+    }
 }

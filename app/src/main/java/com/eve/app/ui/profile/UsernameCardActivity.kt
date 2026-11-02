@@ -203,7 +203,7 @@ class UsernameCardActivity : EveBaseActivity() {
 
     private fun showAnimatedEmojiPicker() {
         if (emojiPicker?.isShowing == true) return
-        val sheet = BottomSheetDialog(this)
+        val sheet = QrPickerMorphDialog(this)
         emojiPicker = sheet
         val panel = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -264,6 +264,7 @@ class UsernameCardActivity : EveBaseActivity() {
         panel.addView(loading, LinearLayout.LayoutParams(-1, -2))
         panel.addView(grid, LinearLayout.LayoutParams(-1, px(340)))
         sheet.setContentView(morph)
+        sheet.bindSource(morph, grid)
         var catalogueJob: kotlinx.coroutines.Job? = null
         sheet.setOnDismissListener {
             morph.dispose()
@@ -443,7 +444,8 @@ class UsernameCardActivity : EveBaseActivity() {
     }
 
     override fun onDestroy() {
-        emojiPicker?.dismiss()
+        (emojiPicker as? QrPickerMorphDialog)?.dismissImmediately()
+            ?: emojiPicker?.dismiss()
         super.onDestroy()
     }
 

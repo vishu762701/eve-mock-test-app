@@ -18,6 +18,7 @@ import com.eve.app.telegram.qr.EmojiPickOverlay
 import com.eve.app.telegram.qr.QrEmojiGrid
 import com.eve.app.telegram.qr.QrEmojiCell
 import com.eve.app.telegram.qr.QrPickerOpenMotion
+import com.eve.app.telegram.qr.QrPickerCloseCascade
 import kotlinx.coroutines.*
 
 /** EVE catalogue/lifecycle adapter for the original Java QR cells and selection overlay. */
@@ -34,6 +35,7 @@ internal class QrEmojiPickerGrid(
     private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
     private var assetScope: CoroutineScope? = null
     private var sourceOpenAnimator: ValueAnimator? = null
+    private var sourceCloseAnimator: ValueAnimator? = null
     private val holders = mutableSetOf<Holder>()
     private var choices = emptyList<QrEmojiChoice>()
     private var pendingScroll: android.os.Parcelable? = null
@@ -158,8 +160,16 @@ internal class QrEmojiPickerGrid(
      * The outer Material sheet is not the upstream native morph compositor.
      */
     fun animateSourceOpen() {
-        sourceOpenAnimator?.cancel()
+        val pendingOpen = sourceOpenAnimator
         sourceOpenAnimator = null
+        pendingOpen?.cancel()
+        val pendingClose = sourceCloseAnimator
+        sourceCloseAnimator = null
+        pendingClose?.cancel()
+        holders.forEach { holder ->
+            holder.cell.cascadeScale = 1f
+            holder.cell.invalidate()
+        }
         if (!isAttachedToWindow || grid.width <= 0 || grid.height <= 0 ||
             !DesignMotion.enabled(context)) {
             settleSourceOpen()
@@ -188,6 +198,46 @@ internal class QrEmojiPickerGrid(
         grid.scaleX = QrPickerOpenMotion.scale(0f)
         grid.scaleY = grid.scaleX
         grid.alpha = QrPickerOpenMotion.alpha(0f)
+        animator.start()
+    }
+
+    /** Top-first source row collapse over 150ms while the dialog fades out. */
+    fun animateSourceClose() {
+        val pendingOpen = sourceOpenAnimator
+        sourceOpenAnimator = null
+        pendingOpen?.cancel()
+        val pendingClose = sourceCloseAnimator
+        sourceCloseAnimator = null
+        pendingClose?.cancel()
+        if (!isAttachedToWindow || !DesignMotion.enabled(context)) return
+        val animator = ValueAnimator.ofFloat(0f, 1f)
+        sourceCloseAnimator = animator
+        animator.duration = QrPickerCloseCascade.CLOSE_SPAN_MS
+        animator.interpolator = LinearInterpolator()
+        animator.addUpdateListener { frame ->
+            val t = (frame.animatedValue as Float) * QrPickerCloseCascade.CLOSE_SPAN_MS
+            val n = grid.childCount
+            var rowH = 0f
+            for (i in 0 until n) {
+                val cell = grid.getChildAt(i) as? QrEmojiCell ?: continue
+                if (cell.height > 0) { rowH = cell.height.toFloat(); break }
+            }
+            if (rowH <= 0f) return@addUpdateListener
+            val top = grid.paddingTop.toFloat()
+            val rows = (grid.height - grid.paddingTop - grid.paddingBottom)
+                .coerceAtLeast(1) / rowH
+            for (i in 0 until n) {
+                val cell = grid.getChildAt(i) as? QrEmojiCell ?: continue
+                val relativeRow = (cell.top + cell.height / 2f - top) / rowH
+                cell.cascadeScale = QrPickerCloseCascade.cellScale(t, relativeRow, rows)
+                cell.invalidate()
+            }
+        }
+        animator.addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator) {
+                if (sourceCloseAnimator === animation) sourceCloseAnimator = null
+            }
+        })
         animator.start()
     }
 
@@ -255,8 +305,16 @@ internal class QrEmojiPickerGrid(
     }
 
     override fun onDetachedFromWindow() {
-        sourceOpenAnimator?.cancel()
+        val opening = sourceOpenAnimator
         sourceOpenAnimator = null
+        opening?.cancel()
+        val closing = sourceCloseAnimator
+        sourceCloseAnimator = null
+        closing?.cancel()
+        holders.forEach { holder ->
+            holder.cell.cascadeScale = 1f
+            holder.cell.invalidate()
+        }
         settleSourceOpen()
         assetScope?.cancel()
         assetScope = null

@@ -22,6 +22,8 @@ internal class QrPickerSheetSurface(context: Context) : FrameLayout(context) {
     private val clipPath = Path()
     private var animator: ValueAnimator? = null
     private var progress = 0f
+    private var closing = false
+    private var closeAlpha = 1f
 
     init {
         setWillNotDraw(false)
@@ -31,8 +33,11 @@ internal class QrPickerSheetSurface(context: Context) : FrameLayout(context) {
     }
 
     fun animateSourceOpen() {
-        animator?.cancel()
+        val previous = animator
         animator = null
+        previous?.cancel()
+        closing = false
+        closeAlpha = 1f
         if (!isAttachedToWindow || width <= 0 || height <= 0 ||
             !DesignMotion.enabled(context)) {
             settle()
@@ -59,18 +64,65 @@ internal class QrPickerSheetSurface(context: Context) : FrameLayout(context) {
         a.start()
     }
 
+    /**
+     * Adapted original QrShareView.stepSheet closing: 360ms cubic-bezier
+     * island collapse and independent 170ms power-1.7 content fade.
+     * Start from the currently sampled opening fraction on interruption.
+     */
+    fun animateSourceClose(onClosed: () -> Unit) {
+        val previous = animator
+        animator = null
+        previous?.cancel()
+        closing = true
+        if (!isAttachedToWindow || width <= 0 || height <= 0 ||
+            !DesignMotion.enabled(context)) {
+            progress = 0f
+            closeAlpha = 0f
+            invalidate()
+            onClosed()
+            return
+        }
+        val from = progress
+        val fromAlpha = QrPickerSheetMorph.openContent(from)
+        val a = ValueAnimator.ofFloat(0f, 1f)
+        animator = a
+        a.duration = QrPickerSheetMorph.CLOSE_MS
+        a.interpolator = LinearInterpolator()
+        a.addUpdateListener { frame ->
+            val fraction = frame.animatedValue as Float
+            progress = from * (1f - QrPickerSheetMorph.sourceEase(fraction))
+            closeAlpha = minOf(fromAlpha, QrPickerSheetMorph.closeContent(
+                (fraction * QrPickerSheetMorph.CLOSE_MS).toLong()))
+            invalidate()
+        }
+        a.addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator) {
+                if (animator === animation) {
+                    animator = null
+                    progress = 0f
+                    closeAlpha = 0f
+                    invalidate()
+                    onClosed()
+                }
+            }
+        })
+        a.start()
+    }
+
     private fun settle() {
         progress = 1f
+        closing = false
+        closeAlpha = 1f
         invalidate()
     }
 
     // QrShareView.onTouchEvent only routes sheet input after sheet > 0.5.
     // Never allow invisible controls inside the expanding clip to activate.
     override fun onInterceptTouchEvent(event: MotionEvent): Boolean =
-        if (progress < .5f) true else super.onInterceptTouchEvent(event)
+        if (closing || progress < .5f) true else super.onInterceptTouchEvent(event)
 
     override fun onTouchEvent(event: MotionEvent): Boolean =
-        if (progress < .5f) true else super.onTouchEvent(event)
+        if (closing || progress < .5f) true else super.onTouchEvent(event)
 
     override fun dispatchDraw(canvas: Canvas) {
         if (width <= 0 || height <= 0) return
@@ -81,15 +133,16 @@ internal class QrPickerSheetSurface(context: Context) : FrameLayout(context) {
         val save = canvas.save()
         canvas.clipPath(clipPath)
         val layer = canvas.saveLayerAlpha(0f, 0f, width.toFloat(), height.toFloat(),
-            (255f * geometry.contentAlpha).toInt().coerceIn(0, 255))
+            (255f * if (closing) closeAlpha else geometry.contentAlpha).toInt().coerceIn(0, 255))
         super.dispatchDraw(canvas)
         canvas.restoreToCount(layer)
         canvas.restoreToCount(save)
     }
 
     fun dispose() {
-        animator?.cancel()
+        val previous = animator
         animator = null
+        previous?.cancel()
         settle()
     }
 
