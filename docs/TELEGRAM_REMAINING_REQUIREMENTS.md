@@ -710,3 +710,44 @@ Worker authorization already denies wrong rights. Also UPDATE/DELETE missing
 question rows currently return false success/audit; existing Undo uses UPDATE after
 hard delete, so do not claim restore works. Trace contracts before any data/Undo
 behavior decision. No live mutations authorized.
+
+## C1/C5 authoritative question mutation confirmation
+
+Base d2b649f5bac8f4b86549ff854385bafbf3d97c6a FAST 41481845128 SUCCESS, docs
+41481845112 SUCCESS. Approved single third category repair is integrated/green;
+no further exception inferred. R1: UPDATE missing target must fail without false
+QUESTION_EDITED audit. R2: DELETE preserves existing idempotent absence success,
+but audit must record only a row actually deleted. R3: same atomic batch rolls back
+write/audit on failure; existing manage_questions middleware remains authoritative.
+R4: prove real DELETE + UPDATE cannot restore a hard-deleted question; do not invent
+an unsupported restore service or fake UI success. Existing EditExam Undo uses
+UPDATE after immediate hard-delete and current route reports success despite zero
+rows. Android role/confirmed-dialog callers will be reconciled after this contract.
+No deployment/migration/scoring/answer-redaction change. Scope NOT MET before tests.
+
+Question mutation server scoped implementation: UPDATE target/audit confirmation
+is checked from the same atomic batch, missing target returns 404 and no edit audit.
+DELETE keeps its existing idempotent confirmed-absence success; zero deleted rows
+produce no fabricated deletion audit. Missing/unexpected batch confirmation fails
+closed. Both actual changes and audit remain one transaction; permission/validation
+middleware unchanged. No restore endpoint, schema or score/answer-key change.
+
+Eight actual Hono/all-migration isolated SQLite tests: valid edit; missing edit;
+delete+repeat audit; denied manage_exams-only despite local admin claim; malformed
+edit; edit/delete audit-trigger rollback; DELETE then UPDATE cannot restore.
+Working-fixture fail-before: 3 tests FAIL, 5 PASS. First fixture POST trailing-slash
+404 was corrected to the real Android route before counting product failures.
+After repair full `cd backend && npm test` PASS: 307 tests, zero failed/skipped;
+`npm run build` PASS (TypeScript). CI helpers59/docs/claims/diff PASS. Android source
+unchanged from verified category FAST and 816-test local integration; no redundant
+local Android rebuild claimed. Required carrying exact-SHA FAST pending.
+
+Source relationship: EVE questions.ts PUT/DELETE -> existing Android repository/
+callers, ADAPTED EVE business contract; no Telegram exam-question backend equivalent
+or source import. Whole Admin caller/Undo acceptance remains NOT MET. Owner product
+question pending: keep immediate hard-delete with a staged safe restore API, or
+Telegram-style deferred delete during existing 5-second Undo window. Current
+AppUndoBar.kt:48 documents immediate deletion; original UndoView.java:384-403,
+1701-1702@3de37c8cfb039452be7398909461da6288babf15 applies callback on expiry and
+cancels it for Undo. No choice/approval inferred from generic resume message.
+Continue independent fresh-role/active-form work; never fake a restored question.

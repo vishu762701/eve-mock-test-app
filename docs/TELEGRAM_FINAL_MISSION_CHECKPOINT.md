@@ -6,7 +6,7 @@ Status: PARTIAL. This is a continuation record, not screen acceptance.
 
 ## Live verified implementation pointer — 2026-11-02
 
-Latest verified implementation main: **381a76a610a3f1847f59a4c48939d7f2e4e6aea8**.
+Latest verified implementation main: **d2b649f5bac8f4b86549ff854385bafbf3d97c6a**.
 Official Telegram rechecked after implementation: **3de37c8cfb039452be7398909461da6288babf15**.
 Reconcile this pointer with the carrying implementation commit and live main/CI on restart.
 
@@ -31,6 +31,7 @@ Reconcile this pointer with the carrying implementation commit and live main/CI 
 | Profile editor draft account restoration | 2212767c4de9e0d23edd4439ff5bba0ab85215a3 | [41472089611](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41472089611) attempt 2 SUCCESS |
 | Username source role/localized accessible status | 372b108a0b1b1c957566c53eeb7fd69b139e7a3e | [41475078791](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41475078791) SUCCESS |
 | Shared question-response integrity | 381a76a610a3f1847f59a4c48939d7f2e4e6aea8 | [41479914039](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41479914039) SUCCESS |
+| Category live-palette repair (owner exception) | d2b649f5bac8f4b86549ff854385bafbf3d97c6a | [41481845128](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41481845128) SUCCESS |
 
 Each FAST passed Android build/JVM/AndroidTest source compilation, all four ABI
 builds, pinned Rust security/C API, backend and Firebase. Historical scanner-batch docs 41403654877
@@ -1345,3 +1346,37 @@ same dialog_add_question layout; canonical ManageQuestions builder already handl
 confirmed/invalid/failed submissions. Reuse it if compatible without creating
 another ViewModel/state owner or removing destinations. Full mission NOT MET;
 QR/reference/physical/FULL/GPL/release gates remain OPEN. No production deployment.
+
+## Question mutation confirmation continuation
+
+Live recovered main d2b649f5bac8f4b86549ff854385bafbf3d97c6a FAST 41481845128
+SUCCESS, docs 41481845112 SUCCESS. Category authorized third repair integrated;
+no additional category exception or iteration. Current server question mutation
+change is independent: conditional atomic audits, missing UPDATE -> 404, existing
+DELETE idempotent absence success retained without false duplicate audit. Actual
+Hono + all-migration SQLite tests reproduce 3 failures before repair, 5 controls
+pass; initial fixture POST path corrected before product evidence. Full backend
+307 PASS, TypeScript build PASS, helpers59/docs/acceptance/diff PASS. No production
+write/deploy/migration; Android source unchanged from verified predecessor. Own
+carrying exact-SHA FAST required; fix red before unrelated implementation.
+
+Owner Undo product question is PENDING, not answered by generic resume message:
+current AppUndoBar comment mandates immediate delete while no supported restore
+API exists. Real DELETE then UPDATE test proves current fake restoration. Choices
+asked: Telegram-style five-second deferred commit, or immediate delete plus staged
+safe restore API (production deployment/migration still separately authorized).
+Do not assume recommended option or create an invented restore service meanwhile.
+Continue independent EditExam question-action role visibility and canonical Add
+form integration after carrying gate green. Avoid another ViewModel/data owner:
+EditExam already owns its repository/list; share stateless existing form presentation
+with submit/busy callbacks if compatible. Fresh entry gate is manage_exams, but
+question Add/import/edit/delete Worker routes require manage_questions; hide/guard
+those controls with fresh returned rights and preserve Worker enforcement. Existing
+private unused AdminActivity forms remain unrelated; don't delete by name alone.
+
+Other known actual paths: EditExam add/edit validators auto-dismiss invalid inputs;
+its delete currently changes list/shows success before network and Undo UPDATE
+cannot restore. Full C1/C5/global/device/reference/FULL/GPL acceptance NOT MET.
+First next action: verify carrying FAST, then independently repair real role/form
+caller path, incorporating actual Undo answer only when it arrives. No speculative
+QR work, source parity inflation, license variable change or production deploy.

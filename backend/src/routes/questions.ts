@@ -320,10 +320,16 @@ questionRoutes.put("/:id", requirePermission("manage_questions"), async (c) => {
     targetType: "question",
     targetId: id,
     metadata: { examId: String(body.examId || ""), topic: String(body.topic || "") },
+    condition: { sql: "changes() = 1", bindings: [] },
   });
 
-  await db.batch([updateStmt, auditStmt]);
-
+  const results = await db.batch([updateStmt, auditStmt]);
+  if (results[0]?.meta?.changes === 0) {
+    return c.json({ success: false, error: "Question not found" }, 404);
+  }
+  if (results[0]?.meta?.changes !== 1 || results[1]?.meta?.changes !== 1) {
+    throw new Error("Question update confirmation unavailable");
+  }
   return c.json({ success: true });
 });
 
@@ -339,8 +345,15 @@ questionRoutes.delete("/:id", requirePermission("manage_questions"), async (c) =
     description: `Deleted question '${id}'`,
     targetType: "question",
     targetId: id,
+    condition: { sql: "changes() = 1", bindings: [] },
   });
 
-  await db.batch([deleteStmt, auditStmt]);
+  const results = await db.batch([deleteStmt, auditStmt]);
+  const changed = results[0]?.meta?.changes;
+  if ((changed !== 0 && changed !== 1) ||
+      (changed === 1 && results[1]?.meta?.changes !== 1)) {
+    throw new Error("Question deletion confirmation unavailable");
+  }
+  // Preserve idempotent absence confirmation; audit only an actual deletion.
   return c.json({ success: true });
 });
