@@ -44,3 +44,18 @@ scan-found yellow outline, action-glass blur, gallery transition,
 full permission/device rotation matrix and matched GPU frame parity.
 Camera image is never transmitted or persisted by this morph.
 Production GPL distribution review remains OPEN.
+
+## Scanner camera permission and settings-return recovery (2026-11-02)
+
+**ADAPTED EVE-owned permission handling**, not an original Telegram
+permission service. The source-backed scanner button morph and EVE
+CameraX/ZXing decoding are unchanged. Following a denial, the Activity
+uses Android shouldShowRequestPermissionRationale to offer a manual
+permission retry or a user-initiated Android App Settings route.
+The existing TelegramNativeAlertDialog supplies EVE-owned presentation;
+Gallery remains available without camera access. On return from Android
+Settings, an actual granted permission resumes CameraX with a
+single-in-flight binding guard; the permission dialog is discarded on
+Activity destruction. This never auto-grants, bypasses or hides a
+permission. Source contract tests cover actual integration, while
+real hardware denial, settings-return and rotation remain UNKNOWN.

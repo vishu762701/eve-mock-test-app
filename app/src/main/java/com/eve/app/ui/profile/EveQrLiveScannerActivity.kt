@@ -7,6 +7,8 @@ import android.content.res.ColorStateList
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.net.Uri
+import android.provider.Settings
+import com.eve.app.designsystem.TelegramNativeAlertDialog
 import android.os.Bundle
 import android.os.SystemClock
 import android.view.Gravity
@@ -54,6 +56,8 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
     private lateinit var preview: PreviewView
     private var closing = false
     private var cameraRequestStarted = false
+    private var cameraBinding = false
+    private var permissionDialog: TelegramNativeAlertDialog? = null
     private var torchOn = false
     private var lastScanAt = 0L
     private var lastRejectedAt = 0L
@@ -62,7 +66,37 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
     private val permission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (closing || completed.get() || isFinishing || isDestroyed) return@registerForActivityResult
         if (granted) startLiveCamera()
-        else AppBulletin.showError(this, "Camera access is needed for live scanning; Gallery remains available")
+        else showCameraPermissionRecovery()
+    }
+
+
+    /** EVE-owned denial recovery: never request access or open settings silently. */
+    private fun showCameraPermissionRecovery() {
+        if (closing || completed.get() || isFinishing || isDestroyed ||
+            permissionDialog?.isShowing == true) return
+        val settings = !shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)
+        permissionDialog = TelegramNativeAlertDialog.Builder(this)
+            .setTitle("Camera permission")
+            .setMessage(if (settings)
+                "Camera access is unavailable. Enable it in Android App Settings or scan an image from Gallery."
+                else "Allow camera access to scan QR codes live, or use an image from Gallery.")
+            .setPositiveButton(if (settings) "App settings" else "Try again") { _, _ ->
+                if (!closing && !isFinishing && !isDestroyed) {
+                    if (settings) {
+                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                            data = Uri.fromParts("package", packageName, null)
+                        }
+                        runCatching { startActivity(intent) }.onFailure {
+                            AppBulletin.showError(this, "Unable to open App Settings")
+                        }
+                    } else permission.launch(Manifest.permission.CAMERA)
+                }
+            }
+            .setNegativeButton("Gallery") { _, _ ->
+                if (!closing && !isFinishing && !isDestroyed) gallery.launch("image/*")
+            }
+            .setOnDismissListener { permissionDialog = null }
+            .show()
     }
 
     /** QrScanOverlay.java:453-485 starts the camera after the 390ms opening. */
@@ -190,9 +224,19 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
     }
 
     private fun startLiveCamera() {
-        val future = ProcessCameraProvider.getInstance(this)
+        if (cameraBinding || provider != null || closing || completed.get() ||
+            isFinishing || isDestroyed) return
+        cameraBinding = true
+        val future = try {
+            ProcessCameraProvider.getInstance(this)
+        } catch (_: Exception) {
+            cameraBinding = false
+            AppBulletin.showError(this, "Unable to start camera. Gallery is still available.")
+            return
+        }
         future.addListener({
-            if (isDestroyed || isFinishing || closing) return@addListener
+            cameraBinding = false
+            if (isDestroyed || isFinishing || closing || completed.get()) return@addListener
             try {
                 val service = future.get()
                 service.unbindAll()
@@ -331,9 +375,20 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        // User may return from Android App Settings having granted permission.
+        if (cameraRequestStarted && !closing && !completed.get() &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
+            PackageManager.PERMISSION_GRANTED) startLiveCamera()
+    }
+
     override fun onDestroy() {
+        permissionDialog?.dismiss()
+        permissionDialog = null
         if (::root.isInitialized) root.dispose()
         provider?.unbindAll()
+        cameraBinding = false
         worker.shutdownNow()
         super.onDestroy()
     }

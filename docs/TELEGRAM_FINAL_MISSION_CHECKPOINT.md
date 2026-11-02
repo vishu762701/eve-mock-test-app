@@ -520,3 +520,22 @@ Next unfinished: original found-code outline plus camera/gallery/torch
 permissions, rotation, rapid cancellation and native runtime; then
 remaining QR/Profile/Admin/Home/student/Quiz/theme and FULL/release gates.
 Root GPLv2 and combined-app distribution decision remain OPEN.
+
+## R5 scanner permission recovery continuation (2026-11-02)
+
+Live starting main 8ff0a7f4bf05601a6d760b652079d6cfd3a47c94
+with exact-SHA FAST 41384393894 SUCCESS. This feature adds
+EVE-owned denied/request-blocked settings and gallery choice,
+Settings return recovery, single CameraX binding and lifecycle-safe
+dialog cleanup. No Telegram camera, accounts or network system imported.
+No backend, Firebase, signing, license gate or scoring changes.
+
+| ID | Requirement | Code | Source | Dependencies | Status | Verification |
+|---|---|---|---|---|---|---|
+| R5.permission | Denial rationale, manual Settings, gallery, granted return | EveQrLiveScannerActivity | EVE Android permission contract | Android ActivityResult + existing TelegramNativeAlertDialog | UNKNOWN until exact-SHA FAST/device | Scanner source contract updated |
+| R5.binding | No double async CameraX binding, lifecycle cleanup | EveQrLiveScannerActivity | EVE CameraX contract | ProcessCameraProvider | UNKNOWN until device | One-in-flight guard, release in onDestroy |
+| R5.found | Source scanner detected polygon / native GPU parity | QrScannerFrameOverlay | QrScanOverlay:700-760 | ZXing result geometry and transform | NOT MET | Actual device and source comparison pending |
+
+Next: original yellow found-outline with camera image-to-view transforms;
+native permission/rotation/torch/gallery tests and wider mission still open.
+Root GPL/per-file combined distribution and final FULL remain unaccepted.
