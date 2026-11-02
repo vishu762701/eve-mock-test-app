@@ -6,7 +6,7 @@ Status: PARTIAL. This is a continuation record, not screen acceptance.
 
 ## Live verified implementation pointer — 2026-11-02
 
-Latest verified implementation main: **3b2245bc0743ebd45d89e708eb6a899de0cb7e0a**.
+Latest verified implementation main: **e0963d7dcdfec04bcbe90f56dea26246b549e93b**.
 Official Telegram rechecked after implementation: **3de37c8cfb039452be7398909461da6288babf15**.
 Reconcile this pointer with the carrying implementation commit and live main/CI on restart.
 
@@ -17,26 +17,28 @@ Reconcile this pointer with the carrying implementation commit and live main/CI 
 | C1-C3/C5 confirmed rights/entries | 40a7bb30fcc2bbb3468d482a0ec6a9e4633e811b | [41395975426](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41395975426) SUCCESS |
 | A1 ready-frame item appearance | 66574962d7dc1eb484ec81fb8440112d0279fc5d | [41397993734](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41397993734) SUCCESS |
 | A1 card/caption and A4 export isolation | 3b2245bc0743ebd45d89e708eb6a899de0cb7e0a | [41402360574](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41402360574) SUCCESS |
+| A3 scanner controls/title | e0963d7dcdfec04bcbe90f56dea26246b549e93b | [41403654857](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41403654857) SUCCESS |
 
 Each FAST passed Android build/JVM/AndroidTest source compilation, all four ABI
-builds, pinned Rust security/C API, backend and Firebase. Latest verified docs 41402360616
-and verbatim-import 41402360702 SUCCESS. Native navigation and publication skipped;
-no protected verified APK artifact/checksum. Verified card batch local: 753 JVM tests, 243 Rust tests,
+builds, pinned Rust security/C API, backend and Firebase. Latest verified docs 41403654877
+and verbatim-import 41403654789 SUCCESS. Native navigation and publication skipped;
+no protected verified APK artifact/checksum. Verified scanner batch local: 757 JVM tests, 243 Rust tests,
 288 backend tests, 19 Functions tests and 59 CI helper tests pass; lint 0 errors /
-1646 warnings. Source inventory 116 entries + 4 verbatim popup assets match pinned
+1646 warnings. Source inventory 129 entries + 4 verbatim popup assets match pinned
 Git/EVE bytes. Local x86_64 APK package com.eve.app and all four ELF libraries'
 LOAD alignment 0x4000 verified, not a final published APK or screen acceptance.
 
-Whole requirement ledger remains TELEGRAM_REMAINING_REQUIREMENTS.md. These five
+Whole requirement ledger remains TELEGRAM_REMAINING_REQUIREMENTS.md. These six
 scoped engineering increments are MET at source/host/FAST integration level, all
 ADAPTED. Full A1/A2/A3/A4/Profile/Admin/Home/student/exam/theme fidelity remains
 NOT MET. Physical camera/GPU/reference/device matrix and human GPL review remain
 BLOCKED/unavailable; missing gift/service data is not fabricated. Strict personal-qr
 acceptance still rejects acceptance. Mission-final protected FULL is not eligible.
-First unfinished: scene parent/picker compositor and scanner corner caching; the
-latest scanner-controls entry below carries its pending exact-SHA validation.
-Continue all independent ledger requirements without restarting or
-replacing the successful subsystems. No production deployment/migration, signing,
+Current owner correction: STOP QR-only iteration. QR active-path audit is
+QR_ACTIVE_PATH_RECONCILIATION.md; only proven critical QR functional defects justify
+new QR changes. First unfinished implementation is outside QR: Profile resource
+lifecycle (latest entry below), then concrete Admin/Home/Exam/shared requirements.
+Device/reference absence does not authorize speculative QR refinement. No production deployment/migration, signing,
 release variable, payment, scoring or backend authority changed. P2 historical bare
 SDK35 shutdown exception remains UNKNOWN despite green JUnit. No new development
 owner decision is required; production/license/distribution decisions stay separate.
@@ -918,3 +920,34 @@ physical/reference matrix and final protected FULL/APK remain unavailable/not el
 Next source action: finish scanner original cached corner renderer and scene parent/
 picker gesture/compositor gaps, then remaining Profile/Admin/Home/student requirements.
 Do not replay prior successful commits or treat unavailable hardware as a global stop.
+
+
+## Owner-directed full-mission reconciliation / Profile implementation
+
+Live main e0963d7dcdfec04bcbe90f56dea26246b549e93b refetched; exact-SHA FAST
+41403654857 SUCCESS, docs 41403654877/imports 41403654789 SUCCESS; artifacts zero.
+No concurrent commit. Green QR is preserved unchanged. The uncommitted QR frame/
+corner-cache experiment is removed from production/test sources and deferred.
+QR_ACTIVE_PATH_RECONCILIATION.md records active routes, every implemented feature
+caller group, intentional adapters/test-only helpers, and critical/source/device/
+external-legal gap classes. No new personal-QR critical defect reproduced; whole
+acceptance OPEN. Earlier QR-only next-action paragraphs are superseded.
+
+ProfileGooeyView existing Impl now releases CPU bitmap/Canvas and four GPU display
+lists/effects on detach; same-size reattach restores size/intensity/blur. No new
+renderer/state owner, draw equation, Add bio/About or backend change. Existing
+RenderNode mask/blur/bridge code was already present; stale manifest wording is
+corrected. Source/lifecycle map: PROFILE_REGRESSION_REPAIR.md latest section.
+
+Local broad :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug
+:app:assembleDebug -Peve.nativeAbis=x86_64 PASS: 759 tests / 175 suites, zero
+failures/errors/skips; focused actual bitmap/RenderNode lifecycle tests pass. Python
+helpers 59/docs/claims/diff PASS. Hardware/reference/full-screen/legal results are
+not inferred. The carrying Profile implementation needs exact-SHA FAST.
+
+First concrete next action outside QR: repair C4 PollRepository failed/null list
+responses becoming empty success and empty create ID being reported successful.
+Existing ManagePollsActivity -> PollRepository -> EveApiService -> authenticated
+Worker moderate_feedback routes must retain role/data contracts. Continue full
+Profile/Admin/Home/Exam/shared ledger; all whole-screen requirements remain NOT MET.
+No final FULL/release, legal variable change, deployment or production data write.

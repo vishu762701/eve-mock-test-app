@@ -390,3 +390,23 @@ Original Java QR cell/selection-overlay/grid-mask integration is now mapped in
 shared Telegram document cache/services and matched runtime acceptance remain OPEN.
 Use `TELEGRAM_FINAL_MISSION_CHECKPOINT.md` for the active ledger, not these older
 paragraphs as an assertion that newer code is absent or that fidelity is accepted.
+
+
+## Live Profile renderer reconciliation and lifecycle repair
+
+Current production ProfileGooeyView already contains the source-adapted GPU
+alpha mask, independent blur node, reversible liquid bridge and notch composition.
+The old fidelity manifest's blanket missing-RenderNode statement was stale and is
+corrected without accepting whole Profile parity. No new renderer or alternate
+screen is introduced. The existing CPU/GPU draw/gesture/identity paths remain.
+
+| Upstream file:lines@SHA | EVE file:lines | Classification / reason | Verification |
+|---|---|---|---|
+| Components/ProfileGooeyView.java:142-254,270-482,486-497@3de37c8cfb039452be7398909461da6288babf15 | app/src/main/java/com/eve/app/ui/profile/ProfileGooeyView.kt:103 | ADAPTED existing renderer; EVE Impl.release and attach/detach hooks add explicit resource ownership. Upstream has no corresponding detach-release hook, so cleanup is not claimed EXACT/source-identical. | ProfileGooeyLifecycleTest actual CPU pixels/recycle/same-size reattach and actual RenderNode display-list discard/re-record; existing math/pipeline guards remain. |
+
+CPU release first detaches its software Canvas before recycling/nulling the bitmap.
+GPU release discards all four display lists and clears their effects. Reattach
+restores the existing intensity/blur and size even if no new onSizeChanged arrives.
+This avoids retaining avatar resources in detached views and preserves reused-view
+rendering. Native HWUI/reference motion, device memory and whole Profile acceptance
+remain OPEN. No Add bio/About UI, backend/schema/auth/scoring or license gate change.

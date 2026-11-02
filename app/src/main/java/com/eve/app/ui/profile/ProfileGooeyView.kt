@@ -102,6 +102,7 @@ class ProfileGooeyView @JvmOverloads constructor(
         fun onSizeChanged(w: Int, h: Int)
         fun setIntensity(intensity: Float)
         fun setBlurIntensity(intensity: Float)
+        fun release()
         fun draw(drawer: (Canvas) -> Unit, canvas: Canvas)
     }
 
@@ -119,6 +120,20 @@ class ProfileGooeyView @JvmOverloads constructor(
         }
         impl.setIntensity(intensity)
         impl.setBlurIntensity(0f)
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        // A reused View may keep its dimensions across detach/reattach, so
+        // Android need not dispatch onSizeChanged again. Restore its resources.
+        impl.setIntensity(intensity)
+        impl.setBlurIntensity(blurIntensity)
+        impl.onSizeChanged(width, height)
+    }
+
+    override fun onDetachedFromWindow() {
+        impl.release()
+        super.onDetachedFromWindow()
     }
 
     fun getEndOffset(occupyStatusBar: Boolean, avatarScale: Float): Float {
@@ -232,9 +247,7 @@ class ProfileGooeyView @JvmOverloads constructor(
         }
 
         override fun onSizeChanged(w: Int, h: Int) {
-            bitmap?.recycle()
-            bitmap = null
-            bitmapCanvas = null
+            release()
             optimizedW = min(dp(120).toInt(), w).coerceAtLeast(0)
             optimizedH = min(dp(220).toInt(), h).coerceAtLeast(0)
             bitmapOrigW = optimizedW
@@ -247,6 +260,13 @@ class ProfileGooeyView @JvmOverloads constructor(
             )
             bitmap = buffer
             bitmapCanvas = Canvas(buffer)
+        }
+
+        override fun release() {
+            bitmapCanvas?.setBitmap(null)
+            bitmapCanvas = null
+            bitmap?.recycle()
+            bitmap = null
         }
 
         override fun setIntensity(intensity: Float) {}
@@ -359,6 +379,15 @@ class ProfileGooeyView @JvmOverloads constructor(
         }
 
         override fun onSizeChanged(w: Int, h: Int) {}
+
+        override fun release() {
+            // Drop recorded child/avatar references as soon as this View leaves
+            // its window, rather than retaining native display lists until GC.
+            for (renderNode in arrayOf(node, effectNotchNode, effectNode, blurNode)) {
+                renderNode.discardDisplayList()
+                renderNode.setRenderEffect(null)
+            }
+        }
 
         override fun setIntensity(intensity: Float) {
             effectNode.setRenderEffect(RenderEffect.createBlurEffect(intensity, intensity, Shader.TileMode.CLAMP))

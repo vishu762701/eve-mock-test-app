@@ -221,3 +221,41 @@ docs/claim/import/diff checks PASS. Exact-SHA FAST pending the carrying scanner
 commit; base card commit 3b2245bc0743ebd45d89e708eb6a899de0cb7e0a FAST
 41402360574, docs 41402360616, imports 41402360702 all SUCCESS. Native and release
 limits unchanged. Next: source corner-bitmap renderer and parent/picker gaps.
+
+
+Owner steering: stop QR-only iteration. The uncommitted frame/corner raster-cache
+experiment was removed from production and tests; successful main's overlay is
+restored byte-for-byte. No green QR implementation is removed. Corner bitmap/API29
+analytic-dim changes are a source-fidelity gap, not a proven critical defect, and
+are deferred. Keep whole QR acceptance OPEN. Audit actual active paths and critical
+functional defects, then continue independently implementable Profile/Admin/Home/
+Exam/shared requirements. Device/reference absence must not drive speculative code.
+
+
+## Full-mission reconciliation and Profile continuation
+
+QR_ACTIVE_PATH_RECONCILIATION.md records every implemented QR feature/caller group,
+active-versus-test-only paths and the four owner-requested issue classes. Current
+main e0963d7dcdfec04bcbe90f56dea26246b549e93b exact-SHA FAST 41403654857,
+docs 41403654877 and imports 41403654789 SUCCESS. No new personal-QR critical defect
+was reproduced; green code stays unchanged, whole QR acceptance OPEN. Source-only
+and hardware/legal gaps are recorded, not treated as reasons to add more QR code.
+
+| ID | Requirement | Existing implementation | Upstream file:lines@SHA | Dependencies | Status | Verification evidence | Next action |
+|---|---|---|---|---|---|---|---|
+| B1/F.avatar-lifecycle | Release existing Profile CPU/GPU renderer resources on detach, restore on reattach | ProfileGooeyView already contains source-adapted CPU/GPU effects; CPU bitmap only recycled on size change, no detach release; four RenderNodes retain display lists | Components/ProfileGooeyView.java:142-254,270-482,486-497@3de37c8cfb039452be7398909461da6288babf15 | Existing View/bitmap/RenderNode ownership; no new renderer or state repository | NOT MET | Production implementation and actual upstream opened; prior report's blanket missing-RenderNode claim is stale | Add release/rebind lifecycle to existing Impl; test CPU pixels/recycle/reopen and GPU display-list cleanup where supported |
+
+This is an EVE lifecycle adaptation to the existing renderer; preserve source draw
+math, avatar trajectory/gestures, identity, backend and visible Profile requirements.
+Do not restore Add bio/About. Full B1/B2 visual/motion acceptance remains OPEN.
+
+
+B1/F.avatar-lifecycle: MET for code/host lifecycle behavior, ADAPTED; whole Profile
+visual/motion acceptance remains NOT MET. Serial broad Gradle unit/AndroidTest
+compile/lint/assemble x86_64 PASS: 759 JVM tests / 175 suites, zero failures/errors/
+skips. Python CI helpers 59 and docs/claim/diff checks PASS. Actual GPU display-list
+lifecycle runs under host native graphics; no physical HWUI/avatar parity inferred.
+The carrying Profile commit requires exact-SHA FAST. Next concrete non-QR defect:
+C4 PollRepository.getPolls turns failed/null responses into empty success, and
+createPoll accepts an empty server ID; trace existing callers/Worker and repair
+failure handling without changing authorized roles or deploying backend code.

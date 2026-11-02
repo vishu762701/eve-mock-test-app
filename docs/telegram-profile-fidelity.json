@@ -15,16 +15,19 @@
       "eve_paths": [
         "app/src/main/java/com/eve/app/ui/profile/ProfileActivity.kt",
         "app/src/main/res/layout/activity_profile.xml",
-        "app/src/main/java/com/eve/app/ui/profile/ProfileActionsCanvasLayout.kt"
+        "app/src/main/java/com/eve/app/ui/profile/ProfileActionsCanvasLayout.kt",
+        "app/src/main/java/com/eve/app/ui/profile/ProfileGooeyView.kt"
       ],
       "tests": [
         "app/src/androidTest/java/com/eve/app/ui/profile/ProfileActionsCollapseNativeTest.kt",
-        "app/src/test/java/com/eve/app/ui/profile/ProfileActionsCanvasContractTest.kt"
+        "app/src/test/java/com/eve/app/ui/profile/ProfileActionsCanvasContractTest.kt",
+        "app/src/test/java/com/eve/app/ui/profile/ProfileGooeyLifecycleTest.kt",
+        "app/src/test/java/com/eve/app/ui/profile/ProfileGooeyMotionContractTest.kt"
       ],
       "source_map": "docs/PROFILE_REGRESSION_REPAIR.md",
       "remaining_gaps": [
         "MODE_MY_PROFILE action surfaces/icons/text/collapse/bounce now paint through an EVE Canvas renderer with source geometry; EVE still uses native hidden click/accessibility nodes, StaticLayout text and adapted NestedScrollView scroll translation.",
-        "Upstream RenderNode avatar masked shader, dynamic action insertion/deletion, complete original ProfileActionsView virtual nodes, source parent RecyclerListView physics and all cross-device matched motion/frame evidence remain missing.",
+        "EVE already contains source-adapted RenderNode alpha-mask, independent blur, liquid bridge and notch composition in ProfileGooeyView. Whole HWUI/reference evidence, dynamic action insertion/deletion, complete original ProfileActionsView virtual nodes and source parent RecyclerListView physics remain missing.",
         "Day/Night native runtime, RTL, 200% font, physical cutout and accessibility screenshots have not yet passed match-device comparison."
       ]
     },
