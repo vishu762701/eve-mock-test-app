@@ -49,4 +49,7 @@
     <string name="qr_scanner_torch_on">Turn on camera flashlight</string>
     <string name="qr_scanner_torch_off">Turn off camera flashlight</string>
     <string name="home_logout_confirmation">Are you sure you want to log out?</string>
+    <string name="home_menu_bookmarks">Bookmarks</string>
+    <string name="home_menu_day_mode">Day Mode</string>
+    <string name="home_menu_dark_mode">Dark Mode</string>
 </resources>

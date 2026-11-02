@@ -91,10 +91,10 @@ class TelegramMenuPopup(
         binding.ivThemeIcon.visibility = View.VISIBLE
         if (isDark) {
             binding.ivThemeIcon.setImageResource(R.drawable.telegram_menu_day_mode_24)
-            binding.tvThemeTitle.text = "Day Mode"
+            binding.tvThemeTitle.text = context.getString(R.string.home_menu_day_mode)
         } else {
             binding.ivThemeIcon.setImageResource(R.drawable.telegram_menu_night_mode_24)
-            binding.tvThemeTitle.text = "Dark Mode"
+            binding.tvThemeTitle.text = context.getString(R.string.home_menu_dark_mode)
         }
     }
 

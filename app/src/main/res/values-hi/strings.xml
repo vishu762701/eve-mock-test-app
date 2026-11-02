@@ -50,4 +50,7 @@
     <string name="qr_scanner_torch_on">कैमरे की फ्लैशलाइट चालू करें</string>
     <string name="qr_scanner_torch_off">कैमरे की फ्लैशलाइट बंद करें</string>
     <string name="home_logout_confirmation">क्या आप लॉग आउट करना चाहते हैं?</string>
+    <string name="home_menu_bookmarks">बुकमार्क</string>
+    <string name="home_menu_day_mode">दिन मोड</string>
+    <string name="home_menu_dark_mode">डार्क मोड</string>
 </resources>

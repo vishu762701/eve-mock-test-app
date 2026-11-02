@@ -6,7 +6,7 @@ Status: PARTIAL. This is a continuation record, not screen acceptance.
 
 ## Live verified implementation pointer — 2026-11-02
 
-Latest verified implementation main: **e0963d7dcdfec04bcbe90f56dea26246b549e93b**.
+Latest verified implementation main: **a6c0e042f58135d234b450e50c3c5f96ce38757c**.
 Official Telegram rechecked after implementation: **3de37c8cfb039452be7398909461da6288babf15**.
 Reconcile this pointer with the carrying implementation commit and live main/CI on restart.
 
@@ -18,6 +18,11 @@ Reconcile this pointer with the carrying implementation commit and live main/CI 
 | A1 ready-frame item appearance | 66574962d7dc1eb484ec81fb8440112d0279fc5d | [41397993734](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41397993734) SUCCESS |
 | A1 card/caption and A4 export isolation | 3b2245bc0743ebd45d89e708eb6a899de0cb7e0a | [41402360574](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41402360574) SUCCESS |
 | A3 scanner controls/title | e0963d7dcdfec04bcbe90f56dea26246b549e93b | [41403654857](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41403654857) SUCCESS |
+| Profile avatar resource lifecycle | 66f3eea0ad5ffae629e2e2cf5cd8d5f78f508861 | [41405867198](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41405867198) SUCCESS |
+| Poll Android response confirmation | 14c9e61be42fd7b969d5788b9ddf37d406df9ce4 | [41406623011](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41406623011) SUCCESS |
+| Poll Worker atomic status/audit | a8433b6484b7141f881aa5fb271808703c042302 | [41407181451](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41407181451) SUCCESS |
+| D4 live filter callbacks | 936e93aae0273daea08ea0e14fd6f9538d60f7b7 | [41409105317](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41409105317) SUCCESS |
+| Seven Home menu actions, first batch | a6c0e042f58135d234b450e50c3c5f96ce38757c | [41411244614](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41411244614) SUCCESS |
 
 Each FAST passed Android build/JVM/AndroidTest source compilation, all four ABI
 builds, pinned Rust security/C API, backend and Firebase. Latest verified docs 41403654877
@@ -1086,3 +1091,26 @@ observe FAST, repair red if any, then Gate 2 shared dialogs/drawer/search/toolba
 production caller audit and first reproducible independent gap. Preserve both poll
 commits, Profile/native and QR code; all whole-screen source/device acceptance
 remains NOT MET/OPEN as recorded. No FULL/release/deploy/legal gate bypass.
+
+
+## Seven-action feature second/final planned batch: locale and source icon reuse
+
+Base main a6c0e042f58135d234b450e50c3c5f96ce38757c FAST 41411244614 SUCCESS,
+docs 41411244627 SUCCESS. No concurrent remote implementation observed. Actual
+Home popup callbacks, D4 filter fix and previous Profile/poll/QR work preserved.
+Current second batch local results: 772 JVM tests / 179 suites, no failures/errors/
+skips, AndroidTest compilation/lint/x86_64 APK PASS. Python helpers 59/docs/claims/
+diff PASS. Actual popup tests cover Night and Hindi/RTL 200% font with full localized
+accessibility labels and all six destination callbacks/stale-row cancellation.
+Existing original notes/paper icons now replace generic icon choices; eight density
+assets match official pinned Git bytes. No imported bytes changed or legal gate set.
+
+Carrying commit requires exact-SHA FAST. This is the second planned successful
+implementation commit for the seven-action feature; do not open cosmetic third
+iterations. Hardware/reference acceptance is still OPEN. Next Gate 2 work: inspect
+remaining source-faithful drawer/dialog/search/toolbar integration from actual
+upstream and current callers; preserve working implementations and fix evidenced
+gaps only. Drawer currently also has existing Topic/PYQ/Mistakes destinations;
+these are active navigation entries, not duplicate renderers/screens. They are not
+removed merely because overflow links the same destination. No production deploy,
+migration, FULL/release gate bypass or claimed device pass. Full ledger NOT MET.

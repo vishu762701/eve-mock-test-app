@@ -19,7 +19,8 @@ import java.time.Duration
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk=[35],application=Application::class)
 class HomeSevenActionPopupTest {
-    @Test fun sixDestinationRowsDismissBeforeOneCallbackAndThemeRemainsAccessible() {
+    private fun exercise(fontScale: Float = 1f) {
+        org.robolectric.RuntimeEnvironment.setFontScale(fontScale)
         val controller=Robolectric.buildActivity(Activity::class.java)
         controller.get().setTheme(R.style.Theme_Eve)
         controller.setup().visible()
@@ -41,7 +42,14 @@ class HomeSevenActionPopupTest {
                 popup.show(anchor)
                 val root=popup.contentView
                 assertTrue(root.findViewById<View>(R.id.cardTheme).isClickable)
-                ids.forEach { assertTrue(root.findViewById<View>(it).isClickable) }
+                val labels=listOf(R.string.home_menu_history,R.string.home_menu_bookmarks,R.string.mistake_notebook,R.string.home_menu_topic_test,R.string.home_menu_pyq,R.string.home_menu_logout)
+                ids.zip(labels).forEach { (rowId,labelId) ->
+                    val row=root.findViewById<View>(rowId)
+                    assertTrue(row.isClickable)
+                    assertEquals(activity.getString(labelId),row.contentDescription)
+                }
+                assertTrue(root.findViewById<View>(R.id.cardTheme).contentDescription in
+                    listOf(activity.getString(R.string.home_menu_day_mode),activity.getString(R.string.home_menu_dark_mode)))
                 root.findViewById<View>(id).performClick()
                 shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(500))
                 assertEquals(listOf(index),events)
@@ -52,4 +60,8 @@ class HomeSevenActionPopupTest {
             }
         } finally { popup?.dismissForHostTeardown(); controller.pause().stop().destroy() }
     }
+    @Test fun realRowsDismissBeforeOneCallbackAndRejectStaleClicks() = exercise()
+    @Test @Config(qualifiers="night") fun nightMenuRetainsLabelsAndCallbacks() = exercise()
+    @Test @Config(qualifiers="hi-rIN-ldrtl") fun hindiRtlLargeFontKeepsFullAccessibleLabels() = exercise(2f)
+
 }

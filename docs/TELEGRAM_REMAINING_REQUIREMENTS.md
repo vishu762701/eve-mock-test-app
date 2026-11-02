@@ -357,3 +357,24 @@ Matched native appearance/Back/IME/large-font matrix remains OPEN; compiled nati
 fixture now checks seven rows. Final serial local broad Gradle PASS: 770 JVM tests
 / 179 suites, zero failures/errors/skips, AndroidTest compilation/lint/x86_64 APK.
 Python helper 59/docs/claim/diff checks PASS. Carrying commit requires FAST.
+
+Seven-action popup first commit a6c0e042f58135d234b450e50c3c5f96ce38757c
+FAST 41411244614 SUCCESS. Second/final planned commit for this feature: remove
+remaining hardcoded History/Bookmarks/Day/Dark labels via existing Android string
+resources and complete Hindi/RTL/font host coverage; reuse existing original
+large_notes/msg_filehq icons instead of generic edit/PYQ vectors. All 8 relevant
+density assets compared with official Git pin bytes; no new binary imported.
+No drawer paths removed merely for sharing a destination with overflow.
+
+Seven-action feature second scoped batch locally MET: History/Bookmarks/Day/Dark
+labels now use Android English/Hindi resources; original Notebook/PYQ source
+icons reused. All 8 notes/paper density bytes match immutable official Git blobs
+at 3de37c8cfb039452be7398909461da6288babf15 (large_notes.webp/msg_filehq.webp).
+No new asset import/license clearance claim. Actual popup tests now run Day,
+Night and Hindi/RTL at 200% font, assert full localized accessibility row labels,
+all six callbacks after dismissal and stale-row no-op. Initial fixture configuration
+override was too late; fixed using Robolectric's font-scale API, no product hack.
+Serial broad Gradle PASS: 772 tests / 179 suites, zero failures/errors/skips;
+AndroidTest compilation/lint/x86_64 assemble PASS. Python helpers 59/docs/claims/diff
+PASS. This is the second planned implementation commit for the seven-action
+feature; remaining matched native/source-screen evidence stays OPEN.
