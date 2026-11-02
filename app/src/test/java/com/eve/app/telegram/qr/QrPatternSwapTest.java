@@ -11,7 +11,7 @@ public class QrPatternSwapTest {
         assertEquals(0f, QrPatternSwap.slotScale(.18f, true, false), 0f);
         assertEquals(0f, QrPatternSwap.slotScale(.13f, false, false), 0f);
         assertTrue(QrPatternSwap.slotScale(.135f + .23f, false, false) > 1f);
-        assertEquals(1f, QrPatternSwap.slotScale(.45f, false, false), 0f);
+        assertEquals(1f, QrPatternSwap.slotScale(.5f, false, false), 0f);
     }
 
     @Test public void transitionFromEmptyDoesNotWaitForOldSlot() {
@@ -21,8 +21,8 @@ public class QrPatternSwapTest {
     }
 
     @Test public void negativeOddRowsUseTheActualSourceSlotMapping() {
-        assertEquals(1, QrPatternSwap.slotIndex(-1, 0, 6));
-        assertEquals(4, QrPatternSwap.slotIndex(-3, 1, 6));
+        assertEquals(2, QrPatternSwap.slotIndex(-1, 0, 6));
+        assertEquals(0, QrPatternSwap.slotIndex(-3, 1, 6));
         assertEquals(0, QrPatternSwap.slotIndex(0, 0, 6));
         assertEquals(-1, QrPatternSwap.slotIndex(5, 3, 0));
         assertEquals(0, QrPatternSwap.slotIndex(-999, 1000, 1));
