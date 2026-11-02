@@ -692,3 +692,37 @@ remain visible when its second rights fetch fails; Worker authorization is separ
 The carrying implementation commit requires its own exact-SHA FAST before advancing.
 
 Local lint initially found five missing endFrame API guards and ten preexisting CameraX Java-marker opt-in errors. Explicit QrRender.hasEffects guard plus androidx.annotation.OptIn repair all 15 without suppressions, baselines or target changes. Stable-source rerun passed. Temporary upstream checkout was shallow-compacted after fetching tags to reclaim build space; current commit/tree and required tlottie objects remain verified; fetched tag IDs are retained in workspace evidence. No EVE/shared history was rewritten.
+
+## Scanner lifecycle continuation — next coherent implementation batch
+
+Current fetched/pushed main before this batch:
+7bb581b1b95d7e4e79489db77dfa50c3f9b92b6a.
+Exact-SHA FAST 41392841830 SUCCESS, docs 41392841837 SUCCESS,
+source-import 41392841829 SUCCESS. All four native ABI build tasks and
+243 Rust security/C API tests pass (2.59s). Artifact count zero; both native
+navigation suites and publication skipped by FAST. Source glass is ADAPTED;
+actual CameraX TextureView/reference/frame evidence remains open.
+
+New EVE ownership implementation: QrCameraSessionGate.kt, actual
+EveQrLiveScannerActivity pause/resume/bind/analyzer/permission/Gallery/close paths,
+QrCameraSessionGateTest.kt and QrScannerPausedResultTest.kt. Original source
+pause/destruction ordering inspected at QrShareActivity:1070-1077 and
+QrScanOverlay:370-425,490-546, same official full SHA as above. Full technical
+map and integration/test changes: QR_SCANNER_SOURCE_FRAME_CHECKPOINT.md.
+Camera/torch stop on pause; old async binds, frames and delayed navigation cannot
+survive a session change. Gallery delivery waits for resume and rejects superseded
+requests. Saved in-flight permission/Gallery flags prevent duplicate launch during
+recreation; denial/Settings return preserves manual recovery. Snapshots remain
+before release and all secure-link/four-real-point contracts remain intact.
+
+Ten focused tests (five ticket-state, two actual scanner Activity lifecycle and
+three existing source/caller cases) pass; AndroidTest compilation and lint pass.
+Stable local :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -Peve.nativeAbis=x86_64 passes (38s): 734 tests / 169 suites, zero failures/errors/skips; lint zero errors / 1645 warnings. All 99 recorded source manifest entries match pinned Git objects/current EVE hashes. Actual device execution remains unavailable.
+No new backend, Firebase, scoring, migration, production calls/permissions,
+release variable, signing or data-model changes. Owner Bio/About removal verified
+in current production Profile source/layout; backend bio data/API tests remain green.
+Complete QR/Profile/Admin/Home/student/Quiz/theme/device and mission FULL still open.
+Next independent engineering action after this batch's own green FAST: fail-closed
+Admin pending-rights visibility and fresh per-screen right checks, preserving Worker
+authorization and every legitimate source-tab action. Remaining original scanner
+control geometry/physics and matched physical-device matrix are not accepted.

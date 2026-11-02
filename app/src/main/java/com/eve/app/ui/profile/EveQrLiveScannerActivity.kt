@@ -30,6 +30,9 @@ import androidx.camera.view.transform.ImageProxyTransformFactory
 import androidx.camera.view.transform.OutputTransform
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.withResumed
+import kotlinx.coroutines.launch
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -63,7 +66,15 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
     @Volatile private var sharedViewPort = false
     private var closing = false
     private var cameraRequestStarted = false
+    private var openingFinished = false
+    private var permissionRecoveryPending = false
+    private var permissionRequestInFlight = false
     private var cameraBinding = false
+    private val cameraSession = QrCameraSessionGate()
+    private var analysis: ImageAnalysis? = null
+    private var foundNavigation: Runnable? = null
+    private var galleryGeneration = 0L
+    private var galleryRequested = false
     private var permissionDialog: TelegramNativeAlertDialog? = null
     private val torchState = QrTorchGate()
     private lateinit var torchButton: TextView
@@ -72,6 +83,7 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 
     private val permission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        permissionRequestInFlight = false
         if (closing || completed.get() || isFinishing || isDestroyed) return@registerForActivityResult
         if (granted) startLiveCamera()
         else showCameraPermissionRecovery()
@@ -80,6 +92,11 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
 
     /** EVE-owned denial recovery: never request access or open settings silently. */
     private fun showCameraPermissionRecovery() {
+        if (!cameraSession.isResumed()) {
+            permissionRecoveryPending = true
+            return
+        }
+        permissionRecoveryPending = false
         if (closing || completed.get() || isFinishing || isDestroyed ||
             permissionDialog?.isShowing == true) return
         val settings = !shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)
@@ -97,11 +114,11 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
                         runCatching { startActivity(intent) }.onFailure {
                             AppBulletin.showError(this, "Unable to open App Settings")
                         }
-                    } else permission.launch(Manifest.permission.CAMERA)
+                    } else launchCameraPermission()
                 }
             }
             .setNegativeButton("Gallery") { _, _ ->
-                if (!closing && !isFinishing && !isDestroyed) gallery.launch("image/*")
+                if (!closing && !isFinishing && !isDestroyed) launchGallery()
             }
             .setOnDismissListener { permissionDialog = null }
             .show()
@@ -109,18 +126,44 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
 
     /** QrScanOverlay.java:453-485 starts the camera after the 390ms opening. */
     private fun requestCameraAfterOpening() {
-        if (cameraRequestStarted || closing || completed.get() || isFinishing || isDestroyed) return
+        openingFinished = true
+        if (cameraRequestStarted || closing || completed.get() || isFinishing || isDestroyed ||
+            !cameraSession.isResumed()) return
         cameraRequestStarted = true
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
             PackageManager.PERMISSION_GRANTED) startLiveCamera()
-        else permission.launch(Manifest.permission.CAMERA)
+        else launchCameraPermission()
     }
+    private fun launchCameraPermission() {
+        if (permissionRequestInFlight || !cameraSession.isResumed() || closing) return
+        permissionRequestInFlight = true
+        try { permission.launch(Manifest.permission.CAMERA) } catch (_: Exception) {
+            permissionRequestInFlight = false
+            showCameraPermissionRecovery()
+        }
+    }
+
     private val gallery = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        if (uri != null) scanGallery(uri)
+        galleryRequested = false
+        if (uri != null && !closing && !isDestroyed && !isFinishing) scanGallery(uri)
+    }
+
+    private fun launchGallery() {
+        if (!cameraSession.isResumed() || galleryRequested || closing || completed.get() ||
+            isFinishing || isDestroyed) return
+        galleryRequested = true
+        try { gallery.launch("image/*") } catch (_: Exception) {
+            galleryRequested = false
+            AppBulletin.showError(this, "Unable to open Gallery")
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        cameraRequestStarted = savedInstanceState?.getBoolean("camera_requested") ?: false
+        permissionRequestInFlight = savedInstanceState?.getBoolean("camera_permission_pending") ?: false
+        galleryRequested = savedInstanceState?.getBoolean("gallery_pending") ?: false
+        openingFinished = savedInstanceState != null
         WindowCompat.setDecorFitsSystemWindows(window, false)
         WindowCompat.getInsetsController(window, window.decorView).apply {
             isAppearanceLightStatusBars = false
@@ -141,7 +184,7 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         }
         root.addView(preview, FrameLayout.LayoutParams(-1, -1))
         preview.previewStreamState.observe(this) { stream ->
-            root.setPreviewStreaming(stream == PreviewView.StreamState.STREAMING && !closing)
+            root.setPreviewStreaming(stream == PreviewView.StreamState.STREAMING && !closing && camera != null)
         }
 
         // QrScanOverlay.java:579-599,659-708. Source geometry, EVE CameraX host.
@@ -179,7 +222,7 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
             gravity = Gravity.CENTER
         }
         val galleryButton = actionButton("Gallery", "Scan QR from gallery") {
-            gallery.launch("image/*")
+            launchGallery()
         }
         torchButton = actionButton("Flashlight", "Turn on camera flashlight") {
             toggleTorch()
@@ -264,17 +307,21 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
     private fun startLiveCamera() {
         if (cameraBinding || provider != null || closing || completed.get() ||
             isFinishing || isDestroyed) return
+        val ticket = cameraSession.beginBind() ?: return
         cameraBinding = true
         val future = try {
             ProcessCameraProvider.getInstance(this)
         } catch (_: Exception) {
             cameraBinding = false
+            cameraSession.completeBind(ticket, false)
             AppBulletin.showError(this, "Unable to start camera. Gallery is still available.")
             return
         }
         future.addListener({
+            // An old provider future must not clear a newer in-flight binding.
+            if (!cameraSession.isBinding(ticket) || isDestroyed || isFinishing ||
+                closing || completed.get()) return@addListener
             cameraBinding = false
-            if (isDestroyed || isFinishing || closing || completed.get()) return@addListener
             try {
                 val service = future.get()
                 service.unbindAll()
@@ -282,7 +329,8 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
                 cameraPreview.setSurfaceProvider(preview.surfaceProvider)
                 val analyzer = ImageAnalysis.Builder()
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build()
-                analyzer.setAnalyzer(worker) { frame -> analyzeFrame(frame) }
+                analyzer.setAnalyzer(worker) { frame -> analyzeFrame(frame, ticket) }
+                analysis = analyzer
                 // CameraX's shared ViewPort makes analysis-to-preview geometry
                 // well-defined across crop, rotation and FILL_CENTER.
                 val viewPort = preview.viewPort
@@ -291,9 +339,14 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
                 if (viewPort != null) group.setViewPort(viewPort)
                 camera = service.bindToLifecycle(this, CameraSelector.DEFAULT_BACK_CAMERA, group.build())
                 provider = service
+                cameraSession.completeBind(ticket, true)
                 torchState.reset()
                 updateTorchButton()
             } catch (_: Exception) {
+                cameraSession.completeBind(ticket, false)
+                analysis?.clearAnalyzer()
+                analysis = null
+                sharedViewPort = false
                 AppBulletin.showError(this, "Unable to start camera. Gallery is still available.")
             }
         }, ContextCompat.getMainExecutor(this))
@@ -324,9 +377,9 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
     }
 
     @androidx.annotation.OptIn(androidx.camera.view.TransformExperimental::class)
-    private fun analyzeFrame(frame: ImageProxy) {
+    private fun analyzeFrame(frame: ImageProxy, ticket: Long) {
         try {
-            if (completed.get() || closing) return
+            if (!cameraSession.acceptsFrame(ticket) || completed.get() || closing) return
             val now = SystemClock.elapsedRealtime()
             if (now - lastScanAt < 150L) return
             lastScanAt = now
@@ -353,7 +406,8 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
                         }.getOrNull()
                     } else null
                 runOnUiThread {
-                    if (isDestroyed || closing || isFinishing || completed.get()) return@runOnUiThread
+                    if (!cameraSession.acceptsFrame(ticket) || isDestroyed || closing ||
+                        isFinishing || completed.get()) return@runOnUiThread
                     val local = if (transform != null && detected.originalPoints != null) {
                         runCatching {
                             val target = preview.outputTransform ?: error("Preview transform unavailable")
@@ -374,6 +428,7 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
 
     private fun scanGallery(uri: Uri) {
         if (worker.isShutdown || closing || completed.get()) return
+        val request = ++galleryGeneration
         worker.execute {
             var bitmap: android.graphics.Bitmap? = null
             try {
@@ -402,25 +457,31 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
                 val pixels = IntArray(image.width * image.height)
                 image.getPixels(pixels, 0, image.width, 0, 0, image.width, image.height)
                 val result = decode(RGBLuminanceSource(image.width, image.height, pixels))
-                runOnUiThread {
-                    if (isDestroyed || isFinishing || closing || completed.get()) return@runOnUiThread
+                deliverGallery(request) {
                     if (result == null) AppBulletin.showError(this, "No QR detected in image")
                     else handleLink(result.text)
                 }
             } catch (_: Exception) {
-                runOnUiThread {
-                    if (!isDestroyed && !isFinishing && !closing && !completed.get()) {
-                        AppBulletin.showError(this, "Unable to scan image")
-                    }
-                }
+                deliverGallery(request) { AppBulletin.showError(this, "Unable to scan image") }
             } finally {
                 bitmap?.recycle()
             }
         }
     }
 
+    private fun deliverGallery(request: Long, action: () -> Unit) {
+        // ActivityResult may arrive at STARTED. Wait for RESUMED rather than
+        // losing a legitimate gallery result or navigating in the background.
+        lifecycleScope.launch {
+            lifecycle.withResumed {
+                if (request == galleryGeneration && !closing && !completed.get() &&
+                    !isFinishing && !isDestroyed) action()
+            }
+        }
+    }
+
     private fun handleLink(link: String, localPoints: FloatArray? = null) {
-        if (isFinishing || closing || completed.get()) return
+        if (!cameraSession.isResumed() || isFinishing || closing || completed.get()) return
         if (ProfileQrPayload.parse(link) == null) {
             val now = SystemClock.elapsedRealtime()
             if (now - lastRejectedAt > 4500L) {
@@ -436,9 +497,13 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         if (outlined) {
             // Exact source delay only when four genuine finder/alignment points
             // can be rendered. Back/destroy during delay must cancel navigation.
-            root.postDelayed({
-                if (!closing && !isFinishing && !isDestroyed) closeScanner(destination)
-            }, QrScanFound.FOUND_DELAY_MS)
+            val navigation = Runnable {
+                foundNavigation = null
+                if (cameraSession.isResumed() && !closing && !isFinishing && !isDestroyed)
+                    closeScanner(destination)
+            }
+            foundNavigation = navigation
+            root.postDelayed(navigation, QrScanFound.FOUND_DELAY_MS)
         } else closeScanner(destination)
     }
 
@@ -451,12 +516,9 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         // Original QrScanOverlay captures the final texture before releasing
         // its camera. Keep only an in-memory half-sized preview until closed.
         if (::root.isInitialized) root.captureCloseFrame(preview)
-        torchState.reset()
-        updateTorchButton()
-        camera?.cameraControl?.enableTorch(false)
-        provider?.unbindAll()
-        camera = null
-        sharedViewPort = false
+        cancelFoundNavigation()
+        galleryGeneration++
+        releaseCamera(close = true)
         root.animateSourceClose {
             if (!isDestroyed) {
                 if (destination != null)
@@ -469,22 +531,70 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         }
     }
 
+    private fun cancelFoundNavigation() {
+        foundNavigation?.let { if (::root.isInitialized) root.removeCallbacks(it) }
+        foundNavigation = null
+    }
+
+    private fun releaseCamera(close: Boolean = false) {
+        if (close) cameraSession.close() else cameraSession.pause()
+        analysis?.clearAnalyzer()
+        analysis = null
+        cameraBinding = false
+        sharedViewPort = false
+        torchState.reset()
+        updateTorchButton()
+        runCatching { camera?.cameraControl?.enableTorch(false) }
+        runCatching { provider?.unbindAll() }
+        camera = null
+        provider = null
+        if (::root.isInitialized) root.setPreviewStreaming(false)
+    }
+
+    override fun onPause() {
+        // QrShareActivity.java:1070-1077 destroys its camera on pause.
+        // EVE keeps the Activity so Gallery/Settings can return, but releases
+        // CameraX and invalidates old bind/decode/torch generations immediately.
+        cancelFoundNavigation()
+        if (!closing) {
+            completed.set(false)
+            if (::frameOverlay.isInitialized) frameOverlay.clearFound()
+        }
+        releaseCamera()
+        super.onPause()
+    }
+
     override fun onResume() {
         super.onResume()
+        cameraSession.resume()
+        if (openingFinished && !cameraRequestStarted) requestCameraAfterOpening()
+        if (permissionRecoveryPending) {
+            permissionRecoveryPending = false
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) !=
+                PackageManager.PERMISSION_GRANTED) showCameraPermissionRecovery()
+        }
         // User may return from Android App Settings having granted permission.
-        if (cameraRequestStarted && !closing && !completed.get() &&
-            ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
-            PackageManager.PERMISSION_GRANTED) startLiveCamera()
+        if (cameraRequestStarted && !closing && !completed.get()) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
+                PackageManager.PERMISSION_GRANTED) startLiveCamera()
+            else if (!permissionRequestInFlight) showCameraPermissionRecovery()
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean("camera_requested", cameraRequestStarted)
+        outState.putBoolean("camera_permission_pending", permissionRequestInFlight)
+        outState.putBoolean("gallery_pending", galleryRequested)
+        super.onSaveInstanceState(outState)
     }
 
     override fun onDestroy() {
         permissionDialog?.dismiss()
         permissionDialog = null
+        cancelFoundNavigation()
+        galleryGeneration++
+        releaseCamera(close = true)
         if (::root.isInitialized) root.dispose()
-        provider?.unbindAll()
-        torchState.reset()
-        sharedViewPort = false
-        cameraBinding = false
         worker.shutdownNow()
         super.onDestroy()
     }

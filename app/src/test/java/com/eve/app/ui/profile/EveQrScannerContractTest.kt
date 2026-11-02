@@ -19,7 +19,7 @@ class EveQrScannerContractTest {
         assertNull(ProfileQrPayload.parse("https://t.me/example"))
         assertTrue(scanner.contains("inJustDecodeBounds = true"))
         assertTrue(scanner.contains("QrScanImageSizing.sampleSize"))
-        assertTrue(scanner.contains("isDestroyed || isFinishing || closing"))
+        assertTrue(scanner.contains("isFinishing || isDestroyed"))
         assertFalse(scanner.contains("inSampleSize = 4"))
         // Upstream QrScanOverlay.java:101-112 uses exactly these source curves
         // and a 150ms decode interval; UI geometry remains ADAPTED.
@@ -48,6 +48,10 @@ class EveQrScannerContractTest {
         assertTrue(scanner.contains("torchState.complete(request, success)"))
         assertTrue(scanner.contains("torchState.reset()"))
         assertTrue(scanner.contains("gallery.launch(\"image/*\")"))
+        assertTrue(scanner.contains("override fun onPause()"))
+        assertTrue(scanner.contains("cameraSession.acceptsFrame(ticket)"))
+        assertTrue(scanner.contains("cancelFoundNavigation()"))
+        assertTrue(scanner.contains("lifecycle.withResumed"))
         assertTrue(manifest.contains("android:theme=\"@style/Theme.Eve.QrScene\""))
         assertTrue(scanner.contains("now - lastScanAt < 150L"))
         assertTrue(scanner.contains("QrScannerFrameOverlay(this)"))

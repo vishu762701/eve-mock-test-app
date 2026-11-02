@@ -969,6 +969,28 @@
       "eve_sha256": "c9b9526cacf730162fda98a0800cac4800512d4e2f2de43ea20809bcce97233b",
       "classification": "ADAPTED; source Java camera layer/glass, CameraX host and Android power-save adapter; physical camera parity OPEN",
       "source_map": "docs/QR_SCANNER_CAMERA_GLASS_SOURCE_MAP.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrScanOverlay.java",
+      "upstream_lines": "370-425,490-546,994-1063",
+      "eve_path": "app/src/main/java/com/eve/app/ui/profile/EveQrLiveScannerActivity.kt",
+      "upstream_sha256": "ef7945b3cfa1228422c8013a6b8299169e059026bec6e28229637ae35399ea54",
+      "eve_sha256": "7f394e8a2461352bf54dc4f645c46b9b8c2d76201b45fff83855b63783538e31",
+      "classification": "ADAPTED EVE CameraX/Activity/lifecycle host; full scanner/reference acceptance OPEN",
+      "source_map": "docs/QR_SCANNER_SOURCE_FRAME_CHECKPOINT.md"
+    },
+    {
+      "upstream_repository": "https://github.com/DrKLO/Telegram",
+      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrScanOverlay.java",
+      "upstream_lines": "429-479,517-546,601-623",
+      "eve_path": "app/src/main/java/com/eve/app/ui/profile/QrScanMorphLayout.kt",
+      "upstream_sha256": "ef7945b3cfa1228422c8013a6b8299169e059026bec6e28229637ae35399ea54",
+      "eve_sha256": "cce4523abe9c3b55738219bf4e74e39909aa4e2c187b0a1e4dfb700cb8f43dd1",
+      "classification": "ADAPTED EVE CameraX/Activity/lifecycle host; full scanner/reference acceptance OPEN",
+      "source_map": "docs/QR_SCANNER_SOURCE_FRAME_CHECKPOINT.md"
     }
   ]
 }

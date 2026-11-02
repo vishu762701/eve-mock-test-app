@@ -152,3 +152,57 @@ Next exact action: add actual Android device matrix evidence for
 CameraX preview mapping, camera/gallery/torch permission and
 scanner morph, then original scanner live glass/blur compositor,
 without importing Telegram account/camera services.
+
+## CameraX pause/rebind/result ownership continuation — 2026-11-02
+
+Prior source camera-glass implementation
+7bb581b1b95d7e4e79489db77dfa50c3f9b92b6a has exact-SHA FAST
+[41392841830](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41392841830)
+SUCCESS (Android/all four native ABIs/JVM/AndroidTest compilation, 243 Rust tests,
+backend and Firebase). Docs 41392841837 and source-import 41392841829 SUCCESS.
+Native UI navigation/publication are skipped; there is no verified published APK.
+
+Actual upstream caller opened: official
+DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15,
+QrShareActivity.java:1070-1077 destroys the scanner on pause, and
+QrScanOverlay.java:370-425,490-546 stops recognition/releases camera/cancels callbacks.
+The EVE Activity had only destruction/close checks, so a queued frame or delayed
+found navigation could survive a pause, and the provider reference could prevent
+an intentional new binding after explicit release.
+
+EVE now owns a synchronized QrCameraSessionGate (Kotlin integration adapter,
+not an original Telegram class). Each asynchronous bind and analyzer result carries
+a session ticket. Pause invalidates old tickets, clears the analyzer, releases
+CameraX/torch, resets provider/binding state and discards live blur display lists.
+Old provider futures cannot clear a newer pending binding; old decode results are
+rejected before UI delivery. Closing/destroy is terminal; fresh resume rebinds only
+when opening/permission state permits. Opening completed in the background defers
+permission work until resume. Permission-denial presentation similarly defers.
+Found-delay runnables are explicitly removed on pause, Back/close and destruction;
+a fresh resumed scan can still navigate exactly once. Gallery decode results wait
+for RESUMED, carry a request generation and are rejected after close/destruction or
+superseding selection. Duplicate Gallery taps are bounded to one external request.
+The original username allowlist, four genuine points, 450ms conditional found delay,
+Gallery image bounds and reverse snapshot-before-release ordering remain intact.
+
+| Telegram property:lines@SHA | EVE production paths | Classification | Verification |
+|---|---|---|---|
+| QrShareActivity:1070-1077@3de37c8cfb039452be7398909461da6288babf15 | EveQrLiveScannerActivity.onPause/onResume/releaseCamera; QrCameraSessionGate | ADAPTED EVE lifetime contract; EVE retains its Activity for native Gallery/Settings return instead of destroying Telegram's fragment overlay | five session-ticket JVM cases; actual Activity pause/found callback regression |
+| QrScanOverlay:386-425,490-546@3de37c8cfb039452be7398909461da6288babf15 | closeScanner/cancelFoundNavigation/analysis callback | ADAPTED CameraX and EVE routing; snapshot before release preserved | actual found-delay cancellation/fresh resumed one-shot navigation; source release-order contract |
+| EVE ActivityResult/Android lifecycle contract | deliverGallery/launchGallery | ADAPTED EVE integration, no Telegram service/import analogue claimed | compile and source contract; actual system picker/hardware matrix pending |
+
+QrScannerPausedResultTest drives the actual scanner Activity, schedules its real
+four-point found runnable, pauses, advances the main looper beyond source delay,
+asserts no navigation, resumes, supplies a fresh result and asserts one username
+card destination. Its initial failure counted the existing startup OS CAMERA
+permission Intent as post-pause navigation. The fixture now first asserts/consumes
+that specific startup permission action, then observes only newly generated Intents;
+post-pause navigation and exactly-once assertions are retained. It never grants
+camera, contacts a production service or equates host lifecycle to physical devices.
+Ten focused tests, AndroidTest source compilation and lint pass locally. A second actual-Activity test saves/restores the pending OS permission state and verifies no duplicate system launch; in-flight Gallery state is saved too. Full
+stable local/CI results belong in the current mission checkpoint.
+
+No auth, Firebase, backend, scoring, data migration, new permission, production
+write/deploy or license gate changes. Whole scanner, source control geometry/press
+physics, physical camera/gallery/torch/settings/orientation/memory and matched
+source frame/60-90-120Hz acceptance remain NOT MET/UNKNOWN. GPL review remains OPEN.

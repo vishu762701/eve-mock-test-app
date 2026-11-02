@@ -76,7 +76,8 @@
         "app/src/main/java/com/eve/app/telegram/qr/QrCameraBackdrop.java",
         "app/src/main/java/com/eve/app/telegram/qr/QrScannerGlass.java",
         "app/src/main/java/com/eve/app/ui/profile/QrScanMorphLayout.kt",
-        "app/src/main/java/com/eve/app/ui/profile/EveQrLiveScannerActivity.kt"
+        "app/src/main/java/com/eve/app/ui/profile/EveQrLiveScannerActivity.kt",
+        "app/src/main/java/com/eve/app/ui/profile/QrCameraSessionGate.kt"
       ],
       "tests": [
         "app/src/androidTest/java/com/eve/app/ui/profile/ProfileMissionIntegrationNativeTest.kt",
@@ -89,7 +90,9 @@
         "app/src/test/java/com/eve/app/telegram/qr/QrSceneRevealTest.kt",
         "app/src/androidTest/java/com/eve/app/ui/profile/QrBackdropNativeTest.kt",
         "app/src/test/java/com/eve/app/telegram/qr/QrCameraBackdropTest.java",
-        "app/src/androidTest/java/com/eve/app/ui/profile/QrCameraGlassNativeTest.kt"
+        "app/src/androidTest/java/com/eve/app/ui/profile/QrCameraGlassNativeTest.kt",
+        "app/src/test/java/com/eve/app/ui/profile/QrCameraSessionGateTest.kt",
+        "app/src/test/java/com/eve/app/ui/profile/QrScannerPausedResultTest.kt"
       ],
       "source_map": "docs/PROFILE_REGRESSION_REPAIR.md",
       "remaining_gaps": [
