@@ -1,5 +1,6 @@
 package com.eve.app.data.model
 
+@com.google.gson.annotations.JsonAdapter(AppContentJsonAdapter::class)
 data class AppContent(
     val title: String = "",
     val body: String = "",

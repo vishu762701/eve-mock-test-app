@@ -108,18 +108,20 @@ We may update these Terms periodically. Continued use of the app signifies accep
   }
 }
 
-function normalizeContentType(type: string): string {
+function normalizeContentType(type: string): string | null {
   const t = type.toLowerCase();
   if (t === "privacy_policy" || t === "privacy") return "privacy";
   if (t === "terms_of_service" || t === "terms") return "terms";
   if (t === "contact_us" || t === "contact") return "contact";
-  return t;
+  // This public document route must never expose/mutate other app_content owners.
+  return null;
 }
 
 // GET /api/app-content/:type - Get content
 appContentRoutes.get("/:type", async (c) => {
   const rawType = (c.req.param("type") || "").toLowerCase();
   const type = normalizeContentType(rawType);
+  if (!type) return c.json({ success: false, error: "Unknown content type" }, 404);
   const db = c.env.DB;
 
   const row = await db.prepare("SELECT * FROM app_content WHERE id = ?").bind(type).first<AppContentRow>();
@@ -135,6 +137,7 @@ appContentRoutes.get("/:type", async (c) => {
 appContentRoutes.put("/:type", requirePermission("manage_content"), async (c) => {
   const rawType = (c.req.param("type") || "").toLowerCase();
   const type = normalizeContentType(rawType);
+  if (!type) return c.json({ success: false, error: "Unknown content type" }, 404);
   const parsedBody = await c.req.json().catch(() => ({}));
   const body = parsedBody && typeof parsedBody === "object" && !Array.isArray(parsedBody)
     ? parsedBody as Record<string, unknown>
@@ -142,6 +145,16 @@ appContentRoutes.put("/:type", requirePermission("manage_content"), async (c) =>
   const user = c.get("user");
   const db = c.env.DB;
   const now = Date.now();
+
+  if (typeof body.title !== "string" || !body.title.trim() ||
+      typeof body.body !== "string" || !body.body.trim()) {
+    return c.json({ success: false, error: "Content title and body must be nonblank strings" }, 400);
+  }
+  for (const field of ["supportEmail", "phone", "website", "address"]) {
+    if (body[field] != null && typeof body[field] !== "string") {
+      return c.json({ success: false, error: `Invalid content field: ${field}` }, 400);
+    }
+  }
 
   const title = String(body.title || "").trim();
   const textBody = String(body.body || "").trim();
@@ -174,7 +187,11 @@ appContentRoutes.put("/:type", requirePermission("manage_content"), async (c) =>
     metadata: { title },
   });
 
-  await db.batch([updateStmt, auditStmt]);
+  const results = await db.batch([updateStmt, auditStmt]);
+  if (results.length !== 2 || results.some(result => !result ||
+      (result.success !== undefined && !result.success) || result.meta?.changes !== 1)) {
+    return c.json({ success: false, error: "Content update was not acknowledged" }, 500);
+  }
 
   return c.json({ success: true });
 });

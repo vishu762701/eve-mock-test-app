@@ -3,9 +3,9 @@ package com.eve.app.data.repository
 import com.eve.app.data.model.AppContent
 import com.eve.app.data.remote.ApiClient
 
-class AppContentRepository {
-
-    private val api = ApiClient.api
+class AppContentRepository(
+    private val api: com.eve.app.data.remote.EveApiService = ApiClient.api
+) {
 
     companion object {
         const val TYPE_PRIVACY = "privacy_policy"
@@ -21,13 +21,22 @@ class AppContentRepository {
     }
 
     suspend fun getContent(type: String): AppContent {
-        val norm = normalizeType(type)
         return try {
-            val response = api.getAppContent(norm)
-            if (response.success) response.data ?: getDefaultContent(type) else getDefaultContent(type)
+            getConfirmedContent(type)
+        } catch (cancel: kotlinx.coroutines.CancellationException) {
+            throw cancel
         } catch (_: Exception) {
             getDefaultContent(type)
         }
+    }
+
+    /** Admin forms cannot treat the public reader's offline fallback as confirmed data. */
+    suspend fun getConfirmedContent(type: String): AppContent {
+        val response = api.getAppContent(normalizeType(type))
+        check(response.success && response.error.isNullOrBlank()) { response.error ?: "Unable to load app content" }
+        val content = checkNotNull(response.data) { "Missing confirmed app content" }
+        check(content.title.isNotBlank() && content.body.isNotBlank()) { "Incomplete app content" }
+        return content
     }
 
     suspend fun saveContent(type: String, content: AppContent) {
@@ -43,7 +52,7 @@ class AppContentRepository {
             "address" to content.address
         )
         val response = api.updateAppContent(norm, data)
-        check(response.success) { response.error ?: "Unable to save app content" }
+        check(response.success && response.error.isNullOrBlank()) { response.error ?: "Unable to save app content" }
     }
 
     fun getDefaultContent(type: String): AppContent = when (normalizeType(type)) {

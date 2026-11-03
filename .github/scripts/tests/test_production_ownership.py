@@ -124,6 +124,15 @@ class ProductionOwnershipTest(unittest.TestCase):
         }
         self.assertEqual(callers, {"data/repository/ApiUsageRepository.kt"})
 
+    def test_public_documents_keep_one_android_transport_owner(self):
+        call = re.compile(r"\.(?:getAppContent|updateAppContent)\s*\(")
+        callers = {
+            file.relative_to(PRODUCTION).as_posix()
+            for file in PRODUCTION.rglob("*.kt")
+            if call.search(file.read_text(encoding="utf-8"))
+        }
+        self.assertEqual(callers, {"data/repository/AppContentRepository.kt"})
+
 
 if __name__ == "__main__":
     unittest.main()

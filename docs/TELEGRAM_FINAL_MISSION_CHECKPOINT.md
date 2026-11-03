@@ -4,7 +4,78 @@
 
 Status: PARTIAL. This is a continuation record, not screen acceptance.
 
-## Current continuation pointer — API Usage repair preparation
+## Current continuation pointer — App Content / About editor repair preparation
+
+Remote/main131ed65aef1cd28f5bb4b01a1f1cdeba05318e5b, clean at recovery.
+API Usage exact-SHA FAST41663438196 SUCCESS: build/backend/Firebase succeeded,
+native/publication skipped, zero artifacts; docs41663438091 SUCCESS. Its second
+scoped batch is integrated and preserved; further successful API Usage work needs
+a scoped exception. Undo5648e9c3/FAST41659857229 and prior green work remain current.
+
+Next existing owner: EditAboutActivity → AppContentRepository → get/updateAppContent
+→ appContent.ts; preserve public ContentDisplayActivity fallback and all legal text.
+Isolated actual Hono/SQLite probe (no production access) confirms manage_content-only
+admin receives403 from normal PUT /api/admin/config but200 from generic content
+PUT /api/app-content/app_config, modifying internal maintenance JSON. Anonymous
+GET of that internal row also returns200. Only Privacy/Terms/Contact and their
+existing aliases are documented/used by production AppContent callers.
+
+Requirements C1 restrict content routes to their supported document namespace,
+preserving all aliases and canonical config/emoji owners; C2 strict typed required
+write fields and exact transactional D1 acknowledgment; C3 preserve public offline
+fallback but admin edits require confirmed non-malformed server data; C4 fresh
+manage_content/original UID/email before write and same-owner epoch across reads,
+PUT and confirmed readback; C5 one save/dialog and stale tab/lifecycle suppression;
+C6 preserve dirty drafts and confirmed baseline across same-owner recreation, deny
+cross-account restore; C7 preserve native Telegram Save/Discard/Cancel and tab/back
+navigation, legal text and existing backend; C8 actual Activity/repository/handler
+negative/positive tests and exact-SHA FAST before any later feature.
+
+Historical dynamic-contente9bad22a81ad5617dc2cca72a7f08583cb75e220 has no retrieved
+GitHub checks/runs; do not fabricate acceptance. Cloudflare migrationc1242523271e2f857db73daa27181139f9b94c7c
+has Build36233143351 SUCCESS (deployment36233143348 FAILED). Generic app-wide
+source-dialog/rights ports are preserved; this is the first scoped App Content
+repair in this continuation, not a replacement feature or a deployment.
+
+App Content verification: baseline actual Activity12 cases/11 failures; actual
+Worker5 cases/3 failures. Final combined Activity/repository plus preserved
+API Usage/Monitor/Premium/Undo regressions:77 PASS, zero failures/errors/skips;
+18 About Activity cases and6 repository cases included. Two additional Back
+Cancel/Discard/pending-write cases then PASS in a focused rerun (20 About Activity
+cases overall). AndroidTest compilation
+and lint PASS (zero errors/1618 warnings, no suppression). Full backend337 PASS;
+TypeScript PASS; host67 PASS;82-document/acceptance structural/diff checks PASS.
+Public fallback legal/contact text suffix remains byte-identical to current main.
+Existing supported aliases/defaults and public redaction of updatedBy remain intact.
+Worker checks include namespace denial, malformed inputs/no writes, fresh revoked
+rights/membership, audit rollback and missing D1 acknowledgment.
+
+The current resumed editor read waits for its prior in-flight save to settle, then
+performs its own epoch-bound GET. The obsolete PUT cannot trigger its confirmation
+readback or report success. There is no automatic resubmit/restore/rollback.
+Same-owner dirty draft and confirmed baseline are retained; a clean form accepts
+fresh server content. Native tab/back Save/Discard/Cancel and one pending write
+are exercised, including Back → Save reusing the pending operation. A write already
+accepted by the server remains authoritative; process-death exactly-once audit
+semantics are not claimed, nor is any live data restored by the client.
+
+Actual isolated namespace probe: normal config PUT403 remained403; anonymous
+internal-row GET200 →404; manage_content-only internal PUT200 →404; original
+maintenance JSON remained false after the repaired probe. Supported document
+alias PUT/canonical GET was decoded by the compiled Android AppContent/Gson adapter;
+fixture JSON SHA256d5588c26b1018a36cee96d52bfbd8d77ce6299e1c0900f924bb0575a823d7f20.
+This is Hono/SQLite/DTO wire evidence, not live Firebase/device acceptance.
+
+| Requirement | Canonical owner | Implementation status | Tests | Commit SHA | Exact-SHA CI | Runtime acceptance | Remaining evidence |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| C1–C8 document namespace/editor ownership | EditAboutActivity / existing AppContentRepository / AppContent / appContent.ts | Prepared coherent repair; public fallback/legal text preserved | JVM77 +2 focused Back cases; backend337; wire decode; AndroidTest compile; lint; host67 | carrying commit | required after push | OPEN | physical failure/rotation/native dialog matrix; separately authorized Worker deployment |
+
+No Telegram source/assets were copied for this business-data repair. The unchanged
+TelegramNativeAlertDialog remains the UI host; EditAboutActivity's owner/epoch and
+save/discard/cancel callbacks are EVE-specific ADAPTED bindings. No UI-exactness,
+legal clearance, production deployment or distribution approval is asserted.
+
+## Completed continuation pointer — API Usage repair
 
 Latest remote/main `5648e9c360c9bdda70c45a24537681243ccd94bc`; exact-SHA FAST
 [41659857229](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41659857229)

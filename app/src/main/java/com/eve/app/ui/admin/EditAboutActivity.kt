@@ -1,117 +1,176 @@
 package com.eve.app.ui.admin
 
-import com.eve.app.ui.common.EveBaseActivity
-
 import android.os.Bundle
 import android.view.View
-import com.eve.app.util.AppBulletin
-import com.eve.app.designsystem.TelegramNativeAlertDialog
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.data.model.AppContent
+import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.AppContentRepository
 import com.eve.app.databinding.ActivityEditAboutBinding
+import com.eve.app.designsystem.TelegramNativeAlertDialog
+import com.eve.app.ui.common.EveBaseActivity
+import com.eve.app.util.AdminIdentityGuard
+import com.eve.app.util.AdminPermissionSnapshot
+import com.eve.app.util.AppBulletin
 import com.google.android.material.tabs.TabLayout
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class EditAboutActivity : EveBaseActivity() {
-
     private lateinit var binding: ActivityEditAboutBinding
     private val repo = AppContentRepository()
+    private val adminRepo = AdminRepository()
+    private var currentType = AppContentRepository.TYPE_PRIVACY
+    private var initialContent = AppContent()
+    private var initiatingUid = ""
+    private var initiatingEmail = ""
+    private var adminReady = false
+    private var contentReady = false
+    private var loading = false
+    private var saving = false
+    private var epoch = 0L
+    private var readGeneration = 0L
+    private var readJob: Job? = null
+    private var saveJob: Job? = null
+    private var saveEpoch = -1L
+    private var afterSuccessfulSave: (() -> Unit)? = null
+    private var reloadAfterStop = true
+    private var retainedDraft: AppContent? = null
+    private var suppressTabSelection = false
+    private var unsavedDialog: TelegramNativeAlertDialog? = null
 
-    private var currentType: String = AppContentRepository.TYPE_PRIVACY
-    private var initialContent: AppContent = AppContent()
+    private fun ownerCurrent(): Boolean {
+        val live = FirebaseAuth.getInstance().currentUser
+        return adminReady && !isFinishing && !isDestroyed && AdminIdentityGuard.allowed(
+            true, initiatingUid, initiatingEmail, live?.uid, live?.email)
+    }
+    private fun current(requestEpoch: Long): Boolean = requestEpoch == epoch && ownerCurrent() &&
+        lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+    private fun requireCurrent(requestEpoch: Long) {
+        if (!current(requestEpoch)) throw CancellationException("Content editor owner or lifecycle changed")
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val owner = FirebaseAuth.getInstance().currentUser
+        initiatingUid = owner?.uid.orEmpty()
+        initiatingEmail = owner?.email.orEmpty()
+        currentType = savedInstanceState?.getString("content.type")?.takeIf { it in TYPES } ?: TYPES[0]
+        retainedDraft = savedInstanceState?.getBundle("content.draft")?.let { readDraft(it) }
+        initialContent = savedInstanceState?.getBundle("content.confirmed")?.let { readDraft(it) } ?: AppContent()
         binding = ActivityEditAboutBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_content") {
-
-        binding.btnBack.setOnClickListener { handleBack() }
-        binding.btnSave.setOnClickListener { saveCurrent() }
-
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                handleBack()
-            }
-        })
-
-        binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-                val newType = when (tab?.position) {
-                    0 -> AppContentRepository.TYPE_PRIVACY
-                    1 -> AppContentRepository.TYPE_TERMS
-                    2 -> AppContentRepository.TYPE_CONTACT
-                    else -> AppContentRepository.TYPE_PRIVACY
-                }
-                if (newType != currentType) {
-                    if (isDirty()) {
-                        TelegramNativeAlertDialog.Builder(this@EditAboutActivity)
-                            .setTitle("Unsaved Changes")
-                            .setMessage("You have unsaved changes. Do you want to save before switching?")
-                            .setPositiveButton("Save") { _, _ ->
-                                saveCurrent { switchTab(newType) }
-                            }
-                            .setNegativeButton("Discard") { _, _ ->
-                                switchTab(newType)
-                            }
-                            .setNeutralButton("Cancel") { _, _ ->
-                                // Re-select current tab
-                                val currentIndex = when (currentType) {
-                                    AppContentRepository.TYPE_TERMS -> 1
-                                    AppContentRepository.TYPE_CONTACT -> 2
-                                    else -> 0
-                                }
-                                binding.tabLayout.getTabAt(currentIndex)?.select()
-                            }
-                            .show()
-                    } else {
-                        switchTab(newType)
+        updateControls()
+        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true,
+            requiredRight = "manage_content", restorationScope = "edit_about", isRestoring = savedInstanceState != null) {
+            adminReady = true
+            binding.btnBack.setOnClickListener { handleBack() }
+            binding.btnSave.setOnClickListener { saveCurrent() }
+            onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() = handleBack()
+            })
+            restoreSelectedTab()
+            binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                override fun onTabSelected(tab: TabLayout.Tab?) {
+                    if (suppressTabSelection) return
+                    val target = TYPES.getOrNull(tab?.position ?: -1) ?: return
+                    if (target == currentType) return
+                    if (!current(epoch) || saving || unsavedDialog?.isShowing == true) {
+                        restoreSelectedTab(); return
                     }
+                    if (isDirty()) {
+                        showUnsavedConfirmation(leaving = false) { switchTab(target) }
+                    } else switchTab(target)
                 }
-            }
-
-            override fun onTabUnselected(tab: TabLayout.Tab?) {}
-            override fun onTabReselected(tab: TabLayout.Tab?) {}
-        })
-
-        loadContent(currentType)
+                override fun onTabUnselected(tab: TabLayout.Tab?) = Unit
+                override fun onTabReselected(tab: TabLayout.Tab?) = Unit
+            })
+            loadContent()
         }
     }
 
-    private fun switchTab(type: String) {
-        currentType = type
-        binding.layoutContactFields.visibility =
-            if (type == AppContentRepository.TYPE_CONTACT) View.VISIBLE else View.GONE
-        loadContent(type)
+    override fun onResume() {
+        super.onResume()
+        if (adminReady && !ownerCurrent()) { finish(); return }
+        if (adminReady && reloadAfterStop) loadContent()
+    }
+    override fun onStop() {
+        if (contentReady && ownerCurrent()) retainedDraft = getCurrentUiContent().takeUnless { sameFields(it, initialContent) }
+        ++epoch
+        ++readGeneration
+        readJob?.cancel()
+        loading = false
+        contentReady = false
+        reloadAfterStop = true
+        afterSuccessfulSave = null
+        unsavedDialog?.dismiss()
+        unsavedDialog = null
+        updateControls()
+        super.onStop()
+    }
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString("content.type", currentType)
+        val draft = if (contentReady && ownerCurrent()) getCurrentUiContent().takeUnless { sameFields(it, initialContent) } else retainedDraft
+        draft?.let { outState.putBundle("content.draft", writeDraft(it)) }
+        outState.putBundle("content.confirmed", writeDraft(initialContent))
+        super.onSaveInstanceState(outState)
     }
 
-    private fun loadContent(type: String) {
-        binding.btnSave.isEnabled = false
-        binding.progressBar.visibility = View.VISIBLE
-        binding.scrollViewContent.visibility = View.INVISIBLE
-        lifecycleScope.launch {
+    private fun restoreSelectedTab() {
+        suppressTabSelection = true
+        try { binding.tabLayout.getTabAt(TYPES.indexOf(currentType))?.select() }
+        finally { suppressTabSelection = false }
+    }
+    private fun switchTab(type: String) {
+        if (!current(epoch) || saving) return
+        retainedDraft = null
+        currentType = type
+        restoreSelectedTab()
+        loadContent()
+    }
+    private fun updateControls() {
+        if (!::binding.isInitialized) return
+        val editable = contentReady && !loading && !saving && ownerCurrent()
+        binding.btnSave.isEnabled = editable
+        for (field in listOf(binding.etTitle, binding.etBody, binding.etSupportEmail,
+            binding.etPhone, binding.etWebsite, binding.etAddress)) field.isEnabled = editable
+        binding.layoutContactFields.visibility = if (currentType == AppContentRepository.TYPE_CONTACT) View.VISIBLE else View.GONE
+        binding.progressBar.visibility = if (loading || saving) View.VISIBLE else View.GONE
+        binding.scrollViewContent.visibility = if (contentReady) View.VISIBLE else View.INVISIBLE
+    }
+    private fun loadContent() {
+        if (!current(epoch)) return
+        readJob?.cancel()
+        val generation = ++readGeneration
+        val requestEpoch = epoch
+        val type = currentType
+        reloadAfterStop = false
+        loading = true
+        contentReady = false
+        updateControls()
+        readJob = lifecycleScope.launch {
             try {
-                val content = repo.getContent(type)
+                // A new resumed read waits for any old in-flight write, without replaying it.
+                // Only this new epoch owns the GET; the obsolete write never starts readback.
+                saveJob?.takeIf { it.isActive }?.join()
+                requireCurrent(requestEpoch)
+                val content = repo.getConfirmedContent(type)
+                if (!current(requestEpoch) || generation != readGeneration || currentType != type) return@launch
                 initialContent = content
-                populateUi(content)
-                binding.btnSave.isEnabled = true
-                binding.progressBar.visibility = View.GONE
-                binding.scrollViewContent.visibility = View.VISIBLE
-            } catch (e: Exception) {
-                initialContent = AppContent()
-                populateUi(initialContent)
-                binding.btnSave.isEnabled = false
-                binding.progressBar.visibility = View.GONE
-                binding.scrollViewContent.visibility = View.VISIBLE
-                AppBulletin.showError(
-                    this@EditAboutActivity,
-                    "Couldn't load content: ${e.localizedMessage ?: "Unknown error"}"
-                )
+                populateUi(retainedDraft ?: content)
+                retainedDraft = null
+                contentReady = true
+            } catch (cancel: CancellationException) { throw cancel }
+            catch (e: Exception) {
+                if (current(requestEpoch) && generation == readGeneration) {
+                    AppBulletin.showError(this@EditAboutActivity, "Couldn't load content: ${e.localizedMessage ?: "Unknown error"}")
+                }
+            } finally {
+                if (generation == readGeneration) { loading = false; updateControls() }
             }
         }
     }
@@ -124,85 +183,110 @@ class EditAboutActivity : EveBaseActivity() {
         binding.etWebsite.setText(content.website)
         binding.etAddress.setText(content.address)
     }
-
-    private fun getCurrentUiContent(): AppContent {
-        val userEmail = FirebaseAuth.getInstance().currentUser?.email ?: "admin"
-        return AppContent(
-            title = binding.etTitle.text?.toString()?.trim().orEmpty(),
-            body = binding.etBody.text?.toString()?.trim().orEmpty(),
-            updatedAt = System.currentTimeMillis(),
-            updatedBy = userEmail,
-            supportEmail = binding.etSupportEmail.text?.toString()?.trim().orEmpty(),
-            phone = binding.etPhone.text?.toString()?.trim().orEmpty(),
-            website = binding.etWebsite.text?.toString()?.trim().orEmpty(),
-            address = binding.etAddress.text?.toString()?.trim().orEmpty()
-        )
-    }
-
+    private fun getCurrentUiContent() = AppContent(
+        title = binding.etTitle.text?.toString()?.trim().orEmpty(),
+        body = binding.etBody.text?.toString()?.trim().orEmpty(),
+        updatedAt = System.currentTimeMillis(), updatedBy = initiatingEmail,
+        supportEmail = binding.etSupportEmail.text?.toString()?.trim().orEmpty(),
+        phone = binding.etPhone.text?.toString()?.trim().orEmpty(),
+        website = binding.etWebsite.text?.toString()?.trim().orEmpty(),
+        address = binding.etAddress.text?.toString()?.trim().orEmpty())
+    private fun sameFields(a: AppContent, b: AppContent): Boolean =
+        a.title == b.title && a.body == b.body && a.supportEmail == b.supportEmail &&
+            a.phone == b.phone && a.website == b.website && a.address == b.address
     private fun isDirty(): Boolean {
-        val current = getCurrentUiContent()
-        return current.title != initialContent.title ||
-            current.body != initialContent.body ||
-            current.supportEmail != initialContent.supportEmail ||
-            current.phone != initialContent.phone ||
-            current.website != initialContent.website ||
-            current.address != initialContent.address
+        val draft = if (contentReady) getCurrentUiContent() else retainedDraft ?: return false
+        return !sameFields(draft, initialContent)
     }
 
     private fun saveCurrent(onSuccess: (() -> Unit)? = null) {
-        val current = getCurrentUiContent()
-        if (current.title.isEmpty()) {
-            binding.tilTitle.error = "Title cannot be empty"
+        if (!current(epoch) || !contentReady || loading) return
+        if (saving) {
+            // Back → Save may wait for this same operation; it cannot send a second PUT.
+            if (saveEpoch == epoch && onSuccess != null) afterSuccessfulSave = onSuccess
             return
-        } else {
-            binding.tilTitle.error = null
         }
-
-        if (current.body.isEmpty()) {
-            binding.tilBody.error = "Body content cannot be empty"
-            return
-        } else {
-            binding.tilBody.error = null
-        }
-
-        binding.btnSave.isEnabled = false
-        binding.progressBar.visibility = View.VISIBLE
-
-        lifecycleScope.launch {
+        val draft = getCurrentUiContent()
+        if (draft.title.isBlank()) { binding.tilTitle.error = "Title cannot be empty"; return }
+        binding.tilTitle.error = null
+        if (draft.body.isBlank()) { binding.tilBody.error = "Body content cannot be empty"; return }
+        binding.tilBody.error = null
+        val type = currentType
+        val requestEpoch = epoch
+        saveEpoch = requestEpoch
+        saving = true
+        afterSuccessfulSave = onSuccess
+        ++readGeneration
+        readJob?.cancel()
+        updateControls()
+        saveJob = lifecycleScope.launch {
             try {
-                repo.saveContent(currentType, current)
-                initialContent = current
-                binding.btnSave.isEnabled = true
-                binding.progressBar.visibility = View.GONE
+                val permissions = AdminPermissionSnapshot.load(initiatingEmail, "manage_content",
+                    membership = { adminRepo.isAdminFresh(initiatingUid, initiatingEmail) },
+                    permissions = { requireCurrent(requestEpoch); adminRepo.getAdminMe() })
+                requireCurrent(requestEpoch)
+                if (permissions == null) throw SecurityException("Content editing permission is no longer available")
+                repo.saveContent(type, draft)
+                requireCurrent(requestEpoch)
+                val confirmed = repo.getConfirmedContent(type)
+                requireCurrent(requestEpoch)
+                check(currentType == type && sameFields(confirmed, draft)) { "Save could not be confirmed by the server" }
+                initialContent = confirmed
+                retainedDraft = null
                 AppBulletin.showSuccess(this@EditAboutActivity, "Saved successfully!")
-                onSuccess?.invoke()
-            } catch (e: Exception) {
-                binding.btnSave.isEnabled = true
-                binding.progressBar.visibility = View.GONE
-                AppBulletin.showError(
-                    this@EditAboutActivity,
-                    "Failed to save: ${e.localizedMessage ?: "Unknown error"}"
-                )
+                val action = afterSuccessfulSave
+                afterSuccessfulSave = null
+                // End ownership before a confirmed tab/back continuation starts its own read.
+                saving = false
+                action?.invoke()
+            } catch (cancel: CancellationException) { throw cancel }
+            catch (e: Exception) {
+                if (current(requestEpoch)) AppBulletin.showError(this@EditAboutActivity,
+                    "Failed to save: ${e.localizedMessage ?: "Unknown error"}")
+            } finally {
+                saving = false
+                afterSuccessfulSave = null
+                if (current(requestEpoch)) updateControls()
             }
         }
     }
 
+    private fun showUnsavedConfirmation(leaving: Boolean, proceed: () -> Unit) {
+        if (!current(epoch) || unsavedDialog?.isShowing == true) return
+        val requestEpoch = epoch
+        val type = currentType
+        val dialog = TelegramNativeAlertDialog.Builder(this)
+            .setTitle("Unsaved Changes")
+            .setMessage(if (leaving) "You have unsaved changes. Do you want to save before leaving?"
+                else "You have unsaved changes. Do you want to save before switching?")
+            .setPositiveButton("Save") { _, _ ->
+                if (current(requestEpoch) && currentType == type) saveCurrent(proceed)
+            }
+            .setNegativeButton("Discard") { _, _ ->
+                if (current(requestEpoch) && currentType == type && (leaving || !saving)) proceed()
+            }
+            .setNeutralButton("Cancel") { _, _ ->
+                if (current(requestEpoch)) restoreSelectedTab()
+            }.create()
+        unsavedDialog = dialog
+        dialog.setOnDismissListener { if (unsavedDialog === dialog) unsavedDialog = null }
+        dialog.show()
+    }
     private fun handleBack() {
-        if (isDirty()) {
-            TelegramNativeAlertDialog.Builder(this)
-                .setTitle("Unsaved Changes")
-                .setMessage("You have unsaved changes. Do you want to save before leaving?")
-                .setPositiveButton("Save") { _, _ ->
-                    saveCurrent { finish() }
-                }
-                .setNegativeButton("Discard") { _, _ ->
-                    finish()
-                }
-                .setNeutralButton("Cancel", null)
-                .show()
-        } else {
-            finish()
-        }
+        if (!current(epoch)) return
+        if (isDirty()) showUnsavedConfirmation(leaving = true) { finish() } else if (!saving) finish()
     }
 
+    private fun writeDraft(content: AppContent) = Bundle().apply {
+        putString("title", content.title); putString("body", content.body)
+        putString("supportEmail", content.supportEmail); putString("phone", content.phone)
+        putString("website", content.website); putString("address", content.address)
+    }
+    private fun readDraft(state: Bundle) = AppContent(
+        title = state.getString("title").orEmpty(), body = state.getString("body").orEmpty(),
+        supportEmail = state.getString("supportEmail").orEmpty(), phone = state.getString("phone").orEmpty(),
+        website = state.getString("website").orEmpty(), address = state.getString("address").orEmpty())
+    companion object {
+        private val TYPES = listOf(AppContentRepository.TYPE_PRIVACY, AppContentRepository.TYPE_TERMS, AppContentRepository.TYPE_CONTACT)
+    }
 }
