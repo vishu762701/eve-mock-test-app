@@ -78,13 +78,14 @@ broadcastRoutes.post("/", requirePermission("send_broadcasts"), async (c) => {
   const id = crypto.randomUUID();
   const now = Date.now();
 
+  // The canonical migrations already define target_category. Never run DDL
+  // or try a second INSERT after an arbitrary transactional failure.
   try {
     const insertStmt = db
       .prepare(
         "INSERT INTO notifications (id, title, message, sent_at, sent_by, type, target_category) VALUES (?, ?, ?, ?, ?, ?, ?)"
       )
       .bind(id, title, message, now, user.email, type, targetCategory);
-
     const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
       actionType: "BROADCAST_SENT",
       description: `Sent broadcast '${title}'`,
@@ -93,42 +94,18 @@ broadcastRoutes.post("/", requirePermission("send_broadcasts"), async (c) => {
       metadata: { title, type, targetCategory },
     });
 
-    await db.batch([insertStmt, auditStmt]);
-  } catch {
-    try {
-      await db.prepare("ALTER TABLE notifications ADD COLUMN target_category TEXT DEFAULT 'All Users'").run();
-      const insertStmt = db
-        .prepare(
-          "INSERT INTO notifications (id, title, message, sent_at, sent_by, type, target_category) VALUES (?, ?, ?, ?, ?, ?, ?)"
-        )
-        .bind(id, title, message, now, user.email, type, targetCategory);
-
-      const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
-        actionType: "BROADCAST_SENT",
-        description: `Sent broadcast '${title}'`,
-        targetType: "broadcast",
-        targetId: id,
-        metadata: { title, type, targetCategory },
-      });
-
-      await db.batch([insertStmt, auditStmt]);
-    } catch {
-      const insertStmt = db
-        .prepare(
-          "INSERT INTO notifications (id, title, message, sent_at, sent_by, type) VALUES (?, ?, ?, ?, ?, ?)"
-        )
-        .bind(id, title, message, now, user.email, type);
-
-      const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
-        actionType: "BROADCAST_SENT",
-        description: `Sent broadcast '${title}'`,
-        targetType: "broadcast",
-        targetId: id,
-        metadata: { title, type },
-      });
-
-      await db.batch([insertStmt, auditStmt]);
+    const results = await db.batch([insertStmt, auditStmt]);
+    if (results[0]?.meta?.changes !== 1 || results[1]?.meta?.changes !== 1) {
+      return c.json({
+        success: false, error: "Broadcast publication was not confirmed; refresh before retrying"
+      }, 503);
     }
+  } catch {
+    // A timeout may be ambiguous. Do not fabricate success, mutate schema or
+    // retry an irreversible broadcast without a stable idempotency contract.
+    return c.json({
+      success: false, error: "Broadcast publication is unconfirmed; refresh before retrying"
+    }, 503);
   }
 
   return c.json({ success: true, data: { id, title, message, sentAt: now, targetCategory } }, 201);

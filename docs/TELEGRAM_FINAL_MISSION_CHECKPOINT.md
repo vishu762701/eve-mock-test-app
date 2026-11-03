@@ -4,6 +4,47 @@
 
 Status: PARTIAL. This is a continuation record, not screen acceptance.
 
+## Active P0 continuation — broadcast creation transaction fail-closed
+
+Recovered `main` at `5f63dbd376f624a15a433b613d4348fee0975af9`.
+The previous generated-test Worker transaction repair at `09e537665d684a424058384587ddcbf0384d05cb`
+has exact-SHA FAST `41684900872` SUCCESS; native UI and APK
+publication skipped. The local-wall-time scheduling follow-up was committed
+at `5f63dbd376f624a15a433b613d4348fee0975af9`,
+with exact-SHA FAST `41686061548` SUCCESS (Android/backend/Firebase
+passed; native navigation and APK publication skipped).
+
+Inspected canonical `backend/src/routes/broadcasts.ts`: a failed D1 batch
+for POST /api/broadcasts currently causes a live `ALTER TABLE notifications`
+attempt and retries the publication in a legacy column-less shape.
+`backend/migrations/0001_initial_schema.sql` already defines
+`target_category`; a malformed/missing migration or ambiguous transaction
+error must never authorize runtime schema changes or a second unkeyed
+broadcast insertion. Other broadcast send/delete/selection owners remain
+untouched, and the original UID/permission/confirmation checks are preserved.
+
+Scoped fix: retain the current Hono route, existing D1 table and audit
+builder; perform one atomic insertion+audit batch with exact
+`meta.changes` confirmation for both rows. On missing schema, bad audit
+metadata, D1 failure or absent acknowledgement, return fail-closed 503,
+without DDL or automatic retry. The Android screen already suppresses
+false success and keeps the draft on failure. No schema migration, live
+Worker deployment, Telegram source import or production notification sent.
+The new `backend/test/broadcast_create_failclosed.test.mjs` executes the
+real Hono route against migrated SQLite, injects failures, checks one
+successful row/audit pair, verifies no fallback/DDL, and denies insufficient
+rights. Its test result and exact-SHA FAST must be read after commit rather
+than assumed from this checkpoint.
+
+This is an EVE-specific backend correctness change: Telegram parity
+classification ADAPTED / no literal upstream business endpoint. Earlier
+Admin broadcast owner/confirmation commit `568f48019d71cd59ba1f0b0bd6b3ab571d91173b`
+already succeeded, so this uses the second scoped successful implementation
+opportunity only if its exact-SHA FAST becomes green. Future broadcast
+increment requires a feature-specific budget exception. Physical student
+inbox/account/lifecycle acceptance, Worker production deployment, GPL review
+and FULL/native publication remain separate.
+
 ## Active follow-up — local-wall-time test scheduling
 
 After the generated-test transaction/ack repair at
