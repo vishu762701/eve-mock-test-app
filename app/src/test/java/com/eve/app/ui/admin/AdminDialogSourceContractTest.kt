@@ -87,7 +87,8 @@ class AdminDialogSourceContractTest {
         assertTrue("Manage Users must bind privileged views to the initiating UID",
             users.contains("authorizedUid = FirebaseAuth.getInstance().currentUser?.uid"))
         assertTrue("User actions must fail closed on stale or revoked authority",
-            users.contains("if (!isCurrentOwner(actionOwner))"))
+            users.contains("if (actionPending || !isCurrentOwner(actionOwner))") &&
+                users.contains("if (!isCurrentOwner(actionOwner) ||"))
         assertTrue("Canonical owner guard must recheck Firebase before acting",
             users.contains("gateReady && authorizedUid == uid &&") &&
                 users.contains("FirebaseAuth.getInstance().currentUser?.uid == uid"))
