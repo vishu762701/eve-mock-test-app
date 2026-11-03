@@ -16,7 +16,9 @@ class BookmarksAccountBoundaryTest {
         assertTrue(host.contains("bookmarksAuth.addAuthStateListener(bookmarksAuthListener)"))
         assertTrue(host.contains("bookmarksAuth.removeAuthStateListener(bookmarksAuthListener)"))
         assertTrue(host.contains("if (!hasBookmarksOwner()) { finish(); return@onUnbookmark }"))
-        assertTrue(host.contains("if (!hasBookmarksOwner()) { finish(); return@onUndo }"))
+        assertTrue("Undo must reject a replaced user and a destroyed Activity",
+            host.contains("if (!hasBookmarksOwner() || isFinishing || isDestroyed) {") &&
+                host.contains("return@onUndo"))
         assertTrue(host.contains("private fun renderState(state: UiState<List<BookmarkedQuestion>>) {\n        if (!hasBookmarksOwner())"))
         assertTrue(host.substringAfter("private fun openQuestionInTest(")
             .contains("if (!hasBookmarksOwner()) { finish(); return }"))

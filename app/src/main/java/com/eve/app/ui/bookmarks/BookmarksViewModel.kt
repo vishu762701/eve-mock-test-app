@@ -56,26 +56,26 @@ class BookmarksViewModel : ViewModel() {
         }
     }
 
-    fun unbookmark(questionId: String) {
-        if (!ownsOriginalAccount()) return
-        val uid = originalOwnerUid ?: return
-        viewModelScope.launch {
-            if (!ownsOriginalAccount()) return@launch
-            repository.unbookmarkQuestion(uid, questionId)
-        }
+    // The UI owns presentation, but only the canonical repository's confirmed
+    // server result may trigger removal/Undo or a success bulletin.
+    suspend fun unbookmark(questionId: String): Result<Unit> {
+        if (!ownsOriginalAccount()) return Result.failure(IllegalStateException("Bookmark account changed"))
+        val uid = originalOwnerUid ?: return Result.failure(IllegalStateException("No active account"))
+        val result = repository.unbookmarkQuestion(uid, questionId)
+        if (!ownsOriginalAccount()) return Result.failure(IllegalStateException("Bookmark account changed"))
+        return result
     }
 
-    fun bookmark(bookmark: BookmarkedQuestion) {
-        if (!ownsOriginalAccount()) return
-        val uid = originalOwnerUid ?: return
-        viewModelScope.launch {
-            if (!ownsOriginalAccount()) return@launch
-            repository.bookmarkQuestion(
-                userId = uid,
-                question = bookmark.toQuestion(),
-                examName = bookmark.examName,
-                questionNumber = bookmark.questionNumber
-            )
-        }
+    suspend fun bookmark(bookmark: BookmarkedQuestion): Result<Unit> {
+        if (!ownsOriginalAccount()) return Result.failure(IllegalStateException("Bookmark account changed"))
+        val uid = originalOwnerUid ?: return Result.failure(IllegalStateException("No active account"))
+        val result = repository.bookmarkQuestion(
+            userId = uid,
+            question = bookmark.toQuestion(),
+            examName = bookmark.examName,
+            questionNumber = bookmark.questionNumber
+        )
+        if (!ownsOriginalAccount()) return Result.failure(IllegalStateException("Bookmark account changed"))
+        return result
     }
 }

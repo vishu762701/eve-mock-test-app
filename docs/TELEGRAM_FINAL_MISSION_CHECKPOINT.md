@@ -2049,3 +2049,38 @@ No destructive production test, Worker deployment, additional session owner,
 or change to app-wide appearance settings.
 Status: prepared only until the Home account-bound commit has exact-SHA FAST
 SUCCESS, then this deletion-cleanup feature needs its own exact-SHA FAST.
+
+## 2026-11-03 Bookmarks server-confirmed swipe and Undo (current implementation batch)
+
+Live recovery: remote `main` 0439e46b78475728a51fa43d2376f02ab0cbea13,
+FAST 41605741117 SUCCESS and documentation 41605741049 SUCCESS.
+Earlier BookmarkRepository eager-Firebase constructor regression was repaired at
+8e341ef0a6e617fe48c0f710bcc175aba64b508b (FAST 41600188252 SUCCESS).
+Mistake Notebook 424764bd, Performance/Leaderboard 8aeabea5, Settings/Home
+9ff424bc and 402b3519, and user-deletion cleanup 0439e46b are already
+integrated with their exact-SHA green FAST workflows; never replay them.
+
+New issue in the active BookmarksActivity/BookmarksViewModel path:
+the swipe animation collapsed a row and immediately removed it locally, then
+launched an unobserved `BookmarkRepository.unbookmarkQuestion`. A rejected
+server response or network error left a misleading `Bookmark removed` Undo
+while the server still owned the bookmark. Original Undo could race with the
+pending delete. The canonical Worker DELETE/POST routes are UID-authorized and
+idempotent; no backend modification is needed.
+
+The bounded fix changes only the existing Bookmarks Activity/ViewModel:
+await original-account-confirmed repository Result before offering Undo, track
+pending IDs to ignore duplicate swipes, rebind/reset the collapsed
+`UiArcSwipeRow` on failure, and only show `Bookmark restored` after the
+existing POST result. Same owner's return from TestActivity reloads the
+repository-backed list; a successful restore reloads too. Existing
+`BookmarkAdapter`, `AppUndoBar`, `BookmarkRepository`, Worker routes,
+scoring, UI primitives and permission handling remain intact.
+Four source-integrated JVM regression assertions are in
+`BookmarksConfirmedMutationContractTest.kt`; the preexisting
+`BookmarksAccountBoundaryTest.kt` was updated to assert the stronger
+combined account/lifecycle guard. No server or device mutations were performed.
+
+Status: IMPLEMENTED/STAGED pending carrying commit and exact-SHA FAST. Full
+bookmarks device gesture/failure/rotation testing, broader Telegram parity,
+final six-job FULL CI and GPL approval are separately OPEN.

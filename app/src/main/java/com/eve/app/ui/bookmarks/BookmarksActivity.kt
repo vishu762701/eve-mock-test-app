@@ -33,6 +33,8 @@ class BookmarksActivity : EveBaseActivity() {
     private val viewModel: BookmarksViewModel by viewModels()
     private lateinit var adapter: BookmarkAdapter
     private var hasEmptyPlayed = false
+    private val pendingRemovalIds = mutableSetOf<String>()
+    private var hasResumedOnce = false
     private val bookmarksAuth = FirebaseAuth.getInstance()
     private var bookmarksOwnerUid: String? = null
     private fun hasBookmarksOwner(): Boolean =
@@ -58,40 +60,60 @@ class BookmarksActivity : EveBaseActivity() {
             onOpenQuestion = { bookmark -> openQuestionInTest(bookmark) },
             onUnbookmark = onUnbookmark@{ bookmark ->
                 if (!hasBookmarksOwner()) { finish(); return@onUnbookmark }
-                val currentList = adapter.currentList.toMutableList()
-                val index = currentList.indexOfFirst { it.questionId == bookmark.questionId }
-                if (index >= 0) {
-                    val removedItem = currentList.removeAt(index)
-                    adapter.submitList(currentList)
-                    val empty = currentList.isEmpty()
-                    binding.tvBookmarkCount.visibility = if (empty) View.GONE else View.VISIBLE
-                    binding.tvBookmarkCount.text = "${currentList.size} saved"
-                    binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
-                    binding.rvBookmarks.visibility = if (empty) View.GONE else View.VISIBLE
+                val id = bookmark.questionId
+                if (id.isBlank() || !pendingRemovalIds.add(id)) return@onUnbookmark
 
-                    // Immediate deletion from data source
-                    viewModel.unbookmark(bookmark.questionId)
-
-                    com.eve.app.util.AppUndoBar.show(
-                        context = this@BookmarksActivity,
-                        message = "Bookmark removed",
-                        timeLeftMs = com.eve.app.util.AppUndoBar.TIME_LIGHT,
-                        onUndo = onUndo@{
-                            if (!hasBookmarksOwner()) { finish(); return@onUndo }
-                            viewModel.bookmark(removedItem)
-                            val restoredList = adapter.currentList.toMutableList()
-                            val insertPos = index.coerceAtMost(restoredList.size)
-                            restoredList.add(insertPos, removedItem)
-                            adapter.submitList(restoredList)
-                            binding.tvBookmarkCount.visibility = View.VISIBLE
-                            binding.tvBookmarkCount.text = "${restoredList.size} saved"
-                            binding.messageGroup.visibility = View.GONE
-                            binding.rvBookmarks.visibility = View.VISIBLE
-                            com.eve.app.util.AppBulletin.show(this@BookmarksActivity, "Bookmark restored")
+                // Keep the row visible until the Worker confirms deletion.
+                // A denial or network failure must not display a false success.
+                lifecycleScope.launch {
+                    try {
+                        val result = viewModel.unbookmark(id)
+                        if (!hasBookmarksOwner() || isFinishing || isDestroyed) return@launch
+                        if (result.isFailure) {
+                            // UiArcSwipeRow commits/collapses before invoking its
+                            // callback. Rebind the *same* row after server denial
+                            // so it is neither stranded invisible nor falsely removed.
+                            val failedIndex = adapter.currentList.indexOfFirst { it.questionId == id }
+                            if (failedIndex >= 0) adapter.notifyItemChanged(failedIndex)
+                            com.eve.app.util.AppBulletin.showError(
+                                this@BookmarksActivity,
+                                "Couldn't remove bookmark. Try again."
+                            )
+                            return@launch
                         }
-                    )
-                } else {
-                    viewModel.unbookmark(bookmark.questionId)
+                        if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) return@launch
+                        com.eve.app.util.AppUndoBar.show(
+                            context = this@BookmarksActivity,
+                            message = "Bookmark removed",
+                            timeLeftMs = com.eve.app.util.AppUndoBar.TIME_LIGHT,
+                            onUndo = onUndo@{
+                                if (!hasBookmarksOwner() || isFinishing || isDestroyed) {
+                                    if (!hasBookmarksOwner()) finish()
+                                    return@onUndo
+                                }
+                                lifecycleScope.launch {
+                                    val restored = viewModel.bookmark(bookmark)
+                                    if (!hasBookmarksOwner() || isFinishing || isDestroyed) return@launch
+                                    if (restored.isSuccess) {
+                                        // Refresh the same canonical server-backed list; no
+                                        // second local bookmark state or speculative row.
+                                        viewModel.load()
+                                        com.eve.app.util.AppBulletin.show(
+                                            this@BookmarksActivity, "Bookmark restored"
+                                        )
+                                    } else {
+                                        com.eve.app.util.AppBulletin.showError(
+                                            this@BookmarksActivity,
+                                            "Couldn't restore bookmark. Try again."
+                                        )
+                                        viewModel.load()
+                                    }
+                                }
+                            }
+                        )
+                    } finally {
+                        pendingRemovalIds.remove(id)
+                    }
                 }
             },
             isHindi = { LanguageManager.isHindi(this) }
@@ -136,6 +158,9 @@ class BookmarksActivity : EveBaseActivity() {
         super.onResume()
         if (!hasBookmarksOwner()) { finish(); return }
         hasEmptyPlayed = false
+        // Bookmarks may change in TestActivity using a separate repository
+        // instance. Returning to this screen must refresh its server snapshot.
+        if (hasResumedOnce) viewModel.load() else hasResumedOnce = true
     }
 
     override fun onPause() {
