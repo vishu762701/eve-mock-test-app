@@ -9,6 +9,7 @@ import android.widget.ImageView
 import coil.load
 import com.eve.app.R
 import java.io.ByteArrayOutputStream
+import java.io.BufferedInputStream
 
 /**
  * Task 5: Helper for compressing, encoding, and displaying exam images.
@@ -26,14 +27,49 @@ object ExamImageHelper {
         return sample
     }
 
+    /** Reject non-image document providers before consulting the framework decoder. */
+    internal fun hasImageSignature(bytes: ByteArray, length: Int = bytes.size): Boolean {
+        val count = minOf(length, bytes.size)
+        fun matches(index: Int, values: IntArray): Boolean =
+            index >= 0 && index + values.size <= count &&
+                values.indices.all { (bytes[index + it].toInt() and 255) == values[it] }
+        fun ascii(index: Int, value: String): Boolean =
+            index >= 0 && index + value.length <= count &&
+                value.indices.all { bytes[index + it].toInt() == value[it].code }
+        return matches(0, intArrayOf(255, 216, 255)) || // JPEG
+            matches(0, intArrayOf(137, 80, 78, 71, 13, 10, 26, 10)) || // PNG
+            (ascii(0, "RIFF") && ascii(8, "WEBP")) ||
+            ascii(0, "GIF87a") || ascii(0, "GIF89a") ||
+            ascii(0, "BM") || // BMP
+            matches(0, intArrayOf(73, 73, 42, 0)) || // TIFF little-endian
+            matches(0, intArrayOf(77, 77, 0, 42)) || // TIFF big-endian
+            matches(0, intArrayOf(0, 0, 0, 12, 106, 80, 32, 32, 13, 10, 135, 10)) || // JP2
+            (ascii(4, "ftyp") && listOf(
+                "heic", "heix", "hevc", "hevx", "mif1", "msf1", "avif", "avis"
+            ).any { ascii(8, it) }) // HEIF / AVIF
+    }
+
     private fun encodeSizedImage(context: Context, uri: Uri, target: Int, quality: Int): String? {
         return try {
             val resolver = context.contentResolver
             val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
             val first = resolver.openInputStream(uri) ?: return null
             // With inJustDecodeBounds=true, decodeStream intentionally returns null.
-            // The output dimensions, not its Bitmap return value, establish success.
-            first.use { BitmapFactory.decodeStream(it, null, bounds) }
+            // Inspect real media bytes before trusting a decoder that might
+            // substitute a placeholder for malformed content.
+            BufferedInputStream(first).use { stream ->
+                stream.mark(32)
+                val prefix = ByteArray(16)
+                var count = 0
+                while (count < prefix.size) {
+                    val size = stream.read(prefix, count, prefix.size - count)
+                    if (size <= 0) break
+                    count += size
+                }
+                if (!hasImageSignature(prefix, count)) return null
+                stream.reset()
+                BitmapFactory.decodeStream(stream, null, bounds)
+            }
             if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
 
             val options = BitmapFactory.Options().apply {

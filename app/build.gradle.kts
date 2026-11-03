@@ -208,4 +208,7 @@ tasks.withType<org.gradle.api.tasks.testing.Test>().configureEach {
 // This applies only to host test JVMs, never the shipped Android application.
 tasks.withType<org.gradle.api.tasks.testing.Test>().configureEach {
     jvmArgs("--add-opens=java.base/java.io=ALL-UNNAMED")
+    // Robolectric downloads instrumented SDKs at test runtime, outside Gradle's resolver.
+    // Prefer the canonical Maven Central host rather than repeated repo1 rate limits.
+    systemProperty("robolectric.dependency.repo.url", "https://repo.maven.apache.org/maven2")
 }

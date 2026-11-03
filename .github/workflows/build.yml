@@ -78,6 +78,14 @@ jobs:
         with:
           gradle-version: 8.7
 
+      # Robolectric downloads instrumented Android SDK jars outside Gradle dependency
+      # caching. Reuse genuine jars across CI runs rather than fetching every time.
+      - name: Cache Robolectric runtime SDK jars
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository/org/robolectric/android-all-instrumented
+          key: robolectric-ubuntu-4.14.1-instrumented
+
       - name: Prepare pinned Telegram QR native renderer toolchain
         run: bash .github/scripts/prepare-qr-native.sh
 

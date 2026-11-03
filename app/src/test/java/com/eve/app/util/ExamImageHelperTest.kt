@@ -52,6 +52,21 @@ class ExamImageHelperTest {
         }
     }
 
+    @Test fun genuineMediaSignaturesAreRecognizedWithoutTrustingExtensions() {
+        assertTrue(ExamImageHelper.hasImageSignature(byteArrayOf(
+            0xFF.toByte(), 0xD8.toByte(), 0xFF.toByte(), 0xE0.toByte()
+        )))
+        assertTrue(ExamImageHelper.hasImageSignature(byteArrayOf(
+            137.toByte(), 80, 78, 71, 13, 10, 26, 10
+        )))
+        assertTrue(ExamImageHelper.hasImageSignature(
+            "RIFF0000WEBP".toByteArray(Charsets.US_ASCII)
+        ))
+        assertTrue(!ExamImageHelper.hasImageSignature(
+            "not an image".toByteArray(Charsets.UTF_8)
+        ))
+    }
+
     @Test fun missingAndMalformedContentIsNotSuccessful() {
         val context: android.app.Application = RuntimeEnvironment.getApplication()
         val absent = Uri.fromFile(File(context.cacheDir, "eve-absent-upload.png"))
