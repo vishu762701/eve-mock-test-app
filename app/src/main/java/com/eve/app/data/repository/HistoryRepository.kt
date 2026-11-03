@@ -92,7 +92,10 @@ class HistoryRepository(
         if (!res.success) {
             throw Exception(res.error ?: "Failed to fetch attempts")
         }
-        return (res.data ?: emptyList()).sortedByDescending { it.timestamp }
+        // success=true without a list is malformed, not proof of zero attempts.
+        return (res.data ?: throw IllegalStateException(
+            "Server history list is missing; retry before trusting an empty history"
+        )).sortedByDescending { it.timestamp }
     }
 
     /** Reset attempt and lock for an exam so user can reattempt. */

@@ -1891,3 +1891,28 @@ No production attempt/scoring endpoint or Firestore rules are modified.
 Code remains STAGED and unverified until current notification write-lock
 exact-SHA FAST passes and this batch receives its own exact-SHA FAST.
 The all-device/auth-switch instrumentation matrix and final FULL remain OPEN.
+
+## Student repository owner and malformed-success hardening (prepared follow-up)
+
+The canonical BookmarkRepository holds mutable in-memory StateFlows per instance.
+Before this scoped repair its explicit userId parameter was never checked against
+the live authenticated UID. It also accepted late read/mutation responses after
+an account swap, potentially publishing stale ids and rows in the retained
+repository. The existing repository now binds its construction-time UID,
+reuses SubmissionRetryPolicy's exact-match predicate, verifies owner before
+requests and after suspensions, and preserves coroutine cancellation while
+returning Result failure on a mismatched account. No new cache, identity
+authority, API endpoint or backend rules were added.
+
+The existing HistoryRepository previously converted a success envelope with
+null list data into an empty history. That is not evidence the student has
+zero attempts. Its same list method now rejects malformed data while genuine
+empty lists and descending timestamps behave as before.
+
+Targeted JVM host tests: BookmarkRepositoryOwnerContractTest (owner matrix,
+actual source read/mutation guards, cancellation) and
+HistoryMalformedResponseTest (real repository with fake API and empty/null/
+ordered response matrix). This batch is PREPARED ONLY and may be integrated
+after exact-SHA FAST of the owner-bound student Activity/ViewModel commit.
+The original server rights/scoring, device/QR hardware parity and legal FULL
+release gates remain unchanged.
