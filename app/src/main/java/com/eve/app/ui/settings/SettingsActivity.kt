@@ -469,6 +469,17 @@ class SettingsActivity : EveBaseActivity() {
                 com.eve.app.data.local.PendingSubmissionStore(this@SettingsActivity).clearAllForUser(user.uid)
                 com.eve.app.util.AttemptLimitManager.clearLocalForUser(this@SettingsActivity, user.uid)
                 ProfilePhotoManager.removePhoto(this@SettingsActivity, user.uid)
+                com.eve.app.ui.mistakes.MistakesPreferenceScope.clearDeletedUser(
+                    this@SettingsActivity, user.uid
+                )
+                // Continue-exam and submitted search terms are private to the
+                // deleted account. Do not clear another user's or unowned prefs.
+                com.eve.app.ui.home.HomeRecentExamStore.clearDeletedUser(
+                    this@SettingsActivity, user.uid
+                )
+                com.eve.app.ui.home.HomeSearchHistory.clear(
+                    this@SettingsActivity, user.uid
+                )
                 // Never wipe the ownerless legacy preferences file: it also holds
                 // app-wide appearance settings and historic unowned notification
                 // entries that cannot safely be attributed to this UID.

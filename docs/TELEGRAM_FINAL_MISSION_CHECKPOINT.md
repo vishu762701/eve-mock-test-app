@@ -2033,3 +2033,19 @@ No duplicate Home controller, popup,
 session manager or navigation destination; no backend behavior changes.
 `HomeAccountLifecycleContractTest.kt` protects source-order and listener
 lifetime. This is prepared only pending the Settings/Home fix exact-SHA FAST.
+
+## 2026-11-03 delete-account owner-scoped local data cleanup (prepared)
+
+After the source-derived Mistake Notebook account separation and Home's
+`HomeRecentExamStore` partitioning, the original Settings deletion cleanup
+did not erase those owner-specific preferences or `HomeSearchHistory`.
+The prepared follow-up extends the **existing confirmed-success** deletion
+path to clear precisely the deleted UID's learned flags, Continue exam and
+submitted search history. Global/legacy ownerless preferences and all other
+users remain untouched. A Robolectric fixture exercises two identities plus
+the legacy key, and a source-order regression ensures cleanup follows both
+server and Firebase credential deletion, not a failed request.
+No destructive production test, Worker deployment, additional session owner,
+or change to app-wide appearance settings.
+Status: prepared only until the Home account-bound commit has exact-SHA FAST
+SUCCESS, then this deletion-cleanup feature needs its own exact-SHA FAST.

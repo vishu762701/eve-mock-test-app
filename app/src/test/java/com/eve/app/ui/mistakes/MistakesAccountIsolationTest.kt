@@ -43,6 +43,30 @@ class MistakesAccountIsolationTest {
         }
     }
 
+    @Test fun accountDeletionClearsOnlyOwnerLearnedFlags() {
+        val context = RuntimeEnvironment.getApplication()
+        val keyA = MistakesPreferenceScope.namespaceForUser("student-a")
+        val keyB = MistakesPreferenceScope.namespaceForUser("student-b")
+        val a = context.getSharedPreferences(keyA, Context.MODE_PRIVATE)
+        val b = context.getSharedPreferences(keyB, Context.MODE_PRIVATE)
+        val legacy = context.getSharedPreferences("eve_mistakes", Context.MODE_PRIVATE)
+        try {
+            a.edit().putStringSet("learned_ids", setOf("a-only")).commit()
+            b.edit().putStringSet("learned_ids", setOf("b-only")).commit()
+            legacy.edit().putStringSet("learned_ids", setOf("legacy")).commit()
+            MistakesPreferenceScope.clearDeletedUser(context, "student-a")
+            assertTrue(a.getStringSet("learned_ids", emptySet()).isNullOrEmpty())
+            assertEquals(setOf("b-only"), b.getStringSet("learned_ids", emptySet()))
+            assertEquals(setOf("legacy"), legacy.getStringSet("learned_ids", emptySet()))
+            MistakesPreferenceScope.clearDeletedUser(context, "")
+            assertEquals(setOf("b-only"), b.getStringSet("learned_ids", emptySet()))
+        } finally {
+            a.edit().clear().commit()
+            b.edit().clear().commit()
+            legacy.edit().clear().commit()
+        }
+    }
+
     @Test fun ownerChangeAndRestorationAreRejected() {
         assertTrue(SubmissionRetryPolicy.ownsSubmission("uid-a", "uid-a"))
         assertFalse(SubmissionRetryPolicy.ownsSubmission("uid-a", "uid-b"))
@@ -76,4 +100,16 @@ class MistakesAccountIsolationTest {
         assertTrue(failure.contains("Check your connection and tap to retry"))
         assertTrue(failure.contains("binding.messageGroup.isFocusable = true"))
     }
+    @Test fun deletionCleanupIsAfterServerAndFirebaseConfirmation() {
+        val settings = File("src/main/java/com/eve/app/ui/settings/SettingsActivity.kt").readText()
+        val delete = settings.substringAfter("private fun executeAccountDeletion()")
+            .substringBefore("private fun promptReauthentication()")
+        val server = delete.indexOf("ApiClient.apiService.deleteAccount()")
+        val credential = delete.indexOf("user.delete().await()", server)
+        val learnedCleanup = delete.indexOf("MistakesPreferenceScope.clearDeletedUser(", credential)
+        val sessionClear = delete.indexOf("SessionManager.clear()", learnedCleanup)
+        assertTrue(server >= 0 && credential > server &&
+            learnedCleanup > credential && sessionClear > learnedCleanup)
+    }
+
 }
