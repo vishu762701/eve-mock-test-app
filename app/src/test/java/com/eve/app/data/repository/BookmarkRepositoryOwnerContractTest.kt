@@ -31,7 +31,9 @@ class BookmarkRepositoryOwnerContractTest {
         assertFalse("Never touch FirebaseAuth during BookmarkRepository initialization",
             repo.contains("private val initialOwnerUid = FirebaseAuth.getInstance()"))
         for (call in listOf("api.getBookmarkIds()", "api.getBookmarks()")) {
-            val start = repo.indexOf("val res = $call")
+            // Assert the actual suspended request and post-await owner guard,
+            // not an incidental local variable name (res/response).
+            val start = repo.indexOf(call)
             val guard = repo.indexOf("if (!accepts(userId)) return@flow", start)
             assertTrue("$call must verify session after await", start >= 0 && guard > start)
         }

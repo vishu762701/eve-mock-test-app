@@ -2110,3 +2110,21 @@ new data source or competing UI state owner is introduced. This batch remains
 STAGED (not tested/committed) until preceding exact-SHA FAST succeeds.
 Device error-state/Undo gestures, source-exact Telegram parity, protected FULL
 and human release/legal approval remain separate outstanding requirements.
+
+## 2026-11-03 Bookmarks initial-read assertion repair
+
+Exact-SHA FAST 41608844817 for 91c8c6a0fa0c528ea821cefcc0faea1c3fac8394
+FAILED Android JVM step with 1,025 tests / one failure:
+`BookmarkRepositoryOwnerContractTest.asynchronousReadsCannotPublishForeignBookmarkRows`.
+The source-only assertion hardcoded `val res = api.getBookmarks()`; the updated
+production read legitimately renamed that local to `response` while retaining
+the post-await `if (!accepts(userId)) return@flow`. The first GET and guard
+ordering were independently checked on live source before this repair.
+
+The forward-only correction changes only the test's matching rule to search
+for the real `api.getBookmarks()` call, followed by the mandatory owner
+guard. This tests the same contract more strongly, regardless of local naming.
+No production source, Worker route or assertion logic is removed; earlier
+confirmed empty/null/error truth-table tests remain intact. The carrying
+repair's own exact-SHA FAST is pending, and the PYQ independent feature
+must not advance until that gate is SUCCESS.
