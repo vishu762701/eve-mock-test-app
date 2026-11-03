@@ -9,6 +9,7 @@ import com.eve.app.data.repository.BookmarkRepository
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.data.repository.HistoryRepository
 import com.eve.app.util.AttemptKey
+import com.eve.app.util.SubmissionRetryPolicy
 import com.eve.app.util.UiState
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Job
@@ -65,6 +66,10 @@ class TestViewModel : ViewModel() {
         private set
     var currentUserId: String = ""
         private set
+    private fun ownsActiveAccount(): Boolean =
+        SubmissionRetryPolicy.ownsSubmission(
+            currentUserId, FirebaseAuth.getInstance().currentUser?.uid
+        )
     var currentExamId: String = ""
         private set
     var restoredQuestionIndex: Int = 0
@@ -109,6 +114,7 @@ class TestViewModel : ViewModel() {
         if (user != null) {
             viewModelScope.launch {
                 bookmarkRepo.observeBookmarkIds(user.uid).collect { ids ->
+                    if (!ownsActiveAccount()) return@collect
                     cachedBookmarkedIds = ids
                     val curList = (_questions.value as? UiState.Success)?.data
                     if (curList != null) {
@@ -145,6 +151,9 @@ class TestViewModel : ViewModel() {
                 if (isStandardMock && user != null && effectiveExamId.isNotBlank()) {
                     try {
                         val startRes = com.eve.app.data.remote.ApiClient.api.startAttempt(mapOf("examId" to effectiveExamId, "resumeAttemptId" to existingSession?.clientAttemptId.orEmpty()))
+                        // A server response can arrive after Firebase switches users,
+                        // while the host Activity is still being destroyed.
+                        if (!ownsActiveAccount()) return@launch
                         if (startRes.success && startRes.data != null) {
                             val d = startRes.data
                             if (d.alreadySubmitted) {
@@ -172,6 +181,7 @@ class TestViewModel : ViewModel() {
                             }
                         }
                     } catch (e: retrofit2.HttpException) {
+                        if (!ownsActiveAccount()) return@launch
                         if (e.code() == 409 && !isAdmin) {
                             val canStillAttempt = com.eve.app.util.AttemptLimitManager.canAttempt(com.eve.app.EveApplication.instance, examId)
                             if (!canStillAttempt) {
@@ -188,6 +198,7 @@ class TestViewModel : ViewModel() {
                     } catch (e: kotlinx.coroutines.CancellationException) {
                         throw e
                     } catch (_: Exception) {
+                        if (!ownsActiveAccount()) return@launch
                         if (existingSession != null && existingSession.elapsedSeconds > 0) {
                             remainingSec = (timeLimitMinutes * 60L - existingSession.elapsedSeconds).coerceAtLeast(0)
                         }
@@ -275,6 +286,7 @@ class TestViewModel : ViewModel() {
                     }
                 }
 
+                if (!ownsActiveAccount()) return@launch
                 if (list.isEmpty()) {
                     started = false
                     _questions.value = UiState.Error("No questions found for this test. Please try again later.")
@@ -285,6 +297,7 @@ class TestViewModel : ViewModel() {
                     // A plain exam can resolve to its latest generated test; start that exact key.
                     existingSession = sessionStore.getSession(currentExamId, currentUserId)
                     val startResponse = com.eve.app.data.remote.ApiClient.api.startAttempt(mapOf("examId" to currentExamId, "resumeAttemptId" to existingSession?.clientAttemptId.orEmpty()))
+                    if (!ownsActiveAccount()) return@launch
                     val session = startResponse.data
                     check(startResponse.success && session != null) { startResponse.error ?: "Could not start this test" }
                     if (session.alreadySubmitted) {
@@ -302,6 +315,7 @@ class TestViewModel : ViewModel() {
                         clientAttemptId = it
                     }
                 }
+                if (!ownsActiveAccount()) return@launch
                 val restoredSession = existingSession
                 if (com.eve.app.data.local.TestSessionPolicy.canRestore(restoredSession, currentUserId, currentExamId, clientAttemptId)) {
                     checkNotNull(restoredSession)
@@ -335,6 +349,7 @@ class TestViewModel : ViewModel() {
             } catch (e: kotlinx.coroutines.CancellationException) {
                 throw e
             } catch (e: Exception) {
+                if (!ownsActiveAccount()) return@launch
                 started = false
                 _questions.value = UiState.Error(e.toUserFriendlyMessage())
             }

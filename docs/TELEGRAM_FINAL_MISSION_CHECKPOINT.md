@@ -1788,3 +1788,23 @@ completed exact-SHA FAST 41591963720 SUCCESS. The Quiz Activity implementation
 is the current carrying batch and requires its own exact-SHA FAST. No production
 endpoint, Firebase rules, D1 data, ABI or release flag changes.
 Source-exact Telegram/runtime matrix and protected final FULL remain OPEN.
+
+## Quiz ViewModel suspended-response isolation (prepared follow-up)
+
+Following the integrated Quiz Activity host owner/lifecycle boundary, the existing
+`TestViewModel.start` still awaited server attempt or question requests before
+its final state mutations, without checking whether the captured Firebase owner
+had been replaced. A narrowly scoped follow-up uses the existing
+`SubmissionRetryPolicy.ownsSubmission` predicate after each startAttempt
+suspension, after question loading, before session restoration/question
+publication, inside error handling and before bookmark collection updates.
+No new ViewModel, state owner, repository, endpoint, scoring, test timing or
+data format was introduced. Targeted `TestViewModelNetworkOwnerTest.kt`
+covers same/other/absent owner and actual source ordering.
+
+Carry as ONE coherent follow-up to the same Quiz account isolation feature,
+subject to the earlier host commit's exact-SHA FAST success. Until this
+follow-up is committed and its own exact-SHA FAST succeeds, mark the change
+PREPARED, not MET. Physical UI, two native navigation modes, QR scene parity,
+protected six-job FULL, verified APK publication and human GPL release
+authorization remain OUTSTANDING. No production Worker or D1 deployment.
