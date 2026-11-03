@@ -89,7 +89,8 @@ class FeedbackRepository(
         if (!res.success || res.data == null) {
             throw Exception(res.error ?: "Failed to create feedback post")
         }
-        res.data["id"] ?: ""
+        res.data["id"]?.trim()?.takeIf { it.isNotBlank() }
+            ?: throw IllegalStateException("Feedback post was not confirmed by the server")
     }
 
     suspend fun getFeedbackPosts(): List<FeedbackPost> {

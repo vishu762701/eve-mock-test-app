@@ -30,6 +30,30 @@ class FeedbackFailureTest {
         catch (_: CancellationException) { }
     }
 
+    @Test fun malformedFeedbackCreateAcknowledgementsNeverBecomeSuccess() = runBlocking {
+        for (response in listOf(
+            ApiResponse<Map<String, String>>(success = true, data = null),
+            ApiResponse(success = true, data = emptyMap<String, String>()),
+            ApiResponse(success = true, data = mapOf("id" to "")),
+            ApiResponse(success = true, data = mapOf("id" to "  ")),
+            ApiResponse(success = false, data = mapOf("id" to "incorrect"), error = "Denied")
+        )) {
+            val result = repo(response).createFeedbackPost("Announcement", "Message", "uid", "admin@example.org")
+            assertTrue("Missing/malformed Worker ID must not confirm publication", result.isFailure)
+        }
+    }
+
+    @Test fun validFeedbackCreateIdIsPreservedAndCancellationPropagates() = runBlocking {
+        val confirmed = repo(ApiResponse(success = true, data = mapOf("id" to "worker-created-id")))
+            .createFeedbackPost("Announcement", "Message", "uid", "admin@example.org")
+        assertEquals("worker-created-id", confirmed.getOrThrow())
+        try {
+            repo(CancellationException("Screen stopped"))
+                .createFeedbackPost("Title", "Message", "uid", "admin@example.org")
+            fail("Cancellation must not become an ordinary Result failure")
+        } catch (_: CancellationException) { }
+    }
+
     @Test fun failedMutationsAreReturnedForUiRollback() = runBlocking {
         val repository = repo(ApiResponse<Any>(false,null,error="No longer available"))
         assertTrue(repository.markReplyAsRead("post","reply").isFailure)

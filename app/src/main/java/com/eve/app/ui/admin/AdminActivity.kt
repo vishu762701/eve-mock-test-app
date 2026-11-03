@@ -789,43 +789,76 @@ class AdminActivity : EveBaseActivity() {
             .makeRed(DialogInterface.BUTTON_POSITIVE).show()
     }
 
+    private fun currentFeedbackOwner(uid: String, email: String): Boolean {
+        val user = FirebaseAuth.getInstance().currentUser
+        return adminUiReady && !isFinishing && !isDestroyed &&
+            lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED) &&
+            AdminIdentityGuard.allowed(true, uid, email, user?.uid, user?.email)
+    }
+
+    private suspend fun requireFreshFeedbackRight(uid: String, email: String) {
+        if (!currentFeedbackOwner(uid, email)) throw CancellationException("Feedback owner changed")
+        val permission = AdminPermissionSnapshot.load(
+            email, "moderate_feedback",
+            membership = { adminRepo.isAdminFresh(uid, email) },
+            permissions = { adminRepo.getAdminMe() }
+        )
+        if (!currentFeedbackOwner(uid, email)) throw CancellationException("Feedback owner changed")
+        if (permission == null) throw SecurityException("Feedback moderation permission expired")
+    }
+
     private fun showCreateFeedbackPostDialog() {
+        val initiatingUser = FirebaseAuth.getInstance().currentUser ?: return
+        val uid = initiatingUser.uid
+        val email = initiatingUser.email.orEmpty()
         val dialogBinding = DialogCreateFeedbackPostBinding.inflate(layoutInflater)
         val dialog = TelegramNativeAlertDialog.Builder(this)
             .setView(dialogBinding.root)
             .create()
+        var pending = false
 
-        dialogBinding.btnCancelPost.setOnClickListener { dialog.dismiss() }
+        fun ownerCurrent(): Boolean =
+            dialog.isShowing && currentFeedbackOwner(uid, email)
+
+        dialogBinding.btnCancelPost.setOnClickListener { if (!pending) dialog.dismiss() }
 
         dialogBinding.btnPublishPost.setOnClickListener {
+            if (!ownerCurrent() || pending) return@setOnClickListener
             val title = dialogBinding.etPostTitle.text?.toString()?.trim().orEmpty()
             val message = dialogBinding.etPostMessage.text?.toString()?.trim().orEmpty()
-
             if (title.isEmpty()) {
                 dialogBinding.tilPostTitle.error = "Title cannot be empty"
                 return@setOnClickListener
             }
             dialogBinding.tilPostTitle.error = null
-
             if (message.isEmpty()) {
                 dialogBinding.tilPostMessage.error = "Message cannot be empty"
                 return@setOnClickListener
             }
             dialogBinding.tilPostMessage.error = null
 
-            val user = FirebaseAuth.getInstance().currentUser
-            val authorId = user?.uid ?: ""
-            val authorEmail = user?.email ?: ""
-
+            pending = true
             dialogBinding.btnPublishPost.isEnabled = false
             lifecycleScope.launch {
-                val result = feedbackRepo.createFeedbackPost(title, message, authorId, authorEmail)
-                dialogBinding.btnPublishPost.isEnabled = true
-                result.onSuccess {
+                try {
+                    requireFreshFeedbackRight(uid, email)
+                    if (!ownerCurrent()) return@launch
+                    // Repository validates the non-empty Worker-created post ID, not only success=true.
+                    val confirmedId = feedbackRepo.createFeedbackPost(title, message, uid, email).getOrThrow()
+                    if (!ownerCurrent()) return@launch
+                    if (confirmedId.isBlank()) throw IllegalStateException("Feedback post was not confirmed")
                     AppBulletin.showSuccess(this@AdminActivity, "Feedback post published successfully!")
                     dialog.dismiss()
-                }.onFailure { err ->
-                    AppBulletin.showError(this@AdminActivity, "Failed to publish: ${err.localizedMessage ?: "Unknown error"}")
+                } catch (cancel: CancellationException) {
+                    throw cancel
+                } catch (e: Exception) {
+                    if (ownerCurrent()) {
+                        AppBulletin.showError(this@AdminActivity, "Failed to publish: " +
+                            (e.localizedMessage ?: "Server did not confirm the post"))
+                    }
+                } finally {
+                    pending = false
+                    if (ownerCurrent()) dialogBinding.btnPublishPost.isEnabled = true
                 }
             }
         }
@@ -1124,39 +1157,54 @@ class AdminActivity : EveBaseActivity() {
     }
 
     private fun showManageFeedbackPostsDialog() {
+        val initiating = FirebaseAuth.getInstance().currentUser ?: return
+        val uid = initiating.uid
+        val email = initiating.email.orEmpty()
+        if (!currentFeedbackOwner(uid, email)) return
         lifecycleScope.launch {
-            val posts = try { feedbackRepo.getFeedbackPosts() }
-            catch (e: CancellationException) { throw e }
-            catch (e: Exception) {
-                AppBulletin.showError(this@AdminActivity, e.toUserFriendlyMessage())
-                return@launch
-            }
-            if (posts.isEmpty()) {
-                TelegramNativeAlertDialog.Builder(this@AdminActivity)
-                    .setTitle("Feedback Posts")
-                    .setMessage("No feedback posts published yet.")
-                    .setPositiveButton("OK", null)
-                    .show()
-                return@launch
-            }
-
-            val titles = posts.map { "${it.title} (${it.message.take(30)}...)" }.toTypedArray()
-            TelegramNativeAlertDialog.Builder(this@AdminActivity)
-                .setTitle("Select Feedback Post to View Replies")
-                .setItems(titles) { _, which ->
-                    showPostOptionsDialog(posts[which])
+            try {
+                requireFreshFeedbackRight(uid, email)
+                val posts = feedbackRepo.getFeedbackPosts()
+                if (!currentFeedbackOwner(uid, email)) return@launch
+                if (posts.isEmpty()) {
+                    TelegramNativeAlertDialog.Builder(this@AdminActivity)
+                        .setTitle("Feedback Posts")
+                        .setMessage("No feedback posts published yet.")
+                        .setPositiveButton("OK", null)
+                        .show()
+                    return@launch
                 }
-                .setNegativeButton("Cancel", null)
-                .show()
+                val labels = posts.map { "${it.title} (${it.message.take(30)}...)" }.toTypedArray()
+                TelegramNativeAlertDialog.Builder(this@AdminActivity)
+                    .setTitle("Select Feedback Post to View Replies")
+                    .setItems(labels) { _, index ->
+                        if (currentFeedbackOwner(uid, email)) {
+                            posts.getOrNull(index)?.let(::showPostOptionsDialog)
+                        }
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+            } catch (cancel: CancellationException) { throw cancel }
+            catch (e: Exception) {
+                if (currentFeedbackOwner(uid, email)) {
+                    AppBulletin.showError(this@AdminActivity, e.toUserFriendlyMessage())
+                }
+            }
         }
     }
 
     private fun showPostOptionsDialog(post: FeedbackPost) {
+        val initiating = FirebaseAuth.getInstance().currentUser ?: return
+        val uid = initiating.uid
+        val email = initiating.email.orEmpty()
+        if (!currentFeedbackOwner(uid, email) || post.id.isBlank()) return
+        var deletePending = false
         val options = arrayOf("✏️ Edit Post", "👁️ View Replies", "🗑️ Delete Post")
         TelegramNativeAlertDialog.Builder(this)
             .setTitle(post.title)
-            .setItems(options) { _, which ->
-                when (which) {
+            .setItems(options) { _, index ->
+                if (!currentFeedbackOwner(uid, email)) return@setItems
+                when (index) {
                     0 -> showEditFeedbackPostDialog(post)
                     1 -> showPostRepliesDialog(post)
                     2 -> {
@@ -1164,11 +1212,23 @@ class AdminActivity : EveBaseActivity() {
                             .setTitle("Delete Post?")
                             .setMessage("Delete '${post.title}' and all its replies? This cannot be undone.")
                             .setPositiveButton("Delete") { _, _ ->
+                                if (deletePending || !currentFeedbackOwner(uid, email)) return@setPositiveButton
+                                deletePending = true
                                 lifecycleScope.launch {
-                                    feedbackRepo.deleteFeedbackPost(post.id).onSuccess {
-                                        AppBulletin.showSuccess(this@AdminActivity, "Post deleted successfully")
-                                    }.onFailure { err ->
-                                        AppBulletin.showError(this@AdminActivity, "Failed to delete: ${err.message}")
+                                    try {
+                                        requireFreshFeedbackRight(uid, email)
+                                        if (!currentFeedbackOwner(uid, email)) return@launch
+                                        feedbackRepo.deleteFeedbackPost(post.id).getOrThrow()
+                                        if (currentFeedbackOwner(uid, email)) {
+                                            AppBulletin.showSuccess(this@AdminActivity, "Post deleted successfully")
+                                        }
+                                    } catch (cancel: CancellationException) { throw cancel }
+                                    catch (e: Exception) {
+                                        if (currentFeedbackOwner(uid, email)) {
+                                            AppBulletin.showError(this@AdminActivity, e.toUserFriendlyMessage())
+                                        }
+                                    } finally {
+                                        deletePending = false
                                     }
                                 }
                             }
@@ -1182,6 +1242,10 @@ class AdminActivity : EveBaseActivity() {
     }
 
     private fun showEditFeedbackPostDialog(post: FeedbackPost) {
+        val initiating = FirebaseAuth.getInstance().currentUser ?: return
+        val uid = initiating.uid
+        val email = initiating.email.orEmpty()
+        if (!currentFeedbackOwner(uid, email) || post.id.isBlank()) return
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             val pad = resources.getDimensionPixelSize(R.dimen.design_screen_margin)
@@ -1205,26 +1269,42 @@ class AdminActivity : EveBaseActivity() {
             .setNegativeButton("Cancel", null)
             .create()
         dialog.show()
-        val saveButton = dialog.getActionButton(DialogInterface.BUTTON_POSITIVE)
-        saveButton?.setOnClickListener {
-            val newTitle = etTitle.text?.toString()?.trim().orEmpty()
-            val newMsg = etMessage.text?.toString()?.trim().orEmpty()
-            if (newTitle.isEmpty() || newMsg.isEmpty()) {
+        val button = dialog.getActionButton(DialogInterface.BUTTON_POSITIVE)
+        button?.setOnClickListener {
+            if (!currentFeedbackOwner(uid, email) || !dialog.isShowing || !button.isEnabled) return@setOnClickListener
+            val title = etTitle.text?.toString()?.trim().orEmpty()
+            val message = etMessage.text?.toString()?.trim().orEmpty()
+            if (title.isEmpty() || message.isEmpty()) {
                 AppBulletin.showError(this, "Title and message are required.")
                 return@setOnClickListener
             }
-            saveButton.isEnabled = false
+            button.isEnabled = false
             lifecycleScope.launch {
-                feedbackRepo.updateFeedbackPost(post.id, newTitle, newMsg).onSuccess {
-                    dialog.dismiss()
-                    AppBulletin.showSuccess(this@AdminActivity, "Post updated")
-                }.onFailure { AppBulletin.showError(this@AdminActivity, it.toUserFriendlyMessage()) }
-                saveButton.isEnabled = true
+                try {
+                    requireFreshFeedbackRight(uid, email)
+                    if (!currentFeedbackOwner(uid, email) || !dialog.isShowing) return@launch
+                    feedbackRepo.updateFeedbackPost(post.id, title, message).getOrThrow()
+                    if (currentFeedbackOwner(uid, email) && dialog.isShowing) {
+                        dialog.dismiss()
+                        AppBulletin.showSuccess(this@AdminActivity, "Post updated")
+                    }
+                } catch (cancel: CancellationException) { throw cancel }
+                catch (e: Exception) {
+                    if (currentFeedbackOwner(uid, email) && dialog.isShowing) {
+                        AppBulletin.showError(this@AdminActivity, e.toUserFriendlyMessage())
+                    }
+                } finally {
+                    if (currentFeedbackOwner(uid, email) && dialog.isShowing) button.isEnabled = true
+                }
             }
         }
     }
 
     private fun showPostRepliesDialog(post: FeedbackPost) {
+        val initiating = FirebaseAuth.getInstance().currentUser ?: return
+        val uid = initiating.uid
+        val email = initiating.email.orEmpty()
+        if (!currentFeedbackOwner(uid, email) || post.id.isBlank()) return
         val dialogBinding = DialogPostRepliesBinding.inflate(layoutInflater)
         val dialog = TelegramNativeAlertDialog.Builder(this)
             .setView(dialogBinding.root)
@@ -1236,35 +1316,57 @@ class AdminActivity : EveBaseActivity() {
         var currentReplies: List<FeedbackPostReply> = emptyList()
         val pendingReplies = mutableSetOf<String>()
         var dialogActive = true
+        var deletePostPending = false
+        fun active(): Boolean = dialogActive && dialog.isShowing && currentFeedbackOwner(uid, email)
         dialog.setOnDismissListener { dialogActive = false }
 
         lateinit var repliesAdapter: PostRepliesAdapter
         repliesAdapter = PostRepliesAdapter(
             onMarkRead = { reply ->
-                if (!pendingReplies.add(reply.id)) return@PostRepliesAdapter
+                if (!active() || reply.id.isBlank() || !pendingReplies.add(reply.id)) return@PostRepliesAdapter
                 lifecycleScope.launch {
-                    feedbackRepo.markReplyAsRead(post.id, reply.id).onSuccess {
-                        currentReplies = currentReplies.map { if (it.id == reply.id) it.copy(read = true) else it }
-                        repliesAdapter.submitList(currentReplies)
-                        AppBulletin.showSuccess(this@AdminActivity, "Marked as read")
-                    }.onFailure { AppBulletin.showError(this@AdminActivity, it.toUserFriendlyMessage()) }
-                    pendingReplies.remove(reply.id)
+                    try {
+                        requireFreshFeedbackRight(uid, email)
+                        if (!active()) return@launch
+                        feedbackRepo.markReplyAsRead(post.id, reply.id).getOrThrow()
+                        if (active()) {
+                            currentReplies = currentReplies.map { if (it.id == reply.id) it.copy(read = true) else it }
+                            repliesAdapter.submitList(currentReplies)
+                            AppBulletin.showSuccess(this@AdminActivity, "Marked as read")
+                        }
+                    } catch (cancel: CancellationException) { throw cancel }
+                    catch (e: Exception) {
+                        if (active()) AppBulletin.showError(this@AdminActivity, e.toUserFriendlyMessage())
+                    } finally {
+                        pendingReplies.remove(reply.id)
+                    }
                 }
             },
             onDelete = { reply ->
+                if (!active() || reply.id.isBlank() || pendingReplies.contains(reply.id)) return@PostRepliesAdapter
                 TelegramNativeAlertDialog.Builder(this)
                     .setTitle("Delete Reply?")
                     .setMessage("Delete reply from ${reply.name}?")
                     .setPositiveButton("Delete") { _, _ ->
+                        if (!active() || !pendingReplies.add(reply.id)) return@setPositiveButton
                         lifecycleScope.launch {
-                            if (!pendingReplies.add(reply.id)) return@launch
-                            feedbackRepo.deleteSingleReply(post.id, reply.id).onSuccess {
-                                currentReplies = currentReplies.filter { it.id != reply.id }
-                                repliesAdapter.submitList(currentReplies)
-                                dialogBinding.tvNoReplies.visibility = if (currentReplies.isEmpty()) View.VISIBLE else View.GONE
-                                AppBulletin.showSuccess(this@AdminActivity, "Reply deleted")
-                            }.onFailure { AppBulletin.showError(this@AdminActivity, it.toUserFriendlyMessage()) }
-                            pendingReplies.remove(reply.id)
+                            try {
+                                requireFreshFeedbackRight(uid, email)
+                                if (!active()) return@launch
+                                feedbackRepo.deleteSingleReply(post.id, reply.id).getOrThrow()
+                                if (active()) {
+                                    currentReplies = currentReplies.filter { it.id != reply.id }
+                                    repliesAdapter.submitList(currentReplies)
+                                    dialogBinding.tvNoReplies.visibility =
+                                        if (currentReplies.isEmpty()) View.VISIBLE else View.GONE
+                                    AppBulletin.showSuccess(this@AdminActivity, "Reply deleted")
+                                }
+                            } catch (cancel: CancellationException) { throw cancel }
+                            catch (e: Exception) {
+                                if (active()) AppBulletin.showError(this@AdminActivity, e.toUserFriendlyMessage())
+                            } finally {
+                                pendingReplies.remove(reply.id)
+                            }
                         }
                     }
                     .setNegativeButton("Cancel", null)
@@ -1276,17 +1378,30 @@ class AdminActivity : EveBaseActivity() {
         dialogBinding.rvReplies.adapter = repliesAdapter
 
         dialogBinding.btnDeletePostFromReplies.setOnClickListener {
+            if (!active() || deletePostPending) return@setOnClickListener
             TelegramNativeAlertDialog.Builder(this)
                 .setTitle("Delete Post?")
                 .setMessage("Delete '${post.title}' from Home screen? All its student replies will also be permanently deleted.")
                 .setPositiveButton("Delete") { _, _ ->
+                    if (!active() || deletePostPending) return@setPositiveButton
+                    deletePostPending = true
                     dialogBinding.btnDeletePostFromReplies.isEnabled = false
                     lifecycleScope.launch {
-                        feedbackRepo.deleteFeedbackPost(post.id).onSuccess {
-                            dialog.dismiss()
-                            AppBulletin.showSuccess(this@AdminActivity, "Post deleted")
-                        }.onFailure { AppBulletin.showError(this@AdminActivity, it.toUserFriendlyMessage()) }
-                        dialogBinding.btnDeletePostFromReplies.isEnabled = true
+                        try {
+                            requireFreshFeedbackRight(uid, email)
+                            if (!active()) return@launch
+                            feedbackRepo.deleteFeedbackPost(post.id).getOrThrow()
+                            if (active()) {
+                                dialog.dismiss()
+                                AppBulletin.showSuccess(this@AdminActivity, "Post deleted")
+                            }
+                        } catch (cancel: CancellationException) { throw cancel }
+                        catch (e: Exception) {
+                            if (active()) AppBulletin.showError(this@AdminActivity, e.toUserFriendlyMessage())
+                        } finally {
+                            deletePostPending = false
+                            if (active()) dialogBinding.btnDeletePostFromReplies.isEnabled = true
+                        }
                     }
                 }
                 .setNegativeButton("Cancel", null)
@@ -1294,23 +1409,26 @@ class AdminActivity : EveBaseActivity() {
         }
 
         dialogBinding.btnCloseReplies.setOnClickListener { dialog.dismiss() }
-
         dialogBinding.progressBarReplies.visibility = View.VISIBLE
+        dialog.show()
         lifecycleScope.launch {
             try {
+                requireFreshFeedbackRight(uid, email)
+                if (!active()) return@launch
                 val replies = feedbackRepo.getRepliesForPost(post.id)
-                if (dialogActive) {
+                if (active()) {
                     currentReplies = replies
                     repliesAdapter.submitList(currentReplies)
-                    dialogBinding.tvNoReplies.visibility = if (currentReplies.isEmpty()) View.VISIBLE else View.GONE
+                    dialogBinding.tvNoReplies.visibility =
+                        if (currentReplies.isEmpty()) View.VISIBLE else View.GONE
                 }
-            } catch (e: CancellationException) { throw e }
+            } catch (cancel: CancellationException) { throw cancel }
             catch (e: Exception) {
-                if (dialogActive) AppBulletin.showError(this@AdminActivity, e.toUserFriendlyMessage())
-            } finally { dialogBinding.progressBarReplies.visibility = View.GONE }
+                if (active()) AppBulletin.showError(this@AdminActivity, e.toUserFriendlyMessage())
+            } finally {
+                if (active()) dialogBinding.progressBarReplies.visibility = View.GONE
+            }
         }
-
-        dialog.show()
     }
 
     private fun exportExamData() {
