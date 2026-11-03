@@ -49,15 +49,18 @@ class GeneratedTestsActivity : EveBaseActivity() {
                 .setTitleText("Select Opening Time")
                 .build()
 
-            timePicker.addOnPositiveButtonClickListener {
-                val cal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC")).apply {
-                    timeInMillis = selectedDateUtc
-                    set(java.util.Calendar.HOUR_OF_DAY, timePicker.hour)
-                    set(java.util.Calendar.MINUTE, timePicker.minute)
-                    set(java.util.Calendar.SECOND, 0)
-                    set(java.util.Calendar.MILLISECOND, 0)
+            timePicker.addOnPositiveButtonClickListener timeSelected@{
+                val targetMillis = try {
+                    com.eve.app.util.TestScheduleHelper.localOpeningTimeFromPicker(
+                        selectedDateUtc, timePicker.hour, timePicker.minute
+                    )
+                } catch (_: IllegalArgumentException) {
+                    AppBulletin.showError(
+                        this@GeneratedTestsActivity,
+                        "This local opening time does not exist. Select a different time."
+                    )
+                    return@timeSelected
                 }
-                val targetMillis = cal.timeInMillis
 
                 lifecycleScope.launch {
                     try {

@@ -4,6 +4,26 @@
 
 Status: PARTIAL. This is a continuation record, not screen acceptance.
 
+## Active follow-up — local-wall-time test scheduling
+
+After the generated-test transaction/ack repair at
+`09e537665d684a424058384587ddcbf0384d05cb`, a distinct
+schedule-display bug was found in the existing `GeneratedTestsActivity`:
+the Material date picker selects a calendar day represented by UTC midnight,
+but the previous time picker assembled the selected clock time in UTC.
+For Asia/Kolkata, choosing 09:00 would schedule 14:30 local, despite
+`TestScheduleHelper.formatOpensAt` using the device's local time zone.
+The discrepancy is present directly in production source, not inferred
+from a screenshot.
+
+The prepared narrow fix reuses the existing `TestScheduleHelper`, maps the
+UTC date marker to the selected local day and interprets the clock time in
+the device zone; strict DST checks reject nonexistent wall times rather than
+silently adding an hour. No other scheduler, API, or database contract changes.
+The new focused JVM test covers UTC, Asia/Kolkata, America/Los_Angeles, invalid
+hour/minute and spring-forward gaps. Carrying exact-SHA FAST and native/device
+acceptance must be recorded after execution; not asserted by this note.
+
 ## Active P0 continuation — generated-test mutation acknowledgments
 
 Recovered remote main at `5f18770767abe8c33acfb288a687f68e88f00abd`;
