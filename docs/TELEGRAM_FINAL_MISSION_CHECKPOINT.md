@@ -1828,3 +1828,25 @@ notification owner, mutation handler or API call was introduced.
 Status: STAGED ONLY, subject to previous exact-SHA FAST green and its own
 FAST. Full Android device behavior, Telegram visual parity, final six-job FULL,
 physical validation, APK publication and human GPL clearance are still OPEN.
+
+## Admin Hub resume permission freshness (independent staged defect)
+
+Existing AdminActivity only called its fresh AdminAccessGate during onCreate.
+On resume from a child screen, it refreshed maintenance config but not the
+server's current Admin rights. After server-side role revocation or promotion,
+the Hub could retain outdated row visibility/search destinations until a full
+Activity recreation, despite backend request-time enforcement.
+
+The scoped existing-Activity repair uses AdminAccessGate's already-verified
+one-lease-per-root design on return from STOPPED, reapplies freshly approved
+permissions and the current search query, and reloads the permitted summary
+without re-running one-time UI setup or collectors. The same existing
+applyAdminPermissions path now treats the Owner as having all visible Hub rights
+and preserves the Version settings click listener across role promotion.
+A live maintenance dialog suppresses redundant background config refresh.
+Source-path regression lives in AdminHubPermissionResumeTest.kt.
+Backend rights, endpoints and permissions remain unchanged; no new framework.
+
+Status: STAGED ONLY pending exact-SHA FAST of the prior independent
+NotificationStore data-resilience commit. Android device permission/recreation
+matrix, release distribution/legal clearance and six-job FULL remain open.

@@ -75,6 +75,8 @@ class AdminActivity : EveBaseActivity() {
     private var maintenanceBusy = false
     private var maintenanceReadRequired = true
     private var adminUiReady = false
+    // Revalidate once after returning from a child screen, never replay setup.
+    private var adminRightsRefreshOnResume = false
     private var dashboardPager: AdminDashboardPager? = null
     private var maintenanceDialog: TelegramNativeAlertDialog? = null
 
@@ -128,6 +130,12 @@ class AdminActivity : EveBaseActivity() {
             applyAdminPermissions(permissions)
             adminUiReady = true
             loadData(permissions)
+            // The initial permission request may have completed while stopped.
+            // Recheck at RESUMED rather than trusting that older snapshot.
+            if (adminRightsRefreshOnResume &&
+                lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) {
+                refreshAdminRightsAfterStop()
+            }
         }
     }
 
@@ -357,15 +365,12 @@ class AdminActivity : EveBaseActivity() {
         val canConfigure = adminMe.isOwner || "manage_config_maintenance" in adminMe.rights
         binding.rowVersionStatus.isEnabled = canConfigure
         binding.rowVersionStatus.isClickable = canConfigure
-        if (!canConfigure) binding.rowVersionStatus.setOnClickListener(null)
+        // Keep the original navigation listener installed. Disabling the row
+        // is sufficient; a later server promotion must restore its clickability.
 
-        if (adminMe.isOwner) {
-            setupSearchIndex(adminMe)
-            dashboardPager?.refreshAccess()
-            return
-        }
-
-        fun has(right: String): Boolean = adminMe.rights.contains(right)
+        // Owner may gain or lose rights while Hub is paused. The same renderer
+        // must restore previously hidden rows when the current server role is Owner.
+        fun has(right: String): Boolean = adminMe.isOwner || adminMe.rights.contains(right)
 
         // SECTION 1: CONTENT
         binding.rowExams.visibility = if (has("manage_exams")) View.VISIBLE else View.GONE
@@ -500,10 +505,10 @@ class AdminActivity : EveBaseActivity() {
         }
     }
 
-    private fun loadData(permissions: AdminMeData) {
+    private fun loadData(permissions: AdminMeData, refreshMaintenance: Boolean = true) {
         viewModel.loadExams()
         if (permissions.isOwner || "manage_users" in permissions.rights) viewModel.loadUserStats()
-        loadMaintenanceConfig()
+        if (refreshMaintenance) loadMaintenanceConfig()
     }
 
     private fun loadMaintenanceConfig() {
@@ -584,9 +589,29 @@ class AdminActivity : EveBaseActivity() {
         }
     }
 
+    override fun onStop() {
+        // Covers a first-time gate that completes after the Activity is stopped.
+        adminRightsRefreshOnResume = true
+        super.onStop()
+    }
+
     override fun onResume() {
         super.onResume()
-        if (adminUiReady && maintenanceDialog == null) loadMaintenanceConfig()
+        refreshAdminRightsAfterStop()
+    }
+
+    private fun refreshAdminRightsAfterStop() {
+        if (!adminUiReady || !adminRightsRefreshOnResume || isFinishing || isDestroyed) return
+        adminRightsRefreshOnResume = false
+        // The existing shared gate hides the root and replaces its old lease.
+        // Reapply current rights, not click listeners/collectors or a second hub.
+        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) { permissions ->
+            applyAdminPermissions(permissions)
+            if (binding.telegramActionBar.isSearchExpanded) {
+                performSearch(binding.telegramActionBar.searchEditText.text?.toString().orEmpty())
+            }
+            loadData(permissions, refreshMaintenance = maintenanceDialog == null)
+        }
     }
 
     override fun onDestroy() {
