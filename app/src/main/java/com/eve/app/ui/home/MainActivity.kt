@@ -121,6 +121,9 @@ class MainActivity : EveBaseActivity() {
     // ActionBarMenuItem.java:779-782: a second tap toggles the SAME popup closed.
     // Do not stack separate focusable windows on repeated overflow taps.
     private var homeOverflowPopup: TelegramMenuPopup? = null
+    private var homeOwnerUid = ""
+    private val searchOwnerCurrent: Boolean
+        get() = homeOwnerUid.isNotBlank() && FirebaseAuth.getInstance().currentUser?.uid == homeOwnerUid
     private var isSearchActive = false
     private var searchTransitionAnimator: android.animation.AnimatorSet? = null
     private var currentSearchQuery = ""
@@ -284,6 +287,8 @@ class MainActivity : EveBaseActivity() {
             goToLogin()
             return
         }
+
+        homeOwnerUid = user.uid
 
         Log.e("EVE_STARTUP", "stage: inflate")
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -614,6 +619,7 @@ class MainActivity : EveBaseActivity() {
      */
     private fun restoreSearchPresentation(savedInstanceState: Bundle?) {
         if (savedInstanceState?.getBoolean("home_search_active") != true) return
+        if (!searchOwnerCurrent || savedInstanceState.getString("home_search_owner_uid") != homeOwnerUid) return
         isSearchActive = true
         homeListPositionBeforeSearch = savedInstanceState.getParcelable("home_search_list_position")
         val query = savedInstanceState.getString("home_search_query").orEmpty()
@@ -632,6 +638,16 @@ class MainActivity : EveBaseActivity() {
         binding.etSearch.alpha = 1f
         binding.chipGroupCategory.visibility = View.GONE
         refreshSearchChrome()
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        val ownState = searchOwnerCurrent && savedInstanceState.getString("home_search_owner_uid") == homeOwnerUid
+        // Android restores EditText again after onCreate. Preserve the original
+        // same-account hierarchy/cursor, but never replay a foreign/untagged tree.
+        val state = if (ownState) savedInstanceState else Bundle(savedInstanceState).apply {
+            remove("android:viewHierarchyState")
+        }
+        super.onRestoreInstanceState(state)
     }
 
     /** UI-only related suggestions from real EVE exams; never fabricated entries. */
@@ -1714,11 +1730,16 @@ class MainActivity : EveBaseActivity() {
         outState.putBoolean(HomeGreetingMotion.KEY_HAS_ANIMATED_GREETING, hasAnimatedWelcome)
         if (::binding.isInitialized) {
             outState.putParcelable("theme_home_list_state", binding.rvExams.layoutManager?.onSaveInstanceState())
-            outState.putBoolean("home_search_active", isSearchActive)
-            if (isSearchActive) outState.putParcelable("home_search_list_position", homeListPositionBeforeSearch)
-            if (isSearchActive) {
-                // Save the actual input, not the last (possibly debounced) search result.
-                outState.putString("home_search_query", binding.etSearch.text?.toString().orEmpty())
+            outState.putString("home_search_owner_uid", homeOwnerUid)
+            if (searchOwnerCurrent) {
+                outState.putBoolean("home_search_active", isSearchActive)
+                if (isSearchActive) outState.putParcelable("home_search_list_position", homeListPositionBeforeSearch)
+                if (isSearchActive) {
+                    // Save the actual input, not the last (possibly debounced) search result.
+                    outState.putString("home_search_query", binding.etSearch.text?.toString().orEmpty())
+                }
+            } else {
+                outState.putBoolean("home_search_active", false)
             }
         }
     }

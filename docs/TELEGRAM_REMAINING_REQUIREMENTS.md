@@ -1124,3 +1124,36 @@ byte imports and git diff --check PASS. One preceding local run's indentation li
 error was repaired; no suppression/baseline or assertion removal. Historical bare
 SDK35 thread diagnostic remains UNKNOWN; no blanket crash-free/device claim.
 Carrying exact-SHA FAST pending. Backend/Firebase source unchanged from green base.
+
+## D3 Home search SavedState owner boundary (investigation)
+
+Recovery c57dfa64693047e3e0b76530d4e930e4cd0baba1 FAST41575420756 and
+docs41575420725 SUCCESS. R1: a recreated Home must not restore another UID's query
+or pending search/list presentation. R2: automatic Android hierarchy restoration
+must obey the same boundary. R3: same-UID recreation/theme, current filtering,
+selected category, IME/source fade and native callbacks remain functional. R4:
+reproduce using actual MainActivity callbacks before any repair, with offline SDK/
+transport only. Prior Mission11 search deliveries285a9528 and460e093d are green;
+prepare a concrete reviewed repair and reconcile the two-successful-commit limit
+before any additional Home-search integration. No new screen/state manager or
+speculative seam/physics change. Current missing-owner source observation is still
+INFERRED until the production-path test executes.
+
+Two Home production restoration defects are now reproduced; same-owner control
+passes. The tested repair and source/requirement evidence are in
+HOME_SEARCH_OWNER_REPAIR.md. Integration BLOCKED only on the section2 commit-budget
+exception, not another product redesign or release approval.
+
+Local complete validation PASS: ./gradlew :app:testDebugUnitTest
+:app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug
+-Peve.nativeAbis=x86_64 (2m52s), 956 tests / 203 suites, zero failures/errors/skips;
+lint 0 errors / 1629 warnings. Native Home8 cases PASS; helper59, docs81, acceptance
+structure, four byte-identical imports and git diff --check PASS. No new backend,
+production service, permission or Telegram source import. This result is local-only;
+no additional Home search commit or exact-SHA FAST until owner exception arrives.
+
+Owner explicitly authorized ONE additional Home search repair commit on2026-11-03:
+"Haan, ek additional repair commit authorize hai". Reviewed patch/file hashes matched
+unchanged live c57dfa64 before application. The section2 integration blocker is
+resolved for this single repair; carrying commit/exact-SHA FAST pending. No release,
+FULL, production or additional future-success exception is implied.

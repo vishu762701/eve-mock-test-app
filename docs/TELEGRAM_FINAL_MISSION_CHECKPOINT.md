@@ -6,7 +6,7 @@ Status: PARTIAL. This is a continuation record, not screen acceptance.
 
 ## Live verified implementation pointer — 2026-11-03
 
-Latest verified implementation main: **9fdeca47309ea9da0f228119591c410a70b4e057**.
+Latest verified implementation main: **c57dfa64693047e3e0b76530d4e930e4cd0baba1**.
 Official Telegram rechecked after implementation: **3de37c8cfb039452be7398909461da6288babf15**.
 Reconcile this pointer with the carrying implementation commit and live main/CI on restart.
 
@@ -43,6 +43,8 @@ Reconcile this pointer with the carrying implementation commit and live main/CI 
 | Bounded import document/cell identity | d638d3b20a4c10e6462b6d95adb8f35fada3a584 | [41571297755](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41571297755) SUCCESS |
 
 | Standalone question deletion confirmation | 9fdeca47309ea9da0f228119591c410a70b4e057 | [41573024314](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41573024314) SUCCESS |
+
+| Account-bound attempt/result handoff | c57dfa64693047e3e0b76530d4e930e4cd0baba1 | [41575420756](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41575420756) SUCCESS |
 
 Each FAST passed Android build/JVM/AndroidTest source compilation, all four ABI
 builds, pinned Rust security/C API, backend and Firebase. Historical scanner-batch docs 41403654877
@@ -1681,3 +1683,45 @@ two-commit budget before any additional integration, and obtain a concrete teste
 repair exception if applicable. The search-owner risk is still INFERRED, not a proven
 defect. Standalone ManageQuestions picker lifecycle also remains open; preserve
 existing import batches and do not manufacture a third iteration under a new name.
+
+## 2026-11-03 Home search owner repair prepared for exception review
+
+Recovered c57dfa64693047e3e0b76530d4e930e4cd0baba1 FAST41575420756
+and docs41575420725 SUCCESS; artifacts zero, native navigation/publication skipped.
+Attempt/result ownership batch is integrated and must not be replayed.
+Actual full MainActivity tests now reproduce manual and Android-hierarchy foreign
+search restoration; same-account control PASS. Existing UID-tagged restore repair
+preserves native cursor and original search renderer/physics, no new state owner.
+Source/requirement ledger: HOME_SEARCH_OWNER_REPAIR.md.
+
+Local complete validation PASS: ./gradlew :app:testDebugUnitTest
+:app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug
+-Peve.nativeAbis=x86_64 (2m52s), 956 tests / 203 suites, zero failures/errors/skips;
+lint 0 errors / 1629 warnings. Native Home8 cases PASS; helper59, docs81, acceptance
+structure, four byte-identical imports and git diff --check PASS. No new backend,
+production service, permission or Telegram source import. This result is local-only;
+no additional Home search commit or exact-SHA FAST until owner exception arrives.
+
+Two prior search commits reverified live:285a95288e7ee08eb9ef22d744965f8e7421627e
+FAST40995030992 SUCCESS and460e093d30f55631c46e16a20c937da444d01c7b
+FAST41005412909 SUCCESS. Section2 therefore requires an owner exception for one
+additional repair commit. The earlier category exception was consumed by d2b649f5
+and is not reused. Preserve the reviewed patch and all its assertions; no integration
+claim before approval/commit/exact-SHA FAST. Whole mission remains NOT MET, QR OPEN;
+no FULL, signing, release-variable change, production write/deploy/migration or
+verified APK publication. Separate Delete/Undo choice and cutoff rollout remain
+pending. Next action after exception: fetch/reconcile, apply reviewed patch if archived,
+commit once to main, observe exact-SHA FAST and repair red before other features.
+
+### Home exception authorization received
+
+On2026-11-03 the owner replied "Haan, ek additional repair commit authorize hai"
+to the reviewed Home confidentiality repair. Live main remained c57dfa64, clean;
+patch SHA256 c996573268a71ac25bfa30ba041e5b2b0a0fffe3e33b6f74ad7c395c37873a77
+and all eight full file hashes reverified. Exact tested source/test bytes reapplied;
+only documentation then changed to record approval. Local956/203/lint0/1629/build
+evidence remains applicable. Integrate once, require exact-SHA FAST, repair any red
+forward before unrelated work. This Home exception is separate from the consumed
+category exception. Next independent investigation after green: ManageUsers read/
+detail response ownership and malformed data (source observations only; no new
+implementation started while Home approval was pending).

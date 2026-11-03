@@ -41,6 +41,7 @@ public final class ProfileEditorAuthFixture {
         private TestUser() { super(null, Collections.emptyList()); }
         @Override public String getUid() { return testUid; }
         @Override public String getDisplayName() { return "Owner"; }
+        @Override public android.net.Uri getPhotoUrl() { return null; }
         @Override public String getEmail() { return "owner@example.test"; }
     }
     /** Ordinary test overrides avoid running SDK instance methods on an uninitialized shell. */
