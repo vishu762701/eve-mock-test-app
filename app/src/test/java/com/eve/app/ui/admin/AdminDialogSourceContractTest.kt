@@ -84,7 +84,13 @@ class AdminDialogSourceContractTest {
         assertTrue(syllabus.contains("examRepo.updateExamFullSettings("))
         val users = File(activities[1]).readText()
         assertTrue(users.contains("adminRepo.toggleUserStatus(user.id, disable)"))
-        assertTrue(users.contains("authorizedUid != FirebaseAuth.getInstance().currentUser?.uid"))
+        assertTrue("Manage Users must bind privileged views to the initiating UID",
+            users.contains("authorizedUid = FirebaseAuth.getInstance().currentUser?.uid"))
+        assertTrue("User actions must fail closed on stale or revoked authority",
+            users.contains("if (!isCurrentOwner(actionOwner))"))
+        assertTrue("Canonical owner guard must recheck Firebase before acting",
+            users.contains("gateReady && authorizedUid == uid &&") &&
+                users.contains("FirebaseAuth.getInstance().currentUser?.uid == uid"))
         val analytics = File(activities[2]).readText()
         assertTrue(analytics.contains("examRepo.updateQuestion(updated)"))
     }

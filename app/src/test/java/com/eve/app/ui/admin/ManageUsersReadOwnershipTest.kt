@@ -20,9 +20,12 @@ class ManageUsersReadOwnershipTest {
             .substringBefore("private fun renderPagination(")
         assertTrue(load.contains("val ownerAtRequest = authorizedUid"))
         val network = load.indexOf("adminRepo.getUsersPage(queryAtRequest, pageAtRequest)")
-        val guard = load.indexOf("if (!isCurrentOwner(ownerAtRequest)")
+        val initialGuard = load.indexOf("if (!isCurrentOwner(ownerAtRequest)) return")
+        val guard = load.indexOf("if (!isCurrentOwner(ownerAtRequest)", network)
         val submit = load.indexOf("adapter.submitList(response.users)")
-        assertTrue(network >= 0 && guard > network && submit > guard)
+        assertTrue("Request must be authorized before fetch and revalidated after await",
+            initialGuard >= 0 && initialGuard < network &&
+                network >= 0 && guard > network && submit > guard)
         assertTrue(load.substringAfter("catch (e: Exception)").contains("isCurrentOwner(ownerAtRequest)"))
         assertTrue(load.contains("pageAtRequest != currentPage || queryAtRequest != query"))
     }
