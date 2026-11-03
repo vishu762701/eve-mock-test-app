@@ -49,6 +49,8 @@ class ManageQuestionsActivity : EveBaseActivity() {
 
     private var exams: List<Exam> = emptyList()
     private var selectedExamForImageUpdate: Exam? = null
+    private var imageReadJob: Job? = null
+    private var imageRequestGeneration = 0L
     private var pendingBulkOwner: QuestionBulkImportOrigin? = null
     private var pendingBulkUri: Uri? = null
     private var bulkReadJob: Job? = null
@@ -73,20 +75,55 @@ class ManageQuestionsActivity : EveBaseActivity() {
                 questionOwnerUid, questionOwnerEmail, live?.uid, live?.email)
         }
 
+    private fun ownsImageExam(exam: Exam): Boolean =
+        adminScreenAuthorized && questionIdentityCurrent &&
+            selectedExamForImageUpdate?.id == exam.id &&
+            viewModel.questionExamId == exam.id &&
+            exams.any { it.id == exam.id }
+
     private val pickEditExamImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         val exam = selectedExamForImageUpdate ?: return@registerForActivityResult
-        if (!questionIdentityCurrent || viewModel.questionExamId != exam.id) {
+        if (uri == null || !ownsImageExam(exam) || viewModel.busy.value) {
             selectedExamForImageUpdate = null
             return@registerForActivityResult
         }
-        if (uri != null) {
-            val base64 = ExamImageHelper.uriToBase64(this, uri)
-            if (base64 != null) {
-                viewModel.updateExamImage(exam.id, base64) {
-                    selectedExamForImageUpdate = null
+        val generation = ++imageRequestGeneration
+        imageReadJob?.cancel()
+        imageReadJob = lifecycleScope.launch {
+            try {
+                val encoded = withContext(Dispatchers.IO) {
+                    ExamImageHelper.uriToBase64(applicationContext, uri)
                 }
-            } else {
-                AppBulletin.showError(this, "Failed to load image")
+                if (generation != imageRequestGeneration || !ownsImageExam(exam)) return@launch
+                if (encoded == null) {
+                    AppBulletin.showError(this@ManageQuestionsActivity, "Failed to load image")
+                    return@launch
+                }
+                val adminRepo = AdminRepository()
+                val grant = AdminPermissionSnapshot.load(
+                    questionOwnerEmail, "manage_exams",
+                    membership = { adminRepo.isAdminFresh(questionOwnerUid, questionOwnerEmail) },
+                    permissions = { adminRepo.getAdminMe() }
+                )
+                if (generation != imageRequestGeneration || !ownsImageExam(exam)) return@launch
+                if (grant == null) {
+                    AppBulletin.showError(this@ManageQuestionsActivity, "Exam image permission is unavailable")
+                    return@launch
+                }
+                // AdminViewModel and the Worker own the confirmed mutation.
+                viewModel.updateExamImage(exam.id, encoded) {}
+                selectedExamForImageUpdate = null
+            } catch (cancel: CancellationException) {
+                throw cancel
+            } catch (_: Exception) {
+                if (generation == imageRequestGeneration && ownsImageExam(exam)) {
+                    AppBulletin.showError(this@ManageQuestionsActivity, "Failed to read exam image")
+                }
+            } finally {
+                if (generation == imageRequestGeneration) {
+                    imageReadJob = null
+                    if (selectedExamForImageUpdate?.id == exam.id) selectedExamForImageUpdate = null
+                }
             }
         }
     }
@@ -240,6 +277,8 @@ class ManageQuestionsActivity : EveBaseActivity() {
     }
 
     private fun showEditExamImageDialog() {
+        if (!questionIdentityCurrent || !adminScreenAuthorized ||
+            viewModel.busy.value || imageReadJob?.isActive == true) return
         val exam = exams.getOrNull(binding.spExam.selectedItemPosition)
         if (exam == null) {
             AppBulletin.showError(this, "Please select an exam first")
@@ -560,6 +599,9 @@ class ManageQuestionsActivity : EveBaseActivity() {
     }
 
     override fun onDestroy() {
+        ++imageRequestGeneration
+        imageReadJob?.cancel()
+        imageReadJob = null
         clearPendingBulkImport()
         renameExamDialog?.dismiss()
         renameExamDialog = null

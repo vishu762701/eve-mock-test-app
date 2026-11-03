@@ -15,65 +15,66 @@ import java.io.ByteArrayOutputStream
  */
 object ExamImageHelper {
 
-    fun uriToBase64(context: Context, uri: Uri): String? {
+    /** Use power-of-two decode sampling to bound untrusted image memory before resizing. */
+    internal fun decodeSampleSize(width: Int, height: Int, target: Int): Int {
+        if (width <= 0 || height <= 0 || target <= 0) return 1
+        var sample = 1
+        val longest = maxOf(width.toLong(), height.toLong())
+        while (sample < (1 shl 30) && longest / sample > target.toLong() * 2L) {
+            sample = sample shl 1
+        }
+        return sample
+    }
+
+    private fun encodeSizedImage(context: Context, uri: Uri, target: Int, quality: Int): String? {
         return try {
-            val input = context.contentResolver.openInputStream(uri) ?: return null
-            val original = BitmapFactory.decodeStream(input)
-            input.close()
-            if (original == null) return null
+            val resolver = context.contentResolver
+            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            val first = resolver.openInputStream(uri) ?: return null
+            // With inJustDecodeBounds=true, decodeStream intentionally returns null.
+            // The output dimensions, not its Bitmap return value, establish success.
+            first.use { BitmapFactory.decodeStream(it, null, bounds) }
+            if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
 
-            val maxDim = maxOf(original.width, original.height)
-            val scale = if (maxDim > 256) 256f / maxDim else 1f
-            val scaled = if (scale < 1f) {
-                Bitmap.createScaledBitmap(
-                    original,
-                    (original.width * scale).toInt().coerceAtLeast(1),
-                    (original.height * scale).toInt().coerceAtLeast(1),
-                    true
-                )
-            } else {
-                original
+            val options = BitmapFactory.Options().apply {
+                inSampleSize = decodeSampleSize(bounds.outWidth, bounds.outHeight, target)
             }
-
-            val out = ByteArrayOutputStream()
-            scaled.compress(Bitmap.CompressFormat.JPEG, 70, out)
-            val bytes = out.toByteArray()
-            val b64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
-            "data:image/jpeg;base64,$b64"
+            val second = resolver.openInputStream(uri) ?: return null
+            val original = second.use { BitmapFactory.decodeStream(it, null, options) } ?: return null
+            try {
+                val longest = maxOf(original.width, original.height)
+                val scale = if (longest > target) target.toFloat() / longest else 1f
+                val scaled = if (scale < 1f) {
+                    Bitmap.createScaledBitmap(
+                        original,
+                        (original.width * scale).toInt().coerceAtLeast(1),
+                        (original.height * scale).toInt().coerceAtLeast(1),
+                        true
+                    )
+                } else original
+                try {
+                    val output = ByteArrayOutputStream()
+                    if (!scaled.compress(Bitmap.CompressFormat.JPEG, quality, output)) return null
+                    "data:image/jpeg;base64," + Base64.encodeToString(output.toByteArray(), Base64.NO_WRAP)
+                } finally {
+                    if (scaled !== original) scaled.recycle()
+                }
+            } finally {
+                original.recycle()
+            }
         } catch (_: Exception) {
+            null
+        } catch (_: OutOfMemoryError) {
+            // Reject an exceptionally large/corrupt provider image instead of crashing the editor.
             null
         }
     }
 
-    fun uriToBannerBase64(context: Context, uri: Uri): String? {
-        return try {
-            val input = context.contentResolver.openInputStream(uri) ?: return null
-            val original = BitmapFactory.decodeStream(input)
-            input.close()
-            if (original == null) return null
+    fun uriToBase64(context: Context, uri: Uri): String? =
+        encodeSizedImage(context, uri, target = 256, quality = 70)
 
-            val maxDim = maxOf(original.width, original.height)
-            val scale = if (maxDim > 1024) 1024f / maxDim else 1f
-            val scaled = if (scale < 1f) {
-                Bitmap.createScaledBitmap(
-                    original,
-                    (original.width * scale).toInt().coerceAtLeast(1),
-                    (original.height * scale).toInt().coerceAtLeast(1),
-                    true
-                )
-            } else {
-                original
-            }
-
-            val out = ByteArrayOutputStream()
-            scaled.compress(Bitmap.CompressFormat.JPEG, 75, out)
-            val bytes = out.toByteArray()
-            val b64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
-            "data:image/jpeg;base64,$b64"
-        } catch (_: Exception) {
-            null
-        }
-    }
+    fun uriToBannerBase64(context: Context, uri: Uri): String? =
+        encodeSizedImage(context, uri, target = 1024, quality = 75)
 
     fun loadExamImage(imageView: ImageView, imageUrl: String?, onFailure: (() -> Unit)? = null) {
         if (imageUrl.isNullOrBlank()) {
