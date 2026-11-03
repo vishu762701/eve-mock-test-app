@@ -29,7 +29,7 @@ import org.robolectric.shadows.ShadowDialog
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk=[35], application=Application::class,
     shadows=[ProfileEditorAuthFixture.ShadowAuth::class, EditExamBoundaryFixture.AdminBoundary::class,
-        SystemMonitorBoundaryFixture.Transport::class],
+        AdminApiTransportFixture.Transport::class],
     instrumentedPackages=["com.eve.app.data.repository", "com.eve.app.data.remote"])
 class SystemMonitorOwnershipTest {
     private val viewRight = "view_analytics_logs"
@@ -39,6 +39,7 @@ class SystemMonitorOwnershipTest {
         ProfileEditorAuthFixture.reset(); ProfileEditorAuthFixture.setOwner("owner-a")
         EditExamBoundaryFixture.reset(); rights(viewRight, retryRight)
         SystemMonitorBoundaryFixture.reset()
+        AdminApiTransportFixture.current=SystemMonitorBoundaryFixture.transport()
         SystemMonitorBoundaryFixture.overview = overview(3)
         SystemMonitorBoundaryFixture.health = response("""{"database":{"status":"verified","detail":"Local fixture"}}""")
         SystemMonitorBoundaryFixture.operations = response("""{"nextOffset":null,"jobs":[{
@@ -47,6 +48,7 @@ class SystemMonitorOwnershipTest {
     }
     @After fun after() {
         ShadowDialog.getLatestDialog()?.dismiss()
+        AdminApiTransportFixture.current=null
         ProfileEditorAuthFixture.reset(); EditExamBoundaryFixture.reset(); SystemMonitorBoundaryFixture.reset()
     }
     private fun rights(vararg values: String) {

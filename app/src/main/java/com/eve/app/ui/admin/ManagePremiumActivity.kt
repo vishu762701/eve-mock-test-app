@@ -34,6 +34,7 @@ class ManagePremiumActivity : EveBaseActivity() {
     private var authorizedEmail = ""
     private var adminReady = false
     private var mutationPending = false
+    private var mutationEpoch = 0L
     private var readGeneration = 0L
     private var transactionsGeneration = 0L
     private var usersGeneration = 0L
@@ -48,27 +49,33 @@ class ManagePremiumActivity : EveBaseActivity() {
     private fun canPublish(): Boolean =
         ownerCurrent() && lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
 
-    private suspend fun requirePremiumRight() {
-        if (!canPublish()) throw CancellationException("Premium owner changed")
+    private fun requireMutationCurrent(epoch: Long) {
+        if (epoch != mutationEpoch || !canPublish()) throw CancellationException("Premium owner or lifecycle changed")
+    }
+
+    private suspend fun requirePremiumRight(epoch: Long) {
+        requireMutationCurrent(epoch)
         val allowed = AdminPermissionSnapshot.load(
             authorizedEmail, "manage_premium",
             membership = { adminRepo.isAdminFresh(authorizedUid, authorizedEmail) },
             permissions = { adminRepo.getAdminMe() }
         )
-        if (!canPublish()) throw CancellationException("Premium owner changed")
+        requireMutationCurrent(epoch)
         if (allowed == null) throw SecurityException("Premium management permission is unavailable")
     }
 
-    private fun mutatePremium(successMessage: String, action: suspend () -> Unit) {
+    private fun mutatePremium(successMessage: String, action: suspend (Long) -> Unit) {
         if (!canPublish() || mutationPending) return
+        val epoch = mutationEpoch
         mutationPending = true
         ++readGeneration
         binding.progressAdmin.visibility = View.VISIBLE
         lifecycleScope.launch {
             try {
-                requirePremiumRight()
-                if (!canPublish()) return@launch
-                action()
+                requirePremiumRight(epoch)
+                requireMutationCurrent(epoch)
+                action(epoch)
+                requireMutationCurrent(epoch)
                 if (canPublish()) {
                     AppBulletin.showSuccess(this@ManagePremiumActivity, successMessage)
                     loadUsers()
@@ -76,18 +83,20 @@ class ManagePremiumActivity : EveBaseActivity() {
             } catch (cancel: CancellationException) {
                 throw cancel
             } catch (error: Exception) {
-                if (canPublish()) {
+                if (epoch == mutationEpoch && canPublish()) {
                     AppBulletin.showError(this@ManagePremiumActivity, error.toUserFriendlyMessage())
                 }
             } finally {
                 mutationPending = false
-                if (canPublish()) binding.progressAdmin.visibility = View.GONE
+                if (epoch == mutationEpoch && canPublish()) binding.progressAdmin.visibility = View.GONE
             }
         }
     }
 
     override fun onStop() {
         stoppedOnce = true
+        ++mutationEpoch
+        binding.progressAdmin.visibility = View.GONE
         ++readGeneration
         ++transactionsGeneration
         ++usersGeneration
@@ -278,8 +287,9 @@ class ManagePremiumActivity : EveBaseActivity() {
             AppBulletin.showError(this, "Premium settings are invalid.")
             return
         }
-        mutatePremium("Premium settings confirmed by the server.") {
+        mutatePremium("Premium settings confirmed by the server.") { epoch ->
             val response = ApiClient.api.updateAdminPremiumConfig(updated)
+            requireMutationCurrent(epoch)
             if (!response.success) {
                 throw IllegalStateException(response.error ?: "Premium update was rejected")
             }
@@ -289,7 +299,7 @@ class ManagePremiumActivity : EveBaseActivity() {
             if (!readback.success || !AdminPremiumResponseContracts.configMatches(updated, readback.data)) {
                 throw IllegalStateException("Premium config was not confirmed. Reload before retrying.")
             }
-            if (!canPublish()) throw CancellationException("Admin account changed")
+            requireMutationCurrent(epoch)
             currentConfig = readback.data
         }
     }

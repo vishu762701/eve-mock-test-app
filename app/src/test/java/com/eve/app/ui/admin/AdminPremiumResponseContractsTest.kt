@@ -117,6 +117,17 @@ class AdminPremiumResponseContractsTest {
             "source" to "ADMIN_GRANTED", "status" to "ACTIVE")), true))
     }
 
+    @Test fun malformedEntitlementNumbersCannotBeRoundedIntoConfirmation() {
+        for (flag in listOf<Any>(0.5,1.5,Double.NaN,Double.POSITIVE_INFINITY,"1",2,-1)) {
+            assertFalse(AdminPremiumResponseContracts.granted(ApiResponse(success=true,data=mapOf(
+                "user_id" to "u-1","is_lifetime" to flag,"source" to "ADMIN_GRANTED","status" to "ACTIVE")),true))
+        }
+        assertTrue(AdminPremiumResponseContracts.granted(ApiResponse(success=true,data=mapOf(
+            "user_id" to "u-1","is_lifetime" to true,"source" to "ADMIN_GRANTED","status" to "ACTIVE")),true))
+        assertFalse(AdminPremiumResponseContracts.extended(ApiResponse(success=true,
+            data=mapOf<String,Any>("userId" to "u-1","expiresAt" to 1.5)),"u-1"))
+    }
+
     @Test fun extensionAndRevocationMustMatchExactlyTheTargetUid() {
         val extended = ApiResponse<Any>(success = true, data = mapOf("userId" to "u-1", "expiresAt" to 2027000000000.0))
         assertTrue(AdminPremiumResponseContracts.extended(extended, "u-1"))

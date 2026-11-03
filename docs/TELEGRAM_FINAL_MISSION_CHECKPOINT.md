@@ -14,9 +14,9 @@ FAST native/publication jobs were skipped. No concurrent change found at recover
 
 | Requirement | Canonical owner | Implementation status | Tests | Commit SHA / exact-SHA CI | Runtime acceptance / remaining evidence |
 | --- | --- | --- | --- | --- | --- |
-| R1 Premium narrow boolean repair | AdminPremiumConfigDto / existing Gson Retrofit converter | IN PROGRESS; preserve permissions, billing and entitlement owners | Real DTO valid/invalid/null/alias-conflict deserialization and acknowledgment tests | carrying batch; exact-SHA FAST required before unrelated implementation | physical premium matrix remains open |
-| R2 Official Telegram retrieval and provenance | Existing source maps / notices | PENDING direct official Git clone, pin actual full SHA, preserve authenticated older mappings | Git identity, source/asset hashes and dependency verification | no import authorized by evidence alone | matched source/runtime comparison outstanding |
-| R3 System Monitor retry and read lifetime | SystemMonitorActivity / existing API and Worker | PENDING live caller audit and behavioral repair | suspended permissions, denied rights, owner/stop, duplicate requests, failed acknowledgments, stale reads | own coherent batch after R1 green | device lifecycle and role matrix outstanding |
+| R1 Premium narrow boolean repair | AdminPremiumConfigDto / existing Gson Retrofit converter | MET at host/FAST scope; preserve permissions, billing and entitlement owners | Real DTO valid/invalid/null/alias-conflict deserialization and acknowledgment tests | 74836d344a38833dfe7c34e7e0768f62738d82d6 / FAST41643535083 SUCCESS | physical premium matrix remains open |
+| R2 Official Telegram retrieval and provenance | Existing source maps / notices | MET direct authenticated clone/pin; existing revision retained | Git identity, source/asset hashes and dependency verification | no import authorized by evidence alone | matched source/runtime comparison outstanding |
+| R3 System Monitor retry and read lifetime | SystemMonitorActivity / existing API and Worker | MET scoped implementation/host/FAST | suspended permissions, denied rights, owner/stop, duplicate requests, failed acknowledgments, stale reads | 93e2f87717a630bfad6404de5a2a5060842e5cd8 / FAST41646834423 SUCCESS | device lifecycle and role matrix outstanding |
 | R4 Remaining Admin functional audit | Existing Dashboard Activities, repositories and Worker routes | NOT MET as a whole; preserve listed green implementations | inventory actual UI→Worker actions and behavioral acceptance; repair demonstrated defects only | existing per-feature budgets apply; Syllabus already has two green commits | no destructive production tests or deployment |
 | R5 Home/shared Telegram fidelity | Existing Home, drawer, popup, dialog and theme owners | NOT MET whole runtime fidelity; preserve completed actions/search/isolation | upstream maps plus available behavior and native checks | existing feature budgets apply | matched device, Hindi/RTL/font/a11y matrix outstanding |
 | R6 Profile and personal QR acceptance | Existing Profile/viewer/scanner/native owners | NOT MET whole acceptance; preserve existing systems | existing fidelity contract and actual caller/runtime evidence | no restart or speculative replay | matched references, camera/GPU/device evidence outstanding |
@@ -133,8 +133,75 @@ PENDING, physical acceptance OPEN. R4–R9 remain as scoped above. Next after ex
 green: Premium Worker config malformed-value validation, then remaining real Admin
 controls. Syllabus reassign retains two green feature commits and needs a concrete
 reviewed exception before further integration; its two-write transfer is unaccepted.
-Existing EditExam Delete/Undo semantics still need their explicitly pending product
-decision; no inferred restore API or timing change. No publication/release/deployment.
+Existing EditExam Delete/Undo timing was pending at that checkpoint; owner later explicitly selected the five-second deferred DELETE (see latest decision below); no inferred restore API or timing change. No publication/release/deployment.
+
+## Premium Worker validation continuation — 2026-11-03
+
+Predecessor `93e2f87717a630bfad6404de5a2a5060842e5cd8` exact-SHA FAST
+41646834423 SUCCESS: build/backend/Firebase; native navigation/publication skipped.
+Docs 41646834336 SUCCESS. R3 host/exact-SHA integration MET; device acceptance OPEN.
+
+R4/Premium remaining requirement before implementation: existing full-config PUT
+coerces null/malformed price, duration, expiry, flags and payment fields, and malformed
+JSON becomes a defaulted replacement. Actual isolated Hono/all-migration SQLite
+baseline: six tests, three failures (malformed JSON accepted, null price defaulted,
+and absent D1 write evidence acknowledged); three valid/permission/rollback controls
+PASS. The supported Android caller always sends the complete AdminPremiumConfigDto.
+Repair will require complete typed fields, preserve existing INR/client numeric bounds
+(price 1..1000000, duration 1..3650, expiry 1..1440), explicit boolean flags, payment
+strings and benefits list. Invalid/missing critical inputs must return 400 before
+config/audit writes. No new pricing, entitlement, billing, payment-method, secret or
+production policy is introduced; existing valid full DTO and legacy GET aliases stay.
+Atomic config+audit remains; missing D1 confirmation must never become success.
+Also inspect the same Premium Activity's stop/resume mutation lifetime with suspended
+rights and acknowledgments before consuming its second/final successful batch.
+
+Supabase keepalive investigation is separate: run41629517670 failed at27bc15d5.
+Workflow has an old fallback hostname. Repository secret metadata inspection returned
+403 Resource not accessible by integration; configured URL/key readiness is UNKNOWN.
+No replacement hostname, credential, production request or secret write invented.
+
+## Premium validation/lifecycle batch local evidence
+
+Actual Worker handler plus all-migration isolated SQLite: six focused regression
+tests PASS; full backend329 tests PASS and TypeScript build PASS. Expanded cases
+preserve seeded existing payment orders and entitlements through valid config
+writes, reject malformed/missing/typed/range failures without writes, verify fresh
+rights/membership revocation, audit rollback and missing D1 evidence. A standalone
+cross-layer host check serialized the real Android AdminPremiumConfigDto/Gson,
+sent those bytes through the real Worker Hono route/SQLite transaction, fetched
+its legacy-plus-canonical GET and parsed back through the real Android DTO adapter:
+PASS equality. This is synthetic local transport/identity evidence, not live Worker,
+Firebase authentication, deployed D1 or device acceptance.
+
+Actual Premium Activity baseline: 8 tests, 2 assertion failures (stop/return late
+permission dispatch and late PUT acknowledgment starting a new readback). All8
+now PASS; existing acknowledgment suite plus fractional/malformed entitlement
+numbers now7 PASS. Stop epochs apply to all existing mutation calls; config's
+follow-up GET and success state must belong to that epoch. No mutation replay.
+
+Broad local integration first found competing ApiClient shadow types on the Kotlin
+singleton. One shared TEST-ONLY transport shadow now serves both actual Activities;
+Monitor18 + Premium8 + acknowledgment7 run together:33 PASS. No production API
+injection point or generic manager was added. Subsequent broad run had95 failures,
+all temporary disk exhaustion during native-Skia extraction in this 8-GiB executor.
+External init-script serial JVM groups (forkEvery3) bound temporary extraction;
+every test/assertion remains enabled and repository/CI workflows are unchanged.
+Stable full JVM rerun:1106 tests /239 suites PASS, zero failures/errors/skips.
+AndroidTest compilation and lint PASS (zero errors;1626 warnings, no new suppression/baseline). This batch still requires its own
+exact-SHA FAST before unrelated implementation. Runtime/device and legal/publication status stay OPEN.
+
+## Owner Delete/Undo decision — 2026-11-03
+
+Owner explicitly answered: "Telegram jaisa: 5-second Undo window ke baad DELETE bhejo
+(Recommended)". This authorizes the existing EditExam question Delete/Undo to defer
+its backend DELETE until the five-second Undo window expires. Undo must cancel
+the pending deletion; do not call the unsupported UPDATE-as-restore path. Reuse
+existing AppUndoBar/native confirmation/repository/Worker authorization. Preserve
+standalone ManageQuestions confirmed immediate deletion and Bookmarks Undo.
+Implement this chosen contract after the carrying Premium exact-SHA FAST succeeds;
+no production deletion, new restore API, backend deployment or migration authorized.
+The earlier paragraphs saying the timing choice is unanswered are historical.
 
 ## Live mission continuation: 2026-11-03 (implementation evidence, not final signoff)
 

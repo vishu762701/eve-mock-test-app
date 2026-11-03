@@ -896,24 +896,40 @@ adminRoutes.get("/premium/config", requirePermission("manage_premium"), async (c
 adminRoutes.put("/premium/config", requirePermission("manage_premium"), async (c) => {
   const db = c.env.DB;
   const user = c.get("user");
-  const body = await c.req.json().catch(() => ({}));
+  const parsed: unknown = await c.req.json().catch(() => null);
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    return c.json({ success: false, error: "A complete premium configuration object is required" }, 400);
+  }
+  const body = parsed as Record<string, unknown>;
+  // This is the existing Android full-config PUT, not a default-reset or coercion API.
+  // Bounds match the shipped admin editor; entitlement/payment policy is unchanged.
+  const integerInRange = (value: unknown, min: number, max: number): value is number =>
+    typeof value === "number" && Number.isSafeInteger(value) && value >= min && value <= max;
+  const nonblank = (value: unknown): value is string => typeof value === "string" && value.trim().length > 0;
+  if (!["isEnabled", "isLifetime", "qrEnabled", "upiEnabled"].every(key => typeof body[key] === "boolean") ||
+      !integerInRange(body.priceInr, 1, 1000000) || !integerInRange(body.durationDays, 1, 3650) ||
+      !integerInRange(body.sessionExpiryMinutes, 1, 1440) ||
+      !nonblank(body.planName) || body.planName.trim().length > 100 ||
+      typeof body.currency !== "string" || body.currency.trim().toUpperCase() !== "INR" ||
+      !nonblank(body.description) || !nonblank(body.merchantVpa) || !nonblank(body.merchantName) ||
+      !Array.isArray(body.benefits) || !body.benefits.every(nonblank)) {
+    return c.json({ success: false, error: "Invalid or incomplete premium configuration" }, 400);
+  }
   const now = Date.now();
   const updatedBy = user?.email || "admin";
-
-  const isEnabled = body.isEnabled !== undefined ? (body.isEnabled ? 1 : 0) : 1;
-  const planName = String(body.planName || "Premium Pro").trim();
-  const priceInr = parseInt(String(body.priceInr || "99"), 10) || 99;
-  const currency = String(body.currency || "INR").trim().toUpperCase();
-  const durationDays = parseInt(String(body.durationDays || "30"), 10) || 30;
+  const isEnabled = body.isEnabled ? 1 : 0;
+  const planName = body.planName.trim();
+  const priceInr = body.priceInr;
+  const currency = body.currency.trim().toUpperCase();
+  const durationDays = body.durationDays;
   const isLifetime = body.isLifetime ? 1 : 0;
-  const description = String(body.description || "Unlock all eligible tests & unlimited reattempts.").trim();
-  const rawBenefits = Array.isArray(body.benefits) ? body.benefits : ["Access to all eligible tests", "Unlimited eligible reattempts"];
-  const benefitsJson = JSON.stringify(rawBenefits);
-  const qrEnabled = body.qrEnabled !== undefined ? (body.qrEnabled ? 1 : 0) : 1;
-  const upiEnabled = body.upiEnabled !== undefined ? (body.upiEnabled ? 1 : 0) : 1;
-  const sessionExpiryMinutes = parseInt(String(body.sessionExpiryMinutes || "10"), 10) || 10;
-  const merchantVpa = String(body.merchantVpa || "evemocktest@upi").trim();
-  const merchantName = String(body.merchantName || "Eve Mock Test").trim();
+  const description = body.description.trim();
+  const benefitsJson = JSON.stringify(body.benefits);
+  const qrEnabled = body.qrEnabled ? 1 : 0;
+  const upiEnabled = body.upiEnabled ? 1 : 0;
+  const sessionExpiryMinutes = body.sessionExpiryMinutes;
+  const merchantVpa = body.merchantVpa.trim();
+  const merchantName = body.merchantName.trim();
   // The webhook signing key is managed only as a Cloudflare Worker secret.
   // The legacy database column stays empty for migration compatibility.
   const webhookSecret = "";
@@ -970,8 +986,10 @@ adminRoutes.put("/premium/config", requirePermission("manage_premium"), async (c
     metadata: { planName, priceInr, currency, durationDays, isLifetime: Boolean(isLifetime) },
   });
 
-  await runBatch(db, [configStmt, auditStmt]);
-
+  const results = await runBatch(db, [configStmt, auditStmt]);
+  if (results.length !== 2 || results.some(result => result?.success === false || result?.meta?.changes !== 1)) {
+    return c.json({ success: false, error: "Premium configuration write was not confirmed" }, 500);
+  }
   return c.json({ success: true });
 });
 

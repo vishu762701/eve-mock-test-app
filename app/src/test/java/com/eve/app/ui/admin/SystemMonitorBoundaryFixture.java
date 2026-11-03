@@ -1,14 +1,11 @@
 package com.eve.app.ui.admin;
 
-import com.eve.app.data.remote.ApiClient;
 import com.eve.app.data.remote.EveApiService;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 import kotlin.coroutines.Continuation;
 import kotlin.coroutines.intrinsics.IntrinsicsKt;
-import org.robolectric.annotation.Implementation;
-import org.robolectric.annotation.Implements;
 
 /** Transport boundary only; actual Activity, gate, dialog and callbacks execute. */
 public final class SystemMonitorBoundaryFixture {
@@ -42,8 +39,5 @@ public final class SystemMonitorBoundaryFixture {
     private static Continuation<Object> reply(Object[] args) {
         return (Continuation<Object>)args[args.length-1];
     }
-    @Implements(value=ApiClient.class,isInAndroidSdk=false)
-    public static class Transport {
-        @Implementation public EveApiService getApi() { return api; }
-    }
+    public static EveApiService transport() { return api; }
 }

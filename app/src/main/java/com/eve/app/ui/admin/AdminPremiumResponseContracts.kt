@@ -44,7 +44,11 @@ internal object AdminPremiumResponseContracts {
         val uid = data["user_id"] as? String ?: return false
         val status = data["status"] as? String
         val source = data["source"] as? String
-        val lifetime = (data["is_lifetime"] as? Number)?.toInt()
+        val lifetime = when (val value = data["is_lifetime"]) {
+            is Boolean -> if (value) 1 else 0
+            is Number -> when (value.toDouble()) { 0.0 -> 0; 1.0 -> 1; else -> return false }
+            else -> return false
+        }
         return uid.isNotBlank() && status == "ACTIVE" && source == "ADMIN_GRANTED" &&
             (lifetime == 0 || lifetime == 1) &&
             (!expectedLifetime || lifetime == 1)
@@ -56,7 +60,8 @@ internal object AdminPremiumResponseContracts {
         val uid = data["userId"] as? String
         val expiry = data["expiresAt"] as? Number
         return expectedUid.isNotBlank() && uid == expectedUid &&
-            expiry != null && expiry.toDouble().isFinite() && expiry.toDouble() > 0
+            expiry != null && expiry.toDouble().isFinite() && expiry.toDouble() > 0 &&
+            expiry.toDouble() == kotlin.math.floor(expiry.toDouble())
     }
 
     fun revoked(response: ApiResponse<Any>, expectedUid: String): Boolean {
