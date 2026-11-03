@@ -520,8 +520,19 @@ adminRoutes.get("/users", requirePermission("manage_users"), async (c) => {
 adminRoutes.post("/users/:id/status", requirePermission("manage_users"), async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
-  const body = await c.req.json().catch(() => ({}));
-  const disabled = body.disabled === true ? 1 : 0;
+  // A missing or malformed disabled flag must never silently enable an account.
+  // Authorization still runs in the route middleware before this validation.
+  let body: unknown;
+  try {
+    body = await c.req.json();
+  } catch {
+    return c.json({ success: false, error: "Invalid JSON body" }, 400);
+  }
+  if (!body || typeof body !== "object" || Array.isArray(body) ||
+      typeof (body as Record<string, unknown>).disabled !== "boolean") {
+    return c.json({ success: false, error: "disabled must be a boolean" }, 400);
+  }
+  const disabled = (body as { disabled: boolean }).disabled ? 1 : 0;
   const db = c.env.DB;
 
   // 1. Fetch user to check existence and email

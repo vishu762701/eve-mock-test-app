@@ -1747,3 +1747,21 @@ integrated without recreating QR/Profile/Home/Worker implementations:
 - New separately scoped defect found in the active shared AdminAccessGate: repeated ManageUsers onResume authorization previously registered additional Firebase AuthStateListeners and independent asynchronous permission requests, each removed only on Activity destroy. The next implementation adapts the *existing* shared gate with a per-root disposable lease and regression tests. No separate authorization source or replacement admin screen.
 
 New shared gate FAST status: PENDING at time of this checkpoint. Native navigation tests, source-comparison hardware matrix, QR full-scene parity, protected six-job FULL, verified APK publication, and human GPL release clearance are still NOT MET/BLOCKED, not implied by FAST. No Worker deployment, production D1 mutation, signing-key change or release approval was performed. Re-fetch main and exact SHA before the next feature; fix a red required gate forward-only.
+
+## Admin user status request contract (source-only integration)
+
+The current Worker status route accepted missing/malformed `disabled` JSON by
+silently coercing it to false, which could enable an account on a bad privileged
+request. A separate backend-only correction is prepared on the existing
+`backend/src/routes/admin.ts` handler, preserving server `manage_users`
+authorization, self/peer admin protection and atomic status+audit D1 batch.
+It requires explicit JSON boolean values; malformed JSON, absent values, arrays,
+numbers, and strings return HTTP 400 before any lookup or write. Existing
+`backend/test/admin_users_pagination.test.mjs` runs the genuine route against
+in-memory SQLite and asserts denied inputs do not mutate rows/audit, while a
+valid mutation still succeeds. There is no additional endpoint or Worker deploy.
+
+Carry the backend correction through the required exact-SHA FAST; at this
+checkpoint it is staged only and its tests are NOT yet executed. Source and legal
+Telegram parity labels, physical acceptance and production release status remain
+unchanged. The shared-gate exact-SHA run is required to turn green first.

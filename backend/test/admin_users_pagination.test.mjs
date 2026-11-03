@@ -73,6 +73,12 @@ function setup(count, admin = true) {
       }, { DB });
       return { status: response.status, json: await response.json() };
     },
+    async sendStatusBody(id, body) {
+      const response = await app.request('/api/admin/users/' + id + '/status', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body,
+      }, { DB });
+      return { status: response.status, json: await response.json() };
+    },
     auditCount: () => sql.prepare('SELECT COUNT(*) AS n FROM admin_audit_log').get().n,
     close: () => sql.close(),
   };
@@ -167,5 +173,33 @@ test('unauthorized status changes are rejected', async () => {
   const f = setup(250, false);
   try {
     assert.equal((await f.changeStatus('u0250', true)).status, 403);
+  } finally { f.close(); }
+});
+
+test('malformed status bodies cannot silently enable users or create audit entries', async () => {
+  const f = setup(3);
+  try {
+    const userId = 'u0002'; // Even index: initially enabled.
+    const page = () => f.request('?page=1&pageSize=50&q=EVE0002');
+    assert.equal((await page()).json.data[0].disabled, false);
+    const invalid = [
+      {}, { disabled: null }, { disabled: 'false' }, { disabled: 0 },
+      { disabled: 1 }, { disabled: [] }, [], true, 'false',
+    ];
+    for (const payload of invalid) {
+      const response = await f.sendStatusBody(userId, JSON.stringify(payload));
+      assert.equal(response.status, 400, JSON.stringify(payload));
+      assert.equal(response.json.success, false);
+      assert.equal((await page()).json.data[0].disabled, false);
+      assert.equal(f.auditCount(), 0, 'Rejected payload must not create an audit entry');
+    }
+    const malformed = await f.sendStatusBody(userId, '{"disabled":');
+    assert.equal(malformed.status, 400);
+    assert.equal(f.auditCount(), 0);
+    assert.equal((await page()).json.data[0].disabled, false);
+    const valid = await f.changeStatus(userId, true);
+    assert.equal(valid.status, 200);
+    assert.deepEqual(valid.json.data, { id: userId, disabled: true });
+    assert.equal(f.auditCount(), 1);
   } finally { f.close(); }
 });
