@@ -8,6 +8,9 @@ import com.eve.app.data.model.TestAttempt
 import com.eve.app.data.model.TopicStat
 import com.eve.app.data.repository.HistoryRepository
 import com.eve.app.util.UiState
+import com.eve.app.util.SubmissionRetryPolicy
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import com.google.firebase.auth.FirebaseAuth
 import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,6 +27,11 @@ import kotlinx.coroutines.launch
 class PerformanceViewModel : ViewModel() {
 
     private val repo = HistoryRepository()
+    private val originalOwnerUid = FirebaseAuth.getInstance().currentUser?.uid
+    private var fetchJob: Job? = null
+    private fun ownsPerformance(): Boolean =
+        SubmissionRetryPolicy.ownsSubmission(
+            originalOwnerUid, FirebaseAuth.getInstance().currentUser?.uid)
 
     private val _state = MutableStateFlow<UiState<PerformanceData>>(UiState.Loading)
     val state: StateFlow<UiState<PerformanceData>> = _state.asStateFlow()
@@ -33,17 +41,25 @@ class PerformanceViewModel : ViewModel() {
     }
 
     fun load() {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId == null) {
-            _state.value = UiState.Success(PerformanceData.EMPTY)
+        fetchJob?.cancel()
+        val userId = originalOwnerUid
+        if (!ownsPerformance() || userId.isNullOrBlank()) {
+            _state.value = UiState.Error("Sign in with the account that opened Performance")
             return
         }
-        viewModelScope.launch {
+        fetchJob = viewModelScope.launch {
             _state.value = UiState.Loading
-            _state.value = try {
-                UiState.Success(compute(repo.getAttempts(userId)))
+            try {
+                val attempts = repo.getAttempts(userId)
+                if (!ownsPerformance()) return@launch
+                val summary = compute(attempts)
+                if (!ownsPerformance()) return@launch
+                _state.value = UiState.Success(summary)
+            } catch (cancel: CancellationException) {
+                throw cancel
             } catch (e: Exception) {
-                UiState.Error(e.message ?: "Failed to load performance data")
+                if (!ownsPerformance()) return@launch
+                _state.value = UiState.Error(e.message ?: "Failed to load performance data")
             }
         }
     }

@@ -1959,3 +1959,27 @@ unchanged legacy prefs, owner boundary and failed-response renderer contract.
 Status remains STAGED ONLY, pending preceding exact-SHA FAST success
 and a new exact-SHA FAST. No production D1 mutation, Telegram component
 replacement or device fidelity claim.
+
+## 2026-11-03 Performance and Leaderboard account isolation (prepared)
+
+The existing PerformanceViewModel could publish the old student's history-derived
+summary after a request completed under another Firebase identity. The existing
+LeaderboardViewModel loaded public scorers first, then captured the *then-current*
+UID for private rank, potentially mismatching the Activity highlight adapter.
+Neither retained Activity previously enforced saved-state UID or signed-in
+account-switch lifetime.
+
+This prepared change modifies only existing Activities/ViewModels. Each captures
+and restores an original authenticated UID, rejects another UID, registers its
+AuthStateListener at STARTED and unregisters on STOPPED, and gates UI renders.
+Both ViewModels cancel old load jobs and verify owner after suspended network
+calls and before publishing state. The original leaderboard adapter is now
+initialized after saved-state/UID verification, rather than during property
+initialization. Public top scorers and personal rank remain separate. New JVM
+regressions: PerformanceAccountBoundaryTest.kt and
+LeaderboardAccountBoundaryTest.kt.
+
+Status: STAGED only until preceding Mistake Notebook exact-SHA FAST turns green;
+then this change requires its own exact-SHA FAST. No source-device/QR/full
+release evidence is implied. The source code of these destinations was verified
+unchanged since baseline b78d275 by matching Git blob hashes.

@@ -16,6 +16,7 @@ import com.eve.app.data.model.RankInfo
 import com.eve.app.databinding.ActivityLeaderboardBinding
 import com.eve.app.util.Constants
 import com.eve.app.util.UiState
+import com.eve.app.util.SubmissionRetryPolicy
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -30,12 +31,27 @@ class LeaderboardActivity : EveBaseActivity() {
     private val viewModel: LeaderboardViewModel by viewModels()
     private lateinit var examId: String
 
-    private val adapter = LeaderboardAdapter(FirebaseAuth.getInstance().currentUser?.uid)
+    private lateinit var adapter: LeaderboardAdapter
 
     private var hasEmptyPlayed = false
+    private val leaderboardAuth = FirebaseAuth.getInstance()
+    private var leaderboardOwnerUid: String? = null
+    private fun hasLeaderboardOwner(): Boolean =
+        SubmissionRetryPolicy.ownsSubmission(
+            leaderboardOwnerUid, leaderboardAuth.currentUser?.uid)
+    private val leaderboardAuthListener = FirebaseAuth.AuthStateListener {
+        if (leaderboardOwnerUid != null && !hasLeaderboardOwner()) finish()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val currentUid = leaderboardAuth.currentUser?.uid
+        leaderboardOwnerUid = if (savedInstanceState == null) currentUid
+            else savedInstanceState.getString("leaderboard_owner_uid")
+        if (!hasLeaderboardOwner()) { finish(); return }
+        // The highlight identity must be the verified opening account, not an
+        // earlier property-initializer snapshot of mutable FirebaseAuth.
+        adapter = LeaderboardAdapter(leaderboardOwnerUid)
         hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
         binding = ActivityLeaderboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -66,12 +82,30 @@ class LeaderboardActivity : EveBaseActivity() {
         viewModel.load(examId)
     }
 
+    override fun onStart() {
+        super.onStart()
+        if (!hasLeaderboardOwner()) { finish(); return }
+        leaderboardAuth.addAuthStateListener(leaderboardAuthListener)
+    }
+
+    override fun onStop() {
+        leaderboardAuth.removeAuthStateListener(leaderboardAuthListener)
+        super.onStop()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!hasLeaderboardOwner()) finish()
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean("key_empty_played", hasEmptyPlayed)
+        outState.putString("leaderboard_owner_uid", leaderboardOwnerUid)
     }
 
     private fun render(state: UiState<List<LeaderboardEntry>>) {
+        if (!hasLeaderboardOwner()) { finish(); return }
         when (state) {
             is UiState.Loading -> {
                 binding.progressGroup.visibility = View.VISIBLE
@@ -106,6 +140,7 @@ class LeaderboardActivity : EveBaseActivity() {
     }
 
     private fun renderRank(rankInfo: RankInfo?) {
+        if (!hasLeaderboardOwner()) { finish(); return }
         if (rankInfo == null) {
             binding.cardYourRank.visibility = View.GONE
             return

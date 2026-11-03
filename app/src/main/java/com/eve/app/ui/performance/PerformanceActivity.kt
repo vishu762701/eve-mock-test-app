@@ -14,6 +14,8 @@ import com.eve.app.R
 import com.eve.app.data.model.PerformanceData
 import com.eve.app.databinding.ActivityPerformanceBinding
 import com.eve.app.util.UiState
+import com.eve.app.util.SubmissionRetryPolicy
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 /**
@@ -32,9 +34,21 @@ class PerformanceActivity : EveBaseActivity() {
     private val topicAdapter = TopicStatAdapter()
 
     private var hasEmptyPlayed = false
+    private val performanceAuth = FirebaseAuth.getInstance()
+    private var performanceOwnerUid: String? = null
+    private fun hasPerformanceOwner(): Boolean =
+        SubmissionRetryPolicy.ownsSubmission(
+            performanceOwnerUid, performanceAuth.currentUser?.uid)
+    private val performanceAuthListener = FirebaseAuth.AuthStateListener {
+        if (performanceOwnerUid != null && !hasPerformanceOwner()) finish()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val currentUid = performanceAuth.currentUser?.uid
+        performanceOwnerUid = if (savedInstanceState == null) currentUid
+            else savedInstanceState.getString("performance_owner_uid")
+        if (!hasPerformanceOwner()) { finish(); return }
         hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
         binding = ActivityPerformanceBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -53,12 +67,30 @@ class PerformanceActivity : EveBaseActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        if (!hasPerformanceOwner()) { finish(); return }
+        performanceAuth.addAuthStateListener(performanceAuthListener)
+    }
+
+    override fun onStop() {
+        performanceAuth.removeAuthStateListener(performanceAuthListener)
+        super.onStop()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!hasPerformanceOwner()) finish()
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean("key_empty_played", hasEmptyPlayed)
+        outState.putString("performance_owner_uid", performanceOwnerUid)
     }
 
     private fun render(state: UiState<PerformanceData>) {
+        if (!hasPerformanceOwner()) { finish(); return }
         when (state) {
             is UiState.Loading -> {
                 binding.progressGroup.visibility = View.VISIBLE
