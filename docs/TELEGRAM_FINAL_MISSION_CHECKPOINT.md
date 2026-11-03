@@ -4,6 +4,30 @@
 
 Status: PARTIAL. This is a continuation record, not screen acceptance.
 
+## Current gate repair — About native-dialog source contract
+
+Remote/mainbf28d68ee3ec5ef4310d7e1cbfbeadbf07cf76b2, FAST41669042034 FAILED:
+Android build/JVM step1163 tests, one failure
+`AdminDialogSourceContractTest.secondaryAdminActivitiesRouteDialogsThroughSourceAdapters`
+line68 expected2 duplicated EditAbout native builders, actual1 canonical builder.
+Backend/Firebase/docs41669042006 SUCCESS; native/publication skipped. Do not advance
+another feature until the forward repair's own exact-SHA FAST succeeds.
+
+The implementation already exercises both tab/back unsaved paths through one
+owner/epoch-bound native host. Reproduced the exact old source assertion locally:
+FAIL. The focused repair preserves native import/action assertions and replaces
+builder duplication with stronger checks: both tab and Back entry paths must
+reach the shared native builder; Save/Discard/Cancel, current owner/epoch and
+actual show() remain mandatory. Other Activities' source contracts are unchanged.
+Local actual source suite5 + About Activity20 =25 PASS, zero errors/skips. No
+production/UI/backend/permission behavior was altered by this forward repair.
+The failedbf28d68e commit does not consume a successful-implementation budget slot.
+
+The bare, unexpanded SDK35 Main Thread teardown stderr line also appears in the
+previous exact-SHA successful Undo41659857229 and API Usage41663438196 logs.
+No exception type/stack is supplied; it is not reclassified as a tested fix or
+used to explain this precise assertion failure. Retain logs for later diagnosis.
+
 ## Current continuation pointer — App Content / About editor repair preparation
 
 Remote/main131ed65aef1cd28f5bb4b01a1f1cdeba05318e5b, clean at recovery.

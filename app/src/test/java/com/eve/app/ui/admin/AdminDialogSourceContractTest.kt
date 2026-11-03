@@ -65,8 +65,25 @@ class AdminDialogSourceContractTest {
         assertTrue(preview.contains(".show()"))
         val editAbout = File("src/main/java/com/eve/app/ui/admin/EditAboutActivity.kt").readText()
         assertTrue(editAbout.contains("import com.eve.app.designsystem.TelegramNativeAlertDialog"))
-        assertEquals(2, editAbout.split("TelegramNativeAlertDialog.Builder(").size - 1)
-        assertTrue(editAbout.contains(".setNeutralButton(\"Cancel\""))
+        assertEquals("Both unsaved flows share one canonical native dialog host",
+            1, editAbout.split("TelegramNativeAlertDialog.Builder(").size - 1)
+        val tabSelection = editAbout.substringAfter("override fun onTabSelected(")
+            .substringBefore("override fun onTabUnselected(")
+        assertTrue("Dirty tab navigation must still reach the native unsaved confirmation",
+            tabSelection.contains("showUnsavedConfirmation(leaving = false) { switchTab(target) }"))
+        val back = editAbout.substringAfter("private fun handleBack()")
+            .substringBefore("private fun writeDraft(")
+        assertTrue("Dirty Back navigation must still reach the native unsaved confirmation",
+            back.contains("showUnsavedConfirmation(leaving = true) { finish() }"))
+        val unsaved = editAbout.substringAfter("private fun showUnsavedConfirmation(")
+            .substringBefore("private fun handleBack()")
+        assertTrue(unsaved.contains("TelegramNativeAlertDialog.Builder(this)"))
+        for (action in listOf("PositiveButton(\"Save\"", "NegativeButton(\"Discard\"", "NeutralButton(\"Cancel\"")) {
+            assertTrue("Both flows retain $action on the native host", unsaved.contains(".set$action"))
+        }
+        assertTrue("Retained native actions remain owner/lifecycle bound",
+            unsaved.contains("current(requestEpoch) && currentType == type"))
+        assertTrue("The shared native dialog is actually shown", unsaved.contains("dialog.show()"))
         for (path in activities) {
             val content = File(path).readText()
             assertTrue("$path must import native Telegram host", content.contains("import com.eve.app.designsystem.TelegramNativeAlertDialog"))
