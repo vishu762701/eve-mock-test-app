@@ -12,6 +12,7 @@ import com.eve.app.util.AppBulletin
 import com.eve.app.util.Constants
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -40,12 +41,15 @@ object ExamLaunchHelper {
                 val attempts = HistoryRepository().getAttempts(user.uid).filter { it.examId == examId }
                 val targetAttempt = (if (lockTimestamp != null) {
                     attempts.find { it.timestamp == lockTimestamp }
-                } else null) ?: attempts.maxByOrNull { it.timestamp } ?: HomeViewModel.getCachedAttempt(examId)
+                } else null) ?: attempts.maxByOrNull { it.timestamp } ?: HomeViewModel.getCachedAttempt(examId, user.uid)
 
                 if (targetAttempt != null) {
-                    ResultDataHolder.setAnswers(targetAttempt.answers)
+                    if (FirebaseAuth.getInstance().currentUser?.uid != user.uid ||
+                        targetAttempt.userId != user.uid ||
+                        !ResultDataHolder.setAnswers(targetAttempt.answers, user.uid, examId)) return@launch
                     val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
                     val intent = Intent(context, ResultActivity::class.java).apply {
+                        putExtra(Constants.EXTRA_RESULT_OWNER_UID, user.uid)
                         putExtra(Constants.EXTRA_EXAM_ID, examId)
                         putExtra(Constants.EXTRA_EXAM_NAME, examName)
                         putExtra(Constants.EXTRA_ATTEMPT_DATE, dateFormat.format(Date(targetAttempt.timestamp)))
@@ -61,12 +65,16 @@ object ExamLaunchHelper {
                 } else {
                     AppBulletin.showError(context, "Couldn't load previous attempt")
                 }
+            } catch (cancel: CancellationException) {
+                throw cancel
             } catch (e: Exception) {
-                val fallback = HomeViewModel.getCachedAttempt(examId)
+                if (FirebaseAuth.getInstance().currentUser?.uid != user.uid) return@launch
+                val fallback = HomeViewModel.getCachedAttempt(examId, user.uid)
                 if (fallback != null) {
-                    ResultDataHolder.setAnswers(fallback.answers)
+                    if (!ResultDataHolder.setAnswers(fallback.answers, user.uid, examId)) return@launch
                     val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
                     val intent = Intent(context, ResultActivity::class.java).apply {
+                        putExtra(Constants.EXTRA_RESULT_OWNER_UID, user.uid)
                         putExtra(Constants.EXTRA_EXAM_ID, examId)
                         putExtra(Constants.EXTRA_EXAM_NAME, examName)
                         putExtra(Constants.EXTRA_ATTEMPT_DATE, dateFormat.format(Date(fallback.timestamp)))

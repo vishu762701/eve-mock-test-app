@@ -28,8 +28,8 @@ class ResultReattemptSourceDialogTest {
     @Test fun reattemptFlowMaintainsFullResetAndNavigation() {
         assertTrue(code.contains("resetAttemptPost(mapOf(\"examId\" to examId))"))
         assertTrue(code.contains("clearSession(examId)"))
-        assertTrue(code.contains("ResultDataHolder.clear()"))
-        assertTrue(code.contains("HomeViewModel.markAttemptCleared(examId)"))
+        assertTrue(code.contains("ResultDataHolder.clear(resultOwnerUid, currentExamId)"))
+        assertTrue(code.contains("HomeViewModel.markAttemptCleared(examId, resultOwnerUid)"))
         assertTrue(code.contains("Intent(this@ResultActivity, TestActivity::class.java)"))
     }
 }

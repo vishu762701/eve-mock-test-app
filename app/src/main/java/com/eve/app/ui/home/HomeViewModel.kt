@@ -136,29 +136,56 @@ class HomeViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
 
     companion object {
         private const val SELECTED_CATEGORY_STATE_KEY = "home_selected_category"
+        private var attemptOwnerUid: String? = null
+        private fun currentAttemptUid() = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
+        @Synchronized
+        private fun ownsAttempts(userId: String): Boolean {
+            val live = currentAttemptUid()
+            if (attemptOwnerUid != live) {
+                _clearedAttemptedIds.clear(); _submittedAttemptedIds.clear(); _cachedSubmittedAttempts.clear()
+                attemptOwnerUid = live
+            }
+            return live.isNotBlank() && userId == live
+        }
+        @Synchronized
+        private fun attemptSnapshot(userId: String): Pair<Set<String>, Map<String, com.eve.app.data.model.TestAttempt>>? =
+            if (ownsAttempts(userId)) _submittedAttemptedIds.toSet() to _cachedSubmittedAttempts.toMap() else null
         private val _clearedAttemptedIds = mutableSetOf<String>()
         private val _submittedAttemptedIds = mutableSetOf<String>()
         private val _cachedSubmittedAttempts = mutableMapOf<String, com.eve.app.data.model.TestAttempt>()
 
-        fun markAttemptCleared(examId: String) {
+        @Synchronized
+        fun markAttemptCleared(examId: String, userId: String = currentAttemptUid()) {
+            if (!ownsAttempts(userId)) return
             _clearedAttemptedIds.add(examId)
             _submittedAttemptedIds.remove(examId)
             _cachedSubmittedAttempts.remove(examId)
         }
-        fun isAttemptCleared(examId: String): Boolean = _clearedAttemptedIds.contains(examId)
-        fun clearAttemptCleared(examId: String) {
+        @Synchronized
+        fun isAttemptCleared(examId: String, userId: String = currentAttemptUid()): Boolean =
+            ownsAttempts(userId) && _clearedAttemptedIds.contains(examId)
+        @Synchronized
+        fun clearAttemptCleared(examId: String, userId: String = currentAttemptUid()) {
+            if (!ownsAttempts(userId)) return
             _clearedAttemptedIds.remove(examId)
         }
 
-        fun markAttemptSubmitted(examId: String, attempt: com.eve.app.data.model.TestAttempt? = null) {
+        @Synchronized
+        fun markAttemptSubmitted(examId: String, attempt: com.eve.app.data.model.TestAttempt? = null,
+                                 userId: String = attempt?.userId ?: currentAttemptUid()) {
+            if (!ownsAttempts(userId) || attempt != null && attempt.userId != userId) return
             _clearedAttemptedIds.remove(examId)
             _submittedAttemptedIds.add(examId)
             if (attempt != null) {
                 _cachedSubmittedAttempts[examId] = attempt
             }
         }
-        fun isAttemptSubmitted(examId: String): Boolean = _submittedAttemptedIds.contains(examId)
-        fun getCachedAttempt(examId: String): com.eve.app.data.model.TestAttempt? = _cachedSubmittedAttempts[examId]
+        @Synchronized
+        fun isAttemptSubmitted(examId: String, userId: String = currentAttemptUid()): Boolean =
+            ownsAttempts(userId) && _submittedAttemptedIds.contains(examId)
+        @Synchronized
+        fun getCachedAttempt(examId: String, userId: String = currentAttemptUid()): com.eve.app.data.model.TestAttempt? =
+            if (ownsAttempts(userId)) _cachedSubmittedAttempts[examId]?.takeIf { it.userId == userId } else null
     }
 
     fun dropAttemptedId(examId: String) {
@@ -171,17 +198,22 @@ class HomeViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
     }
 
     fun loadForUser(userId: String, isAdmin: Boolean, force: Boolean = false) {
+        if (!ownsAttempts(userId)) return
         val now = System.currentTimeMillis()
         if (!force && lastUserLoaded == userId && lastAdminLoaded == isAdmin && (now - lastLoadedTime < 10_000L) && hasLoadedOnce) {
             if (pinnedObserverJob?.isActive != true) {
                 pinnedObserverJob?.cancel()
                 pinnedObserverJob = viewModelScope.launch(coroutineExceptionHandler) {
                     pinnedRepo.observePinnedExamIds(userId).collect { pins ->
-                        _pinnedIds.value = pins
+                        if (ownsAttempts(userId)) _pinnedIds.value = pins
                     }
                 }
             }
             return
+        }
+        if (lastUserLoaded != null && lastUserLoaded != userId) {
+            _attemptInfo.value = AttemptInfo()
+            _pinnedIds.value = emptySet()
         }
         lastUserLoaded = userId
         lastAdminLoaded = isAdmin
@@ -194,6 +226,7 @@ class HomeViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
             }
             try {
                 val exams = repo.getExams()
+                if (!ownsAttempts(userId)) return@launch
                 allLoadedExams = exams
                 hasLoadedOnce = true
                 saveCachedExams(exams)
@@ -217,14 +250,15 @@ class HomeViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
                         // optional: failure is fine
                         emptyList()
                     }
-                    val ids = (locks + attempts.map { it.examId } + _submittedAttemptedIds).filter { !isAttemptCleared(it) }
+                    val cached = attemptSnapshot(userId) ?: return@launch
+                    val ids = (locks + attempts.map { it.examId } + cached.first).filter { !isAttemptCleared(it) }
                     val map = attempts.associateBy { it.examId }.toMutableMap()
-                    _cachedSubmittedAttempts.forEach { (k, v) ->
+                    cached.second.forEach { (k, v) ->
                         if (!map.containsKey(k) && !isAttemptCleared(k)) {
                             map[k] = v
                         }
                     }
-                    _attemptInfo.value = AttemptInfo(ids.toSet(), map)
+                    if (ownsAttempts(userId)) _attemptInfo.value = AttemptInfo(ids.toSet(), map)
                 }
             } catch (e: CancellationException) {
                 throw e
@@ -239,7 +273,7 @@ class HomeViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         pinnedObserverJob?.cancel()
         pinnedObserverJob = viewModelScope.launch(coroutineExceptionHandler) {
             pinnedRepo.observePinnedExamIds(userId).collect { pins ->
-                _pinnedIds.value = pins
+                if (ownsAttempts(userId)) _pinnedIds.value = pins
             }
         }
 

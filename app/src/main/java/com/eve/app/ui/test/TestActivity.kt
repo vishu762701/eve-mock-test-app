@@ -298,15 +298,17 @@ class TestActivity : EveBaseActivity() {
                 launch {
                     viewModel.alreadyAttempted.collect { blocked ->
                         if (blocked && !isFinishing) {
-                            lifecycleScope.launch {
+                            lifecycleScope.launch review@{
                                 val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
                                 val attempts = if (user != null) com.eve.app.data.repository.HistoryRepository().getAttempts(user.uid).filter { it.examId == examId } else emptyList()
-                                val target = attempts.maxByOrNull { it.timestamp } ?: com.eve.app.ui.home.HomeViewModel.getCachedAttempt(examId)
+                                val target = attempts.maxByOrNull { it.timestamp } ?: com.eve.app.ui.home.HomeViewModel.getCachedAttempt(examId, user?.uid.orEmpty())
                                 if (target != null && target.answers.isNotEmpty()) {
-                                    ResultDataHolder.setAnswers(target.answers)
+                                    if (target.userId != user?.uid || !ResultDataHolder.setAnswers(target.answers,
+                                            user.uid, examId)) return@review
                                     val dateFormat = java.text.SimpleDateFormat("dd MMM yyyy, hh:mm a", java.util.Locale.getDefault())
                                     startActivity(
                                         Intent(this@TestActivity, ResultActivity::class.java)
+                                            .putExtra(Constants.EXTRA_RESULT_OWNER_UID, viewModel.currentUserId)
                                             .putExtra(Constants.EXTRA_EXAM_ID, examId)
                                             .putExtra(Constants.EXTRA_EXAM_NAME, examName)
                                             .putExtra(Constants.EXTRA_ATTEMPT_DATE, dateFormat.format(java.util.Date(target.timestamp)))
@@ -628,10 +630,11 @@ class TestActivity : EveBaseActivity() {
                         com.eve.app.util.AttemptLimitManager.recordAttempt(this@TestActivity, targetExamId, graded.attemptId, viewModel.currentUserId)
                     }
 
-                    ResultDataHolder.setAnswers(enrichedAnswers)
+                    if (!ResultDataHolder.setAnswers(enrichedAnswers, viewModel.currentUserId, targetExamId)) return@launch
 
                     startActivity(
                         Intent(this@TestActivity, ResultActivity::class.java)
+                            .putExtra(Constants.EXTRA_RESULT_OWNER_UID, viewModel.currentUserId)
                             .putExtra(Constants.EXTRA_EXAM_ID, targetExamId)
                             .putExtra(Constants.EXTRA_EXAM_NAME, attemptName)
                             .putExtra(Constants.EXTRA_EXAM_CATEGORY, examCategory)

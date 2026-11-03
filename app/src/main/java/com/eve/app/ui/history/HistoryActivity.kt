@@ -129,9 +129,10 @@ class HistoryActivity : EveBaseActivity() {
     }
 
     private fun openReview(attempt: TestAttempt) {
-        ResultDataHolder.setAnswers(attempt.answers)
+        if (!ResultDataHolder.setAnswers(attempt.answers, attempt.userId, attempt.examId)) return
         startActivity(
             Intent(this, ResultActivity::class.java)
+                .putExtra(Constants.EXTRA_RESULT_OWNER_UID, attempt.userId)
                 .putExtra(Constants.EXTRA_EXAM_ID, attempt.examId)
                 .putExtra(Constants.EXTRA_EXAM_NAME, attempt.examName)
                 .putExtra(Constants.EXTRA_ATTEMPT_DATE, dateFormat.format(Date(attempt.timestamp)))

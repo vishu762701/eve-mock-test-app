@@ -6,7 +6,7 @@ Status: PARTIAL. This is a continuation record, not screen acceptance.
 
 ## Live verified implementation pointer — 2026-11-03
 
-Latest verified implementation main: **d638d3b20a4c10e6462b6d95adb8f35fada3a584**.
+Latest verified implementation main: **9fdeca47309ea9da0f228119591c410a70b4e057**.
 Official Telegram rechecked after implementation: **3de37c8cfb039452be7398909461da6288babf15**.
 Reconcile this pointer with the carrying implementation commit and live main/CI on restart.
 
@@ -41,6 +41,8 @@ Reconcile this pointer with the carrying implementation commit and live main/CI 
 | Authorized import-result lifecycle | 22fd6f8129e26bef75c7a26cc609a6525c1684e2 | [41568018939](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41568018939) SUCCESS |
 
 | Bounded import document/cell identity | d638d3b20a4c10e6462b6d95adb8f35fada3a584 | [41571297755](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41571297755) SUCCESS |
+
+| Standalone question deletion confirmation | 9fdeca47309ea9da0f228119591c410a70b4e057 | [41573024314](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41573024314) SUCCESS |
 
 Each FAST passed Android build/JVM/AndroidTest source compilation, all four ABI
 builds, pinned Rust security/C API, backend and Firebase. Historical scanner-batch docs 41403654877
@@ -1644,3 +1646,38 @@ Do not invent a seam/IME fix without evidence. Standalone ManageQuestions picker
 lifecycle remains open; the import reliability batches must not be replayed.
 Separate EditExam Delete/Undo product choice still pending; cutoff migration/Worker
 production rollout still unauthorized. Whole mission NOT MET and QR acceptance OPEN.
+
+## 2026-11-03 account-bound attempt/result handoff
+
+Recovered 9fdeca47309ea9da0f228119591c410a70b4e057 with FAST41573024314
+and docs41573024250 SUCCESS, no concurrent changes. Import d638d3b2 and standalone
+delete9fdeca47 are green and must not be replayed. Official origin HEAD remains
+3de37c8cfb039452be7398909461da6288babf15. Six initial isolation regressions
+failed, including actual fallback navigation with another account's cached attempt;
+same-account control passed. Canonical Home companion cache and ResultDataHolder
+now bind owner/exam; all actual producers/consumers/internal result/detail launches
+carry immutable source identity. Native screens reject foreign/missing tags and
+dispose auth listeners; same-account render/recreation verified in Robolectric.
+No new state owner, screen, backend, scoring or production operation. Full scoped
+requirement/source map: ATTEMPT_RESULT_OWNER_ISOLATION.md.
+
+Final local integration PASS: ./gradlew :app:testDebugUnitTest
+:app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug
+-Peve.nativeAbis=x86_64 (2m44s), 948 tests / 202 suites, zero failures/errors/skips;
+lint 0 errors / 1629 warnings. Scoped ownership18 cases (including the intact moved
+tracking assertions) PASS. Helpers59, docs80, acceptance structure, four recorded
+byte imports and git diff --check PASS. One preceding local run's indentation lint
+error was repaired; no suppression/baseline or assertion removal. Historical bare
+SDK35 thread diagnostic remains UNKNOWN; no blanket crash-free/device claim.
+Carrying exact-SHA FAST pending. Backend/Firebase source unchanged from green base.
+
+Whole mission NOT MET; QR/device/reference/native-navigation/protected FULL/GPL
+and verified APK publication remain OPEN. Cutoff production rollout is unauthorized;
+separate EditExam Delete/Undo choice remains unanswered. First next after carrying
+FAST: reproduce D3 Home search SavedState owner scope using actual production
+callbacks, preserving existing successful seam/search work. Mission11 search has
+285a9528/FAST40995030992 and460e093d/FAST41005412909 green; reconcile that feature's
+two-commit budget before any additional integration, and obtain a concrete tested
+repair exception if applicable. The search-owner risk is still INFERRED, not a proven
+defect. Standalone ManageQuestions picker lifecycle also remains open; preserve
+existing import batches and do not manufacture a third iteration under a new name.

@@ -28,6 +28,7 @@ class ResultDetailActivity : EveBaseActivity() {
 
         fun launch(
             context: Context,
+            ownerUid: String,
             type: String,
             examId: String,
             examName: String,
@@ -41,7 +42,9 @@ class ResultDetailActivity : EveBaseActivity() {
             percentile: String = "",
             topperAvg: String = ""
         ) {
+            if (ownerUid.isBlank() || com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid != ownerUid) return
             val intent = Intent(context, ResultDetailActivity::class.java).apply {
+                putExtra(Constants.EXTRA_RESULT_OWNER_UID, ownerUid)
                 putExtra(EXTRA_DETAIL_TYPE, type)
                 putExtra(Constants.EXTRA_EXAM_ID, examId)
                 putExtra(Constants.EXTRA_EXAM_NAME, examName)
@@ -61,8 +64,25 @@ class ResultDetailActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityResultDetailBinding
 
+    private var resultOwnerUid = ""
+    private val resultOwnerListener = com.google.firebase.auth.FirebaseAuth.AuthStateListener { auth ->
+        if (resultOwnerUid.isNotBlank() && auth.currentUser?.uid != resultOwnerUid) {
+            if (::binding.isInitialized) binding.root.visibility = android.view.View.INVISIBLE
+            finish()
+        }
+    }
+    override fun onDestroy() {
+        com.google.firebase.auth.FirebaseAuth.getInstance().removeAuthStateListener(resultOwnerListener)
+        super.onDestroy()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        resultOwnerUid = intent.getStringExtra(Constants.EXTRA_RESULT_OWNER_UID).orEmpty()
+        val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
+        if (resultOwnerUid.isBlank() || auth.currentUser?.uid != resultOwnerUid) { finish(); return }
+        auth.addAuthStateListener(resultOwnerListener)
+        if (isFinishing || auth.currentUser?.uid != resultOwnerUid) { finish(); return }
         SecurityHelper.applyScreenProtection(this)
         binding = ActivityResultDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -101,7 +121,7 @@ class ResultDetailActivity : EveBaseActivity() {
             binding.tvDetailSubtitle.visibility = View.GONE
         }
 
-        val allItems: List<AnswerItem> = ResultDataHolder.getDetailItems()
+        val allItems: List<AnswerItem> = ResultDataHolder.getDetailItems(resultOwnerUid, examId)
 
         when (type) {
             TYPE_STATISTICS -> setupStatistics(score, total, correct, wrong, unattempted, accuracy)

@@ -76,8 +76,24 @@ class ResultActivity : EveBaseActivity() {
     private var fromHistory = false
     private var canReattempt = false
 
+    private var resultOwnerUid = ""
+    private val resultIdentityCurrent: Boolean
+        get() = !isFinishing && !isDestroyed && resultOwnerUid.isNotBlank() &&
+            com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid == resultOwnerUid
+    private val resultOwnerListener = com.google.firebase.auth.FirebaseAuth.AuthStateListener { auth ->
+        if (resultOwnerUid.isNotBlank() && auth.currentUser?.uid != resultOwnerUid) {
+            if (::binding.isInitialized) binding.root.visibility = android.view.View.INVISIBLE
+            finish()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        resultOwnerUid = intent.getStringExtra(Constants.EXTRA_RESULT_OWNER_UID).orEmpty()
+        val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
+        if (resultOwnerUid.isBlank() || auth.currentUser?.uid != resultOwnerUid) { finish(); return }
+        auth.addAuthStateListener(resultOwnerListener)
+        if (isFinishing || auth.currentUser?.uid != resultOwnerUid) { finish(); return }
         SecurityHelper.applyScreenProtection(this)
         binding = ActivityResultBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -95,11 +111,11 @@ class ResultActivity : EveBaseActivity() {
         val attemptDate = intent.getStringExtra(Constants.EXTRA_ATTEMPT_DATE)
 
         if (viewModel.allItems.isEmpty()) {
-            val incoming = ResultDataHolder.consumeAnswers()
+            val incoming = ResultDataHolder.consumeAnswers(resultOwnerUid, currentExamId)
             if (incoming.isNotEmpty()) {
                 viewModel.initAnswers(incoming)
             } else if (currentExamId.isNotBlank()) {
-                val cached = HomeViewModel.getCachedAttempt(currentExamId)
+                val cached = HomeViewModel.getCachedAttempt(currentExamId, resultOwnerUid)
                 if (cached != null && cached.answers.isNotEmpty()) {
                     viewModel.initAnswers(cached.answers)
                 }
@@ -358,9 +374,10 @@ class ResultActivity : EveBaseActivity() {
         accuracy: Double
     ) {
         val openStats = View.OnClickListener {
-            ResultDataHolder.setDetailItems(allItems)
+            if (!ResultDataHolder.setDetailItems(allItems, resultOwnerUid, currentExamId)) return@OnClickListener
             ResultDetailActivity.launch(
                 context = this,
+                ownerUid = resultOwnerUid,
                 type = ResultDetailActivity.TYPE_STATISTICS,
                 examId = currentExamId,
                 examName = currentExamName,
@@ -379,9 +396,10 @@ class ResultActivity : EveBaseActivity() {
         binding.rowOverviewStatisticsTiles.setOnClickListener(openStats)
 
         val openPerf = View.OnClickListener {
-            ResultDataHolder.setDetailItems(allItems)
+            if (!ResultDataHolder.setDetailItems(allItems, resultOwnerUid, currentExamId)) return@OnClickListener
             ResultDetailActivity.launch(
                 context = this,
+                ownerUid = resultOwnerUid,
                 type = ResultDetailActivity.TYPE_PERFORMANCE,
                 examId = currentExamId,
                 examName = currentExamName,
@@ -400,9 +418,10 @@ class ResultActivity : EveBaseActivity() {
         binding.cardPerformanceStanding.setOnClickListener(openPerf)
 
         val openAnalytics = View.OnClickListener {
-            ResultDataHolder.setDetailItems(allItems)
+            if (!ResultDataHolder.setDetailItems(allItems, resultOwnerUid, currentExamId)) return@OnClickListener
             ResultDetailActivity.launch(
                 context = this,
+                ownerUid = resultOwnerUid,
                 type = ResultDetailActivity.TYPE_ANALYTICS,
                 examId = currentExamId,
                 examName = currentExamName,
@@ -718,6 +737,7 @@ class ResultActivity : EveBaseActivity() {
         lifecycleScope.launch {
             val canReattempt = com.eve.app.util.AttemptLimitManager.canAttempt(this@ResultActivity, examId)
             if (isFinishing || isDestroyed) return@launch
+            if (!resultIdentityCurrent) return@launch
             if (!canReattempt) {
                 val limitDialog = TelegramNativeAlertDialog.Builder(this@ResultActivity)
                     .setTitle("Attempt Limit Reached")
@@ -749,7 +769,7 @@ class ResultActivity : EveBaseActivity() {
                 }
 
                 confirmBtn.setOnClickListener {
-                    if (!dialog.isShowing || !confirmBtn.isEnabled) return@setOnClickListener
+                    if (!dialog.isShowing || !confirmBtn.isEnabled || !resultIdentityCurrent) return@setOnClickListener
                     confirmBtn.isEnabled = false
                     cancelBtn.isEnabled = false
                     confirmBtn.text = "Resetting..."
@@ -757,10 +777,11 @@ class ResultActivity : EveBaseActivity() {
                     lifecycleScope.launch {
                         try {
                             val response = ApiClient.apiService.resetAttemptPost(mapOf("examId" to examId))
+                            if (!resultIdentityCurrent) return@launch
                             if (response.success) {
                                 com.eve.app.data.local.TestSessionStore(this@ResultActivity).clearSession(examId)
-                                ResultDataHolder.clear()
-                                HomeViewModel.markAttemptCleared(examId)
+                                ResultDataHolder.clear(resultOwnerUid, currentExamId)
+                                HomeViewModel.markAttemptCleared(examId, resultOwnerUid)
                                 val timeLimit = if (intent.hasExtra(Constants.EXTRA_TIME_LIMIT)) {
                                     intent.getIntExtra(Constants.EXTRA_TIME_LIMIT, 60)
                                 } else {
@@ -820,9 +841,10 @@ class ResultActivity : EveBaseActivity() {
         reattemptLimitDialog = null
         reattemptConfirmDialog?.dismiss()
         reattemptConfirmDialog = null
+        com.google.firebase.auth.FirebaseAuth.getInstance().removeAuthStateListener(resultOwnerListener)
         super.onDestroy()
         if (isFinishing) {
-            ResultDataHolder.clear()
+            ResultDataHolder.clear(resultOwnerUid, currentExamId)
         }
     }
 

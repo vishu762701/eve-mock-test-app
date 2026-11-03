@@ -39,7 +39,7 @@ class TelegramBottomSheetSourceScrimTest {
             target.contains("putStringSet(KEY_TARGET_EXAMS, selected)") &&
             target.contains("putBoolean(KEY_ONBOARDING_DONE, true)"))
         assertTrue("Review and reattempt still invoke existing handlers",
-            completed.contains("ResultDataHolder.setAnswers(att.answers)") &&
+            completed.contains("ResultDataHolder.setAnswers(att.answers, ownerUid, att.examId)") &&
             completed.contains("onReattemptConfirmed()"))
     }
 }

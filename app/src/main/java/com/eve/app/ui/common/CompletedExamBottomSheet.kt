@@ -30,6 +30,8 @@ object CompletedExamBottomSheet {
         onReattemptConfirmed: () -> Unit,
         onDismiss: (() -> Unit)? = null
     ) {
+        val ownerUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        if (activity.isFinishing || activity.isDestroyed || attempt != null && attempt.userId != ownerUid) return
         val dialog = BottomSheetDialog(activity)
         val binding = BottomSheetCompletedExamBinding.inflate(LayoutInflater.from(activity))
         dialog.setContentView(binding.root)
@@ -44,8 +46,10 @@ object CompletedExamBottomSheet {
         }
 
         fun openReview(att: TestAttempt) {
-            ResultDataHolder.setAnswers(att.answers)
+            if (activity.isFinishing || activity.isDestroyed || att.userId != ownerUid ||
+                !ResultDataHolder.setAnswers(att.answers, ownerUid, att.examId)) return
             val intent = Intent(activity, ResultActivity::class.java).apply {
+                putExtra(Constants.EXTRA_RESULT_OWNER_UID, ownerUid)
                 putExtra(Constants.EXTRA_EXAM_ID, att.examId)
                 putExtra(Constants.EXTRA_EXAM_NAME, att.examName)
                 val sdf = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
@@ -79,7 +83,8 @@ object CompletedExamBottomSheet {
         binding.btnReattempt.setOnClickListener {
             // One attempt-limit lookup and one confirmation window per tap sequence.
             if (reattemptCheckPending || reattemptConfirmDialog?.isShowing == true ||
-                activity.isFinishing || activity.isDestroyed || !dialog.isShowing) {
+                activity.isFinishing || activity.isDestroyed || !dialog.isShowing ||
+                FirebaseAuth.getInstance().currentUser?.uid != ownerUid) {
                 return@setOnClickListener
             }
             reattemptCheckPending = true
@@ -88,7 +93,8 @@ object CompletedExamBottomSheet {
                     val canReattempt = com.eve.app.util.AttemptLimitManager.canAttempt(activity, examId)
                     // An asynchronous account/attempt lookup must never display a
                     // late dialog after navigation or host Activity destruction.
-                    if (activity.isFinishing || activity.isDestroyed || !dialog.isShowing) return@launch
+                    if (activity.isFinishing || activity.isDestroyed || !dialog.isShowing ||
+                        FirebaseAuth.getInstance().currentUser?.uid != ownerUid) return@launch
                     val builder = if (!canReattempt) {
                         TelegramNativeAlertDialog.Builder(activity)
                             .setTitle("Attempt Limit Reached")
@@ -100,8 +106,10 @@ object CompletedExamBottomSheet {
                             .setMessage("Are you sure you want to start a new attempt for this test? Each test can be attempted up to 3 times.")
                             .setNegativeButton(activity.getString(R.string.cancel), null)
                             .setPositiveButton("Start Attempt") { _, _ ->
+                                if (FirebaseAuth.getInstance().currentUser?.uid != ownerUid ||
+                                    activity.isFinishing || activity.isDestroyed) return@setPositiveButton
                                 binding.btnReattempt.isEnabled = false
-                                com.eve.app.ui.home.HomeViewModel.markAttemptCleared(examId)
+                                com.eve.app.ui.home.HomeViewModel.markAttemptCleared(examId, ownerUid)
                                 dialog.dismiss()
                                 onReattemptConfirmed()
                             }

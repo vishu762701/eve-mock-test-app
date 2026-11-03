@@ -29,11 +29,11 @@ class CompletedExamSourceConfirmationTest {
         assertTrue(code.contains(".setNegativeButton(activity.getString(R.string.cancel), null)"))
         assertTrue(code.contains(".setPositiveButton(\"Start Attempt\") { _, _ ->"))
         assertTrue(code.contains("binding.btnReattempt.isEnabled = false"))
-        assertTrue(code.contains("HomeViewModel.markAttemptCleared(examId)"))
+        assertTrue(code.contains("HomeViewModel.markAttemptCleared(examId, ownerUid)"))
         assertTrue(code.contains("onReattemptConfirmed()"))
         assertTrue(code.contains("onDismiss?.invoke()"))
         assertTrue("Review helper must preserve original saved answer payload",
-            code.contains("ResultDataHolder.setAnswers(att.answers)"))
+            code.contains("ResultDataHolder.setAnswers(att.answers, ownerUid, att.examId)"))
         assertTrue("Direct completed attempt still opens review",
             code.contains("openReview(attempt)"))
         assertTrue("Fetched completed attempt still opens review",

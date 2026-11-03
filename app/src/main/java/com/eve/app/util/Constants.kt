@@ -1,6 +1,7 @@
 package com.eve.app.util
 
 object Constants {
+    const val EXTRA_RESULT_OWNER_UID = "EXTRA_RESULT_OWNER_UID"
     // Per wrong answer negative marking (0.0 = koi negative marking nahi)
     const val NEGATIVE_MARK = 0.0
 

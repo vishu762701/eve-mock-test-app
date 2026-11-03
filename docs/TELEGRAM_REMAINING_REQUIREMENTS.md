@@ -1095,3 +1095,32 @@ byte-identical imports and git diff --check PASS. Backend unchanged from green b
 Bare SDK35 thread diagnostic recurred with zero JUnit failures; remains UNKNOWN.
 Carrying exact-SHA FAST pending. Native navigation, physical device/reference,
 protected FULL, verified artifact publication and human GPL clearance remain OPEN.
+
+## E4/D5 account-bound local attempt/result handoff
+
+Base 9fdeca47309ea9da0f228119591c410a70b4e057 FAST41573024314 SUCCESS;
+Docs41573024250 recheck required. Higher-priority isolation audit discovered the
+HomeViewModel companion cache keyed only by exam ID and ResultDataHolder's untagged
+answer/detail slots. R1: current account must never read another account's local
+attempt, submitted/cleared flags or result/detail answers. R2: every actual producer,
+consumer and fallback must bind immutable source UID/exam context, reject stale
+callbacks/account changes and preserve same-account navigation/recreation. R3: no
+new state owner or parallel cache; extend canonical holders, preserve server scoring,
+answer confidentiality, attempt deduplication, history and existing UI. R4: real
+previous-result fallback and native result consumers must be tested with synthetic
+SDK/transport boundaries, including account switch and late completion. Treat source
+risk as INFERRED until regression tests reproduce it. This security correctness work
+precedes the separately suspected Home search SavedState gap; no speculative QR or
+Home geometry changes. No production mutation/deployment or permission change.
+
+Scoped ledger/source evidence: ATTEMPT_RESULT_OWNER_ISOLATION.md.
+
+Final local integration PASS: ./gradlew :app:testDebugUnitTest
+:app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug
+-Peve.nativeAbis=x86_64 (2m44s), 948 tests / 202 suites, zero failures/errors/skips;
+lint 0 errors / 1629 warnings. Scoped ownership18 cases (including the intact moved
+tracking assertions) PASS. Helpers59, docs80, acceptance structure, four recorded
+byte imports and git diff --check PASS. One preceding local run's indentation lint
+error was repaired; no suppression/baseline or assertion removal. Historical bare
+SDK35 thread diagnostic remains UNKNOWN; no blanket crash-free/device claim.
+Carrying exact-SHA FAST pending. Backend/Firebase source unchanged from green base.

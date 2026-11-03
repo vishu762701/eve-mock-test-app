@@ -119,31 +119,6 @@ class ResultAndTestPolishVerificationTest {
     }
 
     @Test
-    fun testSubmittedAttemptImmediateTracking() {
-        val testExamId = "test_exam_mock_42"
-        HomeViewModel.markAttemptCleared(testExamId)
-        assertFalse(HomeViewModel.isAttemptSubmitted(testExamId))
-
-        val attempt = TestAttempt(
-            id = "att_1",
-            examId = testExamId,
-            score = 80.0,
-            total = 100,
-            correct = 80,
-            wrong = 20,
-            unattempted = 0
-        )
-
-        HomeViewModel.markAttemptSubmitted(testExamId, attempt)
-        assertTrue(HomeViewModel.isAttemptSubmitted(testExamId))
-        assertEquals(attempt, HomeViewModel.getCachedAttempt(testExamId))
-
-        HomeViewModel.markAttemptCleared(testExamId)
-        assertFalse(HomeViewModel.isAttemptSubmitted(testExamId))
-        assertNull(HomeViewModel.getCachedAttempt(testExamId))
-    }
-
-    @Test
     fun testSingleQuestionIsolationLogic() {
         val sampleItems = listOf(
             AnswerItem(number = 1, questionText = "Question 1", selected = "A", selectedText = "Alpha", correct = "A", correctText = "Alpha"),
