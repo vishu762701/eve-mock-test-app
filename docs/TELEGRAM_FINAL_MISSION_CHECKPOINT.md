@@ -1850,3 +1850,18 @@ Backend rights, endpoints and permissions remain unchanged; no new framework.
 Status: STAGED ONLY pending exact-SHA FAST of the prior independent
 NotificationStore data-resilience commit. Android device permission/recreation
 matrix, release distribution/legal clearance and six-job FULL remain open.
+
+## Notification single-owner write serialization (prepared follow-up)
+
+The canonical NotificationStore had a synchronized broadcast import, but its
+local-add and inbox mark-all-read paths also read and rewrite the same stored
+JSON array without the same monitor. Overlapping FCM/reminder delivery and
+inbox/broadcast operations could clobber updates. The bounded follow-up applies
+one JVM object lock to all JSON mutation paths (add, import, mark-read, deleted
+user cleanup), retaining the existing cache namespace, cursor, sourceId, read
+semantics and screens. Reflection regression covers real production method
+synchronization. No new storage owner, worker endpoint or async state manager.
+
+This is PREPARED ONLY pending the Admin Hub exact-SHA FAST gate; do not claim
+concurrent device delivery was run. QR source/full-scene hardware evidence,
+final six-job FULL, signing and human legal release clearance remain OPEN.

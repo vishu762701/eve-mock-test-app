@@ -43,6 +43,7 @@ object NotificationStore {
         namespaceForUser(FirebaseAuth.getInstance().currentUser?.uid), Context.MODE_PRIVATE
     )
 
+    @Synchronized
     fun clearDeletedUser(context: Context, uid: String) {
         if (uid.isBlank()) return
         context.getSharedPreferences(namespaceForUser(uid), Context.MODE_PRIVATE).edit().clear().apply()
@@ -59,6 +60,7 @@ object NotificationStore {
     fun hasEstablishedBroadcastBaseline(context: Context): Boolean =
         notificationPrefs(context).contains(KEY_LAST_BROADCAST_TS)
 
+    @Synchronized
     fun add(context: Context, title: String, body: String) {
         val prefs = notificationPrefs(context)
         val array = readArray(prefs)
@@ -218,6 +220,7 @@ object NotificationStore {
     fun hasUnread(context: Context): Boolean = getAll(context).any { !it.read }
 
     /** Notifications screen khulte hi sab ko "read" mark kar do taaki bell ka red dot hat jaye. */
+    @Synchronized
     fun markAllRead(context: Context) {
         val prefs = notificationPrefs(context)
         val array = readArray(prefs)
