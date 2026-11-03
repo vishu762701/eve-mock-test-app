@@ -2084,3 +2084,29 @@ combined account/lifecycle guard. No server or device mutations were performed.
 Status: IMPLEMENTED/STAGED pending carrying commit and exact-SHA FAST. Full
 bookmarks device gesture/failure/rotation testing, broader Telegram parity,
 final six-job FULL CI and GPL approval are separately OPEN.
+
+## 2026-11-03 Bookmarks initial read truthfulness (prepared second/final batch)
+
+The previous server-confirmed swipe repair is carried by
+b425cb45c4f0c52130b41254d49c5ac51346e0eb; its exact-SHA FAST
+41607774069 and documentation 41607774150 are SUCCESS.
+This is its second and final accepted implementation increment.
+
+Source review of the same canonical BookmarkRepository found the initial
+`observeBookmarkedQuestions` GET swallowed network/permission exceptions and
+accepted `success=true, data=null` as cached empty. The existing Bookmarks
+ViewModel consequently displayed `No bookmarks yet` when the server had not
+actually confirmed an empty page. This batch preserves the existing single
+repository/StateFlow/Activity and replaces the silent catch in that read path
+with a validated response contract. A signed-in owner is still checked after
+network suspension and the existing ViewModel `.catch` presents the error.
+Valid empty pages and stable ordering are unchanged. The distinct quiz-side
+`observeBookmarkIds` read contract is deliberately not modified.
+
+New JVM tests in `BookmarkInitialReadContractTest.kt` cover genuine empty,
+denied, missing payload, missing ID and valid ordering, plus the actual
+production flow's owner/error propagation. No Worker endpoint, D1 migration,
+new data source or competing UI state owner is introduced. This batch remains
+STAGED (not tested/committed) until preceding exact-SHA FAST succeeds.
+Device error-state/Undo gestures, source-exact Telegram parity, protected FULL
+and human release/legal approval remain separate outstanding requirements.

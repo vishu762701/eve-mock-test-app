@@ -66,16 +66,14 @@ class BookmarkRepository(
             emit(emptyList())
             return@flow
         }
-        try {
-            val res = api.getBookmarks()
-            if (!accepts(userId)) return@flow
-            if (res.success && res.data != null) {
-                _bookmarksFlow.value = res.data
-            }
-        } catch (cancel: CancellationException) {
-            throw cancel
-        } catch (_: Exception) {
-        }
+        // Initial fetch must be server-confirmed. Previously a failure or a
+        // success envelope with missing data was converted to an empty cache
+        // and the UI falsely rendered "No bookmarks yet".
+        val response = api.getBookmarks()
+        if (!accepts(userId)) return@flow
+        _bookmarksFlow.value = confirmedBookmarkRows(
+            response.success, response.data, response.error
+        )
         if (accepts(userId)) emitAll(_bookmarksFlow)
     }
 
@@ -163,4 +161,19 @@ class BookmarkRepository(
             bookmarkQuestion(userId, question, examName, questionNumber)
         }
     }
+}
+
+
+/** Existing repository's response contract, isolated for deterministic JVM tests. */
+internal fun confirmedBookmarkRows(
+    success: Boolean,
+    data: List<BookmarkedQuestion>?,
+    error: String?
+): List<BookmarkedQuestion> {
+    if (!success) throw IllegalStateException(error ?: "Failed to load bookmarks")
+    val rows = data ?: throw IllegalStateException("Server bookmarks list is missing")
+    check(rows.all { it.questionId.isNotBlank() }) {
+        "Server bookmarks list contains a missing question ID"
+    }
+    return rows
 }
