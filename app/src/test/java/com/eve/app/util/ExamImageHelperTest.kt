@@ -12,9 +12,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
 import java.io.File
 
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [35], application = android.app.Application::class)
 class ExamImageHelperTest {
     @Test fun sourceDecodeIsBoundedAtTargetScale() {
         assertEquals(1, ExamImageHelper.decodeSampleSize(256, 256, 256))
