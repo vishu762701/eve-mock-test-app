@@ -149,26 +149,46 @@ object NotificationStore {
         return incoming.size
     }
 
-    fun getAll(context: Context): List<StoredNotification> {
-        val array = readArray(notificationPrefs(context))
-        return (0 until array.length()).map { i ->
-            val obj = array.getJSONObject(i)
-            val emoji = if (obj.has("emoji_url")) {
-                com.eve.app.data.model.EmojiPlacement(
-                    id = obj.optString("emoji_id", ""),
-                    url = obj.optString("emoji_url", ""),
-                    kind = obj.optString("emoji_kind", "lottie"),
-                    alt = obj.optString("emoji_alt", "")
-                )
-            } else null
-            StoredNotification(
-                title = obj.getString("title"),
-                body = obj.getString("body"),
-                timestampMillis = obj.getLong("timestamp"),
-                read = obj.optBoolean("read", false),
-                emoji = emoji
-            )
+    fun getAll(context: Context): List<StoredNotification> =
+        decodeStoredEntries(notificationPrefs(context).getString(KEY_NOTIFICATIONS, null))
+
+    /**
+     * Malformed legacy/device-local entries must not crash Home's unread-dot
+     * refresh or the inbox. Valid entries retain their original read state.
+     */
+    internal fun decodeStoredEntries(raw: String?): List<StoredNotification> {
+        val array = parseArray(raw)
+        return (0 until array.length()).mapNotNull { index ->
+            decodeStoredEntry(array.optJSONObject(index))
         }
+    }
+
+    private fun decodeStoredEntry(obj: JSONObject?): StoredNotification? {
+        if (obj == null) return null
+        val title = obj.opt("title") as? String ?: return null
+        val body = obj.opt("body") as? String ?: return null
+        val timestamp = when (val saved = obj.opt("timestamp")) {
+            is Number -> saved.toLong()
+            is String -> saved.toLongOrNull()
+            else -> null
+        }?.takeIf { it >= 0L } ?: return null
+        val emoji = (obj.opt("emoji_url") as? String)
+            ?.takeIf { it.isNotBlank() }
+            ?.let { url ->
+                com.eve.app.data.model.EmojiPlacement(
+                    id = obj.opt("emoji_id") as? String ?: "",
+                    url = url,
+                    kind = obj.opt("emoji_kind") as? String ?: "lottie",
+                    alt = obj.opt("emoji_alt") as? String ?: ""
+                )
+            }
+        return StoredNotification(
+            title = title,
+            body = body,
+            timestampMillis = timestamp,
+            read = obj.optBoolean("read", false),
+            emoji = emoji
+        )
     }
 
     private const val KEY_LAST_SEEN_TIMESTAMP = "key_last_seen_notif_ts"
@@ -217,12 +237,24 @@ object NotificationStore {
         editor.apply()
     }
 
-    private fun readArray(prefs: android.content.SharedPreferences): JSONArray {
-        val raw = prefs.getString(KEY_NOTIFICATIONS, null) ?: return JSONArray()
+    private fun parseArray(raw: String?): JSONArray {
+        if (raw == null) return JSONArray()
         return try {
             JSONArray(raw)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             JSONArray()
         }
+    }
+
+    private fun readArray(prefs: SharedPreferences): JSONArray {
+        val original = parseArray(prefs.getString(KEY_NOTIFICATIONS, null))
+        val valid = JSONArray()
+        for (index in 0 until original.length()) {
+            val row = original.optJSONObject(index) ?: continue
+            if (decodeStoredEntry(row) != null) valid.put(row)
+        }
+        // All write paths (local add, server merge, inbox acknowledge) preserve
+        // original valid JSON metadata such as sourceId, not a lossy DTO copy.
+        return valid
     }
 }

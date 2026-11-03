@@ -1808,3 +1808,23 @@ follow-up is committed and its own exact-SHA FAST succeeds, mark the change
 PREPARED, not MET. Physical UI, two native navigation modes, QR scene parity,
 protected six-job FULL, verified APK publication and human GPL release
 authorization remain OUTSTANDING. No production Worker or D1 deployment.
+
+## Notification cache malformed-row resilience (prepared independent repair)
+
+Existing `util/NotificationStore.kt` read paths can encounter historical or
+partial SharedPreferences JSON arrays. Before this repair, `getAll()` iterated
+with `getJSONObject`, `getString` and `getLong`, which threw for a mixed
+or incomplete row. Home's unread dot and NotificationsActivity both call
+`getAll`; `markAllRead` also assumed every row was a JSON object.
+
+The prepared fix keeps one store and its existing account-hashed namespace,
+broadcast ID cursor, inbox-only acknowledgment and server interface. It adds
+one tolerant entry decoder, preserves valid read/emoji/source metadata, and
+passes a sanitized JSON object array to the existing add/import/mark-read
+mutations. A Robolectric JVM regression covers malformed JSON, mixed valid
+and invalid rows, read ordering and invalid optional emoji metadata. No new
+notification owner, mutation handler or API call was introduced.
+
+Status: STAGED ONLY, subject to previous exact-SHA FAST green and its own
+FAST. Full Android device behavior, Telegram visual parity, final six-job FULL,
+physical validation, APK publication and human GPL clearance are still OPEN.
