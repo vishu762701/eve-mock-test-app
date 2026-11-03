@@ -13,9 +13,11 @@ class EditExamTelegramDialogContractTest {
         assertEquals("Import preview, Add Question, Edit Question and Delete Question",
             4, source.split("TelegramNativeAlertDialog.Builder(").size - 1 +
                 source.split("createQuestionEditorDialog(").size - 1)
-        assertEquals(4, source.split(".show()").size - 1)
+        assertEquals("One native window owner shows all four modal callers",1,source.split(".show()").size - 1)
+        assertEquals(4,Regex("""^\s+showOwnedQuestionDialog\(dialog(?:,|\))""",RegexOption.MULTILINE).findAll(source).count())
+        assertTrue(source.contains("questionDialog?.dismiss()"))
         assertTrue("Delete Question must remain explicitly destructive red",
-            source.contains(".makeRed(DialogInterface.BUTTON_POSITIVE).show()"))
+            source.contains(".makeRed(DialogInterface.BUTTON_POSITIVE).create()"))
         assertTrue(!source.contains(".showTelegramSourceDialog()"))
         val native = File("src/main/java/com/eve/app/designsystem/TelegramNativeAlertDialog.kt").readText()
         assertTrue(native.contains("R.drawable.telegram_dialog_popup_fixed_alert4"))

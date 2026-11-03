@@ -1005,3 +1005,32 @@ old deployed service cannot falsely confirm it because client verifies readback.
 First next independent action after carrying FAST: pending fresh-gate picker URI
 recovery. Undo product answer remains pending. Whole mission/QR/device/FULL/legal
 acceptance remains OPEN/NOT MET. Existing successful feature/commit ledger preserved.
+
+## C5 EditExam picker result handoff and lifecycle
+
+Base 07b448e5e70b53569db6a4ba328bd0baf34edca8 FAST 41544036446 SUCCESS,
+docs 41544036310 SUCCESS. Metadata save integrity gate is green; cutoff production
+rollout stays separately BLOCKED. R1: actual GetContent result delivered during a
+recreated Activity's pending fresh gate must survive until same-owner/exam rights
+and metadata are confirmed. R2: no file read/preview/write under denied or changed
+identity; consume once, preserve cancellation and avoid duplicate previews. R3:
+provider errors/null streams must be handled, and file query/read/parse must run off
+Main with lifecycle-owned stream/job/window cleanup. R4: preserve existing parser,
+preview and explicit import contracts; no new permission, persistent URI grant,
+state manager or automatic backend replay. Test actual ActivityResultRegistry and
+ContentResolver callers, not only a selector helper. Shared parser bounds/sparse
+XLSX handling and unknown in-flight import acknowledgement remain separate OPEN
+reliability requirements; never claim device/provider-grant proof from Robolectric.
+
+## C5 import result handoff/read lifecycle
+
+Recovery main 07b448e5e70b53569db6a4ba328bd0baf34edca8, FAST 41544036446 and
+docs 41544036310 SUCCESS. Queued picker defect now has actual registry/provider
+fail-before and expanded host evidence. Implementation/source/requirement ledger:
+EXAM_IMPORT_RESULT_LIFECYCLE.md. Single existing Activity/window owner; no new
+permission, persistent grant, parser rewrite, backend or production operation.
+Scoped16 picker tests and broad Android899/199 suites, AndroidTest compile/lint (0 errors/1629 warnings)/x86_64 assemble PASS; helpers59/docs/claims/four imports/diff PASS. Carrying FAST pending. First next
+after carrying FAST: shared parser resource/batch bounds and sparse XLSX column
+mapping. Physical providers/grants, unknown submit acknowledgement/idempotent retry,
+whole source UI/device/FULL/GPL acceptance remain OPEN. Existing successful QR and
+other work preserved; cutoff production rollout and Undo decision remain separate.

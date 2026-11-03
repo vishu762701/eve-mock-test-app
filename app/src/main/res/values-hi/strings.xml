@@ -89,4 +89,7 @@
     <string name="exam_minutes_range">1 से 600 के बीच मिनट दर्ज करें</string>
     <string name="exam_cutoff_invalid">%1$s कटऑफ के लिए शून्य या उससे बड़ी संख्या दर्ज करें</string>
     <string name="exam_metadata_unconfirmed">परीक्षा के सभी बदलावों की पुष्टि नहीं हो सकी। दोबारा प्रयास करने से पहले संपादक फिर खोलें।</string>
+    <string name="exam_import_read_failed">चुनी हुई फ़ाइल पढ़ी नहीं जा सकी। फ़ाइल दोबारा चुनें।</string>
+    <string name="exam_import_interrupted">पिछले इम्पोर्ट की पुष्टि बीच में रुक गई। दोबारा प्रयास करने से पहले प्रश्न सूची जाँचें।</string>
+    <string name="exam_import_picker_unavailable">इस डिवाइस पर फ़ाइल चुनने की सुविधा उपलब्ध नहीं है।</string>
 </resources>

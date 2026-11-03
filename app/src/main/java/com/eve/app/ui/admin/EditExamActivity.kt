@@ -7,6 +7,12 @@ import com.eve.app.ui.common.EveBaseActivity
 
 import android.net.Uri
 import android.os.Bundle
+import android.os.CancellationSignal
+import androidx.lifecycle.Lifecycle
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.ensureActive
 import android.provider.OpenableColumns
 import android.view.LayoutInflater
 import android.view.View
@@ -64,7 +70,20 @@ class EditExamActivity : EveBaseActivity() {
 
     private var canManageQuestions = false
     private var canManageContent = false
-    private var addQuestionDialog: TelegramNativeAlertDialog? = null
+    private var questionDialog: TelegramNativeAlertDialog? = null
+    private data class ParsedImport(val uri: Uri, val fileName: String, val result: QuestionImportHelper.ImportResult)
+    private var awaitingPickerResult = false
+    private var pendingImportUri: Uri? = null
+    private var parsedImport: ParsedImport? = null
+    private var importReadJob: Job? = null
+    private var cancelImportRead: (() -> Unit)? = null
+    private var importReadGeneration = 0L
+    private var closingEditor = false
+    private var importingQuestions = false
+    private var interruptedImportNotice = false
+    private val questionWindowBusy: Boolean
+        get() = awaitingPickerResult || questionDialog?.isShowing == true || importReadJob?.isActive == true || importingQuestions
+
     private val questionActionsAllowed: Boolean
         get() = canManageQuestions && editorIdentityCurrent
 
@@ -75,9 +94,20 @@ class EditExamActivity : EveBaseActivity() {
     )
 
     private val filePicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        if (uri != null) {
-            handleFileSelected(uri)
+        if (!awaitingPickerResult) return@registerForActivityResult
+        awaitingPickerResult = false
+        updateImportControls()
+        if (uri != null && editorIdentityCurrent && !importingQuestions) {
+            if (pendingImportUri != uri) {
+                importReadGeneration++
+                cancelImportRead?.invoke()
+                importReadJob?.cancel()
+                importReadJob = null
+                parsedImport = null
+                pendingImportUri = uri
+            }
         }
+        consumePendingImport()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,6 +121,9 @@ class EditExamActivity : EveBaseActivity() {
         restoreMetadataDraft = savedInstanceState?.getBoolean("edit_exam_metadata_ready") == true
         restoredMetadataCategory = savedInstanceState?.getString("edit_exam_metadata_category")
         setMetadataEditingEnabled(false)
+        awaitingPickerResult = savedInstanceState?.getBoolean("edit_exam_picker_pending") == true
+        pendingImportUri = savedInstanceState?.getString("edit_exam_pending_import")?.let(Uri::parse)
+        interruptedImportNotice = savedInstanceState?.getBoolean("edit_exam_import_in_flight") == true
 
         com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_exams",
             restorationScope = "edit_exam:" + intent.getStringExtra(Constants.EXTRA_EXAM_ID).orEmpty(),
@@ -98,6 +131,7 @@ class EditExamActivity : EveBaseActivity() {
         if (!editorIdentityCurrent) { finish(); return@requireAdmin }
         canManageQuestions = permissions.isOwner || "manage_questions" in permissions.rights
         canManageContent = permissions.isOwner || "manage_content" in permissions.rights
+        if (!canManageQuestions) { pendingImportUri = null; parsedImport = null }
         binding.btnAddQuestion.visibility = if (canManageQuestions) View.VISIBLE else View.GONE
         binding.btnBulkUpload.visibility = if (canManageQuestions) View.VISIBLE else View.GONE
         binding.btnPickEmoji.visibility = if (canManageContent) View.VISIBLE else View.GONE
@@ -122,8 +156,15 @@ class EditExamActivity : EveBaseActivity() {
         }
         binding.btnAddQuestion.setOnClickListener { showAddQuestionDialog() }
         binding.btnBulkUpload.setOnClickListener {
-            if (!questionActionsAllowed) return@setOnClickListener
-            filePicker.launch("*/*")
+            if (!questionActionsAllowed || questionWindowBusy) return@setOnClickListener
+            awaitingPickerResult = true
+            updateImportControls()
+            try { filePicker.launch("*/*") }
+            catch (_: android.content.ActivityNotFoundException) {
+                awaitingPickerResult = false
+                updateImportControls()
+                AppBulletin.showError(this, getString(R.string.exam_import_picker_unavailable))
+            }
         }
 
         loadExamData()
@@ -178,6 +219,13 @@ class EditExamActivity : EveBaseActivity() {
         }
         restoredMetadataCategory = null
         setMetadataEditingEnabled(!metadataSaveInFlight)
+        updateImportControls()
+        consumePendingImport()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        consumePendingImport()
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
@@ -189,6 +237,9 @@ class EditExamActivity : EveBaseActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean("edit_exam_metadata_ready", currentExam != null || restoreMetadataDraft)
+        outState.putBoolean("edit_exam_picker_pending", awaitingPickerResult)
+        outState.putString("edit_exam_pending_import", pendingImportUri?.toString())
+        outState.putBoolean("edit_exam_import_in_flight", importingQuestions || interruptedImportNotice)
         if (::binding.isInitialized) {
             outState.putString("edit_exam_metadata_category",
                 restoredMetadataCategory ?: binding.spCategory.selectedItem?.toString())
@@ -234,6 +285,10 @@ class EditExamActivity : EveBaseActivity() {
 
                 binding.tvQuestionsHeader.text = "Questions (${currentQuestions.size})"
                 questionAdapter.submit(currentQuestions)
+                if (interruptedImportNotice) {
+                    interruptedImportNotice = false
+                    AppBulletin.show(this@EditExamActivity, getString(R.string.exam_import_interrupted))
+                }
 
                 binding.tvNoQuestions.visibility =
                     if (currentQuestions.isEmpty()) View.VISIBLE else View.GONE
@@ -318,37 +373,112 @@ class EditExamActivity : EveBaseActivity() {
         }
     }
 
-    private fun handleFileSelected(uri: Uri) {
-        if (!questionActionsAllowed) return
-        val fileName = getFileName(uri) ?: "upload.csv"
-        try {
-            contentResolver.openInputStream(uri)?.use { stream ->
-                val result = QuestionImportHelper.parseQuestions(stream, fileName, examId)
-                showImportPreviewDialog(fileName, result)
-            }
-        } catch (e: Exception) {
-            AppBulletin.showError(this, "Failed to open file: ${e.message}")
-        }
+    private fun updateImportControls() {
+        if (!::binding.isInitialized || !editorIdentityCurrent) return
+        binding.btnBulkUpload.isEnabled = questionActionsAllowed && !questionWindowBusy
+        binding.btnAddQuestion.isEnabled = questionActionsAllowed && !questionWindowBusy
     }
 
-    private fun getFileName(uri: Uri): String? {
-        var name: String? = null
-        if (uri.scheme == "content") {
-            val cursor = contentResolver.query(uri, null, null, null, null)
-            cursor?.use {
-                if (it.moveToFirst()) {
-                    val index = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                    if (index >= 0) name = it.getString(index)
+    /** One existing Activity owns its registered result, read job and current native modal. */
+    private fun consumePendingImport() {
+        if (closingEditor || !questionActionsAllowed || currentExam?.id != examId ||
+            !lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED) || questionWindowBusy) return
+        val uri = pendingImportUri ?: return
+        val ready = parsedImport
+        if (ready?.uri == uri) { showImportPreviewDialog(ready.fileName, ready.result); return }
+        val request = ++importReadGeneration
+        val requestedExam = examId
+        val signal = CancellationSignal()
+        val descriptor = java.util.concurrent.atomic.AtomicReference<android.content.res.AssetFileDescriptor?>()
+        cancelImportRead = {
+            signal.cancel()
+            runCatching { descriptor.getAndSet(null)?.close() }
+        }
+        importReadJob = lifecycleScope.launch {
+            try {
+                val parsed = withContext(Dispatchers.IO) {
+                    val ioContext = kotlin.coroutines.coroutineContext
+                    ioContext.ensureActive()
+                    val fileName = getFileName(uri, signal) ?: "upload.csv"
+                    val asset = contentResolver.openAssetFileDescriptor(uri, "r", signal)
+                        ?: throw java.io.IOException("Selected document is unavailable")
+                    asset.use { opened ->
+                        descriptor.set(opened)
+                        try {
+                            ioContext.ensureActive()
+                            opened.createInputStream().use { stream ->
+                                val cancellable = object : java.io.FilterInputStream(stream) {
+                                    override fun read(): Int { ioContext.ensureActive(); return super.read() }
+                                    override fun read(b: ByteArray, off: Int, len: Int): Int {
+                                        ioContext.ensureActive(); return super.read(b, off, len)
+                                    }
+                                }
+                                ParsedImport(uri, fileName, QuestionImportHelper.parseQuestions(cancellable, fileName, requestedExam))
+                            }
+                        } finally { descriptor.compareAndSet(opened, null) }
+                    }
+                }
+                if (request != importReadGeneration || !questionActionsAllowed || requestedExam != examId || pendingImportUri != uri) return@launch
+                parsedImport = parsed
+            } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
+            catch (_: Exception) {
+                if (request == importReadGeneration && questionActionsAllowed) {
+                    pendingImportUri = null
+                    parsedImport = null
+                    AppBulletin.showError(this@EditExamActivity, getString(R.string.exam_import_read_failed))
+                }
+            } finally {
+                if (request == importReadGeneration) {
+                    importReadJob = null
+                    cancelImportRead = null
+                    updateImportControls()
+                    // A completed read is cached while stopped; Resume can show it without rereading.
+                    val readyNow = parsedImport
+                    if (!closingEditor && questionActionsAllowed && pendingImportUri == readyNow?.uri &&
+                        readyNow != null && lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED) && questionDialog?.isShowing != true) {
+                        showImportPreviewDialog(readyNow.fileName, readyNow.result)
+                    }
                 }
             }
         }
-        return name ?: uri.lastPathSegment
+        updateImportControls()
+    }
+
+    private fun getFileName(uri: Uri, signal: CancellationSignal): String? {
+        if (uri.scheme == "content") {
+            contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null, signal)?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    if (index >= 0) return cursor.getString(index)
+                }
+            }
+        }
+        return uri.lastPathSegment
+    }
+
+    private fun showOwnedQuestionDialog(dialog: TelegramNativeAlertDialog, importUri: Uri? = null) {
+        if (closingEditor || !questionActionsAllowed || questionDialog?.isShowing == true) return
+        questionDialog = dialog
+        dialog.setOnDismissListener {
+            if (questionDialog === dialog) {
+                questionDialog = null
+                if (importUri != null && pendingImportUri == importUri) {
+                    pendingImportUri = null
+                    parsedImport = null
+                }
+                updateImportControls()
+                consumePendingImport()
+            }
+        }
+        dialog.show()
+        updateImportControls()
     }
 
     private fun showImportPreviewDialog(
         fileName: String,
         result: QuestionImportHelper.ImportResult
     ) {
+        if (!questionActionsAllowed || questionDialog?.isShowing == true) return
         val validCount = result.validQuestions.size
         val errorCount = result.errors.size
 
@@ -375,6 +505,7 @@ class EditExamActivity : EveBaseActivity() {
 
         if (validCount > 0) {
             builder.setPositiveButton("Import ($validCount questions)") { _, _ ->
+                if (questionDialog?.isShowing != true) return@setPositiveButton
                 importQuestions(result.validQuestions)
             }
             builder.setNegativeButton("Cancel", null)
@@ -382,11 +513,14 @@ class EditExamActivity : EveBaseActivity() {
             builder.setPositiveButton("OK", null)
         }
 
-        builder.show()
+        val dialog = builder.create()
+        showOwnedQuestionDialog(dialog, importUri = pendingImportUri)
     }
 
     private fun importQuestions(questions: List<Question>) {
-        if (!questionActionsAllowed || questions.any { it.examId != examId }) return
+        if (!questionActionsAllowed || importingQuestions || questions.any { it.examId != examId }) return
+        importingQuestions = true
+        updateImportControls()
         binding.progressBar.visibility = View.VISIBLE
         lifecycleScope.launch {
             try {
@@ -401,12 +535,15 @@ class EditExamActivity : EveBaseActivity() {
                     binding.progressBar.visibility = View.GONE
                     AppBulletin.showError(this@EditExamActivity, "Import failed: ${e.toUserFriendlyMessage()}")
                 }
+            } finally {
+                importingQuestions = false
+                updateImportControls()
             }
         }
     }
 
     private fun showAddQuestionDialog() {
-        if (!questionActionsAllowed || addQuestionDialog?.isShowing == true) return
+        if (!questionActionsAllowed || questionWindowBusy) return
         val exam = currentExam
         if (exam == null) {
             AppBulletin.showError(this, "Exam details are unavailable. Reload before adding a question.")
@@ -414,9 +551,7 @@ class EditExamActivity : EveBaseActivity() {
         }
         val dialog = createQuestionEditorDialog(this, exam, title = "Add New Question",
             submit = ::submitAddedQuestion)
-        addQuestionDialog = dialog
-        dialog.setOnDismissListener { if (addQuestionDialog === dialog) addQuestionDialog = null }
-        dialog.show()
+        showOwnedQuestionDialog(dialog)
     }
 
     private fun submitAddedQuestion(question: Question, onFailure: (String) -> Unit, onDone: () -> Unit) {
@@ -442,13 +577,20 @@ class EditExamActivity : EveBaseActivity() {
     }
 
     override fun onDestroy() {
-        addQuestionDialog?.dismiss()
-        addQuestionDialog = null
+        closingEditor = true
+        importReadGeneration++
+        cancelImportRead?.invoke()
+        cancelImportRead = null
+        importReadJob?.cancel()
+        importReadJob = null
+        questionDialog?.dismiss()
+        questionDialog = null
+        parsedImport = null
         super.onDestroy()
     }
 
     private fun showQuestionDetails(q: Question) {
-        if (!questionActionsAllowed) return
+        if (!questionActionsAllowed || questionWindowBusy) return
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edit_question_details, null)
         val etQuestionText = dialogView.findViewById<EditText>(R.id.etQuestionText)
         val etOptionA = dialogView.findViewById<EditText>(R.id.etOptionA)
@@ -534,7 +676,7 @@ class EditExamActivity : EveBaseActivity() {
             }
         }
 
-        TelegramNativeAlertDialog.Builder(this)
+        val dialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Edit Question")
             .setView(dialogView)
             .setPositiveButton("Save") { _, _ ->
@@ -592,7 +734,8 @@ class EditExamActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .create()
+        showOwnedQuestionDialog(dialog)
     }
 
     companion object {
@@ -631,8 +774,8 @@ class EditExamActivity : EveBaseActivity() {
     }
 
     private fun confirmDeleteQuestion(q: Question) {
-        if (!questionActionsAllowed) return
-        TelegramNativeAlertDialog.Builder(this)
+        if (!questionActionsAllowed || questionWindowBusy) return
+        val dialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Delete Question?")
             .setMessage("Are you sure? This cannot be undone.\n\n\"${q.questionText}\"")
             .setPositiveButton("Delete") { _, _ ->
@@ -674,6 +817,7 @@ class EditExamActivity : EveBaseActivity() {
                 )
             }
             .setNegativeButton("Cancel", null)
-            .makeRed(DialogInterface.BUTTON_POSITIVE).show()
+            .makeRed(DialogInterface.BUTTON_POSITIVE).create()
+        showOwnedQuestionDialog(dialog)
     }
 }

@@ -88,4 +88,7 @@
     <string name="exam_minutes_range">Enter minutes between 1 and 600</string>
     <string name="exam_cutoff_invalid">Enter a non-negative number for %1$s cutoff</string>
     <string name="exam_metadata_unconfirmed">Exam changes could not be fully confirmed. Reload the editor before retrying.</string>
+    <string name="exam_import_read_failed">Unable to read the selected file. Choose the file again.</string>
+    <string name="exam_import_interrupted">Previous import confirmation was interrupted. Check the question list before retrying.</string>
+    <string name="exam_import_picker_unavailable">No file picker is available on this device.</string>
 </resources>

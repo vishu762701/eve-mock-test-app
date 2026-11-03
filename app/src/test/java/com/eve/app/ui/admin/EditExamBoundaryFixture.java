@@ -16,16 +16,23 @@ public final class EditExamBoundaryFixture {
     public static int freshReads, dataReads, writes, questionReads;
     public static Question lastUpdatedQuestion;
     public static Continuation<? super Unit> pendingWrite;
+    public static int batchWrites;
+    public static java.util.List<Question> lastBatch;
+    public static Continuation<? super Integer> pendingBatch;
+    public static boolean holdMembership;
+    public static Continuation<? super Boolean> pendingMembership;
     public static boolean holdExamRead;
     public static Continuation<Object> pendingExamRead;
     public static Exam lastUpdatedExam;
     public static int examWrites;
     public static Continuation<? super Unit> pendingExamWrite;
-    public static void reset() { freshReads=0; dataReads=0; writes=0; questionReads=0; pendingWrite=null; lastUpdatedQuestion=null; holdExamRead=false; pendingExamRead=null; lastUpdatedExam=null; examWrites=0; pendingExamWrite=null; }
+    public static void reset() { freshReads=0; dataReads=0; writes=0; questionReads=0; pendingWrite=null; lastUpdatedQuestion=null; batchWrites=0; lastBatch=null; pendingBatch=null; holdMembership=false; pendingMembership=null; holdExamRead=false; pendingExamRead=null; lastUpdatedExam=null; examWrites=0; pendingExamWrite=null; }
     @Implements(value=AdminRepository.class,isInAndroidSdk=false)
     public static class AdminBoundary {
         @Implementation public Object isAdminFresh(String uid,String email,Continuation<? super Boolean> continuation) {
-            freshReads++; return true;
+            freshReads++;
+            if (holdMembership) { pendingMembership=continuation; return IntrinsicsKt.getCOROUTINE_SUSPENDED(); }
+            return true;
         }
         @Implementation public Object isAdmin(String email,Continuation<? super Boolean> continuation) {
             throw new AssertionError("Privileged Activity must use fresh server membership");
@@ -47,6 +54,9 @@ public final class EditExamBoundaryFixture {
         @Implementation public Object getQuestions(String id,Continuation<?> continuation) { dataReads++; questionReads++; return questions; }
         @Implementation public Object updateQuestion(Question question,Continuation<? super Unit> continuation) {
             writes++; lastUpdatedQuestion=question; pendingWrite=continuation; return IntrinsicsKt.getCOROUTINE_SUSPENDED();
+        }
+        @Implementation public Object addQuestions(java.util.List<Question> questions,Continuation<? super Integer> continuation) {
+            batchWrites++; lastBatch=questions; pendingBatch=continuation; return IntrinsicsKt.getCOROUTINE_SUSPENDED();
         }
         @Implementation public Object deleteQuestion(String id,Continuation<? super Unit> continuation) {
             writes++; pendingWrite=continuation; return IntrinsicsKt.getCOROUTINE_SUSPENDED();

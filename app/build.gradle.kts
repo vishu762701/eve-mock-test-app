@@ -202,3 +202,9 @@ tasks.withType<org.gradle.api.tasks.testing.Test>().configureEach {
     inputs.file(qrBackdropHostLibrary).withPropertyName("qrBackdropHostLibrary")
     systemProperty("eve.qr.backdrop.hostLibrary", qrBackdropHostLibrary.get().asFile.absolutePath)
 }
+
+// Robolectric closes real synthetic-provider descriptors through java.io reflection on JDK21.
+// This applies only to host test JVMs, never the shipped Android application.
+tasks.withType<org.gradle.api.tasks.testing.Test>().configureEach {
+    jvmArgs("--add-opens=java.base/java.io=ALL-UNNAMED")
+}

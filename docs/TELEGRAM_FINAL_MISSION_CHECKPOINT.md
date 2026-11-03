@@ -4,9 +4,9 @@
 
 Status: PARTIAL. This is a continuation record, not screen acceptance.
 
-## Live verified implementation pointer — 2026-11-02
+## Live verified implementation pointer — 2026-11-03
 
-Latest verified implementation main: **980a92cf4a10e4b16b0a691303b4c340ad30bf6e**.
+Latest verified implementation main: **07b448e5e70b53569db6a4ba328bd0baf34edca8**.
 Official Telegram rechecked after implementation: **3de37c8cfb039452be7398909461da6288babf15**.
 Reconcile this pointer with the carrying implementation commit and live main/CI on restart.
 
@@ -36,6 +36,7 @@ Reconcile this pointer with the carrying implementation commit and live main/CI 
 | EditExam nested rights/canonical Add/account-bound gate | e83b2d4c918340d18da5bddb934bfddd2abdb80e | [41527865210](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41527865210) SUCCESS |
 | Question review target/rights/response confirmation | 9cf0523ed859b68e70c03911b09d08dce97a2634 | [41532575336](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41532575336) SUCCESS |
 | Analytics/report filter read ownership and truthful states | 980a92cf4a10e4b16b0a691303b4c340ad30bf6e | [41535796716](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41535796716) SUCCESS |
+| Verified metadata saves, owner scope and staged cutoff backing | 07b448e5e70b53569db6a4ba328bd0baf34edca8 | [41544036446](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41544036446) SUCCESS |
 
 Each FAST passed Android build/JVM/AndroidTest source compilation, all four ABI
 builds, pinned Rust security/C API, backend and Firebase. Historical scanner-batch docs 41403654877
@@ -1571,3 +1572,16 @@ old deployed service cannot falsely confirm it because client verifies readback.
 First next independent action after carrying FAST: pending fresh-gate picker URI
 recovery. Undo product answer remains pending. Whole mission/QR/device/FULL/legal
 acceptance remains OPEN/NOT MET. Existing successful feature/commit ledger preserved.
+
+## C5 import result handoff/read lifecycle
+
+Recovery main 07b448e5e70b53569db6a4ba328bd0baf34edca8, FAST 41544036446 and
+docs 41544036310 SUCCESS. Queued picker defect now has actual registry/provider
+fail-before and expanded host evidence. Implementation/source/requirement ledger:
+EXAM_IMPORT_RESULT_LIFECYCLE.md. Single existing Activity/window owner; no new
+permission, persistent grant, parser rewrite, backend or production operation.
+Scoped16 picker tests and broad Android899/199 suites, AndroidTest compile/lint (0 errors/1629 warnings)/x86_64 assemble PASS; helpers59/docs/claims/four imports/diff PASS. Carrying FAST pending. First next
+after carrying FAST: shared parser resource/batch bounds and sparse XLSX column
+mapping. Physical providers/grants, unknown submit acknowledgement/idempotent retry,
+whole source UI/device/FULL/GPL acceptance remain OPEN. Existing successful QR and
+other work preserved; cutoff production rollout and Undo decision remain separate.
