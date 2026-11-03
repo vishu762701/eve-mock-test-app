@@ -3,6 +3,11 @@ package com.eve.app.ui.admin
 import android.content.DialogInterface
 import android.net.Uri
 import android.os.Bundle
+import android.os.CancellationSignal
+import android.content.ActivityNotFoundException
+import java.io.FilterInputStream
+import java.io.IOException
+import java.util.concurrent.atomic.AtomicReference
 import android.provider.OpenableColumns
 import android.view.View
 import android.widget.AdapterView
@@ -17,6 +22,8 @@ import com.eve.app.R
 import com.eve.app.data.model.Exam
 import com.eve.app.data.model.Question
 import com.eve.app.data.repository.ExamRepository
+import com.eve.app.data.repository.AdminRepository
+import com.eve.app.util.AdminPermissionSnapshot
 import com.eve.app.databinding.ActivityManageQuestionsBinding
 import com.eve.app.designsystem.TelegramNativeAlertDialog
 import com.eve.app.ui.common.EveBaseActivity
@@ -27,6 +34,11 @@ import com.eve.app.util.AppBulletin
 import com.eve.app.util.ExamImageHelper
 import com.eve.app.util.QuestionImportHelper
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.withContext
 import androidx.core.view.doOnLayout
 
 class ManageQuestionsActivity : EveBaseActivity() {
@@ -37,6 +49,19 @@ class ManageQuestionsActivity : EveBaseActivity() {
 
     private var exams: List<Exam> = emptyList()
     private var selectedExamForImageUpdate: Exam? = null
+    private var pendingBulkOwner: QuestionBulkImportOrigin? = null
+    private var pendingBulkUri: Uri? = null
+    private var bulkReadJob: Job? = null
+    private var cancelBulkRead: (() -> Unit)? = null
+    private var bulkReadGeneration = 0L
+    private var bulkPreviewDialog: TelegramNativeAlertDialog? = null
+    private var bulkWriteInFlight = false
+    private var adminScreenAuthorized = false
+    private var restoredSelectedExam: String? = null
+    private var interruptedBulkWrite = false
+    private val bulkImportBusy: Boolean
+        get() = pendingBulkOwner != null || bulkReadJob?.isActive == true ||
+            bulkPreviewDialog?.isShowing == true || bulkWriteInFlight
     private var questionDialog: TelegramNativeAlertDialog? = null
     private var renameExamDialog: TelegramNativeAlertDialog? = null
     private val questionOwnerUid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
@@ -50,6 +75,10 @@ class ManageQuestionsActivity : EveBaseActivity() {
 
     private val pickEditExamImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         val exam = selectedExamForImageUpdate ?: return@registerForActivityResult
+        if (!questionIdentityCurrent || viewModel.questionExamId != exam.id) {
+            selectedExamForImageUpdate = null
+            return@registerForActivityResult
+        }
         if (uri != null) {
             val base64 = ExamImageHelper.uriToBase64(this, uri)
             if (base64 != null) {
@@ -63,9 +92,15 @@ class ManageQuestionsActivity : EveBaseActivity() {
     }
 
     private val pickBulkQuestionsLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        if (uri != null) {
-            handleBulkUploadForSelectedExam(uri)
+        val owner = pendingBulkOwner ?: return@registerForActivityResult
+        val live = FirebaseAuth.getInstance().currentUser
+        if (uri == null || !questionIdentityCurrent ||
+            !owner.isCurrent(owner.examId, live?.uid, live?.email)) {
+            clearPendingBulkImport()
+            return@registerForActivityResult
         }
+        pendingBulkUri = uri
+        consumePendingBulkImport()
     }
 
     private val questionAdapter = QuestionManageAdapter(
@@ -78,6 +113,17 @@ class ManageQuestionsActivity : EveBaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityManageQuestionsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        restoredSelectedExam = savedInstanceState?.getString("questions:selected-exam")
+        val restoredOwner = QuestionBulkImportOrigin(
+            savedInstanceState?.getString("bulk:exam").orEmpty(),
+            savedInstanceState?.getString("bulk:uid").orEmpty(),
+            savedInstanceState?.getString("bulk:email").orEmpty()
+        )
+        if (restoredOwner.isCurrent(restoredOwner.examId, questionOwnerUid, questionOwnerEmail)) {
+            pendingBulkOwner = restoredOwner
+            pendingBulkUri = savedInstanceState?.getString("bulk:uri")?.let(Uri::parse)
+        }
+        interruptedBulkWrite = savedInstanceState?.getBoolean("bulk:write-in-flight") == true
 
         binding.telegramActionBar.setTitle("Manage Questions")
         binding.telegramActionBar.onBackPressed = { finish() }
@@ -87,9 +133,14 @@ class ManageQuestionsActivity : EveBaseActivity() {
             for (control in listOf(binding.btnEditExamImage, binding.btnRenameExam, binding.btnDeleteExam)) {
                 control.visibility = if (canManageExams) View.VISIBLE else View.GONE
             }
+            adminScreenAuthorized = true
             setupUi()
             setupObservers()
             viewModel.loadExams()
+            if (interruptedBulkWrite) {
+                interruptedBulkWrite = false
+                AppBulletin.showError(this, "Import result is unknown after interruption. Refresh questions before retrying.")
+            }
         }
     }
 
@@ -111,12 +162,20 @@ class ManageQuestionsActivity : EveBaseActivity() {
         }
 
         binding.btnBulkUploadSelectedExam.setOnClickListener {
-            val selectedExam = exams.getOrNull(binding.spExam.selectedItemPosition)
-            if (selectedExam == null) {
-                AppBulletin.showError(this, "Please select an exam first")
+            val exam = exams.getOrNull(binding.spExam.selectedItemPosition)
+            if (exam == null || !questionIdentityCurrent || viewModel.busy.value ||
+                viewModel.questionExamId != exam.id || bulkImportBusy) {
+                if (exam == null) AppBulletin.showError(this, "Please select an exam first")
                 return@setOnClickListener
             }
-            pickBulkQuestionsLauncher.launch("*/*")
+            pendingBulkOwner = QuestionBulkImportOrigin(exam.id, questionOwnerUid, questionOwnerEmail)
+            pendingBulkUri = null
+            updateBulkImportControls()
+            try { pickBulkQuestionsLauncher.launch("*/*") }
+            catch (_: ActivityNotFoundException) {
+                clearPendingBulkImport()
+                AppBulletin.showError(this, getString(R.string.exam_import_picker_unavailable))
+            }
         }
     }
 
@@ -126,8 +185,21 @@ class ManageQuestionsActivity : EveBaseActivity() {
                 launch {
                     viewModel.exams.collect { examList ->
                         exams = examList
-                        bindQuestionExamChoices(binding.spExam, examList, viewModel)
+                        // AdminViewModel starts with an empty list before the first network answer.
+                        // Restore by stable ID when a nonempty authorized result arrives, not by position.
+                        if (examList.isNotEmpty()) {
+                            val restoredId = pendingBulkOwner?.examId ?: restoredSelectedExam
+                            if (restoredId != null && examList.any { it.id == restoredId } &&
+                                viewModel.questionExamId != restoredId) {
+                                viewModel.loadQuestions(restoredId)
+                            }
+                            restoredSelectedExam = null
+                        }
+                        bindQuestionExamChoices(binding.spExam, examList, viewModel) { examId ->
+                            if (pendingBulkOwner?.examId?.let { it != examId } == true) clearPendingBulkImport()
+                        }
                         if (examList.isEmpty()) updateQuestionsUi(emptyList())
+                        consumePendingBulkImport()
                     }
                 }
                 launch {
@@ -267,21 +339,106 @@ class ManageQuestionsActivity : EveBaseActivity() {
         dialog.show()
     }
 
-    private fun handleBulkUploadForSelectedExam(uri: Uri) {
-        val selectedExam = exams.getOrNull(binding.spExam.selectedItemPosition)
-        if (selectedExam == null) {
-            AppBulletin.showError(this, "No exam selected to upload questions")
+    private fun isCurrentBulkTarget(origin: QuestionBulkImportOrigin): Boolean {
+        val user = FirebaseAuth.getInstance().currentUser
+        return adminScreenAuthorized && questionIdentityCurrent &&
+            origin.isCurrent(viewModel.questionExamId, user?.uid, user?.email) &&
+            exams.any { it.id == origin.examId } &&
+            exams.getOrNull(binding.spExam.selectedItemPosition)?.id == origin.examId
+    }
+
+    private fun updateBulkImportControls() {
+        if (!::binding.isInitialized) return
+        binding.btnBulkUploadSelectedExam.isEnabled =
+            adminScreenAuthorized && questionIdentityCurrent && !bulkImportBusy && !viewModel.busy.value
+    }
+
+    private fun clearPendingBulkImport() {
+        ++bulkReadGeneration
+        cancelBulkRead?.invoke()
+        cancelBulkRead = null
+        bulkReadJob?.cancel()
+        bulkReadJob = null
+        pendingBulkOwner = null
+        pendingBulkUri = null
+        val dialog = bulkPreviewDialog
+        bulkPreviewDialog = null
+        dialog?.setOnDismissListener(null)
+        dialog?.dismiss()
+        updateBulkImportControls()
+    }
+
+    private fun consumePendingBulkImport() {
+        if (!adminScreenAuthorized || !questionIdentityCurrent || exams.isEmpty() ||
+            bulkWriteInFlight || bulkReadJob != null || bulkPreviewDialog != null) return
+        val owner = pendingBulkOwner ?: return
+        val uri = pendingBulkUri ?: return
+        if (!isCurrentBulkTarget(owner)) {
+            clearPendingBulkImport()
+            AppBulletin.showError(this, "Selected exam changed. Please choose the file again.")
             return
         }
-        val fileName = getFileName(uri) ?: "questions.csv"
-        try {
-            contentResolver.openInputStream(uri)?.use { stream ->
-                val result = QuestionImportHelper.parseQuestions(stream, fileName, selectedExam.id)
-                showBulkImportPreviewDialog(fileName, selectedExam, result)
-            }
-        } catch (e: Exception) {
-            AppBulletin.showError(this, "Failed to read file: ${e.message}")
+        val exam = exams.first { it.id == owner.examId }
+        val token = ++bulkReadGeneration
+        val signal = CancellationSignal()
+        val descriptor = AtomicReference<android.content.res.AssetFileDescriptor?>()
+        cancelBulkRead = {
+            signal.cancel()
+            runCatching { descriptor.getAndSet(null)?.close() }
         }
+        bulkReadJob = lifecycleScope.launch {
+            try {
+                val result = withContext(Dispatchers.IO) {
+                    val ioContext = kotlin.coroutines.coroutineContext
+                    ioContext.ensureActive()
+                    val fileName = getFileName(uri, signal) ?: "questions.csv"
+                    val asset = contentResolver.openAssetFileDescriptor(uri, "r", signal)
+                        ?: throw IOException("Selected document unavailable")
+                    val parsed = asset.use { opened ->
+                        descriptor.set(opened)
+                        try {
+                            opened.createInputStream().use { stream ->
+                                val cancellable = object : FilterInputStream(stream) {
+                                    override fun read(): Int {
+                                        ioContext.ensureActive()
+                                        return super.read()
+                                    }
+                                    override fun read(b: ByteArray, off: Int, len: Int): Int {
+                                        ioContext.ensureActive()
+                                        return super.read(b, off, len)
+                                    }
+                                }
+                                QuestionImportHelper.parseQuestions(cancellable, fileName, owner.examId)
+                            }
+                        } finally { descriptor.compareAndSet(opened, null) }
+                    }
+                    fileName to parsed
+                }
+                if (token == bulkReadGeneration && pendingBulkUri == uri &&
+                    isCurrentBulkTarget(owner) &&
+                    lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                    showBulkImportPreviewDialog(result.first, exam, result.second)
+                }
+            } catch (cancel: CancellationException) { throw cancel }
+            catch (_: Exception) {
+                if (token == bulkReadGeneration && questionIdentityCurrent) {
+                    clearPendingBulkImport()
+                    AppBulletin.showError(this@ManageQuestionsActivity, getString(R.string.exam_import_read_failed))
+                }
+            } finally {
+                if (token == bulkReadGeneration) {
+                    bulkReadJob = null
+                    cancelBulkRead = null
+                    updateBulkImportControls()
+                }
+            }
+        }
+        updateBulkImportControls()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (adminScreenAuthorized) consumePendingBulkImport()
     }
 
     private fun showBulkImportPreviewDialog(
@@ -289,6 +446,9 @@ class ManageQuestionsActivity : EveBaseActivity() {
         selectedExam: Exam,
         result: QuestionImportHelper.ImportResult
     ) {
+        val owner = pendingBulkOwner ?: return
+        if (owner.examId != selectedExam.id || !isCurrentBulkTarget(owner) ||
+            bulkPreviewDialog != null || questionDialog?.isShowing == true) return
         val validCount = result.validQuestions.size
         val errorCount = result.errors.size
 
@@ -317,32 +477,68 @@ class ManageQuestionsActivity : EveBaseActivity() {
 
         if (validCount > 0) {
             builder.setPositiveButton("Import ($validCount questions)") { _, _ ->
-                importQuestionsForSelectedExam(selectedExam.id, result.validQuestions)
+                if (!bulkWriteInFlight && isCurrentBulkTarget(owner)) {
+                    importQuestionsForSelectedExam(selectedExam.id, result.validQuestions)
+                }
             }
             builder.setNegativeButton("Cancel", null)
         } else {
             builder.setPositiveButton("OK", null)
         }
 
-        builder.show()
+        val dialog = builder.create()
+        bulkPreviewDialog = dialog
+        dialog.setOnDismissListener {
+            if (bulkPreviewDialog === dialog) {
+                bulkPreviewDialog = null
+                if (!bulkWriteInFlight) clearPendingBulkImport()
+            }
+        }
+        dialog.show()
+        updateBulkImportControls()
     }
 
     private fun importQuestionsForSelectedExam(examId: String, questions: List<Question>) {
+        val owner = pendingBulkOwner ?: return
+        if (bulkWriteInFlight || !isCurrentBulkTarget(owner) || viewModel.busy.value ||
+            owner.examId != examId || questions.isEmpty() ||
+            questions.any { it.examId != examId }) return
+        bulkWriteInFlight = true
+        pendingBulkOwner = null
+        pendingBulkUri = null
+        updateBulkImportControls()
         lifecycleScope.launch {
             try {
+                val adminRepo = AdminRepository()
+                val rights = AdminPermissionSnapshot.load(
+                    questionOwnerEmail, "manage_questions",
+                    membership = { adminRepo.isAdminFresh(questionOwnerUid, questionOwnerEmail) },
+                    permissions = { adminRepo.getAdminMe() }
+                )
+                if (rights == null) throw SecurityException("Permission no longer allows question imports")
+                if (!questionIdentityCurrent || viewModel.questionExamId != examId) return@launch
                 val added = examRepo.addQuestions(questions)
-                AppBulletin.showSuccess(this@ManageQuestionsActivity, "Successfully imported $added questions!")
-                viewModel.refreshQuestions(examId)
-            } catch (e: Exception) {
-                AppBulletin.showError(this@ManageQuestionsActivity, "Import failed: ${e.message}")
+                if (questionIdentityCurrent) {
+                    AppBulletin.showSuccess(this@ManageQuestionsActivity, "Successfully imported " + added + " questions!")
+                    viewModel.refreshQuestions(examId)
+                }
+            } catch (cancel: CancellationException) { throw cancel }
+            catch (e: Exception) {
+                if (questionIdentityCurrent) {
+                    AppBulletin.showError(this@ManageQuestionsActivity,
+                        "Import was not confirmed: " + (e.message ?: "Unknown error"))
+                }
+            } finally {
+                bulkWriteInFlight = false
+                updateBulkImportControls()
             }
         }
     }
 
-    private fun getFileName(uri: Uri): String? {
+    private fun getFileName(uri: Uri, signal: CancellationSignal): String? {
         var name: String? = null
         if (uri.scheme == "content") {
-            contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null, signal)?.use { cursor ->
                 if (cursor.moveToFirst()) {
                     val index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
                     if (index >= 0) name = cursor.getString(index)
@@ -351,7 +547,20 @@ class ManageQuestionsActivity : EveBaseActivity() {
         }
         return name ?: uri.lastPathSegment
     }
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString("questions:selected-exam", viewModel.questionExamId)
+        pendingBulkOwner?.let {
+            outState.putString("bulk:exam", it.examId)
+            outState.putString("bulk:uid", it.uid)
+            outState.putString("bulk:email", it.email)
+        }
+        pendingBulkUri?.let { outState.putString("bulk:uri", it.toString()) }
+        outState.putBoolean("bulk:write-in-flight", bulkWriteInFlight)
+        super.onSaveInstanceState(outState)
+    }
+
     override fun onDestroy() {
+        clearPendingBulkImport()
         renameExamDialog?.dismiss()
         renameExamDialog = null
         questionDialog?.dismiss()
@@ -363,7 +572,8 @@ class ManageQuestionsActivity : EveBaseActivity() {
 
 /** The single production spinner binding; identity survives adapter rebuilds and reordering. */
 internal fun bindQuestionExamChoices(spinner: android.widget.Spinner, exams: List<Exam>,
-                                    viewModel: AdminViewModel) {
+                                    viewModel: AdminViewModel,
+                                    onSelectionChanged: ((String) -> Unit)? = null) {
     val selectedId = viewModel.questionExamId
     spinner.onItemSelectedListener = null
     spinner.adapter = ArrayAdapter(spinner.context, android.R.layout.simple_spinner_item,
@@ -380,7 +590,10 @@ internal fun bindQuestionExamChoices(spinner: android.widget.Spinner, exams: Lis
     spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
         override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
             val exam = exams.getOrNull(position) ?: return
-            if (exam.id != viewModel.questionExamId) viewModel.loadQuestions(exam.id)
+            if (exam.id != viewModel.questionExamId) {
+                onSelectionChanged?.invoke(exam.id)
+                viewModel.loadQuestions(exam.id)
+            }
         }
         override fun onNothingSelected(parent: AdapterView<*>?) = Unit
     }
@@ -569,4 +782,11 @@ internal fun createRenameExamDialog(activity: android.app.Activity, exam: Exam,
         .create()
     dialog.setDismissDialogByButtons(false)
     return dialog
+}
+
+/** Captured picker request identity; not a second authorization authority. */
+internal data class QuestionBulkImportOrigin(val examId: String, val uid: String, val email: String) {
+    fun isCurrent(selectedExamId: String?, currentUid: String?, currentEmail: String?): Boolean =
+        examId.isNotBlank() && examId == selectedExamId &&
+            AdminIdentityGuard.allowed(true, uid, email, currentUid, currentEmail)
 }
