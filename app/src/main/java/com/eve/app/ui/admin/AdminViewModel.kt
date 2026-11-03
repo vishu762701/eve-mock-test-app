@@ -223,17 +223,24 @@ class AdminViewModel(private val repo: ExamRepository = ExamRepository()) : View
         }
     }
 
-    fun deleteQuestion(q: Question) {
+    fun deleteQuestion(q: Question, onFailure: (String) -> Unit = {}, onDone: () -> Unit = {}) {
+        if (_busy.value || q.id.isBlank()) return
         viewModelScope.launch {
             _busy.value = true
             try {
                 repo.deleteQuestion(q.id)
                 _message.value = "Question deleted successfully"
                 refreshQuestions(q.examId)
+                onDone()
+            } catch (cancel: CancellationException) {
+                throw cancel
             } catch (e: Exception) {
-                _message.value = e.message ?: "Failed to delete question"
+                val message = e.toUserFriendlyMessage(false)
+                _message.value = message
+                onFailure(message)
+            } finally {
+                _busy.value = false
             }
-            _busy.value = false
         }
     }
 

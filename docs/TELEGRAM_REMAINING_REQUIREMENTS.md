@@ -1070,3 +1070,28 @@ Next independently actionable Admin defects: standalone ManageQuestions false
 immediate deletion success/error presentation and picker lifecycle/target ownership.
 Reproduce actual callbacks before changing those flows; Delete/Undo timing choice
 is still pending and does not block confirmation-only repairs.
+
+## C5 ManageQuestions confirmed deletion presentation
+
+Base d638d3b20a4c10e6462b6d95adb8f35fada3a584 FAST41571297755 and
+Docs41571297931 SUCCESS. R1: actual standalone row -> native Delete -> existing
+AdminViewModel/repository must show success only after confirmed server response.
+R2: denied/malformed/network failure must remain visible as failure, never success.
+R3: pending rapid row/button taps must not submit duplicate writes; cancellation
+and stale host/identity callbacks must not produce misleading notices or writes.
+R4: preserve current permanent-delete timing, Cancel/destructive dialog/source
+renderer, selected-exam refresh and server manage_questions authority. No change
+to the separate unanswered Delete/Undo choice; no new repository, renderer or state
+owner. Legacy AdminActivity's similarly named private dialog has no production
+caller; do not call it an active duplicate or remove it on naming alone.
+
+C5 scoped implementation/evidence: MANAGE_QUESTION_DELETE_CONFIRMATION.md.
+
+Local integration PASS: ./gradlew :app:testDebugUnitTest
+:app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug
+-Peve.nativeAbis=x86_64 (3m57s), 931 tests / 201 suites, zero failures/errors/skips;
+lint 0 errors / 1629 warnings. Helpers59, docs79, acceptance structure, four recorded
+byte-identical imports and git diff --check PASS. Backend unchanged from green base.
+Bare SDK35 thread diagnostic recurred with zero JUnit failures; remains UNKNOWN.
+Carrying exact-SHA FAST pending. Native navigation, physical device/reference,
+protected FULL, verified artifact publication and human GPL clearance remain OPEN.

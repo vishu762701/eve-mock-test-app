@@ -100,4 +100,8 @@
     <string name="question_import_limit_shared">वर्कबुक में 80,000 से अधिक साझा स्ट्रिंग हैं। छोटी वर्कबुक चुनें।</string>
     <string name="question_import_limit_batch">एक बार में अधिकतम 300 प्रश्न इम्पोर्ट करें। फ़ाइल को छोटे समूहों में बाँटें।</string>
     <string name="question_import_malformed">दस्तावेज़ का प्रारूप अमान्य है। CSV या XLSX की प्राथमिक शीट का उपयोग करें।</string>
+    <string name="question_delete_title">प्रश्न हटाएं?</string>
+    <string name="question_delete_confirmation">यह प्रश्न स्थायी रूप से हट जाएगा। इसे वापस नहीं लाया जा सकता।</string>
+    <string name="question_delete_action">हटाएं</string>
+    <string name="question_deleted">प्रश्न हटा दिया गया</string>
 </resources>

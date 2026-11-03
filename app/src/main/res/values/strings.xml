@@ -99,4 +99,8 @@
     <string name="question_import_limit_shared">Workbook exceeds 80,000 shared strings. Use a smaller workbook.</string>
     <string name="question_import_limit_batch">Import at most 300 questions at a time. Split the file into smaller batches.</string>
     <string name="question_import_malformed">Invalid document format. Use CSV or the primary worksheet in XLSX.</string>
+    <string name="question_delete_title">Delete Question?</string>
+    <string name="question_delete_confirmation">Delete this question? This will permanently remove the question and cannot be undone.</string>
+    <string name="question_delete_action">Delete</string>
+    <string name="question_deleted">Question deleted</string>
 </resources>

@@ -20,6 +20,8 @@ import com.eve.app.data.repository.ExamRepository
 import com.eve.app.databinding.ActivityManageQuestionsBinding
 import com.eve.app.designsystem.TelegramNativeAlertDialog
 import com.eve.app.ui.common.EveBaseActivity
+import com.eve.app.util.AdminIdentityGuard
+import com.google.firebase.auth.FirebaseAuth
 import com.eve.app.util.AdminAccessGate
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.ExamImageHelper
@@ -35,8 +37,16 @@ class ManageQuestionsActivity : EveBaseActivity() {
 
     private var exams: List<Exam> = emptyList()
     private var selectedExamForImageUpdate: Exam? = null
-    private var addQuestionDialog: TelegramNativeAlertDialog? = null
+    private var questionDialog: TelegramNativeAlertDialog? = null
     private var renameExamDialog: TelegramNativeAlertDialog? = null
+    private val questionOwnerUid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
+    private val questionOwnerEmail = FirebaseAuth.getInstance().currentUser?.email.orEmpty()
+    private val questionIdentityCurrent: Boolean
+        get() {
+            val live = FirebaseAuth.getInstance().currentUser
+            return !isFinishing && !isDestroyed && AdminIdentityGuard.allowed(true,
+                questionOwnerUid, questionOwnerEmail, live?.uid, live?.email)
+        }
 
     private val pickEditExamImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         val exam = selectedExamForImageUpdate ?: return@registerForActivityResult
@@ -61,7 +71,7 @@ class ManageQuestionsActivity : EveBaseActivity() {
     private val questionAdapter = QuestionManageAdapter(
         onEdit = { q -> showQuestionDetails(q) },
         onDelete = { q -> confirmDeleteQuestion(q) },
-        canManage = { !isFinishing && !isDestroyed }
+        canManage = { questionIdentityCurrent }
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -150,10 +160,10 @@ class ManageQuestionsActivity : EveBaseActivity() {
     }
 
     private fun showAddQuestionDialog(selectedExam: Exam) {
-        if (isFinishing || isDestroyed || addQuestionDialog?.isShowing == true) return
+        if (isFinishing || isDestroyed || questionDialog?.isShowing == true) return
         val dialog = createQuestionEditorDialog(this, selectedExam, isBusy = { viewModel.busy.value }, submit = viewModel::addQuestion)
-        addQuestionDialog = dialog
-        dialog.setOnDismissListener { if (addQuestionDialog === dialog) addQuestionDialog = null }
+        questionDialog = dialog
+        dialog.setOnDismissListener { if (questionDialog === dialog) questionDialog = null }
         dialog.show()
     }
 
@@ -235,15 +245,26 @@ class ManageQuestionsActivity : EveBaseActivity() {
     }
 
     private fun confirmDeleteQuestion(q: Question) {
-        TelegramNativeAlertDialog.Builder(this)
-            .setTitle("Delete Question?")
-            .setMessage("Delete this question? This will permanently remove the question and cannot be undone.")
-            .setPositiveButton("Delete") { _, _ ->
-                viewModel.deleteQuestion(q)
-                AppBulletin.showSuccess(this@ManageQuestionsActivity, "Question deleted")
+        fun targetCurrent() = questionIdentityCurrent && !viewModel.busy.value &&
+            q.id.isNotBlank() && viewModel.questionExamId == q.examId &&
+            viewModel.questions.value.any { it.id == q.id && it.examId == q.examId }
+        if (!targetCurrent() || questionDialog?.isShowing == true) return
+        val dialog = TelegramNativeAlertDialog.Builder(this)
+            .setTitle(getString(R.string.question_delete_title))
+            .setMessage(getString(R.string.question_delete_confirmation))
+            .setPositiveButton(getString(R.string.question_delete_action)) { _, _ ->
+                if (!targetCurrent()) return@setPositiveButton
+                viewModel.deleteQuestion(q, onFailure = { message ->
+                    if (questionIdentityCurrent) AppBulletin.showError(this, message)
+                }) {
+                    if (questionIdentityCurrent) AppBulletin.showSuccess(this, getString(R.string.question_deleted))
+                }
             }
-            .setNegativeButton("Cancel", null)
-            .makeRed(DialogInterface.BUTTON_POSITIVE).show()
+            .setNegativeButton(getString(R.string.cancel), null)
+            .makeRed(DialogInterface.BUTTON_POSITIVE).create()
+        questionDialog = dialog
+        dialog.setOnDismissListener { if (questionDialog === dialog) questionDialog = null }
+        dialog.show()
     }
 
     private fun handleBulkUploadForSelectedExam(uri: Uri) {
@@ -333,8 +354,8 @@ class ManageQuestionsActivity : EveBaseActivity() {
     override fun onDestroy() {
         renameExamDialog?.dismiss()
         renameExamDialog = null
-        addQuestionDialog?.dismiss()
-        addQuestionDialog = null
+        questionDialog?.dismiss()
+        questionDialog = null
         super.onDestroy()
     }
 

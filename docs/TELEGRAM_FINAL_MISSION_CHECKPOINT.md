@@ -6,7 +6,7 @@ Status: PARTIAL. This is a continuation record, not screen acceptance.
 
 ## Live verified implementation pointer — 2026-11-03
 
-Latest verified implementation main: **22fd6f8129e26bef75c7a26cc609a6525c1684e2**.
+Latest verified implementation main: **d638d3b20a4c10e6462b6d95adb8f35fada3a584**.
 Official Telegram rechecked after implementation: **3de37c8cfb039452be7398909461da6288babf15**.
 Reconcile this pointer with the carrying implementation commit and live main/CI on restart.
 
@@ -39,6 +39,8 @@ Reconcile this pointer with the carrying implementation commit and live main/CI 
 | Verified metadata saves, owner scope and staged cutoff backing | 07b448e5e70b53569db6a4ba328bd0baf34edca8 | [41544036446](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41544036446) SUCCESS |
 
 | Authorized import-result lifecycle | 22fd6f8129e26bef75c7a26cc609a6525c1684e2 | [41568018939](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41568018939) SUCCESS |
+
+| Bounded import document/cell identity | d638d3b20a4c10e6462b6d95adb8f35fada3a584 | [41571297755](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41571297755) SUCCESS |
 
 Each FAST passed Android build/JVM/AndroidTest source compilation, all four ABI
 builds, pinned Rust security/C API, backend and Firebase. Historical scanner-batch docs 41403654877
@@ -1613,3 +1615,32 @@ false deletion success with real callback/server-denial coverage, preserving
 existing deletion semantics and unrelated pending Delete/Undo owner choice.
 Standalone picker lifecycle remains separate. Whole mission NOT MET; QR OPEN;
 no deployment, remote migration, signing or release-variable change performed.
+
+## 2026-11-03 standalone deletion confirmation
+
+Recovered clean d638d3b20a4c10e6462b6d95adb8f35fada3a584 FAST41571297755
+SUCCESS, docs41571297931 SUCCESS. Import parser batch is integrated and must not
+be replayed. Three actual ManageQuestions native callback tests reproduced pending
+false success, denial masked by success and duplicate DELETE while pending. Existing
+ViewModel/native dialog/caller repaired with confirmed success/failure callbacks,
+busy/identity/current-target guards and localized destructive controls. Eleven
+Activity and four added repository/API-response-boundary cases pass. No new owner,
+renderer, endpoint or production operation. Scoped ledger/source map:
+MANAGE_QUESTION_DELETE_CONFIRMATION.md.
+
+Local integration PASS: ./gradlew :app:testDebugUnitTest
+:app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug
+-Peve.nativeAbis=x86_64 (3m57s), 931 tests / 201 suites, zero failures/errors/skips;
+lint 0 errors / 1629 warnings. Helpers59, docs79, acceptance structure, four recorded
+byte-identical imports and git diff --check PASS. Backend unchanged from green base.
+Bare SDK35 thread diagnostic recurred with zero JUnit failures; remains UNKNOWN.
+Carrying exact-SHA FAST pending. Native navigation, physical device/reference,
+protected FULL, verified artifact publication and human GPL clearance remain OPEN.
+
+Next: reconcile independently implementable D3 Home search/restoration requirements
+against actual native callbacks; source currently restores query/list state without
+a saved Firebase-owner tag (potential account-isolation gap, not yet reproduced).
+Do not invent a seam/IME fix without evidence. Standalone ManageQuestions picker
+lifecycle remains open; the import reliability batches must not be replayed.
+Separate EditExam Delete/Undo product choice still pending; cutoff migration/Worker
+production rollout still unauthorized. Whole mission NOT MET and QR acceptance OPEN.
