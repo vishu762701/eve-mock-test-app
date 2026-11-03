@@ -40,6 +40,102 @@ Telegram source only after FAST succeeds, then SystemMonitorActivity.confirmRetr
 No agent delegation, production Worker deployment, D1 writes, APK publication,
 release-variable changes or legal self-approval is authorized or performed.
 
+## Verified Premium repair and authenticated source recovery — 2026-11-03
+
+R1 repair: `74836d344a38833dfe7c34e7e0768f62738d82d6`, exact-SHA FAST
+[41643535083](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41643535083)
+SUCCESS. All required build/backend/Firebase jobs succeeded; native navigation
+and APK publication were skipped. Rust C API suite: 243 passed. Docs 41643535071
+SUCCESS. Original failed FAST 41640467269 remains visible and is not reclassified.
+The failed fixture is retained; absent-only original input now explicitly must
+throw, and a separate complete-flag/incomplete-config input still fails validation.
+Premium has one successful implementation batch after forward repair; physical
+payment/admin acceptance and Worker configuration validation remain outstanding.
+
+R2 source retrieval: direct HTTPS Git clone from `https://github.com/DrKLO/Telegram.git`
+with `--filter=blob:none --no-checkout`, followed by detached full checkout. Official
+`https://telegram.org/apps/android` independently links `https://github.com/DrKLO/Telegram`.
+Live remote master, origin/master and checkout HEAD all resolve to
+`3de37c8cfb039452be7398909461da6288babf15`, root tree
+`cc3c6ccf48e4167fdec764dfd04e765043f55093`. This is actual live retrieval,
+not an assumed historical pin or a ZIP dependency. Existing authenticated mappings
+use the same revision, so no pin upgrade or source-value change is required.
+Only required `TMessagesProj/jni/tlottie` initialized at upstream gitlink
+`31f1b542f88e7b4be9a01e749920d857535fc715`; 18 unrelated submodules remain
+uninitialized. `.gitmodules`, all 19 gitlinks and root GPLv2 inspected. The existing
+129-entry native/QR manifest matches source and EVE SHA-256 values (zero mismatches);
+existing four-entry verbatim asset verifier PASS. These inventories do not prove
+complete app provenance, dependency closure, runtime equivalence or legal clearance.
+
+Source opened for this recovery includes `ActionBar/AlertDialog.java:302-332,1137-1215`
+and full `ActionBar/DrawerLayoutContainer.java:1-214`. Its current `onTouchEvent`
+returns false: do not claim this revision provides classic drawer swipe physics.
+The existing EVE AndroidX drawer stays an explicit adaptation. No Telegram account,
+network, authentication, service credentials or unrelated native libraries imported.
+
+| Telegram path:lines@full SHA | EVE path:lines | Classification / limits |
+| --- | --- | --- |
+| TMessagesProj/src/main/java/org/telegram/ui/ActionBar/AlertDialog.java:302-332,1137-1215@3de37c8cfb039452be7398909461da6288babf15 | app/src/main/java/com/eve/app/designsystem/TelegramNativeAlertDialog.kt:64,237,272 → SystemMonitorActivity.confirmRetry | ADAPTED existing renderer, native message/confirmation and lifecycle subset; preserve its current source-backed resources; matched window/blur/animation acceptance OPEN |
+| TMessagesProj/src/main/java/org/telegram/ui/ActionBar/DrawerLayoutContainer.java:49-57@3de37c8cfb039452be7398909461da6288babf15 | app/src/main/java/com/eve/app/ui/home/MainActivity.kt (existing AndroidX drawer) | NOT FOUND for requested classic gesture physics in this class; ADAPTED current EVE host; no invented transplant |
+| TMessagesProj/jni/tlottie@31f1b542f88e7b4be9a01e749920d857535fc715 (official superproject gitlink above) | app/src/main/cpp/vendor/tlottie; existing qr-native-upstream-manifest.json | existing exact/adapted file classifications retained; 129 recorded source/EVE identities match; complete device/reference/legal acceptance remains OPEN |
+
+R3 current preparation: actual SystemMonitorActivity.confirmRetry dispatches using
+entry-time rights only, and read/retry responses can survive stop/account replacement.
+The Worker already enforces both view_analytics_logs and manage_generated_tests;
+its generation implementation and request key remain canonical. Prepared actual
+Activity transport-boundary tests cover suspended fresh rights, revoke/account/stop,
+duplicate dispatch, failed/malformed acknowledgment and newest-read ownership.
+No second job manager, backend contract or dialog renderer is being created.
+
+## System Monitor retry/read boundary implementation — 2026-11-03
+
+R3 scoped implementation is in the existing Activity. Capture initiating UID/email
+before the entry gate; dispatch requires fresh membership and validated
+manage_generated_tests AND view_analytics_logs. Acquire pending before awaiting
+rights; cancelled/denied/foreign/expired work cannot dispatch. The existing
+Telegram confirmation remains; successful retry requires Worker testId, jobId and
+positive integral questionCount. No automatic retry or confirmed-job repeat.
+Read generations and stop epochs suppress obsolete success/error/finally effects;
+Activity-owned jobs/dialogs cancel/dismiss on stop/destroy. Reads resume from the
+existing screen without creating another generation manager or backend contract.
+
+Actual Activity baseline: 10 tests, 9 failures (seven explicit assertion failures,
+two because the old path never suspended for fresh membership). The analytics-only
+entry control passed. Expanded actual Activity/ack suite now has 18 tests PASS,
+plus two retained/strengthened dialog source contracts. New suspended permission
+snapshot cases exercise getAdminMe as well as membership. Transport and SDK are
+synthetic boundaries; Activity, native dialog, existing gate and callbacks execute.
+This is host evidence, not physical account/device/runtime acceptance.
+
+Stable local integration command (toolchain/proxy/CA configured outside Git):
+`gradle :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug
+-Peve.nativeAbis=x86_64 --init-script /workspace/scratch/eve-test-runtime.init.gradle`.
+PASS: 1097 JVM tests / 238 suites, zero failures/errors/skips; AndroidTest source
+compilation and lint PASS. The historical bare SDK35 shutdown diagnostic remains
+UNKNOWN (no JUnit error/failure), not suppressed or represented as crash-free proof.
+65 existing/extended Python helper tests PASS; docs validation (82 files), scoped
+acceptance structural validation and diff check PASS. Two actual Worker isolated
+SQLite/Hono tests PASS: compound retry permissions and generation monitor results.
+Worker production source is unchanged from green Premium FAST; no deployment.
+No local APK assembly or native emulator execution claimed for this batch; exact-SHA
+FAST must compile all ABIs/builds before advancing unrelated implementation.
+
+Source provenance check: both existing Profile maps' 57 upstream-file/asset entries
+match source and EVE asset SHA-256 values. Corrected one demonstrated metadata typo:
+regression-source-map.json.root_tree contained the commit ID instead of the actual
+Git root tree. Revision, assets, renderer code, fidelity OPEN claims and notices
+are unchanged. The 129-entry native manifest/four verbatim imports also match as
+recorded above. Local adb reports zero attached devices; /dev/kvm absent.
+
+Requirement status: R1 repair MET at host/exact-SHA FAST level; R2 official retrieval
+MET (whole-source fidelity still NOT MET); R3 implementation/host MET, carrying CI
+PENDING, physical acceptance OPEN. R4–R9 remain as scoped above. Next after exact-SHA
+green: Premium Worker config malformed-value validation, then remaining real Admin
+controls. Syllabus reassign retains two green feature commits and needs a concrete
+reviewed exception before further integration; its two-write transfer is unaccepted.
+Existing EditExam Delete/Undo semantics still need their explicitly pending product
+decision; no inferred restore API or timing change. No publication/release/deployment.
+
 ## Live mission continuation: 2026-11-03 (implementation evidence, not final signoff)
 
 Recovery began at the audited main 23f4f9788eedff5e8d3895a21a2a3edbf46d97be.

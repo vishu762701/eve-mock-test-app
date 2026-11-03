@@ -1,7 +1,7 @@
 {
   "revision": "3de37c8cfb039452be7398909461da6288babf15",
   "official_origin": "https://telegram.org/apps links https://github.com/DrKLO/Telegram",
-  "root_tree": "3de37c8cfb039452be7398909461da6288babf15",
+  "root_tree": "cc3c6ccf48e4167fdec764dfd04e765043f55093",
   "authentication": "HTTPS official-origin link, git ls-remote HEAD, immutable raw bytes compared to GitHub Git-tree blob SHA-1. Not a signed-commit claim.",
   "sources": [
     {

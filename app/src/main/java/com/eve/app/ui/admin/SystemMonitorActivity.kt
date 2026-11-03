@@ -3,9 +3,14 @@ package com.eve.app.ui.admin
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
-import android.widget.ScrollView
 import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.Lifecycle
+import com.eve.app.data.repository.AdminRepository
+import com.eve.app.util.AdminIdentityGuard
+import com.eve.app.util.AdminPermissionSnapshot
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.Job
 import com.eve.app.R
 import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.ApiResponse
@@ -32,7 +37,76 @@ class SystemMonitorActivity : EveBaseActivity() {
     private var nextOffset: Int? = null
     private var loading = false
     private var canRetryGeneration = false
+    private val adminRepo = AdminRepository()
+    private var initiatingUid = ""
+    private var initiatingEmail = ""
+    private var adminReady = false
+    private var loadGeneration = 0L
+    private var stopEpoch = 0L
+    private var readJob: Job? = null
+    private var retryJob: Job? = null
+    private var retryPending = false
+    private var reloadAfterStop = true
+    private val confirmedRetries = mutableSetOf<String>()
     private var retryConfirmationDialog: TelegramNativeAlertDialog? = null
+    private var retryErrorDialog: TelegramNativeAlertDialog? = null
+
+    private fun ownerCurrent(): Boolean {
+        val current = FirebaseAuth.getInstance().currentUser
+        return adminReady && !isFinishing && !isDestroyed &&
+            AdminIdentityGuard.allowed(true, initiatingUid, initiatingEmail, current?.uid, current?.email)
+    }
+
+    private fun canPublish(): Boolean =
+        ownerCurrent() && lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+
+    private fun readCurrent(generation: Long): Boolean =
+        generation == loadGeneration && canPublish() && !retryPending
+
+    private fun requireRetryCurrent(epoch: Long) {
+        if (epoch != stopEpoch || !canPublish()) throw CancellationException("Monitor owner or lifecycle changed")
+    }
+
+    private suspend fun requireFreshRetryRight(epoch: Long) {
+        requireRetryCurrent(epoch)
+        val granted = AdminPermissionSnapshot.load(
+            initiatingEmail, "manage_generated_tests",
+            membership = { adminRepo.isAdminFresh(initiatingUid, initiatingEmail) },
+            permissions = {
+                requireRetryCurrent(epoch)
+                adminRepo.getAdminMe()
+            }
+        )
+        requireRetryCurrent(epoch)
+        if (granted == null || !AdminPermissionSnapshot.allows(granted, initiatingEmail, "view_analytics_logs")) throw SecurityException("Generation retry permission is no longer available")
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (adminReady && !ownerCurrent()) { finish(); return }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (adminReady && reloadAfterStop && ::refresh.isInitialized && !retryPending) load()
+    }
+
+    override fun onStop() {
+        ++stopEpoch
+        reloadAfterStop = true
+        ++loadGeneration
+        readJob?.cancel()
+        retryJob?.cancel()
+        loading = false
+        if (::refresh.isInitialized) {
+            refresh.isEnabled = true
+            more.isEnabled = false
+            progress.visibility = View.GONE
+        }
+        retryConfirmationDialog?.dismiss()
+        retryErrorDialog?.dismiss()
+        super.onStop()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,19 +114,24 @@ class SystemMonitorActivity : EveBaseActivity() {
         content = binding.layoutMonitorContent
         setContentView(binding.root)
 
+        val initiatingUser = FirebaseAuth.getInstance().currentUser
+        initiatingUid = initiatingUser?.uid.orEmpty()
+        initiatingEmail = initiatingUser?.email.orEmpty()
         com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "view_analytics_logs") { permissions ->
-        canRetryGeneration = permissions.isOwner || "manage_generated_tests" in permissions.rights
-        binding.btnBack.setOnClickListener { finish() }
-        refresh = button(content, "Refresh / Retry") { offset = 0; load() }
-        progress = com.eve.app.designsystem.TelegramRadialProgressView(this).also {
-            val size = resources.getDimensionPixelSize(R.dimen.design_ring_size)
-            content.addView(it, LinearLayout.LayoutParams(size, size))
-        }
-        overview = section("Dashboard overview")
-        health = section("System health")
-        operations = section("Generation & submission monitor")
-        more = button(content, "Next page") { nextOffset?.let { offset = it; load() } }
-        load()
+            adminReady = true
+            if (!ownerCurrent()) return@requireAdmin
+            canRetryGeneration = permissions.isOwner || "manage_generated_tests" in permissions.rights
+            binding.btnBack.setOnClickListener { finish() }
+            refresh = button(content, "Refresh / Retry") { offset = 0; load() }
+            progress = com.eve.app.designsystem.TelegramRadialProgressView(this).also {
+                val size = resources.getDimensionPixelSize(R.dimen.design_ring_size)
+                content.addView(it, LinearLayout.LayoutParams(size, size))
+            }
+            overview = section("Dashboard overview")
+            health = section("System health")
+            operations = section("Generation & submission monitor")
+            more = button(content, "Next page") { nextOffset?.let { offset = it; load() } }
+            load()
         }
     }
 
@@ -83,14 +162,20 @@ class SystemMonitorActivity : EveBaseActivity() {
             setOnClickListener { action() }
         }.also { parent.addView(it) }
 
-    private suspend fun checked(request: suspend () -> ApiResponse<JsonObject>): JsonObject {
+    private suspend fun checked(generation: Long, request: suspend () -> ApiResponse<JsonObject>): JsonObject {
+        if (!readCurrent(generation)) throw CancellationException("Obsolete monitor request")
         val response = request()
+        if (!readCurrent(generation)) throw CancellationException("Obsolete monitor response")
         check(response.success && response.data != null) { response.error ?: "No data available" }
-        return response.data!!
+        return response.data
     }
 
     private fun load() {
-        if (loading) return
+        if (!canPublish() || retryPending) return
+        reloadAfterStop = false
+        val generation = ++loadGeneration
+        val pageOffset = offset
+        readJob?.cancel()
         loading = true
         nextOffset = null
         progress.visibility = View.VISIBLE
@@ -99,10 +184,10 @@ class SystemMonitorActivity : EveBaseActivity() {
         operations.removeAllViews()
         overview.removeAllViews()
         health.removeAllViews()
-        lifecycleScope.launch {
+        readJob = lifecycleScope.launch {
             try {
-                populate(overview) {
-                    val result = checked { ApiClient.api.systemOverview() }
+                populate(overview, generation) {
+                    val result = checked(generation) { ApiClient.api.systemOverview() }
                     val totals = result.getAsJsonObject("totals")
                     listOf("users" to "Registered profiles", "exams" to "Exams", "publishedTests" to "Published tests", "questions" to "Questions (bank + generated)", "attempts" to "Submitted attempts").forEach { (key, label) -> text(overview, "$label: ${totals.get(key).asLong}") }
                     text(overview, "Recent test activity")
@@ -110,23 +195,23 @@ class SystemMonitorActivity : EveBaseActivity() {
                     if (rows.size() == 0) text(overview, "No confirmed submissions yet")
                     rows.forEach { text(overview, "${it.asJsonObject.string("exam_name")} • ${time(it.asJsonObject, "timestamp")}") }
                 }
-                populate(health) {
-                    val checks = checked { ApiClient.api.systemHealth() }
+                populate(health, generation) {
+                    val checks = checked(generation) { ApiClient.api.systemHealth() }
                     checks.entrySet().forEach { (name, value) ->
                         val check = value.asJsonObject
                         text(health, "$name: ${check.string("status")}\n${check.string("detail")}")
                     }
                 }
-                populate(operations) {
-                    val result = checked { ApiClient.api.systemOperations(offset) }
+                populate(operations, generation) {
+                    val result = checked(generation) { ApiClient.api.systemOperations(pageOffset) }
                     nextOffset = result.get("nextOffset").takeUnless { it.isJsonNull }?.asInt
-                    text(operations, "Generation jobs • page ${offset / 25 + 1}")
+                    text(operations, "Generation jobs • page ${pageOffset / 25 + 1}")
                     val jobs = result.getAsJsonArray("jobs")
                     if (jobs.size() == 0) text(operations, "No tracked jobs on this page. Tracking starts with this release.")
                     jobs.forEach { element ->
                         val job = element.asJsonObject
                         text(operations, "${job.string("exam_name")} • ${job.string("status")}\nRequested ${job.string("requested_count")}, generated ${job.string("generated_count")}, failed ${job.string("failed_count")}\nStarted ${time(job, "started_at")} • completed ${time(job, "completed_at")}\n${job.string("error_category")}\nJob ${job.string("id")}")
-                        if (canRetryGeneration && job.string("status") == "failed" && job.get("retryable").asInt == 1) {
+                        if (canRetryGeneration && job.string("id") !in confirmedRetries && job.string("status") == "failed" && job.get("retryable").asInt == 1) {
                             button(operations, "Retry ${job.string("exam_name")}") { confirmRetry(job.string("id")) }
                         }
                     }
@@ -146,46 +231,71 @@ class SystemMonitorActivity : EveBaseActivity() {
                     }
                 }
             } finally {
-                loading = false
-                progress.visibility = View.GONE
-                refresh.isEnabled = true
-                more.isEnabled = nextOffset != null
+                if (readCurrent(generation)) {
+                    loading = false
+                    progress.visibility = View.GONE
+                    refresh.isEnabled = true
+                    more.isEnabled = nextOffset != null
+                }
             }
         }
     }
 
-    private suspend fun populate(parent: LinearLayout, block: suspend () -> Unit) {
+    private suspend fun populate(parent: LinearLayout, generation: Long, block: suspend () -> Unit) {
         try { block() } catch (e: CancellationException) { throw e } catch (e: Exception) {
-            text(parent, "Unavailable: ${e.toUserFriendlyMessage()}. Use Refresh / Retry.")
+            if (readCurrent(generation)) text(parent, "Unavailable: ${e.toUserFriendlyMessage()}. Use Refresh / Retry.")
         }
     }
 
     private fun confirmRetry(id: String) {
         // Telegram AlertDialog.java:325-328: never present a stale Activity window;
         // keep only one owner-controlled Retry confirmation visible.
-        if (!canRetryGeneration || loading || isFinishing || isDestroyed || retryConfirmationDialog?.isShowing == true) return
+        if (!canRetryGeneration || loading || !canPublish() || retryPending || id.isBlank() ||
+            id in confirmedRetries || retryConfirmationDialog?.isShowing == true) return
         val dialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Retry generation?")
             .setMessage("Uses the current exam syllabus and settings. A complete validated test will be created only if generation succeeds.")
             .setNegativeButton("Cancel", null)
             .setPositiveButton("Retry") { _, _ ->
-                if (loading) return@setPositiveButton
-                loading = true
+                if (loading || retryPending || !canPublish() || id in confirmedRetries) return@setPositiveButton
+                val epoch = stopEpoch
+                retryPending = true // Acquire before launching the suspended permission read.
+                ++loadGeneration
+                readJob?.cancel()
                 refresh.isEnabled = false
                 more.isEnabled = false
                 progress.visibility = View.VISIBLE
-                lifecycleScope.launch {
-                    try { checked { ApiClient.api.retryGenerationJob(id) } }
-                    catch (e: CancellationException) { throw e }
+                retryJob = lifecycleScope.launch {
+                    var confirmed = false
+                    try {
+                        requireFreshRetryRight(epoch)
+                        requireRetryCurrent(epoch)
+                        val response = ApiClient.api.retryGenerationJob(id)
+                        requireRetryCurrent(epoch)
+                        check(confirmedGenerationRetry(response)) {
+                            response.error ?: "Generation retry was not confirmed by the server"
+                        }
+                        confirmedRetries.add(id)
+                        confirmed = true
+                    } catch (e: CancellationException) { throw e }
                     catch (e: Exception) {
-                        if (!isFinishing && !isDestroyed) {
-                            TelegramNativeAlertDialog.Builder(this@SystemMonitorActivity)
+                        if (epoch == stopEpoch && canPublish()) {
+                            retryErrorDialog?.dismiss()
+                            retryErrorDialog = TelegramNativeAlertDialog.Builder(this@SystemMonitorActivity)
                                 .setMessage(e.toUserFriendlyMessage())
                                 .setPositiveButton("OK", null)
                                 .show()
                         }
+                    } finally {
+                        retryPending = false
+                        if (epoch == stopEpoch && canPublish()) {
+                            progress.visibility = View.GONE
+                            refresh.isEnabled = true
+                            more.isEnabled = nextOffset != null
+                            // Do not disguise failed or malformed acknowledgments as a refreshed success.
+                            if (confirmed) { offset = 0; load() }
+                        }
                     }
-                    finally { loading = false; offset = 0; load() }
                 }
             }.show()
         retryConfirmationDialog = dialog
@@ -197,9 +307,27 @@ class SystemMonitorActivity : EveBaseActivity() {
     override fun onDestroy() {
         retryConfirmationDialog?.dismiss()
         retryConfirmationDialog = null
+        retryErrorDialog?.dismiss()
+        retryErrorDialog = null
+        readJob?.cancel()
+        retryJob?.cancel()
         super.onDestroy()
     }
 
     private fun JsonObject.string(key: String): String = get(key)?.takeUnless { it.isJsonNull }?.asString.orEmpty()
     private fun time(row: JsonObject, key: String): String = row.get(key)?.takeUnless { it.isJsonNull }?.asLong?.let { DateFormat.getDateTimeInstance().format(Date(it)) } ?: "—"
+}
+
+/** Matches the existing runGeneration response, never a client-created job or test. */
+internal fun confirmedGenerationRetry(response: ApiResponse<JsonObject>): Boolean {
+    if (!response.success) return false
+    val data = response.data ?: return false
+    fun identifier(name: String): Boolean = data.get(name)?.let {
+        it.isJsonPrimitive && it.asJsonPrimitive.isString && it.asString.isNotBlank()
+    } == true
+    val count = data.get("questionCount") ?: return false
+    if (!count.isJsonPrimitive || !count.asJsonPrimitive.isNumber) return false
+    val number = count.asDouble
+    return identifier("testId") && identifier("jobId") && number.isFinite() &&
+        number > 0 && number == kotlin.math.floor(number)
 }

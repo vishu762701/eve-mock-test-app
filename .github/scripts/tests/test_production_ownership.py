@@ -95,6 +95,18 @@ class ProductionOwnershipTest(unittest.TestCase):
             source("app/src/main/java/com/eve/app/ui/home/MainActivity.kt"),
         )
 
+    def test_generation_retry_keeps_existing_monitor_dispatch_owner(self):
+        call = re.compile(r"\.retryGenerationJob\s*\(")
+        callers = {
+            file.relative_to(PRODUCTION).as_posix()
+            for file in PRODUCTION.rglob("*.kt")
+            if call.search(file.read_text(encoding="utf-8"))
+        }
+        self.assertEqual(callers, {"ui/admin/SystemMonitorActivity.kt"})
+        owners = {activity_name(node): node for node in declared_activities()}
+        self.assertEqual(owners[".ui.admin.SystemMonitorActivity"].get(
+            ANDROID + "exported"), "false")
+
     def test_home_filter_uses_viewmodel_as_selected_state_owner(self):
         vm = source("app/src/main/java/com/eve/app/ui/home/HomeViewModel.kt")
         home = source("app/src/main/java/com/eve/app/ui/home/MainActivity.kt")
