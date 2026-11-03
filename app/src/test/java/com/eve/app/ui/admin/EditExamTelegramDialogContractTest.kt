@@ -32,7 +32,7 @@ class EditExamTelegramDialogContractTest {
         for (required in listOf("Bulk Question Import Preview", "Import (",
                 "importQuestions(result.validQuestions)", "Add New Question", "Edit Question",
                 "examRepo.addQuestion(question)", "examRepo.updateQuestion(updatedQ)",
-                "examRepo.deleteQuestion(q.id)", "AppUndoBar.show(")) {
+                "examRepo.deleteQuestion(id)", "AppUndoBar.showDeferred(")) {
             assertTrue("Required original exam flow missing: $required", source.contains(required))
         }
         for (required in listOf("questionText = qText", "optionA = a", "optionD = d")) {

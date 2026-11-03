@@ -3,6 +3,9 @@ package com.eve.app.util
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.os.Handler
+import android.os.Looper
+import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,13 +16,14 @@ import com.eve.app.ui.common.CircularCountdownView
 /**
  * Telegram-style Undo Bar for delete actions (matching UndoView.java pattern).
  * Displays a depleting circular countdown ring icon, message, and "UNDO" action button.
- * The actual delete execution is deferred until the countdown completes without UNDO.
+ * Existing show() callers retain immediate execution; showDeferred() owns an explicit Undo deadline.
  */
 class AppUndoBar private constructor(
     private val activity: Activity,
     private val message: CharSequence,
     private val timeLeftMs: Long,
-    private val onUndo: () -> Unit
+    private val onUndo: () -> Unit,
+    private val deferredDelete: (() -> Unit)? = null
 ) {
 
     companion object {
@@ -54,16 +58,65 @@ class AppUndoBar private constructor(
             }
 
             // Dismiss existing bar without reverting the previous deletion
-            activeUndoBar?.dismissInternal(immediate = true)
+            activeUndoBar?.resolveReplacement()
 
             val bar = AppUndoBar(act, message, timeLeftMs, onUndo)
             activeUndoBar = bar
             bar.showInternal()
         }
+
+        /** Explicitly authorized deferred caller; existing show() behavior stays compatible. */
+        fun showDeferred(context: Context, message: CharSequence, timeLeftMs: Long = TIME_IMPORTANT,
+            onUndo: () -> Unit, onExecuteDelete: () -> Unit) {
+            val act = findActivity(context)
+            if (act == null || act.isFinishing || act.isDestroyed ||
+                act.findViewById<ViewGroup>(android.R.id.content) == null) {
+                onUndo()
+                return
+            }
+            activeUndoBar?.resolveReplacement()
+            val bar = AppUndoBar(act, message, timeLeftMs, onUndo, onExecuteDelete)
+            activeUndoBar = bar
+            bar.showInternal()
+        }
+
+        fun cancelDeferredForHost(context: Context) {
+            val bar = activeUndoBar ?: return
+            if (bar.activity === findActivity(context) && bar.deferredDelete != null) {
+                bar.undoAndDismiss(immediate = true)
+            }
+        }
     }
 
     private var barView: View? = null
     private var isResolved = false
+    private val deadlineHandler = Handler(Looper.getMainLooper())
+    private val deadlineAction = Runnable {
+        if (!isResolved) {
+            isResolved = true
+            barView?.findViewById<CircularCountdownView>(R.id.countdownView)?.cancel()
+            dismissInternal(immediate = false)
+            deferredDelete?.invoke()
+        }
+    }
+
+    private fun undoAndDismiss(immediate: Boolean) {
+        if (isResolved) return
+        isResolved = true
+        deadlineHandler.removeCallbacks(deadlineAction)
+        barView?.findViewById<CircularCountdownView>(R.id.countdownView)?.cancel()
+        try { onUndo() } finally { dismissInternal(immediate) }
+    }
+
+    private fun resolveReplacement() {
+        // Replacing an explicit deferred bar cancels it; never commit before its deadline.
+        if (deferredDelete != null) undoAndDismiss(immediate = true)
+        else {
+            isResolved = true
+            barView?.findViewById<CircularCountdownView>(R.id.countdownView)?.cancel()
+            dismissInternal(immediate = true)
+        }
+    }
 
     private fun showInternal() {
         val decorView = activity.findViewById<ViewGroup>(android.R.id.content) ?: return
@@ -79,12 +132,14 @@ class AppUndoBar private constructor(
 
         tvMessage.text = message
 
-        btnUndo.setOnClickListener {
-            if (isResolved) return@setOnClickListener
-            isResolved = true
-            countdown.cancel()
-            onUndo.invoke()
-            dismissInternal(immediate = false)
+        btnUndo.setOnClickListener { undoAndDismiss(immediate = false) }
+        if (deferredDelete != null) {
+            view.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+                override fun onViewAttachedToWindow(v: View) = Unit
+                override fun onViewDetachedFromWindow(v: View) {
+                    if (!isResolved) undoAndDismiss(immediate = true)
+                }
+            })
         }
 
         decorView.addView(view)
@@ -101,9 +156,10 @@ class AppUndoBar private constructor(
             .setInterpolator(com.eve.app.designsystem.DesignMotion.interpolator(activity))
             .start()
 
-        // Start smooth depleting countdown; on expiration, simply dismiss since item is already deleted
+        // The deferred mutation deadline is independent of ValueAnimator/system motion scale.
+        if (deferredDelete != null) deadlineHandler.postAtTime(deadlineAction, SystemClock.uptimeMillis() + timeLeftMs)
         countdown.startCountdown(timeLeftMs) {
-            if (!isResolved) {
+            if (deferredDelete == null && !isResolved) {
                 isResolved = true
                 dismissInternal(immediate = false)
             }

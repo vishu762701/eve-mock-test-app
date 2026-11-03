@@ -203,6 +203,63 @@ Implement this chosen contract after the carrying Premium exact-SHA FAST succeed
 no production deletion, new restore API, backend deployment or migration authorized.
 The earlier paragraphs saying the timing choice is unanswered are historical.
 
+## Owner-selected EditExam deferred Delete/Undo (owner-approved integration batch)
+
+Live main `78781fcf45de032000be72471ab5c1695db1380b`, exact-SHA FAST41655102457
+SUCCESS (all required jobs; native/publication skipped, artifact count0). Premium
+second/final scoped batch is integrated; prior green implementations preserved.
+
+Owner product decision above authorizes five-second deferred deletion. Baseline
+actual EditExam Activity:8 cases,7 failures; current DELETE executes before Undo and
+Undo invokes UPDATE on the deleted row. Preserve existing native confirmation,
+canonical currentQuestions/adapter, AppUndoBar, fresh server rights and Worker
+question deletion. Requirements: U1 no DELETE before5000ms; U2 Undo cancels without
+UPDATE; U3 one pending/dispatch and exact Worker acknowledgment; U4 fresh original
+UID/email + manage_questions/entry right at expiry; U5 account/stop/navigation
+cancellation and stale-response rejection; U6 row/controls recover on denial/error;
+U7 preserve other AppUndoBar callers' current immediate/server-confirmed behavior;
+U8 tests, provenance and an explicit budget exception before integration if needed.
+
+Budget evidence independently checked: AppUndoBar introduction
+09aa2ae5e1a07a9d578c6f2bc3f729cb1dfa8783 / Build36316965199 SUCCESS; immediate-delete
+change2cc00e4d3a96f8c1854ced4aea570de20b08fed7 / Build36530476892 SUCCESS.
+These are two successful earlier commits for the same Undo feature. The owner's
+timing answer is recorded as product authorization, not an inferred budget waiver.
+Owner explicitly approved one third-successful-commit exception for this tested Undo
+repair in the active conversation: "Haan, is tested Undo repair ke liye ek exception
+allow hai". This is scoped to this patch, not a waiver for other features.
+
+Official source actually opened: UndoView.java:384-403 (hide apply/cancel callbacks)
+and1685-1712 (5000ms arc/expiry), at3de37c8cfb039452be7398909461da6288babf15.
+EVE must adapt this semantic contract to its existing Activity/Worker callbacks;
+Telegram MessagesController/account/deletion services stay excluded. No full source
+UndoView renderer or matched native behavior is claimed. A main-Looper deadline,
+independent of animation scale, is required for the authorized minimum Undo window.
+Stopping/recreating cancels uncommitted work; an already-dispatched request remains
+server-authoritative and must be revalidated, never replayed as an invented restore.
+
+Undo verification: original eight-case Activity baseline had seven failures. Final
+actual Activity + shared Undo + existing EditExam integration/source contracts:
+24 tests PASS, zero failures/errors/skips. Covers saved-state recreation, suspended
+fresh rights, late Worker success after stop/return, and the unchanged legacy
+immediate callback. Robolectric virtual vsync is explicitly paused so idle() cannot
+advance through the five-second deadline; production deadline remains a Handler
+independent of ValueAnimator. AndroidTest Kotlin compilation PASS. Lint PASS with
+zero errors/1622 warnings (no new suppression); 65 host tests,82-document check,
+acceptance structural check, original asset verification and diff checks PASS.
+No device/production mutation, deployment, artifact publication or parity claim.
+
+| Requirement | Canonical owner | Implementation status | Tests | Commit SHA | Exact-SHA CI | Runtime acceptance | Remaining evidence |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| U1–U7 owner-selected question Undo | EditExamActivity / AppUndoBar / ExamRepository / existing Worker | Implemented locally; approved one third-successful-commit exception | 24 JVM; AndroidTest compile; lint; host65 | carrying commit | required after push | OPEN | physical gestures, failure/recreation matrix and visual comparison |
+
+Source evidence (behavioral adaptation, not renderer equivalence):
+`Telegram UndoView.java:384-403,1685-1712@3de37c8cfb039452be7398909461da6288babf15`
+→ `app/src/main/java/com/eve/app/util/AppUndoBar.kt:69,94,160`
+→ `app/src/main/java/com/eve/app/ui/admin/EditExamActivity.kt:806,848`: ADAPTED.
+EVE's existing native dialog, countdown renderer and Worker are retained; Telegram
+account/message services are excluded. No upstream asset copied in this repair.
+
 ## Live mission continuation: 2026-11-03 (implementation evidence, not final signoff)
 
 Recovery began at the audited main 23f4f9788eedff5e8d3895a21a2a3edbf46d97be.

@@ -104,4 +104,7 @@
     <string name="question_delete_confirmation">यह प्रश्न स्थायी रूप से हट जाएगा। इसे वापस नहीं लाया जा सकता।</string>
     <string name="question_delete_action">हटाएं</string>
     <string name="question_deleted">प्रश्न हटा दिया गया</string>
+    <string name="question_delete_with_undo_confirmation">यह प्रश्न हटाएं? 5 सेकंड तक वापस लाएं दबाकर रद्द कर सकते हैं।</string>
+    <string name="question_delete_pending">प्रश्न हटाया जाएगा</string>
+    <string name="question_delete_failed">हटाने की पुष्टि नहीं हुई: %1$s</string>
 </resources>

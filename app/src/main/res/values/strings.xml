@@ -103,4 +103,7 @@
     <string name="question_delete_confirmation">Delete this question? This will permanently remove the question and cannot be undone.</string>
     <string name="question_delete_action">Delete</string>
     <string name="question_deleted">Question deleted</string>
+    <string name="question_delete_with_undo_confirmation">Delete this question? You can cancel with Undo for 5 seconds.</string>
+    <string name="question_delete_pending">Question will be deleted</string>
+    <string name="question_delete_failed">Deletion was not confirmed: %1$s</string>
 </resources>

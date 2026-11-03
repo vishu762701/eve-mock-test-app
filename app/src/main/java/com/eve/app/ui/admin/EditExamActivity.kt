@@ -68,6 +68,14 @@ class EditExamActivity : EveBaseActivity() {
     private var currentExam: Exam? = null
     private var currentQuestions: MutableList<Question> = mutableListOf()
 
+    private val adminRepo = com.eve.app.data.repository.AdminRepository()
+    private var pendingQuestionDeleteId: String? = null
+    private var deletingQuestion = false
+    private var questionDeleteEpoch = 0L
+    private var questionReadGeneration = 0L
+    private var reloadQuestionsAfterStop = false
+    private val questionDeleteBusy: Boolean get() = pendingQuestionDeleteId != null || deletingQuestion
+
     private var canManageQuestions = false
     private var canManageContent = false
     private var questionDialog: TelegramNativeAlertDialog? = null
@@ -82,7 +90,7 @@ class EditExamActivity : EveBaseActivity() {
     private var importingQuestions = false
     private var interruptedImportNotice = false
     private val questionWindowBusy: Boolean
-        get() = awaitingPickerResult || questionDialog?.isShowing == true || importReadJob?.isActive == true || importingQuestions
+        get() = questionDeleteBusy || awaitingPickerResult || questionDialog?.isShowing == true || importReadJob?.isActive == true || importingQuestions
 
     private val questionActionsAllowed: Boolean
         get() = canManageQuestions && editorIdentityCurrent
@@ -90,7 +98,7 @@ class EditExamActivity : EveBaseActivity() {
     private val questionAdapter = QuestionManageAdapter(
         onEdit = { question -> showQuestionDetails(question) },
         onDelete = { question -> confirmDeleteQuestion(question) },
-        canManage = { questionActionsAllowed }
+        canManage = { questionActionsAllowed && !questionDeleteBusy }
     )
 
     private val filePicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -226,6 +234,18 @@ class EditExamActivity : EveBaseActivity() {
     override fun onResume() {
         super.onResume()
         consumePendingImport()
+        if (reloadQuestionsAfterStop && !deletingQuestion && questionActionsAllowed) {
+            reloadQuestionsAfterStop = false
+            loadQuestions()
+        }
+    }
+
+    override fun onStop() {
+        ++questionDeleteEpoch
+        ++questionReadGeneration
+        reloadQuestionsAfterStop = true
+        AppUndoBar.cancelDeferredForHost(this)
+        super.onStop()
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
@@ -276,27 +296,22 @@ class EditExamActivity : EveBaseActivity() {
 
     private fun loadQuestions() {
         if (!editorIdentityCurrent) return
+        val request = ++questionReadGeneration
         lifecycleScope.launch {
             try {
                 val questions = examRepo.getQuestions(examId)
-                if (!editorIdentityCurrent) return@launch
+                if (!editorIdentityCurrent || request != questionReadGeneration) return@launch
                 currentQuestions = questions.toMutableList()
                 binding.progressBar.visibility = View.GONE
 
-                binding.tvQuestionsHeader.text = "Questions (${currentQuestions.size})"
-                questionAdapter.submit(currentQuestions)
+                publishQuestionRows()
                 if (interruptedImportNotice) {
                     interruptedImportNotice = false
                     AppBulletin.show(this@EditExamActivity, getString(R.string.exam_import_interrupted))
                 }
-
-                binding.tvNoQuestions.visibility =
-                    if (currentQuestions.isEmpty()) View.VISIBLE else View.GONE
-                binding.rvQuestions.visibility =
-                    if (currentQuestions.isEmpty()) View.GONE else View.VISIBLE
             } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
             catch (e: Exception) {
-                if (editorIdentityCurrent) {
+                if (editorIdentityCurrent && request == questionReadGeneration) {
                     binding.progressBar.visibility = View.GONE
                     AppBulletin.showError(this@EditExamActivity, "Failed to load questions: ${e.toUserFriendlyMessage()}")
                 }
@@ -578,6 +593,8 @@ class EditExamActivity : EveBaseActivity() {
     }
 
     override fun onDestroy() {
+        ++questionDeleteEpoch
+        AppUndoBar.cancelDeferredForHost(this)
         closingEditor = true
         importReadGeneration++
         cancelImportRead?.invoke()
@@ -774,47 +791,82 @@ class EditExamActivity : EveBaseActivity() {
         }
     }
 
-    private fun confirmDeleteQuestion(q: Question) {
-        if (!questionActionsAllowed || questionWindowBusy) return
-        val dialog = TelegramNativeAlertDialog.Builder(this)
-            .setTitle("Delete Question?")
-            .setMessage("Are you sure? This cannot be undone.\n\n\"${q.questionText}\"")
-            .setPositiveButton("Delete") { _, _ ->
-                if (!questionActionsAllowed) return@setPositiveButton
-                val prevList = currentQuestions.toMutableList()
-                val updated = prevList.filter { it.id != q.id }
-                currentQuestions = updated.toMutableList()
-                questionAdapter.submit(currentQuestions)
-                binding.tvQuestionsHeader.text = "Questions (${currentQuestions.size})"
+    private fun publishQuestionRows() {
+        val visible = currentQuestions.filter { it.id != pendingQuestionDeleteId }
+        binding.tvQuestionsHeader.text = "Questions (${visible.size})"
+        questionAdapter.submit(visible)
+        binding.tvNoQuestions.visibility = if (visible.isEmpty()) View.VISIBLE else View.GONE
+        binding.rvQuestions.visibility = if (visible.isEmpty()) View.GONE else View.VISIBLE
+        updateImportControls()
+    }
 
-                lifecycleScope.launch {
-                    try {
-                        examRepo.deleteQuestion(q.id)
-                    } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
-                    catch (e: Exception) {
-                        if (questionActionsAllowed) AppBulletin.showError(this@EditExamActivity, "Failed to delete question: ${e.toUserFriendlyMessage()}")
+    private fun deleteRequestCurrent(epoch: Long): Boolean = questionActionsAllowed &&
+        epoch == questionDeleteEpoch && lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+
+    private fun commitPendingQuestionDelete(id: String, epoch: Long) {
+        if (pendingQuestionDeleteId != id || deletingQuestion) return
+        if (!deleteRequestCurrent(epoch)) { pendingQuestionDeleteId = null; return }
+        deletingQuestion = true
+        lifecycleScope.launch {
+            var revalidate = false
+            try {
+                val permissions = com.eve.app.util.AdminPermissionSnapshot.load(
+                    editorOwnerEmail, "manage_questions",
+                    membership = { adminRepo.isAdminFresh(editorOwnerUid, editorOwnerEmail) },
+                    permissions = {
+                        if (!deleteRequestCurrent(epoch)) throw kotlinx.coroutines.CancellationException("Question deletion owner changed")
+                        adminRepo.getAdminMe()
+                    }
+                )
+                if (!deleteRequestCurrent(epoch)) throw kotlinx.coroutines.CancellationException("Question deletion owner changed")
+                if (permissions == null || !com.eve.app.util.AdminPermissionSnapshot.allows(permissions, editorOwnerEmail, "manage_exams")) {
+                    throw SecurityException("Question deletion permission is no longer available")
+                }
+                examRepo.deleteQuestion(id)
+                if (!deleteRequestCurrent(epoch)) return@launch
+                currentQuestions.removeAll { it.id == id }
+                AppBulletin.showSuccess(this@EditExamActivity, getString(R.string.question_deleted))
+            } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
+            catch (e: Exception) {
+                revalidate = true
+                if (deleteRequestCurrent(epoch)) AppBulletin.showError(this@EditExamActivity,
+                    getString(R.string.question_delete_failed, e.toUserFriendlyMessage()))
+            } finally {
+                pendingQuestionDeleteId = null
+                deletingQuestion = false
+                if (questionActionsAllowed && lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                    publishQuestionRows()
+                    if (revalidate || reloadQuestionsAfterStop || epoch != questionDeleteEpoch) {
+                        reloadQuestionsAfterStop = false
+                        loadQuestions()
                     }
                 }
+            }
+        }
+    }
 
-                AppUndoBar.show(
+    private fun confirmDeleteQuestion(q: Question) {
+        if (!questionActionsAllowed || questionWindowBusy || q.examId != examId || currentQuestions.none { it.id == q.id }) return
+        val dialog = TelegramNativeAlertDialog.Builder(this)
+            .setTitle(getString(R.string.question_delete_title))
+            .setMessage(getString(R.string.question_delete_with_undo_confirmation) + "\n\n\"${q.questionText}\"")
+            .setPositiveButton(getString(R.string.question_delete_action)) { _, _ ->
+                if (!questionActionsAllowed || questionDeleteBusy ||
+                    !lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED) || currentQuestions.none { it.id == q.id }) return@setPositiveButton
+                val epoch = questionDeleteEpoch
+                pendingQuestionDeleteId = q.id
+                publishQuestionRows()
+                AppUndoBar.showDeferred(
                     context = this@EditExamActivity,
-                    message = "Question deleted",
+                    message = getString(R.string.question_delete_pending),
                     timeLeftMs = AppUndoBar.TIME_IMPORTANT,
                     onUndo = {
-                        if (!questionActionsAllowed) return@show
-                        currentQuestions = prevList
-                        questionAdapter.submit(currentQuestions)
-                        binding.tvQuestionsHeader.text = "Questions (${currentQuestions.size})"
-                        lifecycleScope.launch {
-                            try {
-                                examRepo.updateQuestion(q)
-                                if (questionActionsAllowed) AppBulletin.showSuccess(this@EditExamActivity, "Question restored")
-                            } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
-                            catch (e: Exception) {
-                                if (questionActionsAllowed) AppBulletin.showError(this@EditExamActivity, "Failed to restore question: ${e.toUserFriendlyMessage()}")
-                            }
+                        if (pendingQuestionDeleteId == q.id && !deletingQuestion) {
+                            pendingQuestionDeleteId = null
+                            if (editorIdentityCurrent) publishQuestionRows()
                         }
-                    }
+                    },
+                    onExecuteDelete = { commitPendingQuestionDelete(q.id, epoch) }
                 )
             }
             .setNegativeButton("Cancel", null)
