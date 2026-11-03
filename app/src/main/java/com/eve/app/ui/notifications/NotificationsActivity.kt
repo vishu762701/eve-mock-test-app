@@ -12,6 +12,8 @@ import com.eve.app.data.remote.ApiClient
 import com.eve.app.databinding.ActivityNotificationsBinding
 import com.eve.app.util.NotificationStore
 import com.eve.app.util.StoredNotification
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 class NotificationsActivity : EveBaseActivity() {
@@ -20,9 +22,29 @@ class NotificationsActivity : EveBaseActivity() {
     private val adapter = NotificationAdapter()
 
     private var hasEmptyPlayed = false
+    private lateinit var inboxOwner: NotificationInboxOwner
+    private val auth = FirebaseAuth.getInstance()
+    private val accountListener = FirebaseAuth.AuthStateListener {
+        if (::inboxOwner.isInitialized && !hasOriginalAccount()) finish()
+    }
+
+    private fun hasOriginalAccount(): Boolean =
+        ::inboxOwner.isInitialized && inboxOwner.accepts(auth.currentUser?.uid)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // A restored inbox must not adopt a different account just because
+        // FirebaseAuth has changed while Android kept the Activity task alive.
+        val originalUid = if (savedInstanceState?.containsKey("inbox_owner_uid") == true) {
+            savedInstanceState.getString("inbox_owner_uid")
+        } else {
+            auth.currentUser?.uid
+        }
+        inboxOwner = NotificationInboxOwner(originalUid)
+        if (!hasOriginalAccount()) {
+            finish()
+            return
+        }
         hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
         binding = ActivityNotificationsBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -48,6 +70,21 @@ class NotificationsActivity : EveBaseActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean("key_empty_played", hasEmptyPlayed)
+        outState.putString("inbox_owner_uid", inboxOwner.uid)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (!hasOriginalAccount()) {
+            finish()
+            return
+        }
+        auth.addAuthStateListener(accountListener)
+    }
+
+    override fun onStop() {
+        auth.removeAuthStateListener(accountListener)
+        super.onStop()
     }
 
     private fun updateEmptyState(isEmpty: Boolean) {
@@ -69,22 +106,33 @@ class NotificationsActivity : EveBaseActivity() {
 
     override fun onPause() {
         super.onPause()
-        if (binding.lottieEmpty.isAnimating) {
+        if (::binding.isInitialized && binding.lottieEmpty.isAnimating) {
             binding.lottieEmpty.pauseAnimation()
         }
     }
 
     override fun onResume() {
         super.onResume()
+        if (!hasOriginalAccount()) {
+            finish()
+            return
+        }
         if (binding.emptyGroup.visibility == View.VISIBLE && !hasEmptyPlayed && !binding.lottieEmpty.isAnimating) {
             binding.lottieEmpty.resumeAnimation()
         }
     }
 
     private fun listenToNotifications() {
+        val requestOwner = inboxOwner
         lifecycleScope.launch {
             try {
                 val res = ApiClient.apiService.getBroadcasts(50)
+                // Auth may switch while the network request is suspended.
+                // Never import an old response into the newly current account.
+                if (!requestOwner.accepts(auth.currentUser?.uid)) {
+                    finish()
+                    return@launch
+                }
                 if (res.success) {
                     // Even an empty successful server page establishes a first-sync
                     // baseline. Otherwise the first later post could be confused
@@ -96,11 +144,23 @@ class NotificationsActivity : EveBaseActivity() {
                 val merged = NotificationStore.getAll(this@NotificationsActivity)
                 adapter.submit(merged)
                 updateEmptyState(merged.isEmpty())
+            } catch (cancel: CancellationException) {
+                throw cancel
             } catch (_: Exception) {
+                if (!requestOwner.accepts(auth.currentUser?.uid)) {
+                    finish()
+                    return@launch
+                }
                 val local = NotificationStore.getAll(this@NotificationsActivity)
                 adapter.submit(local)
                 updateEmptyState(local.isEmpty())
             }
         }
     }
+}
+
+/** Immutable login identity captured when the inbox was opened or restored. */
+internal class NotificationInboxOwner(val uid: String?) {
+    fun accepts(currentUid: String?): Boolean =
+        !uid.isNullOrBlank() && uid == currentUid
 }

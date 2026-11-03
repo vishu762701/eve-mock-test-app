@@ -161,6 +161,8 @@ class MainActivity : EveBaseActivity() {
 
     private val foregroundNotificationReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
+            // A retained Home for account A must not animate for account B.
+            if (!searchOwnerCurrent) return
             val ctx = context ?: this@MainActivity
             VibrationHelper.vibrateNotification(ctx)
             animateNotificationBell()
@@ -1495,9 +1497,18 @@ class MainActivity : EveBaseActivity() {
 
     private fun startListeningToNotifications() {
         notifJob?.cancel()
+        notifJob = null
+        val requestUid = homeOwnerUid
+        if (requestUid.isBlank() || requestUid != FirebaseAuth.getInstance().currentUser?.uid) {
+            updateNotificationDot()
+            return
+        }
         notifJob = lifecycleScope.launch(lifecycleExceptionHandler) {
             try {
                 val res = com.eve.app.data.remote.ApiClient.apiService.getBroadcasts(50)
+                // Auth may change during this suspension; never merge account A's
+                // response into account B's SharedPreferences namespace.
+                if (requestUid != FirebaseAuth.getInstance().currentUser?.uid) return@launch
                 if (res.success) {
                     // An empty successful response still establishes the
                     // initial sync baseline for subsequent live notifications.
@@ -1513,15 +1524,18 @@ class MainActivity : EveBaseActivity() {
                     }
                 }
                 updateNotificationDot()
+            } catch (cancel: kotlinx.coroutines.CancellationException) {
+                throw cancel
             } catch (_: Exception) {
-                // Keep locally cached unread state when network retrieval fails.
-                updateNotificationDot()
+                // A failed request must not redraw another account's Home.
+                if (requestUid == FirebaseAuth.getInstance().currentUser?.uid) updateNotificationDot()
             }
         }
     }
 
     private fun updateNotificationDot() {
-        binding.dotUnread.visibility = if (NotificationStore.hasUnread(this)) View.VISIBLE else View.GONE
+        binding.dotUnread.visibility =
+            if (searchOwnerCurrent && NotificationStore.hasUnread(this)) View.VISIBLE else View.GONE
     }
 
     private fun restoreNotificationBellIdle() {
