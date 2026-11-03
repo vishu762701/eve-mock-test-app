@@ -85,7 +85,7 @@ class AdminRightsMutationContractTest {
             arrayOf(EveApiService::class.java)
         ) { _, method, args ->
             when (method.name) {
-                "updateAdminRights" -> {
+                "updateAdminRights", "removeAdmin" -> {
                     rightsWrites++
                     @Suppress("UNCHECKED_CAST")
                     val continuation = args!!.last() as Continuation<Any?>
@@ -99,6 +99,10 @@ class AdminRightsMutationContractTest {
         val vm = AdminViewModel(ExamRepository(api), AdminRepository(api))
         val store = ViewModelStore().apply { put("admin-rights", vm) }
         fun finish(response: ApiResponse<DynamicAdminItem>) {
+            requireNotNull(pending).resume(response)
+            pending = null
+        }
+        fun finishRemoval(response: ApiResponse<Unit>) {
             requireNotNull(pending).resume(response)
             pending = null
         }
@@ -143,6 +147,45 @@ class AdminRightsMutationContractTest {
             shadowOf(Looper.getMainLooper()).idle()
             assertEquals(0, successes)
             assertEquals(1, failures)
+            assertFalse(h.vm.busy.value)
+        } finally { h.close() }
+    }
+
+    @Test fun pendingAdminRemovalCannotClaimSuccessOnDeniedServerResponse() {
+        val h = HeldTransport()
+        var success = 0
+        var denied = 0
+        try {
+            val attempt = {
+                h.vm.removeAdmin("moderator@example.invalid") { result ->
+                    if (result.isSuccess) success++ else denied++
+                }
+            }
+            attempt()
+            assertTrue(h.vm.busy.value)
+            attempt()
+            shadowOf(Looper.getMainLooper()).idle()
+            assertEquals("Repeated taps must create one Worker request", 1, h.rightsWrites)
+            h.finishRemoval(ApiResponse(success = false, error = "Permission revoked"))
+            shadowOf(Looper.getMainLooper()).idle()
+            assertEquals(0, success)
+            assertEquals(1, denied)
+            assertFalse(h.vm.busy.value)
+        } finally { h.close() }
+    }
+
+    @Test fun confirmedAdminRemovalOnlyCallsSuccessAfterWorkerCompletes() {
+        val h = HeldTransport()
+        var success = 0
+        try {
+            h.vm.removeAdmin("moderator@example.invalid") { result ->
+                if (result.isSuccess) success++
+            }
+            shadowOf(Looper.getMainLooper()).idle()
+            assertEquals(0, success)
+            h.finishRemoval(ApiResponse<Unit>(success = true))
+            shadowOf(Looper.getMainLooper()).idle()
+            assertEquals(1, success)
             assertFalse(h.vm.busy.value)
         } finally { h.close() }
     }
