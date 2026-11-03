@@ -278,7 +278,8 @@ class ManageQuestionsActivity : EveBaseActivity() {
             if (errorCount > 0) {
                 append("⚠️ $errorCount rows skipped due to errors:\n\n")
                 result.errors.take(8).forEach { err ->
-                    append("• Row ${err.rowNumber}: ${err.reason}\n")
+                    val reason = result.failure?.let { getString(it.messageRes) } ?: err.reason
+                    append("• Row ${err.rowNumber}: $reason\n")
                 }
                 if (errorCount > 8) {
                     append("...and ${errorCount - 8} more errors.\n")

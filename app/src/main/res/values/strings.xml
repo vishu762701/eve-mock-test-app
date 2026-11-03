@@ -91,4 +91,12 @@
     <string name="exam_import_read_failed">Unable to read the selected file. Choose the file again.</string>
     <string name="exam_import_interrupted">Previous import confirmation was interrupted. Check the question list before retrying.</string>
     <string name="exam_import_picker_unavailable">No file picker is available on this device.</string>
+    <string name="question_import_limit_input">File exceeds the 8 MiB import limit. Split the file and try again.</string>
+    <string name="question_import_limit_expanded">Expanded workbook exceeds 16 MiB. Use a smaller workbook.</string>
+    <string name="question_import_limit_rows">Document exceeds 10,000 rows. Split the file and try again.</string>
+    <string name="question_import_limit_columns">Document exceeds 64 columns. Remove unused columns.</string>
+    <string name="question_import_limit_cell">A cell exceeds 65,536 characters. Shorten long cells.</string>
+    <string name="question_import_limit_shared">Workbook exceeds 80,000 shared strings. Use a smaller workbook.</string>
+    <string name="question_import_limit_batch">Import at most 300 questions at a time. Split the file into smaller batches.</string>
+    <string name="question_import_malformed">Invalid document format. Use CSV or the primary worksheet in XLSX.</string>
 </resources>

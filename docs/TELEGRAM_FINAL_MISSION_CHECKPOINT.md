@@ -6,7 +6,7 @@ Status: PARTIAL. This is a continuation record, not screen acceptance.
 
 ## Live verified implementation pointer — 2026-11-03
 
-Latest verified implementation main: **07b448e5e70b53569db6a4ba328bd0baf34edca8**.
+Latest verified implementation main: **22fd6f8129e26bef75c7a26cc609a6525c1684e2**.
 Official Telegram rechecked after implementation: **3de37c8cfb039452be7398909461da6288babf15**.
 Reconcile this pointer with the carrying implementation commit and live main/CI on restart.
 
@@ -37,6 +37,8 @@ Reconcile this pointer with the carrying implementation commit and live main/CI 
 | Question review target/rights/response confirmation | 9cf0523ed859b68e70c03911b09d08dce97a2634 | [41532575336](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41532575336) SUCCESS |
 | Analytics/report filter read ownership and truthful states | 980a92cf4a10e4b16b0a691303b4c340ad30bf6e | [41535796716](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41535796716) SUCCESS |
 | Verified metadata saves, owner scope and staged cutoff backing | 07b448e5e70b53569db6a4ba328bd0baf34edca8 | [41544036446](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41544036446) SUCCESS |
+
+| Authorized import-result lifecycle | 22fd6f8129e26bef75c7a26cc609a6525c1684e2 | [41568018939](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41568018939) SUCCESS |
 
 Each FAST passed Android build/JVM/AndroidTest source compilation, all four ABI
 builds, pinned Rust security/C API, backend and Firebase. Historical scanner-batch docs 41403654877
@@ -1585,3 +1587,29 @@ after carrying FAST: shared parser resource/batch bounds and sparse XLSX column
 mapping. Physical providers/grants, unknown submit acknowledgement/idempotent retry,
 whole source UI/device/FULL/GPL acceptance remain OPEN. Existing successful QR and
 other work preserved; cutoff production rollout and Undo decision remain separate.
+
+## 2026-11-03 shared parser continuation
+
+Recovered 22fd6f8129e26bef75c7a26cc609a6525c1684e2 with FAST41568018939,
+docs41568018836 and dependency41568018767 SUCCESS; no concurrent remote changes.
+Official origin HEAD remains 3de37c8cfb039452be7398909461da6288babf15.
+C1/C5 existing shared import parser repaired for sparse/inline/rich XLSX identity,
+explicit Worker batch bound and bounded/cancellable input/decompression/XML.
+Both actual callers retain existing native preview; fatal messages localized.
+Requirement/source/evidence ledger: EXAM_IMPORT_PARSER_CONTRACT.md.
+
+Local integration PASS: ./gradlew :app:testDebugUnitTest
+:app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug
+-Peve.nativeAbis=x86_64 (3m21s); 916 tests / 200 suites, zero failures/errors/skips.
+Lint 0 errors / 1629 warnings. Document parser16 and actual picker17 cases PASS;
+59 CI-helper tests, docs78, acceptance structure, four byte-identical imports and
+git diff --check PASS. Backend unchanged from green main. Historical bare SDK35
+thread diagnostic recurred without a JUnit failure; remains UNKNOWN, not resolved.
+Carrying exact-SHA FAST pending; native navigation, physical providers, matched
+visual captures, protected FULL, verified publication and legal clearance OPEN.
+
+First next after carrying FAST: reproduce and repair ManageQuestions immediate
+false deletion success with real callback/server-denial coverage, preserving
+existing deletion semantics and unrelated pending Delete/Undo owner choice.
+Standalone picker lifecycle remains separate. Whole mission NOT MET; QR OPEN;
+no deployment, remote migration, signing or release-variable change performed.

@@ -92,4 +92,12 @@
     <string name="exam_import_read_failed">चुनी हुई फ़ाइल पढ़ी नहीं जा सकी। फ़ाइल दोबारा चुनें।</string>
     <string name="exam_import_interrupted">पिछले इम्पोर्ट की पुष्टि बीच में रुक गई। दोबारा प्रयास करने से पहले प्रश्न सूची जाँचें।</string>
     <string name="exam_import_picker_unavailable">इस डिवाइस पर फ़ाइल चुनने की सुविधा उपलब्ध नहीं है।</string>
+    <string name="question_import_limit_input">फ़ाइल इम्पोर्ट की 8 MiB सीमा से बड़ी है। फ़ाइल विभाजित करके फिर प्रयास करें।</string>
+    <string name="question_import_limit_expanded">खुली हुई वर्कबुक 16 MiB से बड़ी है। छोटी वर्कबुक चुनें।</string>
+    <string name="question_import_limit_rows">दस्तावेज़ में 10,000 से अधिक पंक्तियाँ हैं। फ़ाइल विभाजित करें।</string>
+    <string name="question_import_limit_columns">दस्तावेज़ में 64 से अधिक कॉलम हैं। अनुपयोगी कॉलम हटाएँ।</string>
+    <string name="question_import_limit_cell">एक सेल में 65,536 से अधिक अक्षर हैं। लंबे सेल छोटे करें।</string>
+    <string name="question_import_limit_shared">वर्कबुक में 80,000 से अधिक साझा स्ट्रिंग हैं। छोटी वर्कबुक चुनें।</string>
+    <string name="question_import_limit_batch">एक बार में अधिकतम 300 प्रश्न इम्पोर्ट करें। फ़ाइल को छोटे समूहों में बाँटें।</string>
+    <string name="question_import_malformed">दस्तावेज़ का प्रारूप अमान्य है। CSV या XLSX की प्राथमिक शीट का उपयोग करें।</string>
 </resources>

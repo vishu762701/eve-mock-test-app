@@ -1034,3 +1034,39 @@ after carrying FAST: shared parser resource/batch bounds and sparse XLSX column
 mapping. Physical providers/grants, unknown submit acknowledgement/idempotent retry,
 whole source UI/device/FULL/GPL acceptance remain OPEN. Existing successful QR and
 other work preserved; cutoff production rollout and Undo decision remain separate.
+
+## C1/C5 shared question-import parser safety and cell correctness
+
+Base 22fd6f8129e26bef75c7a26cc609a6525c1684e2 FAST 41568018939 SUCCESS,
+docs 41568018836 / dependency evidence 41568018767 SUCCESS. R1: reject a >300-valid-
+question batch explicitly, never silently truncate (existing Worker questions.ts
+limit). R2: XLSX sparse cell references, inline strings and rich shared strings must
+retain correct question/option/answer/topic identity. R3: bound raw/expanded input,
+rows, columns, cells and shared strings; reject malformed/DTD input and propagate
+cancellation. EVE-authored safety budgets, not Telegram values: 8MiB raw, 16MiB total
+expanded ZIP, 10000 rows, 64 columns, 65536 characters/cell and 80000 shared strings.
+These bound unsupported document shapes rather than changing evaluation rules.
+R4: preserve existing CSV quoting/numeric normalization, error rows and both actual
+production callers (EditExam and ManageQuestions), with localized fatal messages.
+R5: retain stream ownership, avoid network/external entity access, and keep manual
+confirmation/server permission contracts. No production writes, new permission,
+backend/scoring change or new parser/state implementation parallel to the existing
+QuestionImportHelper. This is the remaining shared parser increment following the
+green editor handoff, not a cosmetic third iteration of that feature.
+
+Implementation and evidence: EXAM_IMPORT_PARSER_CONTRACT.md.
+
+Local integration PASS: ./gradlew :app:testDebugUnitTest
+:app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug
+-Peve.nativeAbis=x86_64 (3m21s); 916 tests / 200 suites, zero failures/errors/skips.
+Lint 0 errors / 1629 warnings. Document parser16 and actual picker17 cases PASS;
+59 CI-helper tests, docs78, acceptance structure, four byte-identical imports and
+git diff --check PASS. Backend unchanged from green main. Historical bare SDK35
+thread diagnostic recurred without a JUnit failure; remains UNKNOWN, not resolved.
+Carrying exact-SHA FAST pending; native navigation, physical providers, matched
+visual captures, protected FULL, verified publication and legal clearance OPEN.
+
+Next independently actionable Admin defects: standalone ManageQuestions false
+immediate deletion success/error presentation and picker lifecycle/target ownership.
+Reproduce actual callbacks before changing those flows; Delete/Undo timing choice
+is still pending and does not block confirmation-only repairs.

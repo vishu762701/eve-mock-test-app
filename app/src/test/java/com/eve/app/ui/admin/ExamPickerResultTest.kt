@@ -267,4 +267,17 @@ class ExamPickerResultTest {
         } finally { close(c) }
     }
 
+    @Test @Config(qualifiers="hi-rIN-ldrtl-night")
+    fun oversizedDocumentPreviewCannotOfferAnImportAction() {
+        file.writeText((1..301).joinToString("\n") {"Q$it,A,B,C,D,A"})
+        val c=open(); val code=launch(c)
+        try {
+            deliver(c,code); awaitPreview()
+            val dialog=ShadowDialog.getLatestDialog() as com.eve.app.designsystem.TelegramNativeAlertDialog
+            assertEquals("OK",dialog.getActionButton(android.content.DialogInterface.BUTTON_POSITIVE)!!.text.toString())
+            assertEquals(0,EditExamBoundaryFixture.batchWrites)
+            assertTrue(c.get().getString(R.string.question_import_limit_batch).contains("प्रश्न"))
+        } finally { close(c) }
+    }
+
 }
