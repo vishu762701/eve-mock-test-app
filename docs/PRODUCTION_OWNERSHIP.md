@@ -22,6 +22,7 @@ This is a compact map of the **existing** runtime ownership contracts at main `f
 | Poll status | `ui/admin/ManagePollsActivity.kt` and `data/repository/PollRepository.kt` | Backend `src/routes/polls.ts` owns authorized, audited mutations; source-derived UI controls are adapters |
 | Personal Performance | `ui/performance/PerformanceActivity.kt` + `PerformanceViewModel.kt` | Host and aggregate VM bind the original UID; only verified owner may publish fetched attempt trends/topics; `HistoryRepository` remains attempt API owner |
 | Leaderboard + personal rank | `ui/leaderboard/LeaderboardActivity.kt` + `LeaderboardViewModel.kt` | Existing public top-scorer list and private user rank are separate reads; Activity/VM bind original UID and ignore stale rank responses |
+| Student PYQ selection and request ordering | `ui/pyq/PyqViewModel.kt` | `PyqActivity.kt` spinner restores selected exam/year and renders only current-exam sets; ViewModel cancels/invalidates older reads and rejects cross-exam results, activity rechecks current owner and paper identity at navigation | 
 | Student History | `ui/history/HistoryActivity.kt` + `HistoryViewModel.kt` | Host and ViewModel bind original UID; existing `HistoryRepository.getAttempts` rejects malformed success without list; result handoff uses existing UID-bound `ResultDataHolder` |
 | Mistake Notebook | `ui/mistakes/MistakesActivity.kt` | Existing screen owns server mistake list and learned toggles; `MistakesPreferenceScope` partitions flags per verified UID, malformed server reads are errors |
 | Account Settings / deletion | `ui/settings/SettingsActivity.kt` | Opening/restored Firebase UID owns logout, server-confirmed account deletion, and reauthentication; deletion clears only that UID's Mistakes, recent exam and search history; `SettingsDeletionBoundary` is the pure post-delete signout guard |
@@ -34,6 +35,8 @@ This is a compact map of the **existing** runtime ownership contracts at main `f
 ## Regression enforcement and consolidation
 
 `.github/scripts/tests/test_production_ownership.py` executes under the pre-existing FAST host Python unit-test discovery. It checks one Manifest registration per Activity, one launcher, one registered EVE public username route, protected scanner export settings, the actual Profile → viewer → scanner call chain, inbox-only unread acknowledgment, and Home's ViewModel-selected category contract.
+
+PYQ response-order regressions live in `app/src/test/java/com/eve/app/ui/pyq/PyqViewModelTest.kt`; they drive the production ViewModel with controlled deferred transport responses, including stale failures, cancellation and cross-exam results.
 
 These tests protect **known concrete failure modes**, not class names generally. They deliberately allow multiple QR render primitives, different QR payload types, source adapters, test fixtures and separate permission/visual controllers. In particular, the existing payment QR generator must not be deleted or redirected into EVE's username identity flow.
 

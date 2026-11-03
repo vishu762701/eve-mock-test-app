@@ -4,6 +4,7 @@ import com.eve.app.ui.common.EveBaseActivity
 
 import android.content.Intent
 import android.os.Bundle
+import com.google.firebase.auth.FirebaseAuth
 import android.view.View
 import android.widget.ArrayAdapter
 import androidx.activity.viewModels
@@ -28,18 +29,26 @@ class PyqActivity : EveBaseActivity() {
     private var selectedExam: Exam? = null
     private var sets: List<PyqSet> = emptyList()
     private var selectedYear: Int? = null
+    private var restoredExamId: String? = null
+    private val initialOwnerUid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPyqBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        restoredExamId = savedInstanceState?.getString(STATE_EXAM_ID)
+        selectedYear = savedInstanceState?.takeIf { it.containsKey(STATE_YEAR) }?.getInt(STATE_YEAR)
 
         binding.btnBack.setOnClickListener { finish() }
         binding.spExam.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, position: Int, id: Long) {
-                selectedExam = exams.getOrNull(position)
-                selectedYear = null
-                selectedExam?.let { viewModel.loadSets(it) }
+                val next = exams.getOrNull(position) ?: return
+                if (viewModel.selectedExamId != next.id) {
+                    selectedYear = null
+                    sets = emptyList()
+                }
+                selectedExam = next
+                viewModel.loadSets(next)
             }
 
             override fun onNothingSelected(parent: android.widget.AdapterView<*>?) = Unit
@@ -53,7 +62,24 @@ class PyqActivity : EveBaseActivity() {
         }
     }
 
+    private fun isCurrentOwner(): Boolean =
+        initialOwnerUid.isNotBlank() && FirebaseAuth.getInstance().currentUser?.uid == initialOwnerUid
+
+    override fun onResume() {
+        super.onResume()
+        if (!isCurrentOwner()) finish()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        (viewModel.selectedExamId ?: selectedExam?.id)?.let {
+            outState.putString(STATE_EXAM_ID, it)
+        }
+        selectedYear?.let { outState.putInt(STATE_YEAR, it) }
+        super.onSaveInstanceState(outState)
+    }
+
     private fun renderExams(state: UiState<List<Exam>>) {
+        if (!isCurrentOwner()) return
         when (state) {
             is UiState.Loading -> binding.progress.visibility = View.VISIBLE
             is UiState.Error -> {
@@ -63,6 +89,7 @@ class PyqActivity : EveBaseActivity() {
             }
             is UiState.Success -> {
                 binding.progress.visibility = View.GONE
+                val wantedId = viewModel.selectedExamId ?: restoredExamId ?: selectedExam?.id
                 exams = state.data
                 binding.spExam.adapter = ArrayAdapter(
                     this,
@@ -70,23 +97,42 @@ class PyqActivity : EveBaseActivity() {
                     exams.map { it.examName }
                 )
                 if (exams.isEmpty()) {
+                    selectedExam = null
+                    sets = emptyList()
+                    viewModel.clearSelection()
+                    binding.chipGroupYears.removeAllViews()
+                    binding.chipGroupPapers.removeAllViews()
+                    binding.tvPapersLabel.visibility = View.GONE
                     binding.tvMessage.text = "No exams are currently available for previous year questions."
                     binding.tvMessage.visibility = View.VISIBLE
+                    restoredExamId = null
+                    return
                 }
+                val index = exams.indexOfFirst { it.id == wantedId }.coerceAtLeast(0)
+                val exam = exams[index]
+                // Restore the year only when restoring the very same exam.
+                if (wantedId != exam.id) selectedYear = null
+                selectedExam = exam
+                binding.spExam.setSelection(index)
+                viewModel.loadSets(exam)
+                restoredExamId = null
             }
         }
     }
 
     private fun renderSets(state: UiState<List<PyqSet>>) {
+        if (!isCurrentOwner() || selectedExam?.id != viewModel.selectedExamId) return
         binding.chipGroupYears.removeAllViews()
         binding.chipGroupPapers.removeAllViews()
         when (state) {
             is UiState.Loading -> {
+                sets = emptyList()
                 binding.progress.visibility = View.VISIBLE
                 binding.tvMessage.visibility = View.GONE
                 binding.tvPapersLabel.visibility = View.GONE
             }
             is UiState.Error -> {
+                sets = emptyList()
                 binding.progress.visibility = View.GONE
                 binding.tvMessage.text = state.message
                 binding.tvMessage.visibility = View.VISIBLE
@@ -127,8 +173,9 @@ class PyqActivity : EveBaseActivity() {
     }
 
     private fun renderPapers(year: Int) {
+        if (!isCurrentOwner() || selectedExam?.id != viewModel.selectedExamId) return
         binding.chipGroupPapers.removeAllViews()
-        val yearSets = sets.filter { it.year == year }
+        val yearSets = sets.filter { it.examId == selectedExam?.id && it.year == year }
         if (yearSets.isEmpty()) {
             binding.tvPapersLabel.visibility = View.GONE
             return
@@ -167,6 +214,15 @@ class PyqActivity : EveBaseActivity() {
     }
 
     private fun startPyq(set: PyqSet) {
+        val exam = selectedExam ?: return
+        if (!isCurrentOwner() || viewModel.selectedExamId != exam.id ||
+            set.examId != exam.id || set.year != selectedYear) return
+        val yearSets = sets.filter { it.examId == exam.id && it.year == set.year }
+        val validCombined = yearSets.size > 1 && set.paper.isBlank() &&
+            set.examName == exam.examName && set.category == exam.categoryOrOther &&
+            set.questionCount == yearSets.sumOf { it.questionCount } &&
+            set.timeLimitMinutes == exam.timeLimitMinutes.coerceAtLeast(1)
+        if (set !in yearSets && !validCombined) return
         startActivity(
             Intent(this, TestActivity::class.java)
                 .putExtra(Constants.EXTRA_EXAM_ID, set.examId)
@@ -177,5 +233,10 @@ class PyqActivity : EveBaseActivity() {
                 .putExtra(Constants.EXTRA_PYQ_YEAR, set.year)
                 .putExtra(Constants.EXTRA_PYQ_PAPER, set.paper)
         )
+    }
+
+    private companion object {
+        const val STATE_EXAM_ID = "pyq:selected-exam"
+        const val STATE_YEAR = "pyq:selected-year"
     }
 }
