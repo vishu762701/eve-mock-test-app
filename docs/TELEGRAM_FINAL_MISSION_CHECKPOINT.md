@@ -29,7 +29,7 @@ these EVE-only functional repairs.
 | Active exam deletion account and fresh-right boundary | ManageQuestionsActivity.confirmDeleteExam → AdminViewModel.deleteExam → existing ExamRepository/Worker | IMPLEMENTED / DEVICE NOT YET ACCEPTED | 0071eac336c118828cd1daa42a80646305dfa258, FAST 41625781538 SUCCESS; docs 41625781547 SUCCESS; held-response Robolectric tests included, no production delete/Undo change | Authorized/denied/rotation physical-device matrix | 1 |
 | Admin broadcast send/list/delete ownership | SendNotificationActivity → existing Worker `/api/broadcasts` | IMPLEMENTED / DEVICE NOT YET ACCEPTED | 568f48019d71cd59ba1f0b0bd6b3ab571d91173b FAST 41626893622 SUCCESS and docs 41626893662 SUCCESS; server ID/count and owner/right/single-flight guards | Physical inbox/admin role/rotation/accessibility and real-service confirmation | 1 |
 | Admin config editor owner/fresh-right and AI health entitlement | AppConfigActivity → AdminRepository → existing Worker `/api/admin/config`, `/api/admin/ai-health` | IMPLEMENTED IN CARRYING BATCH / NOT YET CI ACCEPTED | Source-bound original UID/email across suspended reads/writes, stop/re-entry refresh, Worker right distinction (`manage_config_maintenance` vs `manage_questions`), no default OFF on unknown config. Existing config partial-write/readback tests reused. | Exact-SHA FAST on carrying commit; physical ON/OFF/return/rights matrix; no production config mutation. | 0 before batch |
-| Standalone Syllabus picker, upload, replacement and removal | ManageSyllabusActivity → existing ExamRepository and Worker `/api/exams/:id/syllabus` | IMPLEMENTED IN CARRYING BATCH / CI NOT YET ACCEPTED | Initial UID/email and fresh `manage_syllabus` boundary, bounded/cancellable PDF read, request-generation and current exam checks, Worker-confirmed nonblank URL; fake-transport repository and suspended permission regressions. Existing UI and PDF reader preserved. | Exact-SHA FAST on carrying commit; physical picker/rotation/account/denied/malformed cases. Separate reassign two-write atomicity remains unaccepted. | 0 before carrying batch |
+| Standalone Syllabus picker, upload, replacement and removal | ManageSyllabusActivity → existing ExamRepository and Worker `/api/exams/:id/syllabus` | ANDROID IMPLEMENTED / DEVICE NOT ACCEPTED; SERVER HARDENING IN CARRYING BATCH | Android commit 9ad8784d3971e2e737c92c476d21ea79278c1fa9 FAST 41633160383 SUCCESS; docs 41633160402 SUCCESS. Server adds pre-upload exam/PDF validation, bounded metadata, generated storage key and cleanup on D1 error with real route/SQLite tests. | Server carrying-batch exact-SHA FAST; then physical picker/rotation and separately authorized Worker deployment plus live verification. Reassign two-write atomicity still OPEN. | 1 green + 1 carrying batch |
 | Personal QR and full Telegram screen parity | Canonical viewer/scanner/native/picker/emoji/export owners unchanged | IMPLEMENTED PORTIONS / WHOLE QR NOT ACCEPTED | Existing QR_ACTIVE_PATH_RECONCILIATION and acceptance validator strict personal-qr open | Reproduced functional defects only; preserve source composition differences and device/reference evidence | no new QR batch |
 | Final FULL and distribution | Existing six-job build.yml; release compliance gate | NOT MET / HUMAN RELEASE REVIEW BLOCKED | FAST jobs do not run navigation emulators; FULL includes Eve-debug-apk artifact upload | Obtain explicit publication boundary before FULL dispatch; no production deployment or legal signoff inferred | n/a |
 
@@ -38,6 +38,16 @@ host/CI evidence, not physical CameraX/HWUI/gesture acceptance. The existing
 production ownership map is extended, not replaced. No Worker production deploy,
 D1 migration, APK publication, release signing or legal approval took place.
 Historical STAGED notes below must not be read as the current remote state.
+
+Syllabus server acceptance boundary: backend source can be staged and host-tested
+without deploying. The existing Supabase Activity Keepalive scheduled run
+41629517670 FAILED due DNS resolution of its fallback project hostname
+(`curl (6)`, HTTP 000). That does not establish a Worker production failure or
+permission to fabricate a replacement project URL. Actual production Worker,
+Supabase project status, storage permissions, and release signoff remain UNKNOWN.
+The Syllabus reassign path still issues two independent writes; a successful
+client upload does not make this transfer atomic.
+
 
 Source-only related risks, ranked for independent follow-up (not repaired in this config batch):
 1. Syllabus reassign in `ManageSyllabusActivity.showReassignDialog` performs two independent `updateExamFullSettings` writes. A partial failure can leave duplicate references or an uncompleted transfer. Server atomic transfer semantics and authorization need investigation before changing data.

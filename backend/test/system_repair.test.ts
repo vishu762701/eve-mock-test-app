@@ -6,7 +6,7 @@ import { Hono } from 'hono';
 import { parseAndValidateQuestions, generateQuestions } from '../src/ai/generator';
 import { generatedTestRoutes } from '../src/routes/generatedTests';
 import { bannerRoutes } from '../src/routes/banners';
-import { examRoutes } from '../src/routes/exams';
+import { examRoutes, validSyllabusPdf, safeSyllabusFilename } from '../src/routes/exams';
 import { attemptRoutes } from '../src/routes/attempts';
 import { adminRoutes } from '../src/routes/admin';
 import { questionRoutes } from '../src/routes/questions';
@@ -520,4 +520,70 @@ test('generated-test deletion writes one atomic server action log', async () => 
   assert.equal(db.count('generated_tests'), 0);
   const log = db.sqlite.prepare("SELECT action_type, target_id FROM admin_audit_log WHERE action_type = 'GENERATED_TEST_DELETED'").all();
   assert.equal(log.length, 1); assert.equal(log[0].target_id, 'test');
+});
+
+test('syllabus PDF validator rejects arbitrary bytes and enforces bounded real header/trailer', () => {
+  const good = Buffer.from('%PDF-1.7\n1 0 obj\n<<>>\nendobj\ntrailer\n%%EOF');
+  assert.equal(validSyllabusPdf(good), true);
+  assert.equal(validSyllabusPdf(Buffer.from('not a PDF\n%%EOF')), false);
+  assert.equal(validSyllabusPdf(Buffer.from('%PDF-1.7\nmissing footer')), false);
+  assert.equal(validSyllabusPdf(new Uint8Array(20 * 1024 * 1024 + 1)), false);
+  assert.equal(safeSyllabusFilename('../folder\\name\n.pdf'), '.._folder_name_.pdf');
+});
+
+test('syllabus upload route rejects invalid target and content before writing to storage', async () => {
+  const db = new LocalD1(); const original = globalThis.fetch;
+  let storageRequests = 0;
+  globalThis.fetch = async () => { storageRequests++; return new Response('{}', { status: 200 }); };
+  const request = harness(db, true, { SUPABASE_PROJECT_URL: 'https://isolated.invalid', SUPABASE_BUCKET_NAME: 'eve-media', SUPABASE_SERVICE_ROLE_KEY: 'test-only-key' });
+  try {
+    const fakePdf = Buffer.from('plain text not a PDF\n%%EOF').toString('base64');
+    assert.equal((await request('/api/exams/no-such-exam/syllabus', { base64: fakePdf })).status, 404);
+    assert.equal((await request('/api/exams/exam/syllabus', { base64: fakePdf })).status, 400);
+    assert.equal((await request('/api/exams/exam/syllabus', { base64: '!!!invalid' })).status, 400);
+    assert.equal(storageRequests, 0);
+    const row = db.sqlite.prepare("SELECT syllabus_url FROM exams WHERE id = 'exam'").get() as any;
+    assert.equal(row.syllabus_url || '', '');
+  } finally { globalThis.fetch = original; }
+});
+
+test('confirmed syllabus upload stores sanitized label and creates one audit action', async () => {
+  const db = new LocalD1(); const original = globalThis.fetch;
+  const urls: string[] = [];
+  globalThis.fetch = async (input) => { urls.push(String(input)); return new Response('{}', { status: 200 }); };
+  const request = harness(db, true, { SUPABASE_PROJECT_URL: 'https://isolated.invalid', SUPABASE_BUCKET_NAME: 'eve-media', SUPABASE_SERVICE_ROLE_KEY: 'test-only-key' });
+  const encoded = Buffer.from('%PDF-1.7\ntrailer\n%%EOF').toString('base64');
+  try {
+    const response = await request('/api/exams/exam/syllabus', { base64: encoded, fileName: '../folder\\notes\n.pdf' });
+    assert.equal(response.status, 200);
+    const json = await response.json() as any;
+    assert.equal(json.success, true);
+    assert.equal(json.data.syllabusFileName, '.._folder_notes_.pdf');
+    assert.match(json.data.syllabusUrl, /\/storage\/v1\/object\/public\/eve-media\/syllabi\//);
+    assert.equal(urls.length, 1);
+    assert.match(urls[0], /\/storage\/v1\/object\/eve-media\/syllabi\//);
+    const stored = db.sqlite.prepare("SELECT syllabus_url, syllabus_file_name FROM exams WHERE id = 'exam'").get() as any;
+    assert.equal(stored.syllabus_url, json.data.syllabusUrl);
+    assert.equal(stored.syllabus_file_name, json.data.syllabusFileName);
+    assert.equal((db.sqlite.prepare("SELECT COUNT(*) as n FROM admin_audit_log WHERE action_type = 'SYLLABUS_UPDATED'").get() as any).n, 1);
+  } finally { globalThis.fetch = original; }
+});
+
+test('database failure after storage upload does not acknowledge a syllabus and compensates', async () => {
+  const db = new LocalD1(); const original = globalThis.fetch;
+  const operations: string[] = []; db.failPattern = 'UPDATE exams SET syllabus_url';
+  globalThis.fetch = async (_input, init) => {
+    operations.push(String(init?.method || 'GET'));
+    return new Response('{}', { status: 200 });
+  };
+  const request = harness(db, true, { SUPABASE_PROJECT_URL: 'https://isolated.invalid', SUPABASE_BUCKET_NAME: 'eve-media', SUPABASE_SERVICE_ROLE_KEY: 'test-only-key' });
+  const encoded = Buffer.from('%PDF-1.7\ntrailer\n%%EOF').toString('base64');
+  try {
+    const response = await request('/api/exams/exam/syllabus', { base64: encoded });
+    assert.equal(response.status, 409);
+    assert.equal((await response.json() as any).success, false);
+    assert.deepEqual(operations, ['POST', 'DELETE']);
+    assert.equal((db.sqlite.prepare("SELECT syllabus_url FROM exams WHERE id = 'exam'").get() as any).syllabus_url || '', '');
+    assert.equal((db.sqlite.prepare("SELECT COUNT(*) as n FROM admin_audit_log WHERE action_type = 'SYLLABUS_UPDATED'").get() as any).n, 0);
+  } finally { globalThis.fetch = original; }
 });

@@ -13,6 +13,32 @@ import { getActiveEmojiPlacements } from "./emoji";
 
 export const examRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
+/** Same bounded PDF header/trailer contract as the Android picker. */
+export function validSyllabusPdf(bytes: Uint8Array): boolean {
+  if (bytes.length < 12 || bytes.length > 20 * 1024 * 1024) return false;
+  const headerLimit = Math.min(bytes.length - 4, 1024);
+  let header = false;
+  for (let i = 0; i < headerLimit; i++) {
+    if (bytes[i] === 0x25 && bytes[i + 1] === 0x50 &&
+        bytes[i + 2] === 0x44 && bytes[i + 3] === 0x46 &&
+        bytes[i + 4] === 0x2d) { header = true; break; }
+  }
+  if (!header) return false;
+  const footerStart = Math.max(0, bytes.length - 1024);
+  for (let i = footerStart; i + 4 < bytes.length; i++) {
+    if (bytes[i] === 0x25 && bytes[i + 1] === 0x25 &&
+        bytes[i + 2] === 0x45 && bytes[i + 3] === 0x4f &&
+        bytes[i + 4] === 0x46) return true;
+  }
+  return false;
+}
+
+export function safeSyllabusFilename(value: unknown): string {
+  const clean = String(value || "syllabus.pdf").replace(/[\\/\x00-\x1f\x7f]/g, "_").trim().slice(0, 180);
+  return clean || "syllabus.pdf";
+}
+
+
 export function parseNegativeMarking(raw: string): { text: string; value: number } | null {
   const trimmed = (raw ?? "").toString().trim();
   if (!trimmed || trimmed.includes(" ")) return null;
@@ -507,6 +533,9 @@ examRoutes.post("/:id/syllabus", requirePermission("manage_syllabus"), async (c)
   const id = c.req.param("id") || "";
   const contentType = c.req.header("content-type") || "";
   const db = c.env.DB;
+  if (!id || !await db.prepare("SELECT id FROM exams WHERE id = ?").bind(id).first()) {
+    return c.json({ success: false, error: "Exam not found" }, 404);
+  }
 
   let fileName = "syllabus.pdf";
   let pdfBytes: ArrayBuffer;
@@ -529,19 +558,27 @@ examRoutes.post("/:id/syllabus", requirePermission("manage_syllabus"), async (c)
       return c.json({ success: false, error: "Expected PDF file upload or base64 payload" }, 400);
     }
     fileName = String(body.fileName || "syllabus.pdf");
-    const binary = atob(body.base64);
+    if (typeof body.base64 !== "string" ||
+        body.base64.length > Math.ceil(20 * 1024 * 1024 * 4 / 3) + 4) {
+      return c.json({ success: false, error: "Invalid or oversized PDF payload" }, 400);
+    }
+    let binary: string;
+    try { binary = atob(body.base64); }
+    catch { return c.json({ success: false, error: "Invalid PDF encoding" }, 400); }
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
     pdfBytes = bytes.buffer;
   }
 
-  // Validate size < 20MB
-  if (pdfBytes.byteLength > 20 * 1024 * 1024) {
-    return c.json({ success: false, error: "Syllabus PDF size exceeds 20MB limit" }, 400);
+  // Reject malformed/oversized bytes before uploading any remote object.
+  if (!validSyllabusPdf(new Uint8Array(pdfBytes))) {
+    return c.json({ success: false, error: "Invalid PDF document or exceeds 20MB limit" }, 400);
   }
+  fileName = safeSyllabusFilename(fileName);
 
   const storage = new SupabaseStorage(c.env);
-  const path = `syllabi/${id}_${Date.now()}.pdf`;
+  // Non-user-controlled keys avoid path injection and timestamp collisions.
+  const path = `syllabi/${crypto.randomUUID()}.pdf`;
   const downloadUrl = await storage.uploadFile(path, pdfBytes, "application/pdf");
 
   const updateStmt = db
@@ -557,7 +594,17 @@ examRoutes.post("/:id/syllabus", requirePermission("manage_syllabus"), async (c)
     metadata: { fileName },
   });
 
-  await db.batch([updateStmt, auditStmt]);
+  try {
+    const results = await db.batch([updateStmt, auditStmt]);
+    if ((results[0]?.meta?.changes ?? 0) !== 1) {
+      throw new Error("Exam changed before syllabus upload was confirmed");
+    }
+  } catch {
+    // Remote upload can succeed before D1 rejects the mutation.
+    // Existing cleanup monitor records any failed compensation.
+    await cleanupMedia(c.env, path, c.res.headers.get("X-Request-ID"));
+    return c.json({ success: false, error: "Syllabus not linked; verify exam state before retrying" }, 409);
+  }
 
   return c.json({ success: true, data: { syllabusUrl: downloadUrl, syllabusFileName: fileName } });
 });
