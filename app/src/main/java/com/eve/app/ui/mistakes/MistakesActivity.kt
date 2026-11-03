@@ -16,6 +16,10 @@ import com.eve.app.databinding.ActivityMistakesBinding
 import com.eve.app.util.LanguageManager
 import com.eve.app.util.NetworkUtil
 import com.eve.app.util.SecurityHelper
+import com.eve.app.util.SubmissionRetryPolicy
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class MistakesActivity : EveBaseActivity() {
@@ -26,14 +30,38 @@ class MistakesActivity : EveBaseActivity() {
     private var allMistakes: List<MistakeItem> = emptyList()
     private val learnedIds = mutableSetOf<String>()
     private var currentFilter: String = "ALL" // "ALL", "WRONG", "SKIPPED"
+    private val mistakesAuth = FirebaseAuth.getInstance()
+    private var mistakesOwnerUid: String? = null
+    private var mistakeLoadJob: Job? = null
+    private var mistakeLoadFailed = false
+
+    private fun hasMistakesOwner(): Boolean =
+        SubmissionRetryPolicy.ownsSubmission(mistakesOwnerUid, mistakesAuth.currentUser?.uid)
+    private val mistakesAccountListener = FirebaseAuth.AuthStateListener {
+        if (mistakesOwnerUid != null && !hasMistakesOwner()) {
+            mistakeLoadJob?.cancel()
+            learnedIds.clear()
+            allMistakes = emptyList()
+            if (::binding.isInitialized) binding.rvMistakes.visibility = View.GONE
+            if (::adapter.isInitialized) adapter.submitList(emptyList())
+            finish()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val liveUid = mistakesAuth.currentUser?.uid
+        mistakesOwnerUid = if (savedInstanceState == null) liveUid
+            else savedInstanceState.getString("mistakes_owner_uid")
+        if (!hasMistakesOwner()) { finish(); return }
         SecurityHelper.applyScreenProtection(this)
         binding = ActivityMistakesBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         binding.btnBack.setOnClickListener { finish() }
+        binding.messageGroup.setOnClickListener {
+            if (mistakeLoadFailed && hasMistakesOwner()) loadMistakes()
+        }
 
         loadLearnedPreferences()
 
@@ -68,7 +96,11 @@ class MistakesActivity : EveBaseActivity() {
     }
 
     private fun loadLearnedPreferences() {
-        val prefs = getSharedPreferences("eve_mistakes", Context.MODE_PRIVATE)
+        if (!hasMistakesOwner()) { finish(); return }
+        val prefs = getSharedPreferences(
+            MistakesPreferenceScope.namespaceForUser(requireNotNull(mistakesOwnerUid)),
+            Context.MODE_PRIVATE
+        )
         val saved = prefs.getStringSet("learned_ids", emptySet())
         if (saved != null) {
             learnedIds.clear()
@@ -77,11 +109,17 @@ class MistakesActivity : EveBaseActivity() {
     }
 
     private fun saveLearnedPreferences() {
-        val prefs = getSharedPreferences("eve_mistakes", Context.MODE_PRIVATE)
+        if (!hasMistakesOwner()) { finish(); return }
+        val prefs = getSharedPreferences(
+            MistakesPreferenceScope.namespaceForUser(requireNotNull(mistakesOwnerUid)),
+            Context.MODE_PRIVATE
+        )
         prefs.edit().putStringSet("learned_ids", HashSet(learnedIds)).apply()
     }
 
     private fun toggleLearned(questionId: String) {
+        if (!hasMistakesOwner()) { finish(); return }
+        if (questionId.isBlank()) return
         if (learnedIds.contains(questionId)) {
             learnedIds.remove(questionId)
         } else {
@@ -93,6 +131,7 @@ class MistakesActivity : EveBaseActivity() {
 
     private fun setupFilters() {
         binding.chipGroupFilters.setOnCheckedStateChangeListener { _, checkedIds ->
+            if (!hasMistakesOwner()) { finish(); return@setOnCheckedStateChangeListener }
             currentFilter = when {
                 checkedIds.contains(binding.chipWrong.id) -> "WRONG"
                 checkedIds.contains(binding.chipSkipped.id) -> "SKIPPED"
@@ -103,25 +142,52 @@ class MistakesActivity : EveBaseActivity() {
     }
 
     private fun loadMistakes() {
+        if (!hasMistakesOwner()) { finish(); return }
+        mistakeLoadJob?.cancel()
+        val requestUid = requireNotNull(mistakesOwnerUid)
+        mistakeLoadFailed = false
         binding.progressBar.visibility = View.VISIBLE
         binding.messageGroup.visibility = View.GONE
+        binding.messageGroup.isClickable = false
+        binding.messageGroup.isFocusable = false
+        binding.messageGroup.contentDescription = null
 
-        lifecycleScope.launch {
+        mistakeLoadJob = lifecycleScope.launch {
             try {
                 val resp = ApiClient.api.getMistakes()
-                binding.progressBar.visibility = View.GONE
-                if (resp.success && resp.data != null) {
-                    allMistakes = resp.data
-                } else {
-                    allMistakes = emptyList()
+                if (!hasMistakesOwner() || requestUid != mistakesOwnerUid) {
+                    finish()
+                    return@launch
                 }
-            } catch (_: Exception) {
+                if (!resp.success || resp.data == null) {
+                    throw IllegalStateException(resp.error ?: "Server mistakes response is incomplete")
+                }
+                allMistakes = resp.data
                 binding.progressBar.visibility = View.GONE
-                allMistakes = emptyList()
+                updateFilterCounts()
+                applyFilter()
+            } catch (cancel: CancellationException) {
+                throw cancel
+            } catch (_: Exception) {
+                if (!hasMistakesOwner() || requestUid != mistakesOwnerUid) {
+                    finish()
+                    return@launch
+                }
+                showMistakeReadFailure()
             }
-            updateFilterCounts()
-            applyFilter()
         }
+    }
+
+    private fun showMistakeReadFailure() {
+        mistakeLoadFailed = true
+        binding.progressBar.visibility = View.GONE
+        binding.rvMistakes.visibility = View.GONE
+        binding.messageGroup.visibility = View.VISIBLE
+        binding.tvEmptyTitle.text = "Couldn't load mistakes"
+        binding.tvEmptySubtitle.text = "Check your connection and tap to retry."
+        binding.messageGroup.isClickable = true
+        binding.messageGroup.isFocusable = true
+        binding.messageGroup.contentDescription = "Retry loading Mistake Notebook"
     }
 
     private fun updateFilterCounts() {
@@ -132,7 +198,30 @@ class MistakesActivity : EveBaseActivity() {
         binding.chipSkipped.text = "Skipped ($skippedCount)"
     }
 
+    override fun onStart() {
+        super.onStart()
+        if (!hasMistakesOwner()) { finish(); return }
+        mistakesAuth.addAuthStateListener(mistakesAccountListener)
+    }
+
+    override fun onStop() {
+        mistakesAuth.removeAuthStateListener(mistakesAccountListener)
+        super.onStop()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!hasMistakesOwner()) finish()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("mistakes_owner_uid", mistakesOwnerUid)
+    }
+
     private fun applyFilter() {
+        if (!hasMistakesOwner()) { finish(); return }
+        if (mistakeLoadFailed) return
         val filtered = when (currentFilter) {
             "WRONG" -> allMistakes.filter { it.selected.isNotBlank() }
             "SKIPPED" -> allMistakes.filter { it.selected.isBlank() }

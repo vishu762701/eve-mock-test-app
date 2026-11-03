@@ -1936,3 +1936,26 @@ constructor regression and existing owner-response tests cover the contract;
 FAILED historically; repair commit's exact-SHA FAST is PENDING until it
 actually finishes. No duplicate repository, new API endpoint, timer rewrite
 or production data mutation.
+
+## Mistake Notebook per-owner learned flags and authoritative read (prepared)
+
+Production `MistakesActivity.kt` previously stored learned question IDs in one
+global `eve_mistakes` SharedPreferences namespace for every Firebase user.
+That was a concrete cross-account personal-state leak. A server error or
+malformed successful response was also incorrectly rendered as an empty,
+completed notebook, suppressing retry.
+
+The prepared repair retains the existing Mistakes Activity, API, list adapter
+and filters. A tiny `MistakesPreferenceScope` utility maps verified nonblank
+UIDs to distinct SHA-256-derived SharedPreferences namespaces. The unowned
+legacy global flags are not assigned to any student. The same Activity binds
+its original launch/restored UID, cancels late loads on auth changes, stops
+rendering stale lists, and checks current ownership before learned-state
+writes, filter changes and post-network processing. Server failures show a
+separate tap-to-retry state rather than claiming `All Caught Up!`.
+JVM/Robolectric regression tests exercise distinct account namespaces,
+unchanged legacy prefs, owner boundary and failed-response renderer contract.
+
+Status remains STAGED ONLY, pending preceding exact-SHA FAST success
+and a new exact-SHA FAST. No production D1 mutation, Telegram component
+replacement or device fidelity claim.
