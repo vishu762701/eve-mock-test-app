@@ -227,7 +227,12 @@ class ExamRepository(
         if (!res.success || res.data == null) {
             throw Exception(res.error ?: "Failed to upload syllabus")
         }
-        return res.data.syllabusUrl
+        // Gson can materialize absent fields as null despite Kotlin's non-null DTO.
+        val confirmedUrl: String? = res.data.syllabusUrl
+        if (confirmedUrl.isNullOrBlank()) {
+            throw IllegalStateException("Syllabus upload was not acknowledged with a URL")
+        }
+        return confirmedUrl
     }
 
     suspend fun removeSyllabusPdf(examId: String, syllabusUrl: String): String? {
