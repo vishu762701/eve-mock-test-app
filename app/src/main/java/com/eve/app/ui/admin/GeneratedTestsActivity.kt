@@ -61,18 +61,17 @@ class GeneratedTestsActivity : EveBaseActivity() {
 
                 lifecycleScope.launch {
                     try {
-                        val res = com.eve.app.data.remote.ApiClient.api.scheduleGeneratedTest(test.id, mapOf("availableFrom" to targetMillis))
-                        if (res.success) {
-                            AppBulletin.showSuccess(
-                                this@GeneratedTestsActivity,
-                                "Test scheduled: ${com.eve.app.util.TestScheduleHelper.formatOpensAt(targetMillis)}"
-                            )
-                            loadTests()
-                        } else {
-                            AppBulletin.showError(this@GeneratedTestsActivity, "Failed to schedule test")
-                        }
+                        // Reuse the canonical repository and verify the Worker row before success UI.
+                        examRepo.scheduleGeneratedTest(test.id, targetMillis)
+                        AppBulletin.showSuccess(
+                            this@GeneratedTestsActivity,
+                            "Test scheduled: ${com.eve.app.util.TestScheduleHelper.formatOpensAt(targetMillis)}"
+                        )
+                        loadTests()
+                    } catch (cancel: kotlinx.coroutines.CancellationException) {
+                        throw cancel
                     } catch (e: Exception) {
-                        AppBulletin.showError(this@GeneratedTestsActivity, "Error scheduling test: ${e.localizedMessage}")
+                        AppBulletin.showError(this@GeneratedTestsActivity, "Schedule unconfirmed: ${e.localizedMessage}")
                     }
                 }
             }

@@ -307,7 +307,9 @@ class ExamRepository(
         if (!res.success) {
             throw Exception(res.error ?: "Failed to fetch generated tests")
         }
-        return (res.data ?: emptyList()).sortedByDescending { it.generatedAt }
+        // Missing data is not the same as a server-confirmed empty collection.
+        return (res.data ?: throw IllegalStateException("Generated test list was missing from server response"))
+            .sortedByDescending { it.generatedAt }
     }
 
     suspend fun getLiveGeneratedTests(examId: String): List<GeneratedTest> {
@@ -323,8 +325,30 @@ class ExamRepository(
     }
 
     suspend fun updateGeneratedTestStatus(testId: String, status: String) {
+        require(testId.isNotBlank() && status in setOf("draft", "paused", "live", "published", "unpublished"))
         val res = api.updateGeneratedTestStatus(testId, mapOf("status" to status))
         if (!res.success) throw Exception(res.error ?: "Failed to update generated test status")
+        // The old Worker status contract has no data body. Confirm its actual persisted row.
+        val confirmed = getGeneratedTest(testId)
+        check(confirmed?.id == testId && confirmed?.status == status) {
+            "Generated test status was not verified; reload before retrying"
+        }
+    }
+
+    suspend fun scheduleGeneratedTest(testId: String, availableFrom: Long) {
+        require(testId.isNotBlank() && availableFrom >= 0L && availableFrom <= 9_007_199_254_740_991L)
+        val response = api.scheduleGeneratedTest(testId, mapOf("availableFrom" to availableFrom))
+        if (!response.success) throw Exception(response.error ?: "Failed to schedule generated test")
+        // Gson materializes untyped JSON numbers as Double. Reject partial or mismatched acknowledgments.
+        val reportedTime = response.data?.get("availableFrom") as? Number
+        check(response.data?.get("id") == testId && reportedTime != null &&
+            reportedTime.toLong() == availableFrom && reportedTime.toDouble() == availableFrom.toDouble()) {
+            "Generated test schedule was not acknowledged by the server"
+        }
+        val confirmed = getGeneratedTest(testId)
+        check(confirmed?.id == testId && confirmed?.availableFrom == availableFrom) {
+            "Generated test schedule was not verified; reload before retrying"
+        }
     }
 
     suspend fun deleteGeneratedTest(testId: String) {

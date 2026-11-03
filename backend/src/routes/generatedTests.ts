@@ -135,23 +135,31 @@ generatedTestRoutes.get("/:id", async (c) => {
 generatedTestRoutes.put("/:id/schedule", requirePermission("manage_generated_tests"), async (c) => {
   const user = c.get("user");
   const id = c.req.param("id") || "";
-  const body = await c.req.json().catch(() => ({}));
-  const availableFrom = Number(body.availableFrom);
-
-  if (isNaN(availableFrom) || availableFrom < 0 || !Number.isInteger(availableFrom)) {
-    return c.json({ success: false, error: "availableFrom must be a non-negative integer" }, 400);
+  const body = await c.req.json().catch(() => null);
+  // Null, strings and unsafe numbers must never silently become a midnight schedule.
+  const availableFrom = body && !Array.isArray(body) ? body.availableFrom : undefined;
+  if (typeof availableFrom !== "number" || !Number.isSafeInteger(availableFrom) || availableFrom < 0) {
+    return c.json({ success: false, error: "availableFrom must be a non-negative safe integer" }, 400);
   }
 
   const db = c.env.DB;
+  if (!await db.prepare("SELECT id FROM generated_tests WHERE id = ?").bind(id).first()) {
+    return c.json({ success: false, error: "Test not found" }, 404);
+  }
   const updateStmt = db.prepare("UPDATE generated_tests SET available_from = ? WHERE id = ?").bind(availableFrom, id);
+  // A deletion between the read and transaction must neither create a phantom audit nor report success.
   const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
     actionType: "GENERATED_TEST_SCHEDULE_UPDATED",
     description: `Updated schedule for test '${id}' (availableFrom=${availableFrom})`,
     targetType: "generated_test",
     targetId: id,
     metadata: { availableFrom },
+    condition: { sql: "EXISTS (SELECT 1 FROM generated_tests WHERE id = ?)", bindings: [id] },
   });
-  await db.batch([updateStmt, auditStmt]);
+  const results = await db.batch([updateStmt, auditStmt]);
+  if (results[0]?.meta?.changes !== 1 || results[1]?.meta?.changes !== 1) {
+    return c.json({ success: false, error: "Schedule update was not confirmed; reload before retrying" }, 409);
+  }
   return c.json({ success: true, data: { id, availableFrom } });
 });
 
@@ -159,11 +167,16 @@ generatedTestRoutes.put("/:id/schedule", requirePermission("manage_generated_tes
 generatedTestRoutes.put("/:id/status", requirePermission("manage_generated_tests"), async (c) => {
   const user = c.get("user");
   const id = c.req.param("id") || "";
-  const body = await c.req.json().catch(() => ({}));
-  const status = String(body.status || "paused").trim().toLowerCase();
+  const body = await c.req.json().catch(() => null);
+  if (!body || typeof body !== "object" || Array.isArray(body) || typeof body.status !== "string") {
+    return c.json({ success: false, error: "status is required" }, 400);
+  }
+  const status = body.status.trim().toLowerCase();
   const db = c.env.DB;
 
-  if (!["draft", "paused", "live", "published", "unpublished"].includes(status)) return c.json({ success: false, error: "Invalid test status" }, 400);
+  if (!["draft", "paused", "live", "published", "unpublished"].includes(status)) {
+    return c.json({ success: false, error: "Invalid test status" }, 400);
+  }
   const test = await db.prepare("SELECT * FROM generated_tests WHERE id = ?").bind(id).first<GeneratedTestRow>();
   if (!test) return c.json({ success: false, error: "Test not found" }, 404);
   if (["live", "published"].includes(status)) {
@@ -180,8 +193,13 @@ generatedTestRoutes.put("/:id/status", requirePermission("manage_generated_tests
     targetType: "generated_test",
     targetId: id,
     metadata: { status },
+    condition: { sql: "EXISTS (SELECT 1 FROM generated_tests WHERE id = ?)", bindings: [id] },
   });
-  await db.batch([updateStmt, auditStmt]);
+  const results = await db.batch([updateStmt, auditStmt]);
+  if (results[0]?.meta?.changes !== 1 || results[1]?.meta?.changes !== 1) {
+    return c.json({ success: false, error: "Status update was not confirmed; reload before retrying" }, 409);
+  }
+  // Keep the existing data-less status response compatible with ApiResponse<Unit>.
   return c.json({ success: true });
 });
 

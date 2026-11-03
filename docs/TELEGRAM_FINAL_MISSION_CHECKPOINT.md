@@ -4,6 +4,45 @@
 
 Status: PARTIAL. This is a continuation record, not screen acceptance.
 
+## Active P0 continuation — generated-test mutation acknowledgments
+
+Recovered remote main at `5f18770767abe8c33acfb288a687f68e88f00abd`;
+exact-SHA FAST `41670958885` SUCCESS (Android/backend/Firebase passed;
+native navigation and APK publication skipped), docs `41670958409`
+SUCCESS. Official Telegram master remains
+`3de37c8cfb039452be7398909461da6288babf15`.
+These are historical baselines, not this change's CI result.
+
+Reproduced by source inspection: the existing Worker schedule handler could
+return success and write an audit record for a missing test; status could
+accept an absent status as a request to pause, and its race with deletion was
+not checked against affected-row metadata. The Android generated-test status
+and schedule paths accepted a successful envelope without confirmed server
+readback. This is EVE-specific business behavior with **no Telegram upstream
+counterpart**; its fidelity classification is ADAPTED, not EXACT.
+
+The scoped implementation keeps the canonical `generatedTests.ts` Worker
+routes and `ExamRepository` shared by both admin screens. Atomic D1 batches
+must acknowledge exactly one updated row and one conditional audit row.
+Schedule inputs require non-negative safe integers, status requires an explicit
+recognized value; nonexistent IDs fail. The existing generated-test detail GET
+confirms Android status and schedule persistence; malformed success lists remain
+errors rather than fabricated empty results. Existing permissions, question
+validation, audit ownership, test deletion and unrelated features are preserved.
+
+New regression fixtures: `backend/test/generated_tests_mutation_ack.test.mjs`
+(real Hono + migrated isolated SQLite, permission/invalid/phantom-audit/race
+cases) and `app/src/test/java/com/eve/app/data/repository/GeneratedTestMutationContractTest.kt`
+(actual repository methods and fake API transport). This is not signed-in
+physical device coverage or a production backend deployment. Tests and exact-SHA
+FAST must be evaluated against the carrying commit; no success is asserted here.
+No Worker deployment, native/full run, APK publication or GPL approval authorized.
+
+Remaining work after this scoped gate: complete Admin caller/lifecycle audit,
+source-fidelity and physical evidence for Home/Profile/QR, student/quiz
+integration, and separately authorized FULL/native publication and human license
+review. Do not replay previously green Premium/Monitor/About repairs.
+
 ## Current gate repair — About native-dialog source contract
 
 Remote/mainbf28d68ee3ec5ef4310d7e1cbfbeadbf07cf76b2, FAST41669042034 FAILED:
