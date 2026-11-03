@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.eve.app.data.model.BookmarkedQuestion
 import com.eve.app.data.repository.BookmarkRepository
 import com.eve.app.util.UiState
+import com.eve.app.util.SubmissionRetryPolicy
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +17,10 @@ import kotlinx.coroutines.launch
 class BookmarksViewModel : ViewModel() {
 
     private val repository = BookmarkRepository()
+    private val originalOwnerUid = FirebaseAuth.getInstance().currentUser?.uid
+    private fun ownsOriginalAccount(): Boolean =
+        SubmissionRetryPolicy.ownsSubmission(
+            originalOwnerUid, FirebaseAuth.getInstance().currentUser?.uid)
 
     private val _state = MutableStateFlow<UiState<List<BookmarkedQuestion>>>(UiState.Loading)
     val state: StateFlow<UiState<List<BookmarkedQuestion>>> = _state.asStateFlow()
@@ -27,37 +32,46 @@ class BookmarksViewModel : ViewModel() {
     }
 
     fun load() {
-        val user = FirebaseAuth.getInstance().currentUser
-        if (user == null) {
-            _state.value = UiState.Success(emptyList())
+        observeJob?.cancel()
+        val uid = originalOwnerUid
+        if (!ownsOriginalAccount() || uid.isNullOrBlank()) {
+            _state.value = UiState.Error("Sign in with the account that opened Bookmarks")
             return
         }
-
-        observeJob?.cancel()
         _state.value = UiState.Loading
         observeJob = viewModelScope.launch {
-            repository.observeBookmarkedQuestions(user.uid)
+            repository.observeBookmarkedQuestions(uid)
                 .catch { e ->
-                    _state.value = UiState.Error(e.message ?: "Failed to load bookmarks")
+                    if (ownsOriginalAccount()) {
+                        _state.value = UiState.Error(e.message ?: "Failed to load bookmarks")
+                    }
                 }
                 .collect { list ->
+                    if (!ownsOriginalAccount()) {
+                        observeJob?.cancel()
+                        return@collect
+                    }
                     _state.value = UiState.Success(list)
                 }
         }
     }
 
     fun unbookmark(questionId: String) {
-        val user = FirebaseAuth.getInstance().currentUser ?: return
+        if (!ownsOriginalAccount()) return
+        val uid = originalOwnerUid ?: return
         viewModelScope.launch {
-            repository.unbookmarkQuestion(user.uid, questionId)
+            if (!ownsOriginalAccount()) return@launch
+            repository.unbookmarkQuestion(uid, questionId)
         }
     }
 
     fun bookmark(bookmark: BookmarkedQuestion) {
-        val user = FirebaseAuth.getInstance().currentUser ?: return
+        if (!ownsOriginalAccount()) return
+        val uid = originalOwnerUid ?: return
         viewModelScope.launch {
+            if (!ownsOriginalAccount()) return@launch
             repository.bookmarkQuestion(
-                userId = user.uid,
+                userId = uid,
                 question = bookmark.toQuestion(),
                 examName = bookmark.examName,
                 questionNumber = bookmark.questionNumber

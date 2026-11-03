@@ -19,6 +19,8 @@ import com.eve.app.ui.result.ResultDataHolder
 import com.eve.app.util.Constants
 import com.eve.app.util.NetworkUtil
 import com.eve.app.util.UiState
+import com.eve.app.util.SubmissionRetryPolicy
+import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -33,9 +35,20 @@ class HistoryActivity : EveBaseActivity() {
     private val adapter = HistoryAdapter { attempt -> openReview(attempt) }
 
     private var hasEmptyPlayed = false
+    private val historyAuth = FirebaseAuth.getInstance()
+    private var historyOwnerUid: String? = null
+    private fun hasHistoryOwner(): Boolean =
+        SubmissionRetryPolicy.ownsSubmission(historyOwnerUid, historyAuth.currentUser?.uid)
+    private val historyAuthListener = FirebaseAuth.AuthStateListener {
+        if (historyOwnerUid != null && !hasHistoryOwner()) finish()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val liveUid = historyAuth.currentUser?.uid
+        historyOwnerUid = if (savedInstanceState == null) liveUid
+            else savedInstanceState.getString("history_owner_uid")
+        if (!hasHistoryOwner()) { finish(); return }
         hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
         binding = ActivityHistoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -65,12 +78,30 @@ class HistoryActivity : EveBaseActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        if (!hasHistoryOwner()) { finish(); return }
+        historyAuth.addAuthStateListener(historyAuthListener)
+    }
+
+    override fun onStop() {
+        historyAuth.removeAuthStateListener(historyAuthListener)
+        super.onStop()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!hasHistoryOwner()) finish()
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean("key_empty_played", hasEmptyPlayed)
+        outState.putString("history_owner_uid", historyOwnerUid)
     }
 
     private fun render(state: UiState<List<TestAttempt>>) {
+        if (!hasHistoryOwner()) { finish(); return }
         when (state) {
             is UiState.Loading -> {
                 val hasCachedItems = adapter.itemCount > 0
@@ -129,6 +160,10 @@ class HistoryActivity : EveBaseActivity() {
     }
 
     private fun openReview(attempt: TestAttempt) {
+        if (!hasHistoryOwner() || attempt.userId != historyOwnerUid) {
+            if (!hasHistoryOwner()) finish()
+            return
+        }
         if (!ResultDataHolder.setAnswers(attempt.answers, attempt.userId, attempt.examId)) return
         startActivity(
             Intent(this, ResultActivity::class.java)

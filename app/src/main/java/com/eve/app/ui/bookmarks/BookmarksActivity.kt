@@ -23,6 +23,8 @@ import com.eve.app.util.LanguageManager
 import com.eve.app.util.NetworkUtil
 import com.eve.app.util.SecurityHelper
 import com.eve.app.util.UiState
+import com.eve.app.util.SubmissionRetryPolicy
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 class BookmarksActivity : EveBaseActivity() {
@@ -31,9 +33,20 @@ class BookmarksActivity : EveBaseActivity() {
     private val viewModel: BookmarksViewModel by viewModels()
     private lateinit var adapter: BookmarkAdapter
     private var hasEmptyPlayed = false
+    private val bookmarksAuth = FirebaseAuth.getInstance()
+    private var bookmarksOwnerUid: String? = null
+    private fun hasBookmarksOwner(): Boolean =
+        SubmissionRetryPolicy.ownsSubmission(bookmarksOwnerUid, bookmarksAuth.currentUser?.uid)
+    private val bookmarksAuthListener = FirebaseAuth.AuthStateListener {
+        if (bookmarksOwnerUid != null && !hasBookmarksOwner()) finish()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val liveUid = bookmarksAuth.currentUser?.uid
+        bookmarksOwnerUid = if (savedInstanceState == null) liveUid
+            else savedInstanceState.getString("bookmarks_owner_uid")
+        if (!hasBookmarksOwner()) { finish(); return }
         hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
         SecurityHelper.applyScreenProtection(this)
         binding = ActivityBookmarksBinding.inflate(layoutInflater)
@@ -43,7 +56,8 @@ class BookmarksActivity : EveBaseActivity() {
 
         adapter = BookmarkAdapter(
             onOpenQuestion = { bookmark -> openQuestionInTest(bookmark) },
-            onUnbookmark = { bookmark ->
+            onUnbookmark = onUnbookmark@{ bookmark ->
+                if (!hasBookmarksOwner()) { finish(); return@onUnbookmark }
                 val currentList = adapter.currentList.toMutableList()
                 val index = currentList.indexOfFirst { it.questionId == bookmark.questionId }
                 if (index >= 0) {
@@ -62,7 +76,8 @@ class BookmarksActivity : EveBaseActivity() {
                         context = this@BookmarksActivity,
                         message = "Bookmark removed",
                         timeLeftMs = com.eve.app.util.AppUndoBar.TIME_LIGHT,
-                        onUndo = {
+                        onUndo = onUndo@{
+                            if (!hasBookmarksOwner()) { finish(); return@onUndo }
                             viewModel.bookmark(removedItem)
                             val restoredList = adapter.currentList.toMutableList()
                             val insertPos = index.coerceAtMost(restoredList.size)
@@ -106,8 +121,20 @@ class BookmarksActivity : EveBaseActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        if (!hasBookmarksOwner()) { finish(); return }
+        bookmarksAuth.addAuthStateListener(bookmarksAuthListener)
+    }
+
+    override fun onStop() {
+        bookmarksAuth.removeAuthStateListener(bookmarksAuthListener)
+        super.onStop()
+    }
+
     override fun onResume() {
         super.onResume()
+        if (!hasBookmarksOwner()) { finish(); return }
         hasEmptyPlayed = false
     }
 
@@ -119,9 +146,11 @@ class BookmarksActivity : EveBaseActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean("key_empty_played", hasEmptyPlayed)
+        outState.putString("bookmarks_owner_uid", bookmarksOwnerUid)
     }
 
     private fun renderState(state: UiState<List<BookmarkedQuestion>>) {
+        if (!hasBookmarksOwner()) { finish(); return }
         when (state) {
             is UiState.Loading -> {
                 hasEmptyPlayed = false
@@ -167,6 +196,7 @@ class BookmarksActivity : EveBaseActivity() {
     }
 
     private fun openQuestionInTest(bookmark: BookmarkedQuestion) {
+        if (!hasBookmarksOwner()) { finish(); return }
         if (bookmark.examId.isBlank() && bookmark.questionId.isBlank()) {
             com.eve.app.util.AppBulletin.showError(this, "Question details unavailable")
             return

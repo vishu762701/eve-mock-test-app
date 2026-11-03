@@ -1865,3 +1865,29 @@ synchronization. No new storage owner, worker endpoint or async state manager.
 This is PREPARED ONLY pending the Admin Hub exact-SHA FAST gate; do not claim
 concurrent device delivery was run. QR source/full-scene hardware evidence,
 final six-job FULL, signing and human legal release clearance remain OPEN.
+
+## 2026-11-03 student personal collections — owner-bound lifecycle (prepared)
+
+Source review found that the existing HistoryViewModel captured UID for
+getAttempts but could publish a suspended response after Firebase switched
+accounts; existing BookmarksViewModel collectors and delayed Undo/mutation
+callbacks similarly lacked a stable Activity opening-owner boundary. The same
+screens and repositories are retained; no new data store, navigation destination
+or extra Firebase observer abstraction is introduced.
+
+The prepared integrated repair captures the authenticated launch/restored UID
+in HistoryActivity and BookmarksActivity, fails closed on mismatched restore,
+checks auth in onStart/onResume/renderer and result/bookmark navigation, and
+unregisters the listener onStop. Existing HistoryViewModel pins its initiating
+UID, cancels old load jobs and rechecks owner after getAttempts and in exception
+callbacks. Existing BookmarksViewModel pins its initiating UID, rejects
+stale flow emissions, guards mutation triggers, and cancels prior observe jobs.
+Bookmark Undo and swipe mutations are also owner-checked.
+
+New host/source+pure-policy tests:
+`app/src/test/java/com/eve/app/ui/history/HistoryAccountBoundaryTest.kt`,
+`app/src/test/java/com/eve/app/ui/bookmarks/BookmarksAccountBoundaryTest.kt`.
+No production attempt/scoring endpoint or Firestore rules are modified.
+Code remains STAGED and unverified until current notification write-lock
+exact-SHA FAST passes and this batch receives its own exact-SHA FAST.
+The all-device/auth-switch instrumentation matrix and final FULL remain OPEN.
