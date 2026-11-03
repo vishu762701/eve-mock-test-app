@@ -1916,3 +1916,23 @@ ordered response matrix). This batch is PREPARED ONLY and may be integrated
 after exact-SHA FAST of the owner-bound student Activity/ViewModel commit.
 The original server rights/scoring, device/QR hardware parity and legal FULL
 release gates remain unchanged.
+
+## 2026-11-03 BookmarkRepository constructor FAST repair
+
+Exact-SHA FAST 41598626045 for b78d27512bc33fbda5aaa079dd8a70101e8395b5
+failed only Android JVM test `QuestionCumulativeTimerTest.testCumulativeQuestionTimer_sequenceAccumulation`
+(994 total, 1 failed). The exception was `Default FirebaseApp is not initialized`
+during `BookmarkRepository.<init>(BookmarkRepository.kt:24)` from
+`TestViewModel.<init>`. Backend and Firebase Functions jobs passed.
+This is a constructor-side regression introduced by eagerly reading
+`FirebaseAuth.getInstance()`; not a timer correctness failure.
+
+Forward-only repair changes only the original BookmarkRepository's binding
+time: first valid authenticated request wins an immutable repository owner
+under a synchronized guard. Retained repository instances still reject a
+different UID, including after suspended reads/writes. A plain JVM
+constructor regression and existing owner-response tests cover the contract;
+`QuestionCumulativeTimerTest` is unchanged. One parent FAST run is still
+FAILED historically; repair commit's exact-SHA FAST is PENDING until it
+actually finishes. No duplicate repository, new API endpoint, timer rewrite
+or production data mutation.

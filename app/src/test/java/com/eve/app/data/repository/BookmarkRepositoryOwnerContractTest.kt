@@ -3,11 +3,17 @@ package com.eve.app.data.repository
 import com.eve.app.util.SubmissionRetryPolicy
 import java.io.File
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /** Source-integrated owner checks complement signed-in device testing. */
 class BookmarkRepositoryOwnerContractTest {
+    @Test fun constructionDoesNotRequireDefaultFirebaseApp() {
+        // Regression for QuestionCumulativeTimerTest / TestViewModel() construction.
+        assertNotNull(BookmarkRepository())
+    }
+
     @Test fun accountPolicyDoesNotAuthorizeDifferentOrSignedOutUsers() {
         assertTrue(SubmissionRetryPolicy.ownsSubmission("student-A", "student-A"))
         assertFalse(SubmissionRetryPolicy.ownsSubmission("student-A", "student-B"))
@@ -17,8 +23,13 @@ class BookmarkRepositoryOwnerContractTest {
 
     @Test fun asynchronousReadsCannotPublishForeignBookmarkRows() {
         val repo = File("src/main/java/com/eve/app/data/repository/BookmarkRepository.kt").readText()
-        assertTrue(repo.contains("private val initialOwnerUid = FirebaseAuth.getInstance().currentUser?.uid"))
-        assertTrue(repo.contains("userId == initialOwnerUid && SubmissionRetryPolicy.ownsSubmission("))
+        assertTrue(repo.contains("private var initialOwnerUid: String? = null"))
+        assertTrue(repo.contains("@Synchronized\n    private fun accepts(userId: String)"))
+        assertTrue(repo.contains("if (initialOwnerUid == null) initialOwnerUid = userId"))
+        assertTrue(repo.contains("return initialOwnerUid == userId"))
+        assertTrue(repo.contains("SubmissionRetryPolicy.ownsSubmission("))
+        assertFalse("Never touch FirebaseAuth during BookmarkRepository initialization",
+            repo.contains("private val initialOwnerUid = FirebaseAuth.getInstance()"))
         for (call in listOf("api.getBookmarkIds()", "api.getBookmarks()")) {
             val start = repo.indexOf("val res = $call")
             val guard = repo.indexOf("if (!accepts(userId)) return@flow", start)

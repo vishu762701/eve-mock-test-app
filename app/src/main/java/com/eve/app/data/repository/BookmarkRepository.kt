@@ -19,12 +19,19 @@ class BookmarkRepository(
     private val api: EveApiService = ApiClient.apiService
 ) {
 
-    // This repository instance owns one original Firebase session. Its StateFlows
-    // cannot be adopted by another signed-in account after an Activity transition.
-    private val initialOwnerUid = FirebaseAuth.getInstance().currentUser?.uid
-    private fun accepts(userId: String): Boolean =
-        userId == initialOwnerUid && SubmissionRetryPolicy.ownsSubmission(
-            userId, FirebaseAuth.getInstance().currentUser?.uid)
+    // Bind on first authenticated use, not during construction. Timer/unit tests
+    // can instantiate TestViewModel before a FirebaseApp exists, while a retained
+    // repository must still refuse a second account after its first valid use.
+    private var initialOwnerUid: String? = null
+
+    @Synchronized
+    private fun accepts(userId: String): Boolean {
+        if (!SubmissionRetryPolicy.ownsSubmission(
+                userId, FirebaseAuth.getInstance().currentUser?.uid
+            )) return false
+        if (initialOwnerUid == null) initialOwnerUid = userId
+        return initialOwnerUid == userId
+    }
 
     private val _bookmarkIdsFlow = MutableStateFlow<Set<String>>(emptySet())
     private val _bookmarksFlow = MutableStateFlow<List<BookmarkedQuestion>>(emptyList())
