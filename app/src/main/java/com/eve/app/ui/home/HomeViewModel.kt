@@ -349,9 +349,9 @@ class HomeViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
 
         val items = mutableListOf<HomeListItem>()
 
-        val lastExamId = com.eve.app.EveApplication.instance
-            .getSharedPreferences("eve_app_prefs", android.content.Context.MODE_PRIVATE)
-            .getString("last_exam_id", null)
+        val lastExamId = HomeRecentExamStore.load(
+            com.eve.app.EveApplication.instance, lastUserLoaded
+        )
         val continueExam = if (!lastExamId.isNullOrBlank()) all.find { it.id == lastExamId } else null
 
         if (effectiveSelected == Constants.CATEGORY_ALL) {

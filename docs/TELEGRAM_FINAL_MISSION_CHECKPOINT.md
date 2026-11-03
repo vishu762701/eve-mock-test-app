@@ -2012,3 +2012,24 @@ added. No production destructive test, account mutation, or backend deployment.
 
 Status STAGED ONLY pending Performance/Leaderboard exact-SHA FAST before safe
 commit; final device/account-switch behavior remains to be accepted.
+
+## 2026-11-03 Home active-account lifecycle and late navigation (prepared follow-up)
+
+The previous Settings/Home logout fix already guards session-clearing after
+bounded presence revocation. Inspecting current production Home onStart found
+no Firebase auth listener; Home could remain visible while a different user
+signed in and could still apply a stale admin result or navigate an exam from
+a completed getLiveGeneratedTests request. An onResume check alone is
+insufficient while an Activity stays RESUMED.
+
+This second/final Home account-bound safety increment reuses `homeOwnerUid`
+and the existing `searchOwnerCurrent` predicate, installs one Firebase auth
+listener at STARTED and removes it at STOPPED, hides stale exams on account
+replacement, and checks both admin and generated-exam network callbacks
+before publishing UI or navigation. The canonical ViewModel's Continue exam
+reads and the existing Home click write now use a UID-keyed recent-exam
+preference via `HomeRecentExamStore`; the device-global legacy key is not attributed to a new account. The store has an isolated UID+legacy Robolectric test and a deletion-specific clear operation.
+No duplicate Home controller, popup,
+session manager or navigation destination; no backend behavior changes.
+`HomeAccountLifecycleContractTest.kt` protects source-order and listener
+lifetime. This is prepared only pending the Settings/Home fix exact-SHA FAST.

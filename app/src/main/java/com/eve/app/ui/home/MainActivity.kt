@@ -124,6 +124,16 @@ class MainActivity : EveBaseActivity() {
     private var homeOwnerUid = ""
     private val searchOwnerCurrent: Boolean
         get() = homeOwnerUid.isNotBlank() && FirebaseAuth.getInstance().currentUser?.uid == homeOwnerUid
+    // One observer per active Home Activity, detached at STOPPED. This does
+    // not replace FirebaseAuth or introduce another account-state authority.
+    private val homeAuthListener = FirebaseAuth.AuthStateListener { auth ->
+        if (homeOwnerUid.isNotBlank() && auth.currentUser?.uid != homeOwnerUid) {
+            notifJob?.cancel()
+            bannerObserverJob?.cancel()
+            if (::binding.isInitialized) binding.rvExams.visibility = View.GONE
+            finish()
+        }
+    }
     private var isSearchActive = false
     private var searchTransitionAnimator: android.animation.AnimatorSet? = null
     private var currentSearchQuery = ""
@@ -174,9 +184,10 @@ class MainActivity : EveBaseActivity() {
 
     private val adapter = ExamAdapter(
         onClick = { exam, attempted, _ ->
+            if (!searchOwnerCurrent || isFinishing || isDestroyed) return@ExamAdapter
             if (isExamNavigating) return@ExamAdapter
             isExamNavigating = true
-            getSharedPreferences("eve_app_prefs", Context.MODE_PRIVATE).edit().putString("last_exam_id", exam.id).apply()
+            HomeRecentExamStore.save(this, homeOwnerUid, exam.id)
 
             // a) If the loaded exam list contains any exam with parentExamId == this exam.id -> open ExamTestsActivity
             if (viewModel.hasSubExams(exam.id)) {
@@ -194,6 +205,12 @@ class MainActivity : EveBaseActivity() {
             lifecycleScope.launch(lifecycleExceptionHandler) {
                 try {
                     val liveTests = com.eve.app.data.repository.ExamRepository().getLiveGeneratedTests(exam.id)
+                    // A late test-discovery response may not navigate for an
+                    // Activity whose original account has been replaced.
+                    if (!searchOwnerCurrent || isFinishing || isDestroyed) {
+                        isExamNavigating = false
+                        return@launch
+                    }
                     binding.progressGroup.visibility = View.GONE
                     isExamNavigating = false
 
@@ -229,7 +246,13 @@ class MainActivity : EveBaseActivity() {
                             )
                         }
                     }
+                } catch (cancel: kotlinx.coroutines.CancellationException) {
+                    throw cancel
                 } catch (e: Exception) {
+                    if (!searchOwnerCurrent || isFinishing || isDestroyed) {
+                        isExamNavigating = false
+                        return@launch
+                    }
                     binding.progressGroup.visibility = View.GONE
                     isExamNavigating = false
                     AppBulletin.showError(this@MainActivity, "Couldn't load tests")
@@ -465,6 +488,7 @@ class MainActivity : EveBaseActivity() {
             updateDrawerHeader(current)
             lifecycleScope.launch(lifecycleExceptionHandler) {
                 val admin = adminRepo.isAdmin(current.email)
+                if (!searchOwnerCurrent || isFinishing || isDestroyed) return@launch
                 isFloatingAirplaneAdmin = admin
                 viewModel.loadForUser(current.uid, admin)
             }
@@ -1016,6 +1040,8 @@ class MainActivity : EveBaseActivity() {
 
     override fun onStart() {
         super.onStart()
+        if (!searchOwnerCurrent) { finish(); return }
+        FirebaseAuth.getInstance().addAuthStateListener(homeAuthListener)
         val returningFromStop = isReturningFromStopped
         if (returningFromStop) {
             isReturningFromStopped = false
@@ -1037,6 +1063,7 @@ class MainActivity : EveBaseActivity() {
                 updateDrawerHeader(current)
                 lifecycleScope.launch(lifecycleExceptionHandler) {
                     val admin = adminRepo.isAdmin(current.email)
+                    if (!searchOwnerCurrent || isFinishing || isDestroyed) return@launch
                     viewModel.loadForUser(current.uid, admin)
                 }
             }
@@ -1052,6 +1079,7 @@ class MainActivity : EveBaseActivity() {
     }
 
     override fun onStop() {
+        FirebaseAuth.getInstance().removeAuthStateListener(homeAuthListener)
         super.onStop()
         isReturningFromStopped = true
         greetingIntroAnimator?.cancel()
