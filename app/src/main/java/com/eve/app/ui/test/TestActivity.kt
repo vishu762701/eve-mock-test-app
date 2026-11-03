@@ -34,7 +34,9 @@ import com.eve.app.util.Constants
 import com.eve.app.util.LanguageManager
 import com.eve.app.util.NetworkUtil
 import com.eve.app.util.SecurityHelper
+import com.eve.app.util.SubmissionRetryPolicy
 import com.eve.app.util.UiState
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -65,6 +67,18 @@ class TestActivity : EveBaseActivity() {
     private var fromBookmark = false
     private var initialQuestionId: String? = null
     private var initialNavDone = false
+
+    // The Activity host retains its launching identity. The ViewModel remains
+    // the authoritative attempt/answer owner; this is only a lifecycle guard.
+    private var testOwnerUid = ""
+    private fun isTestOwner(): Boolean = SubmissionRetryPolicy.ownsSubmission(
+        testOwnerUid, FirebaseAuth.getInstance().currentUser?.uid)
+    private val testAccountListener = FirebaseAuth.AuthStateListener { state ->
+        if (testOwnerUid.isNotBlank() &&
+            !SubmissionRetryPolicy.ownsSubmission(testOwnerUid, state.currentUser?.uid)) {
+            finish()
+        }
+    }
 
     private lateinit var paletteAdapter: QuestionPaletteAdapter
     private var currentQuestionPosition: Int = 0
@@ -99,6 +113,16 @@ class TestActivity : EveBaseActivity() {
         SecurityHelper.applyScreenProtection(this)
         binding = ActivityTestBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        // Android can restore the previous Activity after the Firebase user has
+        // changed. Never adopt another account's existing question session.
+        val currentUid = FirebaseAuth.getInstance().currentUser?.uid
+        val originUid = if (savedInstanceState == null) currentUid
+            else savedInstanceState.getString("key_attempt_owner")
+        if (!SubmissionRetryPolicy.ownsSubmission(originUid, currentUid)) {
+            finish()
+            return
+        }
+        testOwnerUid = originUid.orEmpty()
         com.eve.app.theme.TelegramThemeEngine.addThemeChangeListener(questionThemeListener)
         TestPrimaryActionAppearance.apply(binding.btnNext)
         // Source-backed hierarchy from Telegram ActionBar.java:534; EVE test
@@ -127,6 +151,10 @@ class TestActivity : EveBaseActivity() {
             val isAdmin = currentUser?.let { user ->
                 adminRepository.isAdmin(user.email)
             } ?: false
+            if (!isTestOwner()) {
+                finish()
+                return@launch
+            }
             isAdminUser = isAdmin
 
             if (!isAdminUser && topic.isBlank() && pyqYear == 0 && examId.isNotBlank()) {
@@ -524,6 +552,10 @@ class TestActivity : EveBaseActivity() {
 
     private fun submit() {
         if (submitted) return
+        if (!isTestOwner()) {
+            finish()
+            return
+        }
         submitted = true
         viewModel.stopTimer()
         binding.btnNext.isEnabled = false
@@ -572,6 +604,9 @@ class TestActivity : EveBaseActivity() {
         lifecycleScope.launch {
             try {
                 val response = com.eve.app.data.remote.ApiClient.api.submitAttempt(body)
+                // Network completion can outlive the Firebase account that
+                // started the attempt. Do not mutate local caches or navigate.
+                if (!isTestOwner() || isFinishing || isDestroyed) return@launch
                 if (response.success && response.data != null) {
                     val graded = response.data
                     com.eve.app.data.local.PendingSubmissionStore(this@TestActivity).remove(viewModel.clientAttemptId)
@@ -663,6 +698,7 @@ class TestActivity : EveBaseActivity() {
                 viewModel.resumeTimerAfterFailure()
                 throw e
             } catch (e: Exception) {
+                if (!isTestOwner() || isFinishing || isDestroyed) return@launch
                 if (e is java.io.IOException || !NetworkUtil.isOnline(this@TestActivity)) {
                     handleOfflineSubmit(attemptName, items)
                 } else {
@@ -760,8 +796,26 @@ class TestActivity : EveBaseActivity() {
         else -> examName
     }
 
+    override fun onStart() {
+        super.onStart()
+        if (!isTestOwner()) {
+            finish()
+            return
+        }
+        FirebaseAuth.getInstance().addAuthStateListener(testAccountListener)
+    }
+
+    override fun onStop() {
+        FirebaseAuth.getInstance().removeAuthStateListener(testAccountListener)
+        super.onStop()
+    }
+
     override fun onResume() {
         super.onResume()
+        if (!isTestOwner()) {
+            finish()
+            return
+        }
         // Rebind the owner override after a Day/Night or theme-preview change.
         if (::binding.isInitialized) refreshQuestionTheme(
             com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(this))
@@ -769,7 +823,7 @@ class TestActivity : EveBaseActivity() {
 
     override fun onPause() {
         super.onPause()
-        if (!submitted && totalQuestions > 0) {
+        if (isTestOwner() && !submitted && totalQuestions > 0) {
             viewModel.saveCurrentSession(examId, binding.viewPager.currentItem)
         }
     }
@@ -779,6 +833,7 @@ class TestActivity : EveBaseActivity() {
         outState.putBoolean("key_empty_played", hasEmptyPlayed)
         outState.putInt("saved_question_position", currentQuestionPosition)
         viewModel.writeToBundle(outState, binding.viewPager.currentItem)
+        outState.putString("key_attempt_owner", testOwnerUid)
     }
 
     private fun updatePalette(activePosition: Int) {
@@ -802,6 +857,7 @@ class TestActivity : EveBaseActivity() {
     }
 
     override fun onDestroy() {
+        FirebaseAuth.getInstance().removeAuthStateListener(testAccountListener)
         com.eve.app.theme.TelegramThemeEngine.removeThemeChangeListener(questionThemeListener)
         // Release Activity-owned windows before detaching their window tokens.
         leaveConfirmDialog?.dismiss()

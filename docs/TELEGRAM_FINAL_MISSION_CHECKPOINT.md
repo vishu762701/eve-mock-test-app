@@ -1765,3 +1765,26 @@ Carry the backend correction through the required exact-SHA FAST; at this
 checkpoint it is staged only and its tests are NOT yet executed. Source and legal
 Telegram parity labels, physical acceptance and production release status remain
 unchanged. The shared-gate exact-SHA run is required to turn green first.
+
+## Quiz Activity authentication lifetime boundary (staged independent repair)
+
+Source review of the existing `TestActivity` found that `TestViewModel`
+already checks owner-tagged bundle restoration and the attempt is server-scored,
+but the Activity itself had no auth-state listener and could still finish a late
+submission callback after Firebase changed accounts. The scoped change preserves
+the existing Activity, ViewModel, clientAttemptId, test timer, scoring and UI,
+reusing `SubmissionRetryPolicy.ownsSubmission` as the **only** owner predicate.
+
+The Activity now binds its launch/restored UID, refuses foreign re-creation,
+registers one listener during onStart, unregisters during onStop/onDestroy,
+rechecks the owner after the async initial admin check and submit response,
+and rejects a mismatched error/retry callback. It avoids persisting a foreign
+account's abandoned session during onPause. New JVM owner-matrix/source-path
+regressions live in `TestActivityOwnerLifecycleTest.kt`. These are source and
+JVM safeguards, NOT native-device lifecycle or backend scoring acceptance.
+
+Prior Worker payload validation 1a3d45c1dbddb29a75f4d749fb41d4ca3f9f8a81
+completed exact-SHA FAST 41591963720 SUCCESS. The Quiz Activity implementation
+is the current carrying batch and requires its own exact-SHA FAST. No production
+endpoint, Firebase rules, D1 data, ABI or release flag changes.
+Source-exact Telegram/runtime matrix and protected final FULL remain OPEN.
