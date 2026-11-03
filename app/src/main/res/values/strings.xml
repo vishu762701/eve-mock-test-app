@@ -106,4 +106,8 @@
     <string name="question_delete_with_undo_confirmation">Delete this question? You can cancel with Undo for 5 seconds.</string>
     <string name="question_delete_pending">Question will be deleted</string>
     <string name="question_delete_failed">Deletion was not confirmed: %1$s</string>
+    <string name="api_usage_loading">Loading usage…</string>
+    <string name="api_usage_unavailable">Usage unavailable</string>
+    <string name="api_usage_unknown_count">—</string>
+    <string name="api_usage_load_failed">Could not load usage: %1$s</string>
 </resources>

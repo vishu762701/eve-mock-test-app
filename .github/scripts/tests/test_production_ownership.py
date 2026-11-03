@@ -115,6 +115,15 @@ class ProductionOwnershipTest(unittest.TestCase):
         self.assertIn("currentSelection = { viewModel.selectedCategory.value }", home)
         self.assertIn("HomeCategorySelection.select(", vm)
 
+    def test_api_usage_has_one_repository_transport_owner(self):
+        call = re.compile(r"\.getApiUsage\s*\(")
+        callers = {
+            file.relative_to(PRODUCTION).as_posix()
+            for file in PRODUCTION.rglob("*.kt")
+            if call.search(file.read_text(encoding="utf-8"))
+        }
+        self.assertEqual(callers, {"data/repository/ApiUsageRepository.kt"})
+
 
 if __name__ == "__main__":
     unittest.main()

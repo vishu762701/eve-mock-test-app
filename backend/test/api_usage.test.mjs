@@ -222,6 +222,67 @@ test("Route GET /api/admin/api-usage: guards and response validation", async () 
   assert.equal(typeof json.data.testSubmissions, "number");
 });
 
+test("API Usage: each failed counter query is an error rather than fabricated zero metrics", async () => {
+  for (const fragment of ["WHERE year_month =", "MIN(first_recorded_at)", "FROM attempts", "FROM admin_audit_log", "FROM feedback_posts"]) {
+   for (const asynchronous of [false, true]) {
+    const { d1, sqlite } = isolatedD1();
+    const broken = {
+      ...d1,
+      prepare(query) {
+        if (query.includes(fragment)) {
+          if (!asynchronous) throw new Error("isolated counter read failed");
+          return { bind() { return this; }, async first() { throw new Error("isolated counter read failed"); } };
+        }
+        return d1.prepare(query);
+      },
+    };
+    try {
+      await assert.rejects(getMonthlyApiUsage(broken, "2026-10"), /counter read failed/, fragment);
+      const owner = { uid: "admin1", email: "own.keni@gmail.com", email_verified: true, role: "admin", isAdmin: true };
+      const response = await createAdminApp(broken, owner).request("/api/admin/api-usage?month=2026-10");
+      assert.equal(response.status, 500, fragment);
+      const body = await response.json();
+      assert.equal(body.success, false);
+      assert.equal(body.data, undefined);
+    } finally { sqlite.close(); }
+   }
+  }
+});
+
+test("API Usage: malformed aggregates and contradictory recorded totals are rejected", async () => {
+  const { d1, sqlite } = isolatedD1();
+  try {
+    for (const aggregate of [null, {}, { count: -1 }, { count: 1.5 }, { count: "2" }, { count: Number.MAX_SAFE_INTEGER + 1 }]) {
+      const malformed = { ...d1, prepare(query) {
+        return query.includes("FROM attempts")
+          ? { bind() { return this; }, async first() { return aggregate; } }
+          : d1.prepare(query);
+      }};
+      await assert.rejects(getMonthlyApiUsage(malformed, "2026-10"), /Invalid monthly usage counter/);
+    }
+    sqlite.prepare("INSERT INTO api_usage_monthly VALUES ('2026-10',7,2,1,?,?)").run(Date.UTC(2026,9,1),Date.UTC(2026,9,2));
+    await assert.rejects(getMonthlyApiUsage(d1, "2026-10"), /Inconsistent monthly usage totals/);
+    sqlite.exec("UPDATE api_usage_monthly SET gemini_calls=3,last_updated_at=0");
+    await assert.rejects(getMonthlyApiUsage(d1, "2026-10"), /Invalid monthly usage update time/);
+  } finally { sqlite.close(); }
+});
+
+test("API Usage: refreshed rights and membership are required for each read", async () => {
+  const { d1, sqlite } = isolatedD1();
+  const email = "usage-manager@example.test";
+  try {
+    sqlite.prepare("INSERT INTO admins(email,created_at) VALUES (?,1)").run(email);
+    sqlite.prepare("INSERT INTO admin_rights(email,rights,updated_at) VALUES (?,?,1)").run(email,JSON.stringify(["view_analytics_logs"]));
+    const app = createAdminApp(d1,{uid:"usage-manager",email,email_verified:true,isAdmin:true});
+    assert.equal((await app.request("/api/admin/api-usage")).status,200);
+    sqlite.prepare("UPDATE admin_rights SET rights='[]' WHERE email=?").run(email);
+    assert.equal((await app.request("/api/admin/api-usage")).status,403);
+    sqlite.prepare("UPDATE admin_rights SET rights=? WHERE email=?").run(JSON.stringify(["view_analytics_logs"]),email);
+    sqlite.prepare("DELETE FROM admins WHERE email=?").run(email);
+    assert.equal((await app.request("/api/admin/api-usage")).status,403);
+  } finally { sqlite.close(); }
+});
+
 test("Route POST /api/admin/questions/reformat-explanation: validation and formatting", async () => {
   const { d1 } = isolatedD1();
   const adminUser = { uid: "admin1", email: "own.keni@gmail.com", email_verified: true, role: "admin", isAdmin: true };

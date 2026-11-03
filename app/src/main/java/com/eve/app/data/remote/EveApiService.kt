@@ -728,6 +728,7 @@ interface EveApiService {
     suspend fun getPublicEmojiPlacements(): ApiResponse<PublicEmojiDataDto>
 }
 
+@com.google.gson.annotations.JsonAdapter(MonthlyApiUsageJsonAdapter::class)
 data class MonthlyApiUsageDto(
     val yearMonth: String = "",
     val monthDisplayName: String = "",

@@ -64,77 +64,68 @@ export async function trackGeminiCall(db: D1Database, success: boolean, nowMs: n
   `).bind(ym, successVal, failVal, nowMs).run();
 }
 
+/** Failed/malformed aggregates must never impersonate confirmed zero usage. */
+function requireUsageCount(value: unknown): number {
+  if (typeof value !== "number" || !Number.isSafeInteger(value) || value < 0) {
+    throw new Error("Invalid monthly usage counter");
+  }
+  return value;
+}
+
 export async function getMonthlyApiUsage(db: D1Database, yearMonth?: string): Promise<MonthlyApiUsageResult> {
   const ym = yearMonth && /^(\d{4})-(0[1-9]|1[0-2])$/.test(yearMonth) ? yearMonth : getUtcYearMonth();
   const { startMs, endMs, displayName } = getUtcMonthDetails(ym);
 
   // 1. Fetch Gemini calls from api_usage_monthly
-  let usageRow: {
+  const usageRow = await db.prepare(
+    "SELECT gemini_calls, gemini_successful_calls, gemini_failed_calls, first_recorded_at, last_updated_at FROM api_usage_monthly WHERE year_month = ?"
+  ).bind(ym).first<{
     gemini_calls: number;
     gemini_successful_calls: number;
     gemini_failed_calls: number;
     first_recorded_at: number;
     last_updated_at: number;
-  } | null = null;
-
-  try {
-    usageRow = await db.prepare(
-      "SELECT gemini_calls, gemini_successful_calls, gemini_failed_calls, first_recorded_at, last_updated_at FROM api_usage_monthly WHERE year_month = ?"
-    ).bind(ym).first<{
-      gemini_calls: number;
-      gemini_successful_calls: number;
-      gemini_failed_calls: number;
-      first_recorded_at: number;
-      last_updated_at: number;
-    }>();
-  } catch {}
+  }>();
 
   // Find overall earliest recorded timestamp to truthfully report countedSince
-  let earliestRow: { earliest_ts: number | null } | null = null;
-  try {
-    earliestRow = await db.prepare(
-      "SELECT MIN(first_recorded_at) as earliest_ts FROM api_usage_monthly"
-    ).first<{ earliest_ts: number | null }>();
-  } catch {}
+  const earliestRow = await db.prepare(
+    "SELECT MIN(first_recorded_at) as earliest_ts FROM api_usage_monthly"
+  ).first<{ earliest_ts: number | null }>();
 
   // 2. Count real test submissions in attempts table
-  let testSubmissions = 0;
-  try {
-    const attemptsRow = await db.prepare(
-      "SELECT COUNT(*) as count FROM attempts WHERE timestamp >= ?1 AND timestamp < ?2"
-    ).bind(startMs, endMs).first<{ count: number }>();
-    testSubmissions = attemptsRow?.count || 0;
-  } catch {}
+  const attemptsRow = await db.prepare(
+    "SELECT COUNT(*) as count FROM attempts WHERE timestamp >= ?1 AND timestamp < ?2"
+  ).bind(startMs, endMs).first<{ count: number }>();
+  const testSubmissions = requireUsageCount(attemptsRow?.count);
 
   // 3. Count documents created:
   // a) admin_audit_log entries representing creation/generation/broadcast
-  let auditCount = 0;
-  try {
-    const auditRow = await db.prepare(`
-      SELECT COUNT(*) as count FROM admin_audit_log 
-      WHERE timestamp >= ?1 AND timestamp < ?2 
-      AND (
-        action_type LIKE '%CREATED%' 
-        OR action_type LIKE '%SENT%' 
-        OR action_type LIKE '%ADDED%' 
-        OR action_type LIKE '%GENERATE%'
-        OR action_type LIKE '%REPLY%'
-        OR action_type LIKE '%INSERT%'
-      )
-    `).bind(startMs, endMs).first<{ count: number }>();
-    auditCount = auditRow?.count || 0;
-  } catch {}
+  const auditRow = await db.prepare(`
+    SELECT COUNT(*) as count FROM admin_audit_log
+    WHERE timestamp >= ?1 AND timestamp < ?2
+    AND (
+      action_type LIKE '%CREATED%'
+      OR action_type LIKE '%SENT%'
+      OR action_type LIKE '%ADDED%'
+      OR action_type LIKE '%GENERATE%'
+      OR action_type LIKE '%REPLY%'
+      OR action_type LIKE '%INSERT%'
+    )
+  `).bind(startMs, endMs).first<{ count: number }>();
+  const auditCount = requireUsageCount(auditRow?.count);
 
   // b) feedback_posts created by users
-  let feedbackCount = 0;
-  try {
-    const feedbackRow = await db.prepare(
-      "SELECT COUNT(*) as count FROM feedback_posts WHERE timestamp >= ?1 AND timestamp < ?2"
-    ).bind(startMs, endMs).first<{ count: number }>();
-    feedbackCount = feedbackRow?.count || 0;
-  } catch {}
+  const feedbackRow = await db.prepare(
+    "SELECT COUNT(*) as count FROM feedback_posts WHERE timestamp >= ?1 AND timestamp < ?2"
+  ).bind(startMs, endMs).first<{ count: number }>();
+  const feedbackCount = requireUsageCount(feedbackRow?.count);
 
-  const documentsCreated = auditCount + feedbackCount;
+  const documentsCreated = requireUsageCount(auditCount + feedbackCount);
+  if (usageRow && requireUsageCount(usageRow.gemini_successful_calls) + requireUsageCount(usageRow.gemini_failed_calls) !== requireUsageCount(usageRow.gemini_calls)) {
+    throw new Error("Inconsistent monthly usage totals");
+  }
+  const lastUpdated = usageRow ? requireUsageCount(usageRow.last_updated_at) : Date.now();
+  if (lastUpdated === 0) throw new Error("Invalid monthly usage update time");
 
   let countedSince: string | null = null;
   if (usageRow?.first_recorded_at) {
@@ -150,12 +141,12 @@ export async function getMonthlyApiUsage(db: D1Database, yearMonth?: string): Pr
   return {
     yearMonth: ym,
     monthDisplayName: displayName,
-    geminiCalls: usageRow?.gemini_calls || 0,
-    geminiSuccessfulCalls: usageRow?.gemini_successful_calls || 0,
-    geminiFailedCalls: usageRow?.gemini_failed_calls || 0,
+    geminiCalls: usageRow ? requireUsageCount(usageRow.gemini_calls) : 0,
+    geminiSuccessfulCalls: usageRow ? requireUsageCount(usageRow.gemini_successful_calls) : 0,
+    geminiFailedCalls: usageRow ? requireUsageCount(usageRow.gemini_failed_calls) : 0,
     documentsCreated,
     testSubmissions,
     countedSince,
-    lastUpdated: usageRow?.last_updated_at || Date.now(),
+    lastUpdated,
   };
 }

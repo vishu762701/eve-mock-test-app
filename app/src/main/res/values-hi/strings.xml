@@ -107,4 +107,8 @@
     <string name="question_delete_with_undo_confirmation">यह प्रश्न हटाएं? 5 सेकंड तक वापस लाएं दबाकर रद्द कर सकते हैं।</string>
     <string name="question_delete_pending">प्रश्न हटाया जाएगा</string>
     <string name="question_delete_failed">हटाने की पुष्टि नहीं हुई: %1$s</string>
+    <string name="api_usage_loading">उपयोग लोड हो रहा है…</string>
+    <string name="api_usage_unavailable">उपयोग उपलब्ध नहीं है</string>
+    <string name="api_usage_unknown_count">—</string>
+    <string name="api_usage_load_failed">उपयोग लोड नहीं हो सका: %1$s</string>
 </resources>

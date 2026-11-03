@@ -47,40 +47,26 @@ class ApiUsageRepository(
      */
     suspend fun getUsageForCurrentMonth(): MonthlyApiUsage {
         val ym = getCurrentYearMonth()
-        val displayName = getMonthDisplayName()
 
-        return try {
-            val response = api.getApiUsage(ym)
-            if (response.success && response.data != null) {
-                val data = response.data
-                MonthlyApiUsage(
-                    yearMonth = data.yearMonth.ifBlank { ym },
-                    monthDisplayName = data.monthDisplayName.ifBlank { displayName },
-                    geminiCalls = data.geminiCalls,
-                    documentsCreatedProxy = data.documentsCreated,
-                    testSubmissionsProxy = data.testSubmissions,
-                    lastUpdated = data.lastUpdated,
-                    countedSince = data.countedSince.orEmpty()
-                )
-            } else {
-                MonthlyApiUsage(
-                    yearMonth = ym,
-                    monthDisplayName = displayName,
-                    geminiCalls = 0L,
-                    documentsCreatedProxy = 0L,
-                    testSubmissionsProxy = 0L,
-                    lastUpdated = System.currentTimeMillis()
-                )
-            }
-        } catch (e: Exception) {
-            MonthlyApiUsage(
-                yearMonth = ym,
-                monthDisplayName = displayName,
-                geminiCalls = 0L,
-                documentsCreatedProxy = 0L,
-                testSubmissionsProxy = 0L,
-                lastUpdated = System.currentTimeMillis()
-            )
+        val response = api.getApiUsage(ym)
+        check(response.success && response.error.isNullOrBlank()) { response.error ?: "Failed to retrieve API usage" }
+        val data = checkNotNull(response.data) { "Missing confirmed API usage" }
+        check(data.yearMonth == ym && data.monthDisplayName.isNotBlank()) { "Invalid API usage month" }
+        check(listOf(data.geminiCalls, data.geminiSuccessfulCalls, data.geminiFailedCalls,
+            data.documentsCreated, data.testSubmissions).all { it >= 0 } && data.lastUpdated > 0) {
+            "Invalid API usage counters"
         }
+        check(Math.addExact(data.geminiSuccessfulCalls, data.geminiFailedCalls) == data.geminiCalls) {
+            "Inconsistent API usage totals"
+        }
+        return MonthlyApiUsage(
+            yearMonth = data.yearMonth,
+            monthDisplayName = data.monthDisplayName,
+            geminiCalls = data.geminiCalls,
+            documentsCreatedProxy = data.documentsCreated,
+            testSubmissionsProxy = data.testSubmissions,
+            lastUpdated = data.lastUpdated,
+            countedSince = data.countedSince.orEmpty()
+        )
     }
 }

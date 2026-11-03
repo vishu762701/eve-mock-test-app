@@ -4,6 +4,59 @@
 
 Status: PARTIAL. This is a continuation record, not screen acceptance.
 
+## Current continuation pointer — API Usage repair preparation
+
+Latest remote/main `5648e9c360c9bdda70c45a24537681243ccd94bc`; exact-SHA FAST
+[41659857229](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41659857229)
+SUCCESS (build/backend/Firebase passed; native/publication skipped; zero artifacts).
+Docs41659856965 SUCCESS. Owner-selected five-second question Undo is integrated,
+including the explicit one-third-successful-commit exception;24 local JVM cases,
+AndroidTest compilation and lint passed. Device comparison remains OPEN.
+
+Next canonical owner: ApiUsageActivity → ApiUsageRepository → getApiUsage →
+admin.ts GET /api-usage → util/usageTracker.ts; existing view_analytics_logs gate
+and Worker authorization remain authoritative. Demonstrated source defects:
+Android denial/missing-data/network failures fabricate freshly updated zero counts;
+Worker swallows all five counter query failures; Activity has no post-await
+identity/lifecycle/request ordering checks. No additional counter manager/service.
+
+Requirements V1 real confirmed zero remains valid; V2 denied/null/malformed/network
+responses remain errors, never fresh zeros; V3 query failure returns Worker error;
+V4 initiating UID/email, stop/recreation and newer requests suppress stale results;
+V5 one pending refresh, cancellation propagation and explicit unavailable/loading
+presentation; V6 preserve UTC count semantics, existing routes/rights/counting and
+billing disclaimer; V7 actual handler/Activity/repository tests, full applicable
+checks and exact-SHA FAST. No live production mutation/deployment.
+Feature-specific original commit029556ae831b2a15fe9403bf8b5450c601a504f3 has
+Build41081089665 SUCCESS; this is its second scoped implementation batch. The
+cross-destination40a7bb30 gate was the shared Admin rights feature, not a prior
+API-counter repair. Further successful batches require a scoped budget exception.
+
+API Usage verification: fail-before repository5 cases/4 failures, actual Activity8
+cases/6 failures, actual Worker failed-query regression FAIL. After repair,
+53 actual Activity/repository/Monitor/Premium/Undo cases PASS with no skips/errors;
+this includes11 API Activity cases and5 repository cases. Final contradiction/
+timestamp guard rerun: repository5 PASS and Worker8 PASS. Full backend332 PASS;
+TypeScript PASS; AndroidTest Kotlin compilation PASS; lint PASS (zero errors,
+1618 warnings, no suppression). Host66 PASS;82-document/acceptance structural/
+diff checks PASS. Worker tests exercise real Hono/migrations/SQLite, all five query
+failures both sync and async, malformed aggregates/totals, UTC boundaries and
+fresh revoked rights/membership. No production data is touched.
+
+Cross-layer wire evidence: actual authorized Hono GET against isolated SQLite
+produced `/workspace/scratch/worker-usage-wire.json`, SHA256
+`38c8d1792c8774249121d9d00befb9a0b3830f5933c80d41de02d83967e6ab15`.
+Actual compiled Android MonthlyApiUsageDto/Gson decoded its month,3/2/1 Gemini
+counters, real zero document/submission counters and original update timestamp.
+This proves the isolated JSON contract, not Firebase integration/device acceptance.
+No Telegram source was copied for these EVE counter semantics. Original native UI,
+count definitions/UTC SQL/disclaimer/routes/rights remain unchanged. Backend source
+repair still requires separate manual deployment authorization to affect production.
+
+| Requirement | Canonical owner | Implementation status | Tests | Commit SHA | Exact-SHA CI | Runtime acceptance | Remaining evidence |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| V1–V7 API Usage truthfulness and read lifetime | ApiUsageActivity / ApiUsageRepository / MonthlyApiUsageDto / usageTracker.ts | Prepared second scoped batch | JVM53; backend332; wire decode; AndroidTest compile; lint; host66 | carrying commit | required after push | OPEN | device/network acceptance; authorized Worker deployment separately |
+
 ## Official-source continuation requirements — 2026-11-03
 
 Recovered remote main `3c316522ae0596b49acedac23f55b8728131bcf2`, clean checkout,
