@@ -107,7 +107,31 @@ class AdminRepository(
         // A deployed older Worker cannot silently masquerade as a complete page.
         val pagination = response.pagination
             ?: throw IllegalStateException("Server pagination is unavailable; please update the backend")
-        return com.eve.app.data.model.AdminUsersPage(response.data ?: emptyList(), pagination)
+        val users = response.data
+            ?: throw IllegalStateException("Server users list is missing; retry before trusting an empty page")
+        val totalPages = (pagination.total.toLong() + pageSize - 1) / pageSize
+        check(pagination.page == page && pagination.pageSize == pageSize &&
+            pagination.total >= 0 && totalPages == pagination.totalPages.toLong() &&
+            pagination.hasNext == (page < pagination.totalPages) &&
+            pagination.hasPrevious == (page > 1 && pagination.totalPages > 0) &&
+            users.size <= pageSize && users.size <= pagination.total &&
+            (page.toLong() <= totalPages || users.isEmpty())) {
+            "Server users pagination was malformed"
+        }
+        val seenIds = HashSet<String>()
+        for (user in users) {
+            // Gson may decode explicit null into nominally non-null Kotlin DTO fields.
+            val value: com.eve.app.data.model.AdminUser? = user
+            val id: String? = value?.id
+            val email: String? = value?.email
+            val name: String? = value?.displayName
+            val category: String? = value?.category
+            check(!id.isNullOrBlank() && email != null && name != null &&
+                category != null && seenIds.add(id)) {
+                "Server users list contained an incomplete or duplicate identity"
+            }
+        }
+        return com.eve.app.data.model.AdminUsersPage(users, pagination)
     }
 
     suspend fun toggleUserStatus(userId: String, disabled: Boolean): Boolean {
@@ -115,7 +139,13 @@ class AdminRepository(
         if (!response.success) {
             throw Exception(response.error ?: "Failed to toggle user status")
         }
-        return response.success
+        // Do not display a success bulletin for a malformed positive response.
+        val acknowledgedId = response.data?.get("id") as? String
+        val acknowledgedDisabled = response.data?.get("disabled") as? Boolean
+        check(acknowledgedId == userId && acknowledgedDisabled == disabled) {
+            "User status update was not acknowledged by the server"
+        }
+        return true
     }
 
     suspend fun getUserAttempts(userId: String): List<com.eve.app.data.model.TestAttempt> {
@@ -123,7 +153,7 @@ class AdminRepository(
         if (!response.success) {
             throw Exception(response.error ?: "Failed to fetch user attempts")
         }
-        return response.data ?: emptyList()
+        return response.data ?: throw IllegalStateException("Server user attempts response was incomplete")
     }
 
     suspend fun getAppConfig(): com.eve.app.data.model.AppConfig {

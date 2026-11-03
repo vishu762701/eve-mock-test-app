@@ -54,11 +54,23 @@ class ManageUsersActivity : EveBaseActivity() {
     private var requestJob: Job? = null
     private var debounceJob: Job? = null
     private var actionPending = false
+    private var detailsJob: Job? = null
+    private var detailsTarget: String? = null
+    private var detailsEpoch = 0L
+    private var detailsDialog: TelegramNativeAlertDialog? = null
+    private var statusDialog: TelegramNativeAlertDialog? = null
+
+    private fun isCurrentOwner(uid: String?): Boolean =
+        !uid.isNullOrBlank() && gateReady && authorizedUid == uid &&
+            FirebaseAuth.getInstance().currentUser?.uid == uid && !isFinishing && !isDestroyed
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        currentPage = (savedInstanceState?.getInt("users_page") ?: 1).coerceAtLeast(1)
-        restoredQuery = savedInstanceState?.getString("users_query").orEmpty()
+        val restoredOwner = savedInstanceState?.getString("users_owner_uid")
+        val currentOwner = FirebaseAuth.getInstance().currentUser?.uid
+        val canRestore = !restoredOwner.isNullOrBlank() && restoredOwner == currentOwner
+        currentPage = (if (canRestore) savedInstanceState?.getInt("users_page") else null).let { it ?: 1 }.coerceAtLeast(1)
+        restoredQuery = if (canRestore) savedInstanceState?.getString("users_query").orEmpty() else ""
         binding = ActivityManageUsersBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.btnBack.setOnClickListener { finish() }
@@ -88,8 +100,22 @@ class ManageUsersActivity : EveBaseActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
+        outState.putString("users_owner_uid", authorizedUid?.takeIf { it == FirebaseAuth.getInstance().currentUser?.uid })
         outState.putInt("users_page", currentPage)
         outState.putString("users_query", binding.etSearchUser.text?.toString().orEmpty())
+    }
+
+    override fun onStop() {
+        gateReady = false
+        requestJob?.cancel()
+        detailsJob?.cancel()
+        detailsEpoch++
+        detailsTarget = null
+        detailsDialog?.dismiss()
+        detailsDialog = null
+        statusDialog?.dismiss()
+        statusDialog = null
+        super.onStop()
     }
 
     private fun setupAdminControls() {
@@ -119,6 +145,11 @@ class ManageUsersActivity : EveBaseActivity() {
                 query = next
                 currentPage = 1
                 requestJob?.cancel()
+                detailsJob?.cancel()
+                detailsEpoch++
+                detailsTarget = null
+                detailsDialog?.dismiss()
+                detailsDialog = null
                 binding.rvUsers.visibility = View.GONE
                 binding.layoutPagination.visibility = View.GONE
                 binding.progressBar.visibility = View.VISIBLE
@@ -137,8 +168,14 @@ class ManageUsersActivity : EveBaseActivity() {
     }
 
     private fun loadUsers() {
-        if (!gateReady || authorizedUid == null) return
+        val ownerAtRequest = authorizedUid
+        if (!isCurrentOwner(ownerAtRequest)) return
         requestJob?.cancel()
+        detailsJob?.cancel()
+        detailsEpoch++
+        detailsTarget = null
+        detailsDialog?.dismiss()
+        detailsDialog = null
         binding.progressBar.visibility = View.VISIBLE
         binding.rvUsers.visibility = View.GONE
         binding.emptyGroup.visibility = View.GONE
@@ -150,7 +187,7 @@ class ManageUsersActivity : EveBaseActivity() {
         requestJob = lifecycleScope.launch {
             try {
                 val response: AdminUsersPage = adminRepo.getUsersPage(queryAtRequest, pageAtRequest)
-                if (!gateReady || authorizedUid != FirebaseAuth.getInstance().currentUser?.uid ||
+                if (!isCurrentOwner(ownerAtRequest) ||
                     pageAtRequest != currentPage || queryAtRequest != query) return@launch
                 val meta = response.pagination
                 if (meta.totalPages > 0 && currentPage > meta.totalPages) {
@@ -172,6 +209,8 @@ class ManageUsersActivity : EveBaseActivity() {
             } catch (cancel: CancellationException) {
                 throw cancel
             } catch (e: Exception) {
+                if (!isCurrentOwner(ownerAtRequest) ||
+                    pageAtRequest != currentPage || queryAtRequest != query) return@launch
                 binding.progressBar.visibility = View.GONE
                 binding.btnRefresh.isEnabled = true
                 binding.emptyGroup.visibility = View.VISIBLE
@@ -216,13 +255,22 @@ class ManageUsersActivity : EveBaseActivity() {
     }
 
     private fun showUserDetailsDialog(user: AdminUser) {
-        if (!gateReady || authorizedUid == null) return
+        val requestOwner = authorizedUid
+        if (!isCurrentOwner(requestOwner) || user.id.isBlank() ||
+            (detailsJob?.isActive == true && detailsTarget == user.id) ||
+            detailsDialog?.isShowing == true) return
+        detailsJob?.cancel()
+        val detailRequestEpoch = ++detailsEpoch
+        detailsTarget = user.id
+        val requestPage = currentPage
+        val requestQuery = query
         binding.progressBar.visibility = View.VISIBLE
 
-        lifecycleScope.launch {
+        detailsJob = lifecycleScope.launch {
             try {
                 val attempts = adminRepo.getUserAttempts(user.id)
-                if (!gateReady || authorizedUid != FirebaseAuth.getInstance().currentUser?.uid ||
+                if (!isCurrentOwner(requestOwner) || requestPage != currentPage ||
+                    requestQuery != query ||
                     !lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) return@launch
                 binding.progressBar.visibility = View.GONE
 
@@ -252,20 +300,32 @@ class ManageUsersActivity : EveBaseActivity() {
                     $attemptsSummary
                 """.trimIndent()
 
-                TelegramNativeAlertDialog.Builder(this@ManageUsersActivity)
+                val dialog = TelegramNativeAlertDialog.Builder(this@ManageUsersActivity)
                     .setTitle(user.displayName.ifBlank { "Student Details" })
                     .setMessage(message)
                     .setPositiveButton("Close", null)
                     .show()
+                detailsDialog = dialog
+                dialog.setOnDismissListener {
+                    if (detailsDialog === dialog) detailsDialog = null
+                }
+            } catch (cancel: CancellationException) {
+                throw cancel
             } catch (e: Exception) {
-                binding.progressBar.visibility = View.GONE
-                AppBulletin.showError(this@ManageUsersActivity, "Failed to load attempts: ${e.toUserFriendlyMessage()}")
+                if (isCurrentOwner(requestOwner) && requestPage == currentPage && requestQuery == query &&
+                    lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) {
+                    binding.progressBar.visibility = View.GONE
+                    AppBulletin.showError(this@ManageUsersActivity, "Failed to load attempts: ${e.toUserFriendlyMessage()}")
+                }
+            } finally {
+                if (detailsEpoch == detailRequestEpoch) detailsTarget = null
             }
         }
     }
 
     private fun confirmToggleUserStatus(user: AdminUser, disable: Boolean) {
-        if (isFinishing || isDestroyed || actionPending || !gateReady || authorizedUid == null) return
+        val actionOwner = authorizedUid
+        if (actionPending || !isCurrentOwner(actionOwner) || statusDialog?.isShowing == true) return
         val actionTitle = if (disable) "Disable / Ban User Account?" else "Enable User Account?"
         val actionWarning = if (disable) {
             "Are you sure? This user will be blocked from accessing and submitting mock tests in the app.\n\nUser: ${user.displayName} (${user.email})"
@@ -273,17 +333,18 @@ class ManageUsersActivity : EveBaseActivity() {
             "Enable and restore full access for ${user.displayName} (${user.email})?"
         }
 
-        TelegramNativeAlertDialog.Builder(this)
+        val dialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle(actionTitle)
             .setMessage(actionWarning)
             .setPositiveButton(if (disable) "Disable Account" else "Enable Account") { _, _ ->
-                if (actionPending || !gateReady ||
-                    authorizedUid != FirebaseAuth.getInstance().currentUser?.uid) return@setPositiveButton
+                if (actionPending || !isCurrentOwner(actionOwner)) return@setPositiveButton
                 actionPending = true
                 binding.progressBar.visibility = View.VISIBLE
                 lifecycleScope.launch {
                     try {
                         val success = adminRepo.toggleUserStatus(user.id, disable)
+                        if (!isCurrentOwner(actionOwner) ||
+                            !lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) return@launch
                         binding.progressBar.visibility = View.GONE
                         if (success) {
                             // The server mutation is authoritative.
@@ -296,8 +357,11 @@ class ManageUsersActivity : EveBaseActivity() {
                     } catch (cancel: CancellationException) {
                         throw cancel
                     } catch (e: Exception) {
-                        binding.progressBar.visibility = View.GONE
-                        AppBulletin.showError(this@ManageUsersActivity, "Error: ${e.toUserFriendlyMessage()}")
+                        if (isCurrentOwner(actionOwner) &&
+                            lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) {
+                            binding.progressBar.visibility = View.GONE
+                            AppBulletin.showError(this@ManageUsersActivity, "Error: ${e.toUserFriendlyMessage()}")
+                        }
                     } finally {
                         actionPending = false
                     }
@@ -305,5 +369,9 @@ class ManageUsersActivity : EveBaseActivity() {
             }
             .setNegativeButton("Cancel", null)
             .let { if (disable) it.makeRed(DialogInterface.BUTTON_POSITIVE).show() else it.show() }
+        statusDialog = dialog
+        dialog.setOnDismissListener {
+            if (statusDialog === dialog) statusDialog = null
+        }
     }
 }

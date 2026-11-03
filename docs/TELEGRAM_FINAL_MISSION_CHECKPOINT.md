@@ -1725,3 +1725,13 @@ forward before unrelated work. This Home exception is separate from the consumed
 category exception. Next independent investigation after green: ManageUsers read/
 detail response ownership and malformed data (source observations only; no new
 implementation started while Home approval was pending).
+
+## 2026-11-03 continuation: production ownership and account-isolation stabilization
+
+Recovered live `main` f0c923994cfed1deb2026e0b09d3d64bb7982ed0 and official Telegram master/pin 3de37c8cfb039452be7398909461da6288babf15. Local Telegrammaster.zip SHA-256 matched recorded snapshot: 4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10, ZIP integrity accepted. No local Gradle/emulator run: remote GitHub Actions provide compile/unit/backend evidence, but device fidelity remains unaccepted.
+
+- Production ownership registry and concrete anti-duplication host regressions committed as 0605998348346f30c5e44e97393116748c32b194. Exact-SHA FAST 41585490684 SUCCESS, docs 41585490736 SUCCESS. Existing QR identity/card/scanner renderers, payment-specific QR, dialogs, Home filter and Poll Worker preserved without deletion.
+- Home/Notifications account-change response isolation committed as 6456b00814bc10a1f077c54768cb49390c63ce25. Exact-SHA FAST 41586337126 SUCCESS. One account's late broadcast read cannot be imported into another account's dynamic NotificationStore namespace; no change to inbox-only acknowledgment or backend.
+- Next independently actionable ManageUsers correction uses the existing Activity, AdminRepository, AdminAccessGate and Worker API. Source examination found `success=true` with absent list was silently treated as zero users; page metadata and row identity were trusted without validation; status mutation reported success without comparing returned ID/status; details/error callbacks could outlive their selected owner/query/page. Prepared regression fixtures reject malformed/denied acknowledgments and trace restored owner, stale loads, detail and rapid action behavior. Carrying commit and exact-SHA FAST are PENDING at the time of this checkpoint text. No Worker deployment or permission changes.
+
+Next after confirmed Admin FAST: inspect remaining independent Admin/student/quiz defects against production callers and preserve all green work. Full QR scene motion/device comparison, native two-navigation acceptance, six-job FULL and legal GPL release signoff remain OPEN; no production release authorization. Do not replay completed feature commits, and do not label source-level coverage as device parity.
