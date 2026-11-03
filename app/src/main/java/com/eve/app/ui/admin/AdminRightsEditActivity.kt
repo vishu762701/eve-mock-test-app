@@ -22,6 +22,14 @@ import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AdminAccessGate
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.AvatarDrawable
+import com.eve.app.util.AdminIdentityGuard
+import com.eve.app.util.AdminPermissionSnapshot
+import com.eve.app.data.repository.AdminRepository
+import com.google.firebase.auth.FirebaseAuth
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
 
 class AdminRightsEditActivity : EveBaseActivity() {
 
@@ -49,6 +57,74 @@ class AdminRightsEditActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityAdminRightsEditBinding
     private val viewModel: AdminViewModel by viewModels()
+    private val adminRepo = AdminRepository()
+    private var activeUid = ""
+    private var activeEmail = ""
+    private var gateReady = false
+    private var mutationPending = false
+    private var actionEpoch = 0L
+
+    private fun ownerCurrent(): Boolean {
+        val user = FirebaseAuth.getInstance().currentUser
+        return gateReady && !isFinishing && !isDestroyed &&
+            AdminIdentityGuard.allowed(true, activeUid, activeEmail, user?.uid, user?.email)
+    }
+
+    private fun canAct(): Boolean =
+        ownerCurrent() && lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+
+    private suspend fun requireFreshRightsPermission() {
+        if (!canAct()) throw CancellationException("Admin rights owner changed")
+        val rights = AdminPermissionSnapshot.load(
+            activeEmail, "manage_admins_rights",
+            membership = { adminRepo.isAdminFresh(activeUid, activeEmail) },
+            permissions = { adminRepo.getAdminMe() }
+        )
+        if (!canAct()) throw CancellationException("Admin rights owner changed")
+        if (rights == null) throw SecurityException("Admin rights permission is unavailable")
+    }
+
+    /** One current-owner UI action at a time; Worker remains authoritative. */
+    private fun runAuthorizedMutation(
+        operation: ((Result<Unit>) -> Unit) -> Unit,
+        success: () -> Unit
+    ) {
+        if (!canAct() || mutationPending || viewModel.busy.value) return
+        mutationPending = true
+        val epoch = ++actionEpoch
+        lifecycleScope.launch {
+            var dispatched = false
+            try {
+                requireFreshRightsPermission()
+                if (!canAct() || epoch != actionEpoch) return@launch
+                if (viewModel.busy.value) throw IllegalStateException("Another admin change is still pending")
+                dispatched = true
+                operation { result ->
+                    if (epoch == actionEpoch) mutationPending = false
+                    if (epoch == actionEpoch && canAct()) {
+                        result.onSuccess { success() }
+                            .onFailure { AppBulletin.showError(this@AdminRightsEditActivity, it.toUserFriendlyMessage()) }
+                    }
+                }
+            } catch (cancel: CancellationException) {
+                throw cancel
+            } catch (e: Exception) {
+                if (canAct() && epoch == actionEpoch) {
+                    AppBulletin.showError(this@AdminRightsEditActivity, e.toUserFriendlyMessage())
+                }
+            } finally {
+                if (!dispatched && epoch == actionEpoch) mutationPending = false
+            }
+        }
+    }
+
+    override fun onStop() {
+        // Any permission reply from a prior visible window loses its UI authority.
+        ++actionEpoch
+        mutationPending = false
+        super.onStop()
+    }
+
 
     private var targetEmail: String = ""
     private var isOwner: Boolean = false
@@ -73,6 +149,11 @@ class AdminRightsEditActivity : EveBaseActivity() {
         initialCustomTitle = intent.getStringExtra(EXTRA_CUSTOM_TITLE) ?: (if (isOwner) "Owner" else "Admin")
 
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_admins_rights") {
+            val principal = FirebaseAuth.getInstance().currentUser ?: return@requireAdmin
+            activeUid = principal.uid
+            activeEmail = principal.email.orEmpty()
+            gateReady = true
+            if (!ownerCurrent()) return@requireAdmin
             setupActionBar()
             setupIdentityHeader()
             setupCustomTitleSection()
@@ -177,17 +258,20 @@ class AdminRightsEditActivity : EveBaseActivity() {
     }
 
     private fun confirmDismissAdmin() {
+        if (!canAct() || mutationPending || !canEdit || isOwner ||
+            targetEmail.isBlank()) return
         TelegramNativeAlertDialog.Builder(this)
             .setTitle("Dismiss Admin?")
             .setMessage("Are you sure you want to dismiss $targetEmail? This will revoke all administrative privileges.")
             .setPositiveButton("Dismiss") { _, _ ->
-                viewModel.removeAdmin(targetEmail) { result ->
-                    result.onSuccess {
-                        AppBulletin.showSuccess(this, "Administrator dismissed")
-                        finish()
-                    }.onFailure {
-                        AppBulletin.showError(this, it.toUserFriendlyMessage())
-                    }
+                if (canAct() && !mutationPending) {
+                    runAuthorizedMutation(
+                        operation = { callback -> viewModel.removeAdmin(targetEmail, callback) },
+                        success = {
+                            AppBulletin.showSuccess(this, "Administrator dismissed")
+                            finish()
+                        }
+                    )
                 }
             }
             .setNegativeButton("Cancel", null)
@@ -213,6 +297,7 @@ class AdminRightsEditActivity : EveBaseActivity() {
     }
 
     private fun handleBackOrDiscard() {
+        if (mutationPending) return
         if (hasUnsavedChanges()) {
             TelegramNativeAlertDialog.Builder(this)
                 .setTitle("Discard Changes?")
@@ -235,16 +320,18 @@ class AdminRightsEditActivity : EveBaseActivity() {
     }
 
     private fun saveChanges() {
+        if (!canAct() || mutationPending || isOwner || !canEdit ||
+            targetEmail.isBlank()) return
         val selectedRights = getCurrentSelectedRights()
         val customTitle = binding.etCustomTitle.text?.toString()?.trim().takeIf { !it.isNullOrBlank() }
-
-        viewModel.updateAdminRights(targetEmail, selectedRights, customTitle) { result ->
-            result.onSuccess {
+        runAuthorizedMutation(
+            operation = { callback ->
+                viewModel.updateAdminRights(targetEmail, selectedRights, customTitle, callback)
+            },
+            success = {
                 AppBulletin.showSuccess(this, "Admin permissions updated successfully")
                 finish()
-            }.onFailure {
-                AppBulletin.showError(this, it.toUserFriendlyMessage())
             }
-        }
+        )
     }
 }

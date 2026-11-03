@@ -16,8 +16,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.CancellationException
 import com.eve.app.data.remote.toUserFriendlyMessage
 
-class AdminViewModel(private val repo: ExamRepository = ExamRepository()) : ViewModel() {
-    private val adminRepo = AdminRepository()
+class AdminViewModel(
+    private val repo: ExamRepository = ExamRepository(),
+    private val adminRepo: AdminRepository = AdminRepository()
+) : ViewModel() {
     private val userStatsRepo = UserStatsRepository()
 
     private val _exams = MutableStateFlow<List<Exam>>(emptyList())
@@ -311,12 +313,15 @@ class AdminViewModel(private val repo: ExamRepository = ExamRepository()) : View
         onResult: (Result<Unit>) -> Unit
     ) {
         if (_busy.value) return
+        // Acquire synchronously, before the coroutine can be queued twice.
+        _busy.value = true
         viewModelScope.launch {
-            _busy.value = true
             try {
                 adminRepo.updateAdminRights(email, rights, customTitle)
                 loadAdmins()
                 onResult(Result.success(Unit))
+            } catch (cancel: kotlinx.coroutines.CancellationException) {
+                throw cancel
             } catch (e: Exception) {
                 _message.value = e.toUserFriendlyMessage()
                 onResult(Result.failure(e))
@@ -328,12 +333,14 @@ class AdminViewModel(private val repo: ExamRepository = ExamRepository()) : View
 
     fun removeAdmin(email: String, onResult: (Result<Unit>) -> Unit) {
         if (_busy.value) return
+        _busy.value = true
         viewModelScope.launch {
-            _busy.value = true
             try {
                 adminRepo.removeAdmin(email)
                 loadAdmins()
                 onResult(Result.success(Unit))
+            } catch (cancel: kotlinx.coroutines.CancellationException) {
+                throw cancel
             } catch (e: Exception) {
                 _message.value = e.toUserFriendlyMessage()
                 onResult(Result.failure(e))

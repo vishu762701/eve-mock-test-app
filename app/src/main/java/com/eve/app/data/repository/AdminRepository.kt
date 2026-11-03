@@ -71,12 +71,30 @@ class AdminRepository(
 
     suspend fun updateAdminRights(email: String, rights: List<String>, customTitle: String?): DynamicAdminItem {
         val clean = email.trim().lowercase()
-        val request = UpdateAdminRightsRequest(rights = rights, customTitle = customTitle?.trim())
+        val title = customTitle?.trim()
+        require(clean.isNotBlank() && "@" in clean) { "Invalid administrator email" }
+        require(title == null || title.length <= 64) { "Administrator title exceeds 64 characters" }
+        require(rights.distinct().size == rights.size && rights.none { it.isBlank() }) {
+            "Invalid or duplicate administrator rights"
+        }
+        val request = UpdateAdminRightsRequest(rights = rights, customTitle = title)
         val response = api.updateAdminRights(clean, request)
         if (!response.success) {
             throw Exception(response.error ?: "Failed to update admin permissions")
         }
-        return response.data ?: DynamicAdminItem(email = clean, rights = rights, customTitle = customTitle)
+        val confirmed = response.data
+            ?: throw IllegalStateException("Admin rights update was not acknowledged by the server")
+        // Kotlin DTO non-null types do not protect against Gson nulls.
+        val returnedEmail: String? = confirmed.email
+        val returnedRights: List<*>? = confirmed.rights
+        val returnedTitle: String? = confirmed.customTitle
+        if (returnedEmail.isNullOrBlank() || !returnedEmail.equals(clean, ignoreCase = true) ||
+            returnedRights == null || returnedRights.any { it !is String || it.isBlank() } ||
+            returnedRights.toSet() != rights.toSet() ||
+            (title != null && returnedTitle != title)) {
+            throw IllegalStateException("Server returned a mismatched administrator rights acknowledgment")
+        }
+        return confirmed
     }
 
     suspend fun removeAdmin(email: String) {
