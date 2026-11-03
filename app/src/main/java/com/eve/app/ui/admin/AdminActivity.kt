@@ -1065,18 +1065,20 @@ class AdminActivity : EveBaseActivity() {
     }
 
     private fun showFloatingLinkDialog() {
+        val initiating = FirebaseAuth.getInstance().currentUser ?: return
+        val uid = initiating.uid
+        val email = initiating.email.orEmpty()
+        if (!adminUiReady || isFinishing || isDestroyed) return
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             val pad = resources.getDimensionPixelSize(R.dimen.design_screen_margin)
             setPadding(pad, pad, pad, pad)
         }
-
         val etUrl = EditText(this).apply {
             hint = "https://example.com/target"
             inputType = InputType.TYPE_TEXT_VARIATION_URI or InputType.TYPE_CLASS_TEXT
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         }
-
         val etLabel = EditText(this).apply {
             hint = "Join Discussion / View Channel"
             inputType = InputType.TYPE_CLASS_TEXT
@@ -1084,7 +1086,6 @@ class AdminActivity : EveBaseActivity() {
                 topMargin = resources.getDimensionPixelSize(R.dimen.design_card_gap)
             }
         }
-
         layout.addView(etUrl)
         layout.addView(etLabel)
 
@@ -1097,63 +1098,92 @@ class AdminActivity : EveBaseActivity() {
             .setNegativeButton("Cancel", null)
             .show()
 
-        requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_POSITIVE)).setOnClickListener {
-            val rawUrl = etUrl.text?.toString()?.trim().orEmpty()
-            if (rawUrl.isEmpty()) {
-                lifecycleScope.launch {
-                    try {
-                        floatingLinkRepo.clearFloatingLink()
-                        AppBulletin.showSuccess(this@AdminActivity, "Floating link cleared")
-                        dialog.dismiss()
-                    } catch (e: Exception) {
-                        AppBulletin.showError(this@AdminActivity, "Clear failed: ${e.message}")
-                    }
-                }
-                return@setOnClickListener
-            }
+        var pending = false
+        fun ownerCurrent(): Boolean {
+            val user = FirebaseAuth.getInstance().currentUser
+            return dialog.isShowing && adminUiReady && !isFinishing && !isDestroyed &&
+                lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED) &&
+                AdminIdentityGuard.allowed(true, uid, email, user?.uid, user?.email)
+        }
+        val save = requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_POSITIVE))
+        val clear = requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_NEUTRAL))
+        val cancel = requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_NEGATIVE))
 
-            val finalUrl = if (!rawUrl.startsWith("http://", ignoreCase = true) &&
-                !rawUrl.startsWith("https://", ignoreCase = true)
-            ) {
-                "https://$rawUrl"
-            } else {
-                rawUrl
-            }
-
-            if (!FloatingLinkRepository.isValidHttpsUrl(finalUrl)) {
-                AppBulletin.showError(this, "URL must be valid HTTPS")
-                return@setOnClickListener
-            }
-
+        fun runConfirmedMutation(successMessage: String, change: suspend () -> Unit) {
+            if (pending || !ownerCurrent()) return
+            pending = true
+            save.isEnabled = false
+            clear.isEnabled = false
+            cancel.isEnabled = false
+            dialog.setCancelable(false)
             lifecycleScope.launch {
                 try {
-                    floatingLinkRepo.updateFloatingLink(finalUrl)
-                    AppBulletin.showSuccess(this@AdminActivity, "Floating link saved")
+                    val permission = AdminPermissionSnapshot.load(
+                        email, "manage_content",
+                        membership = { adminRepo.isAdminFresh(uid, email) },
+                        permissions = { adminRepo.getAdminMe() }
+                    )
+                    if (!ownerCurrent()) return@launch
+                    if (permission == null) throw SecurityException("Floating link permission is unavailable")
+                    change()
+                    if (!ownerCurrent()) return@launch
+                    AppBulletin.showSuccess(this@AdminActivity, successMessage)
                     dialog.dismiss()
-                } catch (e: Exception) {
-                    AppBulletin.showError(this@AdminActivity, "Save failed: ${e.message}")
+                } catch (abort: CancellationException) {
+                    throw abort
+                } catch (error: Exception) {
+                    if (ownerCurrent()) {
+                        AppBulletin.showError(this@AdminActivity, error.localizedMessage ?: "Floating link was not confirmed")
+                    }
+                } finally {
+                    pending = false
+                    if (ownerCurrent()) {
+                        save.isEnabled = true
+                        clear.isEnabled = true
+                        cancel.isEnabled = true
+                        dialog.setCancelable(true)
+                    }
                 }
             }
         }
 
-        requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_NEUTRAL)).setOnClickListener {
+        save.setOnClickListener {
+            if (!ownerCurrent() || pending) return@setOnClickListener
+            val rawUrl = etUrl.text?.toString()?.trim().orEmpty()
+            if (rawUrl.isEmpty()) {
+                runConfirmedMutation("Floating link cleared") {
+                    floatingLinkRepo.clearFloatingLink().getOrThrow()
+                }
+                return@setOnClickListener
+            }
+            val finalUrl = if (!rawUrl.startsWith("http://", ignoreCase = true) &&
+                !rawUrl.startsWith("https://", ignoreCase = true)) {
+                "https://$rawUrl"
+            } else rawUrl
+            if (!FloatingLinkRepository.isValidHttpsUrl(finalUrl)) {
+                AppBulletin.showError(this, "URL must be valid HTTPS")
+                return@setOnClickListener
+            }
+            runConfirmedMutation("Floating link saved") {
+                floatingLinkRepo.updateFloatingLink(finalUrl).getOrThrow()
+                Unit
+            }
+        }
+
+        clear.setOnClickListener {
+            if (!ownerCurrent() || pending) return@setOnClickListener
             TelegramNativeAlertDialog.Builder(this)
                 .setTitle("Clear Floating Link?")
                 .setMessage("Remove the floating link for all students?")
                 .setPositiveButton("Clear") { _, _ ->
-                    lifecycleScope.launch {
-                        try {
-                            floatingLinkRepo.clearFloatingLink()
-                            AppBulletin.showSuccess(this@AdminActivity, "Floating link cleared")
-                            dialog.dismiss()
-                        } catch (e: Exception) {
-                            AppBulletin.showError(this@AdminActivity, "Clear failed: ${e.message}")
-                        }
+                    runConfirmedMutation("Floating link cleared") {
+                        floatingLinkRepo.clearFloatingLink().getOrThrow()
                     }
                 }
                 .setNegativeButton("Cancel", null)
                 .makeRed(DialogInterface.BUTTON_POSITIVE).show()
         }
+        cancel.setOnClickListener { if (!pending) dialog.dismiss() }
     }
 
     private fun showManageFeedbackPostsDialog() {

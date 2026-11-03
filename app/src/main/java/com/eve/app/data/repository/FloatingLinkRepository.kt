@@ -2,6 +2,7 @@ package com.eve.app.data.repository
 
 import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.EveApiService
+import kotlinx.coroutines.CancellationException
 import java.net.URI
 
 data class FloatingLinkData(
@@ -100,80 +101,86 @@ class FloatingLinkRepository(
     /**
      * Admin: fetch current link directly from admin endpoint.
      */
-    suspend fun getAdminFloatingLink(): Result<String> = runCatching {
-        val response = api.getAdminFloatingLink()
-        if (response.success && response.data != null) {
-            response.data.url?.trim() ?: ""
-        } else {
-            throw IllegalStateException(response.error ?: "Failed to fetch floating link")
-        }
+    /** Keep errors/cancellation distinct: the Admin dialog must never announce an unconfirmed write. */
+    private suspend fun <T> confirmed(block: suspend () -> T): Result<T> = try {
+        Result.success(block())
+    } catch (cancel: CancellationException) {
+        throw cancel
+    } catch (error: Exception) {
+        Result.failure(error)
     }
 
-    /**
-     * Admin: updates or sets the floating community link URL and optionally coordinates.
-     */
-    suspend fun updateFloatingLink(url: String): Result<String> = runCatching {
+    suspend fun getAdminFloatingLink(): Result<String> = confirmed {
+        val res = api.getAdminFloatingLink()
+        val url = res.data?.url
+        if (!res.success || url == null || (url.isNotEmpty() && !isValidHttpsUrl(url))) {
+            throw IllegalStateException(res.error ?: "Unable to confirm current floating link")
+        }
+        url.trim()
+    }
+
+    suspend fun updateFloatingLink(url: String): Result<String> = confirmed {
         var cleanUrl = url.trim()
-        if (cleanUrl.isNotEmpty()) {
-            if (!cleanUrl.startsWith("http://", ignoreCase = true) &&
-                !cleanUrl.startsWith("https://", ignoreCase = true)
-            ) {
-                cleanUrl = "https://$cleanUrl"
-            }
-            if (!isValidHttpsUrl(cleanUrl)) {
-                throw IllegalArgumentException("Invalid URL. Must be a valid HTTPS URL up to 500 characters.")
-            }
+        if (cleanUrl.isNotEmpty() &&
+            !cleanUrl.startsWith("http://", ignoreCase = true) &&
+            !cleanUrl.startsWith("https://", ignoreCase = true)) {
+            cleanUrl = "https://$cleanUrl"
         }
-
+        if (cleanUrl.isNotEmpty() && !isValidHttpsUrl(cleanUrl)) {
+            throw IllegalArgumentException("Invalid URL. Must be valid HTTPS up to 500 characters.")
+        }
         val response = api.updateAdminFloatingLink(mapOf("url" to cleanUrl))
-        if (response.success) {
-            val savedUrl = response.data?.url?.trim() ?: cleanUrl
-            val validUrl = if (savedUrl.isNotEmpty() && isValidHttpsUrl(savedUrl)) savedUrl else null
-            cachedUrl = validUrl
-            cachedData = if (validUrl != null) {
-                FloatingLinkData(
-                    url = validUrl,
-                    x = response.data?.x?.takeIf { it in 0f..1f } ?: cachedData?.x,
-                    y = response.data?.y?.takeIf { it in 0f..1f } ?: cachedData?.y
-                )
-            } else null
-            lastFetchTimestamp = System.currentTimeMillis()
-            savedUrl
-        } else {
-            throw IllegalStateException(response.error ?: "Failed to update floating link")
+        val savedUrl = response.data?.url?.trim()
+        if (!response.success || savedUrl == null ||
+            (savedUrl.isNotEmpty() && !isValidHttpsUrl(savedUrl)) ||
+            (cleanUrl.isNotEmpty() && savedUrl.isEmpty()) ||
+            (cleanUrl.isEmpty() && savedUrl.isNotEmpty())) {
+            throw IllegalStateException(response.error ?: "Floating link update was not confirmed")
         }
+        cachedUrl = savedUrl.ifBlank { null }
+        cachedData = savedUrl.takeIf { it.isNotEmpty() }?.let {
+            FloatingLinkData(
+                url = it,
+                x = response.data?.x?.takeIf { coord -> coord in 0f..1f },
+                y = response.data?.y?.takeIf { coord -> coord in 0f..1f }
+            )
+        }
+        lastFetchTimestamp = System.currentTimeMillis()
+        savedUrl
     }
 
-    /**
-     * Admin: updates only the normalized coordinates for the floating link.
-     */
-    suspend fun updateFloatingLinkPosition(x: Float, y: Float): Result<FloatingLinkData> = runCatching {
+    suspend fun updateFloatingLinkPosition(x: Float, y: Float): Result<FloatingLinkData> = confirmed {
         val clampedX = x.coerceIn(0f, 1f)
         val clampedY = y.coerceIn(0f, 1f)
-        val payload: Map<String, Any> = mapOf("x" to clampedX, "y" to clampedY)
-        val response = api.updateAdminFloatingLink(payload)
-        if (response.success) {
-            val currentUrl = response.data?.url?.trim()?.takeIf { isValidHttpsUrl(it) } ?: cachedUrl ?: ""
-            val updated = FloatingLinkData(url = currentUrl, x = clampedX, y = clampedY)
-            cachedData = updated
-            lastFetchTimestamp = System.currentTimeMillis()
-            updated
-        } else {
-            throw IllegalStateException(response.error ?: "Failed to update floating link position")
+        val response = api.updateAdminFloatingLink(mapOf("x" to clampedX, "y" to clampedY))
+        val data = response.data
+        if (!response.success || data == null) {
+            throw IllegalStateException(response.error ?: "Floating link position was not confirmed")
         }
+        val validX = data.x?.takeIf { it in 0f..1f }
+        val validY = data.y?.takeIf { it in 0f..1f }
+        if (validX == null || validY == null) {
+            throw IllegalStateException("Floating link coordinates were not confirmed")
+        }
+        val returnedUrl = data.url?.trim().orEmpty()
+        if (returnedUrl.isNotEmpty() && !isValidHttpsUrl(returnedUrl)) {
+            throw IllegalStateException("Floating link response URL is invalid")
+        }
+        val result = FloatingLinkData(returnedUrl, validX, validY)
+        cachedUrl = returnedUrl.ifBlank { null }
+        cachedData = returnedUrl.takeIf { it.isNotEmpty() }?.let { result }
+        lastFetchTimestamp = System.currentTimeMillis()
+        result
     }
 
-    /**
-     * Admin: clears the floating community link.
-     */
-    suspend fun clearFloatingLink(): Result<Unit> = runCatching {
+    suspend fun clearFloatingLink(): Result<Unit> = confirmed {
         val response = api.updateAdminFloatingLink(mapOf("url" to ""))
-        if (response.success) {
-            cachedUrl = null
-            cachedData = null
-            lastFetchTimestamp = System.currentTimeMillis()
-        } else {
-            throw IllegalStateException(response.error ?: "Failed to clear floating link")
+        if (!response.success || response.data?.url?.isNotEmpty() != false) {
+            throw IllegalStateException(response.error ?: "Clearing the floating link was not confirmed")
         }
+        cachedUrl = null
+        cachedData = null
+        lastFetchTimestamp = System.currentTimeMillis()
     }
+
 }
