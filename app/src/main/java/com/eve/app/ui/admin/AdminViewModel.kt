@@ -134,18 +134,41 @@ class AdminViewModel(private val repo: ExamRepository = ExamRepository()) : View
         }
     }
 
-    fun deleteExam(examId: String, onDone: () -> Unit) {
+    /**
+     * UI captures the initiating account and exam; fresh Worker rights are checked
+     * immediately before dispatch, not only when the confirmation was rendered.
+     */
+    fun deleteExam(
+        examId: String,
+        ownerCurrent: () -> Boolean,
+        authorize: suspend () -> Boolean,
+        onFailure: (String) -> Unit = {},
+        onDone: () -> Unit
+    ) {
+        if (examId.isBlank() || _busy.value || !ownerCurrent()) return
+        // Acquire synchronously so repeated confirmation taps cannot enqueue two deletes.
+        _busy.value = true
         viewModelScope.launch {
-            _busy.value = true
             try {
+                if (!ownerCurrent()) return@launch
+                if (!authorize()) throw SecurityException("Exam deletion permission is unavailable")
+                if (!ownerCurrent()) return@launch
                 repo.deleteExam(examId)
+                if (!ownerCurrent()) return@launch
                 _message.value = "Exam deleted successfully"
                 loadExams()
                 onDone()
+            } catch (cancel: CancellationException) {
+                throw cancel
             } catch (e: Exception) {
-                _message.value = e.message ?: "Failed to delete exam"
+                if (ownerCurrent()) {
+                    val message = e.toUserFriendlyMessage(false)
+                    _message.value = message
+                    onFailure(message)
+                }
+            } finally {
+                _busy.value = false
             }
-            _busy.value = false
         }
     }
 

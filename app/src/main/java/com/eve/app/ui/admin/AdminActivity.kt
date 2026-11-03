@@ -764,13 +764,40 @@ class AdminActivity : EveBaseActivity() {
     }
 
     private fun confirmDeleteExam() {
+        // Dormant legacy Hub entry is kept compatible, not made a second delete owner.
         val exam = exams.firstOrNull() ?: return
+        val initiating = FirebaseAuth.getInstance().currentUser ?: return
+        val uid = initiating.uid
+        val email = initiating.email.orEmpty()
+        fun ownerCurrent(): Boolean =
+            adminUiReady && !isFinishing && !isDestroyed &&
+                lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED) &&
+                exams.firstOrNull()?.id == exam.id &&
+                AdminIdentityGuard.allowed(
+                    true, uid, email,
+                    FirebaseAuth.getInstance().currentUser?.uid,
+                    FirebaseAuth.getInstance().currentUser?.email
+                )
+        if (!ownerCurrent() || viewModel.busy.value) return
         TelegramNativeAlertDialog.Builder(this)
             .setTitle("Delete ${exam.examName}?")
             .setMessage("Delete ${exam.examName}? This will permanently remove the exam and cannot be undone.")
             .setPositiveButton("Delete") { _, _ ->
-                viewModel.deleteExam(exam.id) {
-                    AppBulletin.showSuccess(this@AdminActivity, "Exam '${exam.examName}' deleted")
+                if (!ownerCurrent()) return@setPositiveButton
+                viewModel.deleteExam(
+                    examId = exam.id,
+                    ownerCurrent = { ownerCurrent() },
+                    authorize = {
+                        AdminPermissionSnapshot.load(
+                            email, "manage_exams",
+                            membership = { adminRepo.isAdminFresh(uid, email) },
+                            permissions = { adminRepo.getAdminMe() }
+                        ) != null
+                    }
+                ) {
+                    if (ownerCurrent()) AppBulletin.showSuccess(
+                        this@AdminActivity, "Exam '${exam.examName}' deleted"
+                    )
                 }
             }
             .setNegativeButton("Cancel", null)

@@ -66,6 +66,7 @@ class ManageQuestionsActivity : EveBaseActivity() {
             bulkPreviewDialog?.isShowing == true || bulkWriteInFlight
     private var questionDialog: TelegramNativeAlertDialog? = null
     private var renameExamDialog: TelegramNativeAlertDialog? = null
+    private var deleteExamDialog: TelegramNativeAlertDialog? = null
     private val questionOwnerUid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
     private val questionOwnerEmail = FirebaseAuth.getInstance().currentUser?.email.orEmpty()
     private val questionIdentityCurrent: Boolean
@@ -325,16 +326,49 @@ class ManageQuestionsActivity : EveBaseActivity() {
 
     private fun confirmDeleteExam() {
         val exam = exams.getOrNull(binding.spExam.selectedItemPosition) ?: return
-        TelegramNativeAlertDialog.Builder(this)
+        fun targetCurrent(): Boolean =
+            adminScreenAuthorized && questionIdentityCurrent &&
+                lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED) &&
+                !viewModel.busy.value && exam.id.isNotBlank() &&
+                viewModel.questionExamId == exam.id &&
+                exams.any { it.id == exam.id } &&
+                exams.getOrNull(binding.spExam.selectedItemPosition)?.id == exam.id
+        if (!targetCurrent() || deleteExamDialog?.isShowing == true) return
+        val dialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Delete ${exam.examName}?")
             .setMessage("Delete ${exam.examName}? This will permanently remove the exam and cannot be undone.")
             .setPositiveButton("Delete") { _, _ ->
-                viewModel.deleteExam(exam.id) {
-                    AppBulletin.showSuccess(this@ManageQuestionsActivity, "Exam '${exam.examName}' deleted")
+                if (!targetCurrent()) return@setPositiveButton
+                val admin = AdminRepository()
+                viewModel.deleteExam(
+                    examId = exam.id,
+                    ownerCurrent = {
+                        adminScreenAuthorized && questionIdentityCurrent &&
+                            lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED) &&
+                            viewModel.questionExamId == exam.id &&
+                            exams.getOrNull(binding.spExam.selectedItemPosition)?.id == exam.id
+                    },
+                    authorize = {
+                        AdminPermissionSnapshot.load(
+                            questionOwnerEmail, "manage_exams",
+                            membership = { admin.isAdminFresh(questionOwnerUid, questionOwnerEmail) },
+                            permissions = { admin.getAdminMe() }
+                        ) != null
+                    },
+                    onFailure = { message ->
+                        if (questionIdentityCurrent) AppBulletin.showError(this@ManageQuestionsActivity, message)
+                    }
+                ) {
+                    if (questionIdentityCurrent) {
+                        AppBulletin.showSuccess(this@ManageQuestionsActivity, "Exam '${exam.examName}' deleted")
+                    }
                 }
             }
             .setNegativeButton("Cancel", null)
-            .makeRed(DialogInterface.BUTTON_POSITIVE).show()
+            .makeRed(DialogInterface.BUTTON_POSITIVE).create()
+        deleteExamDialog = dialog
+        dialog.setOnDismissListener { if (deleteExamDialog === dialog) deleteExamDialog = null }
+        dialog.show()
     }
 
     private fun showQuestionDetails(q: Question) {
@@ -599,6 +633,8 @@ class ManageQuestionsActivity : EveBaseActivity() {
     }
 
     override fun onDestroy() {
+        deleteExamDialog?.dismiss()
+        deleteExamDialog = null
         ++imageRequestGeneration
         imageReadJob?.cancel()
         imageReadJob = null
