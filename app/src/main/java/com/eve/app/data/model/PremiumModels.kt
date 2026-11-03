@@ -1,5 +1,7 @@
 package com.eve.app.data.model
 
+import com.google.gson.annotations.SerializedName
+
 data class PremiumPlanDto(
     val isEnabled: Boolean = true,
     val planId: String = "default",
@@ -58,21 +60,23 @@ data class OrderStatusDto(
 )
 
 data class AdminPremiumConfigDto(
-    val id: String = "default",
-    val isEnabled: Boolean = true,
-    val planName: String = "Premium Pro",
-    val priceInr: Int = 99,
-    val currency: String = "INR",
-    val durationDays: Int = 30,
-    val isLifetime: Boolean = false,
-    val description: String = "",
-    val benefits: List<String> = emptyList(),
-    val qrEnabled: Boolean = true,
-    val upiEnabled: Boolean = true,
-    val sessionExpiryMinutes: Int = 10,
-    val merchantVpa: String = "evemocktest@upi",
-    val merchantName: String = "Eve Mock Test",
-    val webhookSecret: String = "" // Legacy field; webhook secret must never be provided by the app
+    // Admin Worker GET retains legacy D1 snake_case; PUT uses the client camelCase contract.
+    @field:SerializedName(value = "id") val id: String = "",
+    @field:SerializedName(value = "isEnabled", alternate = ["is_enabled"]) val isEnabled: Boolean = true,
+    @field:SerializedName(value = "planName", alternate = ["plan_name"]) val planName: String = "",
+    @field:SerializedName(value = "priceInr", alternate = ["price_inr"]) val priceInr: Int = 0,
+    @field:SerializedName(value = "currency") val currency: String = "",
+    @field:SerializedName(value = "durationDays", alternate = ["duration_days"]) val durationDays: Int = 0,
+    @field:SerializedName(value = "isLifetime", alternate = ["is_lifetime"]) val isLifetime: Boolean = false,
+    @field:SerializedName(value = "description") val description: String = "",
+    @field:SerializedName(value = "benefits") val benefits: List<String> = emptyList(),
+    @field:SerializedName(value = "qrEnabled", alternate = ["qr_enabled"]) val qrEnabled: Boolean = true,
+    @field:SerializedName(value = "upiEnabled", alternate = ["upi_enabled"]) val upiEnabled: Boolean = true,
+    @field:SerializedName(value = "sessionExpiryMinutes", alternate = ["session_expiry_minutes"]) val sessionExpiryMinutes: Int = 0,
+    @field:SerializedName(value = "merchantVpa", alternate = ["merchant_vpa"]) val merchantVpa: String = "",
+    @field:SerializedName(value = "merchantName", alternate = ["merchant_name"]) val merchantName: String = "",
+    // Legacy field: never supplied by the backend, never editable in this screen.
+    val webhookSecret: String = ""
 )
 
 data class AdminTransactionDto(

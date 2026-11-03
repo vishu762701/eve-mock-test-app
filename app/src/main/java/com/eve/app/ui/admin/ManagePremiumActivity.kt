@@ -9,14 +9,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.data.model.*
 import com.eve.app.data.remote.ApiClient
-import com.eve.app.data.repository.AuditLogRepository
 import com.eve.app.databinding.ActivityManagePremiumBinding
 import com.eve.app.util.AppBulletin
+import com.eve.app.util.AdminIdentityGuard
+import com.eve.app.util.AdminPermissionSnapshot
+import com.eve.app.data.repository.AdminRepository
+import com.google.firebase.auth.FirebaseAuth
+import androidx.lifecycle.Lifecycle
+import kotlinx.coroutines.CancellationException
 import com.eve.app.designsystem.TelegramSwitch
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.launch
@@ -25,7 +29,80 @@ import com.eve.app.data.remote.toUserFriendlyMessage
 class ManagePremiumActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityManagePremiumBinding
-    private val auditRepo = AuditLogRepository()
+    private val adminRepo = AdminRepository()
+    private var authorizedUid = ""
+    private var authorizedEmail = ""
+    private var adminReady = false
+    private var mutationPending = false
+    private var readGeneration = 0L
+    private var transactionsGeneration = 0L
+    private var usersGeneration = 0L
+    private var stoppedOnce = false
+
+    private fun ownerCurrent(): Boolean {
+        val live = FirebaseAuth.getInstance().currentUser
+        return adminReady && !isFinishing && !isDestroyed &&
+            AdminIdentityGuard.allowed(true, authorizedUid, authorizedEmail, live?.uid, live?.email)
+    }
+
+    private fun canPublish(): Boolean =
+        ownerCurrent() && lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+
+    private suspend fun requirePremiumRight() {
+        if (!canPublish()) throw CancellationException("Premium owner changed")
+        val allowed = AdminPermissionSnapshot.load(
+            authorizedEmail, "manage_premium",
+            membership = { adminRepo.isAdminFresh(authorizedUid, authorizedEmail) },
+            permissions = { adminRepo.getAdminMe() }
+        )
+        if (!canPublish()) throw CancellationException("Premium owner changed")
+        if (allowed == null) throw SecurityException("Premium management permission is unavailable")
+    }
+
+    private fun mutatePremium(successMessage: String, action: suspend () -> Unit) {
+        if (!canPublish() || mutationPending) return
+        mutationPending = true
+        ++readGeneration
+        binding.progressAdmin.visibility = View.VISIBLE
+        lifecycleScope.launch {
+            try {
+                requirePremiumRight()
+                if (!canPublish()) return@launch
+                action()
+                if (canPublish()) {
+                    AppBulletin.showSuccess(this@ManagePremiumActivity, successMessage)
+                    loadUsers()
+                }
+            } catch (cancel: CancellationException) {
+                throw cancel
+            } catch (error: Exception) {
+                if (canPublish()) {
+                    AppBulletin.showError(this@ManagePremiumActivity, error.toUserFriendlyMessage())
+                }
+            } finally {
+                mutationPending = false
+                if (canPublish()) binding.progressAdmin.visibility = View.GONE
+            }
+        }
+    }
+
+    override fun onStop() {
+        stoppedOnce = true
+        ++readGeneration
+        ++transactionsGeneration
+        ++usersGeneration
+        super.onStop()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (adminReady && !ownerCurrent()) {
+            finish()
+        } else if (stoppedOnce && ownerCurrent()) {
+            stoppedOnce = false
+            loadAllData()
+        }
+    }
 
     private val transactionAdapter = AdminTransactionAdapter()
     private lateinit var userAdapter: AdminPremiumUserAdapter
@@ -38,6 +115,11 @@ class ManagePremiumActivity : EveBaseActivity() {
         setContentView(binding.root)
 
         com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_premium") {
+        val initiating = FirebaseAuth.getInstance().currentUser ?: return@requireAdmin
+        authorizedUid = initiating.uid
+        authorizedEmail = initiating.email.orEmpty()
+        adminReady = true
+        if (!ownerCurrent()) return@requireAdmin
 
         setupToolbar()
         setupTabs()
@@ -108,126 +190,158 @@ class ManagePremiumActivity : EveBaseActivity() {
     }
 
     private fun loadAllData() {
+        if (!ownerCurrent()) return
         loadConfig()
         loadTransactions()
         loadUsers()
     }
 
     private fun loadConfig() {
+        if (!ownerCurrent() || mutationPending) return
+        val request = ++readGeneration
         binding.progressAdmin.visibility = View.VISIBLE
         lifecycleScope.launch {
             try {
-                val res = ApiClient.api.getAdminPremiumConfig()
-                binding.progressAdmin.visibility = View.GONE
-                if (res.success && res.data != null) {
-                    val config = res.data
-                    currentConfig = config
-
-                    binding.switchEnablePremium.isChecked = config.isEnabled
-                    binding.etPlanName.setText(config.planName)
-                    binding.etPriceInr.setText(config.priceInr.toString())
-                    binding.switchLifetime.isChecked = config.isLifetime
-                    binding.etDurationDays.setText(config.durationDays.toString())
-                    binding.tilDurationDays.visibility = if (config.isLifetime) View.GONE else View.VISIBLE
-                    binding.etDescription.setText(config.description)
-                    val benefitsText = if (config.benefits.isNotEmpty()) {
-                        config.benefits.joinToString("\n")
-                    } else {
-                        listOf(
-                            "Access to all eligible tests",
-                            "Unlimited eligible reattempts",
-                            "No normal 3-attempt restriction while Premium is active"
-                        ).joinToString("\n")
-                    }
-                    binding.etBenefits.setText(benefitsText)
-                    binding.switchQrEnabled.isChecked = config.qrEnabled
-                    binding.switchUpiEnabled.isChecked = config.upiEnabled
-                    binding.etSessionExpiry.setText(config.sessionExpiryMinutes.toString())
-                    binding.etMerchantVpa.setText(config.merchantVpa)
+                val response = ApiClient.api.getAdminPremiumConfig()
+                if (request != readGeneration || !canPublish()) return@launch
+                val config = response.data
+                if (!response.success || !AdminPremiumResponseContracts.configValid(config)) {
+                    throw IllegalStateException(response.error ?: "Premium settings were not confirmed")
                 }
-            } catch (e: Exception) {
-                binding.progressAdmin.visibility = View.GONE
-                AppBulletin.showError(this@ManagePremiumActivity, "Failed to load config: ${e.message}")
+                val confirmed = requireNotNull(config)
+                currentConfig = confirmed
+                binding.switchEnablePremium.isChecked = confirmed.isEnabled
+                binding.etPlanName.setText(confirmed.planName)
+                binding.etPriceInr.setText(confirmed.priceInr.toString())
+                binding.switchLifetime.isChecked = confirmed.isLifetime
+                binding.etDurationDays.setText(confirmed.durationDays.toString())
+                binding.tilDurationDays.visibility = if (confirmed.isLifetime) View.GONE else View.VISIBLE
+                binding.etDescription.setText(confirmed.description)
+                binding.etBenefits.setText(confirmed.benefits.joinToString("\n"))
+                binding.switchQrEnabled.isChecked = confirmed.qrEnabled
+                binding.switchUpiEnabled.isChecked = confirmed.upiEnabled
+                binding.etSessionExpiry.setText(confirmed.sessionExpiryMinutes.toString())
+                binding.etMerchantVpa.setText(confirmed.merchantVpa)
+            } catch (cancel: CancellationException) {
+                throw cancel
+            } catch (error: Exception) {
+                if (request == readGeneration && canPublish()) {
+                    currentConfig = null
+                    AppBulletin.showError(this@ManagePremiumActivity, "Failed to load premium config: ${error.toUserFriendlyMessage()}")
+                }
+            } finally {
+                if (request == readGeneration && canPublish()) {
+                    binding.progressAdmin.visibility = View.GONE
+                }
             }
         }
     }
 
     private fun saveConfig() {
-        val planName = binding.etPlanName.text.toString().trim().ifBlank { "Premium Pro" }
-        val priceInr = binding.etPriceInr.text.toString().trim().toIntOrNull() ?: 99
+        if (!canPublish() || mutationPending) return
+        val original = currentConfig
+        if (original == null) {
+            AppBulletin.showError(this, "Load current premium settings before saving.")
+            return
+        }
+        val planName = binding.etPlanName.text?.toString()?.trim().orEmpty()
+        val priceInr = binding.etPriceInr.text?.toString()?.trim()?.toIntOrNull()
         val isLifetime = binding.switchLifetime.isChecked
-        val durationDays = binding.etDurationDays.text.toString().trim().toIntOrNull() ?: 30
-        val description = binding.etDescription.text.toString().trim()
-        val benefits = binding.etBenefits.text.toString()
-            .lines()
-            .map { it.trim() }
-            .filter { it.isNotEmpty() }
-        val isEnabled = binding.switchEnablePremium.isChecked
-        val qrEnabled = binding.switchQrEnabled.isChecked
-        val upiEnabled = binding.switchUpiEnabled.isChecked
-        val sessionExpiry = binding.etSessionExpiry.text.toString().trim().toIntOrNull() ?: 10
-        val merchantVpa = binding.etMerchantVpa.text.toString().trim().ifBlank { "evemocktest@upi" }
-
-        val updated = (currentConfig ?: AdminPremiumConfigDto()).copy(
-            isEnabled = isEnabled,
+        val durationDays = if (isLifetime) original.durationDays
+            else binding.etDurationDays.text?.toString()?.trim()?.toIntOrNull()
+        val expiry = binding.etSessionExpiry.text?.toString()?.trim()?.toIntOrNull()
+        val merchantVpa = binding.etMerchantVpa.text?.toString()?.trim().orEmpty()
+        val description = binding.etDescription.text?.toString()?.trim().orEmpty()
+        // Worker replaces empty description with its default: reject rather than report
+        // a mismatch after the mutation has already been committed.
+        if (planName.isBlank() || planName.length > 100 || description.isBlank() ||
+            priceInr == null || priceInr !in 1..1000000 ||
+            durationDays == null || durationDays !in 1..3650 ||
+            expiry == null || expiry !in 1..1440 || merchantVpa.isBlank()) {
+            AppBulletin.showError(this, "Enter valid premium plan, price, duration, payment details and session expiry.")
+            return
+        }
+        val updated = original.copy(
+            isEnabled = binding.switchEnablePremium.isChecked,
             planName = planName,
             priceInr = priceInr,
             isLifetime = isLifetime,
             durationDays = durationDays,
             description = description,
-            benefits = benefits,
-            qrEnabled = qrEnabled,
-            upiEnabled = upiEnabled,
-            sessionExpiryMinutes = sessionExpiry,
+            benefits = binding.etBenefits.text?.toString().orEmpty().lines().map { it.trim() }.filter { it.isNotEmpty() },
+            qrEnabled = binding.switchQrEnabled.isChecked,
+            upiEnabled = binding.switchUpiEnabled.isChecked,
+            sessionExpiryMinutes = expiry,
             merchantVpa = merchantVpa
         )
-
-        binding.progressAdmin.visibility = View.VISIBLE
-        lifecycleScope.launch {
-            try {
-                val res = ApiClient.api.updateAdminPremiumConfig(updated)
-                binding.progressAdmin.visibility = View.GONE
-                if (res.success) {
-                    AppBulletin.showSuccess(this@ManagePremiumActivity, "Settings saved successfully!")
-                    currentConfig = updated
-                } else {
-                    AppBulletin.showError(this@ManagePremiumActivity, res.error ?: "Save failed")
-                }
-            } catch (e: Exception) {
-                binding.progressAdmin.visibility = View.GONE
-                AppBulletin.showError(this@ManagePremiumActivity, "Error saving: ${e.message}")
+        if (!AdminPremiumResponseContracts.configValid(updated)) {
+            AppBulletin.showError(this, "Premium settings are invalid.")
+            return
+        }
+        mutatePremium("Premium settings confirmed by the server.") {
+            val response = ApiClient.api.updateAdminPremiumConfig(updated)
+            if (!response.success) {
+                throw IllegalStateException(response.error ?: "Premium update was rejected")
             }
+            // Older Worker versions acknowledge config PUT without a payload.
+            // Read the authoritative config back; never publish optimistic success.
+            val readback = ApiClient.api.getAdminPremiumConfig()
+            if (!readback.success || !AdminPremiumResponseContracts.configMatches(updated, readback.data)) {
+                throw IllegalStateException("Premium config was not confirmed. Reload before retrying.")
+            }
+            if (!canPublish()) throw CancellationException("Admin account changed")
+            currentConfig = readback.data
         }
     }
 
     private fun loadTransactions() {
+        if (!ownerCurrent()) return
+        val request = ++transactionsGeneration
         lifecycleScope.launch {
             try {
-                val res = ApiClient.api.getAdminTransactions()
-                if (res.success && res.data != null) {
-                    val list = res.data
-                    transactionAdapter.submitList(list)
-                    binding.tvEmptyTransactions.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
+                val response = ApiClient.api.getAdminTransactions()
+                if (request != transactionsGeneration || !canPublish()) return@launch
+                val items = response.data
+                if (!response.success || items == null) {
+                    throw IllegalStateException(response.error ?: "Transactions unavailable")
                 }
-            } catch (_: Exception) {}
+                transactionAdapter.submitList(items)
+                binding.tvEmptyTransactions.visibility = if (items.isEmpty()) View.VISIBLE else View.GONE
+            } catch (cancel: CancellationException) {
+                throw cancel
+            } catch (error: Exception) {
+                if (request == transactionsGeneration && canPublish()) {
+                    AppBulletin.showError(this@ManagePremiumActivity, "Transactions: ${error.toUserFriendlyMessage()}")
+                }
+            }
         }
     }
 
     private fun loadUsers() {
+        if (!ownerCurrent()) return
+        val request = ++usersGeneration
         lifecycleScope.launch {
             try {
-                val res = ApiClient.api.getAdminPremiumUsers()
-                if (res.success && res.data != null) {
-                    val list = res.data
-                    userAdapter.submitList(list)
-                    binding.tvEmptyUsers.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
+                val response = ApiClient.api.getAdminPremiumUsers()
+                if (request != usersGeneration || !canPublish()) return@launch
+                val items = response.data
+                if (!response.success || items == null) {
+                    throw IllegalStateException(response.error ?: "Premium users unavailable")
                 }
-            } catch (_: Exception) {}
+                userAdapter.submitList(items)
+                binding.tvEmptyUsers.visibility = if (items.isEmpty()) View.VISIBLE else View.GONE
+            } catch (cancel: CancellationException) {
+                throw cancel
+            } catch (error: Exception) {
+                if (request == usersGeneration && canPublish()) {
+                    AppBulletin.showError(this@ManagePremiumActivity, "Premium users: ${error.toUserFriendlyMessage()}")
+                }
+            }
         }
     }
 
     private fun showManualGrantDialog() {
-        if (isFinishing || isDestroyed) return
+        if (!canPublish() || mutationPending) return
         val dialogView = LayoutInflater.from(this).inflate(com.eve.app.R.layout.dialog_manual_grant_premium, null)
         val etUser = dialogView.findViewById<EditText>(com.eve.app.R.id.etGrantUser)
         val etDays = dialogView.findViewById<EditText>(com.eve.app.R.id.etGrantDays)
@@ -236,31 +350,29 @@ class ManagePremiumActivity : EveBaseActivity() {
         switchLifetime.setOnCheckedChangeListener { _, isChecked ->
             etDays.visibility = if (isChecked) View.GONE else View.VISIBLE
         }
-
         TelegramNativeAlertDialog.Builder(this)
             .setTitle("Grant Premium Manually")
             .setView(dialogView)
             .setPositiveButton("Grant") { _, _ ->
-                val target = etUser.text.toString().trim()
+                if (!canPublish() || mutationPending) return@setPositiveButton
+                val target = etUser.text?.toString()?.trim().orEmpty()
                 val isLife = switchLifetime.isChecked
-                val days = etDays.text.toString().trim().toIntOrNull() ?: 30
-
-                if (target.isBlank()) {
-                    AppBulletin.showError(this, "User ID or Email is required")
+                val days = if (isLife) 30 else etDays.text?.toString()?.trim()?.toIntOrNull()
+                if (target.isBlank() || days == null || days !in 1..3650) {
+                    AppBulletin.showError(this, "Provide a valid user and duration (1 to 3650 days).")
                     return@setPositiveButton
                 }
-
                 if (isLife) {
                     TelegramNativeAlertDialog.Builder(this@ManagePremiumActivity)
                         .setTitle("Confirm Lifetime Grant")
                         .setMessage("Grant permanent Lifetime Premium to '$target'? This entitlement will never expire.")
                         .setPositiveButton("Grant Lifetime") { _, _ ->
-                            executeManualGrant(target, durationDays = 30, isLifetime = true, confirmLifetime = true)
+                            if (canPublish() && !mutationPending) executeManualGrant(target, 30, true, true)
                         }
                         .setNegativeButton("Cancel", null)
                         .show()
                 } else {
-                    executeManualGrant(target, durationDays = days, isLifetime = false, confirmLifetime = false)
+                    executeManualGrant(target, days, false, false)
                 }
             }
             .setNegativeButton("Cancel", null)
@@ -268,62 +380,45 @@ class ManagePremiumActivity : EveBaseActivity() {
     }
 
     private fun executeManualGrant(target: String, durationDays: Int, isLifetime: Boolean, confirmLifetime: Boolean) {
-        lifecycleScope.launch {
-            try {
-                val res = ApiClient.api.grantPremium(
-                    AdminGrantRequest(
-                        userIdOrEmail = target,
-                        durationDays = durationDays,
-                        isLifetime = isLifetime,
-                        planName = "Admin Manual Access",
-                        confirmLifetime = confirmLifetime
-                    )
+        if (!canPublish() || mutationPending || target.isBlank() || durationDays !in 1..3650 ||
+            (isLifetime && !confirmLifetime)) return
+        mutatePremium("Premium granted to $target") {
+            val response = ApiClient.api.grantPremium(
+                AdminGrantRequest(
+                    userIdOrEmail = target,
+                    durationDays = durationDays,
+                    isLifetime = isLifetime,
+                    planName = "Admin Manual Access",
+                    confirmLifetime = confirmLifetime
                 )
-                if (res.success) {
-                    AppBulletin.showSuccess(this@ManagePremiumActivity, "Premium granted to $target")
-                    loadUsers()
-                } else {
-                    AppBulletin.showError(this@ManagePremiumActivity, res.error ?: "Grant failed")
-                }
-            } catch (e: Exception) {
-                AppBulletin.showError(this@ManagePremiumActivity, "Error: ${e.toUserFriendlyMessage()}")
+            )
+            if (!AdminPremiumResponseContracts.granted(response, isLifetime)) {
+                throw IllegalStateException(response.error ?: "Premium grant was not acknowledged")
             }
         }
     }
 
     private fun extendUserPremium(user: AdminPremiumUserDto) {
-        lifecycleScope.launch {
-            try {
-                val res = ApiClient.api.extendPremium(AdminExtendRequest(user.userId, 30))
-                if (res.success) {
-                    AppBulletin.showSuccess(this@ManagePremiumActivity, "Extended by 30 days")
-                    loadUsers()
-                } else {
-                    AppBulletin.showError(this@ManagePremiumActivity, res.error ?: "Extension failed")
-                }
-            } catch (e: Exception) {
-                AppBulletin.showError(this@ManagePremiumActivity, "Error: ${e.toUserFriendlyMessage()}")
+        if (!canPublish() || mutationPending || user.userId.isBlank()) return
+        mutatePremium("Premium extended by 30 days") {
+            val response = ApiClient.api.extendPremium(AdminExtendRequest(user.userId, 30))
+            if (!AdminPremiumResponseContracts.extended(response, user.userId)) {
+                throw IllegalStateException(response.error ?: "Premium extension was not acknowledged")
             }
         }
     }
 
     private fun confirmRevokeUserPremium(user: AdminPremiumUserDto) {
-        if (isFinishing || isDestroyed) return
+        if (!canPublish() || mutationPending || user.userId.isBlank()) return
         TelegramNativeAlertDialog.Builder(this)
             .setTitle("Revoke Premium?")
             .setMessage("Are you sure you want to revoke Premium access for ${user.email.ifBlank { user.userId }}? They will revert to the standard 3-attempt restriction.")
             .setPositiveButton("Revoke") { _, _ ->
-                lifecycleScope.launch {
-                    try {
-                        val res = ApiClient.api.revokePremium(AdminRevokeRequest(user.userId))
-                        if (res.success) {
-                            AppBulletin.showSuccess(this@ManagePremiumActivity, "Premium revoked")
-                            loadUsers()
-                        } else {
-                            AppBulletin.showError(this@ManagePremiumActivity, res.error ?: "Revocation failed")
-                        }
-                    } catch (e: Exception) {
-                        AppBulletin.showError(this@ManagePremiumActivity, "Error: ${e.toUserFriendlyMessage()}")
+                if (!canPublish() || mutationPending) return@setPositiveButton
+                mutatePremium("Premium revoked") {
+                    val response = ApiClient.api.revokePremium(AdminRevokeRequest(user.userId))
+                    if (!AdminPremiumResponseContracts.revoked(response, user.userId)) {
+                        throw IllegalStateException(response.error ?: "Premium revocation was not acknowledged")
                     }
                 }
             }
