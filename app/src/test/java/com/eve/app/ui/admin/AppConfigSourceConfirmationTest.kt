@@ -13,7 +13,8 @@ class AppConfigSourceConfirmationTest {
             .substringBefore("private fun saveConfig(config: AppConfig)")
         assertTrue("Only a deliberate off-to-on save needs enable confirmation",
             block.contains("if (maintenanceMode && confirmedConfig?.maintenance_mode != true)"))
-        assertTrue(block.contains("if (configBusy) return"))
+        assertTrue("Save must reject stale account and overlapping writes",
+            block.contains("if (!canPublish() || configBusy || healthBusy) return"))
         assertTrue(block.contains("if (confirmedConfig == null) { loadConfig(); return }"))
         assertTrue("Every dismissal restores the confirmed server switch state",
             block.contains("binding.switchMaintenanceMode.setCheckedSilently(confirmedConfig?.maintenance_mode ?: false)"))
@@ -29,6 +30,21 @@ class AppConfigSourceConfirmationTest {
         assertTrue(block.contains("if (maintenanceConfirmationDialog === dialog) maintenanceConfirmationDialog = null"))
         assertTrue("Disabling maintenance must still save immediately",
             block.contains("} else {") && block.contains("saveConfig(configToSave)"))
+    }
+
+    @Test fun accountAndRightBoundariesProtectEverySuspendedConfigAction() {
+        assertTrue(source.contains("AdminIdentityGuard.allowed(true, configOwnerUid, configOwnerEmail"))
+        assertTrue(source.contains("requireFreshRight(\"manage_config_maintenance\")"))
+        assertTrue(source.contains("requireFreshRight(\"manage_questions\")"))
+        assertTrue("AI endpoint requires a distinct role; never use config role for AI health",
+            source.contains("AdminPermissionSnapshot.allows(permission, configOwnerEmail, \"manage_questions\")"))
+        assertTrue(source.contains("val request = ++configReadGeneration"))
+        assertTrue(source.contains("request != configReadGeneration || !canPublish()"))
+        assertTrue(source.contains("override fun onStop()"))
+        assertTrue(source.contains("reloadAfterStop = true"))
+        assertTrue(source.contains("if (!canPublish()) return@launch"))
+        assertTrue(source.contains("if (!res.success || res.data == null)"))
+        assertTrue(source.contains("if (!canPublish() || healthBusy || configBusy) return"))
     }
 
     @Test fun adminAuthorizationAndOwnerWindowCleanupArePreserved() {

@@ -15,6 +15,11 @@ import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.AuditLogRepository
 import com.eve.app.databinding.ActivityAppConfigBinding
 import com.eve.app.util.AppBulletin
+import com.eve.app.util.AdminPermissionSnapshot
+import com.eve.app.util.AdminIdentityGuard
+import com.google.firebase.auth.FirebaseAuth
+import androidx.lifecycle.Lifecycle
+import kotlinx.coroutines.CancellationException
 import com.eve.app.designsystem.TelegramNativeAlertDialog
 import kotlinx.coroutines.launch
 
@@ -26,13 +31,64 @@ class AppConfigActivity : EveBaseActivity() {
     private var confirmedConfig: AppConfig? = null
     private var configBusy = false
     private var maintenanceConfirmationDialog: TelegramNativeAlertDialog? = null
+    private var configOwnerUid = ""
+    private var configOwnerEmail = ""
+    private var adminAuthorized = false
+    private var configReadGeneration = 0L
+    private var reloadAfterStop = false
+    private var healthBusy = false
+
+    private fun ownerCurrent(): Boolean {
+        val active = FirebaseAuth.getInstance().currentUser
+        return adminAuthorized && !isFinishing && !isDestroyed &&
+            AdminIdentityGuard.allowed(true, configOwnerUid, configOwnerEmail, active?.uid, active?.email)
+    }
+
+    private fun canPublish(): Boolean =
+        ownerCurrent() && lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+
+    private suspend fun requireFreshRight(right: String) {
+        if (!canPublish()) throw CancellationException("Admin account changed")
+        val granted = AdminPermissionSnapshot.load(
+            configOwnerEmail, right,
+            membership = { adminRepo.isAdminFresh(configOwnerUid, configOwnerEmail) },
+            permissions = { adminRepo.getAdminMe() }
+        )
+        if (!canPublish()) throw CancellationException("Admin account changed")
+        if (granted == null) throw SecurityException("Admin permission is no longer available")
+    }
+
+    override fun onStop() {
+        ++configReadGeneration
+        reloadAfterStop = true
+        super.onStop()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (adminAuthorized && !ownerCurrent()) {
+            finish()
+            return
+        }
+        if (adminAuthorized && reloadAfterStop && !configBusy) {
+            reloadAfterStop = false
+            loadConfig()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAppConfigBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_config_maintenance") {
+        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_config_maintenance") { permission ->
+        val principal = FirebaseAuth.getInstance().currentUser ?: return@requireAdmin
+        configOwnerUid = principal.uid
+        configOwnerEmail = principal.email.orEmpty()
+        adminAuthorized = true
+        if (!ownerCurrent()) return@requireAdmin
+        binding.btnTestAiHealth.isEnabled =
+            AdminPermissionSnapshot.allows(permission, configOwnerEmail, "manage_questions")
 
         binding.btnBack.setOnClickListener { finish() }
 
@@ -52,15 +108,16 @@ class AppConfigActivity : EveBaseActivity() {
     }
 
     private fun loadConfig() {
-        if (configBusy) return
+        if (configBusy || !ownerCurrent()) return
+        val request = ++configReadGeneration
         configBusy = true
         binding.btnSaveConfig.isEnabled = false
         binding.progressBar.visibility = View.VISIBLE
         lifecycleScope.launch {
             try {
                 val config = adminRepo.getAppConfig()
+                if (request != configReadGeneration || !canPublish()) return@launch
                 confirmedConfig = config
-                binding.progressBar.visibility = View.GONE
                 binding.switchMaintenanceMode.isChecked = config.maintenance_mode
                 binding.etMaintenanceMessage.setText(config.maintenance_message)
                 binding.etMinVersionCode.setText(config.minimum_supported_version_code.toString())
@@ -69,20 +126,30 @@ class AppConfigActivity : EveBaseActivity() {
                 } else {
                     binding.rbPublishPaused.isChecked = true
                 }
-            } catch (cancel: kotlinx.coroutines.CancellationException) {
+            } catch (cancel: CancellationException) {
                 throw cancel
             } catch (e: Exception) {
-                binding.progressBar.visibility = View.GONE
-                AppBulletin.showError(this@AppConfigActivity, "Failed to load config: ${e.toUserFriendlyMessage()}. Tap Save to retry loading.")
+                if (request == configReadGeneration && canPublish()) {
+                    confirmedConfig = null
+                    AppBulletin.showError(this@AppConfigActivity,
+                        "Failed to load config: ${e.toUserFriendlyMessage()}. Tap Save to retry loading.")
+                }
             } finally {
                 configBusy = false
-                binding.btnSaveConfig.isEnabled = true
+                if (canPublish()) {
+                    binding.progressBar.visibility = View.GONE
+                    binding.btnSaveConfig.isEnabled = true
+                    if (reloadAfterStop) {
+                        reloadAfterStop = false
+                        loadConfig()
+                    }
+                }
             }
         }
     }
 
     private fun validateAndSaveConfig() {
-        if (configBusy) return
+        if (!canPublish() || configBusy || healthBusy) return
         if (confirmedConfig == null) { loadConfig(); return }
         val maintenanceMode = binding.switchMaintenanceMode.isChecked
         val message = binding.etMaintenanceMessage.text?.toString()?.trim().orEmpty()
@@ -124,14 +191,18 @@ class AppConfigActivity : EveBaseActivity() {
     }
 
     private fun saveConfig(config: AppConfig) {
-        if (configBusy) return
+        if (configBusy || healthBusy || !canPublish()) return
         configBusy = true
         binding.btnSaveConfig.isEnabled = false
         binding.progressBar.visibility = View.VISIBLE
         lifecycleScope.launch {
             try {
+                // The editor authorization must still be fresh at mutation time.
+                // Existing Worker authorization and server readback remain authoritative.
+                requireFreshRight("manage_config_maintenance")
+                if (!canPublish()) return@launch
                 val success = adminRepo.updateAppConfig(config, confirmedConfig ?: throw IllegalStateException("Reload configuration"))
-                binding.progressBar.visibility = View.GONE
+                if (!canPublish()) return@launch
                 if (success) {
                     confirmedConfig = config
                     binding.switchMaintenanceMode.setCheckedSilently(config.maintenance_mode)
@@ -139,27 +210,44 @@ class AppConfigActivity : EveBaseActivity() {
                 } else {
                     AppBulletin.showError(this@AppConfigActivity, "Failed to save configuration")
                 }
-            } catch (cancel: kotlinx.coroutines.CancellationException) {
+            } catch (cancel: CancellationException) {
                 throw cancel
             } catch (e: Exception) {
-                binding.progressBar.visibility = View.GONE
-                AppBulletin.showError(this@AppConfigActivity, "Save unconfirmed: ${e.toUserFriendlyMessage()}. Reload before retry.")
-                confirmedConfig = null
+                if (canPublish()) {
+                    AppBulletin.showError(this@AppConfigActivity,
+                        "Save unconfirmed: ${e.toUserFriendlyMessage()}. Reload before retry.")
+                    confirmedConfig = null
+                }
             } finally {
                 configBusy = false
-                binding.btnSaveConfig.isEnabled = true
+                if (canPublish()) {
+                    binding.progressBar.visibility = View.GONE
+                    binding.btnSaveConfig.isEnabled = true
+                    if (reloadAfterStop) {
+                        reloadAfterStop = false
+                        loadConfig()
+                    }
+                }
             }
         }
     }
 
     private fun testAiHealth() {
+        if (!canPublish() || healthBusy || configBusy) return
+        healthBusy = true
+        binding.btnSaveConfig.isEnabled = false
         binding.progressBar.visibility = View.VISIBLE
         binding.btnTestAiHealth.isEnabled = false
         lifecycleScope.launch {
             try {
+                // The Worker AI health endpoint requires manage_questions, not the
+                // manage_config_maintenance right used to enter this screen.
+                requireFreshRight("manage_questions")
+                if (!canPublish()) return@launch
                 val res = ApiClient.apiService.checkAiHealth()
+                if (!canPublish()) return@launch
                 binding.progressBar.visibility = View.GONE
-                if (!res.success) {
+                if (!res.success || res.data == null) {
                     val errMsg = res.error ?: "Failed to perform AI health check"
                     TelegramNativeAlertDialog.Builder(this@AppConfigActivity)
                         .setTitle("AI Health Check Failed")
@@ -200,6 +288,7 @@ class AppConfigActivity : EveBaseActivity() {
             } catch (cancel: kotlinx.coroutines.CancellationException) {
                 throw cancel
             } catch (e: Exception) {
+                if (!canPublish()) return@launch
                 binding.progressBar.visibility = View.GONE
                 val errMsg = e.toUserFriendlyMessage()
                 TelegramNativeAlertDialog.Builder(this@AppConfigActivity)
@@ -208,8 +297,12 @@ class AppConfigActivity : EveBaseActivity() {
                     .setPositiveButton("OK", null)
                     .show()
             } finally {
-                binding.progressBar.visibility = View.GONE
-                binding.btnTestAiHealth.isEnabled = true
+                healthBusy = false
+                if (canPublish()) {
+                    binding.progressBar.visibility = View.GONE
+                    binding.btnSaveConfig.isEnabled = true
+                    binding.btnTestAiHealth.isEnabled = true
+                }
             }
         }
     }
