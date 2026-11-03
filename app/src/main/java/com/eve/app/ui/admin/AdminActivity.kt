@@ -53,6 +53,15 @@ import com.eve.app.util.HomeBannerLinkValidator
 import com.eve.app.util.QuestionImportHelper
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import com.eve.app.util.AdminIdentityGuard
+import com.eve.app.util.AdminPermissionSnapshot
+import com.eve.app.data.remote.ApiResponse
+import com.eve.app.data.remote.ExportExamsResponseDto
+import java.io.IOException
+import java.security.MessageDigest
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -79,6 +88,9 @@ class AdminActivity : EveBaseActivity() {
     private var adminRightsRefreshOnResume = false
     private var dashboardPager: AdminDashboardPager? = null
     private var maintenanceDialog: TelegramNativeAlertDialog? = null
+    private var exportJob: Job? = null
+    private var exportProgress: TelegramNativeAlertDialog? = null
+    private var exportGeneration = 0L
 
     private val pickBannerImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri != null) {
@@ -592,6 +604,11 @@ class AdminActivity : EveBaseActivity() {
     override fun onStop() {
         // Covers a first-time gate that completes after the Activity is stopped.
         adminRightsRefreshOnResume = true
+        ++exportGeneration
+        exportJob?.cancel()
+        exportJob = null
+        exportProgress?.dismiss()
+        exportProgress = null
         super.onStop()
     }
 
@@ -615,6 +632,11 @@ class AdminActivity : EveBaseActivity() {
     }
 
     override fun onDestroy() {
+        ++exportGeneration
+        exportJob?.cancel()
+        exportJob = null
+        exportProgress?.dismiss()
+        exportProgress = null
         maintenanceDialog?.dismiss()
         maintenanceDialog = null
         super.onDestroy()
@@ -1234,70 +1256,164 @@ class AdminActivity : EveBaseActivity() {
     }
 
     private fun exportExamData() {
-        val progressDialog = TelegramNativeAlertDialog.Builder(this)
+        if (!adminUiReady || isFinishing || isDestroyed || exportJob?.isActive == true) return
+        val user = FirebaseAuth.getInstance().currentUser ?: return
+        val uid = user.uid
+        val email = user.email.orEmpty()
+        fun isOwner(): Boolean {
+            val live = FirebaseAuth.getInstance().currentUser
+            return adminUiReady && !isFinishing && !isDestroyed &&
+                lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED) &&
+                AdminIdentityGuard.allowed(true, uid, email, live?.uid, live?.email)
+        }
+        if (!isOwner()) return
+        val dialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Exporting Exam Data")
             .setMessage("Fetching all exams and questions from server... Please wait.")
-            .setCancelable(false)
-            .create()
-        progressDialog.show()
+            .setCancelable(false).create()
+        val generation = ++exportGeneration
+        exportProgress = dialog
+        dialog.show()
 
-        lifecycleScope.launch {
+        exportJob = lifecycleScope.launch {
             try {
-                val exportList = mutableListOf<Map<String, Any?>>()
-                var offset = 0
-                val limit = 50
-                var hasMore = true
-                var totalServerExams = 0
-                var totalServerQuestions = 0
+                val allowed = AdminPermissionSnapshot.load(
+                    email, "export_data",
+                    membership = { adminRepo.isAdminFresh(uid, email) },
+                    permissions = { adminRepo.getAdminMe() }
+                )
+                if (!isOwner()) throw CancellationException("Export account changed")
+                if (allowed == null) throw SecurityException("Export permission is no longer available")
 
-                while (hasMore) {
-                    val response = com.eve.app.data.remote.ApiClient.apiService.exportExams(limit, offset)
-                    if (!response.success || response.data == null) {
-                        throw Exception(response.error ?: "Failed to fetch exam export data from server")
+                val data = collectVerifiedAdminExamExport({ isOwner() }) { offset, limit ->
+                    ApiClient.apiService.exportExams(limit, offset)
+                }
+                val output = withContext(Dispatchers.IO) {
+                    if (!isOwner()) throw CancellationException("Export account changed")
+                    val digest = MessageDigest.getInstance("SHA-256").digest(uid.toByteArray(Charsets.UTF_8))
+                    val ownerSuffix = digest.take(12).joinToString("") { "%02x".format(it) }
+                    val folder = File(cacheDir, "admin_exports/" + ownerSuffix)
+                    if (!folder.exists() && !folder.mkdirs()) throw IOException("Cannot create export directory")
+                    val date = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
+                    val name = "eve_backup_" + date + ".json"
+                    val file = File(folder, name)
+                    val temp = File(folder, name + ".tmp")
+                    try {
+                        temp.writeText(com.google.gson.GsonBuilder().setPrettyPrinting()
+                            .create().toJson(data.exams))
+                        if (!isOwner()) throw CancellationException("Export account changed")
+                        if (file.exists() && !file.delete()) throw IOException("Cannot replace backup")
+                        if (!temp.renameTo(file)) throw IOException("Cannot finish backup")
+                    } finally {
+                        temp.delete()
                     }
-                    val data = response.data
-                    exportList.addAll(data.exams)
-                    totalServerExams = data.pagination.totalExams
-                    totalServerQuestions = data.pagination.totalQuestions
-                    hasMore = data.pagination.hasMore && data.exams.isNotEmpty()
-                    offset += limit
+                    file
                 }
-
-                val dateStr = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
-                val fileName = "eve_backup_$dateStr.json"
-                val tempFileName = "$fileName.tmp"
-                val jsonString = com.google.gson.GsonBuilder().setPrettyPrinting().create().toJson(exportList)
-
-                val cacheFile = File(cacheDir, fileName)
-                val tempCacheFile = File(cacheDir, tempFileName)
-                tempCacheFile.writeText(jsonString)
-                if (cacheFile.exists()) cacheFile.delete()
-                if (!tempCacheFile.renameTo(cacheFile)) {
-                    cacheFile.writeText(jsonString)
-                    tempCacheFile.delete()
+                if (!isOwner()) {
+                    output.delete()
+                    throw CancellationException("Export account changed")
                 }
-
-                progressDialog.dismiss()
-
-                val contentUri = FileProvider.getUriForFile(this@AdminActivity, "${packageName}.fileprovider", cacheFile)
+                val uri = FileProvider.getUriForFile(this@AdminActivity, packageName + ".fileprovider", output)
+                if (!isOwner()) throw CancellationException("Export account changed")
+                dialog.dismiss()
                 TelegramNativeAlertDialog.Builder(this@AdminActivity)
                     .setTitle("Export Complete")
-                    .setMessage("Successfully exported $totalServerExams exams ($totalServerQuestions questions). Share or save the file:")
+                    .setMessage("Successfully exported " + data.totalExams +
+                        " exams (" + data.totalQuestions + " questions). Share or save the file:")
                     .setPositiveButton("Share JSON") { _, _ ->
-                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                            type = "application/json"
-                            putExtra(Intent.EXTRA_STREAM, contentUri)
-                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        if (!isOwner()) return@setPositiveButton
+                        lifecycleScope.launch {
+                            try {
+                                val fresh = AdminPermissionSnapshot.load(
+                                    email, "export_data",
+                                    membership = { adminRepo.isAdminFresh(uid, email) },
+                                    permissions = { adminRepo.getAdminMe() }
+                                )
+                                if (!isOwner()) return@launch
+                                if (fresh == null) {
+                                    AppBulletin.showError(this@AdminActivity, "Export access is no longer available")
+                                    return@launch
+                                }
+                                val share = Intent(Intent.ACTION_SEND).apply {
+                                    type = "application/json"
+                                    putExtra(Intent.EXTRA_STREAM, uri)
+                                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                }
+                                startActivity(Intent.createChooser(share, "Share Exam Backup"))
+                            } catch (cancel: CancellationException) {
+                                throw cancel
+                            } catch (_: Exception) {
+                                if (isOwner()) AppBulletin.showError(this@AdminActivity, "Cannot verify export permission")
+                            }
                         }
-                        startActivity(Intent.createChooser(shareIntent, "Share Exam Backup"))
                     }
                     .setNegativeButton("Done", null)
                     .show()
-
+            } catch (cancel: CancellationException) {
+                throw cancel
             } catch (e: Exception) {
-                progressDialog.dismiss()
-                AppBulletin.showError(this@AdminActivity, "Export failed: ${e.message}")
+                if (isOwner()) AppBulletin.showError(this@AdminActivity, "Export failed: " + e.message)
+            } finally {
+                dialog.dismiss()
+                if (generation == exportGeneration) {
+                    if (exportProgress === dialog) exportProgress = null
+                    exportJob = null
+                }
             }
         }
     }
+}
+
+/** The canonical Admin Hub exporter validates its own page sequence; Worker owns authorization. */
+internal data class VerifiedAdminExamExport(
+    val exams: List<Map<String, Any?>>,
+    val totalExams: Int,
+    val totalQuestions: Int
+)
+
+internal suspend fun collectVerifiedAdminExamExport(
+    ownerCurrent: () -> Boolean,
+    fetchPage: suspend (offset: Int, limit: Int) -> ApiResponse<ExportExamsResponseDto>
+): VerifiedAdminExamExport {
+    val rows = mutableListOf<Map<String, Any?>>()
+    val ids = mutableSetOf<String>()
+    var total = -1
+    var questions = -1
+    var offset = 0
+    val limit = 50
+    while (true) {
+        if (!ownerCurrent()) throw CancellationException("Export account changed")
+        val response = fetchPage(offset, limit)
+        if (!ownerCurrent()) throw CancellationException("Export account changed")
+        val data = response.data
+        if (!response.success || data == null) throw IOException(response.error ?: "Export not confirmed")
+        val p: com.eve.app.data.remote.ExportPaginationDto? = data.pagination
+        val page: List<Map<String, Any?>?>? = data.exams
+        if (p == null || page == null || page.size > limit ||
+            p.offset != offset || p.limit != limit || p.totalExams < 0 ||
+            p.totalQuestions < 0 || page.any { it == null }) {
+            throw IOException("Malformed export pagination")
+        }
+        if (total < 0) {
+            total = p.totalExams
+            questions = p.totalQuestions
+        } else if (total != p.totalExams || questions != p.totalQuestions) {
+            throw IOException("Export data changed during paging")
+        }
+        for (item in page) {
+            val exam = item ?: throw IOException("Malformed exam export row")
+            val id = exam["id"] as? String
+            if (id.isNullOrBlank() || !ids.add(id)) throw IOException("Duplicate or missing exam ID")
+            rows.add(exam)
+        }
+        if (rows.size > total || (p.hasMore && page.isEmpty())) {
+            throw IOException("Incomplete export page")
+        }
+        if (!p.hasMore) break
+        if (offset > Int.MAX_VALUE - limit) throw IOException("Export offset overflow")
+        offset += limit
+    }
+    if (rows.size != total) throw IOException("Incomplete export")
+    if (!ownerCurrent()) throw CancellationException("Export account changed")
+    return VerifiedAdminExamExport(rows, total, questions)
 }

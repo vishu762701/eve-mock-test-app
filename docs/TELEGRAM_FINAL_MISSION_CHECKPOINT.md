@@ -4,6 +4,36 @@
 
 Status: PARTIAL. This is a continuation record, not screen acceptance.
 
+## Live mission continuation: 2026-11-03 (implementation evidence, not final signoff)
+
+Recovery began at the audited main 23f4f9788eedff5e8d3895a21a2a3edbf46d97be.
+The original Bookmarks server-confirmed read/remove and ownership-registry
+implementations were preserved, not reintroduced. The source ZIP
+Telegrammaster.zip SHA-256 is
+4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10,
+with 14,794 safe-path entries and ZIP integrity PASS. Five representative
+Git blob hashes match official DrKLO/Telegram
+3de37c8cfb039452be7398909461da6288babf15, not a license or
+whole-archive revision attestation. No Telegram files were transplanted in
+these EVE-only functional repairs.
+
+| Scoped requirement | Canonical implementation and callers | Implementation / acceptance | Exact-SHA evidence | Next action | Successful commits consumed in this continuation |
+| --- | --- | --- | --- | --- | --- |
+| Student PYQ current exam/request | PyqViewModel.kt / PyqActivity.kt → ExamRepository | IMPLEMENTED / DEVICE NOT YET ACCEPTED | e8f49234dd379d1c9f23f2b9323838e682558f1a; FAST 41612644017 SUCCESS | Device selection/recreation/account matrix | 1 |
+| Standalone question import ownership | ManageQuestionsActivity.kt → QuestionImportHelper / AdminPermissionSnapshot / ExamRepository | IMPLEMENTED / DEVICE NOT YET ACCEPTED | 6e6ff042a9e76b948ad9a53e74b64a0d1d554a6b; FAST 41614129880 SUCCESS | Provider/rotation/auth-mutation hardware matrix | 1 |
+| Exam image decoding and current account | ExamImageHelper.kt / ManageQuestionsActivity.kt | IMPLEMENTED / DEVICE NOT YET ACCEPTED | cf54cb57 initial test failure 41616305949; 976471a8 follow-up red due Maven 429 and malformed input; 80b2718c FAST 41618909774 SUCCESS and dependency evidence 41618909759 SUCCESS | Physical content provider / image selection matrix | 1 |
+| Admin JSON export ownership | AdminActivity.exportExamData → existing Worker /api/admin/export/exams | IMPLEMENTED IN CARRYING BATCH / NOT YET CI-ACCEPTED | Authenticated endpoint and active Hub callers inspected; real Worker/D1 production state UNKNOWN | Verify carrying commit FAST, then UI/account/partial-page device matrix | 0 before this batch |
+| Admin Home Banner success contract | AdminActivity → HomeBannerRepository | SOURCE DEFECT ESTABLISHED, NOT REPAIRED | Current caller ignores repository Result failures on upload/update/delete/reorder | Repair existing owner; verify denied/error/cancel/busy behavior without new architecture | 0 |
+| Personal QR and full Telegram screen parity | Canonical viewer/scanner/native/picker/emoji/export owners unchanged | IMPLEMENTED PORTIONS / WHOLE QR NOT ACCEPTED | Existing QR_ACTIVE_PATH_RECONCILIATION and acceptance validator strict personal-qr open | Reproduced functional defects only; preserve source composition differences and device/reference evidence | no new QR batch |
+| Final FULL and distribution | Existing six-job build.yml; release compliance gate | NOT MET / HUMAN RELEASE REVIEW BLOCKED | FAST jobs do not run navigation emulators; FULL includes Eve-debug-apk artifact upload | Obtain explicit publication boundary before FULL dispatch; no production deployment or legal signoff inferred | n/a |
+
+These source fixes have no Telegram whole-screen EXACT claim. Current tests are
+host/CI evidence, not physical CameraX/HWUI/gesture acceptance. The existing
+production ownership map is extended, not replaced. No Worker production deploy,
+D1 migration, APK publication, release signing or legal approval took place.
+Historical STAGED notes below must not be read as the current remote state.
+
+
 ## Live verified implementation pointer — 2026-11-03
 
 Latest verified implementation main: **c57dfa64693047e3e0b76530d4e930e4cd0baba1**.
