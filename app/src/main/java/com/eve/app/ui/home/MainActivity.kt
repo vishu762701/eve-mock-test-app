@@ -444,6 +444,8 @@ class MainActivity : EveBaseActivity() {
     override fun onResume() {
         super.onResume()
         if (!::binding.isInitialized) return
+        // A retained Home task must not adopt a different signed-in account.
+        if (!searchOwnerCurrent) { finish(); return }
         // Lifecycle can still report STARTED inside onResume. Run after the
         // resume dispatch so an actual incoming bell event is not dropped.
         binding.root.post {
@@ -1947,15 +1949,23 @@ class MainActivity : EveBaseActivity() {
     private var logoutPending = false
 
     private fun logout() {
+        if (!searchOwnerCurrent) { finish(); return }
         if (logoutPending) return
         logoutPending = true
         lifecycleScope.launch {
-            com.eve.app.util.ProfilePresenceClient.revokeBeforeLogout()
-            performLocalLogout()
+            try {
+                com.eve.app.util.ProfilePresenceClient.revokeBeforeLogout()
+                // A late revoke must never sign out the replacement user.
+                if (!searchOwnerCurrent) { finish(); return@launch }
+                performLocalLogout()
+            } finally {
+                if (searchOwnerCurrent) logoutPending = false
+            }
         }
     }
 
     private fun performLocalLogout() {
+        if (!searchOwnerCurrent) { finish(); return }
         SessionManager.clear()
         val uid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
         com.eve.app.data.repository.PremiumRepository.clearCacheForLogout(uid, this)

@@ -37,6 +37,9 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import com.eve.app.ui.home.TargetExamsBottomSheet
 import com.eve.app.util.StreakHelper
+import com.eve.app.util.SubmissionRetryPolicy
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 
 class SettingsActivity : EveBaseActivity() {
 
@@ -46,9 +49,28 @@ class SettingsActivity : EveBaseActivity() {
     private var deleteConfirmationDialog: TelegramNativeAlertDialog? = null
     private var deleteConfirmArmedAt: Long = 0L
     private var deleteTimeoutJob: kotlinx.coroutines.Job? = null
+    private val settingsAuth = FirebaseAuth.getInstance()
+    private var settingsOwnerUid: String? = null
+    private var logoutJob: Job? = null
+    private var accountDeletionJob: Job? = null
+    private var deletingFirebaseCredential = false
+
+    private fun hasSettingsOwner(): Boolean =
+        SubmissionRetryPolicy.ownsSubmission(settingsOwnerUid, settingsAuth.currentUser?.uid)
+
+    private val settingsAccountListener = FirebaseAuth.AuthStateListener { firebase ->
+        if (settingsOwnerUid != null && !hasSettingsOwner() &&
+            !(deletingFirebaseCredential && firebase.currentUser == null)) {
+            logoutJob?.cancel()
+            accountDeletionJob?.cancel()
+            dismissProgress()
+            finish()
+        }
+    }
 
     private val reauthLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (!hasSettingsOwner() || isFinishing || isDestroyed) { finish(); return@registerForActivityResult }
             val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             try {
                 val account = task.getResult(ApiException::class.java)
@@ -57,11 +79,14 @@ class SettingsActivity : EveBaseActivity() {
                     val credential = GoogleAuthProvider.getCredential(idToken, null)
                     FirebaseAuth.getInstance().currentUser?.reauthenticate(credential)
                         ?.addOnSuccessListener {
-                            executeAccountDeletion()
+                            if (hasSettingsOwner() && !isFinishing && !isDestroyed) executeAccountDeletion()
+                            else finish()
                         }
                         ?.addOnFailureListener { e ->
-                            dismissProgress()
-                            AppBulletin.showError(this, "Re-authentication failed: ${e.message}")
+                            if (hasSettingsOwner() && !isFinishing && !isDestroyed) {
+                                dismissProgress()
+                                AppBulletin.showError(this, "Re-authentication failed: ${e.message}")
+                            }
                         }
                 } else {
                     dismissProgress()
@@ -75,6 +100,10 @@ class SettingsActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        settingsOwnerUid = if (savedInstanceState?.containsKey("settings_owner_uid") == true) {
+            savedInstanceState.getString("settings_owner_uid")
+        } else settingsAuth.currentUser?.uid
+        if (!hasSettingsOwner()) { finish(); return }
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -96,6 +125,27 @@ class SettingsActivity : EveBaseActivity() {
         setupDeleteAccountSetting()
     }
 
+    override fun onStart() {
+        super.onStart()
+        if (!hasSettingsOwner() && !deletingFirebaseCredential) { finish(); return }
+        settingsAuth.addAuthStateListener(settingsAccountListener)
+    }
+
+    override fun onStop() {
+        settingsAuth.removeAuthStateListener(settingsAccountListener)
+        super.onStop()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!hasSettingsOwner() && !deletingFirebaseCredential) finish()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("settings_owner_uid", settingsOwnerUid)
+    }
+
     private fun setupLogoutSetting() {
         binding.rowLogout.setOnClickListener {
             if (isFinishing || isDestroyed) return@setOnClickListener
@@ -111,19 +161,26 @@ class SettingsActivity : EveBaseActivity() {
     }
 
     private fun executeLogout() {
-        if (!binding.rowLogout.isEnabled) return
+        if (!hasSettingsOwner()) { finish(); return }
+        if (!binding.rowLogout.isEnabled || logoutJob?.isActive == true) return
         binding.rowLogout.isEnabled = false
-        lifecycleScope.launch {
-            // Revoke server presence while the Firebase access token still exists.
-            // This has a bounded timeout, never an indefinite logout blocker.
-            com.eve.app.util.ProfilePresenceClient.revokeBeforeLogout()
-            performLocalLogout()
+        logoutJob = lifecycleScope.launch {
+            try {
+                if (!hasSettingsOwner()) { finish(); return@launch }
+                // Revoke only the initiating account's server presence.
+                com.eve.app.util.ProfilePresenceClient.revokeBeforeLogout()
+                if (!hasSettingsOwner()) { finish(); return@launch }
+                performLocalLogout()
+            } finally {
+                if (hasSettingsOwner() && ::binding.isInitialized) binding.rowLogout.isEnabled = true
+            }
         }
     }
 
     private fun performLocalLogout() {
+        if (!hasSettingsOwner()) { finish(); return }
         com.eve.app.util.SessionManager.clear()
-        val uid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
+        val uid = requireNotNull(settingsOwnerUid)
         com.eve.app.data.repository.PremiumRepository.clearCacheForLogout(uid, this)
         FirebaseAuth.getInstance().signOut()
         val gso = GoogleSignInOptions
@@ -300,6 +357,7 @@ class SettingsActivity : EveBaseActivity() {
         // Official Telegram AndroidUtilities.isSafeToShow():6255-6267.
         // Never stack destructive windows or show one during Activity teardown.
         if (isFinishing || isDestroyed || deleteConfirmationDialog?.isShowing == true) return
+        if (!hasSettingsOwner() || accountDeletionJob?.isActive == true) { finish(); return }
         val dialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Delete Account")
             .setMessage("Warning: Deleting your account is permanent. All your data (profile, test attempts, results, history, leaderboard entries, pinned tests and notifications) will be erased and cannot be recovered. Do you want to continue?")
@@ -367,25 +425,37 @@ class SettingsActivity : EveBaseActivity() {
     }
 
     private fun executeAccountDeletion() {
-        val user = FirebaseAuth.getInstance().currentUser ?: return
+        if (!hasSettingsOwner() || accountDeletionJob?.isActive == true) {
+            if (!hasSettingsOwner()) finish()
+            return
+        }
+        val user = settingsAuth.currentUser ?: return
+        val ownerUid = requireNotNull(settingsOwnerUid)
+        if (user.uid != ownerUid) { finish(); return }
         showProgress("Deleting account and data...")
 
-        lifecycleScope.launch {
+        accountDeletionJob = lifecycleScope.launch {
             try {
+                if (!hasSettingsOwner()) { finish(); return@launch }
                 // Complete server-side data deletion before removing the Firebase
                 // credential. A failed/negative backend response is never success.
                 val response = ApiClient.apiService.deleteAccount()
+                if (!hasSettingsOwner()) { finish(); return@launch }
                 if (!response.success) {
                     throw IllegalStateException(response.error ?: "Backend account deletion was not confirmed")
                 }
 
-                // Delete client auth user
+                // Delete only the same Firebase credential which initiated the
+                // server request, never one adopted by a later session.
+                deletingFirebaseCredential = true
                 try {
                     user.delete().await()
                 } catch (authErr: Exception) {
+                    deletingFirebaseCredential = false
                     if (authErr is FirebaseAuthRecentLoginRequiredException) {
                         dismissProgress()
-                        promptReauthentication()
+                        if (hasSettingsOwner()) promptReauthentication()
+                        else finish()
                         return@launch
                     } else {
                         throw authErr
@@ -402,10 +472,18 @@ class SettingsActivity : EveBaseActivity() {
                 // Never wipe the ownerless legacy preferences file: it also holds
                 // app-wide appearance settings and historic unowned notification
                 // entries that cannot safely be attributed to this UID.
-                com.eve.app.util.SessionManager.clear()
                 com.eve.app.data.repository.PremiumRepository.clearCacheForLogout(user.uid, this@SettingsActivity)
-
-                FirebaseAuth.getInstance().signOut()
+                // FirebaseAuth may now report null because deleting its active
+                // user signs out automatically. But a newly signed-in different
+                // UID must NEVER lose its global SessionManager or Google login.
+                val survivingUid = settingsAuth.currentUser?.uid
+                if (!SettingsDeletionBoundary.mayClearGlobalSession(ownerUid, survivingUid)) {
+                    dismissProgress()
+                    finish()
+                    return@launch
+                }
+                com.eve.app.util.SessionManager.clear()
+                settingsAuth.signOut()
                 val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
                 GoogleSignIn.getClient(this@SettingsActivity, gso).signOut()
 
@@ -417,16 +495,21 @@ class SettingsActivity : EveBaseActivity() {
                 }
                 startActivity(intent)
                 finish()
+            } catch (cancel: CancellationException) {
+                throw cancel
             } catch (e: Exception) {
                 dismissProgress()
                 // The network deletion can finish after Settings is closing.
                 // Original Telegram AndroidUtilities.isSafeToShow():6255-6267.
                 if (isFinishing || isDestroyed) return@launch
+                if (!hasSettingsOwner()) { finish(); return@launch }
                 TelegramNativeAlertDialog.Builder(this@SettingsActivity)
                     .setTitle("Account Deletion Failed")
                     .setMessage(e.localizedMessage ?: "Could not delete account. Please try again.")
                     .setPositiveButton("OK", null)
                     .show()
+            } finally {
+                deletingFirebaseCredential = false
             }
         }
     }
@@ -434,6 +517,7 @@ class SettingsActivity : EveBaseActivity() {
     private fun promptReauthentication() {
         // EVE-owned authentication prompt must not leak a destroyed Activity.
         if (isFinishing || isDestroyed || passwordReauthenticationDialog?.isShowing == true) return
+        if (!hasSettingsOwner()) { finish(); return }
         val user = FirebaseAuth.getInstance().currentUser ?: return
         if (user.providerData.any { it.providerId == EmailAuthProvider.PROVIDER_ID }) {
             val email = user.email?.takeIf { it.isNotBlank() } ?: return
@@ -473,7 +557,10 @@ class SettingsActivity : EveBaseActivity() {
                             user.reauthenticate(EmailAuthProvider.getCredential(email, password)).await()
                             field.text?.clear()
                             dialog.dismiss()
-                            executeAccountDeletion()
+                            if (hasSettingsOwner() && !isFinishing && !isDestroyed) executeAccountDeletion()
+                            else finish()
+                        } catch (cancel: CancellationException) {
+                            throw cancel
                         } catch (_: Exception) {
                             field.text?.clear()
                             field.error = "Verification failed. Check your password."
@@ -503,7 +590,8 @@ class SettingsActivity : EveBaseActivity() {
                 val client = GoogleSignIn.getClient(this, gso)
                 client.signOut().addOnCompleteListener {
                     if (!isFinishing && !isDestroyed) {
-                        reauthLauncher.launch(client.signInIntent)
+                        if (hasSettingsOwner()) reauthLauncher.launch(client.signInIntent)
+                        else finish()
                     }
                 }
             }
@@ -512,6 +600,8 @@ class SettingsActivity : EveBaseActivity() {
     }
 
     override fun onDestroy() {
+        logoutJob?.cancel()
+        accountDeletionJob?.cancel()
         deleteTimeoutJob?.cancel()
         deleteConfirmationDialog?.dismiss()
         deleteConfirmationDialog = null

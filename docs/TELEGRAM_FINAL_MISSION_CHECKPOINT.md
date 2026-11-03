@@ -1983,3 +1983,32 @@ Status: STAGED only until preceding Mistake Notebook exact-SHA FAST turns green;
 then this change requires its own exact-SHA FAST. No source-device/QR/full
 release evidence is implied. The source code of these destinations was verified
 unchanged since baseline b78d275 by matching Git blob hashes.
+
+## 2026-11-03 Settings account switch safety (prepared)
+
+Source investigation found `SettingsActivity.executeLogout` awaited presence revocation
+and then unconditionally cleared SessionManager/current Firebase login, with no
+verification that the initiating user remained signed in. The destructive
+`executeAccountDeletion` similarly awaited server deletion and Firebase
+credential deletion without refusing a replacement account before subsequent
+global session cleanup. Delayed Google/email reauthentication callbacks could
+also continue the old account's deletion action under a different session.
+
+This bounded existing-Activity repair also closes a retained Home task on
+account replacement and checks Home's existing UID predicate after the
+asynchronous presence revoke and before global logout. No new Home menu,
+dialog or session manager is introduced.
+
+The Settings repair pins the UID at launch/restoration,
+checks fresh UID at lifecycle/dialog/callback boundaries, cancels late
+operations on a real account switch, and rechecks before destructive network
+and credential stages. After deletion, FirebaseAuth.currentUser may be null
+automatically; a pure `SettingsDeletionBoundary` guard permits clearing
+global login only for the deleted UID or expected null, never another
+authenticated student. Existing password/Google reauth dialogs, the original
+server deletion endpoint, presence revocation, and UID-specific cleanup
+remain intact. A pure UID matrix and actual async source-order tests are
+added. No production destructive test, account mutation, or backend deployment.
+
+Status STAGED ONLY pending Performance/Leaderboard exact-SHA FAST before safe
+commit; final device/account-switch behavior remains to be accepted.
