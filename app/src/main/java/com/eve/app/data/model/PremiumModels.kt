@@ -1,6 +1,7 @@
 package com.eve.app.data.model
 
 import com.google.gson.annotations.SerializedName
+import com.google.gson.annotations.JsonAdapter
 
 data class PremiumPlanDto(
     val isEnabled: Boolean = true,
@@ -59,6 +60,7 @@ data class OrderStatusDto(
     val isPremium: Boolean
 )
 
+@JsonAdapter(AdminPremiumConfigJsonAdapter::class)
 data class AdminPremiumConfigDto(
     // Admin Worker GET retains legacy D1 snake_case; PUT uses the client camelCase contract.
     @field:SerializedName(value = "id") val id: String = "",

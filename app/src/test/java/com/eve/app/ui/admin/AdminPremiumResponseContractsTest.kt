@@ -3,6 +3,10 @@ package com.eve.app.ui.admin
 import com.eve.app.data.model.AdminPremiumConfigDto
 import com.eve.app.data.remote.ApiResponse
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonParser
+import com.google.gson.JsonParseException
+import com.google.gson.reflect.TypeToken
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -33,13 +37,69 @@ class AdminPremiumResponseContractsTest {
     }
 
     @Test fun absentOrMismatchedPremiumConfigCannotBeConfirmed() {
-        val incomplete = Gson().fromJson("""{"isEnabled":true}""", AdminPremiumConfigDto::class.java)
+        assertThrows(JsonParseException::class.java) {
+            Gson().fromJson("""{"isEnabled":true}""", AdminPremiumConfigDto::class.java)
+        }
+        val incomplete = Gson().fromJson("""{"isEnabled":true,"isLifetime":false,
+            "qrEnabled":true,"upiEnabled":true}""", AdminPremiumConfigDto::class.java)
         assertFalse(AdminPremiumResponseContracts.configValid(incomplete))
         assertFalse(AdminPremiumResponseContracts.configMatches(config, incomplete))
         assertFalse(AdminPremiumResponseContracts.configMatches(config, config.copy(priceInr = 99)))
         assertFalse(AdminPremiumResponseContracts.configMatches(config, config.copy(merchantVpa = "other@bank")))
         assertFalse(AdminPremiumResponseContracts.configMatches(config, null))
     }
+
+    @Test fun workerBooleansAcceptOnlyExplicitBooleanOrLegacyIntegerFlags() {
+        val gson = GsonBuilder().setLenient().create() // Production Retrofit configuration.
+        for ((name, legacy) in flags) {
+            for (key in listOf(name, legacy)) {
+                for ((wire, expected) in listOf("true" to true, "false" to false, "1" to true, "0" to false)) {
+                    val payload = JsonParser.parseString(gson.toJson(config)).asJsonObject
+                    payload.remove(name)
+                    payload.add(key, JsonParser.parseString(wire))
+                    val response = gson.fromJson<ApiResponse<AdminPremiumConfigDto>>(
+                        """{"success":true,"data":$payload}""",
+                        object : TypeToken<ApiResponse<AdminPremiumConfigDto>>() {}.type)
+                    assertTrue(AdminPremiumResponseContracts.configValid(response.data))
+                    val field = JsonParser.parseString(gson.toJson(response.data)).asJsonObject.get(name)
+                    assertTrue(field.asJsonPrimitive.isBoolean)
+                    assertEquals("$key=$wire", expected, field.asBoolean)
+                }
+            }
+        }
+    }
+
+    @Test fun missingNullMalformedAndContradictoryFlagsNeverBecomeAuthoritativeConfig() {
+        val gson = GsonBuilder().setLenient().create()
+        for ((name, legacy) in flags) {
+            for (key in listOf(name, legacy)) {
+                for (wire in listOf("null", "2", "-1", "0.5", "1.0", "1e0", "\"1\"", "\"true\"", "\"false\"", "\"garbage\"", "{}", "[]")) {
+                    val payload = JsonParser.parseString(gson.toJson(config)).asJsonObject
+                    payload.remove(name)
+                    payload.add(key, JsonParser.parseString(wire))
+                    assertThrows("$key=$wire", JsonParseException::class.java) {
+                        gson.fromJson(payload, AdminPremiumConfigDto::class.java)
+                    }
+                }
+            }
+            val payload = JsonParser.parseString(gson.toJson(config)).asJsonObject
+            payload.remove(name)
+            assertThrows("missing $name", JsonParseException::class.java) {
+                gson.fromJson(payload, AdminPremiumConfigDto::class.java)
+            }
+            for (aliases in listOf("\"$name\":true,\"$legacy\":0", "\"$legacy\":1,\"$name\":false",
+                "\"$name\":true,\"$name\":false")) {
+                val wire = payload.toString().dropLast(1) + "," + aliases + "}"
+                assertThrows(aliases, JsonParseException::class.java) {
+                    gson.fromJson(wire, AdminPremiumConfigDto::class.java)
+                }
+            }
+        }
+        assertFalse(AdminPremiumResponseContracts.configValid(gson.fromJson("null", AdminPremiumConfigDto::class.java)))
+    }
+
+    private val flags = listOf("isEnabled" to "is_enabled", "isLifetime" to "is_lifetime",
+        "qrEnabled" to "qr_enabled", "upiEnabled" to "upi_enabled")
 
     @Test fun premiumGrantRequiresServerIssuedActiveEntitlementAndLifetimeConfirmation() {
         val confirmed = ApiResponse<Any>(success = true, data = mapOf(

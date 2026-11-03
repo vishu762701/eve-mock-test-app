@@ -4,6 +4,42 @@
 
 Status: PARTIAL. This is a continuation record, not screen acceptance.
 
+## Official-source continuation requirements — 2026-11-03
+
+Recovered remote main `3c316522ae0596b49acedac23f55b8728131bcf2`, clean checkout,
+main only. FAST 41640467269 failed in Android JVM tests (1077 run, one failure):
+`AdminPremiumResponseContractsTest.legacyWorkerSnakeCaseConfigIsReadWithoutClientDefaults`,
+Gson numeric boolean at `is_enabled`. Backend and Firebase jobs succeeded;
+FAST native/publication jobs were skipped. No concurrent change found at recovery.
+
+| Requirement | Canonical owner | Implementation status | Tests | Commit SHA / exact-SHA CI | Runtime acceptance / remaining evidence |
+| --- | --- | --- | --- | --- | --- |
+| R1 Premium narrow boolean repair | AdminPremiumConfigDto / existing Gson Retrofit converter | IN PROGRESS; preserve permissions, billing and entitlement owners | Real DTO valid/invalid/null/alias-conflict deserialization and acknowledgment tests | carrying batch; exact-SHA FAST required before unrelated implementation | physical premium matrix remains open |
+| R2 Official Telegram retrieval and provenance | Existing source maps / notices | PENDING direct official Git clone, pin actual full SHA, preserve authenticated older mappings | Git identity, source/asset hashes and dependency verification | no import authorized by evidence alone | matched source/runtime comparison outstanding |
+| R3 System Monitor retry and read lifetime | SystemMonitorActivity / existing API and Worker | PENDING live caller audit and behavioral repair | suspended permissions, denied rights, owner/stop, duplicate requests, failed acknowledgments, stale reads | own coherent batch after R1 green | device lifecycle and role matrix outstanding |
+| R4 Remaining Admin functional audit | Existing Dashboard Activities, repositories and Worker routes | NOT MET as a whole; preserve listed green implementations | inventory actual UI→Worker actions and behavioral acceptance; repair demonstrated defects only | existing per-feature budgets apply; Syllabus already has two green commits | no destructive production tests or deployment |
+| R5 Home/shared Telegram fidelity | Existing Home, drawer, popup, dialog and theme owners | NOT MET whole runtime fidelity; preserve completed actions/search/isolation | upstream maps plus available behavior and native checks | existing feature budgets apply | matched device, Hindi/RTL/font/a11y matrix outstanding |
+| R6 Profile and personal QR acceptance | Existing Profile/viewer/scanner/native owners | NOT MET whole acceptance; preserve existing systems | existing fidelity contract and actual caller/runtime evidence | no restart or speculative replay | matched references, camera/GPU/device evidence outstanding |
+| R7 Student/quiz/shared contracts | Existing canonical Activities/ViewModels/repositories | NOT MET whole acceptance; preserve repaired account and scoring boundaries | reconcile real flows; add tests only for missing contracts/reproduced defects | existing feature budgets apply | timer/navigation/recreation/device matrix outstanding |
+| R8 Duplication prevention | PRODUCTION_OWNERSHIP.md and existing ownership tests | ONGOING; no second registry or manager | trace overlapping callers before any removal | scoped changes only | static checks do not establish universal absence |
+| R9 Integration and release boundary | Existing build.yml and release compliance gate | NOT MET final integration | each batch exact-SHA FAST; eligible independent FULL checks later | FULL includes unconditional successful-gate debug APK artifact publication, so do not dispatch without separate authorization | publication approval separate; production/legal release NOT REQUESTED, human compliance unresolved |
+
+R1 local verification: reproduced original four-test suite FAIL (one failure,
+`Expected a boolean but was NUMBER`). After the scoped class-level Gson adapter,
+six production DTO/acknowledgment JUnit tests PASS, including all four flags in
+both naming forms, numeric/boolean values, malformed/null/missing/contradictory
+and duplicate fields, generic ApiResponse parsing, and canonical serialization.
+Kotlin 2.1.0 standalone compiler / Gson 2.11.0 / JUnit 4.13.2 used actual production
+sources; this is not a full Android build. Existing host Python suite PASS and
+acceptance-claim structural check PASS (all three targets remain OPEN).
+Class-level adapter preserves ApiClient's Retrofit configuration and all other
+DTOs; no backend, entitlement, payment or permission behavior is changed.
+Exact-SHA FAST is pending on the carrying repair. Next: retrieve and pin official
+Telegram source only after FAST succeeds, then SystemMonitorActivity.confirmRetry.
+
+No agent delegation, production Worker deployment, D1 writes, APK publication,
+release-variable changes or legal self-approval is authorized or performed.
+
 ## Live mission continuation: 2026-11-03 (implementation evidence, not final signoff)
 
 Recovery began at the audited main 23f4f9788eedff5e8d3895a21a2a3edbf46d97be.
