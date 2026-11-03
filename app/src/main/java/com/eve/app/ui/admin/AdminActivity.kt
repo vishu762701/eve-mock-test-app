@@ -44,6 +44,7 @@ import com.eve.app.databinding.DialogManageBannersBinding
 import com.eve.app.databinding.DialogPostRepliesBinding
 import com.eve.app.designsystem.TelegramNativeAlertDialog
 import com.eve.app.ui.admin.tg.TextCell
+import coil.load
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AdminAccessGate
 import com.eve.app.util.AppBulletin
@@ -90,12 +91,13 @@ class AdminActivity : EveBaseActivity() {
     private var maintenanceDialog: TelegramNativeAlertDialog? = null
     private var exportJob: Job? = null
     private var exportProgress: TelegramNativeAlertDialog? = null
+    private var bannerDialog: TelegramNativeAlertDialog? = null
     private var exportGeneration = 0L
 
     private val pickBannerImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        if (uri != null) {
-            onBannerImageSelected?.invoke(uri)
-        }
+        val callback = onBannerImageSelected
+        onBannerImageSelected = null
+        if (uri != null) callback?.invoke(uri)
     }
 
     private val pickEditExamImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -632,6 +634,9 @@ class AdminActivity : EveBaseActivity() {
     }
 
     override fun onDestroy() {
+        bannerDialog?.dismiss()
+        bannerDialog = null
+        onBannerImageSelected = null
         ++exportGeneration
         exportJob?.cancel()
         exportJob = null
@@ -829,13 +834,24 @@ class AdminActivity : EveBaseActivity() {
     }
 
     private fun showHomeBannerOptionsDialog() {
+        if (isFinishing || isDestroyed || bannerDialog?.isShowing == true) return
+        val origin = FirebaseAuth.getInstance().currentUser ?: return
+        val uid = origin.uid
+        val email = origin.email.orEmpty()
         val dialogBinding = DialogManageBannersBinding.inflate(layoutInflater)
-        val dialog = TelegramNativeAlertDialog.Builder(this)
-            .setView(dialogBinding.root)
-            .create()
+        val dialog = TelegramNativeAlertDialog.Builder(this).setView(dialogBinding.root).create()
+        bannerDialog = dialog
 
         var pendingBannerUri: Uri? = null
         var editingBannerId: String? = null
+        var busy = false
+
+        fun ownerCurrent(): Boolean {
+            val live = FirebaseAuth.getInstance().currentUser
+            return dialog.isShowing && adminUiReady && !isFinishing && !isDestroyed &&
+                lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED) &&
+                AdminIdentityGuard.allowed(true, uid, email, live?.uid, live?.email)
+        }
 
         fun updateLinkLabelVisibility() {
             val hasUrl = !dialogBinding.etBannerLinkUrl.text.isNullOrBlank()
@@ -843,6 +859,45 @@ class AdminActivity : EveBaseActivity() {
             if (!hasUrl) {
                 dialogBinding.etBannerLinkLabel.setText("")
                 dialogBinding.tilBannerLinkLabel.error = null
+            }
+        }
+
+        /** One mutation at a time; never acknowledge a Result.failure as a successful Worker write. */
+        fun launchBannerMutation(
+            message: String,
+            closeOnSuccess: Boolean = false,
+            mutation: suspend () -> Unit
+        ) {
+            if (!ownerCurrent() || busy) return
+            busy = true
+            dialogBinding.btnSaveBanner.isEnabled = false
+            lifecycleScope.launch {
+                try {
+                    val right = AdminPermissionSnapshot.load(
+                        email, "manage_content",
+                        membership = { adminRepo.isAdminFresh(uid, email) },
+                        permissions = { adminRepo.getAdminMe() }
+                    )
+                    if (!ownerCurrent()) return@launch
+                    if (right == null) throw SecurityException("Banner management permission expired")
+                    mutation()
+                    if (!ownerCurrent()) return@launch
+                    AppBulletin.showSuccess(this@AdminActivity, message)
+                    if (closeOnSuccess) dialog.dismiss()
+                    else refreshBannerList(dialogBinding) { ownerCurrent() }
+                } catch (cancel: CancellationException) {
+                    throw cancel
+                } catch (e: Exception) {
+                    if (ownerCurrent()) {
+                        val description = e.localizedMessage ?: "Server did not confirm the action"
+                        AppBulletin.showError(this@AdminActivity, description)
+                        dialogBinding.tvBannerUploadError.text = description
+                        dialogBinding.tvBannerUploadError.visibility = View.VISIBLE
+                    }
+                } finally {
+                    busy = false
+                    if (ownerCurrent()) dialogBinding.btnSaveBanner.isEnabled = true
+                }
             }
         }
 
@@ -854,122 +909,125 @@ class AdminActivity : EveBaseActivity() {
 
         val bannerAdapter = AdminBannerAdapter(
             onMoveUp = { banner ->
-                lifecycleScope.launch {
-                    try {
-                        bannerRepo.reorderBanner(banner.id, moveUp = true)
-                        refreshBannerList(dialogBinding)
-                    } catch (e: Exception) {
-                        AppBulletin.showError(this@AdminActivity, "Error reordering: ${e.localizedMessage}")
-                    }
+                launchBannerMutation("Banner order updated") {
+                    bannerRepo.reorderBanner(banner.id, moveUp = true).getOrThrow()
                 }
             },
             onMoveDown = { banner ->
-                lifecycleScope.launch {
-                    try {
-                        bannerRepo.reorderBanner(banner.id, moveUp = false)
-                        refreshBannerList(dialogBinding)
-                    } catch (e: Exception) {
-                        AppBulletin.showError(this@AdminActivity, "Error reordering: ${e.localizedMessage}")
-                    }
+                launchBannerMutation("Banner order updated") {
+                    bannerRepo.reorderBanner(banner.id, moveUp = false).getOrThrow()
                 }
             },
             onEditLink = { banner ->
-                pendingBannerUri = null
-                editingBannerId = banner.id
-                dialogBinding.cardPreviewBanner.visibility = View.GONE
-                dialogBinding.tvBannerUploadError.visibility = View.GONE
-                dialogBinding.etBannerLinkUrl.setText(banner.linkUrl)
-                dialogBinding.etBannerLinkLabel.setText(banner.linkLabel)
-                updateLinkLabelVisibility()
-                dialogBinding.btnSaveBanner.text = "Save Banner Link"
-                dialogBinding.btnSaveBanner.isEnabled = true
-                dialogBinding.btnSaveBanner.visibility = View.VISIBLE
+                if (ownerCurrent() && !busy) {
+                    pendingBannerUri = null
+                    editingBannerId = banner.id
+                    dialogBinding.cardPreviewBanner.visibility = View.GONE
+                    dialogBinding.tvBannerUploadError.visibility = View.GONE
+                    dialogBinding.etBannerLinkUrl.setText(banner.linkUrl)
+                    dialogBinding.etBannerLinkLabel.setText(banner.linkLabel)
+                    updateLinkLabelVisibility()
+                    dialogBinding.btnSaveBanner.text = "Save Banner Link"
+                    dialogBinding.btnSaveBanner.isEnabled = true
+                    dialogBinding.btnSaveBanner.visibility = View.VISIBLE
+                }
             },
             onDelete = { banner ->
-                TelegramNativeAlertDialog.Builder(this@AdminActivity)
-                    .setTitle("Delete Banner?")
-                    .setMessage("Are you sure you want to delete this banner?")
-                    .setPositiveButton("Delete") { _, _ ->
-                        lifecycleScope.launch {
-                            try {
-                                bannerRepo.deleteBanner(banner.id)
-                                AppBulletin.showSuccess(this@AdminActivity, "Banner deleted")
-                                refreshBannerList(dialogBinding)
-                            } catch (e: Exception) {
-                                AppBulletin.showError(this@AdminActivity, "Failed to delete: ${e.localizedMessage}")
+                if (ownerCurrent() && !busy) {
+                    TelegramNativeAlertDialog.Builder(this@AdminActivity)
+                        .setTitle("Delete Banner?")
+                        .setMessage("Are you sure you want to delete this banner?")
+                        .setPositiveButton("Delete") { _, _ ->
+                            launchBannerMutation("Banner deleted") {
+                                bannerRepo.deleteBanner(banner.id).getOrThrow()
+                                Unit
                             }
                         }
-                    }
-                    .setNegativeButton("Cancel", null)
-                    .makeRed(DialogInterface.BUTTON_POSITIVE).show()
+                        .setNegativeButton("Cancel", null)
+                        .makeRed(DialogInterface.BUTTON_POSITIVE).show()
+                }
             }
         )
 
         dialogBinding.rvAdminBanners.layoutManager = LinearLayoutManager(this)
         dialogBinding.rvAdminBanners.adapter = bannerAdapter
-        refreshBannerList(dialogBinding)
-
         dialogBinding.btnPickBannerImage.setOnClickListener {
-            onBannerImageSelected = { uri ->
-                pendingBannerUri = uri
-                editingBannerId = null
-                dialogBinding.ivPreviewBanner.setImageURI(uri)
-                dialogBinding.cardPreviewBanner.visibility = View.VISIBLE
-                dialogBinding.tvBannerUploadError.visibility = View.GONE
-                dialogBinding.btnSaveBanner.visibility = View.VISIBLE
-                dialogBinding.btnSaveBanner.isEnabled = true
-                dialogBinding.btnSaveBanner.text = "Save & Publish Banner"
-            }
-            pickBannerImageLauncher.launch("image/*")
-        }
-
-        dialogBinding.btnSaveBanner.setOnClickListener {
-            val uri = pendingBannerUri
-            val bannerId = editingBannerId
-            val rawUrl = dialogBinding.etBannerLinkUrl.text?.toString()?.trim().orEmpty()
-            val rawLabel = dialogBinding.etBannerLinkLabel.text?.toString()?.trim().orEmpty()
-
-            val validationError = HomeBannerLinkValidator.validate(rawUrl, rawLabel)
-            if (validationError != null) {
-                dialogBinding.tilBannerLinkUrl.error = validationError
-                return@setOnClickListener
-            }
-            dialogBinding.tilBannerLinkUrl.error = null
-
-            if (bannerId == null && uri == null) return@setOnClickListener
-
-            dialogBinding.btnSaveBanner.isEnabled = false
-            dialogBinding.btnSaveBanner.text = if (bannerId == null) "Uploading..." else "Saving..."
-
-            lifecycleScope.launch {
-                try {
-                    if (bannerId != null) {
-                        bannerRepo.updateBannerLink(bannerId, rawUrl, rawLabel)
-                        AppBulletin.showSuccess(this@AdminActivity, "Banner link updated")
-                    } else if (uri != null) {
-                        bannerRepo.uploadBanner(this@AdminActivity, uri, rawUrl, rawLabel)
-                        AppBulletin.showSuccess(this@AdminActivity, "Banner uploaded successfully")
+            if (ownerCurrent() && !busy) {
+                onBannerImageSelected = { uri ->
+                    if (ownerCurrent() && !busy) {
+                        pendingBannerUri = uri
+                        editingBannerId = null
+                        dialogBinding.ivPreviewBanner.load(uri)
+                        dialogBinding.cardPreviewBanner.visibility = View.VISIBLE
+                        dialogBinding.tvBannerUploadError.visibility = View.GONE
+                        dialogBinding.btnSaveBanner.visibility = View.VISIBLE
+                        dialogBinding.btnSaveBanner.isEnabled = true
+                        dialogBinding.btnSaveBanner.text = "Save & Publish Banner"
                     }
-                    dialog.dismiss()
-                } catch (e: Exception) {
-                    dialogBinding.btnSaveBanner.isEnabled = true
-                    dialogBinding.btnSaveBanner.text = "Save & Publish Banner"
-                    dialogBinding.tvBannerUploadError.text = e.localizedMessage ?: "Failed to save banner"
-                    dialogBinding.tvBannerUploadError.visibility = View.VISIBLE
+                }
+                try {
+                    pickBannerImageLauncher.launch("image/*")
+                } catch (_: android.content.ActivityNotFoundException) {
+                    onBannerImageSelected = null
+                    AppBulletin.showError(this@AdminActivity, "Image picker is unavailable")
                 }
             }
         }
 
-        dialogBinding.btnCloseBannerDialog.setOnClickListener { dialog.dismiss() }
+        dialogBinding.btnSaveBanner.setOnClickListener {
+            if (!ownerCurrent() || busy) return@setOnClickListener
+            val uri = pendingBannerUri
+            val bannerId = editingBannerId
+            val rawUrl = dialogBinding.etBannerLinkUrl.text?.toString()?.trim().orEmpty()
+            val rawLabel = dialogBinding.etBannerLinkLabel.text?.toString()?.trim().orEmpty()
+            val invalid = HomeBannerLinkValidator.validate(rawUrl, rawLabel)
+            if (invalid != null) {
+                dialogBinding.tilBannerLinkUrl.error = invalid
+                return@setOnClickListener
+            }
+            dialogBinding.tilBannerLinkUrl.error = null
+            if (bannerId == null && uri == null) return@setOnClickListener
+            dialogBinding.tvBannerUploadError.visibility = View.GONE
+            dialogBinding.btnSaveBanner.text = if (bannerId == null) "Uploading..." else "Saving..."
+            if (bannerId != null) {
+                launchBannerMutation("Banner link updated", closeOnSuccess = true) {
+                    bannerRepo.updateBannerLink(bannerId, rawUrl, rawLabel).getOrThrow()
+                }
+            } else if (uri != null) {
+                launchBannerMutation("Banner uploaded successfully", closeOnSuccess = true) {
+                    bannerRepo.uploadBanner(applicationContext, uri, rawUrl, rawLabel).getOrThrow()
+                    Unit
+                }
+            }
+        }
+
+        dialogBinding.btnCloseBannerDialog.setOnClickListener {
+            if (!busy) dialog.dismiss()
+        }
+        dialog.setOnDismissListener {
+            if (bannerDialog === dialog) bannerDialog = null
+            onBannerImageSelected = null
+        }
         dialog.show()
+        refreshBannerList(dialogBinding) { ownerCurrent() }
     }
 
-    private fun refreshBannerList(dialogBinding: DialogManageBannersBinding) {
+    private fun refreshBannerList(
+        dialogBinding: DialogManageBannersBinding,
+        currentOwner: () -> Boolean
+    ) {
         lifecycleScope.launch {
             try {
                 val banners = bannerRepo.getBanners()
-                (dialogBinding.rvAdminBanners.adapter as? AdminBannerAdapter)?.submitList(banners)
-            } catch (_: Exception) {}
+                if (currentOwner()) {
+                    (dialogBinding.rvAdminBanners.adapter as? AdminBannerAdapter)?.submitList(banners)
+                }
+            } catch (cancel: CancellationException) {
+                throw cancel
+            } catch (e: Exception) {
+                if (currentOwner()) AppBulletin.showError(this@AdminActivity,
+                    e.localizedMessage ?: "Failed to load banners")
+            }
         }
     }
 
