@@ -54,12 +54,14 @@ class ResultActivity : EveBaseActivity() {
 
     private val adapter = AnswerAdapter(
         onReport = { item ->
-            ReportQuestionDialog.show(
-                activity = this,
-                item = item,
-                examId = AttemptKey.sourceExamId(currentExamId),
-                examName = currentExamName
-            )
+            if (resultIdentityCurrent) {
+                ReportQuestionDialog.show(
+                    activity = this,
+                    item = item,
+                    examId = AttemptKey.sourceExamId(currentExamId),
+                    examName = currentExamName
+                )
+            }
         }
     )
     private lateinit var paletteAdapter: QuestionPaletteAdapter
@@ -170,6 +172,7 @@ class ResultActivity : EveBaseActivity() {
                         }
                     }
 
+                    if (!resultIdentityCurrent) return@launch
                     if (questions.isNotEmpty()) {
                         val qMap = questions.associateBy { it.id }
                         val enriched = allItems.map { item ->
@@ -189,11 +192,13 @@ class ResultActivity : EveBaseActivity() {
                                 item
                             }
                         }
+                        if (!resultIdentityCurrent) return@launch
                         allItems = enriched
                         viewModel.updateAnswers(enriched)
                         selectQuestion(selectedQuestionIndex)
                     }
-                } catch (_: Exception) {}
+                } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
+                catch (_: Exception) {}
             }
         }
 
@@ -247,6 +252,7 @@ class ResultActivity : EveBaseActivity() {
                 lifecycleScope.launch {
                     try {
                         val exam = examRepo.getExam(AttemptKey.sourceExamId(currentExamId))
+                        if (!resultIdentityCurrent) return@launch
                         val examNeg = exam?.negativeMarkingValue ?: 0.0
                         val updatedScore = Math.round((correct - wrong * examNeg) * 100.0) / 100.0
                         if (updatedScore != currentScore) {
@@ -259,7 +265,8 @@ class ResultActivity : EveBaseActivity() {
                             binding.tvScore.text = "$finalStr / $total"
                             updateCutoffUI()
                         }
-                    } catch (_: Exception) {}
+                    } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
+                    catch (_: Exception) {}
                 }
             }
         }
@@ -284,6 +291,7 @@ class ResultActivity : EveBaseActivity() {
 
         // Share Card Button
         binding.btnShare.setOnClickListener {
+            if (!resultIdentityCurrent) return@setOnClickListener
             val scoreStr = if (currentScore % 1.0 == 0.0) currentScore.toInt().toString() else String.format(java.util.Locale.US, "%.2f", currentScore)
             val scorePctStr = String.format(java.util.Locale.US, "%.1f%% Score", scorePct)
             val rankText = binding.tvRank.text.toString()
@@ -326,6 +334,7 @@ class ResultActivity : EveBaseActivity() {
 
         // Leaderboard Tab Actions
         binding.btnOpenLeaderboard.setOnClickListener {
+            if (!resultIdentityCurrent) return@setOnClickListener
             if (currentExamId.isNotBlank()) {
                 startActivity(
                     Intent(this, LeaderboardActivity::class.java)
@@ -461,7 +470,7 @@ class ResultActivity : EveBaseActivity() {
     }
 
     private fun selectQuestion(pos: Int) {
-        if (pos !in allItems.indices) return
+        if (!resultIdentityCurrent || pos !in allItems.indices) return
         selectedQuestionIndex = pos
 
         paletteItems = paletteItems.mapIndexed { idx, item ->
@@ -490,6 +499,7 @@ class ResultActivity : EveBaseActivity() {
     }
 
     private fun applyReviewFilters() {
+        if (!resultIdentityCurrent) return
         val showCorrect = binding.chipCorrect.isChecked
         val showWrong = binding.chipWrong.isChecked
         val showUnattempted = binding.chipNotAttempted.isChecked
@@ -532,23 +542,31 @@ class ResultActivity : EveBaseActivity() {
 
     private fun loadDepthStatsAndCutoffs(examId: String) {
         lifecycleScope.launch {
+            if (!resultIdentityCurrent) return@launch
             // 1. Load Question Stats for Accuracy & Overtime
             try {
                 val qIds = allItems.map { it.questionId }.filter { it.isNotBlank() }
-                loadedQuestionStats = viewModel.getOrFetchQuestionStats(qIds)
-                adapter.setQuestionStats(loadedQuestionStats)
-            } catch (_: Exception) {}
+                val stats = viewModel.getOrFetchQuestionStats(qIds)
+                if (!resultIdentityCurrent) return@launch
+                loadedQuestionStats = stats
+                adapter.setQuestionStats(stats)
+            } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
+            catch (_: Exception) {}
+            if (!resultIdentityCurrent) return@launch
 
             // 2. Load Cutoffs & Exam Info
             val sourceId = AttemptKey.sourceExamId(examId)
             if (sourceId.isNotBlank()) {
                 try {
                     val exam = examRepo.getExam(sourceId)
+                    if (!resultIdentityCurrent) return@launch
                     if (exam != null && exam.cutoffs.isNotEmpty()) {
                         examCutoffs = exam.cutoffs
                     }
-                } catch (_: Exception) {}
+                } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
+                catch (_: Exception) {}
             }
+            if (!resultIdentityCurrent) return@launch
             setupCutoffSelector()
 
             // 3. Load Rank, Percentile, Best/Avg Score
@@ -568,6 +586,7 @@ class ResultActivity : EveBaseActivity() {
             if (examId.isNotBlank()) {
                 try {
                     val statsResp = ApiClient.api.getLeaderboardStats(examId)
+                    if (!resultIdentityCurrent) return@launch
                     if (statsResp.success && statsResp.data != null) {
                         val stats = statsResp.data
                         val totalParticipants = stats.participants
@@ -617,8 +636,10 @@ class ResultActivity : EveBaseActivity() {
                         }
                         return@launch
                     }
-                } catch (_: Exception) {}
+                } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
+                catch (_: Exception) {}
             }
+            if (!resultIdentityCurrent) return@launch
 
             // Fallback when stats are not available or call fails: hide rank row
             (binding.tvRank.parent as? View)?.visibility = View.GONE
@@ -643,7 +664,7 @@ class ResultActivity : EveBaseActivity() {
         }
 
         binding.tvCutoffSelectedCategory.setOnClickListener {
-            showCategoryBottomSheet()
+            if (resultIdentityCurrent) showCategoryBottomSheet()
         }
 
         updateCutoffUI()
@@ -655,6 +676,7 @@ class ResultActivity : EveBaseActivity() {
     }
 
     private fun showCategoryBottomSheet() {
+        if (!resultIdentityCurrent) return
         val sheetView = layoutInflater.inflate(R.layout.bottom_sheet_category_picker, null)
         val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
         dialog.setContentView(sheetView)
@@ -720,7 +742,7 @@ class ResultActivity : EveBaseActivity() {
             }
 
             item.row.setOnClickListener {
-                selectCutoffCategory(item.category)
+                if (resultIdentityCurrent) selectCutoffCategory(item.category)
                 dialog.dismiss()
             }
         }
@@ -789,6 +811,9 @@ class ResultActivity : EveBaseActivity() {
                                         examRepo.getExam(AttemptKey.sourceExamId(examId))?.timeLimitMinutes ?: 60
                                     } catch (_: Exception) { 60 }
                                 }
+                                // Exam metadata may suspend after the reset receipt; never start
+                                // a new test for a replacement Firebase account.
+                                if (!resultIdentityCurrent) return@launch
                                 val category = intent.getStringExtra(Constants.EXTRA_EXAM_CATEGORY).orEmpty()
                                 val testIntent = Intent(this@ResultActivity, TestActivity::class.java).apply {
                                     putExtra(Constants.EXTRA_EXAM_ID, examId)

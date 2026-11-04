@@ -45,9 +45,9 @@ object CompletedExamBottomSheet {
             binding.tvCompletedScore.text = activity.getString(R.string.exam_completed_badge)
         }
 
-        fun openReview(att: TestAttempt) {
+        fun openReview(att: TestAttempt): Boolean {
             if (activity.isFinishing || activity.isDestroyed || att.userId != ownerUid ||
-                !ResultDataHolder.setAnswers(att.answers, ownerUid, att.examId)) return
+                !ResultDataHolder.setAnswers(att.answers, ownerUid, att.examId)) return false
             val intent = Intent(activity, ResultActivity::class.java).apply {
                 putExtra(Constants.EXTRA_RESULT_OWNER_UID, ownerUid)
                 putExtra(Constants.EXTRA_EXAM_ID, att.examId)
@@ -57,22 +57,44 @@ object CompletedExamBottomSheet {
                 putExtra(Constants.EXTRA_FROM_HISTORY, true)
             }
             activity.startActivity(intent)
+            return true
         }
 
+        var reviewPending = false
         binding.btnViewResult.setOnClickListener {
+            if (reviewPending || activity.isFinishing || activity.isDestroyed ||
+                !dialog.isShowing || FirebaseAuth.getInstance().currentUser?.uid != ownerUid) {
+                return@setOnClickListener
+            }
             if (attempt != null && attempt.answers.isNotEmpty()) {
-                dialog.dismiss()
-                openReview(attempt)
+                // Start review before dismiss: the host's onDismiss callback finishes TestActivity.
+                if (openReview(attempt)) dialog.dismiss()
             } else {
-                val uid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
+                reviewPending = true
                 activity.lifecycleScope.launch {
-                    val attempts = HistoryRepository().getAttempts(uid)
-                    val found = attempts.firstOrNull { it.examId == examId }
-                    if (found != null && found.answers.isNotEmpty()) {
-                        dialog.dismiss()
-                        openReview(found)
-                    } else {
-                        AppBulletin.showError(activity, "Attempt details not found.")
+                    try {
+                        val attempts = HistoryRepository().getAttempts(ownerUid)
+                        // The Worker request may finish after a different account signs in
+                        // or the original bottom sheet has already been dismissed.
+                        if (activity.isFinishing || activity.isDestroyed || !dialog.isShowing ||
+                            FirebaseAuth.getInstance().currentUser?.uid != ownerUid) return@launch
+                        val found = attempts.firstOrNull {
+                            it.userId == ownerUid && it.examId == examId
+                        }
+                        if (found != null && found.answers.isNotEmpty()) {
+                            if (openReview(found)) dialog.dismiss()
+                        } else {
+                            AppBulletin.showError(activity, "Attempt details not found.")
+                        }
+                    } catch (cancel: kotlinx.coroutines.CancellationException) {
+                        throw cancel
+                    } catch (_: Exception) {
+                        if (!activity.isFinishing && !activity.isDestroyed && dialog.isShowing &&
+                            FirebaseAuth.getInstance().currentUser?.uid == ownerUid) {
+                            AppBulletin.showError(activity, "Could not load attempt details. Please retry.")
+                        }
+                    } finally {
+                        reviewPending = false
                     }
                 }
             }

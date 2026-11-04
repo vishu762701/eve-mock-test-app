@@ -18,6 +18,28 @@ class CompletedExamSourceConfirmationTest {
         assertTrue(code.contains("reattemptConfirmDialog?.dismiss()"))
     }
 
+    @Test fun fallbackHistoryReadIsOwnerBoundAndErrorsAreHandledWithoutCrossAccountUi() {
+        val block = code.substringAfter("binding.btnViewResult.setOnClickListener {")
+            .substringBefore("var reattemptCheckPending")
+        val fetch = block.indexOf("HistoryRepository().getAttempts(ownerUid)")
+        val guard = block.indexOf("FirebaseAuth.getInstance().currentUser?.uid != ownerUid", fetch)
+        val use = block.indexOf("attempts.firstOrNull", guard)
+        assertTrue("History may not be fetched for a replacement account", fetch >= 0)
+        assertTrue("Read completion must validate original identity before showing a result",
+            guard > fetch && use > guard)
+        assertTrue(block.contains("it.userId == ownerUid && it.examId == examId"))
+        assertTrue(block.contains("reviewPending = true"))
+        assertTrue(block.contains("reviewPending = false"))
+        assertTrue(block.contains("!dialog.isShowing"))
+        assertTrue(block.contains("catch (cancel: kotlinx.coroutines.CancellationException)"))
+        assertTrue(block.contains("catch (_: Exception)"))
+        assertTrue(block.contains("Could not load attempt details. Please retry."))
+        assertTrue(!block.contains("getAttempts(uid)"))
+        // The hosting TestActivity finishes in onDismiss. Navigation must win that race.
+        assertTrue(block.contains("if (openReview(attempt)) dialog.dismiss()"))
+        assertTrue(block.contains("if (openReview(found)) dialog.dismiss()"))
+    }
+
     @Test fun originalDialogSourceIsAppliedWithoutChangingAttemptGuardOrCallbacks() {
         assertTrue(code.contains("val canReattempt = com.eve.app.util.AttemptLimitManager.canAttempt(activity, examId)"))
         assertTrue(code.contains("TelegramNativeAlertDialog.Builder(activity)"))
