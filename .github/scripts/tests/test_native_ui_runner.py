@@ -113,11 +113,11 @@ esac
     def test_native_emulator_resource_budget_keeps_both_navigation_modes(self):
         workflow = (Path(__file__).resolve().parents[3] / '.github/workflows/build.yml').read_text()
         self.assertIn('navigation: [gesture, three-button]', workflow)
-        self.assertIn('ram-size: 2560M', workflow)
-        self.assertIn('heap-size: 384M', workflow)
+        self.assertIn('ram-size: 3072M', workflow)
+        self.assertIn('heap-size: 512M', workflow)
         self.assertIn('emulator-build: 16428233', workflow)
-        self.assertIn('emulator-options: -no-window -gpu swiftshader -no-snapshot -noaudio -no-boot-anim -feature -Vulkan', workflow)
-        self.assertNotIn('emulator-options: -no-window -gpu software ', workflow)
+        self.assertIn('emulator-options: -no-window -gpu software -no-snapshot -noaudio -no-boot-anim -feature -Vulkan', workflow)
+        self.assertNotIn('emulator-options: -no-window -gpu swiftshader ', workflow)
         self.assertIn('script: bash .github/scripts/verify-native-ui.sh', workflow)
         # Keep all real JNI/visual cases. RAM tuning is not a test exemption.
         script = SCRIPT.read_text()

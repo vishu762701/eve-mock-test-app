@@ -119,10 +119,9 @@ class Mission01GateTest(unittest.TestCase):
         self.assertIn("needs.build.outputs.full == 'true'", native)
         self.assertIn("matrix:\n        navigation: [gesture, three-button]", native)
         self.assertIn("reactivecircus/android-emulator-runner@v2", native)
-        # Never suppress QR/JNI instrumentation. SwiftShader is the supported
-        # explicitly selected software GLES backend for both native modes.
-        # Reject the deprecated _indirect variant and accidental auto selection.
-        self.assertIn("-gpu swiftshader ", native)
+        # Keep the last exact-SHA FULL-green GPU selection on both navigation
+        # modes without changing or excluding real QR/JNI instrumentation.
+        self.assertIn("-gpu software ", native)
         self.assertNotIn("-gpu swiftshader_indirect", native)
         self.assertIn("emulator-build: 16428233", native)
         self.assertIn("navigation: [gesture, three-button]", native)

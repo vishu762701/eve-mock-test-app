@@ -215,16 +215,15 @@ jobs:
           # Keep native QR JNI and every visual test enabled. Emulator
           # graphics/AVD is an infrastructure compatibility experiment,
           # never evidence of exact Telegram runtime parity.
-          emulator-options: -no-window -gpu swiftshader -no-snapshot -noaudio -no-boot-anim -feature -Vulkan
-          # The dynamic software backend repeatedly lost the virtual device
-          # while the real JNI QR picker ran in three-button mode (no terminal
-          # JUnit result). Pin the supported SwiftShader GLES backend rather
-          # than trusting the software backend auto-selection. Preserve Vulkan
-          # disabled, all JNI tests, both navigation modes and actual rendering.
-          # Emulator compatibility is NOT Telegram reference-device parity.
-          # Preserve the reduced guest RAM/heap while testing this one variable.
-          ram-size: 2560M
-          heap-size: 384M
+          # Restore the only exact-SHA FULL three-button configuration that
+          # completed all native cases (41805072249 attempt 2), while keeping
+          # later isolated QR-picker/scene shards and crash evidence unchanged.
+          # Both newer SwiftShader/low-memory attempts failed differently:
+          # 15 window/visual assertions vs QEMU guest disappearing mid-picker.
+          # This configuration is a regression test, not proven root cause.
+          emulator-options: -no-window -gpu software -no-snapshot -noaudio -no-boot-anim -feature -Vulkan
+          ram-size: 3072M
+          heap-size: 512M
           disable-animations: false
           script: bash .github/scripts/verify-native-ui.sh ${{ matrix.navigation }}
       - name: Generate visual gallery and XML review inventory
