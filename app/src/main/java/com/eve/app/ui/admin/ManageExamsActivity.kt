@@ -32,6 +32,12 @@ import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.data.remote.sanitizeErrorMessage
 import com.eve.app.data.repository.AuditLogRepository
 import com.eve.app.data.repository.ExamRepository
+import com.eve.app.data.repository.AdminRepository
+import com.eve.app.util.AdminIdentityGuard
+import com.eve.app.util.AdminPermissionSnapshot
+import com.google.firebase.auth.FirebaseAuth
+import androidx.lifecycle.Lifecycle
+import kotlinx.coroutines.CancellationException
 import com.eve.app.databinding.ActivityManageExamsBinding
 import com.eve.app.util.AppBulletin
 import com.google.android.material.textfield.TextInputLayout
@@ -46,6 +52,7 @@ class ManageExamsActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityManageExamsBinding
     private val examRepo = ExamRepository()
+    private val adminRepo = AdminRepository()
     private val auditLogRepo = AuditLogRepository()
 
     private var examList: MutableList<Exam> = mutableListOf()
@@ -79,6 +86,12 @@ class ManageExamsActivity : EveBaseActivity() {
     private val isNewMode: Boolean get() = isNewMainExamMode || isNewSubExamMode
     private var previouslySelectedExamId: String = ""
     private var isGenerating: Boolean = false
+    private var generationEpoch = 0L
+    private var pendingGenerateKey: String? = null
+    private var pendingGenerateOwner: String? = null
+    private var pendingGenerateExam: String? = null
+    private var pendingGenerateCount = 0
+    private var pendingGenerateNumber: String? = null
 
     private val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
 
@@ -153,10 +166,36 @@ class ManageExamsActivity : EveBaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityManageExamsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        if (savedInstanceState?.getString("generation_owner_uid") ==
+            FirebaseAuth.getInstance().currentUser?.uid) {
+            pendingGenerateOwner = savedInstanceState.getString("generation_owner_uid")
+            pendingGenerateKey = savedInstanceState.getString("generation_request_key")
+            pendingGenerateExam = savedInstanceState.getString("generation_exam_id")
+            pendingGenerateCount = savedInstanceState.getInt("generation_question_count")
+            pendingGenerateNumber = savedInstanceState.getString("generation_test_number")
+        }
 
         com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_exams") {
             initializeAuthorizedUi()
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (pendingGenerateOwner == FirebaseAuth.getInstance().currentUser?.uid) {
+            outState.putString("generation_owner_uid", pendingGenerateOwner)
+            outState.putString("generation_request_key", pendingGenerateKey)
+            outState.putString("generation_exam_id", pendingGenerateExam)
+            outState.putInt("generation_question_count", pendingGenerateCount)
+            outState.putString("generation_test_number", pendingGenerateNumber)
+        }
+    }
+
+    override fun onStop() {
+        // The backend may finish an in-flight request. Never display its old
+        // response after stop or resend it with a new request key.
+        generationEpoch++
+        super.onStop()
     }
 
     private fun initializeAuthorizedUi() {
@@ -810,42 +849,91 @@ class ManageExamsActivity : EveBaseActivity() {
             .setTitle("Generate Test Now?")
             .setMessage("This will trigger AI to generate a fresh test for '$examName' immediately using the configured prompt and question count.")
             .setPositiveButton("Generate") { _, _ ->
-                if (isGenerating) return@setPositiveButton
+                if (isGenerating || isNewMode || currentExamId != targetId) return@setPositiveButton
+                val actor = FirebaseAuth.getInstance().currentUser ?: return@setPositiveButton
+                val uid = actor.uid
+                val email = actor.email?.takeIf { it.isNotBlank() } ?: return@setPositiveButton
+                val epoch = ++generationEpoch
+                val notes = binding.etGenerationPrompt.text?.toString()?.trim().orEmpty()
+                val reuse = pendingGenerateOwner == uid && pendingGenerateExam == targetId &&
+                    pendingGenerateCount == count && pendingGenerateNumber == testNumber
+                if (pendingGenerateKey != null && pendingGenerateOwner == uid &&
+                    pendingGenerateExam == targetId && !reuse) {
+                    AppBulletin.showError(this, "An earlier generation is unconfirmed. Reconcile it in Generated Tests or System Monitor first.")
+                    return@setPositiveButton
+                }
+                val key = (if (reuse) pendingGenerateKey else null)
+                    ?: java.util.UUID.randomUUID().toString()
+                pendingGenerateKey = key
+                pendingGenerateOwner = uid
+                pendingGenerateExam = targetId
+                pendingGenerateCount = count
+                pendingGenerateNumber = testNumber
+
+                fun current(): Boolean {
+                    val live = FirebaseAuth.getInstance().currentUser
+                    return epoch == generationEpoch && !isFinishing && !isDestroyed &&
+                        currentExamId == targetId && !isNewMode &&
+                        lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED) &&
+                        AdminIdentityGuard.allowed(true, uid, email, live?.uid, live?.email)
+                }
                 isGenerating = true
                 binding.btnGenerateNow.isEnabled = false
                 binding.progressBar.visibility = View.VISIBLE
-
                 lifecycleScope.launch {
                     try {
-                        val promptNotes = binding.etGenerationPrompt.text?.toString()?.trim().orEmpty()
+                        val permission = AdminPermissionSnapshot.load(
+                            email, "manage_generated_tests",
+                            membership = { adminRepo.isAdminFresh(uid, email) },
+                            permissions = { adminRepo.getAdminMe() }
+                        )
+                        if (!current()) return@launch
+                        if (permission == null ||
+                            !AdminPermissionSnapshot.allows(permission, email, "manage_exams") ||
+                            !AdminPermissionSnapshot.allows(permission, email, "manage_generated_tests")) {
+                            throw SecurityException("Generation rights are no longer available")
+                        }
                         val data = mapOf<String, Any>(
-                            "examId" to targetId,
-                            "requestId" to java.util.UUID.randomUUID().toString(),
-                            "questionCount" to count,
-                            "testNumber" to testNumber,
-                            "customPromptNotes" to promptNotes
+                            "examId" to targetId, "requestId" to key,
+                            "questionCount" to count, "testNumber" to testNumber,
+                            "customPromptNotes" to notes
                         )
                         val res = ApiClient.apiService.triggerAiTestGeneration(data)
+                        if (!current()) return@launch
                         binding.compactErrorView.hide()
-
                         if (!res.success) {
                             showGenerationErrorDialog(res.error, null)
                         } else {
-                            val generatedCount = res.data?.get("questionCount") ?: count
+                            val confirmed = GeneratedNowAck.from(res.data, count)
+                            if (confirmed == null) {
+                                AppBulletin.showError(this@ManageExamsActivity,
+                                    "Generation receipt incomplete. Check System Monitor before retrying.")
+                                loadGeneratedTestsForExam()
+                                return@launch
+                            }
+                            pendingGenerateKey = null
+                            pendingGenerateOwner = null
+                            pendingGenerateExam = null
+                            pendingGenerateCount = 0
+                            pendingGenerateNumber = null
                             TelegramNativeAlertDialog.Builder(this@ManageExamsActivity)
                                 .setTitle("Generation Successful")
-                                .setMessage("Successfully generated $generatedCount questions for '$examName'.\n\nYou can review or publish them in the Generated Tests section below.")
+                                .setMessage("Successfully generated ${confirmed.questionCount} questions for '$examName'.\n\nYou can review or publish them in the Generated Tests section below.")
                                 .setPositiveButton("OK", null)
                                 .show()
                             loadExams(targetExamId = targetId)
                             loadGeneratedTestsForExam()
                         }
+                    } catch (cancel: CancellationException) {
+                        throw cancel
                     } catch (e: Exception) {
-                        showGenerationErrorDialog(null, e)
+                        if (current()) showGenerationErrorDialog(null, e)
                     } finally {
                         isGenerating = false
-                        binding.btnGenerateNow.isEnabled = true
-                        binding.progressBar.visibility = View.GONE
+                        if (!isFinishing && !isDestroyed) {
+                            binding.btnGenerateNow.isEnabled = true
+                            binding.progressBar.visibility = View.GONE
+                        }
                     }
                 }
             }

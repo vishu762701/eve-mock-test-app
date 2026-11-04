@@ -95,6 +95,55 @@ test('generation validates counts, deduplicates request keys and rejects concurr
   } finally { globalThis.fetch = original; }
   assert.equal(db.count('generated_tests'), 1);
 });
+
+test('Generate Now commits one test, job, log and admin audit with idempotent retry', async () => {
+  const db = new LocalD1(); const request = harness(db, true);
+  const original = globalThis.fetch; globalThis.fetch = async () => ai([q()]);
+  try {
+    const body = { examId: 'exam', questionCount: 1, testNumber: 'Test 1', requestId: 'once-with-audit' };
+    const first = await request('/api/generated-tests/generate-now', body);
+    assert.equal(first.status, 200);
+    const data = (await first.json()).data;
+    assert.ok(data.testId && data.jobId);
+    assert.equal(data.questionCount, 1);
+    assert.equal(db.count('generated_tests'), 1);
+    assert.equal(db.count('generation_logs'), 1);
+    assert.equal(Number(db.sqlite.prepare("SELECT COUNT(*) AS n FROM admin_audit_log WHERE action_type='GENERATE_NOW_TRIGGERED'").get()!.n), 1);
+    const second = (await (await request('/api/generated-tests/generate-now', body)).json()).data;
+    assert.equal(second.testId, data.testId);
+    assert.equal(db.count('generated_tests'), 1);
+    assert.equal(Number(db.sqlite.prepare("SELECT COUNT(*) AS n FROM admin_audit_log WHERE action_type='GENERATE_NOW_TRIGGERED'").get()!.n), 1);
+  } finally { globalThis.fetch = original; }
+});
+test('replaced generation lease immediately before D1 batch cannot publish a test', async () => {
+  const db = new LocalD1(); const original = globalThis.fetch; globalThis.fetch = async () => ai([q()]);
+  db.beforeBatch = () => {
+    db.beforeBatch = null;
+    db.sqlite.exec("UPDATE exams SET generating_lock_until = 0 WHERE id='exam'");
+  };
+  try {
+    await assert.rejects(runGeneration(envFor(db), { id: 'exam', exam_name: 'Exam' } as any,
+      1, 'Test 1', '', 'scheduled'), /not fully acknowledged/);
+  } finally { globalThis.fetch = original; }
+  assert.equal(db.count('generated_tests'), 0);
+  assert.equal(db.count('generation_logs'), 0);
+  assert.equal(db.sqlite.prepare('SELECT status FROM generation_jobs').get()!.status, 'failed');
+});
+test('missing manual audit migration rolls publication back before success response', async () => {
+  const db = new LocalD1(); const request = harness(db, true);
+  db.sqlite.exec('DROP TABLE admin_audit_log');
+  const original = globalThis.fetch; globalThis.fetch = async () => ai([q()]);
+  try {
+    const response = await request('/api/generated-tests/generate-now',
+      { examId: 'exam', questionCount: 1, requestId: 'missing-audit' });
+    assert.equal(response.status, 500);
+    assert.equal((await response.json()).success, false);
+  } finally { globalThis.fetch = original; }
+  assert.equal(db.count('generated_tests'), 0);
+  assert.equal(db.count('generation_logs'), 0);
+  assert.equal(db.sqlite.prepare('SELECT status FROM generation_jobs').get()!.status, 'failed');
+});
+
 test('analytics viewers cannot retry generation without generation permission', async () => {
   const db = new LocalD1();
   const email = 'readonly-monitor@example.test';

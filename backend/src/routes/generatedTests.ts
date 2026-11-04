@@ -11,7 +11,7 @@ import { Hono } from "hono";
 import { GeminiProviderError } from "../ai/generator";
 import { requireAdmin, requirePermission } from "../middleware/authMiddleware";
 import { AuthUser, Env, ExamRow, GeneratedTestRow } from "../types";
-import { prepareAdminAuditLog, recordAdminAction } from "../util/auditLog";
+import { prepareAdminAuditLog } from "../util/auditLog";
 
 export const generatedTestRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 
@@ -249,14 +249,9 @@ generatedTestRoutes.post("/generate-now", requirePermission("manage_generated_te
   const customPrompt = String(body.customPromptNotes || exam.generation_prompt || exam.custom_prompt_notes || "").trim();
 
   try {
-    const data = await runGeneration(c.env, exam, targetCount, testNumber, customPrompt, "manual", body.requestId ? String(body.requestId).slice(0, 100) : undefined);
-    await recordAdminAction(db, user, {
-      actionType: "GENERATE_NOW_TRIGGERED",
-      description: `Triggered AI generation for exam '${examName}' (${examId})`,
-      targetType: "generated_test",
-      targetId: examId,
-      metadata: { examId, examName, questionCount: targetCount, testNumber },
-    });
+    // Generation and its admin audit commit together before acknowledgment.
+    const data = await runGeneration(c.env, exam, targetCount, testNumber, customPrompt,
+      "manual", body.requestId ? String(body.requestId).slice(0, 100) : undefined, user);
     return c.json({ success: true, data });
   } catch (err: any) {
     if (err instanceof GenerationBusyError) return c.json({ success: false, error: err.message, code: "GENERATION_BUSY" }, 409);
