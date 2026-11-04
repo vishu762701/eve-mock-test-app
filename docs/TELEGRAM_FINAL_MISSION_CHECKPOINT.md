@@ -4,6 +4,56 @@
 
 Status: PARTIAL. This is a continuation record, not screen acceptance.
 
+## P0 Worker report mutations: real row acknowledgments (current continuation)
+
+Recovery SHA `cdafa5656175b3c8c35e1b7c8ece9fe550740310`, exact-SHA
+FAST `41753271037` SUCCESS; previous initial Android Kotlin failure
+`41752630360` was repaired forward-only in `cdafa565`. Official Telegram
+master remains `3de37c8cfb039452be7398909461da6288babf15`.
+No ZIP supplied; source-derived UI components are preserved unchanged.
+
+**Confirmed production source issue:** Worker
+`backend/src/routes/reports.ts:170-221` returned successful empty-batch
+dismissal, successful unknown/already-dismissed single writes, and successful
+missing-ID deletes; it unconditionally wrote audit entries after zero affected
+rows. Mixed batch IDs could partly change remaining reports while reporting
+complete success. All these mutations require the existing server-side
+`moderate_feedback` permission. No upstream Telegram counterpart (ADAPTED
+EVE business security path).
+
+Scoped canonical repair uses those existing Worker routes, the existing
+`FlaggedQuestionRepository.dismissFlags` Android adapter, and regression tests
+`backend/test/report_mutation_integrity.test.mjs` plus
+`app/src/test/java/com/eve/app/data/repository/FlaggedQuestionMutationContractTest.kt`.
+The Android adapter now rejects empty, duplicated and malformed IDs before
+network dispatch; signatures, existing UI, Hono middleware and D1 schema remain unchanged. Enforces valid
+nonempty unique bounded IDs, pending-row preflight, one conditional batch
+UPDATE for all-or-nothing, SQLite `changes()`-gated conditional audit
+within the existing atomic D1 batch, and exact affected-row + audit counts.
+Single dismiss/delete share the same fail-closed transaction rule. Missing,
+racing, malformed, denied, replayed and audit-write-failure contracts are
+exercised with real Hono handlers and all migrations in isolated SQLite.
+No auth bypass, migration, new manager, payout/scoring change or data purge.
+
+Feature budget: prior successful question-review UI `9cf0523e` and
+analytics/report filter `980a92cf` are separate existing feature
+increments and must remain untouched. This batch is report Worker mutation
+integrity, not a replay or renamed UI scope. Existing more general F1/F2/F3
+report-route history is retained; additional successful work must be counted
+honestly against this distinct transaction-integrity requirement.
+
+**Unresolved independent gaps:** FlaggedQuestionsActivity stale
+edit/dismiss UI rights and ManageUsersActivity stale details epoch both
+require their historical successful-commit budgets reconciled with the
+owner before exceeding two. Prepared Recent Actions UI repair similarly
+requires specific exception. Worker deployment, REAL production behavior,
+FULL native navigation, APK publication, exact Telegram runtime comparison
+and human GPL clearance are separate and NOT confirmed.
+
+New implementation's tests/CI must be reported only after running; this
+checkpoint is not evidence of its exact-SHA success.
+
+
 ## Current independent P0 continuation — Admin Analytics authorization lease
 
 Recovery: live main `42ebee2a1b370d20bf7b545028fc9ac4483fdd69`.

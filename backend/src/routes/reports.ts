@@ -6,7 +6,7 @@ import { Hono } from "hono";
 import { requireAdmin, requirePermission } from "../middleware/authMiddleware";
 import { checkRateLimit } from "../middleware/rateLimiter";
 import { AuthUser, Env, QuestionReportRow, AdminAuditLogRow } from "../types";
-import { prepareAdminAuditLog, recordAdminAction } from "../util/auditLog";
+import { prepareAdminAuditLog, recordAdminAction, runBatch } from "../util/auditLog";
 
 export const reportRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
 export const adminReportRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
@@ -167,57 +167,95 @@ adminReportRoutes.get("/", async (c) => {
   return c.json({ success: true, data: list });
 });
 
+function validReportId(value: unknown): value is string {
+  return typeof value === "string" && value.length > 0 && value.length <= 128 &&
+    value === value.trim();
+}
+
 adminReportRoutes.put("/:id/dismiss", async (c) => {
   const id = c.req.param("id");
-  const user = c.get("user");
+  if (!validReportId(id)) return c.json({ success: false, error: "Invalid report ID" }, 400);
   const db = c.env.DB;
-  const updateStmt = db.prepare("UPDATE question_reports SET status = 'dismissed' WHERE id = ?").bind(id);
-  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+  const pending = await db.prepare("SELECT id FROM question_reports WHERE id = ? AND status = 'pending'")
+    .bind(id).first<{ id: string }>();
+  if (!pending) return c.json({ success: false, error: "Pending report not found" }, 404);
+
+  const update = db.prepare("UPDATE question_reports SET status = 'dismissed' WHERE id = ? AND status = 'pending'").bind(id);
+  // D1 executes the ordered batch on one SQLite connection. changes() reflects
+  // the immediately preceding UPDATE, so a racing dismissal cannot forge an audit.
+  const { stmt: audit } = prepareAdminAuditLog(db, c.get("user"), {
     actionType: "REPORT_DISMISSED",
     description: `Dismissed question report '${id}'`,
     targetType: "question_report",
     targetId: id,
+    condition: { sql: "changes() = 1", bindings: [] },
   });
-  await db.batch([updateStmt, auditStmt]);
+  const results = await runBatch(db, [update, audit]);
+  if (results[0]?.meta?.changes !== 1 || results[1]?.meta?.changes !== 1) {
+    return c.json({ success: false, error: "Report dismissal not confirmed; reload before retrying" }, 409);
+  }
   return c.json({ success: true });
 });
 
 adminReportRoutes.post("/dismiss-batch", async (c) => {
-  const user = c.get("user");
-  const body = await c.req.json().catch(() => ({}));
-  const ids: string[] = Array.isArray(body.ids) ? body.ids : [];
-  if (ids.length === 0) {
-    return c.json({ success: true });
+  const body = await c.req.json().catch(() => null);
+  const rawIds: unknown = body && typeof body === "object" && !Array.isArray(body) ? body.ids : null;
+  if (!Array.isArray(rawIds) || rawIds.length < 1 || rawIds.length > 100 ||
+      !rawIds.every(validReportId) || new Set(rawIds).size !== rawIds.length) {
+    return c.json({ success: false, error: "Provide 1 to 100 unique valid report IDs" }, 400);
+  }
+  const ids: string[] = rawIds;
+  const db = c.env.DB;
+  const placeholders = ids.map(() => "?").join(", ");
+  const found = await db.prepare(
+    `SELECT COUNT(*) AS count FROM question_reports WHERE status = 'pending' AND id IN (${placeholders})`
+  ).bind(...ids).first<{ count: number }>();
+  if (found?.count !== ids.length) {
+    return c.json({ success: false, error: "Some pending reports are unavailable; reload before retrying" }, 409);
   }
 
-  const db = c.env.DB;
-  const stmts = ids.map((id) =>
-    db.prepare("UPDATE question_reports SET status = 'dismissed' WHERE id = ?").bind(id)
-  );
-  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+  // One conditional UPDATE, rather than N independent writes, prevents partial
+  // dismissal if even one report changes between preflight and the D1 transaction.
+  const update = db.prepare(
+    `UPDATE question_reports SET status = 'dismissed'
+     WHERE status = 'pending' AND id IN (${placeholders})
+       AND (SELECT COUNT(*) FROM question_reports
+            WHERE status = 'pending' AND id IN (${placeholders})) = ?`
+  ).bind(...ids, ...ids, ids.length);
+  const { stmt: audit } = prepareAdminAuditLog(db, c.get("user"), {
     actionType: "REPORT_BATCH_DISMISSED",
     description: `Batch dismissed ${ids.length} question reports`,
     targetType: "question_report",
     targetId: "batch",
     metadata: { count: ids.length },
+    condition: { sql: "changes() = ?", bindings: [ids.length] },
   });
-  stmts.push(auditStmt);
-  await db.batch(stmts);
+  const results = await runBatch(db, [update, audit]);
+  if (results[0]?.meta?.changes !== ids.length || results[1]?.meta?.changes !== 1) {
+    return c.json({ success: false, error: "Batch dismissal not confirmed; reload before retrying" }, 409);
+  }
   return c.json({ success: true });
 });
 
 adminReportRoutes.delete("/:id", async (c) => {
   const id = c.req.param("id");
-  const user = c.get("user");
+  if (!validReportId(id)) return c.json({ success: false, error: "Invalid report ID" }, 400);
   const db = c.env.DB;
-  const deleteStmt = db.prepare("DELETE FROM question_reports WHERE id = ?").bind(id);
-  const { stmt: auditStmt } = prepareAdminAuditLog(db, user, {
+  const row = await db.prepare("SELECT id FROM question_reports WHERE id = ?").bind(id).first<{ id: string }>();
+  if (!row) return c.json({ success: false, error: "Report not found" }, 404);
+
+  const removal = db.prepare("DELETE FROM question_reports WHERE id = ?").bind(id);
+  const { stmt: audit } = prepareAdminAuditLog(db, c.get("user"), {
     actionType: "REPORT_DELETED",
     description: `Deleted question report '${id}'`,
     targetType: "question_report",
     targetId: id,
+    condition: { sql: "changes() = 1", bindings: [] },
   });
-  await db.batch([deleteStmt, auditStmt]);
+  const results = await runBatch(db, [removal, audit]);
+  if (results[0]?.meta?.changes !== 1 || results[1]?.meta?.changes !== 1) {
+    return c.json({ success: false, error: "Report deletion not confirmed; reload before retrying" }, 409);
+  }
   return c.json({ success: true });
 });
 

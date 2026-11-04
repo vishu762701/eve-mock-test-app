@@ -124,7 +124,11 @@ class FlaggedQuestionRepository(
 
     /** Admin action: Dismiss flags for this question or bug */
     suspend fun dismissFlags(flagIds: List<String>, isTechnical: Boolean = false): Boolean = withContext(Dispatchers.IO) {
-        if (flagIds.isEmpty()) return@withContext true
+        // Never turn an empty or malformed selection into a confirmed server mutation.
+        // The Worker also validates IDs and the affected row/audit count.
+        if (flagIds.isEmpty() || flagIds.size > 100 ||
+            flagIds.distinct().size != flagIds.size ||
+            flagIds.any { it.isBlank() || it.length > 128 || it != it.trim() }) return@withContext false
         try {
             val response = api.dismissReportBatch(mapOf("ids" to flagIds))
             response.success
