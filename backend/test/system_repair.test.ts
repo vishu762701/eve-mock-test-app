@@ -636,3 +636,64 @@ test('database failure after storage upload does not acknowledge a syllabus and 
     assert.equal((db.sqlite.prepare("SELECT COUNT(*) as n FROM admin_audit_log WHERE action_type = 'SYLLABUS_UPDATED'").get() as any).n, 0);
   } finally { globalThis.fetch = original; }
 });
+
+
+test('syllabus reassign is atomic, confirms two rows, and records one audit', async () => {
+  const db = new LocalD1(); const admin = harness(db, true);
+  db.sqlite.exec("INSERT INTO exams (id, exam_name) VALUES ('dest', 'Destination')");
+  db.sqlite.exec("UPDATE exams SET syllabus_url='https://example.test/a.pdf', syllabus_file_name='a.pdf' WHERE id='exam'");
+  const args = { targetExamId: 'dest', expectedSyllabusUrl: 'https://example.test/a.pdf',
+    expectedSyllabusFileName: 'a.pdf' };
+  const res = await admin('/api/exams/exam/syllabus/reassign', args);
+  assert.equal(res.status, 200);
+  const data = (await res.json() as any).data;
+  assert.equal(data.sourceExamId, 'exam'); assert.equal(data.targetExamId, 'dest');
+  const src = db.sqlite.prepare("SELECT syllabus_url, syllabus_file_name FROM exams WHERE id='exam'").get() as any;
+  const dst = db.sqlite.prepare("SELECT syllabus_url, syllabus_file_name, exam_name FROM exams WHERE id='dest'").get() as any;
+  assert.equal(src.syllabus_url || '', ''); assert.equal(src.syllabus_file_name || '', '');
+  assert.equal(dst.syllabus_url, data.syllabusUrl);
+  assert.equal(dst.syllabus_file_name, 'a.pdf');
+  assert.equal(dst.exam_name, 'Destination');
+  assert.equal(db.sqlite.prepare("SELECT COUNT(*) AS n FROM admin_audit_log WHERE action_type='SYLLABUS_REASSIGNED'").get()!.n, 1);
+  db.sqlite.close();
+});
+
+test('syllabus reassign denies unauthorized, stale and occupied target writes', async () => {
+  const db = new LocalD1(); const admin = harness(db, true); const student = harness(db, false);
+  db.sqlite.exec("INSERT INTO exams (id, exam_name) VALUES ('dest', 'Destination')");
+  db.sqlite.exec("UPDATE exams SET syllabus_url='https://example.test/a.pdf', syllabus_file_name='a.pdf' WHERE id='exam'");
+  const args = { targetExamId: 'dest', expectedSyllabusUrl: 'https://example.test/a.pdf',
+    expectedSyllabusFileName: 'a.pdf' };
+  assert.equal((await student('/api/exams/exam/syllabus/reassign', args)).status, 403);
+  assert.equal((await admin('/api/exams/exam/syllabus/reassign', { ...args, targetExamId: 'exam' })).status, 400);
+  assert.equal((await admin('/api/exams/exam/syllabus/reassign', { ...args, expectedSyllabusUrl: 'stale' })).status, 409);
+  assert.equal((await admin('/api/exams/exam/syllabus/reassign', { ...args, targetExamId: 'missing' })).status, 409);
+  db.sqlite.exec("UPDATE exams SET syllabus_url='https://example.test/b.pdf' WHERE id='dest'");
+  assert.equal((await admin('/api/exams/exam/syllabus/reassign', args)).status, 409);
+  assert.equal(db.sqlite.prepare("SELECT syllabus_url FROM exams WHERE id='exam'").get()!.syllabus_url, args.expectedSyllabusUrl);
+  assert.equal(db.sqlite.prepare("SELECT COUNT(*) AS n FROM admin_audit_log WHERE action_type='SYLLABUS_REASSIGNED'").get()!.n, 0);
+  db.sqlite.close();
+});
+
+test('syllabus reassign rejects a racing destination and rolls back audit failures', async () => {
+  for (const scenario of ['race', 'audit']) {
+    const db = new LocalD1(); const admin = harness(db, true);
+    db.sqlite.exec("INSERT INTO exams (id, exam_name) VALUES ('dest', 'Destination')");
+    db.sqlite.exec("UPDATE exams SET syllabus_url='https://example.test/a.pdf', syllabus_file_name='a.pdf' WHERE id='exam'");
+    if (scenario === 'race') {
+      db.beforeBatch = () => {
+        db.beforeBatch = null;
+        db.sqlite.exec("UPDATE exams SET syllabus_url='https://example.test/b.pdf' WHERE id='dest'");
+      };
+    } else db.failPattern = 'INSERT INTO admin_audit_log';
+    const res = await admin('/api/exams/exam/syllabus/reassign',
+      { targetExamId: 'dest', expectedSyllabusUrl: 'https://example.test/a.pdf',
+        expectedSyllabusFileName: 'a.pdf' });
+    assert.equal(res.status, scenario === 'race' ? 409 : 500);
+    assert.equal(db.sqlite.prepare("SELECT syllabus_url FROM exams WHERE id='exam'").get()!.syllabus_url, 'https://example.test/a.pdf');
+    assert.equal(db.sqlite.prepare("SELECT syllabus_url FROM exams WHERE id='dest'").get()!.syllabus_url || '',
+      scenario === 'race' ? 'https://example.test/b.pdf' : '');
+    assert.equal(db.sqlite.prepare("SELECT COUNT(*) AS n FROM admin_audit_log WHERE action_type='SYLLABUS_REASSIGNED'").get()!.n, 0);
+    db.sqlite.close();
+  }
+});

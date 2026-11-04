@@ -89,6 +89,8 @@ class ManageSyllabusActivity : EveBaseActivity() {
     private var newPdfGeneration = 0L
     private var replacementJob: Job? = null
     private var replacementGeneration = 0L
+    private var reassignGeneration = 0L
+    private var reassignInFlight = false
 
     private var targetExamForReplace: Exam? = null
     private val replacePdfPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
@@ -138,6 +140,7 @@ class ManageSyllabusActivity : EveBaseActivity() {
         screenStopSeen = true
         ++examListGeneration
         ++newPdfGeneration
+        ++reassignGeneration
         newPdfReadJob?.cancel()
         newPdfReadJob = null
         super.onStop()
@@ -533,66 +536,56 @@ class ManageSyllabusActivity : EveBaseActivity() {
         }
     }
 
+
     private fun showReassignDialog(currentExam: Exam) {
-        val targetExams = allExams.filter { it.id != currentExam.id }
+        if (!activeOwner() || reassignInFlight || currentExam.id.isBlank() ||
+            currentExam.syllabusUrl.isBlank() ||
+            allExams.none { it.id == currentExam.id && it.syllabusUrl == currentExam.syllabusUrl }) return
+        // Prevent orphaning the target's previous PDF with an unconfirmed overwrite.
+        val targetExams = allExams.filter {
+            it.id != currentExam.id && it.syllabusUrl.isBlank() && it.syllabusFileName.isBlank()
+        }
         if (targetExams.isEmpty()) {
-            AppBulletin.showError(this, "No other exams available to reassign.")
+            AppBulletin.showError(this, "No other exam without a syllabus is available.")
             return
         }
-
-        val examLabels = targetExams.map { "${it.examName} (${it.categoryOrOther})" }.toTypedArray()
-        var selectedIdx = 0
-
+        val ownerUid = accessUid
+        val labels = targetExams.map { it.examName + " (" + it.categoryOrOther + ")" }.toTypedArray()
+        var selectedIndex = 0
         TelegramNativeAlertDialog.Builder(this)
             .setTitle("Reassign Syllabus to Another Exam")
-            .setSingleChoiceItems(examLabels, 0, dismissOnSelection = false) { _, which ->
-                selectedIdx = which
+            .setSingleChoiceItems(labels, 0, dismissOnSelection = false) { _, index ->
+                selectedIndex = index
             }
             .setPositiveButton("Reassign") { _, _ ->
-                val target = targetExams.getOrNull(selectedIdx) ?: return@setPositiveButton
+                val target = targetExams.getOrNull(selectedIndex) ?: return@setPositiveButton
+                if (!activeOwner() || ownerUid != accessUid || reassignInFlight ||
+                    allExams.none { it.id == target.id && it.syllabusUrl.isBlank() }) return@setPositiveButton
+                val generation = ++reassignGeneration
+                fun current() = activeOwner() && accessUid == ownerUid &&
+                    generation == reassignGeneration
+                reassignInFlight = true
                 binding.progressBarTop.visibility = View.VISIBLE
                 lifecycleScope.launch {
                     try {
-                        // Transfer syllabus metadata to target exam
-                        examRepo.updateExamFullSettings(
-                            examId = target.id,
-                            examName = target.examName,
-                            testNumber = target.testNumber,
-                            questionCount = target.questionCount,
-                            autoGenEnabled = target.autoGenEnabled,
-                            autoGenTime = target.autoGenTime,
-                            syllabusUrl = currentExam.syllabusUrl,
-                            syllabusFileName = currentExam.syllabusFileName,
-                            generationPrompt = target.generationPrompt,
-                            timeLimitMinutes = target.timeLimitMinutes,
-                            negativeMarkingText = target.negativeMarkingText,
-                            negativeMarkingValue = target.negativeMarkingValue,
-                            parentExamId = target.parentExamId,
-                            publishMode = target.publishMode
-                        )
-                        // Clear syllabus from previous exam
-                        examRepo.updateExamFullSettings(
-                            examId = currentExam.id,
-                            examName = currentExam.examName,
-                            testNumber = currentExam.testNumber,
-                            questionCount = currentExam.questionCount,
-                            autoGenEnabled = currentExam.autoGenEnabled,
-                            autoGenTime = currentExam.autoGenTime,
-                            syllabusUrl = "",
-                            syllabusFileName = "",
-                            generationPrompt = currentExam.generationPrompt,
-                            timeLimitMinutes = currentExam.timeLimitMinutes,
-                            negativeMarkingText = currentExam.negativeMarkingText,
-                            negativeMarkingValue = currentExam.negativeMarkingValue,
-                            parentExamId = currentExam.parentExamId,
-                            publishMode = currentExam.publishMode
-                        )
-                        binding.progressBarTop.visibility = View.GONE
-                        AppBulletin.showSuccess(this@ManageSyllabusActivity, "Syllabus reassigned to ${target.examName}")
+                        requireSyllabusRight()
+                        if (!current()) return@launch
+                        examRepo.reassignSyllabus(currentExam, target)
+                        if (!current()) return@launch
+                        AppBulletin.showSuccess(this@ManageSyllabusActivity,
+                            "Syllabus reassigned to " + target.examName)
                         loadExamsAndSyllabuses()
-                    } catch (e: Exception) {
-                        binding.progressBarTop.visibility = View.GONE
-                        AppBulletin.showError(this@ManageSyllabusActivity, "Reassign failed: ${e.localizedMessage}")
+                    } catch (cancel: CancellationException) {
+                        throw cancel
+                    } catch (error: Exception) {
+                        if (current()) {
+                            AppBulletin.showError(this@ManageSyllabusActivity,
+                                "Reassign unconfirmed: " + error.localizedMessage + ". Reload before retrying.")
+                            loadExamsAndSyllabuses()
+                        }
+                    } finally {
+                        reassignInFlight = false
+                        if (current()) binding.progressBarTop.visibility = View.GONE
                     }
                 }
             }

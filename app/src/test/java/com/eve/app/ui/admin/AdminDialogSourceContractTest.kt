@@ -98,7 +98,8 @@ class AdminDialogSourceContractTest {
         val syllabus = File(activities[0]).readText()
         assertTrue("Choosing a new exam must not dismiss before Reassign",
             syllabus.contains(".setSingleChoiceItems(examLabels, 0, dismissOnSelection = false)"))
-        assertTrue(syllabus.contains("examRepo.updateExamFullSettings("))
+        assertTrue(syllabus.contains("examRepo.reassignSyllabus(currentExam, target)"))
+        assertTrue(!syllabus.contains("examRepo.updateExamFullSettings("))
         val users = File(activities[1]).readText()
         assertTrue(users.contains("adminRepo.toggleUserStatus(user.id, disable)"))
         assertTrue("Manage Users must bind privileged views to the initiating UID",

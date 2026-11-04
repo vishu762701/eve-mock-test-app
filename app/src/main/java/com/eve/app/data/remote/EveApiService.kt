@@ -281,6 +281,9 @@ interface EveApiService {
     @DELETE("api/exams/{id}/syllabus")
     suspend fun removeSyllabus(@Path("id") id: String): ApiResponse<Unit>
 
+    @POST("api/exams/{id}/syllabus/reassign")
+    suspend fun reassignSyllabus(@Path("id") sourceId: String, @Body body: Map<String, String>): ApiResponse<Map<String, String>>
+
     // --- Questions ---
     @GET("api/questions/exam/{examId}")
     suspend fun getQuestions(

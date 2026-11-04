@@ -533,6 +533,66 @@ examRoutes.delete("/:id", requirePermission("manage_exams"), async (c) => {
   return c.json({ success: true });
 });
 
+
+/** Single audited SQL mutation for a syllabus transfer. Never copy entire exam snapshots. */
+examRoutes.post("/:id/syllabus/reassign", requirePermission("manage_syllabus"), async (c) => {
+  const sourceId = c.req.param("id") || "";
+  const body = await c.req.json().catch(() => null);
+  if (!body || typeof body !== "object" || Array.isArray(body) ||
+      typeof body.targetExamId !== "string" || typeof body.expectedSyllabusUrl !== "string" ||
+      typeof body.expectedSyllabusFileName !== "string") {
+    return c.json({ success: false, error: "Provide an exact source syllabus and destination exam" }, 400);
+  }
+  const targetId = body.targetExamId;
+  if (!sourceId || !targetId || sourceId === targetId ||
+      sourceId.length > 128 || targetId.length > 128 ||
+      sourceId.trim() !== sourceId || targetId.trim() !== targetId ||
+      !body.expectedSyllabusUrl.trim() || body.expectedSyllabusUrl.length > 4096 ||
+      body.expectedSyllabusFileName.length > 180) {
+    return c.json({ success: false, error: "Invalid syllabus source or destination" }, 400);
+  }
+  const db = c.env.DB;
+  const source = await db.prepare(
+    "SELECT syllabus_url, syllabus_file_name FROM exams WHERE id = ?"
+  ).bind(sourceId).first<{ syllabus_url: string | null; syllabus_file_name: string | null }>();
+  if (!source) return c.json({ success: false, error: "Source exam not found" }, 404);
+  const url = source.syllabus_url || "";
+  const fileName = source.syllabus_file_name || "";
+  if (!url || url !== body.expectedSyllabusUrl || fileName !== body.expectedSyllabusFileName) {
+    return c.json({ success: false, error: "Source syllabus changed; reload before reassigning" }, 409);
+  }
+
+  // Both original rows must exist in the same SQL snapshot. Guard source
+  // identity against stale clients and refuse to orphan an occupied target PDF.
+  const transferSql = [
+    "UPDATE exams SET syllabus_url = CASE WHEN id = ? THEN '' ELSE ? END,",
+    "syllabus_file_name = CASE WHEN id = ? THEN '' ELSE ? END",
+    "WHERE id IN (?, ?) AND EXISTS (SELECT 1 FROM exams AS src",
+    "WHERE src.id = ? AND COALESCE(src.syllabus_url, '') = ?",
+    "AND COALESCE(src.syllabus_file_name, '') = ?)",
+    "AND EXISTS (SELECT 1 FROM exams AS dst WHERE dst.id = ?",
+    "AND COALESCE(dst.syllabus_url, '') = '' AND COALESCE(dst.syllabus_file_name, '') = '')"
+  ].join(" ");
+  const transfer = db.prepare(transferSql).bind(
+    sourceId, url, sourceId, fileName, sourceId, targetId, sourceId, url, fileName, targetId);
+  const { stmt: audit } = prepareAdminAuditLog(db, c.get("user"), {
+    actionType: "SYLLABUS_REASSIGNED",
+    description: "Reassigned syllabus from '" + sourceId + "' to '" + targetId + "'",
+    targetType: "exam", targetId,
+    metadata: { sourceExamId: sourceId, targetExamId: targetId, fileName },
+    condition: { sql: "changes() = 2", bindings: [] },
+  });
+  const results = await runBatch(db, [transfer, audit]);
+  if (results[0]?.success !== true || results[0]?.meta?.changes !== 2 ||
+      results[1]?.success !== true || results[1]?.meta?.changes !== 1) {
+    return c.json({ success: false, error: "Syllabus transfer unconfirmed; reload both exams" }, 409);
+  }
+  return c.json({ success: true, data: {
+    sourceExamId: sourceId, targetExamId: targetId,
+    syllabusUrl: url, syllabusFileName: fileName,
+  } });
+});
+
 // POST /api/exams/:id/syllabus - Upload syllabus PDF (Admin)
 examRoutes.post("/:id/syllabus", requirePermission("manage_syllabus"), async (c) => {
   const id = c.req.param("id") || "";

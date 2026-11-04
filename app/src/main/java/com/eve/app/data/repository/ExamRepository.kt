@@ -216,6 +216,38 @@ class ExamRepository(
         if (!res.success) throw Exception(res.error ?: "Failed to update exam settings")
     }
 
+
+    /** Server owns the atomic two-exam transfer and audit; never replay uncertain responses. */
+    suspend fun reassignSyllabus(source: Exam, target: Exam) {
+        require(source.id.isNotBlank() && target.id.isNotBlank() && source.id != target.id)
+        require(source.syllabusUrl.isNotBlank() && target.syllabusUrl.isBlank())
+        val res = api.reassignSyllabus(source.id, mapOf(
+            "targetExamId" to target.id,
+            "expectedSyllabusUrl" to source.syllabusUrl,
+            "expectedSyllabusFileName" to source.syllabusFileName
+        ))
+        if (!res.success) throw IllegalStateException(
+            res.error ?: "Syllabus reassignment was rejected")
+        val ack = res.data ?: throw IllegalStateException("Syllabus receipt missing")
+        if (ack["sourceExamId"] != source.id || ack["targetExamId"] != target.id ||
+            ack["syllabusUrl"] != source.syllabusUrl ||
+            ack["syllabusFileName"] != source.syllabusFileName) {
+            throw IllegalStateException("Syllabus receipt does not match selected exams")
+        }
+        val sourceRead = api.getExam(source.id)
+        val destRead = api.getExam(target.id)
+        val sourceNow = sourceRead.data
+        val destNow = destRead.data
+        if (!sourceRead.success || !destRead.success ||
+            sourceNow == null || destNow == null ||
+            sourceNow.id != source.id || destNow.id != target.id ||
+            sourceNow.syllabusUrl.isNotBlank() || sourceNow.syllabusFileName.isNotBlank() ||
+            destNow.syllabusUrl != source.syllabusUrl ||
+            destNow.syllabusFileName != source.syllabusFileName) {
+            throw IllegalStateException("Transfer readback unavailable; reload before retrying")
+        }
+    }
+
     suspend fun uploadSyllabusPdf(examId: String, fileName: String, bytes: ByteArray): String {
         val reqBody = bytes.toRequestBody("application/pdf".toMediaTypeOrNull())
         val res = api.uploadSyllabus(
