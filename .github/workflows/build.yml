@@ -166,7 +166,7 @@ jobs:
     needs: [build, backend, firebase-functions]
     if: ${{ needs.build.outputs.full == 'true' && success() }}
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 18
     strategy:
       fail-fast: false
       matrix:
@@ -207,6 +207,9 @@ jobs:
           arch: x86_64
           target: google_apis
           profile: pixel_2
+          # Provide headroom for real native QR renderers, not replacement frames.
+          ram-size: 3072M
+          heap-size: 512M
           disable-animations: false
           script: bash .github/scripts/verify-native-ui.sh ${{ matrix.navigation }}
       - name: Generate visual gallery and XML review inventory

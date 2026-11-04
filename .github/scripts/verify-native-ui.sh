@@ -2,8 +2,16 @@
 set -euo pipefail
 collect_evidence() {
   mkdir -p ui-renderings
-  adb pull /sdcard/Pictures/eve-approved-ui ui-renderings/ || true
-  adb pull /sdcard/Pictures/eve-student-ui ui-renderings/ || true
+  # The prior 3-button emulator went offline after 127/131 passes. Refuse
+  # unbounded ADB reads against a dead device in the EXIT trap.
+  local device_state
+  device_state="$(timeout 5s adb get-state 2>/dev/null || true)"
+  if [[ "$device_state" != "device" ]]; then
+    echo "NATIVE_FAILURE emulator offline; evidence collection skipped (instrumentation log retained)" >&2
+    return 0
+  fi
+  timeout 12s adb pull /sdcard/Pictures/eve-approved-ui ui-renderings/ || true
+  timeout 12s adb pull /sdcard/Pictures/eve-student-ui ui-renderings/ || true
   # Small deterministic shared-style fixtures only. Keep review possible through
   # decoded job logs when the reviewer cannot reach the artifact storage host.
   # Never stream live activity screenshots or application data into logs.
@@ -13,7 +21,7 @@ collect_evidence() {
       fixture_path="/sdcard/Pictures/eve-approved-ui/$fixture"
       if adb shell test -f "$fixture_path"; then
         echo "EVE_DESIGN_PNG_BEGIN $fixture"
-        adb shell base64 "$fixture_path" || true
+        timeout 12s adb shell base64 "$fixture_path" || true
         echo "EVE_DESIGN_PNG_END $fixture"
       fi
     done
@@ -25,7 +33,7 @@ collect_evidence() {
         fixture_path="/sdcard/Pictures/$folder/$fixture-$theme.png"
         if adb shell test -f "$fixture_path"; then
           echo "EVE_DESIGN_PNG_BEGIN $fixture-$theme.png"
-          adb shell base64 "$fixture_path" || true
+          timeout 12s adb shell base64 "$fixture_path" || true
           echo "EVE_DESIGN_PNG_END $fixture-$theme.png"
         fi
       done
@@ -33,22 +41,22 @@ collect_evidence() {
   done
   # The rendering matrix may stall without a JUnit result. Record only the
   # disposable fixture progress tag so the last completed stage is visible.
-  adb logcat -d -s EveStudentUi:I > ui-renderings/student-fixture-progress.log || true
+  timeout 12s adb logcat -d -s EveStudentUi:I > ui-renderings/student-fixture-progress.log || true
   tail -n 100 ui-renderings/student-fixture-progress.log || true
-  adb logcat -d -s AndroidRuntime ThemeSwitchAnimator ThemeManager SystemBarHelper EveBulletin > ui-renderings/safe-runtime.log || true
+  timeout 12s adb logcat -d -s AndroidRuntime ThemeSwitchAnimator ThemeManager SystemBarHelper EveBulletin > ui-renderings/safe-runtime.log || true
   # Keep transaction evidence readable even when artifact storage cannot be downloaded.
   cat ui-renderings/safe-runtime.log || true
   # The hosted runner has grep but does not include ripgrep.
-  adb shell dumpsys window windows | grep -E 'mCurrentFocus|mFocusedApp|mAppearance|appearance=|mNavBarColor|mNavigationBarColor' > ui-renderings/window-appearance.log || true
+  timeout 12s adb shell dumpsys window windows | grep -E 'mCurrentFocus|mFocusedApp|mAppearance|appearance=|mNavBarColor|mNavigationBarColor' > ui-renderings/window-appearance.log || true
   # Surface the already-filtered focus evidence when an external window blocks tests.
   cat ui-renderings/window-appearance.log || true
-  adb shell dumpsys activity service SystemUIService | grep -Ei 'appearance|darkIntensity|lightBar|navigationMode|navBarColor|lightNavigation|navigationLight|navigationBarMode|mForce.*Scrim' > ui-renderings/systemui-appearance.log || true
-  adb shell settings get secure navigation_mode > ui-renderings/navigation-mode.log || true
+  timeout 12s adb shell dumpsys activity service SystemUIService | grep -Ei 'appearance|darkIntensity|lightBar|navigationMode|navBarColor|lightNavigation|navigationLight|navigationBarMode|mForce.*Scrim' > ui-renderings/systemui-appearance.log || true
+  timeout 12s adb shell settings get secure navigation_mode > ui-renderings/navigation-mode.log || true
   # Disposable fixture emulator only: capture ANR categories, not application payloads.
-  adb logcat -d -b events -s am_anr am_crash > ui-renderings/process-failures.log || true
+  timeout 12s adb logcat -d -b events -s am_anr am_crash > ui-renderings/process-failures.log || true
   cat ui-renderings/process-failures.log || true
   if [[ "${messaging_disabled:-0}" == 1 ]]; then
-    adb shell pm enable --user 0 com.google.android.apps.messaging || true
+    timeout 12s adb shell pm enable --user 0 com.google.android.apps.messaging || true
   fi
 }
 trap collect_evidence EXIT
@@ -148,11 +156,22 @@ run_instrumentation() {
 status=0
 # Keep the full existing package suite, excluding exactly the long rendering
 # method. The 52-test minimum ensures the avatar contrast test is not lost.
-if run_instrumentation core -e package com.eve.app.ui \
-    -e notClass com.eve.app.ui.StudentUiRenderingTest#allStudentScreensRenderInBothThemesAndPhoneSizes; then
+# Run the real JNI-backed QR picker alone in a fresh instrumentation
+# process first, rather than after 127 tests accumulated GPU/bitmap state.
+# The following core excludes only this test plus the visual matrix method.
+if run_instrumentation qr-picker \
+    -e class com.eve.app.ui.profile.QrEmojiPickerNativeTest; then
   :
 else
   status=$?
+fi
+if [[ "$status" == 0 ]]; then
+  if run_instrumentation core -e package com.eve.app.ui \
+      -e notClass com.eve.app.ui.StudentUiRenderingTest#allStudentScreensRenderInBothThemesAndPhoneSizes,com.eve.app.ui.profile.QrEmojiPickerNativeTest; then
+    :
+  else
+    status=$?
+  fi
 fi
 
 # Derive shards from the production-layout fixture registry itself: no copied
@@ -192,14 +211,14 @@ PY
     status=1
   fi
 fi
-if [[ "$status" != "0" ]]; then
-  adb shell cmd overlay lookup com.android.systemui com.android.systemui:color/light_mode_icon_color_single_tone > ui-renderings/systemui-light-icon-color.log || true
-  adb shell cmd overlay lookup com.android.systemui com.android.systemui:color/dark_mode_icon_color_single_tone > ui-renderings/systemui-dark-icon-color.log || true
-  if adb shell pm path com.android.deskclock | grep -q '^package:'; then
-    adb shell am start -n com.android.deskclock/.DeskClock > ui-renderings/stock-clock-launch.log || true
+if [[ "$status" != "0" ]] && [[ "$(timeout 5s adb get-state 2>/dev/null || true)" == "device" ]]; then
+  timeout 12s adb shell cmd overlay lookup com.android.systemui com.android.systemui:color/light_mode_icon_color_single_tone > ui-renderings/systemui-light-icon-color.log || true
+  timeout 12s adb shell cmd overlay lookup com.android.systemui com.android.systemui:color/dark_mode_icon_color_single_tone > ui-renderings/systemui-dark-icon-color.log || true
+  if timeout 12s adb shell pm path com.android.deskclock | grep -q '^package:'; then
+    timeout 12s adb shell am start -n com.android.deskclock/.DeskClock > ui-renderings/stock-clock-launch.log || true
     sleep 2
-    adb shell screencap -p /sdcard/Pictures/eve-approved-ui/stock-clock-three-button-control.png || true
-    adb shell dumpsys window displays | grep -E 'mCurrentFocus|mFocusedApp' > ui-renderings/stock-clock-focus.log || true
+    timeout 12s adb shell screencap -p /sdcard/Pictures/eve-approved-ui/stock-clock-three-button-control.png || true
+    timeout 12s adb shell dumpsys window displays | grep -E 'mCurrentFocus|mFocusedApp' > ui-renderings/stock-clock-focus.log || true
   fi
 fi
 exit "$status"

@@ -13,7 +13,7 @@ BASH = shutil.which('bash') or '/bin/bash'
 
 class NativeUiRunnerTest(unittest.TestCase):
     def run_script(self, mode, status=0, observed=None, pending_reads=0, assertion_failure=False,
-                   drain_instrument_stdin=False):
+                   drain_instrument_stdin=False, offline_at_cleanup=False):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             log = root / 'commands.log'
@@ -30,6 +30,8 @@ case "$*" in
     [[ ! -f "$READ_COUNT" ]] || read -r count < "$READ_COUNT"
     echo "$((count + 1))" > "$READ_COUNT"
     if (( count < PENDING_READS )); then echo 2; else echo "$OBSERVED_MODE"; fi ;;
+  'get-state')
+    if [[ "$OFFLINE_AT_CLEANUP" == "1" ]]; then echo offline; else echo device; fi ;;
   'shell pm path com.android.deskclock') exit 1 ;;
   'shell pm path com.google.android.apps.messaging') echo 'package:/system/app/Messages.apk' ;;
   'shell am instrument '*)
@@ -62,6 +64,7 @@ esac
                        GRADLE_STATUS=str(status), INSTRUMENT_FAIL='1' if assertion_failure else '0',
                        PENDING_READS=str(pending_reads),
                        DRAIN_INSTRUMENT_STDIN='1' if drain_instrument_stdin else '0',
+                       OFFLINE_AT_CLEANUP='1' if offline_at_cleanup else '0',
                        READ_COUNT=str(root / 'read-count'))
             result = subprocess.run(['bash', str(SCRIPT), mode], cwd=root, env=env,
                                     capture_output=True, text=True)
@@ -74,8 +77,9 @@ esac
             with self.subTest(mode=mode):
                 result, commands, evidence = self.run_script(mode)
                 self.assertEqual(0, result.returncode, result.stderr)
-                self.assertEqual(5, commands.count('adb shell am instrument -w -r'))
-                self.assertIn('-e notClass com.eve.app.ui.StudentUiRenderingTest#allStudentScreensRenderInBothThemesAndPhoneSizes', commands)
+                self.assertEqual(6, commands.count('adb shell am instrument -w -r'))
+                self.assertIn('-e class com.eve.app.ui.profile.QrEmojiPickerNativeTest', commands)
+                self.assertIn('-e notClass com.eve.app.ui.StudentUiRenderingTest#allStudentScreensRenderInBothThemesAndPhoneSizes,com.eve.app.ui.profile.QrEmojiPickerNativeTest', commands)
                 visual_lines = [line for line in commands.splitlines() if ' -e visualCases ' in line]
                 self.assertEqual(4, len(visual_lines))
                 source = (Path(__file__).resolve().parents[3] / 'app/src/androidTest/java/com/eve/app/ui/StudentUiRenderingTest.kt').read_text()
@@ -104,7 +108,7 @@ esac
             with self.subTest(mode=mode):
                 result, commands, _ = self.run_script(mode, drain_instrument_stdin=True)
                 self.assertEqual(0, result.returncode, result.stderr)
-                self.assertEqual(5, commands.count('adb shell am instrument -w -r'))
+                self.assertEqual(6, commands.count('adb shell am instrument -w -r'))
                 self.assertEqual(4, commands.count(' -e visualCases '))
 
     def test_stdin_isolated_visual_shards_still_fail_on_assertions(self):
@@ -118,7 +122,7 @@ esac
                 self.assertNotEqual(0, result.returncode)
                 self.assertIn('NATIVE_FAILURE', result.stderr)
                 self.assertIn('safe-runtime.log', evidence)
-                # Core failure must not silently advance to visual fixtures.
+                # The isolated QR failure must not silently advance to core or visual fixtures.
                 self.assertEqual(1, commands.count('adb shell am instrument -w -r'))
 
     def test_instrumentation_failure_is_not_swallowed(self):
@@ -132,6 +136,15 @@ esac
         result, _, _ = self.run_script('gesture', status=0, assertion_failure=True)
         self.assertNotEqual(0, result.returncode)
         self.assertIn('NATIVE_FAILURE', result.stderr)
+
+    def test_offline_emulator_skips_blocking_adb_evidence_and_fails_closed(self):
+        result, commands, evidence = self.run_script(
+            'three-button', status=7, offline_at_cleanup=True)
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn('NATIVE_FAILURE emulator offline', result.stderr)
+        self.assertIn('adb get-state', commands)
+        self.assertNotIn('adb pull /sdcard/Pictures/eve-approved-ui', commands)
+        self.assertIn('instrumentation-three-button-qr-picker.log', evidence)
 
     def test_wrong_navigation_mode_fails_before_instrumentation(self):
         result, commands, _ = self.run_script('three-button', observed=2)
