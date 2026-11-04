@@ -95,6 +95,8 @@ class ManageUsersActivity : EveBaseActivity() {
             detailsTarget = null
             detailsDialog?.dismiss()
             detailsDialog = null
+            statusDialog?.dismiss()
+            statusDialog = null
             binding.root.visibility = View.INVISIBLE
             requestJob?.cancel()
             AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_users") {
@@ -157,6 +159,8 @@ class ManageUsersActivity : EveBaseActivity() {
                 detailsTarget = null
                 detailsDialog?.dismiss()
                 detailsDialog = null
+                statusDialog?.dismiss()
+                statusDialog = null
                 binding.rvUsers.visibility = View.GONE
                 binding.layoutPagination.visibility = View.GONE
                 binding.progressBar.visibility = View.VISIBLE
@@ -183,6 +187,8 @@ class ManageUsersActivity : EveBaseActivity() {
         detailsTarget = null
         detailsDialog?.dismiss()
         detailsDialog = null
+        statusDialog?.dismiss()
+        statusDialog = null
         binding.progressBar.visibility = View.VISIBLE
         binding.rvUsers.visibility = View.GONE
         binding.emptyGroup.visibility = View.GONE
@@ -340,8 +346,16 @@ class ManageUsersActivity : EveBaseActivity() {
     }
 
     private fun confirmToggleUserStatus(user: AdminUser, disable: Boolean) {
-        val actionOwner = authorizedUid
-        if (actionPending || !isCurrentOwner(actionOwner) || statusDialog?.isShowing == true) return
+        val actionOwner = authorizedUid ?: return
+        if (actionPending || !isCurrentOwner(actionOwner)) return
+        if (!::adapter.isInitialized || statusDialog?.isShowing == true) return
+        val selection = UserStatusSelection(
+            actionOwner, user.id, user.email, user.disabled, currentPage, query, detailsEpoch
+        )
+        fun selectionCurrent(): Boolean =
+            isCurrentOwner(actionOwner) &&
+                selection.matches(authorizedUid, currentPage, query, detailsEpoch, adapter.currentList)
+        if (!selectionCurrent() || requestJob?.isActive == true) return
         val actionTitle = if (disable) "Disable / Ban User Account?" else "Enable User Account?"
         val actionWarning = if (disable) {
             "Are you sure? This user will be blocked from accessing and submitting mock tests in the app.\n\nUser: ${user.displayName} (${user.email})"
@@ -353,13 +367,14 @@ class ManageUsersActivity : EveBaseActivity() {
             .setTitle(actionTitle)
             .setMessage(actionWarning)
             .setPositiveButton(if (disable) "Disable Account" else "Enable Account") { _, _ ->
-                if (actionPending || !isCurrentOwner(actionOwner)) return@setPositiveButton
+                if (actionPending || !selectionCurrent() ||
+                    requestJob?.isActive == true) return@setPositiveButton
                 actionPending = true
                 binding.progressBar.visibility = View.VISIBLE
                 lifecycleScope.launch {
                     try {
                         val success = adminRepo.toggleUserStatus(user.id, disable)
-                        if (!isCurrentOwner(actionOwner) ||
+                        if (!isCurrentOwner(actionOwner) || !selectionCurrent() ||
                             !lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) return@launch
                         binding.progressBar.visibility = View.GONE
                         if (success) {
@@ -373,7 +388,7 @@ class ManageUsersActivity : EveBaseActivity() {
                     } catch (cancel: CancellationException) {
                         throw cancel
                     } catch (e: Exception) {
-                        if (isCurrentOwner(actionOwner) &&
+                        if (selectionCurrent() &&
                             lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) {
                             binding.progressBar.visibility = View.GONE
                             AppBulletin.showError(this@ManageUsersActivity, "Error: ${e.toUserFriendlyMessage()}")
@@ -390,4 +405,21 @@ class ManageUsersActivity : EveBaseActivity() {
             if (statusDialog === dialog) statusDialog = null
         }
     }
+}
+
+/** Data-only snapshot; status mutations must never follow a stale row or changed page. */
+internal data class UserStatusSelection(
+    val ownerUid: String,
+    val userId: String,
+    val email: String,
+    val wasDisabled: Boolean,
+    val page: Int,
+    val query: String,
+    val epoch: Long
+) {
+    fun matches(activeOwner: String?, activePage: Int, activeQuery: String,
+                activeEpoch: Long, visible: List<AdminUser>): Boolean =
+        ownerUid.isNotBlank() && userId.isNotBlank() && ownerUid == activeOwner &&
+            page == activePage && query == activeQuery && epoch == activeEpoch &&
+            visible.any { it.id == userId && it.email == email && it.disabled == wasDisabled }
 }
