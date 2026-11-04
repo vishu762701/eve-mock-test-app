@@ -10,6 +10,9 @@ collect_evidence() {
     echo "NATIVE_FAILURE emulator offline; evidence collection skipped (instrumentation log retained)" >&2
     # The guest logcat cannot be fetched after ADB dies. Host cgroup OOM data
     # distinguishes a runner memory kill from an application assertion.
+    echo "NATIVE_HOST_MEMORY_SNAPSHOT_BEGIN"
+    free -m || true
+    echo "NATIVE_HOST_MEMORY_SNAPSHOT_END"
     if [[ -r /sys/fs/cgroup/memory.events ]]; then
       echo "NATIVE_HOST_MEMORY_EVENTS_BEGIN"
       cat /sys/fs/cgroup/memory.events || true
@@ -119,6 +122,11 @@ if [[ "$actual_mode" != "$expected_mode" ]]; then
 fi
 adb shell input keyevent KEYCODE_WAKEUP
 adb shell wm dismiss-keyguard
+# The Settings window was opened only to stabilize the navigation overlay.
+# Leave it before instrumentation, otherwise Android's Settings/System UI can
+# retain focus instead of the ActivityScenario app and cascade focus failures.
+# Do not force-stop SystemUI, Quickstep or the test app.
+adb shell input keyevent KEYCODE_BACK
 # Install precompiled, checksum-verified binaries; do not run Gradle per emulator.
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk

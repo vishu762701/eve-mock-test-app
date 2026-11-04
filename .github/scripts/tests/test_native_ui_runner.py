@@ -95,6 +95,8 @@ esac
                 self.assertLess(commands.index('am start -W -a android.settings.SETTINGS'),
                                 commands.index('shell cmd overlay enable-exclusive'))
                 self.assertLess(commands.index('shell cmd overlay enable-exclusive'),
+                                commands.index('adb shell input keyevent KEYCODE_BACK'))
+                self.assertLess(commands.index('adb shell input keyevent KEYCODE_BACK'),
                                 commands.index('adb shell am instrument -w -r'))
                 self.assertNotIn('force-stop', commands)
                 self.assertNotIn('adb reboot', commands)
@@ -102,6 +104,19 @@ esac
                 self.assertIn('adb shell pm enable --user 0 com.google.android.apps.messaging', commands)
                 self.assertIn('adb pull /sdcard/Pictures/eve-approved-ui', commands)
                 self.assertIn('process-failures.log', evidence)
+
+    def test_native_emulator_resource_budget_keeps_both_navigation_modes(self):
+        workflow = (Path(__file__).resolve().parents[3] / '.github/workflows/build.yml').read_text()
+        self.assertIn('navigation: [gesture, three-button]', workflow)
+        self.assertIn('ram-size: 2560M', workflow)
+        self.assertIn('heap-size: 384M', workflow)
+        self.assertIn('emulator-build: 16428233', workflow)
+        self.assertIn('script: bash .github/scripts/verify-native-ui.sh', workflow)
+        # Keep all real JNI/visual cases. RAM tuning is not a test exemption.
+        script = SCRIPT.read_text()
+        self.assertIn('-e class com.eve.app.ui.profile.QrEmojiPickerNativeTest', script)
+        self.assertIn('run_instrumentation core', script)
+        self.assertIn('run_instrumentation "visual-$shard"', script)
 
     def test_adb_stdin_cannot_consume_remaining_visual_shards(self):
         for mode in ['gesture', 'three-button']:

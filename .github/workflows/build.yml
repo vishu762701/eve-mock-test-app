@@ -216,8 +216,12 @@ jobs:
           # graphics/AVD is an infrastructure compatibility experiment,
           # never evidence of exact Telegram runtime parity.
           emulator-options: -no-window -gpu software -no-snapshot -noaudio -no-boot-anim -feature -Vulkan
-          ram-size: 3072M
-          heap-size: 512M
+          # Preserve all Android/JNI visual tests while reducing guest pressure
+          # on the shared KVM host. Two FULL attempts killed the guest during
+          # the real QR picker: no instrumentation terminal or JUnit assertion.
+          # This is a host stability experiment, not a fidelity assertion.
+          ram-size: 2560M
+          heap-size: 384M
           disable-animations: false
           script: bash .github/scripts/verify-native-ui.sh ${{ matrix.navigation }}
       - name: Generate visual gallery and XML review inventory
