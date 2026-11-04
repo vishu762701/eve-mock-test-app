@@ -125,7 +125,7 @@ class Mission01GateTest(unittest.TestCase):
         self.assertIn("&& success()", publish)
         # FULL verification is not authorization to publish a debug APK.
         # The dispatch input is typed boolean and must default to false.
-        dispatch = workflow.split("  workflow_dispatch:\\n", 1)[1].split("\\n\\n", 1)[0]
+        dispatch = workflow.split("  workflow_dispatch:\n", 1)[1].split("\n\n", 1)[0]
         self.assertIn("publish_verified_apk:", dispatch)
         self.assertIn("type: boolean", dispatch)
         self.assertIn("required: false", dispatch)
