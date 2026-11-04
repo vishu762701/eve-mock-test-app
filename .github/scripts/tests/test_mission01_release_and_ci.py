@@ -123,6 +123,8 @@ class Mission01GateTest(unittest.TestCase):
         # Vulkan guests through the documented GLES software renderer instead.
         self.assertIn("-gpu software", native)
         self.assertNotIn("-gpu swiftshader_indirect", native)
+        self.assertIn("emulator-build: 16428233", native)
+        self.assertIn("navigation: [gesture, three-button]", native)
         self.assertIn("-feature -Vulkan", native)
         self.assertIn("navigation: [gesture, three-button]", native)
         self.assertIn("--enforce", native)

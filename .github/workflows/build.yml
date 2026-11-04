@@ -207,9 +207,14 @@ jobs:
           arch: x86_64
           target: google_apis
           profile: pixel_2
-          # FULL 41786398388: the native QR picker disconnected the 3-button
-          # emulator even with Vulkan off. Replace the deprecated graphics mode
-          # with Google's supported software backend. Keep ALL native tests.
+          # 37.2.13 (build 16740729) repeatedly lost the three-button guest
+          # in the actual QR JNI picker, including with software GPU; host
+          # logs showed invalid ColorBuffer then TCP 5554 connection refused.
+          # Pin the preceding official 37.2.12 stable build for BOTH modes.
+          emulator-build: 16428233
+          # Keep native QR JNI and every visual test enabled. Emulator
+          # graphics/AVD is an infrastructure compatibility experiment,
+          # never evidence of exact Telegram runtime parity.
           emulator-options: -no-window -gpu software -no-snapshot -noaudio -no-boot-anim -feature -Vulkan
           ram-size: 3072M
           heap-size: 512M
