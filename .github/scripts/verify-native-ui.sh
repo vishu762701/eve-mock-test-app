@@ -78,7 +78,7 @@ collect_evidence() {
   # disposable fixture progress tag so the last completed stage is visible.
   timeout 12s adb logcat -d -s EveStudentUi:I > ui-renderings/student-fixture-progress.log || true
   tail -n 100 ui-renderings/student-fixture-progress.log || true
-  timeout 12s adb logcat -d -s AndroidRuntime ThemeSwitchAnimator ThemeManager SystemBarHelper EveBulletin > ui-renderings/safe-runtime.log || true
+  timeout 12s adb logcat -d -s AndroidRuntime ThemeSwitchAnimator ThemeManager SystemBarHelper EveBulletin EveNativeQrStage:I > ui-renderings/safe-runtime.log || true
   # Keep transaction evidence readable even when artifact storage cannot be downloaded.
   cat ui-renderings/safe-runtime.log || true
   # The hosted runner has grep but does not include ripgrep.

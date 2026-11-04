@@ -126,6 +126,15 @@ esac
         self.assertIn('run_instrumentation core', script)
         self.assertIn('run_instrumentation "visual-$shard"', script)
 
+    def test_animated_qr_tests_wait_for_real_layout_with_bounded_evidence(self):
+        root = Path(__file__).resolve().parents[3]
+        for name in ("QrEmojiPickerNativeTest.kt", "TelegramQrSceneNativeTest.kt"):
+            native = (root / "app/src/androidTest/java/com/eve/app/ui/profile" / name).read_text()
+            self.assertNotIn("waitForIdleSync()", native)
+            self.assertIn("layoutReady.await(30, TimeUnit.SECONDS)", native)
+            self.assertIn('Log.i("EveNativeQrStage"', native)
+        self.assertIn("EveNativeQrStage:I", SCRIPT.read_text())
+
     def test_adb_stdin_cannot_consume_remaining_visual_shards(self):
         for mode in ['gesture', 'three-button']:
             with self.subTest(mode=mode):
