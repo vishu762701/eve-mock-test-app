@@ -119,6 +119,11 @@ class Mission01GateTest(unittest.TestCase):
         self.assertIn("needs.build.outputs.full == 'true'", native)
         self.assertIn("matrix:\n        navigation: [gesture, three-button]", native)
         self.assertIn("reactivecircus/android-emulator-runner@v2", native)
+        # Never suppress the real QR/JNI instrumentation: route unsupported
+        # Vulkan guests through the documented GLES software renderer instead.
+        self.assertIn("-gpu swiftshader_indirect", native)
+        self.assertIn("-feature -Vulkan", native)
+        self.assertIn("navigation: [gesture, three-button]", native)
         self.assertIn("--enforce", native)
         self.assertIn("needs: [build, native-ui, backend, firebase-functions]", publish)
         self.assertIn("needs.build.outputs.full == 'true'", publish)

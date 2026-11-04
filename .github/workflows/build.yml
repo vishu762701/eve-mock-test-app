@@ -207,7 +207,11 @@ jobs:
           arch: x86_64
           target: google_apis
           profile: pixel_2
-          # Provide headroom for real native QR renderers, not replacement frames.
+          # FULL #41784526767: the hosted 37.2.13 gfxstream/Vulkan emulator
+          # disconnected during a real QR picker native frame. Keep software
+          # GLES rendering and the complete test matrix; disable the optional
+          # Vulkan device as documented in Android Emulator troubleshooting.
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -feature -Vulkan
           ram-size: 3072M
           heap-size: 512M
           disable-animations: false
