@@ -3,7 +3,6 @@ package com.eve.app.data.repository
 import com.eve.app.data.remote.AdminAuditLogDto
 import com.eve.app.data.remote.ApiResponse
 import com.eve.app.data.remote.EveApiService
-import java.io.IOException
 import java.lang.reflect.Proxy
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -52,9 +51,9 @@ class AuditLogResponseContractTest {
 
     @Test fun auditTransportFailuresPropagate() = runBlocking {
         try {
-            repository("getAdminAuditLogs", failure = IOException("Offline")).getLogs()
+            repository("getAdminAuditLogs", failure = IllegalArgumentException("Offline")).getLogs()
             fail("Network failure must not report empty audit history")
-        } catch (expected: IOException) {
+        } catch (expected: IllegalArgumentException) {
             assertEquals("Offline", expected.message)
         }
     }
