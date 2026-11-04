@@ -116,8 +116,8 @@ esac
         self.assertIn('ram-size: 3072M', workflow)
         self.assertIn('heap-size: 512M', workflow)
         self.assertIn('emulator-build: 16428233', workflow)
-        self.assertIn('emulator-options: -no-window -gpu software -no-snapshot -noaudio -no-boot-anim -feature -Vulkan', workflow)
-        self.assertNotIn('emulator-options: -no-window -gpu swiftshader ', workflow)
+        self.assertIn('emulator-options: -no-window -gpu swangle -no-snapshot -noaudio -no-boot-anim -feature -Vulkan', workflow)
+        self.assertNotIn('emulator-options: -no-window -gpu software ', workflow)
         self.assertIn('script: bash .github/scripts/verify-native-ui.sh', workflow)
         # Keep all real JNI/visual cases. RAM tuning is not a test exemption.
         script = SCRIPT.read_text()

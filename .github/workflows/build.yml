@@ -215,13 +215,13 @@ jobs:
           # Keep native QR JNI and every visual test enabled. Emulator
           # graphics/AVD is an infrastructure compatibility experiment,
           # never evidence of exact Telegram runtime parity.
-          # Restore the only exact-SHA FULL three-button configuration that
-          # completed all native cases (41805072249 attempt 2), while keeping
-          # later isolated QR-picker/scene shards and crash evidence unchanged.
-          # Both newer SwiftShader/low-memory attempts failed differently:
-          # 15 window/visual assertions vs QEMU guest disappearing mid-picker.
-          # This configuration is a regression test, not proven root cause.
-          emulator-options: -no-window -gpu software -no-snapshot -noaudio -no-boot-anim -feature -Vulkan
+          # Diagnose recurrent QEMU guest exit under the genuine JNI QR picker.
+          # Both prior software and SwiftShader GLES profiles lost the guest,
+          # without a terminal JUnit assertion. Android Emulator officially
+          # supports swangle (SwiftShader through ANGLE); isolate this backend
+          # without dropping any native test or changing emulator/API/nav modes.
+          # This is a CI compatibility hypothesis, NOT proven app/device parity.
+          emulator-options: -no-window -gpu swangle -no-snapshot -noaudio -no-boot-anim -feature -Vulkan
           ram-size: 3072M
           heap-size: 512M
           disable-animations: false
