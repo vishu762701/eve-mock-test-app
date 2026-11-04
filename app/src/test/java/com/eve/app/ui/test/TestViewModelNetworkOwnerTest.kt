@@ -28,6 +28,19 @@ class TestViewModelNetworkOwnerTest {
         assertTrue(secondNetwork > initialNetwork && secondGuard > secondNetwork && secondMutation > secondGuard)
     }
 
+    @Test fun attemptEligibilityAwaitCannotPublishToReplacedAccount() {
+        val src = File("src/main/java/com/eve/app/ui/test/TestViewModel.kt").readText()
+        val start = src.substringAfter("fun start(").substringBefore("fun retry(")
+        val initial = start.indexOf("val canAttempt =")
+        val initialGuard = start.indexOf("if (!ownsActiveAccount()) return@launch", initial)
+        val initialState = start.indexOf("_alreadyAttempted.value = true", initial)
+        assertTrue(initial >= 0 && initialGuard > initial && initialState > initialGuard)
+        val secondary = start.indexOf("val canStillAttempt =")
+        val secondaryGuard = start.indexOf("if (!ownsActiveAccount()) return@launch", secondary)
+        val secondaryState = start.indexOf("_alreadyAttempted.value = true", secondary)
+        assertTrue(secondary >= 0 && secondaryGuard > secondary && secondaryState > secondaryGuard)
+    }
+
     @Test fun questionPublicationAndFailureCannotReachNewAccount() {
         val src = File("src/main/java/com/eve/app/ui/test/TestViewModel.kt").readText()
         val start = src.substringAfter("fun start(").substringBefore("fun retry(")

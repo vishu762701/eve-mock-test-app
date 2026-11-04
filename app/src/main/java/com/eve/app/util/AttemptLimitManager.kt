@@ -33,6 +33,9 @@ object AttemptLimitManager {
         edit.apply()
     }
 
+    private fun isOriginalAccount(uid: String): Boolean =
+        SubmissionRetryPolicy.ownsSubmission(uid, FirebaseAuth.getInstance().currentUser?.uid)
+
     fun getLocalAttemptCount(context: Context, examId: String, uid: String): Int {
         if (examId.isBlank() || uid.isBlank()) return 0
         val sp = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -70,6 +73,8 @@ object AttemptLimitManager {
             // optional: failure is fine
         }
 
+        // A suspended history read must never publish a result to a different Firebase account.
+        if (!isOriginalAccount(uid)) return localCount
         val highest = maxOf(localCount, historyCount)
         if (highest != localCount) {
             setLocalAttemptCount(context, examId, uid, highest)
@@ -83,18 +88,26 @@ object AttemptLimitManager {
      */
     suspend fun canAttempt(context: Context, examId: String): Boolean {
         val user = FirebaseAuth.getInstance().currentUser ?: return true
-        if (isAdmin(user.email, context)) return true
-        if (com.eve.app.data.repository.PremiumRepository.isCurrentUserPremium(context)) return true
+        val originalUid = user.uid
+        val adminAllowed = isAdmin(user.email, context)
+        if (!isOriginalAccount(originalUid)) return false
+        if (adminAllowed) return true
+        if (com.eve.app.data.repository.PremiumRepository.isCurrentUserPremium(context)) {
+            return isOriginalAccount(originalUid)
+        }
         val count = getAttemptCount(context, examId)
-        return count < MAX_ATTEMPTS
+        return isOriginalAccount(originalUid) && count < MAX_ATTEMPTS
     }
 
     fun canAttemptLocal(context: Context, examId: String): Boolean {
         val user = FirebaseAuth.getInstance().currentUser ?: return true
-        if (isCurrentUserAdmin()) return true
-        if (com.eve.app.data.repository.PremiumRepository.isCurrentUserPremium(context)) return true
-        val count = getLocalAttemptCount(context, examId, user.uid)
-        return count < MAX_ATTEMPTS
+        val originalUid = user.uid
+        if (isCurrentUserAdmin()) return isOriginalAccount(originalUid)
+        if (com.eve.app.data.repository.PremiumRepository.isCurrentUserPremium(context)) {
+            return isOriginalAccount(originalUid)
+        }
+        val count = getLocalAttemptCount(context, examId, originalUid)
+        return isOriginalAccount(originalUid) && count < MAX_ATTEMPTS
     }
 
     /**

@@ -159,6 +159,10 @@ class TestActivity : EveBaseActivity() {
 
             if (!isAdminUser && topic.isBlank() && pyqYear == 0 && examId.isNotBlank()) {
                 val canAttempt = com.eve.app.util.AttemptLimitManager.canAttempt(this@TestActivity, examId)
+                if (!isTestOwner() || isFinishing || isDestroyed) {
+                    finish()
+                    return@launch
+                }
                 if (!canAttempt) {
                     TelegramNativeAlertDialog.Builder(this@TestActivity)
                         .setTitle("Attempt Limit Reached")

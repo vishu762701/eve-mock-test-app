@@ -28,6 +28,17 @@ class TestActivityOwnerLifecycleTest {
         assertTrue(src.contains("outState.putString(\"key_attempt_owner\", testOwnerUid)"))
     }
 
+    @Test fun attemptedEligibilityReturnChecksOriginalTestOwnerBeforeUiOrStart() {
+        val src = File("src/main/java/com/eve/app/ui/test/TestActivity.kt").readText()
+        val start = src.substringAfter("override fun onCreate(savedInstanceState: Bundle?)")
+            .substringBefore("private fun submit()")
+        val lookup = start.indexOf("val canAttempt = com.eve.app.util.AttemptLimitManager.canAttempt(")
+        val guard = start.indexOf("if (!isTestOwner() || isFinishing || isDestroyed)", lookup)
+        val reject = start.indexOf("if (!canAttempt)", lookup)
+        val call = start.indexOf("viewModel.start(examId", lookup)
+        assertTrue(lookup >= 0 && guard > lookup && reject > guard && call > reject)
+    }
+
     @Test fun lateSubmitResponseCannotWriteOldAccountCachesOrNavigate() {
         val src = File("src/main/java/com/eve/app/ui/test/TestActivity.kt").readText()
         val body = src.substringAfter("private fun submit()")

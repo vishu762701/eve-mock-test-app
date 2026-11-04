@@ -132,6 +132,7 @@ class TestViewModel : ViewModel() {
             try {
                 val isStandardMock = topic.isBlank() && pyqYear == 0 && !fromBookmark
                 val canAttempt = com.eve.app.util.AttemptLimitManager.canAttempt(com.eve.app.EveApplication.instance, effectiveExamId)
+                if (!ownsActiveAccount()) return@launch
                 if (!isAdmin && user != null && effectiveExamId.isNotBlank() && isStandardMock && !canAttempt) {
                     _alreadyAttempted.value = true
                     started = false
@@ -184,6 +185,7 @@ class TestViewModel : ViewModel() {
                         if (!ownsActiveAccount()) return@launch
                         if (e.code() == 409 && !isAdmin) {
                             val canStillAttempt = com.eve.app.util.AttemptLimitManager.canAttempt(com.eve.app.EveApplication.instance, examId)
+                            if (!ownsActiveAccount()) return@launch
                             if (!canStillAttempt) {
                                 _alreadyAttempted.value = true
                                 started = false
