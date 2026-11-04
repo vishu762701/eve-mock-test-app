@@ -123,6 +123,19 @@ class Mission01GateTest(unittest.TestCase):
         self.assertIn("needs: [build, native-ui, backend, firebase-functions]", publish)
         self.assertIn("needs.build.outputs.full == 'true'", publish)
         self.assertIn("&& success()", publish)
+        # FULL verification is not authorization to publish a debug APK.
+        # The dispatch input is typed boolean and must default to false.
+        dispatch = workflow.split("  workflow_dispatch:\\n", 1)[1].split("\\n\\n", 1)[0]
+        self.assertIn("publish_verified_apk:", dispatch)
+        self.assertIn("type: boolean", dispatch)
+        self.assertIn("required: false", dispatch)
+        self.assertIn("default: false", dispatch)
+        self.assertIn("github.event_name == 'workflow_dispatch'", publish)
+        self.assertIn("inputs.publish_verified_apk == true", publish)
+        # A push with [eve-full] is allowed to validate the native matrix,
+        # but never to publish the APK without an explicit manual dispatch.
+        self.assertIn("[eve-full]", workflow)
+
         self.assertIn("actions/cache/restore@v4", publish)
         self.assertIn("sha256sum --check --status", publish)
         self.assertNotIn("gradle assembleDebug", publish)

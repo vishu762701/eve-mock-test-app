@@ -13,11 +13,19 @@ on:
       - '*.txt'
       - '.github/workflows/docs.yml'
       - '.github/scripts/verify-docs.mjs'
-  # Mission-final FULL gate: both emulator suites and one verified APK.
+  # FULL verification may run without artifact publication. Upload needs a
+  # separate positive choice on a manually dispatched workflow run.
   workflow_dispatch:
+    inputs:
+      publish_verified_apk:
+        description: 'Upload debug APK only with explicit owner publication approval'
+        type: boolean
+        required: false
+        default: false
 
 # Preserve every triggered FULL run as mission-level evidence.
 # Intermediate FAST failures remain visible for root-cause diagnosis.
+# The [eve-full] commit marker never grants APK publication consent.
 
 env:
   APP_VERSION_CODE: ${{ github.run_number }}
@@ -260,7 +268,7 @@ jobs:
   publish-apk:
     name: Publish verified debug APK
     needs: [build, native-ui, backend, firebase-functions]
-    if: ${{ needs.build.outputs.full == 'true' && success() }}
+    if: ${{ needs.build.outputs.full == 'true' && success() && github.event_name == 'workflow_dispatch' && inputs.publish_verified_apk == true }}
     runs-on: ubuntu-latest
     steps:
       - name: Restore exact candidate APK without recompilation
