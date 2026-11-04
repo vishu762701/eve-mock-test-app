@@ -119,9 +119,10 @@ class Mission01GateTest(unittest.TestCase):
         self.assertIn("needs.build.outputs.full == 'true'", native)
         self.assertIn("matrix:\n        navigation: [gesture, three-button]", native)
         self.assertIn("reactivecircus/android-emulator-runner@v2", native)
-        # Never suppress the real QR/JNI instrumentation: route unsupported
-        # Vulkan guests through the documented GLES software renderer instead.
-        self.assertIn("-gpu software", native)
+        # Never suppress QR/JNI instrumentation. SwiftShader is the supported
+        # explicitly selected software GLES backend for both native modes.
+        # Reject the deprecated _indirect variant and accidental auto selection.
+        self.assertIn("-gpu swiftshader ", native)
         self.assertNotIn("-gpu swiftshader_indirect", native)
         self.assertIn("emulator-build: 16428233", native)
         self.assertIn("navigation: [gesture, three-button]", native)
