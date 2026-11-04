@@ -88,6 +88,13 @@ class ManageUsersActivity : EveBaseActivity() {
         // Never show cached user rows without a fresh server decision.
         if (authorizedUid != null) {
             gateReady = false
+            // onPause may be followed by onResume without an onStop callback.
+            // Invalidate details before a new privilege check can finish.
+            detailsJob?.cancel()
+            detailsEpoch++
+            detailsTarget = null
+            detailsDialog?.dismiss()
+            detailsDialog = null
             binding.root.visibility = View.INVISIBLE
             requestJob?.cancel()
             AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_users") {
@@ -255,7 +262,7 @@ class ManageUsersActivity : EveBaseActivity() {
     }
 
     private fun showUserDetailsDialog(user: AdminUser) {
-        val requestOwner = authorizedUid
+        val requestOwner = authorizedUid ?: return
         if (!isCurrentOwner(requestOwner) || user.id.isBlank() ||
             (detailsJob?.isActive == true && detailsTarget == user.id) ||
             detailsDialog?.isShowing == true) return
@@ -264,14 +271,23 @@ class ManageUsersActivity : EveBaseActivity() {
         detailsTarget = user.id
         val requestPage = currentPage
         val requestQuery = query
+        val selection = UserDetailsSelection(
+            ownerUid = requestOwner,
+            userId = user.id,
+            page = requestPage,
+            query = requestQuery,
+            epoch = detailRequestEpoch
+        )
+        fun requestIsCurrent(): Boolean =
+            isCurrentOwner(requestOwner) &&
+                selection.matches(authorizedUid, detailsTarget, currentPage, query, detailsEpoch) &&
+                lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)
         binding.progressBar.visibility = View.VISIBLE
 
         detailsJob = lifecycleScope.launch {
             try {
                 val attempts = adminRepo.getUserAttempts(user.id)
-                if (!isCurrentOwner(requestOwner) || requestPage != currentPage ||
-                    requestQuery != query ||
-                    !lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) return@launch
+                if (!requestIsCurrent()) return@launch
                 binding.progressBar.visibility = View.GONE
 
                 val attemptsSummary = if (attempts.isEmpty()) {
@@ -300,6 +316,7 @@ class ManageUsersActivity : EveBaseActivity() {
                     $attemptsSummary
                 """.trimIndent()
 
+                if (!requestIsCurrent()) return@launch
                 val dialog = TelegramNativeAlertDialog.Builder(this@ManageUsersActivity)
                     .setTitle(user.displayName.ifBlank { "Student Details" })
                     .setMessage(message)
@@ -312,8 +329,7 @@ class ManageUsersActivity : EveBaseActivity() {
             } catch (cancel: CancellationException) {
                 throw cancel
             } catch (e: Exception) {
-                if (isCurrentOwner(requestOwner) && requestPage == currentPage && requestQuery == query &&
-                    lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) {
+                if (requestIsCurrent()) {
                     binding.progressBar.visibility = View.GONE
                     AppBulletin.showError(this@ManageUsersActivity, "Failed to load attempts: ${e.toUserFriendlyMessage()}")
                 }
