@@ -17,7 +17,15 @@ jobs:
           SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.SUPABASE_ANON_KEY }}
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: |
-          TARGET_URL="${SUPABASE_PROJECT_URL:-https://msfihtyllpodkfgxxxdd.supabase.co}"
+          set -euo pipefail
+          # Do not guess a project identity or route authenticated queries to a stale
+          # public fallback. Only an owner-configured URL may receive a keepalive.
+          TARGET_URL="${SUPABASE_PROJECT_URL:-}"
+          TARGET_URL="${TARGET_URL%/}"
+          if [ -n "$TARGET_URL" ] && [[ ! "$TARGET_URL" =~ ^https://[A-Za-z0-9.-]+(:[0-9]{1,5})?$ ]]; then
+            echo "::error title=Supabase Keepalive::SUPABASE_PROJECT_URL must be a verified HTTPS project origin (no path or credentials)."
+            exit 1
+          fi
 
           # 1. Ensure secrets are masked in GitHub Actions log output
           if [ -n "$SUPABASE_KEY" ]; then
@@ -29,7 +37,7 @@ jobs:
 
           echo "=== Supabase Database Activity Keepalive ==="
           echo "Timestamp: $(date -u '+%Y-%m-%d %H:%M:%SZ')"
-          echo "Target URL: $TARGET_URL"
+          echo "HTTP project URL configured: $([ -n "$TARGET_URL" ] && echo yes || echo no)"
 
           # 2. Check if direct PostgreSQL connection is configured
           if [ -n "$SUPABASE_DB_URL" ]; then
@@ -43,6 +51,12 @@ jobs:
                 echo "Direct PostgreSQL connection failed. Falling back to PostgREST database query..."
               fi
             fi
+          fi
+
+          # Never guess a cloud project hostname when direct DB access is unavailable.
+          if [ -z "$TARGET_URL" ]; then
+            echo "::error title=Supabase Keepalive::No SUPABASE_PROJECT_URL secret configured and direct database keepalive did not succeed."
+            exit 1
           fi
 
           # 3. Authenticate and query Supabase Database via PostgREST

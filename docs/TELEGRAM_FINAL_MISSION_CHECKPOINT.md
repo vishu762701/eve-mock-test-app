@@ -4,6 +4,35 @@
 
 Status: PARTIAL. This is a continuation record, not screen acceptance.
 
+## Supabase keepalive DNS/configuration containment (independent CI repair)
+
+The latest observed Supabase Activity Keepalive run `41629517670` failed
+on 2026-11-03. The actual GitHub job log shows the PostgREST curl requests
+could not resolve the configured-or-fallback hostname (HTTP 000). The
+current Workflow `.github/workflows/supabase-keepalive.yml` had a
+hardcoded project URL fallback; a DNS failure is not evidence of an active
+or successfully queried database. This analysis is source/job-log VERIFIED,
+but **the owner's actual configured Supabase project URL and credentials
+remain UNKNOWN**.
+
+The scoped independent workflow repair removes that hardcoded fallback,
+does not log the project URL, validates an explicit HTTPS origin, preserves
+a successful configured direct PostgreSQL `SELECT 1` path, and fails
+clearly when neither a working direct DB URL nor the verified Supabase
+project URL/API key is configured. Offline Python regression tests
+`.github/scripts/tests/test_supabase_keepalive_contract.py` run the actual
+extracted workflow shell block with stubbed curl for missing/invalid
+configuration, mocked HTTP 200 and DNS-000 responses. No real service,
+secret, URL or credential is substituted during tests.
+
+**Actual keepalive recovery remains BLOCKED** until the owner verifies
+the real project URL, service status, and permitted GitHub Actions
+secrets through trusted provider settings. No production credential
+rotation, live keepalive dispatch, Worker deployment or external database
+write is authorized by this source repair. Record carrying exact-SHA
+CI only once it has finished; no success is asserted in this checkpoint.
+This CI-only work is unrelated to Telegram UI/QR parity.
+
 ## Production D1 parameter-bound correction — forward repair
 
 After the scoped report integrity patch passed FAST, official Cloudflare D1
