@@ -21,7 +21,11 @@ async function getVoteCountsForPoll(db: D1Database, pollId: string, optionsCount
     .all<{ option_index: number; vote_count: number }>();
 
   for (const r of results || []) {
-    counts[String(r.option_index)] = r.vote_count;
+    // Legacy invalid votes remain on disk for audit, never invent UI options.
+    const index = Number(r.option_index);
+    if (Number.isSafeInteger(index) && index >= 0 && index < optionsCount) {
+      counts[String(index)] = r.vote_count;
+    }
   }
 
   return counts;
@@ -198,11 +202,13 @@ pollRoutes.post("/:id/vote", async (c) => {
   const user = c.get("user");
   const pollId = c.req.param("id");
   const body = await c.req.json().catch(() => ({}));
-  const optionIndex = Number(body.optionIndex);
+  const optionIndex = body?.optionIndex;
   const db = c.env.DB;
   const now = Date.now();
 
-  if (isNaN(optionIndex) || optionIndex < 0) {
+  // Retrofit sends an integer. Do not coerce absent, null, boolean, decimal,
+  // or string values into another option (Number(null) used to become 0).
+  if (!Number.isSafeInteger(optionIndex) || optionIndex < 0) {
     return c.json({ success: false, error: "Valid optionIndex required" }, 400);
   }
 
@@ -215,22 +221,28 @@ pollRoutes.post("/:id/vote", async (c) => {
     return c.json({ success: false, error: "This poll is closed or has expired." }, 400);
   }
 
-  // Check single vote constraint
-  const existing = await db
-    .prepare("SELECT 1 FROM poll_votes WHERE poll_id = ? AND user_id = ?")
-    .bind(pollId, user.uid)
-    .first();
-
-  if (existing) {
-    return c.json({ success: false, error: "You have already voted in this poll." }, 409);
+  // A legacy malformed poll must not accept votes that cannot map to a real choice.
+  let options: unknown;
+  try { options = JSON.parse(poll.options_json); } catch { options = null; }
+  if (!Array.isArray(options) || options.length < 2 ||
+      !options.every((o: unknown) => typeof o === "string" && o.trim().length > 0)) {
+    return c.json({ success: false, error: "Poll options require administrator repair." }, 409);
+  }
+  if (optionIndex >= options.length) {
+    return c.json({ success: false, error: "Option does not belong to this poll." }, 400);
   }
 
-  await db
-    .prepare(
-      "INSERT INTO poll_votes (poll_id, user_id, option_index, voted_at) VALUES (?, ?, ?, ?)"
-    )
-    .bind(pollId, user.uid, optionIndex, now)
-    .run();
+  // PRIMARY KEY (poll_id, user_id) enforces one vote even for simultaneous taps.
+  // Confirm the poll is still active at INSERT time as status may change
+  // while authorization/validation awaits complete.
+  const inserted = await db.prepare(
+    "INSERT OR IGNORE INTO poll_votes (poll_id, user_id, option_index, voted_at) " +
+    "SELECT ?, ?, ?, ? WHERE EXISTS (SELECT 1 FROM polls WHERE id = ? AND active = 1 " +
+    "AND (ends_at = 0 OR ends_at >= ?))"
+  ).bind(pollId, user.uid, optionIndex, now, pollId, now).run();
+  if (inserted.meta.changes !== 1) {
+    return c.json({ success: false, error: "This poll is closed or you have already voted." }, 409);
+  }
 
   return c.json({ success: true });
 });
