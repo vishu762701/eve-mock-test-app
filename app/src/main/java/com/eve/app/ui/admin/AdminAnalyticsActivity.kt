@@ -129,33 +129,9 @@ class AdminAnalyticsActivity : EveBaseActivity() {
             })
         }
 
-        authorizeAnalytics()
-    }
-
-    private fun setup() {
-        binding.btnBack.setOnClickListener { finish() }
-        binding.btnRefresh.setOnClickListener { if (currentAccess()) viewModel.load(selectedTimeRange()) }
-        binding.btnOpenCrashlyticsConsole.setOnClickListener {
-            try {
-                val intent = Intent(
-                    Intent.ACTION_VIEW,
-                    android.net.Uri.parse("https://console.firebase.google.com/u/0/project/_/crashlytics")
-                )
-                startActivity(intent)
-            } catch (e: Exception) {
-                AppBulletin.showError(this, "Could not open browser: ${e.message}")
-            }
-        }
-
-        binding.chipGroupTimeRange.setOnCheckedStateChangeListener { _, _ ->
-            if (currentAccess()) viewModel.load(selectedTimeRange())
-        }
-
-        binding.rvExams.layoutManager = LinearLayoutManager(this)
-        binding.rvExams.adapter = examAdapter
-        binding.rvQuestions.layoutManager = LinearLayoutManager(this)
-        binding.rvQuestions.adapter = questionAdapter
-
+        // Install once from onCreate, not via setup() reached by onResume.
+        // repeatOnLifecycle manages start/stop collection; currentAccess() keeps
+        // the same server-authorized account as the only eligible publisher.
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
@@ -197,6 +173,34 @@ class AdminAnalyticsActivity : EveBaseActivity() {
                 }
             }
         }
+        authorizeAnalytics()
+    }
+
+    private fun setup() {
+        binding.btnBack.setOnClickListener { finish() }
+        binding.btnRefresh.setOnClickListener { if (currentAccess()) viewModel.load(selectedTimeRange()) }
+        binding.btnOpenCrashlyticsConsole.setOnClickListener {
+            try {
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    android.net.Uri.parse("https://console.firebase.google.com/u/0/project/_/crashlytics")
+                )
+                startActivity(intent)
+            } catch (e: Exception) {
+                AppBulletin.showError(this, "Could not open browser: ${e.message}")
+            }
+        }
+
+        binding.chipGroupTimeRange.setOnCheckedStateChangeListener { _, _ ->
+            if (currentAccess()) viewModel.load(selectedTimeRange())
+        }
+
+        binding.rvExams.layoutManager = LinearLayoutManager(this)
+        binding.rvExams.adapter = examAdapter
+        binding.rvQuestions.layoutManager = LinearLayoutManager(this)
+        binding.rvQuestions.adapter = questionAdapter
+
+
     }
 
     private fun selectedTimeRange(): AnalyticsTimeRange = when (binding.chipGroupTimeRange.checkedChipId) {
