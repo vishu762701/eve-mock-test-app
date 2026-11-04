@@ -121,7 +121,8 @@ class Mission01GateTest(unittest.TestCase):
         self.assertIn("reactivecircus/android-emulator-runner@v2", native)
         # Never suppress the real QR/JNI instrumentation: route unsupported
         # Vulkan guests through the documented GLES software renderer instead.
-        self.assertIn("-gpu swiftshader_indirect", native)
+        self.assertIn("-gpu software", native)
+        self.assertNotIn("-gpu swiftshader_indirect", native)
         self.assertIn("-feature -Vulkan", native)
         self.assertIn("navigation: [gesture, three-button]", native)
         self.assertIn("--enforce", native)

@@ -8,6 +8,13 @@ collect_evidence() {
   device_state="$(timeout 5s adb get-state 2>/dev/null || true)"
   if [[ "$device_state" != "device" ]]; then
     echo "NATIVE_FAILURE emulator offline; evidence collection skipped (instrumentation log retained)" >&2
+    # The guest logcat cannot be fetched after ADB dies. Host cgroup OOM data
+    # distinguishes a runner memory kill from an application assertion.
+    if [[ -r /sys/fs/cgroup/memory.events ]]; then
+      echo "NATIVE_HOST_MEMORY_EVENTS_BEGIN"
+      cat /sys/fs/cgroup/memory.events || true
+      echo "NATIVE_HOST_MEMORY_EVENTS_END"
+    fi
     return 0
   fi
   timeout 12s adb pull /sdcard/Pictures/eve-approved-ui ui-renderings/ || true
