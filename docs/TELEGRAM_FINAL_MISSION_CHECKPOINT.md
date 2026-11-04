@@ -4,6 +4,52 @@
 
 Status: PARTIAL. This is a continuation record, not screen acceptance.
 
+## Exact-SHA completion evidence for scoped report mutation repair (2026-11-04)
+
+**VERIFIED remote main:** `27e60f1678f56ad46dc9cf4dd67fa7d394bb5bec`.
+This is the carrying implementation commit, not an earlier checkpoint:
+`Require real report row and audit acknowledgments for admin dismissals`.
+
+- Exact-SHA Build Eve APK FAST run `41756083791`: **SUCCESS**.
+  Android `assembleDebug`, `compileDebugAndroidTestKotlin` and
+  `testDebugUnitTest` completed; pinned native Rust/C security checks
+  included **243 Rust tests passed, zero failed**.
+  Backend TypeScript check and **354 Node tests passed, zero failed**,
+  including all six new report mutation contract tests.
+  Firebase Functions job also passed.
+- Documentation workflow `41756083895`: **SUCCESS** at that same SHA.
+- `Native UI` navigation jobs: **SKIPPED** in FAST, not native acceptance.
+  `Publish verified debug APK`: **SKIPPED**. No artifact publication
+  and no production Worker deployment were performed.
+- Existing canonical owners `backend/src/routes/reports.ts` and
+  `FlaggedQuestionRepository.kt` plus the two regression test suites
+  were reviewed at this SHA. No new report manager, UI clone or
+  Telegram-derived source import. EVE report mutations are **ADAPTED**,
+  not a claim of original Telegram business semantics.
+- Physical device, actual deployed Worker, 60/90/120Hz motion parity,
+  profile/QR matched-device comparison, license review and six-job FULL
+  integration remain **NOT MET / BLOCKED** as applicable.
+
+**Next independent high-priority gap (SOURCE VERIFIED, NOT PATCHED):**
+`ManageSyllabusActivity.kt:536-601` reassigns by two separate full
+exam-setting PUTs. If the destination succeeds and source clearing
+fails, it can leave the syllabus attached to both exams; stale exam
+snapshots can overwrite unrelated settings. Replace these two writes
+with one checked, authorized and atomic Worker transfer, plus real
+SQLite Hono and original-account Android tests. **Do not push this as
+an extra Syllabus feature increment without reconciling the existing
+two successful Syllabus commits `9ad8784d` and `027b2fe8` and
+obtaining the owner's specific exception.** The separate prepared
+Recent Actions read repair, FlaggedQuestions Activity lifecycle rights,
+ManageUsers details epoch and Generate Now response-ack defects remain
+independent and subject to their existing successful-commit budgets.
+Continue other eligible work instead of replaying any completed feature.
+
+This entry is the latest factual status. Older checkpoint sections
+saying the report patch/Analytics repair has pending FAST evidence are
+historical, not current assertions.
+
+
 ## P0 Worker report mutations: real row acknowledgments (current continuation)
 
 Recovery SHA `cdafa5656175b3c8c35e1b7c8ece9fe550740310`, exact-SHA
