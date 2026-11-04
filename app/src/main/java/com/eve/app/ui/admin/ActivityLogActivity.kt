@@ -22,6 +22,9 @@ import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AdminAccessGate
 import com.eve.app.util.AppBulletin
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.firebase.auth.FirebaseAuth
+import androidx.lifecycle.Lifecycle
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -45,6 +48,79 @@ class ActivityLogActivity : EveBaseActivity() {
     private var isLoading = false
     private var hasMore = true
     private var searchJob: Job? = null
+    private var auditJob: Job? = null
+    private var auditEpoch = 0L
+    private var activeUid: String? = null
+    private var activeEmail: String? = null
+    private var accessReady = false
+    private var screenStopped = false
+    private var viewsPrepared = false
+    private var filterDialog: BottomSheetDialog? = null
+    private var filterAdminJob: Job? = null
+    private var filterTypeJob: Job? = null
+    private var logDialog: TelegramNativeAlertDialog? = null
+
+    private fun isCurrentOwner(
+        uid: String? = activeUid, email: String? = activeEmail
+    ): Boolean {
+        val user = FirebaseAuth.getInstance().currentUser
+        return accessReady && !screenStopped && !isFinishing && !isDestroyed &&
+            !uid.isNullOrBlank() && !email.isNullOrBlank() &&
+            activeUid == uid && activeEmail.equals(email, ignoreCase = true) &&
+            user?.uid == uid && user.email.equals(email, ignoreCase = true)
+    }
+
+    private fun cancelAuditRead() {
+        auditEpoch++
+        auditJob?.cancel()
+        auditJob = null
+        isLoading = false
+        binding.progressBar.visibility = View.GONE
+    }
+
+    private fun requireAuditAccess() {
+        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true,
+            requiredRight = "view_analytics_logs") {
+            if (screenStopped || isFinishing || isDestroyed) {
+                binding.root.visibility = View.INVISIBLE
+                return@requireAdmin
+            }
+            val user = FirebaseAuth.getInstance().currentUser ?: return@requireAdmin
+            activeUid = user.uid
+            activeEmail = user.email
+            accessReady = true
+            if (!viewsPrepared) {
+                setupViews()
+                viewsPrepared = true
+            }
+            reloadLogs()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (screenStopped) {
+            screenStopped = false
+            requireAuditAccess()
+        }
+    }
+
+    override fun onStop() {
+        screenStopped = true
+        accessReady = false
+        binding.root.visibility = View.INVISIBLE
+        searchJob?.cancel()
+        cancelAuditRead()
+        filterAdminJob?.cancel()
+        filterTypeJob?.cancel()
+        filterDialog?.dismiss()
+        filterDialog = null
+        logDialog?.dismiss()
+        logDialog = null
+        loadedLogs.clear()
+        if (::adapter.isInitialized) adapter.submitLogs(emptyList())
+        super.onStop()
+    }
 
     private val fullDateTimeFormat = SimpleDateFormat("dd MMM yyyy, hh:mm:ss a", Locale.getDefault())
 
@@ -53,10 +129,7 @@ class ActivityLogActivity : EveBaseActivity() {
         binding = ActivityActivityLogBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "view_analytics_logs") {
-            setupViews()
-            reloadLogs()
-        }
+        requireAuditAccess()
     }
 
     private fun setupViews() {
@@ -65,18 +138,30 @@ class ActivityLogActivity : EveBaseActivity() {
         binding.actionBar.setSubtitle("Audit log trail")
         binding.actionBar.onBackPressed = { finish() }
         binding.actionBar.bindSystemBack(this)
-        binding.actionBar.showFilterAction { showFilterSheet() }
+        binding.actionBar.showFilterAction { if (isCurrentOwner()) showFilterSheet() }
 
         binding.actionBar.onSearchTextChanged = { query ->
             searchJob?.cancel()
-            searchJob = lifecycleScope.launch {
-                delay(300L)
-                currentSearchQuery = query.takeIf { it.isNotBlank() }
-                reloadLogs()
+            if (isCurrentOwner()) {
+                // Invalidate immediately, before debounce, so a previous response
+                // can never be published beneath newly typed filter text.
+                cancelAuditRead()
+                loadedLogs.clear()
+                adapter.submitLogs(emptyList())
+                binding.emptyContainer.visibility = View.GONE
+                binding.rvAuditLogs.visibility = View.GONE
+                binding.progressBar.visibility = View.VISIBLE
+                searchJob = lifecycleScope.launch {
+                    delay(300L)
+                    if (!isCurrentOwner()) return@launch
+                    currentSearchQuery = query.takeIf { it.isNotBlank() }
+                    reloadLogs()
+                }
             }
         }
 
         binding.actionBar.onSearchCollapsed = {
+            searchJob?.cancel()
             currentSearchQuery = null
             reloadLogs()
         }
@@ -94,7 +179,9 @@ class ActivityLogActivity : EveBaseActivity() {
 
         // 3. RecyclerView & Adapter
         adapter = AuditLogAdapter { log ->
-            showLogDetailDialog(log)
+            if (isCurrentOwner() && loadedLogs.any { it.id == log.id && it.id.isNotBlank() }) {
+                showLogDetailDialog(log)
+            }
         }
         val layoutManager = LinearLayoutManager(this)
         binding.rvAuditLogs.layoutManager = layoutManager
@@ -103,7 +190,7 @@ class ActivityLogActivity : EveBaseActivity() {
         binding.rvAuditLogs.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-                if (dy > 0 && !isLoading && hasMore) {
+                if (dy > 0 && isCurrentOwner() && !isLoading && hasMore) {
                     val totalItemCount = layoutManager.itemCount
                     val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
                     if (totalItemCount > 0 && lastVisibleItem >= totalItemCount - 4) {
@@ -115,8 +202,15 @@ class ActivityLogActivity : EveBaseActivity() {
     }
 
     private fun reloadLogs() {
+        if (!isCurrentOwner()) return
+        cancelAuditRead()
         loadedLogs.clear()
+        if (::adapter.isInitialized) adapter.submitLogs(emptyList())
+        logDialog?.dismiss()
+        logDialog = null
         hasMore = true
+        binding.emptyContainer.visibility = View.GONE
+        binding.rvAuditLogs.visibility = View.VISIBLE
         updateFilterBadge()
         loadPage(before = null)
     }
@@ -127,42 +221,62 @@ class ActivityLogActivity : EveBaseActivity() {
     }
 
     private fun loadPage(before: Long?) {
-        if (isLoading) return
-        isLoading = true
+        if (isLoading || !isCurrentOwner()) return
+        val uid = activeUid ?: return
+        val email = activeEmail ?: return
+        val request = AuditReadWindow(
+            uid, email, ++auditEpoch, currentTimeRange, selectedAdminEmail,
+            selectedActionType, currentSearchQuery, before
+        )
+        fun stillCurrent() = isCurrentOwner(uid, email) &&
+            request.matches(activeUid, activeEmail, auditEpoch, currentTimeRange,
+                selectedAdminEmail, selectedActionType, currentSearchQuery)
 
+        isLoading = true
         if (before == null) {
             binding.progressBar.visibility = View.VISIBLE
             binding.emptyContainer.visibility = View.GONE
         }
 
-        lifecycleScope.launch {
+        auditJob = lifecycleScope.launch {
             try {
                 val newLogs = auditRepo.getLogs(
-                    timeRange = currentTimeRange,
-                    before = before,
-                    adminEmail = selectedAdminEmail,
-                    actionType = selectedActionType,
-                    searchQuery = currentSearchQuery,
+                    timeRange = request.range,
+                    before = request.before,
+                    adminEmail = request.adminEmail,
+                    actionType = request.actionType,
+                    searchQuery = request.searchQuery,
                     limit = 50
                 )
-                binding.progressBar.visibility = View.GONE
-                isLoading = false
-
-                if (newLogs.size < 50) {
-                    hasMore = false
-                }
-
-                if (before == null) {
-                    loadedLogs.clear()
-                }
+                if (!stillCurrent()) return@launch
+                hasMore = newLogs.size >= 50
+                if (before == null) loadedLogs.clear()
                 loadedLogs.addAll(newLogs)
                 adapter.submitLogs(loadedLogs)
-
+                binding.rvAuditLogs.visibility = View.VISIBLE
+                binding.tvEmptyTitle.text = "No Recent Actions"
+                binding.tvEmptySubtitle.text = "No activity logs match the selected filters."
+                binding.lottieEmpty.visibility = View.VISIBLE
                 binding.emptyContainer.visibility = if (loadedLogs.isEmpty()) View.VISIBLE else View.GONE
+            } catch (cancel: CancellationException) {
+                throw cancel
             } catch (e: Exception) {
-                binding.progressBar.visibility = View.GONE
-                isLoading = false
+                if (!stillCurrent()) return@launch
+                hasMore = false
+                if (before == null) {
+                    binding.rvAuditLogs.visibility = View.GONE
+                    binding.emptyContainer.visibility = View.VISIBLE
+                    binding.tvEmptyTitle.text = "Audit history unavailable"
+                    binding.tvEmptySubtitle.text = "The server did not confirm this audit read. Change filters to retry."
+                    binding.lottieEmpty.visibility = View.GONE
+                }
                 AppBulletin.showError(this@ActivityLogActivity, "Failed to load recent actions: ${e.message}")
+            } finally {
+                if (stillCurrent()) {
+                    isLoading = false
+                    binding.progressBar.visibility = View.GONE
+                    auditJob = null
+                }
             }
         }
     }
@@ -181,7 +295,19 @@ class ActivityLogActivity : EveBaseActivity() {
     }
 
     private fun showFilterSheet() {
+        if (!isCurrentOwner()) return
+        val ownerUid = activeUid ?: return
+        val ownerEmail = activeEmail ?: return
+        filterDialog?.dismiss()
         val dialog = BottomSheetDialog(this)
+        filterDialog = dialog
+        fun validFilter(): Boolean =
+            isCurrentOwner(ownerUid, ownerEmail) && filterDialog === dialog && dialog.isShowing
+        dialog.setOnDismissListener {
+            if (filterDialog === dialog) filterDialog = null
+            filterAdminJob?.cancel()
+            filterTypeJob?.cancel()
+        }
         val palette = TelegramThemeEngine.resolveCurrentPalette(this)
 
         val root = LinearLayout(this).apply {
@@ -211,6 +337,7 @@ class ActivityLogActivity : EveBaseActivity() {
         val btnAllAdmins = com.eve.app.ui.admin.tg.TextCell(this).apply {
             setTextAndValue("All Admins", if (selectedAdminEmail == null) "✓" else "", false)
             setOnClickListener {
+                if (!validFilter()) return@setOnClickListener
                 selectedAdminEmail = null
                 dialog.dismiss()
                 reloadLogs()
@@ -218,14 +345,16 @@ class ActivityLogActivity : EveBaseActivity() {
         }
         root.addView(btnAllAdmins)
 
-        lifecycleScope.launch {
+        filterAdminJob = lifecycleScope.launch {
             try {
                 val admins = adminRepo.getDynamicAdmins()
+                if (!validFilter()) return@launch
                 for (admin in admins) {
                     val isSelected = selectedAdminEmail.equals(admin.email, ignoreCase = true)
                     val cell = com.eve.app.ui.admin.tg.TextCell(this@ActivityLogActivity).apply {
                         setTextAndValue(admin.email, if (isSelected) "✓" else "", false)
                         setOnClickListener {
+                            if (!validFilter()) return@setOnClickListener
                             selectedAdminEmail = admin.email
                             dialog.dismiss()
                             reloadLogs()
@@ -233,7 +362,11 @@ class ActivityLogActivity : EveBaseActivity() {
                     }
                     root.addView(cell)
                 }
-            } catch (_: Exception) {}
+            } catch (cancel: CancellationException) {
+                throw cancel
+            } catch (e: Exception) {
+                if (validFilter()) AppBulletin.showError(this@ActivityLogActivity, "Admin filter unavailable: ${e.message}")
+            }
         }
 
         // Action Type Section
@@ -249,6 +382,7 @@ class ActivityLogActivity : EveBaseActivity() {
         val btnAllTypes = com.eve.app.ui.admin.tg.TextCell(this).apply {
             setTextAndValue("All Actions", if (selectedActionType == null) "✓" else "", false)
             setOnClickListener {
+                if (!validFilter()) return@setOnClickListener
                 selectedActionType = null
                 dialog.dismiss()
                 reloadLogs()
@@ -256,14 +390,16 @@ class ActivityLogActivity : EveBaseActivity() {
         }
         root.addView(btnAllTypes)
 
-        lifecycleScope.launch {
+        filterTypeJob = lifecycleScope.launch {
             try {
                 val types = auditRepo.getActionTypes()
+                if (!validFilter()) return@launch
                 for (type in types) {
                     val isSelected = selectedActionType.equals(type, ignoreCase = true)
                     val cell = com.eve.app.ui.admin.tg.TextCell(this@ActivityLogActivity).apply {
                         setTextAndValue(type, if (isSelected) "✓" else "", false)
                         setOnClickListener {
+                            if (!validFilter()) return@setOnClickListener
                             selectedActionType = type
                             dialog.dismiss()
                             reloadLogs()
@@ -271,7 +407,11 @@ class ActivityLogActivity : EveBaseActivity() {
                     }
                     root.addView(cell)
                 }
-            } catch (_: Exception) {}
+            } catch (cancel: CancellationException) {
+                throw cancel
+            } catch (e: Exception) {
+                if (validFilter()) AppBulletin.showError(this@ActivityLogActivity, "Action type filter unavailable: ${e.message}")
+            }
         }
 
         dialog.setContentView(root)
@@ -279,6 +419,7 @@ class ActivityLogActivity : EveBaseActivity() {
     }
 
     private fun showLogDetailDialog(log: AdminAuditLog) {
+        if (!isCurrentOwner() || loadedLogs.none { it.id == log.id && it.id.isNotBlank() }) return
         val palette = TelegramThemeEngine.resolveCurrentPalette(this)
 
         val msg = StringBuilder()
@@ -303,11 +444,16 @@ class ActivityLogActivity : EveBaseActivity() {
             }
         }
 
-        TelegramNativeAlertDialog.Builder(this)
+        logDialog?.dismiss()
+        val dialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle(log.actionBadge)
             .setMessage(msg.toString().trimEnd())
             .setPositiveButton("Close", null)
             .show()
+        logDialog = dialog
+        dialog.setOnDismissListener {
+            if (logDialog === dialog) logDialog = null
+        }
     }
 
     private fun dp(v: Float): Int = (v * resources.displayMetrics.density).toInt()

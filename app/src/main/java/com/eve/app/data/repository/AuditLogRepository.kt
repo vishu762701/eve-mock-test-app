@@ -69,8 +69,11 @@ class AuditLogRepository(
                 q = searchQuery?.takeIf { it.isNotBlank() },
                 limit = limit
             )
-            if (response.success && response.data != null) {
-                response.data.map { dto ->
+            if (!response.success) throw IllegalStateException(
+                response.error ?: "Audit history request was denied or unsuccessful")
+            val confirmedRows = response.data
+                ?: throw IllegalStateException("Audit history response omitted the requested records")
+            confirmedRows.map { dto ->
                     AdminAuditLog(
                         id = dto.id,
                         actionType = dto.actionType,
@@ -84,26 +87,12 @@ class AuditLogRepository(
                         metadata = dto.metadata
                     )
                 }
-            } else {
-                emptyList()
-            }
-        } catch (e: Exception) {
-            Log.e("AuditLogRepo", "Failed to fetch audit logs", e)
-            emptyList()
-        }
     }
 
     suspend fun getActionTypes(): List<String> = withContext(Dispatchers.IO) {
-        try {
-            val response = api.getAuditLogTypes()
-            if (response.success && response.data != null) {
-                response.data
-            } else {
-                emptyList()
-            }
-        } catch (e: Exception) {
-            Log.e("AuditLogRepo", "Failed to fetch audit log types", e)
-            emptyList()
-        }
+        val response = api.getAuditLogTypes()
+        if (!response.success) throw IllegalStateException(
+            response.error ?: "Audit action types request was denied or unsuccessful")
+        response.data ?: throw IllegalStateException("Audit action types response is incomplete")
     }
 }
