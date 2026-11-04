@@ -166,8 +166,10 @@ class ManageExamsActivity : EveBaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityManageExamsBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        if (savedInstanceState?.getString("generation_owner_uid") ==
-            FirebaseAuth.getInstance().currentUser?.uid) {
+        if (savedInstanceState != null &&
+            savedInstanceState.getString("generation_owner_uid") != null &&
+            savedInstanceState.getString("generation_owner_uid") ==
+                FirebaseAuth.getInstance().currentUser?.uid) {
             pendingGenerateOwner = savedInstanceState.getString("generation_owner_uid")
             pendingGenerateKey = savedInstanceState.getString("generation_request_key")
             pendingGenerateExam = savedInstanceState.getString("generation_exam_id")
