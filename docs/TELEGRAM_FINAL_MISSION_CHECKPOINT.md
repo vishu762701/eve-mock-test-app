@@ -4,6 +4,56 @@
 
 Status: PARTIAL. This is a continuation record, not screen acceptance.
 
+## Active P0 continuation — Unpublish Tests audited-row confirmation
+
+Recovery baseline: `8595b037ba473c40cb60854d4d55b96d8819620e`,
+exact-SHA FAST `41759107414` SUCCESS and docs `41759107410`
+SUCCESS. Official upstream DrKLO/Telegram master
+`3de37c8cfb039452be7398909461da6288babf15` remains pinned.
+No upstream source or EVE UI components change in this scoped EVE Worker
+business-integrity repair.
+
+**Actual source defect:** `backend/src/routes/exams.ts:490-505` inspected
+at baseline. The `manage_exams`-protected unpublish action first checks exam
+existence, then executes three D1 statements in a batch without inspecting
+the affected exam row count or an inserted audit row. A competing exam
+deletion between preflight and transaction can therefore result in a
+false success/phantom audit, while `AdminDeleteFlow.kt:49-55` trusts the
+Worker's `success` envelope.
+
+**Scoped change:** preserve the existing API route, the nondestructive
+Unpublish Tests user action, running sessions and saved attempts.
+Use the existing D1 `runBatch` and `prepareAdminAuditLog` owners:
+pause only tests belonging to an existing exam, disable that exam's
+auto-generation setting, conditionally write audit when the immediately
+preceding exam UPDATE changed one row, and return 409 rather than success
+if affected exam/audit counts are not both one. The existing
+`AdminDeleteFlow` needs no new business owner or response rewrite.
+Classification: **ADAPTED EVE business logic**, not Telegram source parity.
+
+New regression fixture `backend/test/exam_unpublish_ack.test.mjs`
+runs real Hono route, authenticated role middleware and all current
+SQLite migrations. Covers valid scoped effects, absent exam,
+authorization denial, a delete racing the D1 transaction,
+missing audit migration/trigger rollback, and no atomic batch support.
+Pending exact-SHA CI must be evaluated on the carrying commit; no pass
+is asserted by the existence of this checkpoint alone.
+
+**Successful-commit budget:** this is the existing separate nondestructive
+`/:id/unpublish-tests` action. Earlier generic exam deletion and
+generated-test deletion work is preserved, not reimplemented. Do not
+rename a deletion feature to bypass the two-successful-commit limit.
+No Worker deploy, production D1 migration, full native navigation,
+APK publication, matched-device Telegram comparison or legal clearance
+is authorized.
+
+Other independent open items: Syllabus's two-write reassignment
+(commit-budget exception pending); Recent Actions/Flagged Questions
+privilege lifecycle; ManageUsers stale detail epoch; Generate Now
+acknowledgment; Home/Profile/QR upstream parity and device runtime.
+The live code and exact-SHA workflow override older checkpoints.
+
+
 ## Supabase keepalive DNS/configuration containment (independent CI repair)
 
 The latest observed Supabase Activity Keepalive run `41629517670` failed

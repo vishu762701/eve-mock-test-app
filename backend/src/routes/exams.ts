@@ -8,7 +8,7 @@ import { Hono } from "hono";
 import { requireAdmin, requirePermission } from "../middleware/authMiddleware";
 import { SupabaseStorage } from "../supabase";
 import { AuthUser, EmojiPlacementPublic, Env, ExamRow } from "../types";
-import { prepareAdminAuditLog, recordAdminAction } from "../util/auditLog";
+import { prepareAdminAuditLog, recordAdminAction, runBatch } from "../util/auditLog";
 import { getActiveEmojiPlacements } from "./emoji";
 
 export const examRoutes = new Hono<{ Bindings: Env; Variables: { user: AuthUser } }>();
@@ -488,20 +488,25 @@ examRoutes.get("/:id/deletion-info", requirePermission("manage_exams"), async (c
 });
 
 examRoutes.post('/:id/unpublish-tests', requirePermission("manage_exams"), async (c) => {
-  const user = c.get('user');
+  const db = c.env.DB;
   const id = c.req.param('id') || '';
-  if (!await c.env.DB.prepare('SELECT id FROM exams WHERE id = ?').bind(id).first()) return c.json({ success: false, error: 'Exam not found' }, 404);
-  const { stmt: auditStmt } = prepareAdminAuditLog(c.env.DB, user, {
-    actionType: "EXAM_TESTS_UNPUBLISHED",
+  if (!id || !await db.prepare('SELECT id FROM exams WHERE id = ?').bind(id).first()) {
+    return c.json({ success: false, error: 'Exam not found' }, 404);
+  }
+  // Keep the existing active-session and saved-attempt data unchanged.
+  const pause = db.prepare("UPDATE generated_tests SET status = 'paused' WHERE exam_id = ? AND EXISTS (SELECT 1 FROM exams WHERE id = ?)").bind(id, id);
+  const disable = db.prepare('UPDATE exams SET auto_generation_enabled = 0 WHERE id = ?').bind(id);
+  const { stmt: audit } = prepareAdminAuditLog(db, c.get('user'), {
+    actionType: 'EXAM_TESTS_UNPUBLISHED',
     description: `Unpublished tests and disabled auto generation for exam '${id}'`,
-    targetType: "exam",
+    targetType: 'exam',
     targetId: id,
+    condition: { sql: 'changes() = 1', bindings: [] },
   });
-  await c.env.DB.batch([
-    c.env.DB.prepare("UPDATE generated_tests SET status = 'paused' WHERE exam_id = ?").bind(id),
-    c.env.DB.prepare('UPDATE exams SET auto_generation_enabled = 0 WHERE id = ?').bind(id),
-    auditStmt,
-  ]);
+  const results = await runBatch(db, [pause, disable, audit]);
+  if (results[1]?.meta?.changes !== 1 || results[2]?.meta?.changes !== 1) {
+    return c.json({ success: false, error: 'Exam changed during unpublication; reload and retry' }, 409);
+  }
   return c.json({ success: true, message: 'Tests unpublished and automatic generation disabled. History and ongoing sessions preserved.' });
 });
 
