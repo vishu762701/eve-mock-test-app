@@ -53,6 +53,21 @@ class ReportReadOwnershipTest {
         val holder=adapter.createViewHolder(rv,0); adapter.bindViewHolder(holder,0)
         return holder.itemView.findViewById<TextView>(R.id.tvQuestionText).text.toString()
     }
+    @Test fun authorizedCreatedActivityDefersFirstReadUntilStartedWithoutDroppingIt() {
+        val c = Robolectric.buildActivity(FlaggedQuestionsActivity::class.java)
+        c.get().setTheme(R.style.Theme_Eve)
+        try {
+            c.create(); idle()
+            assertEquals("No privileged read before STARTED", 0,
+                QuestionReviewBoundaryFixture.reportReads.size)
+            c.start().resume().visible(); idle()
+            assertEquals("First authorized read must run exactly once", 1,
+                QuestionReviewBoundaryFixture.reportReads.size)
+        } finally {
+            c.pause().stop().destroy(); idle()
+        }
+    }
+
     @Test fun oldTypeCannotReplaceLatestRows()=exercise { c ->
         c.get().findViewById<View>(R.id.chipTechnicalIssues).performClick(); idle()
         answer(1,"Technical"); answer(0,"Content")

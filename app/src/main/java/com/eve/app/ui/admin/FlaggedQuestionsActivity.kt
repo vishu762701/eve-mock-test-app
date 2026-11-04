@@ -44,6 +44,7 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
     private var canManageExams = false
     private var screenAuthorized = false
     private var uiPrepared = false
+    private var pendingAuthorizedStartLoad = false
     private var reauthorizeOnResume = false
     private var editorLoadInFlight = false
     private var loadedReports: List<AggregatedFlaggedQuestion> = emptyList()
@@ -85,6 +86,7 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
     }
 
     private fun authorizeReports() {
+        pendingAuthorizedStartLoad = false
         screenAuthorized = false
         canManageQuestions = false
         canManageExams = false
@@ -108,7 +110,11 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
                 setupUi()
                 uiPrepared = true
             }
-            loadFlaggedQuestions()
+            // AdminAccessGate can finish synchronously during onCreate, when the
+            // Activity is only CREATED. Preserve the STARTED-only read boundary
+            // without silently losing the first report fetch.
+            if (activeOwner()) loadFlaggedQuestions()
+            else pendingAuthorizedStartLoad = true
         }
     }
 
@@ -127,6 +133,14 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
         authorizeReports()
     }
 
+    override fun onStart() {
+        super.onStart()
+        if (pendingAuthorizedStartLoad && activeOwner()) {
+            pendingAuthorizedStartLoad = false
+            loadFlaggedQuestions()
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         if (reauthorizeOnResume && ::binding.isInitialized) {
@@ -136,6 +150,7 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
     }
 
     override fun onStop() {
+        pendingAuthorizedStartLoad = false
         reauthorizeOnResume = true
         screenAuthorized = false
         canManageQuestions = false
