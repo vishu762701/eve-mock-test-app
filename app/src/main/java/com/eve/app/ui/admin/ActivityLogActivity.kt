@@ -67,7 +67,7 @@ class ActivityLogActivity : EveBaseActivity() {
         return accessReady && !screenStopped && !isFinishing && !isDestroyed &&
             !uid.isNullOrBlank() && !email.isNullOrBlank() &&
             activeUid == uid && activeEmail.equals(email, ignoreCase = true) &&
-            user?.uid == uid && user.email.equals(email, ignoreCase = true)
+            user?.uid == uid && user?.email.equals(email, ignoreCase = true)
     }
 
     private fun cancelAuditRead() {

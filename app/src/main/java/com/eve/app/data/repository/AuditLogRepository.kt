@@ -55,7 +55,6 @@ class AuditLogRepository(
         searchQuery: String? = null,
         limit: Int = 50
     ): List<AdminAuditLog> = withContext(Dispatchers.IO) {
-        try {
             val rangeParam = when (timeRange) {
                 AuditLogTimeRange.TODAY -> "today"
                 AuditLogTimeRange.LAST_7_DAYS -> "7d"
