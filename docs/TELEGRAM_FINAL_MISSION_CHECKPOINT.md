@@ -4,6 +4,35 @@
 
 Status: PARTIAL. This is a continuation record, not screen acceptance.
 
+## Production D1 parameter-bound correction — forward repair
+
+After the scoped report integrity patch passed FAST, official Cloudflare D1
+limits were independently checked:
+https://developers.cloudflare.com/d1/platform/limits/
+The platform permits **100 bound parameters per SQL query**, not the
+unbounded local `node:sqlite` limit. The original conditional batch-dismiss
+UPDATE used 2N+1 bindings; at N=50 it exceeded D1's 100-bind limit despite
+all local SQLite/Hono tests passing. This is a concrete production-compatibility
+defect identified before any Worker deployment.
+
+Follow-up stays within the existing report-mutation feature (second
+implementation increment). The same canonical `reports.ts` route now
+serializes validated report IDs once and binds them through the D1-supported
+SQLite JSON extension `json_each(?)` (three UPDATE binds, one preflight
+bind). Bounded selection increases to 1000 report IDs, keeping the Android
+`FlaggedQuestionRepository` limit aligned; no payload shape, business owner,
+permission, migration or UI replacement changes. Add a regression fixture
+that wraps real isolated SQLite/D1 statements with the actual Cloudflare
+100-parameter cap and dismisses 125 real pending report rows in one audited
+atomic batch. Other invalid/racing/audit-rollback regressions remain intact.
+
+**Exact-SHA FAST and documentation results for this follow-up are pending**
+until its carrying commit completes. Keep the prior green report patch
+`27e60f1678f56ad46dc9cf4dd67fa7d394bb5bec` / FAST
+`41756083791` unchanged in history. No production deployment or
+new Telegram import is authorized. This is an EVE Worker compatibility
+repair, ADAPTED relative to Telegram source.
+
 ## Exact-SHA completion evidence for scoped report mutation repair (2026-11-04)
 
 **VERIFIED remote main:** `27e60f1678f56ad46dc9cf4dd67fa7d394bb5bec`.

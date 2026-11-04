@@ -200,16 +200,19 @@ adminReportRoutes.put("/:id/dismiss", async (c) => {
 adminReportRoutes.post("/dismiss-batch", async (c) => {
   const body = await c.req.json().catch(() => null);
   const rawIds: unknown = body && typeof body === "object" && !Array.isArray(body) ? body.ids : null;
-  if (!Array.isArray(rawIds) || rawIds.length < 1 || rawIds.length > 100 ||
+  if (!Array.isArray(rawIds) || rawIds.length < 1 || rawIds.length > 1000 ||
       !rawIds.every(validReportId) || new Set(rawIds).size !== rawIds.length) {
-    return c.json({ success: false, error: "Provide 1 to 100 unique valid report IDs" }, 400);
+    return c.json({ success: false, error: "Provide 1 to 1000 unique valid report IDs" }, 400);
   }
   const ids: string[] = rawIds;
   const db = c.env.DB;
-  const placeholders = ids.map(() => "?").join(", ");
+  // Cloudflare D1 permits only 100 bind parameters per statement. A variable
+  // IN (?, ?, ...) duplicated in the WHERE clause exceeds that limit after 49
+  // report IDs. Its supported SQLite JSON extension keeps this to <= 3 binds.
+  const jsonIds = JSON.stringify(ids);
   const found = await db.prepare(
-    `SELECT COUNT(*) AS count FROM question_reports WHERE status = 'pending' AND id IN (${placeholders})`
-  ).bind(...ids).first<{ count: number }>();
+    "SELECT COUNT(*) AS count FROM question_reports WHERE status = 'pending' AND id IN (SELECT value FROM json_each(?))"
+  ).bind(jsonIds).first<{ count: number }>();
   if (found?.count !== ids.length) {
     return c.json({ success: false, error: "Some pending reports are unavailable; reload before retrying" }, 409);
   }
@@ -218,10 +221,10 @@ adminReportRoutes.post("/dismiss-batch", async (c) => {
   // dismissal if even one report changes between preflight and the D1 transaction.
   const update = db.prepare(
     `UPDATE question_reports SET status = 'dismissed'
-     WHERE status = 'pending' AND id IN (${placeholders})
+     WHERE status = 'pending' AND id IN (SELECT value FROM json_each(?))
        AND (SELECT COUNT(*) FROM question_reports
-            WHERE status = 'pending' AND id IN (${placeholders})) = ?`
-  ).bind(...ids, ...ids, ids.length);
+            WHERE status = 'pending' AND id IN (SELECT value FROM json_each(?))) = ?`
+  ).bind(jsonIds, jsonIds, ids.length);
   const { stmt: audit } = prepareAdminAuditLog(db, c.get("user"), {
     actionType: "REPORT_BATCH_DISMISSED",
     description: `Batch dismissed ${ids.length} question reports`,

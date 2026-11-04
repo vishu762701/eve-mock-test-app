@@ -24,7 +24,7 @@ class FlaggedQuestionMutationContractTest {
         for (ids in listOf(
             emptyList(), listOf("r1", "r1"), listOf(""),
             listOf("r1", " "), listOf(" r1"), listOf("r1 "),
-            List(101) { "report-$it" }, listOf("x".repeat(129))
+            List(1001) { "report-$it" }, listOf("x".repeat(129))
         )) {
             assertFalse("Unsent or invalid selection cannot be confirmed dismissed", repo.dismissFlags(ids))
         }

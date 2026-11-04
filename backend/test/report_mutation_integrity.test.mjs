@@ -77,7 +77,7 @@ test("batch dismissal is all-or-nothing and counts only real pending IDs", async
     for (const body of [null, {}, { ids: [] }, { ids: "report-a" },
       { ids: ["report-a", "report-a"] }, { ids: ["report-a", ""] },
       { ids: ["report-a", 1] }, { ids: [" report-a"] },
-      { ids: Array.from({ length: 101 }, (_, i) => "id-" + i) }]) {
+      { ids: Array.from({ length: 1001 }, (_, i) => "id-" + i) }]) {
       assert.equal((await send("/dismiss-batch", "POST", body)).status, 400);
     }
     for (const ids of [["report-a", "missing"], ["report-a", "report-old"]]) {
@@ -128,6 +128,35 @@ test("report mutations enforce real Worker moderator right for every route", asy
     assert.equal(f.audit("REPORT_DELETED").length, 0);
     assert.equal(f.audit("REPORT_DISMISSED").length, 0);
     assert.equal(f.audit("REPORT_BATCH_DISMISSED").length, 0);
+  } finally { f.sqlite.close(); }
+});
+
+test("large moderator batches stay within Cloudflare D1's 100-parameter limit", async () => {
+  const f = fixture();
+  try {
+    const ids = Array.from({ length: 125 }, (_, i) => "large-" + i);
+    ids.forEach((id) => f.seed(id));
+    // Local node:sqlite allows more bindings than deployed D1. Enforce the real
+    // platform's query limit in this transport boundary, not via SQLite defaults.
+    const limitedD1 = {
+      ...f.d1,
+      prepare(sql) {
+        const stmt = f.d1.prepare(sql);
+        return {
+          ...stmt,
+          bind(...args) {
+            assert.ok(args.length <= 100, "D1 rejected more than 100 parameters for one statement");
+            return stmt.bind(...args);
+          },
+        };
+      },
+    };
+    const response = await f.app(limitedD1)("/dismiss-batch", "POST", { ids });
+    assert.equal(response.status, 200);
+    assert.equal((await response.json()).success, true);
+    assert.ok(ids.every((id) => f.status(id) === "dismissed"));
+    assert.equal(f.audit("REPORT_BATCH_DISMISSED").length, 1);
+    assert.deepEqual(JSON.parse(f.audit("REPORT_BATCH_DISMISSED")[0].metadata), { count: 125 });
   } finally { f.sqlite.close(); }
 });
 
