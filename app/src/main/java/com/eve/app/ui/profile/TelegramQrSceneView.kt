@@ -279,6 +279,10 @@ internal class TelegramQrSceneView(
         animationLoading.clear()
     }
 
+    fun pausePlayback() {
+        animations.values.forEach { it.stop() }
+    }
+
     fun refreshEmojiPlayback() {
         val run = isShown && windowVisibility == VISIBLE && com.eve.app.designsystem.DesignMotion.enabled(context)
         animations.values.forEach { if (run) it.start() else it.stop() }

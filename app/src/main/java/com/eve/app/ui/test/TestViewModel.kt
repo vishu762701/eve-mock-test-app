@@ -155,31 +155,34 @@ class TestViewModel : ViewModel() {
                         // A server response can arrive after Firebase switches users,
                         // while the host Activity is still being destroyed.
                         if (!ownsActiveAccount()) return@launch
-                        if (startRes.success && startRes.data != null) {
-                            val d = startRes.data
-                            if (d.alreadySubmitted) {
-                                sessionStore.clearSession(effectiveExamId, currentUserId)
-                                clientAttemptId = java.util.UUID.randomUUID().toString()
-                                answers.clear(); timeTaken.clear(); visited.clear(); marked.clear()
-                                started = false
-                                _questions.value = UiState.Error("This saved test was already submitted. Open History for the confirmed result, or Retry to start a new attempt.")
-                                return@launch
-                            }
-                            d.clientAttemptId?.takeIf { it.isNotBlank() }?.let {
-                                if (clientAttemptId != it) { answers.clear(); timeTaken.clear(); visited.clear(); marked.clear(); restoredQuestionIndex = 0; furthestRevealedIndex = 0 }
-                                clientAttemptId = it
-                            }
-                            initialStartedAt = d.startedAt
-                            initialTimeLimitSeconds = d.timeLimitSeconds
-                            if (d.remainingSeconds != null && d.remainingSeconds >= 0) {
-                                remainingSec = d.remainingSeconds
-                            } else if (d.timeLimitSeconds > 0) {
-                                val elapsed = (d.serverNow - d.startedAt) / 1000
-                                remainingSec = (d.timeLimitSeconds - elapsed).coerceAtLeast(0)
-                            }
-                            if (!d.questions.isNullOrEmpty()) {
-                                serverQuestions = d.questions
-                            }
+                        val d = startRes.data
+                        if (!startRes.success || d == null) {
+                            started = false
+                            _questions.value = UiState.Error(startRes.error?.takeIf { it.isNotBlank() } ?: "Could not start this test")
+                            return@launch
+                        }
+                        if (d.alreadySubmitted) {
+                            sessionStore.clearSession(effectiveExamId, currentUserId)
+                            clientAttemptId = java.util.UUID.randomUUID().toString()
+                            answers.clear(); timeTaken.clear(); visited.clear(); marked.clear()
+                            started = false
+                            _questions.value = UiState.Error("This saved test was already submitted. Open History for the confirmed result, or Retry to start a new attempt.")
+                            return@launch
+                        }
+                        d.clientAttemptId?.takeIf { it.isNotBlank() }?.let {
+                            if (clientAttemptId != it) { answers.clear(); timeTaken.clear(); visited.clear(); marked.clear(); restoredQuestionIndex = 0; furthestRevealedIndex = 0 }
+                            clientAttemptId = it
+                        }
+                        initialStartedAt = d.startedAt
+                        initialTimeLimitSeconds = d.timeLimitSeconds
+                        if (d.remainingSeconds != null && d.remainingSeconds >= 0) {
+                            remainingSec = d.remainingSeconds
+                        } else if (d.timeLimitSeconds > 0) {
+                            val elapsed = (d.serverNow - d.startedAt) / 1000
+                            remainingSec = (d.timeLimitSeconds - elapsed).coerceAtLeast(0)
+                        }
+                        if (!d.questions.isNullOrEmpty()) {
+                            serverQuestions = d.questions
                         }
                     } catch (e: retrofit2.HttpException) {
                         if (!ownsActiveAccount()) return@launch
@@ -192,11 +195,9 @@ class TestViewModel : ViewModel() {
                                 return@launch
                             }
                         }
-                        if (e.code() == 401 || e.code() == 403 || e.code() == 404 || e.code() == 409) {
-                            started = false
-                            _questions.value = UiState.Error(e.toUserFriendlyMessage())
-                            return@launch
-                        }
+                        started = false
+                        _questions.value = UiState.Error(e.toUserFriendlyMessage())
+                        return@launch
                     } catch (e: kotlinx.coroutines.CancellationException) {
                         throw e
                     } catch (_: Exception) {
@@ -301,12 +302,18 @@ class TestViewModel : ViewModel() {
                     val startResponse = com.eve.app.data.remote.ApiClient.api.startAttempt(mapOf("examId" to currentExamId, "resumeAttemptId" to existingSession?.clientAttemptId.orEmpty()))
                     if (!ownsActiveAccount()) return@launch
                     val session = startResponse.data
-                    check(startResponse.success && session != null) { startResponse.error ?: "Could not start this test" }
+                    if (!startResponse.success || session == null) {
+                        started = false
+                        _questions.value = UiState.Error(startResponse.error?.takeIf { it.isNotBlank() } ?: "Could not start this test")
+                        return@launch
+                    }
                     if (session.alreadySubmitted) {
                         sessionStore.clearSession(currentExamId, currentUserId)
                         clientAttemptId = java.util.UUID.randomUUID().toString()
                         answers.clear(); timeTaken.clear(); visited.clear(); marked.clear()
-                        throw IllegalStateException("This saved test was already submitted. Open History for the confirmed result, or Retry to start a new attempt.")
+                        started = false
+                        _questions.value = UiState.Error("This saved test was already submitted. Open History for the confirmed result, or Retry to start a new attempt.")
+                        return@launch
                     }
                     initialStartedAt = session.startedAt
                     initialTimeLimitSeconds = session.timeLimitSeconds
@@ -435,13 +442,20 @@ class TestViewModel : ViewModel() {
         val list = (_questions.value as? UiState.Success)?.data ?: return
         val q = list.getOrNull(position) ?: return
         viewModelScope.launch {
-            bookmarkRepo.toggleBookmark(
-                userId = user.uid,
-                question = q,
-                examName = currentExamName,
-                questionNumber = position + 1,
-                currentlyBookmarked = current
-            )
+            val res = runCatching {
+                bookmarkRepo.toggleBookmark(
+                    userId = user.uid,
+                    question = q,
+                    examName = currentExamName,
+                    questionNumber = position + 1,
+                    currentlyBookmarked = current
+                )
+            }.getOrElse { Result.failure(it) }
+            if (!ownsActiveAccount()) return@launch
+            if (res.isFailure) {
+                bookmarks[position] = current
+                _bookmarksSynced.value = true
+            }
         }
     }
 

@@ -1,6 +1,7 @@
 """Offline behavioral contracts for the existing Supabase GitHub keepalive script."""
 
 import os
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -28,8 +29,9 @@ class SupabaseKeepaliveContractTest(unittest.TestCase):
         script = keepalive_script()
         with tempfile.TemporaryDirectory() as tmp:
             curl = Path(tmp) / "curl"
+            bash_path = shutil.which("bash") or "/bin/bash"
             curl.write_text(
-                "#!/usr/bin/env bash\n"
+                f"#!{bash_path}\n"
                 "printf 'HTTP_STATUS:" + simulated_http + "\\n'\n",
                 encoding="utf-8",
             )

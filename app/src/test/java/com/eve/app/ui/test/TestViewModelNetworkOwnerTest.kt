@@ -54,4 +54,33 @@ class TestViewModelNetworkOwnerTest {
             .substringBefore("var currentExamId")
         assertTrue(helper.contains("SubmissionRetryPolicy.ownsSubmission("))
     }
+
+    @Test fun unconfirmedAttemptStartsFailClosedBeforeLoadingQuestions() {
+        val src = File("src/main/java/com/eve/app/ui/test/TestViewModel.kt").readText()
+        val start = src.substringAfter("fun start(").substringBefore("fun retry(")
+        val initialNetwork = start.indexOf("val startRes =")
+        val initialCheck = start.indexOf("if (!startRes.success || d == null)", initialNetwork)
+        val initialError = start.indexOf("_questions.value = UiState.Error", initialCheck)
+        val fallback = start.indexOf("val list = serverQuestions ?:", initialNetwork)
+        assertTrue(initialCheck in (initialNetwork + 1)..<fallback)
+        assertTrue(initialError in (initialCheck + 1)..<fallback)
+
+        val secondNetwork = start.indexOf("val startResponse =")
+        val secondCheck = start.indexOf("if (!startResponse.success || session == null)", secondNetwork)
+        val secondError = start.indexOf("_questions.value = UiState.Error", secondCheck)
+        assertTrue(secondCheck > secondNetwork)
+        assertTrue(secondError > secondCheck)
+    }
+
+    @Test fun bookmarkOptimisticStateRollsBackOnFailure() {
+        val src = File("src/main/java/com/eve/app/ui/test/TestViewModel.kt").readText()
+        val toggle = src.substringAfter("fun toggleBookmark(").substringBefore("fun markVisited(")
+        val initialOptimistic = toggle.indexOf("bookmarks[position] = !current")
+        val repoCall = toggle.indexOf("bookmarkRepo.toggleBookmark(", initialOptimistic)
+        val guard = toggle.indexOf("if (!ownsActiveAccount()) return@launch", repoCall)
+        val rollback = toggle.indexOf("bookmarks[position] = current", guard)
+        val sync = toggle.indexOf("_bookmarksSynced.value = true", rollback)
+        assertTrue(initialOptimistic >= 0 && repoCall > initialOptimistic && guard > repoCall &&
+            rollback > guard && sync > rollback)
+    }
 }

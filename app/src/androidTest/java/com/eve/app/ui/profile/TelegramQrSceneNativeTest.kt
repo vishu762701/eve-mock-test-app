@@ -100,6 +100,7 @@ class TelegramQrSceneNativeTest {
                 animatedScene.recycle()
                 Log.i("EveNativeQrStage", "scene-emoji-decoded")
                 scene.setEmojiChoices(listOf(QrEmojiPattern.custom("fixture-fire", "Fire", "res:raw/tg_fire_on")))
+                scene.pausePlayback()
             }
             Log.i("EveNativeQrStage", "scene-before-recreate")
             scenario.recreate()

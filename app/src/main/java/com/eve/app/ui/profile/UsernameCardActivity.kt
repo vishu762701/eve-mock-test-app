@@ -481,6 +481,16 @@ class UsernameCardActivity : EveBaseActivity() {
         if (::scene.isInitialized) scene.refreshEmojiPlayback()
     }
 
+    override fun onPause() {
+        super.onPause()
+        if (::scene.isInitialized) scene.pausePlayback()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (::scene.isInitialized) scene.refreshEmojiPlayback()
+    }
+
     override fun onDestroy() {
         (emojiPicker as? QrPickerMorphDialog)?.dismissImmediately()
             ?: emojiPicker?.dismiss()
