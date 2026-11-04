@@ -373,8 +373,9 @@ class ManageUsersActivity : EveBaseActivity() {
                 binding.progressBar.visibility = View.VISIBLE
                 lifecycleScope.launch {
                     try {
-                        val success = adminRepo.toggleUserStatus(user.id, disable)
-                        if (!isCurrentOwner(actionOwner) || !selectionCurrent() ||
+                        if (!selectionCurrent() || requestJob?.isActive == true) return@launch
+                        val success = adminRepo.toggleUserStatus(selection.userId, disable)
+                        if (!selectionCurrent() ||
                             !lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) return@launch
                         binding.progressBar.visibility = View.GONE
                         if (success) {
