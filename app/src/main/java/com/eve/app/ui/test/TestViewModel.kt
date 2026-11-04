@@ -187,7 +187,7 @@ class TestViewModel : ViewModel() {
                     } catch (e: retrofit2.HttpException) {
                         if (!ownsActiveAccount()) return@launch
                         if (e.code() == 409 && !isAdmin) {
-                            val canStillAttempt = com.eve.app.util.AttemptLimitManager.canAttempt(com.eve.app.EveApplication.instance, examId)
+                            val canStillAttempt = com.eve.app.util.AttemptLimitManager.canAttempt(com.eve.app.EveApplication.instance, effectiveExamId)
                             if (!ownsActiveAccount()) return@launch
                             if (!canStillAttempt) {
                                 _alreadyAttempted.value = true
@@ -200,9 +200,14 @@ class TestViewModel : ViewModel() {
                         return@launch
                     } catch (e: kotlinx.coroutines.CancellationException) {
                         throw e
-                    } catch (_: Exception) {
+                    } catch (e: Exception) {
                         if (!ownsActiveAccount()) return@launch
-                        if (existingSession != null && existingSession.elapsedSeconds > 0) {
+                        if (existingSession == null || existingSession.clientAttemptId.isBlank()) {
+                            started = false
+                            _questions.value = UiState.Error(e.toUserFriendlyMessage())
+                            return@launch
+                        }
+                        if (existingSession.elapsedSeconds > 0) {
                             remainingSec = (timeLimitMinutes * 60L - existingSession.elapsedSeconds).coerceAtLeast(0)
                         }
                     }

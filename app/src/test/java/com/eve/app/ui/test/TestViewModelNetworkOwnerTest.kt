@@ -83,4 +83,16 @@ class TestViewModelNetworkOwnerTest {
         assertTrue(initialOptimistic >= 0 && repoCall > initialOptimistic && guard > repoCall &&
             rollback > guard && sync > rollback)
     }
+
+    @Test fun networkExceptionsOnNewAttemptStartsFailClosed() {
+        val src = File("src/main/java/com/eve/app/ui/test/TestViewModel.kt").readText()
+        val start = src.substringAfter("fun start(").substringBefore("fun retry(")
+        val networkCatch = start.substringAfter("catch (e: Exception) {").substringBefore("val list = serverQuestions")
+        assertTrue(networkCatch.contains("if (existingSession == null || existingSession.clientAttemptId.isBlank())"))
+        assertTrue(networkCatch.contains("started = false"))
+        assertTrue(networkCatch.contains("_questions.value = UiState.Error(e.toUserFriendlyMessage())"))
+        assertTrue(networkCatch.contains("return@launch"))
+        val httpCatch = start.substringAfter("catch (e: retrofit2.HttpException) {").substringBefore("catch (e: kotlinx.coroutines.CancellationException)")
+        assertTrue(httpCatch.contains("AttemptLimitManager.canAttempt(com.eve.app.EveApplication.instance, effectiveExamId)"))
+    }
 }
