@@ -2939,3 +2939,29 @@ No production source, Worker route or assertion logic is removed; earlier
 confirmed empty/null/error truth-table tests remain intact. The carrying
 repair's own exact-SHA FAST is pending, and the PYQ independent feature
 must not advance until that gate is SUCCESS.
+
+## 2026-11-04 TestViewModel fail-closed unconfirmed starts and QR loop pause (6e7b0d2f)
+
+Live recovery baseline: `6e7b0d2ffb7b58b55a329212f73193de53a7bb2e`, exact-SHA FAST run [41876367361](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41876367361) SUCCESS (`backend`: ✓, `firebase-functions`: ✓, `build`: ✓).
+- `TestViewModel.kt`: Added explicit fail-closed guards when `startAttempt` returns `success=false` or `data=null` without starting an unverified attempt; added optimistic bookmark rollback on server mutation failure; verified `ownsActiveAccount()` checks before publishing questions or bookmarks.
+- `TelegramQrSceneView.kt` / `UsernameCardActivity.kt`: Added `pausePlayback()` on native animation frame loopers during Activity recreation to prevent looper deadlocks in ActivityScenario.
+- `test_supabase_keepalive_contract.py`: Fixed bash shebang for portable Termux execution.
+
+## 2026-11-04 Dead code removal and production ownership enforcement (02a5f3d5)
+
+Live recovery baseline: `02a5f3d5229f4d5d44d80a89e4d709e4b0849091`, exact-SHA FAST run [41881301229](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41881301229) SUCCESS, Verify Documentation run [41881300602](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41881300602) SUCCESS.
+- Audited callers across Android, Backend, Manifest, and XML and deleted 4 proven zero-caller obsolete/competing files (-522 lines):
+  - `app/src/main/java/com/eve/app/util/DateUtil.kt` (superseded app-wide by `android.text.format.DateUtils`)
+  - `app/src/main/java/com/eve/app/util/FastBlurHelper.kt` (pure Kotlin StackBlur superseded by Telegram hardware glassmorphism)
+  - `app/src/main/java/com/eve/app/ui/admin/tg/TelegramUndoView.kt` (competing undo view; canonical single owner is `AppUndoBar.kt`)
+  - `app/src/main/java/com/eve/app/ui/admin/tg/NumberTextView.kt` (unused port in `ui/admin/tg/`)
+- Added regression test `test_no_obsolete_competing_undo_or_blur_owners` in `.github/scripts/tests/test_production_ownership.py`.
+- Updated `THIRD_PARTY_NOTICES.md` and active color inventory to remove dead references.
+
+## 2026-11-04 TestViewModel network exception fail-closed and 409 limit exam key (f9da1d4d)
+
+Live recovery baseline: `f9da1d4d5d9f11e694d9c5df0cd81049bc90c6bf`, exact-SHA FAST run [41908256866](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41908256866) SUCCESS (`backend`: ✓, `firebase-functions`: ✓, `build`: ✓).
+- `TestViewModel.kt`: Fixed `catch (e: Exception)` inside `startAttempt` so that brand new mock attempts (`existingSession == null || existingSession.clientAttemptId.isBlank()`) fail closed immediately on network failure (`started = false`, `_questions.value = UiState.Error(e.toUserFriendlyMessage())`, `return@launch`) rather than silently falling through to unrecorded local mock tests.
+- `TestViewModel.kt`: Aligned 409 limit manager check from `examId` to `effectiveExamId` to prevent key mismatch on generated/topic tests.
+- `TestViewModelNetworkOwnerTest.kt`: Added contract test `networkExceptionsOnNewAttemptStartsFailClosed()` asserting fail-closed error emission and `effectiveExamId` limit checking.
+
