@@ -101,12 +101,14 @@ class AdminDialogSourceContractTest {
         assertTrue(syllabus.contains("examRepo.reassignSyllabus(currentExam, target)"))
         assertTrue(!syllabus.contains("examRepo.updateExamFullSettings("))
         val users = File(activities[1]).readText()
-        assertTrue(users.contains("adminRepo.toggleUserStatus(user.id, disable)"))
+        assertTrue(users.contains("adminRepo.toggleUserStatus(selection.userId, disable)"))
         assertTrue("Manage Users must bind privileged views to the initiating UID",
             users.contains("authorizedUid = FirebaseAuth.getInstance().currentUser?.uid"))
-        assertTrue("User actions must fail closed on stale or revoked authority",
-            users.contains("if (actionPending || !isCurrentOwner(actionOwner))") &&
-                users.contains("if (!isCurrentOwner(actionOwner) ||"))
+        assertTrue("User status mutations must match the original visible row and live authority",
+            users.contains("val selection = UserStatusSelection(") &&
+                users.contains("selection.matches(authorizedUid, currentPage, query, detailsEpoch, adapter.currentList)") &&
+                users.contains("if (actionPending || !isCurrentOwner(actionOwner))") &&
+                users.contains("if (!selectionCurrent() ||"))
         assertTrue("Canonical owner guard must recheck Firebase before acting",
             users.contains("gateReady && authorizedUid == uid &&") &&
                 users.contains("FirebaseAuth.getInstance().currentUser?.uid == uid"))
