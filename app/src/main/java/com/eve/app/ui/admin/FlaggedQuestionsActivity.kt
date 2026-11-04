@@ -147,6 +147,18 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
             reauthorizeOnResume = false
             authorizeReports()
         }
+        // The lifecycle reaches STARTED after Activity.onStart returns.
+        // A synchronous onCreate authorization therefore cannot safely read
+        // from inside onStart itself. Execute only after lifecycle dispatch;
+        // the pending flag and live UID/permission guard prevent duplicates.
+        if (pendingAuthorizedStartLoad) {
+            binding.root.post {
+                if (pendingAuthorizedStartLoad && activeOwner()) {
+                    pendingAuthorizedStartLoad = false
+                    loadFlaggedQuestions()
+                }
+            }
+        }
     }
 
     override fun onStop() {
