@@ -77,9 +77,14 @@ esac
             with self.subTest(mode=mode):
                 result, commands, evidence = self.run_script(mode)
                 self.assertEqual(0, result.returncode, result.stderr)
-                self.assertEqual(6, commands.count('adb shell am instrument -w -r'))
+                self.assertEqual(7, commands.count('adb shell am instrument -w -r'))
                 self.assertIn('-e class com.eve.app.ui.profile.QrEmojiPickerNativeTest', commands)
-                self.assertIn('-e notClass com.eve.app.ui.StudentUiRenderingTest#allStudentScreensRenderInBothThemesAndPhoneSizes,com.eve.app.ui.profile.QrEmojiPickerNativeTest', commands)
+                self.assertIn('-e notClass com.eve.app.ui.StudentUiRenderingTest#allStudentScreensRenderInBothThemesAndPhoneSizes,com.eve.app.ui.profile.QrEmojiPickerNativeTest,com.eve.app.ui.profile.TelegramQrSceneNativeTest#sourceGeometrySceneIsScannableAndNativeControlsAreAccessible', commands)
+                self.assertIn('-e class com.eve.app.ui.profile.TelegramQrSceneNativeTest#sourceGeometrySceneIsScannableAndNativeControlsAreAccessible', commands)
+                self.assertLess(commands.index(' -e class com.eve.app.ui.profile.QrEmojiPickerNativeTest'),
+                                commands.index(' -e class com.eve.app.ui.profile.TelegramQrSceneNativeTest'))
+                self.assertLess(commands.index(' -e class com.eve.app.ui.profile.TelegramQrSceneNativeTest'),
+                                commands.index(' -e package com.eve.app.ui'))
                 visual_lines = [line for line in commands.splitlines() if ' -e visualCases ' in line]
                 self.assertEqual(4, len(visual_lines))
                 source = (Path(__file__).resolve().parents[3] / 'app/src/androidTest/java/com/eve/app/ui/StudentUiRenderingTest.kt').read_text()
@@ -111,10 +116,13 @@ esac
         self.assertIn('ram-size: 2560M', workflow)
         self.assertIn('heap-size: 384M', workflow)
         self.assertIn('emulator-build: 16428233', workflow)
+        self.assertIn('emulator-options: -no-window -gpu swiftshader -no-snapshot -noaudio -no-boot-anim -feature -Vulkan', workflow)
+        self.assertNotIn('emulator-options: -no-window -gpu software ', workflow)
         self.assertIn('script: bash .github/scripts/verify-native-ui.sh', workflow)
         # Keep all real JNI/visual cases. RAM tuning is not a test exemption.
         script = SCRIPT.read_text()
         self.assertIn('-e class com.eve.app.ui.profile.QrEmojiPickerNativeTest', script)
+        self.assertIn('run_instrumentation qr-scene', script)
         self.assertIn('run_instrumentation core', script)
         self.assertIn('run_instrumentation "visual-$shard"', script)
 
@@ -123,7 +131,7 @@ esac
             with self.subTest(mode=mode):
                 result, commands, _ = self.run_script(mode, drain_instrument_stdin=True)
                 self.assertEqual(0, result.returncode, result.stderr)
-                self.assertEqual(6, commands.count('adb shell am instrument -w -r'))
+                self.assertEqual(7, commands.count('adb shell am instrument -w -r'))
                 self.assertEqual(4, commands.count(' -e visualCases '))
 
     def test_stdin_isolated_visual_shards_still_fail_on_assertions(self):

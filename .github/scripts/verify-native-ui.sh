@@ -180,9 +180,21 @@ if run_instrumentation qr-picker \
 else
   status=$?
 fi
+# Preserve the heavy full-scene QR export/recreation test in a dedicated
+# instrumentation process before the core suite. Previously the gesture core
+# reached 129/130 then stalled on this last test after prior rendering work.
+# One exact same real method, same assertions, no test bypass.
+if [[ "$status" == 0 ]]; then
+  if run_instrumentation qr-scene \
+      -e class com.eve.app.ui.profile.TelegramQrSceneNativeTest#sourceGeometrySceneIsScannableAndNativeControlsAreAccessible; then
+    :
+  else
+    status=$?
+  fi
+fi
 if [[ "$status" == 0 ]]; then
   if run_instrumentation core -e package com.eve.app.ui \
-      -e notClass com.eve.app.ui.StudentUiRenderingTest#allStudentScreensRenderInBothThemesAndPhoneSizes,com.eve.app.ui.profile.QrEmojiPickerNativeTest; then
+      -e notClass com.eve.app.ui.StudentUiRenderingTest#allStudentScreensRenderInBothThemesAndPhoneSizes,com.eve.app.ui.profile.QrEmojiPickerNativeTest,com.eve.app.ui.profile.TelegramQrSceneNativeTest#sourceGeometrySceneIsScannableAndNativeControlsAreAccessible; then
     :
   else
     status=$?

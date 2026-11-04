@@ -215,11 +215,14 @@ jobs:
           # Keep native QR JNI and every visual test enabled. Emulator
           # graphics/AVD is an infrastructure compatibility experiment,
           # never evidence of exact Telegram runtime parity.
-          emulator-options: -no-window -gpu software -no-snapshot -noaudio -no-boot-anim -feature -Vulkan
-          # Preserve all Android/JNI visual tests while reducing guest pressure
-          # on the shared KVM host. Two FULL attempts killed the guest during
-          # the real QR picker: no instrumentation terminal or JUnit assertion.
-          # This is a host stability experiment, not a fidelity assertion.
+          emulator-options: -no-window -gpu swiftshader -no-snapshot -noaudio -no-boot-anim -feature -Vulkan
+          # The dynamic software backend repeatedly lost the virtual device
+          # while the real JNI QR picker ran in three-button mode (no terminal
+          # JUnit result). Pin the supported SwiftShader GLES backend rather
+          # than trusting the software backend auto-selection. Preserve Vulkan
+          # disabled, all JNI tests, both navigation modes and actual rendering.
+          # Emulator compatibility is NOT Telegram reference-device parity.
+          # Preserve the reduced guest RAM/heap while testing this one variable.
           ram-size: 2560M
           heap-size: 384M
           disable-animations: false
