@@ -20,6 +20,7 @@ import com.eve.app.util.AppBulletin
 import com.eve.app.util.Constants
 import com.eve.app.util.UiState
 import com.eve.app.util.AdminIdentityGuard
+import com.eve.app.util.AdminAccessGate
 import com.eve.app.util.AdminPermissionSnapshot
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
