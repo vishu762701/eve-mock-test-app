@@ -550,11 +550,11 @@ class ManageSyllabusActivity : EveBaseActivity() {
             return
         }
         val ownerUid = accessUid
-        val labels = targetExams.map { it.examName + " (" + it.categoryOrOther + ")" }.toTypedArray()
+        val examLabels = targetExams.map { it.examName + " (" + it.categoryOrOther + ")" }.toTypedArray()
         var selectedIndex = 0
         TelegramNativeAlertDialog.Builder(this)
             .setTitle("Reassign Syllabus to Another Exam")
-            .setSingleChoiceItems(labels, 0, dismissOnSelection = false) { _, index ->
+            .setSingleChoiceItems(examLabels, 0, dismissOnSelection = false) { _, index ->
                 selectedIndex = index
             }
             .setPositiveButton("Reassign") { _, _ ->
