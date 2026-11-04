@@ -323,13 +323,6 @@
       }
     },
     {
-      "path": "app/src/main/java/com/eve/app/ui/profile/ProfileBioCapability.kt",
-      "sha256": "793546096a62f108c0200a507b6d7011f3e21feb9da248a79fa1f469986fbb0f",
-      "functions": {
-        "apply": 12
-      }
-    },
-    {
       "path": "app/src/main/java/com/eve/app/ui/profile/ProfileBirthday.kt",
       "sha256": "fdbb0e7d39463c2a3579ac079caf4640add23fae56e2fad4af91c0fd8b6b3eb3",
       "functions": {

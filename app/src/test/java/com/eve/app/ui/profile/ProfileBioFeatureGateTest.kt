@@ -18,6 +18,12 @@ class ProfileBioFeatureGateTest {
         assertTrue(layout.contains("@+id/cellUsername"))
         assertTrue(layout.contains("@+id/cellBirthday"))
     }
+    @Test fun removedBioPlaceholderHasNoCompetingRuntimeController() {
+        // The hidden Add bio implementation was orphaned; do not recreate a
+        // dormant second Profile UI owner while server bio compatibility remains.
+        assertFalse(File("src/main/java/com/eve/app/ui/profile/ProfileBioCapability.kt").exists())
+    }
+
     @Test fun existingBackendBioContractIsPreserved() {
         val service = File("src/main/java/com/eve/app/data/remote/EveApiService.kt").readText()
         assertTrue(service.contains("val bio: String? = null"))
