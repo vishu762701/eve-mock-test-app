@@ -215,8 +215,6 @@ Copyright (C) Nikolai Kudashov, 2013-2018; Telegram FZ-LLC.
 - `ShadowSectionCell.kt`: derived from `TMessagesProj/src/main/java/org/telegram/ui/Cells/ShadowSectionCell.java:20-50`
 - `TelegramActionBar.kt`: derived from `TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBar.java:150-250` and `ActionBarMenuItem.java:1316-1390`
 - `TelegramSegmentedTabs.kt`: derived from `TMessagesProj/src/main/java/org/telegram/ui/Components/FilterTabsView.java:80-160`
-- `NumberTextView.kt`: derived from `TMessagesProj/src/main/java/org/telegram/ui/Components/NumberTextView.java`
-- `TelegramUndoView.kt`: derived from `TMessagesProj/src/main/java/org/telegram/ui/Components/UndoView.java:120-200`
 - `AnimatedEmojiSpan.kt`: derived from `TMessagesProj/src/main/java/org/telegram/ui/Components/AnimatedEmojiSpan.java:230-330`
 - `EmojiStudioActivity.kt`: derived from Telegram `SelectAnimatedEmojiDialog.java` and `EmojiView.java`
 

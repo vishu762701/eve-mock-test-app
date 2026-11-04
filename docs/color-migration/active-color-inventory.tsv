@@ -232,13 +232,6 @@ app/src/main/java/com/eve/app/util/ShareCardHelper.kt	159		runtime/component pro
 app/src/main/java/com/eve/app/util/ShareCardHelper.kt	205		runtime/component producer; source or EVE semantic role	val fillPaint = Paint().apply {
 app/src/main/java/com/eve/app/util/ShareCardHelper.kt	212		runtime/component producer; source or EVE semantic role	val valPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
 app/src/main/java/com/eve/app/util/ShareCardHelper.kt	220		runtime/component producer; source or EVE semantic role	val lblPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-app/src/main/java/com/eve/app/util/FastBlurHelper.kt	78		runtime/component producer; source or EVE semantic role	sir[0] = (p and 0xff0000) shr 16
-app/src/main/java/com/eve/app/util/FastBlurHelper.kt	79		runtime/component producer; source or EVE semantic role	sir[1] = (p and 0x00ff00) shr 8
-app/src/main/java/com/eve/app/util/FastBlurHelper.kt	80		runtime/component producer; source or EVE semantic role	sir[2] = p and 0x0000ff
-app/src/main/java/com/eve/app/util/FastBlurHelper.kt	118		runtime/component producer; source or EVE semantic role	sir[0] = (p and 0xff0000) shr 16
-app/src/main/java/com/eve/app/util/FastBlurHelper.kt	119		runtime/component producer; source or EVE semantic role	sir[1] = (p and 0x00ff00) shr 8
-app/src/main/java/com/eve/app/util/FastBlurHelper.kt	120		runtime/component producer; source or EVE semantic role	sir[2] = p and 0x0000ff
-app/src/main/java/com/eve/app/util/FastBlurHelper.kt	186		runtime/component producer; source or EVE semantic role	pix[yi] = (-0x1000000) or (dv[rsum] shl 16) or (dv[gsum] shl 8) or dv[bsum]
 app/src/main/java/com/eve/app/util/TimeComparisonFormatter.kt	34	system_red	EVE semantic/status/decoration exception; not Telegram claim	!isCorrect -> R.color.system_red
 app/src/main/java/com/eve/app/util/TimeComparisonFormatter.kt	35	system_green	EVE semantic/status/decoration exception; not Telegram claim	isFaster -> R.color.system_green
 app/src/main/java/com/eve/app/util/TimeComparisonFormatter.kt	36	system_orange	EVE semantic/status/decoration exception; not Telegram claim	else -> R.color.system_orange

@@ -133,6 +133,21 @@ class ProductionOwnershipTest(unittest.TestCase):
         }
         self.assertEqual(callers, {"data/repository/AppContentRepository.kt"})
 
+    def test_no_obsolete_competing_undo_or_blur_owners(self):
+        # Enforce that obsolete, dead or competing classes are not present in production
+        for banned in ("TelegramUndoView.kt", "NumberTextView.kt", "FastBlurHelper.kt", "DateUtil.kt"):
+            matches = list(PRODUCTION.rglob(banned))
+            self.assertEqual(matches, [], f"Obsolete/competing file must not exist: {banned}")
+        # Verify AppUndoBar is the canonical owner of undo UI
+        undo_call = re.compile(r"\bAppUndoBar\b")
+        undo_callers = {
+            file.relative_to(PRODUCTION).as_posix()
+            for file in PRODUCTION.rglob("*.kt")
+            if undo_call.search(file.read_text(encoding="utf-8"))
+        }
+        self.assertIn("ui/admin/EditExamActivity.kt", undo_callers)
+        self.assertIn("ui/bookmarks/BookmarksActivity.kt", undo_callers)
+
 
 if __name__ == "__main__":
     unittest.main()
