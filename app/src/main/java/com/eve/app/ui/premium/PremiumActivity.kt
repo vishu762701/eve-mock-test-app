@@ -13,6 +13,7 @@ import com.eve.app.R
 import com.eve.app.data.model.PremiumPlanDto
 import com.eve.app.data.model.PremiumStatusDto
 import com.eve.app.data.repository.PremiumRepository
+import com.google.firebase.auth.FirebaseAuth
 import com.eve.app.databinding.ActivityPremiumBinding
 import com.eve.app.util.AppBulletin
 import kotlinx.coroutines.launch
@@ -25,10 +26,17 @@ class PremiumActivity : EveBaseActivity() {
 
     private var currentPlan: PremiumPlanDto? = null
     private var currentStatus: PremiumStatusDto? = null
+    private var premiumOwnerUid: String? = null
+
+    private fun hasOriginalAccount(): Boolean =
+        !premiumOwnerUid.isNullOrBlank() &&
+            premiumOwnerUid == FirebaseAuth.getInstance().currentUser?.uid &&
+            !isFinishing && !isDestroyed
 
     private val checkoutLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
+        if (!hasOriginalAccount()) { finish(); return@registerForActivityResult }
         if (result.resultCode == Activity.RESULT_OK) {
             AppBulletin.showSuccess(this, "Premium activated successfully!")
             loadData()
@@ -39,6 +47,13 @@ class PremiumActivity : EveBaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityPremiumBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        val currentUid = FirebaseAuth.getInstance().currentUser?.uid
+        val restoredUid = savedInstanceState?.getString("premium_owner_uid")
+        if (currentUid.isNullOrBlank() || (restoredUid != null && restoredUid != currentUid)) {
+            finish()
+            return
+        }
+        premiumOwnerUid = currentUid
 
         binding.btnBack.setOnClickListener {
             finish()
@@ -56,13 +71,27 @@ class PremiumActivity : EveBaseActivity() {
         loadData()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("premium_owner_uid", premiumOwnerUid)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!hasOriginalAccount()) finish()
+    }
+
     private fun loadData() {
+        if (!hasOriginalAccount()) { finish(); return }
+        val requestUid = premiumOwnerUid
         binding.progressBar.visibility = View.VISIBLE
         binding.scrollView.visibility = View.INVISIBLE
 
         lifecycleScope.launch {
             val planRes = PremiumRepository.getPlan()
+            if (!hasOriginalAccount() || requestUid != premiumOwnerUid) return@launch
             val statusRes = PremiumRepository.refreshStatus(this@PremiumActivity)
+            if (!hasOriginalAccount() || requestUid != premiumOwnerUid) return@launch
 
             binding.progressBar.visibility = View.GONE
             binding.scrollView.visibility = View.VISIBLE
@@ -139,6 +168,7 @@ class PremiumActivity : EveBaseActivity() {
     }
 
     private fun showPaymentMethodPicker() {
+        if (!hasOriginalAccount()) { finish(); return }
         val plan = currentPlan ?: PremiumPlanDto()
         val sheet = PaymentMethodBottomSheet.newInstance(
             priceInr = plan.priceInr,
@@ -151,15 +181,19 @@ class PremiumActivity : EveBaseActivity() {
     }
 
     private fun createOrderAndCheckout(method: String) {
+        if (!hasOriginalAccount()) { finish(); return }
+        val requestUid = premiumOwnerUid
         binding.progressBar.visibility = View.VISIBLE
         lifecycleScope.launch {
             val res = PremiumRepository.createOrder(method)
+            if (!hasOriginalAccount() || requestUid != premiumOwnerUid) return@launch
             binding.progressBar.visibility = View.GONE
 
             if (res.isSuccess) {
                 val order = res.getOrNull()!!
                 val intent = Intent(this@PremiumActivity, PaymentCheckoutActivity::class.java).apply {
                     putExtra(PaymentCheckoutActivity.EXTRA_ORDER_ID, order.orderId)
+                    putExtra(PaymentCheckoutActivity.EXTRA_OWNER_UID, requestUid)
                     putExtra(PaymentCheckoutActivity.EXTRA_AMOUNT, order.amount)
                     putExtra(PaymentCheckoutActivity.EXTRA_CURRENCY, order.currency)
                     putExtra(PaymentCheckoutActivity.EXTRA_METHOD, order.paymentMethod)

@@ -634,7 +634,9 @@ class ProfileActivity : EveBaseActivity() {
             setupAdminUi()
         }
         lifecycleScope.launch {
-            if (adminRepo.isAdmin(email)) setupAdminUi() else binding.chipAdmin.visibility = View.GONE
+            val confirmedAdmin = adminRepo.isAdmin(email)
+            if (!isProfileOwner()) return@launch
+            if (confirmedAdmin) setupAdminUi() else binding.chipAdmin.visibility = View.GONE
         }
 
         val updatePremiumBadge = { status: PremiumStatusDto? ->
@@ -660,6 +662,7 @@ class ProfileActivity : EveBaseActivity() {
         }
         lifecycleScope.launch {
             val res = PremiumRepository.refreshStatus(this@ProfileActivity)
+            if (!isProfileOwner()) return@launch
             if (res.isSuccess) {
                 updatePremiumBadge(res.getOrNull())
             }

@@ -2107,8 +2107,10 @@ class MainActivity : EveBaseActivity() {
         } else {
             binding.tvDrawerPremiumStatus.visibility = View.GONE
         }
+        val premiumOwnerUid = user.uid
         lifecycleScope.launch(lifecycleExceptionHandler) {
             val res = com.eve.app.data.repository.PremiumRepository.refreshStatus(this@MainActivity)
+            if (!searchOwnerCurrent || FirebaseAuth.getInstance().currentUser?.uid != premiumOwnerUid) return@launch
             if (res.isSuccess) {
                 val status = res.getOrNull()
                 if (status?.isPremium == true) {

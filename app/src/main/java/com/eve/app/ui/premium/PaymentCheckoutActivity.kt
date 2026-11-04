@@ -12,6 +12,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.data.repository.PremiumRepository
+import com.google.firebase.auth.FirebaseAuth
 import com.eve.app.databinding.ActivityPaymentCheckoutBinding
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.HapticHelper
@@ -34,9 +35,16 @@ class PaymentCheckoutActivity : EveBaseActivity() {
     private var timerJob: Job? = null
     private var pollJob: Job? = null
     private var isCompleted = false
+    private var checkoutOwnerUid: String? = null
+
+    private fun hasOriginalAccount(): Boolean =
+        !checkoutOwnerUid.isNullOrBlank() &&
+            checkoutOwnerUid == FirebaseAuth.getInstance().currentUser?.uid &&
+            !isFinishing && !isDestroyed
 
     companion object {
         const val EXTRA_ORDER_ID = "extra_order_id"
+        const val EXTRA_OWNER_UID = "extra_owner_uid"
         const val EXTRA_AMOUNT = "extra_amount"
         const val EXTRA_CURRENCY = "extra_currency"
         const val EXTRA_METHOD = "extra_method"
@@ -50,6 +58,15 @@ class PaymentCheckoutActivity : EveBaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityPaymentCheckoutBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        val launchedOwner = intent.getStringExtra(EXTRA_OWNER_UID)
+        val restoredOwner = savedInstanceState?.getString("checkout_owner_uid")
+        if (launchedOwner.isNullOrBlank() ||
+            launchedOwner != FirebaseAuth.getInstance().currentUser?.uid ||
+            (restoredOwner != null && restoredOwner != launchedOwner)) {
+            finish()
+            return
+        }
+        checkoutOwnerUid = launchedOwner
 
         orderId = intent.getStringExtra(EXTRA_ORDER_ID) ?: ""
         amount = intent.getIntExtra(EXTRA_AMOUNT, 99)
@@ -63,6 +80,16 @@ class PaymentCheckoutActivity : EveBaseActivity() {
         setupViews()
         startCountdownTimer()
         startAutomaticPaymentPolling()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("checkout_owner_uid", checkoutOwnerUid)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!hasOriginalAccount()) finish()
     }
 
     private fun setupViews() {
@@ -80,6 +107,7 @@ class PaymentCheckoutActivity : EveBaseActivity() {
             lifecycleScope.launch(Dispatchers.Default) {
                 val bitmap = QrCodeGenerator.generateBitmap(qrData, 512)
                 withContext(Dispatchers.Main) {
+                    if (!hasOriginalAccount()) { finish(); return@withContext }
                     binding.ivQrCode.setImageBitmap(bitmap)
                 }
             }
@@ -105,10 +133,12 @@ class PaymentCheckoutActivity : EveBaseActivity() {
 
         // Sandbox test verification button (Requirement 53)
         binding.btnSimulateSandbox.setOnClickListener {
+            if (!hasOriginalAccount()) { finish(); return@setOnClickListener }
             binding.btnSimulateSandbox.isEnabled = false
             lifecycleScope.launch {
                 binding.tvStatusText.text = "Simulating verified payment webhook..."
                 val res = PremiumRepository.simulateSandboxPayment(orderId, this@PaymentCheckoutActivity)
+                if (!hasOriginalAccount()) { finish(); return@launch }
                 if (res.isSuccess) {
                     onPaymentSuccess()
                 } else {
@@ -120,6 +150,7 @@ class PaymentCheckoutActivity : EveBaseActivity() {
     }
 
     private fun launchUpiIntent() {
+        if (!hasOriginalAccount()) { finish(); return }
         try {
             val intent = Intent(Intent.ACTION_VIEW).apply {
                 data = Uri.parse(upiUri)
@@ -132,6 +163,7 @@ class PaymentCheckoutActivity : EveBaseActivity() {
     }
 
     private fun copyToClipboard(text: String, message: String) {
+        if (!hasOriginalAccount()) { finish(); return }
         val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("UPI Payment", text)
         clipboard.setPrimaryClip(clip)
@@ -142,6 +174,7 @@ class PaymentCheckoutActivity : EveBaseActivity() {
         timerJob?.cancel()
         timerJob = lifecycleScope.launch {
             while (isActive && !isCompleted) {
+                if (!hasOriginalAccount()) { finish(); break }
                 val now = System.currentTimeMillis()
                 val remainingMs = expiresAt - now
                 if (remainingMs <= 0) {
@@ -164,7 +197,9 @@ class PaymentCheckoutActivity : EveBaseActivity() {
         pollJob = lifecycleScope.launch {
             while (isActive && !isCompleted) {
                 delay(3000)
+                if (!hasOriginalAccount()) { finish(); break }
                 val result = PremiumRepository.checkOrderStatus(orderId, this@PaymentCheckoutActivity)
+                if (!hasOriginalAccount()) { finish(); break }
                 if (result.isSuccess) {
                     val status = result.getOrNull()
                     if (status != null) {
@@ -184,6 +219,7 @@ class PaymentCheckoutActivity : EveBaseActivity() {
     }
 
     private fun onPaymentSuccess() {
+        if (!hasOriginalAccount()) { finish(); return }
         if (isCompleted) return
         isCompleted = true
         timerJob?.cancel()
@@ -203,12 +239,14 @@ class PaymentCheckoutActivity : EveBaseActivity() {
 
         lifecycleScope.launch {
             delay(1500)
+            if (!hasOriginalAccount()) { finish(); return@launch }
             setResult(RESULT_OK)
             finish()
         }
     }
 
     private fun onSessionExpired() {
+        if (!hasOriginalAccount()) { finish(); return }
         if (isCompleted) return
         isCompleted = true
         timerJob?.cancel()
