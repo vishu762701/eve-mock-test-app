@@ -6,6 +6,7 @@ import com.eve.app.ui.common.EveBaseActivity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.R
@@ -14,9 +15,14 @@ import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.data.repository.FlaggedQuestionRepository
 import com.eve.app.databinding.ActivityFlaggedQuestionsBinding
+import com.eve.app.util.AdminAccessGate
+import com.eve.app.util.AdminIdentityGuard
+import com.eve.app.util.AdminPermissionSnapshot
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.Constants
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class FlaggedQuestionsActivity : EveBaseActivity() {
@@ -26,70 +32,177 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
     private val flagRepo = FlaggedQuestionRepository()
     private val examRepo = ExamRepository()
     private lateinit var adapter: FlaggedQuestionsAdapter
-    private var isTechnicalSelected: Boolean = false
+
+    private var isTechnicalSelected = false
     private var reportReadGeneration = 0L
-    private var reportLoadJob: kotlinx.coroutines.Job? = null
+    private var actionEpoch = 0L
+    private var reportLoadJob: Job? = null
+    private var editorLoadJob: Job? = null
+    private var editorWriteJob: Job? = null
+    private var dismissJob: Job? = null
     private var canManageQuestions = false
     private var canManageExams = false
+    private var screenAuthorized = false
+    private var uiPrepared = false
+    private var reauthorizeOnResume = false
     private var editorLoadInFlight = false
+    private var loadedReports: List<AggregatedFlaggedQuestion> = emptyList()
     private var questionEditor: TelegramNativeAlertDialog? = null
+    private var dismissDialog: TelegramNativeAlertDialog? = null
+    private var openingUid = ""
+    private var openingEmail = ""
+
+    private fun sameIdentity(): Boolean {
+        val current = FirebaseAuth.getInstance().currentUser
+        return AdminIdentityGuard.allowed(true, openingUid, openingEmail,
+            current?.uid, current?.email) && !isFinishing && !isDestroyed
+    }
+
+    private fun activeOwner(): Boolean =
+        screenAuthorized && sameIdentity() &&
+            lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+
     private val questionActionsAllowed: Boolean
-        get() = canManageQuestions && !isFinishing && !isDestroyed
+        get() = activeOwner() && canManageQuestions && editorWriteJob?.isActive != true
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityFlaggedQuestionsBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        isTechnicalSelected = savedInstanceState?.getBoolean("admin_report_technical") ?: false
+    private fun currentReport(item: AggregatedFlaggedQuestion, uid: String, email: String, epoch: Long): Boolean =
+        activeOwner() && uid == openingUid && email.equals(openingEmail, ignoreCase = true) &&
+            epoch == actionEpoch && matchesReportType(item) &&
+            loadedReports.any {
+                it.examId == item.examId && it.questionId == item.questionId &&
+                    it.reportType == item.reportType && it.flagIds == item.flagIds &&
+                    item.flagIds.isNotEmpty()
+            }
 
-        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "moderate_feedback") { permissions ->
+    private suspend fun freshRights(uid: String, email: String, vararg rights: String): Boolean {
+        if (!activeOwner() || uid != openingUid || !email.equals(openingEmail, ignoreCase = true)) return false
+        val snapshot = AdminPermissionSnapshot.load(
+            email, "moderate_feedback",
+            membership = { adminRepo.isAdminFresh(uid, email) },
+            permissions = { adminRepo.getAdminMe() }
+        )
+        return activeOwner() && rights.all { AdminPermissionSnapshot.allows(snapshot, email, it) }
+    }
+
+    private fun authorizeReports() {
+        screenAuthorized = false
+        canManageQuestions = false
+        canManageExams = false
+        binding.root.visibility = View.INVISIBLE
+        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true,
+            requiredRight = "moderate_feedback") { permissions ->
+            // Old authorizations resolving after STOP are not a new grant.
+            if (reauthorizeOnResume) {
+                binding.root.visibility = View.INVISIBLE
+                return@requireAdmin
+            }
+            if (!sameIdentity()) {
+                binding.root.visibility = View.INVISIBLE
+                finish()
+                return@requireAdmin
+            }
+            screenAuthorized = true
             canManageQuestions = permissions.isOwner || "manage_questions" in permissions.rights
             canManageExams = permissions.isOwner || "manage_exams" in permissions.rights
-            setupUi()
+            if (!uiPrepared) {
+                setupUi()
+                uiPrepared = true
+            }
             loadFlaggedQuestions()
         }
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user == null || user.email.isNullOrBlank()) {
+            finish()
+            return
+        }
+        openingUid = user.uid
+        openingEmail = user.email.orEmpty()
+        binding = ActivityFlaggedQuestionsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        isTechnicalSelected = savedInstanceState?.getBoolean("admin_report_technical") ?: false
+        authorizeReports()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (reauthorizeOnResume && ::binding.isInitialized) {
+            reauthorizeOnResume = false
+            authorizeReports()
+        }
+    }
+
+    override fun onStop() {
+        reauthorizeOnResume = true
+        screenAuthorized = false
+        canManageQuestions = false
+        canManageExams = false
+        ++reportReadGeneration
+        ++actionEpoch
+        reportLoadJob?.cancel()
+        editorLoadJob?.cancel()
+        editorLoadInFlight = false
+        loadedReports = emptyList()
+        questionEditor?.dismiss()
+        dismissDialog?.dismiss()
+        questionEditor = null
+        dismissDialog = null
+        if (::adapter.isInitialized) adapter.submit(emptyList())
+        if (::binding.isInitialized) binding.root.visibility = View.INVISIBLE
+        // Already-dispatched Worker writes may finish, but their original
+        // epoch/UID no longer permits any UI acknowledgment or replay.
+        super.onStop()
+    }
+
     private fun setupUi() {
         binding.btnBack.setOnClickListener { finish() }
-        binding.btnRefresh.setOnClickListener { loadFlaggedQuestions() }
+        binding.btnRefresh.setOnClickListener { if (activeOwner()) loadFlaggedQuestions() }
 
-        // Assist-style chip defaults are not checkable; these two are actual filters.
         binding.chipContentIssues.isCheckable = true
         binding.chipTechnicalIssues.isCheckable = true
         binding.chipGroupReportType.isSelectionRequired = true
         binding.chipGroupReportType.check(if (isTechnicalSelected) R.id.chipTechnicalIssues else R.id.chipContentIssues)
 
         adapter = FlaggedQuestionsAdapter(
-            onEdit = { item -> if (matchesReportType(item)) showEditDialog(item) },
-            onDismiss = { item -> if (matchesReportType(item)) confirmDismissFlag(item) },
+            onEdit = { item -> if (questionActionsAllowed && matchesReportType(item)) showEditDialog(item) },
+            onDismiss = { item -> if (activeOwner() && matchesReportType(item)) confirmDismissFlag(item) },
             canEdit = { questionActionsAllowed },
-            canDismiss = { !isFinishing && !isDestroyed }
+            canDismiss = { activeOwner() && dismissJob?.isActive != true }
         )
-
         binding.rvFlaggedQuestions.layoutManager = LinearLayoutManager(this)
         binding.rvFlaggedQuestions.adapter = adapter
         binding.chipGroupReportType.setOnCheckedStateChangeListener { _, checkedIds ->
+            if (!activeOwner()) return@setOnCheckedStateChangeListener
             val technical = checkedIds.contains(R.id.chipTechnicalIssues)
             if (technical == isTechnicalSelected) return@setOnCheckedStateChangeListener
             isTechnicalSelected = technical
-            adapter.submit(emptyList())
+            questionEditor?.dismiss()
+            dismissDialog?.dismiss()
             loadFlaggedQuestions()
         }
     }
 
     private fun loadFlaggedQuestions() {
-        if (isFinishing || isDestroyed) return
+        if (!activeOwner()) return
         val technical = isTechnicalSelected
+        val requestUid = openingUid
         val request = ++reportReadGeneration
+        ++actionEpoch
         reportLoadJob?.cancel()
-        fun isCurrent() = request == reportReadGeneration && technical == isTechnicalSelected && !isFinishing && !isDestroyed
+        loadedReports = emptyList()
+        adapter.submit(emptyList())
+        fun isCurrent() = activeOwner() && requestUid == openingUid &&
+            request == reportReadGeneration && technical == isTechnicalSelected
         binding.progressBar.visibility = View.VISIBLE
         binding.tvEmpty.visibility = View.GONE
         reportLoadJob = lifecycleScope.launch {
             try {
                 val list = flagRepo.getPendingFlaggedQuestions(isTechnical = technical)
                 if (!isCurrent()) return@launch
+                loadedReports = list
                 binding.progressBar.visibility = View.GONE
                 adapter.submit(list)
                 if (list.isEmpty()) {
@@ -102,11 +215,13 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
                 } else {
                     binding.tvEmpty.visibility = View.GONE
                 }
-            } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
-            catch (e: Exception) {
+            } catch (cancel: CancellationException) {
+                throw cancel
+            } catch (error: Exception) {
                 if (isCurrent()) {
                     binding.progressBar.visibility = View.GONE
-                    AppBulletin.showError(this@FlaggedQuestionsActivity, "Failed to load flags: ${e.message}")
+                    AppBulletin.showError(this@FlaggedQuestionsActivity,
+                        "Failed to load flags: " + error.message)
                 }
             }
         }
@@ -121,100 +236,159 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
     }
 
     private fun confirmDismissFlag(item: AggregatedFlaggedQuestion) {
-        if (isFinishing || isDestroyed || !matchesReportType(item)) return
-        val title = if (isTechnicalSelected) "Dismiss Bug Report?" else "Dismiss Flag?"
-        val msg = if (isTechnicalSelected) {
-            "Mark this technical issue as resolved? (${item.flagCount} report(s))"
+        val uid = openingUid
+        val email = openingEmail
+        val epoch = actionEpoch
+        if (!currentReport(item, uid, email, epoch) || dismissJob?.isActive == true) return
+        val technical = item.reportType == "technical"
+        val title = if (technical) "Dismiss Bug Report?" else "Dismiss Flag?"
+        val message = if (technical) {
+            "Mark this technical issue as resolved? (" + item.flagCount + " report(s))"
         } else {
-            "Dismiss ${item.flagCount} flag(s) for this question? It will be marked as resolved."
+            "Dismiss " + item.flagCount + " flag(s) for this question? It will be marked as resolved."
         }
-
-        TelegramNativeAlertDialog.Builder(this)
+        val dialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle(title)
-            .setMessage(msg)
+            .setMessage(message)
             .setPositiveButton("Dismiss") { _, _ ->
-                if (isFinishing || isDestroyed || !matchesReportType(item)) return@setPositiveButton
-                binding.progressBar.visibility = View.VISIBLE
-                lifecycleScope.launch {
+                if (!currentReport(item, uid, email, epoch) || dismissJob?.isActive == true) return@setPositiveButton
+                dismissJob = lifecycleScope.launch {
+                    binding.progressBar.visibility = View.VISIBLE
                     try {
-                        val success = flagRepo.dismissFlags(item.flagIds, isTechnical = isTechnicalSelected)
-                        binding.progressBar.visibility = View.GONE
-                        if (success) {
+                        if (!freshRights(uid, email, "moderate_feedback") ||
+                            !currentReport(item, uid, email, epoch)) {
+                            if (currentReport(item, uid, email, epoch)) {
+                                AppBulletin.showError(this@FlaggedQuestionsActivity, "Report moderation right is no longer available.")
+                            }
+                            return@launch
+                        }
+                        val confirmed = flagRepo.dismissFlags(item.flagIds, isTechnical = technical)
+                        if (!currentReport(item, uid, email, epoch)) return@launch
+                        if (confirmed) {
                             AppBulletin.showSuccess(this@FlaggedQuestionsActivity, "Reports dismissed")
                             loadFlaggedQuestions()
                         } else {
                             AppBulletin.showError(this@FlaggedQuestionsActivity, "Failed to dismiss reports")
                         }
-                    } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
-                    catch (e: Exception) {
-                        binding.progressBar.visibility = View.GONE
-                        AppBulletin.showError(this@FlaggedQuestionsActivity, "Error: ${e.message}")
+                    } catch (cancel: CancellationException) {
+                        throw cancel
+                    } catch (error: Exception) {
+                        if (currentReport(item, uid, email, epoch)) {
+                            AppBulletin.showError(this@FlaggedQuestionsActivity, "Error: " + error.message)
+                        }
+                    } finally {
+                        if (currentReport(item, uid, email, epoch)) binding.progressBar.visibility = View.GONE
                     }
                 }
             }
             .setNegativeButton("Cancel", null)
             .show()
+        dismissDialog = dialog
+        dialog.setOnDismissListener { if (dismissDialog === dialog) dismissDialog = null }
     }
 
     private fun showEditDialog(item: AggregatedFlaggedQuestion) {
-        if (!questionActionsAllowed || !matchesReportType(item) || editorLoadInFlight || questionEditor?.isShowing == true) return
+        val uid = openingUid
+        val email = openingEmail
+        val epoch = actionEpoch
+        if (!questionActionsAllowed || !currentReport(item, uid, email, epoch) ||
+            editorLoadInFlight || questionEditor?.isShowing == true) return
         editorLoadInFlight = true
-        lifecycleScope.launch {
+        editorLoadJob = lifecycleScope.launch {
             binding.progressBar.visibility = View.VISIBLE
             try {
-                val fullQuestion = resolveQuestionEditorTarget(examRepo.getQuestions(item.examId),
+                val question = resolveQuestionEditorTarget(examRepo.getQuestions(item.examId),
                     item.examId, item.questionId, item.questionText)
-                if (!questionActionsAllowed || !matchesReportType(item)) return@launch
-                if (fullQuestion == null) {
-                    AppBulletin.showError(this@FlaggedQuestionsActivity, "Question is unavailable or ambiguous. Reload before editing.")
+                if (!currentReport(item, uid, email, epoch) || !questionActionsAllowed) return@launch
+                if (question == null) {
+                    AppBulletin.showError(this@FlaggedQuestionsActivity,
+                        "Question is unavailable or ambiguous. Reload before editing.")
                     return@launch
                 }
                 val dialog = createQuestionEditorDialog(this@FlaggedQuestionsActivity,
-                    com.eve.app.data.model.Exam(id = fullQuestion.examId, examName = item.examName),
-                    isBusy = { !questionActionsAllowed }, title = "Review & Edit Question", initialQuestion = fullQuestion,
+                    com.eve.app.data.model.Exam(id = question.examId, examName = item.examName),
+                    isBusy = {
+                        !currentReport(item, uid, email, epoch) ||
+                            !questionActionsAllowed || editorWriteJob?.isActive == true
+                    },
+                    title = "Review & Edit Question", initialQuestion = question,
                     positiveLabel = "Save Changes", submittingLabel = R.string.question_form_saving,
                     successMessage = "Question updated & flags resolved!",
                     neutralLabel = if (canManageExams) "Open in Exam Editor" else null,
                     onNeutral = {
-                        if (canManageExams && !isFinishing && !isDestroyed) {
+                        if (canManageExams && currentReport(item, uid, email, epoch)) {
                             startActivity(Intent(this@FlaggedQuestionsActivity, EditExamActivity::class.java).apply {
                                 putExtra(Constants.EXTRA_EXAM_ID, item.examId)
                                 putExtra(Constants.EXTRA_EXAM_NAME, item.examName)
                             })
                         }
                     }) { updated, onFailure, onDone ->
-                        lifecycleScope.launch {
+                    if (questionActionsAllowed && currentReport(item, uid, email, epoch) &&
+                        editorWriteJob?.isActive != true) {
+                        editorWriteJob = lifecycleScope.launch {
                             binding.progressBar.visibility = View.VISIBLE
                             var questionSaved = false
                             var confirmed = false
                             try {
+                                if (!freshRights(uid, email, "moderate_feedback", "manage_questions") ||
+                                    !currentReport(item, uid, email, epoch)) {
+                                    if (currentReport(item, uid, email, epoch)) onFailure("Question edit permission was revoked.")
+                                    return@launch
+                                }
                                 examRepo.updateQuestion(updated)
                                 questionSaved = true
+                                if (!currentReport(item, uid, email, epoch)) return@launch
                                 confirmed = flagRepo.dismissFlags(item.flagIds)
-                                if (!confirmed) onFailure("Question updated, but reports were not resolved. Retry or refresh reports.")
-                            } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
-                            catch (error: Exception) {
-                                onFailure(if (questionSaved) "Question updated, but reports could not be resolved. Retry or refresh reports."
+                                if (!confirmed && currentReport(item, uid, email, epoch)) {
+                                    onFailure("Question updated, but reports were not resolved. Retry or refresh reports.")
+                                }
+                            } catch (cancel: CancellationException) {
+                                throw cancel
+                            } catch (error: Exception) {
+                                if (currentReport(item, uid, email, epoch)) {
+                                    onFailure(if (questionSaved)
+                                        "Question updated, but reports could not be resolved. Retry or refresh reports."
                                     else error.message ?: "Failed to update question")
-                            } finally { binding.progressBar.visibility = View.GONE }
-                            if (confirmed && questionActionsAllowed) { onDone(); loadFlaggedQuestions() }
+                                }
+                            } finally {
+                                if (currentReport(item, uid, email, epoch)) binding.progressBar.visibility = View.GONE
+                            }
+                            if (confirmed && currentReport(item, uid, email, epoch)) {
+                                onDone()
+                                loadFlaggedQuestions()
+                            }
                         }
+                    }
                 }
+                if (!currentReport(item, uid, email, epoch)) return@launch
                 questionEditor = dialog
                 dialog.setOnDismissListener { if (questionEditor === dialog) questionEditor = null }
                 dialog.show()
-            } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
-            catch (error: Exception) {
-                if (!isFinishing && !isDestroyed) AppBulletin.showError(this@FlaggedQuestionsActivity,
-                    error.message ?: "Failed to load question")
-            } finally { editorLoadInFlight = false; binding.progressBar.visibility = View.GONE }
+            } catch (cancel: CancellationException) {
+                throw cancel
+            } catch (error: Exception) {
+                if (currentReport(item, uid, email, epoch)) {
+                    AppBulletin.showError(this@FlaggedQuestionsActivity,
+                        error.message ?: "Failed to load question")
+                }
+            } finally {
+                if (epoch == actionEpoch) {
+                    editorLoadInFlight = false
+                    if (activeOwner()) binding.progressBar.visibility = View.GONE
+                }
+            }
         }
     }
 
     override fun onDestroy() {
-        reportReadGeneration++
+        ++reportReadGeneration
+        ++actionEpoch
         reportLoadJob?.cancel()
-        questionEditor?.dismiss(); questionEditor = null
+        editorLoadJob?.cancel()
+        questionEditor?.dismiss()
+        dismissDialog?.dismiss()
+        questionEditor = null
+        dismissDialog = null
         super.onDestroy()
     }
 }

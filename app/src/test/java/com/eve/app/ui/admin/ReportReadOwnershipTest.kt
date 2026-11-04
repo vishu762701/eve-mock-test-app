@@ -1,6 +1,7 @@
 package com.eve.app.ui.admin
 
 import android.app.Application
+import android.content.DialogInterface
 import android.os.Looper
 import android.view.View
 import android.widget.TextView
@@ -108,6 +109,55 @@ class ReportReadOwnershipTest {
         c.get().findViewById<View>(R.id.btnRefresh).performClick(); idle()
         QuestionReviewBoundaryFixture.reportReads[2].reply.resume(emptyList<AggregatedFlaggedQuestion>()); idle()
         assertEquals(c.get().getString(R.string.admin_reports_empty_technical),c.get().findViewById<TextView>(R.id.tvEmpty).text.toString())
+    }
+
+    @Test fun revokedModerationCannotDismissAReportAfterDialogOpens()=exercise { c ->
+        answer(0, "Content")
+        val rv = c.get().findViewById<RecyclerView>(R.id.rvFlaggedQuestions)
+        @Suppress("UNCHECKED_CAST")
+        val list = rv.adapter as RecyclerView.Adapter<RecyclerView.ViewHolder>
+        val row = list.createViewHolder(rv, 0)
+        list.bindViewHolder(row, 0)
+        row.itemView.findViewById<View>(R.id.btnDismissFlag).performClick()
+        idle()
+        val dialog = org.robolectric.shadows.ShadowDialog.getLatestDialog()
+            as com.eve.app.designsystem.TelegramNativeAlertDialog
+        val prior = QuestionReviewBoundaryFixture.dismissCalls
+        EditExamBoundaryFixture.permissions = AdminMeData(
+            email = "owner@example.test", rights = emptyList())
+        dialog.getActionButton(DialogInterface.BUTTON_POSITIVE)!!.performClick()
+        idle()
+        assertEquals(prior, QuestionReviewBoundaryFixture.dismissCalls)
+        dialog.dismiss()
+    }
+
+    @Test fun stoppedHostClearsPrivilegedRowsAndRechecksServerRightsOnResume()=exercise { c ->
+        answer(0, "Content")
+        val list = c.get().findViewById<RecyclerView>(R.id.rvFlaggedQuestions)
+        assertEquals(1, list.adapter!!.itemCount)
+        val before = EditExamBoundaryFixture.freshReads
+        c.pause().stop()
+        assertEquals(0, list.adapter!!.itemCount)
+        EditExamBoundaryFixture.permissions = AdminMeData(
+            email = "owner@example.test", rights = emptyList())
+        c.start().resume().visible()
+        idle()
+        assertTrue(c.get().isFinishing)
+        assertEquals(before + 1, EditExamBoundaryFixture.freshReads)
+    }
+
+    @Test fun stoppedRowCannotOpenDismissalAfterLifecycleInvalidation()=exercise { c ->
+        answer(0, "Content")
+        val rv = c.get().findViewById<RecyclerView>(R.id.rvFlaggedQuestions)
+        @Suppress("UNCHECKED_CAST")
+        val list = rv.adapter as RecyclerView.Adapter<RecyclerView.ViewHolder>
+        val row = list.createViewHolder(rv, 0)
+        list.bindViewHolder(row, 0)
+        val dismissed = QuestionReviewBoundaryFixture.dismissCalls
+        c.pause().stop()
+        row.itemView.findViewById<View>(R.id.btnDismissFlag).performClick()
+        idle()
+        assertEquals(dismissed, QuestionReviewBoundaryFixture.dismissCalls)
     }
 
     @Test fun destroyedHostRejectsLateTransportData()=exercise { c ->
