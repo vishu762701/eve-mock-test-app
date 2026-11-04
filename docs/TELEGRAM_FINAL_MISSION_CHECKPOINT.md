@@ -4,6 +4,51 @@
 
 Status: PARTIAL. This is a continuation record, not screen acceptance.
 
+## Current independent P0 continuation — Admin Analytics authorization lease
+
+Recovery: live main `42ebee2a1b370d20bf7b545028fc9ac4483fdd69`.
+FAST `41687648322` and documentation `41687648415` SUCCESS, both at
+the baseline SHA. The previous generated-test and broadcast repairs are
+preserved; no audit-log replay. Telegram official master remains pinned
+to `3de37c8cfb039452be7398909461da6288babf15`; this is an EVE
+business authorization repair and imports no upstream files.
+
+Verified source defect: `AdminAnalyticsActivity` took a one-time fresh
+`view_analytics_logs` gate but retained its granted `manage_questions`
+flag and suspended editor callbacks through subsequent stop/resume. The
+worker remains authoritative and rejects revoked writes, but privileged
+Android reads, stale edit dialogs and unconfirmed submit callbacks were
+not lifecycle-revalidated. Canonical question form and shared analytics
+ViewModel are preserved; no second manager added.
+
+Implementation scope: capture original Firebase UID/email, require fresh
+analytics gate on resumed screen, avoid duplicate controller initialization,
+suppress old Flow display and editor callbacks while unauthorized,
+cancel pending editor read/write jobs and dismiss their dialogs on stop.
+Before the existing `ExamRepository.updateQuestion` call, verify the same
+owner and fresh `manage_questions` right through the existing
+`AdminPermissionSnapshot`. Preserve existing Worker answer authority,
+activity account isolation, result filters and original question editor
+metadata. No Telegram geometry/theme change. Classification: ADAPTED
+(EVE authorization, no equivalent upstream business endpoint).
+
+Regression: `app/src/test/java/com/eve/app/ui/admin/AnalyticsPermissionResumeTest.kt`
+uses the existing real Robolectric Activity/editor and SDK/transport fixtures
+to exercise revoked resume, revoked save right, and stale pending preflight.
+Existing `QuestionReviewActivityTest`, `AnalyticsFilterActivityTest`,
+`AnalyticsReadOwnershipTest` must pass too. Carrying exact-SHA FAST
+is **not yet asserted**. Before committing, check the current branch lease.
+This batch is the independent Admin Analytics lifecycle/permission increment
+after the previously successful analytics read/filter commit
+`980a92cf4a10e4b16b0a691303b4c340ad30bf6e`
+(FAST `41535796716`). No Worker deployment, schema migration, FULL/native
+emulator, debug APK publication or GPL clearance authorized.
+
+Related **uncommitted, separate** Audit Log/Recent Actions repair remains
+prepared in Git blobs from earlier chat, but that feature already consumed
+two successful commits. Do not push its code without a specific owner
+exception. Continue unrelated authorized independent implementation.
+
 ## Active P0 continuation — broadcast creation transaction fail-closed
 
 Recovered `main` at `5f63dbd376f624a15a433b613d4348fee0975af9`.

@@ -19,6 +19,10 @@ import com.eve.app.designsystem.TelegramNativeAlertDialog
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.Constants
 import com.eve.app.util.UiState
+import com.eve.app.util.AdminIdentityGuard
+import com.eve.app.util.AdminPermissionSnapshot
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -31,13 +35,87 @@ class AdminAnalyticsActivity : EveBaseActivity() {
     private var canManageQuestions = false
     private var canManageExams = false
     private var editorLoadInFlight = false
+    private var editorLoadJob: Job? = null
+    private var editorSaveJob: Job? = null
+    private var editorEpoch = 0L
+    private var screenAuthorized = false
+    private var screenInitialized = false
+    private var reauthorizeOnResume = false
+    private var openingUid = ""
+    private var openingEmail = ""
     private var questionEditor: TelegramNativeAlertDialog? = null
+
+    private fun currentIdentity(): Boolean {
+        val current = FirebaseAuth.getInstance().currentUser
+        return AdminIdentityGuard.allowed(true, openingUid, openingEmail, current?.uid, current?.email) &&
+            !isFinishing && !isDestroyed
+    }
+
+    private fun currentAccess(): Boolean =
+        screenAuthorized && currentIdentity() &&
+            lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+
     private val questionActionsAllowed: Boolean
-        get() = canManageQuestions && !isFinishing && !isDestroyed
+        get() = currentAccess() && canManageQuestions
+
+    private fun authorizeAnalytics() {
+        screenAuthorized = false
+        canManageQuestions = false
+        canManageExams = false
+        binding.root.visibility = View.INVISIBLE
+        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true,
+            requiredRight = "view_analytics_logs") { permissions ->
+            if (!currentIdentity()) {
+                binding.root.visibility = View.INVISIBLE
+                finish()
+                return@requireAdmin
+            }
+            screenAuthorized = true
+            canManageQuestions = permissions.isOwner || "manage_questions" in permissions.rights
+            canManageExams = permissions.isOwner || "manage_exams" in permissions.rights
+            if (!screenInitialized) {
+                setup()
+                screenInitialized = true
+            }
+            viewModel.load(selectedTimeRange())
+        }
+    }
+
+    override fun onStop() {
+        screenAuthorized = false
+        canManageQuestions = false
+        canManageExams = false
+        reauthorizeOnResume = true
+        editorEpoch++
+        editorLoadJob?.cancel()
+        editorSaveJob?.cancel()
+        editorLoadJob = null
+        editorSaveJob = null
+        editorLoadInFlight = false
+        questionEditor?.dismiss()
+        questionEditor = null
+        if (::binding.isInitialized) binding.root.visibility = View.INVISIBLE
+        super.onStop()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (reauthorizeOnResume && ::binding.isInitialized) {
+            reauthorizeOnResume = false
+            authorizeAnalytics()
+        }
+    }
     private val questionAdapter = AnalyticsQuestionAdapter(onEdit = { q -> showEditQuestionDialog(q) }, canEdit = { questionActionsAllowed })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val startingUser = FirebaseAuth.getInstance().currentUser
+        if (startingUser == null || startingUser.email.isNullOrBlank()) {
+            finish()
+            return
+        }
+        openingUid = startingUser.uid
+        openingEmail = startingUser.email.orEmpty()
         binding = ActivityAdminAnalyticsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -50,16 +128,12 @@ class AdminAnalyticsActivity : EveBaseActivity() {
             })
         }
 
-        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "view_analytics_logs") { permissions ->
-            canManageQuestions = permissions.isOwner || "manage_questions" in permissions.rights
-            canManageExams = permissions.isOwner || "manage_exams" in permissions.rights
-            setup()
-        }
+        authorizeAnalytics()
     }
 
     private fun setup() {
         binding.btnBack.setOnClickListener { finish() }
-        binding.btnRefresh.setOnClickListener { viewModel.load() }
+        binding.btnRefresh.setOnClickListener { if (currentAccess()) viewModel.load(selectedTimeRange()) }
         binding.btnOpenCrashlyticsConsole.setOnClickListener {
             try {
                 val intent = Intent(
@@ -73,7 +147,7 @@ class AdminAnalyticsActivity : EveBaseActivity() {
         }
 
         binding.chipGroupTimeRange.setOnCheckedStateChangeListener { _, _ ->
-            viewModel.load(selectedTimeRange())
+            if (currentAccess()) viewModel.load(selectedTimeRange())
         }
 
         binding.rvExams.layoutManager = LinearLayoutManager(this)
@@ -83,9 +157,9 @@ class AdminAnalyticsActivity : EveBaseActivity() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.load(selectedTimeRange())
                 launch {
                     viewModel.state.collect { state ->
+                        if (!currentAccess()) return@collect
                         when (state) {
                             UiState.Loading -> {
                                 binding.progress.visibility = View.VISIBLE
@@ -137,51 +211,95 @@ class AdminAnalyticsActivity : EveBaseActivity() {
 
     private fun showEditQuestionDialog(qa: QuestionAnalytics) {
         if (!questionActionsAllowed || editorLoadInFlight || questionEditor?.isShowing == true) return
+        if (qa.examId.isBlank()) return
         editorLoadInFlight = true
-        lifecycleScope.launch {
+        val requestEpoch = ++editorEpoch
+        val requestUid = openingUid
+        val requestEmail = openingEmail
+        editorLoadJob = lifecycleScope.launch {
             binding.progress.visibility = View.VISIBLE
             try {
                 val fullQuestion = resolveQuestionEditorTarget(examRepo.getQuestions(qa.examId),
                     qa.examId, qa.questionId, qa.questionText, legacyId = qa.id)
-                if (!questionActionsAllowed) return@launch
+                if (requestEpoch != editorEpoch || !questionActionsAllowed) return@launch
                 if (fullQuestion == null) {
-                    AppBulletin.showError(this@AdminAnalyticsActivity, "Question is unavailable or ambiguous. Reload before editing.")
+                    AppBulletin.showError(this@AdminAnalyticsActivity,
+                        "Question is unavailable or ambiguous. Reload before editing.")
                     return@launch
                 }
                 val dialog = createQuestionEditorDialog(this@AdminAnalyticsActivity,
                     com.eve.app.data.model.Exam(id = fullQuestion.examId, examName = qa.examName),
-                    isBusy = { !questionActionsAllowed }, title = "Edit Question", initialQuestion = fullQuestion,
+                    isBusy = { !questionActionsAllowed || editorSaveJob?.isActive == true },
+                    title = "Edit Question", initialQuestion = fullQuestion,
                     positiveLabel = "Save Changes", submittingLabel = R.string.question_form_saving,
                     successMessage = "Question updated successfully",
                     neutralLabel = if (canManageExams) "Open in Exam Editor" else null,
                     onNeutral = {
-                        if (canManageExams && !isFinishing && !isDestroyed) {
+                        if (currentAccess() && canManageExams) {
                             startActivity(Intent(this@AdminAnalyticsActivity, EditExamActivity::class.java).apply {
                                 putExtra(Constants.EXTRA_EXAM_ID, qa.examId)
                                 putExtra(Constants.EXTRA_EXAM_NAME, qa.examName)
                             })
                         }
                     }) { updated, onFailure, onDone ->
-                        lifecycleScope.launch {
-                            binding.progress.visibility = View.VISIBLE
-                            var confirmed = false
-                            try {
-                                examRepo.updateQuestion(updated)
-                                confirmed = true
-                            } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
-                            catch (error: Exception) { onFailure(error.message ?: "Failed to update question") }
-                            finally { binding.progress.visibility = View.GONE }
-                            if (confirmed && questionActionsAllowed) { onDone(); viewModel.load() }
+                        if (!questionActionsAllowed || editorSaveJob?.isActive == true) {
+                            onFailure("Question editor authorization is unavailable. Reopen and retry.")
+                        } else {
+                            editorSaveJob = lifecycleScope.launch {
+                                binding.progress.visibility = View.VISIBLE
+                                try {
+                                    // Cached page rights are not permission to mutate after revocation.
+                                    val fresh = AdminPermissionSnapshot.load(
+                                        requestEmail, "manage_questions",
+                                        membership = { adminRepo.isAdminFresh(requestUid, requestEmail) },
+                                        permissions = { adminRepo.getAdminMe() }
+                                    )
+                                    if (fresh == null || requestEpoch != editorEpoch ||
+                                        !questionActionsAllowed || !currentIdentity()) {
+                                        if (requestEpoch == editorEpoch && currentAccess()) {
+                                            onFailure("Question permission expired. Reopen and retry.")
+                                        }
+                                        return@launch
+                                    }
+                                    examRepo.updateQuestion(updated)
+                                    if (requestEpoch == editorEpoch && questionActionsAllowed) {
+                                        onDone()
+                                        viewModel.load(selectedTimeRange())
+                                    }
+                                } catch (cancel: CancellationException) {
+                                    throw cancel
+                                } catch (error: Exception) {
+                                    if (requestEpoch == editorEpoch && questionActionsAllowed) {
+                                        onFailure(error.message ?: "Failed to update question")
+                                    }
+                                } finally {
+                                    if (requestEpoch == editorEpoch && ::binding.isInitialized) {
+                                        binding.progress.visibility = View.GONE
+                                        editorSaveJob = null
+                                    }
+                                }
+                            }
                         }
-                }
+                    }
                 questionEditor = dialog
-                dialog.setOnDismissListener { if (questionEditor === dialog) questionEditor = null }
-                dialog.show()
-            } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel }
-            catch (error: Exception) {
-                if (!isFinishing && !isDestroyed) AppBulletin.showError(this@AdminAnalyticsActivity,
-                    error.message ?: "Failed to load question")
-            } finally { editorLoadInFlight = false; binding.progress.visibility = View.GONE }
+                dialog.setOnDismissListener {
+                    if (questionEditor === dialog) questionEditor = null
+                }
+                if (requestEpoch == editorEpoch && questionActionsAllowed) dialog.show()
+            } catch (cancel: CancellationException) {
+                throw cancel
+            } catch (error: Exception) {
+                if (requestEpoch == editorEpoch && currentAccess()) {
+                    AppBulletin.showError(this@AdminAnalyticsActivity,
+                        error.message ?: "Failed to load question")
+                }
+            } finally {
+                if (requestEpoch == editorEpoch) {
+                    editorLoadInFlight = false
+                    binding.progress.visibility = View.GONE
+                    editorLoadJob = null
+                }
+            }
         }
     }
 
