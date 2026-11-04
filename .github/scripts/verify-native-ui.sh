@@ -1,7 +1,32 @@
 #!/usr/bin/env bash
 set -euo pipefail
+guest_crash_pid=""
+guest_crash_log="ui-renderings/guest-crash-stream.log"
 collect_evidence() {
   mkdir -p ui-renderings
+  # Stream crash/events while ADB is alive. Pulling logcat only in the EXIT
+  # trap loses tombstones whenever the QEMU guest disappears mid-JNI test.
+  if [[ -n "$guest_crash_pid" ]]; then
+    kill "$guest_crash_pid" 2>/dev/null || true
+    wait "$guest_crash_pid" 2>/dev/null || true
+  fi
+  echo "NATIVE_GUEST_CRASH_STREAM_BEGIN"
+  if [[ -f "$guest_crash_log" ]]; then
+    tail -n 120 "$guest_crash_log" || true
+  else
+    echo "Guest crash stream not initialized"
+  fi
+  echo "NATIVE_GUEST_CRASH_STREAM_END"
+  echo "NATIVE_QEMU_PROCESS_SNAPSHOT_BEGIN"
+  ps -eo pid,ppid,stat,rss,args | grep -E '[q]emu-system|[/]emulator -port' | head -n 12 || true
+  echo "NATIVE_QEMU_PROCESS_SNAPSHOT_END"
+  # Crashpad files may be present even if all guest logcat and ADB are lost.
+  # Print names and sizes only: never publish raw memory-containing dumps.
+  if [[ -d /tmp/android-runner ]]; then
+    echo "NATIVE_QEMU_CRASHPAD_FILES_BEGIN"
+    find /tmp/android-runner -maxdepth 5 -type f \( -name '*.dmp' -o -name '*.log' \) -printf '%p %s bytes\\n' | head -n 25 || true
+    echo "NATIVE_QEMU_CRASHPAD_FILES_END"
+  fi
   # The prior 3-button emulator went offline after 127/131 passes. Refuse
   # unbounded ADB reads against a dead device in the EXIT trap.
   local device_state
@@ -130,6 +155,12 @@ adb shell input keyevent KEYCODE_BACK
 # Install precompiled, checksum-verified binaries; do not run Gradle per emulator.
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+# A bounded live recorder is indispensable when the emulator, rather than just
+# the app process, dies and postmortem adb pull is impossible. The disposable
+# emulator contains only test fixtures; no production accounts are exercised.
+adb logcat -c || true
+timeout 800s adb logcat -b crash -b events -v threadtime > "$guest_crash_log" 2>&1 &
+guest_crash_pid=$!
 # The full student rendering matrix covers 44 fixtures x two themes x three
 # viewport/font configurations. Running it inside the 53-test command exceeded
 # the 660-second instrumentation bound in BOTH navigation modes (run 40107857698).

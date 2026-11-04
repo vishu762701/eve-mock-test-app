@@ -168,6 +168,9 @@ esac
         self.assertIn('adb get-state', commands)
         self.assertNotIn('adb pull /sdcard/Pictures/eve-approved-ui', commands)
         self.assertIn('instrumentation-three-button-qr-picker.log', evidence)
+        self.assertIn('guest-crash-stream.log', evidence)
+        self.assertIn('adb logcat -b crash -b events -v threadtime', commands)
+        self.assertIn('NATIVE_GUEST_CRASH_STREAM_BEGIN', result.stdout)
 
     def test_wrong_navigation_mode_fails_before_instrumentation(self):
         result, commands, _ = self.run_script('three-button', observed=2)
