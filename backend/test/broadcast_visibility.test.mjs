@@ -120,6 +120,33 @@ test("students cannot see pre-existing category-targeted broadcasts", async () =
   assert.deepEqual(json.data.map(x => x.id), ["broadcast-1"]);
 });
 
+test("student broadcast pagination excludes legacy restricted rows before LIMIT", async () => {
+  const { sqlite, d1 } = isolatedD1();
+  try {
+    const insert = sqlite.prepare(
+      "INSERT INTO notifications (id, title, message, sent_at, sent_by, type, target_category) VALUES (?, ?, ?, ?, ?, ?, ?)"
+    );
+    insert.run("visible-old", "Available", "Public notice", 1000, ownerEmail, "general", "All Users");
+    for (let i = 0; i < 51; i++) {
+      insert.run(`restricted-${i}`, "Restricted", "Legacy targeted", 2000 + i, ownerEmail, "general", "Other Exam");
+    }
+
+    const app = new Hono();
+    app.use("*", async (c, next) => {
+      c.set("user", { uid: "student-fixture", email: "student@example.test", isAdmin: false });
+      await next();
+    });
+    app.route("/api/broadcasts", broadcastRoutes);
+    const res = await app.request("http://localhost/api/broadcasts?limit=10", {}, { DB: d1 });
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.deepEqual(body.data.map(x => x.id), ["visible-old"]);
+    assert.equal(Object.hasOwn(body.data[0], "sentBy"), false);
+  } finally {
+    sqlite.close();
+  }
+});
+
 test("targeted broadcasts fail closed before creating any D1 row", async () => {
   const res = await requestAsAdmin("POST", "/api/broadcasts", {
     title: "Limited group", message: "Restricted", targetCategory: "Exam A"

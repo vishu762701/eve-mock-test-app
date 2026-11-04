@@ -20,16 +20,17 @@ broadcastRoutes.get("/", async (c) => {
   }
   const limit = Math.min(100, rawLimit === undefined ? 100 : Number(rawLimit));
 
-  const { results } = await db
-    .prepare("SELECT * FROM notifications ORDER BY sent_at DESC LIMIT ?")
-    .bind(limit)
-    .all<NotificationRow>();
-
-  // A category-limited notice has no verified server-side recipient membership
-  // mapping. Fail closed for students rather than showing another audience's post.
+  // Determine the authorized audience before LIMIT. Filtering a shared
+  // page afterwards can hide older eligible broadcasts behind legacy targeted rows.
   const user = c.get("user");
   const canSendBroadcasts = user?.isAdmin === true &&
     (await getAdminPermissions(db, user.email))?.rights.includes("send_broadcasts") === true;
+  const query = canSendBroadcasts
+    ? "SELECT * FROM notifications ORDER BY sent_at DESC LIMIT ?"
+    : "SELECT * FROM notifications WHERE target_category IS NULL OR target_category = '' OR target_category = 'All Users' ORDER BY sent_at DESC LIMIT ?";
+  const { results } = await db.prepare(query).bind(limit).all<NotificationRow>();
+
+  // Defense in depth: never display an unexpected restricted row to students.
   const eligible = canSendBroadcasts ? (results || []) : (results || []).filter(
     (r: any) => !r.target_category || r.target_category === "All Users"
   );
