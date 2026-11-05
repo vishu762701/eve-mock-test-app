@@ -27,6 +27,7 @@ class ApiUsageActivity : EveBaseActivity() {
     private var readJob: Job? = null
     private var loading = false
     private var reloadAfterStop = true
+    private var reauthorizeOnResume = false
 
     private fun ownerCurrent(): Boolean {
         val live = FirebaseAuth.getInstance().currentUser
@@ -57,8 +58,28 @@ class ApiUsageActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (adminReady && !ownerCurrent()) { finish(); return }
-        if (adminReady && reloadAfterStop) loadUsage()
+        if (reauthorizeOnResume && ::binding.isInitialized) {
+            reauthorizeOnResume = false
+            val live = FirebaseAuth.getInstance().currentUser
+            if (live == null || live.uid != initiatingUid || live.email != initiatingEmail) {
+                finish()
+                return
+            }
+            com.eve.app.util.AdminAccessGate.requireAdmin(
+                this,
+                binding.root,
+                requireFreshServer = true,
+                requiredRight = "view_analytics_logs"
+            ) {
+                if (!ownerCurrent()) {
+                    finish()
+                    return@requireAdmin
+                }
+                initiatingUid = live.uid
+                initiatingEmail = live.email.orEmpty()
+                if (reloadAfterStop) loadUsage()
+            }
+        }
     }
 
     override fun onStop() {
@@ -66,6 +87,7 @@ class ApiUsageActivity : EveBaseActivity() {
         readJob?.cancel()
         loading = false
         reloadAfterStop = true
+        reauthorizeOnResume = true
         if (::binding.isInitialized) {
             binding.btnRefresh.isEnabled = true
             showUnavailable(R.string.api_usage_loading)

@@ -3158,8 +3158,14 @@ Live recovery baseline: `51e8f63d9366f89b7522ec2c14ca1b411e100157`.
 - `AdminRightsEditActivity.kt`: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation via `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "manage_admins_rights")`. Checks live identity before permitting further administrative rights changes.
 - `EditExamBoundaryFixture.java`: Guarded `ExamBoundary.getExams` with `exams != null ? exams : Collections.emptyList()`.
 - `ManagePremiumPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring.
-- `ManageSyllabusPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring.
+- `ManageSyllabusPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring. Fresh reads assertion reflects 1 initial gate + 1 onResume gate + 1 defense-in-depth `requireSyllabusRight` in `loadExamsAndSyllabuses`.
 - `AdminRightsPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring.
+- `ApiUsageActivity.kt`: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation via `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "view_analytics_logs")`.
+- `EditAboutActivity.kt`: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation via `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "manage_content")`.
+- `ManageExistingExamsActivity.kt`: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation via `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "manage_exams")`.
+- `EditExamActivity.kt`: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation via `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "manage_exams")`, dynamically refreshing `btnAddQuestion`, `btnBulkUpload`, and `btnPickEmoji` based on retained permissions.
+- `EditExamPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions for `ManageExistingExamsActivity` and `EditExamActivity`.
+- `ConfigAndContentPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions for `ApiUsageActivity` and `EditAboutActivity`.
 
 
 

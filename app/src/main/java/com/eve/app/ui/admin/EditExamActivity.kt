@@ -74,6 +74,7 @@ class EditExamActivity : EveBaseActivity() {
     private var questionDeleteEpoch = 0L
     private var questionReadGeneration = 0L
     private var reloadQuestionsAfterStop = false
+    private var reauthorizeOnResume = false
     private val questionDeleteBusy: Boolean get() = pendingQuestionDeleteId != null || deletingQuestion
 
     private var canManageQuestions = false
@@ -234,7 +235,36 @@ class EditExamActivity : EveBaseActivity() {
     override fun onResume() {
         super.onResume()
         consumePendingImport()
-        if (reloadQuestionsAfterStop && !deletingQuestion && questionActionsAllowed) {
+        if (reauthorizeOnResume && ::binding.isInitialized) {
+            reauthorizeOnResume = false
+            val live = FirebaseAuth.getInstance().currentUser
+            if (live == null || live.uid != editorOwnerUid || live.email != editorOwnerEmail) {
+                finish()
+                return
+            }
+            com.eve.app.util.AdminAccessGate.requireAdmin(
+                this,
+                binding.root,
+                requireFreshServer = true,
+                requiredRight = "manage_exams"
+            ) { permissions ->
+                if (!editorIdentityCurrent) {
+                    finish()
+                    return@requireAdmin
+                }
+                editorOwnerUid = live.uid
+                editorOwnerEmail = live.email.orEmpty()
+                canManageQuestions = permissions.isOwner || "manage_questions" in permissions.rights
+                canManageContent = permissions.isOwner || "manage_content" in permissions.rights
+                binding.btnAddQuestion.visibility = if (canManageQuestions) View.VISIBLE else View.GONE
+                binding.btnBulkUpload.visibility = if (canManageQuestions) View.VISIBLE else View.GONE
+                binding.btnPickEmoji.visibility = if (canManageContent) View.VISIBLE else View.GONE
+                if (reloadQuestionsAfterStop && !deletingQuestion && questionActionsAllowed) {
+                    reloadQuestionsAfterStop = false
+                    loadQuestions()
+                }
+            }
+        } else if (reloadQuestionsAfterStop && !deletingQuestion && questionActionsAllowed) {
             reloadQuestionsAfterStop = false
             loadQuestions()
         }
@@ -244,6 +274,7 @@ class EditExamActivity : EveBaseActivity() {
         ++questionDeleteEpoch
         ++questionReadGeneration
         reloadQuestionsAfterStop = true
+        reauthorizeOnResume = true
         AppUndoBar.cancelDeferredForHost(this)
         super.onStop()
     }

@@ -84,7 +84,8 @@ class ManageSyllabusPermissionResumeTest {
             c.restart().resume().visible()
             idle()
             assertFalse("Activity must remain active when rights are intact", c.get().isFinishing)
-            assertEquals(2, EditExamBoundaryFixture.freshReads)
+            // 1 initial onCreate gate + 1 onResume gate + 1 requireSyllabusRight in loadExamsAndSyllabuses
+            assertEquals(3, EditExamBoundaryFixture.freshReads)
         } finally {
             c.destroy()
             idle()

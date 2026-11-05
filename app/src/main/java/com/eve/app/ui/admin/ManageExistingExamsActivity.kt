@@ -34,6 +34,9 @@ class ManageExistingExamsActivity : EveBaseActivity() {
     private var allExamsWithStats: List<ExamWithStats> = emptyList()
     private var hasEmptyPlayed = false
     private var adminAuthorized = false
+    private var authorizedUid = ""
+    private var authorizedEmail = ""
+    private var reauthorizeOnResume = false
     private val expandedExamIds = linkedSetOf<String>()
     private var initializedTreeExpansion = false
 
@@ -47,9 +50,43 @@ class ManageExistingExamsActivity : EveBaseActivity() {
 
         binding.btnBack.setOnClickListener { finish() }
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_exams") {
+            val live = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser ?: return@requireAdmin
+            authorizedUid = live.uid
+            authorizedEmail = live.email.orEmpty()
             adminAuthorized = true
             setupAdminControls()
             loadExams()
+        }
+    }
+
+    override fun onStop() {
+        reauthorizeOnResume = true
+        super.onStop()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (reauthorizeOnResume && ::binding.isInitialized) {
+            reauthorizeOnResume = false
+            val live = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+            if (live == null || live.uid != authorizedUid || live.email != authorizedEmail) {
+                finish()
+                return
+            }
+            AdminAccessGate.requireAdmin(
+                this,
+                binding.root,
+                requireFreshServer = true,
+                requiredRight = "manage_exams"
+            ) {
+                if (!adminAuthorized) {
+                    finish()
+                    return@requireAdmin
+                }
+                authorizedUid = live.uid
+                authorizedEmail = live.email.orEmpty()
+                loadExams()
+            }
         }
     }
 

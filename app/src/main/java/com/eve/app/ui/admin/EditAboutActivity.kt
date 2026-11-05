@@ -39,6 +39,7 @@ class EditAboutActivity : EveBaseActivity() {
     private var saveEpoch = -1L
     private var afterSuccessfulSave: (() -> Unit)? = null
     private var reloadAfterStop = true
+    private var reauthorizeOnResume = false
     private var retainedDraft: AppContent? = null
     private var suppressTabSelection = false
     private var unsavedDialog: TelegramNativeAlertDialog? = null
@@ -95,8 +96,28 @@ class EditAboutActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (adminReady && !ownerCurrent()) { finish(); return }
-        if (adminReady && reloadAfterStop) loadContent()
+        if (reauthorizeOnResume && ::binding.isInitialized) {
+            reauthorizeOnResume = false
+            val live = FirebaseAuth.getInstance().currentUser
+            if (live == null || live.uid != initiatingUid || live.email != initiatingEmail) {
+                finish()
+                return
+            }
+            com.eve.app.util.AdminAccessGate.requireAdmin(
+                this,
+                binding.root,
+                requireFreshServer = true,
+                requiredRight = "manage_content"
+            ) {
+                if (!ownerCurrent()) {
+                    finish()
+                    return@requireAdmin
+                }
+                initiatingUid = live.uid
+                initiatingEmail = live.email.orEmpty()
+                if (reloadAfterStop) loadContent()
+            }
+        }
     }
     override fun onStop() {
         if (contentReady && ownerCurrent()) retainedDraft = getCurrentUiContent().takeUnless { sameFields(it, initialContent) }
@@ -106,6 +127,7 @@ class EditAboutActivity : EveBaseActivity() {
         loading = false
         contentReady = false
         reloadAfterStop = true
+        reauthorizeOnResume = true
         afterSuccessfulSave = null
         unsavedDialog?.dismiss()
         unsavedDialog = null
