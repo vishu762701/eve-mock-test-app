@@ -78,7 +78,21 @@ class TelegramQrRasterTest {
                     }
                 } finally { live.recycle() }
             }
-        } finally { view.stopMotion() }
+        } finally { view.release() }
+    }
+
+    @Test fun sceneReleaseClosesBackdropAndReattachesSafely() {
+        val context = RuntimeEnvironment.getApplication()
+        val link = "eve-mock-test://username/test_name"
+        val view = TelegramQrSceneView(context, "test_name", link)
+        view.measure(View.MeasureSpec.makeMeasureSpec(360, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(780, View.MeasureSpec.EXACTLY))
+        view.layout(0, 0, 360, 780)
+        view.release()
+        val image = view.renderShareImage()
+        assertNotNull(image)
+        image?.recycle()
+        view.release()
     }
 
     @Test fun renderedQrRemainsDecodableAcrossColorScenesAndDeviceWidths() {

@@ -500,8 +500,7 @@ class UsernameCardActivity : EveBaseActivity() {
 
     override fun onDestroy() {
         if (::scene.isInitialized) {
-            scene.pausePlayback()
-            scene.stopMotion()
+            scene.release()
         }
         (emojiPicker as? QrPickerMorphDialog)?.dismissImmediately()
             ?: emojiPicker?.dismiss()

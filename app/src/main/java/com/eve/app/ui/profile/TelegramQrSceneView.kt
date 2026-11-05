@@ -324,9 +324,14 @@ internal class TelegramQrSceneView(
         }
     }
 
-    override fun onDetachedFromWindow() {
+    fun release() {
         animations.values.forEach { it.stop() }
         stopMotion()
+        backdrop.close()
+    }
+
+    override fun onDetachedFromWindow() {
+        release()
         super.onDetachedFromWindow()
     }
 
