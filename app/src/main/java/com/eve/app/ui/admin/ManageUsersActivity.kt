@@ -94,7 +94,7 @@ class ManageUsersActivity : EveBaseActivity() {
                 finish()
                 return@requireAdmin
             }
-            authorizedUid = user.uid
+            authorizedUid = FirebaseAuth.getInstance().currentUser?.uid
             authorizedEmail = user.email
             gateReady = true
             if (!adminControlsPrepared) {
@@ -136,7 +136,7 @@ class ManageUsersActivity : EveBaseActivity() {
                     finish()
                     return@requireAdmin
                 }
-                authorizedUid = postGateUser.uid
+                authorizedUid = FirebaseAuth.getInstance().currentUser?.uid
                 authorizedEmail = postGateUser.email
                 gateReady = true
                 loadUsers()
