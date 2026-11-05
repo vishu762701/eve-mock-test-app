@@ -3203,4 +3203,16 @@ Live recovery baseline: `f4f6843300b06000d1adfa91ba2ebadd360fc8d7` (carrying com
 - `PyqActivityOwnerLifecycleTest.kt`: Unit & contract assertions verifying account isolation logic, listener attach/detach lifecycle, savedInstanceState persistence, and interactive action guard.
 - `ExamTestsActivityOwnerLifecycleTest.kt`: Unit & contract assertions verifying account isolation logic, listener attach/detach lifecycle, savedInstanceState persistence, and interactive action guard.
 
+## 2026-11-05 Verified Six-Job FULL Integration Milestone on Commit 1217c80a (G3/G4)
+
+Terminal verified FULL run [42060812204](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42060812204) on commit `1217c80a5d994b7aadaf1c592ed4d7451a4edfba` **SUCCESS**:
+- `build` job: **SUCCESS** in 9m5s (all JVM tests passed, AndroidTest compilation passed, release signing credentials preflight passed, lint passed, zero failures).
+- `backend` job: **SUCCESS** in 35s (all 372 node/sqlite route & security tests passed).
+- `firebase-functions` job: **SUCCESS** in 1m7s.
+- `Native UI (gesture)` job: **SUCCESS** in 12m29s on Android 15 (API 35) emulator with KVM hardware acceleration (100% green native UI suite).
+- `Native UI (three-button)` job: **SUCCESS** in 19m44s on Android 15 (API 35) emulator with KVM hardware acceleration (100% green native UI suite).
+- `Publish verified debug APK` job: **SKIPPED** (0s) — explicit fail-closed safeguard `publish_verified_apk = false` preserved; no unauthorized APK distribution.
+- Classification: **VERIFIED FULL INTEGRATION**, all Student screens (`PracticeActivity`, `PyqActivity`, `ExamTestsActivity`, `BookmarksActivity`, `HistoryActivity`, `MistakesActivity`) account lifecycle isolation guards, 21 Admin Activities permission revalidations, Profile RenderNode blur, Telegram QR scene & scanner, and Home overflow navigation validated on both emulator navigation modes on latest `main` commit. Physical hardware evidence (camera sensor, 120Hz display) and human legal release clearance remain BLOCKED.
+
+
 

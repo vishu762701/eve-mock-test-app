@@ -3,13 +3,13 @@
 Status: PARTIAL; no screen or distribution acceptance. This supplements, and does
 not replace, the feature/commit/CI history in TELEGRAM_FINAL_MISSION_CHECKPOINT.md.
 
-Recovery 2026-11-05: clean EVE main 26d238d698d6a6eb9873a784c09a1c01075e027d,
+Recovery 2026-11-05: clean EVE main 1217c80a5d994b7aadaf1c592ed4d7451a4edfba,
 refetched over HTTPS; latest commits and exact-SHA Actions inspected. FAST
-run [42041374637](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42041374637)
-SUCCESS (1273/1273 JVM tests, backend, firebase-functions). Terminal FULL run [42044923586](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42044923586)
-and docs [42039878499](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42039878499)
-SUCCESS at SHA 26d238d698d6a6eb9873a784c09a1c01075e027d. Build (9m42s), backend (39s), Firebase (1m8s)
-and both Native UI emulators (gesture in 13m46s and three-button in 25m40s) passed 100% green with zero
+run [42058879237](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42058879237)
+SUCCESS (all JVM tests, backend, firebase-functions). Terminal FULL run [42060812204](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42060812204)
+and docs [42058879384](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42058879384)
+SUCCESS at SHA 1217c80a5d994b7aadaf1c592ed4d7451a4edfba. Build (9m5s), backend (35s), Firebase (1m7s)
+and both Native UI emulators (gesture in 12m29s and three-button in 19m44s) passed 100% green with zero
 failures. No concurrent implementation found.
 
 Official Telegram HEAD independently refetched over HTTPS:
