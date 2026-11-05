@@ -1216,13 +1216,26 @@ Classification: **ADAPTED**, whole QR scene/viewer visual/motion parity remains 
 
 ## D1 Telegram Home overflow menu pause/stop lifecycle teardown (2026-11-05)
 
-Base `adccdceaaac4a745267f0f862b0200e8960a8a2d`, exact-SHA FAST [41999281057](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41999281057) SUCCESS,
-Verify Documentation run [41999281073](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41999281073) SUCCESS,
+Base `adccdceaaac4a745267f0f862b0200e8960a8a2d`, carrying commit `09628ce3c3b518e3d6ef0f5f060d4fd64bcf9ebe`,
+exact-SHA FAST [42001626557](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42001626557) SUCCESS (Job `backend`: ✓, Job `firebase-functions`: ✓, Job `build`: ✓ — all JVM tests passed in 5m 56s),
+Verify Documentation run [42001626555](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42001626555) SUCCESS,
 and preceding six-job FULL run [41960298006](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41960298006) SUCCESS.
 R1: Added immediate teardown dismissal (`homeOverflowPopup?.dismissForHostTeardown()`) and reference clearing (`homeOverflowPopup = null`) in `MainActivity.kt:onPause()`, matching `ProfileActivity.kt:804` pattern and preventing detached floating window retention when leaving Home.
 R2: Added immediate teardown dismissal in `MainActivity.kt:onStop()`, ensuring secondary cleanup on stopped activities.
 R3: Added immediate teardown dismissal in `categoryPaletteListener`, resetting active popups before dynamic theme switching.
 R4: Added contract assertions in `HomeOverflowSingleWindowContractTest.kt` and Robolectric unit tests in `HomeSevenActionPopupTest.kt` verifying immediate teardown and overlay disposal.
 Classification: **ADAPTED**, whole Home overflow menu visual/motion parity remains NOT MET / OPEN. Device/hardware evidence and GPL distribution clearance remain BLOCKED.
+
+## C1/C5 ManageQuestions activity resume permissions re-validation and question refresh (2026-11-05)
+
+Base `09628ce3c3b518e3d6ef0f5f060d4fd64bcf9ebe`, exact-SHA FAST [42001626557](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42001626557) SUCCESS,
+Verify Documentation run [42001626555](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42001626555) SUCCESS,
+and preceding six-job FULL run [41960298006](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41960298006) SUCCESS.
+R1: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation using `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "manage_questions")` in `ManageQuestionsActivity.kt`, terminating the activity immediately if rights were revoked on the Worker.
+R2: Guarded against account changes on resume via `questionIdentityCurrent`, finishing immediately if UID or email changed while backgrounded.
+R3: Re-evaluated `canManageExams` button controls and triggered fresh question updates (`viewModel.refreshQuestions(viewModel.questionExamId)`) on successful re-authorization without duplicate listener registration or flow collector attachment.
+R4: Added `ManageQuestionsPermissionResumeTest.kt` containing Robolectric unit tests and source contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI/observer wiring.
+Classification: **ADAPTED**, whole Admin questions management visual/motion parity remains NOT MET / OPEN. Device/hardware evidence and GPL distribution clearance remain BLOCKED.
+
 
 

@@ -59,6 +59,7 @@ class ManageQuestionsActivity : EveBaseActivity() {
     private var bulkPreviewDialog: TelegramNativeAlertDialog? = null
     private var bulkWriteInFlight = false
     private var adminScreenAuthorized = false
+    private var reauthorizeOnResume = false
     private var restoredSelectedExam: String? = null
     private var interruptedBulkWrite = false
     private val bulkImportBusy: Boolean
@@ -512,6 +513,35 @@ class ManageQuestionsActivity : EveBaseActivity() {
     override fun onStart() {
         super.onStart()
         if (adminScreenAuthorized) consumePendingBulkImport()
+    }
+
+    override fun onStop() {
+        reauthorizeOnResume = true
+        super.onStop()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (reauthorizeOnResume && ::binding.isInitialized) {
+            reauthorizeOnResume = false
+            if (!questionIdentityCurrent) {
+                finish()
+                return
+            }
+            adminScreenAuthorized = false
+            AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_questions") { permissions ->
+                val canManageExams = permissions.isOwner || "manage_exams" in permissions.rights
+                for (control in listOf(binding.btnEditExamImage, binding.btnRenameExam, binding.btnDeleteExam)) {
+                    control.visibility = if (canManageExams) View.VISIBLE else View.GONE
+                }
+                adminScreenAuthorized = true
+                if (viewModel.questionExamId.isNotEmpty()) {
+                    viewModel.refreshQuestions(viewModel.questionExamId)
+                } else {
+                    viewModel.loadExams()
+                }
+            }
+        }
     }
 
     private fun showBulkImportPreviewDialog(

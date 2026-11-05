@@ -3054,11 +3054,22 @@ Live recovery baseline: `bceccaeb0fe8be0fcc62a42aa7ecd612a830d3ef`, carrying com
 
 ## 2026-11-05 Telegram Home overflow menu pause/stop lifecycle teardown (D1)
 
-Live recovery baseline: `adccdceaaac4a745267f0f862b0200e8960a8a2d`, exact-SHA FAST run [41999281057](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41999281057) SUCCESS, Verify Documentation run [41999281073](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41999281073) SUCCESS.
+Live recovery baseline: `adccdceaaac4a745267f0f862b0200e8960a8a2d`, carrying commit `09628ce3c3b518e3d6ef0f5f060d4fd64bcf9ebe`.
+- Exact-SHA FAST run [42001626557](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42001626557) **SUCCESS** (Job `backend`: ✓ success, Job `firebase-functions`: ✓ success, Job `build`: ✓ success — all JVM tests passed in 5m 56s).
+- Verify Documentation run [42001626555](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42001626555) **SUCCESS** (83 docs validated, 0 errors).
 - `MainActivity.kt`: Added immediate lifecycle dismissals (`homeOverflowPopup?.dismissForHostTeardown()`) and reference clearing (`homeOverflowPopup = null`) in `onPause()` and `onStop()`, aligning Home with `ProfileActivity.kt:804` teardown semantics and preventing floating popup windows or memory retention during task switching, screen off, or sub-activity navigation.
 - `MainActivity.kt`: Added immediate dismiss and nulling in `categoryPaletteListener` to clean up active popup windows before re-rendering theme palette changes.
 - `HomeOverflowSingleWindowContractTest.kt`: Added contract assertions verifying that `onPause()`, `onStop()`, and theme changes invoke `homeOverflowPopup?.dismissForHostTeardown()` and null the reference.
 - `HomeSevenActionPopupTest.kt`: Added Robolectric test verifying that `dismissForHostTeardown()` immediately dismisses showing popups, clears dim overlays, and resets window state.
+
+## 2026-11-05 ManageQuestions activity resume permissions re-validation and question refresh (C1/C5)
+
+Live recovery baseline: `09628ce3c3b518e3d6ef0f5f060d4fd64bcf9ebe`, exact-SHA FAST run [42001626557](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42001626557) SUCCESS, Verify Documentation run [42001626555](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42001626555) SUCCESS.
+- `ManageQuestionsActivity.kt`: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation using `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "manage_questions")`. If rights are revoked on the server while the activity was in the background, the activity closes immediately.
+- `ManageQuestionsActivity.kt`: Guarded against identity change on resume via `questionIdentityCurrent`, finishing immediately if the authenticated account changed.
+- `ManageQuestionsActivity.kt`: Dynamically refreshed questions for the selected exam (`viewModel.refreshQuestions(viewModel.questionExamId)`) upon verified resume without duplicating UI listeners (`setupUi()`) or Flow collectors (`setupObservers()`).
+- `ManageQuestionsPermissionResumeTest.kt`: Added Robolectric unit tests and contract tests asserting fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI/observer wiring.
+
 
 
 
