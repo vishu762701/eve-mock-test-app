@@ -16,6 +16,8 @@ import com.eve.app.data.model.FeedbackMessage
 import com.eve.app.data.repository.FeedbackRepository
 import com.eve.app.databinding.ActivityFeedbackMessagesBinding
 import com.eve.app.ui.common.ErrorStateView
+import com.eve.app.util.AdminAccessGate
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 /**
@@ -28,13 +30,24 @@ class FeedbackMessagesActivity : EveBaseActivity() {
     private lateinit var adapter: FeedbackMessagesAdapter
     private var replyDialog: TelegramNativeAlertDialog? = null
 
+    private var authorizedUid: String? = null
+    private var authorizedEmail: String? = null
+    private var reauthorizeOnResume = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityFeedbackMessagesBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "moderate_feedback") {
+        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "moderate_feedback") {
+            authorizedUid = FirebaseAuth.getInstance().currentUser?.uid
+            authorizedEmail = FirebaseAuth.getInstance().currentUser?.email
+            setupAdminControls()
+            loadMessages()
+        }
+    }
 
+    private fun setupAdminControls() {
         binding.btnBack.setOnClickListener { finish() }
         binding.btnRefresh.setOnClickListener { loadMessages() }
         binding.swipeRefresh.setOnRefreshListener { loadMessages() }
@@ -52,14 +65,31 @@ class FeedbackMessagesActivity : EveBaseActivity() {
 
         binding.rvFeedbackMessages.layoutManager = LinearLayoutManager(this)
         binding.rvFeedbackMessages.adapter = adapter
+    }
 
-        loadMessages()
-        }
+    override fun onStop() {
+        reauthorizeOnResume = true
+        replyDialog?.dismiss()
+        replyDialog = null
+        super.onStop()
     }
 
     override fun onResume() {
         super.onResume()
         binding.emptyStateView.resetPlayOnNextShow()
+        if (reauthorizeOnResume && ::binding.isInitialized) {
+            reauthorizeOnResume = false
+            val live = FirebaseAuth.getInstance().currentUser
+            if (live == null || live.uid != authorizedUid || live.email != authorizedEmail) {
+                finish()
+                return
+            }
+            AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "moderate_feedback") {
+                authorizedUid = live.uid
+                authorizedEmail = live.email
+                loadMessages()
+            }
+        }
     }
 
     private fun loadMessages() {
