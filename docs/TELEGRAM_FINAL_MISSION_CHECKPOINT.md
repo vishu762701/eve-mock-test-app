@@ -3170,12 +3170,26 @@ Live recovery baseline: `51e8f63d9366f89b7522ec2c14ca1b411e100157`.
 ## 2026-11-05 ActivityLog, FlaggedQuestions, and ManageUsers resume permissions re-validation (C1/C5)
 
 Live recovery baseline: `90d919512602fe99ebd9c03720dd2c415f6e090b`.
+Carrying commits: `05e528d30e52aeb9df826be1ee9e54a6136701bb`, `c846b18fe3304a87e6fc6999d8636468f4f1377c`, and `26d238d698d6a6eb9873a784c09a1c01075e027d`.
+- Exact-SHA FAST Run [42041374637](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42041374637) **SUCCESS** on `26d238d6`: 1273/1273 JVM tests passed, `backend` passed in 37s, `firebase-functions` passed in 1m0s.
+- Verify Documentation Run [42039878499](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42039878499) **SUCCESS**.
 - `ActivityLogActivity.kt`: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation via `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "view_analytics_logs")`. Enforces live identity matching (`live.uid == activeUid && live.email == activeEmail`), terminating immediately if the signed-in user changed. Reloads recent action audit logs (`reloadLogs()`) upon verified resume without duplicating UI adapter or action bar listeners.
 - `FlaggedQuestionsActivity.kt`: Enforced live identity matching in `onResume()` (`live.uid == openingUid && live.email == openingEmail`), terminating immediately if the signed-in user changed. Re-validates `moderate_feedback` permission, dynamically updating `canManageQuestions` and `canManageExams` rights without duplicating UI layout or listeners.
-- `ManageUsersActivity.kt`: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation via `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "manage_users")`. Enforces live identity matching (`live.uid == authorizedUid && live.email == authorizedEmail`), terminating immediately if the signed-in user changed. Refreshes users list (`loadUsers()`) upon verified resume without duplicating user adapter or click listeners (`setupAdminControls()`). Aligned `authorizedUid = FirebaseAuth.getInstance().currentUser?.uid` to satisfy `AdminDialogSourceContractTest`.
+- `ManageUsersActivity.kt`: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation via `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "manage_users")`. Enforces live identity matching (`live.uid == authorizedUid && live.email == authorizedEmail`), terminating immediately if the signed-in user changed. Refreshes users list (`loadUsers()`) upon verified resume without duplicating user adapter or click listeners (`setupAdminControls()`). Aligned `authorizedUid = FirebaseAuth.getInstance().currentUser?.uid` and restored direct `FirebaseAuth.getInstance().currentUser?.uid == uid` check in `isCurrentOwner` to satisfy `AdminDialogSourceContractTest`.
 - `EditExamBoundaryFixture.java`: Added `getUsersPage`, `getUserAttempts`, and `toggleUserStatus` to `AdminBoundary` shadow.
 - `QuestionReviewBoundaryFixture.java`: Added `AuditBoundary` shadow for `AuditLogRepository`.
 - `ActivityLogPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate views wiring.
 - `FlaggedQuestionsPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring.
 - `ManageUsersPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate admin controls wiring.
+
+## 2026-11-05 Verified Six-Job FULL Integration Milestone on Commit 26d238d6 (G3/G4)
+
+Terminal verified FULL run [42044923586](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42044923586) on commit `26d238d698d6a6eb9873a784c09a1c01075e027d` **SUCCESS**:
+- `build` job: **SUCCESS** in 9m42s (all 1273 JVM tests passed, AndroidTest compilation passed, release signing credentials preflight passed, lint passed, zero failures).
+- `backend` job: **SUCCESS** in 39s (all 372 node/sqlite route & security tests passed).
+- `firebase-functions` job: **SUCCESS** in 1m8s.
+- `Native UI (gesture)` job: **SUCCESS** in 13m46s on Android 15 (API 35) emulator with KVM hardware acceleration (100% green native UI suite).
+- `Native UI (three-button)` job: **SUCCESS** in 25m40s on Android 15 (API 35) emulator with KVM hardware acceleration (100% green native UI suite).
+- `Publish verified debug APK` job: **SKIPPED** (0s) — explicit fail-closed safeguard `publish_verified_apk = false` preserved; no unauthorized APK distribution.
+- Classification: **VERIFIED FULL INTEGRATION**, all 21 Admin Activities lifecycle permission guards, Profile RenderNode blur, Telegram QR scene & scanner, and Home overflow navigation validated on both emulator navigation modes on latest `main` commit. Physical hardware evidence (camera sensor, 120Hz display) and human legal release clearance remain BLOCKED.
 

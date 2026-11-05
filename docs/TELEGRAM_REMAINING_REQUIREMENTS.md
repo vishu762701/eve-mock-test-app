@@ -3,13 +3,13 @@
 Status: PARTIAL; no screen or distribution acceptance. This supplements, and does
 not replace, the feature/commit/CI history in TELEGRAM_FINAL_MISSION_CHECKPOINT.md.
 
-Recovery 2026-11-05: clean EVE main 8279af6f035cac6dee0e54d138623d57b1c80d8e,
+Recovery 2026-11-05: clean EVE main 26d238d698d6a6eb9873a784c09a1c01075e027d,
 refetched over HTTPS; latest commits and exact-SHA Actions inspected. FAST
-run [41964090773](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41964090773)
-SUCCESS. Terminal FULL run [41960298006](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41960298006)
-and docs [41960297982](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41960297982)
-SUCCESS at SHA 1c74e97bac3ac8ff53aca1595445cad3893175a2. Build/backend/Firebase
-and both Native UI emulators (gesture and three-button) passed 100% green with zero
+run [42041374637](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42041374637)
+SUCCESS (1273/1273 JVM tests, backend, firebase-functions). Terminal FULL run [42044923586](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42044923586)
+and docs [42039878499](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42039878499)
+SUCCESS at SHA 26d238d698d6a6eb9873a784c09a1c01075e027d. Build (9m42s), backend (39s), Firebase (1m8s)
+and both Native UI emulators (gesture in 13m46s and three-button in 25m40s) passed 100% green with zero
 failures. No concurrent implementation found.
 
 Official Telegram HEAD independently refetched over HTTPS:
@@ -1297,9 +1297,23 @@ Classification: **ADAPTED**, whole Admin system monitor visual/motion parity rem
 ## C1/C5 ActivityLog, FlaggedQuestions, and ManageUsers resume permissions re-validation (2026-11-05)
 
 Base `90d919512602fe99ebd9c03720dd2c415f6e090b`.
+Carrying commits: `05e528d30e52aeb9df826be1ee9e54a6136701bb`, `c846b18fe3304a87e6fc6999d8636468f4f1377c`, and `26d238d698d6a6eb9873a784c09a1c01075e027d`.
+Exact-SHA FAST run [42041374637](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42041374637) SUCCESS: 1273 JVM tests passed, `backend` in 37s, `firebase-functions` in 1m0s.
+Verify Documentation run [42039878499](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42039878499) SUCCESS.
 R1: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation via `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "view_analytics_logs")` in `ActivityLogActivity.kt`, terminating immediately on privilege revocation or identity change (`live.uid == activeUid && live.email == activeEmail`). Reloads recent action audit logs (`reloadLogs()`) upon verified resume without duplicating UI adapter or action bar listeners.
 R2: Enforced live identity matching in `onResume()` (`live.uid == openingUid && live.email == openingEmail`) in `FlaggedQuestionsActivity.kt`, terminating immediately on identity change. Re-validates `moderate_feedback` permission, dynamically updating `canManageQuestions` and `canManageExams` rights and reloading reports without duplicating UI layout or listeners.
-R3: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation via `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "manage_users")` in `ManageUsersActivity.kt`, terminating immediately on privilege revocation or identity change (`live.uid == authorizedUid && live.email == authorizedEmail`). Refreshes users list (`loadUsers()`) upon verified resume without duplicating user adapter or click listeners (`setupAdminControls()`), aligning `authorizedUid = FirebaseAuth.getInstance().currentUser?.uid` to satisfy `AdminDialogSourceContractTest`.
+R3: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation via `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "manage_users")` in `ManageUsersActivity.kt`, terminating immediately on privilege revocation or identity change (`live.uid == authorizedUid && live.email == authorizedEmail`). Refreshes users list (`loadUsers()`) upon verified resume without duplicating user adapter or click listeners (`setupAdminControls()`), aligning `authorizedUid = FirebaseAuth.getInstance().currentUser?.uid` and restoring direct `FirebaseAuth.getInstance().currentUser?.uid == uid` check in `isCurrentOwner` to satisfy `AdminDialogSourceContractTest`.
 R4: Added `EditExamBoundaryFixture.AdminBoundary` shadows (`getUsersPage`, `getUserAttempts`, `toggleUserStatus`) and `QuestionReviewBoundaryFixture.AuditBoundary` shadow (`getLogs`).
 R5: Added `ActivityLogPermissionResumeTest.kt`, `FlaggedQuestionsPermissionResumeTest.kt`, and `ManageUsersPermissionResumeTest.kt` containing Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring.
 Classification: **ADAPTED**, whole Admin actions/reports/users management visual/motion parity remains NOT MET / OPEN. Device/hardware evidence and GPL distribution clearance remain BLOCKED.
+
+## G3/G4 Verified Six-Job FULL Integration Milestone on Commit 26d238d6 (2026-11-05)
+
+Terminal verified FULL run [42044923586](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42044923586) on commit `26d238d698d6a6eb9873a784c09a1c01075e027d` SUCCESS:
+- `build` job: SUCCESS in 9m42s (all 1273 JVM tests passed, AndroidTest compilation passed, release signing credentials preflight passed, lint passed, zero failures).
+- `backend` job: SUCCESS in 39s (all 372 node/sqlite route & security tests passed).
+- `firebase-functions` job: SUCCESS in 1m8s.
+- `Native UI (gesture)` job: SUCCESS in 13m46s on Android 15 (API 35) emulator with KVM hardware acceleration (100% green native UI suite).
+- `Native UI (three-button)` job: SUCCESS in 25m40s on Android 15 (API 35) emulator with KVM hardware acceleration (100% green native UI suite).
+- `Publish verified debug APK` job: SKIPPED (0s) — explicit fail-closed safeguard `publish_verified_apk = false` preserved; no unauthorized APK distribution.
+Classification: **VERIFIED FULL INTEGRATION**, all 21 Admin Activities lifecycle permission guards, Profile RenderNode blur, Telegram QR scene & scanner, and Home overflow navigation validated on both emulator navigation modes on latest `main` commit. Physical hardware evidence (camera sensor, 120Hz display) and human legal release clearance remain BLOCKED.
