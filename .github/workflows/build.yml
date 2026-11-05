@@ -77,6 +77,13 @@ jobs:
             exit 1
           fi
 
+      # Deterministic policy mistakes should fail before downloading SDK/NDK,
+      # compiling Rust, or starting a time-consuming native emulator.
+      - name: Fail fast on governance and CI contracts
+        run: |
+          node .github/scripts/verify-docs.mjs
+          python3 -B .github/scripts/tests/test_engineering_governance.py
+
       - name: Accept Android SDK licenses and install Platform 36
         run: |
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
@@ -238,7 +245,7 @@ jobs:
 
       - name: Summarize failing instrumentation assertions
         if: ${{ failure() }}
-        run: python3 .github/scripts/ci_failure_report.py --native app/build/outputs/androidTest-results/connected
+        run: python3 .github/scripts/ci_failure_report.py --native app/build/outputs/androidTest-results/connected ui-renderings
 
   backend:
     runs-on: ubuntu-latest

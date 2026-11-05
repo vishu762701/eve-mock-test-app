@@ -51,6 +51,22 @@ def summarize_native_xml(path: Path) -> list[str]:
                 failures.append(clean(f"{case.get('classname', '')}.{case.get('name', '')}: {message}"))
     return failures
 
+def classify_native_infrastructure(paths: list[Path]) -> str | None:
+    """Evidence hint only: no JUnit case means infrastructure must not be called an app failure."""
+    for path in paths:
+        logs = [path] if path.is_file() else (list(path.glob('*.log')) if path.is_dir() and path.name == 'ui-renderings' else [])
+        for log in logs:
+            try:
+                content = log.read_text(errors='replace')[:500_000].lower()
+            except OSError:
+                continue
+            if any(mark in content for mark in ('adb: device offline', 'emulator offline', 'connection refused', 'could not connect to tcp port 5554')):
+                return 'Emulator/ADB connection lost. Infrastructure suspected; inspect guest crash/host memory evidence before changing app code.'
+            if any(mark in content for mark in ('timed out', 'timeout 660', 'missing or failed terminal instrumentation code')):
+                return 'Instrumentation timed out or produced no terminal result. Determine test hang versus emulator failure from full logs.'
+    return None
+
+
 def main(argv: list[str]) -> int:
     if not argv:
         print("Usage: ci_failure_report.py <gradle logs...> | --native <androidTest-results dir>")
@@ -62,7 +78,8 @@ def main(argv: list[str]) -> int:
         if errors:
             lines.extend([f"**Native assertions:** {len(errors)}", "", *("- " + item for item in errors[:10])])
         else:
-            lines.append("No readable JUnit failure XML. Inspect emulator startup, navigation mode, runner logs and device ANRs.")
+            hint = classify_native_infrastructure(paths)
+            lines.append("No readable JUnit failure XML. " + (hint or "Cause UNKNOWN: inspect emulator startup, navigation mode, runner logs and device ANRs."))
     else:
         available = [(Path(name), Path(name).read_text(errors="replace")) for name in argv if Path(name).is_file()]
         if not available:

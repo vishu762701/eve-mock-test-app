@@ -5,7 +5,7 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from ci_failure_report import classify_gradle_log, summarize_native_xml, main
+from ci_failure_report import classify_gradle_log, classify_native_infrastructure, summarize_native_xml, main
 
 
 class FailureReportTest(unittest.TestCase):
@@ -33,6 +33,16 @@ class FailureReportTest(unittest.TestCase):
             self.assertEqual(1, len(found))
             self.assertIn("eve.ThemeTest.light", found[0])
             self.assertIn("Expected WHITE", found[0])
+
+    def test_emulator_disconnect_is_not_mislabeled_as_app_assertion(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            native = Path(tmp) / 'ui-renderings'
+            native.mkdir()
+            (native / 'guest-crash-stream.log').write_text('adb: device offline\\nconnection refused')
+            hint = classify_native_infrastructure([native])
+            self.assertIsNotNone(hint)
+            self.assertIn('Infrastructure suspected', hint)
+            self.assertIsNone(classify_native_infrastructure([Path(tmp) / 'missing']))
 
     def test_empty_diagnostics_do_not_change_original_ci_failure(self):
         self.assertEqual(0, main(["nonexistent-ci-log.txt"]))

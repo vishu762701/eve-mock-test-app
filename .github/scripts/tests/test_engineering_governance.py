@@ -14,8 +14,7 @@ class EngineeringGovernanceTest(unittest.TestCase):
     def test_canonical_policy_and_source_process(self):
         standard = read("ENGINEERING_STANDARD.md")
         process = read("docs/telegram-integration-process.md")
-        for term in ("maximum two successful implementation commits", "preferably one",
-                     "CI-failed commits do not count", "owner approval for an exception",
+        for term in ("no numeric commit ceiling", "fast-forward batch",
                      "exact-SHA FAST", "minimum complete functional subsystem",
                      "full commit SHA", "EXACT", "ADAPTED", "NOT FOUND", "BLOCKED"):
             self.assertIn(term, standard)
@@ -24,14 +23,19 @@ class EngineeringGovernanceTest(unittest.TestCase):
             self.assertIn(term, process)
         for path in ("AGENTS.md", "backend/AGENTS.md", "GEMINI.md", "CLAUDE.md"):
             self.assertIn("ENGINEERING_STANDARD.md", read(path))
-        for path in ("AGENTS.md", "ENGINEERING_STANDARD.md", "SOURCE_OF_TRUTH.md",
-                     "backend/AGENTS.md", "docs/EVE_ONE_TIME_CHAT_STARTER.md"):
-            self.assertNotRegex(read(path), r"(?i)no fixed commit count|no commit limit")
+        for path in ("ENGINEERING_STANDARD.md", "docs/EVE_ONE_TIME_CHAT_STARTER.md",
+                     "docs/telegram-integration-process.md"):
+            self.assertNotIn("maximum two successful implementation commits", read(path))
+        self.assertIn("implementation present", standard)
+        self.assertIn("emulator/ADB/GPU infrastructure", standard)
 
     def test_every_main_push_triggers_build(self):
         workflow = read(".github/workflows/build.yml")
         push = workflow.split("  push:\n", 1)[1].split("  pull_request:\n", 1)[0]
         self.assertIn("branches: [ main ]", push)
+        self.assertIn("Fail fast on governance and CI contracts", workflow)
+        self.assertIn("verify-docs.mjs", workflow)
+        self.assertIn("test_engineering_governance.py", workflow)
         self.assertNotIn("paths-ignore:", push)
         self.assertNotRegex(push, r"(?m)^    paths:")
 

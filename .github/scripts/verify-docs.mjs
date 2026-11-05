@@ -74,9 +74,15 @@ for (const relPath of ['AGENTS.md', 'GEMINI.md', 'CLAUDE.md']) {
 }
 // The canonical policy is checked for key invariants; this is not proof of compliance.
 const engineering = fs.readFileSync(path.join(REPO_ROOT, 'ENGINEERING_STANDARD.md'), 'utf8');
-for (const term of ['maximum two successful implementation commits', 'exact-SHA FAST',
+for (const term of ['no numeric commit ceiling', 'fast-forward batch', 'exact-SHA FAST',
   'minimum complete functional subsystem', 'full commit SHA', 'separate explicit owner authorization']) {
   if (!engineering.includes(term)) error('ENGINEERING_STANDARD.md: missing invariant: ' + term);
+}
+if (engineering.includes('maximum two successful implementation commits')) {
+  error('ENGINEERING_STANDARD.md: obsolete numeric commit limit reintroduced');
+}
+if (!fs.readFileSync(path.join(REPO_ROOT, 'docs/EVE_ONE_TIME_CHAT_STARTER.md'), 'utf8').includes('no numeric commit ceiling')) {
+  error('New-chat starter contradicts the canonical multi-commit policy');
 }
 // Keep real workflow gates and release permissions intact.
 const buildWorkflow = fs.readFileSync(path.join(REPO_ROOT, '.github/workflows/build.yml'), 'utf8');
