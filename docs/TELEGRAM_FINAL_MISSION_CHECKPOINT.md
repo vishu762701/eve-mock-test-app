@@ -3034,11 +3034,22 @@ Live recovery baseline: `258402d9d5327b7defe753432f7e6cc6432d2fb1`, exact-SHA FA
 
 ## 2026-11-05 Telegram QR backdrop scene lifecycle release (A1.5)
 
-Live recovery baseline: `28e64ebfe03e15a0a74ee2f1e842c7f8f2dfc71f`, exact-SHA FAST run [41995403586](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41995403586) SUCCESS, Verify Documentation run [41995403752](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41995403752) SUCCESS.
+Live recovery baseline: `28e64ebfe03e15a0a74ee2f1e842c7f8f2dfc71f`, carrying commit `bceccaeb0fe8be0fcc62a42aa7ecd612a830d3ef`.
+- Exact-SHA FAST run [41996865156](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41996865156) **SUCCESS** (Job `backend`: ✓ success, Job `firebase-functions`: ✓ success, Job `build`: ✓ success — 243 Rust tests & all JVM tests passed).
+- Verify Documentation run [41996865177](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41996865177) **SUCCESS** (83 docs validated, 0 errors).
 - `TelegramQrSceneView.kt`: Added explicit `release()` method invoking `backdrop.close()`, stopping native animation drawables, and cancelling motion animators.
 - `TelegramQrSceneView.kt`: Hooked `release()` into `onDetachedFromWindow()`, releasing CPU bitmaps, GPU RenderNodes (`bgNode`, `blurNode`, `sheetLiftNode`), and shine shaders when the view leaves the active window.
 - `UsernameCardActivity.kt`: Updated `onDestroy()` to call `scene.release()`, ensuring complete detachment and zero resource retention across activity teardown.
 - `TelegramQrRasterTest.kt`: Added `sceneReleaseClosesBackdropAndReattachesSafely` test exercising `release()` and subsequent on-demand rendering.
+
+## 2026-11-05 Telegram QR gallery save coroutine tracking and activity cancellation (A4.2)
+
+Live recovery baseline: `bceccaeb0fe8be0fcc62a42aa7ecd612a830d3ef`, exact-SHA FAST run [41996865156](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41996865156) SUCCESS, Verify Documentation run [41996865177](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41996865177) SUCCESS.
+- `UsernameCardActivity.kt`: Added `gallerySaveJob` tracking to monitor asynchronous background disk writes (`QrGalleryWriter.save`), preventing concurrent write requests and orphan tasks.
+- `UsernameCardActivity.kt`: Integrated `gallerySaveJob?.cancel()` into `finishWithMotion()` and `onDestroy()`, ensuring background file writing and MediaStore insertion are immediately aborted if the user exits or the activity is destroyed.
+- `UsernameCardActivity.kt`: Added lifecycle and destruction checks in `saveToGallery()` and `shareImage()`, preventing chooser launches and bulletin error presentations on closing or dead activities.
+- `UsernameCardActivityLifecycleTest.kt`: Added Robolectric test verifying activity setup, field tracking, closing motion state, and graceful teardown.
+
 
 
 

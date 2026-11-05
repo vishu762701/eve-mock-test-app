@@ -1192,12 +1192,24 @@ Classification: **ADAPTED**, whole Profile/screen visual/motion parity remains N
 
 ## A1.5 Telegram QR backdrop scene lifecycle release (2026-11-05)
 
-Base `28e64ebfe03e15a0a74ee2f1e842c7f8f2dfc71f`, exact-SHA FAST [41995403586](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41995403586) SUCCESS,
-Verify Documentation run [41995403752](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41995403752) SUCCESS,
+Base `28e64ebfe03e15a0a74ee2f1e842c7f8f2dfc71f`, carrying commit `bceccaeb0fe8be0fcc62a42aa7ecd612a830d3ef`,
+exact-SHA FAST [41996865156](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41996865156) SUCCESS (Job `backend`: ✓, Job `firebase-functions`: ✓, Job `build`: ✓ — 243 Rust tests & all JVM tests passed),
+Verify Documentation run [41996865177](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41996865177) SUCCESS,
 and preceding six-job FULL run [41960298006](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41960298006) SUCCESS.
 R1: Added explicit `release()` method to `TelegramQrSceneView.kt` that stops animation drawables, stops motion, and invokes `backdrop.close()`.
 R2: Connected `release()` to `onDetachedFromWindow()` in `TelegramQrSceneView.kt`, releasing GPU RenderNodes (`bgNode`, `blurNode`, `sheetLiftNode`), shine shaders, and native bitmap buffers when leaving the active window hierarchy.
 R3: Updated `UsernameCardActivity.kt:onDestroy()` to invoke `scene.release()`, ensuring complete detachment and zero memory leaks across activity teardown.
 R4: Added `sceneReleaseClosesBackdropAndReattachesSafely` in `TelegramQrRasterTest.kt` verifying backdrop disposal and safe subsequent on-demand recreation.
+Classification: **ADAPTED**, whole QR scene/viewer visual/motion parity remains NOT MET / OPEN. Device/hardware evidence and GPL distribution clearance remain BLOCKED.
+
+## A4.2 Telegram QR gallery save coroutine tracking and activity cancellation (2026-11-05)
+
+Base `bceccaeb0fe8be0fcc62a42aa7ecd612a830d3ef`, exact-SHA FAST [41996865156](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41996865156) SUCCESS,
+Verify Documentation run [41996865177](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41996865177) SUCCESS,
+and preceding six-job FULL run [41960298006](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41960298006) SUCCESS.
+R1: Added `gallerySaveJob` tracking in `UsernameCardActivity.kt` to monitor background `QrGalleryWriter.save` operations.
+R2: Connected `gallerySaveJob?.cancel()` to `finishWithMotion()` and `onDestroy()`, ensuring immediate abort of file I/O upon activity exit or destroy.
+R3: Added lifecycle safeguards in `saveToGallery()` and `shareImage()`, preventing multiple simultaneous saves and suppressing UI actions on dead activities.
+R4: Added `UsernameCardActivityLifecycleTest.kt` verifying activity initialization, closing motion state, and proper teardown.
 Classification: **ADAPTED**, whole QR scene/viewer visual/motion parity remains NOT MET / OPEN. Device/hardware evidence and GPL distribution clearance remain BLOCKED.
 

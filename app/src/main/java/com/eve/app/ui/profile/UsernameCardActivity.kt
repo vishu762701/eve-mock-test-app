@@ -43,6 +43,7 @@ class UsernameCardActivity : EveBaseActivity() {
     private lateinit var qrLink: String
     private var qrClosing = false
     private var gallerySaveInProgress = false
+    private var gallerySaveJob: kotlinx.coroutines.Job? = null
     private var emojiPicker: BottomSheetDialog? = null
     private var emojiPickerGrid: QrEmojiPickerGrid? = null
     private var emojiPickerScroll: android.os.Parcelable? = null
@@ -182,6 +183,7 @@ class UsernameCardActivity : EveBaseActivity() {
     private fun finishWithMotion() {
         if (qrClosing || isFinishing) return
         qrClosing = true
+        gallerySaveJob?.cancel()
         if (::scene.isInitialized) scene.animateClosed { finish() } else finish()
     }
 
@@ -409,7 +411,7 @@ class UsernameCardActivity : EveBaseActivity() {
     }
 
     private fun saveToGallery() {
-        if (gallerySaveInProgress) return
+        if (gallerySaveInProgress || gallerySaveJob?.isActive == true || qrClosing || isFinishing || isDestroyed) return
         if (android.os.Build.VERSION.SDK_INT <= 28 &&
             androidx.core.content.ContextCompat.checkSelfPermission(this,
                 android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
@@ -417,30 +419,40 @@ class UsernameCardActivity : EveBaseActivity() {
             return
         }
         val bitmap = scene.renderShareImage() ?: run {
-            AppBulletin.showError(this, "QR image is not ready")
+            if (!qrClosing && !isFinishing && !isDestroyed) {
+                AppBulletin.showError(this, "QR image is not ready")
+            }
             return
         }
         gallerySaveInProgress = true
-        lifecycleScope.launch {
+        gallerySaveJob = lifecycleScope.launch {
             try {
                 kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
                     QrGalleryWriter.save(applicationContext, bitmap, username)
                 }
-                AppBulletin.showSuccess(this@UsernameCardActivity, "QR code saved to Gallery")
+                if (!qrClosing && !isFinishing && !isDestroyed) {
+                    AppBulletin.showSuccess(this@UsernameCardActivity, "QR code saved to Gallery")
+                }
             } catch (cancelled: kotlinx.coroutines.CancellationException) {
                 throw cancelled
             } catch (_: Exception) {
-                AppBulletin.showError(this@UsernameCardActivity, "Couldn't save QR image")
+                if (!qrClosing && !isFinishing && !isDestroyed) {
+                    AppBulletin.showError(this@UsernameCardActivity, "Couldn't save QR image")
+                }
             } finally {
                 bitmap.recycle()
                 gallerySaveInProgress = false
+                gallerySaveJob = null
             }
         }
     }
 
     private fun shareImage() {
+        if (qrClosing || isFinishing || isDestroyed) return
         val image = scene.renderShareImage() ?: run {
-            AppBulletin.showError(this, "QR image is not ready")
+            if (!qrClosing && !isFinishing && !isDestroyed) {
+                AppBulletin.showError(this, "QR image is not ready")
+            }
             return
         }
         try {
@@ -449,6 +461,7 @@ class UsernameCardActivity : EveBaseActivity() {
             file.outputStream().use { out ->
                 check(image.compress(Bitmap.CompressFormat.PNG, 100, out))
             }
+            if (qrClosing || isFinishing || isDestroyed) return
             val uri = FileProvider.getUriForFile(this, packageName + ".fileprovider", file)
             val send = Intent(Intent.ACTION_SEND).apply {
                 type = "image/png"
@@ -458,7 +471,9 @@ class UsernameCardActivity : EveBaseActivity() {
             }
             startActivity(Intent.createChooser(send, "Share EVE QR"))
         } catch (_: Exception) {
-            AppBulletin.showError(this, "Couldn't share QR image")
+            if (!qrClosing && !isFinishing && !isDestroyed) {
+                AppBulletin.showError(this, "Couldn't share QR image")
+            }
         } finally {
             image.recycle()
         }
@@ -499,6 +514,8 @@ class UsernameCardActivity : EveBaseActivity() {
     }
 
     override fun onDestroy() {
+        gallerySaveJob?.cancel()
+        gallerySaveJob = null
         if (::scene.isInitialized) {
             scene.release()
         }
