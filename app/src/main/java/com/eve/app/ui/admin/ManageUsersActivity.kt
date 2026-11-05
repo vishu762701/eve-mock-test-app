@@ -64,10 +64,10 @@ class ManageUsersActivity : EveBaseActivity() {
     private var statusDialog: TelegramNativeAlertDialog? = null
 
     private fun isCurrentOwner(uid: String?): Boolean {
-        val live = FirebaseAuth.getInstance().currentUser
+        val user = FirebaseAuth.getInstance().currentUser
         return !uid.isNullOrBlank() && gateReady && authorizedUid == uid &&
-            live?.uid == uid &&
-            (authorizedEmail.isNullOrBlank() || live?.email.equals(authorizedEmail, ignoreCase = true)) &&
+            FirebaseAuth.getInstance().currentUser?.uid == uid &&
+            (authorizedEmail.isNullOrBlank() || user?.email.equals(authorizedEmail, ignoreCase = true)) &&
             !isFinishing && !isDestroyed
     }
 
