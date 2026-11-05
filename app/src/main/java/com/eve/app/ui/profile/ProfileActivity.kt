@@ -70,6 +70,7 @@ class ProfileActivity : EveBaseActivity() {
     private val adminRepo = AdminRepository()
     private var progressDialog: TelegramNativeAlertDialog? = null
     private var pendingPhotoUri: Uri? = null
+    private var photoSaveJob: Job? = null
 
     private var profileOwnerUid: String? = null
     private var profileConfirmed = false
@@ -742,7 +743,7 @@ class ProfileActivity : EveBaseActivity() {
         return false
     }
 
-    private fun hasProfilePhoto(): Boolean = ProfilePhotoManager.hasCustomPhoto(this) ||
+    private fun hasProfilePhoto(): Boolean = ProfilePhotoManager.hasCustomPhoto(this, profileOwnerUid) ||
         !FirebaseAuth.getInstance().currentUser?.photoUrl?.toString().isNullOrBlank()
 
     private fun setPersonalEditingEnabled(enabled: Boolean) {
@@ -836,6 +837,8 @@ class ProfileActivity : EveBaseActivity() {
     }
 
     private fun cancelPhotoPreview() {
+        photoSaveJob?.cancel()
+        photoSaveJob = null
         binding.layoutActions.stopLoading(binding.btnSetPhoto)
         pendingPhotoUri = null
         binding.layoutPhotoActions.visibility = View.GONE
@@ -845,15 +848,18 @@ class ProfileActivity : EveBaseActivity() {
     private fun savePendingPhoto() {
         if (!isProfileOwner()) return
         val uri = pendingPhotoUri ?: return
+        val ownerUid = profileOwnerUid ?: return
+        photoSaveJob?.cancel()
         binding.layoutActions.startLoading(binding.btnSetPhoto)
-        lifecycleScope.launch(Dispatchers.IO) {
+        photoSaveJob = lifecycleScope.launch(Dispatchers.IO) {
             val ok = try {
-                ProfilePhotoManager.savePhoto(this@ProfileActivity, uri)
+                ProfilePhotoManager.savePhoto(this@ProfileActivity, uri, ownerUid)
             } catch (e: Exception) {
                 false
             }
             withContext(Dispatchers.Main) {
                 binding.layoutActions.stopLoading(binding.btnSetPhoto)
+                if (!isProfileOwner() || profileOwnerUid != ownerUid) return@withContext
                 if (ok) {
                     AppBulletin.showSuccess(this@ProfileActivity, "Profile photo updated")
                 } else {
@@ -894,6 +900,8 @@ class ProfileActivity : EveBaseActivity() {
     }
 
     override fun onDestroy() {
+        photoSaveJob?.cancel()
+        photoSaveJob = null
         binding.layoutActions.stopLoading(binding.btnSetPhoto)
         binding.layoutActions.setDrawingBlur(false)
         birthdayDialog?.dismiss()

@@ -28,14 +28,22 @@ object ProfilePhotoManager {
         return "profile_photo_u_v2_$digest.jpg"
     }
 
+    internal fun fileForUid(context: Context, uid: String?): File? =
+        uid?.takeIf { it.isNotBlank() }?.let { File(context.filesDir, scopedFileName(it)) }
+
     private fun currentFile(context: Context): File? =
-        FirebaseAuth.getInstance().currentUser?.uid?.takeIf { it.isNotBlank() }
-            ?.let { File(context.filesDir, scopedFileName(it)) }
+        fileForUid(context, FirebaseAuth.getInstance().currentUser?.uid)
 
-    fun hasCustomPhoto(context: Context): Boolean = currentFile(context)?.exists() == true
+    fun hasCustomPhoto(
+        context: Context,
+        ownerUid: String? = FirebaseAuth.getInstance().currentUser?.uid
+    ): Boolean = fileForUid(context, ownerUid)?.exists() == true
 
-    fun loadBitmap(context: Context): Bitmap? {
-        val f = currentFile(context) ?: return null
+    fun loadBitmap(
+        context: Context,
+        ownerUid: String? = FirebaseAuth.getInstance().currentUser?.uid
+    ): Bitmap? {
+        val f = fileForUid(context, ownerUid) ?: return null
         if (!f.exists()) return null
         return try {
             BitmapFactory.decodeFile(f.absolutePath)
@@ -45,7 +53,12 @@ object ProfilePhotoManager {
     }
 
     /** Gallery se mile Uri ko center-crop karke (square) internal storage me save karta hai. */
-    fun savePhoto(context: Context, uri: Uri): Boolean {
+    fun savePhoto(
+        context: Context,
+        uri: Uri,
+        ownerUid: String? = FirebaseAuth.getInstance().currentUser?.uid
+    ): Boolean {
+        val uid = ownerUid?.takeIf { it.isNotBlank() } ?: return false
         return try {
             val input = context.contentResolver.openInputStream(uri) ?: return false
             val original = BitmapFactory.decodeStream(input)
@@ -60,7 +73,7 @@ object ProfilePhotoManager {
             // Bahut badi image ho to memory bachane ke liye ek reasonable size par scale kar do
             val target = if (size > 512) Bitmap.createScaledBitmap(cropped, 512, 512, true) else cropped
 
-            val destination = currentFile(context) ?: return false
+            val destination = File(context.filesDir, scopedFileName(uid))
             FileOutputStream(destination).use { out ->
                 target.compress(Bitmap.CompressFormat.JPEG, 90, out)
             }
@@ -87,7 +100,7 @@ object ProfilePhotoManager {
         userName: String? = null,
         userId: String? = null
     ) {
-        val local = loadBitmap(context)
+        val local = loadBitmap(context, userId)
         val authUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
         val effectiveName = userName ?: authUser?.displayName ?: "Student"
         val effectiveId = userId ?: authUser?.uid ?: authUser?.email ?: effectiveName

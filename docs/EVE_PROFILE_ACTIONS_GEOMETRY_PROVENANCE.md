@@ -43,13 +43,15 @@ Classification: **ADAPTED**, not full 100%-exact upstream View. EVE uses
 `StaticLayout` and native accessible hit wrappers, not Telegram's internal
 `Text`, virtual `AccessibilityNodeProvider`, or other profile modes.
 Integrated with Telegram's radial gradient highlight, light-mode shadow,
-API 29+ `RenderNode` avatar blur shader (`drawingBlur`), and dynamic action loading
-lifecycle (`startLoading`/`stopLoading`). Canvas rendering stages strictly mirror
-upstream (`ProfileActionsView.java:298-338`): Stage 1 button backgrounds & radial highlights,
-Stage 2 RenderNode avatar blur shader (with `getLocationInWindow` coordinate alignment),
-and Stage 3 text labels and icons/loading spinner on top. Memory leak protection clears
-retained `avatarView` and `renderNode` on window detachment and resting scroll. Action
-loading lifecycle executes photo saving asynchronously off the main thread via coroutines.
+API 29+ `RenderNode` avatar blur shader (`drawingBlur`), dynamic action loading
+lifecycle (`startLoading`/`stopLoading`), and authentic Telegram `LoadingDrawable`
+(`LoadingDrawable.java:28-405@3de37c8cfb039452be7398909461da6288babf15`). Canvas rendering
+stages strictly mirror upstream (`ProfileActionsView.java:298-338`): Stage 1 button backgrounds &
+radial highlights, Stage 2 RenderNode avatar blur shader (with `getLocationInWindow` coordinate alignment),
+and Stage 3 text labels, action icons and `LoadingDrawable` shimmer overlay on top (`ProfileActionsView.java:475-515`).
+Memory leak protection clears retained `avatarView`, `renderNode` and `loadingDrawables` on window detachment
+and resting scroll. Action loading lifecycle executes photo saving asynchronously off the main thread via coroutines,
+with `photoSaveJob` lifecycle cancellation and explicit account-scoped UID attribution in `ProfilePhotoManager`.
 Source GIF/call/notification/voice, other profile modes, account and network dependencies
 are intentionally excluded. No change to existing profile actions, storage, Firebase or Worker
 logic. Source tests and compiled native tests do not prove matched Telegram

@@ -32,6 +32,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import com.eve.app.R
+import com.eve.app.theme.TelegramThemeEngine
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -64,6 +65,7 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
     private val rect = RectF()
     private val pressScale = floatArrayOf(1f, 1f, 1f)
     private val loadingStates = booleanArrayOf(false, false, false)
+    private val loadingDrawables = arrayOfNulls<LoadingDrawable>(3)
     private val progressPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
@@ -113,6 +115,16 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
         if (surfaceColor == value) return
         surfaceColor = value
         updateRadialGradient(width)
+        val isDark = ColorUtils.calculateLuminance(surfaceColor) < 0.5
+        val baseColor = if (isDark) Color.WHITE else Color.BLACK
+        for (ld in loadingDrawables) {
+            ld?.setColors(
+                TelegramThemeEngine.multAlpha(baseColor, 0.1f),
+                TelegramThemeEngine.multAlpha(baseColor, 0.3f),
+                TelegramThemeEngine.multAlpha(baseColor, 0.35f),
+                TelegramThemeEngine.multAlpha(baseColor, 0.8f)
+            )
+        }
         invalidate()
     }
 
@@ -134,23 +146,46 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
 
     fun startLoading(target: View) {
         val index = (0 until min(childCount, 3)).firstOrNull { getChildAt(it) === target } ?: return
-        if (!loadingStates[index]) {
-            loadingStates[index] = true
-            invalidate()
+        loadingStates[index] = true
+        val ld = loadingDrawables[index] ?: LoadingDrawable(density).also {
+            it.callback = this
+            val isDark = ColorUtils.calculateLuminance(surfaceColor) < 0.5
+            val baseColor = if (isDark) Color.WHITE else Color.BLACK
+            it.setColors(
+                TelegramThemeEngine.multAlpha(baseColor, 0.1f),
+                TelegramThemeEngine.multAlpha(baseColor, 0.3f),
+                TelegramThemeEngine.multAlpha(baseColor, 0.35f),
+                TelegramThemeEngine.multAlpha(baseColor, 0.8f)
+            )
+            it.setAppearByGradient(true)
+            it.strokePaint.strokeWidth = dp(1.25f)
+            loadingDrawables[index] = it
         }
+        if (ld.isDisappeared() || ld.isDisappearing()) {
+            ld.reset()
+            ld.resetDisappear()
+        }
+        invalidate()
     }
 
     fun stopLoading(target: View) {
         val index = (0 until min(childCount, 3)).firstOrNull { getChildAt(it) === target } ?: return
-        if (loadingStates[index]) {
-            loadingStates[index] = false
-            invalidate()
-        }
+        loadingStates[index] = false
+        loadingDrawables[index]?.disappear()
+        invalidate()
     }
 
     fun isLoading(target: View): Boolean {
         val index = (0 until min(childCount, 3)).firstOrNull { getChildAt(it) === target } ?: return false
-        return loadingStates[index]
+        return loadingStates[index] || (loadingDrawables[index]?.let { !it.isDisappeared() } ?: false)
+    }
+
+    override fun verifyDrawable(who: android.graphics.drawable.Drawable): Boolean {
+        return super.verifyDrawable(who) || loadingDrawables.any { it === who }
+    }
+
+    override fun invalidateDrawable(who: android.graphics.drawable.Drawable) {
+        invalidate()
     }
 
     fun setDrawingBlur(drawing: Boolean) {
@@ -178,6 +213,12 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         loadingStates.fill(false)
+        loadingDrawables.forEach {
+            it?.callback = null
+            it?.resetDisappear()
+            it?.reset()
+        }
+        loadingDrawables.fill(null)
         renderNode = null
         avatarView = null
         radialGradient = null
@@ -291,8 +332,20 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
                         mix, textColor, label, first[index], second[index], index
                     )
                 }
+
+                val ld = loadingDrawables[index]
+                if (ld != null && !ld.isDisappeared()) {
+                    rect.set(left, top, right, top + itemHeight)
+                    ld.setBounds(rect.left.toInt(), rect.top.toInt(), rect.right.toInt(), rect.bottom.toInt())
+                    ld.setRadii(radius)
+                    ld.alpha = (255f * state.contentAlpha).roundToInt().coerceIn(0, 255)
+                    ld.draw(canvas)
+                }
                 canvas.restoreToCount(checkpoint)
             }
+        }
+        if (isAttachedToWindow && (loadingStates.any { it } || loadingDrawables.any { it != null && !it.isDisappeared() })) {
+            postInvalidateOnAnimation()
         }
     }
 
@@ -385,31 +438,19 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
         textLayout.draw(canvas)
         canvas.restoreToCount(t)
 
-        if (loadingStates[index]) {
-            val pSize = iconSize * 0.85f
-            val pLeft = centerX - pSize / 2f
-            val pTop = iconTop + (iconSize - pSize) / 2f
-            progressRect.set(pLeft, pTop, pLeft + pSize, pTop + pSize)
-            progressPaint.color = textColor
-            progressPaint.strokeWidth = dp(2f)
-            progressPaint.alpha = (255f * contentAlpha).roundToInt().coerceIn(0, 255)
-            val sweep = (System.currentTimeMillis() % 1000L) / 1000f * 360f
-            canvas.drawArc(progressRect, sweep, 280f, false, progressPaint)
-            if (isAttachedToWindow && loadingStates.any { it }) {
-                postInvalidateOnAnimation()
-            }
-        } else {
-            fun paintIcon(icon: android.graphics.drawable.Drawable?, opacity: Float) {
-                if (icon == null || opacity <= 0f) return
-                icon.bounds = android.graphics.Rect(iconLeft.toInt(), iconTop.toInt(),
-                    (iconLeft + iconSize).toInt(), (iconTop + iconSize).toInt())
-                icon.colorFilter = PorterDuffColorFilter(textColor, PorterDuff.Mode.SRC_IN)
-                icon.alpha = (255f * contentAlpha * opacity).roundToInt().coerceIn(0, 255)
-                icon.draw(canvas)
-            }
-            paintIcon(outlineIcon, 1f - mix)
-            paintIcon(filledIcon, mix)
+        val ld = loadingDrawables[index]
+        val isLoadingActive = loadingStates[index] || (ld != null && !ld.isDisappeared())
+        fun paintIcon(icon: android.graphics.drawable.Drawable?, opacity: Float) {
+            if (icon == null || opacity <= 0f) return
+            icon.bounds = android.graphics.Rect(iconLeft.toInt(), iconTop.toInt(),
+                (iconLeft + iconSize).toInt(), (iconTop + iconSize).toInt())
+            icon.colorFilter = PorterDuffColorFilter(textColor, PorterDuff.Mode.SRC_IN)
+            val iconAlpha = if (isLoadingActive) 0.35f else 1f
+            icon.alpha = (255f * contentAlpha * opacity * iconAlpha).roundToInt().coerceIn(0, 255)
+            icon.draw(canvas)
         }
+        paintIcon(outlineIcon, 1f - mix)
+        paintIcon(filledIcon, mix)
         canvas.restoreToCount(clip)
     }
 }

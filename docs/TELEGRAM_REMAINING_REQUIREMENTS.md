@@ -1180,3 +1180,13 @@ R3: Added lifecycle cleanup on `onDetachedFromWindow()` in `ProfileActionsCanvas
 R4: Updated `ProfileActivity` to offload `savePendingPhoto()` disk I/O and bitmap compression to a background coroutine (`Dispatchers.IO`), allowing the main looper to render the action loading arc without blocking, and cleared blur nodes on `onDestroy()` and resting scroll.
 Classification: **ADAPTED**, whole Profile/screen visual/motion parity remains NOT MET / OPEN. Device/hardware evidence and GPL distribution clearance remain BLOCKED.
 
+## B1/B2 Profile actions LoadingDrawable port and photo save lifecycle isolation (2026-11-05)
+
+Base `258402d9d5327b7defe753432f7e6cc6432d2fb1`, exact-SHA FAST [41977369530](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41977369530) SUCCESS,
+and preceding six-job FULL run [41960298006](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41960298006) SUCCESS.
+R1: Ported authentic Telegram `LoadingDrawable` (`LoadingDrawable.java:28-405@3de37c8cfb039452be7398909461da6288babf15`), featuring shimmering gradient sweep, customizable stroke outline, and appear/disappear gradient transitions.
+R2: Integrated `LoadingDrawable` into `ProfileActionsCanvasLayout` Stage 3 matching `ProfileActionsView.java:475-515`, replacing the synthetic rotating arc with Telegram's authentic shimmering sweep and outline overlay, with light/dark theme adaptation.
+R3: Bound disk photo persistence across `ProfilePhotoManager.kt` (`savePhoto`, `hasCustomPhoto`, `loadBitmap`) strictly to the authenticated `ownerUid`, preventing cross-account state leakage during authentication transitions.
+R4: Added `photoSaveJob` lifecycle management in `ProfileActivity.kt`, canceling background photo save operations on preview cancellation, activity destroy, or profile owner mismatch.
+Classification: **ADAPTED**, whole Profile/screen visual/motion parity remains NOT MET / OPEN. Device/hardware evidence and GPL distribution clearance remain BLOCKED.
+

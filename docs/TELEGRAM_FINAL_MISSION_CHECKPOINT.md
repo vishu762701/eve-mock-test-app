@@ -3023,6 +3023,16 @@ Live recovery baseline: `0f381d692113bdfe7b60cf0903a712bff285fdda`, exact-SHA FA
 - `ProfileActivity.kt`: Offloaded `savePendingPhoto()` disk I/O and bitmap compression to a background coroutine (`Dispatchers.IO`), allowing the main looper to render the action loading arc without blocking during photo processing.
 - `ProfileActivity.kt`: Added `binding.layoutActions.setDrawingBlur(false)` and `stopLoading` in `onDestroy()` and on resting scroll (`progress <= 0f`), ensuring complete detachment from background blur nodes.
 
+## 2026-11-05 Profile actions LoadingDrawable port and photo save lifecycle isolation
+
+Live recovery baseline: `258402d9d5327b7defe753432f7e6cc6432d2fb1`, exact-SHA FAST run [41977369530](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41977369530) SUCCESS.
+- `LoadingDrawable.kt`: Ported authentic Telegram `LoadingDrawable` (`LoadingDrawable.java:28-405@3de37c8cfb039452be7398909461da6288babf15`), featuring shimmering gradient sweep, customizable stroke outline, and appear/disappear gradient transitions.
+- `ProfileActionsCanvasLayout.kt`: Replaced synthetic arc spinner with Telegram's authentic `LoadingDrawable` overlay in Stage 3 (`ProfileActionsView.java:475-515`), with dynamic luminance-based light/dark theme color adaptation (`TelegramThemeEngine.multAlpha`), callback registration, and lifecycle invalidation.
+- `ProfilePhotoManager.kt`: Added explicit `ownerUid` support across `savePhoto`, `hasCustomPhoto`, and `loadBitmap`, scoping custom profile photo disk persistence strictly to the authenticated user ID and preventing cross-account state leakage during authentication transitions.
+- `ProfileActivity.kt`: Added `photoSaveJob` tracking with coroutine cancellation on user action cancellation (`cancelPhotoPreview`), activity teardown (`onDestroy`), or profile owner mismatch, ensuring background disk I/O cannot overwrite another account's avatar.
+- `ProfileActionsCanvasContractTest.kt`: Added contract assertions verifying `LoadingDrawable` integration, appearance/disappearance methods, and background `photoSaveJob` launch.
+
+
 
 
 
