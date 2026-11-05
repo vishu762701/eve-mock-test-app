@@ -66,6 +66,7 @@ class ManageExistingExamsActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
+        hasEmptyPlayed = false
         if (reauthorizeOnResume && ::binding.isInitialized) {
             reauthorizeOnResume = false
             val live = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
@@ -116,13 +117,7 @@ class ManageExistingExamsActivity : EveBaseActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (adminAuthorized) {
-            hasEmptyPlayed = false
-            loadExams()
-        }
-    }
+
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
