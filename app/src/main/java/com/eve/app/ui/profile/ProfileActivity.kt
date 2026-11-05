@@ -32,7 +32,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import coil.load
 import com.eve.app.R
 import com.eve.app.data.model.PremiumStatusDto
@@ -310,13 +313,17 @@ class ProfileActivity : EveBaseActivity() {
             else ProfileActionsCollapse.atScroll(scrollY.toFloat(), density)
         )
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-            val blurNode = binding.avatarGooey.getBlurRenderNode()
-            binding.layoutActions.setDrawingBlur(
-                blurNode,
-                binding.ivProfilePhoto,
-                currentScale,
-                binding.avatarContainer.translationY
-            )
+            if (progress > 0f && progress < 1f) {
+                val blurNode = binding.avatarGooey.getBlurRenderNode()
+                binding.layoutActions.setDrawingBlur(
+                    blurNode,
+                    binding.ivProfilePhoto,
+                    currentScale,
+                    binding.avatarContainer.translationY
+                )
+            } else {
+                binding.layoutActions.setDrawingBlur(false)
+            }
         }
     }
 
@@ -839,18 +846,24 @@ class ProfileActivity : EveBaseActivity() {
         if (!isProfileOwner()) return
         val uri = pendingPhotoUri ?: return
         binding.layoutActions.startLoading(binding.btnSetPhoto)
-        try {
-            if (ProfilePhotoManager.savePhoto(this, uri)) {
-                AppBulletin.showSuccess(this, "Profile photo updated")
-            } else {
-                AppBulletin.showError(this, "Failed to save photo")
+        lifecycleScope.launch(Dispatchers.IO) {
+            val ok = try {
+                ProfilePhotoManager.savePhoto(this@ProfileActivity, uri)
+            } catch (e: Exception) {
+                false
             }
-        } finally {
-            binding.layoutActions.stopLoading(binding.btnSetPhoto)
+            withContext(Dispatchers.Main) {
+                binding.layoutActions.stopLoading(binding.btnSetPhoto)
+                if (ok) {
+                    AppBulletin.showSuccess(this@ProfileActivity, "Profile photo updated")
+                } else {
+                    AppBulletin.showError(this@ProfileActivity, "Failed to save photo")
+                }
+                pendingPhotoUri = null
+                binding.layoutPhotoActions.visibility = View.GONE
+                loadProfilePhoto()
+            }
         }
-        pendingPhotoUri = null
-        binding.layoutPhotoActions.visibility = View.GONE
-        loadProfilePhoto()
     }
 
     private fun showProgress(msg: String) {
@@ -881,6 +894,8 @@ class ProfileActivity : EveBaseActivity() {
     }
 
     override fun onDestroy() {
+        binding.layoutActions.stopLoading(binding.btnSetPhoto)
+        binding.layoutActions.setDrawingBlur(false)
         birthdayDialog?.dismiss()
         birthdayDialog = null
         profileAuthListener?.let { FirebaseAuth.getInstance().removeAuthStateListener(it) }

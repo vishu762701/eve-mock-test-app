@@ -24,11 +24,20 @@ class ProfileActionsCanvasContractTest {
             "paintIcon(filledIcon, mix)",
             "setPressScale(target: View, scale: Float)",
             "setParentExpanded(value: Float)",
-            "setActionColor(value: Int)"
+            "setActionColor(value: Int)",
+            "fun setDrawingBlur(drawing: Boolean)",
+            "override fun onDetachedFromWindow()",
+            "avatar.getLocationInWindow(locAvatar)",
+            "getLocationInWindow(locActions)",
+            "// Stage 1: Button surface backgrounds & radial highlights",
+            "// Stage 2: RenderNode avatar blur shader",
+            "// Stage 3: Text labels and action icons or loading state on top"
         )) assertTrue("Missing source Canvas stage: $term", canvas.contains(term))
         val activity = File("src/main/java/com/eve/app/ui/profile/ProfileActivity.kt").readText()
         assertTrue(activity.contains("ProfileActionIcons.applyTo("))
         assertTrue(activity.contains("binding.layoutActions.setActionColor(surface)"))
+        assertTrue(activity.contains("binding.layoutActions.setDrawingBlur(false)"))
+        assertTrue(activity.contains("lifecycleScope.launch(Dispatchers.IO)"))
         val motion = File("src/main/java/com/eve/app/ui/profile/ProfileActionBounce.kt").readText()
         assertTrue(motion.contains("target.setPressScale(view, scale)"))
         assertTrue(File("src/main/java/com/eve/app/ui/profile/ProfileHeaderExpansion.kt")

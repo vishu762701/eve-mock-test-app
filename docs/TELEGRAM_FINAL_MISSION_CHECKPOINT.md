@@ -3013,6 +3013,16 @@ Live recovery baseline: `8279af6f035cac6dee0e54d138623d57b1c80d8e`, exact-SHA FA
 - `UsernameCardActivity.kt`: Added transparent background to `design_bottom_sheet` for palette picker, ensuring clean Telegram glass rendering without Material container artifacts.
 - `activity_profile.xml` & `docs/EVE_PROFILE_ACTIONS_GEOMETRY_PROVENANCE.md`: Updated provenance documentation to reflect the integrated RenderNode avatar blur shader, radial gradient highlight, and dynamic action loading lifecycle.
 
+## 2026-11-05 Profile Canvas pipeline reorder, coordinate alignment, and memory lifecycle fix
+
+Live recovery baseline: `0f381d692113bdfe7b60cf0903a712bff285fdda`, exact-SHA FAST run [41973946194](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41973946194) SUCCESS, Verify Documentation run [41973946208](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41973946208) SUCCESS.
+- `ProfileActionsCanvasLayout.kt`: Reordered onDraw pipeline stages to strictly match Telegram upstream (`ProfileActionsView.java:298-338`). Stage 1 renders button backgrounds and radial highlights, Stage 2 renders the RenderNode avatar blur shader, and Stage 3 renders text labels and icons/loading spinner on top so the blurred avatar cannot obscure foreground content.
+- `ProfileActionsCanvasLayout.kt`: Corrected avatar clipping coordinates by calculating window-relative delta via `getLocationInWindow` (`locAvatar` and `locActions`), preventing offset clipping between the top-level avatar container and the nested scrollable actions layout.
+- `ProfileActionsCanvasLayout.kt`: Added lifecycle cleanup on `onDetachedFromWindow()` to release `renderNode`, `avatarView`, `radialGradient`, `shaderPaint.shader`, and reset running loading states, preventing activity hierarchy retention across view teardown.
+- `ProfileActionsCanvasLayout.kt`: Added `setDrawingBlur(drawing: Boolean)` to reset blur render nodes when resting or disabled.
+- `ProfileActivity.kt`: Offloaded `savePendingPhoto()` disk I/O and bitmap compression to a background coroutine (`Dispatchers.IO`), allowing the main looper to render the action loading arc without blocking during photo processing.
+- `ProfileActivity.kt`: Added `binding.layoutActions.setDrawingBlur(false)` and `stopLoading` in `onDestroy()` and on resting scroll (`progress <= 0f`), ensuring complete detachment from background blur nodes.
+
 
 
 

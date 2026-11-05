@@ -1170,3 +1170,13 @@ R3: Integrated dynamic action lifecycle (`startLoading`, `stopLoading`, `isLoadi
 R4: Updated palette picker in `UsernameCardActivity` to set transparent background on `design_bottom_sheet`, ensuring clean Telegram glass rendering without Material container artifacts.
 Classification: **ADAPTED**, whole Profile/screen visual/motion parity remains NOT MET / OPEN. Device/hardware evidence and GPL distribution clearance remain BLOCKED.
 
+## B1/B2 Profile actions Canvas pipeline reorder, coordinate alignment, and memory lifecycle fix (2026-11-05)
+
+Base `0f381d692113bdfe7b60cf0903a712bff285fdda`, exact-SHA FAST [41973946194](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41973946194) SUCCESS,
+and preceding six-job FULL run [41960298006](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41960298006) SUCCESS.
+R1: Reordered onDraw pipeline stages in `ProfileActionsCanvasLayout` to strictly follow Telegram upstream (`ProfileActionsView.java:298-338`): Stage 1 button backgrounds & radial highlights, Stage 2 RenderNode avatar blur shader, Stage 3 labels and icons/loading spinner on top.
+R2: Corrected avatar clipping path coordinates using window-relative translation delta via `getLocationInWindow` (`locAvatar` and `locActions`), preventing offset clipping between full-window gooey view and nested scroll actions.
+R3: Added lifecycle cleanup on `onDetachedFromWindow()` in `ProfileActionsCanvasLayout` to release `renderNode`, `avatarView`, `radialGradient`, `shaderPaint.shader`, and reset loading states, preventing memory leaks.
+R4: Updated `ProfileActivity` to offload `savePendingPhoto()` disk I/O and bitmap compression to a background coroutine (`Dispatchers.IO`), allowing the main looper to render the action loading arc without blocking, and cleared blur nodes on `onDestroy()` and resting scroll.
+Classification: **ADAPTED**, whole Profile/screen visual/motion parity remains NOT MET / OPEN. Device/hardware evidence and GPL distribution clearance remain BLOCKED.
+

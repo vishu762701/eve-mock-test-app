@@ -76,6 +76,8 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
     private var renderNodeTranslateY: Float = 0f
     private val clipPath = Path()
     private val clipAvatarPath = Path()
+    private val locAvatar = IntArray(2)
+    private val locActions = IntArray(2)
 
     private val filledRes = intArrayOf(
         R.drawable.telegram_profile_photo,
@@ -151,14 +153,35 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
         return loadingStates[index]
     }
 
+    fun setDrawingBlur(drawing: Boolean) {
+        if (!drawing && (renderNode != null || avatarView != null)) {
+            renderNode = null
+            avatarView = null
+            invalidate()
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.Q)
     fun setDrawingBlur(node: RenderNode?, avatar: View?, scale: Float, dy: Float) {
+        if (node == null || avatar == null) {
+            setDrawingBlur(false)
+            return
+        }
         if (renderNode == node && avatarView == avatar && renderNodeScale == scale && renderNodeTranslateY == dy) return
         renderNode = node
         avatarView = avatar
         renderNodeScale = scale
         renderNodeTranslateY = dy
         invalidate()
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        loadingStates.fill(false)
+        renderNode = null
+        avatarView = null
+        radialGradient = null
+        shaderPaint.shader = null
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -214,6 +237,7 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
             surfacePaint.clearShadowLayer()
         }
 
+        // Stage 1: Button surface backgrounds & radial highlights (ProfileActionsView.java:298-329)
         for (index in 0 until n) {
             val host = getChildAt(index) as? LinearLayout ?: continue
             if (host.visibility != View.VISIBLE || host.width <= 0) continue
@@ -237,20 +261,38 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
                 shaderPaint.alpha = (Color.alpha(surfaceColor) * state.backgroundAlpha).roundToInt().coerceIn(0, 255)
                 canvas.drawRoundRect(rect, radius, radius, shaderPaint)
             }
-
-            if (state.contentAlpha > 0f) {
-                val img = host.getChildAt(0) as? ImageView
-                val label = host.getChildAt(1) as? TextView
-                if (img != null && label != null) {
-                    paintContent(canvas, left, right, top, itemHeight,
-                        mix, textColor, label, first[index], second[index], index)
-                }
-            }
             canvas.restoreToCount(checkpoint)
         }
 
+        // Stage 2: RenderNode avatar blur shader (ProfileActionsView.java:331, 341-373)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && canvas.isHardwareAccelerated) {
             drawRenderNodeBlur(canvas, n, radius, itemHeight)
+        }
+
+        // Stage 3: Text labels and action icons or loading state on top (ProfileActionsView.java:333-338)
+        if (state.contentAlpha > 0f) {
+            for (index in 0 until n) {
+                val host = getChildAt(index) as? LinearLayout ?: continue
+                if (host.visibility != View.VISIBLE || host.width <= 0) continue
+                val left = host.left.toFloat()
+                val right = host.right.toFloat()
+                val top = dp(8f)
+                val scale = pressScale[index]
+                val centerX = (left + right) / 2f
+                val centerY = top + itemHeight / 2f
+                val checkpoint = canvas.save()
+                canvas.scale(scale, scale, centerX, centerY)
+
+                val img = host.getChildAt(0) as? ImageView
+                val label = host.getChildAt(1) as? TextView
+                if (img != null && label != null) {
+                    paintContent(
+                        canvas, left, right, top, itemHeight,
+                        mix, textColor, label, first[index], second[index], index
+                    )
+                }
+                canvas.restoreToCount(checkpoint)
+            }
         }
     }
 
@@ -261,12 +303,13 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
 
         val checkpoint = canvas.save()
         val avatar = avatarView
-        if (avatar != null) {
-            val v = (avatar.parent as? View) ?: avatar
-            val vl = v.x
-            val vt = v.y - translationY
-            val vw = v.width * v.scaleX
-            val vh = v.height * v.scaleY
+        if (avatar != null && avatar.isAttachedToWindow && isAttachedToWindow) {
+            avatar.getLocationInWindow(locAvatar)
+            getLocationInWindow(locActions)
+            val vl = (locAvatar[0] - locActions[0]).toFloat()
+            val vt = (locAvatar[1] - locActions[1]).toFloat()
+            val vw = avatar.width.toFloat() * avatar.scaleX
+            val vh = avatar.height.toFloat() * avatar.scaleY
 
             clipAvatarPath.rewind()
             clipAvatarPath.addRoundRect(
@@ -352,7 +395,9 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
             progressPaint.alpha = (255f * contentAlpha).roundToInt().coerceIn(0, 255)
             val sweep = (System.currentTimeMillis() % 1000L) / 1000f * 360f
             canvas.drawArc(progressRect, sweep, 280f, false, progressPaint)
-            postInvalidateOnAnimation()
+            if (isAttachedToWindow && loadingStates.any { it }) {
+                postInvalidateOnAnimation()
+            }
         } else {
             fun paintIcon(icon: android.graphics.drawable.Drawable?, opacity: Float) {
                 if (icon == null || opacity <= 0f) return

@@ -44,9 +44,14 @@ Classification: **ADAPTED**, not full 100%-exact upstream View. EVE uses
 `Text`, virtual `AccessibilityNodeProvider`, or other profile modes.
 Integrated with Telegram's radial gradient highlight, light-mode shadow,
 API 29+ `RenderNode` avatar blur shader (`drawingBlur`), and dynamic action loading
-lifecycle (`startLoading`/`stopLoading`). Source GIF/call/notification/voice,
-other profile modes, account and network dependencies are intentionally
-excluded. No change to existing profile actions, storage, Firebase or Worker
+lifecycle (`startLoading`/`stopLoading`). Canvas rendering stages strictly mirror
+upstream (`ProfileActionsView.java:298-338`): Stage 1 button backgrounds & radial highlights,
+Stage 2 RenderNode avatar blur shader (with `getLocationInWindow` coordinate alignment),
+and Stage 3 text labels and icons/loading spinner on top. Memory leak protection clears
+retained `avatarView` and `renderNode` on window detachment and resting scroll. Action
+loading lifecycle executes photo saving asynchronously off the main thread via coroutines.
+Source GIF/call/notification/voice, other profile modes, account and network dependencies
+are intentionally excluded. No change to existing profile actions, storage, Firebase or Worker
 logic. Source tests and compiled native tests do not prove matched Telegram
 screenshots, device motion, cutout alignment or GPL distribution clearance.
  
