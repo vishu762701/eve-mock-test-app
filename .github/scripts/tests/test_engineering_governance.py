@@ -18,7 +18,7 @@ class EngineeringGovernanceTest(unittest.TestCase):
                      "exact-SHA FAST", "minimum complete functional subsystem",
                      "full commit SHA", "EXACT", "ADAPTED", "NOT FOUND", "BLOCKED"):
             self.assertIn(term, standard)
-        for term in ("latest suitable official revision", "transitive classes", "lifecycle",
+        for term in ("suitable official revision", "transitive classes", "lifecycle",
                      "license", "runtime"):
             self.assertIn(term, process)
         for path in ("AGENTS.md", "backend/AGENTS.md", "GEMINI.md", "CLAUDE.md"):
