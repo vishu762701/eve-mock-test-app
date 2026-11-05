@@ -41,4 +41,18 @@ public final class QuestionReviewBoundaryFixture {
             dismissCalls++; return dismissSuccess;
         }
     }
+    @Implements(value=com.eve.app.data.repository.AuditLogRepository.class,isInAndroidSdk=false)
+    public static class AuditBoundary {
+        @Implementation public Object getLogs(
+            com.eve.app.data.repository.AuditLogTimeRange timeRange,
+            Long before,
+            String adminEmail,
+            String actionType,
+            String searchQuery,
+            int limit,
+            Continuation<?> continuation
+        ) {
+            return java.util.Collections.emptyList();
+        }
+    }
 }

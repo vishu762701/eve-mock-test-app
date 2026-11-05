@@ -47,6 +47,18 @@ public final class EditExamBoundaryFixture {
         @Implementation public Object getAppConfig(Continuation<?> continuation) {
             return new com.eve.app.data.model.AppConfig(1, false, "", "live");
         }
+        @Implementation public Object getUsersPage(String query, int page, Continuation<?> continuation) {
+            return new com.eve.app.data.model.AdminUsersPage(
+                java.util.Collections.emptyList(),
+                new com.eve.app.data.model.AdminUsersPagination(page, 20, 0, 0, false, false)
+            );
+        }
+        @Implementation public Object getUserAttempts(String userId, Continuation<?> continuation) {
+            return java.util.Collections.emptyList();
+        }
+        @Implementation public Object toggleUserStatus(String userId, boolean disabled, Continuation<?> continuation) {
+            return true;
+        }
     }
     @Implements(value=ExamRepository.class,isInAndroidSdk=false)
     public static class ExamBoundary {

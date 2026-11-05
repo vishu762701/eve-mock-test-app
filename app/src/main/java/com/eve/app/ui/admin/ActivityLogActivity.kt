@@ -53,7 +53,7 @@ class ActivityLogActivity : EveBaseActivity() {
     private var activeUid: String? = null
     private var activeEmail: String? = null
     private var accessReady = false
-    private var screenStopped = false
+    private var reauthorizeOnResume = false
     private var viewsPrepared = false
     private var filterDialog: BottomSheetDialog? = null
     private var filterAdminJob: Job? = null
@@ -64,7 +64,7 @@ class ActivityLogActivity : EveBaseActivity() {
         uid: String? = activeUid, email: String? = activeEmail
     ): Boolean {
         val user = FirebaseAuth.getInstance().currentUser
-        return accessReady && !screenStopped && !isFinishing && !isDestroyed &&
+        return accessReady && !reauthorizeOnResume && !isFinishing && !isDestroyed &&
             !uid.isNullOrBlank() && !email.isNullOrBlank() &&
             activeUid == uid && activeEmail.equals(email, ignoreCase = true) &&
             user?.uid == uid && user?.email.equals(email, ignoreCase = true)
@@ -79,13 +79,19 @@ class ActivityLogActivity : EveBaseActivity() {
     }
 
     private fun requireAuditAccess() {
+        binding.root.visibility = View.INVISIBLE
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true,
             requiredRight = "view_analytics_logs") {
-            if (screenStopped || isFinishing || isDestroyed) {
+            if (reauthorizeOnResume || isFinishing || isDestroyed) {
                 binding.root.visibility = View.INVISIBLE
                 return@requireAdmin
             }
-            val user = FirebaseAuth.getInstance().currentUser ?: return@requireAdmin
+            val user = FirebaseAuth.getInstance().currentUser
+            if (user == null || (activeUid != null && (user.uid != activeUid || !user.email.equals(activeEmail, ignoreCase = true)))) {
+                binding.root.visibility = View.INVISIBLE
+                finish()
+                return@requireAdmin
+            }
             activeUid = user.uid
             activeEmail = user.email
             accessReady = true
@@ -99,14 +105,19 @@ class ActivityLogActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (screenStopped) {
-            screenStopped = false
+        if (reauthorizeOnResume && ::binding.isInitialized) {
+            reauthorizeOnResume = false
+            val live = FirebaseAuth.getInstance().currentUser
+            if (live == null || live.uid != activeUid || !live.email.equals(activeEmail, ignoreCase = true)) {
+                finish()
+                return
+            }
             requireAuditAccess()
         }
     }
 
     override fun onStop() {
-        screenStopped = true
+        reauthorizeOnResume = true
         accessReady = false
         binding.root.visibility = View.INVISIBLE
         searchJob?.cancel()
@@ -126,6 +137,13 @@ class ActivityLogActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user == null || user.email.isNullOrBlank()) {
+            finish()
+            return
+        }
+        activeUid = user.uid
+        activeEmail = user.email
         binding = ActivityActivityLogBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

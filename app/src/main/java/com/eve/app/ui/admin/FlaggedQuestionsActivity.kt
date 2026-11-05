@@ -145,6 +145,11 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
         super.onResume()
         if (reauthorizeOnResume && ::binding.isInitialized) {
             reauthorizeOnResume = false
+            val live = FirebaseAuth.getInstance().currentUser
+            if (live == null || live.uid != openingUid || !live.email.equals(openingEmail, ignoreCase = true)) {
+                finish()
+                return
+            }
             authorizeReports()
         }
         // The lifecycle reaches STARTED after Activity.onStart returns.

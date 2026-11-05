@@ -47,7 +47,10 @@ class ManageUsersActivity : EveBaseActivity() {
 
     private val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
     private var authorizedUid: String? = null
+    private var authorizedEmail: String? = null
     private var gateReady = false
+    private var reauthorizeOnResume = false
+    private var adminControlsPrepared = false
     private var currentPage = 1
     private var query = ""
     private var restoredQuery = ""
@@ -60,14 +63,25 @@ class ManageUsersActivity : EveBaseActivity() {
     private var detailsDialog: TelegramNativeAlertDialog? = null
     private var statusDialog: TelegramNativeAlertDialog? = null
 
-    private fun isCurrentOwner(uid: String?): Boolean =
-        !uid.isNullOrBlank() && gateReady && authorizedUid == uid &&
-            FirebaseAuth.getInstance().currentUser?.uid == uid && !isFinishing && !isDestroyed
+    private fun isCurrentOwner(uid: String?): Boolean {
+        val live = FirebaseAuth.getInstance().currentUser
+        return !uid.isNullOrBlank() && gateReady && authorizedUid == uid &&
+            live?.uid == uid &&
+            (authorizedEmail.isNullOrBlank() || live?.email.equals(authorizedEmail, ignoreCase = true)) &&
+            !isFinishing && !isDestroyed
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val liveOwner = FirebaseAuth.getInstance().currentUser
+        if (liveOwner == null || liveOwner.email.isNullOrBlank()) {
+            finish()
+            return
+        }
+        authorizedUid = liveOwner.uid
+        authorizedEmail = liveOwner.email
         val restoredOwner = savedInstanceState?.getString("users_owner_uid")
-        val currentOwner = FirebaseAuth.getInstance().currentUser?.uid
+        val currentOwner = liveOwner.uid
         val canRestore = !restoredOwner.isNullOrBlank() && restoredOwner == currentOwner
         currentPage = (if (canRestore) savedInstanceState?.getInt("users_page") else null).let { it ?: 1 }.coerceAtLeast(1)
         restoredQuery = if (canRestore) savedInstanceState?.getString("users_query").orEmpty() else ""
@@ -75,9 +89,18 @@ class ManageUsersActivity : EveBaseActivity() {
         setContentView(binding.root)
         binding.btnBack.setOnClickListener { finish() }
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_users") {
-            authorizedUid = FirebaseAuth.getInstance().currentUser?.uid
+            val user = FirebaseAuth.getInstance().currentUser
+            if (user == null || user.uid != authorizedUid || !user.email.equals(authorizedEmail, ignoreCase = true)) {
+                finish()
+                return@requireAdmin
+            }
+            authorizedUid = user.uid
+            authorizedEmail = user.email
             gateReady = true
-            setupAdminControls()
+            if (!adminControlsPrepared) {
+                setupAdminControls()
+                adminControlsPrepared = true
+            }
             loadUsers()
         }
     }
@@ -86,7 +109,14 @@ class ManageUsersActivity : EveBaseActivity() {
         super.onResume()
         // A privilege may have been revoked while this Activity was paused.
         // Never show cached user rows without a fresh server decision.
-        if (authorizedUid != null) {
+        if (reauthorizeOnResume && ::binding.isInitialized) {
+            reauthorizeOnResume = false
+            val live = FirebaseAuth.getInstance().currentUser
+            if (live == null || live.uid != authorizedUid ||
+                (authorizedEmail != null && !live.email.equals(authorizedEmail, ignoreCase = true))) {
+                finish()
+                return
+            }
             gateReady = false
             // onPause may be followed by onResume without an onStop callback.
             // Invalidate details before a new privilege check can finish.
@@ -100,7 +130,14 @@ class ManageUsersActivity : EveBaseActivity() {
             binding.root.visibility = View.INVISIBLE
             requestJob?.cancel()
             AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_users") {
-                authorizedUid = FirebaseAuth.getInstance().currentUser?.uid
+                val postGateUser = FirebaseAuth.getInstance().currentUser
+                if (postGateUser == null || postGateUser.uid != authorizedUid ||
+                    (authorizedEmail != null && !postGateUser.email.equals(authorizedEmail, ignoreCase = true))) {
+                    finish()
+                    return@requireAdmin
+                }
+                authorizedUid = postGateUser.uid
+                authorizedEmail = postGateUser.email
                 gateReady = true
                 loadUsers()
             }
@@ -115,6 +152,7 @@ class ManageUsersActivity : EveBaseActivity() {
     }
 
     override fun onStop() {
+        reauthorizeOnResume = true
         gateReady = false
         requestJob?.cancel()
         detailsJob?.cancel()

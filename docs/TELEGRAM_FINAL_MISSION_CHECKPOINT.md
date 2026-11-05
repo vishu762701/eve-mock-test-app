@@ -3167,19 +3167,15 @@ Live recovery baseline: `51e8f63d9366f89b7522ec2c14ca1b411e100157`.
 - `EditExamPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions for `ManageExistingExamsActivity` and `EditExamActivity`.
 - `ConfigAndContentPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions for `ApiUsageActivity` and `EditAboutActivity`.
 
+## 2026-11-05 ActivityLog, FlaggedQuestions, and ManageUsers resume permissions re-validation (C1/C5)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Live recovery baseline: `90d919512602fe99ebd9c03720dd2c415f6e090b`.
+- `ActivityLogActivity.kt`: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation via `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "view_analytics_logs")`. Enforces live identity matching (`live.uid == activeUid && live.email == activeEmail`), terminating immediately if the signed-in user changed. Reloads recent action audit logs (`reloadLogs()`) upon verified resume without duplicating UI adapter or action bar listeners.
+- `FlaggedQuestionsActivity.kt`: Enforced live identity matching in `onResume()` (`live.uid == openingUid && live.email == openingEmail`), terminating immediately if the signed-in user changed. Re-validates `moderate_feedback` permission, dynamically updating `canManageQuestions` and `canManageExams` rights without duplicating UI layout or listeners.
+- `ManageUsersActivity.kt`: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation via `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "manage_users")`. Enforces live identity matching (`live.uid == authorizedUid && live.email == authorizedEmail`), terminating immediately if the signed-in user changed. Refreshes users list (`loadUsers()`) upon verified resume without duplicating user adapter or click listeners (`setupAdminControls()`).
+- `EditExamBoundaryFixture.java`: Added `getUsersPage`, `getUserAttempts`, and `toggleUserStatus` to `AdminBoundary` shadow.
+- `QuestionReviewBoundaryFixture.java`: Added `AuditBoundary` shadow for `AuditLogRepository`.
+- `ActivityLogPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate views wiring.
+- `FlaggedQuestionsPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring.
+- `ManageUsersPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate admin controls wiring.
 
