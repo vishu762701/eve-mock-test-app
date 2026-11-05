@@ -2965,3 +2965,11 @@ Live recovery baseline: `f9da1d4d5d9f11e694d9c5df0cd81049bc90c6bf`, exact-SHA FA
 - `TestViewModel.kt`: Aligned 409 limit manager check from `examId` to `effectiveExamId` to prevent key mismatch on generated/topic tests.
 - `TestViewModelNetworkOwnerTest.kt`: Added contract test `networkExceptionsOnNewAttemptStartsFailClosed()` asserting fail-closed error emission and `effectiveExamId` limit checking.
 
+## 2026-11-05 Telegram QR frame looper lifecycle resilience and looper idleness (1376a50c)
+
+Live recovery baseline: `1376a50c6f0551a339c1e7ce861c426af920c0c4`, exact-SHA FAST run [41943568054](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41943568054) SUCCESS (`backend`: ✓, `firebase-functions`: ✓, `build`: ✓).
+- `TelegramQrSceneView.kt`: Paused native animation frame loops on window visibility loss and when view detaches from window, preventing continuous looper message posting when backgrounded or destroyed.
+- `UsernameCardActivity.kt`: Added explicit `scene.pausePlayback()` invocation in `onDestroy()`.
+- `TelegramQrSceneNativeTest.kt`: Added `scene.pausePlayback()` after verifying post-recreation state before `scenario.close()` executes, eliminating main looper idling deadlock during test teardown.
+
+
