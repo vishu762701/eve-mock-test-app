@@ -92,6 +92,9 @@ class ManageExamsActivity : EveBaseActivity() {
     private var pendingGenerateExam: String? = null
     private var pendingGenerateCount = 0
     private var pendingGenerateNumber: String? = null
+    private var reauthorizeOnResume = false
+    private var authorizedUid: String? = null
+    private var authorizedEmail: String? = null
 
     private val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
 
@@ -178,6 +181,8 @@ class ManageExamsActivity : EveBaseActivity() {
         }
 
         com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_exams") {
+            authorizedUid = FirebaseAuth.getInstance().currentUser?.uid
+            authorizedEmail = FirebaseAuth.getInstance().currentUser?.email
             initializeAuthorizedUi()
         }
     }
@@ -197,7 +202,25 @@ class ManageExamsActivity : EveBaseActivity() {
         // The backend may finish an in-flight request. Never display its old
         // response after stop or resend it with a new request key.
         generationEpoch++
+        reauthorizeOnResume = true
         super.onStop()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (reauthorizeOnResume && ::binding.isInitialized) {
+            reauthorizeOnResume = false
+            val live = FirebaseAuth.getInstance().currentUser
+            if (live == null || live.uid != authorizedUid || live.email != authorizedEmail) {
+                finish()
+                return
+            }
+            com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_exams") {
+                authorizedUid = live.uid
+                authorizedEmail = live.email
+                loadExams(targetExamId = currentExamId.takeIf { it.isNotBlank() })
+            }
+        }
     }
 
     private fun initializeAuthorizedUi() {

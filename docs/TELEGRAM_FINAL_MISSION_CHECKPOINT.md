@@ -3064,11 +3064,22 @@ Live recovery baseline: `adccdceaaac4a745267f0f862b0200e8960a8a2d`, carrying com
 
 ## 2026-11-05 ManageQuestions activity resume permissions re-validation and question refresh (C1/C5)
 
-Live recovery baseline: `09628ce3c3b518e3d6ef0f5f060d4fd64bcf9ebe`, exact-SHA FAST run [42001626557](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42001626557) SUCCESS, Verify Documentation run [42001626555](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42001626555) SUCCESS.
+Live recovery baseline: `09628ce3c3b518e3d6ef0f5f060d4fd64bcf9ebe`, carrying commit `3275c68ff842523275a5c68b6b194d2e82ce5012`.
+- Exact-SHA FAST run [42004501441](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42004501441) **SUCCESS** (Job `backend`: ✓ success, Job `firebase-functions`: ✓ success, Job `build`: ✓ success — all JVM tests passed in 4m 17s).
+- Verify Documentation run [42004501459](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42004501459) **SUCCESS** (83 docs validated, 0 errors).
 - `ManageQuestionsActivity.kt`: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation using `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "manage_questions")`. If rights are revoked on the server while the activity was in the background, the activity closes immediately.
 - `ManageQuestionsActivity.kt`: Guarded against identity change on resume via `questionIdentityCurrent`, finishing immediately if the authenticated account changed.
 - `ManageQuestionsActivity.kt`: Dynamically refreshed questions for the selected exam (`viewModel.refreshQuestions(viewModel.questionExamId)`) upon verified resume without duplicating UI listeners (`setupUi()`) or Flow collectors (`setupObservers()`).
 - `ManageQuestionsPermissionResumeTest.kt`: Added Robolectric unit tests and contract tests asserting fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI/observer wiring.
+
+## 2026-11-05 ManageExams activity resume permissions re-validation and exam refresh (C1/C5)
+
+Live recovery baseline: `3275c68ff842523275a5c68b6b194d2e82ce5012`, exact-SHA FAST run [42004501441](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42004501441) SUCCESS, Verify Documentation run [42004501459](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42004501459) SUCCESS.
+- `ManageExamsActivity.kt`: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation using `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "manage_exams")`. If rights are revoked on the server while backgrounded, the activity terminates immediately upon resume.
+- `ManageExamsActivity.kt`: Enforced account match (`live.uid == authorizedUid && live.email == authorizedEmail`) on resume, closing immediately upon identity change.
+- `ManageExamsActivity.kt`: Reloaded exams and preserved current exam selection (`loadExams(targetExamId = currentExamId)`) upon verified resume without duplicating UI listeners (`initializeAuthorizedUi()`) or reattaching adapters.
+- `ManageExamsPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring.
+
 
 
 
