@@ -1327,3 +1327,22 @@ R3: Added `checkoutAuthListener` via `FirebaseAuth.AuthStateListener` registered
 R4: Added `FeedbackActivityOwnerLifecycleTest.kt`, `PremiumActivityOwnerLifecycleTest.kt`, and `PaymentCheckoutActivityOwnerLifecycleTest.kt` containing unit & contract assertions verifying account isolation logic, listener attach/detach lifecycle, savedInstanceState persistence, and interactive action guards.
 Classification: **ADAPTED**, all student and transactional screens now enforce strict account lifecycle isolation. Whole visual/motion parity remains NOT MET / OPEN. Device/hardware evidence and GPL distribution clearance remain BLOCKED.
 
+## G3/G4/G6 Verified Six-Job FULL Integration and APK Delivery Milestone on Commit d766fee2 (2026-11-05)
+
+Terminal verified FULL run [42072751313](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42072751313) on commit `d766fee243cfa52f2f7d5402914101e19efcff31` SUCCESS:
+- `build` job: SUCCESS in 7m23s (All JVM unit tests including Feedback, Premium, and Payment Checkout lifecycle tests passed, AndroidTest compilation passed, release signing credentials preflight passed, lint passed, zero failures).
+- `backend` job: SUCCESS in 25s (All 372 node/sqlite route & security tests passed).
+- `firebase-functions` job: SUCCESS in 1m13s (All 19 callable functions & Worker-only admin tests passed).
+- `Native UI (gesture)` job: SUCCESS in 15m50s on Android 15 (API 35) emulator with KVM hardware acceleration (100% green native UI suite).
+- `Native UI (three-button)` job: SUCCESS in 21m8s on Android 15 (API 35) emulator with KVM hardware acceleration (100% green native UI suite).
+- `Publish verified debug APK` job: SUCCESS in 9s — authorized publication executed under explicit owner instruction `publish_verified_apk = true`.
+- Published Artifact:
+  - Name: `Eve-debug-apk`
+  - Artifact ID: `13438847073`
+  - Uploaded Zip Digest: `sha256:cfeb7c609ca1eeb1bbedccc551e325248e4ac025e0a178da8f4ee6c427dce89a` (Size: 19,276,754 bytes)
+  - Uncompressed APK SHA-256 Digest: `482494401dc5f134d9b3fa844042b9650bc696a720dfad3b3696edc9a92fed76` (Size: 23,606,857 bytes)
+  - Download URL: `https://github.com/vishu762701/eve-mock-test-app/actions/runs/42072751313/artifacts/13438847073`
+  - Local Delivered Artifact Paths: `/data/data/com.termux/files/home/delivery_apk/app-debug.apk` and `/data/data/com.termux/files/home/hotfix_apk/app-debug.apk`
+Classification: **VERIFIED FULL INTEGRATION & DELIVERED APK**, all Student and Transactional screens (`FeedbackActivity`, `PremiumActivity`, `PaymentCheckoutActivity`, `PracticeActivity`, `PyqActivity`, `ExamTestsActivity`, `BookmarksActivity`, `HistoryActivity`, `MistakesActivity`) account lifecycle isolation guards, 21 Admin Activities permission revalidations, Profile RenderNode blur, Telegram QR scene & scanner, and Home overflow navigation validated on both emulator navigation modes on latest `main` commit. Physical hardware evidence (camera sensor, 120Hz display) and human legal release clearance remain BLOCKED.
+
+
