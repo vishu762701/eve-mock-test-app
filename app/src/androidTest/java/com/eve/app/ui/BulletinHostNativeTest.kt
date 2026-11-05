@@ -213,10 +213,10 @@ class BulletinHostNativeTest {
             }
             awaitWindowFocus(scenario)
             scenario.onActivity { activity ->
-                AppBulletin.make(activity, "Pause test", 2500L).show()
+                AppBulletin.make(activity, "Pause test", 3500L).show()
             }
             instrumentation.waitForIdleSync()
-            SystemClock.sleep(1000)
+            SystemClock.sleep(400)
             val position = IntArray(2)
             val size = IntArray(2)
             scenario.onActivity { activity ->
@@ -229,11 +229,11 @@ class BulletinHostNativeTest {
             val downTime = SystemClock.uptimeMillis()
             val down = android.view.MotionEvent.obtain(downTime, downTime, android.view.MotionEvent.ACTION_DOWN, x, y, 0)
             try { instrumentation.sendPointerSync(down) } finally { down.recycle() }
-            SystemClock.sleep(1800)
+            SystemClock.sleep(3400)
             scenario.onActivity { activity -> assertNotNull(activity.findViewById<View>(R.id.cardBulletin)) }
             val up = android.view.MotionEvent.obtain(downTime, SystemClock.uptimeMillis(), android.view.MotionEvent.ACTION_UP, x, y, 0)
             try { instrumentation.sendPointerSync(up) } finally { up.recycle() }
-            SystemClock.sleep(2300)
+            SystemClock.sleep(3600)
             instrumentation.waitForIdleSync()
             scenario.onActivity { activity -> assertNull(activity.findViewById<View>(R.id.cardBulletin)) }
         }

@@ -2972,10 +2972,15 @@ Live recovery baseline: `1376a50c6f0551a339c1e7ce861c426af920c0c4`, exact-SHA FA
 - `UsernameCardActivity.kt`: Added explicit `scene.pausePlayback()` invocation in `onDestroy()`.
 - `TelegramQrSceneNativeTest.kt`: Added `scene.pausePlayback()` after verifying post-recreation state before `scenario.close()` executes, eliminating main looper idling deadlock during test teardown.
 
-## 2026-11-05 Telegram QR looper lifecycle state persistence across configuration recreation
+## 2026-11-05 Telegram QR looper lifecycle state persistence across configuration recreation (bca316a0)
 
-- `TelegramQrSceneView.kt`: Added explicit `isPlaybackPaused` state property and `isHostResumed` lifecycle gating; stopped continuous Choreographer `postInvalidateOnAnimation()` calls while paused; decoupled active animations from frame drawing when paused or host-paused.
-- `UsernameCardActivity.kt`: Persisted `qr_playback_paused` in `onSaveInstanceState` and restored it in `onCreate`, ensuring recreated instances inherit the paused playback contract; routed `onPause()` / `onResume()` through `onHostPause()` and `onHostResume()`, allowing test scenarios to maintain paused looper state during Activity recreation and eliminating Espresso idling deadlock timeouts.
+Run [41951740729](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41951740729) verified:
+- `backend`: ✓ SUCCESS
+- `firebase-functions`: ✓ SUCCESS
+- `build`: ✓ SUCCESS
+- `TelegramQrSceneNativeTest`: Passed in both modes (17s gesture, 11s three-button), confirming that `isPlaybackPaused` state persistence across recreation eliminated the main looper recreation hang.
+- `BulletinHostNativeTest.kt`: Strengthened `touchPausesOnlyTheRemainingTime` timing margins (3500ms duration, 400ms pre-touch dispatch, 3400ms held sleep, 3600ms post-release sleep) to protect against emulator CPU scheduling delays.
+- `.github/workflows/build.yml`: Increased `native-ui` job timeout from 18m to 25m to provide adequate headroom for the full 129-test core suite and 44-fixture visual review shards under three-button software rendering.
 
 
 
