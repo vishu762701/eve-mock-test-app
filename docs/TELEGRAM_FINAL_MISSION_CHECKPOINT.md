@@ -3074,11 +3074,22 @@ Live recovery baseline: `09628ce3c3b518e3d6ef0f5f060d4fd64bcf9ebe`, carrying com
 
 ## 2026-11-05 ManageExams activity resume permissions re-validation and exam refresh (C1/C5)
 
-Live recovery baseline: `3275c68ff842523275a5c68b6b194d2e82ce5012`, exact-SHA FAST run [42004501441](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42004501441) SUCCESS, Verify Documentation run [42004501459](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42004501459) SUCCESS.
+Live recovery baseline: `3275c68ff842523275a5c68b6b194d2e82ce5012`, carrying commit `fc5844ba52077e62551a31940989bfe18f6f6e52`.
+- Exact-SHA FAST run [42006922752](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42006922752) **SUCCESS** (Job `backend`: ✓ success, Job `firebase-functions`: ✓ success, Job `build`: ✓ success — all JVM tests passed in 6m 2s).
+- Verify Documentation run [42006923008](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42006923008) **SUCCESS** (83 docs validated, 0 errors).
 - `ManageExamsActivity.kt`: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation using `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "manage_exams")`. If rights are revoked on the server while backgrounded, the activity terminates immediately upon resume.
 - `ManageExamsActivity.kt`: Enforced account match (`live.uid == authorizedUid && live.email == authorizedEmail`) on resume, closing immediately upon identity change.
 - `ManageExamsActivity.kt`: Reloaded exams and preserved current exam selection (`loadExams(targetExamId = currentExamId)`) upon verified resume without duplicating UI listeners (`initializeAuthorizedUi()`) or reattaching adapters.
 - `ManageExamsPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring.
+
+## 2026-11-05 ManagePolls activity resume permissions re-validation and polls refresh (C1/C5)
+
+Live recovery baseline: `fc5844ba52077e62551a31940989bfe18f6f6e52`, exact-SHA FAST run [42006922752](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42006922752) SUCCESS, Verify Documentation run [42006923008](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42006923008) SUCCESS.
+- `ManagePollsActivity.kt`: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation via `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "moderate_feedback")`. If rights are revoked while backgrounded, the activity finishes immediately upon resume.
+- `ManagePollsActivity.kt`: Checked live authentication match (`live.uid == authorizedUid && live.email == authorizedEmail`), terminating immediately if the signed-in user changed.
+- `ManagePollsActivity.kt`: Reloaded polls (`loadPolls()`) upon verified resume without duplicating UI adapter setup or click listeners (`setupAdminControls()`).
+- `ManagePollsPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring.
+
 
 
 

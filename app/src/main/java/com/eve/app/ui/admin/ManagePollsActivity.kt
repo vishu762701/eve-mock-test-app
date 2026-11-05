@@ -32,6 +32,9 @@ class ManagePollsActivity : EveBaseActivity() {
     private val pollRepository = PollRepository()
     private lateinit var adapter: PollsAdminAdapter
     private var createPollDialog: TelegramNativeAlertDialog? = null
+    private var reauthorizeOnResume = false
+    private var authorizedUid: String? = null
+    private var authorizedEmail: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +44,8 @@ class ManagePollsActivity : EveBaseActivity() {
         binding.btnBack.setOnClickListener { finish() }
 
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "moderate_feedback") {
+            authorizedUid = FirebaseAuth.getInstance().currentUser?.uid
+            authorizedEmail = FirebaseAuth.getInstance().currentUser?.email
             setupAdminControls()
             loadPolls()
         }
@@ -59,9 +64,27 @@ class ManagePollsActivity : EveBaseActivity() {
         binding.btnCreatePollDialog.setOnClickListener { showCreatePollDialog() }
     }
 
+    override fun onStop() {
+        reauthorizeOnResume = true
+        super.onStop()
+    }
+
     override fun onResume() {
         super.onResume()
         binding.emptyStateView.resetPlayOnNextShow()
+        if (reauthorizeOnResume && ::binding.isInitialized) {
+            reauthorizeOnResume = false
+            val live = FirebaseAuth.getInstance().currentUser
+            if (live == null || live.uid != authorizedUid || live.email != authorizedEmail) {
+                finish()
+                return
+            }
+            AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "moderate_feedback") {
+                authorizedUid = live.uid
+                authorizedEmail = live.email
+                loadPolls()
+            }
+        }
     }
 
     private fun loadPolls() {

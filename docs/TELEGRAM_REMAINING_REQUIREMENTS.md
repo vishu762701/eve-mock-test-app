@@ -1240,14 +1240,27 @@ Classification: **ADAPTED**, whole Admin questions management visual/motion pari
 
 ## C1/C5 ManageExams activity resume permissions re-validation and exam refresh (2026-11-05)
 
-Base `3275c68ff842523275a5c68b6b194d2e82ce5012`, exact-SHA FAST [42004501441](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42004501441) SUCCESS,
-Verify Documentation run [42004501459](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42004501459) SUCCESS,
+Base `3275c68ff842523275a5c68b6b194d2e82ce5012`, carrying commit `fc5844ba52077e62551a31940989bfe18f6f6e52`,
+exact-SHA FAST [42006922752](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42006922752) SUCCESS (Job `backend`: ✓, Job `firebase-functions`: ✓, Job `build`: ✓ — all JVM tests passed in 6m 2s),
+Verify Documentation run [42006923008](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42006923008) SUCCESS,
 and preceding six-job FULL run [41960298006](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41960298006) SUCCESS.
 R1: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation using `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "manage_exams")` in `ManageExamsActivity.kt`, terminating the activity immediately if rights were revoked on the Worker.
 R2: Enforced account match (`live.uid == authorizedUid && live.email == authorizedEmail`) on resume, closing immediately upon identity change.
 R3: Reloaded exams and preserved current exam selection (`loadExams(targetExamId = currentExamId)`) upon verified resume without duplicating UI listeners (`initializeAuthorizedUi()`) or reattaching adapters.
 R4: Added `ManageExamsPermissionResumeTest.kt` containing Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring.
 Classification: **ADAPTED**, whole Admin exams management visual/motion parity remains NOT MET / OPEN. Device/hardware evidence and GPL distribution clearance remain BLOCKED.
+
+## C1/C5 ManagePolls activity resume permissions re-validation and polls refresh (2026-11-05)
+
+Base `fc5844ba52077e62551a31940989bfe18f6f6e52`, exact-SHA FAST [42006922752](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42006922752) SUCCESS,
+Verify Documentation run [42006923008](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42006923008) SUCCESS,
+and preceding six-job FULL run [41960298006](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41960298006) SUCCESS.
+R1: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation via `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "moderate_feedback")` in `ManagePollsActivity.kt`, terminating the activity immediately if rights were revoked on the Worker.
+R2: Checked live authentication match (`live.uid == authorizedUid && live.email == authorizedEmail`), terminating immediately if the signed-in user changed.
+R3: Reloaded polls (`loadPolls()`) upon verified resume without duplicating UI adapter setup or click listeners (`setupAdminControls()`).
+R4: Added `ManagePollsPermissionResumeTest.kt` containing Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring.
+Classification: **ADAPTED**, whole Admin polls management visual/motion parity remains NOT MET / OPEN. Device/hardware evidence and GPL distribution clearance remain BLOCKED.
+
 
 
 
