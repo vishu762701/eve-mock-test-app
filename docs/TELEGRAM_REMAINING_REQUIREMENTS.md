@@ -1317,3 +1317,13 @@ Terminal verified FULL run [42044923586](https://github.com/vishu762701/eve-mock
 - `Native UI (three-button)` job: SUCCESS in 25m40s on Android 15 (API 35) emulator with KVM hardware acceleration (100% green native UI suite).
 - `Publish verified debug APK` job: SKIPPED (0s) — explicit fail-closed safeguard `publish_verified_apk = false` preserved; no unauthorized APK distribution.
 Classification: **VERIFIED FULL INTEGRATION**, all 21 Admin Activities lifecycle permission guards, Profile RenderNode blur, Telegram QR scene & scanner, and Home overflow navigation validated on both emulator navigation modes on latest `main` commit. Physical hardware evidence (camera sensor, 120Hz display) and human legal release clearance remain BLOCKED.
+
+## E1/E2 Feedback, Premium, and Payment Checkout Activities lifecycle account isolation (2026-11-05)
+
+Base `69461afb3f2b52fbf45dcb7927b298dd82c9b80c`.
+R1: Added `feedbackOwnerUid`, `hasFeedbackOwner()` guard via `SubmissionRetryPolicy`, `FirebaseAuth.AuthStateListener` registration in `onStart()` / removal in `onStop()`, instance state preservation of `feedback_owner_uid` across activity recreation in `onSaveInstanceState()`, and guarded feedback submission click against account mismatch or logged-out state in `FeedbackActivity.kt`.
+R2: Added `premiumAuthListener` via `FirebaseAuth.AuthStateListener` registered in `onStart()` and removed in `onStop()` in `PremiumActivity.kt`, terminating the screen if the authenticated account changes or signs out during plan selection.
+R3: Added `checkoutAuthListener` via `FirebaseAuth.AuthStateListener` registered in `onStart()` and removed in `onStop()` in `PaymentCheckoutActivity.kt`, ensuring that any account change or sign-out during payment polling immediately aborts checkout.
+R4: Added `FeedbackActivityOwnerLifecycleTest.kt`, `PremiumActivityOwnerLifecycleTest.kt`, and `PaymentCheckoutActivityOwnerLifecycleTest.kt` containing unit & contract assertions verifying account isolation logic, listener attach/detach lifecycle, savedInstanceState persistence, and interactive action guards.
+Classification: **ADAPTED**, all student and transactional screens now enforce strict account lifecycle isolation. Whole visual/motion parity remains NOT MET / OPEN. Device/hardware evidence and GPL distribution clearance remain BLOCKED.
+

@@ -27,11 +27,16 @@ class PremiumActivity : EveBaseActivity() {
     private var currentPlan: PremiumPlanDto? = null
     private var currentStatus: PremiumStatusDto? = null
     private var premiumOwnerUid: String? = null
+    private val premiumAuth = FirebaseAuth.getInstance()
 
     private fun hasOriginalAccount(): Boolean =
         !premiumOwnerUid.isNullOrBlank() &&
-            premiumOwnerUid == FirebaseAuth.getInstance().currentUser?.uid &&
+            premiumOwnerUid == premiumAuth.currentUser?.uid &&
             !isFinishing && !isDestroyed
+
+    private val premiumAuthListener = FirebaseAuth.AuthStateListener {
+        if (premiumOwnerUid != null && !hasOriginalAccount()) finish()
+    }
 
     private val checkoutLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -69,6 +74,17 @@ class PremiumActivity : EveBaseActivity() {
 
 
         loadData()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (!hasOriginalAccount()) { finish(); return }
+        premiumAuth.addAuthStateListener(premiumAuthListener)
+    }
+
+    override fun onStop() {
+        premiumAuth.removeAuthStateListener(premiumAuthListener)
+        super.onStop()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import com.eve.app.data.repository.FeedbackRepository
 import com.eve.app.databinding.ActivityFeedbackBinding
 import com.eve.app.util.AppBulletin
+import com.eve.app.util.SubmissionRetryPolicy
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -19,9 +20,23 @@ class FeedbackActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityFeedbackBinding
     private val repo = FeedbackRepository()
+    private val feedbackAuth = FirebaseAuth.getInstance()
+    private var feedbackOwnerUid: String? = null
+
+    private fun hasFeedbackOwner(): Boolean =
+        SubmissionRetryPolicy.ownsSubmission(feedbackOwnerUid, feedbackAuth.currentUser?.uid)
+
+    private val feedbackAuthListener = FirebaseAuth.AuthStateListener {
+        if (feedbackOwnerUid != null && !hasFeedbackOwner()) finish()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val liveUid = feedbackAuth.currentUser?.uid
+        feedbackOwnerUid = if (savedInstanceState == null) liveUid
+            else savedInstanceState.getString("feedback_owner_uid")
+        if (!hasFeedbackOwner()) { finish(); return }
+
         binding = ActivityFeedbackBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -34,6 +49,7 @@ class FeedbackActivity : EveBaseActivity() {
         }
 
         binding.btnSendFeedback.setOnClickListener {
+            if (!hasFeedbackOwner()) { finish(); return@setOnClickListener }
             val message = binding.etFeedbackMessage.text?.toString()?.trim().orEmpty()
             if (message.isEmpty()) {
                 binding.tilFeedback.error = "Please enter your message"
@@ -45,7 +61,7 @@ class FeedbackActivity : EveBaseActivity() {
             }
             binding.tilFeedback.error = null
 
-            val user = FirebaseAuth.getInstance().currentUser
+            val user = feedbackAuth.currentUser
             val uid = user?.uid ?: return@setOnClickListener
             val name = user.displayName ?: "Student"
             val email = user.email ?: ""
@@ -66,5 +82,26 @@ class FeedbackActivity : EveBaseActivity() {
                 }
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (!hasFeedbackOwner()) { finish(); return }
+        feedbackAuth.addAuthStateListener(feedbackAuthListener)
+    }
+
+    override fun onStop() {
+        feedbackAuth.removeAuthStateListener(feedbackAuthListener)
+        super.onStop()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!hasFeedbackOwner()) finish()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("feedback_owner_uid", feedbackOwnerUid)
     }
 }

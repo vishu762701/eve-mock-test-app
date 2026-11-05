@@ -36,11 +36,16 @@ class PaymentCheckoutActivity : EveBaseActivity() {
     private var pollJob: Job? = null
     private var isCompleted = false
     private var checkoutOwnerUid: String? = null
+    private val checkoutAuth = FirebaseAuth.getInstance()
 
     private fun hasOriginalAccount(): Boolean =
         !checkoutOwnerUid.isNullOrBlank() &&
-            checkoutOwnerUid == FirebaseAuth.getInstance().currentUser?.uid &&
+            checkoutOwnerUid == checkoutAuth.currentUser?.uid &&
             !isFinishing && !isDestroyed
+
+    private val checkoutAuthListener = FirebaseAuth.AuthStateListener {
+        if (checkoutOwnerUid != null && !hasOriginalAccount()) finish()
+    }
 
     companion object {
         const val EXTRA_ORDER_ID = "extra_order_id"
@@ -80,6 +85,17 @@ class PaymentCheckoutActivity : EveBaseActivity() {
         setupViews()
         startCountdownTimer()
         startAutomaticPaymentPolling()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (!hasOriginalAccount()) { finish(); return }
+        checkoutAuth.addAuthStateListener(checkoutAuthListener)
+    }
+
+    override fun onStop() {
+        checkoutAuth.removeAuthStateListener(checkoutAuthListener)
+        super.onStop()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
