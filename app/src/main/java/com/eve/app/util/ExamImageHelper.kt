@@ -57,8 +57,8 @@ object ExamImageHelper {
             // With inJustDecodeBounds=true, decodeStream intentionally returns null.
             // Inspect real media bytes before trusting a decoder that might
             // substitute a placeholder for malformed content.
-            BufferedInputStream(first).use { stream ->
-                stream.mark(32)
+            BufferedInputStream(first, 65536).use { stream ->
+                stream.mark(65536)
                 val prefix = ByteArray(16)
                 var count = 0
                 while (count < prefix.size) {

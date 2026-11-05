@@ -26,6 +26,7 @@ import java.util.Date
 
 /** Every data source is protected by requireAdmin on the Worker. */
 class SystemMonitorActivity : EveBaseActivity() {
+    private lateinit var binding: com.eve.app.databinding.ActivitySystemMonitorBinding
     private lateinit var content: LinearLayout
     private lateinit var overview: LinearLayout
     private lateinit var health: LinearLayout
@@ -47,6 +48,7 @@ class SystemMonitorActivity : EveBaseActivity() {
     private var retryJob: Job? = null
     private var retryPending = false
     private var reloadAfterStop = true
+    private var reauthorizeOnResume = false
     private val confirmedRetries = mutableSetOf<String>()
     private var retryConfirmationDialog: TelegramNativeAlertDialog? = null
     private var retryErrorDialog: TelegramNativeAlertDialog? = null
@@ -88,11 +90,35 @@ class SystemMonitorActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (adminReady && reloadAfterStop && ::refresh.isInitialized && !retryPending) load()
+        if (reauthorizeOnResume && ::binding.isInitialized && !retryPending) {
+            reauthorizeOnResume = false
+            val live = FirebaseAuth.getInstance().currentUser
+            if (live == null || live.uid != initiatingUid || live.email.orEmpty() != initiatingEmail) {
+                finish()
+                return
+            }
+            com.eve.app.util.AdminAccessGate.requireAdmin(
+                this,
+                binding.root,
+                requireFreshServer = true,
+                requiredRight = "view_analytics_logs"
+            ) { permissions ->
+                if (!ownerCurrent()) {
+                    finish()
+                    return@requireAdmin
+                }
+                canRetryGeneration = permissions.isOwner || "manage_generated_tests" in permissions.rights
+                if (reloadAfterStop && ::refresh.isInitialized) {
+                    reloadAfterStop = false
+                    load()
+                }
+            }
+        }
     }
 
     override fun onStop() {
         ++stopEpoch
+        reauthorizeOnResume = true
         reloadAfterStop = true
         ++loadGeneration
         readJob?.cancel()
@@ -110,7 +136,7 @@ class SystemMonitorActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val binding = com.eve.app.databinding.ActivitySystemMonitorBinding.inflate(layoutInflater)
+        binding = com.eve.app.databinding.ActivitySystemMonitorBinding.inflate(layoutInflater)
         content = binding.layoutMonitorContent
         setContentView(binding.root)
 

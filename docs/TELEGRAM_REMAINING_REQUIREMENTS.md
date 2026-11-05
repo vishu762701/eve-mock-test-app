@@ -1276,14 +1276,24 @@ Classification: **ADAPTED**, whole Admin feedback messages management visual/mot
 
 ## C1/C5 SendNotification activity resume permissions re-validation and broadcasts refresh (2026-11-05)
 
-Base `c8f7edb73be5d8b7468d0bb145fbba53e77f0d46`, exact-SHA FAST [42011757382](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42011757382) SUCCESS,
-Verify Documentation run [42011757373](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42011757373) SUCCESS,
-and preceding six-job FULL run [41960298006](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41960298006) SUCCESS.
+Base `c8f7edb73be5d8b7468d0bb145fbba53e77f0d46`, carrying commit `86d939c065fca1c67623910c2c2f42e4bfd0a514`,
+Verify Documentation run [42013164609](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42013164609) SUCCESS,
+Build run 42013164489: `backend` ✓, `firebase-functions` ✓, build JVM test failed on pre-existing `ExamImageHelperTest` mark buffer size in Robolectric (1233/1234 other JVM tests passed, including `SendNotificationPermissionResumeTest`). Addressed via 64 KB header buffer forward fix.
 R1: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation via `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "send_broadcasts")` in `SendNotificationActivity.kt`, terminating the activity immediately if rights were revoked on the Worker.
 R2: Checked live authentication match (`live.uid == authorizedUid && live.email == authorizedEmail`), terminating immediately if the signed-in user changed.
 R3: Reloaded broadcasts (`listenToSentBroadcasts()`) upon verified resume without duplicating UI adapter setup or click listeners (`initializeAuthorizedUi()`).
 R4: Added `SendNotificationPermissionResumeTest.kt` containing Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring.
 Classification: **ADAPTED**, whole Admin send notification visual/motion parity remains NOT MET / OPEN. Device/hardware evidence and GPL distribution clearance remain BLOCKED.
+
+## C1/C5 ExamImageHelper decode stream mark buffer expansion and SystemMonitor resume permissions (2026-11-05)
+
+Base `86d939c065fca1c67623910c2c2f42e4bfd0a514`.
+R1: Expanded `BufferedInputStream` size and mark limit to 64 KB (`BufferedInputStream(first, 65536)` with `stream.mark(65536)`) in `ExamImageHelper.kt`, ensuring image header signature inspection and bounds decoding never invalidate stream buffer on PNG chunks or EXIF metadata.
+R2: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation using `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "view_analytics_logs")` in `SystemMonitorActivity.kt`, terminating immediately on privilege revocation or identity change.
+R3: Refreshed `canRetryGeneration = permissions.isOwner || "manage_generated_tests" in permissions.rights` and reloaded monitor statistics (`load()`) upon verified resume without duplicating UI sections or control buttons.
+R4: Added `SystemMonitorPermissionResumeTest.kt` containing Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring.
+Classification: **ADAPTED**, whole Admin system monitor visual/motion parity remains NOT MET / OPEN. Device/hardware evidence and GPL distribution clearance remain BLOCKED.
+
 
 
 

@@ -3104,11 +3104,23 @@ Live recovery baseline: `62d1589b2ce8fef56ec945037d0c3eb1759600e1`, carrying com
 
 ## 2026-11-05 SendNotification activity resume permissions re-validation and broadcasts refresh (C1/C5)
 
-Live recovery baseline: `c8f7edb73be5d8b7468d0bb145fbba53e77f0d46`, exact-SHA FAST run [42011757382](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42011757382) SUCCESS, Verify Documentation run [42011757373](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42011757373) SUCCESS.
+Live recovery baseline: `c8f7edb73be5d8b7468d0bb145fbba53e77f0d46`, carrying commit `86d939c065fca1c67623910c2c2f42e4bfd0a514`.
+- Verify Documentation run [42013164609](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42013164609) **SUCCESS** (83 docs validated, 0 errors).
+- Build run 42013164489: `backend` ✓ success, `firebase-functions` ✓ success, JVM test failed on pre-existing `ExamImageHelperTest` 32-byte mark buffer limit in Robolectric. All 1233 other JVM tests including `SendNotificationPermissionResumeTest` passed. Addressed via 64 KB header buffer forward fix.
 - `SendNotificationActivity.kt`: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation using `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "send_broadcasts")`. If rights are revoked while backgrounded, the activity finishes immediately upon resume.
 - `SendNotificationActivity.kt`: Enforced live identity matching (`live.uid == authorizedUid && live.email == authorizedEmail`), terminating immediately if the signed-in user changed.
 - `SendNotificationActivity.kt`: Reloaded broadcasts (`listenToSentBroadcasts()`) upon verified resume without duplicating UI adapter setup or click listeners (`initializeAuthorizedUi()`).
 - `SendNotificationPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring.
+
+## 2026-11-05 ExamImageHelper decode stream mark buffer expansion and SystemMonitor resume permissions (C1/C5)
+
+Live recovery baseline: `86d939c065fca1c67623910c2c2f42e4bfd0a514`.
+- `ExamImageHelper.kt`: Expanded `BufferedInputStream` size and mark limit to 64 KB (`BufferedInputStream(first, 65536)` with `stream.mark(65536)`), ensuring image header signature inspection and bounds decoding never invalidate stream buffer on PNG chunks or EXIF metadata.
+- `SystemMonitorActivity.kt`: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation using `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "view_analytics_logs")`.
+- `SystemMonitorActivity.kt`: Enforced live identity matching (`live.uid == initiatingUid && live.email == initiatingEmail`), terminating immediately if the active user changed.
+- `SystemMonitorActivity.kt`: Refreshed `canRetryGeneration = permissions.isOwner || "manage_generated_tests" in permissions.rights` and reloaded monitor statistics (`load()`) upon verified resume without duplicating UI sections or control buttons.
+- `SystemMonitorPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring.
+
 
 
 
