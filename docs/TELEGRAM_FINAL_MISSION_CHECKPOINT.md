@@ -2991,5 +2991,19 @@ Run [41956038315](https://github.com/vishu762701/eve-mock-test-app/actions/runs/
 - `Native UI (three-button)`: All 129 core tests passed, visual shards 1-2 passed with zero failures; Shard 3 was actively executing when 25m timeout hit.
 - `.github/workflows/build.yml`: Calibrated `native-ui` timeout to 32m, providing necessary headroom for three-button software rendering to complete remaining visual shards.
 
+## 2026-11-05 Complete six-job FULL verification 100% green on live main (1c74e97b)
+
+Live recovery baseline: `1c74e97bac3ac8ff53aca1595445cad3893175a2`, terminal verification run [41960298006](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41960298006) **SUCCESS**, Verify Documentation run [41960297982](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41960297982) **SUCCESS**.
+- Rebased on live `main` over governance commits `0f1ae704`, `5d3ae968`, and `cc5043cb`.
+- Execution profile in `Build Eve APK`:
+  - `firebase-functions`: ✓ **SUCCESS** (Node tests & functions compilation passed)
+  - `backend`: ✓ **SUCCESS** (354 Node/Hono test assertions passed)
+  - `build`: ✓ **SUCCESS** (all unit tests, 243 Rust native tests, and platform 36 debug compilation passed)
+  - `Native UI (three-button)`: ✓ **SUCCESS** (16.5m execution; all 129 core tests, QR scene, emoji picker, theme contracts, and all visual shards 1-3 passed with zero failures)
+  - `Native UI (gesture)`: ✓ **SUCCESS** (15.8m execution; all 129 core tests, QR scene, emoji picker, theme contracts, and visual shards passed with zero failures)
+  - `Publish verified debug APK`: **SKIPPED** (release safeguard maintained; `publish_verified_apk == true` requires explicit owner authorization)
+- Confirmed zero looper hangs, zero timing flakes, and zero emulator disconnects across both navigation modes.
+
+
 
 
