@@ -63,6 +63,7 @@ class AdminRightsEditActivity : EveBaseActivity() {
     private var gateReady = false
     private var mutationPending = false
     private var actionEpoch = 0L
+    private var reauthorizeOnResume = false
 
     private fun ownerCurrent(): Boolean {
         val user = FirebaseAuth.getInstance().currentUser
@@ -122,7 +123,40 @@ class AdminRightsEditActivity : EveBaseActivity() {
         // Any permission reply from a prior visible window loses its UI authority.
         ++actionEpoch
         mutationPending = false
+        reauthorizeOnResume = true
         super.onStop()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (gateReady && !ownerCurrent()) {
+            finish()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (reauthorizeOnResume && ::binding.isInitialized) {
+            reauthorizeOnResume = false
+            val live = FirebaseAuth.getInstance().currentUser
+            if (live == null || live.uid != activeUid || live.email != activeEmail) {
+                finish()
+                return
+            }
+            AdminAccessGate.requireAdmin(
+                this,
+                binding.root,
+                requireFreshServer = true,
+                requiredRight = "manage_admins_rights"
+            ) {
+                if (!ownerCurrent()) {
+                    finish()
+                    return@requireAdmin
+                }
+                activeUid = live.uid
+                activeEmail = live.email.orEmpty()
+            }
+        }
     }
 
 

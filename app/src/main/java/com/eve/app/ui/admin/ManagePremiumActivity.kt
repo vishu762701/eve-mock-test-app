@@ -39,6 +39,7 @@ class ManagePremiumActivity : EveBaseActivity() {
     private var transactionsGeneration = 0L
     private var usersGeneration = 0L
     private var stoppedOnce = false
+    private var reauthorizeOnResume = false
 
     private fun ownerCurrent(): Boolean {
         val live = FirebaseAuth.getInstance().currentUser
@@ -95,6 +96,7 @@ class ManagePremiumActivity : EveBaseActivity() {
 
     override fun onStop() {
         stoppedOnce = true
+        reauthorizeOnResume = true
         ++mutationEpoch
         binding.progressAdmin.visibility = View.GONE
         ++readGeneration
@@ -107,9 +109,35 @@ class ManagePremiumActivity : EveBaseActivity() {
         super.onStart()
         if (adminReady && !ownerCurrent()) {
             finish()
-        } else if (stoppedOnce && ownerCurrent()) {
-            stoppedOnce = false
-            loadAllData()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (reauthorizeOnResume && ::binding.isInitialized) {
+            reauthorizeOnResume = false
+            val live = FirebaseAuth.getInstance().currentUser
+            if (live == null || live.uid != authorizedUid || live.email != authorizedEmail) {
+                finish()
+                return
+            }
+            com.eve.app.util.AdminAccessGate.requireAdmin(
+                this,
+                binding.root,
+                requireFreshServer = true,
+                requiredRight = "manage_premium"
+            ) {
+                if (!ownerCurrent()) {
+                    finish()
+                    return@requireAdmin
+                }
+                authorizedUid = live.uid
+                authorizedEmail = live.email.orEmpty()
+                if (stoppedOnce) {
+                    stoppedOnce = false
+                    loadAllData()
+                }
+            }
         }
     }
 

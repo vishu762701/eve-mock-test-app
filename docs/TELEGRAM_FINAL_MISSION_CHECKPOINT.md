@@ -3136,7 +3136,10 @@ Live recovery baseline: `6b782c48f40763b678b89f1d3f24eecd30275831`, carrying com
 
 ## 2026-11-05 Robolectric Native Graphics annotation, test worker heap expansion, and AppConfig resume permissions (C1/C5)
 
-Live recovery baseline: `3610b228b90f26d749a17f080f446846bf3cc98d`.
+Live recovery baseline: `3610b228b90f26d749a17f080f446846bf3cc98d`, carrying commit `51e8f63d9366f89b7522ec2c14ca1b411e100157`.
+- Verify Documentation run [42024226168](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42024226168) **SUCCESS** (83 docs validated, 0 errors).
+- Android Dependency Evidence run [42024226169](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42024226169) **SUCCESS**.
+- Build run [42024226197](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42024226197) **SUCCESS**: `backend` ✓ success, `firebase-functions` ✓ success, `build` ✓ success. All 1240+ unit tests passed with zero failures and zero OOM.
 - `ExamImageHelperTest.kt`: Annotated with `@GraphicsMode(GraphicsMode.Mode.NATIVE)`, aligning with all 15 other graphics test suites in the repository and enabling Skia native pixel compression under Robolectric SDK 35.
 - `app/build.gradle.kts`: Configured `testOptions.unitTests.all { it.maxHeapSize = "2048m" }`, preventing test worker OOM when executing all 1240+ Robolectric unit tests.
 - `gradle.properties`: Increased `org.gradle.jvmargs` to `-Xmx3072m`.
@@ -3145,6 +3148,18 @@ Live recovery baseline: `3610b228b90f26d749a17f080f446846bf3cc98d`.
 - `AppConfigActivity.kt`: Refreshed `btnTestAiHealth.isEnabled` using the fresh permissions snapshot (`AdminPermissionSnapshot.allows(permission, configOwnerEmail, "manage_questions")`).
 - `AppConfigActivity.kt`: Reloaded configuration (`loadConfig()`) upon verified resume without duplicating click listeners.
 - `AppConfigPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring.
+
+## 2026-11-05 ManagePremium, ManageSyllabus, AdminsAndRights, and AdminRightsEdit resume permissions re-validation (C1/C5)
+
+Live recovery baseline: `51e8f63d9366f89b7522ec2c14ca1b411e100157`.
+- `ManagePremiumActivity.kt`: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation via `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "manage_premium")`. Revocation teardown finishes activity on resume; live identity changes reject foreign tokens. Reloads premium data on resume without duplicating UI click listeners.
+- `ManageSyllabusActivity.kt`: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation via `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "manage_syllabus")`. Revocation teardown finishes activity on resume; identity mismatch immediately terminates. Refreshes exams and syllabuses without duplicating click listeners.
+- `AdminsAndRightsActivity.kt`: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation via `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "manage_admins_rights")`. Verifies identity matching (`live.uid == authorizedUid && live.email == authorizedEmail`) and refreshes directory without re-running UI setup or duplicating observers.
+- `AdminRightsEditActivity.kt`: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation via `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "manage_admins_rights")`. Checks live identity before permitting further administrative rights changes.
+- `EditExamBoundaryFixture.java`: Guarded `ExamBoundary.getExams` with `exams != null ? exams : Collections.emptyList()`.
+- `ManagePremiumPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring.
+- `ManageSyllabusPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring.
+- `AdminRightsPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring.
 
 
 

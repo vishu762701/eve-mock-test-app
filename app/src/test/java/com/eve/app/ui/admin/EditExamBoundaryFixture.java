@@ -54,7 +54,7 @@ public final class EditExamBoundaryFixture {
         @Implementation public Object getExams(Continuation<?> continuation) {
             dataReads++;
             if (holdExamRead) { pendingExamRead=(Continuation<Object>)continuation; return IntrinsicsKt.getCOROUTINE_SUSPENDED(); }
-            return exams;
+            return exams != null ? exams : java.util.Collections.emptyList();
         }
         @Implementation public Object updateExam(Exam exam,Continuation<? super Unit> continuation) {
             examWrites++; lastUpdatedExam=exam; pendingExamWrite=continuation;

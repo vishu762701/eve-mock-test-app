@@ -51,6 +51,7 @@ class ManageSyllabusActivity : EveBaseActivity() {
     private var accessUid = ""
     private var accessEmail = ""
     private var screenStopSeen = false
+    private var reauthorizeOnResume = false
     private var examListGeneration = 0L
     private var pendingNewPdfOwner: String? = null
     private var pendingReplaceOwner: String? = null
@@ -138,6 +139,7 @@ class ManageSyllabusActivity : EveBaseActivity() {
 
     override fun onStop() {
         screenStopSeen = true
+        reauthorizeOnResume = true
         ++examListGeneration
         ++newPdfGeneration
         ++reassignGeneration
@@ -148,19 +150,47 @@ class ManageSyllabusActivity : EveBaseActivity() {
 
     override fun onStart() {
         super.onStart()
-        if (screenStopSeen && currentOwner()) {
-            screenStopSeen = false
-            // Never resend a possibly acknowledged mutation. Refresh the actual server state.
-            if (!uploadInFlight) {
-                binding.progressBarUpload.visibility = View.GONE
-                binding.btnChoosePdf.isEnabled = true
-                binding.btnClearSelectedPdf.isEnabled = true
-                binding.btnUploadSyllabus.isEnabled = true
-                uploadSucceeded = false
-                uploadFailed = false
-                updateUploadStepper()
+        if (adminAccessGranted && !currentOwner()) {
+            finish()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (reauthorizeOnResume && ::binding.isInitialized) {
+            reauthorizeOnResume = false
+            val live = FirebaseAuth.getInstance().currentUser
+            if (live == null || live.uid != accessUid || live.email != accessEmail) {
+                finish()
+                return
             }
-            loadExamsAndSyllabuses()
+            AdminAccessGate.requireAdmin(
+                this,
+                binding.root,
+                requireFreshServer = true,
+                requiredRight = "manage_syllabus"
+            ) {
+                if (!currentOwner()) {
+                    finish()
+                    return@requireAdmin
+                }
+                accessUid = live.uid
+                accessEmail = live.email.orEmpty()
+                if (screenStopSeen) {
+                    screenStopSeen = false
+                    // Never resend a possibly acknowledged mutation. Refresh the actual server state.
+                    if (!uploadInFlight) {
+                        binding.progressBarUpload.visibility = View.GONE
+                        binding.btnChoosePdf.isEnabled = true
+                        binding.btnClearSelectedPdf.isEnabled = true
+                        binding.btnUploadSyllabus.isEnabled = true
+                        uploadSucceeded = false
+                        uploadFailed = false
+                        updateUploadStepper()
+                    }
+                    loadExamsAndSyllabuses()
+                }
+            }
         }
     }
 

@@ -15,6 +15,7 @@ import com.eve.app.designsystem.TelegramNativeAlertDialog
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AdminAccessGate
 import com.eve.app.util.AppBulletin
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 class AdminsAndRightsActivity : EveBaseActivity() {
@@ -22,6 +23,9 @@ class AdminsAndRightsActivity : EveBaseActivity() {
     private lateinit var binding: ActivityAdminsAndRightsBinding
     private val viewModel: AdminViewModel by viewModels()
     private var authorized: Boolean = false
+    private var authorizedUid: String = ""
+    private var authorizedEmail: String = ""
+    private var reauthorizeOnResume: Boolean = false
 
     private val adminEmailAdapter = AdminEmailAdapter(
         onItemClick = { admin ->
@@ -39,6 +43,9 @@ class AdminsAndRightsActivity : EveBaseActivity() {
         binding.telegramActionBar.onBackPressed = { finish() }
 
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_admins_rights") {
+            val user = FirebaseAuth.getInstance().currentUser ?: return@requireAdmin
+            authorizedUid = user.uid
+            authorizedEmail = user.email.orEmpty()
             authorized = true
             setupUi()
             setupObservers()
@@ -46,9 +53,35 @@ class AdminsAndRightsActivity : EveBaseActivity() {
         }
     }
 
+    override fun onStop() {
+        reauthorizeOnResume = true
+        super.onStop()
+    }
+
     override fun onResume() {
         super.onResume()
-        if (authorized) viewModel.loadAdmins()
+        if (reauthorizeOnResume && ::binding.isInitialized) {
+            reauthorizeOnResume = false
+            val live = FirebaseAuth.getInstance().currentUser
+            if (live == null || live.uid != authorizedUid || live.email != authorizedEmail) {
+                finish()
+                return
+            }
+            AdminAccessGate.requireAdmin(
+                this,
+                binding.root,
+                requireFreshServer = true,
+                requiredRight = "manage_admins_rights"
+            ) {
+                if (!authorized) {
+                    finish()
+                    return@requireAdmin
+                }
+                authorizedUid = live.uid
+                authorizedEmail = live.email.orEmpty()
+                if (authorized) viewModel.loadAdmins()
+            }
+        }
     }
 
     private fun setupUi() {
