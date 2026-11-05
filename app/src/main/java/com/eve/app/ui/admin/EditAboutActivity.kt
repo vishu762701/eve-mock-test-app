@@ -117,6 +117,12 @@ class EditAboutActivity : EveBaseActivity() {
                 initiatingEmail = live.email.orEmpty()
                 if (reloadAfterStop) loadContent()
             }
+        } else if (adminReady && reloadAfterStop) {
+            if (!ownerCurrent()) {
+                finish()
+                return
+            }
+            loadContent()
         }
     }
     override fun onStop() {

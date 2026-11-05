@@ -79,6 +79,12 @@ class ApiUsageActivity : EveBaseActivity() {
                 initiatingEmail = live.email.orEmpty()
                 if (reloadAfterStop) loadUsage()
             }
+        } else if (adminReady && reloadAfterStop) {
+            if (!ownerCurrent()) {
+                finish()
+                return
+            }
+            loadUsage()
         }
     }
 
