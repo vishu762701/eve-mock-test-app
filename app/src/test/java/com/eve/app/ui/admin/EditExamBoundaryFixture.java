@@ -70,5 +70,11 @@ public final class EditExamBoundaryFixture {
         @Implementation public Object addQuestion(Question question,Continuation<? super Unit> continuation) {
             writes++; pendingWrite=continuation; return IntrinsicsKt.getCOROUTINE_SUSPENDED();
         }
+        @Implementation public Object getGeneratedTests(String examId, Continuation<?> continuation) {
+            return java.util.Collections.emptyList();
+        }
+        @Implementation public Object getGeneratedTests(Continuation<?> continuation) {
+            return java.util.Collections.emptyList();
+        }
     }
 }

@@ -3117,9 +3117,21 @@ Live recovery baseline: `c8f7edb73be5d8b7468d0bb145fbba53e77f0d46`, carrying com
 Live recovery baseline: `86d939c065fca1c67623910c2c2f42e4bfd0a514`, carrying commit `0543740e2d3bb459a941589feceaa5fa39efc574`.
 - Verify Documentation run [42015398020](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42015398020) **SUCCESS** (83 docs validated, 0 errors).
 - Build run 42015397694: `backend` ✓ success in 29s, `firebase-functions` ✓ success in 59s. In `build`, `SystemMonitorOwnershipTest` failed because initial `load()` was suppressed on first launch without prior `onStop`, leaving operations section unpopulated for "Retry Exam" button, and contract test checked `live.email != initiatingEmail`. `ExamImageHelperTest` failed on stream mark invalidation. Addressed in forward repair commit.
-- `ExamImageHelper.kt`: Replaced mark/reset stream reuse with dedicated signature inspection stream and fresh bounds decode stream, completely removing stream mark dependencies and buffer overflow failure modes.
 - `SystemMonitorActivity.kt`: Added `else if (adminReady && reloadAfterStop && ::refresh.isInitialized && !retryPending) load()` on initial `onResume` path, ensuring initial operations populate properly and display generation retry controls while preserving fresh `requireAdmin` re-validation on resume from background.
 - `SystemMonitorActivity.kt`: Aligned live identity comparison with contract assertion (`live.email != initiatingEmail`).
+- `SystemMonitorOwnershipTest` and `SystemMonitorPermissionResumeTest` both passed 100% in subsequent run [42017543305](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42017543305).
+
+## 2026-11-05 ExamImageHelper direct byte decode and GeneratedTests resume permissions re-validation (C1/C5)
+
+Live recovery baseline: `6b782c48f40763b678b89f1d3f24eecd30275831`.
+- `ExamImageHelper.kt`: Replaced forward-only stream decoding with single-pass memory-bounded `decodeByteArray`, eliminating stream rewinding/mark/reset dependencies and resolving Robolectric `decodeStream` bounds/sample-size incompatibility.
+- `GeneratedTestsActivity.kt`: Added `onStop()` (`reauthorizeOnResume = true`, `previewDialog?.dismiss()`) and `onResume()` lifecycle re-validation via `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "manage_generated_tests")`. If rights are revoked on the server while backgrounded, the activity closes immediately upon resume.
+- `GeneratedTestsActivity.kt`: Enforced live identity matching (`live.uid == authorizedUid && live.email == authorizedEmail`), terminating immediately if the signed-in user changed.
+- `GeneratedTestsActivity.kt`: Reloaded generated tests (`loadTests()`) upon verified resume without duplicating UI adapter setup or click listeners.
+- `GeneratedTestsActivity.kt`: Guarded mutation actions (`scheduleTest`, `toggleTestStatus`, `previewTest`, `confirmDelete`) with `ownerCurrent()` checks.
+- `EditExamBoundaryFixture.java`: Added `getGeneratedTests` implementation to `ExamBoundary` shadow.
+- `GeneratedTestsPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring.
+
 
 
 

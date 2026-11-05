@@ -52,28 +52,30 @@ object ExamImageHelper {
     private fun encodeSizedImage(context: Context, uri: Uri, target: Int, quality: Int): String? {
         return try {
             val resolver = context.contentResolver
-            val signatureStream = resolver.openInputStream(uri) ?: return null
-            val prefix = ByteArray(16)
-            var count = 0
-            signatureStream.use { stream ->
-                while (count < prefix.size) {
-                    val size = stream.read(prefix, count, prefix.size - count)
-                    if (size <= 0) break
-                    count += size
+            val bytes = resolver.openInputStream(uri)?.use { input ->
+                val buffer = ByteArrayOutputStream()
+                val chunk = ByteArray(8192)
+                var total = 0
+                while (true) {
+                    val read = input.read(chunk)
+                    if (read <= 0) break
+                    total += read
+                    if (total > 15 * 1024 * 1024) return null
+                    buffer.write(chunk, 0, read)
                 }
-            }
-            if (!hasImageSignature(prefix, count)) return null
+                buffer.toByteArray()
+            } ?: return null
+
+            if (!hasImageSignature(bytes)) return null
 
             val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-            val boundsStream = resolver.openInputStream(uri) ?: return null
-            boundsStream.use { BitmapFactory.decodeStream(it, null, bounds) }
+            BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
             if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
 
             val options = BitmapFactory.Options().apply {
                 inSampleSize = decodeSampleSize(bounds.outWidth, bounds.outHeight, target)
             }
-            val second = resolver.openInputStream(uri) ?: return null
-            val original = second.use { BitmapFactory.decodeStream(it, null, options) } ?: return null
+            val original = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, options) ?: return null
             try {
                 val longest = maxOf(original.width, original.height)
                 val scale = if (longest > target) target.toFloat() / longest else 1f

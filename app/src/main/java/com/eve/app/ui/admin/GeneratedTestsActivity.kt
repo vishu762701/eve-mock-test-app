@@ -13,12 +13,24 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.data.model.GeneratedTest
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.databinding.ActivityGeneratedTestsBinding
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 class GeneratedTestsActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityGeneratedTestsBinding
     private val examRepo = ExamRepository()
+    private var authorizedUid: String = ""
+    private var authorizedEmail: String = ""
+    private var adminReady: Boolean = false
+    private var reauthorizeOnResume: Boolean = false
+    private var reloadAfterStop: Boolean = false
+    private var previewDialog: android.app.Dialog? = null
+
+    private fun ownerCurrent(): Boolean {
+        val current = FirebaseAuth.getInstance().currentUser ?: return false
+        return current.uid == authorizedUid && current.email.orEmpty() == authorizedEmail
+    }
 
     private val adapter = GeneratedTestAdapter(
         onStatusToggle = { test, isLive ->
@@ -36,6 +48,7 @@ class GeneratedTestsActivity : EveBaseActivity() {
     )
 
     private fun scheduleTest(test: GeneratedTest) {
+        if (!ownerCurrent()) return
         val datePicker = com.google.android.material.datepicker.MaterialDatePicker.Builder.datePicker()
             .setTitleText("Select Opening Date")
             .setSelection(com.google.android.material.datepicker.MaterialDatePicker.todayInUtcMilliseconds())
@@ -92,20 +105,64 @@ class GeneratedTestsActivity : EveBaseActivity() {
         setContentView(binding.root)
 
         com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_generated_tests") {
+            val current = FirebaseAuth.getInstance().currentUser ?: return@requireAdmin
+            authorizedUid = current.uid
+            authorizedEmail = current.email.orEmpty()
+            adminReady = true
+            if (!ownerCurrent()) {
+                finish()
+                return@requireAdmin
+            }
 
-        binding.btnBack.setOnClickListener { finish() }
-        binding.btnRefresh.setOnClickListener { loadTests() }
+            binding.btnBack.setOnClickListener { finish() }
+            binding.btnRefresh.setOnClickListener { loadTests() }
 
-        binding.rvGeneratedTests.layoutManager = LinearLayoutManager(this)
-        binding.rvGeneratedTests.adapter = adapter
+            binding.rvGeneratedTests.layoutManager = LinearLayoutManager(this)
+            binding.rvGeneratedTests.adapter = adapter
 
-        loadTests()
+            loadTests()
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (adminReady && !ownerCurrent()) {
+            finish()
         }
     }
 
     override fun onResume() {
         super.onResume()
         hasEmptyPlayed = false
+        if (reauthorizeOnResume && ::binding.isInitialized) {
+            reauthorizeOnResume = false
+            val live = FirebaseAuth.getInstance().currentUser
+            if (live == null || live.uid != authorizedUid || live.email != authorizedEmail) {
+                finish()
+                return
+            }
+            com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_generated_tests") {
+                if (!ownerCurrent()) {
+                    finish()
+                    return@requireAdmin
+                }
+                authorizedUid = live.uid
+                authorizedEmail = live.email.orEmpty()
+                if (reloadAfterStop) {
+                    reloadAfterStop = false
+                    loadTests()
+                }
+            }
+        }
+    }
+
+    override fun onStop() {
+        reauthorizeOnResume = true
+        reloadAfterStop = true
+        listLoadJob?.cancel()
+        previewDialog?.dismiss()
+        previewDialog = null
+        super.onStop()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -116,6 +173,7 @@ class GeneratedTestsActivity : EveBaseActivity() {
     private var listLoadJob: kotlinx.coroutines.Job? = null
 
     private fun loadTests() {
+        if (!ownerCurrent()) return
         binding.progressBar.visibility = View.VISIBLE
         listLoadJob?.cancel()
         listLoadJob = lifecycleScope.launch {
@@ -145,9 +203,11 @@ class GeneratedTestsActivity : EveBaseActivity() {
     }
 
     private fun toggleTestStatus(test: GeneratedTest, isLive: Boolean) {
+        if (!ownerCurrent()) return
         val newStatus = if (isLive) "live" else "paused"
         lifecycleScope.launch {
             try {
+                if (!ownerCurrent()) return@launch
                 examRepo.updateGeneratedTestStatus(test.id, newStatus)
                 AppBulletin.showSuccess(
                     this@GeneratedTestsActivity,
@@ -165,9 +225,11 @@ class GeneratedTestsActivity : EveBaseActivity() {
     }
 
     private fun previewTest(test: GeneratedTest) {
+        if (!ownerCurrent()) return
         if (test.questions.isEmpty()) {
             lifecycleScope.launch {
                 try {
+                    if (!ownerCurrent()) return@launch
                     val detail = examRepo.getGeneratedTest(test.id)
                     if (detail == null || detail.questions.isEmpty()) {
                         AppBulletin.showError(this@GeneratedTestsActivity, "No valid question payload is available for preview")
@@ -193,7 +255,7 @@ class GeneratedTestsActivity : EveBaseActivity() {
             formattedText.append("\n--------------------\n\n")
         }
 
-        TelegramNativeAlertDialog.Builder(this)
+        previewDialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("${test.examName} (${test.questionCount} Questions)")
             .setMessage(formattedText.toString())
             .setPositiveButton("Close", null)
@@ -203,6 +265,7 @@ class GeneratedTestsActivity : EveBaseActivity() {
     private val deleteFlow by lazy { AdminDeleteFlow(this) }
 
     private fun confirmDelete(test: GeneratedTest) {
+        if (!ownerCurrent()) return
         deleteFlow.confirm(test.id, test.displayTitle, exam = false) { loadTests() }
     }
 }
