@@ -2980,7 +2980,16 @@ Run [41951740729](https://github.com/vishu762701/eve-mock-test-app/actions/runs/
 - `build`: ✓ SUCCESS
 - `TelegramQrSceneNativeTest`: Passed in both modes (17s gesture, 11s three-button), confirming that `isPlaybackPaused` state persistence across recreation eliminated the main looper recreation hang.
 - `BulletinHostNativeTest.kt`: Strengthened `touchPausesOnlyTheRemainingTime` timing margins (3500ms duration, 400ms pre-touch dispatch, 3400ms held sleep, 3600ms post-release sleep) to protect against emulator CPU scheduling delays.
-- `.github/workflows/build.yml`: Increased `native-ui` job timeout from 18m to 25m to provide adequate headroom for the full 129-test core suite and 44-fixture visual review shards under three-button software rendering.
+
+## 2026-11-05 Full gesture green verification and three-button timeout calibration (76561190)
+
+Run [41956038315](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41956038315) verified:
+- `backend`: ✓ SUCCESS
+- `firebase-functions`: ✓ SUCCESS
+- `build`: ✓ SUCCESS
+- `Native UI (gesture)`: ✓ **SUCCESS** (100% green; all 129 core tests, QR scene and emoji picker, theme evidence contracts, and visual review gallery passed).
+- `Native UI (three-button)`: All 129 core tests passed, visual shards 1-2 passed with zero failures; Shard 3 was actively executing when 25m timeout hit.
+- `.github/workflows/build.yml`: Calibrated `native-ui` timeout to 32m, providing necessary headroom for three-button software rendering to complete remaining visual shards.
 
 
 
