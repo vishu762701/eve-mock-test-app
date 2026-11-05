@@ -52,24 +52,21 @@ object ExamImageHelper {
     private fun encodeSizedImage(context: Context, uri: Uri, target: Int, quality: Int): String? {
         return try {
             val resolver = context.contentResolver
-            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-            val first = resolver.openInputStream(uri) ?: return null
-            // With inJustDecodeBounds=true, decodeStream intentionally returns null.
-            // Inspect real media bytes before trusting a decoder that might
-            // substitute a placeholder for malformed content.
-            BufferedInputStream(first, 65536).use { stream ->
-                stream.mark(65536)
-                val prefix = ByteArray(16)
-                var count = 0
+            val signatureStream = resolver.openInputStream(uri) ?: return null
+            val prefix = ByteArray(16)
+            var count = 0
+            signatureStream.use { stream ->
                 while (count < prefix.size) {
                     val size = stream.read(prefix, count, prefix.size - count)
                     if (size <= 0) break
                     count += size
                 }
-                if (!hasImageSignature(prefix, count)) return null
-                stream.reset()
-                BitmapFactory.decodeStream(stream, null, bounds)
             }
+            if (!hasImageSignature(prefix, count)) return null
+
+            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            val boundsStream = resolver.openInputStream(uri) ?: return null
+            boundsStream.use { BitmapFactory.decodeStream(it, null, bounds) }
             if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
 
             val options = BitmapFactory.Options().apply {

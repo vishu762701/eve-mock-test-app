@@ -93,7 +93,7 @@ class SystemMonitorActivity : EveBaseActivity() {
         if (reauthorizeOnResume && ::binding.isInitialized && !retryPending) {
             reauthorizeOnResume = false
             val live = FirebaseAuth.getInstance().currentUser
-            if (live == null || live.uid != initiatingUid || live.email.orEmpty() != initiatingEmail) {
+            if (live == null || live.uid != initiatingUid || live.email != initiatingEmail) {
                 finish()
                 return
             }
@@ -113,6 +113,8 @@ class SystemMonitorActivity : EveBaseActivity() {
                     load()
                 }
             }
+        } else if (adminReady && reloadAfterStop && ::refresh.isInitialized && !retryPending) {
+            load()
         }
     }
 
