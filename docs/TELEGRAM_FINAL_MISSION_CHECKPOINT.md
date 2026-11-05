@@ -3193,3 +3193,14 @@ Terminal verified FULL run [42044923586](https://github.com/vishu762701/eve-mock
 - `Publish verified debug APK` job: **SKIPPED** (0s) — explicit fail-closed safeguard `publish_verified_apk = false` preserved; no unauthorized APK distribution.
 - Classification: **VERIFIED FULL INTEGRATION**, all 21 Admin Activities lifecycle permission guards, Profile RenderNode blur, Telegram QR scene & scanner, and Home overflow navigation validated on both emulator navigation modes on latest `main` commit. Physical hardware evidence (camera sensor, 120Hz display) and human legal release clearance remain BLOCKED.
 
+## 2026-11-05 Enforce Lifecycle Account Isolation in Practice, Pyq, and ExamTests Activities (E1/E2)
+
+Live recovery baseline: `f4f6843300b06000d1adfa91ba2ebadd360fc8d7` (carrying commit `26d238d698d6a6eb9873a784c09a1c01075e027d`).
+- `PracticeActivity.kt`: Added `practiceOwnerUid`, `ownsSubmission` guard via `SubmissionRetryPolicy`, `FirebaseAuth.AuthStateListener` registration in `onStart()` / removal in `onStop()`, instance state preservation of `practice_owner_uid` across activity recreation in `onSaveInstanceState()`, and guarded topic chip selection and `startPractice()` against foreign token or logged-out execution.
+- `PyqActivity.kt`: Added `pyqOwnerUid`, `ownsSubmission` guard via `SubmissionRetryPolicy`, `FirebaseAuth.AuthStateListener` registration in `onStart()` / removal in `onStop()`, instance state preservation of `pyq_owner_uid` in `onSaveInstanceState()`, and guarded exam spinner changes, paper chip clicks, and `startPyq()` against account mismatch.
+- `ExamTestsActivity.kt`: Added `examTestsOwnerUid`, `ownsSubmission` guard via `SubmissionRetryPolicy`, `FirebaseAuth.AuthStateListener` registration in `onStart()` / removal in `onStop()`, instance state preservation of `exam_tests_owner_uid` in `onSaveInstanceState()`, and guarded sub-exam and test click handling against account mismatch.
+- `PracticeActivityOwnerLifecycleTest.kt`: Unit & contract assertions verifying account isolation logic, listener attach/detach lifecycle, savedInstanceState persistence, and interactive action guard.
+- `PyqActivityOwnerLifecycleTest.kt`: Unit & contract assertions verifying account isolation logic, listener attach/detach lifecycle, savedInstanceState persistence, and interactive action guard.
+- `ExamTestsActivityOwnerLifecycleTest.kt`: Unit & contract assertions verifying account isolation logic, listener attach/detach lifecycle, savedInstanceState persistence, and interactive action guard.
+
+

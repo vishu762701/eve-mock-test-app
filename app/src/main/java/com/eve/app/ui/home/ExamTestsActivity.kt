@@ -20,6 +20,7 @@ import com.eve.app.ui.common.ErrorStateView
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.AttemptKey
 import com.eve.app.util.Constants
+import com.eve.app.util.SubmissionRetryPolicy
 import com.eve.app.util.TestScheduleHelper
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
@@ -38,8 +39,21 @@ class ExamTestsActivity : EveBaseActivity() {
     private var examName: String = ""
     private var currentExam: Exam? = null
 
+    private val examTestsAuth = FirebaseAuth.getInstance()
+    private var examTestsOwnerUid: String? = null
+    private fun hasExamTestsOwner(): Boolean =
+        SubmissionRetryPolicy.ownsSubmission(examTestsOwnerUid, examTestsAuth.currentUser?.uid)
+    private val examTestsAuthListener = FirebaseAuth.AuthStateListener {
+        if (examTestsOwnerUid != null && !hasExamTestsOwner()) finish()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val liveUid = examTestsAuth.currentUser?.uid
+        examTestsOwnerUid = if (savedInstanceState == null) liveUid
+            else savedInstanceState.getString("exam_tests_owner_uid")
+        if (!hasExamTestsOwner()) { finish(); return }
+
         binding = ActivityExamTestsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -53,6 +67,7 @@ class ExamTestsActivity : EveBaseActivity() {
 
         adapter = ExamTestsAdapter(
             onSubExamClick = { subExam ->
+                if (!hasExamTestsOwner()) { finish(); return@ExamTestsAdapter }
                 val intent = Intent(this, ExamTestsActivity::class.java).apply {
                     putExtra(Constants.EXTRA_EXAM_ID, subExam.id)
                     putExtra(Constants.EXTRA_EXAM_NAME, subExam.examName)
@@ -60,6 +75,7 @@ class ExamTestsActivity : EveBaseActivity() {
                 startActivity(intent)
             },
             onTestClick = { test, isCompleted ->
+                if (!hasExamTestsOwner()) { finish(); return@ExamTestsAdapter }
                 handleTestClick(test, isCompleted)
             },
             onLockedClick = { _, opensText ->
@@ -89,12 +105,30 @@ class ExamTestsActivity : EveBaseActivity() {
         binding.rvTests.adapter = adapter
     }
 
+    override fun onStart() {
+        super.onStart()
+        if (!hasExamTestsOwner()) { finish(); return }
+        examTestsAuth.addAuthStateListener(examTestsAuthListener)
+    }
+
+    override fun onStop() {
+        examTestsAuth.removeAuthStateListener(examTestsAuthListener)
+        super.onStop()
+    }
+
     override fun onResume() {
         super.onResume()
+        if (!hasExamTestsOwner()) { finish(); return }
         loadData()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("exam_tests_owner_uid", examTestsOwnerUid)
+    }
+
     private fun loadData(showLoading: Boolean = true) {
+        if (!hasExamTestsOwner()) return
         val hasCachedItems = adapter.itemCount > 0
         if (showLoading) {
             if (hasCachedItems) {
@@ -196,6 +230,7 @@ class ExamTestsActivity : EveBaseActivity() {
     }
 
     private fun handleTestClick(test: GeneratedTest, isCompleted: Boolean) {
+        if (!hasExamTestsOwner()) { finish(); return }
         val testKey = AttemptKey.forTest(examId, test.id)
         val title = if (test.displayTitle.isNotBlank()) {
             test.displayTitle

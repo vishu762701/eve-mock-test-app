@@ -16,7 +16,9 @@ import com.eve.app.data.model.PracticeTopic
 import com.eve.app.databinding.ActivityPracticeBinding
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.Constants
+import com.eve.app.util.SubmissionRetryPolicy
 import com.eve.app.util.UiState
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 class PracticeActivity : EveBaseActivity() {
@@ -25,13 +27,27 @@ class PracticeActivity : EveBaseActivity() {
     private var exams: List<Exam> = emptyList()
     private var selectedExam: Exam? = null
 
+    private val practiceAuth = FirebaseAuth.getInstance()
+    private var practiceOwnerUid: String? = null
+    private fun hasPracticeOwner(): Boolean =
+        SubmissionRetryPolicy.ownsSubmission(practiceOwnerUid, practiceAuth.currentUser?.uid)
+    private val practiceAuthListener = FirebaseAuth.AuthStateListener {
+        if (practiceOwnerUid != null && !hasPracticeOwner()) finish()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val liveUid = practiceAuth.currentUser?.uid
+        practiceOwnerUid = if (savedInstanceState == null) liveUid
+            else savedInstanceState.getString("practice_owner_uid")
+        if (!hasPracticeOwner()) { finish(); return }
+
         binding = ActivityPracticeBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.btnBack.setOnClickListener { finish() }
         binding.spExam.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, position: Int, id: Long) {
+                if (!hasPracticeOwner()) { finish(); return }
                 selectedExam = exams.getOrNull(position)
                 selectedExam?.let { viewModel.loadTopics(it.id) }
             }
@@ -45,7 +61,29 @@ class PracticeActivity : EveBaseActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        if (!hasPracticeOwner()) { finish(); return }
+        practiceAuth.addAuthStateListener(practiceAuthListener)
+    }
+
+    override fun onStop() {
+        practiceAuth.removeAuthStateListener(practiceAuthListener)
+        super.onStop()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!hasPracticeOwner()) finish()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("practice_owner_uid", practiceOwnerUid)
+    }
+
     private fun renderExams(state: UiState<List<Exam>>) {
+        if (!hasPracticeOwner()) return
         when (state) {
             is UiState.Loading -> binding.progress.visibility = View.VISIBLE
             is UiState.Error -> { binding.progress.visibility = View.GONE; binding.tvMessage.text = state.message; binding.tvMessage.visibility = View.VISIBLE }
@@ -72,6 +110,7 @@ class PracticeActivity : EveBaseActivity() {
     }
 
     private fun renderTopics(state: UiState<List<PracticeTopic>>) {
+        if (!hasPracticeOwner()) return
         binding.chipGroupTopics.removeAllViews()
         when (state) {
             is UiState.Loading -> { binding.progress.visibility = View.VISIBLE; binding.tvMessage.visibility = View.GONE }
@@ -92,11 +131,15 @@ class PracticeActivity : EveBaseActivity() {
         binding.chipGroupTopics.addView(com.eve.app.ui.common.StudentSelectionControls.action(this).apply {
             text = "${topic.name} • ${topic.questionCount} questions"
             isClickable = true
-            setOnClickListener { startPractice(topic) }
+            setOnClickListener {
+                if (!hasPracticeOwner()) { finish(); return@setOnClickListener }
+                startPractice(topic)
+            }
         })
     }
 
     private fun startPractice(topic: PracticeTopic) {
+        if (!hasPracticeOwner()) { finish(); return }
         val exam = selectedExam ?: return
         // Small set: maximum 10 random questions, 1 minute/question up to 10 minutes.
         val count = topic.questionCount.coerceAtMost(10)

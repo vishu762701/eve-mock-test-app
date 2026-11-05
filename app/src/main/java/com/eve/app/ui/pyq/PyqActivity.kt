@@ -17,6 +17,7 @@ import com.eve.app.data.model.PyqSet
 import com.eve.app.databinding.ActivityPyqBinding
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.Constants
+import com.eve.app.util.SubmissionRetryPolicy
 import com.eve.app.util.UiState
 import com.google.android.material.chip.Chip
 import kotlinx.coroutines.launch
@@ -30,10 +31,20 @@ class PyqActivity : EveBaseActivity() {
     private var sets: List<PyqSet> = emptyList()
     private var selectedYear: Int? = null
     private var restoredExamId: String? = null
-    private val initialOwnerUid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
+    private val pyqAuth = FirebaseAuth.getInstance()
+    private var pyqOwnerUid: String? = null
+    private fun hasPyqOwner(): Boolean =
+        SubmissionRetryPolicy.ownsSubmission(pyqOwnerUid, pyqAuth.currentUser?.uid)
+    private val pyqAuthListener = FirebaseAuth.AuthStateListener {
+        if (pyqOwnerUid != null && !hasPyqOwner()) finish()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val liveUid = pyqAuth.currentUser?.uid
+        pyqOwnerUid = if (savedInstanceState == null) liveUid
+            else savedInstanceState.getString("pyq_owner_uid")
+        if (!hasPyqOwner()) { finish(); return }
         binding = ActivityPyqBinding.inflate(layoutInflater)
         setContentView(binding.root)
         restoredExamId = savedInstanceState?.getString(STATE_EXAM_ID)
@@ -42,6 +53,7 @@ class PyqActivity : EveBaseActivity() {
         binding.btnBack.setOnClickListener { finish() }
         binding.spExam.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, position: Int, id: Long) {
+                if (!hasPyqOwner()) { finish(); return }
                 val next = exams.getOrNull(position) ?: return
                 if (viewModel.selectedExamId != next.id) {
                     selectedYear = null
@@ -62,20 +74,31 @@ class PyqActivity : EveBaseActivity() {
         }
     }
 
-    private fun isCurrentOwner(): Boolean =
-        initialOwnerUid.isNotBlank() && FirebaseAuth.getInstance().currentUser?.uid == initialOwnerUid
+    override fun onStart() {
+        super.onStart()
+        if (!hasPyqOwner()) { finish(); return }
+        pyqAuth.addAuthStateListener(pyqAuthListener)
+    }
+
+    override fun onStop() {
+        pyqAuth.removeAuthStateListener(pyqAuthListener)
+        super.onStop()
+    }
+
+    private fun isCurrentOwner(): Boolean = hasPyqOwner()
 
     override fun onResume() {
         super.onResume()
-        if (!isCurrentOwner()) finish()
+        if (!hasPyqOwner()) finish()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("pyq_owner_uid", pyqOwnerUid)
         (viewModel.selectedExamId ?: selectedExam?.id)?.let {
             outState.putString(STATE_EXAM_ID, it)
         }
         selectedYear?.let { outState.putInt(STATE_YEAR, it) }
-        super.onSaveInstanceState(outState)
     }
 
     private fun renderExams(state: UiState<List<Exam>>) {
@@ -185,7 +208,10 @@ class PyqActivity : EveBaseActivity() {
             binding.chipGroupPapers.addView(com.eve.app.ui.common.StudentSelectionControls.action(this).apply {
                 text = if (set.paper.isBlank()) "Paper • ${set.subtitle}" else "${set.paper} • ${set.subtitle}"
                 isClickable = true
-                setOnClickListener { startPyq(set) }
+                setOnClickListener {
+                    if (!hasPyqOwner()) { finish(); return@setOnClickListener }
+                    startPyq(set)
+                }
             })
         }
         if (yearSets.size > 1) {
@@ -196,6 +222,7 @@ class PyqActivity : EveBaseActivity() {
                     text = "Saare papers • $combinedCount Qs"
                     isClickable = true
                     setOnClickListener {
+                        if (!hasPyqOwner()) { finish(); return@setOnClickListener }
                         startPyq(
                             PyqSet(
                                 examId = exam.id,
