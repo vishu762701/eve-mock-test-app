@@ -44,6 +44,9 @@ public final class EditExamBoundaryFixture {
             if (holdPermissions) { pendingPermissions=(Continuation<Object>)continuation; return IntrinsicsKt.getCOROUTINE_SUSPENDED(); }
             return permissions;
         }
+        @Implementation public Object getAppConfig(Continuation<?> continuation) {
+            return new com.eve.app.data.model.AppConfig(1, false, "", "live");
+        }
     }
     @Implements(value=ExamRepository.class,isInAndroidSdk=false)
     public static class ExamBoundary {

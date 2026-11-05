@@ -36,6 +36,7 @@ class AppConfigActivity : EveBaseActivity() {
     private var adminAuthorized = false
     private var configReadGeneration = 0L
     private var reloadAfterStop = false
+    private var reauthorizeOnResume = false
     private var healthBusy = false
 
     private fun ownerCurrent(): Boolean {
@@ -61,6 +62,7 @@ class AppConfigActivity : EveBaseActivity() {
     override fun onStop() {
         ++configReadGeneration
         reloadAfterStop = true
+        reauthorizeOnResume = true
         super.onStop()
     }
 
@@ -70,9 +72,36 @@ class AppConfigActivity : EveBaseActivity() {
             finish()
             return
         }
-        if (adminAuthorized && reloadAfterStop && !configBusy) {
-            reloadAfterStop = false
-            loadConfig()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (reauthorizeOnResume && ::binding.isInitialized) {
+            reauthorizeOnResume = false
+            val live = FirebaseAuth.getInstance().currentUser
+            if (live == null || live.uid != configOwnerUid || live.email != configOwnerEmail) {
+                finish()
+                return
+            }
+            com.eve.app.util.AdminAccessGate.requireAdmin(
+                this,
+                binding.root,
+                requireFreshServer = true,
+                requiredRight = "manage_config_maintenance"
+            ) { permission ->
+                if (!ownerCurrent()) {
+                    finish()
+                    return@requireAdmin
+                }
+                configOwnerUid = live.uid
+                configOwnerEmail = live.email.orEmpty()
+                binding.btnTestAiHealth.isEnabled =
+                    AdminPermissionSnapshot.allows(permission, configOwnerEmail, "manage_questions")
+                if (reloadAfterStop && !configBusy) {
+                    reloadAfterStop = false
+                    loadConfig()
+                }
+            }
         }
     }
 

@@ -105,6 +105,9 @@ android {
         unitTests.isReturnDefaultValues = true
         // Native radio lifecycle/palette tests need actual EVE theme resources on Robolectric.
         unitTests.isIncludeAndroidResources = true
+        unitTests.all {
+            it.maxHeapSize = "2048m"
+        }
     }
 }
 

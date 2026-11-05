@@ -3123,14 +3123,29 @@ Live recovery baseline: `86d939c065fca1c67623910c2c2f42e4bfd0a514`, carrying com
 
 ## 2026-11-05 ExamImageHelper direct byte decode and GeneratedTests resume permissions re-validation (C1/C5)
 
-Live recovery baseline: `6b782c48f40763b678b89f1d3f24eecd30275831`.
+Live recovery baseline: `6b782c48f40763b678b89f1d3f24eecd30275831`, carrying commit `3610b228b90f26d749a17f080f446846bf3cc98d`.
+- Verify Documentation run [42020675505](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42020675505) **SUCCESS** (83 docs validated, 0 errors).
+- Build run 42020675470: `backend` ✓ success in 33s, `firebase-functions` ✓ success in 46s. All 3 new tests in `GeneratedTestsPermissionResumeTest` passed. In `build`, `ExamImageHelperTest` failed because Robolectric legacy graphics mode stubs bitmap pixels unless `@GraphicsMode(GraphicsMode.Mode.NATIVE)` is explicitly annotated. Concurrently, test worker JVM exhausted heap near test 1238 (`OutOfMemoryError: Java heap space`). Resolved via Native Graphics mode annotation and JVM test worker `maxHeapSize = "2048m"`.
 - `ExamImageHelper.kt`: Replaced forward-only stream decoding with single-pass memory-bounded `decodeByteArray`, eliminating stream rewinding/mark/reset dependencies and resolving Robolectric `decodeStream` bounds/sample-size incompatibility.
 - `GeneratedTestsActivity.kt`: Added `onStop()` (`reauthorizeOnResume = true`, `previewDialog?.dismiss()`) and `onResume()` lifecycle re-validation via `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "manage_generated_tests")`. If rights are revoked on the server while backgrounded, the activity closes immediately upon resume.
 - `GeneratedTestsActivity.kt`: Enforced live identity matching (`live.uid == authorizedUid && live.email == authorizedEmail`), terminating immediately if the signed-in user changed.
 - `GeneratedTestsActivity.kt`: Reloaded generated tests (`loadTests()`) upon verified resume without duplicating UI adapter setup or click listeners.
 - `GeneratedTestsActivity.kt`: Guarded mutation actions (`scheduleTest`, `toggleTestStatus`, `previewTest`, `confirmDelete`) with `ownerCurrent()` checks.
-- `EditExamBoundaryFixture.java`: Added `getGeneratedTests` implementation to `ExamBoundary` shadow.
+- `EditExamBoundaryFixture.java`: Added `getGeneratedTests` implementation to `ExamBoundary` shadow and `getAppConfig` to `AdminBoundary` shadow.
 - `GeneratedTestsPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring.
+
+## 2026-11-05 Robolectric Native Graphics annotation, test worker heap expansion, and AppConfig resume permissions (C1/C5)
+
+Live recovery baseline: `3610b228b90f26d749a17f080f446846bf3cc98d`.
+- `ExamImageHelperTest.kt`: Annotated with `@GraphicsMode(GraphicsMode.Mode.NATIVE)`, aligning with all 15 other graphics test suites in the repository and enabling Skia native pixel compression under Robolectric SDK 35.
+- `app/build.gradle.kts`: Configured `testOptions.unitTests.all { it.maxHeapSize = "2048m" }`, preventing test worker OOM when executing all 1240+ Robolectric unit tests.
+- `gradle.properties`: Increased `org.gradle.jvmargs` to `-Xmx3072m`.
+- `AppConfigActivity.kt`: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation via `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "manage_config_maintenance")`. If rights are revoked on the server while backgrounded, the activity finishes immediately upon resume.
+- `AppConfigActivity.kt`: Enforced live identity matching (`live.uid == configOwnerUid && live.email == configOwnerEmail`), terminating immediately if the signed-in user changed.
+- `AppConfigActivity.kt`: Refreshed `btnTestAiHealth.isEnabled` using the fresh permissions snapshot (`AdminPermissionSnapshot.allows(permission, configOwnerEmail, "manage_questions")`).
+- `AppConfigActivity.kt`: Reloaded configuration (`loadConfig()`) upon verified resume without duplicating click listeners.
+- `AppConfigPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring.
+
 
 
 
