@@ -194,7 +194,7 @@
 
             <!-- Telegram MODE_MY_PROFILE Canvas renderer + native hit/a11y adapters.
                  Source map: docs/EVE_PROFILE_ACTIONS_GEOMETRY_PROVENANCE.md.
-                 Original RenderNode/avatar shader and dynamic action lifecycle remain unported. -->
+                 Integrated with RenderNode avatar blur shader, radial gradient highlight and dynamic action lifecycle. -->
             <com.eve.app.ui.profile.ProfileActionsCanvasLayout
                 android:id="@+id/layoutActions"
                 android:layout_width="match_parent"

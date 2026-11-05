@@ -309,6 +309,15 @@ class ProfileActivity : EveBaseActivity() {
                 ProfileActionsCollapse.atHeight(scrollY.toFloat(), density, binding.layoutActions.layoutParams.height.toFloat())
             else ProfileActionsCollapse.atScroll(scrollY.toFloat(), density)
         )
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            val blurNode = binding.avatarGooey.getBlurRenderNode()
+            binding.layoutActions.setDrawingBlur(
+                blurNode,
+                binding.ivProfilePhoto,
+                currentScale,
+                binding.avatarContainer.translationY
+            )
+        }
     }
 
     private fun setupActions() {
@@ -820,6 +829,7 @@ class ProfileActivity : EveBaseActivity() {
     }
 
     private fun cancelPhotoPreview() {
+        binding.layoutActions.stopLoading(binding.btnSetPhoto)
         pendingPhotoUri = null
         binding.layoutPhotoActions.visibility = View.GONE
         loadProfilePhoto()
@@ -828,10 +838,15 @@ class ProfileActivity : EveBaseActivity() {
     private fun savePendingPhoto() {
         if (!isProfileOwner()) return
         val uri = pendingPhotoUri ?: return
-        if (ProfilePhotoManager.savePhoto(this, uri)) {
-            AppBulletin.showSuccess(this, "Profile photo updated")
-        } else {
-            AppBulletin.showError(this, "Failed to save photo")
+        binding.layoutActions.startLoading(binding.btnSetPhoto)
+        try {
+            if (ProfilePhotoManager.savePhoto(this, uri)) {
+                AppBulletin.showSuccess(this, "Profile photo updated")
+            } else {
+                AppBulletin.showError(this, "Failed to save photo")
+            }
+        } finally {
+            binding.layoutActions.stopLoading(binding.btnSetPhoto)
         }
         pendingPhotoUri = null
         binding.layoutPhotoActions.visibility = View.GONE

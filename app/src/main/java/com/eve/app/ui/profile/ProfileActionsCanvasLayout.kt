@@ -2,7 +2,7 @@
  * Self-profile action Canvas renderer, isolated from Telegram account/network modules.
  * Source: DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15
  * TMessagesProj/src/main/java/org/telegram/ui/Components/ProfileActionsView.java:
- * 116-141, 176-224, 247-337, 383-464, 510-587, 1027-1034, 1214-1234.
+ * 116-141, 155-162, 176-224, 247-337, 341-373, 375-384, 383-464, 465-475, 510-587, 1027-1034, 1214-1234.
  * Copyright Nikolai Kudashov / Telegram contributors; GPL v2 or later.
  */
 package com.eve.app.ui.profile
@@ -10,10 +10,15 @@ package com.eve.app.ui.profile
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Matrix
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
+import android.graphics.RadialGradient
 import android.graphics.RectF
+import android.graphics.RenderNode
+import android.graphics.Shader
 import android.os.Build
 import android.text.Layout
 import android.text.StaticLayout
@@ -23,6 +28,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import com.eve.app.R
@@ -39,10 +45,11 @@ import kotlin.math.roundToInt
  *
  * EXACT: mode keys/order, 14/7/8/12/54dp geometry, 16dp radius, two alpha
  * curves, icon size, text placement formula, brightness threshold and 0.04
- * ButtonBounce visual scale; original six icon assets.
+ * ButtonBounce visual scale; original six icon assets; radial gradient highlight
+ * and light-mode shadow (ProfileActionsView.java:206-215, 311-325).
  * ADAPTED: Android TextView/StaticLayout measurement, EVE nested scroll height,
- * native click/accessibility wrappers, theme and single-photo expansion.
- * Not a port of other Telegram action modes, account animations or RenderNode.
+ * native click/accessibility wrappers, theme and single-photo expansion,
+ * RenderNode avatar blur and loading lifecycle integration.
  */
 class ProfileActionsCanvasLayout @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
@@ -50,8 +57,26 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
     private val density = resources.displayMetrics.density
     private fun dp(v: Float): Float = v * density
     private val surfacePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val shaderPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val shaderMatrix = Matrix()
+    private var radialGradient: RadialGradient? = null
+
     private val rect = RectF()
     private val pressScale = floatArrayOf(1f, 1f, 1f)
+    private val loadingStates = booleanArrayOf(false, false, false)
+    private val progressPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeCap = Paint.Cap.ROUND
+    }
+    private val progressRect = RectF()
+
+    private var renderNode: RenderNode? = null
+    private var avatarView: View? = null
+    private var renderNodeScale: Float = 1f
+    private var renderNodeTranslateY: Float = 0f
+    private val clipPath = Path()
+    private val clipAvatarPath = Path()
+
     private val filledRes = intArrayOf(
         R.drawable.telegram_profile_photo,
         R.drawable.telegram_profile_edit,
@@ -85,6 +110,7 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
     fun setActionColor(value: Int) {
         if (surfaceColor == value) return
         surfaceColor = value
+        updateRadialGradient(width)
         invalidate()
     }
 
@@ -102,6 +128,63 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
             pressScale[index] = next
             invalidate()
         }
+    }
+
+    fun startLoading(target: View) {
+        val index = (0 until min(childCount, 3)).firstOrNull { getChildAt(it) === target } ?: return
+        if (!loadingStates[index]) {
+            loadingStates[index] = true
+            invalidate()
+        }
+    }
+
+    fun stopLoading(target: View) {
+        val index = (0 until min(childCount, 3)).firstOrNull { getChildAt(it) === target } ?: return
+        if (loadingStates[index]) {
+            loadingStates[index] = false
+            invalidate()
+        }
+    }
+
+    fun isLoading(target: View): Boolean {
+        val index = (0 until min(childCount, 3)).firstOrNull { getChildAt(it) === target } ?: return false
+        return loadingStates[index]
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    fun setDrawingBlur(node: RenderNode?, avatar: View?, scale: Float, dy: Float) {
+        if (renderNode == node && avatarView == avatar && renderNodeScale == scale && renderNodeTranslateY == dy) return
+        renderNode = node
+        avatarView = avatar
+        renderNodeScale = scale
+        renderNodeTranslateY = dy
+        invalidate()
+    }
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        updateRadialGradient(w)
+    }
+
+    private fun updateRadialGradient(w: Int) {
+        if (surfaceColor == 0 || w <= 0) {
+            radialGradient = null
+            shaderPaint.shader = null
+            return
+        }
+        val betweenPadding = dp(7f)
+        val itemWidth = (w - betweenPadding * 2f - dp(28f)) / 3f
+        if (itemWidth <= 0f) return
+        val grad = RadialGradient(
+            itemWidth / 2f,
+            dp(54f) / 2f,
+            itemWidth * 0.65f,
+            ColorUtils.setAlphaComponent(surfaceColor, (Color.alpha(surfaceColor) * 0.8f).roundToInt()),
+            surfaceColor,
+            Shader.TileMode.CLAMP
+        )
+        radialGradient = grad
+        shaderPaint.shader = grad
     }
 
     private fun iconMix(): Float {
@@ -122,6 +205,15 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
         val first = filled
         val second = outline
         val n = min(childCount, 3)
+
+        val isLight = ColorUtils.calculateLuminance(surfaceColor) > 0.72
+        if (isLight && parentExpanded < 0.5f) {
+            val shadowAlpha = ((state.backgroundAlpha * 0.1f) * 32).roundToInt().coerceIn(0, 255)
+            surfacePaint.setShadowLayer(dp(1.5f), 0f, 0f, Color.argb(shadowAlpha, 0, 0, 0))
+        } else {
+            surfacePaint.clearShadowLayer()
+        }
+
         for (index in 0 until n) {
             val host = getChildAt(index) as? LinearLayout ?: continue
             if (host.visibility != View.VISIBLE || host.width <= 0) continue
@@ -139,23 +231,81 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
             surfacePaint.alpha = (Color.alpha(surfaceColor) * state.backgroundAlpha).roundToInt().coerceIn(0, 255)
             canvas.drawRoundRect(rect, radius, radius, surfacePaint)
 
+            radialGradient?.let { grad ->
+                shaderMatrix.setTranslate(left, top)
+                grad.setLocalMatrix(shaderMatrix)
+                shaderPaint.alpha = (Color.alpha(surfaceColor) * state.backgroundAlpha).roundToInt().coerceIn(0, 255)
+                canvas.drawRoundRect(rect, radius, radius, shaderPaint)
+            }
+
             if (state.contentAlpha > 0f) {
                 val img = host.getChildAt(0) as? ImageView
                 val label = host.getChildAt(1) as? TextView
                 if (img != null && label != null) {
                     paintContent(canvas, left, right, top, itemHeight,
-                        mix, textColor, label, first[index], second[index])
+                        mix, textColor, label, first[index], second[index], index)
                 }
             }
             canvas.restoreToCount(checkpoint)
         }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && canvas.isHardwareAccelerated) {
+            drawRenderNodeBlur(canvas, n, radius, itemHeight)
+        }
+    }
+
+    private fun drawRenderNodeBlur(canvas: Canvas, n: Int, radius: Float, itemHeight: Float) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
+        val node = renderNode ?: return
+        if (!node.hasDisplayList() || !canvas.isHardwareAccelerated) return
+
+        val checkpoint = canvas.save()
+        val avatar = avatarView
+        if (avatar != null) {
+            val v = (avatar.parent as? View) ?: avatar
+            val vl = v.x
+            val vt = v.y - translationY
+            val vw = v.width * v.scaleX
+            val vh = v.height * v.scaleY
+
+            clipAvatarPath.rewind()
+            clipAvatarPath.addRoundRect(
+                vl,
+                vt,
+                vl + vw,
+                vt + vh,
+                vw / 2f,
+                vh / 2f,
+                Path.Direction.CCW
+            )
+            canvas.clipPath(clipAvatarPath)
+        }
+
+        clipPath.rewind()
+        for (i in 0 until n) {
+            val host = getChildAt(i) as? LinearLayout ?: continue
+            if (host.visibility != View.VISIBLE || host.width <= 0) continue
+            val left = host.left.toFloat()
+            val right = host.right.toFloat()
+            val top = dp(8f)
+            val r = RectF(left, top, right, top + itemHeight)
+            val s = pressScale[i]
+            r.inset(r.width() / 2f * (1f - s), r.height() / 2f * (1f - s))
+            clipPath.addRoundRect(r, radius, radius, Path.Direction.CCW)
+        }
+        canvas.clipPath(clipPath)
+        canvas.translate(0f, renderNodeTranslateY)
+        canvas.scale(renderNodeScale, renderNodeScale)
+        canvas.drawRenderNode(node)
+        canvas.restoreToCount(checkpoint)
     }
 
     private fun paintContent(
         canvas: Canvas, left: Float, right: Float, top: Float,
         itemHeight: Float, mix: Float, textColor: Int,
         label: TextView, filledIcon: android.graphics.drawable.Drawable?,
-        outlineIcon: android.graphics.drawable.Drawable?
+        outlineIcon: android.graphics.drawable.Drawable?,
+        index: Int
     ) {
         val contentAlpha = state.contentAlpha
         val centerX = (left + right) / 2f
@@ -192,16 +342,29 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
         textLayout.draw(canvas)
         canvas.restoreToCount(t)
 
-        fun paintIcon(icon: android.graphics.drawable.Drawable?, opacity: Float) {
-            if (icon == null || opacity <= 0f) return
-            icon.bounds = android.graphics.Rect(iconLeft.toInt(), iconTop.toInt(),
-                (iconLeft + iconSize).toInt(), (iconTop + iconSize).toInt())
-            icon.colorFilter = PorterDuffColorFilter(textColor, PorterDuff.Mode.SRC_IN)
-            icon.alpha = (255f * contentAlpha * opacity).roundToInt().coerceIn(0, 255)
-            icon.draw(canvas)
+        if (loadingStates[index]) {
+            val pSize = iconSize * 0.85f
+            val pLeft = centerX - pSize / 2f
+            val pTop = iconTop + (iconSize - pSize) / 2f
+            progressRect.set(pLeft, pTop, pLeft + pSize, pTop + pSize)
+            progressPaint.color = textColor
+            progressPaint.strokeWidth = dp(2f)
+            progressPaint.alpha = (255f * contentAlpha).roundToInt().coerceIn(0, 255)
+            val sweep = (System.currentTimeMillis() % 1000L) / 1000f * 360f
+            canvas.drawArc(progressRect, sweep, 280f, false, progressPaint)
+            postInvalidateOnAnimation()
+        } else {
+            fun paintIcon(icon: android.graphics.drawable.Drawable?, opacity: Float) {
+                if (icon == null || opacity <= 0f) return
+                icon.bounds = android.graphics.Rect(iconLeft.toInt(), iconTop.toInt(),
+                    (iconLeft + iconSize).toInt(), (iconTop + iconSize).toInt())
+                icon.colorFilter = PorterDuffColorFilter(textColor, PorterDuff.Mode.SRC_IN)
+                icon.alpha = (255f * contentAlpha * opacity).roundToInt().coerceIn(0, 255)
+                icon.draw(canvas)
+            }
+            paintIcon(outlineIcon, 1f - mix)
+            paintIcon(filledIcon, mix)
         }
-        paintIcon(outlineIcon, 1f - mix)
-        paintIcon(filledIcon, mix)
         canvas.restoreToCount(clip)
     }
 }

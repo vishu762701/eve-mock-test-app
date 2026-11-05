@@ -3,12 +3,14 @@
 Status: PARTIAL; no screen or distribution acceptance. This supplements, and does
 not replace, the feature/commit/CI history in TELEGRAM_FINAL_MISSION_CHECKPOINT.md.
 
-Recovery 2026-11-05: clean EVE main 1c74e97bac3ac8ff53aca1595445cad3893175a2,
-refetched over HTTPS; latest commits and exact-SHA Actions inspected. Terminal
-FULL run [41960298006](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41960298006)
+Recovery 2026-11-05: clean EVE main 8279af6f035cac6dee0e54d138623d57b1c80d8e,
+refetched over HTTPS; latest commits and exact-SHA Actions inspected. FAST
+run [41964090773](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41964090773)
+SUCCESS. Terminal FULL run [41960298006](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41960298006)
 and docs [41960297982](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41960297982)
-SUCCESS. Build/backend/Firebase and both Native UI emulators (gesture and three-button)
-passed 100% green with zero failures. No concurrent implementation found.
+SUCCESS at SHA 1c74e97bac3ac8ff53aca1595445cad3893175a2. Build/backend/Firebase
+and both Native UI emulators (gesture and three-button) passed 100% green with zero
+failures. No concurrent implementation found.
 
 Official Telegram HEAD independently refetched over HTTPS:
 3de37c8cfb039452be7398909461da6288babf15, tree
@@ -1157,3 +1159,14 @@ Owner explicitly authorized ONE additional Home search repair commit on2026-11-0
 unchanged live c57dfa64 before application. The section2 integration blocker is
 resolved for this single repair; carrying commit/exact-SHA FAST pending. No release,
 FULL, production or additional future-success exception is implied.
+
+## B1/B2 Profile actions RenderNode blur, radial gradient, and loading lifecycle (2026-11-05)
+
+Base `8279af6f035cac6dee0e54d138623d57b1c80d8e`, FAST [41964090773](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41964090773) SUCCESS,
+and preceding six-job FULL run [41960298006](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41960298006) SUCCESS.
+R1: Integrated Telegram's authentic `RadialGradient` shader highlight (from `ProfileActionsView.java:206-215, 318-325`) and light-mode shadow layer (`ProfileActionsView.java:311-315`) into `ProfileActionsCanvasLayout`.
+R2: Added API 29+ `RenderNode` drawing blur support (`setDrawingBlur`, `drawRenderNodeBlur` from `ProfileActionsView.java:155-162, 341-373`) connected to `ProfileGooeyView`'s blurred avatar render node (`blurNode`).
+R3: Integrated dynamic action lifecycle (`startLoading`, `stopLoading`, `isLoading`, and radial sweep progress arc from `ProfileActionsView.java:375-384, 465-475`) bound to photo save/preview in `ProfileActivity`.
+R4: Updated palette picker in `UsernameCardActivity` to set transparent background on `design_bottom_sheet`, ensuring clean Telegram glass rendering without Material container artifacts.
+Classification: **ADAPTED**, whole Profile/screen visual/motion parity remains NOT MET / OPEN. Device/hardware evidence and GPL distribution clearance remain BLOCKED.
+

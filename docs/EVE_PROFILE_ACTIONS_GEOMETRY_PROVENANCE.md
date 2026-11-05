@@ -41,8 +41,10 @@ existing shared source color instead of changing unrelated screens.
 
 Classification: **ADAPTED**, not full 100%-exact upstream View. EVE uses
 `StaticLayout` and native accessible hit wrappers, not Telegram's internal
-`Text`, virtual `AccessibilityNodeProvider`, `AnimatedFloat` or complete
-`RenderNode` avatar-masked background. Source GIF/call/notification/voice,
+`Text`, virtual `AccessibilityNodeProvider`, or other profile modes.
+Integrated with Telegram's radial gradient highlight, light-mode shadow,
+API 29+ `RenderNode` avatar blur shader (`drawingBlur`), and dynamic action loading
+lifecycle (`startLoading`/`stopLoading`). Source GIF/call/notification/voice,
 other profile modes, account and network dependencies are intentionally
 excluded. No change to existing profile actions, storage, Firebase or Worker
 logic. Source tests and compiled native tests do not prove matched Telegram

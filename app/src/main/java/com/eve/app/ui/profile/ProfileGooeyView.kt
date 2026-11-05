@@ -167,6 +167,11 @@ class ProfileGooeyView @JvmOverloads constructor(
 
     fun hasNotchInfo(): Boolean = notchInfo != null
 
+    @RequiresApi(Build.VERSION_CODES.S)
+    fun getBlurRenderNode(): RenderNode? {
+        return (impl as? GPUImpl)?.getBlurRenderNode()
+    }
+
     fun setIntensity(value: Float) {
         intensity = value
         impl.setIntensity(value)
@@ -377,6 +382,8 @@ class ProfileGooeyView @JvmOverloads constructor(
         init {
             setIntensity(15f)
         }
+
+        fun getBlurRenderNode(): RenderNode = blurNode
 
         override fun onSizeChanged(w: Int, h: Int) {}
 

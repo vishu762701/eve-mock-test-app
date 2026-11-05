@@ -3004,6 +3004,16 @@ Live recovery baseline: `1c74e97bac3ac8ff53aca1595445cad3893175a2`, terminal ver
   - `Publish verified debug APK`: **SKIPPED** (release safeguard maintained; `publish_verified_apk == true` requires explicit owner authorization)
 - Confirmed zero looper hangs, zero timing flakes, and zero emulator disconnects across both navigation modes.
 
+## 2026-11-05 Profile actions RenderNode blur, radial gradient, and loading lifecycle
+
+Live recovery baseline: `8279af6f035cac6dee0e54d138623d57b1c80d8e`, exact-SHA FAST run [41964090773](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41964090773) SUCCESS, preceding terminal FULL run [41960298006](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41960298006) SUCCESS.
+- `ProfileActionsCanvasLayout.kt`: Integrated Telegram's authentic `RadialGradient` shader highlight (from `ProfileActionsView.java:206-215, 318-325`) and light-mode shadow layer (`ProfileActionsView.java:311-315`).
+- `ProfileActionsCanvasLayout.kt` & `ProfileGooeyView.kt`: Added API 29+ `RenderNode` drawing blur support (`setDrawingBlur`, `drawRenderNodeBlur` from `ProfileActionsView.java:155-162, 341-373`) connected to `ProfileGooeyView`'s blurred avatar render node (`blurNode`).
+- `ProfileActionsCanvasLayout.kt` & `ProfileActivity.kt`: Added dynamic action loading lifecycle (`startLoading`, `stopLoading`, `isLoading`, and radial sweep progress arc from `ProfileActionsView.java:375-384, 465-475`) bound to photo save/preview in `ProfileActivity`.
+- `UsernameCardActivity.kt`: Added transparent background to `design_bottom_sheet` for palette picker, ensuring clean Telegram glass rendering without Material container artifacts.
+- `activity_profile.xml` & `docs/EVE_PROFILE_ACTIONS_GEOMETRY_PROVENANCE.md`: Updated provenance documentation to reflect the integrated RenderNode avatar blur shader, radial gradient highlight, and dynamic action loading lifecycle.
+
+
 
 
 

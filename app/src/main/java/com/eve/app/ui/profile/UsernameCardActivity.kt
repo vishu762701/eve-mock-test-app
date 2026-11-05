@@ -223,6 +223,10 @@ class UsernameCardActivity : EveBaseActivity() {
             background = glassBackground(24)
             addView(grid)
         })
+        sheet.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)?.apply {
+            backgroundTintList = ColorStateList.valueOf(Color.TRANSPARENT)
+            setBackgroundColor(Color.TRANSPARENT)
+        }
         sheet.show()
     }
 
