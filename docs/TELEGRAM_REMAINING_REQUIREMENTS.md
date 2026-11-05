@@ -1264,14 +1264,27 @@ Classification: **ADAPTED**, whole Admin polls management visual/motion parity r
 
 ## C1/C5 FeedbackMessages activity resume permissions re-validation and feedback refresh (2026-11-05)
 
-Base `62d1589b2ce8fef56ec945037d0c3eb1759600e1`, exact-SHA FAST [42009610711](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42009610711) SUCCESS,
-Verify Documentation run [42009610772](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42009610772) SUCCESS,
+Base `62d1589b2ce8fef56ec945037d0c3eb1759600e1`, carrying commit `c8f7edb73be5d8b7468d0bb145fbba53e77f0d46`,
+exact-SHA FAST [42011757382](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42011757382) SUCCESS (Job `backend`: ✓, Job `firebase-functions`: ✓, Job `build`: ✓ — all JVM tests passed in 8m 33s),
+Verify Documentation run [42011757373](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42011757373) SUCCESS,
 and preceding six-job FULL run [41960298006](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41960298006) SUCCESS.
 R1: Added `onStop()` (`reauthorizeOnResume = true`, `replyDialog?.dismiss()`) and `onResume()` lifecycle re-validation via `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "moderate_feedback")` in `FeedbackMessagesActivity.kt`, terminating the activity immediately if rights were revoked on the Worker.
 R2: Checked live authentication match (`live.uid == authorizedUid && live.email == authorizedEmail`), terminating immediately if the signed-in user changed.
 R3: Reloaded feedback messages (`loadMessages()`) upon verified resume without duplicating UI adapter setup or click listeners (`setupAdminControls()`).
 R4: Added `FeedbackMessagesPermissionResumeTest.kt` containing Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring.
 Classification: **ADAPTED**, whole Admin feedback messages management visual/motion parity remains NOT MET / OPEN. Device/hardware evidence and GPL distribution clearance remain BLOCKED.
+
+## C1/C5 SendNotification activity resume permissions re-validation and broadcasts refresh (2026-11-05)
+
+Base `c8f7edb73be5d8b7468d0bb145fbba53e77f0d46`, exact-SHA FAST [42011757382](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42011757382) SUCCESS,
+Verify Documentation run [42011757373](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42011757373) SUCCESS,
+and preceding six-job FULL run [41960298006](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41960298006) SUCCESS.
+R1: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation via `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "send_broadcasts")` in `SendNotificationActivity.kt`, terminating the activity immediately if rights were revoked on the Worker.
+R2: Checked live authentication match (`live.uid == authorizedUid && live.email == authorizedEmail`), terminating immediately if the signed-in user changed.
+R3: Reloaded broadcasts (`listenToSentBroadcasts()`) upon verified resume without duplicating UI adapter setup or click listeners (`initializeAuthorizedUi()`).
+R4: Added `SendNotificationPermissionResumeTest.kt` containing Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring.
+Classification: **ADAPTED**, whole Admin send notification visual/motion parity remains NOT MET / OPEN. Device/hardware evidence and GPL distribution clearance remain BLOCKED.
+
 
 
 

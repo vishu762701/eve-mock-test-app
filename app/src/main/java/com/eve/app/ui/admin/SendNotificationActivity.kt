@@ -39,7 +39,7 @@ class SendNotificationActivity : EveBaseActivity() {
     private var adminReady = false
     private var mutationPending = false
     private var listGeneration = 0L
-    private var stoppedOnce = false
+    private var reauthorizeOnResume = false
 
     private fun ownerCurrent(): Boolean {
         val current = FirebaseAuth.getInstance().currentUser
@@ -62,16 +62,34 @@ class SendNotificationActivity : EveBaseActivity() {
     }
 
     override fun onStop() {
-        stoppedOnce = true
+        reauthorizeOnResume = true
         ++listGeneration
         super.onStop()
     }
 
     override fun onStart() {
         super.onStart()
-        if (stoppedOnce && ownerCurrent() && ::sentAdapter.isInitialized) {
-            stoppedOnce = false
-            listenToSentBroadcasts()
+        if (adminReady && !ownerCurrent()) {
+            finish()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (reauthorizeOnResume && ::binding.isInitialized) {
+            reauthorizeOnResume = false
+            val live = FirebaseAuth.getInstance().currentUser
+            if (live == null || live.uid != authorizedUid || live.email != authorizedEmail) {
+                finish()
+                return
+            }
+            AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "send_broadcasts") {
+                authorizedUid = live.uid
+                authorizedEmail = live.email.orEmpty()
+                if (::sentAdapter.isInitialized) {
+                    listenToSentBroadcasts()
+                }
+            }
         }
     }
 

@@ -3094,11 +3094,22 @@ Live recovery baseline: `fc5844ba52077e62551a31940989bfe18f6f6e52`, carrying com
 
 ## 2026-11-05 FeedbackMessages activity resume permissions re-validation and feedback refresh (C1/C5)
 
-Live recovery baseline: `62d1589b2ce8fef56ec945037d0c3eb1759600e1`, exact-SHA FAST run [42009610711](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42009610711) SUCCESS, Verify Documentation run [42009610772](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42009610772) SUCCESS.
+Live recovery baseline: `62d1589b2ce8fef56ec945037d0c3eb1759600e1`, carrying commit `c8f7edb73be5d8b7468d0bb145fbba53e77f0d46`.
+- Exact-SHA FAST run [42011757382](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42011757382) **SUCCESS** (Job `backend`: ✓ success in 26s, Job `firebase-functions`: ✓ success in 1m 0s, Job `build`: ✓ success in 8m 33s — all JVM tests passed).
+- Verify Documentation run [42011757373](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42011757373) **SUCCESS** (83 docs validated, 0 errors).
 - `FeedbackMessagesActivity.kt`: Added `onStop()` (`reauthorizeOnResume = true`, `replyDialog?.dismiss()`) and `onResume()` lifecycle re-validation using `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "moderate_feedback")`. If rights are revoked while backgrounded, the activity finishes immediately upon resume.
 - `FeedbackMessagesActivity.kt`: Enforced live identity matching (`live.uid == authorizedUid && live.email == authorizedEmail`), terminating immediately if the signed-in user changed.
 - `FeedbackMessagesActivity.kt`: Reloaded feedback messages (`loadMessages()`) upon verified resume without duplicating UI adapter setup or click listeners (`setupAdminControls()`).
 - `FeedbackMessagesPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring.
+
+## 2026-11-05 SendNotification activity resume permissions re-validation and broadcasts refresh (C1/C5)
+
+Live recovery baseline: `c8f7edb73be5d8b7468d0bb145fbba53e77f0d46`, exact-SHA FAST run [42011757382](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42011757382) SUCCESS, Verify Documentation run [42011757373](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42011757373) SUCCESS.
+- `SendNotificationActivity.kt`: Added `onStop()` (`reauthorizeOnResume = true`) and `onResume()` lifecycle re-validation using `AdminAccessGate.requireAdmin(..., requireFreshServer = true, requiredRight = "send_broadcasts")`. If rights are revoked while backgrounded, the activity finishes immediately upon resume.
+- `SendNotificationActivity.kt`: Enforced live identity matching (`live.uid == authorizedUid && live.email == authorizedEmail`), terminating immediately if the signed-in user changed.
+- `SendNotificationActivity.kt`: Reloaded broadcasts (`listenToSentBroadcasts()`) upon verified resume without duplicating UI adapter setup or click listeners (`initializeAuthorizedUi()`).
+- `SendNotificationPermissionResumeTest.kt`: Added Robolectric unit tests and contract assertions verifying fresh server re-validation, revocation teardown, retained rights survival, and zero duplicate UI wiring.
+
 
 
 
