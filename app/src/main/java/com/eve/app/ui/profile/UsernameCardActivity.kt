@@ -78,6 +78,9 @@ class UsernameCardActivity : EveBaseActivity() {
             } else {
                 setEmoji(savedInstanceState?.getString("qr_emoji"))
             }
+            if (savedInstanceState?.getBoolean("qr_playback_paused") == true) {
+                pausePlayback()
+            }
         }
         root.addView(scene, FrameLayout.LayoutParams(-1, -1))
 
@@ -478,21 +481,24 @@ class UsernameCardActivity : EveBaseActivity() {
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus) applyQrSystemBars()
-        if (::scene.isInitialized) scene.refreshEmojiPlayback()
+        if (::scene.isInitialized && !scene.isPlaybackPaused) scene.refreshEmojiPlayback()
     }
 
     override fun onPause() {
         super.onPause()
-        if (::scene.isInitialized) scene.pausePlayback()
+        if (::scene.isInitialized) scene.onHostPause()
     }
 
     override fun onResume() {
         super.onResume()
-        if (::scene.isInitialized) scene.refreshEmojiPlayback()
+        if (::scene.isInitialized) scene.onHostResume()
     }
 
     override fun onDestroy() {
-        if (::scene.isInitialized) scene.pausePlayback()
+        if (::scene.isInitialized) {
+            scene.pausePlayback()
+            scene.stopMotion()
+        }
         (emojiPicker as? QrPickerMorphDialog)?.dismissImmediately()
             ?: emojiPicker?.dismiss()
         super.onDestroy()
@@ -500,6 +506,7 @@ class UsernameCardActivity : EveBaseActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         if (::scene.isInitialized) {
+            outState.putBoolean("qr_playback_paused", scene.isPlaybackPaused)
             outState.putInt("qr_palette", scene.selectedPalette)
             outState.putString("qr_emoji", scene.selectedEmoji)
             outState.putStringArrayList("qr_emoji_keys", ArrayList(scene.emojiChoices.map { it.key }))

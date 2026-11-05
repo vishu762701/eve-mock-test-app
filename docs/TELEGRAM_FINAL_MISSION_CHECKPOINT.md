@@ -2972,4 +2972,10 @@ Live recovery baseline: `1376a50c6f0551a339c1e7ce861c426af920c0c4`, exact-SHA FA
 - `UsernameCardActivity.kt`: Added explicit `scene.pausePlayback()` invocation in `onDestroy()`.
 - `TelegramQrSceneNativeTest.kt`: Added `scene.pausePlayback()` after verifying post-recreation state before `scenario.close()` executes, eliminating main looper idling deadlock during test teardown.
 
+## 2026-11-05 Telegram QR looper lifecycle state persistence across configuration recreation
+
+- `TelegramQrSceneView.kt`: Added explicit `isPlaybackPaused` state property and `isHostResumed` lifecycle gating; stopped continuous Choreographer `postInvalidateOnAnimation()` calls while paused; decoupled active animations from frame drawing when paused or host-paused.
+- `UsernameCardActivity.kt`: Persisted `qr_playback_paused` in `onSaveInstanceState` and restored it in `onCreate`, ensuring recreated instances inherit the paused playback contract; routed `onPause()` / `onResume()` through `onHostPause()` and `onHostResume()`, allowing test scenarios to maintain paused looper state during Activity recreation and eliminating Espresso idling deadlock timeouts.
+
+
 

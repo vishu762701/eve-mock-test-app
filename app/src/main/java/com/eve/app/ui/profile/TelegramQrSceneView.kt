@@ -109,6 +109,9 @@ internal class TelegramQrSceneView(
         alpha = 110
     }
     private var tracker: VelocityTracker? = null
+    var isPlaybackPaused: Boolean = false
+        private set
+    private var isHostResumed: Boolean = true
 
     val selectedPalette: Int get() = palette
     fun setPalette(index: Int) {
@@ -191,9 +194,13 @@ internal class TelegramQrSceneView(
                     if (!isAttachedToWindow || selectedEmojis.none { it.key == entry.key }) return@launch
                     val drawable = NativeQrDrawable.fromJson(json, dp(140f).toInt())
                     drawable.callback = object : Drawable.Callback {
-                        override fun invalidateDrawable(who: Drawable) { postInvalidateOnAnimation() }
+                        override fun invalidateDrawable(who: Drawable) {
+                            if (!isPlaybackPaused && isHostResumed) postInvalidateOnAnimation()
+                        }
                         override fun scheduleDrawable(who: Drawable, what: Runnable, whenMillis: Long) {
-                            postDelayed(what, (whenMillis - SystemClock.uptimeMillis()).coerceAtLeast(0L))
+                            if (!isPlaybackPaused && isHostResumed) {
+                                postDelayed(what, (whenMillis - SystemClock.uptimeMillis()).coerceAtLeast(0L))
+                            }
                         }
                         override fun unscheduleDrawable(who: Drawable, what: Runnable) { removeCallbacks(what) }
                     }
@@ -280,25 +287,45 @@ internal class TelegramQrSceneView(
     }
 
     fun pausePlayback() {
+        isPlaybackPaused = true
+        animations.values.forEach { it.stop() }
+    }
+
+    fun resumePlayback() {
+        isPlaybackPaused = false
+        if (isHostResumed) refreshEmojiPlayback()
+        invalidate()
+    }
+
+    fun onHostResume() {
+        isHostResumed = true
+        if (!isPlaybackPaused) {
+            refreshEmojiPlayback()
+            invalidate()
+        }
+    }
+
+    fun onHostPause() {
+        isHostResumed = false
         animations.values.forEach { it.stop() }
     }
 
     fun refreshEmojiPlayback() {
-        val run = isShown && windowVisibility == VISIBLE && com.eve.app.designsystem.DesignMotion.enabled(context)
+        val run = !isPlaybackPaused && isHostResumed && isShown && windowVisibility == VISIBLE && com.eve.app.designsystem.DesignMotion.enabled(context)
         animations.values.forEach { if (run) it.start() else it.stop() }
     }
 
     override fun onWindowVisibilityChanged(visibility: Int) {
         super.onWindowVisibilityChanged(visibility)
         if (visibility == VISIBLE && isAttachedToWindow) {
-            refreshEmojiPlayback()
+            if (!isPlaybackPaused && isHostResumed) refreshEmojiPlayback()
         } else {
-            pausePlayback()
+            animations.values.forEach { it.stop() }
         }
     }
 
     override fun onDetachedFromWindow() {
-        pausePlayback()
+        animations.values.forEach { it.stop() }
         stopMotion()
         super.onDetachedFromWindow()
     }
@@ -340,12 +367,15 @@ internal class TelegramQrSceneView(
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        val motionEnabled = com.eve.app.designsystem.DesignMotion.enabled(context)
-        refreshEmojiPlayback()
+        val shouldAnimate = !isPlaybackPaused && isHostResumed && isShown && windowVisibility == VISIBLE
+        val motionEnabled = shouldAnimate && com.eve.app.designsystem.DesignMotion.enabled(context)
+        if (shouldAnimate) {
+            refreshEmojiPlayback()
+        }
         drawScene(canvas, width.toFloat(), height.toFloat())
-        if (((motionEnabled && (selectedEmojis.isNotEmpty() || previousEmojis != null)) ||
+        if (shouldAnimate && ((motionEnabled && (selectedEmojis.isNotEmpty() || previousEmojis != null)) ||
             qrLayer.isAnimating() || backdrop.isAnimating ||
-            cardMotion.isAnimating(SystemClock.uptimeMillis())) && isShown) postInvalidateOnAnimation()
+            cardMotion.isAnimating(SystemClock.uptimeMillis()))) postInvalidateOnAnimation()
     }
 
     /**
