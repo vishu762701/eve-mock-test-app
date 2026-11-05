@@ -64,4 +64,23 @@ class HomeSevenActionPopupTest {
     @Test @Config(qualifiers="night") fun nightMenuRetainsLabelsAndCallbacks() = exercise()
     @Test @Config(qualifiers="hi-rIN-ldrtl") fun hindiRtlLargeFontKeepsFullAccessibleLabels() = exercise(2f)
 
+    @Test fun dismissForHostTeardownImmediatelyDismissesShowingPopupAndOverlay() {
+        val controller = Robolectric.buildActivity(Activity::class.java)
+        controller.get().setTheme(R.style.Theme_Eve)
+        controller.setup().visible()
+        val activity = controller.get()
+        val host = FrameLayout(activity)
+        val anchor = View(activity)
+        host.addView(anchor, FrameLayout.LayoutParams(48, 48))
+        activity.setContentView(host)
+        host.measure(View.MeasureSpec.makeMeasureSpec(400, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(800, View.MeasureSpec.EXACTLY))
+        host.layout(0, 0, 400, 800)
+        val popup = TelegramMenuPopup(activity, { _, _, _, _ -> }, {}, {}, {}, {}, {}, {})
+        popup.show(anchor)
+        assertTrue(popup.isShowing)
+        popup.dismissForHostTeardown()
+        assertFalse(popup.isShowing)
+        assertNull(popup.dimOverlay)
+        controller.pause().stop().destroy()
+    }
 }

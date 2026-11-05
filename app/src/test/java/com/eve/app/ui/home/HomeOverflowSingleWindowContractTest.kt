@@ -37,4 +37,31 @@ class HomeOverflowSingleWindowContractTest {
         assertTrue("User-initiated close keeps original 150ms exit",
             popup.contains("TelegramPopupSourceMotion.exit(binding.root, actionRows())"))
     }
+
+    @Test fun activityPauseAndStopDismissHostPopupForLifecycleTeardown() {
+        val activity = File("src/main/java/com/eve/app/ui/home/MainActivity.kt").readText()
+        val onPause = activity.substringAfter("override fun onPause()")
+            .substringBefore("override fun onStop()")
+        assertTrue("onPause dismisses home overflow popup",
+            onPause.contains("homeOverflowPopup?.dismissForHostTeardown()"))
+        assertTrue("onPause nulls home overflow popup reference",
+            onPause.contains("homeOverflowPopup = null"))
+
+        val onStop = activity.substringAfter("override fun onStop()")
+            .substringBefore("private fun setupFloatingAirplane()")
+        assertTrue("onStop dismisses home overflow popup",
+            onStop.contains("homeOverflowPopup?.dismissForHostTeardown()"))
+        assertTrue("onStop nulls home overflow popup reference",
+            onStop.contains("homeOverflowPopup = null"))
+    }
+
+    @Test fun themePaletteChangeDismissesHostPopupImmediately() {
+        val activity = File("src/main/java/com/eve/app/ui/home/MainActivity.kt").readText()
+        val paletteBlock = activity.substringAfter("categoryPaletteListener: (TelegramThemeEngine.ResolvedPalette) -> Unit =")
+            .substringBefore("private fun refreshInstantiatedCategoryChips()")
+        assertTrue("Theme change dismisses active overflow popup",
+            paletteBlock.contains("homeOverflowPopup?.dismissForHostTeardown()"))
+        assertTrue("Theme change nulls overflow popup reference",
+            paletteBlock.contains("homeOverflowPopup = null"))
+    }
 }

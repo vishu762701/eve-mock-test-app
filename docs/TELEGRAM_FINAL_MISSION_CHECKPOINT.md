@@ -3044,11 +3044,22 @@ Live recovery baseline: `28e64ebfe03e15a0a74ee2f1e842c7f8f2dfc71f`, carrying com
 
 ## 2026-11-05 Telegram QR gallery save coroutine tracking and activity cancellation (A4.2)
 
-Live recovery baseline: `bceccaeb0fe8be0fcc62a42aa7ecd612a830d3ef`, exact-SHA FAST run [41996865156](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41996865156) SUCCESS, Verify Documentation run [41996865177](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41996865177) SUCCESS.
+Live recovery baseline: `bceccaeb0fe8be0fcc62a42aa7ecd612a830d3ef`, carrying commit `adccdceaaac4a745267f0f862b0200e8960a8a2d`.
+- Exact-SHA FAST run [41999281057](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41999281057) **SUCCESS** (Job `backend`: ✓ success, Job `firebase-functions`: ✓ success, Job `build`: ✓ success — all JVM tests passed).
+- Verify Documentation run [41999281073](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41999281073) **SUCCESS** (83 docs validated, 0 errors).
 - `UsernameCardActivity.kt`: Added `gallerySaveJob` tracking to monitor asynchronous background disk writes (`QrGalleryWriter.save`), preventing concurrent write requests and orphan tasks.
 - `UsernameCardActivity.kt`: Integrated `gallerySaveJob?.cancel()` into `finishWithMotion()` and `onDestroy()`, ensuring background file writing and MediaStore insertion are immediately aborted if the user exits or the activity is destroyed.
 - `UsernameCardActivity.kt`: Added lifecycle and destruction checks in `saveToGallery()` and `shareImage()`, preventing chooser launches and bulletin error presentations on closing or dead activities.
 - `UsernameCardActivityLifecycleTest.kt`: Added Robolectric test verifying activity setup, field tracking, closing motion state, and graceful teardown.
+
+## 2026-11-05 Telegram Home overflow menu pause/stop lifecycle teardown (D1)
+
+Live recovery baseline: `adccdceaaac4a745267f0f862b0200e8960a8a2d`, exact-SHA FAST run [41999281057](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41999281057) SUCCESS, Verify Documentation run [41999281073](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41999281073) SUCCESS.
+- `MainActivity.kt`: Added immediate lifecycle dismissals (`homeOverflowPopup?.dismissForHostTeardown()`) and reference clearing (`homeOverflowPopup = null`) in `onPause()` and `onStop()`, aligning Home with `ProfileActivity.kt:804` teardown semantics and preventing floating popup windows or memory retention during task switching, screen off, or sub-activity navigation.
+- `MainActivity.kt`: Added immediate dismiss and nulling in `categoryPaletteListener` to clean up active popup windows before re-rendering theme palette changes.
+- `HomeOverflowSingleWindowContractTest.kt`: Added contract assertions verifying that `onPause()`, `onStop()`, and theme changes invoke `homeOverflowPopup?.dismissForHostTeardown()` and null the reference.
+- `HomeSevenActionPopupTest.kt`: Added Robolectric test verifying that `dismissForHostTeardown()` immediately dismisses showing popups, clears dim overlays, and resets window state.
+
 
 
 

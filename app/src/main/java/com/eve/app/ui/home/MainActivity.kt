@@ -526,6 +526,8 @@ class MainActivity : EveBaseActivity() {
         configCheckGeneration++
         configCheckJob?.cancel()
         configCheckJob = null
+        homeOverflowPopup?.dismissForHostTeardown()
+        homeOverflowPopup = null
         super.onPause()
         if (::binding.isInitialized) {
             // Invalidate asynchronous composition callbacks when Home is no longer visible.
@@ -1080,6 +1082,8 @@ class MainActivity : EveBaseActivity() {
 
     override fun onStop() {
         FirebaseAuth.getInstance().removeAuthStateListener(homeAuthListener)
+        homeOverflowPopup?.dismissForHostTeardown()
+        homeOverflowPopup = null
         super.onStop()
         isReturningFromStopped = true
         greetingIntroAnimator?.cancel()
@@ -1935,7 +1939,11 @@ class MainActivity : EveBaseActivity() {
 
     private val categoryPaletteListener: (TelegramThemeEngine.ResolvedPalette) -> Unit = {
         if (::binding.isInitialized && !isFinishing && !isDestroyed) {
-            runOnUiThread { refreshInstantiatedCategoryChips() }
+            runOnUiThread {
+                homeOverflowPopup?.dismissForHostTeardown()
+                homeOverflowPopup = null
+                refreshInstantiatedCategoryChips()
+            }
         }
     }
 
