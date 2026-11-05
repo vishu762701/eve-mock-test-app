@@ -111,6 +111,7 @@ class TelegramQrSceneNativeTest {
                 Log.i("EveNativeQrStage", "scene-after-recreate")
                 assertEquals("Animated EVE choice/source must survive configuration recreation",
                     listOf(QrEmojiPattern.custom("fixture-fire", "Fire", "res:raw/tg_fire_on")), scene.emojiChoices)
+                scene.pausePlayback()
             }
         }
     }

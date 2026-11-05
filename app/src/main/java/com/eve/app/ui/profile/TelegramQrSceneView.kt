@@ -290,10 +290,15 @@ internal class TelegramQrSceneView(
 
     override fun onWindowVisibilityChanged(visibility: Int) {
         super.onWindowVisibilityChanged(visibility)
-        if (isAttachedToWindow) refreshEmojiPlayback()
+        if (visibility == VISIBLE && isAttachedToWindow) {
+            refreshEmojiPlayback()
+        } else {
+            pausePlayback()
+        }
     }
 
     override fun onDetachedFromWindow() {
+        pausePlayback()
         stopMotion()
         super.onDetachedFromWindow()
     }
