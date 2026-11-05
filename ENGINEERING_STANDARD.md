@@ -54,7 +54,7 @@ Record source revision and path/lines or hashes, dependency disposition, EVE int
 
 ## 4. Verification and recovery
 
-Run focused local checks on changed production paths first: positive/negative/error cases, lifecycle, account ownership, persistence, accessibility, motion and relevant shared callers. Preserve meaningful JVM, Rust, Android and backend tests. Static text-contract tests are supplemental, not a replacement for executable behavioral tests.
+Run focused local checks on changed production paths first: positive/negative/error cases, lifecycle, account ownership, persistence, Day/Night themes, RTL, font scaling, navigation modes, accessibility, motion, cancellation and relevant shared callers. Preserve meaningful JVM, Rust, Android and backend tests. Static text-contract tests are supplemental, not a replacement for executable behavioral tests.
 
 Each **pushed fast-forward batch** needs an exact-SHA FAST CI on its final SHA. To avoid idle time, independently prepare up to three nonoverlapping authorized workstreams while the submitted batch runs. Never push from two writers concurrently, overlap shared state ownership, or overwrite an in-flight change. Multiple reviewed commits may ship in one ordered batch; follow the current remote head and reconcile before any next push. If FAST goes red, fix its first actionable failure before pushing another unrelated batch. A failing FULL emulator gate blocks release acceptance but does not invalidate an independently green FAST build or prohibit separate prepared work; distinguish functional and infrastructure failures clearly.
 
