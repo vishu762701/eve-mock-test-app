@@ -91,29 +91,29 @@ class Mission01GateTest(unittest.TestCase):
         build = workflow.split("\n  build:\n", 1)[1].split("\n  native-ui:\n", 1)[0]
         native = workflow.split("\n  native-ui:\n", 1)[1].split("\n  backend:\n", 1)[0]
         publish = workflow.split("\n  publish-apk:\n", 1)[1]
-        # Assembling plus unit tests transitively compile Kotlin/process resources.
-        # The FULL gate compiles AndroidTest sources before emulator startup.
-        # Check task-level semantics rather than a brittle exact command spelling.
+        # Normal pushes compile only; manual FULL compiles test sources and runs tests.
         fast_step = build.split("      - name: FAST compile", 1)[1].split("      - name: FULL test", 1)[0]
         full_step = build.split("      - name: FULL test", 1)[1].split("      - name: Verify missing release", 1)[0]
-        for task in (":app:assembleDebug", ":app:compileDebugUnitTestKotlin",
-                     ":app:testDebugUnitTest", ":app:compileDebugAndroidTestKotlin"):
-            self.assertIn(task, fast_step)
-        for task in (":app:compileDebugAndroidTestKotlin", ":app:lintDebug",
+        self.assertIn(":app:assembleDebug", fast_step)
+        for task in (":app:compileDebugUnitTestKotlin", ":app:testDebugUnitTest",
+                     ":app:compileDebugAndroidTestKotlin"):
+            self.assertNotIn(task, fast_step)
+        for task in (":app:compileDebugUnitTestKotlin",
+                     ":app:compileDebugAndroidTestKotlin", ":app:lintDebug",
                      ":app:testDebugUnitTest"):
             self.assertIn(task, full_step)
         self.assertLess(build.index("      - name: FAST compile"), build.index("      - name: FULL test"))
         self.assertLess(build.index("      - name: FULL test"), build.index("assembleRelease --dry-run"))
         self.assertIn("name: FULL test lint and compile AndroidTest sources", build)
-        self.assertIn("github.event.head_commit.message", build)
+        self.assertIn("GITHUB_EVENT_NAME", build)
         self.assertNotIn("GITHUB_RUN_NUMBER % 20", build)
         self.assertIn("id: verification_profile", build)
         self.assertIn("if: " + "$" + "{{ steps.verification_profile.outputs.full == 'true' }}", build)
         self.assertIn("gradle :app:assembleRelease --dry-run", build)
         self.assertIn("Refusing release build: a real RELEASE_STORE_FILE", build)
         # FAST push must not run native emulators or publish an unverified APK.
-        # FULL is supported via manual dispatch or final main commit marker.
-        self.assertIn("[eve-full]", workflow)
+        # FULL requires explicit owner manual dispatch, never a commit marker.
+        self.assertNotIn("COMMIT_MESSAGE", workflow)
         self.assertIn("needs: [build, backend, firebase-functions]", native)
         self.assertIn("needs.build.outputs.full == 'true' && success()", native)
         self.assertIn("needs.build.outputs.full == 'true'", native)
@@ -140,9 +140,8 @@ class Mission01GateTest(unittest.TestCase):
         self.assertIn("default: false", dispatch)
         self.assertIn("github.event_name == 'workflow_dispatch'", publish)
         self.assertIn("inputs.publish_verified_apk == true", publish)
-        # A push with [eve-full] is allowed to validate the native matrix,
-        # but never to publish the APK without an explicit manual dispatch.
-        self.assertIn("[eve-full]", workflow)
+        # Automatic push cannot enable FULL or debug artifact publication.
+        self.assertIn("github.event_name == 'workflow_dispatch'", workflow)
 
         self.assertIn("actions/cache/restore@v4", publish)
         self.assertIn("sha256sum --check --status", publish)

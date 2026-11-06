@@ -27,3 +27,10 @@ This is the single workflow policy. The latest explicit owner request defines sc
 
 ## 5. Minimal reporting
 - During execution: report only material failures or decisions. At delivery: changed behavior, exact commit SHA, relevant tests/FAST/FULL results, APK access and unresolved external blockers. Do not keep re-reading or rewriting multi-thousand-line mission reports for ordinary fixes.
+
+## Development-only fast-build mode
+- The owner is developing a private app and may change any UI/UX behavior. No UI/UX choice is permanently locked. Own the complete authorized outcome, but not unrelated work. Do not silently broaden product scope.
+- Remove only files proven obsolete. For a source-exact request, authenticate its official origin and record path/lines or hashes plus runtime behavior where available. Do not substitute an unofficial implementation without owner permission. Proceed within the authorized scope without asking for a second approval.
+- On ordinary main pushes, only compile the debug APK. Do not automatically run Gradle unit tests, AndroidTest, lint, Rust tests, Python/CI contract suites, documentation checks, backend/Firebase tests, source acceptance audits, visual gallery or gesture/three-button emulators. All of these run only when the owner triggers manual FULL via GitHub Actions workflow_dispatch.
+- Keep the manual FULL and release/security protections available and truthful. A fast compilation pass means BUILDABLE only, not TESTED or VERIFIED. Extra non-build GitHub workflows for documentation, dependency evidence and source imports are manually dispatched.
+- The normal quick build cannot promise a fixed wall-clock time: compilation, NDK, Gradle caches and runner availability vary. Prefer cached cloud builds over phone builds.

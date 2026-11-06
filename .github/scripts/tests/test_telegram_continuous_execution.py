@@ -25,7 +25,7 @@ class TelegramContinuousExecutionContractTest(unittest.TestCase):
         workflow = read(".github/workflows/verify-official-telegram-imports.yml")
         script = read(".github/scripts/verify-official-telegram-imports.sh")
         self.assertIn("workflow_dispatch:", workflow)
-        self.assertIn("branches: [ main ]", workflow)
+        self.assertNotIn("  push:", workflow)
         self.assertIn("https://github.com/DrKLO/Telegram.git", script)
         self.assertIn("--filter=blob:none", script)
         self.assertIn("verify_telegram_imports.py", script)

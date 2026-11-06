@@ -29,15 +29,26 @@ class EngineeringGovernanceTest(unittest.TestCase):
         self.assertIn("implementation present", standard)
         self.assertIn("emulator/ADB/GPU infrastructure", standard)
 
-    def test_every_main_push_triggers_build(self):
+    def test_main_push_is_compile_only_and_manual_full_is_available(self):
         workflow = read(".github/workflows/build.yml")
-        push = workflow.split("  push:\n", 1)[1].split("  pull_request:\n", 1)[0]
+        push = workflow.split("  push:\n", 1)[1].split("  workflow_dispatch:\n", 1)[0]
         self.assertIn("branches: [ main ]", push)
-        self.assertIn("Fail fast on governance and CI contracts", workflow)
-        self.assertIn("verify-docs.mjs", workflow)
-        self.assertIn("test_engineering_governance.py", workflow)
-        self.assertNotIn("paths-ignore:", push)
-        self.assertNotRegex(push, r"(?m)^    paths:")
+        self.assertIn("paths-ignore:", push)
+        fast = workflow.split("      - name: FAST compile debug APK only", 1)[1].split(
+            "      - name: FULL test", 1)[0]
+        self.assertIn("gradle :app:assembleDebug --stacktrace", fast)
+        self.assertNotIn(":app:testDebugUnitTest", fast)
+        self.assertNotIn(":app:compileDebugAndroidTestKotlin", fast)
+        self.assertIn("if [[ \"$GITHUB_EVENT_NAME\" == \"workflow_dispatch\" ]]", workflow)
+        self.assertIn("Verify docs and governance contracts (manual FULL only)", workflow)
+        self.assertIn("steps.verification_profile.outputs.full == 'true'", workflow)
+        for path in (".github/workflows/docs.yml",
+                     ".github/workflows/android-dependency-evidence.yml",
+                     ".github/workflows/verify-official-telegram-imports.yml"):
+            extra = read(path)
+            self.assertIn("workflow_dispatch:", extra)
+            self.assertNotIn("  push:", extra)
+            self.assertNotIn("  pull_request:", extra)
 
     def test_backend_rules_and_production_release_separation(self):
         deployment = read(".github/workflows/deploy-worker.yml")
@@ -49,7 +60,7 @@ class EngineeringGovernanceTest(unittest.TestCase):
 
     def test_android_fast_full_and_apk_checks_preserved(self):
         workflow = read(".github/workflows/build.yml")
-        for item in ("full=false", "[eve-full]", ":app:testDebugUnitTest",
+        for item in ("full=false", "workflow_dispatch", ":app:testDebugUnitTest",
                      "navigation: [gesture, three-button]",
                      "needs: [build, backend, firebase-functions]",
                      "needs: [build, native-ui, backend, firebase-functions]",

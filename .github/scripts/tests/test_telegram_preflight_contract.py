@@ -28,19 +28,20 @@ class TelegramPreflightContractTest(unittest.TestCase):
         self.assertNotEqual(*values)
 
     def test_compile_gates_run_before_expensive_emulators(self):
-        """Check that FAST compiles test sources and FULL emulators depend on that gate."""
+        """Check normal FAST compiles only and manual FULL gates emulators."""
         workflow = (ROOT / ".github/workflows/build.yml").read_text()
         build = workflow.split("\n  build:\n", 1)[1].split("\n  native-ui:\n", 1)[0]
         native = workflow.split("\n  native-ui:\n", 1)[1].split("\n  backend:\n", 1)[0]
-        compile_step = build.index("name: FAST compile debug APK and JVM test sources")
+        compile_step = build.index("name: FAST compile debug APK only")
         fast_step = build[compile_step:build.index("      - name: FULL test", compile_step)]
         full_step = build[build.index("      - name: FULL test", compile_step):
                           build.index("      - name: Verify missing release", compile_step)]
-        for task in (":app:assembleDebug", ":app:compileDebugUnitTestKotlin",
-                     ":app:testDebugUnitTest", ":app:compileDebugAndroidTestKotlin"):
-            self.assertIn(task, fast_step)
-        for task in (":app:compileDebugAndroidTestKotlin", ":app:lintDebug",
-                     ":app:testDebugUnitTest"):
+        self.assertIn(":app:assembleDebug", fast_step)
+        for task in (":app:testDebugUnitTest", ":app:compileDebugAndroidTestKotlin",
+                     ":app:lintDebug", ":app:compileDebugUnitTestKotlin"):
+            self.assertNotIn(task, fast_step)
+        for task in (":app:compileDebugUnitTestKotlin", ":app:compileDebugAndroidTestKotlin",
+                     ":app:lintDebug", ":app:testDebugUnitTest"):
             self.assertIn(task, full_step)
         self.assertLess(compile_step, build.index("      - name: FULL test", compile_step))
         self.assertIn("needs: [build, backend, firebase-functions]", native)

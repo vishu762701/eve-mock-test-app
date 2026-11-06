@@ -87,7 +87,7 @@ if (!fs.readFileSync(path.join(REPO_ROOT, 'docs/EVE_ONE_TIME_CHAT_STARTER.md'), 
 // Keep real workflow gates and release permissions intact.
 const buildWorkflow = fs.readFileSync(path.join(REPO_ROOT, '.github/workflows/build.yml'), 'utf8');
 const workerWorkflow = fs.readFileSync(path.join(REPO_ROOT, '.github/workflows/deploy-worker.yml'), 'utf8');
-if (!buildWorkflow.includes('[eve-full]') || !buildWorkflow.includes(':app:testDebugUnitTest') ||
+if (!buildWorkflow.includes('workflow_dispatch:') || !buildWorkflow.includes(':app:testDebugUnitTest') ||
     !buildWorkflow.includes('navigation: [gesture, three-button]') ||
     !buildWorkflow.includes('sha256sum --check --status')) {
   error('Android FAST/FULL compilation, native or APK integrity gate missing');

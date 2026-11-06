@@ -28,8 +28,8 @@ For each property and integration path record upstream file:line and revision â†
 
 ## Fail-closed acceptance claims for Profile and QR
 
-The tracked scope contract is `docs/telegram-profile-fidelity.json`; CI runs
-`python3 .github/scripts/verify_telegram_acceptance.py` on every main push.
+The tracked scope contract is `docs/telegram-profile-fidelity.json`; the manually triggered FULL CI runs
+`python3 .github/scripts/verify_telegram_acceptance.py`; ordinary pushes compile only.
 The targets `profile-shell`, `profile-overflow` and `personal-qr` are
 currently OPEN: compile success or passing emulator tests cannot change this.
 During source-exact work, update the dependency/source map and list unresolved

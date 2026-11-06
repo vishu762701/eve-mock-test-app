@@ -1,20 +1,16 @@
 name: Build Eve APK
 
+# Normal push: compile debug app only. FULL runs only via explicit manual dispatch.
 on:
-  # Every main batch, including governance-only changes, needs an exact-SHA gate.
   push:
-    branches: [ main ]
-  pull_request:
     branches: [ main ]
     paths-ignore:
       - '**.md'
       - 'docs/**'
-      - '.gitignore'
-      - '*.txt'
+      - '.github/scripts/**'
       - '.github/workflows/docs.yml'
-      - '.github/scripts/verify-docs.mjs'
-  # FULL verification may run without artifact publication. Upload needs a
-  # separate positive choice on a manually dispatched workflow run.
+      - '.github/workflows/android-dependency-evidence.yml'
+      - '.github/workflows/verify-official-telegram-imports.yml'
   workflow_dispatch:
     inputs:
       publish_verified_apk:
@@ -23,9 +19,10 @@ on:
         required: false
         default: false
 
-# Preserve every triggered FULL run as mission-level evidence.
-# Intermediate FAST failures remain visible for root-cause diagnosis.
-# The [eve-full] commit marker never grants APK publication consent.
+# New pushes supersede previous quick builds. Manual FULL runs are never cancelled.
+concurrency:
+  group: eve-build-${{ github.event_name }}-${{ github.event_name == 'workflow_dispatch' && github.run_id || github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
 
 env:
   APP_VERSION_CODE: ${{ github.run_number }}
@@ -42,25 +39,21 @@ jobs:
         with:
           filter: blob:none
 
-      # FULL is a mission-final decision, not a recurring tax on small pushes.
+      # Only an explicit Run workflow dispatch enables the complete verification matrix.
       - name: Resolve FAST or FULL verification profile
         id: verification_profile
-        env:
-          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           set -euo pipefail
           full=false
-          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]] || \
-             [[ "$COMMIT_MESSAGE" == *"[eve-full]"* ]]; then
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
             full=true
           fi
           echo "full=$full" >> "$GITHUB_OUTPUT"
           echo "Verification profile: $([[ "$full" == true ]] && echo FULL || echo FAST)"
-          echo "### EVE CI: $([[ "$full" == true ]] && echo FULL || echo FAST) verification" >> "$GITHUB_STEP_SUMMARY"
           if [[ "$full" == true ]]; then
-            echo "Final gate: build, unit tests, lint, both navigation emulators, backend and APK checksum." >> "$GITHUB_STEP_SUMMARY"
+            echo "Manual FULL: unit, security, native UI, backend, functions, lint, and APK integrity." >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "Intermediate gate: debug APK, test-source compilation, JVM unit tests and backend; no emulator and no verified APK publication." >> "$GITHUB_STEP_SUMMARY"
+            echo "Automatic FAST: compile :app:assembleDebug only; no verification suites." >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - uses: actions/setup-java@v4
@@ -77,9 +70,9 @@ jobs:
             exit 1
           fi
 
-      # Deterministic policy mistakes should fail before downloading SDK/NDK,
-      # compiling Rust, or starting a time-consuming native emulator.
-      - name: Fail fast on governance and CI contracts
+      # Documentation, governance and security suites are manual FULL only.
+      - name: Verify docs and governance contracts (manual FULL only)
+        if: ${{ steps.verification_profile.outputs.full == 'true' }}
         run: |
           node .github/scripts/verify-docs.mjs
           python3 -B .github/scripts/tests/test_engineering_governance.py
@@ -107,27 +100,29 @@ jobs:
       # Exercise the same optimized CPU/C API feature set used by the JNI build.
       # Serial scheduling keeps per-frame wall-clock DoS budgets independent of
       # test-worker contention; assertions and upstream time/memory caps stay intact.
-      - name: Verify pinned native renderer security and C API tests
+      - name: Verify pinned native renderer security and C API tests (manual FULL only)
+        if: ${{ steps.verification_profile.outputs.full == 'true' }}
         run: cargo +1.99.1 test --locked --release --lib --features c-api --manifest-path app/src/main/cpp/vendor/tlottie/Cargo.toml -- --test-threads=1
 
-      - name: Check scoped Telegram acceptance claims
+      - name: Check scoped Telegram acceptance claims (manual FULL only)
+        if: ${{ steps.verification_profile.outputs.full == 'true' }}
         run: python3 .github/scripts/verify_telegram_acceptance.py
 
-      - name: Verify native UI runner and visual evidence contracts
+      - name: Verify native UI runner and visual evidence contracts (manual FULL only)
+        if: ${{ steps.verification_profile.outputs.full == 'true' }}
         run: python3 -B -m unittest discover -s .github/scripts/tests -v
 
-      # FAST: build + JVM tests + instrumentation SOURCE compilation; no emulator.
-      # FULL: also lint + device test runs. This catches test compile errors early.
-      - name: FAST compile debug APK and JVM test sources
+      # Normal pushes compile only. Manual FULL exercises all checks below.
+      - name: FAST compile debug APK only
         run: |
           set -euo pipefail
-          gradle :app:assembleDebug :app:compileDebugUnitTestKotlin :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin --stacktrace --console=plain 2>&1 | tee ci-fast-gradle.log
+          gradle :app:assembleDebug --stacktrace --console=plain 2>&1 | tee ci-fast-gradle.log
 
       - name: FULL test lint and compile AndroidTest sources
         if: ${{ steps.verification_profile.outputs.full == 'true' }}
         run: |
           set -euo pipefail
-          gradle :app:compileDebugAndroidTestKotlin :app:assembleDebugAndroidTest :app:lintDebug :app:testDebugUnitTest --stacktrace --console=plain 2>&1 | tee ci-full-gradle.log
+          gradle :app:compileDebugUnitTestKotlin :app:compileDebugAndroidTestKotlin :app:assembleDebugAndroidTest :app:lintDebug :app:testDebugUnitTest --stacktrace --console=plain 2>&1 | tee ci-full-gradle.log
 
       - name: Verify missing release credentials are rejected
         if: ${{ steps.verification_profile.outputs.full == 'true' }}
@@ -248,6 +243,7 @@ jobs:
         run: python3 .github/scripts/ci_failure_report.py --native app/build/outputs/androidTest-results/connected ui-renderings
 
   backend:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -266,6 +262,7 @@ jobs:
           npm test
 
   firebase-functions:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

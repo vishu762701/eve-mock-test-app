@@ -1,14 +1,7 @@
 name: Android Dependency Evidence
 
+# Explicit manual verification only. No automatic push/PR checks during development.
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/android-dependency-evidence.yml'
-      - '.github/scripts/collect_android_dependency_evidence.py'
-      - 'app/build.gradle.kts'
-      - 'build.gradle.kts'
-      - 'settings.gradle.kts'
   workflow_dispatch:
 
 permissions:
