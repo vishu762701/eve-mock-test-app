@@ -20,6 +20,12 @@ import retrofit2.HttpException
 class AdminDeleteFlow(private val activity: AppCompatActivity, private val api: com.eve.app.data.remote.EveApiService = ApiClient.apiService) {
     private val pending = mutableSetOf<String>()
     private val repository = ExamRepository(api)
+    private var activeDialog: TelegramNativeAlertDialog? = null
+
+    fun dismissActiveDialog() {
+        activeDialog?.dismiss()
+        activeDialog = null
+    }
 
     fun confirm(id: String, name: String, exam: Boolean, refresh: () -> Unit) {
         val key = "$exam:$id"
@@ -59,11 +65,16 @@ class AdminDeleteFlow(private val activity: AppCompatActivity, private val api: 
                         }
                     }
                 }
-                dialog.setOnDismissListener { if (!processing) pending.remove(key) }
-                if (info.canDelete) {
+                activeDialog?.dismiss()
+                val dlg = if (info.canDelete) {
                     dialog.makeRed(DialogInterface.BUTTON_POSITIVE).show()
                 } else {
                     dialog.show()
+                }
+                activeDialog = dlg
+                dlg.setOnDismissListener {
+                    if (activeDialog === dlg) activeDialog = null
+                    if (!processing) pending.remove(key)
                 }
             } catch (e: CancellationException) { pending.remove(key); throw e }
             catch (e: Exception) { pending.remove(key); showFailure(e); refresh() }
@@ -72,8 +83,8 @@ class AdminDeleteFlow(private val activity: AppCompatActivity, private val api: 
 
     fun confirmRemoval(key: String, name: String, delete: suspend () -> String?, refresh: () -> Unit) {
         if (activity.isFinishing || activity.isDestroyed || !pending.add(key)) return
-        var processing = false
-        TelegramNativeAlertDialog.Builder(activity)
+        activeDialog?.dismiss()
+        val dlg = TelegramNativeAlertDialog.Builder(activity)
             .setTitle("Permanently delete $name?")
             .setMessage("This removes the record after server confirmation. It cannot be undone.")
             .setNegativeButton("Cancel", null)
@@ -88,8 +99,12 @@ class AdminDeleteFlow(private val activity: AppCompatActivity, private val api: 
                     finally { pending.remove(key); refresh() }
                 }
             }
-            .setOnDismissListener { if (!processing) pending.remove(key) }
             .makeRed(DialogInterface.BUTTON_POSITIVE).show()
+        activeDialog = dlg
+        dlg.setOnDismissListener {
+            if (activeDialog === dlg) activeDialog = null
+            if (!processing) pending.remove(key)
+        }
     }
 
     /** For screens that already displayed their destructive confirmation. */
@@ -117,6 +132,11 @@ class AdminDeleteFlow(private val activity: AppCompatActivity, private val api: 
             (activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
                 .setPrimaryClip(ClipData.newPlainText("Eve request ID", requestId))
         }
-        dialog.show()
+        activeDialog?.dismiss()
+        val dlg = dialog.show()
+        activeDialog = dlg
+        dlg.setOnDismissListener {
+            if (activeDialog === dlg) activeDialog = null
+        }
     }
 }

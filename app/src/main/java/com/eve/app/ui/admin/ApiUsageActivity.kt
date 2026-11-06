@@ -101,6 +101,13 @@ class ApiUsageActivity : EveBaseActivity() {
         super.onStop()
     }
 
+    override fun onDestroy() {
+        ++readGeneration
+        readJob?.cancel()
+        readJob = null
+        super.onDestroy()
+    }
+
     private fun showUnavailable(message: Int) {
         binding.tvCurrentMonth.setText(message)
         for (view in listOf(binding.tvGeminiCallsCount, binding.tvDocsCreatedCount, binding.tvSubmissionsCount)) {

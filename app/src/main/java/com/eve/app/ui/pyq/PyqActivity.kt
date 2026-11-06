@@ -92,6 +92,14 @@ class PyqActivity : EveBaseActivity() {
         if (!hasPyqOwner()) finish()
     }
 
+    override fun onDestroy() {
+        if (::binding.isInitialized) {
+            binding.chipGroupYears.removeAllViews()
+            binding.chipGroupPapers.removeAllViews()
+        }
+        super.onDestroy()
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString("pyq_owner_uid", pyqOwnerUid)

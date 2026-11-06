@@ -60,7 +60,18 @@ class ManageExistingExamsActivity : EveBaseActivity() {
 
     override fun onStop() {
         reauthorizeOnResume = true
+        deleteFlow.dismissActiveDialog()
         super.onStop()
+    }
+
+    override fun onDestroy() {
+        listLoadJob?.cancel()
+        listLoadJob = null
+        deleteFlow.dismissActiveDialog()
+        if (::binding.isInitialized) {
+            EmptyStateAnimationHelper.stopEmptyState(binding.lottieEmpty)
+        }
+        super.onDestroy()
     }
 
     override fun onResume() {

@@ -22,6 +22,7 @@ class NotificationsActivity : EveBaseActivity() {
     private val adapter = NotificationAdapter()
 
     private var hasEmptyPlayed = false
+    private var notificationSyncJob: kotlinx.coroutines.Job? = null
     private lateinit var inboxOwner: NotificationInboxOwner
     private val auth = FirebaseAuth.getInstance()
     private val accountListener = FirebaseAuth.AuthStateListener {
@@ -122,9 +123,19 @@ class NotificationsActivity : EveBaseActivity() {
         }
     }
 
+    override fun onDestroy() {
+        notificationSyncJob?.cancel()
+        notificationSyncJob = null
+        if (::binding.isInitialized) {
+            com.eve.app.util.EmptyStateAnimationHelper.stopEmptyState(binding.lottieEmpty)
+        }
+        super.onDestroy()
+    }
+
     private fun listenToNotifications() {
         val requestOwner = inboxOwner
-        lifecycleScope.launch {
+        notificationSyncJob?.cancel()
+        notificationSyncJob = lifecycleScope.launch {
             try {
                 val res = ApiClient.apiService.getBroadcasts(50)
                 // Auth may switch while the network request is suspended.

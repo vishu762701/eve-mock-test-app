@@ -26,6 +26,7 @@ class ContentDisplayActivity : EveBaseActivity() {
     private lateinit var binding: ActivityContentDisplayBinding
     private val repo = AppContentRepository()
     private val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
+    private var loadJob: kotlinx.coroutines.Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,12 +39,20 @@ class ContentDisplayActivity : EveBaseActivity() {
         loadContent(type)
     }
 
+    override fun onDestroy() {
+        loadJob?.cancel()
+        loadJob = null
+        super.onDestroy()
+    }
+
     private fun loadContent(type: String) {
         binding.progressBar.visibility = View.VISIBLE
         binding.scrollView.visibility = View.INVISIBLE
 
-        lifecycleScope.launch {
+        loadJob?.cancel()
+        loadJob = lifecycleScope.launch {
             val content = repo.getContent(type)
+            if (isFinishing || isDestroyed) return@launch
             displayContent(type, content)
             binding.progressBar.visibility = View.GONE
             binding.scrollView.visibility = View.VISIBLE

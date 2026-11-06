@@ -1,6 +1,16 @@
-<!-- Tabler v3.49.0 eye-off / MIT; see assets/licenses/Tabler-LICENSE.txt. -->
-<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="@dimen/design_icon_size" android:height="@dimen/design_icon_size" android:viewportWidth="24" android:viewportHeight="24">
-    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent" android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M10.585 10.587a2 2 0 0 0 2.829 2.828" />
-    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent" android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87" />
-    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent" android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M3 3l18 18" />
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Derived from Telegram Android filled_poll_view_24.xml and _menu_stream_comments_off_24.xml -->
+<!-- Copyright Nikolai Kudashov / Telegram Android contributors, GNU GPL v2 or later -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="@dimen/design_icon_size"
+    android:height="@dimen/design_icon_size"
+    android:viewportWidth="72"
+    android:viewportHeight="72">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M35.998,16.5C49.907,16.5 61.94,25.438 65.597,38.163C65.856,39.066 65.342,40.007 64.448,40.266C64.137,40.355 63.81,40.334 63.513,40.207L63.398,40.147C60.038,28.438 48.966,20.2 35.998,20.2C23.03,20.2 11.958,28.438 8.598,40.147C8.339,41.05 7.398,41.564 6.504,41.305C5.61,41.046 5.096,40.105 5.355,39.211C5.437,38.924 5.599,38.67 5.823,38.486L5.999,38.163C9.656,25.438 21.689,16.5 35.998,16.5ZM35.998,23.8C42.846,23.8 48.398,29.352 48.398,36.2C48.398,43.048 42.846,48.6 35.998,48.6C29.15,48.6 23.598,43.048 23.598,36.2C23.598,29.352 29.15,23.8 35.998,23.8ZM35.998,27.5C31.193,27.5 27.298,31.395 27.298,36.2C27.298,41.005 31.193,44.9 35.998,44.9C40.803,44.9 44.698,41.005 44.698,36.2C44.698,31.395 40.803,27.5 35.998,27.5Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12.697,8.303L63.697,59.303C64.634,60.24 64.634,61.76 63.697,62.697C62.76,63.634 61.24,63.634 60.303,62.697L9.303,11.697C8.366,10.76 8.366,9.24 9.303,8.303C10.24,7.366 11.76,7.366 12.697,8.303Z" />
 </vector>

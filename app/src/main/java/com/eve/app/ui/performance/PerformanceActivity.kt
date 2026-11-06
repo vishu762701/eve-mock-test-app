@@ -89,6 +89,14 @@ class PerformanceActivity : EveBaseActivity() {
         outState.putString("performance_owner_uid", performanceOwnerUid)
     }
 
+    override fun onDestroy() {
+        if (::binding.isInitialized) {
+            binding.tvLoadingPerformance.stopShimmer()
+            com.eve.app.util.EmptyStateAnimationHelper.stopEmptyState(binding.ivMessageIcon)
+        }
+        super.onDestroy()
+    }
+
     private fun render(state: UiState<PerformanceData>) {
         if (!hasPerformanceOwner()) { finish(); return }
         when (state) {

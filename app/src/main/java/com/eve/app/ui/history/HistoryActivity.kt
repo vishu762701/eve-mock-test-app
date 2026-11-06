@@ -100,6 +100,13 @@ class HistoryActivity : EveBaseActivity() {
         outState.putString("history_owner_uid", historyOwnerUid)
     }
 
+    override fun onDestroy() {
+        if (::binding.isInitialized) {
+            com.eve.app.util.EmptyStateAnimationHelper.stopEmptyState(binding.ivMessageIcon)
+        }
+        super.onDestroy()
+    }
+
     private fun render(state: UiState<List<TestAttempt>>) {
         if (!hasHistoryOwner()) { finish(); return }
         when (state) {

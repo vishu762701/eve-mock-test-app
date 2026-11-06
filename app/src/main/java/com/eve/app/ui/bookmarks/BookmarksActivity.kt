@@ -168,6 +168,14 @@ class BookmarksActivity : EveBaseActivity() {
         com.eve.app.designsystem.UiArcSwipeRow.closeActiveRow()
     }
 
+    override fun onDestroy() {
+        com.eve.app.designsystem.UiArcSwipeRow.closeActiveRow()
+        if (::binding.isInitialized) {
+            EmptyStateAnimationHelper.stopEmptyState(binding.ivMessageIcon)
+        }
+        super.onDestroy()
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean("key_empty_played", hasEmptyPlayed)

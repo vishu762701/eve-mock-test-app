@@ -38,6 +38,7 @@ class ExamTestsActivity : EveBaseActivity() {
     private var examId: String = ""
     private var examName: String = ""
     private var currentExam: Exam? = null
+    private var loadJob: kotlinx.coroutines.Job? = null
 
     private val examTestsAuth = FirebaseAuth.getInstance()
     private var examTestsOwnerUid: String? = null
@@ -127,6 +128,12 @@ class ExamTestsActivity : EveBaseActivity() {
         outState.putString("exam_tests_owner_uid", examTestsOwnerUid)
     }
 
+    override fun onDestroy() {
+        loadJob?.cancel()
+        loadJob = null
+        super.onDestroy()
+    }
+
     private fun loadData(showLoading: Boolean = true) {
         if (!hasExamTestsOwner()) return
         val hasCachedItems = adapter.itemCount > 0
@@ -144,7 +151,8 @@ class ExamTestsActivity : EveBaseActivity() {
             binding.tvEmpty.visibility = View.GONE
         }
 
-        lifecycleScope.launch {
+        loadJob?.cancel()
+        loadJob = lifecycleScope.launch {
             try {
                 val allExams = examRepo.getExams()
                 currentExam = allExams.find { it.id == examId }

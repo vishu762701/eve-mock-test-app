@@ -971,6 +971,17 @@ TMessagesProj resources, Copyright Telegram Android contributors, GNU GPL v2 or 
 - `app/src/main/res/drawable/ic_trophy.xml`: Ported from `TMessagesProj/src/main/res/drawable/filled_rating_crown.xml` (official Telegram leaderboard rating crown).
 - `app/src/main/res/drawable/ic_syllabus.xml`: Ported from `TMessagesProj/src/main/res/drawable/dialog_media_checklist_20.xml` (official Telegram checklist media icon).
 - `app/src/main/res/drawable/ic_account_balance.xml`: Ported from `TMessagesProj/src/main/res/drawable/filled_card_add.xml` (official Telegram payment card vector).
+- `app/src/main/res/drawable/ic_performance_increase.xml`: Ported from `TMessagesProj/src/main/res/drawable/mini_stats.xml` (official Telegram analytics/stats bar chart).
+- `app/src/main/res/drawable/ic_image.xml`: Ported from `TMessagesProj/src/main/res/drawable/outline_profile_photo.xml` (official Telegram profile photo/camera vector).
+- `app/src/main/res/drawable/ic_save.xml`: Ported from `TMessagesProj/src/main/res/drawable/mini_checklist_done.xml` (official Telegram checklist done/save icon).
+- `app/src/main/res/drawable/ic_bug_report.xml`: Ported from `TMessagesProj/src/main/res/drawable/report.xml` (official Telegram report badge icon).
+- `app/src/main/res/drawable/ic_leaderboard_star.xml`: Ported from `TMessagesProj/src/main/res/drawable/star.xml` (official Telegram star vector).
+- `app/src/main/res/drawable/ic_topic.xml`: Ported from `TMessagesProj/src/main/res/drawable/settings_folders.xml` (official Telegram folder/topic vector).
+- `app/src/main/res/drawable/ic_visibility_off.xml`: Derived from `TMessagesProj/src/main/res/drawable/filled_poll_view_24.xml` and `_menu_stream_comments_off_24.xml` (official Telegram visibility eye and diagonal slash geometry).
+- `app/src/main/res/drawable/ic_description.xml`: Ported from `TMessagesProj/src/main/res/drawable/iv_list.xml` (official Telegram document/checklist vector).
+- `app/src/main/res/drawable/ic_exam_placeholder.xml`: Ported from `TMessagesProj/src/main/res/drawable/dialog_media_checklist_20.xml` (official Telegram checklist badge).
+- `app/src/main/res/drawable/ic_flag.xml`: Ported from `TMessagesProj/src/main/res/drawable/report.xml` (official Telegram report vector).
+- `app/src/main/res/drawable/ic_pyq.xml`: Ported from `TMessagesProj/src/main/res/drawable/iv_ordered_list.xml` (official Telegram numbered/ordered list vector).
 
 
 

@@ -22,6 +22,7 @@ class FeedbackActivity : EveBaseActivity() {
     private val repo = FeedbackRepository()
     private val feedbackAuth = FirebaseAuth.getInstance()
     private var feedbackOwnerUid: String? = null
+    private var sendFeedbackJob: kotlinx.coroutines.Job? = null
 
     private fun hasFeedbackOwner(): Boolean =
         SubmissionRetryPolicy.ownsSubmission(feedbackOwnerUid, feedbackAuth.currentUser?.uid)
@@ -69,8 +70,10 @@ class FeedbackActivity : EveBaseActivity() {
             binding.progressBar.visibility = View.GONE
             binding.btnSendFeedback.setLoading(true)
 
-            lifecycleScope.launch {
+            sendFeedbackJob?.cancel()
+            sendFeedbackJob = lifecycleScope.launch {
                 val result = repo.sendFeedback(uid, name, email, message, postId, postTitle)
+                if (isFinishing || isDestroyed) return@launch
                 binding.btnSendFeedback.setLoading(false)
 
                 result.onSuccess {
@@ -103,5 +106,14 @@ class FeedbackActivity : EveBaseActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString("feedback_owner_uid", feedbackOwnerUid)
+    }
+
+    override fun onDestroy() {
+        sendFeedbackJob?.cancel()
+        sendFeedbackJob = null
+        if (::binding.isInitialized) {
+            binding.btnSendFeedback.setLoading(false)
+        }
+        super.onDestroy()
     }
 }

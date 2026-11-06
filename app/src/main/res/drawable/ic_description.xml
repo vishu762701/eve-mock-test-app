@@ -1,21 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Tabler Icons v3.49.0 / file-text; MIT, bundled Tabler-LICENSE.txt. -->
+<!-- Ported from Telegram Android iv_list.xml (TMessagesProj/src/main/res/drawable/iv_list.xml) -->
+<!-- Copyright Nikolai Kudashov / Telegram Android contributors, GNU GPL v2 or later -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="@dimen/design_icon_size" android:height="@dimen/design_icon_size"
-    android:viewportWidth="24" android:viewportHeight="24">
-    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
-        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
-        android:pathData="M14 3v4a1 1 0 0 0 1 1h4" />
-    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
-        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
-        android:pathData="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2" />
-    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
-        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
-        android:pathData="M9 9l1 0" />
-    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
-        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
-        android:pathData="M9 13l6 0" />
-    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
-        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
-        android:pathData="M9 17l6 0" />
+    android:width="@dimen/design_icon_size"
+    android:height="@dimen/design_icon_size"
+    android:viewportWidth="72"
+    android:viewportHeight="72">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M61 26C61 27.3807 59.8807 28.5 58.5 28.5H31.28C29.8993 28.5 28.78 27.3807 28.78 26C28.78 24.6193 29.8993 23.5 31.28 23.5H58.5C59.8807 23.5 61 24.6193 61 26ZM17 31C19.7614 31 22 28.7614 22 26C22 23.2386 19.7614 21 17 21C14.2386 21 12 23.2386 12 26C12 28.7614 14.2386 31 17 31ZM61 46C61 47.3807 59.8807 48.5 58.5 48.5H31.28C29.8993 48.5 28.78 47.3807 28.78 46C28.78 44.6193 29.8993 43.5 31.28 43.5H58.5C59.8807 43.5 61 44.6193 61 46ZM17 51C19.7614 51 22 48.7614 22 46C22 43.2386 19.7614 41 17 41C14.2386 41 12 43.2386 12 46C12 48.7614 14.2386 51 17 51Z" />
 </vector>

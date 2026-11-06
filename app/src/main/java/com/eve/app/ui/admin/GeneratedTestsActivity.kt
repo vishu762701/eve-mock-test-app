@@ -163,7 +163,20 @@ class GeneratedTestsActivity : EveBaseActivity() {
         listLoadJob?.cancel()
         previewDialog?.dismiss()
         previewDialog = null
+        deleteFlow.dismissActiveDialog()
         super.onStop()
+    }
+
+    override fun onDestroy() {
+        listLoadJob?.cancel()
+        listLoadJob = null
+        previewDialog?.dismiss()
+        previewDialog = null
+        deleteFlow.dismissActiveDialog()
+        if (::binding.isInitialized) {
+            com.eve.app.util.EmptyStateAnimationHelper.stopEmptyState(binding.lottieEmpty)
+        }
+        super.onDestroy()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

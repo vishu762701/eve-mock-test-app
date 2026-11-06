@@ -82,6 +82,13 @@ class PracticeActivity : EveBaseActivity() {
         outState.putString("practice_owner_uid", practiceOwnerUid)
     }
 
+    override fun onDestroy() {
+        if (::binding.isInitialized) {
+            binding.chipGroupTopics.removeAllViews()
+        }
+        super.onDestroy()
+    }
+
     private fun renderExams(state: UiState<List<Exam>>) {
         if (!hasPracticeOwner()) return
         when (state) {

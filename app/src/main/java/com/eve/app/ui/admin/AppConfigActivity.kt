@@ -31,6 +31,7 @@ class AppConfigActivity : EveBaseActivity() {
     private var confirmedConfig: AppConfig? = null
     private var configBusy = false
     private var maintenanceConfirmationDialog: TelegramNativeAlertDialog? = null
+    private var healthDialog: TelegramNativeAlertDialog? = null
     private var configOwnerUid = ""
     private var configOwnerEmail = ""
     private var adminAuthorized = false
@@ -63,6 +64,10 @@ class AppConfigActivity : EveBaseActivity() {
         ++configReadGeneration
         reloadAfterStop = true
         reauthorizeOnResume = true
+        maintenanceConfirmationDialog?.dismiss()
+        maintenanceConfirmationDialog = null
+        healthDialog?.dismiss()
+        healthDialog = null
         super.onStop()
     }
 
@@ -278,11 +283,14 @@ class AppConfigActivity : EveBaseActivity() {
                 binding.progressBar.visibility = View.GONE
                 if (!res.success || res.data == null) {
                     val errMsg = res.error ?: "Failed to perform AI health check"
-                    TelegramNativeAlertDialog.Builder(this@AppConfigActivity)
+                    healthDialog?.dismiss()
+                    healthDialog = TelegramNativeAlertDialog.Builder(this@AppConfigActivity)
                         .setTitle("AI Health Check Failed")
                         .setMessage(errMsg)
                         .setPositiveButton("OK", null)
-                        .show()
+                        .show().also { d ->
+                            d.setOnDismissListener { if (healthDialog === d) healthDialog = null }
+                        }
                 } else {
                     val data = res.data
                     val workingModel = data?.workingModel ?: "None"
@@ -308,11 +316,14 @@ class AppConfigActivity : EveBaseActivity() {
                         }
                     }.trim()
 
-                    TelegramNativeAlertDialog.Builder(this@AppConfigActivity)
+                    healthDialog?.dismiss()
+                    healthDialog = TelegramNativeAlertDialog.Builder(this@AppConfigActivity)
                         .setTitle("AI Connection Health")
                         .setMessage(message)
                         .setPositiveButton("OK", null)
-                        .show()
+                        .show().also { d ->
+                            d.setOnDismissListener { if (healthDialog === d) healthDialog = null }
+                        }
                 }
             } catch (cancel: kotlinx.coroutines.CancellationException) {
                 throw cancel
@@ -320,11 +331,14 @@ class AppConfigActivity : EveBaseActivity() {
                 if (!canPublish()) return@launch
                 binding.progressBar.visibility = View.GONE
                 val errMsg = e.toUserFriendlyMessage()
-                TelegramNativeAlertDialog.Builder(this@AppConfigActivity)
+                healthDialog?.dismiss()
+                healthDialog = TelegramNativeAlertDialog.Builder(this@AppConfigActivity)
                     .setTitle("AI Health Check Failed")
                     .setMessage(errMsg)
                     .setPositiveButton("OK", null)
-                    .show()
+                    .show().also { d ->
+                        d.setOnDismissListener { if (healthDialog === d) healthDialog = null }
+                    }
             } finally {
                 healthBusy = false
                 if (canPublish()) {
@@ -338,6 +352,8 @@ class AppConfigActivity : EveBaseActivity() {
     override fun onDestroy() {
         maintenanceConfirmationDialog?.dismiss()
         maintenanceConfirmationDialog = null
+        healthDialog?.dismiss()
+        healthDialog = null
         super.onDestroy()
     }
 

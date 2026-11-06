@@ -104,6 +104,13 @@ class LeaderboardActivity : EveBaseActivity() {
         outState.putString("leaderboard_owner_uid", leaderboardOwnerUid)
     }
 
+    override fun onDestroy() {
+        if (::binding.isInitialized) {
+            com.eve.app.util.EmptyStateAnimationHelper.stopEmptyState(binding.ivMessageIcon)
+        }
+        super.onDestroy()
+    }
+
     private fun render(state: UiState<List<LeaderboardEntry>>) {
         if (!hasLeaderboardOwner()) { finish(); return }
         when (state) {
