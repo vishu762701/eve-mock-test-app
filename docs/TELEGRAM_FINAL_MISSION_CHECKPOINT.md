@@ -3242,6 +3242,26 @@ Terminal verified FULL run [42072751313](https://github.com/vishu762701/eve-mock
   - Local Delivered Artifact Paths: `/data/data/com.termux/files/home/delivery_apk/app-debug.apk` and `/data/data/com.termux/files/home/hotfix_apk/app-debug.apk`
 - Classification: **VERIFIED FULL INTEGRATION & DELIVERED APK**, all Student and Transactional screens (`FeedbackActivity`, `PremiumActivity`, `PaymentCheckoutActivity`, `PracticeActivity`, `PyqActivity`, `ExamTestsActivity`, `BookmarksActivity`, `HistoryActivity`, `MistakesActivity`) account lifecycle isolation guards, 21 Admin Activities permission revalidations, Profile RenderNode blur, Telegram QR scene & scanner, and Home overflow navigation validated on both emulator navigation modes on latest `main` commit. Physical hardware evidence (camera sensor, 120Hz display) and human legal release clearance remain BLOCKED.
 
+## 2026-11-06 Telegram Source Mission V2: Authenticated Phone ZIP & P0/P1 Implementation (Commits 82cbfd57 & 90c7e3ea)
+
+- **Source Discovery & Authentication (Step 0)**:
+  - Phone archive `/sdcard/Download/Telegrammaster.zip` verified (115,700,719 bytes, SHA-256 `4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10`).
+  - Upstream DrKLO/Telegram origin confirmed at full commit `3de37c8cfb039452be7398909461da6288babf15` (tree `cc3c6ccf48e4167fdec764dfd04e765043f55093`).
+  - Local extracted source active at `~/telegram-source/Telegram-master`. Status: `LOCAL_ZIP_VERIFIED`.
+
+- **P0 / P1 Implementation Delivery**:
+  - `TelegramLineProgressView`: Ported authentic Telegram `LineProgressView.java` and `ChatMessageCell.java` poll progress drawing into `TelegramLineProgressView.kt`; replaced Material `LinearProgressIndicator` in `item_poll_option_result.xml` and bound in `PollsAdminAdapter.kt`.
+  - `TelegramRadioButton`: Replaced `MaterialRadioButton` in `MainActivity.kt` poll options with authentic `TelegramRadioButton`.
+  - `PollRepository`: Corrected `getActivePoll()` and `getUserVote()` error contracts to surface failures rather than masking them as null/empty.
+  - `HomeBannerRepository`: Added 5-minute TTL cache validation to prevent stale caching and duplicate refetches.
+  - `MainActivity`: Removed redundant `adapter.resetPlayedAnimations()` and `replayVisible()` loop on return from stopped state, preventing flashing on Home screen.
+  - Contract assertions: `HomePollBannerIntegrationTest.kt` and `PollBoundActionsTest.kt` updated and verified.
+
+- **CI Verification**:
+  - Push commit `82cbfd5714d8bfd980e8945407f286ae96b5215f`: FAST run [42227613958](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42227613958) **SUCCESS** in 4m0s.
+  - Push commit `90c7e3ea89231bedbfbb28bba8795a9677f6b55f`: FAST run [42229336959](https://github.com/vishu762701/eve-mock-test-app/actions/runs/42229336959) **SUCCESS** in 3m55s.
+
+
 
 
 
