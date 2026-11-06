@@ -83,6 +83,7 @@ class AdminDeleteFlow(private val activity: AppCompatActivity, private val api: 
 
     fun confirmRemoval(key: String, name: String, delete: suspend () -> String?, refresh: () -> Unit) {
         if (activity.isFinishing || activity.isDestroyed || !pending.add(key)) return
+        var processing = false
         activeDialog?.dismiss()
         val dlg = TelegramNativeAlertDialog.Builder(activity)
             .setTitle("Permanently delete $name?")
