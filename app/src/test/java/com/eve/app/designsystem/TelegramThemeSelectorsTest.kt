@@ -103,5 +103,9 @@ class TelegramThemeSelectorsTest {
         assertTrue(logs.contains("override fun onDestroy()"))
         assertTrue(logs.contains("logDialog?.dismiss()"))
         assertTrue(logs.contains("filterDialog?.dismiss()"))
+
+        val editAbout = File("src/main/java/com/eve/app/ui/admin/EditAboutActivity.kt").readText()
+        assertTrue(editAbout.contains("override fun onDestroy()"))
+        assertTrue(editAbout.contains("unsavedDialog?.dismiss()"))
     }
 }

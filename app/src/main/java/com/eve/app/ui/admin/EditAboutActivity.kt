@@ -317,4 +317,14 @@ class EditAboutActivity : EveBaseActivity() {
     companion object {
         private val TYPES = listOf(AppContentRepository.TYPE_PRIVACY, AppContentRepository.TYPE_TERMS, AppContentRepository.TYPE_CONTACT)
     }
+
+    override fun onDestroy() {
+        readJob?.cancel()
+        readJob = null
+        saveJob?.cancel()
+        saveJob = null
+        unsavedDialog?.dismiss()
+        unsavedDialog = null
+        super.onDestroy()
+    }
 }
