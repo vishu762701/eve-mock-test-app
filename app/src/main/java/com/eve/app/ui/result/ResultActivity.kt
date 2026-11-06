@@ -48,6 +48,7 @@ class ResultActivity : EveBaseActivity() {
     private lateinit var binding: ActivityResultBinding
     private var reattemptLimitDialog: TelegramNativeAlertDialog? = null
     private var reattemptConfirmDialog: TelegramNativeAlertDialog? = null
+    private var categoryBottomSheet: com.google.android.material.bottomsheet.BottomSheetDialog? = null
 
     private var currentExamName: String = ""
     private var currentExamId: String = ""
@@ -677,8 +678,13 @@ class ResultActivity : EveBaseActivity() {
 
     private fun showCategoryBottomSheet() {
         if (!resultIdentityCurrent) return
+        categoryBottomSheet?.dismiss()
         val sheetView = layoutInflater.inflate(R.layout.bottom_sheet_category_picker, null)
         val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this, R.style.Theme_Eve_BottomSheetDialog)
+        categoryBottomSheet = dialog
+        dialog.setOnDismissListener {
+            if (categoryBottomSheet === dialog) categoryBottomSheet = null
+        }
         com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, this)
         dialog.setContentView(sheetView)
 
@@ -722,7 +728,16 @@ class ResultActivity : EveBaseActivity() {
             )
         )
 
+        val selectorColor = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(this).actionSelector
+        val rowSelector = {
+            com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
+                8 * resources.displayMetrics.density,
+                selectorColor
+            )
+        }
+
         for (item in rows) {
+            item.row.background = rowSelector()
             val isSelected = selectedCutoffCategory.equals(item.category, ignoreCase = true)
             item.ivCheck.visibility = if (isSelected) View.VISIBLE else View.INVISIBLE
 
@@ -863,6 +878,8 @@ class ResultActivity : EveBaseActivity() {
     }
 
     override fun onStop() {
+        categoryBottomSheet?.dismiss()
+        categoryBottomSheet = null
         reattemptLimitDialog?.dismiss()
         reattemptLimitDialog = null
         reattemptConfirmDialog?.dismiss()
@@ -871,6 +888,8 @@ class ResultActivity : EveBaseActivity() {
     }
 
     override fun onDestroy() {
+        categoryBottomSheet?.dismiss()
+        categoryBottomSheet = null
         reattemptLimitDialog?.dismiss()
         reattemptLimitDialog = null
         reattemptConfirmDialog?.dismiss()

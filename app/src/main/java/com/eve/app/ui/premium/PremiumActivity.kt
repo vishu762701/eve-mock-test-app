@@ -30,6 +30,7 @@ class PremiumActivity : EveBaseActivity() {
     private val premiumAuth = FirebaseAuth.getInstance()
     private var loadJob: kotlinx.coroutines.Job? = null
     private var checkoutJob: kotlinx.coroutines.Job? = null
+    private var paymentSheet: PaymentMethodBottomSheet? = null
 
     private fun hasOriginalAccount(): Boolean =
         !premiumOwnerUid.isNullOrBlank() &&
@@ -86,6 +87,8 @@ class PremiumActivity : EveBaseActivity() {
 
     override fun onStop() {
         premiumAuth.removeAuthStateListener(premiumAuthListener)
+        paymentSheet?.dismissAllowingStateLoss()
+        paymentSheet = null
         super.onStop()
     }
 
@@ -104,6 +107,8 @@ class PremiumActivity : EveBaseActivity() {
         loadJob = null
         checkoutJob?.cancel()
         checkoutJob = null
+        paymentSheet?.dismissAllowingStateLoss()
+        paymentSheet = null
         super.onDestroy()
     }
 
@@ -204,6 +209,7 @@ class PremiumActivity : EveBaseActivity() {
         ) { selectedMethod ->
             createOrderAndCheckout(selectedMethod)
         }
+        paymentSheet = sheet
         sheet.show(supportFragmentManager, "PaymentMethodSheet")
     }
 

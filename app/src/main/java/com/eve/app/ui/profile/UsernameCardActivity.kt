@@ -514,6 +514,14 @@ class UsernameCardActivity : EveBaseActivity() {
         if (::scene.isInitialized) scene.onHostResume()
     }
 
+    override fun onStop() {
+        (emojiPicker as? QrPickerMorphDialog)?.dismissImmediately()
+            ?: emojiPicker?.dismiss()
+        emojiPicker = null
+        emojiPickerGrid = null
+        super.onStop()
+    }
+
     override fun onDestroy() {
         gallerySaveJob?.cancel()
         gallerySaveJob = null
