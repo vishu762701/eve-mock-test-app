@@ -47,6 +47,7 @@ class SettingsActivity : EveBaseActivity() {
     private var progressDialog: TelegramNativeAlertDialog? = null
     private var passwordReauthenticationDialog: TelegramNativeAlertDialog? = null
     private var deleteConfirmationDialog: TelegramNativeAlertDialog? = null
+    private var targetExamsDialog: com.google.android.material.bottomsheet.BottomSheetDialog? = null
     private var deleteConfirmArmedAt: Long = 0L
     private var deleteTimeoutJob: kotlinx.coroutines.Job? = null
     private val settingsAuth = FirebaseAuth.getInstance()
@@ -138,6 +139,8 @@ class SettingsActivity : EveBaseActivity() {
         deleteConfirmationDialog = null
         passwordReauthenticationDialog?.dismiss()
         passwordReauthenticationDialog = null
+        targetExamsDialog?.dismiss()
+        targetExamsDialog = null
         super.onStop()
     }
 
@@ -296,7 +299,13 @@ class SettingsActivity : EveBaseActivity() {
             lifecycleScope.launch {
                 try {
                     val exams = com.eve.app.data.repository.ExamRepository().getExams()
-                    TargetExamsBottomSheet.show(this@SettingsActivity, exams)
+                    if (isFinishing || isDestroyed) return@launch
+                    targetExamsDialog?.dismiss()
+                    targetExamsDialog = TargetExamsBottomSheet.show(this@SettingsActivity, exams).also { dlg ->
+                        dlg.setOnDismissListener {
+                            if (targetExamsDialog === dlg) targetExamsDialog = null
+                        }
+                    }
                 } catch (e: Exception) {
                     AppBulletin.showError(this@SettingsActivity, "Could not load exams: ${e.localizedMessage}")
                 }
@@ -623,6 +632,8 @@ class SettingsActivity : EveBaseActivity() {
         deleteConfirmationDialog = null
         passwordReauthenticationDialog?.dismiss()
         passwordReauthenticationDialog = null
+        targetExamsDialog?.dismiss()
+        targetExamsDialog = null
         dismissProgress()
         super.onDestroy()
     }

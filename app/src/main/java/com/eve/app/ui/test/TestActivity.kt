@@ -60,6 +60,7 @@ class TestActivity : EveBaseActivity() {
     private var leaveConfirmDialog: TelegramNativeAlertDialog? = null
     private var submitConfirmDialog: TelegramNativeAlertDialog? = null
     private var statusDialog: TelegramNativeAlertDialog? = null
+    private var completedExamDialog: com.google.android.material.bottomsheet.BottomSheetDialog? = null
     private var isLeavingTest = false
     private var adminRepository = AdminRepository()
     private var isAdminUser = false
@@ -352,17 +353,20 @@ class TestActivity : EveBaseActivity() {
                                     )
                                     finish()
                                 } else {
-                                    com.eve.app.ui.common.CompletedExamBottomSheet.show(
+                                    completedExamDialog?.dismiss()
+                                    completedExamDialog = com.eve.app.ui.common.CompletedExamBottomSheet.show(
                                         activity = this@TestActivity,
                                         examId = examId,
                                         examName = examName,
                                         attempt = target,
                                         onReattemptConfirmed = {
+                                            completedExamDialog = null
                                             val restartIntent = intent
                                             finish()
                                             startActivity(restartIntent)
                                         },
                                         onDismiss = {
+                                            completedExamDialog = null
                                             if (!isFinishing) {
                                                 finish()
                                             }
@@ -817,6 +821,8 @@ class TestActivity : EveBaseActivity() {
         submitConfirmDialog = null
         statusDialog?.dismiss()
         statusDialog = null
+        completedExamDialog?.dismiss()
+        completedExamDialog = null
         super.onStop()
     }
 
@@ -873,9 +879,11 @@ class TestActivity : EveBaseActivity() {
         leaveConfirmDialog?.dismiss()
         submitConfirmDialog?.dismiss()
         statusDialog?.dismiss()
+        completedExamDialog?.dismiss()
         leaveConfirmDialog = null
         submitConfirmDialog = null
         statusDialog = null
+        completedExamDialog = null
         super.onDestroy()
         com.eve.app.typography.TypographyRepository.getInstance(this).setTestSessionActive(false)
     }

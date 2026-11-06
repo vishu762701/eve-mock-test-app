@@ -1100,6 +1100,10 @@ class MainActivity : EveBaseActivity() {
         FirebaseAuth.getInstance().removeAuthStateListener(homeAuthListener)
         homeOverflowPopup?.dismissForHostTeardown()
         homeOverflowPopup = null
+        logoutConfirmation?.dismiss()
+        logoutConfirmation = null
+        targetExamsDialog?.dismiss()
+        targetExamsDialog = null
         super.onStop()
         isReturningFromStopped = true
         greetingIntroAnimator?.cancel()
@@ -1896,6 +1900,8 @@ class MainActivity : EveBaseActivity() {
         // dismiss must not outlive configuration/process teardown or run an action.
         logoutConfirmation?.dismiss()
         logoutConfirmation = null
+        targetExamsDialog?.dismiss()
+        targetExamsDialog = null
         homeOverflowPopup?.dismissForHostTeardown()
         homeOverflowPopup = null
         TelegramThemeEngine.removeThemeChangeListener(categoryPaletteListener)
@@ -2051,8 +2057,14 @@ class MainActivity : EveBaseActivity() {
                     val mainExams = data.searchItems.filterIsInstance<HomeListItem.ExamRow>()
                         .map { it.exam }.filter { it.isMainExam }
                     if (mainExams.isNotEmpty()) {
-                        TargetExamsBottomSheet.show(this@MainActivity, mainExams) {
+                        targetExamsDialog?.dismiss()
+                        targetExamsDialog = TargetExamsBottomSheet.show(this@MainActivity, mainExams) {
+                            targetExamsDialog = null
                             viewModel.refreshTargetExams()
+                        }.also { dlg ->
+                            dlg.setOnDismissListener {
+                                if (targetExamsDialog === dlg) targetExamsDialog = null
+                            }
                         }
                     }
                 }
@@ -2115,6 +2127,7 @@ class MainActivity : EveBaseActivity() {
     }
 
     private var logoutConfirmation: com.eve.app.designsystem.TelegramNativeAlertDialog? = null
+    private var targetExamsDialog: com.google.android.material.bottomsheet.BottomSheetDialog? = null
     private fun confirmLogout() {
         if (logoutPending || isFinishing || isDestroyed || logoutConfirmation?.isShowing == true) return
         val dialog = com.eve.app.designsystem.TelegramNativeAlertDialog.Builder(this)

@@ -28,6 +28,8 @@ class PremiumActivity : EveBaseActivity() {
     private var currentStatus: PremiumStatusDto? = null
     private var premiumOwnerUid: String? = null
     private val premiumAuth = FirebaseAuth.getInstance()
+    private var loadJob: kotlinx.coroutines.Job? = null
+    private var checkoutJob: kotlinx.coroutines.Job? = null
 
     private fun hasOriginalAccount(): Boolean =
         !premiumOwnerUid.isNullOrBlank() &&
@@ -97,13 +99,22 @@ class PremiumActivity : EveBaseActivity() {
         if (!hasOriginalAccount()) finish()
     }
 
+    override fun onDestroy() {
+        loadJob?.cancel()
+        loadJob = null
+        checkoutJob?.cancel()
+        checkoutJob = null
+        super.onDestroy()
+    }
+
     private fun loadData() {
         if (!hasOriginalAccount()) { finish(); return }
         val requestUid = premiumOwnerUid
         binding.progressBar.visibility = View.VISIBLE
         binding.scrollView.visibility = View.INVISIBLE
 
-        lifecycleScope.launch {
+        loadJob?.cancel()
+        loadJob = lifecycleScope.launch {
             val planRes = PremiumRepository.getPlan()
             if (!hasOriginalAccount() || requestUid != premiumOwnerUid) return@launch
             val statusRes = PremiumRepository.refreshStatus(this@PremiumActivity)
@@ -200,7 +211,8 @@ class PremiumActivity : EveBaseActivity() {
         if (!hasOriginalAccount()) { finish(); return }
         val requestUid = premiumOwnerUid
         binding.progressBar.visibility = View.VISIBLE
-        lifecycleScope.launch {
+        checkoutJob?.cancel()
+        checkoutJob = lifecycleScope.launch {
             val res = PremiumRepository.createOrder(method)
             if (!hasOriginalAccount() || requestUid != premiumOwnerUid) return@launch
             binding.progressBar.visibility = View.GONE

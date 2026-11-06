@@ -29,9 +29,9 @@ object CompletedExamBottomSheet {
         attempt: TestAttempt?,
         onReattemptConfirmed: () -> Unit,
         onDismiss: (() -> Unit)? = null
-    ) {
-        val ownerUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        if (activity.isFinishing || activity.isDestroyed || attempt != null && attempt.userId != ownerUid) return
+    ): BottomSheetDialog? {
+        val ownerUid = FirebaseAuth.getInstance().currentUser?.uid ?: return null
+        if (activity.isFinishing || activity.isDestroyed || attempt != null && attempt.userId != ownerUid) return null
         val dialog = BottomSheetDialog(activity, R.style.Theme_Eve_BottomSheetDialog)
         val binding = BottomSheetCompletedExamBinding.inflate(LayoutInflater.from(activity))
         dialog.setContentView(binding.root)
@@ -158,5 +158,6 @@ object CompletedExamBottomSheet {
         dialog.show()
         // Shared original Telegram BottomSheet.java black alpha-51 scrim atom.
         com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, activity)
+        return dialog
     }
 }
