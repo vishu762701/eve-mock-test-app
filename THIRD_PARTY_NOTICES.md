@@ -967,6 +967,10 @@ TMessagesProj resources, Copyright Telegram Android contributors, GNU GPL v2 or 
 - `app/src/main/res/drawable/ic_star_bookmark_filled.xml`: Ported from `TMessagesProj/src/main/res/drawable/outline_saved_24.xml` (official Telegram Saved Messages ribbon).
 - `app/src/main/res/drawable/ic_visibility.xml`: Ported from `TMessagesProj/src/main/res/drawable/filled_poll_view_24.xml` (official Telegram poll view/eye icon).
 - `app/src/main/res/drawable/ic_status_circle_unattempted.xml`, `ic_status_circle_right.xml`, `ic_status_circle_wrong.xml`, `illustration_empty_all_caught_up.xml`: Derived from Telegram `CheckBoxBase.java:631-646` round checkmark and circular stroke geometry.
+- `app/src/main/res/drawable/ic_maintenance.xml`: Ported from `TMessagesProj/src/main/res/drawable/outline_profile_settings.xml` (official Telegram profile settings and operational config gear).
+- `app/src/main/res/drawable/ic_trophy.xml`: Ported from `TMessagesProj/src/main/res/drawable/filled_rating_crown.xml` (official Telegram leaderboard rating crown).
+- `app/src/main/res/drawable/ic_syllabus.xml`: Ported from `TMessagesProj/src/main/res/drawable/dialog_media_checklist_20.xml` (official Telegram checklist media icon).
+- `app/src/main/res/drawable/ic_account_balance.xml`: Ported from `TMessagesProj/src/main/res/drawable/filled_card_add.xml` (official Telegram payment card vector).
 
 
 
