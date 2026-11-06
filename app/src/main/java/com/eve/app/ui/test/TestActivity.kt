@@ -811,6 +811,12 @@ class TestActivity : EveBaseActivity() {
 
     override fun onStop() {
         FirebaseAuth.getInstance().removeAuthStateListener(testAccountListener)
+        leaveConfirmDialog?.dismiss()
+        leaveConfirmDialog = null
+        submitConfirmDialog?.dismiss()
+        submitConfirmDialog = null
+        statusDialog?.dismiss()
+        statusDialog = null
         super.onStop()
     }
 

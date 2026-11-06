@@ -862,6 +862,14 @@ class ResultActivity : EveBaseActivity() {
         finish()
     }
 
+    override fun onStop() {
+        reattemptLimitDialog?.dismiss()
+        reattemptLimitDialog = null
+        reattemptConfirmDialog?.dismiss()
+        reattemptConfirmDialog = null
+        super.onStop()
+    }
+
     override fun onDestroy() {
         reattemptLimitDialog?.dismiss()
         reattemptLimitDialog = null

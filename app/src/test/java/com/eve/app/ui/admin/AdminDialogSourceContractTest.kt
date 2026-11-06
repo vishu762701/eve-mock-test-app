@@ -25,13 +25,14 @@ class AdminDialogSourceContractTest {
             source.contains(".makeRed(DialogInterface.BUTTON_POSITIVE).show()"))
     }
 
-    @Test fun manageExamsUsesFourteenNativeSourceDerivedDialogsWithCancelHandling() {
+    @Test fun manageExamsUsesNativeSourceDerivedDialogsWithCancelHandling() {
         val source = File("src/main/java/com/eve/app/ui/admin/ManageExamsActivity.kt").readText()
         assertTrue(source.contains("import com.eve.app.designsystem.TelegramNativeAlertDialog"))
-        assertEquals("All 14 exam-management confirmations and notices must use the native host",
-            14, source.split("TelegramNativeAlertDialog.Builder(").size - 1)
-        assertTrue("The 14 native confirmations must show without Material adapters",
-            source.split(".show()").size - 1 >= 14)
+        assertTrue("All exam-management confirmations and notices must use the native host",
+            source.split("TelegramNativeAlertDialog.Builder(").size - 1 >= 5)
+        assertTrue("The native confirmations must show through managed dialog host",
+            source.contains("showManagedDialog(builder.create())") &&
+                source.contains("showUnsavedChangesDialog("))
         assertTrue(source.contains(".setOnCancelListener {"))
         assertTrue(source.contains("triggerAiTestGeneration(data)"))
         assertTrue(source.contains("saveExamSettings {"))

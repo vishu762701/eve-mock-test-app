@@ -133,6 +133,11 @@ class SettingsActivity : EveBaseActivity() {
 
     override fun onStop() {
         settingsAuth.removeAuthStateListener(settingsAccountListener)
+        dismissProgressDialog()
+        deleteConfirmationDialog?.dismiss()
+        deleteConfirmationDialog = null
+        passwordReauthenticationDialog?.dismiss()
+        passwordReauthenticationDialog = null
         super.onStop()
     }
 
