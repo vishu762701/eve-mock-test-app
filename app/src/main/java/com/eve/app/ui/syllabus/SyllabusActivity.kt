@@ -36,6 +36,16 @@ class SyllabusActivity : EveBaseActivity() {
     private val examRepository = ExamRepository()
     private lateinit var adapter: SyllabusAdapter
 
+    private val syllabusAuth = com.google.firebase.auth.FirebaseAuth.getInstance()
+    private var syllabusOwnerUid: String? = null
+
+    private fun hasSyllabusOwner(): Boolean =
+        com.eve.app.util.SubmissionRetryPolicy.ownsSubmission(syllabusOwnerUid, syllabusAuth.currentUser?.uid)
+
+    private val syllabusAuthListener = com.google.firebase.auth.FirebaseAuth.AuthStateListener {
+        if (syllabusOwnerUid != null && !hasSyllabusOwner()) finish()
+    }
+
     private var allExams = listOf<Exam>()
     private var pendingDownloadExam: Exam? = null
     private val downloadIdToExam = mutableMapOf<Long, Exam>()
@@ -54,6 +64,7 @@ class SyllabusActivity : EveBaseActivity() {
 
     private val onDownloadCompleteReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
+            if (!hasSyllabusOwner()) return
             if (intent?.action == DownloadManager.ACTION_DOWNLOAD_COMPLETE) {
                 val downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1L)
                 val exam = downloadIdToExam[downloadId] ?: return
@@ -81,6 +92,11 @@ class SyllabusActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val liveUid = syllabusAuth.currentUser?.uid
+        syllabusOwnerUid = if (savedInstanceState == null) liveUid
+            else savedInstanceState.getString("syllabus_owner_uid")
+        if (!hasSyllabusOwner()) { finish(); return }
+
         binding = ActivitySyllabusBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -98,9 +114,26 @@ class SyllabusActivity : EveBaseActivity() {
         )
     }
 
+    override fun onStart() {
+        super.onStart()
+        if (!hasSyllabusOwner()) { finish(); return }
+        syllabusAuth.addAuthStateListener(syllabusAuthListener)
+    }
+
+    override fun onStop() {
+        syllabusAuth.removeAuthStateListener(syllabusAuthListener)
+        super.onStop()
+    }
+
     override fun onResume() {
         super.onResume()
+        if (!hasSyllabusOwner()) { finish(); return }
         binding.emptyStateView.resetPlayOnNextShow()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("syllabus_owner_uid", syllabusOwnerUid)
     }
 
     override fun onDestroy() {
@@ -189,6 +222,7 @@ class SyllabusActivity : EveBaseActivity() {
     }
 
     private fun checkPermissionAndDownload(exam: Exam) {
+        if (!hasSyllabusOwner()) { finish(); return }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q &&
             ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
             != PackageManager.PERMISSION_GRANTED) {
@@ -200,6 +234,7 @@ class SyllabusActivity : EveBaseActivity() {
     }
 
     private fun startDownload(exam: Exam) {
+        if (!hasSyllabusOwner()) { finish(); return }
         if (exam.syllabusUrl.isBlank()) {
             AppBulletin.showError(this, "Syllabus not available for this exam")
             return

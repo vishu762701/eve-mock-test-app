@@ -41,6 +41,80 @@
                 </FrameLayout>
             </FrameLayout>
             <com.google.android.material.button.MaterialButton android:id="@+id/btnAdmin" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_marginTop="@dimen/design_screen_margin" android:text="Admin Dashboard" android:visibility="gone" />
+            <com.eve.app.designsystem.DesignCardView
+                android:id="@+id/cardPoll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/design_screen_margin"
+                android:layout_marginTop="@dimen/design_row_gap"
+                android:layout_marginBottom="@dimen/design_card_gap"
+                android:visibility="gone"
+                style="@style/Widget.Eve.Token.Card">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    style="@style/Widget.Eve.Token.Column">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:clipChildren="false"
+                        android:clipToPadding="false"
+                        style="@style/Widget.Eve.Token.Column">
+                        <TextView
+                            android:id="@+id/tvHomePollHeader"
+                            style="@style/TextAppearance.Eve.Token.Secondary.blue"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="🗳️ Community Poll" />
+                        <TextView
+                            android:id="@+id/tvHomePollStatus"
+                            style="@style/TextAppearance.Eve.Token.Secondary"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Active" />
+                    </LinearLayout>
+                    <TextView
+                        android:id="@+id/tvHomePollQuestion"
+                        style="@style/TextAppearance.Eve.Token.Heading"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/design_card_gap" />
+                    <RadioGroup
+                        android:id="@+id/rgHomePollOptions"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/design_row_gap" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSubmitHomeVote"
+                        style="@style/Widget.Eve.Token.Button.Secondary"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/design_touch_min"
+                        android:layout_marginTop="@dimen/design_row_gap"
+                        android:text="Vote" />
+                    <LinearLayout
+                        android:id="@+id/layoutHomePollResults"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/design_row_gap"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        android:clipChildren="false"
+                        android:clipToPadding="false"
+                        style="@style/Widget.Eve.Token.Column" />
+                    <TextView
+                        android:id="@+id/tvHomePollTotalVotes"
+                        style="@style/TextAppearance.Eve.Token.Secondary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/design_card_gap" />
+                </LinearLayout>
+            </com.eve.app.designsystem.DesignCardView>
             <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:clipChildren="false" android:clipToPadding="false" android:scrollbars="none">
                 <com.eve.app.ui.home.HomeCategoryChipGroup android:id="@+id/chipGroupCategory" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_section_gap" android:layout_marginEnd="@dimen/design_section_gap" app:chipSpacingHorizontal="@dimen/design_card_gap" app:singleLine="true" app:singleSelection="true" app:selectionRequired="true" />
             </HorizontalScrollView>

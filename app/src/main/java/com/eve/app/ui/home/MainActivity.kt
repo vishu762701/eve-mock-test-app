@@ -69,6 +69,10 @@ import com.eve.app.ui.pyq.PyqActivity
 import com.eve.app.ui.settings.SettingsActivity
 import com.eve.app.ui.syllabus.SyllabusActivity
 import com.eve.app.ui.test.TestActivity
+import com.eve.app.data.model.Poll
+import com.eve.app.data.repository.PollRepository
+import android.widget.ProgressBar
+import android.widget.TextView
 import com.eve.app.BuildConfig
 import com.eve.app.util.AppConfigManager
 import com.eve.app.util.Constants
@@ -130,7 +134,11 @@ class MainActivity : EveBaseActivity() {
         if (homeOwnerUid.isNotBlank() && auth.currentUser?.uid != homeOwnerUid) {
             notifJob?.cancel()
             bannerObserverJob?.cancel()
-            if (::binding.isInitialized) binding.rvExams.visibility = View.GONE
+            homePollJob?.cancel()
+            if (::binding.isInitialized) {
+                binding.rvExams.visibility = View.GONE
+                binding.cardPoll.visibility = View.GONE
+            }
             finish()
         }
     }
@@ -138,6 +146,11 @@ class MainActivity : EveBaseActivity() {
     private var searchTransitionAnimator: android.animation.AnimatorSet? = null
     private var currentSearchQuery = ""
     private var homeListPositionBeforeSearch: android.os.Parcelable? = null
+
+    private val pollRepository = PollRepository()
+    private var homePollJob: Job? = null
+    private var activePollData: Poll? = null
+    private var activePollVotedIndex: Int? = null
 
     private var restoreThemeContent = false
     private var themeListState: android.os.Parcelable? = null
@@ -737,6 +750,8 @@ class MainActivity : EveBaseActivity() {
     private fun refreshSearchChrome() {
         binding.panelHomeBanner.visibility =
             if (!isSearchActive && homeBanners.isNotEmpty()) View.VISIBLE else View.GONE
+        binding.cardPoll.visibility =
+            if (!isSearchActive && activePollData != null) View.VISIBLE else View.GONE
         // The admin-only action is presentation-hidden in search, never revoked.
         // Reopen its original authorized state when closing or restoring search.
         binding.btnAdmin.visibility =
@@ -1075,6 +1090,7 @@ class MainActivity : EveBaseActivity() {
 
             startListeningToNotifications()
             startListeningToHomeBanner()
+            loadActivePoll()
 
             refreshFloatingLink()
         }
@@ -1094,6 +1110,8 @@ class MainActivity : EveBaseActivity() {
         stopBannerAutoScroll()
         bannerObserverJob?.cancel()
         bannerObserverJob = null
+        homePollJob?.cancel()
+        homePollJob = null
         if (::binding.isInitialized && binding.cardFloatingAirplane.visibility == View.VISIBLE) {
             binding.lottieFloatingAirplane.pauseAnimation()
         }
@@ -1490,6 +1508,7 @@ class MainActivity : EveBaseActivity() {
         bannerObserverJob?.cancel()
         bannerObserverJob = lifecycleScope.launch(lifecycleExceptionHandler) {
             bannerRepo.observeBanners().collect { banners ->
+                val bannersChanged = homeBanners != banners
                 homeBanners = banners
                 currentBannerCount = banners.size
                 if (banners.isEmpty()) {
@@ -1499,11 +1518,13 @@ class MainActivity : EveBaseActivity() {
                     stopBannerAutoScroll()
                 } else {
                     binding.panelHomeBanner.visibility = if (isSearchActive) View.GONE else View.VISIBLE
-                    bannerAdapter.submitList(banners)
-                    val currentPage = binding.vpHomeBanners.currentItem.coerceIn(0, banners.lastIndex)
-                    binding.vpHomeBanners.setCurrentItem(currentPage, false)
+                    if (bannersChanged) {
+                        bannerAdapter.submitList(banners)
+                        val currentPage = binding.vpHomeBanners.currentItem.coerceIn(0, banners.lastIndex)
+                        binding.vpHomeBanners.setCurrentItem(currentPage, false)
+                        renderHomeBannerCta(currentPage)
+                    }
                     binding.vpHomeBanners.isUserInputEnabled = banners.size > 1
-                    renderHomeBannerCta(currentPage)
                     startBannerAutoScroll(banners.size)
                 }
             }
@@ -1527,6 +1548,130 @@ class MainActivity : EveBaseActivity() {
     private fun stopBannerAutoScroll() {
         bannerAutoScrollJob?.cancel()
         bannerAutoScrollJob = null
+    }
+
+    private fun loadActivePoll() {
+        val user = FirebaseAuth.getInstance().currentUser
+        val requestUid = homeOwnerUid
+        if (user == null || requestUid.isBlank() || requestUid != user.uid) {
+            if (::binding.isInitialized) binding.cardPoll.visibility = View.GONE
+            return
+        }
+
+        homePollJob?.cancel()
+        homePollJob = lifecycleScope.launch(lifecycleExceptionHandler) {
+            try {
+                val poll = pollRepository.getActivePoll()
+                val liveUser = FirebaseAuth.getInstance().currentUser
+                if (!searchOwnerCurrent || isFinishing || isDestroyed || liveUser?.uid != requestUid) return@launch
+                if (poll == null) {
+                    binding.cardPoll.visibility = View.GONE
+                    activePollData = null
+                    return@launch
+                }
+
+                activePollData = poll
+                binding.cardPoll.visibility = if (isSearchActive) View.GONE else View.VISIBLE
+                binding.tvHomePollQuestion.text = poll.question
+                binding.tvHomePollTotalVotes.text = "${poll.totalVotes} total votes"
+                binding.tvHomePollStatus.text = if (poll.isCurrentlyActive) "Active" else "Closed"
+
+                val myVote = pollRepository.getUserVote(poll.id, requestUid)
+                if (!searchOwnerCurrent || isFinishing || isDestroyed) return@launch
+                activePollVotedIndex = myVote
+
+                if (myVote != null || !poll.isCurrentlyActive) {
+                    binding.rgHomePollOptions.visibility = View.GONE
+                    binding.btnSubmitHomeVote.visibility = View.GONE
+                    binding.layoutHomePollResults.visibility = View.VISIBLE
+                    renderHomePollResults(poll, myVote)
+                } else {
+                    binding.layoutHomePollResults.visibility = View.GONE
+                    binding.rgHomePollOptions.visibility = View.VISIBLE
+                    binding.btnSubmitHomeVote.visibility = View.VISIBLE
+                    setupHomePollVoting(poll, requestUid)
+                }
+            } catch (cancel: CancellationException) {
+                throw cancel
+            } catch (_: Exception) {
+                if (::binding.isInitialized && activePollData == null) {
+                    binding.cardPoll.visibility = View.GONE
+                }
+            }
+        }
+    }
+
+    private fun setupHomePollVoting(poll: Poll, uid: String) {
+        binding.rgHomePollOptions.removeAllViews()
+        poll.options.forEachIndexed { index, optionText ->
+            val rb = com.google.android.material.radiobutton.MaterialRadioButton(this).apply {
+                id = View.generateViewId()
+                text = optionText
+                tag = index
+                minHeight = resources.getDimensionPixelSize(R.dimen.design_touch_min)
+                setTextAppearance(R.style.TextAppearance_Eve_Token_Body)
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_primary))
+            }
+            binding.rgHomePollOptions.addView(rb)
+        }
+
+        binding.btnSubmitHomeVote.isEnabled = true
+        binding.btnSubmitHomeVote.setOnClickListener {
+            val liveUser = FirebaseAuth.getInstance().currentUser
+            if (liveUser == null || liveUser.uid != uid) return@setOnClickListener
+            val checkedId = binding.rgHomePollOptions.checkedRadioButtonId
+            if (checkedId == -1) {
+                AppBulletin.showError(this, "Please select an option to vote")
+                return@setOnClickListener
+            }
+            val checkedRb = binding.rgHomePollOptions.findViewById<View>(checkedId)
+            val selectedOptionIndex = checkedRb?.tag as? Int ?: 0
+
+            binding.btnSubmitHomeVote.isEnabled = false
+            lifecycleScope.launch(lifecycleExceptionHandler) {
+                try {
+                    pollRepository.submitVote(poll.id, uid, selectedOptionIndex)
+                    AppBulletin.showSuccess(this@MainActivity, "Vote recorded!")
+                    loadActivePoll()
+                } catch (cancel: CancellationException) {
+                    throw cancel
+                } catch (e: Exception) {
+                    binding.btnSubmitHomeVote.isEnabled = true
+                    AppBulletin.showError(this@MainActivity, "Failed to vote: ${e.localizedMessage ?: "Unknown error"}")
+                }
+            }
+        }
+    }
+
+    private fun renderHomePollResults(poll: Poll, myVote: Int?) {
+        binding.layoutHomePollResults.removeAllViews()
+        val inflater = LayoutInflater.from(this)
+
+        poll.options.forEachIndexed { index, optionText ->
+            val rowView = inflater.inflate(R.layout.item_poll_option_result, binding.layoutHomePollResults, false)
+            val tvTitle = rowView.findViewById<TextView>(R.id.tvOptionTitle)
+            val tvPercent = rowView.findViewById<TextView>(R.id.tvOptionPercent)
+            val pbOption = rowView.findViewById<ProgressBar>(R.id.pbOption)
+            val tvVotes = rowView.findViewById<TextView>(R.id.tvOptionVotes)
+
+            val votes = poll.getVotesForOption(index)
+            val percent = poll.getPercentageForOption(index)
+
+            val isMyChoice = (myVote == index)
+            tvTitle.text = if (isMyChoice) "$optionText  ✓ (Your vote)" else optionText
+            if (isMyChoice) {
+                tvTitle.setTextColor(ContextCompat.getColor(this, R.color.accent))
+                tvTitle.setTypeface(null, android.graphics.Typeface.BOLD)
+            } else {
+                tvTitle.setTextColor(ContextCompat.getColor(this, R.color.text_primary))
+            }
+
+            tvPercent.text = "$percent%"
+            pbOption.progress = percent
+            tvVotes.text = "$votes votes"
+
+            binding.layoutHomePollResults.addView(rowView)
+        }
     }
 
     private fun startListeningToNotifications() {

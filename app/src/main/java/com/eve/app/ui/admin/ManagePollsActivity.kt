@@ -65,6 +65,8 @@ class ManagePollsActivity : EveBaseActivity() {
     }
 
     override fun onStop() {
+        createPollDialog?.dismiss()
+        createPollDialog = null
         reauthorizeOnResume = true
         super.onStop()
     }

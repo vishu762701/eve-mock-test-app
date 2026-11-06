@@ -24,23 +24,39 @@ class HomeBannerRepository(
     private val api: EveApiService = ApiClient.apiService
 ) {
 
+    companion object {
+        @Volatile
+        private var cachedBanners: List<HomeBanner>? = null
+
+        fun clearCache() {
+            cachedBanners = null
+        }
+    }
+
     fun observeBanners(): Flow<List<HomeBanner>> = flow {
+        cachedBanners?.let { emit(it) }
         try {
             val res = api.getBanners()
             if (res.success && res.data != null) {
-                emit(res.data.sortedBy { it.order })
-            } else {
+                val sorted = res.data.sortedBy { it.order }
+                cachedBanners = sorted
+                emit(sorted)
+            } else if (cachedBanners == null) {
                 emit(emptyList())
             }
         } catch (_: Exception) {
-            emit(emptyList())
+            if (cachedBanners == null) {
+                emit(emptyList())
+            }
         }
     }
 
     suspend fun getBanners(): List<HomeBanner> {
         val res = api.getBanners()
         if (!res.success || res.data == null) throw IllegalStateException(res.error ?: "Cannot load banners")
-        return res.data.sortedBy { it.order }
+        val sorted = res.data.sortedBy { it.order }
+        cachedBanners = sorted
+        return sorted
     }
 
     suspend fun uploadBanner(
@@ -67,6 +83,7 @@ class HomeBannerRepository(
         if (!res.success || res.data == null) {
             throw IllegalStateException(res.error ?: "Failed to upload banner")
         }
+        clearCache()
         Result.success(res.data)
     } catch (cancel: CancellationException) {
         throw cancel
@@ -79,6 +96,7 @@ class HomeBannerRepository(
         if (!res.success) {
             throw IllegalStateException(res.error ?: "Failed to update banner link")
         }
+        clearCache()
         Result.success(Unit)
     } catch (cancel: CancellationException) {
         throw cancel
@@ -91,6 +109,7 @@ class HomeBannerRepository(
         if (!res.success) {
             throw IllegalStateException(res.error ?: "Failed to delete banner")
         }
+        clearCache()
         Result.success(res.message)
     } catch (cancel: CancellationException) {
         throw cancel
@@ -103,6 +122,7 @@ class HomeBannerRepository(
         if (!res.success) {
             throw IllegalStateException(res.error ?: "Failed to reorder banner")
         }
+        clearCache()
         Result.success(Unit)
     } catch (cancel: CancellationException) {
         throw cancel

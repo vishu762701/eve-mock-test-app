@@ -46,6 +46,13 @@ class EmojiStudioActivity : EveBaseActivity() {
     private var dataJob: Job? = null
     private var importRunning = false
     private var authorized = false
+    private var reauthorizeOnResume = false
+    private var authorizedUid: String? = null
+    private var authorizedEmail: String? = null
+    private var placementDialog: BottomSheetDialog? = null
+    private var packManagerDialog: BottomSheetDialog? = null
+    private var importOptionsDialog: TelegramNativeAlertDialog? = null
+    private var itemDetailsDialog: TelegramNativeAlertDialog? = null
     private var pendingUpload: android.net.Uri? = null
     private val uploadPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
@@ -55,15 +62,66 @@ class EmojiStudioActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val live = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+        authorizedUid = live?.uid
+        authorizedEmail = live?.email
+
         binding = ActivityEmojiStudioBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_content") {
             authorized = true
+            authorizedUid = live?.uid
+            authorizedEmail = live?.email
             setupViews()
             loadData()
             pendingUpload?.let { pendingUpload = null; uploadCustom(it) }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (reauthorizeOnResume && ::binding.isInitialized) {
+            reauthorizeOnResume = false
+            val live = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+            if (live == null || live.uid != authorizedUid || live.email != authorizedEmail) {
+                finish()
+                return
+            }
+            AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_content") {
+                authorized = true
+                authorizedUid = live.uid
+                authorizedEmail = live.email
+                loadData()
+            }
+        }
+    }
+
+    override fun onStop() {
+        reauthorizeOnResume = true
+        dataJob?.cancel()
+        placementDialog?.dismiss()
+        placementDialog = null
+        packManagerDialog?.dismiss()
+        packManagerDialog = null
+        importOptionsDialog?.dismiss()
+        importOptionsDialog = null
+        itemDetailsDialog?.dismiss()
+        itemDetailsDialog = null
+        super.onStop()
+    }
+
+    override fun onDestroy() {
+        dataJob?.cancel()
+        placementDialog?.dismiss()
+        placementDialog = null
+        packManagerDialog?.dismiss()
+        packManagerDialog = null
+        importOptionsDialog?.dismiss()
+        importOptionsDialog = null
+        itemDetailsDialog?.dismiss()
+        itemDetailsDialog = null
+        super.onDestroy()
     }
 
     private fun setupViews() {
@@ -234,6 +292,8 @@ class EmojiStudioActivity : EveBaseActivity() {
 
     private fun showPlacementBottomSheet(item: EmojiItem) {
         val dialog = BottomSheetDialog(this)
+        placementDialog = dialog
+        dialog.setOnDismissListener { if (placementDialog === dialog) placementDialog = null }
         val sheetBinding = BottomSheetEmojiPlacementBinding.inflate(layoutInflater)
         dialog.setContentView(sheetBinding.root)
 
@@ -353,6 +413,8 @@ class EmojiStudioActivity : EveBaseActivity() {
 
     private fun showPackManagerBottomSheet() {
         val dialog = BottomSheetDialog(this)
+        packManagerDialog = dialog
+        dialog.setOnDismissListener { if (packManagerDialog === dialog) packManagerDialog = null }
         val sheetBinding = BottomSheetEmojiPackManagerBinding.inflate(layoutInflater)
         dialog.setContentView(sheetBinding.root)
 
@@ -418,10 +480,14 @@ class EmojiStudioActivity : EveBaseActivity() {
         actions += "Upload Custom JSON/WebP/PNG" to {
             uploadPicker.launch(arrayOf("application/json", "image/webp", "image/png"))
         }
-        TelegramNativeAlertDialog.Builder(this)
+        val dialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Import Emoji")
             .setItems(actions.map { it.first }.toTypedArray()) { _, which -> actions[which].second() }
-            .setNegativeButton("Cancel", null).show()
+            .setNegativeButton("Cancel", null)
+            .create()
+        importOptionsDialog = dialog
+        dialog.setOnDismissListener { if (importOptionsDialog === dialog) importOptionsDialog = null }
+        dialog.show()
     }
 
     private fun showTelegramImportDialog() {
@@ -538,10 +604,13 @@ class EmojiStudioActivity : EveBaseActivity() {
             .append("Premium Origin: ${if (item.premiumOrigin) "Yes (Telegram)" else "No"}\n")
             .append("Storage: ${item.storageKey ?: item.url}")
 
-        TelegramNativeAlertDialog.Builder(this)
+        val dialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Emoji Details")
             .setMessage(details.toString())
             .setPositiveButton("OK", null)
-            .show()
+            .create()
+        itemDetailsDialog = dialog
+        dialog.setOnDismissListener { if (itemDetailsDialog === dialog) itemDetailsDialog = null }
+        dialog.show()
     }
 }
