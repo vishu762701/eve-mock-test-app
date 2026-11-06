@@ -67,7 +67,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <RadioButton
+        <com.eve.app.ui.common.TelegramRadioButton
             android:id="@+id/rbExamCard"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -76,7 +76,7 @@
             android:text="Exam Card"
             android:textAppearance="@style/TextAppearance.Eve.Footnote" />
 
-        <RadioButton
+        <com.eve.app.ui.common.TelegramRadioButton
             android:id="@+id/rbCategoryHeader"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -84,7 +84,7 @@
             android:text="Category"
             android:textAppearance="@style/TextAppearance.Eve.Footnote" />
 
-        <RadioButton
+        <com.eve.app.ui.common.TelegramRadioButton
             android:id="@+id/rbBroadcast"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
