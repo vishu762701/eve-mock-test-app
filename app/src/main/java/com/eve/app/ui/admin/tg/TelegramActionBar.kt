@@ -74,15 +74,15 @@ class TelegramActionBar @JvmOverloads constructor(
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
         minimumHeight = dp(56f)
 
-        val outValue = TypedValue()
-        context.theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, outValue, true)
-        val selectableBorderless = outValue.resourceId
+        val circleSelector = {
+            com.eve.app.designsystem.TelegramThemeSelectors.getCircleSelectorDrawable(palette.actionSelector)
+        }
 
         // 1. Back button
         backButton.setImageResource(R.drawable.ic_back)
         backButton.scaleType = ImageView.ScaleType.CENTER
         backButton.setColorFilter(palette.textPrimary)
-        backButton.setBackgroundResource(selectableBorderless)
+        backButton.background = circleSelector()
         backButton.contentDescription = "Back"
         addView(backButton, LayoutParams(dp(48f), dp(48f), Gravity.START or Gravity.CENTER_VERTICAL).apply {
             marginStart = dp(4f)
@@ -122,7 +122,7 @@ class TelegramActionBar @JvmOverloads constructor(
         searchButton.setImageResource(R.drawable.ic_search)
         searchButton.scaleType = ImageView.ScaleType.CENTER
         searchButton.setColorFilter(palette.textPrimary)
-        searchButton.setBackgroundResource(selectableBorderless)
+        searchButton.background = circleSelector()
         searchButton.contentDescription = "Search"
         addView(searchButton, LayoutParams(dp(48f), dp(48f), Gravity.END or Gravity.CENTER_VERTICAL).apply {
             marginEnd = dp(4f)
@@ -135,7 +135,7 @@ class TelegramActionBar @JvmOverloads constructor(
         filterButton.setImageResource(R.drawable.ic_filter)
         filterButton.scaleType = ImageView.ScaleType.CENTER
         filterButton.setColorFilter(palette.textPrimary)
-        filterButton.setBackgroundResource(selectableBorderless)
+        filterButton.background = circleSelector()
         filterButton.contentDescription = "Filter"
         filterButton.visibility = View.GONE
         addView(filterButton, LayoutParams(dp(48f), dp(48f), Gravity.END or Gravity.CENTER_VERTICAL).apply {
@@ -144,7 +144,7 @@ class TelegramActionBar @JvmOverloads constructor(
 
         // 3b. Generic / Done Action Button
         actionButton.scaleType = ImageView.ScaleType.CENTER
-        actionButton.setBackgroundResource(selectableBorderless)
+        actionButton.background = circleSelector()
         actionButton.visibility = View.GONE
         addView(actionButton, LayoutParams(dp(48f), dp(48f), Gravity.END or Gravity.CENTER_VERTICAL).apply {
             marginEnd = dp(4f)
@@ -181,7 +181,7 @@ class TelegramActionBar @JvmOverloads constructor(
         clearButton.setImageResource(R.drawable.ic_close)
         clearButton.scaleType = ImageView.ScaleType.CENTER
         clearButton.setColorFilter(palette.textSecondary)
-        clearButton.setBackgroundResource(selectableBorderless)
+        clearButton.background = circleSelector()
         clearButton.contentDescription = "Clear search"
         clearButton.visibility = View.GONE
         clearButton.setOnClickListener {

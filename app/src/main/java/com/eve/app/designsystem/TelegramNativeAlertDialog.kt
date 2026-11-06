@@ -118,10 +118,10 @@ class TelegramNativeAlertDialog private constructor(
                     setPadding(dp(24), 0, dp(24), 0)
                     isClickable = true
                     isFocusable = true
-                    val ripple = android.util.TypedValue()
-                    if (context.theme.resolveAttribute(android.R.attr.selectableItemBackground, ripple, true)) {
-                        setBackgroundResource(ripple.resourceId)
-                    }
+                    background = TelegramThemeSelectors.getRoundRectSelectorDrawable(
+                        dp(8).toFloat(),
+                        palette.actionSelector
+                    )
                     setOnClickListener {
                         if (!isShowing) return@setOnClickListener
                         try {

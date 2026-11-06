@@ -78,8 +78,6 @@ class TelegramSegmentedTabs @JvmOverloads constructor(
         selectedIndex = defaultIndex.coerceIn(0, (titles.size - 1).coerceAtLeast(0))
 
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
-        val outValue = TypedValue()
-        context.theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, outValue, true)
 
         for ((index, title) in titles.withIndex()) {
             val tv = TextView(context).apply {
@@ -90,7 +88,10 @@ class TelegramSegmentedTabs @JvmOverloads constructor(
                 includeFontPadding = false
                 isClickable = true
                 isFocusable = true
-                setBackgroundResource(outValue.resourceId)
+                background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
+                    8 * resources.displayMetrics.density,
+                    palette.actionSelector
+                )
                 setTextColor(if (index == selectedIndex) palette.accent else palette.textSecondary)
                 isSelected = index == selectedIndex
                 setOnClickListener { selectTab(index, animated = true) }

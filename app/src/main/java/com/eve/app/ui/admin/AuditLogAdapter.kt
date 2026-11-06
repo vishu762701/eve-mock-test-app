@@ -86,6 +86,10 @@ class AuditLogAdapter(
             }
             else -> {
                 val binding = ItemAuditLogBinding.inflate(inflater, parent, false)
+                binding.root.background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
+                    8 * parent.resources.displayMetrics.density,
+                    com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(parent.context).actionSelector
+                )
                 EntryViewHolder(binding)
             }
         }

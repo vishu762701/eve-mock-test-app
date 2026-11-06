@@ -61,9 +61,6 @@ class TelegramProfileRadioCell @JvmOverloads constructor(
         minimumHeight = dp(50)
         // Telegram RadioCell is 50dp. Grow only when larger system text needs room.
         setPadding(0, dp(8), 0, dp(8))
-        val selector = context.obtainStyledAttributes(intArrayOf(android.R.attr.selectableItemBackground))
-        background = selector.getDrawable(0)
-        selector.recycle()
         addView(labelView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, Gravity.START or Gravity.CENTER_VERTICAL).apply {
             marginStart = dp(20)
             marginEnd = dp(54)
@@ -76,6 +73,10 @@ class TelegramProfileRadioCell @JvmOverloads constructor(
 
     fun updatePalette(palette: TelegramThemeEngine.ResolvedPalette =
         TelegramThemeEngine.resolveCurrentPalette(context)) {
+        background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
+            8 * resources.displayMetrics.density,
+            palette.actionSelector
+        )
         labelView.setTextColor(palette.textPrimary)
         radioDrawable.setColors(palette.textSecondary, palette.accent)
     }

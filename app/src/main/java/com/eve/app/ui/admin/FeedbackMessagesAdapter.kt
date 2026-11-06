@@ -58,6 +58,9 @@ class FeedbackMessagesAdapter(
         val binding = ItemFeedbackMessageBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         )
+        binding.cardMessage.rippleColor = android.content.res.ColorStateList.valueOf(
+            com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(parent.context).actionSelector
+        )
         return ViewHolder(binding)
     }
 

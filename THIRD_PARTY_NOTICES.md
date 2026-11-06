@@ -948,10 +948,10 @@ combined APK redistribution clearance.
 ## Telegram theme selector and round-rect ripple geometry — 2026-11-06
 
 - `app/src/main/java/com/eve/app/designsystem/TelegramThemeSelectors.kt`:
-  Ported from Telegram `Theme.java` (`TMessagesProj/src/main/java/org/telegram/ui/ActionBar/Theme.java:4798-4850`),
+  Ported from Telegram `Theme.java` (`TMessagesProj/src/main/java/org/telegram/ui/ActionBar/Theme.java:4798-4850, 4856-4875`),
   Copyright Nikolai Kudashov 2013-2018 / Telegram Android contributors, GNU GPL v2 or later.
   Official revision: `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`.
-  - Methods: `getRoundRectSelectorDrawable` and `getSelectorDrawable`.
+  - Methods: `getRoundRectSelectorDrawable`, `getSelectorDrawable`, and `getCircleSelectorDrawable`.
   - Ripple calculation: `(color & 0x00FFFFFF) | 0x19000000` (Telegram's canonical 10% alpha ripple).
   - Mask: `GradientDrawable` with configurable corner radius or rectangular mask.
   - Replaces obsolete Android framework `android.R.drawable.list_selector_background` across the entire codebase.

@@ -48,8 +48,14 @@ class AdminEmailAdapter(
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        VH(ItemAdminEmailBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+        val b = ItemAdminEmailBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        b.root.background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
+            8 * parent.resources.displayMetrics.density,
+            com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(parent.context).actionSelector
+        )
+        return VH(b)
+    }
 
     override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(items[position])
 

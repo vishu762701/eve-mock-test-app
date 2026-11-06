@@ -381,6 +381,17 @@ class ProfileActivity : EveBaseActivity() {
                 listOf(binding.btnSetPhoto, binding.btnEditInfo, binding.btnSettings),
                 surfaceColor = surface
             )
+            val rowSelector = {
+                com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
+                    12 * resources.displayMetrics.density,
+                    palette.actionSelector
+                )
+            }
+            binding.cellMobile.background = rowSelector()
+            binding.cellUsername.background = rowSelector()
+            binding.cellBirthday.background = rowSelector()
+            binding.cellCategory.background = rowSelector()
+            binding.cellReminder.background = rowSelector()
             if (expansionFraction > 0) positionFullWindowAvatarHost()
         }
     }

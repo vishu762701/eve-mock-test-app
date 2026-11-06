@@ -62,10 +62,10 @@
                 android:id="@+id/btnBack"
                 android:layout_width="@dimen/design_touch_min"
                 android:layout_height="@dimen/design_touch_min"
-                android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Personal QR code"
                 android:src="@drawable/telegram_profile_qr"
-                app:tint="@color/telegram_type_primary" />
+                app:tint="@color/telegram_type_primary"
+                style="@style/Widget.Eve.Token.IconButton" />
 
             <TextView
                 android:id="@+id/tvToolbarTitle"
@@ -79,9 +79,9 @@
             <ImageButton
                 android:id="@+id/btnProfileMenu"
                 android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min"
-                android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Profile options"
-                android:src="@drawable/ic_more_vert" app:tint="@color/telegram_type_primary" />
+                android:src="@drawable/ic_more_vert" app:tint="@color/telegram_type_primary"
+                style="@style/Widget.Eve.Token.IconButton" />
         </LinearLayout>
     </com.eve.app.ui.common.EveGlassToolbar>
 
@@ -118,7 +118,7 @@
                     android:contentDescription="Profile photo"
                     android:clickable="true"
                     android:focusable="true"
-                    android:foreground="?attr/selectableItemBackgroundBorderless" />
+                    android:foreground="@drawable/telegram_action_icon_ripple" />
             </FrameLayout>
 
             <!-- Photo actions (Cancel / Save when picking photo) -->
@@ -321,7 +321,6 @@
                         android:paddingVertical="10dp"
                         android:clickable="true"
                         android:focusable="true"
-                        android:foreground="?attr/selectableItemBackground"
                         android:gravity="center_vertical"
                         android:orientation="vertical"
                         android:paddingHorizontal="20dp">
@@ -359,7 +358,6 @@
                         android:paddingVertical="10dp"
                         android:clickable="true"
                         android:focusable="true"
-                        android:foreground="?attr/selectableItemBackground"
                         android:gravity="center_vertical"
                         android:orientation="vertical"
                         android:paddingHorizontal="20dp">
@@ -397,7 +395,6 @@
                         android:paddingVertical="10dp"
                         android:clickable="true"
                         android:focusable="true"
-                        android:foreground="?attr/selectableItemBackground"
                         android:gravity="center_vertical"
                         android:orientation="vertical"
                         android:paddingHorizontal="20dp">
@@ -438,7 +435,6 @@
                         android:paddingVertical="10dp"
                         android:clickable="true"
                         android:focusable="true"
-                        android:foreground="?attr/selectableItemBackground"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
                         android:paddingHorizontal="20dp">
@@ -524,7 +520,6 @@
                         android:paddingVertical="10dp"
                         android:clickable="true"
                         android:focusable="true"
-                        android:foreground="?attr/selectableItemBackground"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
                         android:paddingHorizontal="20dp">

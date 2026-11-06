@@ -66,4 +66,17 @@ class AboutActivity : EveBaseActivity() {
             )
         }
     }
+
+    override fun onApplyThemePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+        super.onApplyThemePalette(palette)
+        if (::binding.isInitialized) {
+            val radius = 8 * resources.displayMetrics.density
+            binding.rowPrivacyPolicy.background =
+                com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(radius, palette.actionSelector)
+            binding.rowTerms.background =
+                com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(radius, palette.actionSelector)
+            binding.rowContact.background =
+                com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(radius, palette.actionSelector)
+        }
+    }
 }

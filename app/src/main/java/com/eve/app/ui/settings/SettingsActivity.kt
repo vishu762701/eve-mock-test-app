@@ -637,4 +637,27 @@ class SettingsActivity : EveBaseActivity() {
         dismissProgress()
         super.onDestroy()
     }
+
+    override fun onApplyThemePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+        super.onApplyThemePalette(palette)
+        if (::binding.isInitialized) {
+            val radius = 8 * resources.displayMetrics.density
+            val rows = listOf(
+                binding.rowAppearance,
+                binding.rowReminder,
+                binding.rowDailyGoal,
+                binding.rowTargetExams,
+                binding.rowLanguage,
+                binding.rowAbout,
+                binding.rowLogout,
+                binding.rowDeleteAccount
+            )
+            rows.forEach { row ->
+                row.background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
+                    radius,
+                    palette.actionSelector
+                )
+            }
+        }
+    }
 }

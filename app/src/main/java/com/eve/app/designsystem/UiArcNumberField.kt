@@ -81,9 +81,9 @@ class UiArcNumberField @JvmOverloads constructor(
             isClickable = true
             isFocusable = true
             setPadding(pad, pad, pad, pad)
-            val outValue = android.util.TypedValue()
-            context.theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, outValue, true)
-            setBackgroundResource(outValue.resourceId)
+            background = com.eve.app.designsystem.TelegramThemeSelectors.getCircleSelectorDrawable(
+                com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context).actionSelector
+            )
         }
 
         btnPlus = ImageView(context).apply {
@@ -95,9 +95,9 @@ class UiArcNumberField @JvmOverloads constructor(
             isClickable = true
             isFocusable = true
             setPadding(pad, pad, pad, pad)
-            val outValue = android.util.TypedValue()
-            context.theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, outValue, true)
-            setBackgroundResource(outValue.resourceId)
+            background = com.eve.app.designsystem.TelegramThemeSelectors.getCircleSelectorDrawable(
+                com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context).actionSelector
+            )
         }
 
         setupStepperHold(btnMinus, direction = -1)

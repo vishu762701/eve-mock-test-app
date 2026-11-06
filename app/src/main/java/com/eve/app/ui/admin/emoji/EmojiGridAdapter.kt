@@ -24,6 +24,10 @@ class EmojiGridAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EmojiViewHolder {
         val binding = ItemEmojiGridBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        binding.root.background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
+            8 * parent.resources.displayMetrics.density,
+            com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(parent.context).actionSelector
+        )
         return EmojiViewHolder(binding)
     }
 

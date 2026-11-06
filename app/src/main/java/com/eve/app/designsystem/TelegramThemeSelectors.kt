@@ -57,4 +57,22 @@ object TelegramThemeSelectors {
             mask
         )
     }
+
+    /**
+     * Port of Telegram's Theme.createSelectorDrawable(int color, RIPPLE_MASK_CIRCLE_20DP).
+     * Creates an unbounded borderless circle RippleDrawable for icon buttons and round actions.
+     */
+    fun getCircleSelectorDrawable(selectorColor: Int): Drawable {
+        val alpha = (selectorColor ushr 24) and 0xFF
+        val colorWithAlpha = if (alpha == 0 || alpha == 0xFF) {
+            (selectorColor and 0x00FFFFFF) or 0x19000000
+        } else {
+            selectorColor
+        }
+        return RippleDrawable(
+            ColorStateList(arrayOf(StateSet.WILD_CARD), intArrayOf(colorWithAlpha)),
+            null,
+            null
+        )
+    }
 }

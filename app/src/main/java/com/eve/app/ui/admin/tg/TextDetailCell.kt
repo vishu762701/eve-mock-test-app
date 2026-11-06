@@ -55,9 +55,8 @@ class TextDetailCell @JvmOverloads constructor(
         dividerPaint.strokeWidth = 1f
         setWillNotDraw(false)
 
-        val outValue = TypedValue()
-        context.theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
-        setBackgroundResource(outValue.resourceId)
+        // Ripple feedback: Authentic Telegram Theme.getSelectorDrawable(false)
+        background = com.eve.app.designsystem.TelegramThemeSelectors.getSelectorDrawable(palette.actionSelector)
 
         isFocusable = true
         isClickable = true
