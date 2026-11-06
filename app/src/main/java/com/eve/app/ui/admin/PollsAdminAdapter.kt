@@ -207,7 +207,7 @@ class PollsAdminAdapter(
                 val rowView = inflater.inflate(R.layout.item_poll_option_result, binding.optionsContainer, false)
                 val tvTitle = rowView.findViewById<TextView>(R.id.tvOptionTitle)
                 val tvPercent = rowView.findViewById<TextView>(R.id.tvOptionPercent)
-                val pbOption = rowView.findViewById<ProgressBar>(R.id.pbOption)
+                val pbOption = rowView.findViewById<com.eve.app.ui.common.TelegramLineProgressView>(R.id.pbOption)
                 val tvVotes = rowView.findViewById<TextView>(R.id.tvOptionVotes)
 
                 val votes = poll.getVotesForOption(index)

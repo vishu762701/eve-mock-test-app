@@ -46,4 +46,27 @@ class PollBoundActionsTest {
 
     @Test @Config(qualifiers = "night")
     fun nightRowsKeepActualActionLabels() = activeClosedAndExpiredRowsExposeRealLabelsAndCorrectCallbacks()
+
+    @Test
+    fun expandingPollResultsBindsTelegramLineProgressView() {
+        val parent = FrameLayout(ContextThemeWrapper(RuntimeEnvironment.getApplication(), R.style.Theme_Eve))
+        val adapter = PollsAdminAdapter({}, {})
+        val holder = adapter.onCreateViewHolder(parent, 0)
+        val poll = Poll(
+            id = "test_poll",
+            question = "Which exam are you targeting?",
+            options = listOf("UPSC CSE", "SSC CGL"),
+            voteCounts = mapOf("0" to 10, "1" to 20),
+            active = true
+        )
+        holder.bind(poll)
+        val tapToView = holder.itemView.findViewById<TextView>(R.id.tvTapToView)
+        tapToView.performClick()
+        val optionsContainer = holder.itemView.findViewById<android.widget.LinearLayout>(R.id.optionsContainer)
+        assertEquals(2, optionsContainer.childCount)
+        val firstRow = optionsContainer.getChildAt(0)
+        val pb = firstRow.findViewById<com.eve.app.ui.common.TelegramLineProgressView>(R.id.pbOption)
+        assertNotNull(pb)
+        assertEquals(33, pb.progress)
+    }
 }
