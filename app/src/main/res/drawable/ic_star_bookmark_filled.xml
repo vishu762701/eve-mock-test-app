@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Tabler Icons v3.49.0 / bookmark; MIT, bundled Tabler-LICENSE.txt. -->
+<!-- Ported from Telegram Android TMessagesProj/src/main/res/drawable/outline_saved_24.xml -->
+<!-- DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15; GNU GPL v2 or later -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="@dimen/design_icon_size" android:height="@dimen/design_icon_size"
-    android:viewportWidth="24" android:viewportHeight="24">
-    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
-        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
-        android:pathData="M18 7v14l-6 -4l-6 4v-14a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4" />
+    android:width="@dimen/design_icon_size"
+    android:height="@dimen/design_icon_size"
+    android:viewportWidth="72"
+    android:viewportHeight="72">
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillType="nonZero"
+        android:pathData="M50.286,7C56.203,7 61,11.797 61,17.714L61,60.029C61,62.002 59.401,63.601 57.429,63.601C56.839,63.601 56.259,63.455 55.739,63.176L37.422,53.343C36.839,53.029 36.139,53.024 35.55,53.327L16.21,63.311C14.457,64.216 12.303,63.528 11.398,61.775C11.136,61.269 11,60.707 11,60.137L11,17.714C11,11.797 15.797,7 21.714,7L50.286,7ZM50.286,11.6L21.714,11.6L21.089,11.632C18.006,11.945 15.6,14.549 15.6,17.714L15.6,58.449L33.44,49.24C35.376,48.241 37.679,48.26 39.598,49.29L56.4,58.31L56.4,17.714C56.4,14.337 53.663,11.6 50.286,11.6Z" />
 </vector>

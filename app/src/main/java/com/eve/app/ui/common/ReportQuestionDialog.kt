@@ -123,7 +123,9 @@ object ReportQuestionDialog {
                     android.util.Log.d("ReportQuestionDialog", "Report submitted successfully for q=$questionId")
                     AppBulletin.showSuccess(activity, msg)
                     onSubmitted?.invoke(true)
-                    dialog.dismiss()
+                    if (!activity.isFinishing && !activity.isDestroyed && dialog.isShowing) {
+                        dialog.dismiss()
+                    }
                 } else {
                     btnSubmit.isEnabled = true
                     btnSubmit.text = "Submit Report"

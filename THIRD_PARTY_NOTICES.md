@@ -956,4 +956,17 @@ combined APK redistribution clearance.
   - Mask: `GradientDrawable` with configurable corner radius or rectangular mask.
   - Replaces obsolete Android framework `android.R.drawable.list_selector_background` across the entire codebase.
 
+## Telegram vector drawables port — 2026-11-06
+
+Ported official vector drawables from `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`,
+TMessagesProj resources, Copyright Telegram Android contributors, GNU GPL v2 or later:
+- `app/src/main/res/drawable/ic_timer.xml`: Ported from `TMessagesProj/src/main/res/drawable/filled_poll_deadline_24.xml` (official Telegram poll deadline/stopwatch timer).
+- `app/src/main/res/drawable/ic_warning.xml`: Ported from `TMessagesProj/src/main/res/drawable/warning_sign.xml` (official Telegram warning sign vector).
+- `app/src/main/res/drawable/ic_message_dots.xml`: Ported from `TMessagesProj/src/main/res/drawable/menu_comments.xml` (official Telegram comments/discussion bubble).
+- `app/src/main/res/drawable/ic_campaign.xml`: Ported from `TMessagesProj/src/main/res/drawable/menu_topic_add.xml` (official Telegram topic/post creation icon).
+- `app/src/main/res/drawable/ic_star_bookmark_filled.xml`: Ported from `TMessagesProj/src/main/res/drawable/outline_saved_24.xml` (official Telegram Saved Messages ribbon).
+- `app/src/main/res/drawable/ic_visibility.xml`: Ported from `TMessagesProj/src/main/res/drawable/filled_poll_view_24.xml` (official Telegram poll view/eye icon).
+- `app/src/main/res/drawable/ic_status_circle_unattempted.xml`, `ic_status_circle_right.xml`, `ic_status_circle_wrong.xml`, `illustration_empty_all_caught_up.xml`: Derived from Telegram `CheckBoxBase.java:631-646` round checkmark and circular stroke geometry.
+
+
 

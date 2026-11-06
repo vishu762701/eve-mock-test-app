@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Tabler Icons v3.49.0 / alert-triangle; MIT, bundled Tabler-LICENSE.txt. -->
+<!-- Ported from Telegram Android TMessagesProj/src/main/res/drawable/warning_sign.xml -->
+<!-- DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15; GNU GPL v2 or later -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="@dimen/design_icon_size" android:height="@dimen/design_icon_size"
-    android:viewportWidth="24" android:viewportHeight="24">
-    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
-        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
-        android:pathData="M12 9v4" />
-    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
-        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
-        android:pathData="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0" />
-    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
-        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
-        android:pathData="M12 16h.01" />
+    android:width="@dimen/design_icon_size"
+    android:height="@dimen/design_icon_size"
+    android:viewportWidth="960"
+    android:viewportHeight="960">
+    <group
+        android:translateX="-0"
+        android:translateY="960">
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M80 -78q-15 0 -27 -8t-19 -19q-7 -11 -7.5 -25t7.5 -28l400 -689q8 -14 20 -20t26 -6q14 0 26 6t20 20l400 689q8 14 7.5 28t-7.5 25q-7 11 -19 19t-27 8H80Zm401 -135q22 0 37.5 -15.5T534 -266q0 -22 -15.5 -37.5T481 -319q-22 0 -37.5 15.5T428 -266q0 22 15.5 37.5T481 -213Zm0 -143q22 0 37.5 -15.5T534 -409v-98q0 -22 -15.5 -37.5T481 -560q-22 0 -37.5 15.5T428 -507v98q0 22 15.5 37.5T481 -356Z" />
+    </group>
 </vector>

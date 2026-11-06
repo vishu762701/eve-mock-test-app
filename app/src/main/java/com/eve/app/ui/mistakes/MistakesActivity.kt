@@ -245,4 +245,9 @@ class MistakesActivity : EveBaseActivity() {
             binding.rvMistakes.visibility = View.VISIBLE
         }
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mistakeLoadJob?.cancel()
+    }
 }

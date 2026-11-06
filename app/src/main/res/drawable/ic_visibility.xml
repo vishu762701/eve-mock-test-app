@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Tabler Icons v3.49.0 / eye; MIT, bundled Tabler-LICENSE.txt. -->
+<!-- Ported from Telegram Android TMessagesProj/src/main/res/drawable/filled_poll_view_24.xml -->
+<!-- DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15; GNU GPL v2 or later -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="@dimen/design_icon_size" android:height="@dimen/design_icon_size"
-    android:viewportWidth="24" android:viewportHeight="24">
-    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
-        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
-        android:pathData="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent"
-        android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round"
-        android:pathData="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
+    android:width="@dimen/design_icon_size"
+    android:height="@dimen/design_icon_size"
+    android:viewportWidth="72"
+    android:viewportHeight="72">
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M36,14C50.344,14 63,28.647 63,35.5C63,42.353 50.344,57 36,57C21.656,57 9,42.227 9,35.5C9,28.773 21.656,14 36,14ZM36,21.167C28.268,21.167 22,27.584 22,35.5C22,43.416 28.268,49.833 36,49.833C43.732,49.833 50,43.416 50,35.5C50,27.584 43.732,21.167 36,21.167ZM36,26.286C40.971,26.286 45,30.411 45,35.5C45,40.589 40.971,44.714 36,44.714C31.029,44.714 27,40.589 27,35.5C27,30.411 31.029,26.286 36,26.286Z" />
 </vector>
