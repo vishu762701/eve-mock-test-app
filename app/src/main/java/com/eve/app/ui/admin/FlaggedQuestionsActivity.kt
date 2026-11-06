@@ -192,6 +192,7 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
     private fun setupUi() {
         binding.btnBack.setOnClickListener { finish() }
         binding.btnRefresh.setOnClickListener { if (activeOwner()) loadFlaggedQuestions() }
+        binding.swipeRefresh.setOnRefreshListener { if (activeOwner()) loadFlaggedQuestions() }
 
         binding.chipContentIssues.isCheckable = true
         binding.chipTechnicalIssues.isCheckable = true
@@ -228,7 +229,9 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
         adapter.submit(emptyList())
         fun isCurrent() = activeOwner() && requestUid == openingUid &&
             request == reportReadGeneration && technical == isTechnicalSelected
-        binding.progressBar.visibility = View.VISIBLE
+        if (!binding.swipeRefresh.isRefreshing) {
+            binding.progressBar.visibility = View.VISIBLE
+        }
         binding.tvEmpty.visibility = View.GONE
         reportLoadJob = lifecycleScope.launch {
             try {
@@ -254,6 +257,10 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
                     binding.progressBar.visibility = View.GONE
                     AppBulletin.showError(this@FlaggedQuestionsActivity,
                         "Failed to load flags: " + error.message)
+                }
+            } finally {
+                if (isCurrent()) {
+                    binding.swipeRefresh.isRefreshing = false
                 }
             }
         }

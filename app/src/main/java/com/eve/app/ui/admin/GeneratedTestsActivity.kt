@@ -116,6 +116,7 @@ class GeneratedTestsActivity : EveBaseActivity() {
 
             binding.btnBack.setOnClickListener { finish() }
             binding.btnRefresh.setOnClickListener { loadTests() }
+            binding.swipeRefresh.setOnRefreshListener { loadTests() }
 
             binding.rvGeneratedTests.layoutManager = LinearLayoutManager(this)
             binding.rvGeneratedTests.adapter = adapter
@@ -174,7 +175,9 @@ class GeneratedTestsActivity : EveBaseActivity() {
 
     private fun loadTests() {
         if (!ownerCurrent()) return
-        binding.progressBar.visibility = View.VISIBLE
+        if (!binding.swipeRefresh.isRefreshing) {
+            binding.progressBar.visibility = View.VISIBLE
+        }
         listLoadJob?.cancel()
         listLoadJob = lifecycleScope.launch {
             try {
@@ -198,6 +201,8 @@ class GeneratedTestsActivity : EveBaseActivity() {
                     this@GeneratedTestsActivity,
                     "Failed to load generated tests: ${e.localizedMessage}"
                 )
+            } finally {
+                binding.swipeRefresh.isRefreshing = false
             }
         }
     }

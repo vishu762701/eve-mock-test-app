@@ -93,6 +93,7 @@ class ManageExistingExamsActivity : EveBaseActivity() {
 
     private fun setupAdminControls() {
         binding.btnRefresh.setOnClickListener { loadExams() }
+        binding.swipeRefresh.setOnRefreshListener { loadExams() }
 
         adapter = ExistingExamsAdapter(
             onExamClick = { exam -> openEditExam(exam) },
@@ -129,7 +130,9 @@ class ManageExistingExamsActivity : EveBaseActivity() {
     private var listLoadJob: kotlinx.coroutines.Job? = null
 
     private fun loadExams() {
-        binding.loadingExams.visibility = View.VISIBLE
+        if (!binding.swipeRefresh.isRefreshing) {
+            binding.loadingExams.visibility = View.VISIBLE
+        }
         binding.emptyGroup.visibility = View.GONE
 
         listLoadJob?.cancel()
@@ -166,6 +169,8 @@ class ManageExistingExamsActivity : EveBaseActivity() {
             catch (e: Exception) {
                 binding.loadingExams.visibility = View.GONE
                 AppBulletin.showError(this@ManageExistingExamsActivity, "Failed to load exams: ${e.toUserFriendlyMessage()}")
+            } finally {
+                binding.swipeRefresh.isRefreshing = false
             }
         }
     }

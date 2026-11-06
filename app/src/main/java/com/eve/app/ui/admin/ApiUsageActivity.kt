@@ -111,6 +111,7 @@ class ApiUsageActivity : EveBaseActivity() {
     private fun setupUi() {
         binding.btnBack.setOnClickListener { finish() }
         binding.btnRefresh.setOnClickListener { loadUsage() }
+        binding.swipeRefresh.setOnRefreshListener { loadUsage() }
     }
 
     private fun loadUsage() {
@@ -140,6 +141,7 @@ class ApiUsageActivity : EveBaseActivity() {
                 if (generation == readGeneration) {
                     loading = false
                     binding.btnRefresh.isEnabled = true
+                    binding.swipeRefresh.isRefreshing = false
                 }
             }
         }

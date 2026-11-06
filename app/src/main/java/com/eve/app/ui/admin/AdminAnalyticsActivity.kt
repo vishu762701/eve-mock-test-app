@@ -139,15 +139,19 @@ class AdminAnalyticsActivity : EveBaseActivity() {
                         if (!currentAccess()) return@collect
                         when (state) {
                             UiState.Loading -> {
-                                binding.progress.visibility = View.VISIBLE
-                                binding.content.visibility = View.GONE
+                                if (!binding.swipeRefresh.isRefreshing) {
+                                    binding.progress.visibility = View.VISIBLE
+                                    binding.content.visibility = View.GONE
+                                }
                             }
                             is UiState.Error -> {
+                                binding.swipeRefresh.isRefreshing = false
                                 binding.progress.visibility = View.GONE
                                 binding.content.visibility = View.VISIBLE
                                 AppBulletin.showError(this@AdminAnalyticsActivity, state.message)
                             }
                             is UiState.Success -> {
+                                binding.swipeRefresh.isRefreshing = false
                                 binding.progress.visibility = View.GONE
                                 binding.content.visibility = View.VISIBLE
                                 val data = state.data
@@ -179,6 +183,7 @@ class AdminAnalyticsActivity : EveBaseActivity() {
     private fun setup() {
         binding.btnBack.setOnClickListener { finish() }
         binding.btnRefresh.setOnClickListener { if (currentAccess()) viewModel.load(selectedTimeRange()) }
+        binding.swipeRefresh.setOnRefreshListener { if (currentAccess()) viewModel.load(selectedTimeRange()) }
         binding.btnOpenCrashlyticsConsole.setOnClickListener {
             try {
                 val intent = Intent(

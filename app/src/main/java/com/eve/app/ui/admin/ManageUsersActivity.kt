@@ -176,6 +176,10 @@ class ManageUsersActivity : EveBaseActivity() {
             debounceJob?.cancel()
             loadUsers()
         }
+        binding.swipeRefresh.setOnRefreshListener {
+            debounceJob?.cancel()
+            loadUsers()
+        }
         binding.btnRetryUsers.setOnClickListener {
             debounceJob?.cancel()
             loadUsers()
@@ -227,8 +231,10 @@ class ManageUsersActivity : EveBaseActivity() {
         detailsDialog = null
         statusDialog?.dismiss()
         statusDialog = null
-        binding.progressBar.visibility = View.VISIBLE
-        binding.rvUsers.visibility = View.GONE
+        if (!binding.swipeRefresh.isRefreshing) {
+            binding.progressBar.visibility = View.VISIBLE
+            binding.rvUsers.visibility = View.GONE
+        }
         binding.emptyGroup.visibility = View.GONE
         // Keep the previous page window attached while loading so the shared
         // mark can spring from the old page to the server-confirmed new page.
@@ -269,6 +275,8 @@ class ManageUsersActivity : EveBaseActivity() {
                 binding.tvEmptyMessage.text = e.toUserFriendlyMessage()
                 binding.layoutPagination.visibility = View.GONE
                 binding.btnRetryUsers.visibility = View.VISIBLE
+            } finally {
+                binding.swipeRefresh.isRefreshing = false
             }
         }
     }

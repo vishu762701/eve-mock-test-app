@@ -104,10 +104,12 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.FirebaseMessaging
 import android.util.Log
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import android.view.LayoutInflater
 
 class MainActivity : EveBaseActivity() {
 
@@ -1648,29 +1650,24 @@ class MainActivity : EveBaseActivity() {
         val inflater = LayoutInflater.from(this)
 
         poll.options.forEachIndexed { index, optionText ->
-            val rowView = inflater.inflate(R.layout.item_poll_option_result, binding.layoutHomePollResults, false)
-            val tvTitle = rowView.findViewById<TextView>(R.id.tvOptionTitle)
-            val tvPercent = rowView.findViewById<TextView>(R.id.tvOptionPercent)
-            val pbOption = rowView.findViewById<ProgressBar>(R.id.pbOption)
-            val tvVotes = rowView.findViewById<TextView>(R.id.tvOptionVotes)
-
+            val rowBinding = com.eve.app.databinding.ItemPollOptionResultBinding.inflate(inflater, binding.layoutHomePollResults, false)
             val votes = poll.getVotesForOption(index)
             val percent = poll.getPercentageForOption(index)
 
             val isMyChoice = (myVote == index)
-            tvTitle.text = if (isMyChoice) "$optionText  ✓ (Your vote)" else optionText
+            rowBinding.tvOptionTitle.text = if (isMyChoice) "$optionText  ✓ (Your vote)" else optionText
             if (isMyChoice) {
-                tvTitle.setTextColor(ContextCompat.getColor(this, R.color.accent))
-                tvTitle.setTypeface(null, android.graphics.Typeface.BOLD)
+                rowBinding.tvOptionTitle.setTextColor(ContextCompat.getColor(this, R.color.accent))
+                rowBinding.tvOptionTitle.setTypeface(null, android.graphics.Typeface.BOLD)
             } else {
-                tvTitle.setTextColor(ContextCompat.getColor(this, R.color.text_primary))
+                rowBinding.tvOptionTitle.setTextColor(ContextCompat.getColor(this, R.color.text_primary))
             }
 
-            tvPercent.text = "$percent%"
-            pbOption.progress = percent
-            tvVotes.text = "$votes votes"
+            rowBinding.tvOptionPercent.text = "$percent%"
+            rowBinding.pbOption.progress = percent
+            rowBinding.tvOptionVotes.text = "$votes votes"
 
-            binding.layoutHomePollResults.addView(rowView)
+            binding.layoutHomePollResults.addView(rowBinding.root)
         }
     }
 
