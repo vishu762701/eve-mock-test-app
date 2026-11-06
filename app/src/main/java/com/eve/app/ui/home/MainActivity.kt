@@ -712,13 +712,14 @@ class MainActivity : EveBaseActivity() {
             return false
         }
         list.visibility = View.VISIBLE
+        val palette = TelegramThemeEngine.resolveCurrentPalette(this)
         fun row(title: String, onClick: (() -> Unit)? = null): android.widget.TextView =
             android.widget.TextView(this).apply {
                 text = title
                 com.eve.app.designsystem.DesignType.apply(this,
                     if (onClick == null) com.eve.app.designsystem.DesignType.Role.SECONDARY
                     else com.eve.app.designsystem.DesignType.Role.BODY)
-                setTextColor(ContextCompat.getColor(context, R.color.text_primary))
+                setTextColor(if (onClick == null) palette.textSecondary else palette.textPrimary)
                 val inset = (16 * resources.displayMetrics.density).toInt()
                 setPadding(inset, 0, inset, 0)
                 minHeight = (48 * resources.displayMetrics.density).toInt()
@@ -726,7 +727,10 @@ class MainActivity : EveBaseActivity() {
                 if (onClick != null) {
                     isClickable = true
                     isFocusable = true
-                    setBackgroundResource(android.R.drawable.list_selector_background)
+                    background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
+                        8 * resources.displayMetrics.density,
+                        palette.actionSelector
+                    )
                     setOnClickListener { onClick() }
                 }
             }

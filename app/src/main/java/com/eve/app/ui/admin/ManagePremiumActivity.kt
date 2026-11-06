@@ -40,6 +40,7 @@ class ManagePremiumActivity : EveBaseActivity() {
     private var usersGeneration = 0L
     private var stoppedOnce = false
     private var reauthorizeOnResume = false
+    private var activeDialog: TelegramNativeAlertDialog? = null
 
     private fun ownerCurrent(): Boolean {
         val live = FirebaseAuth.getInstance().currentUser
@@ -95,6 +96,8 @@ class ManagePremiumActivity : EveBaseActivity() {
     }
 
     override fun onStop() {
+        activeDialog?.dismiss()
+        activeDialog = null
         stoppedOnce = true
         reauthorizeOnResume = true
         ++mutationEpoch
@@ -388,7 +391,7 @@ class ManagePremiumActivity : EveBaseActivity() {
         switchLifetime.setOnCheckedChangeListener { _, isChecked ->
             etDays.visibility = if (isChecked) View.GONE else View.VISIBLE
         }
-        TelegramNativeAlertDialog.Builder(this)
+        val dialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Grant Premium Manually")
             .setView(dialogView)
             .setPositiveButton("Grant") { _, _ ->
@@ -401,7 +404,7 @@ class ManagePremiumActivity : EveBaseActivity() {
                     return@setPositiveButton
                 }
                 if (isLife) {
-                    TelegramNativeAlertDialog.Builder(this@ManagePremiumActivity)
+                    val lifeDialog = TelegramNativeAlertDialog.Builder(this@ManagePremiumActivity)
                         .setTitle("Confirm Lifetime Grant")
                         .setMessage("Grant permanent Lifetime Premium to '$target'? This entitlement will never expire.")
                         .setPositiveButton("Grant Lifetime") { _, _ ->
@@ -409,12 +412,16 @@ class ManagePremiumActivity : EveBaseActivity() {
                         }
                         .setNegativeButton("Cancel", null)
                         .show()
+                    activeDialog = lifeDialog
+                    lifeDialog.setOnDismissListener { if (activeDialog === lifeDialog) activeDialog = null }
                 } else {
                     executeManualGrant(target, days, false, false)
                 }
             }
             .setNegativeButton("Cancel", null)
             .show()
+        activeDialog = dialog
+        dialog.setOnDismissListener { if (activeDialog === dialog) activeDialog = null }
     }
 
     private fun executeManualGrant(target: String, durationDays: Int, isLifetime: Boolean, confirmLifetime: Boolean) {
@@ -448,7 +455,7 @@ class ManagePremiumActivity : EveBaseActivity() {
 
     private fun confirmRevokeUserPremium(user: AdminPremiumUserDto) {
         if (!canPublish() || mutationPending || user.userId.isBlank()) return
-        TelegramNativeAlertDialog.Builder(this)
+        val dialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Revoke Premium?")
             .setMessage("Are you sure you want to revoke Premium access for ${user.email.ifBlank { user.userId }}? They will revert to the standard 3-attempt restriction.")
             .setPositiveButton("Revoke") { _, _ ->
@@ -462,5 +469,13 @@ class ManagePremiumActivity : EveBaseActivity() {
             }
             .setNegativeButton("Cancel", null)
             .makeRed(DialogInterface.BUTTON_POSITIVE).show()
+        activeDialog = dialog
+        dialog.setOnDismissListener { if (activeDialog === dialog) activeDialog = null }
+    }
+
+    override fun onDestroy() {
+        activeDialog?.dismiss()
+        activeDialog = null
+        super.onDestroy()
     }
 }

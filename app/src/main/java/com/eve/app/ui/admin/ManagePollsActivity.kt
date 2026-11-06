@@ -32,6 +32,8 @@ class ManagePollsActivity : EveBaseActivity() {
     private val pollRepository = PollRepository()
     private lateinit var adapter: PollsAdminAdapter
     private var createPollDialog: TelegramNativeAlertDialog? = null
+    private var customDatePickerDialog: DatePickerDialog? = null
+    private var customTimePickerDialog: TimePickerDialog? = null
     private var reauthorizeOnResume = false
     private var authorizedUid: String? = null
     private var authorizedEmail: String? = null
@@ -67,6 +69,10 @@ class ManagePollsActivity : EveBaseActivity() {
     override fun onStop() {
         createPollDialog?.dismiss()
         createPollDialog = null
+        customDatePickerDialog?.dismiss()
+        customDatePickerDialog = null
+        customTimePickerDialog?.dismiss()
+        customTimePickerDialog = null
         reauthorizeOnResume = true
         super.onStop()
     }
@@ -273,18 +279,26 @@ class ManagePollsActivity : EveBaseActivity() {
     override fun onDestroy() {
         createPollDialog?.dismiss()
         createPollDialog = null
+        customDatePickerDialog?.dismiss()
+        customDatePickerDialog = null
+        customTimePickerDialog?.dismiss()
+        customTimePickerDialog = null
         super.onDestroy()
     }
 
     private fun pickCustomDateTime(onDateTimeSelected: (Long) -> Unit) {
+        if (isFinishing || isDestroyed) return
         val cal = Calendar.getInstance()
-        DatePickerDialog(
+        customDatePickerDialog?.dismiss()
+        val datePicker = DatePickerDialog(
             this,
             { _, year, month, dayOfMonth ->
+                if (isFinishing || isDestroyed) return@DatePickerDialog
                 cal.set(Calendar.YEAR, year)
                 cal.set(Calendar.MONTH, month)
                 cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                TimePickerDialog(
+                customTimePickerDialog?.dismiss()
+                val timePicker = TimePickerDialog(
                     this,
                     { _, hourOfDay, minute ->
                         cal.set(Calendar.HOUR_OF_DAY, hourOfDay)
@@ -295,11 +309,21 @@ class ManagePollsActivity : EveBaseActivity() {
                     cal.get(Calendar.HOUR_OF_DAY),
                     cal.get(Calendar.MINUTE),
                     false
-                ).show()
+                )
+                timePicker.setOnDismissListener {
+                    if (customTimePickerDialog === timePicker) customTimePickerDialog = null
+                }
+                customTimePickerDialog = timePicker
+                timePicker.show()
             },
             cal.get(Calendar.YEAR),
             cal.get(Calendar.MONTH),
             cal.get(Calendar.DAY_OF_MONTH)
-        ).show()
+        )
+        datePicker.setOnDismissListener {
+            if (customDatePickerDialog === datePicker) customDatePickerDialog = null
+        }
+        customDatePickerDialog = datePicker
+        datePicker.show()
     }
 }

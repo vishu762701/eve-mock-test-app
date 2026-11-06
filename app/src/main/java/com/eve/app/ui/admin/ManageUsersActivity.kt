@@ -452,6 +452,21 @@ class ManageUsersActivity : EveBaseActivity() {
             if (statusDialog === dialog) statusDialog = null
         }
     }
+
+    override fun onDestroy() {
+        gateReady = false
+        requestJob?.cancel()
+        requestJob = null
+        detailsJob?.cancel()
+        detailsJob = null
+        debounceJob?.cancel()
+        debounceJob = null
+        detailsDialog?.dismiss()
+        detailsDialog = null
+        statusDialog?.dismiss()
+        statusDialog = null
+        super.onDestroy()
+    }
 }
 
 /** Data-only snapshot; status mutations must never follow a stale row or changed page. */
