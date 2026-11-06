@@ -95,6 +95,8 @@ jobs:
           key: robolectric-ubuntu-4.14.1-instrumented
 
       - name: Prepare pinned Telegram QR native renderer toolchain
+        env:
+          EVE_ALL_ABIS: ${{ steps.verification_profile.outputs.full == 'true' }}
         run: bash .github/scripts/prepare-qr-native.sh
 
       # Exercise the same optimized CPU/C API feature set used by the JNI build.
@@ -116,7 +118,13 @@ jobs:
       - name: FAST compile debug APK only
         run: |
           set -euo pipefail
-          gradle :app:assembleDebug --stacktrace --console=plain 2>&1 | tee ci-fast-gradle.log
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            # Manual FULL keeps the complete four-ABI artifact for both emulators and release evidence.
+            gradle :app:assembleDebug --stacktrace --console=plain 2>&1 | tee ci-fast-gradle.log
+          else
+            # The owner's normal development build targets ARM64 phones only.
+            gradle :app:assembleDebug -Peve.nativeAbis=arm64-v8a --stacktrace --console=plain 2>&1 | tee ci-fast-gradle.log
+          fi
 
       - name: FULL test lint and compile AndroidTest sources
         if: ${{ steps.verification_profile.outputs.full == 'true' }}

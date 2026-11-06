@@ -34,3 +34,5 @@ This is the single workflow policy. The latest explicit owner request defines sc
 - On ordinary main pushes, only compile the debug APK. Do not automatically run Gradle unit tests, AndroidTest, lint, Rust tests, Python/CI contract suites, documentation checks, backend/Firebase tests, source acceptance audits, visual gallery or gesture/three-button emulators. All of these run only when the owner triggers manual FULL via GitHub Actions workflow_dispatch.
 - Keep the manual FULL and release/security protections available and truthful. A fast compilation pass means BUILDABLE only, not TESTED or VERIFIED. Extra non-build GitHub workflows for documentation, dependency evidence and source imports are manually dispatched.
 - The normal quick build cannot promise a fixed wall-clock time: compilation, NDK, Gradle caches and runner availability vary. Prefer cached cloud builds over phone builds.
+
+- Automatic FAST is ARM64-only for rapid Android development; manual FULL builds all four native ABIs and exercises both emulator navigation modes. Do not describe ARM64-only FAST as a universal APK or as complete app verification.
