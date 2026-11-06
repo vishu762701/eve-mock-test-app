@@ -1186,7 +1186,7 @@ class ManageExamsActivity : EveBaseActivity() {
                 val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
                 val clip = android.content.ClipData.newPlainText("AI Generation Details", fullDiagnostic)
                 clipboard.setPrimaryClip(clip)
-                android.widget.Toast.makeText(context, "Details copied to clipboard", android.widget.Toast.LENGTH_SHORT).show()
+                AppBulletin.show(this@ManageExamsActivity, "Details copied to clipboard")
             }
             .create()
         showManagedDialog(dialog)

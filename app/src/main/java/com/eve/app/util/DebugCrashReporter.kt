@@ -10,7 +10,6 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.ScrollView
 import android.widget.TextView
-import android.widget.Toast
 import com.eve.app.BuildConfig
 import com.eve.app.designsystem.TelegramNativeAlertDialog
 import java.io.File
@@ -151,7 +150,7 @@ object DebugCrashReporter {
                 val clipboard = activity.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
                 val clip = ClipData.newPlainText("Crash Trace", crashContent)
                 clipboard?.setPrimaryClip(clip)
-                Toast.makeText(activity, "Crash trace copied to clipboard", Toast.LENGTH_SHORT).show()
+                AppBulletin.show(activity, "Crash trace copied to clipboard")
             }
         }
 

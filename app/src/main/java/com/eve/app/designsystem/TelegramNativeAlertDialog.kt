@@ -118,7 +118,7 @@ class TelegramNativeAlertDialog private constructor(
                     setPadding(dp(24), 0, dp(24), 0)
                     isClickable = true
                     isFocusable = true
-                    background = TelegramThemeSelectors.getRoundRectSelectorDrawable(
+                    this.background = TelegramThemeSelectors.getRoundRectSelectorDrawable(
                         dp(8).toFloat(),
                         palette.actionSelector
                     )

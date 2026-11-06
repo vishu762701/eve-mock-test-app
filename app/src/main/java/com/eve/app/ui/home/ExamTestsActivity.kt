@@ -22,7 +22,7 @@ import com.eve.app.util.AttemptKey
 import com.eve.app.util.Constants
 import com.eve.app.util.SubmissionRetryPolicy
 import com.eve.app.util.TestScheduleHelper
-import com.google.android.material.snackbar.Snackbar
+import com.eve.app.util.AppBulletin
 import com.google.firebase.auth.FirebaseAuth
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
@@ -80,7 +80,7 @@ class ExamTestsActivity : EveBaseActivity() {
                 handleTestClick(test, isCompleted)
             },
             onLockedClick = { _, opensText ->
-                Snackbar.make(binding.root, opensText, Snackbar.LENGTH_SHORT).show()
+                AppBulletin.show(this@ExamTestsActivity, opensText)
             }
         )
 
