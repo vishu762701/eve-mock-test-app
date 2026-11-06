@@ -18,6 +18,9 @@ class PollRepository(
 
     suspend fun getActivePoll(): Poll? {
         val res = api.getActivePoll()
+        if (!res.success) {
+            throw IllegalStateException(res.error ?: "Failed to load active poll")
+        }
         return res.data?.takeIf { it.isCurrentlyActive }
     }
 
@@ -60,7 +63,10 @@ class PollRepository(
 
     suspend fun getUserVote(pollId: String, uid: String): Int? {
         val res = api.getUserVote(pollId)
-        return if (res.success) res.data?.optionIndex else null
+        if (!res.success) {
+            throw IllegalStateException(res.error ?: "Failed to get user vote")
+        }
+        return res.data?.optionIndex
     }
 
     suspend fun submitVote(pollId: String, uid: String, optionIndex: Int) {

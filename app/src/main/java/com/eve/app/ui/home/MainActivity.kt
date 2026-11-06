@@ -1064,12 +1064,6 @@ class MainActivity : EveBaseActivity() {
         val returningFromStop = isReturningFromStopped
         if (returningFromStop) {
             isReturningFromStopped = false
-            adapter.resetPlayedAnimations()
-            if (::binding.isInitialized) {
-                binding.rvExams.post {
-                    adapter.replayVisible(binding.rvExams)
-                }
-            }
         }
         if (::binding.isInitialized) {
             FirebaseAuth.getInstance().currentUser?.let { current ->
@@ -1606,7 +1600,7 @@ class MainActivity : EveBaseActivity() {
     private fun setupHomePollVoting(poll: Poll, uid: String) {
         binding.rgHomePollOptions.removeAllViews()
         poll.options.forEachIndexed { index, optionText ->
-            val rb = com.google.android.material.radiobutton.MaterialRadioButton(this).apply {
+            val rb = com.eve.app.ui.common.TelegramRadioButton(this).apply {
                 id = View.generateViewId()
                 text = optionText
                 tag = index
@@ -1614,7 +1608,13 @@ class MainActivity : EveBaseActivity() {
                 setTextAppearance(R.style.TextAppearance_Eve_Token_Body)
                 setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_primary))
             }
-            binding.rgHomePollOptions.addView(rb)
+            val lp = android.widget.RadioGroup.LayoutParams(
+                android.widget.RadioGroup.LayoutParams.MATCH_PARENT,
+                android.widget.RadioGroup.LayoutParams.WRAP_CONTENT
+            ).apply {
+                bottomMargin = resources.getDimensionPixelSize(R.dimen.design_card_gap)
+            }
+            binding.rgHomePollOptions.addView(rb, lp)
         }
 
         binding.btnSubmitHomeVote.isEnabled = true

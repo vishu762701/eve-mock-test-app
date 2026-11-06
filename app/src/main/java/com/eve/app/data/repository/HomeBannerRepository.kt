@@ -25,21 +25,35 @@ class HomeBannerRepository(
 ) {
 
     companion object {
+        private const val CACHE_TTL_MS = 5 * 60 * 1000L
+
         @Volatile
         private var cachedBanners: List<HomeBanner>? = null
+        @Volatile
+        private var lastCacheTime: Long = 0L
 
         fun clearCache() {
             cachedBanners = null
+            lastCacheTime = 0L
         }
+
+        fun isCacheValid(): Boolean =
+            cachedBanners != null && (System.currentTimeMillis() - lastCacheTime < CACHE_TTL_MS)
     }
 
     fun observeBanners(): Flow<List<HomeBanner>> = flow {
-        cachedBanners?.let { emit(it) }
+        val now = System.currentTimeMillis()
+        val cached = cachedBanners
+        cached?.let { emit(it) }
+        if (cached != null && (now - lastCacheTime < CACHE_TTL_MS)) {
+            return@flow
+        }
         try {
             val res = api.getBanners()
             if (res.success && res.data != null) {
                 val sorted = res.data.sortedBy { it.order }
                 cachedBanners = sorted
+                lastCacheTime = System.currentTimeMillis()
                 emit(sorted)
             } else if (cachedBanners == null) {
                 emit(emptyList())
@@ -56,6 +70,7 @@ class HomeBannerRepository(
         if (!res.success || res.data == null) throw IllegalStateException(res.error ?: "Cannot load banners")
         val sorted = res.data.sortedBy { it.order }
         cachedBanners = sorted
+        lastCacheTime = System.currentTimeMillis()
         return sorted
     }
 

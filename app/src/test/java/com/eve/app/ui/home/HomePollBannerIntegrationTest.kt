@@ -79,12 +79,30 @@ class HomePollBannerIntegrationTest {
     }
 
     @Test
-    fun pollOptionResultUsesLinearProgressIndicator() {
+    fun pollOptionResultUsesTelegramLineProgressView() {
         val layout = File("src/main/res/layout/item_poll_option_result.xml").readText()
 
-        assertTrue("Must use LinearProgressIndicator for poll option percentage",
-            layout.contains("com.google.android.material.progressindicator.LinearProgressIndicator"))
+        assertTrue("Must use TelegramLineProgressView for poll option percentage",
+            layout.contains("com.eve.app.ui.common.TelegramLineProgressView"))
         assertTrue("Must use pbOption id",
             layout.contains("android:id=\"@+id/pbOption\""))
+    }
+
+    @Test
+    fun mainActivityUsesTelegramRadioButtonForPollVoting() {
+        val src = File("src/main/java/com/eve/app/ui/home/MainActivity.kt").readText()
+
+        assertTrue("Must use TelegramRadioButton for authentic poll choices",
+            src.contains("com.eve.app.ui.common.TelegramRadioButton(this)"))
+    }
+
+    @Test
+    fun pollRepositorySurfacesFailedResponses() {
+        val src = File("src/main/java/com/eve/app/data/repository/PollRepository.kt").readText()
+
+        assertTrue("getActivePoll must verify res.success",
+            src.contains("if (!res.success) {\n            throw IllegalStateException"))
+        assertTrue("getUserVote must verify res.success",
+            src.substringAfter("suspend fun getUserVote").contains("if (!res.success) {\n            throw IllegalStateException"))
     }
 }
