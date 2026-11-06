@@ -64,6 +64,7 @@ class AdminRightsEditActivity : EveBaseActivity() {
     private var mutationPending = false
     private var actionEpoch = 0L
     private var reauthorizeOnResume = false
+    private var activeDialog: TelegramNativeAlertDialog? = null
 
     private fun ownerCurrent(): Boolean {
         val user = FirebaseAuth.getInstance().currentUser
@@ -120,6 +121,8 @@ class AdminRightsEditActivity : EveBaseActivity() {
     }
 
     override fun onStop() {
+        activeDialog?.dismiss()
+        activeDialog = null
         // Any permission reply from a prior visible window loses its UI authority.
         ++actionEpoch
         mutationPending = false
@@ -294,7 +297,8 @@ class AdminRightsEditActivity : EveBaseActivity() {
     private fun confirmDismissAdmin() {
         if (!canAct() || mutationPending || !canEdit || isOwner ||
             targetEmail.isBlank()) return
-        TelegramNativeAlertDialog.Builder(this)
+        activeDialog?.dismiss()
+        val dialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Dismiss Admin?")
             .setMessage("Are you sure you want to dismiss $targetEmail? This will revoke all administrative privileges.")
             .setPositiveButton("Dismiss") { _, _ ->
@@ -311,6 +315,8 @@ class AdminRightsEditActivity : EveBaseActivity() {
             .setNegativeButton("Cancel", null)
             .makeRed(DialogInterface.BUTTON_POSITIVE)
             .show()
+        activeDialog = dialog
+        dialog.setOnDismissListener { if (activeDialog === dialog) activeDialog = null }
     }
 
     private fun getCurrentSelectedRights(): List<String> {
@@ -333,13 +339,16 @@ class AdminRightsEditActivity : EveBaseActivity() {
     private fun handleBackOrDiscard() {
         if (mutationPending) return
         if (hasUnsavedChanges()) {
-            TelegramNativeAlertDialog.Builder(this)
+            activeDialog?.dismiss()
+            val dialog = TelegramNativeAlertDialog.Builder(this)
                 .setTitle("Discard Changes?")
                 .setMessage("You have unsaved changes. Do you want to discard them?")
                 .setPositiveButton("Discard") { _, _ -> finish() }
                 .setNegativeButton("Keep Editing", null)
                 .makeRed(DialogInterface.BUTTON_POSITIVE)
                 .show()
+            activeDialog = dialog
+            dialog.setOnDismissListener { if (activeDialog === dialog) activeDialog = null }
         } else {
             finish()
         }
@@ -367,5 +376,11 @@ class AdminRightsEditActivity : EveBaseActivity() {
                 finish()
             }
         )
+    }
+
+    override fun onDestroy() {
+        activeDialog?.dismiss()
+        activeDialog = null
+        super.onDestroy()
     }
 }

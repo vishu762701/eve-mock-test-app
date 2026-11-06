@@ -516,6 +516,12 @@ class ManageQuestionsActivity : EveBaseActivity() {
     }
 
     override fun onStop() {
+        deleteExamDialog?.dismiss()
+        deleteExamDialog = null
+        renameExamDialog?.dismiss()
+        renameExamDialog = null
+        questionDialog?.dismiss()
+        questionDialog = null
         reauthorizeOnResume = true
         super.onStop()
     }

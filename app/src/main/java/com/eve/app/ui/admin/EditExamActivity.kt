@@ -271,6 +271,8 @@ class EditExamActivity : EveBaseActivity() {
     }
 
     override fun onStop() {
+        questionDialog?.dismiss()
+        questionDialog = null
         ++questionDeleteEpoch
         ++questionReadGeneration
         reloadQuestionsAfterStop = true

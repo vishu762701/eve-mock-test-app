@@ -76,5 +76,32 @@ class TelegramThemeSelectorsTest {
         assertTrue(users.contains("override fun onDestroy()"))
         assertTrue(users.contains("detailsDialog?.dismiss()"))
         assertTrue(users.contains("statusDialog?.dismiss()"))
+
+        val questions = File("src/main/java/com/eve/app/ui/admin/ManageQuestionsActivity.kt").readText()
+        val questionsStop = questions.substringAfter("override fun onStop()").substringBefore("override fun onResume()")
+        assertTrue(questionsStop.contains("deleteExamDialog?.dismiss()"))
+        assertTrue(questionsStop.contains("renameExamDialog?.dismiss()"))
+        assertTrue(questionsStop.contains("questionDialog?.dismiss()"))
+
+        val editExam = File("src/main/java/com/eve/app/ui/admin/EditExamActivity.kt").readText()
+        val editExamStop = editExam.substringAfter("override fun onStop()").substringBefore("override fun onRestoreInstanceState")
+        assertTrue(editExamStop.contains("questionDialog?.dismiss()"))
+
+        val syllabus = File("src/main/java/com/eve/app/ui/admin/ManageSyllabusActivity.kt").readText()
+        assertTrue(syllabus.contains("reassignDialog?.dismiss()"))
+        assertTrue(syllabus.contains("override fun onDestroy()"))
+
+        val rights = File("src/main/java/com/eve/app/ui/admin/AdminRightsEditActivity.kt").readText()
+        assertTrue(rights.contains("activeDialog?.dismiss()"))
+        assertTrue(rights.contains("override fun onDestroy()"))
+
+        val admins = File("src/main/java/com/eve/app/ui/admin/AdminsAndRightsActivity.kt").readText()
+        assertTrue(admins.contains("removeAdminDialog?.dismiss()"))
+        assertTrue(admins.contains("override fun onDestroy()"))
+
+        val logs = File("src/main/java/com/eve/app/ui/admin/ActivityLogActivity.kt").readText()
+        assertTrue(logs.contains("override fun onDestroy()"))
+        assertTrue(logs.contains("logDialog?.dismiss()"))
+        assertTrue(logs.contains("filterDialog?.dismiss()"))
     }
 }

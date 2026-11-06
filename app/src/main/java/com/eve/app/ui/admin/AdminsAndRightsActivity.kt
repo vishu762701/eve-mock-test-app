@@ -26,6 +26,7 @@ class AdminsAndRightsActivity : EveBaseActivity() {
     private var authorizedUid: String = ""
     private var authorizedEmail: String = ""
     private var reauthorizeOnResume: Boolean = false
+    private var removeAdminDialog: TelegramNativeAlertDialog? = null
 
     private val adminEmailAdapter = AdminEmailAdapter(
         onItemClick = { admin ->
@@ -54,6 +55,8 @@ class AdminsAndRightsActivity : EveBaseActivity() {
     }
 
     override fun onStop() {
+        removeAdminDialog?.dismiss()
+        removeAdminDialog = null
         reauthorizeOnResume = true
         super.onStop()
     }
@@ -121,7 +124,8 @@ class AdminsAndRightsActivity : EveBaseActivity() {
 
     private fun confirmRemoveAdmin(admin: DynamicAdminItem) {
         val email = admin.email
-        TelegramNativeAlertDialog.Builder(this)
+        removeAdminDialog?.dismiss()
+        val dialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Remove Admin?")
             .setMessage("Remove $email? This will revoke admin privileges and cannot be undone.")
             .setPositiveButton("Remove") { _, _ ->
@@ -135,5 +139,13 @@ class AdminsAndRightsActivity : EveBaseActivity() {
             }
             .setNegativeButton("Cancel", null)
             .makeRed(DialogInterface.BUTTON_POSITIVE).show()
+        removeAdminDialog = dialog
+        dialog.setOnDismissListener { if (removeAdminDialog === dialog) removeAdminDialog = null }
+    }
+
+    override fun onDestroy() {
+        removeAdminDialog?.dismiss()
+        removeAdminDialog = null
+        super.onDestroy()
     }
 }

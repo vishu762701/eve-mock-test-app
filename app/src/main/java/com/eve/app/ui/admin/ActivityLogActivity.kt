@@ -476,4 +476,20 @@ class ActivityLogActivity : EveBaseActivity() {
     }
 
     private fun dp(v: Float): Int = (v * resources.displayMetrics.density).toInt()
+
+    override fun onDestroy() {
+        searchJob?.cancel()
+        searchJob = null
+        cancelAuditRead()
+        filterAdminJob?.cancel()
+        filterAdminJob = null
+        filterTypeJob?.cancel()
+        filterTypeJob = null
+        filterDialog?.dismiss()
+        filterDialog = null
+        logDialog?.dismiss()
+        logDialog = null
+        loadedLogs.clear()
+        super.onDestroy()
+    }
 }

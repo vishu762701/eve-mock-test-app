@@ -55,6 +55,7 @@ class ManageSyllabusActivity : EveBaseActivity() {
     private var examListGeneration = 0L
     private var pendingNewPdfOwner: String? = null
     private var pendingReplaceOwner: String? = null
+    private var reassignDialog: TelegramNativeAlertDialog? = null
 
     private fun currentOwner(): Boolean {
         val live = FirebaseAuth.getInstance().currentUser
@@ -138,6 +139,8 @@ class ManageSyllabusActivity : EveBaseActivity() {
     }
 
     override fun onStop() {
+        reassignDialog?.dismiss()
+        reassignDialog = null
         screenStopSeen = true
         reauthorizeOnResume = true
         ++examListGeneration
@@ -582,7 +585,8 @@ class ManageSyllabusActivity : EveBaseActivity() {
         val ownerUid = accessUid
         val examLabels = targetExams.map { it.examName + " (" + it.categoryOrOther + ")" }.toTypedArray()
         var selectedIndex = 0
-        TelegramNativeAlertDialog.Builder(this)
+        reassignDialog?.dismiss()
+        val dialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Reassign Syllabus to Another Exam")
             .setSingleChoiceItems(examLabels, 0, dismissOnSelection = false) { _, index ->
                 selectedIndex = index
@@ -621,6 +625,8 @@ class ManageSyllabusActivity : EveBaseActivity() {
             }
             .setNegativeButton("Cancel", null)
             .show()
+        reassignDialog = dialog
+        dialog.setOnDismissListener { if (reassignDialog === dialog) reassignDialog = null }
     }
 
     private val deleteFlow by lazy { AdminDeleteFlow(this) }
@@ -638,6 +644,14 @@ class ManageSyllabusActivity : EveBaseActivity() {
         }) {
             if (activeOwner()) loadExamsAndSyllabuses()
         }
+    }
+
+    override fun onDestroy() {
+        reassignDialog?.dismiss()
+        reassignDialog = null
+        newPdfReadJob?.cancel()
+        newPdfReadJob = null
+        super.onDestroy()
     }
 
 }
