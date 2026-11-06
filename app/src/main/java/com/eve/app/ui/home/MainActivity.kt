@@ -127,6 +127,7 @@ class MainActivity : EveBaseActivity() {
     // ActionBarMenuItem.java:779-782: a second tap toggles the SAME popup closed.
     // Do not stack separate focusable windows on repeated overflow taps.
     private var homeOverflowPopup: TelegramMenuPopup? = null
+    private var pinPopupMenu: PopupMenu? = null
     private var homeOwnerUid = ""
     private val searchOwnerCurrent: Boolean
         get() = homeOwnerUid.isNotBlank() && FirebaseAuth.getInstance().currentUser?.uid == homeOwnerUid
@@ -1014,7 +1015,10 @@ class MainActivity : EveBaseActivity() {
 
     private fun showPinPopupMenu(exam: Exam, isPinned: Boolean, anchorView: View) {
         val user = FirebaseAuth.getInstance().currentUser ?: return
+        pinPopupMenu?.dismiss()
         val popup = PopupMenu(this, anchorView)
+        pinPopupMenu = popup
+        popup.setOnDismissListener { if (pinPopupMenu === popup) pinPopupMenu = null }
         val title = if (isPinned) "Unpin" else "Pin"
         popup.menu.add(title)
         popup.setOnMenuItemClickListener {
@@ -1098,6 +1102,8 @@ class MainActivity : EveBaseActivity() {
 
     override fun onStop() {
         FirebaseAuth.getInstance().removeAuthStateListener(homeAuthListener)
+        pinPopupMenu?.dismiss()
+        pinPopupMenu = null
         homeOverflowPopup?.dismissForHostTeardown()
         homeOverflowPopup = null
         logoutConfirmation?.dismiss()
@@ -1902,6 +1908,8 @@ class MainActivity : EveBaseActivity() {
         logoutConfirmation = null
         targetExamsDialog?.dismiss()
         targetExamsDialog = null
+        pinPopupMenu?.dismiss()
+        pinPopupMenu = null
         homeOverflowPopup?.dismissForHostTeardown()
         homeOverflowPopup = null
         TelegramThemeEngine.removeThemeChangeListener(categoryPaletteListener)

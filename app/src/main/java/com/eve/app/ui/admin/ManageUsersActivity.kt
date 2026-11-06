@@ -162,6 +162,7 @@ class ManageUsersActivity : EveBaseActivity() {
         detailsDialog = null
         statusDialog?.dismiss()
         statusDialog = null
+        if (::adapter.isInitialized) adapter.dismissActivePopup()
         super.onStop()
     }
 
@@ -465,6 +466,7 @@ class ManageUsersActivity : EveBaseActivity() {
         detailsDialog = null
         statusDialog?.dismiss()
         statusDialog = null
+        if (::adapter.isInitialized) adapter.dismissActivePopup()
         super.onDestroy()
     }
 }

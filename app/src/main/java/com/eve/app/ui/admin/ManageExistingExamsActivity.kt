@@ -61,6 +61,7 @@ class ManageExistingExamsActivity : EveBaseActivity() {
     override fun onStop() {
         reauthorizeOnResume = true
         deleteFlow.dismissActiveDialog()
+        if (::adapter.isInitialized) adapter.dismissActivePopup()
         super.onStop()
     }
 
@@ -68,6 +69,7 @@ class ManageExistingExamsActivity : EveBaseActivity() {
         listLoadJob?.cancel()
         listLoadJob = null
         deleteFlow.dismissActiveDialog()
+        if (::adapter.isInitialized) adapter.dismissActivePopup()
         if (::binding.isInitialized) {
             EmptyStateAnimationHelper.stopEmptyState(binding.lottieEmpty)
         }

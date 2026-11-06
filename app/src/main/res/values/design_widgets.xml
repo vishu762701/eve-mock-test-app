@@ -265,10 +265,12 @@
     <style name="Widget.Eve.Token.NativePopup" parent="Widget.Material3.PopupMenu">
         <item name="android:popupBackground">@drawable/design_menu_fallback</item>
         <item name="android:popupElevation">@dimen/design_card_elevation</item>
+        <item name="android:popupAnimationStyle">@style/PopupContextAnimation</item>
     </style>
     <style name="Widget.Eve.Token.ListPopup" parent="Widget.AppCompat.ListPopupWindow">
         <item name="android:popupBackground">@drawable/design_menu_fallback</item>
         <item name="android:popupElevation">@dimen/design_card_elevation</item>
+        <item name="android:popupAnimationStyle">@style/PopupContextAnimation</item>
     </style>
     <style name="Widget.Eve.Token.DropDownList" parent="Widget.AppCompat.ListView.DropDown">
         <item name="android:divider">@null</item><item name="android:dividerHeight">@dimen/design_zero</item>

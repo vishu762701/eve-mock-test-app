@@ -51,7 +51,10 @@ class UserAdminAdapter(
             binding.root.setOnClickListener { onViewDetails(user) }
 
             binding.btnMoreUser.setOnClickListener { view ->
+                dismissActivePopup()
                 val popup = PopupMenu(view.context, view)
+                activePopup = popup
+                popup.setOnDismissListener { if (activePopup === popup) activePopup = null }
                 popup.menu.add(0, 1, 0, "👁️ View Test History")
                 if (user.disabled) {
                     popup.menu.add(0, 2, 1, "✅ Enable Account")
@@ -91,6 +94,13 @@ class UserAdminAdapter(
                 else -> dateFormat.format(Date(timestamp))
             }
         }
+    }
+
+    private var activePopup: PopupMenu? = null
+
+    fun dismissActivePopup() {
+        activePopup?.dismiss()
+        activePopup = null
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

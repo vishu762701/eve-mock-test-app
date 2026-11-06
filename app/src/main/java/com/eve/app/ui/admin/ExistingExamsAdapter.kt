@@ -304,7 +304,10 @@ class ExistingExamsAdapter(
             binding.btnQuickPreview.setOnClickListener { onPreviewClick(exam) }
 
             binding.btnMoreOptions.setOnClickListener { view ->
+                dismissActivePopup()
                 val popup = PopupMenu(view.context, view)
+                activePopup = popup
+                popup.setOnDismissListener { if (activePopup === popup) activePopup = null }
                 popup.menu.add(0, 1, 0, "✏️ Edit Exam")
                 popup.menu.add(0, 2, 1, "👁️ Preview (Student View)")
                 popup.menu.add(0, 3, 2, "🗑️ Delete Exam")
@@ -329,6 +332,13 @@ class ExistingExamsAdapter(
                 com.eve.app.designsystem.DesignPopupGlass.around(view) { popup.show() }
             }
         }
+    }
+
+    private var activePopup: PopupMenu? = null
+
+    fun dismissActivePopup() {
+        activePopup?.dismiss()
+        activePopup = null
     }
 
     private fun focusTreeRow(position: Int) {
