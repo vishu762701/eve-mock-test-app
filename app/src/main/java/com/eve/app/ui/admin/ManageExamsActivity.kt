@@ -362,10 +362,6 @@ class ManageExamsActivity : EveBaseActivity() {
                 }
             }
         }
-                    enterNewSubExamMode()
-                }
-            }
-        }
 
         binding.actvParentExam.setOnClickListener {
             if (binding.tilParentExam.isEnabled && !isNewSubExamMode && !binding.actvParentExam.isPopupShowing) {
