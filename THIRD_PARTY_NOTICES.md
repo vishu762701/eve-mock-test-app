@@ -929,3 +929,19 @@ localized native labels and EVE's five-character backend contract: ADAPTED, not
 an exact Telegram screen. No Telegram accounts/network imported. Distribution
 review and `EVE_GPL_RELEASE_APPROVED` remain unapproved; this notice grants no
 combined APK redistribution clearance.
+
+## Telegram square checkbox and selection geometry — 2026-11-06
+
+- `app/src/main/java/com/eve/app/ui/common/TelegramCheckBoxSquare.kt`:
+  Ported from Telegram `CheckBoxSquare.java` (`TMessagesProj/src/main/java/org/telegram/ui/Components/CheckBoxSquare.java:24-193`),
+  Copyright Nikolai Kudashov 2013-2018, GNU GPL v2 or later.
+  Official revision: `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`.
+  - Box dimensions: 18x18dp (`CheckBoxSquare.java:62`)
+  - Corner radii: 4dp outer roundRect, 3dp inner clear cutout (`CheckBoxSquare.java:168, 173`)
+  - Checkmark vertex: (7dp, 13dp) with 3dp left wing and 7dp right wing (`CheckBoxSquare.java:180-186`)
+  - Motion: 300ms ObjectAnimator with bounce progress curve (`CheckBoxSquare.java:96, 150-158`)
+- Drawables:
+  - `ic_checkbox_checked.xml`: Derived from Telegram `TMessagesProj/src/main/res/drawable/iv_checkbox_on.xml`
+  - `ic_checkbox_unchecked.xml`: Derived from Telegram `TMessagesProj/src/main/res/drawable/iv_checkbox_off.xml`
+  - `ic_target_exam_checked.xml`, `ic_check_circle.xml`: Derived from Telegram `CheckBoxBase.java:631-646` round checkmark geometry
+

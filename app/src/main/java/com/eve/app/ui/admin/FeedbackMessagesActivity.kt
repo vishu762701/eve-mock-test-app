@@ -29,6 +29,7 @@ class FeedbackMessagesActivity : EveBaseActivity() {
     private val repo = FeedbackRepository()
     private lateinit var adapter: FeedbackMessagesAdapter
     private var replyDialog: TelegramNativeAlertDialog? = null
+    private var deleteDialog: TelegramNativeAlertDialog? = null
 
     private var authorizedUid: String? = null
     private var authorizedEmail: String? = null
@@ -71,6 +72,8 @@ class FeedbackMessagesActivity : EveBaseActivity() {
         reauthorizeOnResume = true
         replyDialog?.dismiss()
         replyDialog = null
+        deleteDialog?.dismiss()
+        deleteDialog = null
         super.onStop()
     }
 
@@ -137,7 +140,8 @@ class FeedbackMessagesActivity : EveBaseActivity() {
 
     private fun confirmDeleteMessage(message: FeedbackMessage) {
         if (isFinishing || isDestroyed) return
-        TelegramNativeAlertDialog.Builder(this)
+        deleteDialog?.dismiss()
+        val dialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Delete Feedback")
             .setMessage("Are you sure you want to delete this message? This action cannot be undone.")
             .setPositiveButton("Delete") { _, _ ->
@@ -167,6 +171,8 @@ class FeedbackMessagesActivity : EveBaseActivity() {
             }
             .setNegativeButton("Cancel", null)
             .makeRed(DialogInterface.BUTTON_POSITIVE).show()
+        deleteDialog = dialog
+        dialog.setOnDismissListener { if (deleteDialog === dialog) deleteDialog = null }
     }
 
     private fun deleteMessage(id: String) {
@@ -251,6 +257,8 @@ class FeedbackMessagesActivity : EveBaseActivity() {
     override fun onDestroy() {
         replyDialog?.dismiss()
         replyDialog = null
+        deleteDialog?.dismiss()
+        deleteDialog = null
         super.onDestroy()
     }
 }

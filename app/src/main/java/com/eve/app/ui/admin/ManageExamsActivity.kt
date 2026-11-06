@@ -96,7 +96,44 @@ class ManageExamsActivity : EveBaseActivity() {
     private var authorizedUid: String? = null
     private var authorizedEmail: String? = null
 
+    private var activeExamDialog: TelegramNativeAlertDialog? = null
+
     private val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
+
+    private fun showManagedDialog(dialog: TelegramNativeAlertDialog): TelegramNativeAlertDialog {
+        if (isFinishing || isDestroyed) return dialog
+        activeExamDialog?.dismiss()
+        activeExamDialog = dialog
+        dialog.setOnDismissListener {
+            if (activeExamDialog === dialog) activeExamDialog = null
+        }
+        dialog.show()
+        return dialog
+    }
+
+    private fun showUnsavedChangesDialog(
+        onSave: () -> Unit,
+        onDiscard: () -> Unit,
+        onCancel: (() -> Unit)? = null
+    ) {
+        if (isFinishing || isDestroyed) return
+        val builder = TelegramNativeAlertDialog.Builder(this)
+            .setTitle("Unsaved Changes")
+            .setMessage("You have unsaved changes. Do you want to save before leaving?")
+            .setPositiveButton("Save") { _, _ ->
+                saveExamSettings { onSave() }
+            }
+            .setNegativeButton("Discard") { _, _ ->
+                onDiscard()
+            }
+            .setNeutralButton("Cancel") { _, _ ->
+                onCancel?.invoke()
+            }
+        if (onCancel != null) {
+            builder.setOnCancelListener { onCancel() }
+        }
+        showManagedDialog(builder.create())
+    }
 
     data class ExamDropdownEntry(val exam: Exam, val displayLabel: String) {
         override fun toString(): String = displayLabel
@@ -199,11 +236,21 @@ class ManageExamsActivity : EveBaseActivity() {
     }
 
     override fun onStop() {
+        activeExamDialog?.dismiss()
+        activeExamDialog = null
         // The backend may finish an in-flight request. Never display its old
         // response after stop or resend it with a new request key.
         generationEpoch++
         reauthorizeOnResume = true
         super.onStop()
+    }
+
+    override fun onDestroy() {
+        activeExamDialog?.dismiss()
+        activeExamDialog = null
+        listLoadJob?.cancel()
+        listLoadJob = null
+        super.onDestroy()
     }
 
     override fun onResume() {
@@ -264,17 +311,10 @@ class ManageExamsActivity : EveBaseActivity() {
                 val hasMainExams = examList.any { it.parentExamId.isBlank() }
                 if (!hasMainExams) {
                     if (isDirty()) {
-                        TelegramNativeAlertDialog.Builder(this)
-                            .setTitle("Unsaved Changes")
-                            .setMessage("You have unsaved changes. Do you want to save before canceling?")
-                            .setPositiveButton("Save") { _, _ ->
-                                saveExamSettings { finish() }
-                            }
-                            .setNegativeButton("Discard") { _, _ ->
-                                finish()
-                            }
-                            .setNeutralButton("Cancel", null)
-                            .show()
+                        showUnsavedChangesDialog(
+                            onSave = { finish() },
+                            onDiscard = { finish() }
+                        )
                     } else {
                         finish()
                     }
@@ -282,33 +322,19 @@ class ManageExamsActivity : EveBaseActivity() {
                 }
 
                 if (isDirty()) {
-                    TelegramNativeAlertDialog.Builder(this)
-                        .setTitle("Unsaved Changes")
-                        .setMessage("You have unsaved changes. Do you want to save before canceling?")
-                        .setPositiveButton("Save") { _, _ ->
-                            saveExamSettings { exitNewMainExamModeAndRestore() }
-                        }
-                        .setNegativeButton("Discard") { _, _ ->
-                            exitNewMainExamModeAndRestore()
-                        }
-                        .setNeutralButton("Cancel", null)
-                        .show()
+                    showUnsavedChangesDialog(
+                        onSave = { exitNewMainExamModeAndRestore() },
+                        onDiscard = { exitNewMainExamModeAndRestore() }
+                    )
                 } else {
                     exitNewMainExamModeAndRestore()
                 }
             } else {
                 if (isDirty()) {
-                    TelegramNativeAlertDialog.Builder(this)
-                        .setTitle("Unsaved Changes")
-                        .setMessage("You have unsaved changes. Do you want to save before creating a new main exam?")
-                        .setPositiveButton("Save") { _, _ ->
-                            saveExamSettings { enterNewMainExamMode() }
-                        }
-                        .setNegativeButton("Discard") { _, _ ->
-                            enterNewMainExamMode()
-                        }
-                        .setNeutralButton("Cancel", null)
-                        .show()
+                    showUnsavedChangesDialog(
+                        onSave = { enterNewMainExamMode() },
+                        onDiscard = { enterNewMainExamMode() }
+                    )
                 } else {
                     enterNewMainExamMode()
                 }
@@ -318,34 +344,24 @@ class ManageExamsActivity : EveBaseActivity() {
         binding.btnAddSubExam.setOnClickListener {
             if (isNewSubExamMode) {
                 if (isDirty()) {
-                    TelegramNativeAlertDialog.Builder(this)
-                        .setTitle("Unsaved Changes")
-                        .setMessage("You have unsaved changes. Do you want to save before canceling?")
-                        .setPositiveButton("Save") { _, _ ->
-                            saveExamSettings { exitNewSubExamModeAndRestore() }
-                        }
-                        .setNegativeButton("Discard") { _, _ ->
-                            exitNewSubExamModeAndRestore()
-                        }
-                        .setNeutralButton("Cancel", null)
-                        .show()
+                    showUnsavedChangesDialog(
+                        onSave = { exitNewSubExamModeAndRestore() },
+                        onDiscard = { exitNewSubExamModeAndRestore() }
+                    )
                 } else {
                     exitNewSubExamModeAndRestore()
                 }
             } else {
                 if (isDirty()) {
-                    TelegramNativeAlertDialog.Builder(this)
-                        .setTitle("Unsaved Changes")
-                        .setMessage("You have unsaved changes. Do you want to save before creating a sub-exam?")
-                        .setPositiveButton("Save") { _, _ ->
-                            saveExamSettings { enterNewSubExamMode() }
-                        }
-                        .setNegativeButton("Discard") { _, _ ->
-                            enterNewSubExamMode()
-                        }
-                        .setNeutralButton("Cancel", null)
-                        .show()
+                    showUnsavedChangesDialog(
+                        onSave = { enterNewSubExamMode() },
+                        onDiscard = { enterNewSubExamMode() }
+                    )
                 } else {
+                    enterNewSubExamMode()
+                }
+            }
+        }
                     enterNewSubExamMode()
                 }
             }
@@ -418,26 +434,14 @@ class ManageExamsActivity : EveBaseActivity() {
     }
 
     private fun promptUnsavedChanges(onDiscard: () -> Unit) {
-        TelegramNativeAlertDialog.Builder(this)
-            .setTitle("Unsaved Changes")
-            .setMessage("You have unsaved changes. Do you want to save before switching?")
-            .setPositiveButton("Save") { _, _ ->
-                saveExamSettings {
-                    onDiscard()
-                }
-            }
-            .setNegativeButton("Discard") { _, _ ->
-                onDiscard()
-            }
-            .setNeutralButton("Cancel") { _, _ ->
+        showUnsavedChangesDialog(
+            onSave = { onDiscard() },
+            onDiscard = { onDiscard() },
+            onCancel = {
                 binding.actvExam.setText(selectedMainExam?.examName.orEmpty(), false)
                 updateSubExamDropdown()
             }
-            .setOnCancelListener {
-                binding.actvExam.setText(selectedMainExam?.examName.orEmpty(), false)
-                updateSubExamDropdown()
-            }
-            .show()
+        )
     }
 
     private fun selectExamEntity(exam: Exam) {
@@ -870,7 +874,7 @@ class ManageExamsActivity : EveBaseActivity() {
         val examName = if (selectedSubExam != null) selectedSubExam!!.examName else selectedMainExam?.examName ?: targetExam.examName
         val targetId = currentExamId
 
-        TelegramNativeAlertDialog.Builder(this)
+        val confirmDialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Generate Test Now?")
             .setMessage("This will trigger AI to generate a fresh test for '$examName' immediately using the configured prompt and question count.")
             .setPositiveButton("Generate") { _, _ ->
@@ -941,11 +945,12 @@ class ManageExamsActivity : EveBaseActivity() {
                             pendingGenerateExam = null
                             pendingGenerateCount = 0
                             pendingGenerateNumber = null
-                            TelegramNativeAlertDialog.Builder(this@ManageExamsActivity)
+                            val successDialog = TelegramNativeAlertDialog.Builder(this@ManageExamsActivity)
                                 .setTitle("Generation Successful")
                                 .setMessage("Successfully generated ${confirmed.questionCount} questions for '$examName'.\n\nYou can review or publish them in the Generated Tests section below.")
                                 .setPositiveButton("OK", null)
-                                .show()
+                                .create()
+                            showManagedDialog(successDialog)
                             loadExams(targetExamId = targetId)
                             loadGeneratedTestsForExam()
                         }
@@ -963,7 +968,8 @@ class ManageExamsActivity : EveBaseActivity() {
                 }
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .create()
+        showManagedDialog(confirmDialog)
     }
 
     private var listLoadJob: kotlinx.coroutines.Job? = null
@@ -1050,11 +1056,12 @@ class ManageExamsActivity : EveBaseActivity() {
             formattedText.append("\n--------------------\n\n")
         }
 
-        TelegramNativeAlertDialog.Builder(this)
+        val dialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle(test.displayTitle)
             .setMessage(formattedText.toString())
             .setPositiveButton("Close", null)
-            .show()
+            .create()
+        showManagedDialog(dialog)
     }
 
     private val deleteFlow by lazy { AdminDeleteFlow(this) }
@@ -1175,7 +1182,7 @@ class ManageExamsActivity : EveBaseActivity() {
             appendLine("Correlation ID: ${correlationId.ifBlank { "N/A" }}")
         }.trim()
 
-        TelegramNativeAlertDialog.Builder(context)
+        val dialog = TelegramNativeAlertDialog.Builder(context)
             .setTitle("Generation failed")
             .setView(container)
             .setPositiveButton("OK", null)
@@ -1185,7 +1192,8 @@ class ManageExamsActivity : EveBaseActivity() {
                 clipboard.setPrimaryClip(clip)
                 android.widget.Toast.makeText(context, "Details copied to clipboard", android.widget.Toast.LENGTH_SHORT).show()
             }
-            .show()
+            .create()
+        showManagedDialog(dialog)
     }
 
     private fun getCurrentFormAsExam(): Exam {
@@ -1424,17 +1432,10 @@ class ManageExamsActivity : EveBaseActivity() {
     private fun handleBack() {
         if (isNewSubExamMode) {
             if (isDirty()) {
-                TelegramNativeAlertDialog.Builder(this)
-                    .setTitle("Unsaved Changes")
-                    .setMessage("You have unsaved changes. Do you want to save before canceling?")
-                    .setPositiveButton("Save") { _, _ ->
-                        saveExamSettings { exitNewSubExamModeAndRestore() }
-                    }
-                    .setNegativeButton("Discard") { _, _ ->
-                        exitNewSubExamModeAndRestore()
-                    }
-                    .setNeutralButton("Cancel", null)
-                    .show()
+                showUnsavedChangesDialog(
+                    onSave = { exitNewSubExamModeAndRestore() },
+                    onDiscard = { exitNewSubExamModeAndRestore() }
+                )
             } else {
                 exitNewSubExamModeAndRestore()
             }
@@ -1444,17 +1445,10 @@ class ManageExamsActivity : EveBaseActivity() {
             val hasMainExams = examList.any { it.parentExamId.isBlank() }
             if (!hasMainExams) {
                 if (isDirty()) {
-                    TelegramNativeAlertDialog.Builder(this)
-                        .setTitle("Unsaved Changes")
-                        .setMessage("You have unsaved changes. Do you want to save before leaving?")
-                        .setPositiveButton("Save") { _, _ ->
-                            saveExamSettings { finish() }
-                        }
-                        .setNegativeButton("Discard") { _, _ ->
-                            finish()
-                        }
-                        .setNeutralButton("Cancel", null)
-                        .show()
+                    showUnsavedChangesDialog(
+                        onSave = { finish() },
+                        onDiscard = { finish() }
+                    )
                 } else {
                     finish()
                 }
@@ -1462,34 +1456,20 @@ class ManageExamsActivity : EveBaseActivity() {
             }
 
             if (isDirty()) {
-                TelegramNativeAlertDialog.Builder(this)
-                    .setTitle("Unsaved Changes")
-                    .setMessage("You have unsaved changes. Do you want to save before canceling?")
-                    .setPositiveButton("Save") { _, _ ->
-                        saveExamSettings { exitNewMainExamModeAndRestore() }
-                    }
-                    .setNegativeButton("Discard") { _, _ ->
-                        exitNewMainExamModeAndRestore()
-                    }
-                    .setNeutralButton("Cancel", null)
-                    .show()
+                showUnsavedChangesDialog(
+                    onSave = { exitNewMainExamModeAndRestore() },
+                    onDiscard = { exitNewMainExamModeAndRestore() }
+                )
             } else {
                 exitNewMainExamModeAndRestore()
             }
             return
         }
         if (isDirty()) {
-            TelegramNativeAlertDialog.Builder(this)
-                .setTitle("Unsaved Changes")
-                .setMessage("You have unsaved changes. Do you want to save before leaving?")
-                .setPositiveButton("Save") { _, _ ->
-                    saveExamSettings { finish() }
-                }
-                .setNegativeButton("Discard") { _, _ ->
-                    finish()
-                }
-                .setNeutralButton("Cancel", null)
-                .show()
+            showUnsavedChangesDialog(
+                onSave = { finish() },
+                onDiscard = { finish() }
+            )
         } else {
             finish()
         }

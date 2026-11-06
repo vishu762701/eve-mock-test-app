@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Tabler Icons v3.49.0 / square; MIT, bundled Tabler-LICENSE.txt. -->
-<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="@dimen/design_icon_size" android:height="@dimen/design_icon_size" android:viewportWidth="24" android:viewportHeight="24">
-    <path android:fillColor="@color/transparent" android:strokeColor="@color/accent" android:strokeWidth="2.75" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14" />
+<!-- Derived from Telegram Android iv_checkbox_off.xml, DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15 -->
+<!-- GNU GPL v2 or later. See THIRD_PARTY_NOTICES.md. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="@dimen/design_icon_size"
+    android:height="@dimen/design_icon_size"
+    android:viewportWidth="52"
+    android:viewportHeight="52">
+    <path
+        android:strokeColor="@color/text_secondary"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M 13 6 L 39 6 Q 46 6 46 13 L 46 39 Q 46 46 39 46 L 13 46 Q 6 46 6 39 L 6 13 Q 6 6 13 6 Z" />
 </vector>

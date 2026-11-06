@@ -43,4 +43,7 @@
         <attr name="android:checked" />
         <attr name="android:text" />
     </declare-styleable>
+    <declare-styleable name="TelegramCheckBoxSquare">
+        <attr name="android:checked" />
+    </declare-styleable>
 </resources>
