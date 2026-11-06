@@ -16,7 +16,7 @@ EVE is actively being developed: **No visual component, layout, color, blur, the
 Telegram reference archives, approved SHA-256 values, internal manifests and GPL evidence are in `THIRD_PARTY_NOTICES.md`. For source-exact copying/comparison, authenticate an official Git checkout pinned to a full commit SHA or verify an appropriate source archive; absent source files are NOT FOUND. See `docs/telegram-integration-process.md`, including the continuous Analysis, Mapping, Implementation and Verification workflow for an already-authorized task. Never impose source ZIP verification on ordinary Eve fixes, original UI/UX work, backend tasks or repository cleanup.
 
 ## Current implementation, not frozen defaults
-Source-traced Telegram UI, theme reveal, Lottie animations, existing tokens and `EveBottomPillBar` are current implementations, **not standing requirements**. Edit them only when the owner asks. For owner-requested official components, use real verified upstream references; never use an alternative without explicit permission. Preserve all unrelated functionality, Hindi/Devanagari and accessibility.
+Source-traced Telegram UI, theme reveal, Lottie animations, the Home drawer and existing tokens are current implementations, **not standing requirements**. Edit them only when the owner asks. For owner-requested official components, use real verified upstream references; never use an alternative without explicit permission. Preserve all unrelated functionality, Hindi/Devanagari and accessibility.
 
 ## 1. Repository identity
 - Remote origin: `git@github.com:vishu762701/eve-mock-test-app.git`
@@ -38,7 +38,7 @@ Source-traced Telegram UI, theme reveal, Lottie animations, existing tokens and 
 - Technology: Kotlin, AndroidX, Material 3, ViewBinding, MVVM.
 - Test engine: `TestActivity.kt`, `CircularTimerView.kt`, `QuestionAdapter.kt` (scrollable question/options content, 2x2 action button grid, question palette, server-evaluated submissions).
 - Result and analytics: `ResultActivity.kt`, `ResultDetailActivity.kt` (single-screen summary cards, Statistics, Performance, Analytics, Review tab with isolated scroll, Leaderboard).
-- Home and discovery: `MainActivity.kt`, `HomeAppearance.kt` (plain themed canvas, single rotating content banner surface, cached streak pill with shared outline flame icon).
+- Home and discovery: `MainActivity.kt`, `HomeAppearance.kt` (themed Home canvas, exam discovery/search, category filtering, rotating content banner and drawer navigation; obsolete streak pill and bottom tabs were removed).
 - Theme and transitions: `ThemeSwitchAnimator.kt`, `SystemBarHelper.kt`, `ThemeManager.kt` (Telegram-style circular reveal Day/Night animation, status/nav bar icon sync).
 - EVE UI Studio was previously retired; that is historical state, NOT a ban on the owner adding or redesigning a studio again. Keep database migrations and production data until safe migration is established.
 - Admin Typography Studio editor and draft/publish/write routes were retired, but the owner may safely redesign or restore them. Runtime `TypographyRepository`, fallback fonts and public published config GET may serve installed clients; investigate compatibility before altering. Retain the D1 migration and production records.
@@ -69,7 +69,7 @@ Source-traced Telegram UI, theme reveal, Lottie animations, existing tokens and 
 5. Automatically remove only files proven obsolete because of the current requested change; repository-wide cleanup requires a separate explicit owner request. Follow evidence rules in `ENGINEERING_STANDARD.md`.
 
 ## 4. Verification (run for the layer you changed; both if the change spans both)
-- `Build Eve APK` runs FAST on the final SHA of each pushed implementation batch, validating Android compilation, JVM tests/test source compilation, backend and Firebase. Each pushed batch needs its own exact-SHA FAST; follow the per-feature commit limit in `ENGINEERING_STANDARD.md`. Terminal `[eve-full]` or explicitly owner-requested manual dispatch enables all six FULL jobs, native tests, signing checks and gated `Eve-debug-apk` publication. A successful client build never proves live Worker/D1 migration or production contract parity.
+- `Build Eve APK` runs FAST on the final SHA of each pushed implementation batch, validating Android compilation, JVM tests/test source compilation, backend and Firebase. Each pushed implementation batch needs exact-SHA FAST; use coherent batches with no numeric commit ceiling and avoid report-only commits. Terminal `[eve-full]` or explicitly owner-requested manual dispatch enables all six FULL jobs, native tests, signing checks and gated `Eve-debug-apk` publication. A successful client build never proves live Worker/D1 migration or production contract parity.
 - Android: `./gradlew testDebugUnitTest` and `./gradlew assembleDebug`.
 - Backend (inside `backend/`): `npm test` and `npm run build`.
 - Run `git diff --check` when working in a checkout, targeted backend/API tests on server changes, and exact-SHA GitHub Actions after each pushed batch. Production Worker/D1 deployment stays explicitly manual-only.

@@ -1,12 +1,10 @@
-# EVE one-time new-chat starter
+# EVE chat or Termux recovery starter
 
-EVE Repository: https://github.com/vishu762701/eve-mock-test-app
-Official Telegram Source: https://github.com/DrKLO/Telegram
+Repository: https://github.com/vishu762701/eve-mock-test-app
+Official source when needed: https://github.com/DrKLO/Telegram
 
-/x10think /killcritic: Apply maximum practical engineering rigor and direct professional criticism.
+Read live main, ENGINEERING_STANDARD.md and SOURCE_OF_TRUTH.md. Recover uncommitted files before syncing; never reset or clean away local work. Previous chats are not needed. Take the latest explicit owner request as the authorized mission, preserve completed work and implement only real remaining gaps.
 
-Read live `main` HEAD, `ENGINEERING_STANDARD.md`, `AGENTS.md`, `SOURCE_OF_TRUTH.md`, current source and exact-SHA CI. This is initialization only: wait for the owner's actual feature requirement before implementation.
+Proceed without routine approvals. There is no numeric commit ceiling: use coherent main-only fast-forward batches, small local checks, exact-SHA FAST, then final FULL when justified. Avoid phone builds when hosted CI is available. Do not create report-only commits or repeat completed audits. Security, legal distribution and live production actions retain their explicit authorization gates.
 
-Once authorized, own the complete outcome and its dependencies. Use authenticated, latest suitable pinned official source when requested; trace and integrate complete functional subsystems, preserve upstream behavior where feasible and disclose adaptations. Never invent source details or substitute unofficial implementations without permission. Use reviewable multi-commit fast-forward batches with no numeric commit ceiling; one main writer, owner/file isolation, and exact-SHA FAST on each pushed batch tip. Keep functional acceptance, Telegram parity, native device evidence and APK/release separate. Fail fast on deterministic errors; diagnose emulator disconnects without repeatedly triggering FULL, and never bypass legitimate tests or release safeguards. Make routine decisions autonomously; preserve unrelated functionality, security, privacy and data. Production deployment requires separate approval. Use supported cloud execution when available, otherwise leave a truthful resumable checkpoint. Follow the canonical rules and report evidence and limitations honestly.
-
-Respond in simple Roman Hinglish. Keep code, commands and engineering prompts in English.
+Respond in Roman Hinglish. Code and commands in English.
