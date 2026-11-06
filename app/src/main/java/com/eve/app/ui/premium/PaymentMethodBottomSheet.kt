@@ -36,6 +36,18 @@ class PaymentMethodBottomSheet : BottomSheetDialogFragment() {
         }
     }
 
+    override fun getTheme(): Int = com.eve.app.R.style.Theme_Eve_BottomSheetDialog
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): android.app.Dialog {
+        val dialog = super.onCreateDialog(savedInstanceState) as com.google.android.material.bottomsheet.BottomSheetDialog
+        dialog.setOnShowListener {
+            context?.let { ctx ->
+                com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, ctx)
+            }
+        }
+        return dialog
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

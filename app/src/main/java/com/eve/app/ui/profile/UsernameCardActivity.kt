@@ -192,7 +192,8 @@ class UsernameCardActivity : EveBaseActivity() {
             showAnimatedEmojiPicker()
             return
         }
-        val sheet = BottomSheetDialog(this)
+        val sheet = BottomSheetDialog(this, R.style.Theme_Eve_BottomSheetDialog)
+        com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(sheet, this)
         val grid = GridLayout(this).apply {
             columnCount = 6
             setPadding(px(10), px(12), px(10), px(12))

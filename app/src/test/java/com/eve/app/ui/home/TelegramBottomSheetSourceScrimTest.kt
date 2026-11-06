@@ -42,4 +42,28 @@ class TelegramBottomSheetSourceScrimTest {
             completed.contains("ResultDataHolder.setAnswers(att.answers, ownerUid, att.examId)") &&
             completed.contains("onReattemptConfirmed()"))
     }
+
+    @Test
+    fun appWideSheetsUseTelegramBottomSheetBackdropAndTheme() {
+        val activityLog = File("src/main/java/com/eve/app/ui/admin/ActivityLogActivity.kt").readText()
+        val emojiStudio = File("src/main/java/com/eve/app/ui/admin/emoji/EmojiStudioActivity.kt").readText()
+        val result = File("src/main/java/com/eve/app/ui/result/ResultActivity.kt").readText()
+        val usernameCard = File("src/main/java/com/eve/app/ui/profile/UsernameCardActivity.kt").readText()
+        val paymentMethod = File("src/main/java/com/eve/app/ui/premium/PaymentMethodBottomSheet.kt").readText()
+
+        assertTrue("ActivityLog must install backdrop", activityLog.contains("TelegramBottomSheetSourceBackdrop.install(dialog, this)"))
+        assertTrue("ActivityLog must use theme", activityLog.contains("Theme_Eve_BottomSheetDialog"))
+
+        assertTrue("EmojiStudio must install backdrop", emojiStudio.contains("TelegramBottomSheetSourceBackdrop.install(dialog, this)"))
+        assertTrue("EmojiStudio must use theme", emojiStudio.contains("Theme_Eve_BottomSheetDialog"))
+
+        assertTrue("Result must install backdrop", result.contains("TelegramBottomSheetSourceBackdrop.install(dialog, this)"))
+        assertTrue("Result must use theme", result.contains("Theme_Eve_BottomSheetDialog"))
+
+        assertTrue("UsernameCard must install backdrop", usernameCard.contains("TelegramBottomSheetSourceBackdrop.install(sheet, this)"))
+        assertTrue("UsernameCard must use theme", usernameCard.contains("Theme_Eve_BottomSheetDialog"))
+
+        assertTrue("PaymentMethod must use theme", paymentMethod.contains("Theme_Eve_BottomSheetDialog"))
+        assertTrue("PaymentMethod must install backdrop", paymentMethod.contains("TelegramBottomSheetSourceBackdrop.install(dialog, ctx)"))
+    }
 }

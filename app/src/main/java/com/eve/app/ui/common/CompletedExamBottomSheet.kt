@@ -32,7 +32,7 @@ object CompletedExamBottomSheet {
     ) {
         val ownerUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         if (activity.isFinishing || activity.isDestroyed || attempt != null && attempt.userId != ownerUid) return
-        val dialog = BottomSheetDialog(activity)
+        val dialog = BottomSheetDialog(activity, R.style.Theme_Eve_BottomSheetDialog)
         val binding = BottomSheetCompletedExamBinding.inflate(LayoutInflater.from(activity))
         dialog.setContentView(binding.root)
 

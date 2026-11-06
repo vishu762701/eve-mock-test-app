@@ -678,7 +678,8 @@ class ResultActivity : EveBaseActivity() {
     private fun showCategoryBottomSheet() {
         if (!resultIdentityCurrent) return
         val sheetView = layoutInflater.inflate(R.layout.bottom_sheet_category_picker, null)
-        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this, R.style.Theme_Eve_BottomSheetDialog)
+        com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, this)
         dialog.setContentView(sheetView)
 
         data class CategoryRowItem(

@@ -21,7 +21,6 @@ import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.AdminAccessGate
 import com.eve.app.util.EmptyStateAnimationHelper
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 
 class ManageExistingExamsActivity : EveBaseActivity() {
