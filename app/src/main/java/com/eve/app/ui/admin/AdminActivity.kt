@@ -92,6 +92,7 @@ class AdminActivity : EveBaseActivity() {
     private var exportJob: Job? = null
     private var exportProgress: TelegramNativeAlertDialog? = null
     private var bannerDialog: TelegramNativeAlertDialog? = null
+    private val adminDeleteFlow by lazy { AdminDeleteFlow(this) }
     private var exportGeneration = 0L
 
     private val pickBannerImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -939,6 +940,7 @@ class AdminActivity : EveBaseActivity() {
             if (!ownerCurrent() || busy) return
             busy = true
             dialogBinding.btnSaveBanner.isEnabled = false
+            dialogBinding.progressBarBannerAction.visibility = View.VISIBLE
             lifecycleScope.launch {
                 try {
                     val right = AdminPermissionSnapshot.load(
@@ -964,7 +966,10 @@ class AdminActivity : EveBaseActivity() {
                     }
                 } finally {
                     busy = false
-                    if (ownerCurrent()) dialogBinding.btnSaveBanner.isEnabled = true
+                    if (ownerCurrent()) {
+                        dialogBinding.progressBarBannerAction.visibility = View.GONE
+                        dialogBinding.btnSaveBanner.isEnabled = true
+                    }
                 }
             }
         }
@@ -990,7 +995,8 @@ class AdminActivity : EveBaseActivity() {
                 if (ownerCurrent() && !busy) {
                     pendingBannerUri = null
                     editingBannerId = banner.id
-                    dialogBinding.cardPreviewBanner.visibility = View.GONE
+                    ExamImageHelper.loadBannerImage(dialogBinding.ivPreviewBanner, banner.imageUrl)
+                    dialogBinding.cardPreviewBanner.visibility = View.VISIBLE
                     dialogBinding.tvBannerUploadError.visibility = View.GONE
                     dialogBinding.etBannerLinkUrl.setText(banner.linkUrl)
                     dialogBinding.etBannerLinkLabel.setText(banner.linkLabel)
@@ -1002,17 +1008,17 @@ class AdminActivity : EveBaseActivity() {
             },
             onDelete = { banner ->
                 if (ownerCurrent() && !busy) {
-                    TelegramNativeAlertDialog.Builder(this@AdminActivity)
-                        .setTitle("Delete Banner?")
-                        .setMessage("Are you sure you want to delete this banner?")
-                        .setPositiveButton("Delete") { _, _ ->
-                            launchBannerMutation("Banner deleted") {
-                                bannerRepo.deleteBanner(banner.id).getOrThrow()
-                                Unit
-                            }
+                    adminDeleteFlow.confirmRemoval(
+                        key = "banner:${banner.id}",
+                        name = "Banner",
+                        delete = {
+                            bannerRepo.deleteBanner(banner.id).getOrThrow()
+                            null
+                        },
+                        refresh = {
+                            if (ownerCurrent()) refreshBannerList(dialogBinding) { ownerCurrent() }
                         }
-                        .setNegativeButton("Cancel", null)
-                        .makeRed(DialogInterface.BUTTON_POSITIVE).show()
+                    )
                 }
             }
         )
@@ -1084,17 +1090,24 @@ class AdminActivity : EveBaseActivity() {
         dialogBinding: DialogManageBannersBinding,
         currentOwner: () -> Boolean
     ) {
+        dialogBinding.progressBarBannersList.visibility = View.VISIBLE
         lifecycleScope.launch {
             try {
                 val banners = bannerRepo.getBanners()
                 if (currentOwner()) {
+                    dialogBinding.progressBarBannersList.visibility = View.GONE
+                    dialogBinding.tvNoBanners.visibility = if (banners.isEmpty()) View.VISIBLE else View.GONE
+                    dialogBinding.rvAdminBanners.visibility = if (banners.isEmpty()) View.GONE else View.VISIBLE
                     (dialogBinding.rvAdminBanners.adapter as? AdminBannerAdapter)?.submitList(banners)
                 }
             } catch (cancel: CancellationException) {
                 throw cancel
             } catch (e: Exception) {
-                if (currentOwner()) AppBulletin.showError(this@AdminActivity,
-                    e.localizedMessage ?: "Failed to load banners")
+                if (currentOwner()) {
+                    dialogBinding.progressBarBannersList.visibility = View.GONE
+                    AppBulletin.showError(this@AdminActivity,
+                        e.localizedMessage ?: "Failed to load banners")
+                }
             }
         }
     }

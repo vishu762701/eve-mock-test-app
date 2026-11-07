@@ -27,6 +27,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.data.model.AdminUser
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.databinding.ActivityManageUsersBinding
+import com.eve.app.ui.common.TelegramHorizontalScrollLayoutManager
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.AdminAccessGate
 import kotlinx.coroutines.launch
@@ -125,6 +126,7 @@ class ManageUsersActivity : EveBaseActivity() {
             detailsJob?.cancel()
             detailsEpoch++
             detailsTarget = null
+            binding.progressBarTop.visibility = View.GONE
             detailsDialog?.dismiss()
             detailsDialog = null
             statusDialog?.dismiss()
@@ -157,6 +159,7 @@ class ManageUsersActivity : EveBaseActivity() {
     override fun onStop() {
         reauthorizeOnResume = true
         gateReady = false
+        binding.progressBarTop.visibility = View.GONE
         requestJob?.cancel()
         detailsJob?.cancel()
         detailsEpoch++
@@ -170,6 +173,7 @@ class ManageUsersActivity : EveBaseActivity() {
     }
 
     private fun setupAdminControls() {
+        TelegramHorizontalScrollLayoutManager.install(binding.layoutPageNumbers.parent as View)
         adapter = UserAdminAdapter(
             onViewDetails = { user -> showUserDetailsDialog(user) },
             onToggleStatus = { user, disable -> confirmToggleUserStatus(user, disable) }
@@ -203,6 +207,7 @@ class ManageUsersActivity : EveBaseActivity() {
                 detailsJob?.cancel()
                 detailsEpoch++
                 detailsTarget = null
+                binding.progressBarTop.visibility = View.GONE
                 detailsDialog?.dismiss()
                 detailsDialog = null
                 statusDialog?.dismiss()
@@ -354,13 +359,13 @@ class ManageUsersActivity : EveBaseActivity() {
             isCurrentOwner(requestOwner) &&
                 selection.matches(authorizedUid, detailsTarget, currentPage, query, detailsEpoch) &&
                 lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)
-        binding.progressBar.visibility = View.VISIBLE
+        binding.progressBarTop.visibility = View.VISIBLE
 
         detailsJob = lifecycleScope.launch {
             try {
                 val attempts = adminRepo.getUserAttempts(user.id)
                 if (!requestIsCurrent()) return@launch
-                binding.progressBar.visibility = View.GONE
+                binding.progressBarTop.visibility = View.GONE
 
                 val attemptsSummary = if (attempts.isEmpty()) {
                     "No test attempts yet."
@@ -402,11 +407,14 @@ class ManageUsersActivity : EveBaseActivity() {
                 throw cancel
             } catch (e: Exception) {
                 if (requestIsCurrent()) {
-                    binding.progressBar.visibility = View.GONE
+                    binding.progressBarTop.visibility = View.GONE
                     AppBulletin.showError(this@ManageUsersActivity, "Failed to load attempts: ${e.toUserFriendlyMessage()}")
                 }
             } finally {
-                if (detailsEpoch == detailRequestEpoch) detailsTarget = null
+                if (detailsEpoch == detailRequestEpoch) {
+                    detailsTarget = null
+                    binding.progressBarTop.visibility = View.GONE
+                }
             }
         }
     }
@@ -436,14 +444,14 @@ class ManageUsersActivity : EveBaseActivity() {
                 if (actionPending || !selectionCurrent() ||
                     requestJob?.isActive == true) return@setPositiveButton
                 actionPending = true
-                binding.progressBar.visibility = View.VISIBLE
+                binding.progressBarTop.visibility = View.VISIBLE
                 lifecycleScope.launch {
                     try {
                         if (!selectionCurrent() || requestJob?.isActive == true) return@launch
                         val success = adminRepo.toggleUserStatus(selection.userId, disable)
                         if (!selectionCurrent() ||
                             !lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) return@launch
-                        binding.progressBar.visibility = View.GONE
+                        binding.progressBarTop.visibility = View.GONE
                         if (success) {
                             // The server mutation is authoritative.
                             loadUsers()
@@ -457,11 +465,12 @@ class ManageUsersActivity : EveBaseActivity() {
                     } catch (e: Exception) {
                         if (selectionCurrent() &&
                             lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) {
-                            binding.progressBar.visibility = View.GONE
+                            binding.progressBarTop.visibility = View.GONE
                             AppBulletin.showError(this@ManageUsersActivity, "Error: ${e.toUserFriendlyMessage()}")
                         }
                     } finally {
                         actionPending = false
+                        binding.progressBarTop.visibility = View.GONE
                     }
                 }
             }

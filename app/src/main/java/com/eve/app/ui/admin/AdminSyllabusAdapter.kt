@@ -5,6 +5,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.data.model.Exam
 import com.eve.app.databinding.ItemAdminSyllabusBinding
+import com.eve.app.designsystem.TelegramThemeSelectors
+import com.eve.app.theme.TelegramThemeEngine
 import java.util.Date
 
 class AdminSyllabusAdapter(
@@ -34,15 +36,31 @@ class AdminSyllabusAdapter(
 
     inner class VH(private val b: ItemAdminSyllabusBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(exam: Exam) {
+            val palette = TelegramThemeEngine.resolveCurrentPalette(b.root.context)
+            val density = b.root.resources.displayMetrics.density
+
             b.tvExamName.text = exam.examName
+            b.tvExamName.setTextColor(palette.textPrimary)
             b.tvExamCategory.text = "Category: ${exam.categoryOrOther}"
+            b.tvExamCategory.setTextColor(palette.textSecondary)
             b.tvFileName.text = exam.syllabusFileName.ifBlank { "syllabus.pdf" }
+            b.tvFileName.setTextColor(palette.textPrimary)
 
             b.tvUploadDate.text = if (exam.syllabusUploadedAt > 0) {
                 "Uploaded: ${dateFormat.format(Date(exam.syllabusUploadedAt))}"
             } else {
                 "Active Syllabus"
             }
+            b.tvUploadDate.setTextColor(palette.textSecondary)
+
+            b.btnChangeExam.background = TelegramThemeSelectors.getRoundRectSelectorDrawable(
+                16f * density,
+                palette.actionSelector
+            )
+            b.btnReplacePdf.background = TelegramThemeSelectors.getRoundRectSelectorDrawable(
+                16f * density,
+                palette.actionSelector
+            )
 
             b.btnReplacePdf.setOnClickListener { onReplace(exam) }
             b.btnChangeExam.setOnClickListener { onReassign(exam) }

@@ -1,5 +1,6 @@
 package com.eve.app.ui.admin
 
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
@@ -10,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.R
 import com.eve.app.data.model.AdminUser
 import com.eve.app.databinding.ItemUserAdminBinding
+import com.eve.app.designsystem.TelegramThemeSelectors
+import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.util.AvatarDrawable
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -26,15 +29,21 @@ class UserAdminAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(user: AdminUser) {
+            val palette = TelegramThemeEngine.resolveCurrentPalette(binding.root.context)
+            val density = binding.root.resources.displayMetrics.density
+
             val name = user.displayName.ifBlank { "Student" }
             binding.tvUserName.text = name
+            binding.tvUserName.setTextColor(palette.textPrimary)
             binding.tvUserEmail.text = user.email.ifBlank { "No email" }
+            binding.tvUserEmail.setTextColor(palette.textSecondary)
 
             binding.ivUserAvatar.setImageDrawable(AvatarDrawable.create(binding.root.context, name, user.id))
 
             val joinedStr = if (user.createdAt > 0) dateFormat.format(Date(user.createdAt)) else "Unknown"
             val activeStr = formatRelativeActive(user.lastActive)
             binding.tvUserDates.text = "Joined: $joinedStr • Active: $activeStr"
+            binding.tvUserDates.setTextColor(palette.textSecondary)
 
             if (user.disabled) {
                 binding.tvUserStatusBadge.text = "Banned"
@@ -48,8 +57,17 @@ class UserAdminAdapter(
                 )
             }
 
+            binding.root.background = TelegramThemeSelectors.getRoundRectSelectorDrawable(
+                12f * density,
+                palette.listSelector
+            )
             binding.root.setOnClickListener { onViewDetails(user) }
 
+            binding.btnMoreUser.background = TelegramThemeSelectors.getRoundRectSelectorDrawable(
+                16f * density,
+                palette.actionSelector
+            )
+            binding.btnMoreUser.imageTintList = ColorStateList.valueOf(palette.textSecondary)
             binding.btnMoreUser.setOnClickListener { view ->
                 dismissActivePopup()
                 val popup = PopupMenu(view.context, view)
