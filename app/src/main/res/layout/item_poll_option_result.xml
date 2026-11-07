@@ -10,7 +10,13 @@
     android:clipChildren="false"
     android:clipToPadding="false"
     style="@style/Widget.Eve.Token.Column">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+        <com.eve.app.ui.common.TelegramCheckBox2
+            android:id="@+id/ivOptionCheck"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_marginEnd="8dp"
+            android:visibility="gone" />
         <TextView android:id="@+id/tvOptionTitle" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" ns1:text="Option 1" />
         <TextView android:id="@+id/tvOptionPercent" style="@style/TextAppearance.Eve.Token.Secondary.blue" android:layout_width="wrap_content" android:layout_height="wrap_content" ns1:text="45%" />
     </LinearLayout>

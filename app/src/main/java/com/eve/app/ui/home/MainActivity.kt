@@ -468,11 +468,22 @@ class MainActivity : EveBaseActivity() {
 
         // Unknown availability is a neutral gate, never a confirmed maintenance page.
         // Only a theme recreation may reuse its own server-confirmed OFF result.
+        // A confirmed cached public config on disk avoids blocking frame 0 with an opaque screen.
+        val hasConfirmedCachedOff = runCatching {
+            val json = getSharedPreferences("public_app_config", MODE_PRIVATE).getString("confirmed", null)
+            if (!json.isNullOrBlank()) {
+                val cfg = com.google.gson.Gson().fromJson(json, com.eve.app.data.model.AppConfig::class.java)
+                cfg != null && !cfg.maintenance_mode && !AppConfigManager.isUpdateRequired(cfg)
+            } else false
+        }.getOrDefault(false)
+
+        val canReuseOnTheme = HomeAvailabilityRequest.canReuseConfirmedOffOnThemeChange(
+            ThemeManager.isThemeRecreation(this, savedInstanceState),
+            savedInstanceState?.getBoolean("home_availability_confirmed_off", false) == true
+        )
+
         binding.availabilityCheckingOverlay.visibility =
-            if (HomeAvailabilityRequest.canReuseConfirmedOffOnThemeChange(
-                    ThemeManager.isThemeRecreation(this, savedInstanceState),
-                    savedInstanceState?.getBoolean("home_availability_confirmed_off", false) == true
-                )) View.GONE else View.VISIBLE
+            if (canReuseOnTheme || hasConfirmedCachedOff) View.GONE else View.VISIBLE
         binding.maintenanceOverlay.visibility = View.GONE
         updateAvailabilityInteraction()
         // onResume owns the first request as well as subsequent refreshes.
@@ -1589,24 +1600,31 @@ class MainActivity : EveBaseActivity() {
                     return@launch
                 }
 
-                val myVote = pollRepository.getUserVote(poll.id, requestUid)
+                val myVote = try {
+                    pollRepository.getUserVote(poll.id, requestUid)
+                } catch (cancel: CancellationException) {
+                    throw cancel
+                } catch (_: Exception) {
+                    if (activePollData?.id == poll.id) activePollVotedIndex else null
+                }
+                val effectiveVote = myVote ?: (if (activePollData?.id == poll.id) activePollVotedIndex else null)
                 if (!searchOwnerCurrent || isFinishing || isDestroyed) return@launch
 
-                val contentChanged = (activePollData != poll || activePollVotedIndex != myVote)
+                val contentChanged = (activePollData != poll || activePollVotedIndex != effectiveVote)
                 activePollData = poll
-                activePollVotedIndex = myVote
+                activePollVotedIndex = effectiveVote
 
                 binding.cardPoll.visibility = if (isSearchActive) View.GONE else View.VISIBLE
                 binding.tvHomePollQuestion.text = poll.question
                 binding.tvHomePollTotalVotes.text = "${poll.totalVotes} total votes"
                 binding.tvHomePollStatus.text = if (poll.isCurrentlyActive) "Active" else "Closed"
 
-                if (myVote != null || !poll.isCurrentlyActive) {
+                if (effectiveVote != null || !poll.isCurrentlyActive) {
                     binding.rgHomePollOptions.visibility = View.GONE
                     binding.btnSubmitHomeVote.visibility = View.GONE
                     binding.layoutHomePollResults.visibility = View.VISIBLE
                     if (contentChanged || binding.layoutHomePollResults.childCount == 0) {
-                        renderHomePollResults(poll, myVote)
+                        renderHomePollResults(poll, effectiveVote)
                     }
                 } else {
                     binding.layoutHomePollResults.visibility = View.GONE
@@ -1686,14 +1704,16 @@ class MainActivity : EveBaseActivity() {
             val percent = poll.getPercentageForOption(index)
 
             val isMyChoice = (myVote == index)
-            rowBinding.tvOptionTitle.text = if (isMyChoice) "$optionText  ✓ (Your vote)" else optionText
+            rowBinding.ivOptionCheck.visibility = if (isMyChoice) View.VISIBLE else View.GONE
             if (isMyChoice) {
+                rowBinding.ivOptionCheck.setChecked(true, false)
                 rowBinding.tvOptionTitle.setTextColor(palette.accent)
                 rowBinding.tvOptionTitle.setTypeface(null, android.graphics.Typeface.BOLD)
                 rowBinding.pbOption.progressColor = palette.accent
             } else {
                 rowBinding.tvOptionTitle.setTextColor(palette.textPrimary)
             }
+            rowBinding.tvOptionTitle.text = optionText
 
             rowBinding.tvOptionPercent.text = "$percent%"
             rowBinding.pbOption.progress = percent

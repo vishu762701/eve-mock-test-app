@@ -89,6 +89,25 @@ internal object TelegramBottomSheetSourceBackdrop {
             window.setDimAmount(0f)
             window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
         }
+        dialog.behavior.addBottomSheetCallback(object : com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (newState == com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN) {
+                    scrim.alpha = 0
+                }
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                // When dragging down to dismiss, slideOffset goes from 0 to -1.
+                // Scale scrim alpha smoothly matching Telegram's backDrawable dismissal.
+                if (slideOffset < 0f) {
+                    val progress = (1f + slideOffset).coerceIn(0f, 1f)
+                    scrim.alpha = (progress * 51).toInt()
+                } else {
+                    scrim.alpha = 51
+                }
+            }
+        })
+
         if (!UiArcMotion.isMotionEnabled(context)) {
             scrim.alpha = 51
         } else {
