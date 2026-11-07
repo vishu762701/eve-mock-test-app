@@ -983,5 +983,10 @@ TMessagesProj resources, Copyright Telegram Android contributors, GNU GPL v2 or 
 - `app/src/main/res/drawable/ic_flag.xml`: Ported from `TMessagesProj/src/main/res/drawable/report.xml` (official Telegram report vector).
 - `app/src/main/res/drawable/ic_pyq.xml`: Ported from `TMessagesProj/src/main/res/drawable/iv_ordered_list.xml` (official Telegram numbered/ordered list vector).
 
+## Telegram Poll Percentage Normalization — 2026-11-07
+
+`app/src/main/java/com/eve/app/data/model/Poll.kt` adapts the `normalizePollPercents` algorithm from official source `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`, `TMessagesProj/src/main/java/org/telegram/ui/Cells/ChatMessageCell.java` (lines 29518-29547). Copyright Telegram Android contributors, GNU GPL v2 or later.
+
+
 
 

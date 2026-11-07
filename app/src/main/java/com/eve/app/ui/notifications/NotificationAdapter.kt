@@ -1,10 +1,12 @@
 package com.eve.app.ui.notifications
 
+import android.content.res.ColorStateList
 import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.databinding.ItemNotificationBinding
+import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.util.StoredNotification
 
 class NotificationAdapter : RecyclerView.Adapter<NotificationAdapter.VH>() {
@@ -18,6 +20,8 @@ class NotificationAdapter : RecyclerView.Adapter<NotificationAdapter.VH>() {
 
     inner class VH(private val b: ItemNotificationBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(item: StoredNotification) {
+            val palette = TelegramThemeEngine.resolveCurrentPalette(b.root.context)
+            b.ivNotificationIcon.imageTintList = ColorStateList.valueOf(palette.accent)
             com.eve.app.ui.admin.emoji.EmojiRenderer.attachEmoji(b.tvTitle, item.title, item.emoji)
             b.tvBody.text = item.body
             b.tvTime.text = DateUtils.getRelativeTimeSpanString(

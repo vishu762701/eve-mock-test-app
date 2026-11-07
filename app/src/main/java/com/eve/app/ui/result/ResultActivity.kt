@@ -685,8 +685,8 @@ class ResultActivity : EveBaseActivity() {
         dialog.setOnDismissListener {
             if (categoryBottomSheet === dialog) categoryBottomSheet = null
         }
-        com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, this)
         dialog.setContentView(sheetView)
+        com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, this)
 
         data class CategoryRowItem(
             val row: View,
@@ -728,7 +728,8 @@ class ResultActivity : EveBaseActivity() {
             )
         )
 
-        val selectorColor = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(this).actionSelector
+        val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(this)
+        val selectorColor = palette.actionSelector
         val rowSelector = {
             com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
                 8 * resources.displayMetrics.density,
@@ -740,6 +741,7 @@ class ResultActivity : EveBaseActivity() {
             item.row.background = rowSelector()
             val isSelected = selectedCutoffCategory.equals(item.category, ignoreCase = true)
             item.ivCheck.visibility = if (isSelected) View.VISIBLE else View.INVISIBLE
+            item.ivCheck.imageTintList = android.content.res.ColorStateList.valueOf(palette.accent)
 
             val c = examCutoffs[item.category]
             if (c != null && c > 0) {

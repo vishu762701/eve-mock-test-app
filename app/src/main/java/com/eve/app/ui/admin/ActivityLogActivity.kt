@@ -319,7 +319,6 @@ class ActivityLogActivity : EveBaseActivity() {
         filterDialog?.dismiss()
         val dialog = BottomSheetDialog(this, R.style.Theme_Eve_BottomSheetDialog)
         filterDialog = dialog
-        com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, this)
         fun validFilter(): Boolean =
             isCurrentOwner(ownerUid, ownerEmail) && filterDialog === dialog && dialog.isShowing
         dialog.setOnDismissListener {
@@ -434,6 +433,7 @@ class ActivityLogActivity : EveBaseActivity() {
         }
 
         dialog.setContentView(root)
+        com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, this)
         dialog.show()
     }
 

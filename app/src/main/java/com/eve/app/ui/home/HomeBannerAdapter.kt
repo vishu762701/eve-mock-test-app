@@ -8,7 +8,9 @@ import com.eve.app.databinding.ItemHomeBannerBinding
 import com.eve.app.util.ExamImageHelper
 
 /** Pages published banners inside the single Home banner surface. */
-class HomeBannerAdapter : RecyclerView.Adapter<HomeBannerAdapter.BannerVH>() {
+class HomeBannerAdapter(
+    private val onBannerClick: ((HomeBanner) -> Unit)? = null
+) : RecyclerView.Adapter<HomeBannerAdapter.BannerVH>() {
 
     private var items: List<HomeBanner> = emptyList()
 
@@ -37,7 +39,11 @@ class HomeBannerAdapter : RecyclerView.Adapter<HomeBannerAdapter.BannerVH>() {
     inner class BannerVH(private val b: ItemHomeBannerBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(banner: HomeBanner) {
             ExamImageHelper.loadBannerImage(b.ivBanner, banner.imageUrl)
-            b.root.setOnClickListener(null)
+            if (onBannerClick != null) {
+                b.root.setOnClickListener { onBannerClick.invoke(banner) }
+            } else {
+                b.root.setOnClickListener(null)
+            }
         }
     }
 }

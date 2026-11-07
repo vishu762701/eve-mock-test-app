@@ -193,7 +193,6 @@ class UsernameCardActivity : EveBaseActivity() {
             return
         }
         val sheet = BottomSheetDialog(this, R.style.Theme_Eve_BottomSheetDialog)
-        com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(sheet, this)
         val grid = GridLayout(this).apply {
             columnCount = 6
             setPadding(px(10), px(12), px(10), px(12))
@@ -226,6 +225,7 @@ class UsernameCardActivity : EveBaseActivity() {
             background = glassBackground(24)
             addView(grid)
         })
+        com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(sheet, this)
         sheet.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)?.apply {
             backgroundTintList = ColorStateList.valueOf(Color.TRANSPARENT)
             setBackgroundColor(Color.TRANSPARENT)

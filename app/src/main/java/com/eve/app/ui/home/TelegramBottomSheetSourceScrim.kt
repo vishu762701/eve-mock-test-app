@@ -78,7 +78,11 @@ internal class TelegramBottomSheetSourceScrim : Drawable() {
  */
 internal object TelegramBottomSheetSourceBackdrop {
     fun install(dialog: BottomSheetDialog, context: Context) {
-        val host = dialog.findViewById<View>(com.google.android.material.R.id.coordinator) ?: return
+        val host = dialog.findViewById<View>(com.google.android.material.R.id.coordinator)
+            ?: run {
+                dialog.create()
+                dialog.findViewById<View>(com.google.android.material.R.id.coordinator)
+            } ?: return
         val scrim = TelegramBottomSheetSourceScrim().apply { alpha = 0 }
         host.background = scrim
         dialog.window?.let { window ->

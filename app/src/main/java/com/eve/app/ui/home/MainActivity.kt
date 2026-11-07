@@ -163,7 +163,16 @@ class MainActivity : EveBaseActivity() {
 
     private var notifJob: Job? = null
 
-    private val bannerAdapter = HomeBannerAdapter()
+    private val bannerAdapter = HomeBannerAdapter { banner ->
+        val url = banner.linkUrl.trim()
+        if (HomeBannerLinkValidator.isValidUrl(url)) {
+            try {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+            } catch (_: android.content.ActivityNotFoundException) {
+                AppBulletin.showError(this, "No app is available to open this link.")
+            }
+        }
+    }
     private val bannerRepo = com.eve.app.data.repository.HomeBannerRepository()
     private var bannerObserverJob: Job? = null
     private var bannerAutoScrollJob: Job? = null
@@ -1580,26 +1589,32 @@ class MainActivity : EveBaseActivity() {
                     return@launch
                 }
 
+                val myVote = pollRepository.getUserVote(poll.id, requestUid)
+                if (!searchOwnerCurrent || isFinishing || isDestroyed) return@launch
+
+                val contentChanged = (activePollData != poll || activePollVotedIndex != myVote)
                 activePollData = poll
+                activePollVotedIndex = myVote
+
                 binding.cardPoll.visibility = if (isSearchActive) View.GONE else View.VISIBLE
                 binding.tvHomePollQuestion.text = poll.question
                 binding.tvHomePollTotalVotes.text = "${poll.totalVotes} total votes"
                 binding.tvHomePollStatus.text = if (poll.isCurrentlyActive) "Active" else "Closed"
 
-                val myVote = pollRepository.getUserVote(poll.id, requestUid)
-                if (!searchOwnerCurrent || isFinishing || isDestroyed) return@launch
-                activePollVotedIndex = myVote
-
                 if (myVote != null || !poll.isCurrentlyActive) {
                     binding.rgHomePollOptions.visibility = View.GONE
                     binding.btnSubmitHomeVote.visibility = View.GONE
                     binding.layoutHomePollResults.visibility = View.VISIBLE
-                    renderHomePollResults(poll, myVote)
+                    if (contentChanged || binding.layoutHomePollResults.childCount == 0) {
+                        renderHomePollResults(poll, myVote)
+                    }
                 } else {
                     binding.layoutHomePollResults.visibility = View.GONE
                     binding.rgHomePollOptions.visibility = View.VISIBLE
                     binding.btnSubmitHomeVote.visibility = View.VISIBLE
-                    setupHomePollVoting(poll, requestUid)
+                    if (contentChanged || binding.rgHomePollOptions.childCount == 0) {
+                        setupHomePollVoting(poll, requestUid)
+                    }
                 }
             } catch (cancel: CancellationException) {
                 throw cancel
@@ -1648,6 +1663,7 @@ class MainActivity : EveBaseActivity() {
                 try {
                     pollRepository.submitVote(poll.id, uid, selectedOptionIndex)
                     AppBulletin.showSuccess(this@MainActivity, "Vote recorded!")
+                    activePollVotedIndex = selectedOptionIndex
                     loadActivePoll()
                 } catch (cancel: CancellationException) {
                     throw cancel
@@ -1662,6 +1678,7 @@ class MainActivity : EveBaseActivity() {
     private fun renderHomePollResults(poll: Poll, myVote: Int?) {
         binding.layoutHomePollResults.removeAllViews()
         val inflater = LayoutInflater.from(this)
+        val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(this)
 
         poll.options.forEachIndexed { index, optionText ->
             val rowBinding = com.eve.app.databinding.ItemPollOptionResultBinding.inflate(inflater, binding.layoutHomePollResults, false)
@@ -1671,10 +1688,11 @@ class MainActivity : EveBaseActivity() {
             val isMyChoice = (myVote == index)
             rowBinding.tvOptionTitle.text = if (isMyChoice) "$optionText  ✓ (Your vote)" else optionText
             if (isMyChoice) {
-                rowBinding.tvOptionTitle.setTextColor(ContextCompat.getColor(this, R.color.accent))
+                rowBinding.tvOptionTitle.setTextColor(palette.accent)
                 rowBinding.tvOptionTitle.setTypeface(null, android.graphics.Typeface.BOLD)
+                rowBinding.pbOption.progressColor = palette.accent
             } else {
-                rowBinding.tvOptionTitle.setTextColor(ContextCompat.getColor(this, R.color.text_primary))
+                rowBinding.tvOptionTitle.setTextColor(palette.textPrimary)
             }
 
             rowBinding.tvOptionPercent.text = "$percent%"

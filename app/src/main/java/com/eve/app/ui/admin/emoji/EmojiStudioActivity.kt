@@ -293,10 +293,10 @@ class EmojiStudioActivity : EveBaseActivity() {
     private fun showPlacementBottomSheet(item: EmojiItem) {
         val dialog = BottomSheetDialog(this, com.eve.app.R.style.Theme_Eve_BottomSheetDialog)
         placementDialog = dialog
-        com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, this)
         dialog.setOnDismissListener { if (placementDialog === dialog) placementDialog = null }
         val sheetBinding = BottomSheetEmojiPlacementBinding.inflate(layoutInflater)
         dialog.setContentView(sheetBinding.root)
+        com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, this)
 
         sheetBinding.tvPlacementEmojiTitle.text = "${item.altEmoji} Placement"
         sheetBinding.tvPlacementPackName.text = item.packTitle ?: item.source
@@ -415,10 +415,10 @@ class EmojiStudioActivity : EveBaseActivity() {
     private fun showPackManagerBottomSheet() {
         val dialog = BottomSheetDialog(this, com.eve.app.R.style.Theme_Eve_BottomSheetDialog)
         packManagerDialog = dialog
-        com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, this)
         dialog.setOnDismissListener { if (packManagerDialog === dialog) packManagerDialog = null }
         val sheetBinding = BottomSheetEmojiPackManagerBinding.inflate(layoutInflater)
         dialog.setContentView(sheetBinding.root)
+        com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, this)
 
         // Global Telegram Kill Switch
         sheetBinding.cellGlobalTelegramSwitch.setTextAndCheck(

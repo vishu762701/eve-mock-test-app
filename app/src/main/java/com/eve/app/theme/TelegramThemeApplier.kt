@@ -135,6 +135,9 @@ object TelegramThemeApplier {
                     check = palette.onAccent
                 )
             }
+            is com.eve.app.ui.common.TelegramLineProgressView -> {
+                view.updatePalette(palette)
+            }
             is com.eve.app.designsystem.TelegramSwitch -> {
                 view.invalidate()
             }
