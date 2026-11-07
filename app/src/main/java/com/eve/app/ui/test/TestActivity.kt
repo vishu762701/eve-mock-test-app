@@ -186,6 +186,7 @@ class TestActivity : EveBaseActivity() {
                 binding.viewPager.setCurrentItem(pos, true)
             }
         }
+        com.eve.app.ui.common.TelegramHorizontalScrollLayoutManager.install(binding.rvQuestionPalette)
         binding.rvQuestionPalette.adapter = paletteAdapter
         // The source-timed enter animation owns insertion visuals; avoid a
         // competing RecyclerView default fade or rebinding all old circles.
@@ -869,7 +870,8 @@ class TestActivity : EveBaseActivity() {
             )
         }
         paletteAdapter.submit(items)
-        binding.rvQuestionPalette.scrollToPosition(activePosition.coerceIn(0, items.lastIndex))
+        val targetIdx = activePosition.coerceIn(0, items.lastIndex)
+        binding.rvQuestionPalette.smoothScrollToPosition(targetIdx)
     }
 
     override fun onDestroy() {

@@ -286,11 +286,16 @@ class ActivityLogActivity : EveBaseActivity() {
                 if (!stillCurrent()) return@launch
                 hasMore = false
                 if (before == null) {
-                    binding.rvAuditLogs.visibility = View.GONE
-                    binding.emptyContainer.visibility = View.VISIBLE
-                    binding.tvEmptyTitle.text = "Audit history unavailable"
-                    binding.tvEmptySubtitle.text = "The server did not confirm this audit read. Change filters to retry."
-                    binding.lottieEmpty.visibility = View.GONE
+                    if (loadedLogs.isNotEmpty()) {
+                        binding.rvAuditLogs.visibility = View.VISIBLE
+                        binding.emptyContainer.visibility = View.GONE
+                    } else {
+                        binding.rvAuditLogs.visibility = View.GONE
+                        binding.emptyContainer.visibility = View.VISIBLE
+                        binding.tvEmptyTitle.text = "Audit history unavailable"
+                        binding.tvEmptySubtitle.text = "The server did not confirm this audit read. Change filters to retry."
+                        binding.lottieEmpty.visibility = View.GONE
+                    }
                 }
                 AppBulletin.showError(this@ActivityLogActivity, "Failed to load recent actions: ${e.message}")
             } finally {

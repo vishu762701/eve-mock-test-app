@@ -174,7 +174,6 @@ class AppConfigActivity : EveBaseActivity() {
                 throw cancel
             } catch (e: Exception) {
                 if (request == configReadGeneration && canPublish()) {
-                    confirmedConfig = null
                     AppBulletin.showError(this@AppConfigActivity,
                         "Failed to load config: ${e.toUserFriendlyMessage()}. Tap Save to retry loading.")
                 }

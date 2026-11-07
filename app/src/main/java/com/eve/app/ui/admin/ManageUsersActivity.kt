@@ -235,9 +235,10 @@ class ManageUsersActivity : EveBaseActivity() {
         detailsDialog = null
         statusDialog?.dismiss()
         statusDialog = null
-        if (!binding.swipeRefresh.isRefreshing) {
+        if (!binding.swipeRefresh.isRefreshing && adapter.currentList.isEmpty()) {
             binding.progressBar.visibility = View.VISIBLE
             binding.rvUsers.visibility = View.GONE
+            binding.swipeRefresh.visibility = View.GONE
         }
         binding.emptyGroup.visibility = View.GONE
         // Keep the previous page window attached while loading so the shared
@@ -262,10 +263,16 @@ class ManageUsersActivity : EveBaseActivity() {
                 binding.btnRetryUsers.visibility = View.GONE
                 if (response.users.isEmpty()) {
                     binding.emptyGroup.visibility = View.VISIBLE
+                    binding.rvUsers.visibility = View.GONE
+                    binding.swipeRefresh.visibility = View.GONE
                     binding.tvEmptyTitle.text = "No students found"
                     binding.tvEmptyMessage.text = if (meta.total == 0)
                         "No registered users match your search." else "No users on this page."
-                } else binding.rvUsers.visibility = View.VISIBLE
+                } else {
+                    binding.emptyGroup.visibility = View.GONE
+                    binding.rvUsers.visibility = View.VISIBLE
+                    binding.swipeRefresh.visibility = View.VISIBLE
+                }
                 renderPagination(meta, response.users.size)
             } catch (cancel: CancellationException) {
                 throw cancel
@@ -274,11 +281,20 @@ class ManageUsersActivity : EveBaseActivity() {
                     pageAtRequest != currentPage || queryAtRequest != query) return@launch
                 binding.progressBar.visibility = View.GONE
                 binding.btnRefresh.isEnabled = true
-                binding.emptyGroup.visibility = View.VISIBLE
-                binding.tvEmptyTitle.text = "Couldn't load users"
-                binding.tvEmptyMessage.text = e.toUserFriendlyMessage()
-                binding.layoutPagination.visibility = View.GONE
-                binding.btnRetryUsers.visibility = View.VISIBLE
+                if (adapter.currentList.isNotEmpty()) {
+                    binding.swipeRefresh.visibility = View.VISIBLE
+                    binding.rvUsers.visibility = View.VISIBLE
+                    binding.emptyGroup.visibility = View.GONE
+                    AppBulletin.showError(this@ManageUsersActivity, "Couldn't refresh users: ${e.toUserFriendlyMessage()}")
+                } else {
+                    binding.emptyGroup.visibility = View.VISIBLE
+                    binding.rvUsers.visibility = View.GONE
+                    binding.swipeRefresh.visibility = View.GONE
+                    binding.tvEmptyTitle.text = "Couldn't load users"
+                    binding.tvEmptyMessage.text = e.toUserFriendlyMessage()
+                    binding.layoutPagination.visibility = View.GONE
+                    binding.btnRetryUsers.visibility = View.VISIBLE
+                }
             } finally {
                 binding.swipeRefresh.isRefreshing = false
             }

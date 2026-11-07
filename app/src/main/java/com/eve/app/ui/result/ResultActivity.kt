@@ -462,6 +462,7 @@ class ResultActivity : EveBaseActivity() {
         paletteAdapter = QuestionPaletteAdapter { pos ->
             selectQuestion(pos)
         }
+        com.eve.app.ui.common.TelegramHorizontalScrollLayoutManager.install(binding.rvResultPalette)
         binding.rvResultPalette.adapter = paletteAdapter
         paletteAdapter.submit(paletteItems)
 
@@ -479,6 +480,7 @@ class ResultActivity : EveBaseActivity() {
         }
         if (::paletteAdapter.isInitialized) {
             paletteAdapter.submit(paletteItems)
+            binding.rvResultPalette.smoothScrollToPosition(pos)
         }
 
         adapter.resetExpandedSolutions()

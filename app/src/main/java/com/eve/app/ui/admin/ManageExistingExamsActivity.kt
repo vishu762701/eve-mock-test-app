@@ -143,8 +143,9 @@ class ManageExistingExamsActivity : EveBaseActivity() {
     private var listLoadJob: kotlinx.coroutines.Job? = null
 
     private fun loadExams() {
-        if (!binding.swipeRefresh.isRefreshing) {
+        if (!binding.swipeRefresh.isRefreshing && allExamsWithStats.isEmpty()) {
             binding.loadingExams.visibility = View.VISIBLE
+            binding.swipeRefresh.visibility = View.GONE
         }
         binding.emptyGroup.visibility = View.GONE
 
@@ -181,7 +182,15 @@ class ManageExistingExamsActivity : EveBaseActivity() {
             } catch (e: kotlinx.coroutines.CancellationException) { throw e }
             catch (e: Exception) {
                 binding.loadingExams.visibility = View.GONE
-                AppBulletin.showError(this@ManageExistingExamsActivity, "Failed to load exams: ${e.toUserFriendlyMessage()}")
+                if (allExamsWithStats.isNotEmpty()) {
+                    binding.swipeRefresh.visibility = View.VISIBLE
+                    binding.rvExams.visibility = View.VISIBLE
+                    AppBulletin.showError(this@ManageExistingExamsActivity, "Failed to load exams: ${e.toUserFriendlyMessage()}")
+                } else {
+                    binding.emptyGroup.visibility = View.VISIBLE
+                    binding.swipeRefresh.visibility = View.GONE
+                    AppBulletin.showError(this@ManageExistingExamsActivity, "Failed to load exams: ${e.toUserFriendlyMessage()}")
+                }
             } finally {
                 binding.swipeRefresh.isRefreshing = false
             }
@@ -197,10 +206,12 @@ class ManageExistingExamsActivity : EveBaseActivity() {
         if (filtered.isEmpty()) {
             binding.emptyGroup.visibility = View.VISIBLE
             binding.rvExams.visibility = View.GONE
+            binding.swipeRefresh.visibility = View.GONE
             hasEmptyPlayed = EmptyStateAnimationHelper.showEmptyState(binding.lottieEmpty, hasEmptyPlayed)
         } else {
             binding.emptyGroup.visibility = View.GONE
             binding.rvExams.visibility = View.VISIBLE
+            binding.swipeRefresh.visibility = View.VISIBLE
             EmptyStateAnimationHelper.stopEmptyState(binding.lottieEmpty)
         }
     }
