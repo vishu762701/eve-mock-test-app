@@ -202,7 +202,8 @@ class AppBulletin private constructor(
                 text.setTextColor(info)
                 icon.imageTintList = ColorStateList.valueOf(info)
                 action.setTextColor(actionColor)
-                action.rippleColor = ColorStateList.valueOf(palette.actionSelector)
+                (action as? com.google.android.material.button.MaterialButton)?.rippleColor =
+                    ColorStateList.valueOf(palette.actionSelector)
             }
             themeListener = listener
             TelegramThemeEngine.addThemeChangeListener(listener)

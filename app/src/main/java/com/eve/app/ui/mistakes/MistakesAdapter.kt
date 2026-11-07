@@ -53,6 +53,8 @@ class MistakesAdapter(
             }
 
             // Learned toggle state
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(itemView.context)
+            binding.btnMarkLearned.rippleColor = ColorStateList.valueOf(palette.actionSelector)
             if (learned) {
                 binding.btnMarkLearned.text = "Learned ✓"
                 binding.btnMarkLearned.setTextColor(ContextCompat.getColor(itemView.context, R.color.system_green_text))
