@@ -79,11 +79,9 @@ class ActivityLogActivity : EveBaseActivity() {
     }
 
     private fun requireAuditAccess() {
-        binding.root.visibility = View.INVISIBLE
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true,
             requiredRight = "view_analytics_logs") {
             if (reauthorizeOnResume || isFinishing || isDestroyed) {
-                binding.root.visibility = View.INVISIBLE
                 return@requireAdmin
             }
             val user = FirebaseAuth.getInstance().currentUser
@@ -95,6 +93,8 @@ class ActivityLogActivity : EveBaseActivity() {
             activeUid = user.uid
             activeEmail = user.email
             accessReady = true
+            binding.progressBar.visibility = View.GONE
+            binding.rvAuditLogs.visibility = View.VISIBLE
             if (!viewsPrepared) {
                 setupViews()
                 viewsPrepared = true
@@ -119,7 +119,6 @@ class ActivityLogActivity : EveBaseActivity() {
     override fun onStop() {
         reauthorizeOnResume = true
         accessReady = false
-        binding.root.visibility = View.INVISIBLE
         searchJob?.cancel()
         cancelAuditRead()
         filterAdminJob?.cancel()
@@ -128,8 +127,6 @@ class ActivityLogActivity : EveBaseActivity() {
         filterDialog = null
         logDialog?.dismiss()
         logDialog = null
-        loadedLogs.clear()
-        if (::adapter.isInitialized) adapter.submitLogs(emptyList())
         super.onStop()
     }
 
@@ -146,6 +143,13 @@ class ActivityLogActivity : EveBaseActivity() {
         activeEmail = user.email
         binding = ActivityActivityLogBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        binding.actionBar.setTitle("Recent Actions")
+        binding.actionBar.setSubtitle("Audit log trail")
+        binding.actionBar.onBackPressed = { finish() }
+        binding.actionBar.bindSystemBack(this)
+        binding.progressBar.visibility = View.VISIBLE
+        binding.rvAuditLogs.visibility = View.GONE
 
         requireAuditAccess()
     }

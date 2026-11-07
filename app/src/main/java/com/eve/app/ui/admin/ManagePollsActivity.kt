@@ -44,6 +44,7 @@ class ManagePollsActivity : EveBaseActivity() {
         setContentView(binding.root)
 
         binding.btnBack.setOnClickListener { finish() }
+        binding.progressBar.visibility = View.VISIBLE
 
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "moderate_feedback") {
             authorizedUid = FirebaseAuth.getInstance().currentUser?.uid
@@ -90,13 +91,16 @@ class ManagePollsActivity : EveBaseActivity() {
             AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "moderate_feedback") {
                 authorizedUid = live.uid
                 authorizedEmail = live.email
-                loadPolls()
+                loadPolls(showProgress = false)
             }
         }
     }
 
-    private fun loadPolls() {
-        binding.progressBar.visibility = View.VISIBLE
+    private fun loadPolls(showProgress: Boolean = true) {
+        val hasItems = ::adapter.isInitialized && adapter.currentList.isNotEmpty()
+        if (showProgress || !hasItems) {
+            binding.progressBar.visibility = View.VISIBLE
+        }
         binding.emptyStateView.hide()
         binding.errorStateView.hide()
 

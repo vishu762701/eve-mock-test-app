@@ -90,12 +90,10 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
         screenAuthorized = false
         canManageQuestions = false
         canManageExams = false
-        binding.root.visibility = View.INVISIBLE
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true,
             requiredRight = "moderate_feedback") { permissions ->
             // Old authorizations resolving after STOP are not a new grant.
             if (reauthorizeOnResume) {
-                binding.root.visibility = View.INVISIBLE
                 return@requireAdmin
             }
             if (!sameIdentity()) {
@@ -106,6 +104,8 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
             screenAuthorized = true
             canManageQuestions = permissions.isOwner || "manage_questions" in permissions.rights
             canManageExams = permissions.isOwner || "manage_exams" in permissions.rights
+            binding.progressBar.visibility = View.GONE
+            binding.rvFlaggedQuestions.visibility = View.VISIBLE
             if (!uiPrepared) {
                 setupUi()
                 uiPrepared = true
@@ -129,6 +129,9 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
         openingEmail = user.email.orEmpty()
         binding = ActivityFlaggedQuestionsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.btnBack.setOnClickListener { finish() }
+        binding.progressBar.visibility = View.VISIBLE
+        binding.rvFlaggedQuestions.visibility = View.GONE
         isTechnicalSelected = savedInstanceState?.getBoolean("admin_report_technical") ?: false
         authorizeReports()
     }
