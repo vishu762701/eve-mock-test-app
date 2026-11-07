@@ -214,15 +214,22 @@ class BookmarksActivity : EveBaseActivity() {
             is UiState.Error -> {
                 hasEmptyPlayed = false
                 binding.progressGroup.visibility = View.GONE
-                binding.messageGroup.visibility = View.VISIBLE
-                binding.btnRetry.visibility = View.VISIBLE
-                EmptyStateAnimationHelper.showErrorState(binding.ivMessageIcon)
-                if (NetworkUtil.isOnline(this)) {
-                    binding.tvMessage.text = "Something went wrong"
-                    binding.tvMessageSub.text = state.message
+                if (::adapter.isInitialized && adapter.itemCount > 0) {
+                    binding.rvBookmarks.visibility = View.VISIBLE
+                    binding.messageGroup.visibility = View.GONE
+                    com.eve.app.util.AppBulletin.showError(this@BookmarksActivity, "Couldn't refresh bookmarks: ${state.message}")
                 } else {
-                    binding.tvMessage.text = "No internet connection"
-                    binding.tvMessageSub.text = "Bookmarks could not be loaded offline."
+                    binding.rvBookmarks.visibility = View.GONE
+                    binding.messageGroup.visibility = View.VISIBLE
+                    binding.btnRetry.visibility = View.VISIBLE
+                    EmptyStateAnimationHelper.showErrorState(binding.ivMessageIcon)
+                    if (NetworkUtil.isOnline(this)) {
+                        binding.tvMessage.text = "Something went wrong"
+                        binding.tvMessageSub.text = state.message
+                    } else {
+                        binding.tvMessage.text = "No internet connection"
+                        binding.tvMessageSub.text = "Bookmarks could not be loaded offline."
+                    }
                 }
             }
         }

@@ -115,7 +115,10 @@ class LeaderboardActivity : EveBaseActivity() {
         if (!hasLeaderboardOwner()) { finish(); return }
         when (state) {
             is UiState.Loading -> {
-                binding.progressGroup.visibility = View.VISIBLE
+                if (adapter.itemCount == 0) {
+                    binding.rvLeaderboard.visibility = View.GONE
+                    binding.progressGroup.visibility = View.VISIBLE
+                }
                 binding.messageGroup.visibility = View.GONE
             }
             is UiState.Success -> {
@@ -123,6 +126,7 @@ class LeaderboardActivity : EveBaseActivity() {
                 binding.btnRetry.visibility = View.GONE
                 adapter.submit(state.data)
                 val empty = state.data.isEmpty()
+                binding.rvLeaderboard.visibility = if (empty) View.GONE else View.VISIBLE
                 binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
                 if (empty) {
                     hasEmptyPlayed = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(
@@ -137,11 +141,18 @@ class LeaderboardActivity : EveBaseActivity() {
             }
             is UiState.Error -> {
                 binding.progressGroup.visibility = View.GONE
-                binding.messageGroup.visibility = View.VISIBLE
-                binding.btnRetry.visibility = View.VISIBLE
-                com.eve.app.util.EmptyStateAnimationHelper.showErrorState(binding.ivMessageIcon)
-                binding.tvMessage.text = "Something went wrong"
-                binding.tvMessageSub.text = state.message
+                if (adapter.itemCount > 0) {
+                    binding.rvLeaderboard.visibility = View.VISIBLE
+                    binding.messageGroup.visibility = View.GONE
+                    com.eve.app.util.AppBulletin.showError(this@LeaderboardActivity, "Couldn't refresh leaderboard: ${state.message}")
+                } else {
+                    binding.rvLeaderboard.visibility = View.GONE
+                    binding.messageGroup.visibility = View.VISIBLE
+                    binding.btnRetry.visibility = View.VISIBLE
+                    com.eve.app.util.EmptyStateAnimationHelper.showErrorState(binding.ivMessageIcon)
+                    binding.tvMessage.text = "Something went wrong"
+                    binding.tvMessageSub.text = state.message
+                }
             }
         }
     }

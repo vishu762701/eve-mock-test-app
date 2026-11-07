@@ -89,11 +89,26 @@ class PracticeActivity : EveBaseActivity() {
         super.onDestroy()
     }
 
+    private var currentTopics: List<PracticeTopic> = emptyList()
+
     private fun renderExams(state: UiState<List<Exam>>) {
         if (!hasPracticeOwner()) return
         when (state) {
-            is UiState.Loading -> binding.progress.visibility = View.VISIBLE
-            is UiState.Error -> { binding.progress.visibility = View.GONE; binding.tvMessage.text = state.message; binding.tvMessage.visibility = View.VISIBLE }
+            is UiState.Loading -> {
+                if (exams.isEmpty()) {
+                    binding.progress.visibility = View.VISIBLE
+                }
+            }
+            is UiState.Error -> {
+                binding.progress.visibility = View.GONE
+                if (exams.isNotEmpty()) {
+                    binding.tvMessage.visibility = View.GONE
+                    com.eve.app.util.AppBulletin.showError(this@PracticeActivity, "Couldn't refresh exams: ${state.message}")
+                } else {
+                    binding.tvMessage.text = state.message
+                    binding.tvMessage.visibility = View.VISIBLE
+                }
+            }
             is UiState.Success -> {
                 binding.progress.visibility = View.GONE
                 exams = state.data
@@ -118,12 +133,28 @@ class PracticeActivity : EveBaseActivity() {
 
     private fun renderTopics(state: UiState<List<PracticeTopic>>) {
         if (!hasPracticeOwner()) return
-        binding.chipGroupTopics.removeAllViews()
         when (state) {
-            is UiState.Loading -> { binding.progress.visibility = View.VISIBLE; binding.tvMessage.visibility = View.GONE }
-            is UiState.Error -> { binding.progress.visibility = View.GONE; binding.tvMessage.text = state.message; binding.tvMessage.visibility = View.VISIBLE }
+            is UiState.Loading -> {
+                if (currentTopics.isEmpty()) {
+                    binding.chipGroupTopics.removeAllViews()
+                    binding.progress.visibility = View.VISIBLE
+                    binding.tvMessage.visibility = View.GONE
+                }
+            }
+            is UiState.Error -> {
+                binding.progress.visibility = View.GONE
+                if (currentTopics.isNotEmpty()) {
+                    com.eve.app.util.AppBulletin.showError(this@PracticeActivity, "Couldn't refresh topics: ${state.message}")
+                } else {
+                    binding.chipGroupTopics.removeAllViews()
+                    binding.tvMessage.text = state.message
+                    binding.tvMessage.visibility = View.VISIBLE
+                }
+            }
             is UiState.Success -> {
                 binding.progress.visibility = View.GONE
+                currentTopics = state.data
+                binding.chipGroupTopics.removeAllViews()
                 binding.tvMessage.visibility = if (state.data.isEmpty()) View.VISIBLE else View.GONE
                 if (state.data.isEmpty()) {
                     binding.tvMessage.text = if (exams.isEmpty()) "No exams are currently available for practice."

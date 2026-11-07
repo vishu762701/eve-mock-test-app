@@ -112,11 +112,20 @@ class PyqActivity : EveBaseActivity() {
     private fun renderExams(state: UiState<List<Exam>>) {
         if (!isCurrentOwner()) return
         when (state) {
-            is UiState.Loading -> binding.progress.visibility = View.VISIBLE
+            is UiState.Loading -> {
+                if (exams.isEmpty()) {
+                    binding.progress.visibility = View.VISIBLE
+                }
+            }
             is UiState.Error -> {
                 binding.progress.visibility = View.GONE
-                binding.tvMessage.text = state.message
-                binding.tvMessage.visibility = View.VISIBLE
+                if (exams.isNotEmpty()) {
+                    binding.tvMessage.visibility = View.GONE
+                    com.eve.app.util.AppBulletin.showError(this@PyqActivity, "Couldn't refresh exams: ${state.message}")
+                } else {
+                    binding.tvMessage.text = state.message
+                    binding.tvMessage.visibility = View.VISIBLE
+                }
             }
             is UiState.Success -> {
                 binding.progress.visibility = View.GONE
@@ -153,24 +162,33 @@ class PyqActivity : EveBaseActivity() {
 
     private fun renderSets(state: UiState<List<PyqSet>>) {
         if (!isCurrentOwner() || selectedExam?.id != viewModel.selectedExamId) return
-        binding.chipGroupYears.removeAllViews()
-        binding.chipGroupPapers.removeAllViews()
         when (state) {
             is UiState.Loading -> {
-                sets = emptyList()
-                binding.progress.visibility = View.VISIBLE
-                binding.tvMessage.visibility = View.GONE
-                binding.tvPapersLabel.visibility = View.GONE
+                if (sets.isEmpty()) {
+                    binding.chipGroupYears.removeAllViews()
+                    binding.chipGroupPapers.removeAllViews()
+                    binding.progress.visibility = View.VISIBLE
+                    binding.tvMessage.visibility = View.GONE
+                    binding.tvPapersLabel.visibility = View.GONE
+                }
             }
             is UiState.Error -> {
-                sets = emptyList()
                 binding.progress.visibility = View.GONE
-                binding.tvMessage.text = state.message
-                binding.tvMessage.visibility = View.VISIBLE
-                binding.tvPapersLabel.visibility = View.GONE
+                if (sets.isNotEmpty()) {
+                    com.eve.app.util.AppBulletin.showError(this@PyqActivity, "Couldn't refresh sets: ${state.message}")
+                } else {
+                    sets = emptyList()
+                    binding.chipGroupYears.removeAllViews()
+                    binding.chipGroupPapers.removeAllViews()
+                    binding.tvMessage.text = state.message
+                    binding.tvMessage.visibility = View.VISIBLE
+                    binding.tvPapersLabel.visibility = View.GONE
+                }
             }
             is UiState.Success -> {
                 binding.progress.visibility = View.GONE
+                binding.chipGroupYears.removeAllViews()
+                binding.chipGroupPapers.removeAllViews()
                 sets = state.data
                 if (sets.isEmpty()) {
                     binding.tvMessage.text =

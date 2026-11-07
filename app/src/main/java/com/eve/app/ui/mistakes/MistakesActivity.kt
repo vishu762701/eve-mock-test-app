@@ -146,7 +146,10 @@ class MistakesActivity : EveBaseActivity() {
         mistakeLoadJob?.cancel()
         val requestUid = requireNotNull(mistakesOwnerUid)
         mistakeLoadFailed = false
-        binding.progressBar.visibility = View.VISIBLE
+        if (allMistakes.isEmpty()) {
+            binding.progressBar.visibility = View.VISIBLE
+            binding.rvMistakes.visibility = View.GONE
+        }
         binding.messageGroup.visibility = View.GONE
         binding.messageGroup.isClickable = false
         binding.messageGroup.isFocusable = false
@@ -181,6 +184,12 @@ class MistakesActivity : EveBaseActivity() {
     private fun showMistakeReadFailure() {
         mistakeLoadFailed = true
         binding.progressBar.visibility = View.GONE
+        if (allMistakes.isNotEmpty()) {
+            binding.rvMistakes.visibility = View.VISIBLE
+            binding.messageGroup.visibility = View.GONE
+            com.eve.app.util.AppBulletin.showError(this@MistakesActivity, "Couldn't refresh mistakes")
+            return
+        }
         binding.rvMistakes.visibility = View.GONE
         binding.messageGroup.visibility = View.VISIBLE
         binding.tvEmptyTitle.text = "Couldn't load mistakes"

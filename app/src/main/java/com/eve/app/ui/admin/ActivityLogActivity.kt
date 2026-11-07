@@ -334,9 +334,18 @@ class ActivityLogActivity : EveBaseActivity() {
 
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(20f), dp(16f), dp(20f), dp(24f))
+            setPadding(dp(20f), dp(10f), dp(20f), dp(24f))
             setBackgroundColor(palette.surface)
         }
+
+        val pillHandle = View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(dp(36f), dp(4f)).apply {
+                gravity = android.view.Gravity.CENTER_HORIZONTAL
+                bottomMargin = dp(14f)
+            }
+            setBackgroundResource(R.drawable.design_pill_surface)
+        }
+        root.addView(pillHandle)
 
         val titleTv = TextView(this).apply {
             text = "Filter Recent Actions"

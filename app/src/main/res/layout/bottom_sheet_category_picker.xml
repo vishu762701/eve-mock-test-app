@@ -1,6 +1,12 @@
 <?xml version='1.0' encoding='utf-8'?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Sheet">
-    <View android:layout_width="36dp" android:layout_height="5dp" android:layout_gravity="center_horizontal" android:layout_marginBottom="@dimen/design_section_gap" />
+    <View
+        android:layout_width="36dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="14dp"
+        android:background="@drawable/design_pill_surface" />
     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Select Category" style="@style/TextAppearance.Eve.Token.Heading" />
     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:layout_marginBottom="@dimen/design_section_gap" android:text="Compare your result against different cutoff thresholds" style="@style/TextAppearance.Eve.Token.Secondary" />
     <LinearLayout android:id="@+id/rowSheetGeneral" android:layout_width="match_parent" android:layout_height="wrap_content" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:minHeight="52dp" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
