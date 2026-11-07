@@ -65,4 +65,9 @@ class HeaderCell @JvmOverloads constructor(
     fun setTextColor(color: Int) {
         textView.setTextColor(color)
     }
+
+    fun updatePalette(palette: TelegramThemeEngine.ResolvedPalette) {
+        textView.setTextColor(palette.accent)
+        invalidate()
+    }
 }

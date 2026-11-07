@@ -47,5 +47,8 @@ class TextInfoPrivacyCell @JvmOverloads constructor(
         addView(textView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, Gravity.TOP or Gravity.START))
     }
 
-
+    fun updatePalette(palette: TelegramThemeEngine.ResolvedPalette) {
+        textView.setTextColor(palette.textSecondary)
+        invalidate()
+    }
 }

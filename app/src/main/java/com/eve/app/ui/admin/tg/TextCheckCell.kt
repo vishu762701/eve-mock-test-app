@@ -148,6 +148,15 @@ class TextCheckCell @JvmOverloads constructor(
         checkBox.setOnCheckedChangeListener(listener)
     }
 
+    fun updatePalette(palette: TelegramThemeEngine.ResolvedPalette) {
+        dividerPaint.color = palette.hairline
+        background = com.eve.app.designsystem.TelegramThemeSelectors.getSelectorDrawable(palette.actionSelector)
+        textView.setTextColor(palette.textPrimary)
+        subtitleView.setTextColor(palette.textSecondary)
+        checkBox.invalidate()
+        invalidate()
+    }
+
     override fun onInitializeAccessibilityNodeInfo(info: android.view.accessibility.AccessibilityNodeInfo) {
         super.onInitializeAccessibilityNodeInfo(info)
         info.className = "android.widget.Switch"

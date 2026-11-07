@@ -37,6 +37,10 @@ class ShadowSectionCell @JvmOverloads constructor(
         requestLayout()
     }
 
+    fun updatePalette(palette: TelegramThemeEngine.ResolvedPalette) {
+        setBackgroundColor(palette.windowBackground)
+    }
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val width = MeasureSpec.getSize(widthMeasureSpec)
         setMeasuredDimension(width, dp(heightDp.toFloat()))

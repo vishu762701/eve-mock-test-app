@@ -163,6 +163,19 @@ class TelegramSegmentedTabs @JvmOverloads constructor(
         super.onDraw(canvas)
     }
 
+    fun updatePalette(palette: TelegramThemeEngine.ResolvedPalette) {
+        indicatorPaint.color = palette.accent
+        indicatorPaint.alpha = 31
+        for ((index, tv) in tabViews.withIndex()) {
+            tv.setTextColor(if (index == selectedIndex) palette.accent else palette.textSecondary)
+            tv.background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
+                8 * resources.displayMetrics.density,
+                palette.actionSelector
+            )
+        }
+        invalidate()
+    }
+
     override fun onDetachedFromWindow() {
         animator?.cancel()
         animator = null

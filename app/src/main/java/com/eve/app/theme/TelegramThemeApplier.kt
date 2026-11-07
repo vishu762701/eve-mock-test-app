@@ -144,6 +144,27 @@ object TelegramThemeApplier {
             is com.eve.app.ui.common.CircularTimerView -> {
                 view.updateThemeColors()
             }
+            is com.eve.app.ui.admin.tg.TextCell -> {
+                view.updatePalette(palette)
+            }
+            is com.eve.app.ui.admin.tg.TextCheckCell -> {
+                view.updatePalette(palette)
+            }
+            is com.eve.app.ui.admin.tg.TextDetailCell -> {
+                view.updatePalette(palette)
+            }
+            is com.eve.app.ui.admin.tg.HeaderCell -> {
+                view.updatePalette(palette)
+            }
+            is com.eve.app.ui.admin.tg.TextInfoPrivacyCell -> {
+                view.updatePalette(palette)
+            }
+            is com.eve.app.ui.admin.tg.ShadowSectionCell -> {
+                view.updatePalette(palette)
+            }
+            is com.eve.app.ui.admin.tg.TelegramSegmentedTabs -> {
+                view.updatePalette(palette)
+            }
             is CheckBox -> {
                 view.buttonTintList = ColorStateList.valueOf(palette.accent)
                 view.setTextColor(palette.textPrimary)

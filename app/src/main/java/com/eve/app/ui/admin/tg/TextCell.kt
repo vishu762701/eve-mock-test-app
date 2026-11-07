@@ -237,6 +237,16 @@ class TextCell @JvmOverloads constructor(
         arrowView.visibility = View.GONE
     }
 
+    fun updatePalette(palette: TelegramThemeEngine.ResolvedPalette) {
+        dividerPaint.color = palette.hairline
+        background = com.eve.app.designsystem.TelegramThemeSelectors.getSelectorDrawable(palette.actionSelector)
+        textView.setTextColor(palette.textPrimary)
+        subtitleView.setTextColor(palette.textSecondary)
+        valueTextView.setTextColor(palette.textSecondary)
+        arrowView.setColorFilter(palette.textSecondary)
+        invalidate()
+    }
+
     private fun updateOffsets(hasIcon: Boolean) {
         offsetFromImage = if (hasIcon) dp(58f) else dp(20f)
         (textLayout.layoutParams as? LayoutParams)?.marginStart = offsetFromImage

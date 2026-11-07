@@ -910,6 +910,16 @@ class ProfileActivity : EveBaseActivity() {
         progressDialog = null
     }
 
+    override fun onStop() {
+        birthdayDialog?.dismiss()
+        birthdayDialog = null
+        profileOptionsPopup?.dismiss(immediate = true)
+        profileOptionsPopup = null
+        progressDialog?.dismiss()
+        progressDialog = null
+        super.onStop()
+    }
+
     override fun onDestroy() {
         photoSaveJob?.cancel()
         photoSaveJob = null

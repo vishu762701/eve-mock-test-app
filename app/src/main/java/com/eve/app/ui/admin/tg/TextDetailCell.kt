@@ -83,6 +83,14 @@ class TextDetailCell @JvmOverloads constructor(
         addView(textLayout, layoutLp)
     }
 
+    fun updatePalette(palette: TelegramThemeEngine.ResolvedPalette) {
+        dividerPaint.color = palette.hairline
+        background = com.eve.app.designsystem.TelegramThemeSelectors.getSelectorDrawable(palette.actionSelector)
+        textView.setTextColor(palette.textPrimary)
+        valueTextView.setTextColor(palette.textSecondary)
+        invalidate()
+    }
+
     fun setTextAndValue(text: CharSequence, value: CharSequence, needDivider: Boolean = true) {
         textView.text = text
         valueTextView.text = value
