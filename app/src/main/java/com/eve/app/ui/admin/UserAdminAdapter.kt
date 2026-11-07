@@ -59,7 +59,7 @@ class UserAdminAdapter(
 
             binding.root.background = TelegramThemeSelectors.getRoundRectSelectorDrawable(
                 12f * density,
-                palette.listSelector
+                palette.actionSelector
             )
             binding.root.setOnClickListener { onViewDetails(user) }
 
