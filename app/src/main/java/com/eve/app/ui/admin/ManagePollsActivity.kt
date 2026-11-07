@@ -97,7 +97,7 @@ class ManagePollsActivity : EveBaseActivity() {
     }
 
     private fun loadPolls(showProgress: Boolean = true) {
-        val hasItems = ::adapter.isInitialized && adapter.currentList.isNotEmpty()
+        val hasItems = ::adapter.isInitialized && adapter.itemCount > 0
         if (showProgress || !hasItems) {
             binding.progressBar.visibility = View.VISIBLE
         }
