@@ -63,7 +63,8 @@ class AdminAnalyticsActivity : EveBaseActivity() {
         screenAuthorized = false
         canManageQuestions = false
         canManageExams = false
-        binding.root.visibility = View.INVISIBLE
+        binding.progress.visibility = View.VISIBLE
+        binding.content.visibility = View.GONE
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true,
             requiredRight = "view_analytics_logs") { permissions ->
             if (!currentIdentity()) {
@@ -119,6 +120,7 @@ class AdminAnalyticsActivity : EveBaseActivity() {
         openingEmail = startingUser.email.orEmpty()
         binding = ActivityAdminAnalyticsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.btnBack.setOnClickListener { finish() }
 
         // Restore the visible range before STARTED can issue its first protected read.
         savedInstanceState?.getString("admin_analytics_range")?.let { name ->

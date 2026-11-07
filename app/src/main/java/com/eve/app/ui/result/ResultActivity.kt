@@ -740,8 +740,13 @@ class ResultActivity : EveBaseActivity() {
         for (item in rows) {
             item.row.background = rowSelector()
             val isSelected = selectedCutoffCategory.equals(item.category, ignoreCase = true)
-            item.ivCheck.visibility = if (isSelected) View.VISIBLE else View.INVISIBLE
-            item.ivCheck.imageTintList = android.content.res.ColorStateList.valueOf(palette.accent)
+            if (item.ivCheck is com.eve.app.ui.common.TelegramCheckBox2) {
+                item.ivCheck.visibility = View.VISIBLE
+                item.ivCheck.setChecked(isSelected, animated = false)
+            } else {
+                item.ivCheck.visibility = if (isSelected) View.VISIBLE else View.INVISIBLE
+                item.ivCheck.imageTintList = android.content.res.ColorStateList.valueOf(palette.accent)
+            }
 
             val c = examCutoffs[item.category]
             if (c != null && c > 0) {

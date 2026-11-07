@@ -185,18 +185,19 @@ class AdminRightsEditActivity : EveBaseActivity() {
         initialRights = rightsList.toSet()
         initialCustomTitle = intent.getStringExtra(EXTRA_CUSTOM_TITLE) ?: (if (isOwner) "Owner" else "Admin")
 
+        setupActionBar()
+        setupBackPressHandling()
+
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_admins_rights") {
             val principal = FirebaseAuth.getInstance().currentUser ?: return@requireAdmin
             activeUid = principal.uid
             activeEmail = principal.email.orEmpty()
             gateReady = true
             if (!ownerCurrent()) return@requireAdmin
-            setupActionBar()
             setupIdentityHeader()
             setupCustomTitleSection()
             setupRightsSection()
             setupDismissSection()
-            setupBackPressHandling()
         }
     }
 

@@ -69,6 +69,11 @@ class EmojiStudioActivity : EveBaseActivity() {
         binding = ActivityEmojiStudioBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.actionBar.setTitle("Animated Emoji")
+        binding.actionBar.setSubtitle("Emoji Studio & Placements")
+        binding.actionBar.onBackPressed = { finish() }
+        binding.actionBar.bindSystemBack(this)
+
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_content") {
             authorized = true
             authorizedUid = live?.uid

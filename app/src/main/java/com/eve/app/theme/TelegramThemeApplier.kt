@@ -135,6 +135,13 @@ object TelegramThemeApplier {
                     check = palette.onAccent
                 )
             }
+            is com.eve.app.ui.common.TelegramCheckBox2 -> {
+                view.setColors(
+                    unchecked = palette.textSecondary,
+                    checked = palette.accent,
+                    check = palette.onAccent
+                )
+            }
             is com.eve.app.ui.common.TelegramLineProgressView -> {
                 view.updatePalette(palette)
             }
