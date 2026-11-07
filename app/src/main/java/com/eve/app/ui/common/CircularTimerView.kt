@@ -28,7 +28,7 @@ class CircularTimerView @JvmOverloads constructor(
     private val density = resources.displayMetrics.density
     private val strokePx = resources.getDimension(R.dimen.design_ring_stroke)
     private val normalColor: Int
-        get() = ContextCompat.getColor(context, R.color.accent_text)
+        get() = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context).accent
 
     private val warningColor: Int
         get() = ContextCompat.getColor(context, R.color.system_red_text)

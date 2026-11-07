@@ -14,6 +14,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.eve.app.data.model.Exam
 import com.eve.app.data.model.PracticeTopic
 import com.eve.app.databinding.ActivityPracticeBinding
+import com.eve.app.ui.common.TelegramHorizontalScrollLayoutManager
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.Constants
 import com.eve.app.util.SubmissionRetryPolicy
@@ -44,6 +45,7 @@ class PracticeActivity : EveBaseActivity() {
 
         binding = ActivityPracticeBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        TelegramHorizontalScrollLayoutManager.install(binding.scrollPractice)
         binding.btnBack.setOnClickListener { finish() }
         binding.spExam.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, position: Int, id: Long) {

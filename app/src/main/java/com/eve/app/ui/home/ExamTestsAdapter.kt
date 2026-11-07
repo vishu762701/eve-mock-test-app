@@ -1,5 +1,6 @@
 package com.eve.app.ui.home
 
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +12,7 @@ import com.eve.app.data.model.GeneratedTest
 import com.eve.app.databinding.ItemCategoryHeaderBinding
 import com.eve.app.databinding.ItemExamTestBinding
 import com.eve.app.databinding.ItemSubExamBinding
+import com.eve.app.theme.TelegramThemeEngine
 
 sealed class ExamTestsListItem {
     data class HeaderItem(val title: String) : ExamTestsListItem()
@@ -85,14 +87,19 @@ class ExamTestsAdapter(
     inner class HeaderViewHolder(private val binding: ItemCategoryHeaderBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(item: ExamTestsListItem.HeaderItem) {
+            val palette = TelegramThemeEngine.resolveCurrentPalette(binding.root.context)
             binding.tvCategoryHeader.text = item.title
+            binding.tvCategoryHeader.setTextColor(palette.accent)
         }
     }
 
     inner class SubExamViewHolder(private val binding: ItemSubExamBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(item: ExamTestsListItem.SubExamItem) {
+            val palette = TelegramThemeEngine.resolveCurrentPalette(binding.root.context)
             binding.tvSubExamName.text = item.exam.examName
+            binding.tvSubExamName.setTextColor(palette.textPrimary)
+            binding.cardContainer.rippleColor = ColorStateList.valueOf(palette.actionSelector)
             binding.cardContainer.contentDescription = "Open ${item.exam.examName} tests"
             binding.cardContainer.setOnClickListener { onSubExamClick(item.exam) }
         }
@@ -101,16 +108,20 @@ class ExamTestsAdapter(
     inner class ExamTestViewHolder(private val binding: ItemExamTestBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bindTest(item: ExamTestsListItem.TestItem) {
+            val palette = TelegramThemeEngine.resolveCurrentPalette(binding.root.context)
             binding.tvTitle.text = item.title
+            binding.tvTitle.setTextColor(palette.textPrimary)
             binding.tvSubtitle.visibility = View.VISIBLE
+            binding.tvSubtitle.setTextColor(palette.textSecondary)
             binding.tvStatus.visibility = View.VISIBLE
+            binding.cardContainer.rippleColor = ColorStateList.valueOf(palette.actionSelector)
 
             val context = binding.root.context
             when {
                 item.isLocked -> {
                     binding.tvSubtitle.text = item.opensText
                     binding.tvStatus.text = "Locked"
-                    binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
+                    binding.tvStatus.setTextColor(palette.textSecondary)
                     binding.cardContainer.setOnClickListener {
                         onLockedClick(item.test, item.opensText)
                     }
@@ -126,7 +137,7 @@ class ExamTestsAdapter(
                 item.isResume -> {
                     binding.tvSubtitle.text = item.subtitle
                     binding.tvStatus.text = "Resume"
-                    binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.system_blue_text))
+                    binding.tvStatus.setTextColor(palette.accent)
                     binding.cardContainer.setOnClickListener {
                         onTestClick(item.test, item.isCompleted)
                     }
@@ -134,7 +145,7 @@ class ExamTestsAdapter(
                 else -> {
                     binding.tvSubtitle.text = item.subtitle
                     binding.tvStatus.text = "Start"
-                    binding.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.system_blue_text))
+                    binding.tvStatus.setTextColor(palette.accent)
                     binding.cardContainer.setOnClickListener {
                         onTestClick(item.test, item.isCompleted)
                     }
