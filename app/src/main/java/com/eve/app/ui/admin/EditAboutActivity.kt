@@ -41,6 +41,7 @@ class EditAboutActivity : EveBaseActivity() {
     private var reloadAfterStop = true
     private var reauthorizeOnResume = false
     private var retainedDraft: AppContent? = null
+    private var tabContentLoaded = false
     private var suppressTabSelection = false
     private var unsavedDialog: TelegramNativeAlertDialog? = null
 
@@ -63,6 +64,7 @@ class EditAboutActivity : EveBaseActivity() {
         currentType = savedInstanceState?.getString("content.type")?.takeIf { it in TYPES } ?: TYPES[0]
         retainedDraft = savedInstanceState?.getBundle("content.draft")?.let { readDraft(it) }
         initialContent = savedInstanceState?.getBundle("content.confirmed")?.let { readDraft(it) } ?: AppContent()
+        tabContentLoaded = savedInstanceState?.getBoolean("content.tab_loaded", false) ?: false
         binding = ActivityEditAboutBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.btnBack.setOnClickListener { handleBack() }
@@ -148,6 +150,7 @@ class EditAboutActivity : EveBaseActivity() {
         val draft = if (contentReady && ownerCurrent()) getCurrentUiContent().takeUnless { sameFields(it, initialContent) } else retainedDraft
         draft?.let { outState.putBundle("content.draft", writeDraft(it)) }
         outState.putBundle("content.confirmed", writeDraft(initialContent))
+        outState.putBoolean("content.tab_loaded", tabContentLoaded)
         super.onSaveInstanceState(outState)
     }
 
@@ -159,7 +162,7 @@ class EditAboutActivity : EveBaseActivity() {
     private fun switchTab(type: String) {
         if (!current(epoch) || saving) return
         retainedDraft = null
-        initialContent = null
+        tabContentLoaded = false
         currentType = type
         restoreSelectedTab()
         loadContent()
@@ -182,7 +185,7 @@ class EditAboutActivity : EveBaseActivity() {
         val type = currentType
         reloadAfterStop = false
         loading = true
-        if (initialContent == null) {
+        if (!tabContentLoaded) {
             contentReady = false
         }
         updateControls()
@@ -197,11 +200,12 @@ class EditAboutActivity : EveBaseActivity() {
                 initialContent = content
                 populateUi(retainedDraft ?: content)
                 retainedDraft = null
+                tabContentLoaded = true
                 contentReady = true
             } catch (cancel: CancellationException) { throw cancel }
             catch (e: Exception) {
                 if (current(requestEpoch) && generation == readGeneration) {
-                    if (initialContent != null) {
+                    if (tabContentLoaded) {
                         contentReady = true
                     }
                     AppBulletin.showError(this@EditAboutActivity, "Couldn't load content: ${e.localizedMessage ?: "Unknown error"}")
