@@ -58,15 +58,22 @@ class QuestionTimeChartView @JvmOverloads constructor(
     }
 
     private fun resolveColors() {
-        colorNeutral = com.eve.app.designsystem.DesignTokens.color(context, com.eve.app.R.attr.designTextSecondary)
-        colorSlowest = com.eve.app.designsystem.DesignTokens.color(context, com.eve.app.R.attr.systemRed)
-        colorSkipped = com.eve.app.designsystem.DesignTokens.color(context, com.eve.app.R.attr.designHairline)
-        colorLabel = com.eve.app.designsystem.DesignTokens.color(context, com.eve.app.R.attr.designTextSecondary)
-        colorSelected = com.eve.app.designsystem.DesignTokens.color(context, com.eve.app.R.attr.designTextPrimary)
+        val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
+        updatePalette(palette)
 
         textPaint.typeface = FontManager.typeface(context, bold = false)
         valuePaint.typeface = FontManager.typeface(context, bold = false)
+    }
+
+    fun updatePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette =
+        com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)) {
+        colorNeutral = palette.textSecondary
+        colorSlowest = ContextCompat.getColor(context, R.color.system_red)
+        colorSkipped = palette.hairline
+        colorLabel = palette.textSecondary
+        colorSelected = palette.textPrimary
         valuePaint.color = colorLabel
+        invalidate()
     }
 
     override fun onAttachedToWindow() {

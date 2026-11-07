@@ -138,6 +138,12 @@ object TelegramThemeApplier {
             is com.eve.app.ui.common.TelegramLineProgressView -> {
                 view.updatePalette(palette)
             }
+            is com.eve.app.ui.admin.ExamAttemptsBarChartView -> {
+                view.updatePalette(palette)
+            }
+            is com.eve.app.ui.result.QuestionTimeChartView -> {
+                view.updatePalette(palette)
+            }
             is com.eve.app.designsystem.TelegramSwitch -> {
                 view.invalidate()
             }

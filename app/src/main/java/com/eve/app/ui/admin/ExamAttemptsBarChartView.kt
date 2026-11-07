@@ -59,6 +59,25 @@ class ExamAttemptsBarChartView @JvmOverloads constructor(
 
     private val rectF = RectF()
 
+    init {
+        updatePalette()
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        updatePalette()
+    }
+
+    fun updatePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette =
+        com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)) {
+        barPaint.color = palette.accent
+        trackPaint.color = ContextCompat.getColor(context, R.color.track)
+        titlePaint.color = palette.textPrimary
+        countPaint.color = palette.textSecondary
+        emptyPaint.color = palette.textSecondary
+        invalidate()
+    }
+
     fun setData(data: List<ExamBarData>) {
         items = data.take(8) // Top 8 exams for clean display
         requestLayout()
