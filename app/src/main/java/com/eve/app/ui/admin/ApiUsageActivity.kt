@@ -3,6 +3,7 @@ package com.eve.app.ui.admin
 import com.eve.app.ui.common.EveBaseActivity
 
 import android.os.Bundle
+import android.view.View
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.R
