@@ -123,6 +123,13 @@ class BookmarkAdapter(
             styleOption(binding.tvOptionC, "C")
             styleOption(binding.tvOptionD, "D")
 
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
+            binding.btnToggleExplanation.rippleColor = ColorStateList.valueOf(palette.actionSelector)
+            binding.layoutTapToOpen.background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
+                8 * context.resources.displayMetrics.density,
+                palette.actionSelector
+            )
+
             // Explanation with Expandable Card motion
             val explanation = item.displayExplanation(hindi)
             if (explanation.isNotBlank()) {

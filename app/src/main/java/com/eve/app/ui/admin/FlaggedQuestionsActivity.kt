@@ -203,6 +203,7 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
         binding.btnBack.setOnClickListener { finish() }
         binding.btnRefresh.setOnClickListener { if (activeOwner()) loadFlaggedQuestions() }
         binding.swipeRefresh.setOnRefreshListener { if (activeOwner()) loadFlaggedQuestions() }
+        com.eve.app.ui.common.TelegramHorizontalScrollLayoutManager.install(binding.scrollReportType)
 
         binding.chipContentIssues.isCheckable = true
         binding.chipTechnicalIssues.isCheckable = true

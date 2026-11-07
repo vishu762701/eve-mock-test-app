@@ -1703,20 +1703,30 @@ class MainActivity : EveBaseActivity() {
         val inflater = LayoutInflater.from(this)
         val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(this)
 
+        val maxVotes = poll.options.indices.maxOfOrNull { poll.getVotesForOption(it) } ?: 0
+
         poll.options.forEachIndexed { index, optionText ->
             val rowBinding = com.eve.app.databinding.ItemPollOptionResultBinding.inflate(inflater, binding.layoutHomePollResults, false)
             val votes = poll.getVotesForOption(index)
             val percent = poll.getPercentageForOption(index)
 
             val isMyChoice = (myVote == index)
+            val isLeading = votes == maxVotes && votes > 0
             rowBinding.ivOptionCheck.visibility = if (isMyChoice) View.VISIBLE else View.GONE
             if (isMyChoice) {
                 rowBinding.ivOptionCheck.setChecked(true, false)
                 rowBinding.tvOptionTitle.setTextColor(palette.accent)
                 rowBinding.tvOptionTitle.setTypeface(null, android.graphics.Typeface.BOLD)
+                rowBinding.tvOptionPercent.setTextColor(palette.accent)
+                rowBinding.pbOption.progressColor = palette.accent
+            } else if (isLeading) {
+                rowBinding.tvOptionTitle.setTextColor(palette.accent)
+                rowBinding.tvOptionPercent.setTextColor(palette.accent)
                 rowBinding.pbOption.progressColor = palette.accent
             } else {
                 rowBinding.tvOptionTitle.setTextColor(palette.textPrimary)
+                rowBinding.tvOptionPercent.setTextColor(palette.textSecondary)
+                rowBinding.pbOption.progressColor = palette.textSecondary
             }
             rowBinding.tvOptionTitle.text = optionText
 

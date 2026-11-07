@@ -371,7 +371,10 @@ class ActivityLogActivity : EveBaseActivity() {
         root.addView(adminSectionTv)
 
         val btnAllAdmins = com.eve.app.ui.admin.tg.TextCell(this).apply {
-            setTextAndValue("All Admins", if (selectedAdminEmail == null) "✓" else "", false)
+            setShowArrow(false)
+            val isSelected = (selectedAdminEmail == null)
+            setTextAndValue("All Admins", if (isSelected) "✓" else "", false)
+            if (isSelected) setValueColor(palette.accent)
             setOnClickListener {
                 if (!validFilter()) return@setOnClickListener
                 selectedAdminEmail = null
@@ -388,7 +391,9 @@ class ActivityLogActivity : EveBaseActivity() {
                 for (admin in admins) {
                     val isSelected = selectedAdminEmail.equals(admin.email, ignoreCase = true)
                     val cell = com.eve.app.ui.admin.tg.TextCell(this@ActivityLogActivity).apply {
+                        setShowArrow(false)
                         setTextAndValue(admin.email, if (isSelected) "✓" else "", false)
+                        if (isSelected) setValueColor(palette.accent)
                         setOnClickListener {
                             if (!validFilter()) return@setOnClickListener
                             selectedAdminEmail = admin.email
@@ -416,7 +421,10 @@ class ActivityLogActivity : EveBaseActivity() {
         root.addView(typeSectionTv)
 
         val btnAllTypes = com.eve.app.ui.admin.tg.TextCell(this).apply {
-            setTextAndValue("All Actions", if (selectedActionType == null) "✓" else "", false)
+            setShowArrow(false)
+            val isSelected = (selectedActionType == null)
+            setTextAndValue("All Actions", if (isSelected) "✓" else "", false)
+            if (isSelected) setValueColor(palette.accent)
             setOnClickListener {
                 if (!validFilter()) return@setOnClickListener
                 selectedActionType = null
@@ -433,7 +441,9 @@ class ActivityLogActivity : EveBaseActivity() {
                 for (type in types) {
                     val isSelected = selectedActionType.equals(type, ignoreCase = true)
                     val cell = com.eve.app.ui.admin.tg.TextCell(this@ActivityLogActivity).apply {
+                        setShowArrow(false)
                         setTextAndValue(type, if (isSelected) "✓" else "", false)
+                        if (isSelected) setValueColor(palette.accent)
                         setOnClickListener {
                             if (!validFilter()) return@setOnClickListener
                             selectedActionType = type

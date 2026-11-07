@@ -205,6 +205,10 @@ class TextCell @JvmOverloads constructor(
         }
     }
 
+    fun setValueColor(color: Int) {
+        valueTextView.setTextColor(color)
+    }
+
     fun setBadge(count: Int) {
         if (count > 0) {
             badgeTextView.text = if (count > 99) "99+" else count.toString()
