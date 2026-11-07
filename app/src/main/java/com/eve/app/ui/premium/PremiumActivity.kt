@@ -115,8 +115,11 @@ class PremiumActivity : EveBaseActivity() {
     private fun loadData() {
         if (!hasOriginalAccount()) { finish(); return }
         val requestUid = premiumOwnerUid
-        binding.progressBar.visibility = View.VISIBLE
-        binding.scrollView.visibility = View.INVISIBLE
+        val hasData = currentPlan != null || currentStatus != null
+        if (!hasData) {
+            binding.progressBar.visibility = View.VISIBLE
+            binding.scrollView.visibility = View.GONE
+        }
 
         loadJob?.cancel()
         loadJob = lifecycleScope.launch {
@@ -133,6 +136,9 @@ class PremiumActivity : EveBaseActivity() {
             }
             if (statusRes.isSuccess) {
                 currentStatus = statusRes.getOrNull()
+            }
+            if (planRes.isFailure && statusRes.isFailure && hasData) {
+                com.eve.app.util.AppBulletin.showError(this@PremiumActivity, "Couldn't refresh premium status")
             }
 
             renderUi()

@@ -34,6 +34,7 @@ class PerformanceActivity : EveBaseActivity() {
     private val topicAdapter = TopicStatAdapter()
 
     private var hasEmptyPlayed = false
+    private var lastRenderedData: PerformanceData? = null
     private val performanceAuth = FirebaseAuth.getInstance()
     private var performanceOwnerUid: String? = null
     private fun hasPerformanceOwner(): Boolean =
@@ -101,16 +102,19 @@ class PerformanceActivity : EveBaseActivity() {
         if (!hasPerformanceOwner()) { finish(); return }
         when (state) {
             is UiState.Loading -> {
-                binding.progressGroup.visibility = View.VISIBLE
-                binding.contentGroup.visibility = View.GONE
+                if (lastRenderedData == null) {
+                    binding.progressGroup.visibility = View.VISIBLE
+                    binding.contentGroup.visibility = View.GONE
+                    binding.tvLoadingPerformance.startShimmer()
+                }
                 binding.messageGroup.visibility = View.GONE
-                binding.tvLoadingPerformance.startShimmer()
             }
             is UiState.Success -> {
                 binding.progressGroup.visibility = View.GONE
                 binding.tvLoadingPerformance.stopShimmer()
                 binding.btnRetry.visibility = View.GONE
                 val data = state.data
+                lastRenderedData = data
                 if (data.totalAttempts == 0) {
                     binding.contentGroup.visibility = View.GONE
                     binding.messageGroup.visibility = View.VISIBLE
@@ -131,12 +135,18 @@ class PerformanceActivity : EveBaseActivity() {
             is UiState.Error -> {
                 binding.progressGroup.visibility = View.GONE
                 binding.tvLoadingPerformance.stopShimmer()
-                binding.contentGroup.visibility = View.GONE
-                binding.messageGroup.visibility = View.VISIBLE
-                binding.btnRetry.visibility = View.VISIBLE
-                com.eve.app.util.EmptyStateAnimationHelper.showErrorState(binding.ivMessageIcon)
-                binding.tvMessage.text = "Something went wrong"
-                binding.tvMessageSub.text = state.message
+                if (lastRenderedData != null) {
+                    binding.contentGroup.visibility = View.VISIBLE
+                    binding.messageGroup.visibility = View.GONE
+                    com.eve.app.util.AppBulletin.showError(this@PerformanceActivity, "Couldn't refresh performance: ${state.message}")
+                } else {
+                    binding.contentGroup.visibility = View.GONE
+                    binding.messageGroup.visibility = View.VISIBLE
+                    binding.btnRetry.visibility = View.VISIBLE
+                    com.eve.app.util.EmptyStateAnimationHelper.showErrorState(binding.ivMessageIcon)
+                    binding.tvMessage.text = "Something went wrong"
+                    binding.tvMessageSub.text = state.message
+                }
             }
         }
     }
