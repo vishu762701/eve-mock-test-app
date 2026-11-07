@@ -148,6 +148,7 @@ class HistoryActivity : EveBaseActivity() {
                 if (adapter.itemCount > 0) {
                     binding.rvHistory.visibility = View.VISIBLE
                     binding.messageGroup.visibility = View.GONE
+                    com.eve.app.util.AppBulletin.showError(this@HistoryActivity, "Couldn't refresh history: ${state.message}")
                 } else {
                     binding.rvHistory.visibility = View.GONE
                     binding.messageGroup.visibility = View.VISIBLE

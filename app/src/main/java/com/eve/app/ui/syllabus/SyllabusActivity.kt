@@ -170,7 +170,11 @@ class SyllabusActivity : EveBaseActivity() {
     }
 
     private fun loadExams() {
-        binding.progressBar.visibility = View.VISIBLE
+        val hasCachedItems = allExams.isNotEmpty()
+        if (!hasCachedItems && !binding.swipeRefresh.isRefreshing) {
+            binding.progressBar.visibility = View.VISIBLE
+            binding.swipeRefresh.visibility = View.GONE
+        }
         binding.errorStateView.hide()
         binding.emptyStateView.hide()
 
@@ -178,17 +182,24 @@ class SyllabusActivity : EveBaseActivity() {
             try {
                 allExams = examRepository.getExams()
                 binding.progressBar.visibility = View.GONE
+                binding.swipeRefresh.visibility = View.VISIBLE
                 binding.swipeRefresh.isRefreshing = false
                 filterExams(binding.etSearch.text?.toString().orEmpty())
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
                 binding.swipeRefresh.isRefreshing = false
-                binding.emptyStateView.hide()
-                binding.errorStateView.show(
-                    type = ErrorStateView.ErrorType.SERVER_ERROR,
-                    customMessage = "Failed to load syllabi. ${e.localizedMessage.orEmpty()}",
-                    onRetry = { loadExams() }
-                )
+                if (hasCachedItems) {
+                    binding.swipeRefresh.visibility = View.VISIBLE
+                    AppBulletin.showError(this@SyllabusActivity, "Failed to refresh syllabi: ${e.localizedMessage.orEmpty()}")
+                } else {
+                    binding.swipeRefresh.visibility = View.GONE
+                    binding.emptyStateView.hide()
+                    binding.errorStateView.show(
+                        type = ErrorStateView.ErrorType.SERVER_ERROR,
+                        customMessage = "Failed to load syllabi. ${e.localizedMessage.orEmpty()}",
+                        onRetry = { loadExams() }
+                    )
+                }
             }
         }
     }
@@ -204,6 +215,7 @@ class SyllabusActivity : EveBaseActivity() {
 
         if (filtered.isEmpty()) {
             binding.errorStateView.hide()
+            binding.swipeRefresh.visibility = View.GONE
             if (trimmed.isNotBlank()) {
                 binding.emptyStateView.show(
                     title = "No Results",
@@ -218,6 +230,7 @@ class SyllabusActivity : EveBaseActivity() {
         } else {
             binding.errorStateView.hide()
             binding.emptyStateView.hide()
+            binding.swipeRefresh.visibility = View.VISIBLE
         }
     }
 

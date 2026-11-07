@@ -231,6 +231,7 @@ class ExamTestsActivity : EveBaseActivity() {
                 binding.loadingTests.visibility = View.GONE
                 if (hasCachedItems) {
                     binding.rvTests.visibility = View.VISIBLE
+                    AppBulletin.showError(this@ExamTestsActivity, "Couldn't refresh tests: ${e.localizedMessage ?: "Unknown error"}")
                 } else {
                     binding.rvTests.visibility = View.GONE
                     if (showLoading) {
