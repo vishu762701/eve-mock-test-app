@@ -104,7 +104,9 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
             screenAuthorized = true
             canManageQuestions = permissions.isOwner || "manage_questions" in permissions.rights
             canManageExams = permissions.isOwner || "manage_exams" in permissions.rights
+            binding.root.visibility = View.VISIBLE
             binding.progressBar.visibility = View.GONE
+            binding.swipeRefresh.visibility = View.VISIBLE
             binding.rvFlaggedQuestions.visibility = View.VISIBLE
             if (!uiPrepared) {
                 setupUi()
@@ -131,6 +133,7 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
         setContentView(binding.root)
         binding.btnBack.setOnClickListener { finish() }
         binding.progressBar.visibility = View.VISIBLE
+        binding.swipeRefresh.visibility = View.GONE
         binding.rvFlaggedQuestions.visibility = View.GONE
         isTechnicalSelected = savedInstanceState?.getBoolean("admin_report_technical") ?: false
         authorizeReports()
@@ -153,6 +156,10 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
                 finish()
                 return
             }
+            binding.root.visibility = View.VISIBLE
+            binding.progressBar.visibility = View.VISIBLE
+            binding.swipeRefresh.visibility = View.GONE
+            binding.rvFlaggedQuestions.visibility = View.GONE
             authorizeReports()
         }
         // The lifecycle reaches STARTED after Activity.onStart returns.
