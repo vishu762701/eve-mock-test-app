@@ -47,7 +47,7 @@ class ContentDisplayActivity : EveBaseActivity() {
 
     private fun loadContent(type: String) {
         binding.progressBar.visibility = View.VISIBLE
-        binding.scrollView.visibility = View.INVISIBLE
+        binding.scrollView.visibility = View.GONE
 
         loadJob?.cancel()
         loadJob = lifecycleScope.launch {

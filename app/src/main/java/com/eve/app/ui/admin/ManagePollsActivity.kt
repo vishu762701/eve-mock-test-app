@@ -64,6 +64,7 @@ class ManagePollsActivity : EveBaseActivity() {
         binding.rvPolls.adapter = adapter
 
         binding.swipeRefresh.setOnRefreshListener { loadPolls() }
+        binding.btnCreatePollDialog.isEnabled = true
         binding.btnCreatePollDialog.setOnClickListener { showCreatePollDialog() }
     }
 
@@ -74,6 +75,7 @@ class ManagePollsActivity : EveBaseActivity() {
         customDatePickerDialog = null
         customTimePickerDialog?.dismiss()
         customTimePickerDialog = null
+        binding.btnCreatePollDialog.isEnabled = false
         reauthorizeOnResume = true
         super.onStop()
     }
@@ -88,9 +90,12 @@ class ManagePollsActivity : EveBaseActivity() {
                 finish()
                 return
             }
+            binding.progressBar.visibility = View.VISIBLE
+            binding.swipeRefresh.visibility = View.GONE
             AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "moderate_feedback") {
                 authorizedUid = live.uid
                 authorizedEmail = live.email
+                binding.btnCreatePollDialog.isEnabled = true
                 loadPolls(showProgress = false)
             }
         }
@@ -100,6 +105,7 @@ class ManagePollsActivity : EveBaseActivity() {
         val hasItems = ::adapter.isInitialized && adapter.itemCount > 0
         if (showProgress || !hasItems) {
             binding.progressBar.visibility = View.VISIBLE
+            if (!hasItems) binding.swipeRefresh.visibility = View.GONE
         }
         binding.emptyStateView.hide()
         binding.errorStateView.hide()
@@ -108,6 +114,7 @@ class ManagePollsActivity : EveBaseActivity() {
             try {
                 val list = pollRepository.getPolls()
                 binding.progressBar.visibility = View.GONE
+                binding.swipeRefresh.visibility = View.VISIBLE
                 binding.swipeRefresh.isRefreshing = false
 
                 if (list.isEmpty()) {
@@ -125,11 +132,17 @@ class ManagePollsActivity : EveBaseActivity() {
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
                 binding.swipeRefresh.isRefreshing = false
-                binding.errorStateView.show(
-                    type = com.eve.app.ui.common.ErrorStateView.ErrorType.SERVER_ERROR,
-                    customMessage = "Failed to load polls. ${e.localizedMessage.orEmpty()}",
-                    onRetry = { loadPolls() }
-                )
+                if (hasItems) {
+                    binding.swipeRefresh.visibility = View.VISIBLE
+                    com.eve.app.util.AppBulletin.showError(this@ManagePollsActivity, "Failed to refresh polls: ${e.localizedMessage.orEmpty()}")
+                } else {
+                    binding.swipeRefresh.visibility = View.GONE
+                    binding.errorStateView.show(
+                        type = com.eve.app.ui.common.ErrorStateView.ErrorType.SERVER_ERROR,
+                        customMessage = "Failed to load polls. ${e.localizedMessage.orEmpty()}",
+                        onRetry = { loadPolls() }
+                    )
+                }
             }
         }
     }
