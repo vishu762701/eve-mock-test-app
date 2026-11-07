@@ -124,6 +124,8 @@ class ManagePremiumActivity : EveBaseActivity() {
                 finish()
                 return
             }
+            binding.progressAdmin.visibility = View.VISIBLE
+            binding.containerSettings.visibility = View.GONE
             com.eve.app.util.AdminAccessGate.requireAdmin(
                 this,
                 binding.root,
@@ -134,6 +136,8 @@ class ManagePremiumActivity : EveBaseActivity() {
                     finish()
                     return@requireAdmin
                 }
+                binding.progressAdmin.visibility = View.GONE
+                binding.containerSettings.visibility = View.VISIBLE
                 authorizedUid = live.uid
                 authorizedEmail = live.email.orEmpty()
                 if (stoppedOnce) {
@@ -155,19 +159,23 @@ class ManagePremiumActivity : EveBaseActivity() {
         setContentView(binding.root)
 
         setupToolbar()
+        binding.progressAdmin.visibility = View.VISIBLE
+        binding.containerSettings.visibility = View.GONE
 
         com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_premium") {
-        val initiating = FirebaseAuth.getInstance().currentUser ?: return@requireAdmin
-        authorizedUid = initiating.uid
-        authorizedEmail = initiating.email.orEmpty()
-        adminReady = true
-        if (!ownerCurrent()) return@requireAdmin
+            val initiating = FirebaseAuth.getInstance().currentUser ?: return@requireAdmin
+            authorizedUid = initiating.uid
+            authorizedEmail = initiating.email.orEmpty()
+            adminReady = true
+            if (!ownerCurrent()) return@requireAdmin
+            binding.progressAdmin.visibility = View.GONE
+            binding.containerSettings.visibility = View.VISIBLE
 
-        setupTabs()
-        setupRecyclerViews()
-        setupSettingsActions()
+            setupTabs()
+            setupRecyclerViews()
+            setupSettingsActions()
 
-        loadAllData()
+            loadAllData()
         }
     }
 

@@ -90,6 +90,8 @@ class FeedbackMessagesActivity : EveBaseActivity() {
                 finish()
                 return
             }
+            binding.progressBar.visibility = View.VISIBLE
+            binding.swipeRefresh.visibility = View.GONE
             AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "moderate_feedback") {
                 authorizedUid = live.uid
                 authorizedEmail = live.email
@@ -99,7 +101,10 @@ class FeedbackMessagesActivity : EveBaseActivity() {
     }
 
     private fun loadMessages() {
-        binding.progressBar.visibility = View.VISIBLE
+        if (::adapter.isInitialized && adapter.itemCount == 0) {
+            binding.progressBar.visibility = View.VISIBLE
+            binding.swipeRefresh.visibility = View.GONE
+        }
         binding.emptyStateView.hide()
         binding.errorStateView.hide()
 
@@ -107,6 +112,7 @@ class FeedbackMessagesActivity : EveBaseActivity() {
             try {
                 val messages = repo.getFeedbackMessages()
                 binding.progressBar.visibility = View.GONE
+                binding.swipeRefresh.visibility = View.VISIBLE
                 binding.swipeRefresh.isRefreshing = false
 
                 if (messages.isEmpty()) {
@@ -122,11 +128,16 @@ class FeedbackMessagesActivity : EveBaseActivity() {
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
                 binding.swipeRefresh.isRefreshing = false
-                binding.errorStateView.show(
-                    type = ErrorStateView.ErrorType.SERVER_ERROR,
-                    customMessage = "Failed to load messages: ${e.localizedMessage.orEmpty()}",
-                    onRetry = { loadMessages() }
-                )
+                if (::adapter.isInitialized && adapter.itemCount > 0) {
+                    binding.swipeRefresh.visibility = View.VISIBLE
+                    AppBulletin.showError(this@FeedbackMessagesActivity, "Failed to refresh messages: ${e.localizedMessage.orEmpty()}")
+                } else {
+                    binding.errorStateView.show(
+                        type = ErrorStateView.ErrorType.SERVER_ERROR,
+                        customMessage = "Failed to load messages: ${e.localizedMessage.orEmpty()}",
+                        onRetry = { loadMessages() }
+                    )
+                }
             }
         }
     }

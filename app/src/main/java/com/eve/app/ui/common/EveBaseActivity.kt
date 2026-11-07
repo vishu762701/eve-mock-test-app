@@ -11,10 +11,18 @@ abstract class EveBaseActivity : AppCompatActivity() {
     private var highContrast = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        com.eve.app.util.EvePerformanceTracer.recordLaunchStart(this, isRestoring = savedInstanceState != null)
         highContrast = com.eve.app.util.DesignContrast.apply(this)
         androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
         com.eve.app.util.SystemBarHelper.syncSystemBars(this)
+        hookFirstFrameTracer()
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        com.eve.app.util.EvePerformanceTracer.recordReturnStart(this)
+        hookFirstFrameTracer()
     }
 
     override fun setContentView(layoutResID: Int) {
@@ -43,6 +51,23 @@ abstract class EveBaseActivity : AppCompatActivity() {
             return
         }
         applyTypographyIfSafe()
+        com.eve.app.util.EvePerformanceTracer.recordInteractive(this)
+    }
+
+    private fun hookFirstFrameTracer() {
+        val decor = window?.decorView ?: return
+        val vto = decor.viewTreeObserver
+        if (vto != null && vto.isAlive) {
+            vto.addOnPreDrawListener(object : android.view.ViewTreeObserver.OnPreDrawListener {
+                override fun onPreDraw(): Boolean {
+                    if (decor.viewTreeObserver.isAlive) {
+                        decor.viewTreeObserver.removeOnPreDrawListener(this)
+                    }
+                    com.eve.app.util.EvePerformanceTracer.recordFirstFrame(this@EveBaseActivity)
+                    return true
+                }
+            })
+        }
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {

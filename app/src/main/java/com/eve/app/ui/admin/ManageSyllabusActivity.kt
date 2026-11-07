@@ -124,7 +124,8 @@ class ManageSyllabusActivity : EveBaseActivity() {
         setContentView(binding.root)
 
         binding.btnBack.setOnClickListener { finish() }
-        binding.progressBarTop.visibility = View.VISIBLE
+        binding.progressBarCenter.visibility = View.VISIBLE
+        binding.scrollSyllabus.visibility = View.GONE
 
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_syllabus") {
             val principal = FirebaseAuth.getInstance().currentUser ?: return@requireAdmin
@@ -132,6 +133,8 @@ class ManageSyllabusActivity : EveBaseActivity() {
             accessEmail = principal.email.orEmpty()
             adminAccessGranted = true
             if (!currentOwner()) return@requireAdmin
+            binding.progressBarCenter.visibility = View.GONE
+            binding.scrollSyllabus.visibility = View.VISIBLE
             setupRecyclerView()
             setupAddSyllabusForm()
             setupSearch()
@@ -168,6 +171,8 @@ class ManageSyllabusActivity : EveBaseActivity() {
                 finish()
                 return
             }
+            binding.progressBarCenter.visibility = View.VISIBLE
+            binding.scrollSyllabus.visibility = View.GONE
             AdminAccessGate.requireAdmin(
                 this,
                 binding.root,
@@ -178,6 +183,8 @@ class ManageSyllabusActivity : EveBaseActivity() {
                     finish()
                     return@requireAdmin
                 }
+                binding.progressBarCenter.visibility = View.GONE
+                binding.scrollSyllabus.visibility = View.VISIBLE
                 accessUid = live.uid
                 accessEmail = live.email.orEmpty()
                 if (screenStopSeen) {

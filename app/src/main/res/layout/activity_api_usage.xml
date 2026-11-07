@@ -10,38 +10,55 @@
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.LargeTitleBlock">
         <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="API Usage &amp; Cost Monitor"  android:tag="eve_telegram_type" />
     </LinearLayout>
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout android:id="@+id/swipeRefresh" android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false">
-    <ScrollView android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-            <TextView style="@style/TextAppearance.Eve.Token.Secondary.blue" android:id="@+id/tvCurrentMonth" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/api_usage_loading" />
-            <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <com.eve.app.designsystem.TelegramRadialProgressView
+            android:id="@+id/progressBar"
+            android:layout_width="@dimen/design_ring_size"
+            android:layout_height="@dimen/design_ring_size"
+            android:layout_gravity="center"
+            android:visibility="visible" />
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefresh"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            android:clipToPadding="false"
+            android:clipChildren="false">
+            <ScrollView android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                    <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="✨ Gemini AI Generation Calls" />
-                    <TextView style="@style/TextAppearance.Eve.Token.Heading.blue" android:id="@+id/tvGeminiCallsCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:text="@string/api_usage_unknown_count" />
-                    <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Total AI question generation calls this month (both scheduled auto-gen and manual 'Generate Now'). Resets automatically each calendar month." />
+                    <TextView style="@style/TextAppearance.Eve.Token.Secondary.blue" android:id="@+id/tvCurrentMonth" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/api_usage_loading" />
+                    <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                            <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="✨ Gemini AI Generation Calls" />
+                            <TextView style="@style/TextAppearance.Eve.Token.Heading.blue" android:id="@+id/tvGeminiCallsCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:text="@string/api_usage_unknown_count" />
+                            <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Total AI question generation calls this month (both scheduled auto-gen and manual 'Generate Now'). Resets automatically each calendar month." />
+                        </LinearLayout>
+                    </com.eve.app.designsystem.DesignCardView>
+                    <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                            <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="📝 Total Documents Created (Writes Proxy)" />
+                            <TextView style="@style/TextAppearance.Eve.Token.Heading.green" android:id="@+id/tvDocsCreatedCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:text="@string/api_usage_unknown_count" />
+                            <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Documents created across exams, questions, broadcasts, and feedback posts this month. Serves as an early indicator for Firestore database write volume." />
+                        </LinearLayout>
+                    </com.eve.app.designsystem.DesignCardView>
+                    <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                            <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="👥 Student Test Submissions (Reads Proxy)" />
+                            <TextView style="@style/TextAppearance.Eve.Token.Heading" android:id="@+id/tvSubmissionsCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:text="@string/api_usage_unknown_count" />
+                            <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Total completed test attempts submitted by students this month. Correlates directly with student read operations and active engagement." />
+                        </LinearLayout>
+                    </com.eve.app.designsystem.DesignCardView>
+                    <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+                            <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:layout_marginTop="2dp" android:src="@drawable/ic_info" app:tint="@color/system_blue" />
+                            <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_card_padding" android:layout_weight="1" android:text="Note: Check actual usage and billing in the Google Cloud Console and Firebase Console directly for precise, authoritative numbers. This in-app counter is an approximate early-warning indicator, not a billing source of truth." />
+                        </LinearLayout>
+                    </com.eve.app.designsystem.DesignCardView>
                 </LinearLayout>
-            </com.eve.app.designsystem.DesignCardView>
-            <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                    <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="📝 Total Documents Created (Writes Proxy)" />
-                    <TextView style="@style/TextAppearance.Eve.Token.Heading.green" android:id="@+id/tvDocsCreatedCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:text="@string/api_usage_unknown_count" />
-                    <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Documents created across exams, questions, broadcasts, and feedback posts this month. Serves as an early indicator for Firestore database write volume." />
-                </LinearLayout>
-            </com.eve.app.designsystem.DesignCardView>
-            <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                    <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="👥 Student Test Submissions (Reads Proxy)" />
-                    <TextView style="@style/TextAppearance.Eve.Token.Heading" android:id="@+id/tvSubmissionsCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:text="@string/api_usage_unknown_count" />
-                    <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Total completed test attempts submitted by students this month. Correlates directly with student read operations and active engagement." />
-                </LinearLayout>
-            </com.eve.app.designsystem.DesignCardView>
-            <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                    <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:layout_marginTop="2dp" android:src="@drawable/ic_info" app:tint="@color/system_blue" />
-                    <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_card_padding" android:layout_weight="1" android:text="Note: Check actual usage and billing in the Google Cloud Console and Firebase Console directly for precise, authoritative numbers. This in-app counter is an approximate early-warning indicator, not a billing source of truth." />
-                </LinearLayout>
-            </com.eve.app.designsystem.DesignCardView>
-        </LinearLayout>
-    </ScrollView>
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            </ScrollView>
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </FrameLayout>
 </LinearLayout>

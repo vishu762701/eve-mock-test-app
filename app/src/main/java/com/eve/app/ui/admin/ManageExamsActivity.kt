@@ -218,11 +218,16 @@ class ManageExamsActivity : EveBaseActivity() {
         }
 
         binding.btnBack.setOnClickListener { handleBack() }
-        binding.progressBar.visibility = View.VISIBLE
+        binding.progressBarCenter.visibility = View.VISIBLE
+        binding.scrollManageExamContent.visibility = View.GONE
+        binding.layoutSaveContainer.visibility = View.GONE
 
         com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_exams") {
             authorizedUid = FirebaseAuth.getInstance().currentUser?.uid
             authorizedEmail = FirebaseAuth.getInstance().currentUser?.email
+            binding.progressBarCenter.visibility = View.GONE
+            binding.scrollManageExamContent.visibility = View.VISIBLE
+            binding.layoutSaveContainer.visibility = View.VISIBLE
             initializeAuthorizedUi()
         }
     }
@@ -265,9 +270,15 @@ class ManageExamsActivity : EveBaseActivity() {
                 finish()
                 return
             }
+            binding.progressBarCenter.visibility = View.VISIBLE
+            binding.scrollManageExamContent.visibility = View.GONE
+            binding.layoutSaveContainer.visibility = View.GONE
             com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_exams") {
                 authorizedUid = live.uid
                 authorizedEmail = live.email
+                binding.progressBarCenter.visibility = View.GONE
+                binding.scrollManageExamContent.visibility = View.VISIBLE
+                binding.layoutSaveContainer.visibility = View.VISIBLE
                 loadExams(targetExamId = currentExamId.takeIf { it.isNotBlank() })
             }
         }

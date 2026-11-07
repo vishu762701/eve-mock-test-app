@@ -149,12 +149,14 @@ class AdminAnalyticsActivity : EveBaseActivity() {
                             is UiState.Error -> {
                                 binding.swipeRefresh.isRefreshing = false
                                 binding.progress.visibility = View.GONE
+                                binding.swipeRefresh.visibility = View.VISIBLE
                                 binding.content.visibility = View.VISIBLE
                                 AppBulletin.showError(this@AdminAnalyticsActivity, state.message)
                             }
                             is UiState.Success -> {
                                 binding.swipeRefresh.isRefreshing = false
                                 binding.progress.visibility = View.GONE
+                                binding.swipeRefresh.visibility = View.VISIBLE
                                 binding.content.visibility = View.VISIBLE
                                 val data = state.data
                                 examAdapter.submit(data.exams)

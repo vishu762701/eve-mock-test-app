@@ -74,10 +74,19 @@ class EmojiStudioActivity : EveBaseActivity() {
         binding.actionBar.onBackPressed = { finish() }
         binding.actionBar.bindSystemBack(this)
 
+        binding.progressLoading.visibility = View.VISIBLE
+        binding.rvEmojiGrid.visibility = View.GONE
+        binding.segmentedTabs.visibility = View.GONE
+        binding.bottomActionContainer.visibility = View.GONE
+
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_content") {
             authorized = true
             authorizedUid = live?.uid
             authorizedEmail = live?.email
+            binding.progressLoading.visibility = View.GONE
+            binding.rvEmojiGrid.visibility = View.VISIBLE
+            binding.segmentedTabs.visibility = View.VISIBLE
+            binding.bottomActionContainer.visibility = View.VISIBLE
             setupViews()
             loadData()
             pendingUpload?.let { pendingUpload = null; uploadCustom(it) }
@@ -93,10 +102,18 @@ class EmojiStudioActivity : EveBaseActivity() {
                 finish()
                 return
             }
+            binding.progressLoading.visibility = View.VISIBLE
+            binding.rvEmojiGrid.visibility = View.GONE
+            binding.segmentedTabs.visibility = View.GONE
+            binding.bottomActionContainer.visibility = View.GONE
             AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_content") {
                 authorized = true
                 authorizedUid = live.uid
                 authorizedEmail = live.email
+                binding.progressLoading.visibility = View.GONE
+                binding.rvEmojiGrid.visibility = View.VISIBLE
+                binding.segmentedTabs.visibility = View.VISIBLE
+                binding.bottomActionContainer.visibility = View.VISIBLE
                 loadData()
             }
         }

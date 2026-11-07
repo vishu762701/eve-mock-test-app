@@ -97,6 +97,8 @@ class SystemMonitorActivity : EveBaseActivity() {
                 finish()
                 return
             }
+            binding.progressBar.visibility = View.VISIBLE
+            binding.scrollMonitor.visibility = View.GONE
             com.eve.app.util.AdminAccessGate.requireAdmin(
                 this,
                 binding.root,
@@ -107,6 +109,8 @@ class SystemMonitorActivity : EveBaseActivity() {
                     finish()
                     return@requireAdmin
                 }
+                binding.progressBar.visibility = View.GONE
+                binding.scrollMonitor.visibility = View.VISIBLE
                 canRetryGeneration = permissions.isOwner || "manage_generated_tests" in permissions.rights
                 if (reloadAfterStop && ::refresh.isInitialized) {
                     reloadAfterStop = false
@@ -143,6 +147,8 @@ class SystemMonitorActivity : EveBaseActivity() {
         setContentView(binding.root)
 
         binding.btnBack.setOnClickListener { finish() }
+        binding.progressBar.visibility = View.VISIBLE
+        binding.scrollMonitor.visibility = View.GONE
 
         val initiatingUser = FirebaseAuth.getInstance().currentUser
         initiatingUid = initiatingUser?.uid.orEmpty()
@@ -150,6 +156,8 @@ class SystemMonitorActivity : EveBaseActivity() {
         com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "view_analytics_logs") { permissions ->
             adminReady = true
             if (!ownerCurrent()) return@requireAdmin
+            binding.progressBar.visibility = View.GONE
+            binding.scrollMonitor.visibility = View.VISIBLE
             canRetryGeneration = permissions.isOwner || "manage_generated_tests" in permissions.rights
             binding.btnBack.setOnClickListener { finish() }
             refresh = button(content, "Refresh / Retry") { offset = 0; load() }

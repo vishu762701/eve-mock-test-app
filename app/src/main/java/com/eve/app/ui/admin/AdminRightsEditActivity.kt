@@ -146,6 +146,8 @@ class AdminRightsEditActivity : EveBaseActivity() {
                 finish()
                 return
             }
+            binding.progressBar.visibility = View.VISIBLE
+            binding.scrollRightsEdit.visibility = View.GONE
             AdminAccessGate.requireAdmin(
                 this,
                 binding.root,
@@ -156,6 +158,8 @@ class AdminRightsEditActivity : EveBaseActivity() {
                     finish()
                     return@requireAdmin
                 }
+                binding.progressBar.visibility = View.GONE
+                binding.scrollRightsEdit.visibility = View.VISIBLE
                 activeUid = live.uid
                 activeEmail = live.email.orEmpty()
             }
@@ -188,12 +192,17 @@ class AdminRightsEditActivity : EveBaseActivity() {
         setupActionBar()
         setupBackPressHandling()
 
+        binding.progressBar.visibility = View.VISIBLE
+        binding.scrollRightsEdit.visibility = View.GONE
+
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_admins_rights") {
             val principal = FirebaseAuth.getInstance().currentUser ?: return@requireAdmin
             activeUid = principal.uid
             activeEmail = principal.email.orEmpty()
             gateReady = true
             if (!ownerCurrent()) return@requireAdmin
+            binding.progressBar.visibility = View.GONE
+            binding.scrollRightsEdit.visibility = View.VISIBLE
             setupIdentityHeader()
             setupCustomTitleSection()
             setupRightsSection()

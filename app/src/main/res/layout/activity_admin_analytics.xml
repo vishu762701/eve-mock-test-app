@@ -11,7 +11,7 @@
         <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Admin Analytics"  android:tag="eve_telegram_type" />
     </LinearLayout>
     <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout android:id="@+id/swipeRefresh" android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false">
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout android:id="@+id/swipeRefresh" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false">
         <ScrollView android:id="@+id/content" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
                 <com.eve.app.designsystem.UiArcSegmentedControl android:id="@+id/chipGroupTimeRange" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_screen_margin">
@@ -55,6 +55,6 @@
             </LinearLayout>
         </ScrollView>
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-        <com.eve.app.designsystem.TelegramRadialProgressView android:id="@+id/progress" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center" android:visibility="gone" />
+        <com.eve.app.designsystem.TelegramRadialProgressView android:id="@+id/progress" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center" android:visibility="visible" />
     </FrameLayout>
 </LinearLayout>

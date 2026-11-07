@@ -48,10 +48,14 @@ class ApiUsageActivity : EveBaseActivity() {
 
         binding.btnBack.setOnClickListener { finish() }
         showUnavailable(R.string.api_usage_loading)
+        binding.progressBar.visibility = View.VISIBLE
+        binding.swipeRefresh.visibility = View.GONE
         com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true,
             requiredRight = "view_analytics_logs", restorationScope = "api_usage",
             isRestoring = savedInstanceState != null) {
             adminReady = true
+            binding.progressBar.visibility = View.GONE
+            binding.swipeRefresh.visibility = View.VISIBLE
             setupUi()
             loadUsage()
         }
@@ -66,6 +70,8 @@ class ApiUsageActivity : EveBaseActivity() {
                 finish()
                 return
             }
+            binding.progressBar.visibility = View.VISIBLE
+            binding.swipeRefresh.visibility = View.GONE
             com.eve.app.util.AdminAccessGate.requireAdmin(
                 this,
                 binding.root,
@@ -76,6 +82,8 @@ class ApiUsageActivity : EveBaseActivity() {
                     finish()
                     return@requireAdmin
                 }
+                binding.progressBar.visibility = View.GONE
+                binding.swipeRefresh.visibility = View.VISIBLE
                 initiatingUid = live.uid
                 initiatingEmail = live.email.orEmpty()
                 if (reloadAfterStop) loadUsage()

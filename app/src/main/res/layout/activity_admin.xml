@@ -23,6 +23,7 @@
             android:id="@+id/scrollAdminHub"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:visibility="gone"
             android:overScrollMode="always"
             style="@style/Widget.Eve.Token.Scroll">
 
@@ -275,7 +276,7 @@
             android:layout_width="@dimen/design_ring_size"
             android:layout_height="@dimen/design_ring_size"
             android:layout_gravity="center"
-            android:visibility="gone" />
+            android:visibility="visible" />
 
         <!-- Preserved contract hierarchy for test assertions (never rendered, zero size) -->
         <LinearLayout

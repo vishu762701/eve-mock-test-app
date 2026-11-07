@@ -145,6 +145,8 @@ class GeneratedTestsActivity : EveBaseActivity() {
                 finish()
                 return
             }
+            binding.progressBar.visibility = View.VISIBLE
+            binding.swipeRefresh.visibility = View.GONE
             com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_generated_tests") {
                 if (!ownerCurrent()) {
                     finish()
@@ -199,6 +201,7 @@ class GeneratedTestsActivity : EveBaseActivity() {
             try {
                 val tests = examRepo.getGeneratedTests()
                 binding.progressBar.visibility = View.GONE
+                binding.swipeRefresh.visibility = View.VISIBLE
                 adapter.submit(tests)
                 val empty = tests.isEmpty()
                 binding.emptyGroup.visibility = if (empty) View.VISIBLE else View.GONE
@@ -213,6 +216,7 @@ class GeneratedTestsActivity : EveBaseActivity() {
             } catch (e: kotlinx.coroutines.CancellationException) { throw e }
             catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
+                binding.swipeRefresh.visibility = View.VISIBLE
                 AppBulletin.showError(
                     this@GeneratedTestsActivity,
                     "Failed to load generated tests: ${e.localizedMessage}"

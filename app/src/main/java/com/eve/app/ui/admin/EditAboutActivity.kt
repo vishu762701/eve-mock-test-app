@@ -104,6 +104,8 @@ class EditAboutActivity : EveBaseActivity() {
                 finish()
                 return
             }
+            contentReady = false
+            updateControls()
             com.eve.app.util.AdminAccessGate.requireAdmin(
                 this,
                 binding.root,

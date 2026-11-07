@@ -10,7 +10,27 @@
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.LargeTitleBlock">
         <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Manage Exam"  android:tag="eve_telegram_type" />
     </LinearLayout>
-    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <com.eve.app.designsystem.TelegramRadialProgressView
+            android:id="@+id/progressBarCenter"
+            android:layout_width="@dimen/design_ring_size"
+            android:layout_height="@dimen/design_ring_size"
+            android:layout_gravity="center"
+            android:visibility="visible" />
+
+        <ScrollView
+            android:id="@+id/scrollManageExamContent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:visibility="gone"
+            android:clipToPadding="false"
+            android:clipChildren="false"
+            style="@style/Widget.Eve.Token.Scroll">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
             <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
@@ -97,7 +117,8 @@
             </com.eve.app.designsystem.DesignCardView>
         </LinearLayout>
     </ScrollView>
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+    </FrameLayout>
+    <LinearLayout android:id="@+id/layoutSaveContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
         <com.eve.app.ui.common.ErrorStateView android:id="@+id/compactErrorView" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap" android:visibility="gone" />
         <com.google.android.material.button.MaterialButton android:id="@+id/btnSave" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:text="Save Exam Settings" />
     </LinearLayout>
