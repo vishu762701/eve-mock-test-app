@@ -88,6 +88,8 @@ class ManageUsersActivity : EveBaseActivity() {
         binding = ActivityManageUsersBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.btnBack.setOnClickListener { finish() }
+        binding.progressBar.visibility = View.VISIBLE
+        binding.rvUsers.visibility = View.GONE
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_users") {
             val user = FirebaseAuth.getInstance().currentUser
             if (user == null || user.uid != authorizedUid || !user.email.equals(authorizedEmail, ignoreCase = true)) {
@@ -127,7 +129,8 @@ class ManageUsersActivity : EveBaseActivity() {
             detailsDialog = null
             statusDialog?.dismiss()
             statusDialog = null
-            binding.root.visibility = View.INVISIBLE
+            binding.progressBar.visibility = View.VISIBLE
+            binding.rvUsers.visibility = View.GONE
             requestJob?.cancel()
             AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_users") {
                 val postGateUser = FirebaseAuth.getInstance().currentUser

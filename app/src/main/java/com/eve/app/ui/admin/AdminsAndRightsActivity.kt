@@ -48,6 +48,8 @@ class AdminsAndRightsActivity : EveBaseActivity() {
             authorizedUid = user.uid
             authorizedEmail = user.email.orEmpty()
             authorized = true
+            binding.progressBar.visibility = View.GONE
+            binding.scrollContent.visibility = View.VISIBLE
             setupUi()
             setupObservers()
             viewModel.loadAdmins()
@@ -82,6 +84,8 @@ class AdminsAndRightsActivity : EveBaseActivity() {
                 }
                 authorizedUid = live.uid
                 authorizedEmail = live.email.orEmpty()
+                binding.progressBar.visibility = View.GONE
+                binding.scrollContent.visibility = View.VISIBLE
                 if (authorized) viewModel.loadAdmins()
             }
         }
