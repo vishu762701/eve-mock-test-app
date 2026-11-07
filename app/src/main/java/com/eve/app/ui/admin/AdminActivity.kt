@@ -133,9 +133,13 @@ class AdminActivity : EveBaseActivity() {
         binding = ActivityAdminBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setupActionBar()
+        binding.progressBarAdmin.visibility = View.VISIBLE
+        binding.scrollAdminHub.visibility = View.GONE
+
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true) { permissions ->
             binding.progressBarAdmin.visibility = View.GONE
-            setupActionBar()
+            binding.scrollAdminHub.visibility = View.VISIBLE
             setupHeaderBlock()
             setupHubSections()
             dashboardPager = AdminDashboardPager(binding.scrollAdminHub, savedInstanceState?.getInt("admin_section") ?: 0)

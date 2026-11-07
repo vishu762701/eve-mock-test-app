@@ -48,4 +48,29 @@ class AdminHubPermissionResumeTest {
         assertFalse("Owner must not return before updating previously hidden rows",
             apply.contains("if (adminMe.isOwner) {\n            setupSearchIndex(adminMe)"))
     }
+
+    @Test fun testInstantShellOnCreateRendersActionBarAndProgressBeforeGateResolution() {
+        val create = source.substringAfter("override fun onCreate(").substringBefore("override fun onSaveInstanceState(")
+        val actionBar = create.indexOf("setupActionBar()")
+        val progressVisible = create.indexOf("binding.progressBarAdmin.visibility = View.VISIBLE")
+        val hubGone = create.indexOf("binding.scrollAdminHub.visibility = View.GONE")
+        val gate = create.indexOf("AdminAccessGate.requireAdmin(")
+        val progressGone = create.indexOf("binding.progressBarAdmin.visibility = View.GONE")
+        val hubVisible = create.indexOf("binding.scrollAdminHub.visibility = View.VISIBLE")
+
+        assertTrue("setupActionBar must run before requireAdmin for instant shell render",
+            actionBar in 0..<gate)
+        assertTrue("progressBarAdmin must be visible before requireAdmin",
+            progressVisible in 0..<gate)
+        assertTrue("scrollAdminHub must be hidden before authorization",
+            hubGone in 0..<gate)
+        assertTrue("progressBarAdmin must be hidden after authorization",
+            progressGone > gate)
+        assertTrue("scrollAdminHub must be shown after authorization",
+            hubVisible > gate)
+
+        val gateSrc = File("src/main/java/com/eve/app/util/AdminAccessGate.kt").readText()
+        assertTrue("AdminAccessGate preserves root container visibility to eliminate blank screens",
+            gateSrc.contains("isRootContainer(activity, protectedRoot)"))
+    }
 }

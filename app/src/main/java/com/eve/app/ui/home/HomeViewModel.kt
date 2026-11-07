@@ -270,18 +270,22 @@ class HomeViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(
         }
 
         // Real-time listener for pinned exams
-        pinnedObserverJob?.cancel()
-        pinnedObserverJob = viewModelScope.launch(coroutineExceptionHandler) {
-            pinnedRepo.observePinnedExamIds(userId).collect { pins ->
-                if (ownsAttempts(userId)) _pinnedIds.value = pins
+        if (pinnedObserverJob?.isActive != true) {
+            pinnedObserverJob?.cancel()
+            pinnedObserverJob = viewModelScope.launch(coroutineExceptionHandler) {
+                pinnedRepo.observePinnedExamIds(userId).collect { pins ->
+                    if (ownsAttempts(userId)) _pinnedIds.value = pins
+                }
             }
         }
 
         // Real-time listener for published feedback posts
-        feedbackObserverJob?.cancel()
-        feedbackObserverJob = viewModelScope.launch(coroutineExceptionHandler) {
-            feedbackRepo.observeFeedbackPosts().collect { posts ->
-                _feedbackPosts.value = posts
+        if (feedbackObserverJob?.isActive != true) {
+            feedbackObserverJob?.cancel()
+            feedbackObserverJob = viewModelScope.launch(coroutineExceptionHandler) {
+                feedbackRepo.observeFeedbackPosts().collect { posts ->
+                    _feedbackPosts.value = posts
+                }
             }
         }
     }

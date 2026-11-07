@@ -117,10 +117,17 @@ class ExamTestsActivity : EveBaseActivity() {
         super.onStop()
     }
 
+    private var lastLoadedTime = 0L
+
     override fun onResume() {
         super.onResume()
         if (!hasExamTestsOwner()) { finish(); return }
-        loadData()
+        val now = System.currentTimeMillis()
+        if (adapter.itemCount == 0) {
+            loadData(showLoading = true)
+        } else if (now - lastLoadedTime > 15_000L && loadJob?.isActive != true) {
+            loadData(showLoading = false)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -218,6 +225,7 @@ class ExamTestsActivity : EveBaseActivity() {
                     binding.rvTests.visibility = View.VISIBLE
                     adapter.submitList(combinedItems)
                 }
+                lastLoadedTime = System.currentTimeMillis()
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
                 binding.loadingTests.visibility = View.GONE

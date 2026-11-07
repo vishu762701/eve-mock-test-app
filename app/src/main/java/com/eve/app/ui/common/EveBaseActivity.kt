@@ -65,7 +65,14 @@ abstract class EveBaseActivity : AppCompatActivity() {
         com.eve.app.theme.TelegramThemeEngine.removeThemeChangeListener(themePaletteListener)
     }
 
+    private var lastAppliedPalette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette? = null
+
     protected open fun onApplyThemePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+        if (lastAppliedPalette == palette) {
+            com.eve.app.util.SystemBarHelper.syncSystemBars(this)
+            return
+        }
+        lastAppliedPalette = palette
         com.eve.app.theme.TelegramThemeApplier.applyToActivity(this, palette)
         com.eve.app.util.SystemBarHelper.syncSystemBars(this)
     }

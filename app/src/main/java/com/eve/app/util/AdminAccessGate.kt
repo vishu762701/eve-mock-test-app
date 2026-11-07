@@ -31,10 +31,18 @@ object AdminAccessGate {
         // and invalidates any late authorization callback.
         (protectedRoot.getTag(R.id.eve_admin_gate_lifetime) as? AdminGateLifecycleLease)
             ?.invalidate()
-        protectedRoot.visibility = View.INVISIBLE
+        if (isRootContainer(activity, protectedRoot)) {
+            // Keep root container visible so window background, Telegram shell,
+            // action bar and progress indicators render immediately on frame 0
+            // without full-window black/white blank screens.
+            protectedRoot.visibility = View.VISIBLE
+        } else {
+            protectedRoot.visibility = View.INVISIBLE
+        }
         val user = FirebaseAuth.getInstance().currentUser
         val email = user?.email
         if (user == null || email.isNullOrBlank()) {
+            protectedRoot.visibility = View.INVISIBLE
             activity.finish()
             return
         }
@@ -113,12 +121,25 @@ object AdminAccessGate {
             if (!AdminIdentityGuard.allowed(
                     permissions != null, user.uid, email, current?.uid, current?.email
                 )) {
+                protectedRoot.visibility = View.INVISIBLE
                 activity.finish()
                 return@launch
             }
             protectedRoot.visibility = View.VISIBLE
             onAuthorized(requireNotNull(permissions))
         }
+    }
+
+    private fun isRootContainer(activity: EveBaseActivity, view: View): Boolean {
+        if (view.id == android.R.id.content) return true
+        val parent = view.parent
+        if (parent == null) return true
+        if (parent is View && parent.id == android.R.id.content) return true
+        try {
+            val content = activity.findViewById<View>(android.R.id.content)
+            if (content != null && (view === content || view.parent === content)) return true
+        } catch (_: Exception) {}
+        return false
     }
 }
 
