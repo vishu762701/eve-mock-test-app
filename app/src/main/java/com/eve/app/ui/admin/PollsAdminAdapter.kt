@@ -202,6 +202,8 @@ class PollsAdminAdapter(
         private fun renderOptionResults(poll: Poll) {
             binding.optionsContainer.removeAllViews()
             val inflater = LayoutInflater.from(binding.root.context)
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(binding.root.context)
+            val maxVotes = poll.options.indices.maxOfOrNull { poll.getVotesForOption(it) } ?: 0
 
             poll.options.forEachIndexed { index, optionText ->
                 val rowView = inflater.inflate(R.layout.item_poll_option_result, binding.optionsContainer, false)
@@ -212,11 +214,22 @@ class PollsAdminAdapter(
 
                 val votes = poll.getVotesForOption(index)
                 val percent = poll.getPercentageForOption(index)
+                val isLeading = votes == maxVotes && votes > 0
 
                 tvTitle.text = optionText
                 tvPercent.text = "$percent%"
                 pbOption.progress = percent
                 tvVotes.text = "$votes votes"
+
+                if (isLeading) {
+                    tvTitle.setTextColor(palette.accent)
+                    tvTitle.setTypeface(null, android.graphics.Typeface.BOLD)
+                    tvPercent.setTextColor(palette.accent)
+                    pbOption.progressColor = palette.accent
+                } else {
+                    tvTitle.setTextColor(palette.textPrimary)
+                    tvPercent.setTextColor(palette.textSecondary)
+                }
 
                 binding.optionsContainer.addView(rowView)
             }

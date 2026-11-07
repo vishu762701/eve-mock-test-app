@@ -1040,7 +1040,9 @@ class MainActivity : EveBaseActivity() {
         pinPopupMenu = popup
         popup.setOnDismissListener { if (pinPopupMenu === popup) pinPopupMenu = null }
         val title = if (isPinned) "Unpin" else "Pin"
-        popup.menu.add(title)
+        val menuItem = popup.menu.add(title)
+        menuItem.setIcon(R.drawable.ic_pin)
+        popup.setForceShowIcon(true)
         popup.setOnMenuItemClickListener {
             viewModel.togglePin(user.uid, exam.id, isPinned)
             // Task B: Fire exactly one haptic event per pin and per unpin action

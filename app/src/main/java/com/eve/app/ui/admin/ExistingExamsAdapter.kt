@@ -308,6 +308,7 @@ class ExistingExamsAdapter(
                 val popup = PopupMenu(view.context, view)
                 activePopup = popup
                 popup.setOnDismissListener { if (activePopup === popup) activePopup = null }
+                popup.setForceShowIcon(true)
                 popup.menu.add(0, 1, 0, "✏️ Edit Exam")
                 popup.menu.add(0, 2, 1, "👁️ Preview (Student View)")
                 popup.menu.add(0, 3, 2, "🗑️ Delete Exam")
