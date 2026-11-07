@@ -166,8 +166,12 @@ class ManageQuestionsActivity : EveBaseActivity() {
 
         binding.telegramActionBar.setTitle("Manage Questions")
         binding.telegramActionBar.onBackPressed = { finish() }
+        binding.progressBar.visibility = View.VISIBLE
+        binding.scrollContent.visibility = View.GONE
 
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_questions") { permissions ->
+            binding.progressBar.visibility = View.GONE
+            binding.scrollContent.visibility = View.VISIBLE
             val canManageExams = permissions.isOwner || "manage_exams" in permissions.rights
             for (control in listOf(binding.btnEditExamImage, binding.btnRenameExam, binding.btnDeleteExam)) {
                 control.visibility = if (canManageExams) View.VISIBLE else View.GONE
@@ -535,7 +539,11 @@ class ManageQuestionsActivity : EveBaseActivity() {
                 return
             }
             adminScreenAuthorized = false
+            binding.progressBar.visibility = View.VISIBLE
+            binding.scrollContent.visibility = View.GONE
             AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_questions") { permissions ->
+                binding.progressBar.visibility = View.GONE
+                binding.scrollContent.visibility = View.VISIBLE
                 val canManageExams = permissions.isOwner || "manage_exams" in permissions.rights
                 for (control in listOf(binding.btnEditExamImage, binding.btnRenameExam, binding.btnDeleteExam)) {
                     control.visibility = if (canManageExams) View.VISIBLE else View.GONE

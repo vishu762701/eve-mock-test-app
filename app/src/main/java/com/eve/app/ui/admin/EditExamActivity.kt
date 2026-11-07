@@ -136,11 +136,14 @@ class EditExamActivity : EveBaseActivity() {
 
         binding.btnBack.setOnClickListener { finish() }
         binding.progressBar.visibility = View.VISIBLE
+        binding.scrollEditContent.visibility = View.GONE
 
         com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_exams",
             restorationScope = "edit_exam:" + intent.getStringExtra(Constants.EXTRA_EXAM_ID).orEmpty(),
             isRestoring = savedInstanceState != null) { permissions ->
         if (!editorIdentityCurrent) { finish(); return@requireAdmin }
+        binding.progressBar.visibility = View.GONE
+        binding.scrollEditContent.visibility = View.VISIBLE
         canManageQuestions = permissions.isOwner || "manage_questions" in permissions.rights
         canManageContent = permissions.isOwner || "manage_content" in permissions.rights
         if (!canManageQuestions) { pendingImportUri = null; parsedImport = null }
@@ -245,6 +248,8 @@ class EditExamActivity : EveBaseActivity() {
                 finish()
                 return
             }
+            binding.progressBar.visibility = View.VISIBLE
+            binding.scrollEditContent.visibility = View.GONE
             com.eve.app.util.AdminAccessGate.requireAdmin(
                 this,
                 binding.root,
@@ -255,6 +260,8 @@ class EditExamActivity : EveBaseActivity() {
                     finish()
                     return@requireAdmin
                 }
+                binding.progressBar.visibility = View.GONE
+                binding.scrollEditContent.visibility = View.VISIBLE
                 editorOwnerUid = live.uid
                 editorOwnerEmail = live.email.orEmpty()
                 canManageQuestions = permissions.isOwner || "manage_questions" in permissions.rights

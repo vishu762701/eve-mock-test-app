@@ -103,9 +103,13 @@ class SendNotificationActivity : EveBaseActivity() {
                 finish()
                 return
             }
+            binding.progressBarTop.visibility = View.VISIBLE
+            binding.scrollNotificationContent.visibility = View.GONE
             AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "send_broadcasts") {
                 authorizedUid = live.uid
                 authorizedEmail = live.email.orEmpty()
+                binding.progressBarTop.visibility = View.GONE
+                binding.scrollNotificationContent.visibility = View.VISIBLE
                 if (::sentAdapter.isInitialized) {
                     listenToSentBroadcasts()
                 }
@@ -119,12 +123,16 @@ class SendNotificationActivity : EveBaseActivity() {
         setContentView(binding.root)
 
         binding.btnBack.setOnClickListener { finish() }
+        binding.progressBarTop.visibility = View.VISIBLE
+        binding.scrollNotificationContent.visibility = View.GONE
 
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "send_broadcasts") {
             val current = FirebaseAuth.getInstance().currentUser ?: return@requireAdmin
             authorizedUid = current.uid
             authorizedEmail = current.email.orEmpty()
             adminReady = true
+            binding.progressBarTop.visibility = View.GONE
+            binding.scrollNotificationContent.visibility = View.VISIBLE
             if (ownerCurrent()) initializeAuthorizedUi()
         }
     }

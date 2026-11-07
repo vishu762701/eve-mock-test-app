@@ -16,7 +16,26 @@
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.LargeTitleBlock">
         <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Publish In-App Notice"  android:tag="eve_telegram_type" />
     </LinearLayout>
-    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <com.eve.app.designsystem.TelegramRadialProgressView
+            android:id="@+id/progressBarTop"
+            android:layout_width="@dimen/design_ring_size"
+            android:layout_height="@dimen/design_ring_size"
+            android:layout_gravity="center"
+            android:visibility="visible" />
+
+        <ScrollView
+            android:id="@+id/scrollNotificationContent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:clipChildren="false"
+            android:visibility="gone"
+            style="@style/Widget.Eve.Token.Scroll">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
             <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Publish to Notifications Inbox" />
             <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="This message is published for all signed-in students in the in-app inbox. Device push delivery is not confirmed by this feature." />
@@ -36,4 +55,5 @@
             <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvSentBroadcasts" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_section_gap" android:nestedScrollingEnabled="false" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll.Inner" />
         </LinearLayout>
     </ScrollView>
+    </FrameLayout>
 </LinearLayout>

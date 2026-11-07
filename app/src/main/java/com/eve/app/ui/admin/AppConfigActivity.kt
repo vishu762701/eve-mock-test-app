@@ -88,6 +88,8 @@ class AppConfigActivity : EveBaseActivity() {
                 finish()
                 return
             }
+            binding.progressBar.visibility = View.VISIBLE
+            binding.scrollConfigContent.visibility = View.GONE
             com.eve.app.util.AdminAccessGate.requireAdmin(
                 this,
                 binding.root,
@@ -100,6 +102,8 @@ class AppConfigActivity : EveBaseActivity() {
                 }
                 configOwnerUid = live.uid
                 configOwnerEmail = live.email.orEmpty()
+                binding.progressBar.visibility = View.GONE
+                binding.scrollConfigContent.visibility = View.VISIBLE
                 binding.btnTestAiHealth.isEnabled =
                     AdminPermissionSnapshot.allows(permission, configOwnerEmail, "manage_questions")
                 if (reloadAfterStop && !configBusy) {
@@ -117,6 +121,7 @@ class AppConfigActivity : EveBaseActivity() {
 
         binding.btnBack.setOnClickListener { finish() }
         binding.progressBar.visibility = View.VISIBLE
+        binding.scrollConfigContent.visibility = View.GONE
 
         com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_config_maintenance") { permission ->
         val principal = FirebaseAuth.getInstance().currentUser ?: return@requireAdmin
@@ -124,6 +129,8 @@ class AppConfigActivity : EveBaseActivity() {
         configOwnerEmail = principal.email.orEmpty()
         adminAuthorized = true
         if (!ownerCurrent()) return@requireAdmin
+        binding.progressBar.visibility = View.GONE
+        binding.scrollConfigContent.visibility = View.VISIBLE
         binding.btnTestAiHealth.isEnabled =
             AdminPermissionSnapshot.allows(permission, configOwnerEmail, "manage_questions")
 
