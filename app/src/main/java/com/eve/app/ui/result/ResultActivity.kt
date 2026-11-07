@@ -492,6 +492,9 @@ class ResultActivity : EveBaseActivity() {
     }
 
     private fun setupFilters(correct: Int, wrong: Int, unattempted: Int) {
+        (binding.chipGroupFilter.parent as? View)?.let {
+            com.eve.app.ui.common.TelegramHorizontalScrollLayoutManager.install(it)
+        }
         binding.chipCorrect.text = "Right ($correct)"
         binding.chipWrong.text = "Wrong ($wrong)"
         binding.chipNotAttempted.text = "Unattempted ($unattempted)"

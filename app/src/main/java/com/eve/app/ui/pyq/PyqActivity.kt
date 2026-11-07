@@ -51,6 +51,7 @@ class PyqActivity : EveBaseActivity() {
         selectedYear = savedInstanceState?.takeIf { it.containsKey(STATE_YEAR) }?.getInt(STATE_YEAR)
 
         binding.btnBack.setOnClickListener { finish() }
+        com.eve.app.ui.common.TelegramHorizontalScrollLayoutManager.install(binding.chipGroupYears.parent as View)
         binding.spExam.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, position: Int, id: Long) {
                 if (!hasPyqOwner()) { finish(); return }

@@ -95,6 +95,10 @@ class TestActivity : EveBaseActivity() {
     private fun refreshQuestionTheme(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
         if (!::binding.isInitialized || isFinishing || isDestroyed) return
         TestPrimaryActionAppearance.apply(binding.btnNext, palette.isDark)
+        binding.circularTimerView.updateThemeColors()
+        if (::paletteAdapter.isInitialized) {
+            paletteAdapter.notifyDataSetChanged()
+        }
         val recycler = binding.viewPager.getChildAt(0) as? androidx.recyclerview.widget.RecyclerView
         if (recycler != null) {
             for (index in 0 until recycler.childCount) {

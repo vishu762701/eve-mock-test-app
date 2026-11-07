@@ -390,6 +390,9 @@ class MainActivity : EveBaseActivity() {
 
         // Telegram-style Search setup
         Log.e("EVE_STARTUP", "stage: setupSearch")
+        (binding.chipGroupCategory.parent as? View)?.let {
+            com.eve.app.ui.common.TelegramHorizontalScrollLayoutManager.install(it)
+        }
         setupSearch()
         restoreSearchPresentation(savedInstanceState)
 

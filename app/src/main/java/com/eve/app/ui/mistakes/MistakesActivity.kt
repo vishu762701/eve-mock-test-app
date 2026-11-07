@@ -126,10 +126,16 @@ class MistakesActivity : EveBaseActivity() {
             learnedIds.add(questionId)
         }
         saveLearnedPreferences()
-        adapter.notifyDataSetChanged()
+        val index = adapter.currentList.indexOfFirst { it.questionId == questionId }
+        if (index >= 0) {
+            adapter.notifyItemChanged(index, MistakesAdapter.PAYLOAD_LEARNED)
+        } else {
+            adapter.notifyDataSetChanged()
+        }
     }
 
     private fun setupFilters() {
+        com.eve.app.ui.common.TelegramHorizontalScrollLayoutManager.install(binding.scrollFilters)
         binding.chipGroupFilters.setOnCheckedStateChangeListener { _, checkedIds ->
             if (!hasMistakesOwner()) { finish(); return@setOnCheckedStateChangeListener }
             currentFilter = when {

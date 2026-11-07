@@ -102,5 +102,31 @@ class TelegramHorizontalScrollLayoutManager(
             })
             return lm
         }
+
+        /**
+         * Installs Telegram adaptive overscroll physics on a HorizontalScrollView or View.
+         * Upstream: RecyclerListView.java:2159-2185 & FilterTabsView.java:1060-1090.
+         */
+        fun install(view: View) {
+            view.overScrollMode = View.OVER_SCROLL_NEVER
+            var activeTouches = 0
+            view.setOnTouchListener { v, e ->
+                when (e.actionMasked) {
+                    MotionEvent.ACTION_DOWN -> {
+                        if (activeTouches == 0) {
+                            v.overScrollMode = View.OVER_SCROLL_ALWAYS
+                        }
+                        activeTouches++
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        activeTouches = maxOf(0, activeTouches - 1)
+                        if (activeTouches == 0) {
+                            v.overScrollMode = View.OVER_SCROLL_NEVER
+                        }
+                    }
+                }
+                false
+            }
+        }
     }
 }

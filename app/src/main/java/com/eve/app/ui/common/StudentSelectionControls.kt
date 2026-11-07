@@ -14,6 +14,9 @@ object StudentSelectionControls {
     fun action(context: Context): MaterialButton =
         (LayoutInflater.from(context).inflate(R.layout.item_student_action, null) as MaterialButton).apply {
             layoutParams = ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
+            rippleColor = ColorStateList.valueOf(palette.actionSelector)
+            setTextColor(palette.textPrimary)
         }
 
     fun year(context: Context): Chip = Chip(context).apply {
@@ -24,10 +27,11 @@ object StudentSelectionControls {
         chipCornerRadius = chipMinHeight / 2
         chipStrokeWidth = 0f
         com.eve.app.designsystem.DesignType.apply(this, com.eve.app.designsystem.DesignType.Role.CHIP)
-        val accentColor = ContextCompat.getColor(context, R.color.accent)
-        val surfaceColor = ContextCompat.getColor(context, R.color.surface_inset)
-        val onAccentColor = ContextCompat.getColor(context, R.color.on_accent)
-        val textPrimaryColor = ContextCompat.getColor(context, R.color.text_primary)
+        val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
+        val accentColor = palette.accent
+        val surfaceColor = if (palette.isDark) 0x1AFFFFFF else palette.surface
+        val onAccentColor = palette.onAccent
+        val textPrimaryColor = palette.textPrimary
         chipBackgroundColor = ColorStateList(
             arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
             intArrayOf(accentColor, surfaceColor)
@@ -38,6 +42,7 @@ object StudentSelectionControls {
                 intArrayOf(onAccentColor, textPrimaryColor)
             )
         )
+        rippleColor = ColorStateList.valueOf(palette.actionSelector)
         chipStartPadding = resources.getDimension(R.dimen.design_pill_padding)
         chipEndPadding = chipStartPadding
     }

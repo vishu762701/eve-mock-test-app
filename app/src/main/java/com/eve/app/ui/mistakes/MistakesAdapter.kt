@@ -1,6 +1,5 @@
 package com.eve.app.ui.mistakes
 
-import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,8 +17,39 @@ class MistakesAdapter(
     private val isHindi: () -> Boolean
 ) : ListAdapter<MistakeItem, MistakesAdapter.MistakeViewHolder>(DiffCallback) {
 
+    companion object {
+        const val PAYLOAD_LEARNED = "PAYLOAD_LEARNED"
+
+        val DiffCallback = object : DiffUtil.ItemCallback<MistakeItem>() {
+            override fun areItemsTheSame(oldItem: MistakeItem, newItem: MistakeItem): Boolean =
+                oldItem.questionId == newItem.questionId
+
+            override fun areContentsTheSame(oldItem: MistakeItem, newItem: MistakeItem): Boolean =
+                oldItem == newItem
+        }
+    }
+
     inner class MistakeViewHolder(private val binding: ItemMistakeBinding) :
         RecyclerView.ViewHolder(binding.root) {
+
+        fun updateLearnedState(learned: Boolean, animated: Boolean) {
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(itemView.context)
+            val greenColor = ContextCompat.getColor(itemView.context, R.color.system_green_text)
+            val secondaryColor = palette.textSecondary
+            binding.cbLearned.setColors(
+                unchecked = palette.hairline,
+                checked = ContextCompat.getColor(itemView.context, R.color.system_green),
+                check = palette.onAccent
+            )
+            binding.cbLearned.setChecked(learned, animated)
+            if (learned) {
+                binding.tvMarkLearned.text = "Learned"
+                binding.tvMarkLearned.setTextColor(greenColor)
+            } else {
+                binding.tvMarkLearned.text = "Mark as learned"
+                binding.tvMarkLearned.setTextColor(secondaryColor)
+            }
+        }
 
         fun bind(item: MistakeItem) {
             val hindi = isHindi()
@@ -52,24 +82,13 @@ class MistakesAdapter(
                 binding.layoutExplanation.visibility = View.GONE
             }
 
-            // Learned toggle state
+            // Learned toggle with Telegram CheckBox2 and authentic round-rect selector
             val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(itemView.context)
-            binding.btnMarkLearned.rippleColor = ColorStateList.valueOf(palette.actionSelector)
-            if (learned) {
-                binding.btnMarkLearned.text = "Learned ✓"
-                binding.btnMarkLearned.setTextColor(ContextCompat.getColor(itemView.context, R.color.system_green_text))
-                binding.btnMarkLearned.strokeColor = ColorStateList.valueOf(
-                    ContextCompat.getColor(itemView.context, R.color.hairline)
-                )
-                binding.layoutExplanation.alpha = 1.0f
-            } else {
-                binding.btnMarkLearned.text = "Mark as learned"
-                binding.btnMarkLearned.setTextColor(ContextCompat.getColor(itemView.context, R.color.system_blue_text))
-                binding.btnMarkLearned.strokeColor = ColorStateList.valueOf(
-                    ContextCompat.getColor(itemView.context, R.color.hairline)
-                )
-                binding.layoutExplanation.alpha = 1.0f
-            }
+            binding.btnMarkLearned.background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
+                8 * itemView.resources.displayMetrics.density,
+                palette.actionSelector
+            )
+            updateLearnedState(learned, animated = false)
 
             binding.btnMarkLearned.setOnClickListener {
                 onToggleLearned(item)
@@ -90,11 +109,12 @@ class MistakesAdapter(
         holder.bind(getItem(position))
     }
 
-    companion object DiffCallback : DiffUtil.ItemCallback<MistakeItem>() {
-        override fun areItemsTheSame(oldItem: MistakeItem, newItem: MistakeItem): Boolean =
-            oldItem.questionId == newItem.questionId
-
-        override fun areContentsTheSame(oldItem: MistakeItem, newItem: MistakeItem): Boolean =
-            oldItem == newItem
+    override fun onBindViewHolder(holder: MistakeViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.contains(PAYLOAD_LEARNED)) {
+            val item = getItem(position)
+            holder.updateLearnedState(isLearned(item.questionId), animated = true)
+        } else {
+            super.onBindViewHolder(holder, position, payloads)
+        }
     }
 }
