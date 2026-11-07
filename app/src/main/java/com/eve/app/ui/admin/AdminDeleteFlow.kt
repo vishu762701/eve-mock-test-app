@@ -22,6 +22,17 @@ class AdminDeleteFlow(private val activity: AppCompatActivity, private val api: 
     private val repository = ExamRepository(api)
     private var activeDialog: TelegramNativeAlertDialog? = null
 
+    init {
+        activity.lifecycle.addObserver(object : androidx.lifecycle.DefaultLifecycleObserver {
+            override fun onStop(owner: androidx.lifecycle.LifecycleOwner) {
+                dismissActiveDialog()
+            }
+            override fun onDestroy(owner: androidx.lifecycle.LifecycleOwner) {
+                dismissActiveDialog()
+            }
+        })
+    }
+
     fun dismissActiveDialog() {
         activeDialog?.dismiss()
         activeDialog = null

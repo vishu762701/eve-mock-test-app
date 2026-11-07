@@ -32,7 +32,6 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.ScrollView
-import android.widget.RadioButton
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.appcompat.content.res.AppCompatResources
@@ -138,7 +137,7 @@ class TelegramNativeAlertDialog private constructor(
                                     )?.let { choiceRow ->
                                         choiceRow.isSelected = itemIndex == index
                                         for (childIndex in 0 until choiceRow.childCount) {
-                                            (choiceRow.getChildAt(childIndex) as? RadioButton)?.isChecked = itemIndex == index
+                                            (choiceRow.getChildAt(childIndex) as? android.widget.Checkable)?.isChecked = itemIndex == index
                                         }
                                     }
                                 }
@@ -157,9 +156,8 @@ class TelegramNativeAlertDialog private constructor(
                 if (selectedItemIndex >= 0) {
                     // EVE radio-choice behavior is ADAPTED: Telegram's upstream
                     // AlertDialog only defines setItems(), not setSingleChoiceItems().
-                    row.addView(RadioButton(context).apply {
+                    row.addView(com.eve.app.ui.common.TelegramRadioButton(context).apply {
                         isChecked = index == selectedItemIndex
-                        buttonTintList = ColorStateList.valueOf(palette.accent)
                         isClickable = false
                         isFocusable = false
                         importantForAccessibility = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO

@@ -70,6 +70,10 @@ object TelegramThemeApplier {
             is DesignGlassLayout -> {
                 view.updatePalette(palette)
             }
+            is androidx.swiperefreshlayout.widget.SwipeRefreshLayout -> {
+                view.setProgressBackgroundColorSchemeColor(palette.surface)
+                view.setColorSchemeColors(palette.accent)
+            }
             is MaterialCardView -> {
                 if (view.tag != "solid_color_card") {
                     view.setCardBackgroundColor(palette.surface)

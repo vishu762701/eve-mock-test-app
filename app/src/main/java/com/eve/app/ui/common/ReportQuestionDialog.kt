@@ -81,6 +81,20 @@ object ReportQuestionDialog {
         // Native UI-only Telegram renderer preserves the report form and
         // non-auto-dismissing action for validated network submission.
         val btnSubmit = requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_POSITIVE))
+        val lifecycle = (activity as? androidx.lifecycle.LifecycleOwner)?.lifecycle
+        val lifecycleObserver = object : androidx.lifecycle.DefaultLifecycleObserver {
+            override fun onStop(owner: androidx.lifecycle.LifecycleOwner) {
+                if (dialog.isShowing) dialog.dismiss()
+            }
+            override fun onDestroy(owner: androidx.lifecycle.LifecycleOwner) {
+                if (dialog.isShowing) dialog.dismiss()
+                owner.lifecycle.removeObserver(this)
+            }
+        }
+        lifecycle?.addObserver(lifecycleObserver)
+        dialog.setOnDismissListener {
+            lifecycle?.removeObserver(lifecycleObserver)
+        }
         btnSubmit.setOnClickListener {
             if (!dialog.isShowing || !btnSubmit.isEnabled) return@setOnClickListener
             val selectedReason = when (rgReason.checkedRadioButtonId) {

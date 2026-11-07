@@ -3,6 +3,7 @@ package com.eve.app.util
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.res.ColorStateList
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
@@ -129,6 +130,11 @@ class AppUndoBar private constructor(
         val btnUndo = view.findViewById<TextView>(R.id.btnUndoAction)
         val countdown = view.findViewById<CircularCountdownView>(R.id.countdownView)
         val card = view.findViewById<View>(R.id.cardUndo)
+
+        val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(activity)
+        com.eve.app.theme.TelegramThemeApplier.applyToViewTree(view, palette)
+        (btnUndo as? com.google.android.material.button.MaterialButton)?.rippleColor =
+            ColorStateList.valueOf(palette.actionSelector)
 
         tvMessage.text = message
 
