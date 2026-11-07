@@ -115,6 +115,9 @@ class AppConfigActivity : EveBaseActivity() {
         binding = ActivityAppConfigBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.btnBack.setOnClickListener { finish() }
+        binding.progressBar.visibility = View.VISIBLE
+
         com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_config_maintenance") { permission ->
         val principal = FirebaseAuth.getInstance().currentUser ?: return@requireAdmin
         configOwnerUid = principal.uid

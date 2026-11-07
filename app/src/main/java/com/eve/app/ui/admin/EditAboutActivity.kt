@@ -65,15 +65,16 @@ class EditAboutActivity : EveBaseActivity() {
         initialContent = savedInstanceState?.getBundle("content.confirmed")?.let { readDraft(it) } ?: AppContent()
         binding = ActivityEditAboutBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.btnBack.setOnClickListener { handleBack() }
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() = handleBack()
+        })
+        binding.progressBar.visibility = View.VISIBLE
         updateControls()
         com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true,
             requiredRight = "manage_content", restorationScope = "edit_about", isRestoring = savedInstanceState != null) {
             adminReady = true
-            binding.btnBack.setOnClickListener { handleBack() }
             binding.btnSave.setOnClickListener { saveCurrent() }
-            onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() = handleBack()
-            })
             restoreSelectedTab()
             binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
                 override fun onTabSelected(tab: TabLayout.Tab?) {

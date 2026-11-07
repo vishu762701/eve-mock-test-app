@@ -124,6 +124,7 @@ class ManageSyllabusActivity : EveBaseActivity() {
         setContentView(binding.root)
 
         binding.btnBack.setOnClickListener { finish() }
+        binding.progressBarTop.visibility = View.VISIBLE
 
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_syllabus") {
             val principal = FirebaseAuth.getInstance().currentUser ?: return@requireAdmin

@@ -46,6 +46,7 @@ class ApiUsageActivity : EveBaseActivity() {
         binding = ActivityApiUsageBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.btnBack.setOnClickListener { finish() }
         showUnavailable(R.string.api_usage_loading)
         com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true,
             requiredRight = "view_analytics_logs", restorationScope = "api_usage",

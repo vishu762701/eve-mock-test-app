@@ -118,6 +118,8 @@ class SendNotificationActivity : EveBaseActivity() {
         binding = ActivitySendNotificationBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.btnBack.setOnClickListener { finish() }
+
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "send_broadcasts") {
             val current = FirebaseAuth.getInstance().currentUser ?: return@requireAdmin
             authorizedUid = current.uid

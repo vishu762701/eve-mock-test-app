@@ -154,6 +154,8 @@ class ManagePremiumActivity : EveBaseActivity() {
         binding = ActivityManagePremiumBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setupToolbar()
+
         com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_premium") {
         val initiating = FirebaseAuth.getInstance().currentUser ?: return@requireAdmin
         authorizedUid = initiating.uid
@@ -161,7 +163,6 @@ class ManagePremiumActivity : EveBaseActivity() {
         adminReady = true
         if (!ownerCurrent()) return@requireAdmin
 
-        setupToolbar()
         setupTabs()
         setupRecyclerViews()
         setupSettingsActions()

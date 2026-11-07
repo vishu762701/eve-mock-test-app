@@ -134,6 +134,9 @@ class EditExamActivity : EveBaseActivity() {
         pendingImportUri = savedInstanceState?.getString("edit_exam_pending_import")?.let(Uri::parse)
         interruptedImportNotice = savedInstanceState?.getBoolean("edit_exam_import_in_flight") == true
 
+        binding.btnBack.setOnClickListener { finish() }
+        binding.progressBar.visibility = View.VISIBLE
+
         com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_exams",
             restorationScope = "edit_exam:" + intent.getStringExtra(Constants.EXTRA_EXAM_ID).orEmpty(),
             isRestoring = savedInstanceState != null) { permissions ->

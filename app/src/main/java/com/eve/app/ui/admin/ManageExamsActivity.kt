@@ -217,6 +217,9 @@ class ManageExamsActivity : EveBaseActivity() {
             pendingGenerateNumber = savedInstanceState.getString("generation_test_number")
         }
 
+        binding.btnBack.setOnClickListener { handleBack() }
+        binding.progressBar.visibility = View.VISIBLE
+
         com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_exams") {
             authorizedUid = FirebaseAuth.getInstance().currentUser?.uid
             authorizedEmail = FirebaseAuth.getInstance().currentUser?.email

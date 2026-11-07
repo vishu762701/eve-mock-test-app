@@ -3,6 +3,6 @@
     android:interpolator="@interpolator/design_screen_curve" android:shareInterpolator="true">
     <translate android:fromXDelta="0%p" android:toXDelta="-25%p"
         android:duration="@integer/design_transition_duration" />
-    <alpha android:fromAlpha="1" android:toAlpha="0"
+    <alpha android:fromAlpha="1.0" android:toAlpha="0.85"
         android:duration="@integer/design_transition_duration" />
 </set>

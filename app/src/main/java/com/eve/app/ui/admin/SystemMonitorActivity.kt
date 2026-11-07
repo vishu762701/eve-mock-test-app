@@ -142,6 +142,8 @@ class SystemMonitorActivity : EveBaseActivity() {
         content = binding.layoutMonitorContent
         setContentView(binding.root)
 
+        binding.btnBack.setOnClickListener { finish() }
+
         val initiatingUser = FirebaseAuth.getInstance().currentUser
         initiatingUid = initiatingUser?.uid.orEmpty()
         initiatingEmail = initiatingUser?.email.orEmpty()

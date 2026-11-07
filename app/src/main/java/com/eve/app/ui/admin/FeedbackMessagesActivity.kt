@@ -40,6 +40,9 @@ class FeedbackMessagesActivity : EveBaseActivity() {
         binding = ActivityFeedbackMessagesBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.btnBack.setOnClickListener { finish() }
+        binding.progressBar.visibility = View.VISIBLE
+
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "moderate_feedback") {
             authorizedUid = FirebaseAuth.getInstance().currentUser?.uid
             authorizedEmail = FirebaseAuth.getInstance().currentUser?.email

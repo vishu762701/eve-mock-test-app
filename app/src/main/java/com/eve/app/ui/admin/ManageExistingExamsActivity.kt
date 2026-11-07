@@ -48,6 +48,7 @@ class ManageExistingExamsActivity : EveBaseActivity() {
         setContentView(binding.root)
 
         binding.btnBack.setOnClickListener { finish() }
+        binding.loadingExams.visibility = View.VISIBLE
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_exams") {
             val live = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser ?: return@requireAdmin
             authorizedUid = live.uid

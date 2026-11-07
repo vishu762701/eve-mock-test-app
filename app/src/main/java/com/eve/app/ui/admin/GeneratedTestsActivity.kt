@@ -104,6 +104,9 @@ class GeneratedTestsActivity : EveBaseActivity() {
         binding = ActivityGeneratedTestsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.btnBack.setOnClickListener { finish() }
+        binding.progressBar.visibility = View.VISIBLE
+
         com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_generated_tests") {
             val current = FirebaseAuth.getInstance().currentUser ?: return@requireAdmin
             authorizedUid = current.uid
