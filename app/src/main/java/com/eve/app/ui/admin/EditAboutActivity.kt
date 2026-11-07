@@ -159,6 +159,7 @@ class EditAboutActivity : EveBaseActivity() {
     private fun switchTab(type: String) {
         if (!current(epoch) || saving) return
         retainedDraft = null
+        initialContent = null
         currentType = type
         restoreSelectedTab()
         loadContent()
@@ -181,7 +182,9 @@ class EditAboutActivity : EveBaseActivity() {
         val type = currentType
         reloadAfterStop = false
         loading = true
-        contentReady = false
+        if (initialContent == null) {
+            contentReady = false
+        }
         updateControls()
         readJob = lifecycleScope.launch {
             try {
@@ -198,6 +201,9 @@ class EditAboutActivity : EveBaseActivity() {
             } catch (cancel: CancellationException) { throw cancel }
             catch (e: Exception) {
                 if (current(requestEpoch) && generation == readGeneration) {
+                    if (initialContent != null) {
+                        contentReady = true
+                    }
                     AppBulletin.showError(this@EditAboutActivity, "Couldn't load content: ${e.localizedMessage ?: "Unknown error"}")
                 }
             } finally {

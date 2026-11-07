@@ -275,7 +275,6 @@ class ManagePremiumActivity : EveBaseActivity() {
                 throw cancel
             } catch (error: Exception) {
                 if (request == readGeneration && canPublish()) {
-                    currentConfig = null
                     AppBulletin.showError(this@ManagePremiumActivity, "Failed to load premium config: ${error.toUserFriendlyMessage()}")
                 }
             } finally {

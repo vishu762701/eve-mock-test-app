@@ -275,6 +275,20 @@ class AppearanceActivity : EveBaseActivity() {
                 isClickable = false
             }
             touchContainer.addView(swatch)
+            if (isSelected) {
+                val check = com.eve.app.ui.common.TelegramCheckBox2(this).apply {
+                    layoutParams = android.widget.FrameLayout.LayoutParams(
+                        (22 * density).toInt(),
+                        (22 * density).toInt(),
+                        Gravity.CENTER
+                    )
+                    setColors(Color.TRANSPARENT, Color.TRANSPARENT, Color.WHITE)
+                    setChecked(true, false)
+                    isClickable = false
+                    isFocusable = false
+                }
+                touchContainer.addView(check)
+            }
             binding.layoutAccentsContainer.addView(touchContainer)
         }
     }

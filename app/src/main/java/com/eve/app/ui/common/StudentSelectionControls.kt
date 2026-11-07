@@ -1,6 +1,7 @@
 package com.eve.app.ui.common
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
@@ -23,8 +24,20 @@ object StudentSelectionControls {
         chipCornerRadius = chipMinHeight / 2
         chipStrokeWidth = 0f
         com.eve.app.designsystem.DesignType.apply(this, com.eve.app.designsystem.DesignType.Role.CHIP)
-        chipBackgroundColor = ContextCompat.getColorStateList(context, R.color.accent)
-        setTextColor(ContextCompat.getColorStateList(context, R.color.on_accent))
+        val accentColor = ContextCompat.getColor(context, R.color.accent)
+        val surfaceColor = ContextCompat.getColor(context, R.color.surface_inset)
+        val onAccentColor = ContextCompat.getColor(context, R.color.on_accent)
+        val textPrimaryColor = ContextCompat.getColor(context, R.color.text_primary)
+        chipBackgroundColor = ColorStateList(
+            arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
+            intArrayOf(accentColor, surfaceColor)
+        )
+        setTextColor(
+            ColorStateList(
+                arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
+                intArrayOf(onAccentColor, textPrimaryColor)
+            )
+        )
         chipStartPadding = resources.getDimension(R.dimen.design_pill_padding)
         chipEndPadding = chipStartPadding
     }

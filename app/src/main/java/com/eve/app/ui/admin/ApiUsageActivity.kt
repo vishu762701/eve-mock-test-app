@@ -27,6 +27,7 @@ class ApiUsageActivity : EveBaseActivity() {
     private var readGeneration = 0L
     private var readJob: Job? = null
     private var loading = false
+    private var hasLoadedData = false
     private var reloadAfterStop = true
     private var reauthorizeOnResume = false
 
@@ -106,7 +107,9 @@ class ApiUsageActivity : EveBaseActivity() {
         reauthorizeOnResume = true
         if (::binding.isInitialized) {
             binding.btnRefresh.isEnabled = true
-            showUnavailable(R.string.api_usage_loading)
+            if (!hasLoadedData) {
+                showUnavailable(R.string.api_usage_loading)
+            }
         }
         super.onStop()
     }
@@ -137,12 +140,15 @@ class ApiUsageActivity : EveBaseActivity() {
         loading = true
         reloadAfterStop = false
         binding.btnRefresh.isEnabled = false
-        showUnavailable(R.string.api_usage_loading)
+        if (!hasLoadedData) {
+            showUnavailable(R.string.api_usage_loading)
+        }
         readJob = lifecycleScope.launch {
             try {
                 // The authenticated Worker checks view_analytics_logs on every read.
                 val usage = usageRepo.getUsageForCurrentMonth()
                 if (!canPublish(generation)) return@launch
+                hasLoadedData = true
                 val countedNote = if (usage.countedSince.isNotBlank()) " • Since ${usage.countedSince.take(10)}" else ""
                 binding.tvCurrentMonth.text = "📅 ${usage.monthDisplayName}$countedNote"
                 binding.tvGeminiCallsCount.text = usage.geminiCalls.toString()
@@ -151,7 +157,9 @@ class ApiUsageActivity : EveBaseActivity() {
             } catch (cancel: CancellationException) { throw cancel }
             catch (e: Exception) {
                 if (canPublish(generation)) {
-                    showUnavailable(R.string.api_usage_unavailable)
+                    if (!hasLoadedData) {
+                        showUnavailable(R.string.api_usage_unavailable)
+                    }
                     AppBulletin.showError(this@ApiUsageActivity, getString(R.string.api_usage_load_failed, e.toUserFriendlyMessage()))
                 }
             } finally {
