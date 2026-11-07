@@ -611,6 +611,10 @@ class AdminActivity : EveBaseActivity() {
         exportJob = null
         exportProgress?.dismiss()
         exportProgress = null
+        bannerDialog?.dismiss()
+        bannerDialog = null
+        maintenanceDialog?.dismiss()
+        maintenanceDialog = null
         super.onStop()
     }
 

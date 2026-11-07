@@ -126,6 +126,23 @@ object TelegramThemeApplier {
                     )
                 )
                 view.checkedIconTint = ColorStateList.valueOf(palette.onAccent)
+                view.rippleColor = ColorStateList.valueOf(palette.actionSelector)
+            }
+            is com.eve.app.ui.common.TelegramCheckBoxSquare -> {
+                view.setColors(
+                    unchecked = palette.textSecondary,
+                    checked = palette.accent,
+                    check = palette.onAccent
+                )
+            }
+            is com.eve.app.designsystem.TelegramSwitch -> {
+                view.invalidate()
+            }
+            is com.eve.app.ui.common.CircularCountdownView -> {
+                view.invalidate()
+            }
+            is com.eve.app.ui.common.CircularTimerView -> {
+                view.updateThemeColors()
             }
             is CheckBox -> {
                 view.buttonTintList = ColorStateList.valueOf(palette.accent)
