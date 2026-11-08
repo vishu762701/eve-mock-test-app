@@ -28,13 +28,16 @@ class PostRepliesAdapter(
 
     inner class VH(private val binding: ItemPostReplyBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: FeedbackPostReply) {
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(binding.root.context)
             val authorText = if (item.email.isNotBlank()) {
                 "${item.name} • ${item.email}"
             } else {
                 item.name
             }
             binding.tvReplyAuthor.text = authorText
+            binding.tvReplyAuthor.setTextColor(palette.textPrimary)
             binding.tvReplyText.text = item.text
+            binding.tvReplyText.setTextColor(palette.textPrimary)
 
             val timeText = if (item.timestamp > 0L) {
                 dateFormat.format(Date(item.timestamp))
@@ -42,11 +45,12 @@ class PostRepliesAdapter(
                 "—"
             }
             binding.tvReplyTime.text = timeText
+            binding.tvReplyTime.setTextColor(palette.textSecondary)
+            binding.root.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
 
             // Dimming the whole View would also make its decorative outline translucent.
             binding.btnMarkRead.alpha = 1f
-            val labelColor = androidx.core.content.ContextCompat.getColor(binding.root.context,
-                if (item.read) com.eve.app.R.color.text_secondary else com.eve.app.R.color.text_primary)
+            val labelColor = if (item.read) palette.textSecondary else palette.textPrimary
             binding.btnMarkRead.setTextColor(labelColor)
             if (item.read) {
                 binding.btnMarkRead.text = "Read"
@@ -62,6 +66,7 @@ class PostRepliesAdapter(
                 }
             }
 
+            binding.btnDeleteReply.background = com.eve.app.designsystem.TelegramThemeSelectors.getCircleSelectorDrawable(palette.actionSelector)
             binding.btnDeleteReply.setOnClickListener {
                 val pos = bindingAdapterPosition
                 if (pos != RecyclerView.NO_POSITION) {

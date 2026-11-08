@@ -287,11 +287,14 @@ class TestActivity : EveBaseActivity() {
                         viewModel.addQuestionSecond(currentPos)
                         val rv = binding.viewPager.getChildAt(0) as? androidx.recyclerview.widget.RecyclerView
                         val vh = rv?.findViewHolderForAdapterPosition(currentPos) as? QuestionAdapter.VH
-                        vh?.updateTimer(viewModel.getQuestionTime(currentPos))
-                        (binding.viewPager.adapter as? QuestionAdapter)?.notifyItemChanged(
-                            currentPos,
-                            QuestionAdapter.PAYLOAD_TIMER
-                        )
+                        if (vh != null) {
+                            vh.updateTimer(viewModel.getQuestionTime(currentPos))
+                        } else {
+                            (binding.viewPager.adapter as? QuestionAdapter)?.notifyItemChanged(
+                                currentPos,
+                                QuestionAdapter.PAYLOAD_TIMER
+                            )
+                        }
                         sessionSaveTicks++
                         if (sessionSaveTicks >= 5) {
                             sessionSaveTicks = 0

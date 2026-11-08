@@ -35,6 +35,9 @@ class AdminBannerAdapter(
         val binding = ItemAdminBannerBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         )
+        binding.root.rippleColor = ColorStateList.valueOf(
+            TelegramThemeEngine.resolveCurrentPalette(parent.context).actionSelector
+        )
         return VH(binding)
     }
 
@@ -90,6 +93,10 @@ class AdminBannerAdapter(
             b.btnMoveDown.alpha = if (position < total - 1) 1.0f else 0.35f
             b.btnMoveDown.setOnClickListener { onMoveDown(banner) }
 
+            b.btnDeleteBanner.background = TelegramThemeSelectors.getRoundRectSelectorDrawable(
+                16f * density,
+                palette.actionSelector
+            )
             b.btnDeleteBanner.setOnClickListener { onDelete(banner) }
         }
     }

@@ -25,6 +25,9 @@ class AdminSyllabusAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val b = ItemAdminSyllabusBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        b.root.rippleColor = android.content.res.ColorStateList.valueOf(
+            TelegramThemeEngine.resolveCurrentPalette(parent.context).actionSelector
+        )
         return VH(b)
     }
 
@@ -62,6 +65,10 @@ class AdminSyllabusAdapter(
                 palette.actionSelector
             )
 
+            b.btnDeletePdf.background = TelegramThemeSelectors.getRoundRectSelectorDrawable(
+                16f * density,
+                palette.actionSelector
+            )
             b.btnReplacePdf.setOnClickListener { onReplace(exam) }
             b.btnChangeExam.setOnClickListener { onReassign(exam) }
             b.btnDeletePdf.setOnClickListener { onDelete(exam) }

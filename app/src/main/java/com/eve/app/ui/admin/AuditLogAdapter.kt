@@ -106,17 +106,22 @@ class AuditLogAdapter(
 
     inner class HeaderViewHolder(private val b: ItemAuditLogHeaderBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(title: String) {
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(b.root.context)
             b.tvDateHeader.text = title
+            b.tvDateHeader.setTextColor(palette.accent)
         }
     }
 
     inner class EntryViewHolder(private val b: ItemAuditLogBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(log: AdminAuditLog) {
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(b.root.context)
             val email = log.adminEmail.ifBlank { "Admin" }
             b.tvAdminEmail.text = email
+            b.tvAdminEmail.setTextColor(palette.textPrimary)
             b.ivAvatar.setImageDrawable(AvatarDrawable.create(b.root.context, email, email))
 
             b.tvDescription.text = log.description
+            b.tvDescription.setTextColor(palette.textPrimary)
             b.tvActionBadge.text = log.actionBadge
 
             if (log.timestamp > 0L) {
@@ -124,6 +129,7 @@ class AuditLogAdapter(
             } else {
                 b.tvTimestamp.text = "Recent"
             }
+            b.tvTimestamp.setTextColor(palette.textSecondary)
 
             b.tvClientSource.visibility = if (log.source == "client") View.VISIBLE else View.GONE
 

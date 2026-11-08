@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.R
 import com.eve.app.data.model.TopicStat
 import com.eve.app.databinding.ItemTopicStatBinding
+import com.eve.app.theme.TelegramThemeEngine
 
 class TopicStatAdapter : RecyclerView.Adapter<TopicStatAdapter.VH>() {
 
@@ -20,10 +21,13 @@ class TopicStatAdapter : RecyclerView.Adapter<TopicStatAdapter.VH>() {
 
     inner class VH(private val b: ItemTopicStatBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(stat: TopicStat) {
+            val palette = TelegramThemeEngine.resolveCurrentPalette(b.root.context)
             b.tvTopicName.text = stat.topic
+            b.tvTopicName.setTextColor(palette.textPrimary)
             b.tvTopicAccuracy.text = "${stat.accuracy}%"
             b.pbTopicAccuracy.progress = stat.accuracy
             b.tvTopicCount.text = "${stat.correct}/${stat.total} correct"
+            b.tvTopicCount.setTextColor(palette.textSecondary)
 
             val colorRes = when {
                 stat.accuracy >= 70 -> R.color.system_green

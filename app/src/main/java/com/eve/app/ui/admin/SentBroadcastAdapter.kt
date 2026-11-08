@@ -53,15 +53,22 @@ class SentBroadcastAdapter(
 
     inner class VH(private val binding: ItemSentBroadcastBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: BroadcastMessage) {
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(binding.root.context)
             binding.tvBroadcastTitle.text = item.title
+            binding.tvBroadcastTitle.setTextColor(palette.textPrimary)
             binding.tvBroadcastMessage.text = item.message
+            binding.tvBroadcastMessage.setTextColor(palette.textSecondary)
             val formattedTime = if (item.sentAt > 0) {
                 dateFormat.format(Date(item.sentAt))
             } else {
                 "—"
             }
             binding.tvBroadcastTime.text = formattedTime
+            binding.tvBroadcastTime.setTextColor(palette.textSecondary)
             binding.tvBroadcastTarget.text = "Target: ${item.targetCategory}"
+            binding.tvBroadcastTarget.setTextColor(palette.accent)
+            binding.cbSelect.setColors(palette.hairline, palette.accent, palette.onAccent)
+            binding.root.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
 
             if (isSelectionMode) {
                 binding.cbSelect.visibility = View.VISIBLE

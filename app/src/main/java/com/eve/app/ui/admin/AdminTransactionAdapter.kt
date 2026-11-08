@@ -25,6 +25,9 @@ class AdminTransactionAdapter(
             parent,
             false
         )
+        binding.root.rippleColor = android.content.res.ColorStateList.valueOf(
+            com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(parent.context).actionSelector
+        )
         return TransactionViewHolder(binding)
     }
 
@@ -42,11 +45,17 @@ class AdminTransactionAdapter(
 
         fun bind(item: AdminTransactionDto) {
             val context = binding.root.context
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
             binding.tvOrderAmount.text = "₹${item.amount}"
+            binding.tvOrderAmount.setTextColor(palette.textPrimary)
             binding.tvOrderMethod.text = "(${item.paymentMethod.uppercase()})"
+            binding.tvOrderMethod.setTextColor(palette.textSecondary)
             binding.tvOrderId.text = "ID: ${item.orderId}"
+            binding.tvOrderId.setTextColor(palette.textSecondary)
             binding.tvUserEmail.text = item.userEmail.ifBlank { item.userId }
+            binding.tvUserEmail.setTextColor(palette.textSecondary)
             binding.tvOrderDate.text = "Created: ${dateFormat.format(Date(item.createdAt))}"
+            binding.tvOrderDate.setTextColor(palette.textSecondary)
 
             val (statusText, colorRes) = when (item.status.uppercase()) {
                 "SUCCESS" -> "SUCCESS" to R.color.system_green_text

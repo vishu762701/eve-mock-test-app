@@ -22,8 +22,10 @@ class AdminEmailAdapter(
 
     inner class VH(private val b: ItemAdminEmailBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(item: DynamicAdminItem) {
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(b.root.context)
             val email = item.email
             b.tvEmail.text = email
+            b.tvEmail.setTextColor(palette.textPrimary)
             val roleText = when {
                 item.isOwner -> "Owner"
                 !item.customTitle.isNullOrBlank() -> item.customTitle
@@ -32,6 +34,7 @@ class AdminEmailAdapter(
                 else -> "${item.rights.size} rights"
             }
             b.tvRole.text = roleText
+            b.tvRole.setTextColor(palette.textSecondary)
 
             val initials = AvatarDrawable.extractInitials(email)
             val colorIndex = AvatarDrawable.getColorIndex(email)
@@ -41,6 +44,7 @@ class AdminEmailAdapter(
                 b.btnRemove.visibility = View.GONE
             } else {
                 b.btnRemove.visibility = View.VISIBLE
+                b.btnRemove.background = com.eve.app.designsystem.TelegramThemeSelectors.getCircleSelectorDrawable(palette.actionSelector)
                 b.btnRemove.setOnClickListener { onRemove(item) }
             }
 

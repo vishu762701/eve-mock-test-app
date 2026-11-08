@@ -16,13 +16,18 @@ class AnalyticsQuestionAdapter(
     fun submit(value: List<QuestionAnalytics>) { items = value; notifyDataSetChanged() }
     inner class VH(private val b: ItemAnalyticsQuestionBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(x: QuestionAnalytics) {
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(b.root.context)
             b.tvQuestion.text = "Q${x.questionNumber}. ${x.questionText}"
+            b.tvQuestion.setTextColor(palette.textPrimary)
             val topic = if (x.topic.isBlank()) "" else " • ${x.topic}"
             b.tvExam.text = "${x.examName}$topic"
+            b.tvExam.setTextColor(palette.textSecondary)
             b.tvStats.text = String.format(
                 Locale.US, "%.1f%% wrong • %d wrong / %d attempted • %d unattempted",
                 x.wrongRate, x.wrong, x.attempts, x.unattempted
             )
+            b.tvStats.setTextColor(palette.textSecondary)
+            b.root.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
             val allowed = onEdit != null && canEdit()
             b.btnEditQuestion.visibility = if (allowed) View.VISIBLE else View.GONE
             b.btnEditQuestion.isEnabled = allowed

@@ -21,7 +21,9 @@ class AnalyticsExamAdapter : RecyclerView.Adapter<AnalyticsExamAdapter.VH>() {
     inner class VH(private val b: ItemAnalyticsExamBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(x: ExamAnalytics) {
             val ctx = b.root.context
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(ctx)
             b.tvExam.text = x.examName
+            b.tvExam.setTextColor(palette.textPrimary)
             b.tvCategoryBadge.text = x.category.ifBlank { "General" }
 
             val avgScoreText = if (x.averageScore > 0) {
@@ -30,7 +32,10 @@ class AnalyticsExamAdapter : RecyclerView.Adapter<AnalyticsExamAdapter.VH>() {
                 "Avg Score: —"
             }
             b.tvMeta.text = "Attempts: ${x.attemptCount}  •  $avgScoreText"
+            b.tvMeta.setTextColor(palette.textSecondary)
             b.tvStudents.text = "${x.uniqueUsers} students"
+            b.tvStudents.setTextColor(palette.textSecondary)
+            b.root.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
 
             when {
                 x.attemptCount == 0L -> {

@@ -50,8 +50,12 @@ class SyllabusAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(exam: Exam) {
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(binding.root.context)
             binding.tvCategory.text = exam.categoryOrOther
+            binding.tvCategory.setTextColor(palette.accent)
             binding.tvExamName.text = exam.examName
+            binding.tvExamName.setTextColor(palette.textPrimary)
+            binding.root.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
 
             val hasSyllabus = exam.syllabusUrl.isNotBlank()
             val isDownloading = downloadingIds.contains(exam.id)
@@ -59,6 +63,7 @@ class SyllabusAdapter(
 
             if (hasSyllabus) {
                 binding.tvFileName.text = exam.syllabusFileName.ifBlank { "syllabus.pdf" }
+                binding.tvFileName.setTextColor(palette.textSecondary)
                 binding.btnDownload.isEnabled = !isDownloading
                 binding.btnDownload.alpha = 1.0f
                 binding.btnDownload.text = if (isDownloaded) "Re-download" else "Download PDF"
@@ -72,6 +77,7 @@ class SyllabusAdapter(
                 }
             } else {
                 binding.tvFileName.text = "Syllabus coming soon"
+                binding.tvFileName.setTextColor(palette.textSecondary)
                 binding.btnDownload.isEnabled = false
                 binding.btnDownload.alpha = 1.0f
                 binding.btnDownload.text = "Coming Soon"

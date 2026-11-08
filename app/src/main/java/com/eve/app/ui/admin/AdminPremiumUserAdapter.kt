@@ -27,6 +27,9 @@ class AdminPremiumUserAdapter(
             parent,
             false
         )
+        binding.root.rippleColor = android.content.res.ColorStateList.valueOf(
+            com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(parent.context).actionSelector
+        )
         return UserViewHolder(binding, onExtend, onRevoke)
     }
 
@@ -46,9 +49,13 @@ class AdminPremiumUserAdapter(
 
         fun bind(item: AdminPremiumUserDto) {
             val context = binding.root.context
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
+            val density = context.resources.displayMetrics.density
 
             binding.tvUserDisplayName.text = item.displayName.ifBlank { "Student" }
+            binding.tvUserDisplayName.setTextColor(palette.textPrimary)
             binding.tvUserEmail.text = item.email.ifBlank { item.userId }
+            binding.tvUserEmail.setTextColor(palette.textSecondary)
 
             val expiryText = if (item.isLifetime) {
                 "Lifetime"
@@ -59,6 +66,7 @@ class AdminPremiumUserAdapter(
             }
 
             binding.tvPlanAndExpiry.text = "${item.planName} • Expires: $expiryText (Source: ${item.source})"
+            binding.tvPlanAndExpiry.setTextColor(palette.textSecondary)
 
             val (statusText, colorRes) = when (item.status.uppercase()) {
                 "ACTIVE" -> "ACTIVE" to R.color.system_green_text
@@ -69,6 +77,15 @@ class AdminPremiumUserAdapter(
 
             binding.tvUserStatusBadge.text = statusText
             binding.tvUserStatusBadge.setTextColor(ContextCompat.getColor(context, colorRes))
+
+            binding.btnExtendUser.background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
+                16f * density,
+                palette.actionSelector
+            )
+            binding.btnRevokeUser.background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
+                16f * density,
+                palette.actionSelector
+            )
 
             binding.btnExtendUser.setOnClickListener {
                 onExtend(item)

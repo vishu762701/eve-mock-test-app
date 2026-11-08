@@ -27,7 +27,9 @@ class GeneratedTestAdapter(
 
     inner class VH(private val b: ItemGeneratedTestBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(test: GeneratedTest) {
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(itemView.context)
             b.tvExamName.text = test.displayTitle
+            b.tvExamName.setTextColor(palette.textPrimary)
             val timeAgo = if (test.generatedAt > 0) {
                 DateUtils.getRelativeTimeSpanString(
                     test.generatedAt,
@@ -36,6 +38,8 @@ class GeneratedTestAdapter(
                 )
             } else "Recent"
             b.tvTestDetails.text = "${test.questionCount} questions • Generated $timeAgo" + if (test.validationError.isNotBlank()) "\n${test.validationError}" else ""
+            b.tvTestDetails.setTextColor(palette.textSecondary)
+            b.root.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
 
             if (test.availableFrom > 0) {
                 b.tvScheduledTime.text = com.eve.app.util.TestScheduleHelper.formatOpensAt(test.availableFrom)
@@ -65,6 +69,7 @@ class GeneratedTestAdapter(
 
             b.btnSchedule.setOnClickListener { onSchedule(test) }
             b.btnPreview.setOnClickListener { onPreview(test) }
+            b.btnDelete.background = com.eve.app.designsystem.TelegramThemeSelectors.getCircleSelectorDrawable(palette.actionSelector)
             b.btnDelete.setOnClickListener { onDelete(test) }
         }
     }

@@ -1,16 +1,14 @@
 package com.eve.app.ui.test
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.ValueAnimator
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.view.animation.DecelerateInterpolator
 import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.R
 import com.eve.app.data.model.Question
 import com.eve.app.databinding.ItemQuestionBinding
+import com.eve.app.designsystem.TelegramThemeSelectors
+import com.eve.app.theme.TelegramThemeEngine
+import com.eve.app.ui.common.TelegramHorizontalScrollLayoutManager
 import com.eve.app.util.HapticHelper
 
 class QuestionAdapter(
@@ -61,6 +59,7 @@ class QuestionAdapter(
                 it.isSaveEnabled = false
                 it.applyChoiceStyle()
             }
+            TelegramHorizontalScrollLayoutManager.install(b.questionScroll)
         }
 
         fun updateTimer(seconds: Long) {
@@ -68,6 +67,15 @@ class QuestionAdapter(
         }
 
         fun bind(position: Int, q: Question) {
+            val palette = TelegramThemeEngine.resolveCurrentPalette(b.root.context)
+            b.tvQuestion.setTextColor(palette.textPrimary)
+            b.tvQuestionTimer.setTextColor(palette.textSecondary)
+            b.btnBookmark.background = TelegramThemeSelectors.getCircleSelectorDrawable(palette.actionSelector)
+            b.btnReport.background = TelegramThemeSelectors.getCircleSelectorDrawable(palette.actionSelector)
+            listOf(b.rbA, b.rbB, b.rbC, b.rbD).forEach {
+                it.updatePalette(palette)
+            }
+
             updateTimer(getQuestionTime(position))
             b.btnReport.setOnClickListener {
                 onReport(q)

@@ -23,13 +23,20 @@ class FlaggedQuestionsAdapter(
 
     inner class VH(private val b: ItemFlaggedQuestionBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(item: AggregatedFlaggedQuestion) {
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(b.root.context)
+            val density = b.root.resources.displayMetrics.density
+
             b.tvExamName.text = item.examName.ifBlank { "Exam ID: ${item.examId}" }
+            b.tvExamName.setTextColor(palette.textPrimary)
             b.tvFlagCount.text = "🚩 ${item.flagCount} flag${if (item.flagCount > 1) "s" else ""}"
+            b.tvFlagCount.setTextColor(palette.accent)
             b.tvQuestionText.text = item.questionText
+            b.tvQuestionText.setTextColor(palette.textPrimary)
 
             if (item.reasons.isNotEmpty()) {
                 b.tvReasons.visibility = View.VISIBLE
                 b.tvReasons.text = "Reasons: ${item.reasons.joinToString(", ")}"
+                b.tvReasons.setTextColor(palette.textSecondary)
             } else {
                 b.tvReasons.visibility = View.GONE
             }
@@ -38,9 +45,16 @@ class FlaggedQuestionsAdapter(
                 b.tvComments.visibility = View.VISIBLE
                 val commentsFormatted = item.comments.joinToString("\n") { "• $it" }
                 b.tvComments.text = "Student Feedback:\n$commentsFormatted"
+                b.tvComments.setTextColor(palette.textSecondary)
             } else {
                 b.tvComments.visibility = View.GONE
             }
+
+            b.root.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
+            b.btnDismissFlag.background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
+                16f * density,
+                palette.actionSelector
+            )
 
             b.btnEditQuestion.visibility = if (canEdit()) View.VISIBLE else View.GONE
             b.btnEditQuestion.isEnabled = canEdit()
@@ -55,6 +69,9 @@ class FlaggedQuestionsAdapter(
             LayoutInflater.from(parent.context),
             parent,
             false
+        )
+        binding.root.rippleColor = android.content.res.ColorStateList.valueOf(
+            com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(parent.context).actionSelector
         )
         return VH(binding)
     }

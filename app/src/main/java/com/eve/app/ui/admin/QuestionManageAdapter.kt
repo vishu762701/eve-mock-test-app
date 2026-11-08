@@ -1,11 +1,14 @@
 package com.eve.app.ui.admin
 
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.data.model.Question
 import com.eve.app.databinding.ItemManageQuestionBinding
+import com.eve.app.designsystem.TelegramThemeSelectors
+import com.eve.app.theme.TelegramThemeEngine
 
 class QuestionManageAdapter(
     private val onEdit: (Question) -> Unit,
@@ -22,7 +25,10 @@ class QuestionManageAdapter(
 
     inner class VH(private val b: ItemManageQuestionBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(q: Question, position: Int) {
+            val palette = TelegramThemeEngine.resolveCurrentPalette(b.root.context)
+            b.root.rippleColor = ColorStateList.valueOf(palette.actionSelector)
             b.tvQuestionText.text = "Q${position + 1}. ${q.questionText}"
+            b.tvQuestionText.setTextColor(palette.textPrimary)
             val topicSuffix = if (q.topic.isNotBlank()) "  •  Topic: ${q.topic}" else ""
             val pyqSuffix = if (q.isPyq && q.pyqYear > 0) {
                 val paper = if (q.pyqPaper.isBlank()) "" else " ${q.pyqPaper}"
@@ -42,8 +48,11 @@ class QuestionManageAdapter(
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        VH(ItemManageQuestionBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+        val b = ItemManageQuestionBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        b.root.rippleColor = ColorStateList.valueOf(TelegramThemeEngine.resolveCurrentPalette(parent.context).actionSelector)
+        return VH(b)
+    }
 
     override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(items[position], position)
 

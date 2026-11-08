@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.databinding.ItemNotificationBinding
+import com.eve.app.designsystem.TelegramThemeSelectors
 import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.util.StoredNotification
 
@@ -22,6 +23,9 @@ class NotificationAdapter : RecyclerView.Adapter<NotificationAdapter.VH>() {
         fun bind(item: StoredNotification) {
             val palette = TelegramThemeEngine.resolveCurrentPalette(b.root.context)
             b.ivNotificationIcon.imageTintList = ColorStateList.valueOf(palette.accent)
+            b.tvTitle.setTextColor(palette.textPrimary)
+            b.tvBody.setTextColor(palette.textSecondary)
+            b.tvTime.setTextColor(palette.textSecondary)
             com.eve.app.ui.admin.emoji.EmojiRenderer.attachEmoji(b.tvTitle, item.title, item.emoji)
             b.tvBody.text = item.body
             b.tvTime.text = DateUtils.getRelativeTimeSpanString(
@@ -30,8 +34,14 @@ class NotificationAdapter : RecyclerView.Adapter<NotificationAdapter.VH>() {
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        VH(ItemNotificationBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+        val b = ItemNotificationBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        b.root.background = TelegramThemeSelectors.getRoundRectSelectorDrawable(
+            8 * parent.resources.displayMetrics.density,
+            TelegramThemeEngine.resolveCurrentPalette(parent.context).actionSelector
+        )
+        return VH(b)
+    }
 
     override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(items[position])
 

@@ -1,5 +1,6 @@
 package com.eve.app.ui.leaderboard
 
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
@@ -7,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.R
 import com.eve.app.data.model.LeaderboardEntry
 import com.eve.app.databinding.ItemLeaderboardBinding
+import com.eve.app.theme.TelegramThemeEngine
 
 class LeaderboardAdapter(
     private val currentUserId: String?
@@ -22,6 +24,7 @@ class LeaderboardAdapter(
     inner class VH(private val b: ItemLeaderboardBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(entry: LeaderboardEntry, rank: Int) {
             val ctx = b.root.context
+            val palette = TelegramThemeEngine.resolveCurrentPalette(ctx)
 
             b.tvRank.text = "#$rank"
             when (rank) {
@@ -31,11 +34,11 @@ class LeaderboardAdapter(
                 }
                 2, 3 -> {
                     com.eve.app.designsystem.DesignSurfaces.badge(b.tvRank, R.drawable.design_badge_neutral)
-                    b.tvRank.setTextColor(ContextCompat.getColor(ctx, R.color.text_secondary))
+                    b.tvRank.setTextColor(palette.textSecondary)
                 }
                 else -> {
                     b.tvRank.background = null
-                    b.tvRank.setTextColor(ContextCompat.getColor(ctx, R.color.text_secondary))
+                    b.tvRank.setTextColor(palette.textSecondary)
                     b.tvRank.setPadding(0, 0, 0, 0)
                 }
             }
@@ -47,11 +50,14 @@ class LeaderboardAdapter(
 
             val isMe = currentUserId != null && entry.userId == currentUserId
             b.tvName.text = if (isMe) "${entry.displayName} (You)" else entry.displayName
+            b.tvName.setTextColor(palette.textPrimary)
+            b.tvScore.setTextColor(if (isMe) palette.accent else palette.textPrimary)
             b.root.setCardBackgroundColor(
-                ContextCompat.getColor(ctx, if (isMe) R.color.system_blue_container else R.color.surface_inset)
+                if (isMe) (if (palette.isDark) 0x33007AFF else 0x1F007AFF) else palette.surfaceInset
             )
-            b.root.strokeColor = ContextCompat.getColor(ctx, R.color.hairline)
+            b.root.strokeColor = palette.hairline
             b.root.strokeWidth = 0
+            b.root.rippleColor = ColorStateList.valueOf(palette.actionSelector)
         }
     }
 
