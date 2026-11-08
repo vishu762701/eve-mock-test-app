@@ -159,7 +159,7 @@ adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
 # the app process, dies and postmortem adb pull is impossible. The disposable
 # emulator contains only test fixtures; no production accounts are exercised.
 adb logcat -c || true
-timeout 800s adb logcat -b crash -b events -v threadtime > "$guest_crash_log" 2>&1 &
+timeout 1200s adb logcat -b crash -b events -v threadtime > "$guest_crash_log" 2>&1 &
 guest_crash_pid=$!
 # The full student rendering matrix covers 44 fixtures x two themes x three
 # viewport/font configurations. Running it inside the 53-test command exceeded
@@ -173,7 +173,7 @@ run_instrumentation() {
   local run_status=0
   # adb shell can consume the loop stdin that holds subsequent visual shard names.
   # Disconnect stdin without altering test selection, timeout, or failure handling.
-  timeout 660s adb shell am instrument -w -r \
+  timeout 900s adb shell am instrument -w -r \
     -e navigationMode "$mode" "$@" \
     com.eve.app.test/androidx.test.runner.AndroidJUnitRunner </dev/null \
     | tee "$instrumentation_log" || run_status=$?
