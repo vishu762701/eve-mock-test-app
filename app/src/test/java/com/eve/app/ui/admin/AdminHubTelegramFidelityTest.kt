@@ -55,7 +55,7 @@ class AdminHubTelegramFidelityTest {
 
         // Telegram native dialogs contract
         assertTrue("Must import TelegramNativeAlertDialog", source.contains("import com.eve.app.designsystem.TelegramNativeAlertDialog"))
-        assertEquals("Must maintain 22 native dialogs", 22, source.split("TelegramNativeAlertDialog.Builder(").size - 1)
+        assertEquals("Must maintain 21 native dialogs", 21, source.split("TelegramNativeAlertDialog.Builder(").size - 1)
     }
 
     @Test

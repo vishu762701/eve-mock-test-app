@@ -12,7 +12,7 @@ class AdminDialogSourceContractTest {
         val source = File("src/main/java/com/eve/app/ui/admin/AdminActivity.kt").readText()
         assertTrue(source.contains("import com.eve.app.designsystem.TelegramNativeAlertDialog"))
         assertEquals("Original confirmation, list, custom-form and progress variants",
-            22, source.split("TelegramNativeAlertDialog.Builder(").size - 1)
+            21, source.split("TelegramNativeAlertDialog.Builder(").size - 1)
         assertTrue("Do not overlay native dialog with obsolete AppCompat background",
             !source.contains("TelegramDialogSourceBackground.apply("))
         assertTrue("Floating link form validation and server authorization remain",

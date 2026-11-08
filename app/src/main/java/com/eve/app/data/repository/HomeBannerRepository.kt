@@ -44,7 +44,7 @@ class HomeBannerRepository(
     fun observeBanners(): Flow<List<HomeBanner>> = flow {
         val now = System.currentTimeMillis()
         val cached = cachedBanners
-        cached?.let { emit(it) }
+        cachedBanners?.let { emit(it) }
         if (cached != null && (now - lastCacheTime < CACHE_TTL_MS)) {
             return@flow
         }

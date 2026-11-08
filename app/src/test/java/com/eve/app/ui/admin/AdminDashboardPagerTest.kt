@@ -21,6 +21,7 @@ class AdminDashboardPagerTest {
         val context = controller.get().apply { setTheme(R.style.Theme_Eve) }
         val binding = ActivityAdminBinding.inflate(LayoutInflater.from(context))
         context.setContentView(binding.root)
+        binding.scrollAdminHub.visibility = View.VISIBLE
         var clicks = 0
         binding.rowExams.setOnClickListener { clicks++ }
         binding.rowUsers.setOnClickListener { clicks++ }

@@ -157,9 +157,8 @@ class ApiUsageActivity : EveBaseActivity() {
             } catch (cancel: CancellationException) { throw cancel }
             catch (e: Exception) {
                 if (canPublish(generation)) {
-                    if (!hasLoadedData) {
-                        showUnavailable(R.string.api_usage_unavailable)
-                    }
+                    hasLoadedData = false
+                    showUnavailable(R.string.api_usage_unavailable)
                     AppBulletin.showError(this@ApiUsageActivity, getString(R.string.api_usage_load_failed, e.toUserFriendlyMessage()))
                 }
             } finally {
