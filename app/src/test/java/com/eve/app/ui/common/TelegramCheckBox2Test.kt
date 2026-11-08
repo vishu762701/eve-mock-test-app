@@ -2,7 +2,7 @@ package com.eve.app.ui.common
 
 import android.graphics.Color
 import android.view.LayoutInflater
-import androidx.test.core.app.ApplicationProvider
+import org.robolectric.RuntimeEnvironment
 import com.eve.app.R
 import com.eve.app.databinding.BottomSheetCategoryPickerBinding
 import org.junit.Assert.assertEquals
@@ -22,7 +22,7 @@ class TelegramCheckBox2Test {
 
     @Test
     fun defaultStateIsUncheckedWithZeroProgress() {
-        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val context = RuntimeEnvironment.getApplication()
         val checkBox = TelegramCheckBox2(context)
         assertFalse("Default checkbox must be unchecked", checkBox.isChecked)
         assertEquals("Initial progress must be 0", 0f, checkBox.getProgress(), 0.001f)
@@ -30,7 +30,7 @@ class TelegramCheckBox2Test {
 
     @Test
     fun setCheckedUpdatesStateAndFiresListener() {
-        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val context = RuntimeEnvironment.getApplication()
         val checkBox = TelegramCheckBox2(context)
         var callbackFired = false
         var lastState = false
@@ -55,7 +55,7 @@ class TelegramCheckBox2Test {
 
     @Test
     fun toggleFlipsCheckedState() {
-        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val context = RuntimeEnvironment.getApplication()
         val checkBox = TelegramCheckBox2(context)
         assertFalse(checkBox.isChecked)
 
@@ -68,7 +68,7 @@ class TelegramCheckBox2Test {
 
     @Test
     fun disabledStatePreventsToggle() {
-        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val context = RuntimeEnvironment.getApplication()
         val checkBox = TelegramCheckBox2(context)
         checkBox.setDisabled(true)
 
@@ -78,7 +78,7 @@ class TelegramCheckBox2Test {
 
     @Test
     fun customColorsAreStoredAndApplied() {
-        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val context = RuntimeEnvironment.getApplication()
         val checkBox = TelegramCheckBox2(context)
         checkBox.setColors(Color.GRAY, Color.BLUE, Color.WHITE)
 
@@ -89,7 +89,7 @@ class TelegramCheckBox2Test {
 
     @Test
     fun inflationInBottomSheetCategoryPickerResolvesAsTelegramCheckBox2() {
-        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val context = RuntimeEnvironment.getApplication()
         val inflater = LayoutInflater.from(context)
         val binding = BottomSheetCategoryPickerBinding.inflate(inflater, null, false)
 

@@ -5,7 +5,7 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.test.core.app.ApplicationProvider
+import org.robolectric.RuntimeEnvironment
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -23,7 +23,7 @@ class TelegramHorizontalScrollLayoutManagerTest {
 
     @Test
     fun layoutManagerHasHorizontalOrientationAndPredictiveAnimations() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
+        val context = RuntimeEnvironment.getApplication()
         val lm = TelegramHorizontalScrollLayoutManager(context)
         assertEquals(LinearLayoutManager.HORIZONTAL, lm.orientation)
         assertTrue("Predictive animations must be enabled like Telegram FilterTabsView", lm.supportsPredictiveItemAnimations())
@@ -31,7 +31,7 @@ class TelegramHorizontalScrollLayoutManagerTest {
 
     @Test
     fun installSetsLayoutManagerAndAdaptiveOverScroll() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
+        val context = RuntimeEnvironment.getApplication()
         val rv = RecyclerView(context)
         val lm = TelegramHorizontalScrollLayoutManager.install(rv)
 
