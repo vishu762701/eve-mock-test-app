@@ -70,8 +70,6 @@ class QuestionAdapter(
             val palette = TelegramThemeEngine.resolveCurrentPalette(b.root.context)
             b.tvQuestion.setTextColor(palette.textPrimary)
             b.tvQuestionTimer.setTextColor(palette.textSecondary)
-            b.btnBookmark.background = TelegramThemeSelectors.getCircleSelectorDrawable(palette.actionSelector)
-            b.btnReport.background = TelegramThemeSelectors.getCircleSelectorDrawable(palette.actionSelector)
             listOf(b.rbA, b.rbB, b.rbC, b.rbD).forEach {
                 it.updatePalette(palette)
             }

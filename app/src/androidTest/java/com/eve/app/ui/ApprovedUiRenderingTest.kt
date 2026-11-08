@@ -320,7 +320,7 @@ class ApprovedUiRenderingTest {
             val pixel = image.getPixel(dp(70), dp(36))
             // Timer foreground uses the accessible source accent, independently
             // of the general body-text role and the translucent empty track.
-            val remainingColor = context.getColor(R.color.accent_text)
+            val remainingColor = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context).accent
             assertTrue("The remaining half-ring must render", listOf(
                 Color.red(pixel) - Color.red(remainingColor), Color.green(pixel) - Color.green(remainingColor),
                 Color.blue(pixel) - Color.blue(remainingColor)).all { kotlin.math.abs(it) <= 16 })

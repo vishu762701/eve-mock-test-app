@@ -37,6 +37,7 @@ class HomeDrawerActionsNativeTest {
                 binding = ActivityMainBinding.inflate(activity.layoutInflater)
                 activity.setContentView(binding.root)
                 HomeDrawerActions.bind(binding) { destination = it }
+                binding.loadingHome.visibility = View.GONE
                 binding.maintenanceOverlay.visibility = View.VISIBLE
             }
             androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().waitForIdleSync()
