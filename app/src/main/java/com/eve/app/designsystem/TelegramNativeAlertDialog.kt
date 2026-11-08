@@ -254,7 +254,9 @@ class TelegramNativeAlertDialog private constructor(
             val rowHeight = if (verticalActions) dp(48 * actionLabels.size + 16) else dp(52)
             root.addView(actions, LinearLayout.LayoutParams(-1, rowHeight))
         }
-        com.eve.app.theme.TelegramThemeApplier.applyToViewTree(root, palette)
+        customContent?.let {
+            com.eve.app.theme.TelegramThemeApplier.applyToViewTree(it, palette)
+        }
         setContentView(root, android.view.ViewGroup.LayoutParams(-1, -2))
     }
 
