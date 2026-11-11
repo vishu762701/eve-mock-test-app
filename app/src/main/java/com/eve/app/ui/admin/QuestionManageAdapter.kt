@@ -43,6 +43,8 @@ class QuestionManageAdapter(
             b.btnDelete.visibility = if (allowed) View.VISIBLE else View.GONE
             b.btnEdit.isEnabled = allowed
             b.btnDelete.isEnabled = allowed
+            b.btnEdit.rippleColor = ColorStateList.valueOf(palette.actionSelector)
+            b.btnDelete.rippleColor = ColorStateList.valueOf(palette.actionSelector)
             b.btnEdit.setOnClickListener { if (canManage()) onEdit(q) }
             b.btnDelete.setOnClickListener { if (canManage()) onDelete(q) }
         }

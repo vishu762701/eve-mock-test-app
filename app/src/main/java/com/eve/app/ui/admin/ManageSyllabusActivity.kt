@@ -171,8 +171,11 @@ class ManageSyllabusActivity : EveBaseActivity() {
                 finish()
                 return
             }
-            binding.progressBarCenter.visibility = View.VISIBLE
-            binding.scrollSyllabus.visibility = View.GONE
+            val hasData = allExams.isNotEmpty()
+            if (!hasData) {
+                binding.progressBarCenter.visibility = View.VISIBLE
+                binding.scrollSyllabus.visibility = View.GONE
+            }
             AdminAccessGate.requireAdmin(
                 this,
                 binding.root,

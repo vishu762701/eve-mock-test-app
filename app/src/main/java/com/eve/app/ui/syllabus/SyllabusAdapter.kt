@@ -38,6 +38,9 @@ class SyllabusAdapter(
         val binding = ItemSyllabusBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         )
+        binding.root.rippleColor = android.content.res.ColorStateList.valueOf(
+            com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(parent.context).actionSelector
+        )
         return SyllabusViewHolder(binding)
     }
 
@@ -56,6 +59,8 @@ class SyllabusAdapter(
             binding.tvExamName.text = exam.examName
             binding.tvExamName.setTextColor(palette.textPrimary)
             binding.root.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
+            binding.btnDownload.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
+            binding.btnOpen.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
 
             val hasSyllabus = exam.syllabusUrl.isNotBlank()
             val isDownloading = downloadingIds.contains(exam.id)
