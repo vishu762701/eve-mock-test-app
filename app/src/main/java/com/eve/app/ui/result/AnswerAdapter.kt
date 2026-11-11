@@ -57,6 +57,8 @@ class AnswerAdapter(
     inner class VH(private val b: ItemAnswerBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(item: AnswerItem) {
             val ctx = b.root.context
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(ctx)
+            b.root.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
             val questionKey = if (item.questionId.isNotBlank()) item.questionId else "q_${item.number}"
             val isExpanded = expandedQuestionKeys.contains(questionKey)
 
@@ -67,7 +69,9 @@ class AnswerAdapter(
             }
             b.ivStatusCircle.setImageResource(statusDrawable)
             b.tvQuestionNum.text = "Q${item.number}"
+            b.tvQuestionNum.setTextColor(palette.textPrimary)
             b.tvQ.text = item.displayQuestionText(hindi)
+            b.tvQ.setTextColor(palette.textPrimary)
 
             val (statusText, badgeColor) = when {
                 !item.isAttempted -> Pair("Unattempted", R.color.text_secondary)
@@ -184,8 +188,12 @@ class AnswerAdapter(
                 expandedQuestionKeys.add(questionKey)
                 bind(item)
             }
+            b.btnViewSolution.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
 
             b.ivBookmark.visibility = if (item.isBookmarked) View.VISIBLE else View.GONE
+            b.ivReportQuestion.background = com.eve.app.designsystem.TelegramThemeSelectors.getCircleSelectorDrawable(
+                palette.actionSelector
+            )
             b.ivReportQuestion.setOnClickListener { onReport?.invoke(item) }
             b.layoutReportAction.setOnClickListener { onReport?.invoke(item) }
 
@@ -305,8 +313,13 @@ class AnswerAdapter(
         return bulletLines.joinToString("<br/><br/>")
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        VH(ItemAnswerBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+        val b = ItemAnswerBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        b.root.rippleColor = android.content.res.ColorStateList.valueOf(
+            com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(parent.context).actionSelector
+        )
+        return VH(b)
+    }
 
     override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(items[position])
 

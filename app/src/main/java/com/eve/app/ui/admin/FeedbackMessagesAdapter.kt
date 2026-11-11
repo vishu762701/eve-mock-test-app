@@ -24,29 +24,37 @@ class FeedbackMessagesAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: FeedbackMessage) {
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(binding.root.context)
             binding.tvSenderName.text = item.userName.ifBlank { "Student" }
+            binding.tvSenderName.setTextColor(palette.textPrimary)
             binding.tvSenderEmail.text = item.userEmail.ifBlank { "No email provided" }
+            binding.tvSenderEmail.setTextColor(palette.textSecondary)
             val bodyText = if (!item.postTitle.isNullOrEmpty()) {
                 "📌 In response to: ${item.postTitle}\n\n${item.message}"
             } else {
                 item.message
             }
             binding.tvMessageBody.text = bodyText
+            binding.tvMessageBody.setTextColor(palette.textPrimary)
             binding.tvTimestamp.text = dateFormat.format(Date(item.timestamp))
+            binding.tvTimestamp.setTextColor(palette.textSecondary)
 
             if (!item.read) {
                 binding.tvUnreadBadge.visibility = View.VISIBLE
+                binding.tvUnreadBadge.setTextColor(palette.accent)
                 binding.cardMessage.strokeWidth = 0
-                binding.cardMessage.setStrokeColor(
-                    androidx.core.content.ContextCompat.getColor(binding.root.context, com.eve.app.R.color.hairline)
-                )
+                binding.cardMessage.setStrokeColor(palette.hairline)
             } else {
                 binding.tvUnreadBadge.visibility = View.GONE
                 binding.cardMessage.strokeWidth = 0
-                binding.cardMessage.setStrokeColor(
-                    androidx.core.content.ContextCompat.getColor(binding.root.context, com.eve.app.R.color.hairline)
-                )
+                binding.cardMessage.setStrokeColor(palette.hairline)
             }
+
+            binding.cardMessage.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
+            binding.btnReply.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
+            binding.btnDeleteMessage.background = com.eve.app.designsystem.TelegramThemeSelectors.getCircleSelectorDrawable(
+                palette.actionSelector
+            )
 
             binding.cardMessage.setOnClickListener { onItemClick(item) }
             binding.btnReply.setOnClickListener { onReplyClick(item) }

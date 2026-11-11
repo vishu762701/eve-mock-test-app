@@ -145,8 +145,11 @@ class GeneratedTestsActivity : EveBaseActivity() {
                 finish()
                 return
             }
-            binding.progressBar.visibility = View.VISIBLE
-            binding.swipeRefresh.visibility = View.GONE
+            val hasItems = adapter.itemCount > 0
+            if (!hasItems) {
+                binding.progressBar.visibility = View.VISIBLE
+                binding.swipeRefresh.visibility = View.GONE
+            }
             com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_generated_tests") {
                 if (!ownerCurrent()) {
                     finish()
@@ -156,7 +159,7 @@ class GeneratedTestsActivity : EveBaseActivity() {
                 authorizedEmail = live.email.orEmpty()
                 if (reloadAfterStop) {
                     reloadAfterStop = false
-                    loadTests()
+                    loadTests(showProgress = !hasItems)
                 }
             }
         }
@@ -191,10 +194,16 @@ class GeneratedTestsActivity : EveBaseActivity() {
 
     private var listLoadJob: kotlinx.coroutines.Job? = null
 
-    private fun loadTests() {
+    private fun loadTests(showProgress: Boolean = true) {
         if (!ownerCurrent()) return
-        if (!binding.swipeRefresh.isRefreshing) {
-            binding.progressBar.visibility = View.VISIBLE
+        val hasItems = adapter.itemCount > 0
+        if (showProgress || !hasItems) {
+            if (!binding.swipeRefresh.isRefreshing) {
+                binding.progressBar.visibility = View.VISIBLE
+            }
+            if (!hasItems) {
+                binding.swipeRefresh.visibility = View.GONE
+            }
         }
         listLoadJob?.cancel()
         listLoadJob = lifecycleScope.launch {

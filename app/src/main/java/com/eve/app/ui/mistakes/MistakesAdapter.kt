@@ -54,9 +54,12 @@ class MistakesAdapter(
         fun bind(item: MistakeItem) {
             val hindi = isHindi()
             val learned = isLearned(item.questionId)
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(itemView.context)
+            binding.root.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
 
             val qText = if (hindi && item.questionTextHi.isNotBlank()) item.questionTextHi else item.questionText
             binding.tvQuestionText.text = qText
+            binding.tvQuestionText.setTextColor(palette.textPrimary)
 
             val isSkipped = item.selected.isBlank()
             if (isSkipped) {
@@ -78,12 +81,12 @@ class MistakesAdapter(
             if (expText.isNotBlank()) {
                 binding.layoutExplanation.visibility = View.VISIBLE
                 binding.tvExplanation.text = expText
+                binding.tvExplanation.setTextColor(palette.textSecondary)
             } else {
                 binding.layoutExplanation.visibility = View.GONE
             }
 
             // Learned toggle with Telegram CheckBox2 and authentic round-rect selector
-            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(itemView.context)
             binding.btnMarkLearned.background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
                 8 * itemView.resources.displayMetrics.density,
                 palette.actionSelector
@@ -101,6 +104,9 @@ class MistakesAdapter(
             LayoutInflater.from(parent.context),
             parent,
             false
+        )
+        binding.root.rippleColor = android.content.res.ColorStateList.valueOf(
+            com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(parent.context).actionSelector
         )
         return MistakeViewHolder(binding)
     }

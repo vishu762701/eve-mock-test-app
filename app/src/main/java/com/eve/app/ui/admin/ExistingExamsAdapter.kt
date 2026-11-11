@@ -283,11 +283,24 @@ class ExistingExamsAdapter(
                     }
                 )
             } else ViewCompat.removeAccessibilityAction(binding.root, a11yAction.id)
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(binding.root.context)
+            binding.tvExamName.setTextColor(palette.textPrimary)
             binding.tvCategoryBadge.text = exam.categoryOrOther
+            binding.tvCategoryBadge.setTextColor(palette.accent)
             binding.tvTimeLimit.text = "⏱️ ${exam.timeLimitMinutes} mins"
+            binding.tvTimeLimit.setTextColor(palette.textSecondary)
             val qCount = if (item.questionCount > 0) item.questionCount else exam.questionCount
             binding.tvQuestionCount.text = "📝 $qCount Qs"
+            binding.tvQuestionCount.setTextColor(palette.textSecondary)
             binding.tvAttemptCount.text = "📊 ${item.attemptCount} student attempts"
+            binding.tvAttemptCount.setTextColor(palette.textSecondary)
+
+            binding.root.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
+            binding.btnMoreOptions.background = com.eve.app.designsystem.TelegramThemeSelectors.getCircleSelectorDrawable(
+                palette.actionSelector
+            )
+            binding.btnQuickPreview.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
+            binding.btnQuickEdit.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
 
             bindActionMorph()
             if (item.treeDepth > 0 && pendingEntranceIds.remove(exam.id) &&
@@ -365,6 +378,9 @@ class ExistingExamsAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ItemExistingExamAdminBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
+        )
+        binding.root.rippleColor = android.content.res.ColorStateList.valueOf(
+            com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(parent.context).actionSelector
         )
         return ViewHolder(binding)
     }

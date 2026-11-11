@@ -43,6 +43,9 @@ class PollsAdminAdapter(
             parent,
             false
         )
+        binding.root.rippleColor = android.content.res.ColorStateList.valueOf(
+            com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(parent.context).actionSelector
+        )
         return PollViewHolder(binding)
     }
 
@@ -74,12 +77,16 @@ class PollsAdminAdapter(
         fun bind(poll: Poll) {
             cancelDisclosureAnimation()
             val context = binding.root.context
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
             binding.tvPollQuestion.text = poll.question
+            binding.tvPollQuestion.setTextColor(palette.textPrimary)
             binding.tvTotalVotes.text = "${poll.totalVotes} total votes"
+            binding.tvTotalVotes.setTextColor(palette.textSecondary)
 
             if (poll.endsAt > 0) {
                 binding.tvExpiresAt.visibility = View.VISIBLE
                 binding.tvExpiresAt.text = "Ends: ${dateFormat.format(Date(poll.endsAt))}"
+                binding.tvExpiresAt.setTextColor(palette.textSecondary)
             } else {
                 binding.tvExpiresAt.visibility = View.GONE
             }
@@ -109,6 +116,10 @@ class PollsAdminAdapter(
             binding.btnToggleActive.setOnClickListener {
                 onToggleStatus(poll)
             }
+            binding.btnToggleActive.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
+            binding.btnDeletePoll.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
+            binding.root.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
+            binding.tvTapToView.setTextColor(palette.accent)
 
             // Set runtime text on every bind; preview-only XML attributes never render on device.
             binding.btnDeletePoll.text = "Delete"

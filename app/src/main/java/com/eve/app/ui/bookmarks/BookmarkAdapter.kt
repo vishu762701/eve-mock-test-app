@@ -124,6 +124,11 @@ class BookmarkAdapter(
             styleOption(binding.tvOptionD, "D")
 
             val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
+            binding.cardBookmark.rippleColor = ColorStateList.valueOf(palette.actionSelector)
+            binding.tvExamTag.setTextColor(palette.accent)
+            binding.tvQuestionNumber.setTextColor(palette.textSecondary)
+            binding.tvTopicTag.setTextColor(palette.textSecondary)
+            binding.tvQuestionText.setTextColor(palette.textPrimary)
             binding.btnToggleExplanation.rippleColor = ColorStateList.valueOf(palette.actionSelector)
             binding.layoutTapToOpen.background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
                 8 * context.resources.displayMetrics.density,
@@ -315,6 +320,9 @@ class BookmarkAdapter(
             LayoutInflater.from(parent.context),
             parent,
             false
+        )
+        binding.cardBookmark.rippleColor = ColorStateList.valueOf(
+            com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(parent.context).actionSelector
         )
         return BookmarkViewHolder(binding)
     }
