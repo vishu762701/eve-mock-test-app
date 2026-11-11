@@ -103,8 +103,10 @@ class SendNotificationActivity : EveBaseActivity() {
                 finish()
                 return
             }
-            binding.progressBarTop.visibility = View.VISIBLE
-            binding.scrollNotificationContent.visibility = View.GONE
+            if (!adminReady) {
+                binding.progressBarTop.visibility = View.VISIBLE
+                binding.scrollNotificationContent.visibility = View.GONE
+            }
             AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "send_broadcasts") {
                 authorizedUid = live.uid
                 authorizedEmail = live.email.orEmpty()

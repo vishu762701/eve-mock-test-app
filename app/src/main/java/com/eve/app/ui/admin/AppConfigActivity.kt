@@ -88,8 +88,11 @@ class AppConfigActivity : EveBaseActivity() {
                 finish()
                 return
             }
-            binding.progressBar.visibility = View.VISIBLE
-            binding.scrollConfigContent.visibility = View.GONE
+            val hasData = confirmedConfig != null
+            if (!hasData) {
+                binding.progressBar.visibility = View.VISIBLE
+                binding.scrollConfigContent.visibility = View.GONE
+            }
             com.eve.app.util.AdminAccessGate.requireAdmin(
                 this,
                 binding.root,

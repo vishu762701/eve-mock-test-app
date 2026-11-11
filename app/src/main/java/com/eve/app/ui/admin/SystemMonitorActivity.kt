@@ -97,8 +97,10 @@ class SystemMonitorActivity : EveBaseActivity() {
                 finish()
                 return
             }
-            binding.progressBar.visibility = View.VISIBLE
-            binding.scrollMonitor.visibility = View.GONE
+            if (!adminReady) {
+                binding.progressBar.visibility = View.VISIBLE
+                binding.scrollMonitor.visibility = View.GONE
+            }
             com.eve.app.util.AdminAccessGate.requireAdmin(
                 this,
                 binding.root,

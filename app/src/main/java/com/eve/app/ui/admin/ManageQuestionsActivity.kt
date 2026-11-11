@@ -539,8 +539,11 @@ class ManageQuestionsActivity : EveBaseActivity() {
                 return
             }
             adminScreenAuthorized = false
-            binding.progressBar.visibility = View.VISIBLE
-            binding.scrollContent.visibility = View.GONE
+            val hasData = viewModel.questionExamId.isNotEmpty() || questionAdapter.itemCount > 0
+            if (!hasData) {
+                binding.progressBar.visibility = View.VISIBLE
+                binding.scrollContent.visibility = View.GONE
+            }
             AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_questions") { permissions ->
                 binding.progressBar.visibility = View.GONE
                 binding.scrollContent.visibility = View.VISIBLE

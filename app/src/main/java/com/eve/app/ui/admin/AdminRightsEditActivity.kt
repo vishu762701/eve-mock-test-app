@@ -146,8 +146,10 @@ class AdminRightsEditActivity : EveBaseActivity() {
                 finish()
                 return
             }
-            binding.progressBar.visibility = View.VISIBLE
-            binding.scrollRightsEdit.visibility = View.GONE
+            if (!gateReady) {
+                binding.progressBar.visibility = View.VISIBLE
+                binding.scrollRightsEdit.visibility = View.GONE
+            }
             AdminAccessGate.requireAdmin(
                 this,
                 binding.root,
