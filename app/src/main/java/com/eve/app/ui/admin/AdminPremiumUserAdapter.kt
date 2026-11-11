@@ -78,14 +78,8 @@ class AdminPremiumUserAdapter(
             binding.tvUserStatusBadge.text = statusText
             binding.tvUserStatusBadge.setTextColor(ContextCompat.getColor(context, colorRes))
 
-            binding.btnExtendUser.background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
-                16f * density,
-                palette.actionSelector
-            )
-            binding.btnRevokeUser.background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
-                16f * density,
-                palette.actionSelector
-            )
+            binding.btnExtendUser.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
+            binding.btnRevokeUser.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
 
             binding.btnExtendUser.setOnClickListener {
                 onExtend(item)

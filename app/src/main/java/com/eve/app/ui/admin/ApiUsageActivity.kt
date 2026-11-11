@@ -72,8 +72,10 @@ class ApiUsageActivity : EveBaseActivity() {
                 finish()
                 return
             }
-            binding.progressBar.visibility = View.VISIBLE
-            binding.swipeRefresh.visibility = View.GONE
+            if (!hasLoadedData) {
+                binding.progressBar.visibility = View.VISIBLE
+                binding.swipeRefresh.visibility = View.GONE
+            }
             com.eve.app.util.AdminAccessGate.requireAdmin(
                 this,
                 binding.root,

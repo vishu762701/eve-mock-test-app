@@ -131,8 +131,10 @@ class ManageUsersActivity : EveBaseActivity() {
             detailsDialog = null
             statusDialog?.dismiss()
             statusDialog = null
-            binding.progressBar.visibility = View.VISIBLE
-            binding.rvUsers.visibility = View.GONE
+            if (!::adapter.isInitialized || adapter.itemCount == 0) {
+                binding.progressBar.visibility = View.VISIBLE
+                binding.rvUsers.visibility = View.GONE
+            }
             requestJob?.cancel()
             AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_users") {
                 val postGateUser = FirebaseAuth.getInstance().currentUser

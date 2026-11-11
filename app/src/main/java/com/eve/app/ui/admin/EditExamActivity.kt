@@ -248,8 +248,10 @@ class EditExamActivity : EveBaseActivity() {
                 finish()
                 return
             }
-            binding.progressBar.visibility = View.VISIBLE
-            binding.scrollEditContent.visibility = View.GONE
+            if (currentExam == null) {
+                binding.progressBar.visibility = View.VISIBLE
+                binding.scrollEditContent.visibility = View.GONE
+            }
             com.eve.app.util.AdminAccessGate.requireAdmin(
                 this,
                 binding.root,

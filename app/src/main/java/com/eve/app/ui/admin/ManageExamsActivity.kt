@@ -270,9 +270,11 @@ class ManageExamsActivity : EveBaseActivity() {
                 finish()
                 return
             }
-            binding.progressBarCenter.visibility = View.VISIBLE
-            binding.scrollManageExamContent.visibility = View.GONE
-            binding.layoutSaveContainer.visibility = View.GONE
+            if (examList.isEmpty()) {
+                binding.progressBarCenter.visibility = View.VISIBLE
+                binding.scrollManageExamContent.visibility = View.GONE
+                binding.layoutSaveContainer.visibility = View.GONE
+            }
             com.eve.app.util.AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_exams") {
                 authorizedUid = live.uid
                 authorizedEmail = live.email

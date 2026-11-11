@@ -51,10 +51,8 @@ class FlaggedQuestionsAdapter(
             }
 
             b.root.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
-            b.btnDismissFlag.background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
-                16f * density,
-                palette.actionSelector
-            )
+            b.btnEditQuestion.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
+            b.btnDismissFlag.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
 
             b.btnEditQuestion.visibility = if (canEdit()) View.VISIBLE else View.GONE
             b.btnEditQuestion.isEnabled = canEdit()

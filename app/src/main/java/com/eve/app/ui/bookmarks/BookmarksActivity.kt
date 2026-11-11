@@ -187,7 +187,10 @@ class BookmarksActivity : EveBaseActivity() {
         when (state) {
             is UiState.Loading -> {
                 hasEmptyPlayed = false
-                binding.progressGroup.visibility = View.VISIBLE
+                if (adapter.itemCount == 0) {
+                    binding.rvBookmarks.visibility = View.GONE
+                    binding.progressGroup.visibility = View.VISIBLE
+                }
                 binding.messageGroup.visibility = View.GONE
             }
             is UiState.Success -> {

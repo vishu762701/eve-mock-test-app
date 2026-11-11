@@ -157,9 +157,11 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
                 return
             }
             binding.root.visibility = View.VISIBLE
-            binding.progressBar.visibility = View.VISIBLE
-            binding.swipeRefresh.visibility = View.GONE
-            binding.rvFlaggedQuestions.visibility = View.GONE
+            if (loadedReports.isEmpty()) {
+                binding.progressBar.visibility = View.VISIBLE
+                binding.swipeRefresh.visibility = View.GONE
+                binding.rvFlaggedQuestions.visibility = View.GONE
+            }
             authorizeReports()
         }
         // The lifecycle reaches STARTED after Activity.onStart returns.

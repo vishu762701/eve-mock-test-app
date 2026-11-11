@@ -124,8 +124,10 @@ class ManagePremiumActivity : EveBaseActivity() {
                 finish()
                 return
             }
-            binding.progressAdmin.visibility = View.VISIBLE
-            binding.containerSettings.visibility = View.GONE
+            if (currentConfig == null) {
+                binding.progressAdmin.visibility = View.VISIBLE
+                binding.containerSettings.visibility = View.GONE
+            }
             com.eve.app.util.AdminAccessGate.requireAdmin(
                 this,
                 binding.root,
