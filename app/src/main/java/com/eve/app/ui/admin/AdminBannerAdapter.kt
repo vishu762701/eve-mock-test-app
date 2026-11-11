@@ -93,10 +93,7 @@ class AdminBannerAdapter(
             b.btnMoveDown.alpha = if (position < total - 1) 1.0f else 0.35f
             b.btnMoveDown.setOnClickListener { onMoveDown(banner) }
 
-            b.btnDeleteBanner.background = TelegramThemeSelectors.getRoundRectSelectorDrawable(
-                16f * density,
-                palette.actionSelector
-            )
+            b.btnDeleteBanner.rippleColor = ColorStateList.valueOf(palette.actionSelector)
             b.btnDeleteBanner.setOnClickListener { onDelete(banner) }
         }
     }

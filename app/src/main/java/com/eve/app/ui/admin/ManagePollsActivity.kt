@@ -90,8 +90,11 @@ class ManagePollsActivity : EveBaseActivity() {
                 finish()
                 return
             }
-            binding.progressBar.visibility = View.VISIBLE
-            binding.swipeRefresh.visibility = View.GONE
+            val hasItems = ::adapter.isInitialized && adapter.itemCount > 0
+            if (!hasItems) {
+                binding.progressBar.visibility = View.VISIBLE
+                binding.swipeRefresh.visibility = View.GONE
+            }
             AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "moderate_feedback") {
                 authorizedUid = live.uid
                 authorizedEmail = live.email

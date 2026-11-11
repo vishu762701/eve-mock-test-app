@@ -28,6 +28,7 @@ class AnalyticsQuestionAdapter(
             )
             b.tvStats.setTextColor(palette.textSecondary)
             b.root.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
+            b.btnEditQuestion.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
             val allowed = onEdit != null && canEdit()
             b.btnEditQuestion.visibility = if (allowed) View.VISIBLE else View.GONE
             b.btnEditQuestion.isEnabled = allowed

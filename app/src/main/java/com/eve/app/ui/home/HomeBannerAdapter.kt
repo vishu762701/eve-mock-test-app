@@ -39,9 +39,15 @@ class HomeBannerAdapter(
     inner class BannerVH(private val b: ItemHomeBannerBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(banner: HomeBanner) {
             ExamImageHelper.loadBannerImage(b.ivBanner, banner.imageUrl)
+            val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(b.root.context)
             if (onBannerClick != null) {
+                b.root.foreground = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
+                    12f * b.root.resources.displayMetrics.density,
+                    palette.actionSelector
+                )
                 b.root.setOnClickListener { onBannerClick.invoke(banner) }
             } else {
+                b.root.foreground = null
                 b.root.setOnClickListener(null)
             }
         }
