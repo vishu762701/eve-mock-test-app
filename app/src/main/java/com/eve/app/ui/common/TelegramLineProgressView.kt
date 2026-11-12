@@ -44,6 +44,16 @@ class TelegramLineProgressView @JvmOverloads constructor(
             invalidate()
         }
 
+    init {
+        try {
+            val palette = TelegramThemeEngine.resolveCurrentPalette(context)
+            progressColor = palette.accent
+            backColor = ContextCompat.getColor(context, R.color.track)
+        } catch (_: Exception) {
+            // Fallback for tests/previews without theme engine
+        }
+    }
+
     var trackCornerRadius: Float = 0f
         set(value) {
             field = value

@@ -248,11 +248,13 @@ class PollsAdminAdapter(
                     tvTitle.setTypeface(null, android.graphics.Typeface.BOLD)
                     tvPercent.setTextColor(palette.accent)
                     pbOption.progressColor = palette.accent
+                    pbOption.backColor = androidx.core.graphics.ColorUtils.setAlphaComponent(palette.accent, 40)
                 } else {
                     tvTitle.setTextColor(palette.textPrimary)
                     tvTitle.setTypeface(null, android.graphics.Typeface.NORMAL)
                     tvPercent.setTextColor(palette.textSecondary)
                     pbOption.progressColor = palette.textSecondary
+                    pbOption.backColor = androidx.core.graphics.ColorUtils.setAlphaComponent(palette.textSecondary, 30)
                 }
 
                 binding.optionsContainer.addView(rowView)

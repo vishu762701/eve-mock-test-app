@@ -1719,16 +1719,19 @@ class MainActivity : EveBaseActivity() {
                 rowBinding.tvOptionTitle.setTypeface(null, android.graphics.Typeface.BOLD)
                 rowBinding.tvOptionPercent.setTextColor(palette.accent)
                 rowBinding.pbOption.progressColor = palette.accent
+                rowBinding.pbOption.backColor = androidx.core.graphics.ColorUtils.setAlphaComponent(palette.accent, 40)
             } else if (isLeading) {
                 rowBinding.tvOptionTitle.setTextColor(palette.accent)
                 rowBinding.tvOptionTitle.setTypeface(null, android.graphics.Typeface.BOLD)
                 rowBinding.tvOptionPercent.setTextColor(palette.accent)
                 rowBinding.pbOption.progressColor = palette.accent
+                rowBinding.pbOption.backColor = androidx.core.graphics.ColorUtils.setAlphaComponent(palette.accent, 40)
             } else {
                 rowBinding.tvOptionTitle.setTextColor(palette.textPrimary)
                 rowBinding.tvOptionTitle.setTypeface(null, android.graphics.Typeface.NORMAL)
                 rowBinding.tvOptionPercent.setTextColor(palette.textSecondary)
                 rowBinding.pbOption.progressColor = palette.textSecondary
+                rowBinding.pbOption.backColor = androidx.core.graphics.ColorUtils.setAlphaComponent(palette.textSecondary, 30)
             }
             rowBinding.tvOptionTitle.text = optionText
 
