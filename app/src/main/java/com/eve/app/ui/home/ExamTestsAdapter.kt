@@ -43,9 +43,27 @@ class ExamTestsAdapter(
     private val items = mutableListOf<ExamTestsListItem>()
 
     fun submitList(newItems: List<ExamTestsListItem>) {
+        val diffCallback = object : androidx.recyclerview.widget.DiffUtil.Callback() {
+            override fun getOldListSize(): Int = items.size
+            override fun getNewListSize(): Int = newItems.size
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                val old = items[oldItemPosition]
+                val new = newItems[newItemPosition]
+                return when {
+                    old is ExamTestsListItem.HeaderItem && new is ExamTestsListItem.HeaderItem -> old.title == new.title
+                    old is ExamTestsListItem.SubExamItem && new is ExamTestsListItem.SubExamItem -> old.exam.id == new.exam.id
+                    old is ExamTestsListItem.TestItem && new is ExamTestsListItem.TestItem -> old.test.id == new.test.id
+                    else -> false
+                }
+            }
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return items[oldItemPosition] == newItems[newItemPosition]
+            }
+        }
+        val diffResult = androidx.recyclerview.widget.DiffUtil.calculateDiff(diffCallback)
         items.clear()
         items.addAll(newItems)
-        notifyDataSetChanged()
+        diffResult.dispatchUpdatesTo(this)
     }
 
     override fun getItemViewType(position: Int): Int {

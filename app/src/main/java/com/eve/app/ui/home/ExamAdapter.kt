@@ -43,8 +43,26 @@ class ExamAdapter(
     }
 
     fun submit(list: List<HomeListItem>) {
+        val diffCallback = object : androidx.recyclerview.widget.DiffUtil.Callback() {
+            override fun getOldListSize(): Int = items.size
+            override fun getNewListSize(): Int = list.size
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                val old = items[oldItemPosition]
+                val new = list[newItemPosition]
+                return when {
+                    old is HomeListItem.Header && new is HomeListItem.Header -> old.title == new.title
+                    old is HomeListItem.ExamRow && new is HomeListItem.ExamRow -> old.exam.id == new.exam.id
+                    old is HomeListItem.FeedbackPostRow && new is HomeListItem.FeedbackPostRow -> old.post.id == new.post.id
+                    else -> false
+                }
+            }
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return items[oldItemPosition] == list[newItemPosition]
+            }
+        }
+        val diffResult = androidx.recyclerview.widget.DiffUtil.calculateDiff(diffCallback)
         items = list
-        notifyDataSetChanged()
+        diffResult.dispatchUpdatesTo(this)
     }
 
     inner class HeaderVH(private val b: ItemCategoryHeaderBinding) : RecyclerView.ViewHolder(b.root) {

@@ -185,6 +185,13 @@ changes. **No commit or push was made.**
 - `docs/TELEGRAM_EVE_FIDELITY_AUDIT.md`
 - `docs/TELEGRAM_EVE_IMPLEMENTATION_LOG.md` (this file)
 
+### 9. List Flicker Elimination & Telegram ButtonBounce Physics Integration
+
+- Upgraded `ExamAdapter.kt` and `ExamTestsAdapter.kt` to calculate granular `DiffUtil` diffs instead of firing `notifyDataSetChanged()`. This eliminates full-list card flashing, preserves scroll position during periodic background reloads, and prevents redundant View re-binding.
+- Upgraded `AdminBannerAdapter.kt` and `PollsAdminAdapter.kt` with `DiffUtil` dispatch, preventing UI jumping and flashing when banners are reordered or poll disclosures change.
+- Upgraded `ButtonBounce.kt` (`org.telegram.ui.Components.ButtonBounce.java:60-94,119-126`) so `bounce()` animates `view.scaleX` and `view.scaleY` directly during spring recovery.
+- Replaced legacy `UiArcMotion` in `TargetExamsBottomSheet.kt` with authentic Telegram `ButtonBounce` physics on target exam chip selection.
+
 ## Source identity verification
 
 1. Fetched the pinned commit into a throwaway partial checkout:

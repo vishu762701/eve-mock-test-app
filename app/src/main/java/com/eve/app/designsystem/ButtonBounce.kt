@@ -81,6 +81,8 @@ class ButtonBounce constructor(
         bounceAnimator = ValueAnimator.ofFloat(0.9f, 1f).apply {
             addUpdateListener { anm ->
                 bounceScale = anm.animatedValue as Float
+                view?.scaleX = bounceScale
+                view?.scaleY = bounceScale
                 invalidate()
             }
             addListener(object : AnimatorListenerAdapter() {
@@ -88,6 +90,8 @@ class ButtonBounce constructor(
                     if (animation === bounceAnimator) {
                         bounceAnimator = null
                         bounceScale = 1f
+                        view?.scaleX = 1f
+                        view?.scaleY = 1f
                         invalidate()
                     }
                 }

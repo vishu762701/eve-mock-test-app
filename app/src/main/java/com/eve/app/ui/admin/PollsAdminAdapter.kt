@@ -31,10 +31,21 @@ class PollsAdminAdapter(
     fun getItems(): List<Poll> = polls.toList()
 
     fun submitList(list: List<Poll>) {
+        val diffCallback = object : androidx.recyclerview.widget.DiffUtil.Callback() {
+            override fun getOldListSize(): Int = polls.size
+            override fun getNewListSize(): Int = list.size
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return polls[oldItemPosition].id == list[newItemPosition].id
+            }
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return polls[oldItemPosition] == list[newItemPosition]
+            }
+        }
+        val diffResult = androidx.recyclerview.widget.DiffUtil.calculateDiff(diffCallback)
         polls.clear()
         polls.addAll(list)
         disclosureState.retain(list.map { it.id })
-        notifyDataSetChanged()
+        diffResult.dispatchUpdatesTo(this)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PollViewHolder {

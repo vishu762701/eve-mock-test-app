@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
 import com.eve.app.data.model.Exam
 import com.eve.app.databinding.BottomSheetTargetExamsBinding
-import com.eve.app.designsystem.UiArcMotion
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.chip.Chip
@@ -49,18 +48,10 @@ object TargetExamsBottomSheet {
 
             applyChipVisualState(this, checked)
 
-            setOnCheckedChangeListener { chipView, isNowChecked ->
+            val bounce = com.eve.app.designsystem.ButtonBounce(this)
+            setOnCheckedChangeListener { _, isNowChecked ->
                 applyChipVisualState(this, isNowChecked)
-                if (UiArcMotion.isMotionEnabled(context)) {
-                    chipView.scaleX = 0.90f
-                    chipView.scaleY = 0.90f
-                    chipView.animate()
-                        .scaleX(1.0f)
-                        .scaleY(1.0f)
-                        .setDuration(UiArcMotion.Spring.SNAPPY.settlingDurationMs)
-                        .setInterpolator(UiArcMotion.Spring.SNAPPY)
-                        .start()
-                }
+                bounce.bounce()
             }
         }
 
