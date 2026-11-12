@@ -104,7 +104,20 @@ class LoginActivity : EveBaseActivity() {
         val loginArcSize = (20f * resources.displayMetrics.density).toInt()
         binding.progressGoogle.setSize(loginArcSize)
         binding.progressSubmit.setSize(loginArcSize)
+        binding.progressSubmit.setProgressColor(android.graphics.Color.WHITE)
         SystemBarHelper.syncSystemBars(this)
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            val ime = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.ime())
+            binding.topBar.setPadding(0, systemBars.top, 0, 0)
+            binding.scrollView.setPadding(
+                binding.scrollView.paddingLeft,
+                binding.scrollView.paddingTop,
+                binding.scrollView.paddingRight,
+                maxOf(systemBars.bottom, ime.bottom)
+            )
+            insets
+        }
         isCheckingAuth = false
 
         if (BuildConfig.DEBUG && DebugCrashReporter.hasCrash(this)) {
@@ -118,6 +131,22 @@ class LoginActivity : EveBaseActivity() {
         binding.btnSubmit.setOnClickListener { handleEmailPasswordAuth() }
         binding.btnGoogle.setOnClickListener { launchGoogleSignIn() }
         binding.btnToggleMode.setOnClickListener { toggleMode() }
+        binding.etName.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_NEXT) {
+                binding.etEmail.requestFocus()
+                true
+            } else {
+                false
+            }
+        }
+        binding.etEmail.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_NEXT) {
+                binding.etPassword.requestFocus()
+                true
+            } else {
+                false
+            }
+        }
         binding.etPassword.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE) {
                 handleEmailPasswordAuth()
@@ -187,6 +216,11 @@ class LoginActivity : EveBaseActivity() {
         if (animate) binding.root.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
         if (!isSignUpMode && binding.etName.hasFocus()) binding.etEmail.requestFocus()
         binding.tilName.visibility = if (isSignUpMode) View.VISIBLE else View.GONE
+        if (isSignUpMode) {
+            binding.etName.requestFocus()
+        } else {
+            binding.etEmail.requestFocus()
+        }
         updateModeText(binding.tvTagline,
             if (isSignUpMode) "Create your account" else "Welcome back", animate)
         updateModeText(binding.tvSubtitle,
@@ -355,6 +389,8 @@ class LoginActivity : EveBaseActivity() {
     private fun showError(message: String) {
         binding.tvError.text = message
         binding.tvError.visibility = View.VISIBLE
+        com.eve.app.util.TelegramShake.shakeViewSpring(binding.tvError, 10f)
+        com.eve.app.util.VibrationHelper.vibrateAppError(this)
     }
 
     private fun goHome() {
