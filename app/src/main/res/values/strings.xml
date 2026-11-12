@@ -110,4 +110,19 @@
     <string name="api_usage_unavailable">Usage unavailable</string>
     <string name="api_usage_unknown_count">—</string>
     <string name="api_usage_load_failed">Could not load usage: %1$s</string>
+    <string name="profile_choose_photo">Choose photo</string>
+    <string name="profile_take_photo">Take photo</string>
+    <string name="profile_upload_from_gallery">Upload from gallery</string>
+    <string name="profile_remove_photo">Remove photo</string>
+    <string name="profile_camera_permission_denied">Camera permission is required to take a profile photo.</string>
+    <string name="profile_camera_unavailable">No camera app is available on this device.</string>
+    <string name="profile_photo_removed">Profile photo removed</string>
+    <string name="profile_photo_remove_failed">Failed to remove profile photo</string>
+    <string name="profile_photo_updated">Profile photo updated</string>
+    <string name="profile_photo_save_failed">Failed to save profile photo</string>
+    <string name="profile_crop_title">Crop image</string>
+    <string name="profile_crop_done">Done</string>
+    <string name="profile_crop_hint">Drag the square to choose the visible area</string>
+    <string name="profile_crop_load_failed">Failed to load photo</string>
+    <string name="profile_crop_save_failed">Failed to crop photo</string>
 </resources>

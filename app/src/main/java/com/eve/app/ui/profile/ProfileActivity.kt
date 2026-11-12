@@ -6,6 +6,7 @@
 package com.eve.app.ui.profile
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -20,8 +21,13 @@ import android.widget.LinearLayout
 import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
+import android.Manifest
+import android.content.pm.PackageManager
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import androidx.core.content.IntentCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
@@ -57,12 +63,18 @@ import com.eve.app.util.ReminderScheduler
 import com.eve.app.util.SessionManager
 import com.eve.app.util.hasFreshWorkerAdminHint
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.launch
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import kotlin.math.roundToInt
+
+private const val STATE_CAMERA_URI = "profile_photo_camera_uri"
+private const val STATE_CAMERA_FILE = "profile_photo_camera_file"
+private const val STATE_PENDING_PHOTO_URI = "profile_photo_pending_uri"
+private const val STATE_PENDING_PHOTO_CROPPED = "profile_photo_pending_cropped"
+private const val STATE_CROP_FILE = "profile_photo_crop_file"
 
 class ProfileActivity : EveBaseActivity() {
 
@@ -70,7 +82,12 @@ class ProfileActivity : EveBaseActivity() {
     private val adminRepo = AdminRepository()
     private var progressDialog: TelegramNativeAlertDialog? = null
     private var pendingPhotoUri: Uri? = null
+    private var pendingPhotoCropped = false
+    private var croppedPhotoFile: File? = null
     private var photoSaveJob: Job? = null
+    private var cameraPhotoUri: Uri? = null
+    private var cameraPhotoFile: File? = null
+    private var profilePhotoMenu: com.google.android.material.bottomsheet.BottomSheetDialog? = null
 
     private var profileOwnerUid: String? = null
     private var profileConfirmed = false
@@ -89,8 +106,44 @@ class ProfileActivity : EveBaseActivity() {
 
     private val pickPhotoLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-            if (uri != null) {
-                previewSelectedPhoto(uri)
+            if (uri != null) launchAvatarCrop(uri)
+        }
+
+    // ImageUpdater.java:650-718: the camera action writes a temporary image and
+    // reuses the same preview/crop pipeline as the gallery path.
+    private val takePhotoLauncher =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { saved ->
+            if (saved && cameraPhotoUri != null) {
+                launchAvatarCrop(cameraPhotoUri!!)
+            } else {
+                clearCameraTemp()
+            }
+        }
+
+    // PhotoCropActivity.java:757-775: the selected/captured image opens the
+    // source square crop before ImageUpdater's 800px avatar export.
+    private val cropPhotoLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            clearCameraTemp()
+            if (result.resultCode != Activity.RESULT_OK) return@registerForActivityResult
+            val data = result.data ?: return@registerForActivityResult
+            val uri = IntentCompat.getParcelableExtra(
+                data,
+                AvatarCropActivity.EXTRA_OUTPUT_URI,
+                Uri::class.java
+            ) ?: data.data ?: return@registerForActivityResult
+            val path = data.getStringExtra(AvatarCropActivity.EXTRA_OUTPUT_PATH)
+            discardCroppedPhoto()
+            croppedPhotoFile = path?.let(::File)
+            previewSelectedPhoto(uri, cropped = true)
+        }
+
+    private val cameraPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) {
+                launchCameraCapture()
+            } else {
+                AppBulletin.showError(this, getString(R.string.profile_camera_permission_denied))
             }
         }
 
@@ -127,6 +180,7 @@ class ProfileActivity : EveBaseActivity() {
         setContentView(binding.root)
         binding.glassToolbar.bringToFront()
         setupAvatarWindowHost()
+        restoreCameraCaptureState(savedInstanceState)
 
         val user = FirebaseAuth.getInstance().currentUser
         if (user == null) {
@@ -175,6 +229,7 @@ class ProfileActivity : EveBaseActivity() {
         setupAdminAndPremium(user.email)
 
         loadProfilePhoto()
+        restorePendingPhotoState(savedInstanceState)
         ProfileSession.store.peek(user.uid)?.let { renderConfirmedProfile(it) }
         loadProfile()
         lifecycleScope.launch {
@@ -332,12 +387,12 @@ class ProfileActivity : EveBaseActivity() {
         binding.btnSetPhoto.setOnClickListener {
             if (!isProfileOwner()) return@setOnClickListener
             binding.profileScrollView.setExpanded(false, animated = false)
-            pickPhotoLauncher.launch("image/*")
+            showProfilePhotoMenu()
         }
         binding.avatarTouchTarget.setOnClickListener {
             if (hasProfilePhoto() && binding.profileScrollView.canExpand()) {
                 binding.profileScrollView.setExpanded(!binding.profileScrollView.isExpanded)
-            } else pickPhotoLauncher.launch("image/*")
+            } else showProfilePhotoMenu()
         }
         binding.btnCancelPhoto.setOnClickListener {
             cancelPhotoPreview()
@@ -371,6 +426,7 @@ class ProfileActivity : EveBaseActivity() {
         super.onApplyThemePalette(palette)
         if (::binding.isInitialized) {
             profileOptionsPopup?.dismiss(immediate = true)
+            profilePhotoMenu?.dismiss()
             // Stable Telegram icon variants: outline on light button surfaces,
             // filled on dark; photo-viewer expansion crossfade remains unported.
             val surface = androidx.core.content.ContextCompat.getColor(
@@ -813,6 +869,7 @@ class ProfileActivity : EveBaseActivity() {
 
     override fun onPause() {
         profileOptionsPopup?.dismiss(immediate = true)
+        profilePhotoMenu?.dismiss()
         if (::binding.isInitialized) profileOwnerUid?.let { uid ->
             ProfileSession.store.rememberPosition(uid, ConfirmedProfileStore.Position(
                 binding.profileScrollView.scrollY, binding.profileScrollView.isExpanded))
@@ -834,8 +891,9 @@ class ProfileActivity : EveBaseActivity() {
         )
     }
 
-    private fun previewSelectedPhoto(uri: Uri) {
+    private fun previewSelectedPhoto(uri: Uri, cropped: Boolean = false) {
         pendingPhotoUri = uri
+        pendingPhotoCropped = cropped
         binding.ivProfilePhoto.background = null
         binding.ivProfilePhoto.setPadding(0, 0, 0, 0)
         binding.ivProfilePhoto.scaleType = ImageView.ScaleType.CENTER_CROP
@@ -847,11 +905,29 @@ class ProfileActivity : EveBaseActivity() {
         binding.layoutPhotoActions.visibility = View.VISIBLE
     }
 
+    private fun launchAvatarCrop(uri: Uri) {
+        if (!isProfileOwner()) return
+        if (pendingPhotoUri != null) return
+        binding.profileScrollView.setExpanded(false, animated = false)
+        try {
+            cropPhotoLauncher.launch(AvatarCropActivity.intent(this, uri))
+        } catch (_: ActivityNotFoundException) {
+            clearCameraTemp()
+            AppBulletin.showError(this, getString(R.string.profile_crop_load_failed))
+        } catch (_: Exception) {
+            clearCameraTemp()
+            AppBulletin.showError(this, getString(R.string.profile_crop_load_failed))
+        }
+    }
+
     private fun cancelPhotoPreview() {
         photoSaveJob?.cancel()
         photoSaveJob = null
         binding.layoutActions.stopLoading(binding.btnSetPhoto)
         pendingPhotoUri = null
+        pendingPhotoCropped = false
+        discardCroppedPhoto()
+        clearCameraTemp()
         binding.layoutPhotoActions.visibility = View.GONE
         loadProfilePhoto()
     }
@@ -860,11 +936,20 @@ class ProfileActivity : EveBaseActivity() {
         if (!isProfileOwner()) return
         val uri = pendingPhotoUri ?: return
         val ownerUid = profileOwnerUid ?: return
+        val cropped = pendingPhotoCropped
         photoSaveJob?.cancel()
         binding.layoutActions.startLoading(binding.btnSetPhoto)
         photoSaveJob = lifecycleScope.launch(Dispatchers.IO) {
             val ok = try {
-                ProfilePhotoManager.savePhoto(this@ProfileActivity, uri, ownerUid)
+                if (cropped) {
+                    ProfilePhotoManager.saveCroppedPhoto(
+                        this@ProfileActivity,
+                        uri,
+                        ownerUid
+                    )
+                } else {
+                    ProfilePhotoManager.savePhoto(this@ProfileActivity, uri, ownerUid)
+                }
             } catch (e: Exception) {
                 false
             }
@@ -872,15 +957,165 @@ class ProfileActivity : EveBaseActivity() {
                 binding.layoutActions.stopLoading(binding.btnSetPhoto)
                 if (!isProfileOwner() || profileOwnerUid != ownerUid) return@withContext
                 if (ok) {
-                    AppBulletin.showSuccess(this@ProfileActivity, "Profile photo updated")
+                    AppBulletin.showSuccess(
+                        this@ProfileActivity,
+                        getString(R.string.profile_photo_updated)
+                    )
                 } else {
-                    AppBulletin.showError(this@ProfileActivity, "Failed to save photo")
+                    AppBulletin.showError(
+                        this@ProfileActivity,
+                        getString(R.string.profile_photo_save_failed)
+                    )
                 }
                 pendingPhotoUri = null
+                pendingPhotoCropped = false
+                discardCroppedPhoto()
+                clearCameraTemp()
                 binding.layoutPhotoActions.visibility = View.GONE
                 loadProfilePhoto()
             }
         }
+    }
+
+    private fun discardCroppedPhoto() {
+        croppedPhotoFile?.delete()
+        croppedPhotoFile = null
+    }
+
+    private fun restorePendingPhotoState(state: Bundle?) {
+        if (state == null) return
+        val path = state.getString(STATE_CROP_FILE)
+        val uri = state.getString(STATE_PENDING_PHOTO_URI)?.let(Uri::parse)
+        val file = path?.let(::File)
+        if (file != null && file.exists() && uri != null) {
+            croppedPhotoFile = file
+            previewSelectedPhoto(uri, state.getBoolean(STATE_PENDING_PHOTO_CROPPED))
+        } else {
+            file?.delete()
+        }
+    }
+
+    /**
+     * ImageUpdater.java:253-332 source menu. The subtitle/dialog rotation is
+     * owned by the existing profile activity; only one sheet may be attached
+     * to a window, so an already-visible sheet is replaced.
+     */
+    private fun showProfilePhotoMenu() {
+        if (!isProfileOwner() || isFinishing || isDestroyed) return
+        if (pendingPhotoUri != null) return
+        profilePhotoMenu?.dismiss()
+        val dialog = ProfilePhotoMenu.show(
+            this,
+            hasAvatar = ProfilePhotoManager.hasCustomPhoto(this, profileOwnerUid)
+        ) { item ->
+            if (isProfileOwner()) {
+                when (item.action) {
+                    ProfilePhotoMenuModel.Action.CAMERA -> requestCameraCapture()
+                    ProfilePhotoMenuModel.Action.GALLERY -> {
+                        binding.profileScrollView.setExpanded(false, animated = false)
+                        pickPhotoLauncher.launch("image/*")
+                    }
+                    ProfilePhotoMenuModel.Action.REMOVE -> removeProfilePhoto()
+                }
+            }
+        }
+        profilePhotoMenu = dialog
+        dialog.setOnDismissListener {
+            if (profilePhotoMenu === dialog) profilePhotoMenu = null
+        }
+    }
+
+    private fun requestCameraCapture() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            launchCameraCapture()
+        } else {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
+
+    private fun launchCameraCapture() {
+        if (!isProfileOwner()) return
+        clearCameraTemp()
+        val file = try {
+            File.createTempFile("profile_photo_", ".jpg", cacheDir)
+        } catch (_: Exception) {
+            null
+        }
+        if (file == null) {
+            AppBulletin.showError(this, getString(R.string.profile_camera_unavailable))
+            return
+        }
+        val uri = try {
+            FileProvider.getUriForFile(this, "$packageName.fileprovider", file)
+        } catch (_: Exception) {
+            null
+        }
+        if (uri == null) {
+            file.delete()
+            AppBulletin.showError(this, getString(R.string.profile_camera_unavailable))
+            return
+        }
+        cameraPhotoFile = file
+        cameraPhotoUri = uri
+        try {
+            takePhotoLauncher.launch(uri)
+        } catch (_: ActivityNotFoundException) {
+            clearCameraTemp()
+            AppBulletin.showError(this, getString(R.string.profile_camera_unavailable))
+        } catch (_: Exception) {
+            clearCameraTemp()
+            AppBulletin.showError(this, getString(R.string.profile_camera_unavailable))
+        }
+    }
+
+    private fun removeProfilePhoto() {
+        val uid = profileOwnerUid ?: return
+        if (!isProfileOwner()) return
+        if (!ProfilePhotoManager.hasCustomPhoto(this, uid)) {
+            loadProfilePhoto()
+            return
+        }
+        // Telegram removes the avatar directly from the source action menu
+        // (ProfileActivity.java:6993-7000 -> ImageUpdater onDeleteAvatar).
+        ProfilePhotoManager.removePhoto(this, uid)
+        if (ProfilePhotoManager.hasCustomPhoto(this, uid)) {
+            AppBulletin.showError(this, getString(R.string.profile_photo_remove_failed))
+        } else {
+            loadProfilePhoto()
+            AppBulletin.showSuccess(this, getString(R.string.profile_photo_removed))
+        }
+    }
+
+    private fun clearCameraTemp() {
+        cameraPhotoUri = null
+        cameraPhotoFile?.delete()
+        cameraPhotoFile = null
+    }
+
+    private fun restoreCameraCaptureState(state: Bundle?) {
+        if (state == null) return
+        val filePath = state.getString(STATE_CAMERA_FILE)
+        val uri = state.getString(STATE_CAMERA_URI)?.let(Uri::parse)
+        val file = filePath?.let(::File)
+        if (file != null && file.exists() && uri != null) {
+            cameraPhotoFile = file
+            cameraPhotoUri = uri
+        } else {
+            file?.delete()
+            cameraPhotoUri = null
+            cameraPhotoFile = null
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(STATE_CAMERA_URI, cameraPhotoUri?.toString())
+        outState.putString(STATE_CAMERA_FILE, cameraPhotoFile?.absolutePath)
+        outState.putString(STATE_PENDING_PHOTO_URI, pendingPhotoUri?.toString())
+        outState.putBoolean(STATE_PENDING_PHOTO_CROPPED, pendingPhotoCropped)
+        outState.putString(STATE_CROP_FILE, croppedPhotoFile?.absolutePath)
     }
 
     private fun showProgress(msg: String) {
@@ -915,6 +1150,8 @@ class ProfileActivity : EveBaseActivity() {
         birthdayDialog = null
         profileOptionsPopup?.dismiss(immediate = true)
         profileOptionsPopup = null
+        profilePhotoMenu?.dismiss()
+        profilePhotoMenu = null
         progressDialog?.dismiss()
         progressDialog = null
         super.onStop()
@@ -923,6 +1160,13 @@ class ProfileActivity : EveBaseActivity() {
     override fun onDestroy() {
         photoSaveJob?.cancel()
         photoSaveJob = null
+        // A camera app can trigger a configuration change while its result is
+        // pending. Keep that temp file alive for the recreated instance, which
+        // restores STATE_CAMERA_FILE/STATE_CAMERA_URI; delete it otherwise.
+        if (!isChangingConfigurations) {
+            clearCameraTemp()
+            discardCroppedPhoto()
+        }
         binding.layoutActions.stopLoading(binding.btnSetPhoto)
         binding.layoutActions.setDrawingBlur(false)
         birthdayDialog?.dismiss()
@@ -931,6 +1175,8 @@ class ProfileActivity : EveBaseActivity() {
         profileAuthListener = null
         profileOptionsPopup?.dismiss(immediate = true)
         profileOptionsPopup = null
+        profilePhotoMenu?.dismiss()
+        profilePhotoMenu = null
         progressDialog?.dismiss()
         progressDialog = null
         super.onDestroy()

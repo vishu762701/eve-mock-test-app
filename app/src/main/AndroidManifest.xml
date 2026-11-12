@@ -72,6 +72,10 @@
             android:exported="false"
             android:theme="@style/Theme.Eve.Profile" />
         <activity
+            android:name=".ui.profile.AvatarCropActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Eve.Profile" />
+        <activity
             android:name=".ui.profile.ChangeNameActivity"
             android:exported="false"
             android:theme="@style/Theme.Eve.Profile" />

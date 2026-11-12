@@ -13,6 +13,9 @@ import com.google.firebase.auth.FirebaseAuth
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
+import androidx.core.view.doOnLayout
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.ProfileRequestOwner
@@ -20,6 +23,8 @@ import com.eve.app.databinding.ActivityChangeUsernameBinding
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.EveNavigationHelper
+import com.eve.app.util.TelegramShake
+import com.eve.app.util.VibrationHelper
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -31,6 +36,7 @@ class ChangeUsernameActivity : EveBaseActivity() {
     private var currentUsername: String = ""
     private var checkJob: Job? = null
     private var isUsernameValid: Boolean = false
+    private var saveInFlight = false
 
     private enum class StatusRole { AVAILABLE, INVALID, CHECKING }
     private var statusRole: StatusRole? = null
@@ -56,6 +62,30 @@ class ChangeUsernameActivity : EveBaseActivity() {
 
         binding.btnDone.setOnClickListener {
             saveUsername()
+        }
+
+        binding.etUsername.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                saveUsername()
+                true
+            } else {
+                false
+            }
+        }
+        // ChangeUsernameActivity.java:790,795-800: the field declares IME Done
+        // and forwards it to the toolbar Done action.
+        binding.etUsername.imeOptions = EditorInfo.IME_ACTION_DONE
+
+        // ChangeUsernameActivity.java:441-450,1442-1448 focuses the editable
+        // handle when the editor opens.
+        if (savedInstanceState == null) {
+            binding.etUsername.doOnLayout {
+                if (isFinishing || isDestroyed) return@doOnLayout
+                binding.etUsername.requestFocus()
+                binding.etUsername.setSelection(binding.etUsername.text.length)
+                (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager)
+                    .showSoftInput(binding.etUsername, InputMethodManager.SHOW_IMPLICIT)
+            }
         }
 
         binding.etUsername.addTextChangedListener(object : TextWatcher {
@@ -182,13 +212,30 @@ class ChangeUsernameActivity : EveBaseActivity() {
     private fun saveUsername() {
         val ownerUid = editorOwnerUid ?: return
         if (FirebaseAuth.getInstance().currentUser?.uid != ownerUid) { finish(); return }
+        if (saveInFlight) return
         val target = binding.etUsername.text.toString().trim().removePrefix("@")
-        if (!isUsernameValid && !target.equals(currentUsername, ignoreCase = true)) {
+        // ChangeUsernameActivity.java:1374-1382: an unchanged handle closes the
+        // editor directly; no network write is issued.
+        if (target.equals(currentUsername, ignoreCase = true)) {
+            finish()
+            return
+        }
+        if (target.isEmpty()) {
+            // EVE's Worker username contract rejects an empty handle
+            // (validateUsername, auth.ts:16-21); source clearing is BLOCKED by
+            // that existing contract, so explain instead of silently returning.
+            setStatus(getString(R.string.username_too_short), StatusRole.INVALID)
+            rejectUsername()
+            return
+        }
+        if (!isUsernameValid) {
+            rejectUsername()
             return
         }
 
         checkJob?.cancel()
         val normalizedTarget = target.lowercase(java.util.Locale.ROOT)
+        saveInFlight = true
         binding.btnDone.isEnabled = false
         binding.etUsername.isEnabled = false
         lifecycleScope.launch {
@@ -207,11 +254,13 @@ class ChangeUsernameActivity : EveBaseActivity() {
                         binding.etUsername.isEnabled = true
                         AppBulletin.showError(this@ChangeUsernameActivity,
                             getString(R.string.username_save_unverified))
+                        rejectUsername()
                     }
                 } else {
                     binding.btnDone.isEnabled = true
                     binding.etUsername.isEnabled = true
                     AppBulletin.showError(this@ChangeUsernameActivity, res.error ?: getString(R.string.username_save_failed))
+                    rejectUsername()
                 }
             } catch (cancel: kotlinx.coroutines.CancellationException) {
                 throw cancel
@@ -219,7 +268,22 @@ class ChangeUsernameActivity : EveBaseActivity() {
                 binding.btnDone.isEnabled = true
                 binding.etUsername.isEnabled = true
                 AppBulletin.showError(this@ChangeUsernameActivity, e.localizedMessage ?: getString(R.string.username_save_failed))
+                rejectUsername()
+            } finally {
+                saveInFlight = false
             }
         }
+    }
+
+    /**
+     * ChangeUsernameActivity.java:1400-1412 shakeIfOff(): spring-shake the
+     * editable handle/status and emit the original APP_ERROR vibration.
+     */
+    private fun rejectUsername() {
+        TelegramShake.shakeViewSpring(binding.etUsername, 10f)
+        if (binding.tvStatus.visibility == View.VISIBLE) {
+            TelegramShake.shakeViewSpring(binding.tvStatus, 10f)
+        }
+        VibrationHelper.vibrateAppError(this)
     }
 }

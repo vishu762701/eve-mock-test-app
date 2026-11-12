@@ -12,6 +12,16 @@ on:
       - '.github/workflows/android-dependency-evidence.yml'
       - '.github/workflows/verify-official-telegram-imports.yml'
       - '.github/workflows/build-universal-dev-apk.yml'
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/scripts/**'
+      - '.github/workflows/docs.yml'
+      - '.github/workflows/android-dependency-evidence.yml'
+      - '.github/workflows/verify-official-telegram-imports.yml'
+      - '.github/workflows/build-universal-dev-apk.yml'
   workflow_dispatch:
     inputs:
       publish_verified_apk:

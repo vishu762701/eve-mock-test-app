@@ -55,15 +55,13 @@
             style="@style/TextAppearance.Eve.Telegram.EditInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="96dp"
+            android:minHeight="36dp"
             android:gravity="top|start"
             android:background="@null"
             android:hint="Write a short bio"
             android:textColorHint="@color/telegram_type_secondary"
             android:inputType="textCapSentences|textMultiLine"
-            android:maxLength="160"
-            android:minLines="3"
-            android:maxLines="6"
+            android:maxLines="4"
             android:scrollbars="vertical" />
 
         <View
@@ -78,7 +76,7 @@
             android:layout_height="wrap_content"
             android:gravity="end"
             android:layout_marginTop="8dp"
-            android:text="0/160" />
+            android:text="160" />
 
         <TextView
             android:id="@+id/tvStatus"

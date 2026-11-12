@@ -43,7 +43,8 @@ class ProfileActionBounceSourceTest {
         assertTrue(clickRegion.contains("binding.btnSetPhoto.setOnClickListener"))
         assertTrue(clickRegion.contains("binding.btnEditInfo.setOnClickListener"))
         assertTrue(clickRegion.contains("binding.btnSettings.setOnClickListener"))
-        assertTrue(clickRegion.contains("pickPhotoLauncher.launch"))
+        assertTrue("Set Photo must open the source photo menu, not the gallery directly",
+            clickRegion.contains("showProfilePhotoMenu()"))
         assertTrue(clickRegion.contains("SettingsActivity::class.java"))
         assertTrue(clickRegion.contains("ChangeNameActivity::class.java"))
     }

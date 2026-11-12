@@ -990,3 +990,83 @@ TMessagesProj resources, Copyright Telegram Android contributors, GNU GPL v2 or 
 
 
 
+
+## Telegram profile photo menu, camera, editor and rejection feedback — 2026-11-12
+
+Official source: `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`
+(version 13.1.1/7237), archive SHA-256
+`4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10`.
+Telegram contributors including Nikolai Kudashov retain copyright. The Java
+headers grant GNU GPL v2 or later; the upstream root `LICENSE` is GPLv2.
+Combined-work production distribution review remains OPEN and unchanged.
+
+- `app/src/main/java/com/eve/app/ui/profile/ProfilePhotoMenu.kt` is a
+  source-derived Kotlin host for `ImageUpdater.java:253-332` menu composition
+  and `BottomSheet.java:1040-1145,1400-1432` title/cell geometry. It retains the
+  source order (`Take photo`, `Upload from gallery`, conditional
+  `Remove photo`), 48dp title/rows, 56dp icon column, 20sp bold title, 16sp
+  labels, 72dp text start, and destructive text/icon roles
+  (`text_RedBold`/`text_RedRegular`). EVE's Material bottom-sheet host and theme
+  palette replace Telegram's `BottomSheet` window/host; this is ADAPTED, not a
+  complete `BottomSheet` renderer or drag-physics port.
+- `ProfileActivity.kt` camera/gallery/removal wiring mirrors
+  `ImageUpdater.java:650-760,817-830`: CAMERA permission, system
+  `ACTION_IMAGE_CAPTURE` through `ActivityResultContracts.TakePicture` and a
+  FileProvider cache URI, image preview/save through EVE's existing
+  authenticated local-photo pipeline, and direct removal from the source action
+  menu. `util/ExifTransform.kt` ports
+  `AndroidUtilities.java:6269-6320`'s eight-value EXIF `(rotation, invert)`
+  mapping and the `PhotoViewer.java:11350-11366` rotate-then-mirror matrix
+  order; `ProfilePhotoManager.savePhoto` bakes that orientation into a single
+  up-to-800×800 quality-80 JPEG, matching `ImageUpdater.java:845-855`'s export size
+  and quality while retaining EVE's one-local-file avatar contract. Decode is
+  sampled to keep at least 800 px on the shorter side so full-resolution camera
+  images do not create an avoidable memory spike; intermediate bitmaps are
+  recycled, and the completed JPEG is renamed over the prior avatar only after
+  compression succeeds. Telegram account photo services are not imported. Photo
+  persistence remains UID-scoped, device-local EVE data.
+- `app/src/main/java/com/eve/app/ui/profile/AvatarCropGeometry.kt`,
+  `AvatarCropView.kt`, `AvatarCropActivity.kt` and
+  `res/layout/activity_avatar_crop.xml` adapt
+  `PhotoCropActivity.java:40-360` (`PhotoCropView`) and the
+  `ImageUpdater.java:592-646,845-930` crop result/export handoff: fitted bitmap,
+  centered square, drag-to-move, four corner resizes, 80 % scrim, 2 dp border,
+  corner handles, rule-of-thirds grid, source dark/white colours, and an
+  up-to-800×800 quality-80 cache JPEG adopted by one atomic copy. EVE maps x/y
+  source coordinates independently (the upstream `getBitmap` divisor uses
+  bitmap width for both axes) and does not port rotate, freeform crop, video
+  avatar recording, or the PhotoViewer avatar-constructor transition. This is
+  ADAPTED, and combined-work distribution review remains OPEN.
+- `app/src/main/java/com/eve/app/ui/profile/ChangeBioActivity.kt` and
+  `CodepointsLengthInputFilter.kt` adapt `ChangeBioActivity.java:88-180,200-252`
+  and `CodepointsLengthInputFilter.java:7-30`: 18 sp input, 36 dp minimum,
+  four-line maximum, Unicode code-point limit, IME Done, trailing-newline Done,
+  newline stripping on save, unchanged-value close, and source rejection
+  feedback (`AndroidUtilities.shakeView`, `AndroidUtilities.java:3489-3512`,
+  plus `Vibrator.vibrate(200)`). EVE keeps its backend's 160-code-point
+  contract instead of Telegram's 70/140 service limits and disables the field
+  during the authenticated save; this is ADAPTED.
+- `ChangeUsernameActivity.kt` adapts `ChangeUsernameActivity.java:790-800,
+  1196-1300,1360-1466`: IME Done, unchanged-handle close, local character rules,
+  and `shakeIfOff` spring shakes plus the `APP_ERROR` vibration. EVE keeps its
+  Worker's 5–32 character username contract; clearing to empty is blocked by
+  that existing backend contract.
+- `ChangeNameActivity.kt` adapts `ChangeNameActivity.java:45-230`: IME Done,
+  unchanged-name no-write, and focus/keyboard behavior. EVE's single display-name
+  field and 1–100 character backend contract replace Telegram's separate
+  first/last fields; this is ADAPTED.
+- `app/src/main/java/com/eve/app/util/TelegramShake.kt` ports
+  `AndroidUtilities.java:3489-3554` (`shakeView` and `shakeViewSpring`).
+  `VibrationHelper.vibrateAppError` ports
+  `BotWebViewVibrationEffect.java:18` `APP_ERROR`
+  (30/10/150/10ms at amplitudes 0/100/0/100, fallback 40/60/40/60/65/60/40).
+- Byte-identical assets imported unchanged from
+  `TMessagesProj/src/main/res/drawable-{mdpi,hdpi,xhdpi,xxhdpi}/msg_photos.webp`
+  and `drawable-xxhdpi/msg_delete.png` as `msg_photos.webp` and
+  `ic_delete.png`; SHA-256 values are recorded in
+  `docs/telegram-verbatim-imports.json`. The source assets carry the upstream
+  root GPLv2 terms; no asset-specific later-version grant is asserted.
+
+No Telegram account, authentication, MTProto, messaging, media service,
+telemetry or network endpoint is imported or contacted by these components.
+

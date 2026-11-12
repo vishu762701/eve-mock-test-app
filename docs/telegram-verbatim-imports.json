@@ -1,9 +1,85 @@
 {
   "revision": "3de37c8cfb039452be7398909461da6288babf15",
   "imports": [
-    {"upstream": "TMessagesProj/src/main/res/drawable-mdpi/greydivider.9.png", "eve": "app/src/main/res/drawable-mdpi/telegram_menu_greydivider.9.png", "sha256": "08fcaed4891c9dec8cd9774df438d5e367419886bb0a9b867f0c7eb8ff89df8b"},
-    {"upstream": "TMessagesProj/src/main/res/drawable-hdpi/greydivider.9.png", "eve": "app/src/main/res/drawable-hdpi/telegram_menu_greydivider.9.png", "sha256": "84f8905c4e97c8eefb64d6c5d88b9d8790e9ea4e254202cd06d8ac5eb6cfbb15"},
-    {"upstream": "TMessagesProj/src/main/res/drawable-xhdpi/greydivider.9.png", "eve": "app/src/main/res/drawable-xhdpi/telegram_menu_greydivider.9.png", "sha256": "daf5731b3290361fa2bfa4fc7fe934dace0d8018cc270bf9e32b36d153978d58"},
-    {"upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/greydivider.9.png", "eve": "app/src/main/res/drawable-xxhdpi/telegram_menu_greydivider.9.png", "sha256": "bcb4e022907ef3a3a23235a26a1ea230db37ce438966961282868de88a3300e2"}
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/greydivider.9.png",
+      "eve": "app/src/main/res/drawable-mdpi/telegram_menu_greydivider.9.png",
+      "sha256": "08fcaed4891c9dec8cd9774df438d5e367419886bb0a9b867f0c7eb8ff89df8b"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/greydivider.9.png",
+      "eve": "app/src/main/res/drawable-hdpi/telegram_menu_greydivider.9.png",
+      "sha256": "84f8905c4e97c8eefb64d6c5d88b9d8790e9ea4e254202cd06d8ac5eb6cfbb15"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/greydivider.9.png",
+      "eve": "app/src/main/res/drawable-xhdpi/telegram_menu_greydivider.9.png",
+      "sha256": "daf5731b3290361fa2bfa4fc7fe934dace0d8018cc270bf9e32b36d153978d58"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/greydivider.9.png",
+      "eve": "app/src/main/res/drawable-xxhdpi/telegram_menu_greydivider.9.png",
+      "sha256": "bcb4e022907ef3a3a23235a26a1ea230db37ce438966961282868de88a3300e2"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_photos.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_photos.webp",
+      "sha256": "827c471e88d212ad57a484f772faad44b453f37e426b37f947442b080fde8df2"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_camera.webp",
+      "eve": "app/src/main/res/drawable-mdpi/ic_camera.webp",
+      "sha256": "545cf38922349e4960b98f072d6421bbfc2d8ca220c623aa5f5e3adf045c2dcc"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_photos.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_photos.webp",
+      "sha256": "c07d8f9e33a903dbbedb756085271a9293ac96c630cfbf1d237b2c9c51af07af"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_camera.webp",
+      "eve": "app/src/main/res/drawable-hdpi/ic_camera.webp",
+      "sha256": "ea1830f00700d3f31a951781e65468a417414317554517f510717363f01daf52"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_photos.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_photos.webp",
+      "sha256": "d080ccba942928794f7146493b72816e201b27bb984c849890f75780255d5443"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_camera.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/ic_camera.webp",
+      "sha256": "23385df81a23a1bc6762938ef71eb3165467ee095f066ef37c1421a125d0ca3b"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_photos.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_photos.webp",
+      "sha256": "f3dff42f17a9503dbf6b7315e01bb1d42fc36ecf151b146723c62743a366fa1b"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_camera.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/ic_camera.webp",
+      "sha256": "92cacb2eeb6c1c4190e8f7c664678b6cf1eed62e69934ff88491580dbc3c3f8d"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_delete.webp",
+      "eve": "app/src/main/res/drawable-mdpi/ic_delete.webp",
+      "sha256": "0701b4a4ebca6417762be23462cc3e5625a6cfd5bd0f40b44f2d193f567c4ae2"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_delete.webp",
+      "eve": "app/src/main/res/drawable-hdpi/ic_delete.webp",
+      "sha256": "c7c5aaf309ce1202ab691edb91373ae7f2449e4ab8caf22a0905f2f598768b51"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_delete.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/ic_delete.webp",
+      "sha256": "53ad74f3c566461a3072a411f32c293899ab2572e48a937cbe79ef09d9fb16a7"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_delete.png",
+      "eve": "app/src/main/res/drawable-xxhdpi/ic_delete.png",
+      "sha256": "deb1041dd8bbee0ad63b39b80f1a5a031ecd2ee3207192493d9f66792f8e3e55"
+    }
   ]
 }

@@ -1721,10 +1721,12 @@ class MainActivity : EveBaseActivity() {
                 rowBinding.pbOption.progressColor = palette.accent
             } else if (isLeading) {
                 rowBinding.tvOptionTitle.setTextColor(palette.accent)
+                rowBinding.tvOptionTitle.setTypeface(null, android.graphics.Typeface.BOLD)
                 rowBinding.tvOptionPercent.setTextColor(palette.accent)
                 rowBinding.pbOption.progressColor = palette.accent
             } else {
                 rowBinding.tvOptionTitle.setTextColor(palette.textPrimary)
+                rowBinding.tvOptionTitle.setTypeface(null, android.graphics.Typeface.NORMAL)
                 rowBinding.tvOptionPercent.setTextColor(palette.textSecondary)
                 rowBinding.pbOption.progressColor = palette.textSecondary
             }

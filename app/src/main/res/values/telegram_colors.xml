@@ -10,7 +10,8 @@
     <color name="telegram_type_dialog">#FF1A1D21</color>
     <!-- Telegram ThemeColors.java:268: chats_menuItemIcon = #FF889198. -->
     <color name="telegram_drawer_icon">#FF889198</color>
-    <!-- Telegram ThemeColors.java:97 key_text_RedBold = 0xffcc4747 -->
+    <!-- Telegram ThemeColors.java:96-97 key_text_RedRegular / key_text_RedBold. -->
+    <color name="telegram_text_red_regular">#FFCC2929</color>
     <color name="telegram_text_red_bold">#FFCC4747</color>
     <!-- Telegram ThemeColors.java:205 actionBarDefaultSubmenuBackground = #FFFFFFFF -->
     <color name="telegram_flicker_base">#FFFFFFFF</color>
