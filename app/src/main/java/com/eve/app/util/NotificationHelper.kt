@@ -80,11 +80,31 @@ object NotificationHelper {
     }
 
     fun showNewExamNotification(context: Context, title: String, body: String) {
-        show(context, CHANNEL_NEW_EXAM, ID_NEW_EXAM, title, body)
+        val intent = android.content.Intent(context, com.eve.app.ui.home.MainActivity::class.java).apply {
+            flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra("navigate_to", "notifications")
+        }
+        val pendingIntent = android.app.PendingIntent.getActivity(
+            context,
+            ID_NEW_EXAM,
+            intent,
+            android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+        )
+        show(context, CHANNEL_NEW_EXAM, ID_NEW_EXAM, title, body, pendingIntent)
     }
 
     fun showDailyReminder(context: Context, title: String, body: String) {
-        show(context, CHANNEL_DAILY_REMINDER, ID_DAILY_REMINDER, title, body)
+        val intent = android.content.Intent(context, com.eve.app.ui.home.MainActivity::class.java).apply {
+            flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra("navigate_to", "daily_reminder")
+        }
+        val pendingIntent = android.app.PendingIntent.getActivity(
+            context,
+            ID_DAILY_REMINDER,
+            intent,
+            android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+        )
+        show(context, CHANNEL_DAILY_REMINDER, ID_DAILY_REMINDER, title, body, pendingIntent)
     }
 
     @android.annotation.SuppressLint("MissingPermission")
@@ -118,12 +138,19 @@ object NotificationHelper {
     }
 
     @android.annotation.SuppressLint("MissingPermission")
-    private fun show(context: Context, channelId: String, notificationId: Int, title: String, body: String) {
+    private fun show(
+        context: Context,
+        channelId: String,
+        notificationId: Int,
+        title: String,
+        body: String,
+        pendingIntent: android.app.PendingIntent? = null
+    ) {
         // Bug fix: har notification ab local history me bhi save hoti hai (bell icon list ke liye)
         NotificationStore.add(context, title, body)
 
         if (!hasPermission(context)) return
-        val notification = NotificationCompat.Builder(context, channelId)
+        val builder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
             .setContentText(body)
@@ -131,7 +158,9 @@ object NotificationHelper {
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setVibrate(VIBRATION_PATTERN)
-            .build()
-        NotificationManagerCompat.from(context).notify(notificationId, notification)
+        if (pendingIntent != null) {
+            builder.setContentIntent(pendingIntent)
+        }
+        NotificationManagerCompat.from(context).notify(notificationId, builder.build())
     }
 }

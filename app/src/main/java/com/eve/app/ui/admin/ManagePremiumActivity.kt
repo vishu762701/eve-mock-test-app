@@ -159,6 +159,7 @@ class ManagePremiumActivity : EveBaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityManagePremiumBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        com.eve.app.util.SystemBarHelper.syncSystemBars(this)
 
         setupToolbar()
         binding.progressAdmin.visibility = View.VISIBLE
@@ -182,7 +183,7 @@ class ManagePremiumActivity : EveBaseActivity() {
     }
 
     private fun setupToolbar() {
-        binding.btnBack.setOnClickListener { finish() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
         binding.btnRefresh.setOnClickListener { loadAllData() }
     }
 
@@ -229,13 +230,13 @@ class ManagePremiumActivity : EveBaseActivity() {
         binding.rvPremiumUsers.layoutManager = LinearLayoutManager(this)
         binding.rvPremiumUsers.adapter = userAdapter
 
-        binding.btnGrantManual.setOnClickListener {
+        com.eve.app.designsystem.DesignPress.bind(binding.btnGrantManual) {
             showManualGrantDialog()
         }
     }
 
     private fun setupSettingsActions() {
-        binding.btnSaveSettings.setOnClickListener {
+        com.eve.app.designsystem.DesignPress.bind(binding.btnSaveSettings) {
             saveConfig()
         }
     }

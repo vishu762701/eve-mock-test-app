@@ -69,12 +69,12 @@ class PaymentMethodBottomSheet : BottomSheetDialogFragment() {
         binding.cardMethodQr.visibility = if (qrEnabled) View.VISIBLE else View.GONE
         binding.cardMethodUpi.visibility = if (upiEnabled) View.VISIBLE else View.GONE
 
-        binding.cardMethodQr.setOnClickListener {
+        com.eve.app.designsystem.DesignPress.bind(binding.cardMethodQr) {
             dismiss()
             onMethodSelected?.invoke("qr")
         }
 
-        binding.cardMethodUpi.setOnClickListener {
+        com.eve.app.designsystem.DesignPress.bind(binding.cardMethodUpi) {
             dismiss()
             onMethodSelected?.invoke("upi")
         }

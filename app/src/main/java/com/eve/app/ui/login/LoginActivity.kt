@@ -127,10 +127,10 @@ class LoginActivity : EveBaseActivity() {
         if (savedInstanceState?.getBoolean("eve_login_signup_mode", false) == true && binding.btnToggleMode.isShown) {
             toggleMode(animate = false)
         }
-        binding.btnBack.setOnClickListener { finish() }
-        binding.btnSubmit.setOnClickListener { handleEmailPasswordAuth() }
-        binding.btnGoogle.setOnClickListener { launchGoogleSignIn() }
-        binding.btnToggleMode.setOnClickListener { toggleMode() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnSubmit) { handleEmailPasswordAuth() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnGoogle) { launchGoogleSignIn() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnToggleMode) { toggleMode() }
         binding.etName.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_NEXT) {
                 binding.etEmail.requestFocus()
@@ -214,6 +214,7 @@ class LoginActivity : EveBaseActivity() {
             )
         }
         if (animate) binding.root.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+        binding.avatarContainer.visibility = if (isSignUpMode) View.VISIBLE else View.GONE
         if (!isSignUpMode && binding.etName.hasFocus()) binding.etEmail.requestFocus()
         binding.tilName.visibility = if (isSignUpMode) View.VISIBLE else View.GONE
         if (isSignUpMode) {

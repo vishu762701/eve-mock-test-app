@@ -109,7 +109,9 @@ class PaymentCheckoutActivity : EveBaseActivity() {
     }
 
     private fun setupViews() {
-        binding.btnBack.setOnClickListener {
+        com.eve.app.util.SystemBarHelper.syncSystemBars(this)
+
+        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) {
             finish()
         }
 
@@ -128,14 +130,14 @@ class PaymentCheckoutActivity : EveBaseActivity() {
                 }
             }
 
-            binding.btnCopyUpi.setOnClickListener {
+            com.eve.app.designsystem.DesignPress.bind(binding.btnCopyUpi) {
                 copyToClipboard(upiUri, "UPI payment link copied")
             }
         } else {
             binding.layoutQrSection.visibility = View.GONE
             binding.layoutUpiSection.visibility = View.VISIBLE
 
-            binding.btnLaunchUpi.setOnClickListener {
+            com.eve.app.designsystem.DesignPress.bind(binding.btnLaunchUpi) {
                 launchUpiIntent()
             }
 
@@ -143,13 +145,13 @@ class PaymentCheckoutActivity : EveBaseActivity() {
             launchUpiIntent()
         }
 
-        binding.btnRestartPayment.setOnClickListener {
+        com.eve.app.designsystem.DesignPress.bind(binding.btnRestartPayment) {
             finish()
         }
 
         // Sandbox test verification button (Requirement 53)
-        binding.btnSimulateSandbox.setOnClickListener {
-            if (!hasOriginalAccount()) { finish(); return@setOnClickListener }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnSimulateSandbox) {
+            if (!hasOriginalAccount()) { finish(); return@bind }
             binding.btnSimulateSandbox.isEnabled = false
             lifecycleScope.launch {
                 binding.tvStatusText.text = "Simulating verified payment webhook..."

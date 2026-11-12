@@ -49,9 +49,12 @@ class NotificationsActivity : EveBaseActivity() {
         hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
         binding = ActivityNotificationsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        com.eve.app.util.SystemBarHelper.syncSystemBars(this)
         com.eve.app.ui.home.HomeAppearance.tintNotificationBell(binding.lottieEmpty)
 
-        binding.btnBack.setOnClickListener { com.eve.app.util.EveNavigationHelper.finishWithTransition(this) }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) {
+            com.eve.app.util.EveNavigationHelper.finishWithTransition(this)
+        }
         binding.rvNotifications.layoutManager = LinearLayoutManager(this)
         binding.rvNotifications.adapter = adapter
 

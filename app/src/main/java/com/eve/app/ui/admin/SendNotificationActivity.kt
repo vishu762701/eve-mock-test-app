@@ -123,8 +123,9 @@ class SendNotificationActivity : EveBaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySendNotificationBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        com.eve.app.util.SystemBarHelper.syncSystemBars(this)
 
-        binding.btnBack.setOnClickListener { finish() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
         binding.progressBarTop.visibility = View.VISIBLE
         binding.scrollNotificationContent.visibility = View.GONE
 
@@ -164,12 +165,12 @@ class SendNotificationActivity : EveBaseActivity() {
 
         binding.compactErrorView.displayMode = ErrorStateView.DisplayMode.COMPACT
 
-        binding.btnBack.setOnClickListener { finish() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
 
         binding.rvSentBroadcasts.layoutManager = LinearLayoutManager(this)
         binding.rvSentBroadcasts.adapter = sentAdapter
 
-        binding.btnSend.setOnClickListener {
+        com.eve.app.designsystem.DesignPress.bind(binding.btnSend) {
             validateAndConfirm()
         }
 
@@ -179,7 +180,7 @@ class SendNotificationActivity : EveBaseActivity() {
     }
 
     private fun setupSelectionTopBar() {
-        binding.btnCancelSelection.setOnClickListener {
+        com.eve.app.designsystem.DesignPress.bind(binding.btnCancelSelection) {
             exitSelectionMode()
         }
 
@@ -193,7 +194,7 @@ class SendNotificationActivity : EveBaseActivity() {
             updateSelectionCountUI()
         }
 
-        binding.btnDeleteSelected.setOnClickListener {
+        com.eve.app.designsystem.DesignPress.bind(binding.btnDeleteSelected) {
             confirmDeleteSelected()
         }
     }

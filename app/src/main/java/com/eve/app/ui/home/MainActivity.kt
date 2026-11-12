@@ -397,12 +397,13 @@ class MainActivity : EveBaseActivity() {
         restoreSearchPresentation(savedInstanceState)
 
         // Telegram-style overflow menu setup
-        binding.btnOverflow.setOnClickListener { anchor ->
-            if (ThemeSwitchAnimator.isTransitioning || isFinishing || isDestroyed) return@setOnClickListener
+        com.eve.app.designsystem.DesignPress.bind(binding.btnOverflow) {
+            val anchor = binding.btnOverflow
+            if (ThemeSwitchAnimator.isTransitioning || isFinishing || isDestroyed) return@bind
             val openPopup = homeOverflowPopup
             if (openPopup?.isShowing == true) {
                 openPopup.dismiss()
-                return@setOnClickListener
+                return@bind
             }
             homeOverflowPopup = TelegramMenuPopup(
                 context = this,
@@ -500,6 +501,22 @@ class MainActivity : EveBaseActivity() {
                     }
                 }
             }
+        }
+        handleNotificationDeepLink(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleNotificationDeepLink(intent)
+    }
+
+    private fun handleNotificationDeepLink(intent: Intent?) {
+        if (intent?.getStringExtra("navigate_to") == "notifications") {
+            intent.removeExtra("navigate_to")
+            com.eve.app.util.EveNavigationHelper.navigate(
+                this, Intent(this, com.eve.app.ui.notifications.NotificationsActivity::class.java), binding.notificationAction
+            )
         }
     }
 
@@ -789,15 +806,15 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun setupSearch() {
-        binding.btnSearch.setOnClickListener {
+        com.eve.app.designsystem.DesignPress.bind(binding.btnSearch) {
             openSearch()
         }
 
-        binding.btnSearchBack.setOnClickListener {
+        com.eve.app.designsystem.DesignPress.bind(binding.btnSearchBack) {
             closeSearch()
         }
 
-        binding.btnClearSearch.setOnClickListener {
+        com.eve.app.designsystem.DesignPress.bind(binding.btnClearSearch) {
             if (binding.etSearch.text.isNullOrEmpty()) {
                 closeSearch()
             } else {

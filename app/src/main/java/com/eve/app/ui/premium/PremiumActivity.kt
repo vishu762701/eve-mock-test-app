@@ -62,16 +62,17 @@ class PremiumActivity : EveBaseActivity() {
             return
         }
         premiumOwnerUid = currentUid
+        com.eve.app.util.SystemBarHelper.syncSystemBars(this)
 
-        binding.btnBack.setOnClickListener {
+        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) {
             finish()
         }
 
-        binding.btnBuyPremium.setOnClickListener {
+        com.eve.app.designsystem.DesignPress.bind(binding.btnBuyPremium) {
             showPaymentMethodPicker()
         }
 
-        binding.btnExtendPlan.setOnClickListener {
+        com.eve.app.designsystem.DesignPress.bind(binding.btnExtendPlan) {
             showPaymentMethodPicker()
         }
 

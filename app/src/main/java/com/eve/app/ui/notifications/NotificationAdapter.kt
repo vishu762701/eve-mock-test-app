@@ -15,8 +15,21 @@ class NotificationAdapter : RecyclerView.Adapter<NotificationAdapter.VH>() {
     private var items: List<StoredNotification> = emptyList()
 
     fun submit(list: List<StoredNotification>) {
+        val diffCallback = object : androidx.recyclerview.widget.DiffUtil.Callback() {
+            override fun getOldListSize() = items.size
+            override fun getNewListSize() = list.size
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                val o = items[oldItemPosition]
+                val n = list[newItemPosition]
+                return o.timestampMillis == n.timestampMillis && o.title == n.title
+            }
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return items[oldItemPosition] == list[newItemPosition]
+            }
+        }
+        val diffResult = androidx.recyclerview.widget.DiffUtil.calculateDiff(diffCallback)
         items = list
-        notifyDataSetChanged()
+        diffResult.dispatchUpdatesTo(this)
     }
 
     inner class VH(private val b: ItemNotificationBinding) : RecyclerView.ViewHolder(b.root) {

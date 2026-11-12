@@ -2,10 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Screen">
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
         <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
-            <LinearLayout android:id="@+id/normalTopBar" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+            <LinearLayout android:id="@+id/normalTopBar" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.ToolbarRow">
                 <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/telegram_type_primary" style="@style/Widget.Eve.Token.IconButton" />
+                <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:id="@+id/tvHeaderTitle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="@dimen/design_row_gap" android:singleLine="true" android:ellipsize="end" android:text="Publish In-App Notice" android:tag="eve_telegram_type" />
             </LinearLayout>
-            <LinearLayout android:id="@+id/selectionTopBar" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+            <LinearLayout android:id="@+id/selectionTopBar" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.ToolbarRow">
                 <ImageButton android:id="@+id/btnCancelSelection" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Cancel Selection" android:src="@drawable/ic_close" app:tint="@color/text_primary" style="@style/Widget.Eve.Token.IconButton" />
                 <TextView style="@style/TextAppearance.Eve.Token.Heading" android:id="@+id/tvSelectedCount" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_screen_margin" android:layout_weight="1" android:text="0 selected" />
                 <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/btnSelectAll" android:layout_width="wrap_content" android:layout_height="wrap_content" android:clickable="true" android:focusable="true" android:text="Select all" />
@@ -13,9 +14,6 @@
             </LinearLayout>
         </FrameLayout>
     </com.eve.app.ui.common.EveGlassToolbar>
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.LargeTitleBlock">
-        <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Publish In-App Notice"  android:tag="eve_telegram_type" />
-    </LinearLayout>
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
