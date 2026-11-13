@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
@@ -12,11 +13,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.eve.app.R
+import com.eve.app.designsystem.TelegramThemeSelectors
 import com.eve.app.ui.common.CircularCountdownView
+import com.google.android.material.card.MaterialCardView
+import org.telegram.ui.Components.CubicBezierInterpolator
 
 /**
- * Telegram-style Undo Bar for delete actions (matching UndoView.java pattern).
- * Displays a depleting circular countdown ring icon, message, and "UNDO" action button.
+ * Telegram-style Undo Bar for delete actions (matching UndoView.java:258-333).
+ * Displays a 10dp-radius dark floating bar (undo_background), depleting circular
+ * countdown ring with seconds counter (undo_infoColor), message, and "UNDO" button (undo_cancelColor).
  * Existing show() callers retain immediate execution; showDeferred() owns an explicit Undo deadline.
  */
 class AppUndoBar private constructor(
@@ -30,6 +35,10 @@ class AppUndoBar private constructor(
     companion object {
         const val TIME_LIGHT = 3000L      // For lighter actions (e.g. removing a bookmark)
         const val TIME_IMPORTANT = 5000L  // For important actions (e.g. deleting an exam, poll, post)
+
+        private const val UNDO_BACKGROUND = 0xFF262A2D.toInt() // Theme.key_undo_background
+        private const val UNDO_INFO_COLOR = Color.WHITE         // Theme.key_undo_infoColor
+        private const val UNDO_CANCEL_COLOR = 0xFF6BB7FF.toInt() // Theme.key_undo_cancelColor
 
         private var activeUndoBar: AppUndoBar? = null
 
@@ -49,8 +58,6 @@ class AppUndoBar private constructor(
             onUndo: () -> Unit,
             onExecuteDelete: (() -> Unit)? = null
         ) {
-            // Architectural requirement: Deletion executes IMMEDIATELY from data source
-            // before the Undo window opens. The 5-second countdown is an undo opportunity, not a deferred deletion delay.
             onExecuteDelete?.invoke()
 
             val act = findActivity(context) ?: return
@@ -58,7 +65,6 @@ class AppUndoBar private constructor(
                 return
             }
 
-            // Dismiss existing bar without reverting the previous deletion
             activeUndoBar?.resolveReplacement()
 
             val bar = AppUndoBar(act, message, timeLeftMs, onUndo)
@@ -110,7 +116,6 @@ class AppUndoBar private constructor(
     }
 
     private fun resolveReplacement() {
-        // Replacing an explicit deferred bar cancels it; never commit before its deadline.
         if (deferredDelete != null) undoAndDismiss(immediate = true)
         else {
             isResolved = true
@@ -130,11 +135,25 @@ class AppUndoBar private constructor(
         val btnUndo = view.findViewById<TextView>(R.id.btnUndoAction)
         val countdown = view.findViewById<CircularCountdownView>(R.id.countdownView)
         val card = view.findViewById<View>(R.id.cardUndo)
+        val density = activity.resources.displayMetrics.density
 
-        val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(activity)
-        com.eve.app.theme.TelegramThemeApplier.applyToViewTree(view, palette)
-        (btnUndo as? com.google.android.material.button.MaterialButton)?.rippleColor =
-            ColorStateList.valueOf(palette.actionSelector)
+        // UndoView.java:258-333: 10dp round rect undo_background, white info text, light blue cancel button
+        (card as? MaterialCardView)?.apply {
+            setCardBackgroundColor(UNDO_BACKGROUND)
+            radius = 10f * density
+            strokeWidth = 0
+        }
+        tvMessage.setTextColor(UNDO_INFO_COLOR)
+        btnUndo.setTextColor(UNDO_CANCEL_COLOR)
+        (btnUndo as? com.google.android.material.button.MaterialButton)?.apply {
+            backgroundTintList = ColorStateList.valueOf(Color.TRANSPARENT)
+            rippleColor = ColorStateList.valueOf(UNDO_CANCEL_COLOR and 0x22FFFFFF)
+        } ?: run {
+            btnUndo.background = TelegramThemeSelectors.getRoundRectSelectorDrawable(
+                2f * density, UNDO_CANCEL_COLOR and 0x22FFFFFF
+            )
+        }
+        countdown.setInfoColor(UNDO_INFO_COLOR)
 
         tvMessage.text = message
 
@@ -150,7 +169,6 @@ class AppUndoBar private constructor(
 
         decorView.addView(view)
 
-        // Shared token motion; message lifetime and action callbacks stay unchanged.
         val startOffset = activity.resources.getDimension(R.dimen.design_section_gap)
         card.translationY = startOffset
         card.alpha = 0f
@@ -158,11 +176,10 @@ class AppUndoBar private constructor(
         card.animate()
             .translationY(0f)
             .alpha(1f)
-            .setDuration(if (com.eve.app.designsystem.DesignMotion.enabled(activity)) activity.resources.getInteger(R.integer.design_transition_duration).toLong() else 0L)
-            .setInterpolator(com.eve.app.designsystem.DesignMotion.interpolator(activity))
+            .setDuration(if (com.eve.app.designsystem.DesignMotion.enabled(activity)) 220L else 0L)
+            .setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT)
             .start()
 
-        // The deferred mutation deadline is independent of ValueAnimator/system motion scale.
         if (deferredDelete != null) deadlineHandler.postAtTime(deadlineAction, SystemClock.uptimeMillis() + timeLeftMs)
         countdown.startCountdown(timeLeftMs) {
             if (deferredDelete == null && !isResolved) {
@@ -189,8 +206,8 @@ class AppUndoBar private constructor(
         card.animate()
             .translationY(exitOffset)
             .alpha(0f)
-            .setDuration(if (com.eve.app.designsystem.DesignMotion.enabled(activity)) activity.resources.getInteger(R.integer.design_transition_duration).toLong() else 0L)
-            .setInterpolator(com.eve.app.designsystem.DesignMotion.interpolator(activity))
+            .setDuration(if (com.eve.app.designsystem.DesignMotion.enabled(activity)) 220L else 0L)
+            .setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT)
             .withEndAction {
                 (view.parent as? ViewGroup)?.removeView(view)
                 barView = null
