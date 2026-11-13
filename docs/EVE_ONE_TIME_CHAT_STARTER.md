@@ -9,5 +9,8 @@ Proceed without routine approvals. There is no numeric commit ceiling: use coher
 
 Respond in Roman Hinglish. Code and commands in English.
 
-## Autonomous continuation
-Find the owner's master/continuation mission Markdown directly in phone storage; never request a chat attachment. Prioritize `/sdcard/Download/Telegrammaster.zip`, then the pinned official DrKLO/Telegram Git repository. Inspect actual live repo and preserve local changes. Repeat the engineering loop automatically across successive implementation batches: fix next real defect, commit on main, inspect compile-only FAST, continue the next defect. Do not stop after Step 0, P0/P1, a few commits, or a long checkpoint report. Use a short handoff only at a real tool/session limit and acknowledge that an ended session cannot itself keep working.
+## Telegram source
+When the task needs official Telegram source, use the owner's Telegram source zip from phone storage or the chat attachment if it matches the official repo, otherwise a pinned official DrKLO/Telegram Git checkout. Follow ENGINEERING_STANDARD.md section 2.
+
+## Interruption
+If a real tool or session limit stops you, leave one short handoff: HEAD, uncommitted work, failing gate, next action. An ended session cannot keep working on its own.
