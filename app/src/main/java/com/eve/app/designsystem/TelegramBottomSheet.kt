@@ -165,7 +165,7 @@ class TelegramBottomSheet private constructor(
         }
 
         init {
-            background = TelegramThemeSelectors.getSelectorDrawable(false, palette)
+            background = TelegramThemeSelectors.getSelectorDrawable(palette.actionSelector)
             setPadding(dp(16), 0, dp(16), 0)
             isClickable = true
             isFocusable = true

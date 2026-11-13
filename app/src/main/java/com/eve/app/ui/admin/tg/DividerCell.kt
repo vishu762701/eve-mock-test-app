@@ -15,7 +15,7 @@ import com.eve.app.theme.TelegramThemeEngine
 /**
  * Official Telegram DividerCell ported from org/telegram/ui/Cells/DividerCell.java.
  * - Top/bottom padding: 8dp each (16dp + 1px total height)
- * - Hairline: 1px stroke at y = 8dp using palette.divider
+ * - Hairline: 1px stroke at y = 8dp using palette.hairline
  */
 class DividerCell @JvmOverloads constructor(
     context: Context,
@@ -36,7 +36,7 @@ class DividerCell @JvmOverloads constructor(
     }
 
     fun updatePalette(palette: TelegramThemeEngine.ResolvedPalette) {
-        dividerPaint.color = palette.divider
+        dividerPaint.color = palette.hairline
         invalidate()
     }
 

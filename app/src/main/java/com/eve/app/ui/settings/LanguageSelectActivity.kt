@@ -71,7 +71,7 @@ class LanguageSelectActivity : EveBaseActivity() {
 
         val listColumn = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundColor(palette.cardSurface)
+            setBackgroundColor(palette.surface)
         }
 
         val headerCell = HeaderCell(this).apply {
@@ -114,7 +114,6 @@ class LanguageSelectActivity : EveBaseActivity() {
         }
 
         val shadowCell = ShadowSectionCell(this).apply {
-            updatePalette(palette)
         }
         listColumn.addView(shadowCell, LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
@@ -187,7 +186,7 @@ class LanguageSelectActivity : EveBaseActivity() {
 
         private val dividerPaint = Paint().apply {
             strokeWidth = 1f
-            color = palette.divider
+            color = palette.hairline
         }
 
         var needDivider: Boolean = true
@@ -198,7 +197,7 @@ class LanguageSelectActivity : EveBaseActivity() {
             }
 
         init {
-            background = TelegramThemeSelectors.getSelectorDrawable(false, palette)
+            background = TelegramThemeSelectors.getSelectorDrawable(palette.actionSelector)
             isClickable = true
             isFocusable = true
             setWillNotDraw(false)

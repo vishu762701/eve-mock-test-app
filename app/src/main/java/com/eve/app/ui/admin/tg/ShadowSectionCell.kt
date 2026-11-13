@@ -49,7 +49,7 @@ class ShadowSectionCell @JvmOverloads constructor(
 
     fun updatePalette(palette: TelegramThemeEngine.ResolvedPalette) {
         setBackgroundColor(palette.windowBackground)
-        shadowPaint.color = palette.divider
+        shadowPaint.color = palette.hairline
         invalidate()
     }
 
