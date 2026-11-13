@@ -256,20 +256,20 @@
 
     <style name="Widget.Eve.Token.Spinner" parent="Widget.AppCompat.Spinner">
         <item name="android:background">@drawable/design_spinner_background</item>
-        <item name="android:popupBackground">@drawable/design_menu_fallback</item>
+        <item name="android:popupBackground">@drawable/telegram_dialog_popup_fixed_alert4</item>
         <item name="android:minHeight">@dimen/design_input_height</item>
         <item name="android:paddingStart">@dimen/design_input_padding</item>
         <item name="android:paddingEnd">@dimen/design_dropdown_end_padding</item>
         <item name="android:dropDownVerticalOffset">@dimen/design_chip_gap</item>
     </style>
     <style name="Widget.Eve.Token.NativePopup" parent="Widget.Material3.PopupMenu">
-        <item name="android:popupBackground">@drawable/design_menu_fallback</item>
-        <item name="android:popupElevation">@dimen/design_card_elevation</item>
+        <item name="android:popupBackground">@drawable/telegram_dialog_popup_fixed_alert4</item>
+        <item name="android:popupElevation">0dp</item>
         <item name="android:popupAnimationStyle">@style/PopupContextAnimation</item>
     </style>
     <style name="Widget.Eve.Token.ListPopup" parent="Widget.AppCompat.ListPopupWindow">
-        <item name="android:popupBackground">@drawable/design_menu_fallback</item>
-        <item name="android:popupElevation">@dimen/design_card_elevation</item>
+        <item name="android:popupBackground">@drawable/telegram_dialog_popup_fixed_alert4</item>
+        <item name="android:popupElevation">0dp</item>
         <item name="android:popupAnimationStyle">@style/PopupContextAnimation</item>
     </style>
     <style name="Widget.Eve.Token.DropDownList" parent="Widget.AppCompat.ListView.DropDown">

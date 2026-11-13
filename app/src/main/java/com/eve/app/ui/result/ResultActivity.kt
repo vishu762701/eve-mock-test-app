@@ -48,7 +48,7 @@ class ResultActivity : EveBaseActivity() {
     private lateinit var binding: ActivityResultBinding
     private var reattemptLimitDialog: TelegramNativeAlertDialog? = null
     private var reattemptConfirmDialog: TelegramNativeAlertDialog? = null
-    private var categoryBottomSheet: com.google.android.material.bottomsheet.BottomSheetDialog? = null
+    private var categoryBottomSheet: com.eve.app.designsystem.TelegramBottomSheet? = null
 
     private var currentExamName: String = ""
     private var currentExamId: String = ""
@@ -694,13 +694,14 @@ class ResultActivity : EveBaseActivity() {
         if (!resultIdentityCurrent) return
         categoryBottomSheet?.dismiss()
         val sheetView = layoutInflater.inflate(R.layout.bottom_sheet_category_picker, null)
-        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this, R.style.Theme_Eve_BottomSheetDialog)
+        val dialog = com.eve.app.designsystem.TelegramBottomSheet.Builder(this)
+            .setCustomView(sheetView)
+            .create()
         categoryBottomSheet = dialog
         dialog.setOnDismissListener {
             if (categoryBottomSheet === dialog) categoryBottomSheet = null
         }
-        dialog.setContentView(sheetView)
-        com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, this)
+        dialog.show()
 
         data class CategoryRowItem(
             val row: View,

@@ -4,10 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.DialogFragment
 import com.eve.app.databinding.BottomSheetPaymentMethodBinding
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.eve.app.designsystem.TelegramBottomSheet
 
-class PaymentMethodBottomSheet : BottomSheetDialogFragment() {
+class PaymentMethodBottomSheet : DialogFragment() {
 
     private var _binding: BottomSheetPaymentMethodBinding? = null
     private val binding get() = _binding!!
@@ -36,16 +37,8 @@ class PaymentMethodBottomSheet : BottomSheetDialogFragment() {
         }
     }
 
-    override fun getTheme(): Int = com.eve.app.R.style.Theme_Eve_BottomSheetDialog
-
     override fun onCreateDialog(savedInstanceState: Bundle?): android.app.Dialog {
-        val dialog = super.onCreateDialog(savedInstanceState) as com.google.android.material.bottomsheet.BottomSheetDialog
-        dialog.setOnShowListener {
-            context?.let { ctx ->
-                com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, ctx)
-            }
-        }
-        return dialog
+        return TelegramBottomSheet(requireContext())
     }
 
     override fun onCreateView(

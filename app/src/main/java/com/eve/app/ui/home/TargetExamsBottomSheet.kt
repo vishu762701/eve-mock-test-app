@@ -5,8 +5,7 @@ import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
 import com.eve.app.data.model.Exam
 import com.eve.app.databinding.BottomSheetTargetExamsBinding
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.eve.app.designsystem.TelegramBottomSheet
 import com.google.android.material.chip.Chip
 
 object TargetExamsBottomSheet {
@@ -73,10 +72,11 @@ object TargetExamsBottomSheet {
         activity: AppCompatActivity,
         exams: List<Exam>,
         onSaved: (Set<String>) -> Unit = {}
-    ): BottomSheetDialog {
-        val dialog = BottomSheetDialog(activity, com.eve.app.R.style.Theme_Eve_BottomSheetDialog)
+    ): TelegramBottomSheet {
         val binding = BottomSheetTargetExamsBinding.inflate(LayoutInflater.from(activity))
-        dialog.setContentView(binding.root)
+        val dialog = TelegramBottomSheet.Builder(activity)
+            .setCustomView(binding.root)
+            .create()
 
         val prefs = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val currentTargets = prefs.getStringSet(KEY_TARGET_EXAMS, emptySet()) ?: emptySet()
@@ -111,27 +111,7 @@ object TargetExamsBottomSheet {
             dialog.dismiss()
         }
 
-        val displayMetrics = activity.resources.displayMetrics
-        val vh = displayMetrics.heightPixels
-        val density = displayMetrics.density
-
-        dialog.behavior.maxWidth = Math.round(640f * density)
-        dialog.behavior.maxHeight = Math.round(vh * 0.92f)
-        // UIArc dual detents: [0.45, 0.92] with 0.92 expanded height and 0.45 resting peek detent
-        dialog.behavior.isFitToContents = false
-        dialog.behavior.halfExpandedRatio = 0.45f
-        dialog.behavior.peekHeight = Math.round(vh * 0.45f)
-        dialog.behavior.expandedOffset = Math.round(vh * 0.08f)
-        dialog.behavior.skipCollapsed = false
-
         dialog.show()
-        com.eve.app.designsystem.DesignSurfaces.dialog(dialog)
-        com.eve.app.designsystem.DesignSurfaces.sheet(binding.root)
-
-        // Original Telegram source animation/black scrim via shared host adapter.
-        TelegramBottomSheetSourceBackdrop.install(dialog, activity)
-
-        dialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
         return dialog
     }
 }

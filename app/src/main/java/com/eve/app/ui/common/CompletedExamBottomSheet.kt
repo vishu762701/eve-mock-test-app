@@ -11,9 +11,9 @@ import com.eve.app.data.repository.HistoryRepository
 import com.eve.app.databinding.BottomSheetCompletedExamBinding
 import com.eve.app.ui.result.ResultActivity
 import com.eve.app.ui.result.ResultDataHolder
+import com.eve.app.designsystem.TelegramBottomSheet
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.Constants
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -29,12 +29,13 @@ object CompletedExamBottomSheet {
         attempt: TestAttempt?,
         onReattemptConfirmed: () -> Unit,
         onDismiss: (() -> Unit)? = null
-    ): BottomSheetDialog? {
+    ): TelegramBottomSheet? {
         val ownerUid = FirebaseAuth.getInstance().currentUser?.uid ?: return null
         if (activity.isFinishing || activity.isDestroyed || attempt != null && attempt.userId != ownerUid) return null
-        val dialog = BottomSheetDialog(activity, R.style.Theme_Eve_BottomSheetDialog)
         val binding = BottomSheetCompletedExamBinding.inflate(LayoutInflater.from(activity))
-        dialog.setContentView(binding.root)
+        val dialog = TelegramBottomSheet.Builder(activity)
+            .setCustomView(binding.root)
+            .create()
 
         binding.tvCompletedTitle.text = examName
 
@@ -156,8 +157,6 @@ object CompletedExamBottomSheet {
         }
 
         dialog.show()
-        // Shared original Telegram BottomSheet.java black alpha-51 scrim atom.
-        com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, activity)
         return dialog
     }
 }

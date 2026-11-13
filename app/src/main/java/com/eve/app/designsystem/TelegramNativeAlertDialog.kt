@@ -255,8 +255,8 @@ class TelegramNativeAlertDialog private constructor(
                 measurePaint.measureText(it.toString()).toDouble()
             }.toFloat() + dp(24 * actionLabels.size + 8 * (actionLabels.size - 1))
             val screenWidth = context.resources.displayMetrics.widthPixels
-            val availableActionWidth = minOf(screenWidth - dp(56), dp(356)) - dp(16)
-            val verticalActions = estimatedWidth > availableActionWidth
+            // Telegram AlertDialog.java:980: buttonsWidth > screenWidth - dp(64)
+            val verticalActions = estimatedWidth > (screenWidth - dp(64))
             val actions = LinearLayout(context).apply {
                 tag = "telegram_native_alert_actions"
                 orientation = if (verticalActions) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
@@ -288,7 +288,8 @@ class TelegramNativeAlertDialog private constructor(
                     typeface = FontManager.telegramMediumTypeface(context)
                     gravity = Gravity.CENTER
                     minWidth = dp(64)
-                    minHeight = if (verticalActions) dp(48) else dp(40)
+                    // Telegram AlertDialog.java:1162: 40dp button height
+                    minHeight = dp(40)
                     setPadding(dp(12), 0, dp(12), 0)
                     isSingleLine = true
                     ellipsize = TextUtils.TruncateAt.END
@@ -310,7 +311,7 @@ class TelegramNativeAlertDialog private constructor(
                 }
                 actionButtons[which] = action
                 val lp = LinearLayout.LayoutParams(
-                    if (verticalActions) -1 else -2, if (verticalActions) dp(48) else dp(40)
+                    if (verticalActions) -1 else -2, dp(40)
                 )
                 if (actions.childCount != 0 && !verticalActions) lp.marginStart = dp(8)
                 actions.addView(action, lp)
@@ -318,8 +319,8 @@ class TelegramNativeAlertDialog private constructor(
             neutralText?.let { addAction(DialogInterface.BUTTON_NEUTRAL, it, onNeutral) }
             negativeText?.let { addAction(DialogInterface.BUTTON_NEGATIVE, it, onNegative) }
             positiveText?.let { addAction(DialogInterface.BUTTON_POSITIVE, it, onPositive) }
-            // Telegram 52dp horizontal bar; EVE adapts vertical bar for 48dp taps.
-            val rowHeight = if (verticalActions) dp(48 * actionLabels.size + 16) else dp(52)
+            // Telegram 52dp horizontal bar; 40dp buttons in vertical layout
+            val rowHeight = if (verticalActions) dp(40 * actionLabels.size + 16) else dp(52)
             root.addView(actions, LinearLayout.LayoutParams(-1, rowHeight))
         }
         customContent?.let {

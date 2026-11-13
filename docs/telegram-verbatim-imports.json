@@ -90,6 +90,26 @@
       "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/Easings.java",
       "eve": "app/src/main/java/org/telegram/ui/Components/Easings.java",
       "sha256": "ba04283b54726919dab9e2c4fa3e14963af2a0cee62b196eac58a10007ebac11"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/sheet_shadow_round.9.png",
+      "eve": "app/src/main/res/drawable-mdpi/sheet_shadow_round.9.png",
+      "sha256": "41551b1471c6902a876443a1d84b931ddc8d0efcf288a7358d9b989f60bdff77"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/sheet_shadow_round.9.png",
+      "eve": "app/src/main/res/drawable-hdpi/sheet_shadow_round.9.png",
+      "sha256": "9b07bb6fbfbf58e874c0394bc2e75e71b6e1404193b2aafe7061b6ec658312c0"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/sheet_shadow_round.9.png",
+      "eve": "app/src/main/res/drawable-xhdpi/sheet_shadow_round.9.png",
+      "sha256": "163ebea76ae472408be1c3f6254206cf472227641a64af6483798ca895b420e0"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/sheet_shadow_round.9.png",
+      "eve": "app/src/main/res/drawable-xxhdpi/sheet_shadow_round.9.png",
+      "sha256": "ea79ff700936b4797c49c186463a0e558da9ee9a8c998dfe074b41479676f02b"
     }
   ]
 }

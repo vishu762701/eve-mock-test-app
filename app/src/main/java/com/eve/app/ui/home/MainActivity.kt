@@ -42,7 +42,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -127,7 +126,7 @@ class MainActivity : EveBaseActivity() {
     // ActionBarMenuItem.java:779-782: a second tap toggles the SAME popup closed.
     // Do not stack separate focusable windows on repeated overflow taps.
     private var homeOverflowPopup: TelegramMenuPopup? = null
-    private var pinPopupMenu: PopupMenu? = null
+    private var pinPopupMenu: com.eve.app.designsystem.TelegramPopupMenu? = null
     private var homeOwnerUid = ""
     private val searchOwnerCurrent: Boolean
         get() = homeOwnerUid.isNotBlank() && FirebaseAuth.getInstance().currentUser?.uid == homeOwnerUid
@@ -1056,22 +1055,18 @@ class MainActivity : EveBaseActivity() {
     private fun showPinPopupMenu(exam: Exam, isPinned: Boolean, anchorView: View) {
         val user = FirebaseAuth.getInstance().currentUser ?: return
         pinPopupMenu?.dismiss()
-        val popup = PopupMenu(this, anchorView)
+        val title = if (isPinned) "Unpin" else "Pin"
+        val popup = com.eve.app.designsystem.TelegramPopupMenu(this).apply {
+            addItem(1, title, R.drawable.ic_pin) {
+                viewModel.togglePin(user.uid, exam.id, isPinned)
+                com.eve.app.util.VibrationHelper.vibrateLightHaptic(this@MainActivity)
+                val msg = if (isPinned) "Test unpinned" else "Test pinned to top"
+                com.eve.app.util.AppBulletin.showSuccess(this@MainActivity, msg)
+            }
+        }
         pinPopupMenu = popup
         popup.setOnDismissListener { if (pinPopupMenu === popup) pinPopupMenu = null }
-        val title = if (isPinned) "Unpin" else "Pin"
-        val menuItem = popup.menu.add(title)
-        menuItem.setIcon(R.drawable.ic_pin)
-        popup.setForceShowIcon(true)
-        popup.setOnMenuItemClickListener {
-            viewModel.togglePin(user.uid, exam.id, isPinned)
-            // Task B: Fire exactly one haptic event per pin and per unpin action
-            com.eve.app.util.VibrationHelper.vibrateLightHaptic(this)
-            val msg = if (isPinned) "Test unpinned" else "Test pinned to top"
-            com.eve.app.util.AppBulletin.showSuccess(this, msg)
-            true
-        }
-        com.eve.app.designsystem.DesignPopupGlass.around(anchorView) { popup.show() }
+        com.eve.app.designsystem.DesignPopupGlass.around(anchorView) { popup.show(anchorView) }
     }
 
     private fun openFeedbackForPost(post: com.eve.app.data.model.FeedbackPost) {
@@ -2211,7 +2206,7 @@ class MainActivity : EveBaseActivity() {
     }
 
     private var logoutConfirmation: com.eve.app.designsystem.TelegramNativeAlertDialog? = null
-    private var targetExamsDialog: com.google.android.material.bottomsheet.BottomSheetDialog? = null
+    private var targetExamsDialog: com.eve.app.designsystem.TelegramBottomSheet? = null
     private fun confirmLogout() {
         if (logoutPending || isFinishing || isDestroyed || logoutConfirmation?.isShowing == true) return
         val dialog = com.eve.app.designsystem.TelegramNativeAlertDialog.Builder(this)

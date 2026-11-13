@@ -21,7 +21,7 @@ import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AdminAccessGate
 import com.eve.app.util.AppBulletin
-import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.eve.app.designsystem.TelegramBottomSheet
 import com.google.firebase.auth.FirebaseAuth
 import androidx.lifecycle.Lifecycle
 import kotlinx.coroutines.CancellationException
@@ -55,7 +55,7 @@ class ActivityLogActivity : EveBaseActivity() {
     private var accessReady = false
     private var reauthorizeOnResume = false
     private var viewsPrepared = false
-    private var filterDialog: BottomSheetDialog? = null
+    private var filterDialog: TelegramBottomSheet? = null
     private var filterAdminJob: Job? = null
     private var filterTypeJob: Job? = null
     private var logDialog: TelegramNativeAlertDialog? = null
@@ -325,8 +325,15 @@ class ActivityLogActivity : EveBaseActivity() {
         if (!isCurrentOwner()) return
         val ownerUid = activeUid ?: return
         val ownerEmail = activeEmail ?: return
-        filterDialog?.dismiss()
-        val dialog = BottomSheetDialog(this, R.style.Theme_Eve_BottomSheetDialog)
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(20f), dp(10f), dp(20f), dp(24f))
+            setBackgroundColor(palette.surface)
+        }
+
+        val dialog = TelegramBottomSheet.Builder(this)
+            .setCustomView(root)
+            .create()
         filterDialog = dialog
         fun validFilter(): Boolean =
             isCurrentOwner(ownerUid, ownerEmail) && filterDialog === dialog && dialog.isShowing
@@ -334,13 +341,6 @@ class ActivityLogActivity : EveBaseActivity() {
             if (filterDialog === dialog) filterDialog = null
             filterAdminJob?.cancel()
             filterTypeJob?.cancel()
-        }
-        val palette = TelegramThemeEngine.resolveCurrentPalette(this)
-
-        val root = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(20f), dp(10f), dp(20f), dp(24f))
-            setBackgroundColor(palette.surface)
         }
 
         val pillHandle = View(this).apply {
@@ -460,8 +460,6 @@ class ActivityLogActivity : EveBaseActivity() {
             }
         }
 
-        dialog.setContentView(root)
-        com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, this)
         dialog.show()
     }
 

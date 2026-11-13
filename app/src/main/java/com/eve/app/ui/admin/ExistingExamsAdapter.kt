@@ -9,7 +9,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.widget.PopupMenu
+import com.eve.app.designsystem.TelegramPopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -318,37 +318,19 @@ class ExistingExamsAdapter(
 
             binding.btnMoreOptions.setOnClickListener { view ->
                 dismissActivePopup()
-                val popup = PopupMenu(view.context, view)
+                val popup = TelegramPopupMenu(view.context).apply {
+                    addItem(1, "✏️ Edit Exam") { onEditClick(exam) }
+                    addItem(2, "👁️ Preview (Student View)") { onPreviewClick(exam) }
+                    addItem(3, "🗑️ Delete Exam", isDestructive = true) { onDeleteClick(exam) }
+                }
                 activePopup = popup
                 popup.setOnDismissListener { if (activePopup === popup) activePopup = null }
-                popup.setForceShowIcon(true)
-                popup.menu.add(0, 1, 0, "✏️ Edit Exam")
-                popup.menu.add(0, 2, 1, "👁️ Preview (Student View)")
-                popup.menu.add(0, 3, 2, "🗑️ Delete Exam")
-
-                popup.setOnMenuItemClickListener { menuItem ->
-                    when (menuItem.itemId) {
-                        1 -> {
-                            onEditClick(exam)
-                            true
-                        }
-                        2 -> {
-                            onPreviewClick(exam)
-                            true
-                        }
-                        3 -> {
-                            onDeleteClick(exam)
-                            true
-                        }
-                        else -> false
-                    }
-                }
-                com.eve.app.designsystem.DesignPopupGlass.around(view) { popup.show() }
+                com.eve.app.designsystem.DesignPopupGlass.around(view) { popup.show(view) }
             }
         }
     }
 
-    private var activePopup: PopupMenu? = null
+    private var activePopup: TelegramPopupMenu? = null
 
     fun dismissActivePopup() {
         activePopup?.dismiss()

@@ -87,7 +87,7 @@ class ProfileActivity : EveBaseActivity() {
     private var photoSaveJob: Job? = null
     private var cameraPhotoUri: Uri? = null
     private var cameraPhotoFile: File? = null
-    private var profilePhotoMenu: com.google.android.material.bottomsheet.BottomSheetDialog? = null
+    private var profilePhotoMenu: com.eve.app.designsystem.TelegramBottomSheet? = null
 
     private var profileOwnerUid: String? = null
     private var profileConfirmed = false

@@ -22,7 +22,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
-import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.eve.app.designsystem.TelegramBottomSheet
 import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -44,7 +44,7 @@ class UsernameCardActivity : EveBaseActivity() {
     private var qrClosing = false
     private var gallerySaveInProgress = false
     private var gallerySaveJob: kotlinx.coroutines.Job? = null
-    private var emojiPicker: BottomSheetDialog? = null
+    private var emojiPicker: TelegramBottomSheet? = null
     private var emojiPickerGrid: QrEmojiPickerGrid? = null
     private var emojiPickerScroll: android.os.Parcelable? = null
     private val galleryPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -192,7 +192,7 @@ class UsernameCardActivity : EveBaseActivity() {
             showAnimatedEmojiPicker()
             return
         }
-        val sheet = BottomSheetDialog(this, R.style.Theme_Eve_BottomSheetDialog)
+        val sheet = TelegramBottomSheet(this)
         val grid = GridLayout(this).apply {
             columnCount = 6
             setPadding(px(10), px(12), px(10), px(12))
@@ -221,15 +221,10 @@ class UsernameCardActivity : EveBaseActivity() {
                 setMargins(px(4), px(4), px(4), px(4))
             })
         }
-        sheet.setContentView(ScrollView(this).apply {
+        sheet.setCustomView(ScrollView(this).apply {
             background = glassBackground(24)
             addView(grid)
         })
-        com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(sheet, this)
-        sheet.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)?.apply {
-            backgroundTintList = ColorStateList.valueOf(Color.TRANSPARENT)
-            setBackgroundColor(Color.TRANSPARENT)
-        }
         sheet.show()
     }
 

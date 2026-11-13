@@ -25,7 +25,7 @@ import com.eve.app.ui.admin.tg.TextCheckCell
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AdminAccessGate
 import com.eve.app.util.AppBulletin
-import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.eve.app.designsystem.TelegramBottomSheet
 import kotlinx.coroutines.launch
 
 class EmojiStudioActivity : EveBaseActivity() {
@@ -49,8 +49,8 @@ class EmojiStudioActivity : EveBaseActivity() {
     private var reauthorizeOnResume = false
     private var authorizedUid: String? = null
     private var authorizedEmail: String? = null
-    private var placementDialog: BottomSheetDialog? = null
-    private var packManagerDialog: BottomSheetDialog? = null
+    private var placementDialog: TelegramBottomSheet? = null
+    private var packManagerDialog: TelegramBottomSheet? = null
     private var importOptionsDialog: TelegramNativeAlertDialog? = null
     private var itemDetailsDialog: TelegramNativeAlertDialog? = null
     private var pendingUpload: android.net.Uri? = null
@@ -313,12 +313,12 @@ class EmojiStudioActivity : EveBaseActivity() {
     }
 
     private fun showPlacementBottomSheet(item: EmojiItem) {
-        val dialog = BottomSheetDialog(this, com.eve.app.R.style.Theme_Eve_BottomSheetDialog)
+        val sheetBinding = BottomSheetEmojiPlacementBinding.inflate(layoutInflater)
+        val dialog = TelegramBottomSheet.Builder(this)
+            .setCustomView(sheetBinding.root)
+            .create()
         placementDialog = dialog
         dialog.setOnDismissListener { if (placementDialog === dialog) placementDialog = null }
-        val sheetBinding = BottomSheetEmojiPlacementBinding.inflate(layoutInflater)
-        dialog.setContentView(sheetBinding.root)
-        com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, this)
 
         sheetBinding.tvPlacementEmojiTitle.text = "${item.altEmoji} Placement"
         sheetBinding.tvPlacementPackName.text = item.packTitle ?: item.source
@@ -435,12 +435,12 @@ class EmojiStudioActivity : EveBaseActivity() {
     }
 
     private fun showPackManagerBottomSheet() {
-        val dialog = BottomSheetDialog(this, com.eve.app.R.style.Theme_Eve_BottomSheetDialog)
+        val sheetBinding = BottomSheetEmojiPackManagerBinding.inflate(layoutInflater)
+        val dialog = TelegramBottomSheet.Builder(this)
+            .setCustomView(sheetBinding.root)
+            .create()
         packManagerDialog = dialog
         dialog.setOnDismissListener { if (packManagerDialog === dialog) packManagerDialog = null }
-        val sheetBinding = BottomSheetEmojiPackManagerBinding.inflate(layoutInflater)
-        dialog.setContentView(sheetBinding.root)
-        com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, this)
 
         // Global Telegram Kill Switch
         sheetBinding.cellGlobalTelegramSwitch.setTextAndCheck(

@@ -60,7 +60,7 @@ class TestActivity : EveBaseActivity() {
     private var leaveConfirmDialog: TelegramNativeAlertDialog? = null
     private var submitConfirmDialog: TelegramNativeAlertDialog? = null
     private var statusDialog: TelegramNativeAlertDialog? = null
-    private var completedExamDialog: com.google.android.material.bottomsheet.BottomSheetDialog? = null
+    private var completedExamDialog: com.eve.app.designsystem.TelegramBottomSheet? = null
     private var isLeavingTest = false
     private var adminRepository = AdminRepository()
     private var isAdminUser = false

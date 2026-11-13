@@ -24,7 +24,7 @@ object DesignSurfaces {
         val window = dialog.window ?: return
         // A sheet's solid body is its bottom-sheet view; its full-screen window
         // must stay transparent so the host and native outside scrim remain visible.
-        window.setBackgroundDrawableResource(if (dialog is com.google.android.material.bottomsheet.BottomSheetDialog)
+        window.setBackgroundDrawableResource(if (dialog is TelegramBottomSheet)
             android.R.color.transparent else R.drawable.design_dialog_surface_panel)
         window.clearFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
         if (Build.VERSION.SDK_INT >= 31) {

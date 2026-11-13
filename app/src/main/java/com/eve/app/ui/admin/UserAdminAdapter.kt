@@ -3,7 +3,7 @@ package com.eve.app.ui.admin
 import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.appcompat.widget.PopupMenu
+import com.eve.app.designsystem.TelegramPopupMenu
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -70,31 +70,17 @@ class UserAdminAdapter(
             binding.btnMoreUser.imageTintList = ColorStateList.valueOf(palette.textSecondary)
             binding.btnMoreUser.setOnClickListener { view ->
                 dismissActivePopup()
-                val popup = PopupMenu(view.context, view)
-                activePopup = popup
-                popup.setOnDismissListener { if (activePopup === popup) activePopup = null }
-                popup.setForceShowIcon(true)
-                popup.menu.add(0, 1, 0, "👁️ View Test History")
-                if (user.disabled) {
-                    popup.menu.add(0, 2, 1, "✅ Enable Account")
-                } else {
-                    popup.menu.add(0, 2, 1, "🚫 Disable / Ban Account")
-                }
-
-                popup.setOnMenuItemClickListener { menuItem ->
-                    when (menuItem.itemId) {
-                        1 -> {
-                            onViewDetails(user)
-                            true
-                        }
-                        2 -> {
-                            onToggleStatus(user, !user.disabled)
-                            true
-                        }
-                        else -> false
+                val popup = TelegramPopupMenu(view.context).apply {
+                    addItem(1, "👁️ View Test History") { onViewDetails(user) }
+                    if (user.disabled) {
+                        addItem(2, "✅ Enable Account") { onToggleStatus(user, false) }
+                    } else {
+                        addItem(2, "🚫 Disable / Ban Account", isDestructive = true) { onToggleStatus(user, true) }
                     }
                 }
-                com.eve.app.designsystem.DesignPopupGlass.around(view) { popup.show() }
+                activePopup = popup
+                popup.setOnDismissListener { if (activePopup === popup) activePopup = null }
+                com.eve.app.designsystem.DesignPopupGlass.around(view) { popup.show(view) }
             }
         }
 
@@ -115,7 +101,7 @@ class UserAdminAdapter(
         }
     }
 
-    private var activePopup: PopupMenu? = null
+    private var activePopup: TelegramPopupMenu? = null
 
     fun dismissActivePopup() {
         activePopup?.dismiss()

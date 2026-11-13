@@ -1,14 +1,14 @@
 package com.eve.app.ui.profile
 
 import android.content.Context
-import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.eve.app.designsystem.TelegramBottomSheet
 
 /**
  * ADAPTED Telegram QR sheet close host. Back, drag and outside-tap
- * cancellation still belong to the existing Material dialog; its final
+ * cancellation belong to the Telegram bottom sheet; its final
  * dismissal is deferred to the source Java/Kotlin closing compositor.
  */
-internal class QrPickerMorphDialog(context: Context) : BottomSheetDialog(context) {
+internal class QrPickerMorphDialog(context: Context) : TelegramBottomSheet(context) {
     private var sheetSurface: QrPickerSheetSurface? = null
     private var pickerGrid: QrEmojiPickerGrid? = null
     private var closing = false
