@@ -134,6 +134,8 @@ object FontManager {
         }
     }
 
+    fun telegramRegularTypeface(context: Context): Typeface = regularTypeface(context)
+
     private fun loadInterTypeface(context: Context, weight: FontWeight): Typeface {
         return try {
             when (weight) {

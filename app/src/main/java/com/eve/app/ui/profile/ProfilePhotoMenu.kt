@@ -43,11 +43,11 @@ internal object ProfilePhotoMenuModel {
 
     fun items(hasAvatar: Boolean): List<Item> {
         val base = mutableListOf(
-            Item(Action.CAMERA, R.string.profile_action_take_photo, R.drawable.ic_camera),
-            Item(Action.GALLERY, R.string.profile_action_upload_gallery, R.drawable.msg_photos)
+            Item(Action.CAMERA, R.string.profile_take_photo, R.drawable.ic_camera),
+            Item(Action.GALLERY, R.string.profile_upload_from_gallery, R.drawable.msg_photos)
         )
         if (hasAvatar) {
-            base.add(Item(Action.REMOVE, R.string.profile_action_remove_photo, R.drawable.ic_delete, destructive = true))
+            base.add(Item(Action.REMOVE, R.string.profile_remove_photo, R.drawable.ic_delete, destructive = true))
         }
         return base
     }

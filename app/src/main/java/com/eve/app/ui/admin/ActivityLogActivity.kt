@@ -325,6 +325,7 @@ class ActivityLogActivity : EveBaseActivity() {
         if (!isCurrentOwner()) return
         val ownerUid = activeUid ?: return
         val ownerEmail = activeEmail ?: return
+        val palette = TelegramThemeEngine.resolveCurrentPalette(this)
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(20f), dp(10f), dp(20f), dp(24f))
