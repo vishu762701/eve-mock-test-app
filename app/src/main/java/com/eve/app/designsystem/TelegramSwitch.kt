@@ -7,16 +7,20 @@ package com.eve.app.designsystem
 
 import android.animation.ObjectAnimator
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.RippleDrawable
+import android.os.Build
 import android.os.Parcel
 import android.os.Parcelable
 import android.text.TextPaint
 import android.util.AttributeSet
+import android.util.StateSet
 import android.view.HapticFeedbackConstants
-import android.view.SoundEffectConstants
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
@@ -26,21 +30,21 @@ import com.eve.app.R
 import com.eve.app.theme.TelegramThemeEngine
 
 /**
- * Official Telegram Switch component ported for EVE Mission 01.
- * Geometry ported from Switch.java:380-384, 448-450, 497:
- *   - Track width: 31dp (Switch.java:380)
- *   - Track height: 14dp (Switch.java:383, 448)
- *   - Thumb backplate radius: 10dp (diameter 20dp) (Switch.java:381, 450)
- *   - Thumb inner radius: 8dp (Switch.java:497)
- *   - Thumb travel distance: 17dp (Switch.java:384)
- *   - Animation: 200ms ObjectAnimator on "progress" (Switch.java:237-238)
- *   - Standalone cell layout bounds: 37x20dp (TextCheckCell.java:126)
- * Colors:
- *   - Day track off: 0xFFA6ADB3 (ThemeColors.java:115 key_switchTrack)
- *   - Day track on:  0xFF229AF0 (ThemeColors.java:116 TELEGRAM_COLOR)
- *   - Night track off: 0xFF606060 (night.attheme:31 switchTrack=-10461088)
- *   - Night track on:  0xFF459CE3 (night.attheme:366 switchTrackChecked=-12215069)
- *   - Thumb: 0xFFFFFFFF (Theme.key_windowBackgroundWhite)
+ * Telegram Switch (Components/Switch.java) port, re-verified against the official source.
+ *
+ * Geometry (Switch.java onDraw): track 31x14dp, track radius 7dp, backplate circle r=10dp,
+ * thumb circle r=8dp, thumb travel 17dp, x offset 7dp, 200ms "progress" animation.
+ * Standalone cell bounds are 37x20dp (TextCheckCell.java:126).
+ *
+ * Colours as used by TextCheckCell.java:125 setColors(switchTrack, switchTrackChecked,
+ * windowBackgroundWhite, windowBackgroundWhite):
+ *   Day   (ThemeColors.java:115-116, 79): track 0xFFA6ADB3, checked 0xFF229AF0, thumb 0xFFFFFFFF
+ *   Night (night.attheme:31, 366, 235):  track 0xFF606060, checked 0xFF459CE3, thumb 0xFF181819
+ *   Press ripple (switchTrackBlueSelector / ...Checked, Switch.java setDrawRipple):
+ *   Day 0x17404A53 / 0x21024781, Night 0x19B9DDFA / 0x328CD7FF; 18dp radius around the thumb.
+ *
+ * Not ported (not used by Eve): override-colour reveal bitmaps, icon drawables, drawIconType.
+ * Text mode below is an Eve addition and is not part of the Telegram source.
  */
 class TelegramSwitch @JvmOverloads constructor(
     context: Context,
@@ -67,12 +71,23 @@ class TelegramSwitch @JvmOverloads constructor(
     private var onCheckedChangeListener: OnCheckedChangeListener? = null
     private var textValue: CharSequence? = null
 
-    // Colors matching Telegram Android ThemeColors.java and night.attheme
-    private val DAY_TRACK_OFF = 0xFFA6ADB3.toInt()        // ThemeColors.java:115 key_switchTrack
-    private val DAY_TRACK_ON = 0xFF229AF0.toInt()         // ThemeColors.java:116 key_switchTrackChecked (TELEGRAM_COLOR)
-    private val NIGHT_TRACK_OFF = 0xFF606060.toInt()      // night.attheme:31 switchTrack=-10461088
-    private val NIGHT_TRACK_ON = 0xFF459CE3.toInt()       // night.attheme:366 switchTrackChecked=-12215069
-    private val THUMB_COLOR = 0xFFFFFFFF.toInt()          // Theme.key_windowBackgroundWhite
+    private var drawRipple = false
+    private var rippleDrawable: RippleDrawable? = null
+    private var rippleColorSet = 0
+    private val pressedState = intArrayOf(android.R.attr.state_enabled, android.R.attr.state_pressed)
+
+    private companion object {
+        const val DAY_TRACK_OFF = 0xFFA6ADB3.toInt()      // ThemeColors.java:115 key_switchTrack
+        const val DAY_TRACK_ON = 0xFF229AF0.toInt()       // ThemeColors.java:116 TELEGRAM_COLOR
+        const val DAY_THUMB = 0xFFFFFFFF.toInt()          // ThemeColors.java:79 windowBackgroundWhite
+        const val DAY_RIPPLE_OFF = 0x17404A53             // ThemeColors.java:121
+        const val DAY_RIPPLE_ON = 0x21024781              // ThemeColors.java:122
+        const val NIGHT_TRACK_OFF = 0xFF606060.toInt()    // night.attheme:31 switchTrack=-10461088
+        const val NIGHT_TRACK_ON = 0xFF459CE3.toInt()     // night.attheme:366 switchTrackChecked=-12215069
+        const val NIGHT_THUMB = 0xFF181819.toInt()        // night.attheme:235 windowBackgroundWhite=-15198183
+        const val NIGHT_RIPPLE_OFF = 0x19B9DDFA           // night.attheme:341 switchTrackBlueSelector
+        const val NIGHT_RIPPLE_ON = 0x328CD7FF            // night.attheme:337 switchTrackBlueSelectorChecked
+    }
 
     var text: CharSequence?
         get() = textValue
@@ -87,6 +102,7 @@ class TelegramSwitch @JvmOverloads constructor(
     init {
         isFocusable = true
         isClickable = true
+        isHapticFeedbackEnabled = true
         textPaint.textSize = dp(16f)
         if (attrs != null) {
             val a = context.obtainStyledAttributes(attrs, R.styleable.TelegramSwitch)
@@ -145,12 +161,48 @@ class TelegramSwitch @JvmOverloads constructor(
         try {
             performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         } catch (_: Exception) {}
-        playSoundEffect(SoundEffectConstants.CLICK)
         return true
     }
 
     fun setOnCheckedChangeListener(listener: OnCheckedChangeListener?) {
         onCheckedChangeListener = listener
+    }
+
+    /** Switch.java setDrawRipple: pressed-state selector ripple, 18dp radius around the thumb. */
+    fun setDrawRipple(value: Boolean) {
+        if (Build.VERSION.SDK_INT < 23 || value == drawRipple) return
+        drawRipple = value
+        val ripple = rippleDrawable ?: RippleDrawable(
+            ColorStateList(arrayOf(StateSet.WILD_CARD), intArrayOf(0)), null, null
+        ).also {
+            it.radius = dp(18)
+            it.callback = this
+            rippleDrawable = it
+        }
+        if ((isCheckedState && rippleColorSet != 2) || (!isCheckedState && rippleColorSet != 1)) {
+            val dark = TelegramThemeEngine.isDarkActive(context)
+            val color = if (isCheckedState) {
+                if (dark) NIGHT_RIPPLE_ON else DAY_RIPPLE_ON
+            } else {
+                if (dark) NIGHT_RIPPLE_OFF else DAY_RIPPLE_OFF
+            }
+            ripple.setColor(ColorStateList(arrayOf(StateSet.WILD_CARD), intArrayOf(color)))
+            rippleColorSet = if (isCheckedState) 2 else 1
+        }
+        if (Build.VERSION.SDK_INT >= 28 && value) {
+            ripple.setHotspot(if (isCheckedState) 0f else dp(100f), dp(18f))
+        }
+        ripple.state = if (value) pressedState else StateSet.NOTHING
+        invalidate()
+    }
+
+    override fun setPressed(pressed: Boolean) {
+        setDrawRipple(pressed)
+        super.setPressed(pressed)
+    }
+
+    override fun verifyDrawable(who: Drawable): Boolean {
+        return super.verifyDrawable(who) || (rippleDrawable != null && who === rippleDrawable)
     }
 
     override fun onDetachedFromWindow() {
@@ -223,25 +275,13 @@ class TelegramSwitch @JvmOverloads constructor(
         val trackOff = if (isDark) NIGHT_TRACK_OFF else DAY_TRACK_OFF
         val trackOn = if (isDark) NIGHT_TRACK_ON else DAY_TRACK_ON
 
-        // Interpolate track color
-        val r1 = Color.red(trackOff)
-        val r2 = Color.red(trackOn)
-        val g1 = Color.green(trackOff)
-        val g2 = Color.green(trackOn)
-        val b1 = Color.blue(trackOff)
-        val b2 = Color.blue(trackOn)
-        val a1 = Color.alpha(trackOff)
-        val a2 = Color.alpha(trackOn)
+        val red = (Color.red(trackOff) + (Color.red(trackOn) - Color.red(trackOff)) * _progress).toInt()
+        val green = (Color.green(trackOff) + (Color.green(trackOn) - Color.green(trackOff)) * _progress).toInt()
+        val blue = (Color.blue(trackOff) + (Color.blue(trackOn) - Color.blue(trackOff)) * _progress).toInt()
+        val alpha = (Color.alpha(trackOff) + (Color.alpha(trackOn) - Color.alpha(trackOff)) * _progress).toInt()
+        trackPaint.color = Color.argb(alpha, red, green, blue)
 
-        val red = (r1 + (r2 - r1) * _progress).toInt()
-        val green = (g1 + (g2 - g1) * _progress).toInt()
-        val blue = (b1 + (b2 - b1) * _progress).toInt()
-        val alpha = (a1 + (a2 - a1) * _progress).toInt()
-        val currentTrackColor = Color.argb(alpha, red, green, blue)
-
-        trackPaint.color = currentTrackColor
-
-        // Geometry verbatim from Telegram Switch.java:380-450
+        // Switch.java onDraw: 31x14dp track, centred; thumb x = 7dp + 17dp * progress.
         val width = dp(31f)
         val height = dp(14f)
         val x = if (!currentText.isNullOrEmpty()) {
@@ -257,8 +297,17 @@ class TelegramSwitch @JvmOverloads constructor(
         canvas.drawRoundRect(rectF, dp(7f), dp(7f), trackPaint)
         canvas.drawCircle(tx, ty, dp(10f), trackPaint)
 
-        // Draw thumb
-        thumbPaint.color = THUMB_COLOR
+        // Ripple is drawn between the track backplate and the thumb (Switch.java onDraw).
+        rippleDrawable?.let {
+            it.setBounds(
+                (tx - dp(18f)).toInt(), (ty - dp(18f)).toInt(),
+                (tx + dp(18f)).toInt(), (ty + dp(18f)).toInt()
+            )
+            it.draw(canvas)
+        }
+
+        // Thumb = windowBackgroundWhite for both states (white day, 0xFF181819 night).
+        thumbPaint.color = if (isDark) NIGHT_THUMB else DAY_THUMB
         canvas.drawCircle(tx, ty, dp(8f), thumbPaint)
     }
 
