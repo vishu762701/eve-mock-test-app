@@ -89,7 +89,8 @@ class TelegramNativeAlertDialog private constructor(
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f)
                 typeface = FontManager.telegramMediumTypeface(context)
                 gravity = Gravity.START
-                setPadding(dp(24), dp(19), dp(24), dp(10))
+                // AlertDialog.java:818-821: title bottom margin 14dp with item list, else 10dp.
+                setPadding(dp(24), dp(19), dp(24), dp(if (rowItems != null) 14 else 10))
             }, LinearLayout.LayoutParams(-1, -2))
         }
         if (messageText != null || rowItems != null || customContent != null) {
@@ -105,7 +106,12 @@ class TelegramNativeAlertDialog private constructor(
                     setTextColor(textInk)
                     setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
                     gravity = Gravity.START
-                    setPadding(dp(24), if (titleText == null) dp(19) else 0, dp(24), dp(10))
+                    // AlertDialog.java:920: margins 24,0,24 and bottom customViewOffset (12dp)
+                    // when an item list or custom view follows, else 0.
+                    setPadding(
+                        dp(24), if (titleText == null) dp(19) else 0, dp(24),
+                        dp(if (customContent != null || rowItems != null) 12 else 0)
+                    )
                 }, LinearLayout.LayoutParams(-1, -2))
             }
             rowItems?.forEachIndexed { index, label ->
@@ -198,8 +204,14 @@ class TelegramNativeAlertDialog private constructor(
             val actions = LinearLayout(context).apply {
                 tag = "telegram_native_alert_actions"
                 orientation = if (verticalActions) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
-                gravity = Gravity.END or Gravity.CENTER_VERTICAL
-                setPadding(dp(8), 0, dp(8), 0)
+                if (verticalActions) {
+                    gravity = Gravity.END or Gravity.CENTER_VERTICAL
+                    setPadding(dp(8), 0, dp(8), 0)
+                } else {
+                    // AlertDialog.java:1108,1160-1163: bar padding 8dp, 40dp buttons at the top-right.
+                    gravity = Gravity.END or Gravity.TOP
+                    setPadding(dp(8), dp(8), dp(8), dp(8))
+                }
             }
             fun addAction(which: Int, label: CharSequence, listener: DialogInterface.OnClickListener?) {
                 val mask = GradientDrawable().apply {
@@ -220,7 +232,7 @@ class TelegramNativeAlertDialog private constructor(
                     typeface = FontManager.telegramMediumTypeface(context)
                     gravity = Gravity.CENTER
                     minWidth = dp(64)
-                    minHeight = dp(48)
+                    minHeight = if (verticalActions) dp(48) else dp(40)
                     setPadding(dp(12), 0, dp(12), 0)
                     isSingleLine = true
                     ellipsize = TextUtils.TruncateAt.END
@@ -242,7 +254,7 @@ class TelegramNativeAlertDialog private constructor(
                 }
                 actionButtons[which] = action
                 val lp = LinearLayout.LayoutParams(
-                    if (verticalActions) -1 else -2, dp(48)
+                    if (verticalActions) -1 else -2, if (verticalActions) dp(48) else dp(40)
                 )
                 if (actions.childCount != 0 && !verticalActions) lp.marginStart = dp(8)
                 actions.addView(action, lp)
