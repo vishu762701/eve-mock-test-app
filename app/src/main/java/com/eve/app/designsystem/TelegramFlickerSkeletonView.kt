@@ -54,6 +54,22 @@ class TelegramFlickerSkeletonView @JvmOverloads constructor(
             invalidate()
         }
 
+    var skipDrawItemsCount: Int = 0
+        set(value) {
+            field = value.coerceAtLeast(0)
+            invalidate()
+        }
+
+    private var parentWidth: Int = 0
+    private var parentHeight: Int = 0
+    private var parentXOffset: Float = 0f
+
+    fun setParentSize(width: Int, height: Int, xOffset: Float = 0f) {
+        parentWidth = width
+        parentHeight = height
+        parentXOffset = xOffset
+    }
+
     // Reusable drawing members — no allocations in onDraw
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val innerCutoutPaint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -167,12 +183,12 @@ class TelegramFlickerSkeletonView @JvmOverloads constructor(
         if (dt < 4) dt = 0
         lastUpdateTime = now
 
-        val h = if (measuredHeight > 0) measuredHeight else 1
+        val h = if (parentHeight > 0) parentHeight else if (measuredHeight > 0) measuredHeight else 1
         totalTranslation += dt * h / 400.0f
         if (totalTranslation >= h * 2) {
             totalTranslation = -gradientWidth * 2f
         }
-        matrix.setTranslate(0f, totalTranslation)
+        matrix.setTranslate(parentXOffset, totalTranslation)
         gradient?.setLocalMatrix(matrix)
     }
 
@@ -229,6 +245,11 @@ class TelegramFlickerSkeletonView @JvmOverloads constructor(
         var y = paddingTop.toFloat()
         var i = 0
         while (y < height && i < count) {
+            if (i < skipDrawItemsCount) {
+                y += totalRowSpan
+                i++
+                continue
+            }
             cardRect.set(padStart.toFloat(), y, (width - padEnd).toFloat(), y + rowHeight)
             // 1. Draw card background with shimmer shader
             canvas.drawRoundRect(cardRect, cardRadius, cardRadius, paint)
