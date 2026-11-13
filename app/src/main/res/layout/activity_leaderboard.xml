@@ -28,11 +28,10 @@
     </LinearLayout>
     <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
         <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvLeaderboard" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Scroll" />
-        <LinearLayout android:id="@+id/progressGroup" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:orientation="vertical" android:visibility="visible" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-            <com.eve.app.designsystem.TelegramRadialProgressView android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" />
-            <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:text="Loading leaderboard…" />
-        </LinearLayout>
-        <LinearLayout android:id="@+id/messageGroup" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:orientation="vertical" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
+        <FrameLayout android:id="@+id/progressGroup" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="visible">
+            <com.eve.app.designsystem.TelegramFlickerSkeletonView android:layout_width="match_parent" android:layout_height="match_parent" app:flickerRowType="home_exam" style="@style/Widget.Eve.Token.Scroll" />
+        </FrameLayout>
+        <LinearLayout android:id="@+id/messageGroup" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:orientation="vertical" android:visibility="gone" android:clipToPadding="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
             <com.airbnb.lottie.LottieAnimationView android:id="@+id/ivMessageIcon" android:layout_width="160dp" android:layout_height="160dp" app:lottie_autoPlay="false" app:lottie_loop="false" app:lottie_rawRes="@raw/error_404" style="@style/Widget.Eve.Token.Lottie" />
             <TextView android:id="@+id/tvMessage" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_section_gap" android:gravity="center" />
             <TextView android:id="@+id/tvMessageSub" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="260dp" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:gravity="center" />
