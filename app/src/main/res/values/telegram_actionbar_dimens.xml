@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ActionBar.java:1914-1920 getCurrentActionBarHeight(): portrait 56dp. -->
+    <dimen name="telegram_action_bar_height">56dp</dimen>
+    <!-- ActionBar.java:1404 back button measured 54dp wide. -->
+    <dimen name="telegram_action_bar_back_width">54dp</dimen>
+    <!-- ActionBar.java:1527 title left = 72dp with back button (54dp + 18dp). -->
+    <dimen name="telegram_action_bar_title_start">18dp</dimen>
+</resources>
