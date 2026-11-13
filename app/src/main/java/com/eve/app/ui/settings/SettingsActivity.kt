@@ -12,6 +12,7 @@ import android.os.Bundle
 import com.eve.app.designsystem.TelegramRadialProgressView
 import android.widget.TextView
 import com.eve.app.util.AppBulletin
+import com.eve.app.util.EveNavigationHelper
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -34,7 +35,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.os.LocaleListCompat
 import com.eve.app.ui.home.TargetExamsBottomSheet
 import com.eve.app.util.StreakHelper
 import com.eve.app.util.SubmissionRetryPolicy
@@ -152,6 +152,7 @@ class SettingsActivity : EveBaseActivity() {
     override fun onResume() {
         super.onResume()
         if (!hasSettingsOwner() && !deletingFirebaseCredential) finish()
+        refreshLanguageText()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -180,7 +181,6 @@ class SettingsActivity : EveBaseActivity() {
         logoutJob = lifecycleScope.launch {
             try {
                 if (!hasSettingsOwner()) { finish(); return@launch }
-                // Revoke only the initiating account's server presence.
                 com.eve.app.util.ProfilePresenceClient.revokeBeforeLogout()
                 if (!hasSettingsOwner()) { finish(); return@launch }
                 performLocalLogout()
@@ -318,41 +318,24 @@ class SettingsActivity : EveBaseActivity() {
         }
     }
 
-    private fun setupLanguageSetting() {
-        fun refreshText() {
-            val current = AppCompatDelegate.getApplicationLocales()
-            val text = when {
-                current.isEmpty -> "System default"
-                current.toLanguageTags().startsWith("hi") -> "हिन्दी"
-                else -> "English"
-            }
-            binding.tvLanguageValue.text = text
+    private fun refreshLanguageText() {
+        val current = AppCompatDelegate.getApplicationLocales()
+        val text = when {
+            current.isEmpty -> "System default"
+            current.toLanguageTags().startsWith("hi") -> "हिन्दी"
+            else -> "English"
         }
-        refreshText()
+        binding.tvLanguageValue.text = text
+    }
+
+    private fun setupLanguageSetting() {
+        refreshLanguageText()
 
         binding.rowLanguage.setOnClickListener {
-            val options = arrayOf("System default", "English", "हिन्दी")
-            val current = AppCompatDelegate.getApplicationLocales()
-            val selectedIdx = when {
-                current.isEmpty -> 0
-                current.toLanguageTags().startsWith("hi") -> 2
-                else -> 1
-            }
-
-            com.eve.app.designsystem.TelegramNativeAlertDialog.Builder(this)
-                .setTitle("Select App Language")
-                .setSingleChoiceItems(options, selectedIdx) { dialog, which ->
-                    val locales = when (which) {
-                        1 -> LocaleListCompat.forLanguageTags("en")
-                        2 -> LocaleListCompat.forLanguageTags("hi")
-                        else -> LocaleListCompat.getEmptyLocaleList()
-                    }
-                    AppCompatDelegate.setApplicationLocales(locales)
-                    refreshText()
-                    dialog.dismiss()
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
+            EveNavigationHelper.startActivityWithTransition(
+                this,
+                Intent(this, LanguageSelectActivity::class.java)
+            )
         }
     }
 
@@ -373,8 +356,6 @@ class SettingsActivity : EveBaseActivity() {
     }
 
     private fun showDeleteAccountConfirmation() {
-        // Official Telegram AndroidUtilities.isSafeToShow():6255-6267.
-        // Never stack destructive windows or show one during Activity teardown.
         if (isFinishing || isDestroyed || deleteConfirmationDialog?.isShowing == true) return
         if (!hasSettingsOwner() || accountDeletionJob?.isActive == true) { finish(); return }
         val dialog = TelegramNativeAlertDialog.Builder(this)
@@ -392,7 +373,6 @@ class SettingsActivity : EveBaseActivity() {
         deleteConfirmArmedAt = android.os.SystemClock.elapsedRealtime()
         requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_POSITIVE)).setOnClickListener {
             if (!dialog.isShowing) return@setOnClickListener
-            // Enforce UIArc duplicate-action guard (280ms)
             if (android.os.SystemClock.elapsedRealtime() - deleteConfirmArmedAt < 280L) {
                 return@setOnClickListener
             }
@@ -401,7 +381,6 @@ class SettingsActivity : EveBaseActivity() {
             executeAccountDeletion()
         }
 
-        // UIArc confirmation timeout: 6000ms auto-dismissal
         deleteTimeoutJob?.cancel()
         deleteTimeoutJob = lifecycleScope.launch {
             kotlinx.coroutines.delay(6000L)
@@ -456,16 +435,12 @@ class SettingsActivity : EveBaseActivity() {
         accountDeletionJob = lifecycleScope.launch {
             try {
                 if (!hasSettingsOwner()) { finish(); return@launch }
-                // Complete server-side data deletion before removing the Firebase
-                // credential. A failed/negative backend response is never success.
                 val response = ApiClient.apiService.deleteAccount()
                 if (!hasSettingsOwner()) { finish(); return@launch }
                 if (!response.success) {
                     throw IllegalStateException(response.error ?: "Backend account deletion was not confirmed")
                 }
 
-                // Delete only the same Firebase credential which initiated the
-                // server request, never one adopted by a later session.
                 deletingFirebaseCredential = true
                 try {
                     user.delete().await()
@@ -481,8 +456,6 @@ class SettingsActivity : EveBaseActivity() {
                     }
                 }
 
-                // Both remote deletion stages succeeded: remove private data owned
-                // by the deleted UID, not files or prefs of a different account.
                 com.eve.app.util.NotificationStore.clearDeletedUser(this@SettingsActivity, user.uid)
                 com.eve.app.data.local.TestSessionStore(this@SettingsActivity).clearAllForUser(user.uid)
                 com.eve.app.data.local.PendingSubmissionStore(this@SettingsActivity).clearAllForUser(user.uid)
@@ -491,21 +464,13 @@ class SettingsActivity : EveBaseActivity() {
                 com.eve.app.ui.mistakes.MistakesPreferenceScope.clearDeletedUser(
                     this@SettingsActivity, user.uid
                 )
-                // Continue-exam and submitted search terms are private to the
-                // deleted account. Do not clear another user's or unowned prefs.
                 com.eve.app.ui.home.HomeRecentExamStore.clearDeletedUser(
                     this@SettingsActivity, user.uid
                 )
                 com.eve.app.ui.home.HomeSearchHistory.clear(
                     this@SettingsActivity, user.uid
                 )
-                // Never wipe the ownerless legacy preferences file: it also holds
-                // app-wide appearance settings and historic unowned notification
-                // entries that cannot safely be attributed to this UID.
                 com.eve.app.data.repository.PremiumRepository.clearCacheForLogout(user.uid, this@SettingsActivity)
-                // FirebaseAuth may now report null because deleting its active
-                // user signs out automatically. But a newly signed-in different
-                // UID must NEVER lose its global SessionManager or Google login.
                 val survivingUid = settingsAuth.currentUser?.uid
                 if (!SettingsDeletionBoundary.mayClearGlobalSession(ownerUid, survivingUid)) {
                     dismissProgress()
@@ -529,8 +494,6 @@ class SettingsActivity : EveBaseActivity() {
                 throw cancel
             } catch (e: Exception) {
                 dismissProgress()
-                // The network deletion can finish after Settings is closing.
-                // Original Telegram AndroidUtilities.isSafeToShow():6255-6267.
                 if (isFinishing || isDestroyed) return@launch
                 if (!hasSettingsOwner()) { finish(); return@launch }
                 TelegramNativeAlertDialog.Builder(this@SettingsActivity)
@@ -545,7 +508,6 @@ class SettingsActivity : EveBaseActivity() {
     }
 
     private fun promptReauthentication() {
-        // EVE-owned authentication prompt must not leak a destroyed Activity.
         if (isFinishing || isDestroyed || passwordReauthenticationDialog?.isShowing == true) return
         if (!hasSettingsOwner()) { finish(); return }
         val user = FirebaseAuth.getInstance().currentUser ?: return
@@ -600,13 +562,11 @@ class SettingsActivity : EveBaseActivity() {
                 }
             }
             dialog.setOnDismissListener {
-                // Clear the password on any dismissal, including Activity teardown.
                 field.text?.clear()
                 if (passwordReauthenticationDialog === dialog) passwordReauthenticationDialog = null
             }
             dialog.show()
             passwordReauthenticationDialog = dialog
-            // The native UI host retains EVE-only password validation and Firebase reauthentication.
             return
         }
         TelegramNativeAlertDialog.Builder(this)
