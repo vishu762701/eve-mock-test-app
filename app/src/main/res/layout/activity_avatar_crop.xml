@@ -23,7 +23,7 @@
             android:layout_height="@dimen/design_touch_min"
             android:contentDescription="@string/cancel"
             android:src="@drawable/ic_back"
-            app:tint="#FFFFFFFF"
+            app:tint="@color/telegram_type_primary"
             style="@style/Widget.Eve.Token.IconButton" />
 
         <TextView
@@ -36,8 +36,7 @@
             android:maxLines="1"
             android:text="@string/profile_crop_title"
             android:textColor="#FFFFFFFF"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            style="@style/TextAppearance.Eve.Telegram.NavigationTitle" />
 
         <ImageButton
             android:id="@+id/btnDone"
@@ -45,7 +44,7 @@
             android:layout_height="@dimen/design_touch_min"
             android:contentDescription="@string/profile_crop_done"
             android:src="@drawable/ic_ab_done"
-            app:tint="#FFFFFFFF"
+            app:tint="@color/telegram_type_primary"
             style="@style/Widget.Eve.Token.IconButton" />
     </LinearLayout>
 

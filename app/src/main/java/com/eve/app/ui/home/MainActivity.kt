@@ -397,13 +397,13 @@ class MainActivity : EveBaseActivity() {
         restoreSearchPresentation(savedInstanceState)
 
         // Telegram-style overflow menu setup
-        com.eve.app.designsystem.DesignPress.bind(binding.btnOverflow) {
-            val anchor = binding.btnOverflow
-            if (ThemeSwitchAnimator.isTransitioning || isFinishing || isDestroyed) return@bind
+        com.eve.app.designsystem.DesignPress.bind(binding.btnOverflow)
+        binding.btnOverflow.setOnClickListener { anchor ->
+            if (ThemeSwitchAnimator.isTransitioning || isFinishing || isDestroyed) return@setOnClickListener
             val openPopup = homeOverflowPopup
             if (openPopup?.isShowing == true) {
                 openPopup.dismiss()
-                return@bind
+                return@setOnClickListener
             }
             homeOverflowPopup = TelegramMenuPopup(
                 context = this,

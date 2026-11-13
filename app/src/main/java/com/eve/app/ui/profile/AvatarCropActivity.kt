@@ -64,8 +64,8 @@ class AvatarCropActivity : EveBaseActivity() {
             return
         }
 
-        binding.btnCancel.setOnClickListener { finish() }
-        binding.btnDone.setOnClickListener { completeCrop() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnCancel) { finish() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnDone) { completeCrop() }
         binding.btnDone.isEnabled = false
         loadPhoto()
     }

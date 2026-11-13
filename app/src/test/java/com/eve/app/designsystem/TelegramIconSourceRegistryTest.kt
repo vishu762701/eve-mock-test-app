@@ -54,7 +54,7 @@ class TelegramIconSourceRegistryTest {
             }
             assertTrue("No hashed density for $icon", expectedPaths.isNotEmpty())
             val actualPaths = resources.listFiles()!!.filter { it.isDirectory && it.name.startsWith("drawable") }
-                .flatMap { directory -> directory.listFiles()!!.filter { it.nameWithoutExtension == icon } }
+                .flatMap { directory -> directory.listFiles()!!.filter { it.nameWithoutExtension == icon && it.extension == "webp" } }
                 .map { it.relativeTo(resources).invariantSeparatorsPath }.toSet()
             assertEquals("Unregistered or missing density for $icon", expectedPaths, actualPaths)
         }
