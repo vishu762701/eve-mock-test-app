@@ -10,17 +10,15 @@ Eve is an Android exam-practice application with a Kotlin/XML client, Firebase a
 - `.github/workflows/build.yml`: Android, backend, Functions and native UI verification before publishing a debug APK.
 - `.github/workflows/deploy-worker.yml`: Worker deployment and D1 migration workflow.
 
-## Current engineering instructions
-Read `ENGINEERING_STANDARD.md`, `SOURCE_OF_TRUTH.md`, and `AGENTS.md` before editing. `GEMINI.md`/`CLAUDE.md` are pointers. EVE is under active development: no visual/UX element is permanently locked; the owner may safely add, redesign or remove anything. Historical UI archives are not active rules. For each task agents delete only files made provably obsolete by the authorized changes; repo-wide cleanup requires an explicit request. Preserve uncertain assets, migrations, licenses and production data.
+## Engineering instructions for agents
+Read `ENGINEERING_STANDARD.md` (the single workflow policy) and `SOURCE_OF_TRUTH.md` (architecture and security) before editing. `AGENTS.md` is the shared entrypoint; `GEMINI.md` and `CLAUDE.md` are pointers to it. The owner's latest explicit request defines scope: change only the requested items and their minimum direct dependencies and tests, with no unrelated redesign, refactor or cleanup. EVE is under active development, so no UI/UX element is permanently locked.
 
-## Owner-led engineering and official references
-Eve is actively being developed; owner UI/UX decisions are never permanently locked. Change ONLY the explicitly requested items and minimum direct dependencies/tests; no unrelated redesign, refactor or cleanup. Official requests require genuine verified upstream source/documentation, not alternatives, and **no alternative is permitted without explicit owner approval**. Report exact-source blockers, preserve license notices and release-signing/GPL gates. Remove proven obsolete files only within the requested change, except when a broader cleanup is expressly requested.
+When the owner asks for Telegram, the only source is the official `DrKLO/Telegram` repository pinned to a full commit SHA (see `ENGINEERING_STANDARD.md` section 2); no alternative implementation is permitted without explicit owner approval. Agents delete only files made provably obsolete by the authorized change. Preserve uncertain assets, migrations, licenses and production data. Most files in `docs/` are historical evidence, not instructions.
 
 ## Downloading an installable Android APK
-- **FAST** (every intermediate source push): compiles the debug app and tests but intentionally does **not** publish an APK. A green FAST status is not an APK download link.
-- **FULL** (mission-final `[eve-full]` commit, or explicit owner-requested verified delivery): runs Android lint, signing safeguards, both emulator navigation modes, theme evidence, backend and Functions checks. Only after all gates pass does GitHub Actions upload the **Eve-debug-apk** artifact.
+- **FAST** (every push to `main`): compiles the debug APK only (ARM64). It does not run tests and does not publish an APK. A green FAST status means buildable, not tested, and is not an APK download link.
+- **FULL** (manual `workflow_dispatch` run by the owner): runs lint, unit tests, signing safeguards, both emulator navigation modes (gesture and three-button), backend and Functions checks. Only after all gates pass, and only if the `publish_verified_apk` input is true, does GitHub Actions upload the **Eve-debug-apk** artifact.
 - On GitHub open **Actions → Build Eve APK → latest successful FULL run → Artifacts → Eve-debug-apk**. Download the ZIP and extract the debug APK to install it. A source commit alone is not an APK release, and a debug APK is not a production release.
-- If the mission is still incomplete, an owner-requested FULL build delivers an explicitly labeled **verification checkpoint**, not a claim that all Mission 01 requirements are finished.
 
 ## Validation
 - Android: `./gradlew assembleDebug testDebugUnitTest lintDebug` (or use the configured GitHub Actions workflow).
