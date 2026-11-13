@@ -13,6 +13,8 @@
         <item name="cornerSize">@dimen/design_radius_multiline</item>
     </style>
     <style name="ShapeAppearance.Eve.Token.Sheet" parent="ShapeAppearance.Eve.Token.Card">
+        <item name="cornerSizeTopLeft">@dimen/telegram_sheet_radius</item>
+        <item name="cornerSizeTopRight">@dimen/telegram_sheet_radius</item>
         <item name="cornerSizeBottomLeft">@dimen/design_zero</item>
         <item name="cornerSizeBottomRight">@dimen/design_zero</item>
     </style>

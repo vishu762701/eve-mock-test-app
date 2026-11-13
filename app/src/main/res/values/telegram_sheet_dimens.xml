@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Measured from Telegram drawable-xxhdpi/sheet_shadow_round.9.png (used by BottomSheet.java:1223):
+         opaque top-left arc spans 60px at 3x = 20dp. -->
+    <dimen name="telegram_sheet_radius">20dp</dimen>
+</resources>
