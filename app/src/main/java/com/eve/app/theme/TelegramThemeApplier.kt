@@ -163,7 +163,13 @@ object TelegramThemeApplier {
             is com.eve.app.ui.admin.tg.TextCell -> {
                 view.updatePalette(palette)
             }
-            is com.eve.app.ui.admin.tg.TextCheckCell -> {
+            is com.eve.app.designsystem.TextCheckCell -> {
+                view.updatePalette(palette)
+            }
+            is com.eve.app.designsystem.CheckBoxCell -> {
+                view.updatePalette(palette)
+            }
+            is com.eve.app.designsystem.RadioCell -> {
                 view.updatePalette(palette)
             }
             is com.eve.app.ui.admin.tg.TextDetailCell -> {

@@ -113,6 +113,14 @@ class CheckBoxCell @JvmOverloads constructor(
         checkBox.setChecked(checked, animated)
     }
 
+    fun updatePalette(palette: TelegramThemeEngine.ResolvedPalette) {
+        dividerPaint.color = palette.hairline
+        background = TelegramThemeSelectors.getSelectorDrawable(palette.actionSelector)
+        textView.setTextColor(palette.textPrimary)
+        valueTextView.setTextColor(palette.textSecondary)
+        invalidate()
+    }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         if (needDivider) {

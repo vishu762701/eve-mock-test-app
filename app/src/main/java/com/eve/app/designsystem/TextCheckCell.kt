@@ -61,6 +61,8 @@ open class TextCheckCell @JvmOverloads constructor(
             checkBox.setCheckedSilently(value)
         }
 
+    private var offsetFromImage = dp(21f)
+
     init {
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
         dividerPaint.color = palette.hairline
@@ -99,18 +101,21 @@ open class TextCheckCell @JvmOverloads constructor(
             topMargin = dp(2f)
         })
 
-        addView(textLayout, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, Gravity.START or Gravity.CENTER_VERTICAL).apply {
-            marginStart = dp(21f)
-            marginEnd = dp(64f)
-        })
+        val textLp = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.START or Gravity.CENTER_VERTICAL).apply {
+            marginStart = offsetFromImage
+            marginEnd = dp(70f)
+        }
+        addView(textLayout, textLp)
 
         // 3. Switch: 37x20dp frame, 21dp from end
-        addView(checkBox, LayoutParams(dp(37f), dp(20f), Gravity.END or Gravity.CENTER_VERTICAL).apply {
+        val switchLp = LayoutParams(dp(37f), dp(20f), Gravity.END or Gravity.CENTER_VERTICAL).apply {
             marginEnd = dp(21f)
-        })
+        }
+        checkBox.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        addView(checkBox, switchLp)
 
         setOnClickListener {
-            checkBox.toggle()
+            if (isEnabled) checkBox.isChecked = !checkBox.isChecked
         }
     }
 
@@ -122,46 +127,87 @@ open class TextCheckCell @JvmOverloads constructor(
         subtitleView.isEnabled = enabled
     }
 
-    fun setTextAndCheck(text: CharSequence, checked: Boolean, divider: Boolean) {
+    fun setTextAndCheck(text: CharSequence, checked: Boolean, needDivider: Boolean = true) {
         textView.text = text
-        subtitleView.visibility = View.GONE
+        contentDescription = text
+        this.needDivider = needDivider
+        checkBox.setCheckedSilently(checked)
+    }
+
+    fun setTextAndValueAndCheck(text: CharSequence, subtitle: CharSequence?, checked: Boolean, divider: Boolean = true) {
+        textView.text = text
+        setSubtitle(subtitle)
         checkBox.setCheckedSilently(checked)
         needDivider = divider
-        minimumHeight = dp(50f)
         requestLayout()
     }
 
-    fun setTextAndValueAndCheck(text: CharSequence, subtitle: CharSequence?, checked: Boolean, divider: Boolean) {
-        textView.text = text
+    fun setSubtitle(subtitle: CharSequence?) {
         if (!subtitle.isNullOrBlank()) {
             subtitleView.text = subtitle
             subtitleView.visibility = View.VISIBLE
-            minimumHeight = dp(64f)
         } else {
             subtitleView.visibility = View.GONE
-            minimumHeight = dp(50f)
         }
-        checkBox.setCheckedSilently(checked)
-        needDivider = divider
         requestLayout()
     }
 
     fun setIcon(resId: Int) {
         if (resId != 0) {
             iconView.setImageResource(resId)
+            val palette = TelegramThemeEngine.resolveCurrentPalette(context)
+            iconView.setColorFilter(palette.textSecondary)
             iconView.visibility = View.VISIBLE
-            (textLayout.layoutParams as? LayoutParams)?.marginStart = dp(58f)
+            offsetFromImage = dp(58f)
+            (textLayout.layoutParams as? LayoutParams)?.marginStart = offsetFromImage
         } else {
             iconView.visibility = View.GONE
-            (textLayout.layoutParams as? LayoutParams)?.marginStart = dp(21f)
+            offsetFromImage = dp(21f)
+            (textLayout.layoutParams as? LayoutParams)?.marginStart = offsetFromImage
         }
+    }
+
+    fun setOnCheckedChangeListener(listener: TelegramSwitch.OnCheckedChangeListener?) {
+        checkBox.setOnCheckedChangeListener(listener)
+    }
+
+    fun updatePalette(palette: TelegramThemeEngine.ResolvedPalette) {
+        dividerPaint.color = palette.hairline
+        background = TelegramThemeSelectors.getSelectorDrawable(palette.actionSelector)
+        textView.setTextColor(palette.textPrimary)
+        subtitleView.setTextColor(palette.textSecondary)
+        checkBox.invalidate()
+        invalidate()
+    }
+
+    override fun onInitializeAccessibilityNodeInfo(info: android.view.accessibility.AccessibilityNodeInfo) {
+        super.onInitializeAccessibilityNodeInfo(info)
+        info.className = "android.widget.Switch"
+        info.isCheckable = checkBox.visibility == View.VISIBLE
+        info.isChecked = isChecked
+        info.text = listOf(textView.text, subtitleView.text).filter { it.isNotBlank() }.joinToString(". ")
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val rowHeight = dp(if (subtitleView.visibility == View.VISIBLE) 64f else 50f) + (if (needDivider) 1 else 0)
+        super.onMeasure(
+            MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(rowHeight, MeasureSpec.EXACTLY)
+        )
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         if (needDivider) {
-            val start = (textLayout.layoutParams as? LayoutParams)?.marginStart ?: dp(21f)
-            canvas.drawLine(start.toFloat(), (measuredHeight - 1).toFloat(), measuredWidth.toFloat(), (measuredHeight - 1).toFloat(), dividerPaint)
+            val start = if (iconView.visibility == View.VISIBLE) offsetFromImage.toFloat() else dp(21f).toFloat()
+            val y = height - 1f
+            canvas.drawLine(
+                if (layoutDirection == View.LAYOUT_DIRECTION_RTL) 0f else start,
+                y,
+                if (layoutDirection == View.LAYOUT_DIRECTION_RTL) width - start else width.toFloat(),
+                y,
+                dividerPaint
+            )
         }
     }
 }
