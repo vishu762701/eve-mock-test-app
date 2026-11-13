@@ -63,6 +63,7 @@ class TextCell @JvmOverloads constructor(
         }
 
     var offsetFromImage: Int = dp(58f)
+    var heightDp: Int = 50
 
     init {
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
@@ -252,13 +253,14 @@ class TextCell @JvmOverloads constructor(
     }
 
     private fun updateOffsets(hasIcon: Boolean) {
-        offsetFromImage = if (hasIcon) dp(58f) else dp(20f)
+        offsetFromImage = if (hasIcon) dp(58f) else dp(21f)
         (textLayout.layoutParams as? LayoutParams)?.marginStart = offsetFromImage
     }
 
     // Telegram TextCell.java:183-215: 50dp row plus a physical 1px divider.
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        val rowHeight = dp(50f) + (if (needDivider) 1 else 0)
+        val baseDp = if (subtitleView.visibility == View.VISIBLE && heightDp == 50) 71f else heightDp.toFloat()
+        val rowHeight = if (baseDp == 50f) dp(50f) + (if (needDivider) 1 else 0) else dp(baseDp) + (if (needDivider) 1 else 0)
         super.onMeasure(
             MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.EXACTLY),
             MeasureSpec.makeMeasureSpec(rowHeight, MeasureSpec.EXACTLY)
@@ -269,7 +271,7 @@ class TextCell @JvmOverloads constructor(
         super.onDraw(canvas)
         if (needDivider) {
             val hasIcon = iconView.visibility == View.VISIBLE || lottieView.visibility == View.VISIBLE
-            val start = dp(if (hasIcon) 58f else 20f).toFloat()
+            val start = dp(if (hasIcon) 58f else 21f).toFloat()
             val y = height - 1f
             // Telegram TextCell.java:842: mirror the 58dp/20dp inset in RTL.
             canvas.drawLine(

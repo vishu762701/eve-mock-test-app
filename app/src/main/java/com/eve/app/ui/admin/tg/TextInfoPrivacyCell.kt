@@ -42,7 +42,7 @@ class TextInfoPrivacyCell @JvmOverloads constructor(
         textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14f)
         textView.setTextColor(palette.textSecondary)
         textView.gravity = Gravity.START
-        textView.setPadding(dp(24f), dp(10f), dp(24f), dp(17f))
+        textView.setPadding(dp(21f), dp(10f), dp(21f), dp(17f))
 
         addView(textView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, Gravity.TOP or Gravity.START))
     }

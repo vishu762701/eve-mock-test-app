@@ -41,7 +41,7 @@ class HeaderCell @JvmOverloads constructor(
     }
 
     init {
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14f)
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15f)
         textView.typeface = Typeface.DEFAULT_BOLD
         textView.ellipsize = TextUtils.TruncateAt.END
         textView.gravity = Gravity.START or Gravity.CENTER_VERTICAL
@@ -55,7 +55,7 @@ class HeaderCell @JvmOverloads constructor(
             LayoutParams.WRAP_CONTENT,
             Gravity.START or Gravity.TOP
         ).apply {
-            setMargins(dp(20f), dp(7f), dp(20f), 0)
+            setMargins(dp(21f), dp(7f), dp(15f), 0)
         }
         addView(textView, lp)
 

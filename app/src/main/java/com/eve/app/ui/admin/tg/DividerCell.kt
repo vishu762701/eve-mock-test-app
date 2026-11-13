@@ -29,10 +29,18 @@ class DividerCell @JvmOverloads constructor(
     private val dividerPaint = Paint().apply {
         strokeWidth = 1f
     }
+    private var leftMarginDp: Int = 0
+    private var rightMarginDp: Int = 0
 
     init {
         setPadding(0, dp(8f), 0, dp(8f))
         updatePalette(TelegramThemeEngine.resolveCurrentPalette(context))
+    }
+
+    fun setMargins(leftDp: Int, rightDp: Int = 0) {
+        leftMarginDp = leftDp
+        rightMarginDp = rightDp
+        invalidate()
     }
 
     fun updatePalette(palette: TelegramThemeEngine.ResolvedPalette) {
@@ -49,6 +57,8 @@ class DividerCell @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas) {
         val y = paddingTop.toFloat()
-        canvas.drawLine(paddingLeft.toFloat(), y, (width - paddingRight).toFloat(), y, dividerPaint)
+        val start = (paddingLeft + dp(leftMarginDp.toFloat())).toFloat()
+        val end = (width - paddingRight - dp(rightMarginDp.toFloat())).toFloat()
+        canvas.drawLine(start, y, end, y, dividerPaint)
     }
 }

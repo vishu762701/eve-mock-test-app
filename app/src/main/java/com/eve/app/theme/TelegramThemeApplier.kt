@@ -184,6 +184,9 @@ object TelegramThemeApplier {
             is com.eve.app.ui.admin.tg.ShadowSectionCell -> {
                 view.updatePalette(palette)
             }
+            is com.eve.app.ui.admin.tg.DividerCell -> {
+                view.updatePalette(palette)
+            }
             is com.eve.app.ui.admin.tg.TelegramSegmentedTabs -> {
                 view.updatePalette(palette)
             }

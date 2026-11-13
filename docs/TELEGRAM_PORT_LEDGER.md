@@ -54,7 +54,7 @@ Notes / leftovers:
 - Migrated all popup menus in `MainActivity`, `ExistingExamsAdapter`, `UserAdminAdapter` to `TelegramPopupMenu`.
 - Spinner dropdowns and AutoComplete views now use `@drawable/telegram_dialog_popup_fixed_alert4`.
 
-## F4 Bulletin and undo - PENDING_CI
+## F4 Bulletin and undo - DONE (commit 244ca02c)
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | Bulletin corner radius | `Bulletin.java:817` (`dp(16)`) | 16dp | 16dp |
@@ -71,3 +71,22 @@ Notes / leftovers:
 - Removed unused Toast imports in `BookmarksActivity`, `MainActivity`, `ProfileActivity`.
 - Removed unused Snackbar import in `SyllabusActivity`.
 - Aligned `CircularCountdownView` and `layout_undo_bar.xml` to Telegram's authentic 18dp ring and 10dp card radius.
+
+## F5 List cells, headers, dividers, section backgrounds - PENDING_CI
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| TextCell min height | `TextCell.java:64, 186` (50dp, 71dp for multiline) | Fixed 50dp | 50dp min height, 71dp for multiline/subtitle |
+| TextCell image & padding | `TextCell.java:65` (imageLeft=16dp), `offsetFromImage` (58dp/21dp) | 16dp / 20dp | 16dp image margin, 58dp/21dp text offset, 21dp divider inset |
+| HeaderCell height & text | `HeaderCell.java:55, 114` (40dp height, 15sp bold) | 40dp, 14sp | 40dp height, 15sp bold (`Typeface.DEFAULT_BOLD`) |
+| HeaderCell margins | `HeaderCell.java:119` (20/21dp left, 15dp right, 7dp top) | 20dp left, 20dp right | 21dp left, 15dp right, 7dp top |
+| TextInfoPrivacyCell padding & text | `TextInfoPrivacyCell.java:68, 70` (14sp, 21dp sides, 10dp top, 17dp bottom) | 24dp sides | 21dp sides, 10dp top, 17dp bottom, 14sp text |
+| ShadowSectionCell height & color | `ShadowSectionCell.java:46` (12dp height, windowBackgroundGray) | 12dp height | 12dp height, `palette.windowBackground` |
+| DividerCell height & insets | `DividerCell.java:42` (1px stroke, 8dp padding, configurable insets) | Fixed full width | 1px stroke, 8dp top/bottom padding, configurable `setMargins(leftDp, rightDp)` |
+| DesignSystem canonical export | Central designsystem package | Only in `ui.admin.tg` | Exported via `com.eve.app.designsystem.Cells.kt` |
+
+Notes / leftovers:
+- Canonical cells exported in `com.eve.app.designsystem`: `TextCell`, `HeaderCell`, `TextInfoPrivacyCell`, `ShadowSectionCell`, `DividerCell`, `TextDetailCell`.
+- Aligned `HeaderCell` text size to 15sp bold and padding to 21dp left / 15dp right.
+- Aligned `TextCell` to 71dp multiline and 21dp hairline inset.
+- Aligned `TextInfoPrivacyCell` sides padding to 21dp.
+- Added `DividerCell` palette updates to `TelegramThemeApplier`.
