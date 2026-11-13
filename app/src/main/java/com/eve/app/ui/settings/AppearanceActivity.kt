@@ -54,14 +54,14 @@ class AppearanceActivity : EveBaseActivity() {
             TelegramThemeEngine.beginPreview()
         }
 
-        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
-        listOf(
-            binding.btnApply, binding.btnResetDefault, binding.btnImportTheme,
-            binding.btnModeDay, binding.btnModeNight, binding.btnModeSystem
-        ).forEach { com.eve.app.designsystem.DesignPress.bind(it) } {
+        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) {
             TelegramThemeEngine.cancelPreview(this)
             finish()
         }
+        listOf(
+            binding.btnApply, binding.btnResetDefault, binding.btnImportTheme,
+            binding.btnModeDay, binding.btnModeNight, binding.btnModeSystem
+        ).forEach { com.eve.app.designsystem.DesignPress.bind(it) }
 
         binding.btnApply.setOnClickListener {
             isApplied = true
