@@ -62,7 +62,7 @@ class ExamTestsActivity : EveBaseActivity() {
         examName = intent.getStringExtra(Constants.EXTRA_EXAM_NAME).orEmpty()
 
         binding.tvTitle.text = examName.ifBlank { "Tests" }
-        binding.btnBack.setOnClickListener { finish() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
 
         binding.compactErrorView.displayMode = ErrorStateView.DisplayMode.COMPACT
 

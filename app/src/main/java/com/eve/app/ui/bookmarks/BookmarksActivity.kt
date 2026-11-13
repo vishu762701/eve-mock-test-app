@@ -54,7 +54,7 @@ class BookmarksActivity : EveBaseActivity() {
         binding = ActivityBookmarksBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.btnBack.setOnClickListener { finish() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
 
         adapter = BookmarkAdapter(
             onOpenQuestion = { bookmark -> openQuestionInTest(bookmark) },
@@ -129,7 +129,7 @@ class BookmarksActivity : EveBaseActivity() {
             }
         })
 
-        binding.btnRetry.setOnClickListener { viewModel.load() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnRetry) { viewModel.load() }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {

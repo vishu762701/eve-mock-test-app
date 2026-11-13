@@ -93,7 +93,7 @@ class MistakesAdapter(
             )
             updateLearnedState(learned, animated = false)
 
-            binding.btnMarkLearned.setOnClickListener {
+            com.eve.app.designsystem.DesignPress.bind(binding.btnMarkLearned) {
                 onToggleLearned(item)
             }
         }

@@ -43,7 +43,7 @@ class ManagePollsActivity : EveBaseActivity() {
         binding = ActivityManagePollsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.btnBack.setOnClickListener { finish() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
         binding.progressBar.visibility = View.VISIBLE
 
         AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "moderate_feedback") {
@@ -65,7 +65,7 @@ class ManagePollsActivity : EveBaseActivity() {
 
         binding.swipeRefresh.setOnRefreshListener { loadPolls() }
         binding.btnCreatePollDialog.isEnabled = true
-        binding.btnCreatePollDialog.setOnClickListener { showCreatePollDialog() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnCreatePollDialog) { showCreatePollDialog() }
     }
 
     override fun onStop() {
@@ -192,7 +192,7 @@ class ManagePollsActivity : EveBaseActivity() {
             val btnRemove = row.findViewById<ImageButton>(R.id.btnRemoveOption)
             et.hint = hintText
 
-            btnRemove.setOnClickListener {
+            com.eve.app.designsystem.DesignPress.bind(btnRemove) {
                 if (optionViews.size > 2) {
                     dialogBinding.optionsContainer.removeView(row)
                     optionViews.remove(row)
@@ -215,7 +215,7 @@ class ManagePollsActivity : EveBaseActivity() {
         addOptionRow("Option 1")
         addOptionRow("Option 2")
 
-        dialogBinding.btnAddOptionRow.setOnClickListener {
+        com.eve.app.designsystem.DesignPress.bind(dialogBinding.btnAddOptionRow) {
             if (optionViews.size < 6) {
                 addOptionRow("Option ${optionViews.size + 1}")
             }
@@ -245,8 +245,9 @@ class ManagePollsActivity : EveBaseActivity() {
             override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {}
         }
 
-        dialogBinding.btnCancel.setOnClickListener { dialog.dismiss() }
+        com.eve.app.designsystem.DesignPress.bind(dialogBinding.btnCancel) { dialog.dismiss() }
 
+        com.eve.app.designsystem.DesignPress.bind(dialogBinding.btnSubmitPoll)
         dialogBinding.btnSubmitPoll.setOnClickListener {
             val question = dialogBinding.etQuestion.text.toString().trim()
             if (question.isBlank()) {

@@ -2,7 +2,7 @@ package com.eve.app.util
 
 import android.view.View
 import android.view.animation.OvershootInterpolator
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import org.telegram.ui.Components.CubicBezierInterpolator
 
 /**
  * Telegram-style popup animations matching ActionBarPopupWindow pattern.
@@ -72,7 +72,7 @@ object TelegramPopupHelper {
             .scaleY(0.8f)
             .alpha(0f)
             .setDuration(160)
-            .setInterpolator(FastOutSlowInInterpolator())
+            .setInterpolator(CubicBezierInterpolator.DEFAULT)
             .withEndAction {
                 onEnd()
             }

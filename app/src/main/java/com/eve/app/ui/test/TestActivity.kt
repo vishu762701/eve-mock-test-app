@@ -217,12 +217,14 @@ class TestActivity : EveBaseActivity() {
             insets
         }
 
+        com.eve.app.designsystem.DesignPress.bind(binding.btnPrev)
         binding.btnPrev.setOnClickListener {
             val current = binding.viewPager.currentItem
             if (current > 0) {
                 binding.viewPager.currentItem = current - 1
             }
         }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnNext)
         binding.btnNext.setOnClickListener {
             if (submitted || viewModel.timeUp.value == true || totalQuestions == 0) return@setOnClickListener
             val current = binding.viewPager.currentItem
@@ -235,6 +237,7 @@ class TestActivity : EveBaseActivity() {
                 viewModel.saveCurrentSession(examId, next)
             }
         }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnClear)
         binding.btnClear.setOnClickListener {
             if (submitted || viewModel.timeUp.value == true) return@setOnClickListener
             val current = binding.viewPager.currentItem
@@ -245,6 +248,7 @@ class TestActivity : EveBaseActivity() {
             val vh = rv?.findViewHolderForAdapterPosition(current) as? QuestionAdapter.VH
             vh?.clearSelection()
         }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnMarkReview)
         binding.btnMarkReview.setOnClickListener {
             val current = binding.viewPager.currentItem
             viewModel.toggleMark(current)
@@ -253,6 +257,7 @@ class TestActivity : EveBaseActivity() {
             binding.btnMarkReview.isSelected = isMarked
             binding.btnMarkReview.text = if (isMarked) getString(R.string.unmark_review) else getString(R.string.mark_for_review)
         }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnRetry)
         binding.btnRetry.setOnClickListener { viewModel.retry(examId, timeLimit, topic, pyqYear, pyqPaper, isAdminUser, examName, fromBookmark, testId) }
 
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {

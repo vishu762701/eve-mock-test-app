@@ -5,7 +5,7 @@ import android.content.Context
 import android.os.Build
 import android.view.View
 import android.view.WindowManager
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import org.telegram.ui.Components.CubicBezierInterpolator
 
 /** Window-local ownership prevents an obsolete entrance from restoring dismissed blur. */
 object GlassmorphismHelper {
@@ -58,7 +58,7 @@ object GlassmorphismHelper {
         if (animate && radius > 0 && view.isAttachedToWindow) {
             owner.animator = ValueAnimator.ofInt(radius, 0).apply {
                 duration = 150L
-                interpolator = FastOutSlowInInterpolator()
+                interpolator = CubicBezierInterpolator.DEFAULT
                 addUpdateListener { update(view, owner, it.animatedValue as Int) }
                 addListener(object : android.animation.AnimatorListenerAdapter() {
                     override fun onAnimationEnd(animation: android.animation.Animator) {

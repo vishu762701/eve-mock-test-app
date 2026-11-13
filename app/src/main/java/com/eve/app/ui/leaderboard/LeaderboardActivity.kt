@@ -65,12 +65,12 @@ class LeaderboardActivity : EveBaseActivity() {
             binding.tvExamName.text = examName
         }
 
-        binding.btnBack.setOnClickListener { finish() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
 
         binding.rvLeaderboard.layoutManager = LinearLayoutManager(this)
         binding.rvLeaderboard.adapter = adapter
 
-        binding.btnRetry.setOnClickListener { viewModel.load(examId) }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnRetry) { viewModel.load(examId) }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {

@@ -119,7 +119,7 @@ class ExamTestsAdapter(
             binding.tvSubExamName.setTextColor(palette.textPrimary)
             binding.cardContainer.rippleColor = ColorStateList.valueOf(palette.actionSelector)
             binding.cardContainer.contentDescription = "Open ${item.exam.examName} tests"
-            binding.cardContainer.setOnClickListener { onSubExamClick(item.exam) }
+            com.eve.app.designsystem.DesignPress.bind(binding.cardContainer) { onSubExamClick(item.exam) }
         }
     }
 
@@ -133,6 +133,7 @@ class ExamTestsAdapter(
             binding.tvSubtitle.setTextColor(palette.textSecondary)
             binding.tvStatus.visibility = View.VISIBLE
             binding.cardContainer.rippleColor = ColorStateList.valueOf(palette.actionSelector)
+            com.eve.app.designsystem.DesignPress.bind(binding.cardContainer)
 
             val context = binding.root.context
             when {

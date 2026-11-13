@@ -58,7 +58,7 @@ class MistakesActivity : EveBaseActivity() {
         binding = ActivityMistakesBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.btnBack.setOnClickListener { finish() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
         binding.messageGroup.setOnClickListener {
             if (mistakeLoadFailed && hasMistakesOwner()) loadMistakes()
         }

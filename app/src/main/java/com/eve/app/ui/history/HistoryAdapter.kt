@@ -49,7 +49,7 @@ class HistoryAdapter(
             b.tvScore.setTextColor(ContextCompat.getColor(ctx, color))
 
             b.root.rippleColor = ColorStateList.valueOf(palette.actionSelector)
-            b.root.setOnClickListener { onClick(attempt) }
+            com.eve.app.designsystem.DesignPress.bind(b.root) { onClick(attempt) }
         }
     }
 

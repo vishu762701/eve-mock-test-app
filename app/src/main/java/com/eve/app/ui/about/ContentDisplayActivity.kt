@@ -33,7 +33,7 @@ class ContentDisplayActivity : EveBaseActivity() {
         binding = ActivityContentDisplayBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.btnBack.setOnClickListener { finish() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
 
         val type = intent.getStringExtra(EXTRA_CONTENT_TYPE) ?: AppContentRepository.TYPE_PRIVACY
         loadContent(type)
@@ -84,7 +84,7 @@ class ContentDisplayActivity : EveBaseActivity() {
             if (content.supportEmail.isNotBlank()) {
                 binding.cardEmail.visibility = View.VISIBLE
                 binding.tvEmailValue.text = content.supportEmail
-                binding.cardEmail.setOnClickListener {
+                com.eve.app.designsystem.DesignPress.bind(binding.cardEmail) {
                     openEmail(content.supportEmail)
                 }
             } else {
@@ -94,7 +94,7 @@ class ContentDisplayActivity : EveBaseActivity() {
             if (content.phone.isNotBlank()) {
                 binding.cardPhone.visibility = View.VISIBLE
                 binding.tvPhoneValue.text = content.phone
-                binding.cardPhone.setOnClickListener {
+                com.eve.app.designsystem.DesignPress.bind(binding.cardPhone) {
                     openDialer(content.phone)
                 }
             } else {
@@ -104,7 +104,7 @@ class ContentDisplayActivity : EveBaseActivity() {
             if (content.website.isNotBlank()) {
                 binding.cardWebsite.visibility = View.VISIBLE
                 binding.tvWebsiteValue.text = content.website
-                binding.cardWebsite.setOnClickListener {
+                com.eve.app.designsystem.DesignPress.bind(binding.cardWebsite) {
                     openUrl(content.website)
                 }
             } else {

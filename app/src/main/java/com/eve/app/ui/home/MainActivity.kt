@@ -1687,6 +1687,7 @@ class MainActivity : EveBaseActivity() {
         }
 
         binding.btnSubmitHomeVote.isEnabled = true
+        com.eve.app.designsystem.DesignPress.bind(binding.btnSubmitHomeVote)
         binding.btnSubmitHomeVote.setOnClickListener {
             val liveUser = FirebaseAuth.getInstance().currentUser
             if (liveUser == null || liveUser.uid != uid) return@setOnClickListener

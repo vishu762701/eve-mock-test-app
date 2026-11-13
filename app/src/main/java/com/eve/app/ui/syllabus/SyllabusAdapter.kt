@@ -75,9 +75,9 @@ class SyllabusAdapter(
 
                 binding.pbDownloading.visibility = if (isDownloading) View.VISIBLE else View.GONE
                 binding.btnOpen.visibility = if (isDownloaded) View.VISIBLE else View.GONE
-                binding.btnOpen.setOnClickListener { onOpenClick(exam) }
+                com.eve.app.designsystem.DesignPress.bind(binding.btnOpen) { onOpenClick(exam) }
 
-                binding.btnDownload.setOnClickListener {
+                com.eve.app.designsystem.DesignPress.bind(binding.btnDownload) {
                     onDownloadClick(exam, bindingAdapterPosition)
                 }
             } else {

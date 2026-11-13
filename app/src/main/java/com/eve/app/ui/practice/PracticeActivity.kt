@@ -46,7 +46,7 @@ class PracticeActivity : EveBaseActivity() {
         binding = ActivityPracticeBinding.inflate(layoutInflater)
         setContentView(binding.root)
         TelegramHorizontalScrollLayoutManager.install(binding.scrollPractice)
-        binding.btnBack.setOnClickListener { finish() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
         binding.spExam.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, position: Int, id: Long) {
                 if (!hasPracticeOwner()) { finish(); return }
@@ -171,6 +171,7 @@ class PracticeActivity : EveBaseActivity() {
         binding.chipGroupTopics.addView(com.eve.app.ui.common.StudentSelectionControls.action(this).apply {
             text = "${topic.name} • ${topic.questionCount} questions"
             isClickable = true
+            com.eve.app.designsystem.DesignPress.bind(this)
             setOnClickListener {
                 if (!hasPracticeOwner()) { finish(); return@setOnClickListener }
                 startPractice(topic)

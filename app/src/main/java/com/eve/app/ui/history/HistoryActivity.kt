@@ -53,7 +53,7 @@ class HistoryActivity : EveBaseActivity() {
         binding = ActivityHistoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.btnBack.setOnClickListener { finish() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
 
         binding.rvHistory.layoutManager = LinearLayoutManager(this)
         binding.rvHistory.adapter = adapter
@@ -64,7 +64,7 @@ class HistoryActivity : EveBaseActivity() {
         binding.rvHistory.setScrollbarFadingEnabled(true)
         binding.rvHistory.setScrollBarDefaultDelayBeforeFade(900)
 
-        binding.btnRetry.setOnClickListener { viewModel.load() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnRetry) { viewModel.load() }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {

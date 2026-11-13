@@ -124,6 +124,7 @@ class PollsAdminAdapter(
                 }
             }
 
+            com.eve.app.designsystem.DesignPress.bind(binding.btnToggleActive)
             binding.btnToggleActive.setOnClickListener {
                 onToggleStatus(poll)
             }
@@ -135,6 +136,7 @@ class PollsAdminAdapter(
             // Set runtime text on every bind; preview-only XML attributes never render on device.
             binding.btnDeletePoll.text = "Delete"
             binding.btnDeletePoll.contentDescription = "Delete poll"
+            com.eve.app.designsystem.DesignPress.bind(binding.btnDeletePoll)
             binding.btnDeletePoll.setOnClickListener {
                 onDelete(poll)
             }
@@ -158,6 +160,7 @@ class PollsAdminAdapter(
                 animateResults(expanded)
             }
             binding.root.setOnClickListener(toggle)
+            com.eve.app.designsystem.DesignPress.bind(binding.tvTapToView)
             binding.tvTapToView.setOnClickListener(toggle)
             binding.tvTapToView.isFocusable = true
         }

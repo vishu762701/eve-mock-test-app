@@ -41,7 +41,7 @@ class FeedbackActivity : EveBaseActivity() {
         binding = ActivityFeedbackBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.btnBack.setOnClickListener { finish() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
 
         val postId = intent.getStringExtra("post_id")
         val postTitle = intent.getStringExtra("post_title")
@@ -49,6 +49,7 @@ class FeedbackActivity : EveBaseActivity() {
             binding.tvFeedbackSubtitle.text = "Responding to post: $postTitle"
         }
 
+        com.eve.app.designsystem.DesignPress.bind(binding.btnSendFeedback)
         binding.btnSendFeedback.setOnClickListener {
             if (!hasFeedbackOwner()) { finish(); return@setOnClickListener }
             val message = binding.etFeedbackMessage.text?.toString()?.trim().orEmpty()

@@ -75,7 +75,7 @@ class QuestionAdapter(
             }
 
             updateTimer(getQuestionTime(position))
-            b.btnReport.setOnClickListener {
+            com.eve.app.designsystem.DesignPress.bind(b.btnReport) {
                 onReport(q)
             }
 
@@ -92,7 +92,7 @@ class QuestionAdapter(
             b.questionScroll.scrollTo(0, 0)
 
             com.eve.app.designsystem.DesignIconStates.bookmark(b.btnBookmark, getBookmarked(position))
-            b.btnBookmark.setOnClickListener {
+            com.eve.app.designsystem.DesignPress.bind(b.btnBookmark) {
                 onToggleBookmark(position)
                 val nowBookmarked = getBookmarked(position)
                 if (nowBookmarked) HapticHelper.performLight(b.btnBookmark)

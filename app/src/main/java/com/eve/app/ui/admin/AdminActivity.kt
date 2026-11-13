@@ -1025,6 +1025,7 @@ class AdminActivity : EveBaseActivity() {
 
         dialogBinding.rvAdminBanners.layoutManager = LinearLayoutManager(this)
         dialogBinding.rvAdminBanners.adapter = bannerAdapter
+        com.eve.app.designsystem.DesignPress.bind(dialogBinding.btnPickBannerImage)
         dialogBinding.btnPickBannerImage.setOnClickListener {
             if (ownerCurrent() && !busy) {
                 onBannerImageSelected = { uri ->
@@ -1048,6 +1049,7 @@ class AdminActivity : EveBaseActivity() {
             }
         }
 
+        com.eve.app.designsystem.DesignPress.bind(dialogBinding.btnSaveBanner)
         dialogBinding.btnSaveBanner.setOnClickListener {
             if (!ownerCurrent() || busy) return@setOnClickListener
             val uri = pendingBannerUri
@@ -1075,7 +1077,7 @@ class AdminActivity : EveBaseActivity() {
             }
         }
 
-        dialogBinding.btnCloseBannerDialog.setOnClickListener {
+        com.eve.app.designsystem.DesignPress.bind(dialogBinding.btnCloseBannerDialog) {
             if (!busy) dialog.dismiss()
         }
         dialog.setOnDismissListener {

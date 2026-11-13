@@ -54,8 +54,8 @@ class PerformanceActivity : EveBaseActivity() {
         binding = ActivityPerformanceBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.btnBack.setOnClickListener { finish() }
-        binding.btnRetry.setOnClickListener { viewModel.load() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnRetry) { viewModel.load() }
 
         binding.rvTopics.layoutManager = LinearLayoutManager(this)
         binding.rvTopics.adapter = topicAdapter

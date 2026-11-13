@@ -90,7 +90,7 @@ class ResultDetailActivity : EveBaseActivity() {
         onBackPressedDispatcher.addCallback(this) {
             finish()
         }
-        binding.btnBack.setOnClickListener {
+        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) {
             finish()
         }
 
@@ -222,7 +222,7 @@ class ResultDetailActivity : EveBaseActivity() {
             if (weakest.accuracy < 100.0) {
                 binding.btnPracticeWeakest.visibility = View.VISIBLE
                 binding.btnPracticeWeakest.text = "Practice Weakest: ${weakest.topic}"
-                binding.btnPracticeWeakest.setOnClickListener {
+                com.eve.app.designsystem.DesignPress.bind(binding.btnPracticeWeakest) {
                     val practiceIntent = Intent(this, TestActivity::class.java).apply {
                         putExtra(Constants.EXTRA_EXAM_ID, examId)
                         putExtra(Constants.EXTRA_EXAM_NAME, examName)

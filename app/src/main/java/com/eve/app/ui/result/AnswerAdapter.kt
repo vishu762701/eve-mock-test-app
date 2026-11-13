@@ -184,7 +184,7 @@ class AnswerAdapter(
                 b.tvQuestionStatusLabel.visibility = View.GONE
             }
 
-            b.btnViewSolution.setOnClickListener {
+            com.eve.app.designsystem.DesignPress.bind(b.btnViewSolution) {
                 expandedQuestionKeys.add(questionKey)
                 bind(item)
             }
@@ -194,8 +194,8 @@ class AnswerAdapter(
             b.ivReportQuestion.background = com.eve.app.designsystem.TelegramThemeSelectors.getCircleSelectorDrawable(
                 palette.actionSelector
             )
-            b.ivReportQuestion.setOnClickListener { onReport?.invoke(item) }
-            b.layoutReportAction.setOnClickListener { onReport?.invoke(item) }
+            com.eve.app.designsystem.DesignPress.bind(b.ivReportQuestion) { onReport?.invoke(item) }
+            com.eve.app.designsystem.DesignPress.bind(b.layoutReportAction) { onReport?.invoke(item) }
 
             when {
                 !item.isAttempted -> {

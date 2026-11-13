@@ -104,7 +104,7 @@ class ResultActivity : EveBaseActivity() {
         onBackPressedDispatcher.addCallback(this) {
             close()
         }
-        binding.btnBack.setOnClickListener {
+        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) {
             close()
         }
 
@@ -229,7 +229,7 @@ class ResultActivity : EveBaseActivity() {
         canReattempt = intent.getBooleanExtra(Constants.EXTRA_CAN_REATTEMPT, false)
         binding.btnReattempt.visibility = if (canReattempt) View.VISIBLE else View.GONE
         if (canReattempt) {
-            binding.btnReattempt.setOnClickListener {
+            com.eve.app.designsystem.DesignPress.bind(binding.btnReattempt) {
                 showReattemptDialog(currentExamId, if (currentExamName.isNotBlank()) currentExamName else "this test")
             }
         }
@@ -291,6 +291,7 @@ class ResultActivity : EveBaseActivity() {
         binding.tvStats.text = "Correct: $correct   Wrong: $wrong   Unattempted: $unattempted"
 
         // Share Card Button
+        com.eve.app.designsystem.DesignPress.bind(binding.btnShare)
         binding.btnShare.setOnClickListener {
             if (!resultIdentityCurrent) return@setOnClickListener
             val scoreStr = if (currentScore % 1.0 == 0.0) currentScore.toInt().toString() else String.format(java.util.Locale.US, "%.2f", currentScore)
@@ -334,6 +335,7 @@ class ResultActivity : EveBaseActivity() {
         setupDetailCardClicks(total, correct, wrong, unattempted, accuracy)
 
         // Leaderboard Tab Actions
+        com.eve.app.designsystem.DesignPress.bind(binding.btnOpenLeaderboard)
         binding.btnOpenLeaderboard.setOnClickListener {
             if (!resultIdentityCurrent) return@setOnClickListener
             if (currentExamId.isNotBlank()) {
@@ -402,7 +404,9 @@ class ResultActivity : EveBaseActivity() {
                 topperAvg = binding.tvTopperAvg.text.toString()
             )
         }
+        com.eve.app.designsystem.DesignPress.bind(binding.headerOverviewStatistics)
         binding.headerOverviewStatistics.setOnClickListener(openStats)
+        com.eve.app.designsystem.DesignPress.bind(binding.rowOverviewStatisticsTiles)
         binding.rowOverviewStatisticsTiles.setOnClickListener(openStats)
 
         val openPerf = View.OnClickListener {
@@ -424,7 +428,9 @@ class ResultActivity : EveBaseActivity() {
                 topperAvg = binding.tvTopperAvg.text.toString()
             )
         }
+        com.eve.app.designsystem.DesignPress.bind(binding.headerOverviewPerformance)
         binding.headerOverviewPerformance.setOnClickListener(openPerf)
+        com.eve.app.designsystem.DesignPress.bind(binding.cardPerformanceStanding)
         binding.cardPerformanceStanding.setOnClickListener(openPerf)
 
         val openAnalytics = View.OnClickListener {
@@ -446,7 +452,9 @@ class ResultActivity : EveBaseActivity() {
                 topperAvg = binding.tvTopperAvg.text.toString()
             )
         }
+        com.eve.app.designsystem.DesignPress.bind(binding.headerOverviewAnalytics)
         binding.headerOverviewAnalytics.setOnClickListener(openAnalytics)
+        com.eve.app.designsystem.DesignPress.bind(binding.cardOverviewAnalytics)
         binding.cardOverviewAnalytics.setOnClickListener(openAnalytics)
     }
 
@@ -669,6 +677,7 @@ class ResultActivity : EveBaseActivity() {
             else -> "General"
         }
 
+        com.eve.app.designsystem.DesignPress.bind(binding.tvCutoffSelectedCategory)
         binding.tvCutoffSelectedCategory.setOnClickListener {
             if (resultIdentityCurrent) showCategoryBottomSheet()
         }

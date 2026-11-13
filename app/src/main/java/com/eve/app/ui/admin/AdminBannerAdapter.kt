@@ -84,7 +84,7 @@ class AdminBannerAdapter(
                 palette.actionSelector
             )
             b.btnEditBannerLink.imageTintList = ColorStateList.valueOf(palette.textSecondary)
-            b.btnEditBannerLink.setOnClickListener { onEditLink(banner) }
+            com.eve.app.designsystem.DesignPress.bind(b.btnEditBannerLink) { onEditLink(banner) }
 
             b.btnMoveUp.background = TelegramThemeSelectors.getRoundRectSelectorDrawable(
                 16f * density,
@@ -93,7 +93,7 @@ class AdminBannerAdapter(
             b.btnMoveUp.imageTintList = ColorStateList.valueOf(palette.textSecondary)
             b.btnMoveUp.isEnabled = position > 0
             b.btnMoveUp.alpha = if (position > 0) 1.0f else 0.35f
-            b.btnMoveUp.setOnClickListener { onMoveUp(banner) }
+            com.eve.app.designsystem.DesignPress.bind(b.btnMoveUp) { onMoveUp(banner) }
 
             b.btnMoveDown.background = TelegramThemeSelectors.getRoundRectSelectorDrawable(
                 16f * density,
@@ -102,10 +102,10 @@ class AdminBannerAdapter(
             b.btnMoveDown.imageTintList = ColorStateList.valueOf(palette.textSecondary)
             b.btnMoveDown.isEnabled = position < total - 1
             b.btnMoveDown.alpha = if (position < total - 1) 1.0f else 0.35f
-            b.btnMoveDown.setOnClickListener { onMoveDown(banner) }
+            com.eve.app.designsystem.DesignPress.bind(b.btnMoveDown) { onMoveDown(banner) }
 
             b.btnDeleteBanner.rippleColor = ColorStateList.valueOf(palette.actionSelector)
-            b.btnDeleteBanner.setOnClickListener { onDelete(banner) }
+            com.eve.app.designsystem.DesignPress.bind(b.btnDeleteBanner) { onDelete(banner) }
         }
     }
 }

@@ -146,7 +146,7 @@ class BookmarkAdapter(
                 binding.tvExplanation.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
                 binding.btnToggleExplanation.text = if (isExpanded) "Hide Explanation" else "View Explanation"
 
-                binding.btnToggleExplanation.setOnClickListener {
+                com.eve.app.designsystem.DesignPress.bind(binding.btnToggleExplanation) {
                     toggleExplanation(item)
                 }
             } else {
@@ -155,16 +155,16 @@ class BookmarkAdapter(
             }
 
             DesignIconStates.bookmark(binding.btnBookmark, true)
-            binding.btnBookmark.setOnClickListener {
+            com.eve.app.designsystem.DesignPress.bind(binding.btnBookmark) {
                 DesignIconStates.bookmark(binding.btnBookmark, false)
                 binding.swipeRow.commit()
             }
 
             // Tap card to open question in test flow
-            binding.cardBookmark.setOnClickListener {
+            com.eve.app.designsystem.DesignPress.bind(binding.cardBookmark) {
                 onOpenQuestion(item)
             }
-            binding.layoutTapToOpen.setOnClickListener {
+            com.eve.app.designsystem.DesignPress.bind(binding.layoutTapToOpen) {
                 onOpenQuestion(item)
             }
         }

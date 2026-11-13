@@ -50,7 +50,7 @@ class PyqActivity : EveBaseActivity() {
         restoredExamId = savedInstanceState?.getString(STATE_EXAM_ID)
         selectedYear = savedInstanceState?.takeIf { it.containsKey(STATE_YEAR) }?.getInt(STATE_YEAR)
 
-        binding.btnBack.setOnClickListener { finish() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
         com.eve.app.ui.common.TelegramHorizontalScrollLayoutManager.install(binding.chipGroupYears.parent as View)
         binding.spExam.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -235,6 +235,7 @@ class PyqActivity : EveBaseActivity() {
             binding.chipGroupPapers.addView(com.eve.app.ui.common.StudentSelectionControls.action(this).apply {
                 text = if (set.paper.isBlank()) "Paper • ${set.subtitle}" else "${set.paper} • ${set.subtitle}"
                 isClickable = true
+                com.eve.app.designsystem.DesignPress.bind(this)
                 setOnClickListener {
                     if (!hasPyqOwner()) { finish(); return@setOnClickListener }
                     startPyq(set)
@@ -248,6 +249,7 @@ class PyqActivity : EveBaseActivity() {
                 binding.chipGroupPapers.addView(com.eve.app.ui.common.StudentSelectionControls.action(this).apply {
                     text = "Saare papers • $combinedCount Qs"
                     isClickable = true
+                    com.eve.app.designsystem.DesignPress.bind(this)
                     setOnClickListener {
                         if (!hasPyqOwner()) { finish(); return@setOnClickListener }
                         startPyq(
