@@ -5,22 +5,16 @@
 
 ## 0. How to use this file
 - Read this file before starting any task.
-- The latest explicit owner request is the ONLY change scope: implement authorized outcomes and directly affected frontend/backend/resources/tests together when appropriate, never unrelated work. `ENGINEERING_STANDARD.md` defines workflow, and its section 0 (owner-instruction fidelity) applies to every task: never substitute, simplify or reinterpret the owner's requested behavior; resolve routine technical blockers autonomously and escalate unresolved product, security or legal decisions. Agent files are pointers. Security/data integrity and actual release obligations remain enforced.
+- The latest explicit owner request is the ONLY change scope: implement authorized outcomes and directly affected frontend/backend/resources/tests together when appropriate, never unrelated work. `ENGINEERING_STANDARD.md` defines workflow: never substitute, simplify or reinterpret the owner's requested behavior; resolve routine technical blockers autonomously and escalate unresolved product, security or legal decisions. Agent files are pointers. Security/data integrity and actual release obligations remain enforced.
 - If this file and the actual code disagree, trust the code, and report the mismatch under "Noticed but not touched (outside scope)" in the Final Report.
 - Never claim current state from memory or older chats. Inspect real files and current remote HEAD/CI; use `git status` and `git log -1` only when a local checkout is accessible.
 
-## Active-development product authority
-EVE is actively being developed: **No visual component, layout, color, blur, theme, typography, navigation, animation, icon, size or feature is permanently locked.** The owner's latest safe scoped requirement can add, replace or remove any UI/UX feature. Current code and historical Telegram/iOS audits are reference snapshots only. Update resources and regression tests alongside approved changes. Keep equivalent accessibility and data/security protections.
-
-## Telegram reference only for source-exact tasks
-Telegram reference archives, approved SHA-256 values, internal manifests and GPL evidence are in `THIRD_PARTY_NOTICES.md`. For source-exact copying/comparison, authenticate an official Git checkout pinned to a full commit SHA or verify an appropriate source archive; absent source files are NOT FOUND. See `docs/telegram-integration-process.md`, including the continuous Analysis, Mapping, Implementation and Verification workflow for an already-authorized task. Never impose source ZIP verification on ordinary Eve fixes, original UI/UX work, backend tasks or repository cleanup.
-
-## Current implementation, not frozen defaults
-Source-traced Telegram UI, theme reveal, Lottie animations, the Home drawer and existing tokens are current implementations, **not standing requirements**. Edit them only when the owner asks. For owner-requested official components, use real verified upstream references; never use an alternative without explicit permission. Preserve all unrelated functionality, Hindi/Devanagari and accessibility.
+## Product authority
+EVE is in active development. No UI/UX element is permanently locked; the owner's latest safe scoped requirement can add, replace or remove any of it. When the owner asks for Telegram, `ENGINEERING_STANDARD.md` section 2 applies: official Telegram Android source only, exact port, no alternative implementation without explicit permission. Existing Telegram-derived code is the current implementation, not a standing requirement; change it when asked, or when it deviates from the source for a requested Telegram item. Telegram archive hashes and GPL evidence are in `THIRD_PARTY_NOTICES.md`. Do not impose Telegram source verification on ordinary Eve fixes, backend tasks or cleanup.
 
 ## 1. Repository identity
 - Remote origin: `git@github.com:vishu762701/eve-mock-test-app.git`
-- Branch: `main` only (see `ENGINEERING_STANDARD.md` repository workflow).
+- Branch: `main` only (see `ENGINEERING_STANDARD.md`).
 - GitHub Actions workflow: "Build Eve APK".
 - Local Termux path (only when working inside Termux): `/data/data/com.termux/files/home/eve-mock-test-app`. This is the single authoritative local copy.
 
