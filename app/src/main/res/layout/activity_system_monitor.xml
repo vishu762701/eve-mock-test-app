@@ -2,13 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/Widget.Eve.Token.Screen" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical">
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-        <LinearLayout style="@style/Widget.Eve.Token.ToolbarRow" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:orientation="horizontal">
-            <ImageButton android:id="@+id/btnBack" style="@style/Widget.Eve.Token.IconButton" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:src="@drawable/ic_back" app:tint="@color/telegram_type_primary" android:contentDescription="Back" />
+        <LinearLayout style="@style/Widget.Eve.Token.ToolbarRow" android:layout_width="match_parent" android:layout_height="@dimen/telegram_action_bar_height" android:gravity="center_vertical" android:orientation="horizontal">
+            <ImageButton android:id="@+id/btnBack" style="@style/Widget.Eve.Token.IconButton" android:layout_width="@dimen/telegram_action_bar_back_width" android:layout_height="match_parent" android:src="@drawable/ic_back" app:tint="@color/telegram_type_primary" android:contentDescription="Back" />
+            <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:tag="eve_telegram_type" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="@dimen/telegram_action_bar_title_start" android:maxLines="1" android:ellipsize="end" android:text="System Health &amp; Operations" />
         </LinearLayout>
     </com.eve.app.ui.common.EveGlassToolbar>
-    <LinearLayout style="@style/Widget.Eve.Token.LargeTitleBlock" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-        <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="System Health &amp; Operations"  android:tag="eve_telegram_type" />
-    </LinearLayout>
     <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
         <com.eve.app.designsystem.TelegramRadialProgressView
             android:id="@+id/progressBar"

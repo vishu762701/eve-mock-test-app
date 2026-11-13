@@ -27,7 +27,7 @@
                         <ImageButton android:id="@+id/btnOverflow" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="@string/home_menu" android:src="@drawable/ic_more_vert" app:tint="@color/telegram_type_primary" style="@style/Widget.Eve.Token.IconButton" />
                     </LinearLayout>
                 </com.eve.app.ui.common.EveGlassToolbar>
-                <LinearLayout android:id="@+id/titleGroup" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.LargeTitleBlock">
+                <LinearLayout android:id="@+id/titleGroup" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
                     <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="EVE" />
                     <TextView android:id="@+id/tvWelcome" style="@style/TextAppearance.Eve.Token.Title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:ellipsize="end" android:maxLines="1" android:text="Hi, Student" />
                 </LinearLayout>

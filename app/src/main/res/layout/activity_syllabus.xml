@@ -2,11 +2,8 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:ns2="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" style="@style/Widget.Eve.Token.Screen">
     <com.google.android.material.appbar.AppBarLayout android:layout_width="match_parent" android:layout_height="wrap_content" app:elevation="@dimen/design_zero" style="@style/Widget.Eve.Token.AppBar">
         <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-            <com.google.android.material.appbar.MaterialToolbar android:id="@+id/toolbar" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" app:navigationIcon="@drawable/ic_back" app:navigationIconTint="@color/telegram_type_primary" />
+            <com.google.android.material.appbar.MaterialToolbar android:id="@+id/toolbar" android:layout_width="match_parent" android:layout_height="@dimen/telegram_action_bar_height" app:title="Exam Syllabus" app:titleTextAppearance="@style/TextAppearance.Eve.Telegram.NavigationTitle" app:navigationIcon="@drawable/ic_back" app:navigationIconTint="@color/telegram_type_primary" />
         </com.eve.app.ui.common.EveGlassToolbar>
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" style="@style/Widget.Eve.Token.LargeTitleBlock">
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Exam Syllabus" style="@style/TextAppearance.Eve.Telegram.NavigationTitle"  android:tag="eve_telegram_type" />
-        </LinearLayout>
         <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilSearch" style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_marginBottom="@dimen/design_screen_margin" app:hintEnabled="false" app:startIconDrawable="@drawable/ic_search">
             <com.google.android.material.textfield.TextInputEditText android:id="@+id/etSearch" style="@style/Widget.Eve.Token.Input" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:hint="Search syllabus by exam..." android:imeOptions="actionSearch" android:inputType="text" android:maxLines="1" />
         </com.eve.app.designsystem.DesignInputLayout>

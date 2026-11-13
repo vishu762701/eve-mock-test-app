@@ -31,7 +31,7 @@ The single workflow policy. Authority order: (1) the owner's latest explicit mes
 4. Implement the complete flow, including resources, state, backend and tests where relevant.
 5. Self-review as a strict critic: compare the diff against each item. Hunt flicker, repeated reloads, leaks, wrong geometry/animation, dark mode, rotation, process death, empty/error states.
 6. Run the smallest relevant local checks first (backend: npm test and npm run build).
-7. Commit and push as many coherent implementation batches as the task needs. There is no one-push-per-task rule and no numeric commit or push ceiling. Push batches sequentially with one writer; reconcile remote main before each push. Keep each batch independently reviewable and implementation-focused. No force push, no history rewrite, no report-only or checkpoint-only commits.
+7. Commit and push as many coherent implementation batches as the task needs. There is no one-push-per-task rule, no numeric commit ceiling, and no push ceiling; use a pull-request or authorized fast-forward batch with one writer. Reconcile remote main before each push. Keep each batch independently reviewable and implementation-focused. No force push, no history rewrite, no report-only or checkpoint-only commits.
 8. Each pushed implementation batch must pass exact-SHA FAST CI on its final SHA. Diagnose the first real error and repair forward; do not rerun the same failure without a cause. Treat emulator/ADB/GPU infrastructure errors separately from application test failures.
 9. Report (section 5).
 10. The owner checks on a real device. Corrections return to step 1 with the owner's words as the new request.

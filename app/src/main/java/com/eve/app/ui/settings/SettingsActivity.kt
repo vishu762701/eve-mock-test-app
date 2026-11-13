@@ -332,7 +332,7 @@ class SettingsActivity : EveBaseActivity() {
         refreshLanguageText()
 
         binding.rowLanguage.setOnClickListener {
-            EveNavigationHelper.startActivityWithTransition(
+            EveNavigationHelper.navigate(
                 this,
                 Intent(this, LanguageSelectActivity::class.java)
             )

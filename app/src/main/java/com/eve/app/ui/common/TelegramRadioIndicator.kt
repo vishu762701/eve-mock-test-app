@@ -179,5 +179,5 @@ internal class TelegramRadioIndicator(
     override fun setAlpha(alpha: Int) { ring.alpha = alpha; fill.alpha = alpha; invalidateSelf() }
     override fun setColorFilter(colorFilter: ColorFilter?) { ring.colorFilter = colorFilter; fill.colorFilter = colorFilter; invalidateSelf() }
     @Deprecated("Drawable contract")
-    override getOpacity() = PixelFormat.TRANSLUCENT
+    override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
 }
