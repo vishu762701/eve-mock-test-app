@@ -26,7 +26,6 @@ import com.eve.app.data.model.Exam
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.databinding.ActivitySyllabusBinding
 import com.eve.app.ui.common.ErrorStateView
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import java.io.File
 

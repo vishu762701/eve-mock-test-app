@@ -1,10 +1,65 @@
-<?xml version='1.0' encoding='utf-8'?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/undoContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="bottom|center_horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.TransientHost">
-    <com.eve.app.designsystem.DesignCardView android:id="@+id/cardUndo" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" style="@style/Widget.Eve.Token.Card">
-        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
-            <com.eve.app.ui.common.CircularCountdownView android:id="@+id/countdownView" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_marginEnd="@dimen/design_screen_margin" />
-            <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/tvUndoMessage" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:maxWidth="240dp" />
-            <com.google.android.material.button.MaterialButton style="@style/Widget.Eve.Token.Button.Secondary" android:id="@+id/btnUndoAction" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_section_gap" android:clickable="true" android:focusable="true" android:text="UNDO" android:textAllCaps="true" />
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/undoContainer"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom|center_horizontal"
+    android:clipToPadding="false"
+    android:clipChildren="false"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp"
+    android:paddingBottom="8dp"
+    android:tag="no_theme">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardUndo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="0dp"
+        app:strokeWidth="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="15dp"
+            android:paddingEnd="11dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
+
+            <com.eve.app.ui.common.CircularCountdownView
+                android:id="@+id/countdownView"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginEnd="12dp" />
+
+            <TextView
+                android:id="@+id/tvUndoMessage"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif"
+                android:textSize="15sp"
+                android:textColor="#FFFFFF" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnUndoAction"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="36dp"
+                android:minWidth="48dp"
+                android:layout_marginStart="8dp"
+                android:text="UNDO"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="#6BB7FF" />
         </LinearLayout>
-    </com.eve.app.designsystem.DesignCardView>
+    </com.google.android.material.card.MaterialCardView>
 </FrameLayout>

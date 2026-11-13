@@ -38,7 +38,7 @@ class CircularCountdownView @JvmOverloads constructor(
     }
 
     private val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
-        textSize = dp(12f)
+        textSize = dp(11f)
         typeface = Typeface.DEFAULT_BOLD
         color = Color.WHITE
         textAlign = Paint.Align.CENTER
@@ -60,7 +60,7 @@ class CircularCountdownView @JvmOverloads constructor(
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        val pad = dp(2f)
+        val pad = dp(1f)
         oval.set(pad, pad, w.toFloat() - pad, h.toFloat() - pad)
     }
 

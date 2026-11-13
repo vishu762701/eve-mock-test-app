@@ -37,7 +37,6 @@ import com.airbnb.lottie.model.KeyPath
 import com.airbnb.lottie.value.SimpleLottieValueCallback
 import com.eve.app.util.AppBulletin
 import android.view.inputmethod.InputMethodManager
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels

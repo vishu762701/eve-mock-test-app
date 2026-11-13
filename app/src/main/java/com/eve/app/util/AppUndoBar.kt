@@ -158,6 +158,44 @@ class AppUndoBar private constructor(
         tvMessage.text = message
 
         btnUndo.setOnClickListener { undoAndDismiss(immediate = false) }
+
+        var downX = 0f
+        var downY = 0f
+        var dragging = false
+        val slop = android.view.ViewConfiguration.get(activity).scaledTouchSlop
+        card.setOnTouchListener { _, event ->
+            when (event.actionMasked) {
+                android.view.MotionEvent.ACTION_DOWN -> {
+                    downX = event.rawX
+                    downY = event.rawY
+                    dragging = false
+                    false
+                }
+                android.view.MotionEvent.ACTION_MOVE -> {
+                    val dx = event.rawX - downX
+                    if (!dragging && kotlin.math.abs(dx) > slop && kotlin.math.abs(dx) > kotlin.math.abs(event.rawY - downY)) {
+                        dragging = true
+                    }
+                    if (dragging) {
+                        card.translationX = dx
+                    }
+                    dragging
+                }
+                android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> {
+                    val dx = event.rawX - downX
+                    if (event.actionMasked == android.view.MotionEvent.ACTION_UP && dragging && kotlin.math.abs(dx) > card.width / 3f) {
+                        dismissInternal(immediate = false)
+                    } else if (dragging) {
+                        card.animate().translationX(0f).setDuration(if (com.eve.app.designsystem.DesignMotion.enabled(activity)) 200L else 0L).start()
+                    }
+                    val wasDragging = dragging
+                    dragging = false
+                    wasDragging
+                }
+                else -> false
+            }
+        }
+
         if (deferredDelete != null) {
             view.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
                 override fun onViewAttachedToWindow(v: View) = Unit

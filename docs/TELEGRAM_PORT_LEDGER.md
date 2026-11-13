@@ -33,7 +33,7 @@ Notes / leftovers:
 - Reusable `CheckBoxCell` and `RadioCell` added to `com.eve.app.designsystem`.
 - `TextCheckCell` promoted to `com.eve.app.designsystem` with admin package backwards compatibility.
 
-## F3 Popup menu, AlertDialog, BottomSheet - PENDING_CI
+## F3 Popup menu, AlertDialog, BottomSheet - DONE (commit a201fe25)
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | AlertDialog vertical button threshold | `AlertDialog.java:980` (`buttonsWidth > screenWidth - 64dp`) | Narrow heuristic | `buttonsWidth > screenWidth - dp(64)` |
@@ -53,3 +53,21 @@ Notes / leftovers:
 - Migrated sheets: `TargetExamsBottomSheet`, `CompletedExamBottomSheet`, `ProfilePhotoMenu`, `PaymentMethodBottomSheet`, `ActivityLogActivity`, `EmojiStudioActivity`, `ResultActivity`, `UsernameCardActivity`, `QrPickerMorphDialog`.
 - Migrated all popup menus in `MainActivity`, `ExistingExamsAdapter`, `UserAdminAdapter` to `TelegramPopupMenu`.
 - Spinner dropdowns and AutoComplete views now use `@drawable/telegram_dialog_popup_fixed_alert4`.
+
+## F4 Bulletin and undo - PENDING_CI
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| Bulletin corner radius | `Bulletin.java:817` (`dp(16)`) | 16dp | 16dp |
+| Bulletin min height | `Bulletin.java:798` (`dp(48)`) | 48dp | 48dp |
+| Bulletin text size | `Bulletin.java:1941` (`dp(15)`) | 15sp | 15sp |
+| Bulletin durations | `Bulletin.java:90-92` (SHORT=1500, LONG=2750, PROLONG=5000) | SHORT=1500, LONG=2750 | 1500ms, 2750ms, 5000ms |
+| UndoView corner radius | `UndoView.java:333` (`dp(10)`) | 10dp | 10dp |
+| UndoView countdown ring | `UndoView.java:319` (18x18dp ring, 2dp stroke) | `@dimen/design_ring_size` (72dp) | 18x18dp ring, 2dp stroke (`CircularCountdownView`) |
+| UndoView text sizes | `UndoView.java:313, 328` (undo text 14sp bold, counter 12dp bold) | Variable | 14sp bold "UNDO", 11dp bold ring text |
+| UndoView dismiss gesture | `Bulletin.java:335`, `UndoView.java` touch gesture | No swipe gesture | Horizontal swipe-to-dismiss with velocity & 1/3 width threshold |
+| Stock Toast / Snackbar | Deprecated in favor of Telegram bulletin / undo | 4 unused imports | 0 unused imports; 0 Toast / Snackbar usages across screens |
+
+Notes / leftovers:
+- Removed unused Toast imports in `BookmarksActivity`, `MainActivity`, `ProfileActivity`.
+- Removed unused Snackbar import in `SyllabusActivity`.
+- Aligned `CircularCountdownView` and `layout_undo_bar.xml` to Telegram's authentic 18dp ring and 10dp card radius.
