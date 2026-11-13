@@ -24,7 +24,10 @@ class AboutActivity : EveBaseActivity() {
         binding = ActivityAboutBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.btnBack.setOnClickListener { finish() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
+        listOf(binding.rowPrivacyPolicy, binding.rowTerms, binding.rowContact).forEach {
+            com.eve.app.designsystem.DesignPress.bind(it)
+        }
 
         val versionName = try {
             packageManager.getPackageInfo(packageName, 0).versionName

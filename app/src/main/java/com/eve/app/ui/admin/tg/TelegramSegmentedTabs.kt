@@ -13,7 +13,7 @@ import android.graphics.RectF
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.Gravity
-import android.view.animation.PathInterpolator
+import org.telegram.ui.Components.CubicBezierInterpolator
 import android.graphics.Typeface
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -142,7 +142,7 @@ class TelegramSegmentedTabs @JvmOverloads constructor(
         animator?.cancel()
         animator = ValueAnimator.ofFloat(0f, 1f).apply {
             duration = 320L
-            interpolator = PathInterpolator(0.23f, 1f, 0.32f, 1f)
+            interpolator = CubicBezierInterpolator.EASE_OUT_QUINT
             addUpdateListener { va ->
                 val fraction = va.animatedFraction
                 currentIndicatorX = startX + (targetIndicatorX - startX) * fraction

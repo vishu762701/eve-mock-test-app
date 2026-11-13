@@ -54,7 +54,11 @@ class AppearanceActivity : EveBaseActivity() {
             TelegramThemeEngine.beginPreview()
         }
 
-        binding.btnBack.setOnClickListener {
+        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
+        listOf(
+            binding.btnApply, binding.btnResetDefault, binding.btnImportTheme,
+            binding.btnModeDay, binding.btnModeNight, binding.btnModeSystem
+        ).forEach { com.eve.app.designsystem.DesignPress.bind(it) } {
             TelegramThemeEngine.cancelPreview(this)
             finish()
         }

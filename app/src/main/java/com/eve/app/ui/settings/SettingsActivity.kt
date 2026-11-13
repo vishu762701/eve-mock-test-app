@@ -108,7 +108,12 @@ class SettingsActivity : EveBaseActivity() {
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.btnBack.setOnClickListener { finish() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
+        listOf(
+            binding.rowAppearance, binding.rowAbout, binding.rowLogout,
+            binding.rowDailyGoal, binding.rowTargetExams, binding.rowLanguage,
+            binding.rowReminder, binding.rowDeleteAccount
+        ).forEach { com.eve.app.designsystem.DesignPress.bind(it) }
 
         binding.rowAppearance.setOnClickListener {
             startActivity(Intent(this, AppearanceActivity::class.java))
