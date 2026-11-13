@@ -1,16 +1,20 @@
 package com.eve.app.util
 
 import android.view.View
+import android.view.animation.DecelerateInterpolator
 import android.view.animation.OvershootInterpolator
 import org.telegram.ui.Components.CubicBezierInterpolator
 
 /**
- * Telegram-style popup animations matching ActionBarPopupWindow pattern.
- * Provides anchored scale (0.8 -> 1.0) + fade-in with spring overshoot easing on entrance,
- * and reverse scale (1.0 -> 0.8) + fade-out on exit.
+ * Telegram-style popup animations matching ActionBarPopupWindow.java:
+ * - Anchored scale (0.8 -> 1.0) + fade-in with spring overshoot easing on entrance,
+ *   or ActionBarPopupWindowLayout 200ms DecelerateInterpolator reveal.
+ * - Programmatic dismissal matching ActionBarPopupWindow.java:1065-1068 (-5dp, 150ms exit)
+ *   and reverse scale (1.0 -> 0.8) + fade-out.
  */
 object TelegramPopupHelper {
     private val pending = java.util.WeakHashMap<View, Runnable>()
+    private val decelerate = DecelerateInterpolator()
     private val detachListener = object : View.OnAttachStateChangeListener {
         override fun onViewAttachedToWindow(v: View) {}
         override fun onViewDetachedFromWindow(v: View) { cancel(v) }
@@ -67,13 +71,16 @@ object TelegramPopupHelper {
     fun animateExit(contentView: View, onEnd: () -> Unit) {
         cancel(contentView)
         contentView.addOnAttachStateChangeListener(detachListener)
+        val dy = -5f * contentView.resources.displayMetrics.density
         contentView.animate()
+            .translationY(dy)
             .scaleX(0.8f)
             .scaleY(0.8f)
             .alpha(0f)
-            .setDuration(160)
-            .setInterpolator(CubicBezierInterpolator.DEFAULT)
+            .setDuration(150)
+            .setInterpolator(decelerate)
             .withEndAction {
+                contentView.translationY = 0f
                 onEnd()
             }
             .start()
