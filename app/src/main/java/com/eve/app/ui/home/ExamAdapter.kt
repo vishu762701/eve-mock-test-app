@@ -84,6 +84,7 @@ class ExamAdapter(
             b.examIconContainer.strokeColor = com.eve.app.designsystem.EveDesignSystem.Colors.shapeBorder(ctx)
             b.examIconContainer.strokeWidth = 0
             HomeAppearance.applyCard(b.root)
+            com.eve.app.designsystem.DesignPress.bind(b.root)
         }
 
         fun bind(exam: Exam, attempted: Boolean, isPinned: Boolean, attempt: com.eve.app.data.model.TestAttempt?, position: Int) {

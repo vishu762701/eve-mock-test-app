@@ -5,7 +5,6 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.view.View
 import android.view.animation.OvershootInterpolator
-import com.eve.app.util.TelegramThemeEasing
 
 /**
  * Port of Telegram's ButtonBounce (org.telegram.ui.Components.ButtonBounce).

@@ -4,7 +4,7 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.Context
-import android.view.animation.DecelerateInterpolator
+import org.telegram.ui.Components.Easings
 import android.widget.TextView
 import com.eve.app.designsystem.DesignMotion
 
@@ -85,7 +85,7 @@ object HomeGreetingMotion {
             textView.alpha = 0.85f
             val animator = ValueAnimator.ofFloat(CONDENSED_TRACKING_EMS, NATURAL_TRACKING_EMS).apply {
                 duration = ANIMATION_DURATION_MS
-                interpolator = DecelerateInterpolator()
+                interpolator = Easings.easeOutQuad
                 addUpdateListener { va ->
                     val fraction = va.animatedFraction
                     val value = va.animatedValue as Float
@@ -115,7 +115,7 @@ object HomeGreetingMotion {
                 .alpha(1f)
                 .translationY(0f)
                 .setDuration(ANIMATION_DURATION_MS)
-                .setInterpolator(DecelerateInterpolator())
+                .setInterpolator(Easings.easeOutQuad)
                 .withEndAction {
                     settleNatural(textView)
                     onEnd?.invoke()
