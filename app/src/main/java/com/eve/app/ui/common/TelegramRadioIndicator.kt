@@ -14,8 +14,10 @@ import android.graphics.ColorFilter
 import android.graphics.Paint
 import android.graphics.PixelFormat
 import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.graphics.PorterDuffXfermode
 import android.graphics.drawable.Drawable
+import androidx.core.graphics.ColorUtils
 
 /** Per-option paints and progress; native CompoundButton owns checked/accessibility state. */
 internal class TelegramRadioIndicator(
@@ -25,7 +27,7 @@ internal class TelegramRadioIndicator(
 ) : Drawable() {
     companion object { const val TRANSITION_MS = 200L }
     private fun dp(value: Int) = kotlin.math.ceil(value * density).toInt()
-    private val size = dp(20) // RadioButtonCell's explicit size; preserve EVE's existing outer slot.
+    private var size = dp(20) // RadioButtonCell's explicit size; preserve EVE's existing outer slot.
     private val ring = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         strokeWidth = dp(2).toFloat()
         style = Paint.Style.STROKE
@@ -44,6 +46,33 @@ internal class TelegramRadioIndicator(
     internal var animator: ValueAnimator? = null
         private set
     private var checked = false
+    private var icon: Drawable? = null
+    private var iconColor: Int = 0
+
+    fun setSize(valuePx: Int) {
+        if (size != valuePx) {
+            size = valuePx
+            invalidateSelf()
+        }
+    }
+
+    fun setIcon(drawable: Drawable?) {
+        iconColor = 0
+        icon = drawable
+        invalidateSelf()
+    }
+
+    fun getColor(): Int = uncheckedColor
+
+    fun setBackgroundColor(color1: Int) {
+        uncheckedColor = color1
+        invalidateSelf()
+    }
+
+    fun setCheckedColor(color2: Int) {
+        checkedColor = color2
+        invalidateSelf()
+    }
 
     fun setColors(normal: Int, selected: Int) {
         uncheckedColor = normal
@@ -117,13 +146,32 @@ internal class TelegramRadioIndicator(
         val y = bounds.exactCenterY()
         val radius = size / 2 - (1f + circleProgress) * density
         canvas.drawCircle(x, y, radius, ring)
-        if (progress <= 0.5f) {
-            canvas.drawCircle(x, y, radius - dp(1), fill)
-            canvas.drawCircle(x, y, (radius - dp(1)) * (1f - circleProgress), eraser)
-        } else {
-            canvas.drawCircle(x, y, size / 4 + (radius - dp(1) - size / 4) * circleProgress, fill)
+        val iconDrawable = icon
+        if (iconDrawable == null) {
+            if (progress <= 0.5f) {
+                canvas.drawCircle(x, y, radius - dp(1), fill)
+                canvas.drawCircle(x, y, (radius - dp(1)) * (1f - circleProgress), eraser)
+            } else {
+                canvas.drawCircle(x, y, size / 4 + (radius - dp(1) - size / 4) * circleProgress, fill)
+            }
         }
         canvas.restoreToCount(checkpoint)
+        if (iconDrawable != null) {
+            val finalIconColor = ColorUtils.blendARGB(uncheckedColor, checkedColor, progress.coerceIn(0f, 1f))
+            if (iconColor != finalIconColor) {
+                iconColor = finalIconColor
+                iconDrawable.colorFilter = PorterDuffColorFilter(finalIconColor, PorterDuff.Mode.SRC_IN)
+            }
+            val cx = bounds.centerX()
+            val cy = bounds.centerY()
+            iconDrawable.setBounds(
+                cx - iconDrawable.intrinsicWidth / 2,
+                cy - iconDrawable.intrinsicHeight / 2,
+                cx + iconDrawable.intrinsicWidth / 2,
+                cy + iconDrawable.intrinsicHeight / 2
+            )
+            iconDrawable.draw(canvas)
+        }
     }
 
     override fun getIntrinsicWidth() = extent
@@ -131,5 +179,5 @@ internal class TelegramRadioIndicator(
     override fun setAlpha(alpha: Int) { ring.alpha = alpha; fill.alpha = alpha; invalidateSelf() }
     override fun setColorFilter(colorFilter: ColorFilter?) { ring.colorFilter = colorFilter; fill.colorFilter = colorFilter; invalidateSelf() }
     @Deprecated("Drawable contract")
-    override fun getOpacity() = PixelFormat.TRANSLUCENT
+    override getOpacity() = PixelFormat.TRANSLUCENT
 }

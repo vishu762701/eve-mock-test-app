@@ -7,12 +7,19 @@
 
 package com.eve.app.ui.common
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
+import android.graphics.Typeface
+import android.graphics.drawable.Drawable
+import android.text.TextPaint
 import android.util.AttributeSet
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.Checkable
@@ -49,6 +56,14 @@ class TelegramCheckBox2 @JvmOverloads constructor(
     private fun dp(v: Int): Int = (v * density + 0.5f).toInt()
 
     private var componentSize: Float = 21f // default 21dp like Telegram CheckBox2
+    private var animationDuration: Long = 200L
+    private var drawUnchecked: Boolean = true
+    private var backgroundType: Int = 0
+    private var forbidden: Boolean = false
+    private var checkedText: String? = null
+    private var iconDrawable: Drawable? = null
+    private var currentIcon: Int = 0
+    private var progressDelegate: ((Float) -> Unit)? = null
 
     private val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
@@ -64,6 +79,15 @@ class TelegramCheckBox2 @JvmOverloads constructor(
         strokeJoin = Paint.Join.ROUND
         style = Paint.Style.STROKE
         strokeWidth = dp(1.9f)
+    }
+
+    private val iconRingPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = dp(1.2f)
+    }
+
+    private val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
+        typeface = Typeface.DEFAULT_BOLD
     }
 
     private val checkPath = Path()
@@ -108,6 +132,7 @@ class TelegramCheckBox2 @JvmOverloads constructor(
         val scale = componentSize / 21f
         backgroundPaint.strokeWidth = dp(1.5f * scale)
         checkPaint.strokeWidth = dp(1.9f * scale)
+        iconRingPaint.strokeWidth = dp(1.2f * scale)
     }
 
     private fun motionEnabled(): Boolean =
@@ -125,6 +150,7 @@ class TelegramCheckBox2 @JvmOverloads constructor(
         colorUnchecked = unchecked
         colorBackground = checked
         colorCheck = check
+        iconDrawable?.colorFilter = PorterDuffColorFilter(colorUnchecked, PorterDuff.Mode.MULTIPLY)
         invalidate()
     }
 
@@ -135,10 +161,63 @@ class TelegramCheckBox2 @JvmOverloads constructor(
         }
     }
 
+    fun setDrawUnchecked(value: Boolean) {
+        if (drawUnchecked != value) {
+            drawUnchecked = value
+            invalidate()
+        }
+    }
+
+    fun getDrawUnchecked(): Boolean = drawUnchecked
+
+    fun setDrawBackgroundAsArc(type: Int) {
+        if (backgroundType != type) {
+            backgroundType = type
+            invalidate()
+        }
+    }
+
+    fun setDuration(duration: Long) {
+        animationDuration = duration.coerceAtLeast(0L)
+    }
+
+    fun setForbidden(value: Boolean) {
+        if (forbidden != value) {
+            forbidden = value
+            invalidate()
+        }
+    }
+
+    fun setProgressDelegate(delegate: ((Float) -> Unit)?) {
+        progressDelegate = delegate
+    }
+
+    fun setNum(num: Int) {
+        checkedText = if (num >= 0) (num + 1).toString() else null
+        invalidate()
+    }
+
+    fun setIcon(icon: Int) {
+        if (icon != currentIcon) {
+            currentIcon = icon
+            iconDrawable = if (icon == 0) {
+                null
+            } else {
+                ContextCompat.getDrawable(context, icon)?.mutate()?.apply {
+                    colorFilter = PorterDuffColorFilter(colorUnchecked, PorterDuff.Mode.MULTIPLY)
+                }
+            }
+            invalidate()
+        }
+    }
+
+    fun hasIcon(): Boolean = iconDrawable != null
+
     @Keep
     fun setProgress(value: Float) {
         if (_progress == value) return
         _progress = value
+        progressDelegate?.invoke(value)
         invalidate()
     }
 
@@ -154,8 +233,18 @@ class TelegramCheckBox2 @JvmOverloads constructor(
         cancelCheckAnimator()
         val target = if (newCheckedState) 1f else 0f
         checkAnimator = ObjectAnimator.ofFloat(this, "progress", target).apply {
-            duration = 200L
+            duration = animationDuration
             interpolator = CubicBezierInterpolator.EASE_OUT
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    if (animation === checkAnimator) {
+                        checkAnimator = null
+                    }
+                    if (!isCheckedState) {
+                        checkedText = null
+                    }
+                }
+            })
             start()
         }
     }
@@ -166,6 +255,13 @@ class TelegramCheckBox2 @JvmOverloads constructor(
         setChecked(checked, animated = motionEnabled())
     }
 
+    fun setChecked(num: Int, checked: Boolean, animated: Boolean) {
+        if (num >= 0) {
+            checkedText = (num + 1).toString()
+        }
+        setChecked(checked, animated)
+    }
+
     fun setChecked(checked: Boolean, animated: Boolean) {
         if (checked == isCheckedState) return
         isCheckedState = checked
@@ -174,6 +270,9 @@ class TelegramCheckBox2 @JvmOverloads constructor(
         } else {
             cancelCheckAnimator()
             setProgress(if (checked) 1f else 0f)
+            if (!checked) {
+                checkedText = null
+            }
         }
         onCheckedChangeListener?.onCheckedChanged(this, checked)
     }
@@ -202,6 +301,7 @@ class TelegramCheckBox2 @JvmOverloads constructor(
             colorBackground = palette.accent
             colorUnchecked = palette.textSecondary
             colorCheck = palette.onAccent
+            iconDrawable?.colorFilter = PorterDuffColorFilter(colorUnchecked, PorterDuff.Mode.MULTIPLY)
             invalidate()
         } catch (_: Exception) {
             // Context without theme engine
@@ -231,25 +331,49 @@ class TelegramCheckBox2 @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         if (visibility != VISIBLE) return
 
+        val icon = iconDrawable
+        if (icon != null) {
+            val cx = width shr 1
+            val cy = height shr 1
+            icon.setBounds(
+                cx - icon.intrinsicWidth / 2,
+                cy - icon.intrinsicHeight / 2,
+                cx + icon.intrinsicWidth / 2,
+                cy + icon.intrinsicHeight / 2
+            )
+            icon.draw(canvas)
+            iconRingPaint.color = colorUnchecked
+            canvas.drawCircle(cx.toFloat(), cy.toFloat(), cx - dp(1.5f), iconRingPaint)
+            return
+        }
+
         val cx = width / 2f
         val cy = height / 2f
         val scale = componentSize / 21f
         val rad = (dp(componentSize.toInt()) / 2f).coerceAtLeast(1f)
-
-        val roundProgress = if (_progress >= 0.5f) 1.0f else _progress / 0.5f
-        val checkProgress = if (_progress < 0.5f) 0.0f else (_progress - 0.5f) / 0.5f
-
-        // Draw unchecked circle or background fill
-        if (_progress <= 0f) {
-            backgroundPaint.color = if (isDisabled) colorDisabled else colorUnchecked
-            backgroundPaint.style = Paint.Style.STROKE
-            canvas.drawCircle(cx, cy, rad - dp(1f * scale), backgroundPaint)
+        val outerRad = if (backgroundType != 0 && backgroundType != 11) {
+            rad - dp(0.2f * scale)
         } else {
-            // Animating or checked
-            val bg = if (isDisabled) colorDisabled else colorBackground
-            fillPaint.color = bg
-            if (roundProgress < 1.0f) {
-                // Outer ring fading from unchecked to background color
+            rad
+        }
+
+        val effectiveProgress = if (forbidden) 1f else _progress
+        val roundProgress = if (effectiveProgress >= 0.5f) 1.0f else effectiveProgress / 0.5f
+        val checkProgress = if (effectiveProgress < 0.5f) 0.0f else (effectiveProgress - 0.5f) / 0.5f
+
+        if (effectiveProgress <= 0f) {
+            if (drawUnchecked) {
+                backgroundPaint.color = if (isDisabled) colorDisabled else colorUnchecked
+                backgroundPaint.style = Paint.Style.STROKE
+                canvas.drawCircle(cx, cy, outerRad - dp(1f * scale), backgroundPaint)
+            }
+            return
+        }
+
+        val bg = if (isDisabled) colorDisabled else colorBackground
+        fillPaint.color = bg
+        if (roundProgress < 1.0f) {
+            if (drawUnchecked) {
                 val rD = ((Color.red(bg) - Color.red(colorUnchecked)) * roundProgress).toInt()
                 val gD = ((Color.green(bg) - Color.green(colorUnchecked)) * roundProgress).toInt()
                 val bD = ((Color.blue(bg) - Color.blue(colorUnchecked)) * roundProgress).toInt()
@@ -258,14 +382,29 @@ class TelegramCheckBox2 @JvmOverloads constructor(
                     Color.green(colorUnchecked) + gD,
                     Color.blue(colorUnchecked) + bD
                 )
-                canvas.drawCircle(cx, cy, rad - dp(1f * scale), backgroundPaint)
-                canvas.drawCircle(cx, cy, (rad - dp(0.5f * scale)) * roundProgress, fillPaint)
-            } else {
-                canvas.drawCircle(cx, cy, rad - dp(0.5f * scale), fillPaint)
+                canvas.drawCircle(cx, cy, outerRad - dp(1f * scale), backgroundPaint)
             }
+            canvas.drawCircle(cx, cy, (outerRad - dp(0.5f * scale)) * roundProgress, fillPaint)
+        } else {
+            canvas.drawCircle(cx, cy, outerRad - dp(0.5f * scale), fillPaint)
+        }
 
-            // Draw Telegram checkmark vertex
-            if (checkProgress > 0f) {
+        if (checkProgress > 0f && !forbidden) {
+            val text = checkedText
+            if (text != null) {
+                val textSizeDp = when (text.length) {
+                    1, 2 -> 14f
+                    3 -> 10f
+                    else -> 8f
+                }
+                textPaint.textSize = dp(textSizeDp * scale)
+                textPaint.color = colorCheck
+                val textY = cy - (textPaint.descent() + textPaint.ascent()) / 2f
+                canvas.save()
+                canvas.scale(checkProgress, 1.0f, cx, cy)
+                canvas.drawText(text, cx - textPaint.measureText(text) / 2f, textY, textPaint)
+                canvas.restore()
+            } else {
                 checkPaint.color = colorCheck
                 val checkSide = dp(9f * scale) * checkProgress
                 val smallCheckSide = dp(4f * scale) * checkProgress
