@@ -2,6 +2,8 @@ package com.eve.app.ui.home
 
 import android.content.Context
 import android.view.View
+import androidx.recyclerview.widget.RecyclerView
+import com.eve.app.R
 import com.eve.app.designsystem.EveDesignSystem
 import com.eve.app.util.Constants
 import com.google.android.material.chip.Chip
@@ -46,8 +48,6 @@ object HomeAppearance {
                 val selectedChip = (0 until group.childCount)
                     .mapNotNull { group.getChildAt(it) as? Chip }
                     .firstOrNull { it.text.toString() == selected }
-                // A single group.check() transfers selection atomically. Per-chip unchecked
-                // mutations can fight selectionRequired, especially when moving back to All.
                 if (selectedChip != null && group.checkedChipId != selectedChip.id) {
                     group.check(selectedChip.id)
                 }
@@ -68,6 +68,13 @@ object HomeAppearance {
 
     fun applyTopBarDepth(topBarContainer: View, searchTopBar: View? = null) {
         EveDesignSystem.Components.applyHomeTopBarDepth(topBarContainer, searchTopBar)
+        val root = topBarContainer.rootView
+        val rvExams = root?.findViewById<RecyclerView>(R.id.rvExams)
+        val titleView = topBarContainer.findViewById<View>(R.id.tvActionBarTitle)
+        if (rvExams != null && rvExams.getTag(R.id.rvExams) == null) {
+            rvExams.setTag(R.id.rvExams, true)
+            TelegramDialogsListHelper.install(rvExams, titleView)
+        }
     }
 
     fun applyCard(card: com.google.android.material.card.MaterialCardView) {
