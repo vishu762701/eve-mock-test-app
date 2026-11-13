@@ -206,14 +206,14 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
             setColor(Color.WHITE); setRotatedColor(Color.WHITE)
         }, false, 40, root.scannerGlass(dp(20).toFloat())).apply {
             contentDescription = getString(R.string.qr_scanner_close)
-            setOnClickListener { closeWithMotion() }
+            com.eve.app.designsystem.DesignPress.bind(this) { closeWithMotion() }
         }
         fun iconControl(icon: Int, torch: Boolean, description: Int, action: () -> Unit) =
             QrScannerControl(this, requireNotNull(ContextCompat.getDrawable(this, icon)).mutate().apply {
                 setTint(Color.WHITE)
             }, torch, 56, root.scannerGlass(dp(28).toFloat())).apply {
                 contentDescription = getString(description)
-                setOnClickListener { action() }
+                com.eve.app.designsystem.DesignPress.bind(this) { action() }
             }
         val galleryButton = iconControl(R.drawable.eve_qr_gallery, false, R.string.qr_scanner_gallery) {
             launchGallery()

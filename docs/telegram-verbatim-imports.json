@@ -80,6 +80,16 @@
       "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_delete.png",
       "eve": "app/src/main/res/drawable-xxhdpi/ic_delete.png",
       "sha256": "deb1041dd8bbee0ad63b39b80f1a5a031ecd2ee3207192493d9f66792f8e3e55"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/CubicBezierInterpolator.java",
+      "eve": "app/src/main/java/org/telegram/ui/Components/CubicBezierInterpolator.java",
+      "sha256": "747f7b8f511249f14bc1b567088d7e0da3639729263a6f56243eb61c2ba19387"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/Easings.java",
+      "eve": "app/src/main/java/org/telegram/ui/Components/Easings.java",
+      "sha256": "ba04283b54726919dab9e2c4fa3e14963af2a0cee62b196eac58a10007ebac11"
     }
   ]
 }

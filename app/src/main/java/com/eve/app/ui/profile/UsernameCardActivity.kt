@@ -117,7 +117,7 @@ class UsernameCardActivity : EveBaseActivity() {
                 contentDescription = description
                 isClickable = true
                 isFocusable = true
-                setOnClickListener { click() }
+                com.eve.app.designsystem.DesignPress.bind(this) { click() }
             }
         tools.addView(tool("Colors", "Change QR color") { showQrPicker(false) },
             LinearLayout.LayoutParams(0, px(48), 1f))
@@ -367,7 +367,7 @@ class UsernameCardActivity : EveBaseActivity() {
             contentDescription = description
             isFocusable = true
             isClickable = true
-            setOnClickListener { action() }
+            com.eve.app.designsystem.DesignPress.bind(this) { action() }
         }
         val image = ImageView(this).apply {
             setImageResource(drawable)
@@ -386,7 +386,7 @@ class UsernameCardActivity : EveBaseActivity() {
             contentDescription = "Scan EVE QR using live camera"
             isFocusable = true
             isClickable = true
-            setOnClickListener { onClick(this) }
+            com.eve.app.designsystem.DesignPress.bind(this) { onClick(this) }
         }
         val pill = LinearLayout(this).apply {
             gravity = Gravity.CENTER
