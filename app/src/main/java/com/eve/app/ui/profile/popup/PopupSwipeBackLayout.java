@@ -31,6 +31,8 @@ import androidx.core.view.GestureDetectorCompat;
 
 
 
+import org.telegram.ui.Components.Easings;
+
 import java.util.ArrayList;
 
 public class PopupSwipeBackLayout extends FrameLayout {

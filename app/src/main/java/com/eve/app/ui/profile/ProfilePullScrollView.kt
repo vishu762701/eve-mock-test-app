@@ -14,7 +14,7 @@ import android.view.MotionEvent
 import android.view.VelocityTracker
 import android.view.ViewConfiguration
 import android.view.accessibility.AccessibilityManager
-import android.view.animation.PathInterpolator
+import org.telegram.ui.Components.CubicBezierInterpolator
 import androidx.core.widget.NestedScrollView
 import com.eve.app.designsystem.DesignMotion
 import kotlin.math.abs
@@ -131,7 +131,7 @@ class ProfilePullScrollView @JvmOverloads constructor(context: Context, attrs: A
         val factor = abs(velocity).coerceIn(1100f * density, 2000f * density) / (1100f * density)
         animator = ValueAnimator.ofFloat(pull, target).apply {
             duration = (250f * abs(target - pull) / maximumPull / factor).toLong().coerceAtLeast(1)
-            interpolator = PathInterpolator(.42f, 0f, .58f, 1f)
+            interpolator = CubicBezierInterpolator.EASE_BOTH
             addUpdateListener { updatePull(it.animatedValue as Float) }
             start()
         }
