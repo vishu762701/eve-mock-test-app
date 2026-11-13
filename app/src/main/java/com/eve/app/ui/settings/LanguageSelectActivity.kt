@@ -62,9 +62,7 @@ class LanguageSelectActivity : EveBaseActivity() {
 
         val actionBar = TelegramActionBar(this).apply {
             setTitle("Language")
-            setShowBackButton(true)
-            onBackClick = { EveNavigationHelper.finishWithTransition(this@LanguageSelectActivity) }
-            updatePalette(palette)
+            onBackPressed = { EveNavigationHelper.finishWithTransition(this@LanguageSelectActivity) }
         }
         root.addView(actionBar, LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
