@@ -16,6 +16,7 @@
 | `ProfileActivity` | Logic inversion on toolbar back navigation | `binding.btnBack` was bound to `showPersonalQr()` instead of `finish()`, causing unexpected navigation loops. | Restored `finish()` callback on back button press. |
 | `PasscodeView` | Lint `MissingPermission` on `BiometricPrompt.authenticate` | Calling Android P `BiometricPrompt.authenticate` without manifest declarations. | Added `USE_BIOMETRIC` and `USE_FINGERPRINT` to `AndroidManifest.xml` (matching Telegram master) and `@SuppressLint("MissingPermission")` guard. |
 | `Theme.Eve` (`themes.xml`) | Lint `DuplicateDefinition` for `android:windowAnimationStyle` | Duplicate attribute declaration at lines 69 and 103 in `Theme.Eve`. | Removed duplicate item from `themes.xml`. |
+| `ActivityLogActivity`, `ManageUsersActivity`, `ManagePollsActivity`, `ManagePremiumActivity`, `AvatarCropActivity`, `PhotoCropActivity` | `kotlin.UninitializedPropertyAccessException: lateinit property binding has not been initialized` during `launchAdminScreens` | Early return on missing admin/user in `onCreate()` left `binding` uninitialized; lifecycle callbacks (`cancelAuditRead()`, `onStop()`, `onDestroy()`) accessed `binding` directly, triggering `am_crash` during instrumentation. | Added `if (::binding.isInitialized)` guards across all 6 activities' teardown/stop methods. |
 
 ---
 

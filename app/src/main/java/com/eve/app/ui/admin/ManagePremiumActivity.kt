@@ -101,7 +101,9 @@ class ManagePremiumActivity : EveBaseActivity() {
         stoppedOnce = true
         reauthorizeOnResume = true
         ++mutationEpoch
-        binding.progressAdmin.visibility = View.GONE
+        if (::binding.isInitialized) {
+            binding.progressAdmin.visibility = View.GONE
+        }
         ++readGeneration
         ++transactionsGeneration
         ++usersGeneration

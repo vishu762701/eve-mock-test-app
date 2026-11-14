@@ -75,7 +75,9 @@ class ActivityLogActivity : EveBaseActivity() {
         auditJob?.cancel()
         auditJob = null
         isLoading = false
-        binding.progressBar.visibility = View.GONE
+        if (::binding.isInitialized) {
+            binding.progressBar.visibility = View.GONE
+        }
     }
 
     private fun requireAuditAccess() {

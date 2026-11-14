@@ -83,7 +83,9 @@ class ManagePollsActivity : EveBaseActivity() {
         customDatePickerDialog = null
         customTimePickerDialog?.dismiss()
         customTimePickerDialog = null
-        binding.btnCreatePollDialog.isEnabled = false
+        if (::binding.isInitialized) {
+            binding.btnCreatePollDialog.isEnabled = false
+        }
         reauthorizeOnResume = true
         super.onStop()
     }

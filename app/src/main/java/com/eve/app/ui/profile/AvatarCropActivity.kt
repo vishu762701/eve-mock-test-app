@@ -193,7 +193,9 @@ open class AvatarCropActivity : EveBaseActivity() {
     }
 
     override fun onDestroy() {
-        binding.cropView.release()
+        if (::binding.isInitialized) {
+            binding.cropView.release()
+        }
         decoded?.recycle()
         decoded = null
         super.onDestroy()

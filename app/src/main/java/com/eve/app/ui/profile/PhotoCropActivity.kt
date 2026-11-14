@@ -198,7 +198,9 @@ open class PhotoCropActivity : EveBaseActivity() {
     }
 
     override fun onDestroy() {
-        binding.cropView.release()
+        if (::binding.isInitialized) {
+            binding.cropView.release()
+        }
         decoded?.recycle()
         decoded = null
         super.onDestroy()

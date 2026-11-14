@@ -161,7 +161,9 @@ class ManageUsersActivity : EveBaseActivity() {
     override fun onStop() {
         reauthorizeOnResume = true
         gateReady = false
-        binding.progressBarTop.visibility = View.GONE
+        if (::binding.isInitialized) {
+            binding.progressBarTop.visibility = View.GONE
+        }
         requestJob?.cancel()
         detailsJob?.cancel()
         detailsEpoch++
