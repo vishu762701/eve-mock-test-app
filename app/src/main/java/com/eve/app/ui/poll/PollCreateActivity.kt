@@ -179,14 +179,14 @@ class PollCreateActivity : EveBaseActivity() {
         binding.cellAnonymous.setTextAndCheck("Anonymous Voting", isAnonymous, true)
         binding.cellAnonymous.setOnClickListener {
             isAnonymous = !isAnonymous
-            binding.cellAnonymous.setChecked(isAnonymous)
+            binding.cellAnonymous.isChecked = isAnonymous
         }
 
         binding.cellMultipleAnswers.setTextAndCheck("Multiple Answers", isMultipleAnswers, true)
         binding.cellMultipleAnswers.setOnClickListener {
             if (!isQuizMode) {
                 isMultipleAnswers = !isMultipleAnswers
-                binding.cellMultipleAnswers.setChecked(isMultipleAnswers)
+                binding.cellMultipleAnswers.isChecked = isMultipleAnswers
             }
         }
 
@@ -198,12 +198,12 @@ class PollCreateActivity : EveBaseActivity() {
 
     private fun setQuizModeEnabled(enabled: Boolean) {
         isQuizMode = enabled
-        binding.cellQuizMode.setChecked(enabled)
+        binding.cellQuizMode.isChecked = enabled
         binding.actionBar.setTitle(if (isQuizMode) "New Quiz" else "New Poll")
 
         if (isQuizMode) {
             isMultipleAnswers = false
-            binding.cellMultipleAnswers.setChecked(false)
+            binding.cellMultipleAnswers.isChecked = false
             binding.cellMultipleAnswers.alpha = 0.5f
             binding.cellMultipleAnswers.isEnabled = false
             binding.layoutQuizSection.visibility = View.VISIBLE
