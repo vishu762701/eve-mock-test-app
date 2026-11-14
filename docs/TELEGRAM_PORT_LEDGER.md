@@ -187,7 +187,7 @@ Notes / leftovers:
 - Ported exact Telegram `LanguageCell.java` layout: left radio button at 20dp, 62dp text start inset, 60dp height, 59dp divider inset.
 - Integrated `TelegramActionBar` search filtering with real-time matching and empty results view.
 
-## F13 Premium - PENDING_CI
+## F13 Premium - DONE (commit 8049676e)
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | ActionBar geometry | `PremiumPreviewFragment.java:232` (56dp bar, 54dp back, 18dp title margin) | 48dp glass toolbar | 56dp `telegram_action_bar_height`, 54dp back button, 18dp title margin |
@@ -199,6 +199,22 @@ Notes / leftovers:
 Notes / leftovers:
 - Created authentic `telegram_premium_gradient_button.xml` and `telegram_premium_button_selector.xml` with exact hex gradient from `ThemeColors.java:807-810`.
 - Replaced cards with flat feature cells in `activity_premium.xml` and `PremiumBenefitRows.kt`.
+
+## F14 Remaining Eve-only screens - PENDING_CI
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| Screen ActionBars | `ActionBar.java:70-130` (56dp bar, 54dp back button, 18dp title margin) | 48dp / varied toolbars | 56dp `telegram_action_bar_height` across all 13 screens (Feedback, About, Syllabus, History, Bookmarks, Mistakes, Performance, Leaderboard, PYQ, Result, Test, Login, Notifications) |
+| Notification list cell | `NotificationsCheckCell.java:30-70` (64dp minHeight, 21dp h-padding, 63dp inset divider) | Mixed card layout | Authentic `NotificationsCheckCell` row geometry with 63dp hairline divider |
+| Selection & radio controls | `CheckBox2.java`, `RadioButton.java` | Platform widgets | `TelegramCheckBox2` (Mistakes, Result) and `TelegramRadioButton` (Test option selection) |
+| Dialog & alert system | `AlertDialog.java:120-250` | Platform / Material builders | `TelegramNativeAlertDialog` across Test, Result, Bookmarks, History |
+| Skeletons and indicators | `FlickerLoadingView.java`, `RadialProgressView.java` | Spinners and blank states | `TelegramFlickerSkeletonView` (history and home_exam modes) & `TelegramRadialProgressView` |
+| Typography consistency | `Theme.java` (20sp NavigationTitle, 15sp Body/Secondary, 13sp Subtitle/Time) | Mixed iOS SF Pro styles | Unified Telegram typography hierarchy with zero hardcoded text sizes |
+
+Notes / leftovers:
+- All 13 Eve-only screens audited and unified under shared F1-F6 Telegram components.
+- Zero leftover iOS large-title navigation bars or unstyled platform dialogs.
+
+
 
 
 
