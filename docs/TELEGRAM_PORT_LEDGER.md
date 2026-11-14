@@ -426,31 +426,34 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 Leftovers / ASSUMED values: None
 CI Verification: Run 43567680351 passed green on main.
 
-## C11 Context menus and long-press previews - DONE
+## C11 Context menus and long-press previews - DONE (commit ec105f4b)
 Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | Popup Menu Geometry | `ActionBarPopupWindow.java:1-850`, `ActionBarMenuSubItem.java` | System PopupMenu | 196dp min width, 8dp padding, 48dp item rows, 16sp text, authentic 9-patch `telegram_dialog_popup_fixed_alert4` |
 | Context Menu Integration | `DialogsActivity.java`, `ChatMessageCell.java` | Standard menus | Integrated across Home pin/folders, Bookmarks, Profile, Admin Exams & Users |
 Leftovers / ASSUMED values: None
+CI Verification: Run 43568252136 passed green on main.
 
-## C12 Bulletins and Undo - DONE
+## C12 Bulletins and Undo - DONE (commit ec105f4b)
 Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | In-app Bulletin notification | `Bulletin.java:1-1200` | Stock Android Toast | Floating pill with icon, message, action button, dynamic spring physics, swipe-to-dismiss |
 | Circular Undo countdown | `UndoView.java:258-333` | SnackBar / None | `AppUndoBar` with depleting circular countdown ring, seconds counter, and "UNDO" action |
 Leftovers / ASSUMED values: None
+CI Verification: Run 43568252136 passed green on main.
 
-## C13 Empty and error states - DONE
+## C13 Empty and error states - DONE (commit ec105f4b)
 Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | EmptyTextProgressView | `EmptyTextProgressView.java:1-199` | Stock ProgressBar / empty text | `TelegramEmptyTextProgressView` with radial progress spinner, animated sticker placeholder, title/subtitle, action button |
 | Flicker loading skeletons | `FlickerLoadingView.java:1-400` | None | `TelegramFlickerSkeletonView` with multi-stop linear gradient sweep and authentic light/dark palette |
 Leftovers / ASSUMED values: None
+CI Verification: Run 43568252136 passed green on main.
 
-## C14 System haptics and touch feedback - DONE
+## C14 System haptics and touch feedback - DONE (commit ec105f4b)
 Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
@@ -458,24 +461,27 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | Error vibrations | `BotWebViewVibrationEffect.APP_ERROR` | None | Authentic 4-stage error vibration (`vibrateAppError`) on invalid input, form errors, and shake |
 | Touch press scale & bounce | `ButtonBounce.java` | Static press states | `DesignPress.bind` spring bounce with `CLOCK_TICK` haptic dispatch |
 Leftovers / ASSUMED values: None
+CI Verification: Run 43568252136 passed green on main.
 
-## C15 Edit-text field family - DONE
+## C15 Edit-text field family - DONE (commit ec105f4b)
 Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | Bold cursor & edit text | `EditTextBoldCursor.java:1-1387` | Stock EditText | `TelegramEditText` with accent cursor, Telegram typography, horizontal error shake |
 | Outline container & floating hint | `OutlineTextContainerView.java:1-229` | Material TextInputLayout | `TelegramOutlineEditText` with 10dp corner radius, floating title animation, dynamic stroke width (1dp->1.8dp), notched top border |
 Leftovers / ASSUMED values: None
+CI Verification: Run 43568252136 passed green on main.
 
-## C16 Fragment and window transitions - DONE
+## C16 Fragment and window transitions - DONE (commit ec105f4b)
 Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | Screen enter / exit motion | `ActionBarLayout.java:presentFragment` | Default Android transitions | Push: 100%->0% with alpha fade; Pop: 0%->100%; Recede: 0%->-25% (alpha 0.85); Return: -25%->0% |
 | Curve & Easing physics | `CubicBezierInterpolator(0.2f, 0.8f, 0.2f, 1.0f)` | Standard decelerate | Exact `design_screen_curve` cubic bezier interpolator wired into `Eve.WindowAnimation` app-wide |
 Leftovers / ASSUMED values: None
+CI Verification: Run 43568252136 passed green on main.
 
-## C17 Additional Parity Features & Candidate Sweep - DONE
+## C17 Additional Parity Features & Candidate Sweep - DONE (commit ec105f4b)
 Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
@@ -484,6 +490,7 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | Gooey Profile Avatar Collapse | `ProfileActivity.java:1-2000` | Standard CoordinatorLayout | Authentic sticky/gooey avatar scale and translation choreography with glass action bar |
 | Authentic QR Generator | `TelegramQRCodeWriter`, `QrUiTheme` | Default QR | Exact Telegram QR renderer with circular dots, corner eye geometry, gradient backdrops, and save/share |
 Leftovers / ASSUMED values: None
+CI Verification: Run 43568252136 passed green on main.
 
 
 
