@@ -214,7 +214,7 @@ Notes / leftovers:
 - All 13 Eve-only screens audited and unified under shared F1-F6 Telegram components.
 - Zero leftover iOS large-title navigation bars or unstyled platform dialogs.
 
-## F15 Admin - PENDING_CI
+## F15 Admin - DONE (commit 11744fa5)
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | Admin Navigation & Bar | `ActionBar.java:70-130`, `Theme.java` | Standard Material Toolbar | `TelegramActionBar` (56dp height, 54dp back button, 18dp title margin, menu popup items) |
