@@ -262,11 +262,11 @@ class TelegramNativeAlertDialog private constructor(
                 orientation = if (verticalActions) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
                 if (verticalActions) {
                     gravity = Gravity.END or Gravity.CENTER_VERTICAL
-                    setPadding(dp(8), 0, dp(8), 0)
+                    setPadding(dp(16), 0, dp(16), 0)
                 } else {
                     // AlertDialog.java:1108,1160-1163: bar padding 8dp, 40dp buttons at the top-right.
                     gravity = Gravity.END or Gravity.TOP
-                    setPadding(dp(8), dp(8), dp(8), dp(8))
+                    setPadding(dp(8), dp(8), dp(16), dp(8))
                 }
             }
             fun addAction(which: Int, label: CharSequence, listener: DialogInterface.OnClickListener?) {

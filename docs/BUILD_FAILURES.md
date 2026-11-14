@@ -18,11 +18,52 @@ Audit Scope: Full repository inspection across all GitHub Actions workflows and 
 
 ---
 
-## 2. Exhaustive Analysis of All Failed Runs (`build.yml`)
+## 2. Exhaustive Analysis of All Failed Runs (`build.yml` & `release.yml`)
 
-Out of the last 30 workflow runs across the repository, exactly 16 failed runs were recorded. Every failure has been isolated to its exact job, step, log trace, and architectural root cause:
+Out of the last 30 workflow runs across the repository, the failures have been isolated to their exact job, step, log trace, and architectural root cause:
 
-### Run 1: 43604067101
+### Run 1: 43609228825
+- **Workflow**: `build.yml` (Manual FULL `workflow_dispatch`)
+- **Commit**: `3687f283` (fix(build): ensure 32-bit safety in telegram_lottie.cpp and add proguard keep rules)
+- **Failed Job**: `Native UI (gesture)` and `Native UI (three-button)`
+- **Failed Step**: `Verify approved native UI behavior` (Step 6)
+- **Exact Error**:
+  - `ManualUiSpecificationTest.kt:190` & `ApprovedUiRenderingTest.kt:156`: `ClassCastException: com.google.android.material.shape.AbsoluteCornerSize cannot be cast to com.google.android.material.shape.RelativeCornerSize`
+  - `ApprovedUiFunctionalTest.kt:210`: Radio indicator vertical offset (`height / 2`) sampled background color `523355482` instead of indicator green `-14715083`
+  - `HomeCategoryTouchNativeTest.kt:65`: `expected:<1> but was:<2>` due to duplicate click listeners in `createCategoryChip`
+  - `DesignRecoveryTest.kt:452`: Bottom sheet `btnContinue` visible height clipped to 26dp instead of 126dp
+  - `AdminDeletionRegressionTest.kt:63`: Espresso 90% visibility check failed on dialog action button due to edge padding
+- **Root Cause**: Component layout and styling contracts in ported Telegram components differed from legacy test harness assertions.
+- **Resolution**:
+  1. Set `ShapeAppearanceModel.builder().setAllCornerSizes(RelativeCornerSize(0.5f))` in `TelegramChip.init`.
+  2. Set `gravity = Gravity.CENTER_VERTICAL` in `TelegramRadioButton.applyChoiceStyle()`.
+  3. Removed duplicate `onSelect()` trigger from `setOnCheckedChangeListener` in `EveDesignSystem.createCategoryChip()`.
+  4. Added `android:paddingBottom="@dimen/design_touch_min"` in `bottom_sheet_target_exams.xml`.
+  5. Padded actions layout by `dp(16)` on the end in `TelegramNativeAlertDialog.kt`.
+
+### Run 2: 43608873873
+- **Workflow**: `release.yml` (Manual `workflow_dispatch`)
+- **Commit**: `3687f283` (fix(build): ensure 32-bit safety in telegram_lottie.cpp and add proguard keep rules)
+- **Failed Job**: `preflight`
+- **Failed Step**: `Fail-closed if release distribution approval is not granted` (Step 2)
+- **Exact Error**:
+  ```
+  Release distribution is not approved by repository policy.
+  Set repository variable EVE_GPL_RELEASE_APPROVED=true to acknowledge and approve GPLv2 distribution.
+  Error: Process completed with exit code 1.
+  ```
+- **Root Cause**: By design, `release.yml` enforces owner legal approval (`EVE_GPL_RELEASE_APPROVED`) and checks for production signing secrets (`GOOGLE_SERVICES_JSON_BASE64`, `RELEASE_KEYSTORE_BASE64`, `RELEASE_STORE_PASSWORD`, `RELEASE_KEY_ALIAS`, `RELEASE_KEY_PASSWORD`). These were intentionally not configured on the repo yet.
+- **Resolution**: Documented all required variables and secrets in Section 4. Owner action required to configure repository secrets/variables.
+
+### Run 3: 43608105654
+- **Workflow**: `build.yml` (Manual FULL `workflow_dispatch`)
+- **Commit**: `59cc4f1f` (fix(crash): guard against uninitialized binding in activity onDestroy)
+- **Failed Job**: `Native UI (gesture)` and `Native UI (three-button)`
+- **Failed Step**: `Verify approved native UI behavior` (Step 6)
+- **Exact Error**: Same 12 view assertion mismatches across `ManualUiSpecificationTest`, `ApprovedUiRenderingTest`, `ApprovedUiFunctionalTest`, `HomeCategoryTouchNativeTest`, `DesignRecoveryTest`, and `AdminDeletionRegressionTest`. Notably, `am_crash` was completely eliminated (0 crashes across all 135 tests).
+- **Resolution**: Reconciled the 5 component implementations in the working tree.
+
+### Run 4: 43604067101
 - **Workflow**: `build.yml` (Manual FULL `workflow_dispatch`)
 - **Commit**: `79aa9427` (Wire Phase 2C foundation components to TelegramParity constants)
 - **Failed Job**: `Native UI (gesture)` and `Native UI (three-button)`

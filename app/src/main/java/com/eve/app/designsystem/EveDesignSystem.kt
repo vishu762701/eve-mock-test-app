@@ -88,9 +88,6 @@ object EveDesignSystem {
             setOnClickListener {
                 onSelect()
             }
-            setOnCheckedChangeListener { _, checked ->
-                if (checked) onSelect()
-            }
         }
 
         fun applyHomeCard(card: MaterialCardView) {

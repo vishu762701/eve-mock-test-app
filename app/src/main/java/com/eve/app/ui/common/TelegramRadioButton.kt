@@ -93,6 +93,7 @@ class TelegramRadioButton @JvmOverloads constructor(
     }
 
     fun applyChoiceStyle() {
+        gravity = android.view.Gravity.CENTER_VERTICAL
         indicator?.jumpToCurrentState()
         indicator = TelegramRadioIndicator(resources.displayMetrics.density,
             resources.getDimensionPixelSize(R.dimen.design_icon_size), ::motionEnabled)

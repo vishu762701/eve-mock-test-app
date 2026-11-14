@@ -67,7 +67,7 @@ open class TelegramChip @JvmOverloads constructor(
         textEndPadding = 0f
 
         shapeAppearanceModel = ShapeAppearanceModel.builder()
-            .setAllCornerSizes(dp(16f).toFloat())
+            .setAllCornerSizes(com.google.android.material.shape.RelativeCornerSize(0.5f))
             .build()
 
         isFocusable = true
@@ -147,26 +147,23 @@ open class TelegramChip @JvmOverloads constructor(
     fun updateAppearance() {
         if (!isReady) return
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
+        val selectedBg = ContextCompat.getColor(context, R.color.category_pill_selected_bg)
+        val unselectedBg = ContextCompat.getColor(context, R.color.category_pill_unselected_bg)
+        val selectedFg = if (palette.isDark) Color.BLACK else Color.WHITE
+        val unselectedFg = palette.textPrimary
 
-        if (isChecked) {
-            // Authentic Telegram checked pill
-            chipBackgroundColor = ColorStateList.valueOf(palette.accent)
-            setTextColor(Color.WHITE)
-            typeface = Typeface.DEFAULT_BOLD
-            chipStrokeWidth = 0f
-            rippleColor = ColorStateList.valueOf(0x33FFFFFF)
-            chipIconTint = ColorStateList.valueOf(Color.WHITE)
-        } else {
-            // Authentic Telegram unchecked pill
-            val bgColor = if (palette.isDark) 0x24FFFFFF else 0x14000000
-            chipBackgroundColor = ColorStateList.valueOf(bgColor)
-            setTextColor(palette.textPrimary)
-            typeface = Typeface.DEFAULT
-            chipStrokeColor = ColorStateList.valueOf(palette.hairline)
-            chipStrokeWidth = dp(1f).toFloat()
-            rippleColor = ColorStateList.valueOf(palette.actionSelector)
-            chipIconTint = ColorStateList.valueOf(palette.textSecondary)
-        }
+        chipBackgroundColor = ColorStateList(
+            arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
+            intArrayOf(selectedBg, unselectedBg)
+        )
+        setTextColor(ColorStateList(
+            arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
+            intArrayOf(selectedFg, unselectedFg)
+        ))
+        typeface = if (isChecked) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
+        chipStrokeWidth = 0f
+        rippleColor = ColorStateList.valueOf(if (isChecked) 0x33FFFFFF else palette.actionSelector)
+        chipIconTint = ColorStateList.valueOf(if (isChecked) Color.WHITE else palette.textSecondary)
         invalidate()
     }
 }

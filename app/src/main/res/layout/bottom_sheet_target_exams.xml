@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:fillViewport="true" android:clipToPadding="false" android:overScrollMode="ifContentScrolls" android:clipChildren="false" style="@style/Widget.Eve.Token.Sheet">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" android:paddingBottom="@dimen/design_touch_min" style="@style/Widget.Eve.Token.Column">
         <View
             android:layout_width="36dp"
             android:layout_height="4dp"
