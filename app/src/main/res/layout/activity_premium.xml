@@ -208,7 +208,7 @@
                         android:layout_marginTop="8dp"
                         android:layout_marginBottom="24dp"
                         android:background="@drawable/telegram_premium_button_selector"
-                        android:textColor="@color/white"
+                        android:textColor="@android:color/white"
                         android:textAllCaps="false"
                         style="@style/TextAppearance.Eve.Token.Button"
                         android:text="Buy Premium" />
@@ -325,7 +325,7 @@
                         android:layout_marginTop="16dp"
                         android:layout_marginBottom="24dp"
                         android:background="@drawable/telegram_premium_button_selector"
-                        android:textColor="@color/white"
+                        android:textColor="@android:color/white"
                         android:textAllCaps="false"
                         style="@style/TextAppearance.Eve.Token.Button"
                         android:text="Extend Premium Plan" />
