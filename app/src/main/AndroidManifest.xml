@@ -78,8 +78,7 @@
         </activity>
         <activity
             android:name=".ui.poll.PollCreateActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Eve.AdminHub" />
+            android:exported="false" />
         <activity
             android:name=".ui.profile.ProfileActivity"
             android:exported="false"
