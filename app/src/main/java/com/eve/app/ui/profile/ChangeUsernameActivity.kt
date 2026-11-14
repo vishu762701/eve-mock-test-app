@@ -188,6 +188,7 @@ class ChangeUsernameActivity : EveBaseActivity() {
         }
     }
 
+    // ChangeUsernameActivity.java:665-680: status and explanatory footer follow 15sp typography
     private fun setStatus(text: String, role: StatusRole) {
         binding.tvStatus.text = text
         statusRole = role
