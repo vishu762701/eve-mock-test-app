@@ -13,6 +13,7 @@ import org.telegram.ui.Components.CubicBezierInterpolator
  *   and reverse scale (1.0 -> 0.8) + fade-out.
  */
 object TelegramPopupHelper {
+    private val defaultInterpolator = CubicBezierInterpolator.DEFAULT
     private val pending = java.util.WeakHashMap<View, Runnable>()
     private val decelerate = DecelerateInterpolator()
     private val detachListener = object : View.OnAttachStateChangeListener {

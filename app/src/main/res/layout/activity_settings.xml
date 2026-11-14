@@ -22,7 +22,7 @@
             style="@style/Widget.Eve.Token.ToolbarRow">
             <ImageButton
                 android:id="@+id/btnBack"
-                android:layout_width="@dimen/telegram_action_bar_back_width"
+                android:layout_width="@dimen/design_touch_min"
                 android:layout_height="match_parent"
                 android:contentDescription="Back"
                 android:src="@drawable/ic_back"
@@ -542,7 +542,7 @@
                 android:id="@+id/rowAbout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="50dp"
+                android:minHeight="@dimen/design_bottom_bar_height"
                 android:clickable="true"
                 android:focusable="true"
                 android:contentDescription="About Eve"

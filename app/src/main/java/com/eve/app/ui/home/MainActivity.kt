@@ -1082,7 +1082,7 @@ class MainActivity : EveBaseActivity() {
                     menuIcons, View.ALPHA, menuIcons.alpha, if (opening) 0f else 1f
                 )
             )
-            duration = 180L
+            duration = 150L
             interpolator = org.telegram.ui.Components.CubicBezierInterpolator.EASE_OUT_QUINT
             addListener(object : android.animation.AnimatorListenerAdapter() {
                 private var cancelled = false

@@ -43,7 +43,7 @@
     </com.eve.app.ui.profile.ProfileGooeyView>
 
     <!-- Telegram Profile Top Bar (56dp height, 54dp QR frame, 20sp title, 48dp kebab menu) -->
-    <FrameLayout
+    <com.eve.app.ui.common.EveGlassToolbar
         android:id="@+id/glassToolbar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/telegram_action_bar_height"
@@ -88,7 +88,7 @@
                 android:src="@drawable/ic_more_vert"
                 app:tint="@color/telegram_type_primary" />
         </LinearLayout>
-    </FrameLayout>
+    </com.eve.app.ui.common.EveGlassToolbar>
 
     <!-- Scrollable content -->
     <com.eve.app.ui.profile.ProfilePullScrollView
