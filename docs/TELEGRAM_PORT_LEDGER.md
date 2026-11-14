@@ -306,7 +306,7 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | Style tokens Material3 purge | `A0 / A4 Audit` | `Widget.Eve.Token.Chip` inheriting from `Widget.Material3.Chip.Assist`, `Widget.Eve.Token.SegmentedTabs` from `Widget.Material3.TabLayout` | Unparented `Widget.Eve.Token.Chip` (`parent=""`), unparented Material3 from `Widget.Eve.Token.SegmentedTabs` (`parent="Widget.Design.TabLayout"`) |
 Leftovers / ASSUMED values: None
 
-## C4 Passcode / app lock - DONE
+## C4 Passcode / app lock - DONE (commit c0c8c95d, CI 43557961643)
 Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
@@ -318,5 +318,19 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | Top bar lock icon & action | `DialogsActivity.java` (lock icon in action bar when passcode enabled) | None | Top bar lock icon button (`@drawable/ic_lock`), instant lock on tap, auto-lock on timeout in `MainActivity.kt` |
 | Settings entry | `SettingsActivity.java:Privacy and Security` | No passcode entry | "Privacy and Security" section with "Passcode Lock" row (`rowPasscode`) in `SettingsActivity` |
 Leftovers / ASSUMED values: None
+
+## C5 Storage and cache screen (`CacheControlActivity`) - DONE
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| Storage Diagram View | `StorageUsageView.java:1-350` (segmented bar with rounded caps, smooth animation with `EASE_OUT_QUINT`, legend with colored circle dots) | None | `StorageUsageView.kt` with animated multi-segment bar (Eve app `#229AF0`, other apps `#8699AA`, free space track) and colored dot legend |
+| Cache breakdown metrics | `CacheControlActivity.java:150-180` (documents, photos, database, temp sizes formatted with `AndroidUtilities.formatFileSize`) | None | `CacheManager.kt` calculating real sizes for documents/syllabi, photos/avatars, database, and temporary files with authentic Telegram formatting |
+| Keep Media retention policy | `CacheControlActivity.java:VIEW_TYPE_KEEP_MEDIA_CELL` (3 days, 1 week, 1 month, Forever) | None | Keep Media preference stored in SharedPreferences with `TelegramNativeAlertDialog` single-choice picker |
+| Maximum Cache Size | `CacheControlActivity.java:VIEW_TYPE_MAX_CACHE_SIZE` (5 GB, 16 GB, 32 GB, No limit) | None | Maximum cache size configuration with single-choice picker dialog |
+| Clear Cache Bottom Sheet | `CacheControlActivity.java:bottomSheet` with checkboxes (`TelegramCheckBox2`) | None | `ClearCacheBottomSheet` with selective checkboxes for documents, photos, and temp files, action button, and async cache purge |
+| Local database optimization | `CacheControlActivity.java:clearDatabaseItem` | None | Local database maintenance prompt with WAL/SHM checkpoint clear |
+| Settings entry | `SettingsActivity.java:rowStorage` (`IconBackgroundColors.GREEN`, pie-chart storage vector icon) | No data/storage row | Added "Data and Storage" (`rowStorage`) with green chip, `ic_storage` vector, and dynamic cache size indicator |
+Leftovers / ASSUMED values: None
+
 
 

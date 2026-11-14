@@ -116,7 +116,8 @@ class SettingsActivity : EveBaseActivity() {
         listOf(
             binding.rowAppearance, binding.rowAbout, binding.rowLogout,
             binding.rowDailyGoal, binding.rowTargetExams, binding.rowLanguage,
-            binding.rowReminder, binding.rowDeleteAccount, binding.rowPasscode
+            binding.rowReminder, binding.rowDeleteAccount, binding.rowPasscode,
+            binding.rowStorage
         ).forEach { com.eve.app.designsystem.DesignPress.bind(it) }
 
         binding.rowAppearance.setOnClickListener {
@@ -125,6 +126,10 @@ class SettingsActivity : EveBaseActivity() {
 
         binding.rowPasscode.setOnClickListener {
             startActivity(Intent(this, PasscodeActivity::class.java))
+        }
+
+        binding.rowStorage.setOnClickListener {
+            startActivity(Intent(this, CacheControlActivity::class.java))
         }
 
         binding.rowAbout.setOnClickListener {
@@ -162,6 +167,7 @@ class SettingsActivity : EveBaseActivity() {
         if (!hasSettingsOwner() && !deletingFirebaseCredential) finish()
         refreshLanguageText()
         binding.tvPasscodeValue.text = if (com.eve.app.util.PasscodeManager.isPasscodeEnabled(this)) "On" else "Off"
+        binding.tvStorageValue.text = com.eve.app.util.CacheManager.formatFileSize(com.eve.app.util.CacheManager.getTotalCacheSize(this))
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
