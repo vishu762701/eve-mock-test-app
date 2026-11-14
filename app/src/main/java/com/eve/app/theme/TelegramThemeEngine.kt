@@ -587,6 +587,25 @@ object TelegramThemeEngine {
         return (Color.red(color) * 0.299f + Color.green(color) * 0.587f + Color.blue(color) * 0.114f) / 255f
     }
 
+    fun computePerceivedBrightnessTg(color: Int): Float {
+        return (Color.red(color) * 0.2126f + Color.green(color) * 0.7152f + Color.blue(color) * 0.0722f) / 255f
+    }
+
+    fun adaptHSV(color: Int, sat: Float, `val`: Float): Int {
+        val tempHSV = FloatArray(3)
+        Color.colorToHSV(color, tempHSV)
+        if (tempHSV[1] > 0.1f && tempHSV[1] < 0.9f) {
+            tempHSV[1] = MathUtils.clamp(tempHSV[1] + sat, 0f, 1f)
+        }
+        tempHSV[2] = MathUtils.clamp(tempHSV[2] + `val`, 0f, 1f)
+        return Color.HSVToColor(Color.alpha(color), tempHSV)
+    }
+
+    fun adaptProfileEmojiColor(color: Int): Int {
+        val isDark = computePerceivedBrightnessTg(color) < 0.2f
+        return adaptHSV(color, +0.5f, if (isDark) +0.28f else -0.28f)
+    }
+
     fun multAlpha(color: Int, alpha: Float): Int {
         val a = MathUtils.clamp((Color.alpha(color) * alpha).roundToInt(), 0, 255)
         return Color.argb(a, Color.red(color), Color.green(color), Color.blue(color))

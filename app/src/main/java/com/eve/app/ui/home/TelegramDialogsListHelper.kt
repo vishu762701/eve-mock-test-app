@@ -30,4 +30,35 @@ internal object TelegramDialogsListHelper {
             recyclerView.smoothScrollToPosition(0)
         }
     }
+
+    /**
+     * Telegram DialogsActivity scroll listener managing floating UI show/hide.
+     */
+    fun scrollToTop(recyclerView: RecyclerView) {
+        val lm = recyclerView.layoutManager as? LinearLayoutManager ?: return
+        if (lm.findFirstVisibleItemPosition() > 10) {
+            recyclerView.scrollToPosition(10)
+        }
+        recyclerView.smoothScrollToPosition(0)
+    }
+
+    fun createScrollListener(
+        onScrolledUp: () -> Unit,
+        onScrolledDown: () -> Unit
+    ): RecyclerView.OnScrollListener {
+        return object : RecyclerView.OnScrollListener() {
+            private var totalDy = 0
+
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (dy > 12) {
+                    onScrolledDown()
+                    totalDy = 0
+                } else if (dy < -12) {
+                    onScrolledUp()
+                    totalDy = 0
+                }
+            }
+        }
+    }
 }

@@ -1,7 +1,3 @@
-/*
- * Derived from Telegram Android list cells.
- * GNU GPL v2 or later. See THIRD_PARTY_NOTICES.md.
- */
 package com.eve.app.designsystem
 
 typealias TextCell = com.eve.app.ui.admin.tg.TextCell

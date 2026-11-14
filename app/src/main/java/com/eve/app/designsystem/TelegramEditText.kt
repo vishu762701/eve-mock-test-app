@@ -58,6 +58,25 @@ class TelegramEditText @JvmOverloads constructor(
         includeFontPadding = false
     }
 
+    fun setCursorColor(color: Int) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val cursorDrawable = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setColor(color)
+                setSize(dp(2f), dp(20f))
+                cornerRadius = dp(1f).toFloat()
+            }
+            textCursorDrawable = cursorDrawable
+        }
+    }
+
+    fun updatePalette(palette: TelegramThemeEngine.ResolvedPalette) {
+        setTextColor(palette.textPrimary)
+        setHintTextColor(palette.textSecondary)
+        setCursorColor(palette.accent)
+        invalidate()
+    }
+
     /**
      * Authentic error shake animation (AndroidUtilities.shakeView).
      * Shakes horizontally with cycle interpolator and error vibration.

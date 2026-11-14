@@ -446,15 +446,21 @@ class ProfileActivity : EveBaseActivity() {
         if (::binding.isInitialized) {
             profileOptionsPopup?.dismiss(immediate = true)
             profilePhotoMenu?.dismiss()
-            // Stable Telegram icon variants: outline on light button surfaces,
-            // filled on dark; photo-viewer expansion crossfade remains unported.
-            val surface = androidx.core.content.ContextCompat.getColor(
-                this, R.color.category_pill_unselected_bg
-            )
-            binding.layoutActions.setActionColor(surface)
+            // Telegram: ProfileActivity.java:1271-1280 @ 3de37c8cfb039452be7398909461da6288babf15
+            // Dynamic action button color calculation based on perceived brightness and HSV adaptation
+            val baseColor = if (palette.isDark) 0xFF212D3B.toInt() else 0xFF527DA3.toInt()
+            val brightness = TelegramThemeEngine.computePerceivedBrightnessTg(baseColor)
+            val btnColor = if (brightness > 0.8f) {
+                Color.WHITE
+            } else if (brightness < 0.2f) {
+                TelegramThemeEngine.multAlpha(TelegramThemeEngine.adaptHSV(baseColor, +0.02f, +0.25f), 0.35f)
+            } else {
+                TelegramThemeEngine.multAlpha(TelegramThemeEngine.adaptProfileEmojiColor(baseColor), 0.15f)
+            }
+            binding.layoutActions.setActionColor(btnColor)
             ProfileActionIcons.applyTo(
                 listOf(binding.btnSetPhoto, binding.btnEditInfo, binding.btnSettings),
-                surfaceColor = surface
+                surfaceColor = btnColor
             )
             val rowSelector = {
                 com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(

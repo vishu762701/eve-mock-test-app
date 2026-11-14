@@ -37,4 +37,35 @@ class CodepointsLengthInputFilter(private val max: Int) : InputFilter {
         }
         return source.subSequence(start, cut)
     }
+
+    fun getMaxLength(): Int = max
+
+    fun canAppend(current: CharSequence?, addition: CharSequence?): Boolean {
+        val total = countCodepoints(current) + countCodepoints(addition)
+        return total <= max
+    }
+
+    companion object {
+        /**
+         * Counts Unicode code points (emoji and surrogate pairs count as 1).
+         */
+        fun countCodepoints(text: CharSequence?): Int {
+            if (text.isNullOrEmpty()) return 0
+            return Character.codePointCount(text, 0, text.length)
+        }
+
+        /**
+         * Trims text to at most [max] Unicode code points.
+         */
+        fun trimToCodepoints(text: CharSequence, max: Int): CharSequence {
+            if (countCodepoints(text) <= max) return text
+            var count = 0
+            var i = 0
+            while (i < text.length && count < max) {
+                i += Character.charCount(Character.codePointAt(text, i))
+                count++
+            }
+            return text.subSequence(0, i)
+        }
+    }
 }

@@ -263,8 +263,8 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
         super.onDraw(canvas)
         if (childCount < 3 || state.backgroundAlpha <= 0f) return
         val mix = iconMix()
-        val isLightSurface = ColorUtils.calculateLuminance(surfaceColor) > 0.5
-        val baseTextColor = if (isLightSurface) Color.BLACK else Color.WHITE
+        val palette = TelegramThemeEngine.resolveCurrentPalette(context)
+        val baseTextColor = if (palette.isDark) Color.WHITE else Color.BLACK
         val textColor = ColorUtils.blendARGB(baseTextColor, Color.WHITE, mix)
         val itemHeight = max(0f, dp(54f) * state.fraction)
         val radius = dp(16f)

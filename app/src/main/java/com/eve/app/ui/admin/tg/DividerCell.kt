@@ -43,6 +43,18 @@ class DividerCell @JvmOverloads constructor(
         invalidate()
     }
 
+    fun setStrokeWidth(widthPx: Float) {
+        dividerPaint.strokeWidth = widthPx
+        invalidate()
+    }
+
+    fun setTopBottomPadding(paddingDp: Int) {
+        val pad = dp(paddingDp.toFloat())
+        setPadding(paddingLeft, pad, paddingRight, pad)
+        requestLayout()
+        invalidate()
+    }
+
     fun updatePalette(palette: TelegramThemeEngine.ResolvedPalette) {
         dividerPaint.color = palette.hairline
         invalidate()

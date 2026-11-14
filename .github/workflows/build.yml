@@ -81,6 +81,9 @@ jobs:
             exit 1
           fi
 
+      - name: Anti-stub check across Telegram ports (FAST and FULL)
+        run: python3 tools/check_no_stubs.py
+
       # Documentation, governance and security suites are manual FULL only.
       - name: Verify docs and governance contracts (manual FULL only)
         if: ${{ steps.verification_profile.outputs.full == 'true' }}

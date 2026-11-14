@@ -48,7 +48,8 @@ internal object ProfileActionIcons {
 
     fun applyTo(buttons: List<LinearLayout>, surfaceColor: Int) {
         require(buttons.size == 3)
-        val assets = resourcesForColor(surfaceColor)
+        val isDark = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(buttons[0].context).isDark
+        val assets = resources(darkSurface = isDark)
         for ((index, asset) in listOf(assets.photo, assets.edit, assets.settings).withIndex()) {
             // Existing icon is the first child; preserve the button label,
             // click handler, source bounce physics, and content fade state.

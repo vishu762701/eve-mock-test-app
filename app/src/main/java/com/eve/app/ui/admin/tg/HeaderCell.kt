@@ -66,6 +66,21 @@ class HeaderCell @JvmOverloads constructor(
         textView.setTextColor(color)
     }
 
+    fun setTextSize(sizeSp: Float) {
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, sizeSp)
+    }
+
+    fun setTopMargin(marginDp: Float) {
+        val lp = textView.layoutParams as? LayoutParams ?: return
+        lp.topMargin = dp(marginDp)
+        textView.layoutParams = lp
+    }
+
+    override fun setEnabled(enabled: Boolean) {
+        super.setEnabled(enabled)
+        textView.alpha = if (enabled) 1.0f else 0.5f
+    }
+
     fun updatePalette(palette: TelegramThemeEngine.ResolvedPalette) {
         textView.setTextColor(palette.accent)
         invalidate()

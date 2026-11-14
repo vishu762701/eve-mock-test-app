@@ -16,7 +16,7 @@ import org.telegram.ui.Components.CubicBezierInterpolator
  * Upstream: PollCreateActivity.java:176-230, ChangeUsernameActivity.java:1120-1165
  * Features:
  * - 1.03x scale lift and 8dp elevation on drag start with light haptic feedback
- * - Smooth spring settle back on drop
+ * - Smooth CubicBezierInterpolator.EASE_OUT_QUINT settle back on drop
  * - Item swapping with swap callback
  */
 open class TelegramItemTouchHelperCallback(

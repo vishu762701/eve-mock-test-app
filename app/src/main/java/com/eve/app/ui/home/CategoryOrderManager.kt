@@ -48,4 +48,26 @@ object CategoryOrderManager {
             .remove(KEY_ORDER)
             .apply()
     }
+
+    /**
+     * Reorders category items per Telegram FilterCreateActivity drag-reorder logic.
+     */
+    fun reorder(context: Context, fromIndex: Int, toIndex: Int): List<String> {
+        val list = getSavedOrder(context).toMutableList()
+        if (fromIndex in list.indices && toIndex in list.indices && fromIndex != toIndex) {
+            val item = list.removeAt(fromIndex)
+            list.add(toIndex, item)
+            saveOrder(context, list)
+        }
+        return list
+    }
+
+    fun moveCategory(context: Context, item: String, newPosition: Int): List<String> {
+        val list = getSavedOrder(context).toMutableList()
+        list.remove(item)
+        val pos = newPosition.coerceIn(0, list.size)
+        list.add(pos, item)
+        saveOrder(context, list)
+        return list
+    }
 }
