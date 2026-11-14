@@ -22,6 +22,7 @@ import com.eve.app.databinding.ActivityAvatarCropBinding
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.ProfilePhotoManager
+import com.eve.app.util.VibrationHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -34,7 +35,7 @@ import java.io.FileOutputStream
  * as an up-to-800px quality-80 JPEG (the source `bigPhoto` export) into its
  * cache and returns that URI to the profile preview.
  */
-class AvatarCropActivity : EveBaseActivity() {
+open class AvatarCropActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityAvatarCropBinding
     private var sourceUri: Uri? = null
@@ -66,6 +67,12 @@ class AvatarCropActivity : EveBaseActivity() {
 
         com.eve.app.designsystem.DesignPress.bind(binding.btnCancel) { finish() }
         com.eve.app.designsystem.DesignPress.bind(binding.btnDone) { completeCrop() }
+        com.eve.app.designsystem.DesignPress.bind(binding.btnRotate) {
+            if (binding.cropView.hasBitmap()) {
+                VibrationHelper.vibrateLightHaptic(this)
+                binding.cropView.rotate90()
+            }
+        }
         binding.btnDone.isEnabled = false
         loadPhoto()
     }

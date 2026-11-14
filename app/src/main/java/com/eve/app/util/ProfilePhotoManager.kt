@@ -36,6 +36,14 @@ object ProfilePhotoManager {
         ownerUid: String? = FirebaseAuth.getInstance().currentUser?.uid
     ): Boolean = fileForUid(context, ownerUid)?.exists() == true
 
+    fun getCustomPhotoUri(
+        context: Context,
+        ownerUid: String? = FirebaseAuth.getInstance().currentUser?.uid
+    ): Uri? {
+        val f = fileForUid(context, ownerUid) ?: return null
+        return if (f.exists()) Uri.fromFile(f) else null
+    }
+
     fun loadBitmap(
         context: Context,
         ownerUid: String? = FirebaseAuth.getInstance().currentUser?.uid

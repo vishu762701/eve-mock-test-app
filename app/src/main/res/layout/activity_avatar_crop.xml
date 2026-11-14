@@ -39,6 +39,15 @@
             style="@style/TextAppearance.Eve.Telegram.NavigationTitle" />
 
         <ImageButton
+            android:id="@+id/btnRotate"
+            android:layout_width="@dimen/design_touch_min"
+            android:layout_height="@dimen/design_touch_min"
+            android:contentDescription="Rotate 90 degrees"
+            android:src="@drawable/ic_rotate"
+            app:tint="@color/telegram_type_primary"
+            style="@style/Widget.Eve.Token.IconButton" />
+
+        <ImageButton
             android:id="@+id/btnDone"
             android:layout_width="@dimen/design_touch_min"
             android:layout_height="@dimen/design_touch_min"

@@ -344,7 +344,7 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | Accent color circles | `ThemeActivity.java:accent` (Telegram circular color swatches with white checkmark) | Color circles | Telegram accent color picker row with white checkmark and preview synchronization |
 Leftovers / ASSUMED values: None
 
-## C7 Share sheet (`ShareAlert`) - DONE
+## C7 Share sheet (`ShareAlert`) - DONE (commit 17eed74a, CI 43561319286)
 Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
@@ -355,6 +355,17 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | Result sharing integration | `ResultActivity.java` | Direct intent chooser | `ResultActivity.kt` wired to `TelegramShareAlert` with test score, accuracy, and rank details |
 | Profile & QR sharing integration | `UsernameCardActivity.java` | Direct image file chooser | `UsernameCardActivity.kt` wired to `TelegramShareAlert` with username link and rendered QR thumbnail |
 Leftovers / ASSUMED values: None
+
+## C8 Avatar tools (`PhotoCropActivity`, `ProfileGalleryView`) - DONE
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| PhotoCropActivity alias | `PhotoCropActivity.java:1-500` | `AvatarCropActivity` only | `PhotoCropActivity.kt` registered in `AndroidManifest.xml` and wired as subclass of `AvatarCropActivity` |
+| Photo 90-degree rotate tool | `PhotoCropActivity.java:rotate` | None | Added `rotate90()` in `AvatarCropView.kt`, toolbar rotate button (`ic_rotate.webp` from Telegram source), and haptic click |
+| ProfileGalleryView visuals | `ProfileGalleryView.java:1-400` (fullscreen viewer, top dash page indicator, vertical drag-down dismiss) | Basic ImageView | `ProfileGalleryView.kt` with fullscreen black backdrop, dash indicators, vertical drag dismiss with alpha fade, share/save |
+| Camera / Gallery picker sheet | `ImageUpdater.java:openMenu` | Basic bottom sheet | `ProfilePhotoMenu.kt` authentic Telegram BottomSheet (`Choose photo`, `Take photo`, `Upload from gallery`, `Remove photo`) |
+Leftovers / ASSUMED values: None
+
 
 
 

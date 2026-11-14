@@ -66,6 +66,13 @@ class AvatarCropView @JvmOverloads constructor(
         invalidate()
     }
 
+    fun rotate90() {
+        val src = bitmap ?: return
+        val matrix = android.graphics.Matrix().apply { postRotate(90f) }
+        val rotated = Bitmap.createBitmap(src, 0, 0, src.width, src.height, matrix, true)
+        setBitmap(rotated)
+    }
+
     fun hasBitmap(): Boolean = bitmap != null && cropBox.isValid
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {

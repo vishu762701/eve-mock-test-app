@@ -392,8 +392,26 @@ class ProfileActivity : EveBaseActivity() {
         }
         binding.avatarTouchTarget.setOnClickListener {
             if (hasProfilePhoto() && binding.profileScrollView.canExpand()) {
-                binding.profileScrollView.setExpanded(!binding.profileScrollView.isExpanded)
+                if (binding.profileScrollView.isExpanded) {
+                    val uri = ProfilePhotoManager.getCustomPhotoUri(this, profileOwnerUid)
+                        ?: FirebaseAuth.getInstance().currentUser?.photoUrl
+                    if (uri != null) {
+                        com.eve.app.designsystem.ProfileGalleryView.show(this, listOf(uri))
+                    } else {
+                        binding.profileScrollView.setExpanded(false)
+                    }
+                } else {
+                    binding.profileScrollView.setExpanded(true)
+                }
             } else showProfilePhotoMenu()
+        }
+        binding.avatarTouchTarget.setOnLongClickListener {
+            val uri = ProfilePhotoManager.getCustomPhotoUri(this, profileOwnerUid)
+                ?: FirebaseAuth.getInstance().currentUser?.photoUrl
+            if (uri != null) {
+                com.eve.app.designsystem.ProfileGalleryView.show(this, listOf(uri))
+                true
+            } else false
         }
         binding.btnCancelPhoto.setOnClickListener {
             cancelPhotoPreview()
