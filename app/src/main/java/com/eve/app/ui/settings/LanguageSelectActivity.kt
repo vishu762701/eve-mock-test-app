@@ -25,7 +25,7 @@ import com.eve.app.designsystem.TelegramThemeSelectors
 import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.ui.admin.tg.HeaderCell
 import com.eve.app.ui.admin.tg.ShadowSectionCell
-import com.eve.app.ui.admin.tg.TelegramActionBar
+import com.eve.app.designsystem.TelegramActionBar
 import com.eve.app.ui.admin.tg.TextInfoPrivacyCell
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.ui.common.TelegramRadioIndicator

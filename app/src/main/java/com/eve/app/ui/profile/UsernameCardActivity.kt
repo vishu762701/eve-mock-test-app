@@ -1,5 +1,6 @@
 package com.eve.app.ui.profile
 
+import android.app.Dialog
 import android.content.ClipData
 import android.widget.ScrollView
 import com.eve.app.data.repository.EmojiRepository
@@ -44,7 +45,7 @@ class UsernameCardActivity : EveBaseActivity() {
     private var qrClosing = false
     private var gallerySaveInProgress = false
     private var gallerySaveJob: kotlinx.coroutines.Job? = null
-    private var emojiPicker: BottomSheetDialog? = null
+    private var emojiPicker: Dialog? = null
     private var emojiPickerGrid: QrEmojiPickerGrid? = null
     private var emojiPickerScroll: android.os.Parcelable? = null
     private val galleryPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
