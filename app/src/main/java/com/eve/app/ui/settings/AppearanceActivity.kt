@@ -24,7 +24,7 @@ import com.eve.app.util.AppBulletin
  * Supports Day/Night/System modes, House default presets, Arctic, Dark Blue, Blue Bubbles,
  * real EVE question preview card, transactional apply/cancel/reset, and bounded .attheme imports.
  */
-class AppearanceActivity : EveBaseActivity() {
+open class AppearanceActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityAppearanceBinding
     private var isApplied = false
@@ -325,12 +325,15 @@ class AppearanceActivity : EveBaseActivity() {
                 }
             }
 
-            val swatch = MaterialCardView(this).apply {
-                radius = 20 * density
-                strokeWidth = if (isSelected) (2 * density).toInt() else 0
-                strokeColor = if (isSelected) palette.textPrimary else Color.TRANSPARENT
-                setCardBackgroundColor(accent.color)
+            val swatch = View(this).apply {
                 layoutParams = android.widget.FrameLayout.LayoutParams(visualSize, visualSize, Gravity.CENTER)
+                background = android.graphics.drawable.GradientDrawable().apply {
+                    shape = android.graphics.drawable.GradientDrawable.OVAL
+                    setColor(accent.color)
+                    if (isSelected) {
+                        setStroke((2 * density).toInt(), palette.textPrimary)
+                    }
+                }
                 isClickable = false
             }
             touchContainer.addView(swatch)
