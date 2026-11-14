@@ -77,9 +77,9 @@ class AppBulletin private constructor(
                  iconRes: Int = R.drawable.ic_check_circle, actionText: String? = null,
                  onAction: (() -> Unit)? = null) {
             val activity = findActivity(context)
-            if (activity != null && !activity.isFinishing && !activity.isDestroyed)
+            if (activity != null && !activity.isFinishing && !activity.isDestroyed) {
                 make(activity, message, durationMs, iconRes, actionText, onAction).show()
-            else Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            }
         }
         fun showSuccess(context: Context, message: CharSequence) = show(context, message)
         fun showError(context: Context, message: CharSequence) = show(context, message, DURATION_ERROR, R.drawable.ic_info)

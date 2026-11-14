@@ -82,26 +82,25 @@
         <item name="rippleColor">@color/track</item>
         <item name="android:stateListAnimator">@animator/design_press_scale</item>
     </style>
-    <style name="Widget.Eve.Token.Checkbox" parent="Widget.Material3.CompoundButton.CheckBox">
+    <style name="Widget.Eve.Token.Checkbox" parent="">
         <item name="buttonCompat">@drawable/design_checkbox_indicator</item><item name="buttonIcon">@null</item>
-        <item name="useMaterialThemeColors">false</item><item name="buttonTint">@color/design_control_tint</item>
+        <item name="buttonTint">@color/design_control_tint</item>
         <item name="android:textAppearance">@style/TextAppearance.Eve.Token.Body</item>
         <item name="android:includeFontPadding">false</item><item name="android:minHeight">@dimen/design_touch_min</item>
     </style>
-    <style name="Widget.Eve.Token.Radio" parent="Widget.Material3.CompoundButton.RadioButton">
+    <style name="Widget.Eve.Token.Radio" parent="">
         <item name="buttonCompat">@drawable/design_choice_indicator</item>
-        <item name="useMaterialThemeColors">false</item><item name="buttonTint">@color/design_control_tint</item>
+        <item name="buttonTint">@color/design_control_tint</item>
         <item name="android:textAppearance">@style/TextAppearance.Eve.Token.Body</item>
         <item name="android:includeFontPadding">false</item><item name="android:minHeight">@dimen/design_touch_min</item>
     </style>
-    <style name="Widget.Eve.Token.Switch" parent="Widget.Material3.CompoundButton.MaterialSwitch">
-        <item name="thumbTint">@color/solid_white</item><item name="trackTint">@color/design_switch_tint</item>
-        <item name="thumbIcon">@null</item><item name="trackDecoration">@null</item>
-        <item name="switchMinWidth">@dimen/design_switch_width</item>
-        <item name="android:minHeight">@dimen/design_touch_min</item>
+    <style name="Widget.Eve.Token.Switch" parent="Widget.AppCompat.CompoundButton.Switch">
+        <item name="thumbTint">@color/solid_white</item>
+        <item name="trackTint">@color/telegram_type_secondary</item>
+        <item name="switchMinWidth">37dp</item>
+        <item name="android:minHeight">20dp</item>
         <item name="android:textAppearance">@style/TextAppearance.Eve.Token.Body</item>
         <item name="android:includeFontPadding">false</item>
-        <item name="android:stateListAnimator">@animator/design_press_scale</item>
     </style>
     <!-- Loading styles carry sizing only; TelegramRadialProgressView owns its source arc and palette. -->
     <style name="Widget.Eve.Token.Progress" parent="">
@@ -113,10 +112,10 @@
         <item name="indicatorSize">@dimen/design_ring_size</item><item name="indicatorInset">@dimen/design_zero</item>
         <item name="trackThickness">@dimen/design_ring_stroke</item><item name="trackCornerRadius">@dimen/design_ring_stroke</item>
     </style>
-    <style name="Widget.Eve.Token.Snackbar" parent="Widget.Material3.Snackbar">
-        <item name="backgroundTint">@color/surface</item><item name="shapeAppearance">@style/ShapeAppearance.Eve.Token.Card</item>
+    <style name="Widget.Eve.Token.Snackbar" parent="">
+        <item name="android:background">@color/surface</item>
     </style>
-    <style name="Widget.Eve.Token.Snackbar.Text" parent="Widget.Material3.Snackbar.TextView">
+    <style name="Widget.Eve.Token.Snackbar.Text" parent="">
         <item name="android:textAppearance">@style/TextAppearance.Eve.Token.Body</item>
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:includeFontPadding">false</item>
@@ -262,7 +261,7 @@
         <item name="android:paddingEnd">@dimen/design_dropdown_end_padding</item>
         <item name="android:dropDownVerticalOffset">@dimen/design_chip_gap</item>
     </style>
-    <style name="Widget.Eve.Token.NativePopup" parent="Widget.Material3.PopupMenu">
+    <style name="Widget.Eve.Token.NativePopup" parent="Widget.AppCompat.PopupMenu">
         <item name="android:popupBackground">@drawable/telegram_dialog_popup_fixed_alert4</item>
         <item name="android:popupElevation">0dp</item>
         <item name="android:popupAnimationStyle">@style/PopupContextAnimation</item>

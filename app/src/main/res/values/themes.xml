@@ -85,7 +85,6 @@
         <item name="textAppearanceLabelMedium">@style/TextAppearance.Eve.Caption1.Emphasized</item>
         <item name="textAppearanceLabelSmall">@style/TextAppearance.Eve.Caption2</item>
         <item name="materialButtonStyle">@style/Widget.Eve.Token.Button</item>
-        <item name="materialSwitchStyle">@style/Widget.Eve.Token.Switch</item>
         <item name="textInputStyle">@style/Widget.Eve.Token.TextInput</item>
         <item name="tabStyle">@style/Widget.Eve.Token.SegmentedTabs</item>
         <item name="chipStyle">@style/Widget.Eve.Token.Chip</item>
@@ -202,14 +201,14 @@
         <item name="cornerSize">@dimen/design_radius_card</item>
     </style>
     <style name="Theme.Eve.BottomSheetDialog" parent="Theme.Eve.BottomSheetDialog.Base" />
-    <style name="Theme.Eve.BottomSheetDialog.Base" parent="ThemeOverlay.Material3.BottomSheetDialog">
+    <style name="Theme.Eve.BottomSheetDialog.Base" parent="">
         <item name="materialButtonStyle">@style/Widget.Eve.Token.Button</item>
         <item name="bottomSheetStyle">@style/Widget.Eve.BottomSheet.Modal</item>
         <item name="android:windowIsFloating">false</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@color/bg_app</item>
     </style>
-    <style name="Widget.Eve.BottomSheet.Modal" parent="Widget.Material3.BottomSheet.Modal">
+    <style name="Widget.Eve.BottomSheet.Modal" parent="">
         <item name="backgroundTint">@color/dialog_surface</item>
         <item name="shapeAppearance">@style/ShapeAppearance.Eve.Token.Sheet</item>
     </style>

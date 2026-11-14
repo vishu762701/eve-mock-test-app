@@ -227,6 +227,18 @@ Notes / leftovers:
 - Admin dashboard and all sub-screens (ManageExams, ManageQuestions, AdminsAndRights, AdminRightsEdit, AppConfig, SystemMonitor, EditAbout, FeedbackMessages, FlaggedQuestions, ManagePolls, ManagePremium, EmojiStudio) styled with shared Telegram components.
 - Admin permissions and business logic completely preserved.
 
+## A0 Make work reach screen (audit V1 result) - DONE
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| Switch widget hierarchy | `Switch.java:380-450` | `DesignSwitch` extending `SwitchCompat`, `materialSwitchStyle` referencing `Widget.Material3.CompoundButton.MaterialSwitch` | Deleted obsolete `DesignSwitch`/`UiArcSwitch`, removed `MaterialSwitch` parent from `Widget.Eve.Token.Switch`, purged `materialSwitchStyle` |
+| CheckBox & Radio parents | `CheckBox2.java`, `RadioButton.java` | `Widget.Material3.CompoundButton.CheckBox/RadioButton` | Unparented pure token styles |
+| Toast & Snackbar | `Bulletin.java:50-120` | `Toast.makeText` fallback in `AppBulletin.kt`, Material3 Snackbar theme parent | Purged `Toast.makeText`, unparented `Widget.Eve.Token.Snackbar` |
+| BottomSheet Theme parent | `BottomSheet.java:80-140` | `ThemeOverlay.Material3.BottomSheetDialog`, `Widget.Material3.BottomSheet.Modal` | Removed Material3 parents |
+| PopupMenu Theme parent | `ActionBarPopupWindow.java` | `Widget.Material3.PopupMenu` | `Widget.AppCompat.PopupMenu` with Telegram popup drawable |
+Leftovers / ASSUMED values: None
+
+
 
 
 
