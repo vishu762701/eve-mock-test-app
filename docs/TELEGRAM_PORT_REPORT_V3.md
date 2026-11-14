@@ -1,9 +1,9 @@
 # Telegram Android Parity Report (V3)
 
-> Generated on: 2026-11-14T08:34:05.670539+00:00
-> Commit SHA: `b1c3227f8a307817e2e83c589cc489c33f805998`
+> Generated on: 2026-11-14T12:33:36.325732+00:00
+> Commit SHA: `57802015928003534cfd6f7768e77d4a4975e9f8`
 > Branch: `main`
-> Latest CI Status: `completed` (success)
+> Latest CI Status: `completed` (failure)
 
 ---
 

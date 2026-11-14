@@ -36,6 +36,7 @@ object CompletedExamBottomSheet {
         val dialog = TelegramBottomSheet.Builder(activity)
             .setCustomView(binding.root)
             .create()
+        com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, activity)
 
         binding.tvCompletedTitle.text = examName
 

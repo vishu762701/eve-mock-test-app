@@ -71,6 +71,18 @@ internal object ProfilePhotoMenu {
             orientation = LinearLayout.VERTICAL
         }
 
+        val title = TextView(activity).apply {
+            setText(R.string.profile_choose_photo)
+            setTextColor(palette.submenuText)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f)
+            typeface = android.graphics.Typeface.DEFAULT_BOLD
+            gravity = Gravity.CENTER_VERTICAL
+            isSingleLine = true
+            ellipsize = android.text.TextUtils.TruncateAt.MIDDLE
+            setPadding(dp(21f), dp(6f), dp(21f), dp(8f))
+        }
+        content.addView(title, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(48f)))
+
         var dialogRef: TelegramBottomSheet? = null
         for (item in ProfilePhotoMenuModel.items(hasAvatar)) {
             val label = activity.getString(item.labelRes)

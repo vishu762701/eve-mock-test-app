@@ -40,11 +40,11 @@
 
             <TextView
                 android:id="@+id/tvUndoMessage"
+                style="@style/TextAppearance.Eve.Subheadline"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:fontFamily="sans-serif"
-                android:textSize="15sp"
                 android:textColor="#FFFFFF" />
 
             <com.google.android.material.button.MaterialButton
@@ -56,7 +56,7 @@
                 android:minWidth="48dp"
                 android:layout_marginStart="8dp"
                 android:text="UNDO"
-                android:textSize="14sp"
+                android:textAppearance="@style/TextAppearance.Eve.Token.Chip"
                 android:textStyle="bold"
                 android:fontFamily="sans-serif-medium"
                 android:textColor="#6BB7FF" />

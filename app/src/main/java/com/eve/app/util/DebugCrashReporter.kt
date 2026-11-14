@@ -83,38 +83,6 @@ object DebugCrashReporter {
             val crashFile = File(context.filesDir, CRASH_FILE_NAME)
             crashFile.writeText(crashPayload)
         } catch (_: Throwable) {}
-
-        // 2. Owner-authorized debug crash trace in Download/Eve-Crash/crash-<timestamp>.txt
-        if (BuildConfig.DEBUG) {
-            val timestamp = System.currentTimeMillis()
-            val fileName = "crash-$timestamp.txt"
-            try {
-                // Direct file write (works on storage permission / pre-Q / accessible shared directories)
-                val downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                val crashDir = File(downloadDir, "Eve-Crash")
-                if (!crashDir.exists()) crashDir.mkdirs()
-                val targetFile = File(crashDir, fileName)
-                targetFile.writeText(crashPayload)
-            } catch (_: Throwable) {}
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                try {
-                    val resolver = context.contentResolver
-                    val contentValues = ContentValues().apply {
-                        put(MediaStore.Downloads.DISPLAY_NAME, fileName)
-                        put(MediaStore.Downloads.MIME_TYPE, "text/plain")
-                        put(MediaStore.Downloads.RELATIVE_PATH, "${Environment.DIRECTORY_DOWNLOADS}/Eve-Crash")
-                    }
-                    val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
-                    if (uri != null) {
-                        resolver.openOutputStream(uri)?.use { stream ->
-                            stream.write(crashPayload.toByteArray(Charsets.UTF_8))
-                            stream.flush()
-                        }
-                    }
-                } catch (_: Throwable) {}
-            }
-        }
     }
 
     fun hasCrash(context: Context): Boolean {

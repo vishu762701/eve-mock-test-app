@@ -41,7 +41,7 @@ open class TelegramChip @JvmOverloads constructor(
     private fun dp(v: Float): Int = (v * density).toInt()
 
     private var badgeCount: Int? = null
-    private var baseText: CharSequence = ""
+    private var baseText: CharSequence? = ""
 
     private var scaleProgress: Float = 1.0f
     private var pressAnimator: ValueAnimator? = null
@@ -83,17 +83,19 @@ open class TelegramChip @JvmOverloads constructor(
 
     override fun setText(text: CharSequence?, type: BufferType?) {
         super.setText(text, type)
-        if (baseText.isEmpty() && !text.isNullOrEmpty()) {
+        val current = baseText
+        if ((current == null || current.isEmpty()) && !text.isNullOrEmpty()) {
             baseText = text
         }
     }
 
     fun setBadgeCount(count: Int?) {
         badgeCount = count
+        val current = baseText ?: text ?: ""
         if (count != null && count > 0) {
-            super.setText("$baseText ($count)")
+            super.setText("$current ($count)")
         } else {
-            super.setText(baseText)
+            super.setText(current)
         }
     }
 

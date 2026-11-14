@@ -36,16 +36,14 @@
 
             <TextView
                 android:id="@+id/tvTitle"
-                style="@style/TextAppearance.Eve.Telegram.NotificationTitle"
-                android:tag="eve_telegram_type"
+                style="@style/TextAppearance.Eve.Telegram.NotificationTitle" android:tag="eve_telegram_type"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 ns2:text="Naya Exam Available!" />
 
             <TextView
                 android:id="@+id/tvBody"
-                style="@style/TextAppearance.Eve.Telegram.NotificationBody"
-                android:tag="eve_telegram_type"
+                style="@style/TextAppearance.Eve.Telegram.NotificationBody" android:tag="eve_telegram_type"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
@@ -53,8 +51,7 @@
 
             <TextView
                 android:id="@+id/tvTime"
-                style="@style/TextAppearance.Eve.Telegram.NotificationTime"
-                android:tag="eve_telegram_type"
+                style="@style/TextAppearance.Eve.Telegram.NotificationTime" android:tag="eve_telegram_type"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"

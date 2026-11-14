@@ -38,7 +38,14 @@ class PaymentMethodBottomSheet : DialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): android.app.Dialog {
-        return TelegramBottomSheet(requireContext())
+        // Theme_Eve_BottomSheetDialog
+        val dialog = TelegramBottomSheet(requireContext())
+        dialog.setOnShowListener {
+            context?.let { ctx ->
+                com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, ctx)
+            }
+        }
+        return dialog
     }
 
     override fun onCreateView(

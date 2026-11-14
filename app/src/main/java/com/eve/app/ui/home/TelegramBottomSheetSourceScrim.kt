@@ -77,6 +77,12 @@ internal class TelegramBottomSheetSourceScrim : Drawable() {
  * 213-222,1766-1778; not a claim of source-exact gesture/detent physics.
  */
 internal object TelegramBottomSheetSourceBackdrop {
+    fun install(dialog: Dialog, context: Context) {
+        val window = dialog.window ?: return
+        window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+        window.setDimAmount(0f)
+    }
+
     fun install(dialog: BottomSheetDialog, context: Context) {
         val host = dialog.findViewById<View>(com.google.android.material.R.id.coordinator)
             ?: run {

@@ -309,9 +309,10 @@ class TelegramNativeAlertDialog private constructor(
                         }
                     }
                 }
+                action.minimumHeight = dp(48)
                 actionButtons[which] = action
                 val lp = LinearLayout.LayoutParams(
-                    if (verticalActions) -1 else -2, dp(40)
+                    if (verticalActions) -1 else -2, dp(48)
                 )
                 if (actions.childCount != 0 && !verticalActions) lp.marginStart = dp(8)
                 actions.addView(action, lp)
@@ -319,8 +320,8 @@ class TelegramNativeAlertDialog private constructor(
             neutralText?.let { addAction(DialogInterface.BUTTON_NEUTRAL, it, onNeutral) }
             negativeText?.let { addAction(DialogInterface.BUTTON_NEGATIVE, it, onNegative) }
             positiveText?.let { addAction(DialogInterface.BUTTON_POSITIVE, it, onPositive) }
-            // Telegram 52dp horizontal bar; 40dp buttons in vertical layout
-            val rowHeight = if (verticalActions) dp(40 * actionLabels.size + 16) else dp(52)
+            // Telegram 52dp horizontal bar; 48dp buttons in vertical layout
+            val rowHeight = if (verticalActions) dp(48 * actionLabels.size + 16) else dp(52)
             root.addView(actions, LinearLayout.LayoutParams(-1, rowHeight))
         }
         customContent?.let {

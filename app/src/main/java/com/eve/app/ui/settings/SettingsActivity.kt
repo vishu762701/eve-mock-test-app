@@ -347,10 +347,28 @@ class SettingsActivity : EveBaseActivity() {
         refreshLanguageText()
 
         binding.rowLanguage.setOnClickListener {
-            EveNavigationHelper.navigate(
-                this,
-                Intent(this, LanguageSelectActivity::class.java)
-            )
+            val options = arrayOf("System default", "English", "हिन्दी")
+            val current = androidx.appcompat.app.AppCompatDelegate.getApplicationLocales()
+            val selectedIdx = when {
+                current.isEmpty -> 0
+                current.toLanguageTags().startsWith("hi") -> 2
+                else -> 1
+            }
+
+            com.eve.app.designsystem.TelegramNativeAlertDialog.Builder(this)
+                .setTitle("Select App Language")
+                .setSingleChoiceItems(options, selectedIdx) { dialog, which ->
+                    val locales = when (which) {
+                        1 -> androidx.core.os.LocaleListCompat.forLanguageTags("en")
+                        2 -> androidx.core.os.LocaleListCompat.forLanguageTags("hi")
+                        else -> androidx.core.os.LocaleListCompat.getEmptyLocaleList()
+                    }
+                    androidx.appcompat.app.AppCompatDelegate.setApplicationLocales(locales)
+                    refreshLanguageText()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
     }
 

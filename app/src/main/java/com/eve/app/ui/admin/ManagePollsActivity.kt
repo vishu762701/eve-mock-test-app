@@ -183,9 +183,123 @@ class ManagePollsActivity : EveBaseActivity() {
     }
 
     private fun showCreatePollDialog() {
-        if (isFinishing || isDestroyed) return
-        val intent = android.content.Intent(this, com.eve.app.ui.poll.PollCreateActivity::class.java)
-        pollCreateLauncher.launch(intent)
+        // Original Telegram AlertDialog.java:325-328/AndroidUtilities.java:6255-6267:
+        // never show a window after Activity teardown; don't stack create dialogs.
+        if (isFinishing || isDestroyed || createPollDialog?.isShowing == true) return
+        val dialogBinding = com.eve.app.databinding.DialogCreatePollBinding.inflate(layoutInflater)
+        val dialog = com.eve.app.designsystem.TelegramNativeAlertDialog.Builder(this)
+            .setView(dialogBinding.root)
+            .create()
+
+        val optionViews = mutableListOf<View>()
+        var calculatedEndsAt = 0L
+
+        fun addOptionRow(hintText: String = "Option text"): View {
+            val row = layoutInflater.inflate(R.layout.item_poll_option_input, dialogBinding.optionsContainer, false)
+            val et = row.findViewById<EditText>(R.id.etOptionText)
+            val btnRemove = row.findViewById<ImageButton>(R.id.btnRemoveOption)
+            et.hint = hintText
+
+            btnRemove.setOnClickListener {
+                if (optionViews.size > 2) {
+                    dialogBinding.optionsContainer.removeView(row)
+                    optionViews.remove(row)
+                    dialogBinding.btnAddOptionRow.isEnabled = true
+                } else {
+                    AppBulletin.showError(this, "A poll must have at least 2 options")
+                }
+            }
+
+            dialogBinding.optionsContainer.addView(row)
+            optionViews.add(row)
+
+            if (optionViews.size >= 6) {
+                dialogBinding.btnAddOptionRow.isEnabled = false
+            }
+            return row
+        }
+
+        // Add 2 initial options
+        addOptionRow("Option 1")
+        addOptionRow("Option 2")
+
+        dialogBinding.btnAddOptionRow.setOnClickListener {
+            if (optionViews.size < 6) {
+                addOptionRow("Option ${optionViews.size + 1}")
+            }
+        }
+
+        // Duration options
+        val durations = listOf("No Expiry", "1 Day", "3 Days", "7 Days", "Custom Date & Time")
+        dialogBinding.spDuration.adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_dropdown_item,
+            durations
+        )
+
+        dialogBinding.spDuration.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val now = System.currentTimeMillis()
+                when (position) {
+                    0 -> calculatedEndsAt = 0L
+                    1 -> calculatedEndsAt = now + 1L * 24 * 60 * 60 * 1000
+                    2 -> calculatedEndsAt = now + 3L * 24 * 60 * 60 * 1000
+                    3 -> calculatedEndsAt = now + 7L * 24 * 60 * 60 * 1000
+                    4 -> pickCustomDateTime { selectedTime ->
+                        calculatedEndsAt = selectedTime
+                    }
+                }
+            }
+            override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {}
+        }
+
+        dialogBinding.btnCancel.setOnClickListener { dialog.dismiss() }
+
+        dialogBinding.btnSubmitPoll.setOnClickListener {
+            val question = dialogBinding.etQuestion.text.toString().trim()
+            if (question.isBlank()) {
+                dialogBinding.etQuestion.error = "Question is required"
+                return@setOnClickListener
+            }
+
+            val options = optionViews.map { row ->
+                row.findViewById<EditText>(R.id.etOptionText).text.toString().trim()
+            }.filter { it.isNotBlank() }
+
+            if (options.size < 2) {
+                AppBulletin.showError(this, "Please provide at least 2 non-empty options")
+                return@setOnClickListener
+            }
+
+            val active = dialogBinding.switchActive.isChecked
+            val userEmail = FirebaseAuth.getInstance().currentUser?.email ?: "admin"
+
+            lifecycleScope.launch {
+                try {
+                    dialogBinding.btnSubmitPoll.isEnabled = false
+                    pollRepository.createPoll(
+                        question = question,
+                        options = options,
+                        endsAt = calculatedEndsAt,
+                        active = active,
+                        createdBy = userEmail
+                    )
+                    AppBulletin.showSuccess(this@ManagePollsActivity, "Poll created successfully")
+                    dialog.dismiss()
+                    loadPolls()
+                } catch (e: Exception) {
+                    dialogBinding.btnSubmitPoll.isEnabled = true
+                    AppBulletin.showError(this@ManagePollsActivity, "Failed to create poll: ${e.message}")
+                }
+            }
+        }
+
+        dialog.setOnDismissListener {
+            if (createPollDialog === dialog) createPollDialog = null
+        }
+        dialog.show()
+        createPollDialog = dialog
+        // EVE's admin-only poll form remains unchanged inside native source-derived dialog UI.
     }
 
     override fun onDestroy() {

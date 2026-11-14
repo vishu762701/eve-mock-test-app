@@ -318,6 +318,8 @@ class EmojiStudioActivity : EveBaseActivity() {
             .setCustomView(sheetBinding.root)
             .create()
         placementDialog = dialog
+        // Theme_Eve_BottomSheetDialog
+        com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, this)
         dialog.setOnDismissListener { if (placementDialog === dialog) placementDialog = null }
 
         sheetBinding.tvPlacementEmojiTitle.text = "${item.altEmoji} Placement"

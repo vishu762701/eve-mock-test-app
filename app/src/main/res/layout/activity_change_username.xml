@@ -91,7 +91,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:textSize="15sp"
             android:visibility="gone" />
 
         <TextView
@@ -100,7 +99,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:textSize="15sp"
             android:lineSpacingExtra="4dp"
             android:text="@string/username_help" />
     </LinearLayout>

@@ -696,6 +696,8 @@ class ResultActivity : EveBaseActivity() {
             .setCustomView(sheetView)
             .create()
         categoryBottomSheet = dialog
+        // Theme_Eve_BottomSheetDialog
+        com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, this)
         dialog.setOnDismissListener {
             if (categoryBottomSheet === dialog) categoryBottomSheet = null
         }

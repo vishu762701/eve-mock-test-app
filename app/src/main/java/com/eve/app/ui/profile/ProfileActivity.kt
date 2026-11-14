@@ -357,7 +357,7 @@ class ProfileActivity : EveBaseActivity() {
 
         // Alpha fading of toolbar title vs avatar/name per Telegram ProfileActivity:
         // Title is strictly hidden at scroll 0 and only fades in once collapse reaches 0.75
-        binding.tvToolbarTitle.alpha = ((progress - 0.75f) / 0.25f).coerceIn(0f, 1f)
+        binding.tvToolbarTitle.alpha = progress // tvToolbarTitle.alpha = progress
         val headerContentAlpha = (1f - progress * 1.5f).coerceIn(0f, 1f)
         binding.tvName.alpha = headerContentAlpha
         binding.tvStatus.alpha = headerContentAlpha
@@ -458,10 +458,13 @@ class ProfileActivity : EveBaseActivity() {
             } else {
                 TelegramThemeEngine.multAlpha(TelegramThemeEngine.adaptProfileEmojiColor(baseColor), 0.15f)
             }
-            binding.layoutActions.setActionColor(btnColor)
+            val surface = if (btnColor != 0) btnColor else androidx.core.content.ContextCompat.getColor(
+                this, R.color.category_pill_unselected_bg
+            )
+            binding.layoutActions.setActionColor(surface)
             ProfileActionIcons.applyTo(
                 listOf(binding.btnSetPhoto, binding.btnEditInfo, binding.btnSettings),
-                surfaceColor = btnColor
+                surfaceColor = surface
             )
             val rowSelector = {
                 com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(

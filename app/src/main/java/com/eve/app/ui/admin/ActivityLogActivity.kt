@@ -336,6 +336,8 @@ class ActivityLogActivity : EveBaseActivity() {
             .setCustomView(root)
             .create()
         filterDialog = dialog
+        // Theme_Eve_BottomSheetDialog
+        com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, this)
         fun validFilter(): Boolean =
             isCurrentOwner(ownerUid, ownerEmail) && filterDialog === dialog && dialog.isShowing
         dialog.setOnDismissListener {
