@@ -53,6 +53,7 @@ import com.eve.app.databinding.ActivityProfileBinding
 import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.designsystem.TelegramNativeAlertDialog
 import com.eve.app.designsystem.TelegramRadialProgressView
+import com.eve.app.designsystem.TelegramPopupMenu
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.ui.settings.SettingsActivity
 import com.eve.app.util.AppBulletin
@@ -463,6 +464,13 @@ class ProfileActivity : EveBaseActivity() {
         )
     }
 
+    private fun copyToClipboard(label: String, text: String, successMessage: String) {
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+        val clip = ClipData.newPlainText(label, text)
+        clipboard?.setPrimaryClip(clip)
+        AppBulletin.showSuccess(this, successMessage)
+    }
+
     private fun setupCells() {
         // Mobile cell
         binding.cellMobile.setOnClickListener {
@@ -472,6 +480,17 @@ class ProfileActivity : EveBaseActivity() {
                 putExtra("current_phone", currentPhone)
             }
             editPhoneLauncher.launch(intent)
+        }
+        binding.cellMobile.setOnLongClickListener {
+            val phone = currentPhone.ifBlank { binding.tvMobile.text.toString() }
+            if (phone.isNotBlank()) {
+                TelegramPopupMenu(this)
+                    .addItem(1, getString(R.string.copy_phone), R.drawable.ic_copy) {
+                        copyToClipboard("Phone", phone, getString(R.string.phone_copied))
+                    }
+                    .show(binding.cellMobile)
+                true
+            } else false
         }
 
         // Username cell
@@ -483,10 +502,35 @@ class ProfileActivity : EveBaseActivity() {
             }
             editUsernameLauncher.launch(intent)
         }
+        binding.cellUsername.setOnLongClickListener {
+            val uname = currentUsername.ifBlank { binding.tvUsername.text.toString().removePrefix("@") }
+            if (uname.isNotBlank()) {
+                TelegramPopupMenu(this)
+                    .addItem(1, getString(R.string.copy_username), R.drawable.ic_copy) {
+                        copyToClipboard("Username", "@$uname", getString(R.string.username_copied))
+                    }
+                    .addItem(2, getString(R.string.copy_link), R.drawable.ic_link) {
+                        copyToClipboard("Link", "https://t.me/$uname", getString(R.string.link_copied))
+                    }
+                    .show(binding.cellUsername)
+                true
+            } else false
+        }
 
         // Birthday cell
         binding.cellBirthday.setOnClickListener {
             showBirthdayPicker(currentDob)
+        }
+        binding.cellBirthday.setOnLongClickListener {
+            val dob = currentDob.ifBlank { binding.tvBirthday.text.toString() }
+            if (dob.isNotBlank() && dob != "—") {
+                TelegramPopupMenu(this)
+                    .addItem(1, getString(R.string.copy_birthday), R.drawable.ic_copy) {
+                        copyToClipboard("Birthday", dob, getString(R.string.birthday_copied))
+                    }
+                    .show(binding.cellBirthday)
+                true
+            } else false
         }
 
         // Category cell & expansion

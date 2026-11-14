@@ -105,7 +105,7 @@ Notes / leftovers:
 - Removed unused `ProgressBar` imports in `MainActivity.kt` and `PollsAdminAdapter.kt`.
 - Verified all indeterminate loading across Eve screens uses `TelegramRadialProgressView`.
 
-## F7 Home screen / Dialogs list style - PENDING_CI
+## F7 Home screen / Dialogs list style - DONE (commit 6261ff82)
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | DialogCell item height | `DialogCell.java:172` (`heightDefault = 70` to 72dp) | 50dp (`design_row_with_gap`) | 72dp minHeight (`item_exam.xml`) |
@@ -119,3 +119,16 @@ Notes / leftovers:
 Notes / leftovers:
 - Aligned `item_exam.xml` minHeight to 72dp matching Telegram `DialogCell.java:172`.
 - Preserved existing `TelegramDialogsListHelper` 200ms item animations and title-tap scroll-to-top behavior.
+
+## F8 Profile - PENDING_CI
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| Collapsing header avatar | `ProfileActivity.java:6039-6047`, `ProfileGooeyView.java:397-405` (100dp to 42dp) | 100dp to 42dp collapsing gooey avatar | 100dp to 42dp collapsing gooey avatar (`ProfileGooeyView`) |
+| Action buttons row | `ProfileActivity.java:1320-1380` (circular action icons in row) | `ProfileActionsCanvasLayout` circular buttons | `ProfileActionsCanvasLayout` circular buttons |
+| Info cells copy context menu | `ProfileActivity.java:7560-7660` (long-click popup menu with Copy and Bulletin) | Click only for edit/picker | Long-click `TelegramPopupMenu` (Copy Phone, Copy Username/Link, Copy Birthday) + Bulletin confirmation |
+| Typography and cell styling | `ProfileActivity.java:7500+` (16sp title, 13sp detail, Telegram inset divider) | Inset divider, 16sp title, 13sp detail | Telegram styled cells with authentic copy context popup and bulletin |
+
+Notes / leftovers:
+- Added long-click `TelegramPopupMenu` for phone, username (with username + link copy), and birthday.
+- Wired copy feedback through `AppBulletin.showSuccess`.
+

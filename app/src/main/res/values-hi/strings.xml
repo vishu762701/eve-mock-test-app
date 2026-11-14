@@ -126,4 +126,12 @@
     <string name="profile_crop_hint">दिखने वाला हिस्सा चुनने के लिए वर्ग को खींचें</string>
     <string name="profile_crop_load_failed">फ़ोटो लोड नहीं हो सकी</string>
     <string name="profile_crop_save_failed">फ़ोटो क्रॉप नहीं हो सकी</string>
+    <string name="copy_phone">फ़ोन नंबर कॉपी करें</string>
+    <string name="phone_copied">फ़ोन नंबर क्लिपबोर्ड पर कॉपी किया गया</string>
+    <string name="copy_username">यूज़रनेम कॉपी करें</string>
+    <string name="username_copied">यूज़रनेम क्लिपबोर्ड पर कॉपी किया गया</string>
+    <string name="copy_link">लिंक कॉपी करें</string>
+    <string name="link_copied">लिंक क्लिपबोर्ड पर कॉपी किया गया</string>
+    <string name="copy_birthday">जन्म तिथि कॉपी करें</string>
+    <string name="birthday_copied">जन्म तिथि क्लिपबोर्ड पर कॉपी की गई</string>
 </resources>
