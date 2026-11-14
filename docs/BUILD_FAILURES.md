@@ -22,7 +22,17 @@ Audit Scope: Full repository inspection across all GitHub Actions workflows and 
 
 Out of the last 30 workflow runs across the repository, the failures have been isolated to their exact job, step, log trace, and architectural root cause:
 
-### Run 1: 43616528697
+### Run 1: 43619989561
+- **Workflow**: `build.yml` (Manual FULL `workflow_dispatch`)
+- **Commit**: `9cbb0194` (fix(ui): bound TelegramChip maximum width to screen margins in compact layouts)
+- **Failed Job**: `Native UI (gesture)` and `Native UI (three-button)`
+- **Failed Step**: `Verify approved native UI behavior` (Step 6)
+- **Exact Error**:
+  - `ManualUiSpecificationTest.kt:344`: `java.lang.AssertionError: Locked switch has no decorative outline expected null, but was:<android.graphics.drawable.VectorDrawable>` (single failure across 135 tests).
+- **Root Cause**: `Theme.Eve` omitted `materialSwitchStyle`, causing `MaterialSwitch` instances to inherit Material 3's default decorative track icons rather than Eve's locked clean switch token.
+- **Resolution**: Defined `Widget.Eve.Token.MaterialSwitch` with `trackDecoration="@null"`, `trackDecorationTint="@null"`, `thumbIcon="@null"`, `thumbTint="@color/solid_white"`, and `trackTint="@color/design_switch_tint"`, and wired `materialSwitchStyle` in `themes.xml`.
+
+### Run 2: 43616528697
 - **Workflow**: `build.yml` (Manual FULL `workflow_dispatch`)
 - **Commit**: `ebd134c0` (fix(ui): eliminate dialog clipping, align category pill text colors, and pad target exams bottom sheet)
 - **Failed Job**: `Native UI (gesture)` and `Native UI (three-button)`

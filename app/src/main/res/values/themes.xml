@@ -126,6 +126,7 @@
         <item name="checkboxStyle">@style/Widget.Eve.Token.Checkbox</item>
         <item name="radioButtonStyle">@style/Widget.Eve.Token.Radio</item>
         <item name="switchStyle">@style/Widget.Eve.Token.Switch</item>
+        <item name="materialSwitchStyle">@style/Widget.Eve.Token.MaterialSwitch</item>
         <item name="progressBarStyle">@style/Widget.Eve.Token.Progress</item>
         <item name="circularProgressIndicatorStyle">@style/Widget.Eve.Token.Ring</item>
         <item name="android:textViewStyle">@style/Widget.Eve.Token.Text</item>

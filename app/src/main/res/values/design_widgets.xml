@@ -102,6 +102,13 @@
         <item name="android:textAppearance">@style/TextAppearance.Eve.Token.Body</item>
         <item name="android:includeFontPadding">false</item>
     </style>
+    <style name="Widget.Eve.Token.MaterialSwitch" parent="Widget.Material3.CompoundButton.MaterialSwitch">
+        <item name="trackDecoration">@null</item>
+        <item name="trackDecorationTint">@null</item>
+        <item name="thumbIcon">@null</item>
+        <item name="thumbTint">@color/solid_white</item>
+        <item name="trackTint">@color/design_switch_tint</item>
+    </style>
     <!-- Loading styles carry sizing only; TelegramRadialProgressView owns its source arc and palette. -->
     <style name="Widget.Eve.Token.Progress" parent="">
         <item name="android:minWidth">@dimen/design_ring_size</item>
