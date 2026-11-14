@@ -46,7 +46,7 @@ import com.eve.app.theme.TelegramThemeEngine
  * Not ported (not used by Eve): override-colour reveal bitmaps, icon drawables, drawIconType.
  * Text mode below is an Eve addition and is not part of the Telegram source.
  */
-class TelegramSwitch @JvmOverloads constructor(
+open class TelegramSwitch @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
