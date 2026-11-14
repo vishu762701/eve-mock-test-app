@@ -41,7 +41,11 @@ class CategoryReorderBottomSheet(
         orientation = LinearLayout.VERTICAL
     }
 
-    override fun onCreateContentView(): View {
+    init {
+        setCustomView(buildContentView())
+    }
+
+    private fun buildContentView(): View {
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
 
         val root = LinearLayout(context).apply {

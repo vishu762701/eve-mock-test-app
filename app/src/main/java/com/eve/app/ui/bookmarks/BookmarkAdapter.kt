@@ -129,7 +129,10 @@ class BookmarkAdapter(
             binding.tvQuestionNumber.setTextColor(palette.textSecondary)
             binding.tvTopicTag.setTextColor(palette.textSecondary)
             binding.tvQuestionText.setTextColor(palette.textPrimary)
-            binding.btnToggleExplanation.rippleColor = ColorStateList.valueOf(palette.actionSelector)
+            binding.btnToggleExplanation.background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
+                8 * context.resources.displayMetrics.density,
+                palette.actionSelector
+            )
             binding.layoutTapToOpen.background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
                 8 * context.resources.displayMetrics.density,
                 palette.actionSelector

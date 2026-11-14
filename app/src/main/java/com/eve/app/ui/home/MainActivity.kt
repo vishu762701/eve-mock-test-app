@@ -2317,14 +2317,16 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun renderChips(categories: List<String>, selected: String) {
-        val categoryCounts = (viewModel.state.value as? UiState.Success)?.data?.exams?.let { exams ->
+        val categoryCounts = (viewModel.state.value as? UiState.Success)?.data?.searchItems?.let { list ->
             val map = mutableMapOf<String, Int>()
-            map[com.eve.app.util.Constants.CATEGORY_ALL] = exams.size
-            for (exam in exams) {
-                map[exam.category] = (map[exam.category] ?: 0) + 1
+            val examRows = list.filterIsInstance<HomeListItem.ExamRow>()
+            map[com.eve.app.util.Constants.CATEGORY_ALL] = examRows.size
+            for (row in examRows) {
+                val cat = row.exam.categoryOrOther
+                map[cat] = (map[cat] ?: 0) + 1
             }
             map
-        } ?: emptyMap()
+        } ?: emptyMap<String, Int>()
 
         val orderedCategories = HomeAppearance.categories(categories, this)
 
