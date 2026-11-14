@@ -18,7 +18,8 @@ class TelegramProfileSection @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : LinearLayout(context, attrs) {
     private val density = resources.displayMetrics.density
-    private val radius = 16f * density
+    var cornerRadiusDp: Float = 0f
+        set(value) { field = value; invalidate() }
     private val rect = RectF()
     private val clip = Path()
     private val surfacePaint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -49,9 +50,10 @@ class TelegramProfileSection @JvmOverloads constructor(
         super.onDraw(canvas)
         rect.set(0f, 0f, width.toFloat(), height.toFloat())
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
+        val r = cornerRadiusDp * density
         // RecyclerListView.drawBackgroundRect: source's optional section shadows,
         // substantially subtler than the former global Material elevated card.
-        if (shadowsInSections) {
+        if (shadowsInSections && r > 0f) {
             strokePaint.setShadowLayer(.33f * density, 0f, 0f, 0x0c000000)
             strokePaint.color = 0
             surfacePaint.setShadowLayer(2f * density, 0f, .33f * density, 0x0a000000)
@@ -59,17 +61,26 @@ class TelegramProfileSection @JvmOverloads constructor(
             surfacePaint.setShadowLayer(0f, 0f, 0f, 0)
         }
         surfacePaint.color = palette.surface
-        if (shadowsInSections) canvas.drawRoundRect(rect, radius, radius, strokePaint)
-        canvas.drawRoundRect(rect, radius, radius, surfacePaint)
+        if (r > 0f) {
+            if (shadowsInSections) canvas.drawRoundRect(rect, r, r, strokePaint)
+            canvas.drawRoundRect(rect, r, r, surfacePaint)
+        } else {
+            canvas.drawRect(rect, surfacePaint)
+        }
     }
 
     override fun dispatchDraw(canvas: Canvas) {
-        rect.set(0f, 0f, width.toFloat(), height.toFloat())
-        clip.rewind()
-        clip.addRoundRect(rect, radius, radius, Path.Direction.CW)
-        val save = canvas.save()
-        canvas.clipPath(clip)
-        super.dispatchDraw(canvas)
-        canvas.restoreToCount(save)
+        val r = cornerRadiusDp * density
+        if (r > 0f) {
+            rect.set(0f, 0f, width.toFloat(), height.toFloat())
+            clip.rewind()
+            clip.addRoundRect(rect, r, r, Path.Direction.CW)
+            val save = canvas.save()
+            canvas.clipPath(clip)
+            super.dispatchDraw(canvas)
+            canvas.restoreToCount(save)
+        } else {
+            super.dispatchDraw(canvas)
+        }
     }
 }

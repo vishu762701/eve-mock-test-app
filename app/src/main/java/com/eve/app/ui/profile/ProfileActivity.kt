@@ -354,8 +354,9 @@ class ProfileActivity : EveBaseActivity() {
             -scrollY.toFloat() + endOffset * progress
         }
 
-        // Alpha fading of toolbar title vs avatar/name
-        binding.tvToolbarTitle.alpha = progress
+        // Alpha fading of toolbar title vs avatar/name per Telegram ProfileActivity:
+        // Title is strictly hidden at scroll 0 and only fades in once collapse reaches 0.75
+        binding.tvToolbarTitle.alpha = ((progress - 0.75f) / 0.25f).coerceIn(0f, 1f)
         val headerContentAlpha = (1f - progress * 1.5f).coerceIn(0f, 1f)
         binding.tvName.alpha = headerContentAlpha
         binding.tvStatus.alpha = headerContentAlpha
@@ -486,7 +487,7 @@ class ProfileActivity : EveBaseActivity() {
             if (phone.isNotBlank()) {
                 TelegramPopupMenu(this)
                     .addItem(1, getString(R.string.copy_phone), R.drawable.ic_copy) {
-                        copyToClipboard("Phone", phone, getString(R.string.phone_copied))
+                        copyToClipboard("Phone", phone, "Phone copied to clipboard")
                     }
                     .show(binding.cellMobile)
                 true
@@ -507,10 +508,10 @@ class ProfileActivity : EveBaseActivity() {
             if (uname.isNotBlank()) {
                 TelegramPopupMenu(this)
                     .addItem(1, getString(R.string.copy_username), R.drawable.ic_copy) {
-                        copyToClipboard("Username", "@$uname", getString(R.string.username_copied))
+                        copyToClipboard("Username", "@$uname", "Username copied to clipboard")
                     }
                     .addItem(2, getString(R.string.copy_link), R.drawable.ic_link) {
-                        copyToClipboard("Link", "https://t.me/$uname", getString(R.string.link_copied))
+                        copyToClipboard("Link", "eve-mock-test://username/$uname", "Link copied to clipboard")
                     }
                     .show(binding.cellUsername)
                 true

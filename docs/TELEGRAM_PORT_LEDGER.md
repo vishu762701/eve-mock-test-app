@@ -238,6 +238,20 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | PopupMenu Theme parent | `ActionBarPopupWindow.java` | `Widget.Material3.PopupMenu` | `Widget.AppCompat.PopupMenu` with Telegram popup drawable |
 Leftovers / ASSUMED values: None
 
+## A1 Profile screen gooey avatar + exact collapse choreography - DONE
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| Avatar dark cap / scrim | `ProfileActivity.java:6375-6450` (No top scrim on circular avatar) | Black 0x88000000 top gradient in `ProfileHeaderExpansion.kt` | Removed top black gradient scrim (`Color.TRANSPARENT` at top, only bottom contrast gradient when expanded) |
+| Action bar title alpha | `ProfileActivity.java:6420` (`title.alpha = ((progress - 0.75f) / 0.25f)`) | `alpha = progress` (visible from scroll 0) | `((progress - 0.75f) / 0.25f).coerceIn(0f, 1f)` (strictly 0 at scroll 0, fades in at collapse > 0.75) |
+| Cutout punch-hole detection | `NotchInfoUtils.java:24-110` (Android P+ DisplayCutout & config_mainBuiltInDisplayCutout) | Only checked `config_mainBuiltInDisplayCutout` (returns 0 on OEM devices) | Dual detection: `config_mainBuiltInDisplayCutout` + `rootWindowInsets.displayCutout` fallback for all Android P+ devices |
+| Top toolbar | `ProfileActivity.java:1850-1920` (56dp action bar, 54dp back/QR button, 48dp kebab menu) | `EveGlassToolbar` with blur | Standard 56dp Telegram top bar (`glassToolbar` FrameLayout, 54dp QR button, 48dp menu button) |
+| Profile action pills | `ProfileActionsView.java:131, 395` (high-contrast pill, centered bounds) | Faint low contrast, misaligned 8dp offset in `paintContent` | Centered `iconTop = top + ...`, high-contrast text & glyph tints |
+| Profile info rows & cards | `ProfileActivity.java:2100` (flat full-width rows, 21dp divider insets) | Floating rounded cards with 12dp horizontal margin | Edge-to-edge flat section (`layout_marginHorizontal="0dp"`, `cornerRadiusDp=0f`), 21dp divider insets |
+| Copy phone & username | `ProfileActivity.java:2340` (Long press copy with Telegram bulletin) | Generic clipboard strings with `t.me` | Authentic `AppBulletin.showSuccess` notifications, `eve-mock-test://username/$uname` link format |
+Leftovers / ASSUMED values: None
+
+
 
 
 

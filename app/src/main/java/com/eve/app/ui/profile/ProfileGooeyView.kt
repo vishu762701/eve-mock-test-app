@@ -126,6 +126,15 @@ class ProfileGooeyView @JvmOverloads constructor(
         super.onAttachedToWindow()
         // A reused View may keep its dimensions across detach/reattach, so
         // Android need not dispatch onSizeChanged again. Restore its resources.
+        if (notchInfo == null) {
+            val cutout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                rootWindowInsets?.displayCutout
+            } else null
+            val info = NotchInfoUtils.getInfo(context, cutout)
+            if (info != null && info.gravity == Gravity.CENTER && width <= height) {
+                notchInfo = info
+            }
+        }
         impl.setIntensity(intensity)
         impl.setBlurIntensity(blurIntensity)
         impl.onSizeChanged(width, height)
@@ -197,7 +206,10 @@ class ProfileGooeyView @JvmOverloads constructor(
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        val info = NotchInfoUtils.getInfo(context)
+        val cutout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            rootWindowInsets?.displayCutout
+        } else null
+        val info = NotchInfoUtils.getInfo(context, cutout)
         notchInfo = if (info != null && info.gravity == Gravity.CENTER && w <= h) {
             info
         } else {

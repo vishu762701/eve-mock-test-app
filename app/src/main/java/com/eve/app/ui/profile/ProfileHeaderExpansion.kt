@@ -34,7 +34,7 @@ internal object ProfileHeaderExpansion {
         if (outerLp.height != height) { outerLp.height = height; binding.avatarOuterContainer.layoutParams = outerLp }
         binding.profilePhotoScrim.visibility = if (f > 0) View.VISIBLE else View.GONE
         if (binding.profilePhotoScrim.background == null) binding.profilePhotoScrim.background = GradientDrawable(
-            GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(0x88000000.toInt(), Color.TRANSPARENT, 0xDD000000.toInt()))
+            GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(Color.TRANSPARENT, Color.TRANSPARENT, 0x99000000.toInt()))
         (binding.profilePhotoScrim.background as GradientDrawable).cornerRadius = size / 2f * (1 - f)
         binding.profilePhotoScrim.alpha = f
         val statusBottom = size - 10 * density

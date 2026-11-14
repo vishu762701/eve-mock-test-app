@@ -41,49 +41,53 @@
         </FrameLayout>
     </com.eve.app.ui.profile.ProfileGooeyView>
 
-    <!-- Top Glass Toolbar -->
-    <com.eve.app.ui.common.EveGlassToolbar
+    <!-- Telegram Profile Top Bar (56dp height, 54dp QR frame, 20sp title, 48dp kebab menu) -->
+    <FrameLayout
         android:id="@+id/glassToolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/telegram_action_bar_height"
         android:elevation="0dp"
         android:translationZ="0dp">
 
         <LinearLayout
             android:id="@+id/topToolbar"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/design_touch_min"
+            android:layout_height="match_parent"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingHorizontal="4dp"
-            style="@style/Widget.Eve.Token.ToolbarRow">
+            android:paddingHorizontal="0dp">
 
             <ImageButton
                 android:id="@+id/btnBack"
-                android:layout_width="@dimen/design_touch_min"
-                android:layout_height="@dimen/design_touch_min"
+                android:layout_width="@dimen/telegram_action_bar_back_width"
+                android:layout_height="match_parent"
+                android:background="@drawable/telegram_action_icon_ripple"
                 android:contentDescription="Personal QR code"
+                android:scaleType="center"
                 android:src="@drawable/telegram_profile_qr"
-                app:tint="@color/telegram_type_primary"
-                style="@style/Widget.Eve.Token.IconButton" />
+                app:tint="@color/telegram_type_primary" />
 
             <TextView
                 android:id="@+id/tvToolbarTitle"
                 style="@style/TextAppearance.Eve.Telegram.NavigationTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="18dp"
                 android:layout_weight="1"
                 android:alpha="0"
                 android:text="Profile" />
+
             <ImageButton
                 android:id="@+id/btnProfileMenu"
-                android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min"
+                android:layout_width="48dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/telegram_action_icon_ripple"
                 android:contentDescription="Profile options"
-                android:src="@drawable/ic_more_vert" app:tint="@color/telegram_type_primary"
-                style="@style/Widget.Eve.Token.IconButton" />
+                android:scaleType="center"
+                android:src="@drawable/ic_more_vert"
+                app:tint="@color/telegram_type_primary" />
         </LinearLayout>
-    </com.eve.app.ui.common.EveGlassToolbar>
+    </FrameLayout>
 
     <!-- Scrollable content -->
     <com.eve.app.ui.profile.ProfilePullScrollView
@@ -131,7 +135,7 @@
                 android:orientation="horizontal"
                 android:visibility="gone">
 
-                <com.google.android.material.button.MaterialButton
+                <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/btnCancelPhoto"
                     style="@style/Widget.Eve.Token.Button.Secondary"
                     android:layout_width="wrap_content"
@@ -139,7 +143,7 @@
                     android:layout_marginEnd="8dp"
                     android:text="Cancel" />
 
-                <com.google.android.material.button.MaterialButton
+                <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/btnSavePhoto"
                     style="@style/Widget.Eve.Token.Button"
                     android:layout_width="wrap_content"
@@ -168,29 +172,31 @@
                 android:layout_marginTop="2dp"
                 tools:text="Student" />
 
-            <com.google.android.material.chip.Chip
+            <TextView
                 android:id="@+id/chipAdmin"
                 style="@style/Widget.Eve.Token.Chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="4dp"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp"
                 android:clickable="false"
                 android:text="Admin"
                 android:visibility="gone" />
 
-            <com.google.android.material.chip.Chip
+            <TextView
                 android:id="@+id/chipPremium"
                 style="@style/Widget.Eve.Token.Chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="4dp"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp"
                 android:clickable="true"
                 android:text="Premium Active"
-                android:visibility="gone"
-                app:chipIcon="@drawable/ic_star_filled"
-                app:chipIconTint="@color/design_role_premium_text" />
+                android:visibility="gone" />
 
             <!-- Telegram MODE_MY_PROFILE Canvas renderer + native hit/a11y adapters.
                  Source map: docs/EVE_PROFILE_ACTIONS_GEOMETRY_PROVENANCE.md.
@@ -299,13 +305,13 @@
                 </LinearLayout>
             </com.eve.app.ui.profile.ProfileActionsCanvasLayout>
 
-            <!-- Card 1: Personal Information -->
+            <!-- Card 1: Personal Information (flat full-width profile cells, 21dp divider insets) -->
             <com.eve.app.ui.profile.TelegramProfileSection
                 android:id="@+id/cardPersonalInfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_marginHorizontal="12dp">
+                android:layout_marginHorizontal="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -323,7 +329,7 @@
                         android:focusable="true"
                         android:gravity="center_vertical"
                         android:orientation="vertical"
-                        android:paddingHorizontal="20dp">
+                        android:paddingHorizontal="21dp">
 
                         <TextView
                             android:id="@+id/tvMobileValue"
@@ -346,8 +352,8 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:layout_marginStart="20dp"
-                        android:background="@color/category_pill_unselected_bg" />
+                        android:layout_marginStart="21dp"
+                        android:background="@color/telegram_divider" />
 
                     <!-- Username -->
                     <LinearLayout
@@ -360,7 +366,7 @@
                         android:focusable="true"
                         android:gravity="center_vertical"
                         android:orientation="vertical"
-                        android:paddingHorizontal="20dp">
+                        android:paddingHorizontal="21dp">
 
                         <TextView
                             android:id="@+id/tvUsernameValue"
@@ -383,8 +389,8 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:layout_marginStart="20dp"
-                        android:background="@color/category_pill_unselected_bg" />
+                        android:layout_marginStart="21dp"
+                        android:background="@color/telegram_divider" />
 
                     <!-- Birthday -->
                     <LinearLayout
@@ -397,7 +403,7 @@
                         android:focusable="true"
                         android:gravity="center_vertical"
                         android:orientation="vertical"
-                        android:paddingHorizontal="20dp">
+                        android:paddingHorizontal="21dp">
 
                         <TextView
                             android:id="@+id/tvBirthdayValue"
@@ -424,7 +430,7 @@
             <com.eve.app.ui.profile.TelegramProfileSection
                 android:id="@+id/cardCategory"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:layout_marginTop="16dp" android:layout_marginHorizontal="12dp">
+                android:layout_marginTop="16dp" android:layout_marginHorizontal="0dp">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
                     <!-- Category -->
                     <LinearLayout
@@ -437,7 +443,7 @@
                         android:focusable="true"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:paddingHorizontal="20dp">
+                        android:paddingHorizontal="21dp">
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -508,8 +514,8 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1px"
-                        android:layout_marginStart="20dp"
-                        android:background="@color/category_pill_unselected_bg" />
+                        android:layout_marginStart="21dp"
+                        android:background="@color/telegram_divider" />
 
                     <!-- Daily Reminder with Telegram Switch -->
                     <LinearLayout
@@ -522,7 +528,7 @@
                         android:focusable="true"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:paddingHorizontal="20dp">
+                        android:paddingHorizontal="21dp">
 
                         <TextView
                             style="@style/TextAppearance.Eve.Telegram.SettingsLabel"

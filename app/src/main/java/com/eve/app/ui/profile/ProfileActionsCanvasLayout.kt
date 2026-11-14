@@ -263,7 +263,9 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
         super.onDraw(canvas)
         if (childCount < 3 || state.backgroundAlpha <= 0f) return
         val mix = iconMix()
-        val textColor = ColorUtils.blendARGB(Color.BLACK, Color.WHITE, mix)
+        val isLightSurface = ColorUtils.calculateLuminance(surfaceColor) > 0.5
+        val baseTextColor = if (isLightSurface) Color.BLACK else Color.WHITE
+        val textColor = ColorUtils.blendARGB(baseTextColor, Color.WHITE, mix)
         val itemHeight = max(0f, dp(54f) * state.fraction)
         val radius = dp(16f)
         val first = filled
@@ -422,11 +424,11 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
             else -> 1f
         }
         // ProfileActionsView.updateBounds() positions the icon relative to the
-        // 54dp target, not a height that shrinks during scroll.
-        val iconTop = max(0f, (dp(54f) - textLayout.height * textScale) / 3f + dp(1.33f))
+        // 54dp target, offset by pill top margin (top).
+        val iconTop = top + max(0f, (dp(54f) - textLayout.height * textScale) / 3f + dp(1.33f))
         val iconSize = dp(24f)
         val iconLeft = centerX - iconSize / 2f
-        val textY = (iconTop + iconSize) + iconTop -
+        val textY = (iconTop + iconSize) + (iconTop - top) -
             textLayout.height * textScale / 2f - dp(4.66f)
         val clip = canvas.save()
         canvas.scale(state.fraction, state.fraction, centerX, top + itemHeight / 2f)
