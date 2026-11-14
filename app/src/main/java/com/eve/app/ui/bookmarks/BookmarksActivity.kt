@@ -11,6 +11,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
@@ -73,6 +74,20 @@ class BookmarksActivity : EveBaseActivity() {
         com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
 
         setupSearchAndFilters()
+        setupSelectionBar()
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (adapter.isSelectionMode) {
+                    exitSelectionMode()
+                } else if (isSearchOpen) {
+                    closeSearch()
+                } else {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        })
 
         adapter = BookmarkAdapter(
             onOpenQuestion = { bookmark -> openQuestionInTest(bookmark) },
@@ -119,14 +134,7 @@ class BookmarksActivity : EveBaseActivity() {
         }
 
         binding.btnSearchBack.setOnClickListener {
-            isSearchOpen = false
-            binding.etSearchBookmarks.setText("")
-            currentSearchQuery = ""
-            binding.toolbarSearch.visibility = View.GONE
-            binding.toolbarNormal.visibility = View.VISIBLE
-            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-            imm?.hideSoftInputFromWindow(binding.etSearchBookmarks.windowToken, 0)
-            applyFilterAndSearch()
+            closeSearch()
         }
 
         binding.btnClearSearch.setOnClickListener {
@@ -235,19 +243,126 @@ class BookmarksActivity : EveBaseActivity() {
         shareAlert.show()
     }
 
+    private fun closeSearch() {
+        isSearchOpen = false
+        binding.etSearchBookmarks.setText("")
+        currentSearchQuery = ""
+        binding.toolbarSearch.visibility = View.GONE
+        binding.toolbarNormal.visibility = View.VISIBLE
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        imm?.hideSoftInputFromWindow(binding.etSearchBookmarks.windowToken, 0)
+        applyFilterAndSearch()
+    }
+
+    private fun setupSelectionBar() {
+        binding.selectionBar.onCloseClicked = {
+            exitSelectionMode()
+        }
+        binding.selectionBar.addAction(
+            id = 1,
+            iconRes = R.drawable.msg_select,
+            contentDescription = "Select All"
+        ) {
+            adapter.selectAll()
+        }
+        binding.selectionBar.addAction(
+            id = 2,
+            iconRes = R.drawable.ic_share,
+            contentDescription = "Share Selected"
+        ) {
+            shareSelectedBookmarks()
+        }
+        binding.selectionBar.addAction(
+            id = 3,
+            iconRes = R.drawable.ic_delete,
+            contentDescription = "Delete Selected",
+            isDestructive = true
+        ) {
+            deleteSelectedBookmarks()
+        }
+
+        adapter.onSelectionChanged = { count ->
+            if (count == 0) {
+                exitSelectionMode()
+            } else {
+                binding.selectionBar.setSelectedCount(count, true)
+            }
+        }
+    }
+
+    private fun enterSelectionMode(initialSelectedId: String? = null) {
+        if (adapter.isSelectionMode) return
+        VibrationHelper.vibrateLightHaptic(this)
+        adapter.isSelectionMode = true
+        if (initialSelectedId != null) {
+            adapter.selectedQuestionIds.add(initialSelectedId)
+            adapter.notifyDataSetChanged()
+        }
+        binding.toolbarNormal.visibility = View.GONE
+        binding.toolbarSearch.visibility = View.GONE
+        binding.selectionBar.show()
+        binding.selectionBar.setSelectedCount(adapter.selectedQuestionIds.size, false)
+    }
+
+    private fun exitSelectionMode() {
+        if (!adapter.isSelectionMode) return
+        VibrationHelper.vibrateLightHaptic(this)
+        adapter.isSelectionMode = false
+        binding.selectionBar.hide {
+            binding.toolbarNormal.visibility = View.VISIBLE
+        }
+    }
+
+    private fun shareSelectedBookmarks() {
+        val selected = adapter.getSelectedBookmarks()
+        if (selected.isEmpty()) return
+        val hindi = LanguageManager.isHindi(this)
+        val text = buildString {
+            append("Eve Saved Questions (${selected.size}):\n\n")
+            selected.forEachIndexed { i, q ->
+                append("${i + 1}. ${q.displayQuestionText(hindi)}\n\n")
+            }
+            append("Shared via Eve")
+        }
+        val alert = TelegramShareAlert(
+            context = this,
+            title = "Saved Questions (${selected.size})",
+            subtitle = null,
+            shareText = text,
+            shareUrl = null,
+            previewBitmap = null
+        )
+        alert.show()
+    }
+
+    private fun deleteSelectedBookmarks() {
+        val selected = adapter.getSelectedBookmarks()
+        if (selected.isEmpty()) return
+        exitSelectionMode()
+        lifecycleScope.launch {
+            selected.forEach { bookmark ->
+                viewModel.unbookmark(bookmark.questionId)
+            }
+            AppBulletin.showSuccess(this@BookmarksActivity, "Removed ${selected.size} bookmarks")
+        }
+    }
+
     private fun showBookmarkContextMenu(bookmark: BookmarkedQuestion, anchor: View) {
         VibrationHelper.vibrateLightHaptic(this)
         val popup = TelegramPopupMenu(this)
-        popup.addItem(1, "Open in Test", R.drawable.ic_back) {
+        popup.addItem(1, "Select", R.drawable.msg_select) {
+            enterSelectionMode(bookmark.questionId)
+        }
+        popup.addItem(2, "Open in Test", R.drawable.ic_back) {
             openQuestionInTest(bookmark)
         }
-        popup.addItem(2, "Copy Question", R.drawable.ic_copy) {
+        popup.addItem(3, "Copy Question", R.drawable.ic_copy) {
             copyQuestion(bookmark)
         }
-        popup.addItem(3, "Share Question", R.drawable.ic_share) {
+        popup.addItem(4, "Share Question", R.drawable.ic_share) {
             shareQuestion(bookmark)
         }
-        popup.addItem(4, "Remove from Bookmarks", R.drawable.ic_delete, isDestructive = true) {
+        popup.addItem(5, "Remove from Bookmarks", R.drawable.ic_delete, isDestructive = true) {
             removeBookmark(bookmark)
         }
         popup.showAsDropDown(anchor, 0, 0)

@@ -19,6 +19,7 @@
             <EditText android:id="@+id/etSearchBookmarks" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@null" android:hint="Search saved questions…" android:imeOptions="actionSearch" android:inputType="text" android:singleLine="true" android:textColor="@color/telegram_type_primary" android:textColorHint="@color/telegram_type_secondary" android:textSize="18sp" />
             <ImageButton android:id="@+id/btnClearSearch" android:layout_width="48dp" android:layout_height="48dp" android:contentDescription="Clear search" android:src="@drawable/ic_close" app:tint="@color/telegram_type_secondary" android:visibility="gone" style="@style/Widget.Eve.Token.IconButton" />
         </LinearLayout>
+        <com.eve.app.designsystem.TelegramSelectionBar android:id="@+id/selectionBar" android:layout_width="match_parent" android:layout_height="@dimen/telegram_action_bar_height" android:visibility="gone" />
     </com.eve.app.ui.common.EveGlassToolbar>
     <HorizontalScrollView android:id="@+id/filterScroll" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone" android:scrollbars="none" android:clipToPadding="false" android:clipChildren="false">
         <com.eve.app.designsystem.TelegramChipGroup android:id="@+id/chipGroupFilters" android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingHorizontal="16dp" android:paddingVertical="6dp" app:chipSpacingHorizontal="8dp" app:singleLine="true" app:singleSelection="true" />

@@ -5,28 +5,38 @@
 
 package com.eve.app.ui.home
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatButton
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.R
 import com.eve.app.designsystem.TelegramBottomSheet
+import com.eve.app.designsystem.TelegramItemTouchHelperCallback
 import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.Constants
+import com.eve.app.util.FontManager
 import com.eve.app.util.VibrationHelper
+import java.util.Collections
 
 /**
  * Authentic Telegram folder / category reordering bottom sheet.
  * Upstream: FiltersView.java, FilterCreateActivity.java
+ * Supports drag-to-reorder via TelegramItemTouchHelperCallback with authentic tabs_reorder handle and lift animation.
  */
 class CategoryReorderBottomSheet(
     context: Context,
@@ -37,9 +47,8 @@ class CategoryReorderBottomSheet(
     private fun dp(v: Float): Int = (v * context.resources.displayMetrics.density + 0.5f).toInt()
 
     private val workingList = categories.filter { it != Constants.CATEGORY_ALL }.toMutableList()
-    private val listContainer = LinearLayout(context).apply {
-        orientation = LinearLayout.VERTICAL
-    }
+    private lateinit var adapter: CategoryOrderAdapter
+    private lateinit var itemTouchHelper: ItemTouchHelper
 
     init {
         setCustomView(buildContentView())
@@ -57,7 +66,7 @@ class CategoryReorderBottomSheet(
         val tvTitle = TextView(context).apply {
             text = "Edit Folders"
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 19f)
-            typeface = Typeface.DEFAULT_BOLD
+            typeface = FontManager.telegramBoldTypeface(context)
             setTextColor(palette.textPrimary)
             gravity = Gravity.CENTER
             setPadding(0, 0, 0, dp(4f))
@@ -68,24 +77,72 @@ class CategoryReorderBottomSheet(
         val tvSub = TextView(context).apply {
             text = "Reorder categories to customize your Home tabs"
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
+            typeface = FontManager.telegramRegularTypeface(context)
             setTextColor(palette.textSecondary)
             gravity = Gravity.CENTER
             setPadding(0, 0, 0, dp(16f))
         }
         root.addView(tvSub)
 
-        // Scrollable category list
-        val scrollView = ScrollView(context).apply {
+        // Pinned "All" item header row
+        val allRow = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(dp(12f), dp(10f), dp(12f), dp(10f))
+            background = GradientDrawable().apply {
+                cornerRadius = dp(8f).toFloat()
+                setColor(palette.surfaceInset)
+            }
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                bottomMargin = dp(8f)
+            }
+        }
+        val tvAll = TextView(context).apply {
+            text = "All (Pinned)"
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
+            typeface = FontManager.telegramMediumTypeface(context)
+            setTextColor(palette.textSecondary)
+        }
+        allRow.addView(tvAll, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+        root.addView(allRow)
+
+        // RecyclerView with drag-to-reorder
+        val recyclerView = RecyclerView(context).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 dp(240f)
             )
-            isFillViewport = true
+            layoutManager = LinearLayoutManager(context)
             overScrollMode = View.OVER_SCROLL_NEVER
         }
-        refreshList()
-        scrollView.addView(listContainer)
-        root.addView(scrollView)
+
+        adapter = CategoryOrderAdapter(
+            items = workingList,
+            palette = palette,
+            onStartDrag = { viewHolder ->
+                itemTouchHelper.startDrag(viewHolder)
+            }
+        )
+        recyclerView.adapter = adapter
+
+        val callback = TelegramItemTouchHelperCallback(
+            onMoveItem = { fromPos, toPos ->
+                if (fromPos < 0 || toPos < 0 || fromPos >= workingList.size || toPos >= workingList.size) {
+                    false
+                } else {
+                    Collections.swap(workingList, fromPos, toPos)
+                    adapter.notifyItemMoved(fromPos, toPos)
+                    true
+                }
+            }
+        )
+        itemTouchHelper = ItemTouchHelper(callback)
+        itemTouchHelper.attachToRecyclerView(recyclerView)
+
+        root.addView(recyclerView)
 
         // Button row: Reset and Save
         val buttonRow = LinearLayout(context).apply {
@@ -97,6 +154,7 @@ class CategoryReorderBottomSheet(
         val btnReset = AppCompatButton(context).apply {
             text = "Reset"
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
+            typeface = FontManager.telegramMediumTypeface(context)
             setTextColor(palette.accent)
             background = null
             setPadding(dp(12f), dp(8f), dp(12f), dp(8f))
@@ -113,7 +171,7 @@ class CategoryReorderBottomSheet(
         val btnDone = AppCompatButton(context).apply {
             text = "Done"
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
-            typeface = Typeface.DEFAULT_BOLD
+            typeface = FontManager.telegramBoldTypeface(context)
             setTextColor(Color.WHITE)
             background = GradientDrawable().apply {
                 cornerRadius = dp(10f).toFloat()
@@ -135,96 +193,69 @@ class CategoryReorderBottomSheet(
         return root
     }
 
-    private fun refreshList() {
-        listContainer.removeAllViews()
-        val palette = TelegramThemeEngine.resolveCurrentPalette(context)
+    private class CategoryViewHolder(
+        val row: LinearLayout,
+        val tvName: TextView,
+        val btnReorder: ImageView
+    ) : RecyclerView.ViewHolder(row)
 
-        // Pinned "All" item
-        val allRow = LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(dp(8f), dp(10f), dp(8f), dp(10f))
-        }
-        val tvAll = TextView(context).apply {
-            text = "All (Pinned)"
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
-            typeface = Typeface.DEFAULT_BOLD
-            setTextColor(palette.textSecondary)
-        }
-        allRow.addView(tvAll, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
-        listContainer.addView(allRow)
+    private class CategoryOrderAdapter(
+        private val items: MutableList<String>,
+        private val palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette,
+        private val onStartDrag: (RecyclerView.ViewHolder) -> Unit
+    ) : RecyclerView.Adapter<CategoryViewHolder>() {
 
-        // Separator
-        val divider = View(context).apply {
-            setBackgroundColor(palette.hairline)
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1).apply {
-                setMargins(dp(8f), dp(4f), dp(8f), dp(4f))
-            }
-        }
-        listContainer.addView(divider)
+        override fun getItemCount(): Int = items.size
 
-        for (index in workingList.indices) {
-            val category = workingList[index]
+        @SuppressLint("ClickableViewAccessibility")
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
+            val context = parent.context
+            val density = context.resources.displayMetrics.density
+            fun dp(v: Float): Int = (v * density + 0.5f).toInt()
+
             val row = LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
-                setPadding(dp(8f), dp(8f), dp(8f), dp(8f))
+                setPadding(dp(12f), dp(10f), dp(12f), dp(10f))
                 background = GradientDrawable().apply {
                     cornerRadius = dp(8f).toFloat()
                     setColor(palette.surface)
                 }
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
+                layoutParams = RecyclerView.LayoutParams(
+                    RecyclerView.LayoutParams.MATCH_PARENT,
+                    RecyclerView.LayoutParams.WRAP_CONTENT
                 ).apply {
-                    setMargins(0, dp(4f), 0, dp(4f))
+                    setMargins(0, dp(3f), 0, dp(3f))
                 }
             }
 
             val tvName = TextView(context).apply {
-                text = category
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
+                typeface = FontManager.telegramMediumTypeface(context)
                 setTextColor(palette.textPrimary)
             }
             row.addView(tvName, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
 
-            // Move Up button
-            if (index > 0) {
-                val btnUp = ImageView(context).apply {
-                    setImageResource(R.drawable.ic_back)
-                    rotation = 90f
-                    setColorFilter(palette.accent)
-                    setPadding(dp(8f), dp(8f), dp(8f), dp(8f))
-                    isClickable = true
-                    setOnClickListener {
-                        VibrationHelper.vibrateLightHaptic(context)
-                        val item = workingList.removeAt(index)
-                        workingList.add(index - 1, item)
-                        refreshList()
-                    }
-                }
-                row.addView(btnUp, LinearLayout.LayoutParams(dp(36f), dp(36f)))
+            val btnReorder = ImageView(context).apply {
+                setImageResource(R.drawable.tabs_reorder)
+                setColorFilter(palette.textSecondary)
+                layoutParams = LinearLayout.LayoutParams(dp(28f), dp(28f))
+                setPadding(dp(4f), dp(4f), dp(4f), dp(4f))
             }
+            row.addView(btnReorder)
 
-            // Move Down button
-            if (index < workingList.size - 1) {
-                val btnDown = ImageView(context).apply {
-                    setImageResource(R.drawable.ic_back)
-                    rotation = 270f
-                    setColorFilter(palette.accent)
-                    setPadding(dp(8f), dp(8f), dp(8f), dp(8f))
-                    isClickable = true
-                    setOnClickListener {
-                        VibrationHelper.vibrateLightHaptic(context)
-                        val item = workingList.removeAt(index)
-                        workingList.add(index + 1, item)
-                        refreshList()
-                    }
+            val holder = CategoryViewHolder(row, tvName, btnReorder)
+            btnReorder.setOnTouchListener { _, event ->
+                if (event.actionMasked == MotionEvent.ACTION_DOWN) {
+                    onStartDrag(holder)
                 }
-                row.addView(btnDown, LinearLayout.LayoutParams(dp(36f), dp(36f)))
+                false
             }
+            return holder
+        }
 
-            listContainer.addView(row)
+        override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
+            holder.tvName.text = items[position]
         }
     }
 

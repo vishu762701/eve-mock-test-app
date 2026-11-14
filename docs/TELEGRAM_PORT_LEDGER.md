@@ -402,7 +402,7 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 Leftovers / ASSUMED values: None
 CI Verification: Run 43565703287 passed green on main.
 
-## C9 Saved-messages style Bookmarks screen (`BookmarksActivity.kt`) - DONE
+## C9 Saved-messages style Bookmarks screen (`BookmarksActivity.kt`) - DONE (commit c88d776b)
 Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
@@ -412,6 +412,19 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | Long-press popup menu | `ActionBarPopupWindow.java` | Swipe to remove only | Long-press `TelegramPopupMenu` with "Open in Test", "Copy Question", "Share Question", and destructive "Remove" |
 | Pull to refresh | `PullForegroundDrawable` | None | Integrated `TelegramPullRefreshLayout` with curved pull header and haptics |
 Leftovers / ASSUMED values: None
+CI Verification: Run 43566565898 passed green on main.
+
+## C10 Selection mode, swipe actions, and drag-to-reorder - DONE
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| Number counter animation | `NumberTextView.java:1-246` | None | `TelegramNumberTextView` with letter-by-letter vertical sliding digit animation (150ms) and crossfade |
+| ActionMode selection bar | `ActionBar.java:700-890` | None | `TelegramSelectionBar` (56dp, close button, counter, batch actions: select all, share, delete with haptics) |
+| List selection mode | `DialogsActivity.java`, `MessagesStorage.java` | Single item actions | Multi-selection mode with `TelegramCheckBox2` animated checkmarks, card press selection, contextual menu trigger |
+| Drag-to-reorder | `PollCreateActivity.java:176-230`, `ChangeUsernameActivity.java:1120-1165` | Manual up/down buttons | `TelegramItemTouchHelperCallback` with 1.03x scale lift, 8dp elevation shadow, and spring settling |
+| Reorder handle & interaction | `tabs_reorder.webp` | Arrow buttons | Authentic Telegram `tabs_reorder` handle in `CategoryReorderBottomSheet` with drag-to-reorder RecyclerView |
+Leftovers / ASSUMED values: None
+
 
 
 

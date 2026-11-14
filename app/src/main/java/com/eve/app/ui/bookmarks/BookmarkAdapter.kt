@@ -41,6 +41,37 @@ class BookmarkAdapter(
 
     private val expandedExplanations = mutableSetOf<String>()
 
+    var isSelectionMode: Boolean = false
+        set(value) {
+            if (field != value) {
+                field = value
+                if (!value) {
+                    selectedQuestionIds.clear()
+                }
+                notifyDataSetChanged()
+            }
+        }
+
+    val selectedQuestionIds = mutableSetOf<String>()
+    var onSelectionChanged: ((Int) -> Unit)? = null
+
+    fun selectAll() {
+        selectedQuestionIds.clear()
+        selectedQuestionIds.addAll(currentList.map { it.questionId })
+        notifyDataSetChanged()
+        onSelectionChanged?.invoke(selectedQuestionIds.size)
+    }
+
+    fun clearSelection() {
+        selectedQuestionIds.clear()
+        notifyDataSetChanged()
+        onSelectionChanged?.invoke(0)
+    }
+
+    fun getSelectedBookmarks(): List<BookmarkedQuestion> {
+        return currentList.filter { selectedQuestionIds.contains(it.questionId) }
+    }
+
     object DiffCallback : DiffUtil.ItemCallback<BookmarkedQuestion>() {
         override fun areItemsTheSame(oldItem: BookmarkedQuestion, newItem: BookmarkedQuestion): Boolean =
             oldItem.questionId == newItem.questionId
@@ -160,6 +191,20 @@ class BookmarkAdapter(
                 binding.tvExplanation.visibility = View.GONE
             }
 
+            val isSelected = selectedQuestionIds.contains(item.questionId)
+            if (isSelectionMode) {
+                binding.cardCheckBox.visibility = View.VISIBLE
+                binding.cardCheckBox.setChecked(isSelected, false)
+                binding.btnBookmark.visibility = View.GONE
+                binding.btnCardCopy.visibility = View.GONE
+                binding.btnCardShare.visibility = View.GONE
+            } else {
+                binding.cardCheckBox.visibility = View.GONE
+                binding.btnBookmark.visibility = View.VISIBLE
+                binding.btnCardCopy.visibility = View.VISIBLE
+                binding.btnCardShare.visibility = View.VISIBLE
+            }
+
             DesignIconStates.bookmark(binding.btnBookmark, true)
             com.eve.app.designsystem.DesignPress.bind(binding.btnBookmark) {
                 DesignIconStates.bookmark(binding.btnBookmark, false)
@@ -181,13 +226,25 @@ class BookmarkAdapter(
                 true
             }
 
-            // Tap card to open question in test flow
-            com.eve.app.designsystem.DesignPress.bind(binding.cardBookmark) {
-                onOpenQuestion(item)
+            // Tap card to open question in test flow or toggle selection
+            val handleTap = {
+                if (isSelectionMode) {
+                    val checked = !selectedQuestionIds.contains(item.questionId)
+                    if (checked) {
+                        selectedQuestionIds.add(item.questionId)
+                    } else {
+                        selectedQuestionIds.remove(item.questionId)
+                    }
+                    binding.cardCheckBox.setChecked(checked, true)
+                    com.eve.app.util.VibrationHelper.vibrateLightHaptic(context)
+                    onSelectionChanged?.invoke(selectedQuestionIds.size)
+                } else {
+                    onOpenQuestion(item)
+                }
             }
-            com.eve.app.designsystem.DesignPress.bind(binding.layoutTapToOpen) {
-                onOpenQuestion(item)
-            }
+
+            com.eve.app.designsystem.DesignPress.bind(binding.cardBookmark) { handleTap() }
+            com.eve.app.designsystem.DesignPress.bind(binding.layoutTapToOpen) { handleTap() }
         }
 
         private fun toggleExplanation(item: BookmarkedQuestion) {
