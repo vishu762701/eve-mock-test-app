@@ -366,7 +366,7 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | Camera / Gallery picker sheet | `ImageUpdater.java:openMenu` | Basic bottom sheet | `ProfilePhotoMenu.kt` authentic Telegram BottomSheet (`Choose photo`, `Take photo`, `Upload from gallery`, `Remove photo`) |
 Leftovers / ASSUMED values: None
 
-## C1 Chat-folder style category tabs on Home (`FilterTabsView`, `FiltersView`) - DONE
+## C1 Chat-folder style category tabs on Home (`FilterTabsView`, `FiltersView`) - DONE (commit d736301c)
 Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
@@ -375,6 +375,17 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | Persisted folder preferences | `MessagesController.java:dialogFilters` | None | `CategoryOrderManager.kt` persists custom category order in SharedPreferences |
 | Long-press to edit folders | `FilterTabsView.java:onLongClick` | None | Long-pressing any category chip triggers light haptics and opens `CategoryReorderBottomSheet` |
 | Horizontal swipe between category tabs | `DialogsActivity.java:onFling` | Vertical scrolling only | `setupCategorySwipeGesture` on Home list switches category tabs with light haptics |
+Leftovers / ASSUMED values: None
+
+## C2 Telegram search (`DialogsSearchAdapter`, `FiltersView`) - DONE
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| Search bar open/close animation | `ActionBarMenuItem.java:950-1031` | Fade only | Combined 24dp horizontal translation and alpha crossfade with `EASE_OUT_QUINT` |
+| Recent searches section | `DialogsSearchAdapter.java:recentSearches` | Plain TextView vertical stack | Telegram `GraySectionCell` header ("Recent", "Clear All" in `#229AF0`) with search icon and individual remove buttons |
+| Individual query deletion | `DialogsSearchAdapter.java:deleteRecentSearch` | None (clear all only) | `HomeSearchHistory.remove(...)` wired to row close icon with light haptic feedback |
+| Search type filter chips | `FiltersView.java:697-760` | None during search | `searchFilterGroup` chips ("All", "Exams", "Feedback") for narrowing search results |
+| Empty search placeholder | `DialogsSearchAdapter.java`, `EmptyTextProgressView.java` | "No matching items" | Telegram animated placeholder, "No results found", and descriptive query subtitle |
 Leftovers / ASSUMED values: None
 
 

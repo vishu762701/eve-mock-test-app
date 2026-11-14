@@ -40,6 +40,13 @@ internal object HomeSearchHistory {
             .putString("recent_$uid", JSONArray(recent).toString()).apply()
     }
 
+    fun remove(context: Context, uid: String, value: String) {
+        if (uid.isBlank()) return
+        val current = load(context, uid).filterNot { it.equals(value, ignoreCase = true) }
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+            .putString("recent_$uid", JSONArray(current).toString()).apply()
+    }
+
     fun clear(context: Context, uid: String) {
         if (uid.isBlank()) return
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()

@@ -797,42 +797,138 @@ class MainActivity : EveBaseActivity() {
         }
         list.visibility = View.VISIBLE
         val palette = TelegramThemeEngine.resolveCurrentPalette(this)
-        fun row(title: String, onClick: (() -> Unit)? = null): android.widget.TextView =
-            android.widget.TextView(this).apply {
-                text = title
-                com.eve.app.designsystem.DesignType.apply(this,
-                    if (onClick == null) com.eve.app.designsystem.DesignType.Role.SECONDARY
-                    else com.eve.app.designsystem.DesignType.Role.BODY)
-                setTextColor(if (onClick == null) palette.textSecondary else palette.textPrimary)
-                val inset = (16 * resources.displayMetrics.density).toInt()
-                setPadding(inset, 0, inset, 0)
-                minHeight = (48 * resources.displayMetrics.density).toInt()
-                gravity = android.view.Gravity.CENTER_VERTICAL
-                if (onClick != null) {
-                    isClickable = true
-                    isFocusable = true
-                    background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
-                        8 * resources.displayMetrics.density,
-                        palette.actionSelector
-                    )
-                    setOnClickListener { onClick() }
+        val density = resources.displayMetrics.density
+        fun dp(v: Float) = (v * density + 0.5f).toInt()
+
+        if (query.isEmpty()) {
+            // Authentic Telegram GraySectionCell header: "Recent" with "Clear All"
+            val header = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding(dp(16f), dp(8f), dp(16f), dp(4f))
+            }
+            val tvSection = TextView(this).apply {
+                text = "Recent"
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
+                typeface = Typeface.DEFAULT_BOLD
+                setTextColor(palette.textSecondary)
+            }
+            header.addView(tvSection, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+
+            val tvClearAll = TextView(this).apply {
+                text = "Clear All"
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
+                typeface = Typeface.DEFAULT_BOLD
+                setTextColor(palette.accent)
+                isClickable = true
+                isFocusable = true
+                setOnClickListener {
+                    com.eve.app.util.VibrationHelper.vibrateLightHaptic(this@MainActivity)
+                    HomeSearchHistory.clear(this@MainActivity, uid)
+                    showSearchSuggestions("")
                 }
             }
-        list.addView(row(if (query.isEmpty()) "Recent searches" else "Related exams"))
-        phrases.forEach { phrase ->
-            list.addView(row(phrase) {
-                binding.etSearch.setText(phrase)
-                binding.etSearch.setSelection(binding.etSearch.text?.length ?: 0)
-                currentSearchQuery = phrase
-                HomeSearchHistory.record(this, uid, phrase)
-                applyCurrentList()
-            })
-        }
-        if (query.isEmpty()) {
-            list.addView(row("Clear All") {
-                HomeSearchHistory.clear(this, uid)
-                applyCurrentList()
-            })
+            header.addView(tvClearAll)
+            list.addView(header)
+
+            // Items with search icon, text, and remove button
+            phrases.forEach { phrase ->
+                val row = LinearLayout(this).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = Gravity.CENTER_VERTICAL
+                    minHeight = dp(44f)
+                    background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
+                        8 * density,
+                        palette.actionSelector
+                    )
+                    isClickable = true
+                    isFocusable = true
+                    setOnClickListener {
+                        binding.etSearch.setText(phrase)
+                        binding.etSearch.setSelection(phrase.length)
+                        currentSearchQuery = phrase
+                        HomeSearchHistory.record(this@MainActivity, uid, phrase)
+                        applyCurrentList()
+                    }
+                }
+
+                val ivIcon = ImageView(this).apply {
+                    setImageResource(R.drawable.ic_search)
+                    setColorFilter(palette.textSecondary)
+                    setPadding(dp(16f), dp(12f), dp(8f), dp(12f))
+                }
+                row.addView(ivIcon, LinearLayout.LayoutParams(dp(44f), dp(44f)))
+
+                val tvText = TextView(this).apply {
+                    text = phrase
+                    setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
+                    setTextColor(palette.textPrimary)
+                    setPadding(dp(4f), 0, dp(8f), 0)
+                }
+                row.addView(tvText, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+
+                val ivRemove = ImageView(this).apply {
+                    setImageResource(R.drawable.ic_close)
+                    setColorFilter(palette.textSecondary)
+                    setPadding(dp(12f), dp(12f), dp(16f), dp(12f))
+                    isClickable = true
+                    isFocusable = true
+                    contentDescription = "Remove search"
+                    setOnClickListener {
+                        com.eve.app.util.VibrationHelper.vibrateLightHaptic(this@MainActivity)
+                        HomeSearchHistory.remove(this@MainActivity, uid, phrase)
+                        showSearchSuggestions("")
+                    }
+                }
+                row.addView(ivRemove, LinearLayout.LayoutParams(dp(44f), dp(44f)))
+                list.addView(row)
+            }
+        } else {
+            val tvSection = TextView(this).apply {
+                text = "Related exams"
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
+                typeface = Typeface.DEFAULT_BOLD
+                setTextColor(palette.textSecondary)
+                setPadding(dp(16f), dp(8f), dp(16f), dp(4f))
+            }
+            list.addView(tvSection)
+
+            phrases.forEach { phrase ->
+                val row = LinearLayout(this).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = Gravity.CENTER_VERTICAL
+                    minHeight = dp(44f)
+                    background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
+                        8 * density,
+                        palette.actionSelector
+                    )
+                    isClickable = true
+                    isFocusable = true
+                    setOnClickListener {
+                        binding.etSearch.setText(phrase)
+                        binding.etSearch.setSelection(phrase.length)
+                        currentSearchQuery = phrase
+                        HomeSearchHistory.record(this@MainActivity, uid, phrase)
+                        applyCurrentList()
+                    }
+                }
+
+                val ivIcon = ImageView(this).apply {
+                    setImageResource(R.drawable.ic_search)
+                    setColorFilter(palette.textSecondary)
+                    setPadding(dp(16f), dp(12f), dp(8f), dp(12f))
+                }
+                row.addView(ivIcon, LinearLayout.LayoutParams(dp(44f), dp(44f)))
+
+                val tvText = TextView(this).apply {
+                    text = phrase
+                    setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
+                    setTextColor(palette.textPrimary)
+                    setPadding(dp(4f), 0, dp(16f), 0)
+                }
+                row.addView(tvText, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+                list.addView(row)
+            }
         }
         return true
     }
@@ -906,6 +1002,30 @@ class MainActivity : EveBaseActivity() {
         binding.etSearch.animate().cancel()
     }
 
+    private var searchTypeFilter = "All"
+
+    private fun setupSearchFilters() {
+        val group = binding.searchFilterGroup
+        group.removeAllViews()
+        val filters = listOf("All", "Exams", "Feedback")
+        filters.forEach { filter ->
+            val chip = com.eve.app.designsystem.TelegramChip(this).apply {
+                text = filter
+                isCheckable = true
+                isChecked = (filter == searchTypeFilter)
+                isCheckedIconVisible = false
+                setOnCheckedChangeListener { _, checked ->
+                    if (checked) {
+                        com.eve.app.util.VibrationHelper.vibrateLightHaptic(this@MainActivity)
+                        searchTypeFilter = filter
+                        applyCurrentList()
+                    }
+                }
+            }
+            group.addView(chip)
+        }
+    }
+
     /**
      * Telegram ActionBarMenuItem.java:935-1041 (approved revision):
      * a 150ms AnimatorSet crossfades searchContainer against menu icons.
@@ -913,18 +1033,21 @@ class MainActivity : EveBaseActivity() {
      */
     private fun startSearchAlphaTransition(opening: Boolean) {
         searchTransitionAnimator?.cancel()
-        // Original ActionBarMenuItem.java:950-1031 crossfades ONLY menu icon
-        // views against searchContainer. The EVE title is a separate Home row
-        // and must not be faded as a giant parent (it overlaps search text and
-        // changes the header height at the END of the old animation).
         val menuIcons = binding.homeGlassToolbar
         val search = binding.searchTopBar
+        val filterScroll = binding.searchFilterScroll
         binding.normalTopBar.alpha = 1f
+        val dp24 = 24f * resources.displayMetrics.density
         if (opening) {
             binding.titleGroup.visibility = View.GONE
             binding.normalTopBar.visibility = View.VISIBLE
-            if (search.visibility != View.VISIBLE) search.alpha = 0f
+            if (search.visibility != View.VISIBLE) {
+                search.alpha = 0f
+                search.translationX = dp24
+            }
             search.visibility = View.VISIBLE
+            filterScroll.visibility = View.VISIBLE
+            filterScroll.alpha = 0f
         } else {
             if (binding.normalTopBar.visibility != View.VISIBLE) menuIcons.alpha = 0f
             binding.normalTopBar.visibility = View.VISIBLE
@@ -937,10 +1060,17 @@ class MainActivity : EveBaseActivity() {
                     search, View.ALPHA, search.alpha, if (opening) 1f else 0f
                 ),
                 android.animation.ObjectAnimator.ofFloat(
+                    search, View.TRANSLATION_X, search.translationX, if (opening) 0f else dp24
+                ),
+                android.animation.ObjectAnimator.ofFloat(
+                    filterScroll, View.ALPHA, filterScroll.alpha, if (opening) 1f else 0f
+                ),
+                android.animation.ObjectAnimator.ofFloat(
                     menuIcons, View.ALPHA, menuIcons.alpha, if (opening) 0f else 1f
                 )
             )
-            duration = 150L
+            duration = 180L
+            interpolator = org.telegram.ui.Components.CubicBezierInterpolator.EASE_OUT_QUINT
             addListener(object : android.animation.AnimatorListenerAdapter() {
                 private var cancelled = false
                 override fun onAnimationCancel(animation: android.animation.Animator) {
@@ -952,9 +1082,15 @@ class MainActivity : EveBaseActivity() {
                         binding.normalTopBar.visibility = View.GONE
                         menuIcons.alpha = 0f
                         search.alpha = 1f
+                        search.translationX = 0f
+                        filterScroll.visibility = View.VISIBLE
+                        filterScroll.alpha = 1f
                     } else {
                         search.visibility = View.GONE
                         search.alpha = 0f
+                        search.translationX = 0f
+                        filterScroll.visibility = View.GONE
+                        filterScroll.alpha = 0f
                         menuIcons.alpha = 1f
                     }
                     if (searchTransitionAnimator === animation) searchTransitionAnimator = null
@@ -969,6 +1105,7 @@ class MainActivity : EveBaseActivity() {
         if (isSearchActive) return
         homeListPositionBeforeSearch = binding.rvExams.layoutManager?.onSaveInstanceState()
         isSearchActive = true
+        setupSearchFilters()
         refreshSearchChrome()
         cancelSearchVisualAnimations()
         searchTransitionAnimator?.cancel()
@@ -988,6 +1125,8 @@ class MainActivity : EveBaseActivity() {
             binding.homeGlassToolbar.alpha = 0f
             binding.searchTopBar.visibility = View.VISIBLE
             binding.searchTopBar.alpha = 1f
+            binding.searchFilterScroll.visibility = View.VISIBLE
+            binding.searchFilterScroll.alpha = 1f
         } else {
             startSearchAlphaTransition(opening = true)
         }
@@ -1002,6 +1141,8 @@ class MainActivity : EveBaseActivity() {
         if (!isSearchActive) return
         isSearchActive = false
         refreshSearchChrome()
+        binding.searchFilterScroll.visibility = View.GONE
+        searchTypeFilter = "All"
         binding.searchSuggestionsList.visibility = View.GONE
         cancelSearchVisualAnimations()
         searchTransitionAnimator?.cancel()
@@ -1055,6 +1196,12 @@ class MainActivity : EveBaseActivity() {
             showSearchSuggestions(currentSearchQuery)
             val q = currentSearchQuery
             val filtered = lastSearchItems.filter { item ->
+                val typeMatches = when (searchTypeFilter) {
+                    "Exams" -> item is HomeListItem.ExamRow
+                    "Feedback" -> item is HomeListItem.FeedbackPostRow
+                    else -> true
+                }
+                if (!typeMatches) return@filter false
                 when (item) {
                     is HomeListItem.ExamRow ->
                         HomeSearchText.matches(q, item.exam.examName, item.exam.categoryOrOther)
@@ -1069,8 +1216,8 @@ class MainActivity : EveBaseActivity() {
                 binding.messageGroup.visibility = View.VISIBLE
                 binding.btnRetry.visibility = View.GONE
                 hasEmptyPlayed = com.eve.app.util.EmptyStateAnimationHelper.showEmptyState(binding.ivMessageIcon, hasEmptyPlayed)
-                binding.tvMessage.text = "No matching items"
-                binding.tvMessageSub.text = "Try searching for a different keyword or category."
+                binding.tvMessage.text = "No results found"
+                binding.tvMessageSub.text = "There were no results for \"$q\". Try searching for a different keyword or category."
             } else {
                 binding.messageGroup.visibility = View.GONE
                 adapter.submit(filtered)
