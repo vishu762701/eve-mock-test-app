@@ -127,8 +127,6 @@ class PollsAdminAdapter(
             binding.btnToggleActive.setOnClickListener {
                 onToggleStatus(poll)
             }
-            binding.btnToggleActive.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
-            binding.btnDeletePoll.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
             binding.root.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
             binding.tvTapToView.setTextColor(palette.accent)
 

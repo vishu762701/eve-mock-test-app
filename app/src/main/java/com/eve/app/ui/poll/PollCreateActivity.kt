@@ -21,7 +21,6 @@ import com.eve.app.R
 import com.eve.app.data.repository.PollRepository
 import com.eve.app.databinding.ActivityPollCreateBinding
 import com.eve.app.databinding.ItemPollOptionEditableBinding
-import com.eve.app.ui.common.TelegramRadioIndicator
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AppBulletin
 import com.google.firebase.auth.FirebaseAuth
@@ -172,7 +171,7 @@ class PollCreateActivity : EveBaseActivity() {
     private fun selectCorrectOption(index: Int) {
         selectedCorrectIndex = index
         for (i in optionRows.indices) {
-            optionRows[i].radioQuizCorrect.setChecked(i == index, true)
+            optionRows[i].radioQuizCorrect.isChecked = (i == index)
         }
     }
 

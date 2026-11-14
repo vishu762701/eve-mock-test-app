@@ -124,12 +124,12 @@ object EveDesignSystem {
             }
         }
 
-        fun applyAdminButton(button: MaterialButton) {
+        fun applyAdminButton(button: TextView) {
             val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(button.context)
             applyAdminButtonPalette(button, palette)
         }
 
-        fun applyAdminButtonPalette(button: MaterialButton, palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+        fun applyAdminButtonPalette(button: TextView, palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
             DesignType.apply(button, DesignType.Role.BUTTON)
             button.backgroundTintList = android.content.res.ColorStateList.valueOf(palette.actionSelector)
             button.setTextColor(

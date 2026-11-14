@@ -8,11 +8,12 @@
     android:paddingStart="16dp"
     android:paddingEnd="12dp">
 
-    <com.eve.app.ui.common.TelegramRadioIndicator
+    <com.eve.app.ui.common.TelegramRadioButton
         android:id="@+id/radioQuizCorrect"
-        android:layout_width="22dp"
-        android:layout_height="22dp"
-        android:layout_marginEnd="12dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:button="@null"
         android:visibility="gone" />
 
     <EditText
