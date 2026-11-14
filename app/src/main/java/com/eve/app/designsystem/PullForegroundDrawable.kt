@@ -29,11 +29,11 @@ class PullForegroundDrawable(
     private val releaseTooltipText: CharSequence = "Release to refresh"
 ) {
     companion object {
-        const val SNAP_HEIGHT = 0.85f
-        const val startPullParallax = 0.45f
-        const val endPullParallax = 0.25f
-        const val startPullOverScroll = 0.2f
-        const val minPullingTime = 200L
+        const val SNAP_HEIGHT = TelegramParity.PULL_FOREGROUND_SNAP_HEIGHT
+        const val startPullParallax = TelegramParity.PULL_FOREGROUND_START_PULL_PARALLAX
+        const val endPullParallax = TelegramParity.PULL_FOREGROUND_END_PULL_PARALLAX
+        const val startPullOverScroll = TelegramParity.PULL_FOREGROUND_START_PULL_OVERSCROLL
+        const val minPullingTime = TelegramParity.PULL_FOREGROUND_MIN_PULLING_TIME_MS
 
         fun getMaxOverscroll(density: Float): Int = (72 * density).toInt()
     }

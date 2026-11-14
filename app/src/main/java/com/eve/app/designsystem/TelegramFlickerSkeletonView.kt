@@ -189,7 +189,7 @@ class TelegramFlickerSkeletonView @JvmOverloads constructor(
         lastUpdateTime = now
 
         val h = if (parentHeight > 0) parentHeight else if (measuredHeight > 0) measuredHeight else 1
-        totalTranslation += dt * h / 400.0f
+        totalTranslation += dt * h / TelegramParity.FLICKER_LOADING_SPEED_DIVISOR.toFloat()
         if (totalTranslation >= h * 2) {
             totalTranslation = -gradientWidth * 2f
         }

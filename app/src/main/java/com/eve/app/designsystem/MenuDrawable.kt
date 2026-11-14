@@ -29,7 +29,7 @@ class MenuDrawable(private var type: Int = TYPE_DEFAULT) : Drawable() {
     private fun dp(v: Int): Float = v * density
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        strokeWidth = dp(2f)
+        strokeWidth = dp(TelegramParity.MENU_DRAWABLE_STROKE_WIDTH_DP.toFloat())
     }
     private val backPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         strokeWidth = density * 1.66f
@@ -82,9 +82,9 @@ class MenuDrawable(private var type: Int = TYPE_DEFAULT) : Drawable() {
         }
         if (animated) {
             currentAnimationTime = if (currentRotation < rotation) {
-                (currentRotation * 200).toInt()
+                (currentRotation * TelegramParity.MENU_DRAWABLE_ROTATION_DURATION_MS).toInt()
             } else {
-                ((1.0f - currentRotation) * 200).toInt()
+                ((1.0f - currentRotation) * TelegramParity.MENU_DRAWABLE_ROTATION_DURATION_MS).toInt()
             }
             lastFrameTime = SystemClock.uptimeMillis()
             finalRotation = rotation
@@ -109,7 +109,7 @@ class MenuDrawable(private var type: Int = TYPE_DEFAULT) : Drawable() {
         if (currentRotation != finalRotation) {
             if (lastFrameTime != 0L) {
                 currentAnimationTime += dt.toInt()
-                if (currentAnimationTime >= 200) {
+                if (currentAnimationTime >= TelegramParity.MENU_DRAWABLE_ROTATION_DURATION_MS) {
                     currentRotation = finalRotation
                 } else {
                     currentRotation = if (currentRotation < finalRotation) {

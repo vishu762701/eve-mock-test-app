@@ -23,7 +23,7 @@ class BackDrawable(private val alwaysClose: Boolean = false) : Drawable() {
     private fun lerp(a: Float, b: Float, t: Float): Float = a + (b - a) * t
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        strokeWidth = dp(2f)
+        strokeWidth = dp(TelegramParity.BACK_DRAWABLE_STROKE_WIDTH_DP.toFloat())
         strokeCap = Paint.Cap.ROUND
     }
 
@@ -35,7 +35,7 @@ class BackDrawable(private val alwaysClose: Boolean = false) : Drawable() {
     private val interpolator = DecelerateInterpolator()
     private var color = Color.WHITE
     private var rotatedColor = 0xff757575.toInt()
-    private var animationTime = 220f
+    private var animationTime = TelegramParity.BACK_DRAWABLE_ANIMATION_TIME_MS.toFloat()
     private var rotated = true
     private var arrowRotation = 0
 

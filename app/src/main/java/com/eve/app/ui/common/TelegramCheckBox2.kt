@@ -56,7 +56,7 @@ class TelegramCheckBox2 @JvmOverloads constructor(
     private fun dp(v: Int): Int = (v * density + 0.5f).toInt()
 
     private var componentSize: Float = 21f // default 21dp like Telegram CheckBox2
-    private var animationDuration: Long = 200L
+    private var animationDuration: Long = com.eve.app.designsystem.TelegramParity.CHECKBOX_ANIMATION_DURATION_MS
     private var drawUnchecked: Boolean = true
     private var backgroundType: Int = 0
     private var forbidden: Boolean = false

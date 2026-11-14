@@ -25,11 +25,11 @@ internal class TelegramRadioIndicator(
     private val extent: Int,
     private val motionEnabled: () -> Boolean
 ) : Drawable() {
-    companion object { const val TRANSITION_MS = 200L }
+    companion object { const val TRANSITION_MS = com.eve.app.designsystem.TelegramParity.RADIO_BUTTON_DURATION_MS }
     private fun dp(value: Int) = kotlin.math.ceil(value * density).toInt()
     private var size = dp(20) // RadioButtonCell's explicit size; preserve EVE's existing outer slot.
     private val ring = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        strokeWidth = dp(2).toFloat()
+        strokeWidth = dp(com.eve.app.designsystem.TelegramParity.RADIO_BUTTON_STROKE_WIDTH_DP).toFloat()
         style = Paint.Style.STROKE
     }
     private val fill = Paint(Paint.ANTI_ALIAS_FLAG)
