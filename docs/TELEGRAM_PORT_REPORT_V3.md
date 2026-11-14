@@ -1,7 +1,7 @@
 # Telegram Android Parity Report (V3)
 
-> Generated on: 2026-11-14T13:57:25.963977+00:00
-> Commit SHA: `954c754fbe0a2a4a67c85bdc4cafa22f1dc0f18a`
+> Generated on: 2026-11-14T14:08:09.391061+00:00
+> Commit SHA: `f17a41cb41ef5dad47889a1dcee42fd4cdefa067`
 > Branch: `main`
 > Latest CI Status: `completed` (failure)
 
@@ -23,13 +23,15 @@
 
 ## 2. Parity Manifest Constants (Phase 1 Single Source of Truth)
 
-Total authoritative constants tracked: **33**
+Total authoritative constants tracked: **50**
 
 | Symbol | Component | Value | Kind | Upstream Telegram Source & Snippet |
 |---|---|---|---|---|
 | `ACTION_BAR_BACK_SIZE_DP` | ActionBar | `54` | dp | org/telegram/ui/ActionBar/ActionBar.java:270<br>`addView(backButtonImageView, LayoutHelper.createFrame(54, 54, Gravity.LEFT | Gravity.TOP));` |
 | `ACTION_BAR_HEIGHT_LANDSCAPE_DP` | ActionBar | `48` | dp | org/telegram/ui/ActionBar/ActionBar.java:1916<br>`return dp(48);` |
 | `ACTION_BAR_HEIGHT_PORTRAIT_DP` | ActionBar | `56` | dp | org/telegram/ui/ActionBar/ActionBar.java:1918<br>`return dp(56);` |
+| `BACK_DRAWABLE_ANIMATION_TIME_MS` | BackDrawable | `300` | ms | org/telegram/ui/ActionBar/BackDrawable.java:39<br>`private float animationTime = 300.0f;` |
+| `BACK_DRAWABLE_STROKE_WIDTH_DP` | BackDrawable | `2` | dp | org/telegram/ui/ActionBar/BackDrawable.java:49<br>`paint.setStrokeWidth(AndroidUtilities.dp(2));` |
 | `BOTTOM_SHEET_DIM_ALPHA` | BottomSheet | `0.2` | alpha | org/telegram/ui/ActionBar/BottomSheet.java:222<br>`protected int dimBehindAlpha = 51;` |
 | `BOTTOM_SHEET_DISMISS_DURATION_MS` | BottomSheet | `320` | ms | org/telegram/ui/ActionBar/BottomSheet.java:510<br>`animator.setDuration(320);` |
 | `BOTTOM_SHEET_DISMISS_FAST_MS` | BottomSheet | `180` | ms | org/telegram/ui/ActionBar/BottomSheet.java:1902<br>`currentSheetAnimation.setDuration(cellType == Builder.CELL_TYPE_CALL ? 330 : 180);` |
@@ -39,6 +41,13 @@ Total authoritative constants tracked: **33**
 | `BUTTON_BOUNCE_OVERSHOOT` | ButtonBounce | `5` | ratio | org/telegram/ui/Components/ButtonBounce.java:20<br>`this(viewToInvalidate, 1f, 5.0f);` |
 | `BUTTON_BOUNCE_PRESS_MS` | ButtonBounce | `60` | ms | org/telegram/ui/Components/ButtonBounce.java:85<br>`animator.setDuration((long) (60 * durationPressMultiplier));` |
 | `BUTTON_BOUNCE_RELEASE_MS` | ButtonBounce | `350` | ms | org/telegram/ui/Components/ButtonBounce.java:89<br>`animator.setDuration((long) (350 * durationReleaseMultiplier));` |
+| `CHECKBOX_ANIMATION_DURATION_MS` | CheckBox2 | `200` | ms | org/telegram/ui/Components/CheckBoxBase.java:278<br>`public long animationDuration = 200;` |
+| `CHECKBOX_DEFAULT_SIZE_DP` | CheckBox | `22` | dp | org/telegram/ui/Components/CheckBox.java:54<br>`private int size = 22;` |
+| `CHECKBOX_PROGRESS_BOUNCE_DIFF` | CheckBox | `0.2` | ratio | org/telegram/ui/Components/CheckBox.java:59<br>`private final static float progressBounceDiff = 0.2f;` |
+| `FLICKER_LOADING_DEFAULT_GRADIENT_WIDTH_DP` | FlickerLoadingView | `200` | dp | org/telegram/ui/Components/FlickerLoadingView.java:964<br>`gradientWidth = dp(200);` |
+| `FLICKER_LOADING_SPEED_DIVISOR` | FlickerLoadingView | `400` | ratio | org/telegram/ui/Components/FlickerLoadingView.java:933<br>`totalTranslation += dt * width / 400.0f;` |
+| `MENU_DRAWABLE_ROTATION_DURATION_MS` | MenuDrawable | `200` | ms | org/telegram/ui/ActionBar/MenuDrawable.java:94<br>`currentAnimationTime = (int) (currentRotation * 200);` |
+| `MENU_DRAWABLE_STROKE_WIDTH_DP` | MenuDrawable | `2` | dp | org/telegram/ui/ActionBar/MenuDrawable.java:67<br>`paint.setStrokeWidth(dp(2));` |
 | `POLL_MAX_ANSWER_LENGTH` | Poll | `100` | ratio | org/telegram/ui/Components/ChatAttachAlertPollLayout.java:192<br>`public static final int MAX_ANSWER_LENGTH = 100;` |
 | `POLL_MAX_OPTIONS_DEFAULT` | Poll | `12` | ratio | org/telegram/messenger/AppGlobalConfig.java:70<br>`public final ConfigInt pollAnswersMax = ofInt("poll_answers_max", 12);` |
 | `POLL_MAX_QUESTION_LENGTH` | Poll | `255` | ratio | org/telegram/ui/Components/ChatAttachAlertPollLayout.java:191<br>`public static final int MAX_QUESTION_LENGTH = 255;` |
@@ -51,6 +60,14 @@ Total authoritative constants tracked: **33**
 | `PROFILE_AVATAR_SIZE_DP` | ProfileGooeyView | `100` | dp | org/telegram/ui/Components/ProfileGooeyView.java:37<br>`private static final float AVATAR_SIZE_DP = 100;` |
 | `PROFILE_BLACK_BAR_DP` | ProfileGooeyView | `32` | dp | org/telegram/ui/Components/ProfileGooeyView.java:38<br>`private static final float BLACK_KING_BAR = 32;` |
 | `PROFILE_GOOEY_INTENSITY` | ProfileGooeyView | `15` | ratio | org/telegram/ui/Components/ProfileGooeyView.java:61<br>`setIntensity(15f);` |
+| `PULL_FOREGROUND_END_PULL_PARALLAX` | PullForegroundDrawable | `0.25` | ratio | org/telegram/ui/Components/PullForegroundDrawable.java:37<br>`public final static float endPullParallax = 0.25f;` |
+| `PULL_FOREGROUND_MIN_PULLING_TIME_MS` | PullForegroundDrawable | `200` | ms | org/telegram/ui/Components/PullForegroundDrawable.java:39<br>`public final static long minPullingTime = 200L;` |
+| `PULL_FOREGROUND_SNAP_HEIGHT` | PullForegroundDrawable | `0.85` | ratio | org/telegram/ui/Components/PullForegroundDrawable.java:35<br>`public final static float SNAP_HEIGHT = 0.85f;` |
+| `PULL_FOREGROUND_START_PULL_OVERSCROLL` | PullForegroundDrawable | `0.2` | ratio | org/telegram/ui/Components/PullForegroundDrawable.java:38<br>`public final static float startPullOverScroll = 0.2f;` |
+| `PULL_FOREGROUND_START_PULL_PARALLAX` | PullForegroundDrawable | `0.45` | ratio | org/telegram/ui/Components/PullForegroundDrawable.java:36<br>`public final static float startPullParallax = 0.45f;` |
+| `RADIO_BUTTON_DURATION_MS` | RadioButton | `200` | ms | org/telegram/ui/Components/RadioButton.java:124<br>`checkAnimator.setDuration(200);` |
+| `RADIO_BUTTON_SIZE_DP` | RadioButton | `16` | dp | org/telegram/ui/Components/RadioButton.java:45<br>`private int size = AndroidUtilities.dp(16);` |
+| `RADIO_BUTTON_STROKE_WIDTH_DP` | RadioButton | `2` | dp | org/telegram/ui/Components/RadioButton.java:51<br>`paint.setStrokeWidth(AndroidUtilities.dp(2));` |
 | `SWITCH_ANIMATION_DURATION_MS` | Switch | `200` | ms | org/telegram/ui/Components/Switch.java:238<br>`checkAnimator.setDuration(200);` |
 | `SWITCH_BACKPLATE_RADIUS_DP` | Switch | `10` | dp | org/telegram/ui/Components/Switch.java:450<br>`canvasToDraw.drawCircle(tx, ty, AndroidUtilities.dpf2(10), paint);` |
 | `SWITCH_RIPPLE_RADIUS_DP` | Switch | `18` | dp | org/telegram/ui/Components/Switch.java:199<br>`rippleDrawable.setRadius(AndroidUtilities.dp(18));` |

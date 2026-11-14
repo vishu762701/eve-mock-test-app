@@ -330,5 +330,184 @@
     "kind": "ratio",
     "value": 12,
     "eve_symbol": "POLL_MAX_OPTIONS_DEFAULT"
+  },
+  {
+    "id": "checkbox_animation_duration_ms",
+    "component": "CheckBox2",
+    "telegram_file": "org/telegram/ui/Components/CheckBoxBase.java",
+    "telegram_line": 278,
+    "telegram_snippet": "public long animationDuration = 200;",
+    "kind": "ms",
+    "value": 200,
+    "eve_symbol": "CHECKBOX_ANIMATION_DURATION_MS"
+  },
+  {
+    "id": "checkbox_default_size_dp",
+    "component": "CheckBox",
+    "telegram_file": "org/telegram/ui/Components/CheckBox.java",
+    "telegram_line": 54,
+    "telegram_snippet": "private int size = 22;",
+    "kind": "dp",
+    "value": 22,
+    "eve_symbol": "CHECKBOX_DEFAULT_SIZE_DP"
+  },
+  {
+    "id": "checkbox_progress_bounce_diff",
+    "component": "CheckBox",
+    "telegram_file": "org/telegram/ui/Components/CheckBox.java",
+    "telegram_line": 59,
+    "telegram_snippet": "private final static float progressBounceDiff = 0.2f;",
+    "pattern": "=\\s*([\\d.]+)",
+    "kind": "ratio",
+    "value": 0.2,
+    "eve_symbol": "CHECKBOX_PROGRESS_BOUNCE_DIFF"
+  },
+  {
+    "id": "radio_button_size_dp",
+    "component": "RadioButton",
+    "telegram_file": "org/telegram/ui/Components/RadioButton.java",
+    "telegram_line": 45,
+    "telegram_snippet": "private int size = AndroidUtilities.dp(16);",
+    "kind": "dp",
+    "value": 16,
+    "eve_symbol": "RADIO_BUTTON_SIZE_DP"
+  },
+  {
+    "id": "radio_button_stroke_width_dp",
+    "component": "RadioButton",
+    "telegram_file": "org/telegram/ui/Components/RadioButton.java",
+    "telegram_line": 51,
+    "telegram_snippet": "paint.setStrokeWidth(AndroidUtilities.dp(2));",
+    "kind": "dp",
+    "value": 2,
+    "eve_symbol": "RADIO_BUTTON_STROKE_WIDTH_DP"
+  },
+  {
+    "id": "radio_button_duration_ms",
+    "component": "RadioButton",
+    "telegram_file": "org/telegram/ui/Components/RadioButton.java",
+    "telegram_line": 124,
+    "telegram_snippet": "checkAnimator.setDuration(200);",
+    "kind": "ms",
+    "value": 200,
+    "eve_symbol": "RADIO_BUTTON_DURATION_MS"
+  },
+  {
+    "id": "back_drawable_animation_time_ms",
+    "component": "BackDrawable",
+    "telegram_file": "org/telegram/ui/ActionBar/BackDrawable.java",
+    "telegram_line": 39,
+    "telegram_snippet": "private float animationTime = 300.0f;",
+    "pattern": "=\\s*([\\d.]+)",
+    "kind": "ms",
+    "value": 300,
+    "eve_symbol": "BACK_DRAWABLE_ANIMATION_TIME_MS"
+  },
+  {
+    "id": "back_drawable_stroke_width_dp",
+    "component": "BackDrawable",
+    "telegram_file": "org/telegram/ui/ActionBar/BackDrawable.java",
+    "telegram_line": 49,
+    "telegram_snippet": "paint.setStrokeWidth(AndroidUtilities.dp(2));",
+    "kind": "dp",
+    "value": 2,
+    "eve_symbol": "BACK_DRAWABLE_STROKE_WIDTH_DP"
+  },
+  {
+    "id": "menu_drawable_stroke_width_dp",
+    "component": "MenuDrawable",
+    "telegram_file": "org/telegram/ui/ActionBar/MenuDrawable.java",
+    "telegram_line": 67,
+    "telegram_snippet": "paint.setStrokeWidth(dp(2));",
+    "kind": "dp",
+    "value": 2,
+    "eve_symbol": "MENU_DRAWABLE_STROKE_WIDTH_DP"
+  },
+  {
+    "id": "menu_drawable_rotation_duration_ms",
+    "component": "MenuDrawable",
+    "telegram_file": "org/telegram/ui/ActionBar/MenuDrawable.java",
+    "telegram_line": 94,
+    "telegram_snippet": "currentAnimationTime = (int) (currentRotation * 200);",
+    "pattern": "\\*\\s*(\\d+)",
+    "kind": "ms",
+    "value": 200,
+    "eve_symbol": "MENU_DRAWABLE_ROTATION_DURATION_MS"
+  },
+  {
+    "id": "pull_foreground_snap_height",
+    "component": "PullForegroundDrawable",
+    "telegram_file": "org/telegram/ui/Components/PullForegroundDrawable.java",
+    "telegram_line": 35,
+    "telegram_snippet": "public final static float SNAP_HEIGHT = 0.85f;",
+    "pattern": "=\\s*([\\d.]+)",
+    "kind": "ratio",
+    "value": 0.85,
+    "eve_symbol": "PULL_FOREGROUND_SNAP_HEIGHT"
+  },
+  {
+    "id": "pull_foreground_start_pull_parallax",
+    "component": "PullForegroundDrawable",
+    "telegram_file": "org/telegram/ui/Components/PullForegroundDrawable.java",
+    "telegram_line": 36,
+    "telegram_snippet": "public final static float startPullParallax = 0.45f;",
+    "pattern": "=\\s*([\\d.]+)",
+    "kind": "ratio",
+    "value": 0.45,
+    "eve_symbol": "PULL_FOREGROUND_START_PULL_PARALLAX"
+  },
+  {
+    "id": "pull_foreground_end_pull_parallax",
+    "component": "PullForegroundDrawable",
+    "telegram_file": "org/telegram/ui/Components/PullForegroundDrawable.java",
+    "telegram_line": 37,
+    "telegram_snippet": "public final static float endPullParallax = 0.25f;",
+    "pattern": "=\\s*([\\d.]+)",
+    "kind": "ratio",
+    "value": 0.25,
+    "eve_symbol": "PULL_FOREGROUND_END_PULL_PARALLAX"
+  },
+  {
+    "id": "pull_foreground_start_pull_overscroll",
+    "component": "PullForegroundDrawable",
+    "telegram_file": "org/telegram/ui/Components/PullForegroundDrawable.java",
+    "telegram_line": 38,
+    "telegram_snippet": "public final static float startPullOverScroll = 0.2f;",
+    "pattern": "=\\s*([\\d.]+)",
+    "kind": "ratio",
+    "value": 0.2,
+    "eve_symbol": "PULL_FOREGROUND_START_PULL_OVERSCROLL"
+  },
+  {
+    "id": "pull_foreground_min_pulling_time_ms",
+    "component": "PullForegroundDrawable",
+    "telegram_file": "org/telegram/ui/Components/PullForegroundDrawable.java",
+    "telegram_line": 39,
+    "telegram_snippet": "public final static long minPullingTime = 200L;",
+    "pattern": "=\\s*(\\d+)",
+    "kind": "ms",
+    "value": 200,
+    "eve_symbol": "PULL_FOREGROUND_MIN_PULLING_TIME_MS"
+  },
+  {
+    "id": "flicker_loading_speed_divisor",
+    "component": "FlickerLoadingView",
+    "telegram_file": "org/telegram/ui/Components/FlickerLoadingView.java",
+    "telegram_line": 933,
+    "telegram_snippet": "totalTranslation += dt * width / 400.0f;",
+    "pattern": "/\\s*([\\d.]+)",
+    "kind": "ratio",
+    "value": 400,
+    "eve_symbol": "FLICKER_LOADING_SPEED_DIVISOR"
+  },
+  {
+    "id": "flicker_loading_default_gradient_width_dp",
+    "component": "FlickerLoadingView",
+    "telegram_file": "org/telegram/ui/Components/FlickerLoadingView.java",
+    "telegram_line": 964,
+    "telegram_snippet": "gradientWidth = dp(200);",
+    "kind": "dp",
+    "value": 200,
+    "eve_symbol": "FLICKER_LOADING_DEFAULT_GRADIENT_WIDTH_DP"
   }
 ]

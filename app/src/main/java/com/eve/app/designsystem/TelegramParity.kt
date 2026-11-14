@@ -15,6 +15,12 @@ object TelegramParity {
     // Telegram: org/telegram/ui/ActionBar/ActionBar.java:1918 -> `return dp(56);`
     const val ACTION_BAR_HEIGHT_PORTRAIT_DP: Int = 56
 
+    // Telegram: org/telegram/ui/ActionBar/BackDrawable.java:39 -> `private float animationTime = 300.0f;`
+    const val BACK_DRAWABLE_ANIMATION_TIME_MS: Long = 300L
+
+    // Telegram: org/telegram/ui/ActionBar/BackDrawable.java:49 -> `paint.setStrokeWidth(AndroidUtilities.dp(2));`
+    const val BACK_DRAWABLE_STROKE_WIDTH_DP: Int = 2
+
     // Telegram: org/telegram/ui/ActionBar/BottomSheet.java:222 -> `protected int dimBehindAlpha = 51;`
     const val BOTTOM_SHEET_DIM_ALPHA: Float = 0.2f
 
@@ -41,6 +47,27 @@ object TelegramParity {
 
     // Telegram: org/telegram/ui/Components/ButtonBounce.java:89 -> `animator.setDuration((long) (350 * durationReleaseMultiplier));`
     const val BUTTON_BOUNCE_RELEASE_MS: Long = 350L
+
+    // Telegram: org/telegram/ui/Components/CheckBoxBase.java:278 -> `public long animationDuration = 200;`
+    const val CHECKBOX_ANIMATION_DURATION_MS: Long = 200L
+
+    // Telegram: org/telegram/ui/Components/CheckBox.java:54 -> `private int size = 22;`
+    const val CHECKBOX_DEFAULT_SIZE_DP: Int = 22
+
+    // Telegram: org/telegram/ui/Components/CheckBox.java:59 -> `private final static float progressBounceDiff = 0.2f;`
+    const val CHECKBOX_PROGRESS_BOUNCE_DIFF: Float = 0.2f
+
+    // Telegram: org/telegram/ui/Components/FlickerLoadingView.java:964 -> `gradientWidth = dp(200);`
+    const val FLICKER_LOADING_DEFAULT_GRADIENT_WIDTH_DP: Int = 200
+
+    // Telegram: org/telegram/ui/Components/FlickerLoadingView.java:933 -> `totalTranslation += dt * width / 400.0f;`
+    const val FLICKER_LOADING_SPEED_DIVISOR: Int = 400
+
+    // Telegram: org/telegram/ui/ActionBar/MenuDrawable.java:94 -> `currentAnimationTime = (int) (currentRotation * 200);`
+    const val MENU_DRAWABLE_ROTATION_DURATION_MS: Long = 200L
+
+    // Telegram: org/telegram/ui/ActionBar/MenuDrawable.java:67 -> `paint.setStrokeWidth(dp(2));`
+    const val MENU_DRAWABLE_STROKE_WIDTH_DP: Int = 2
 
     // Telegram: org/telegram/ui/Components/ChatAttachAlertPollLayout.java:192 -> `public static final int MAX_ANSWER_LENGTH = 100;`
     const val POLL_MAX_ANSWER_LENGTH: Int = 100
@@ -77,6 +104,30 @@ object TelegramParity {
 
     // Telegram: org/telegram/ui/Components/ProfileGooeyView.java:61 -> `setIntensity(15f);`
     const val PROFILE_GOOEY_INTENSITY: Int = 15
+
+    // Telegram: org/telegram/ui/Components/PullForegroundDrawable.java:37 -> `public final static float endPullParallax = 0.25f;`
+    const val PULL_FOREGROUND_END_PULL_PARALLAX: Float = 0.25f
+
+    // Telegram: org/telegram/ui/Components/PullForegroundDrawable.java:39 -> `public final static long minPullingTime = 200L;`
+    const val PULL_FOREGROUND_MIN_PULLING_TIME_MS: Long = 200L
+
+    // Telegram: org/telegram/ui/Components/PullForegroundDrawable.java:35 -> `public final static float SNAP_HEIGHT = 0.85f;`
+    const val PULL_FOREGROUND_SNAP_HEIGHT: Float = 0.85f
+
+    // Telegram: org/telegram/ui/Components/PullForegroundDrawable.java:38 -> `public final static float startPullOverScroll = 0.2f;`
+    const val PULL_FOREGROUND_START_PULL_OVERSCROLL: Float = 0.2f
+
+    // Telegram: org/telegram/ui/Components/PullForegroundDrawable.java:36 -> `public final static float startPullParallax = 0.45f;`
+    const val PULL_FOREGROUND_START_PULL_PARALLAX: Float = 0.45f
+
+    // Telegram: org/telegram/ui/Components/RadioButton.java:124 -> `checkAnimator.setDuration(200);`
+    const val RADIO_BUTTON_DURATION_MS: Long = 200L
+
+    // Telegram: org/telegram/ui/Components/RadioButton.java:45 -> `private int size = AndroidUtilities.dp(16);`
+    const val RADIO_BUTTON_SIZE_DP: Int = 16
+
+    // Telegram: org/telegram/ui/Components/RadioButton.java:51 -> `paint.setStrokeWidth(AndroidUtilities.dp(2));`
+    const val RADIO_BUTTON_STROKE_WIDTH_DP: Int = 2
 
     // Telegram: org/telegram/ui/Components/Switch.java:238 -> `checkAnimator.setDuration(200);`
     const val SWITCH_ANIMATION_DURATION_MS: Long = 200L
