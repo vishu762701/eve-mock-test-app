@@ -80,7 +80,7 @@
 
             <ImageButton
                 android:id="@+id/btnProfileMenu"
-                android:layout_width="48dp"
+                android:layout_width="@dimen/design_touch_min"
                 android:layout_height="match_parent"
                 android:background="@drawable/telegram_action_icon_ripple"
                 android:contentDescription="Profile options"

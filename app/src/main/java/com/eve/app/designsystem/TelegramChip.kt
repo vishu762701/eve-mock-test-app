@@ -45,6 +45,7 @@ open class TelegramChip @JvmOverloads constructor(
 
     private var scaleProgress: Float = 1.0f
     private var pressAnimator: ValueAnimator? = null
+    private var isReady: Boolean = false
 
     init {
         gravity = Gravity.CENTER
@@ -78,6 +79,7 @@ open class TelegramChip @JvmOverloads constructor(
             baseText = initialText
         }
 
+        isReady = true
         updateAppearance()
     }
 
@@ -115,7 +117,9 @@ open class TelegramChip @JvmOverloads constructor(
 
     override fun setChecked(checked: Boolean) {
         super.setChecked(checked)
-        updateAppearance()
+        if (isReady) {
+            updateAppearance()
+        }
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -141,6 +145,7 @@ open class TelegramChip @JvmOverloads constructor(
     }
 
     fun updateAppearance() {
+        if (!isReady) return
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
 
         if (isChecked) {
