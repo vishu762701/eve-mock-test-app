@@ -482,7 +482,7 @@ class ProfileActivity : EveBaseActivity() {
             editPhoneLauncher.launch(intent)
         }
         binding.cellMobile.setOnLongClickListener {
-            val phone = currentPhone.ifBlank { binding.tvMobile.text.toString() }
+            val phone = currentPhone.ifBlank { binding.tvMobileValue.text.toString() }
             if (phone.isNotBlank()) {
                 TelegramPopupMenu(this)
                     .addItem(1, getString(R.string.copy_phone), R.drawable.ic_copy) {
@@ -503,7 +503,7 @@ class ProfileActivity : EveBaseActivity() {
             editUsernameLauncher.launch(intent)
         }
         binding.cellUsername.setOnLongClickListener {
-            val uname = currentUsername.ifBlank { binding.tvUsername.text.toString().removePrefix("@") }
+            val uname = currentUsername.ifBlank { binding.tvUsernameValue.text.toString().removePrefix("@") }
             if (uname.isNotBlank()) {
                 TelegramPopupMenu(this)
                     .addItem(1, getString(R.string.copy_username), R.drawable.ic_copy) {
@@ -522,7 +522,7 @@ class ProfileActivity : EveBaseActivity() {
             showBirthdayPicker(currentDob)
         }
         binding.cellBirthday.setOnLongClickListener {
-            val dob = currentDob.ifBlank { binding.tvBirthday.text.toString() }
+            val dob = currentDob.ifBlank { binding.tvBirthdayValue.text.toString() }
             if (dob.isNotBlank() && dob != "—") {
                 TelegramPopupMenu(this)
                     .addItem(1, getString(R.string.copy_birthday), R.drawable.ic_copy) {
