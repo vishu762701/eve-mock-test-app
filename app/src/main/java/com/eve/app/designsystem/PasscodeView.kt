@@ -263,7 +263,7 @@ class PasscodeView @JvmOverloads constructor(
             -1 -> {
                 // Fingerprint button
                 val iv = ImageView(context).apply {
-                    setImageResource(R.drawable.ic_profile_photo)
+                    setImageResource(R.drawable.ic_fingerprint)
                     setColorFilter(palette.textPrimary)
                 }
                 frame.addView(iv, LayoutParams(dp(28f), dp(28f), Gravity.CENTER))

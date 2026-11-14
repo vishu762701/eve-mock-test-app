@@ -22,8 +22,8 @@ import com.eve.app.designsystem.TextCheckCell
 import com.eve.app.designsystem.TextDetailCell
 import com.eve.app.designsystem.TextInfoPrivacyCell
 import com.eve.app.theme.TelegramThemeEngine
-import com.eve.app.ui.common.AppBulletin
 import com.eve.app.ui.common.EveBaseActivity
+import com.eve.app.util.AppBulletin
 import com.eve.app.util.PasscodeManager
 
 /**
@@ -101,7 +101,7 @@ class PasscodeActivity : EveBaseActivity() {
 
         // Section 1: Main Lock Toggle & Change
         val cellLockToggle = TextCheckCell(this).apply {
-            setTextAndCheck("Passcode Lock", isChecked = true, needDivider = true)
+            setTextAndCheck("Passcode Lock", checked = true, needDivider = true)
             setOnClickListener {
                 promptDisablePasscode()
             }
@@ -124,7 +124,7 @@ class PasscodeActivity : EveBaseActivity() {
         val cellFingerprint = TextCheckCell(this).apply {
             setTextAndCheck(
                 "Unlock with Fingerprint",
-                isChecked = PasscodeManager.isFingerprintEnabled(this@PasscodeActivity),
+                checked = PasscodeManager.isFingerprintEnabled(this@PasscodeActivity),
                 needDivider = true
             )
             setOnClickListener {
