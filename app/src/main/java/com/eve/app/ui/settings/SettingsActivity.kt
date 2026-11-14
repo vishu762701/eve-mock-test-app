@@ -116,11 +116,15 @@ class SettingsActivity : EveBaseActivity() {
         listOf(
             binding.rowAppearance, binding.rowAbout, binding.rowLogout,
             binding.rowDailyGoal, binding.rowTargetExams, binding.rowLanguage,
-            binding.rowReminder, binding.rowDeleteAccount
+            binding.rowReminder, binding.rowDeleteAccount, binding.rowPasscode
         ).forEach { com.eve.app.designsystem.DesignPress.bind(it) }
 
         binding.rowAppearance.setOnClickListener {
             startActivity(Intent(this, AppearanceActivity::class.java))
+        }
+
+        binding.rowPasscode.setOnClickListener {
+            startActivity(Intent(this, PasscodeActivity::class.java))
         }
 
         binding.rowAbout.setOnClickListener {
@@ -157,6 +161,7 @@ class SettingsActivity : EveBaseActivity() {
         super.onResume()
         if (!hasSettingsOwner() && !deletingFirebaseCredential) finish()
         refreshLanguageText()
+        binding.tvPasscodeValue.text = if (com.eve.app.util.PasscodeManager.isPasscodeEnabled(this)) "On" else "Off"
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

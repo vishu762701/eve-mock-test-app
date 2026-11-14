@@ -306,3 +306,17 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | Style tokens Material3 purge | `A0 / A4 Audit` | `Widget.Eve.Token.Chip` inheriting from `Widget.Material3.Chip.Assist`, `Widget.Eve.Token.SegmentedTabs` from `Widget.Material3.TabLayout` | Unparented `Widget.Eve.Token.Chip` (`parent=""`), unparented Material3 from `Widget.Eve.Token.SegmentedTabs` (`parent="Widget.Design.TabLayout"`) |
 Leftovers / ASSUMED values: None
 
+## C4 Passcode / app lock - DONE
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| Passcode Keypad View | `PasscodeView.java:800-959` (3x4 grid, 70dp circular buttons, 14dp spacing, 26sp numbers, 9sp letters) | No passcode lock | `PasscodeView.kt` with exact 70dp circular keys, letters (ABC..WXYZ), touch scale 0.92, backspace long-click clear |
+| PIN dots geometry & feedback | `PasscodeView.java:630-660` (4 14dp circular dots, 16dp gap, spring shake on error) | None | 4 14dp dots with 16dp spacing, filled accent on input, `TelegramShake.shakeViewSpring` + error haptic on mismatch |
+| Biometric unlock prompt | `PasscodeView.java:823-828`, `BiometricPrompt` | None | BiometricPrompt integration with Telegram fingerprint icon button |
+| Passcode Settings & Setup | `PasscodeActivity.java:1-850` (Passcode Lock toggle, Change Passcode, Unlock with Fingerprint, Auto-lock timeout) | None | `PasscodeActivity.kt` supporting setup mode (entry + confirmation) and settings mode with Telegram cells |
+| Auto-lock timer logic | `SharedConfig.java:autoLockIn` (disabled, 1 min, 5 min, 1 hr, 5 hr) | None | `PasscodeManager.kt` auto-lock tracking with SHA-256 salted hash storage in private SharedPreferences |
+| Top bar lock icon & action | `DialogsActivity.java` (lock icon in action bar when passcode enabled) | None | Top bar lock icon button (`@drawable/ic_lock`), instant lock on tap, auto-lock on timeout in `MainActivity.kt` |
+| Settings entry | `SettingsActivity.java:Privacy and Security` | No passcode entry | "Privacy and Security" section with "Passcode Lock" row (`rowPasscode`) in `SettingsActivity` |
+Leftovers / ASSUMED values: None
+
+

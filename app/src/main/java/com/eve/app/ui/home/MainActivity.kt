@@ -519,7 +519,9 @@ class MainActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
+        com.eve.app.util.PasscodeManager.onAppResumed(this)
         if (!::binding.isInitialized) return
+        checkPasscodeLock()
         // A retained Home task must not adopt a different signed-in account.
         if (!searchOwnerCurrent) { finish(); return }
         // Lifecycle can still report STARTED inside onResume. Run after the
@@ -576,6 +578,7 @@ class MainActivity : EveBaseActivity() {
     }
 
     override fun onPause() {
+        com.eve.app.util.PasscodeManager.onAppPaused(this)
         configCheckGeneration++
         configCheckJob?.cancel()
         configCheckJob = null
@@ -593,6 +596,48 @@ class MainActivity : EveBaseActivity() {
             if (binding.cardFloatingAirplane.visibility == View.VISIBLE) {
                 binding.lottieFloatingAirplane.pauseAnimation()
             }
+        }
+    }
+
+    private var passcodeLockDialog: android.app.Dialog? = null
+
+    private fun checkPasscodeLock() {
+        if (!com.eve.app.util.PasscodeManager.isPasscodeEnabled(this)) {
+            binding.btnLockApp.visibility = View.GONE
+            passcodeLockDialog?.dismiss()
+            passcodeLockDialog = null
+            return
+        }
+        binding.btnLockApp.visibility = View.VISIBLE
+        binding.btnLockApp.setOnClickListener {
+            com.eve.app.util.PasscodeManager.lock(this)
+            showPasscodeLockDialog()
+        }
+        if (com.eve.app.util.PasscodeManager.isLocked(this) && (passcodeLockDialog == null || passcodeLockDialog?.isShowing == false)) {
+            showPasscodeLockDialog()
+        }
+    }
+
+    private fun showPasscodeLockDialog() {
+        if (isFinishing || isDestroyed) return
+        passcodeLockDialog?.dismiss()
+        val passcodeView = com.eve.app.designsystem.PasscodeView(this).apply {
+            layoutParams = android.widget.FrameLayout.LayoutParams(
+                android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
+                android.widget.FrameLayout.LayoutParams.MATCH_PARENT
+            )
+            titleTextView.text = "Eve is Locked"
+            subtitleTextView.text = "Enter passcode to continue"
+            onSuccess = {
+                passcodeLockDialog?.dismiss()
+                passcodeLockDialog = null
+            }
+        }
+        passcodeLockDialog = android.app.Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen).apply {
+            setContentView(passcodeView)
+            setCancelable(false)
+            setCanceledOnTouchOutside(false)
+            show()
         }
     }
 
@@ -1139,6 +1184,8 @@ class MainActivity : EveBaseActivity() {
         FirebaseAuth.getInstance().removeAuthStateListener(homeAuthListener)
         pinPopupMenu?.dismiss()
         pinPopupMenu = null
+        passcodeLockDialog?.dismiss()
+        passcodeLockDialog = null
         homeOverflowPopup?.dismissForHostTeardown()
         homeOverflowPopup = null
         logoutConfirmation?.dismiss()
@@ -2002,6 +2049,8 @@ class MainActivity : EveBaseActivity() {
         targetExamsDialog = null
         pinPopupMenu?.dismiss()
         pinPopupMenu = null
+        passcodeLockDialog?.dismiss()
+        passcodeLockDialog = null
         homeOverflowPopup?.dismissForHostTeardown()
         homeOverflowPopup = null
         TelegramThemeEngine.removeThemeChangeListener(categoryPaletteListener)
