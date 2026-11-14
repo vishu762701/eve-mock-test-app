@@ -22,7 +22,17 @@ Audit Scope: Full repository inspection across all GitHub Actions workflows and 
 
 Out of the last 30 workflow runs across the repository, the failures have been isolated to their exact job, step, log trace, and architectural root cause:
 
-### Run 1: 43612934987
+### Run 1: 43616528697
+- **Workflow**: `build.yml` (Manual FULL `workflow_dispatch`)
+- **Commit**: `ebd134c0` (fix(ui): eliminate dialog clipping, align category pill text colors, and pad target exams bottom sheet)
+- **Failed Job**: `Native UI (gesture)` and `Native UI (three-button)`
+- **Failed Step**: `Verify approved native UI behavior` (Step 6)
+- **Exact Error**:
+  - `ManualUiSpecificationTest.kt:210`: `java.lang.AssertionError: Chip must fit the locked screen margins at 320/1.0` (single failure out of 135 tests; all other 134 tests passed).
+- **Root Cause**: `TelegramChip` did not clamp its width to `screenWidth - 2 * design_screen_margin` when measuring long accessible label text in a 320dp screen width configuration.
+- **Resolution**: Added `maxWidth` constraint and `onMeasure` width bounding against screen width minus screen margins in `TelegramChip.kt` and `EveDesignSystem.createCategoryChip`.
+
+### Run 2: 43612934987
 - **Workflow**: `build.yml` (Manual FULL `workflow_dispatch`)
 - **Commit**: `07828644` (fix(ui): reconcile component contracts for RadioButton, TelegramChip, BottomSheet and AlertDialog)
 - **Failed Job**: `Native UI (gesture)` and `Native UI (three-button)`

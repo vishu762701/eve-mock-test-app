@@ -73,6 +73,15 @@ open class TelegramChip @JvmOverloads constructor(
         isFocusable = true
         isClickable = true
         isCheckable = true
+        ellipsize = android.text.TextUtils.TruncateAt.END
+
+        val density = resources.displayMetrics.density
+        val screenWidthPx = Math.round(resources.configuration.screenWidthDp * density)
+        val margin = resources.getDimensionPixelSize(R.dimen.design_screen_margin)
+        val maxAllowed = (screenWidthPx - 2 * margin).coerceAtLeast(0)
+        if (maxAllowed > 0) {
+            maxWidth = maxAllowed
+        }
 
         val initialText = text
         if (!initialText.isNullOrEmpty()) {
@@ -119,6 +128,27 @@ open class TelegramChip @JvmOverloads constructor(
         super.setChecked(checked)
         if (isReady) {
             updateAppearance()
+        }
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val density = resources.displayMetrics.density
+        val screenWidthPx = Math.round(resources.configuration.screenWidthDp * density)
+        val margin = resources.getDimensionPixelSize(R.dimen.design_screen_margin)
+        val maxAllowedWidth = (screenWidthPx - 2 * margin).coerceAtLeast(0)
+        if (maxAllowedWidth > 0 && maxWidth != maxAllowedWidth) {
+            maxWidth = maxAllowedWidth
+        }
+        val widthMode = MeasureSpec.getMode(widthMeasureSpec)
+        val widthSize = MeasureSpec.getSize(widthMeasureSpec)
+        val newWidthSpec = if (maxAllowedWidth > 0 && (widthMode == MeasureSpec.UNSPECIFIED || widthSize > maxAllowedWidth)) {
+            MeasureSpec.makeMeasureSpec(maxAllowedWidth, MeasureSpec.AT_MOST)
+        } else {
+            widthMeasureSpec
+        }
+        super.onMeasure(newWidthSpec, heightMeasureSpec)
+        if (maxAllowedWidth > 0 && measuredWidth > maxAllowedWidth) {
+            setMeasuredDimension(maxAllowedWidth, measuredHeight)
         }
     }
 

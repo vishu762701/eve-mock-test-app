@@ -80,6 +80,14 @@ object EveDesignSystem {
             onSelect: () -> Unit
         ): TelegramChip = TelegramChip(context).apply {
             text = category
+            val density = resources.displayMetrics.density
+            val screenWidthPx = Math.round(resources.configuration.screenWidthDp * density)
+            val margin = resources.getDimensionPixelSize(R.dimen.design_screen_margin)
+            val maxAllowed = (screenWidthPx - 2 * margin).coerceAtLeast(0)
+            if (maxAllowed > 0) {
+                maxWidth = maxAllowed
+            }
+            ellipsize = android.text.TextUtils.TruncateAt.END
             if (count > 0) setBadgeCount(count)
             isCheckable = true
             isChecked = isSelected
