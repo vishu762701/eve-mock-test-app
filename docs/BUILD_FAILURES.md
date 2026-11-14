@@ -22,7 +22,23 @@ Audit Scope: Full repository inspection across all GitHub Actions workflows and 
 
 Out of the last 30 workflow runs across the repository, the failures have been isolated to their exact job, step, log trace, and architectural root cause:
 
-### Run 1: 43619989561
+### Run 1: 43623278083
+- **Workflow**: `build.yml` (Manual FULL `workflow_dispatch`)
+- **Commit**: `6ba4ce24` (fix(theme): configure materialSwitchStyle to remove decorative track outline)
+- **Failed Job**: `Native UI (gesture)` and `Native UI (three-button)`
+- **Failed Step**: `Verify approved native UI behavior` (Step 6)
+- **Exact Error**:
+  - `StudentUiRenderingTest.kt:133`:
+    - `Readable text height: result 320/1.5 / Test Result`: At 320dp width and 1.5x font scale, navigation title wrapped to 2 lines without singleLine/maxLines, exceeding action bar height bounds.
+    - `Text contrast profile 360/1.0 / Premium Active: 1.0`: `chipPremium` in `activity_profile.xml` was inflated as `TextView` instead of `Chip`, rendering with transparent background and dropping contrast to 1.0 against `bg_app`.
+- **Root Cause**:
+  1. `activity_result.xml`'s `tvResultTitle` lacked `android:maxLines="1"` and `android:singleLine="true"`.
+  2. `activity_profile.xml`'s `chipAdmin` and `chipPremium` were converted from `Chip` to `TextView`, losing Material Chip background styling.
+- **Resolution**:
+  1. Added `android:maxLines="1"`, `android:singleLine="true"`, and `android:ellipsize="end"` to `tvResultTitle` in `activity_result.xml`.
+  2. Restored `chipAdmin` and `chipPremium` to `com.google.android.material.chip.Chip` in `activity_profile.xml`.
+
+### Run 2: 43619989561
 - **Workflow**: `build.yml` (Manual FULL `workflow_dispatch`)
 - **Commit**: `9cbb0194` (fix(ui): bound TelegramChip maximum width to screen margins in compact layouts)
 - **Failed Job**: `Native UI (gesture)` and `Native UI (three-button)`

@@ -173,31 +173,29 @@
                 android:layout_marginTop="2dp"
                 tools:text="Student" />
 
-            <TextView
+            <com.google.android.material.chip.Chip
                 android:id="@+id/chipAdmin"
                 style="@style/Widget.Eve.Token.Chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="4dp"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="4dp"
                 android:clickable="false"
                 android:text="Admin"
                 android:visibility="gone" />
 
-            <TextView
+            <com.google.android.material.chip.Chip
                 android:id="@+id/chipPremium"
                 style="@style/Widget.Eve.Token.Chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="4dp"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="4dp"
                 android:clickable="true"
                 android:text="Premium Active"
-                android:visibility="gone" />
+                android:visibility="gone"
+                app:chipIcon="@drawable/ic_star_filled"
+                app:chipIconTint="@color/design_role_premium_text" />
 
             <!-- Telegram MODE_MY_PROFILE Canvas renderer + native hit/a11y adapters.
                  Source map: docs/EVE_PROFILE_ACTIONS_GEOMETRY_PROVENANCE.md.
