@@ -22,6 +22,11 @@ import com.eve.app.theme.TelegramThemeEngine
  * Distribution still requires dependency compatibility and corresponding-source
  * review; see THIRD_PARTY_NOTICES.md and docs/telegram-release-compliance-gate.md.
  */
+/**
+ * Typealias for Telegram RadialProgressView canonical naming.
+ */
+typealias RadialProgressView = TelegramRadialProgressView
+
 class TelegramRadialProgressView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,

@@ -29,6 +29,11 @@ import com.eve.app.theme.TelegramThemeEngine
  * - Colors: Light base #FFFFFFFF / highlight #0F000000; Dark base #FF282829 / highlight #0DFFFFFF.
  * - Placeholder geometry is derived from authentic EVE row layouts (item_exam, item_exam_test, item_history).
  */
+/**
+ * Typealias for Telegram FlickerLoadingView canonical naming.
+ */
+typealias FlickerLoadingView = TelegramFlickerSkeletonView
+
 class TelegramFlickerSkeletonView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,

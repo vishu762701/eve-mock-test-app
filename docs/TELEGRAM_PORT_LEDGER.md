@@ -72,7 +72,7 @@ Notes / leftovers:
 - Removed unused Snackbar import in `SyllabusActivity`.
 - Aligned `CircularCountdownView` and `layout_undo_bar.xml` to Telegram's authentic 18dp ring and 10dp card radius.
 
-## F5 List cells, headers, dividers, section backgrounds - PENDING_CI
+## F5 List cells, headers, dividers, section backgrounds - DONE (commit dac538a8)
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | TextCell min height | `TextCell.java:64, 186` (50dp, 71dp for multiline) | Fixed 50dp | 50dp min height, 71dp for multiline/subtitle |
@@ -90,3 +90,17 @@ Notes / leftovers:
 - Aligned `TextCell` to 71dp multiline and 21dp hairline inset.
 - Aligned `TextInfoPrivacyCell` sides padding to 21dp.
 - Added `DividerCell` palette updates to `TelegramThemeApplier`.
+
+## F6 Loading skeletons - PENDING_CI
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| RadialProgressView size & stroke | `RadialProgressView.java:62, 70` (40dp size, 3dp stroke) | 40dp size, 3dp stroke | 40dp size, 3dp stroke (`TelegramRadialProgressView`) |
+| RadialProgressView animation | `RadialProgressView.java:125-177` (2000ms rotation, 500ms rising, 17ms dt clamp) | 2000ms rot, 500ms rising | 2000ms rot, 500ms rising, 17ms dt clamp (`TelegramRadialProgressView`) |
+| FlickerLoadingView gradient stops | `FlickerLoadingView.java:158` ([0.0, 0.4, 0.6, 1.0], CLAMP, 600dp width) | [0.0, 0.4, 0.6, 1.0], 600dp | [0.0, 0.4, 0.6, 1.0], 600dp gradient width (`TelegramFlickerSkeletonView`) |
+| FlickerLoadingView delta motion | `FlickerLoadingView.java:172` (>17ms clamp to 16ms, <4ms to 0, deltaTime*height/400f) | Exact Telegram delta logic | Exact delta clamp + wrapping at 2x height to -2x gradientWidth |
+| Zero stock indeterminate ProgressBar | Indeterminate spinners deprecated | 2 unused imports in adapters/activity | 0 unused imports; 100% indeterminate loading uses `TelegramRadialProgressView` |
+
+Notes / leftovers:
+- Added `typealias RadialProgressView = TelegramRadialProgressView` and `typealias FlickerLoadingView = TelegramFlickerSkeletonView`.
+- Removed unused `ProgressBar` imports in `MainActivity.kt` and `PollsAdminAdapter.kt`.
+- Verified all indeterminate loading across Eve screens uses `TelegramRadialProgressView`.

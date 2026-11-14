@@ -69,7 +69,6 @@ import com.eve.app.ui.syllabus.SyllabusActivity
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.data.model.Poll
 import com.eve.app.data.repository.PollRepository
-import android.widget.ProgressBar
 import android.widget.TextView
 import com.eve.app.BuildConfig
 import com.eve.app.util.AppConfigManager
