@@ -23,6 +23,7 @@ import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import com.eve.app.designsystem.TelegramBottomSheet
+import com.eve.app.designsystem.TelegramShareAlert
 import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -445,34 +446,17 @@ open class UsernameCardActivity : EveBaseActivity() {
 
     private fun shareImage() {
         if (qrClosing || isFinishing || isDestroyed) return
-        val image = scene.renderShareImage() ?: run {
-            if (!qrClosing && !isFinishing && !isDestroyed) {
-                AppBulletin.showError(this, "QR image is not ready")
-            }
-            return
-        }
-        try {
-            val dir = File(cacheDir, "qr").apply { mkdirs() }
-            val file = File(dir, "eve-username-qr.png")
-            file.outputStream().use { out ->
-                check(image.compress(Bitmap.CompressFormat.PNG, 100, out))
-            }
-            if (qrClosing || isFinishing || isDestroyed) return
-            val uri = FileProvider.getUriForFile(this, packageName + ".fileprovider", file)
-            val send = Intent(Intent.ACTION_SEND).apply {
-                type = "image/png"
-                putExtra(Intent.EXTRA_STREAM, uri)
-                clipData = ClipData.newUri(contentResolver, "EVE QR image", uri)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            }
-            startActivity(Intent.createChooser(send, "Share EVE QR"))
-        } catch (_: Exception) {
-            if (!qrClosing && !isFinishing && !isDestroyed) {
-                AppBulletin.showError(this, "Couldn't share QR image")
-            }
-        } finally {
-            image.recycle()
-        }
+        val image = scene.renderShareImage()
+        val shareMessage = "Scan this QR code to view my profile on EVE: $qrLink"
+
+        TelegramShareAlert.show(
+            context = this,
+            title = "@$username",
+            subtitle = "Public EVE Username QR",
+            shareText = shareMessage,
+            shareUrl = qrLink,
+            previewBitmap = image
+        )
     }
 
     private fun applyQrSystemBars() {

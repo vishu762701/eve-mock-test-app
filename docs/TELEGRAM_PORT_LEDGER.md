@@ -332,7 +332,7 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | Settings entry | `SettingsActivity.java:rowStorage` (`IconBackgroundColors.GREEN`, pie-chart storage vector icon) | No data/storage row | Added "Data and Storage" (`rowStorage`) with green chip, `ic_storage` vector, and dynamic cache size indicator |
 Leftovers / ASSUMED values: None
 
-## C6 Theme screen (`ThemeActivity` with accent color picker) - DONE
+## C6 Theme screen (`ThemeActivity` with accent color picker) - DONE (commit 7090a22e, CI 43560628507)
 Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
@@ -343,6 +343,19 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | Material controls purge | `A0 / ENGINEERING_STANDARD.md` | `MaterialButton` in `activity_appearance.xml` | Replaced all `MaterialButton` controls with `AppCompatButton` and purged unused `MaterialCardView` |
 | Accent color circles | `ThemeActivity.java:accent` (Telegram circular color swatches with white checkmark) | Color circles | Telegram accent color picker row with white checkmark and preview synchronization |
 Leftovers / ASSUMED values: None
+
+## C7 Share sheet (`ShareAlert`) - DONE
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| Share sheet BottomSheet | `ShareAlert.java:1-850` (Telegram bottom sheet, 400ms `EASE_OUT_QUINT` open, rounded corners) | Android system chooser only | `TelegramShareAlert.kt` extending `TelegramBottomSheet` with preview card, circular destination buttons, and comment input |
+| Preview Card | `ShareAlert.java:createShareAlert` (message/link preview with rounded corners) | None | Embedded preview card showing title, subtitle metrics (score/accuracy/rank), and optional thumbnail bitmap |
+| Circular destination buttons | `ShareAlert.java:SwitchView` (52dp circular action buttons) | Standard list / grid | 52dp circular action buttons with authentic Telegram icons: Copy Link (`#229AF0`), Telegram (`#229AF0`), WhatsApp (`#25D366`), More/System |
+| Comment input & Share button | `ShareAlert.java:commentInput` | None | Rounded input field for custom message and 48dp Telegram primary action button |
+| Result sharing integration | `ResultActivity.java` | Direct intent chooser | `ResultActivity.kt` wired to `TelegramShareAlert` with test score, accuracy, and rank details |
+| Profile & QR sharing integration | `UsernameCardActivity.java` | Direct image file chooser | `UsernameCardActivity.kt` wired to `TelegramShareAlert` with username link and rendered QR thumbnail |
+Leftovers / ASSUMED values: None
+
 
 
 

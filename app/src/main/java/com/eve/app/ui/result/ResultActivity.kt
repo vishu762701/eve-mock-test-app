@@ -297,16 +297,14 @@ class ResultActivity : EveBaseActivity() {
             val scoreStr = if (currentScore % 1.0 == 0.0) currentScore.toInt().toString() else String.format(java.util.Locale.US, "%.2f", currentScore)
             val scorePctStr = String.format(java.util.Locale.US, "%.1f%% Score", scorePct)
             val rankText = binding.tvRank.text.toString()
-            ShareCardHelper.generateAndShare(
+            val examTitle = if (currentExamName.isNotBlank()) currentExamName else "Mock Test"
+            val shareSummary = "I scored $scoreStr / $total ($scorePctStr) on $examTitle with $accFormatted% accuracy! $rankText via EVE."
+
+            com.eve.app.designsystem.TelegramShareAlert.show(
                 context = this,
-                examName = if (currentExamName.isNotBlank()) currentExamName else "Mock Test",
-                scoreText = "$scoreStr / $total",
-                percentageText = scorePctStr,
-                accuracyText = "$accFormatted%",
-                rankText = rankText,
-                correctCount = correct,
-                wrongCount = wrong,
-                skippedCount = unattempted
+                title = examTitle,
+                subtitle = "Score: $scoreStr/$total ($scorePctStr) • $accFormatted% Accuracy",
+                shareText = shareSummary
             )
         }
 
