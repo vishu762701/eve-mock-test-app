@@ -119,16 +119,8 @@ open class TextCheckCell @JvmOverloads constructor(
         }
     }
 
-    var isChecked: Boolean
-        get() = checkBox.isChecked
-        set(value) {
-            checkBox.isChecked = value
-        }
-
-    fun isChecked(): Boolean = checkBox.isChecked
-
     fun setChecked(checked: Boolean) {
-        checkBox.isChecked = checked
+        this.isChecked = checked
     }
 
     override fun setEnabled(enabled: Boolean) {

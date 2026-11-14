@@ -144,7 +144,7 @@ object EveDesignSystem {
                     )
                 )
             )
-            button.strokeWidth = 0
+            (button as? MaterialButton)?.strokeWidth = 0
             button.minHeight = button.resources.getDimensionPixelSize(R.dimen.design_touch_min)
         }
 
