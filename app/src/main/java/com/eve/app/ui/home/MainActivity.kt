@@ -75,7 +75,6 @@ import com.eve.app.ui.syllabus.SyllabusActivity
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.data.model.Poll
 import com.eve.app.data.repository.PollRepository
-import android.widget.TextView
 import com.eve.app.BuildConfig
 import com.eve.app.util.AppConfigManager
 import com.eve.app.util.Constants
@@ -842,7 +841,7 @@ class MainActivity : EveBaseActivity() {
                 val row = LinearLayout(this).apply {
                     orientation = LinearLayout.HORIZONTAL
                     gravity = Gravity.CENTER_VERTICAL
-                    minHeight = dp(44f)
+                    minimumHeight = dp(44f)
                     background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
                         8 * density,
                         palette.actionSelector
@@ -903,7 +902,7 @@ class MainActivity : EveBaseActivity() {
                 val row = LinearLayout(this).apply {
                     orientation = LinearLayout.HORIZONTAL
                     gravity = Gravity.CENTER_VERTICAL
-                    minHeight = dp(44f)
+                    minimumHeight = dp(44f)
                     background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
                         8 * density,
                         palette.actionSelector
