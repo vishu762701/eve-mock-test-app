@@ -120,7 +120,7 @@ Notes / leftovers:
 - Aligned `item_exam.xml` minHeight to 72dp matching Telegram `DialogCell.java:172`.
 - Preserved existing `TelegramDialogsListHelper` 200ms item animations and title-tap scroll-to-top behavior.
 
-## F8 Profile - PENDING_CI
+## F8 Profile - DONE (commit 48688ec6)
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | Collapsing header avatar | `ProfileActivity.java:6039-6047`, `ProfileGooeyView.java:397-405` (100dp to 42dp) | 100dp to 42dp collapsing gooey avatar | 100dp to 42dp collapsing gooey avatar (`ProfileGooeyView`) |
@@ -131,4 +131,18 @@ Notes / leftovers:
 Notes / leftovers:
 - Added long-click `TelegramPopupMenu` for phone, username (with username + link copy), and birthday.
 - Wired copy feedback through `AppBulletin.showSuccess`.
+
+## F9 Username change - PENDING_CI
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| ActionBar & Done action | `ChangeUsernameActivity.java:700-750` (56dp bar, 54dp checkmark, IME Done link) | 48dp toolbar, 48dp checkmark | 56dp `telegram_action_bar_height`, 54dp checkmark, IME Done linkage |
+| Input field & cursor | `ChangeUsernameActivity.java:780-820` (18sp, no border, single line, 19dp cursor) | 18sp input, 48dp row | 18sp `TextAppearance.Eve.Telegram.EditInput`, 48dp row, `@` prefix |
+| Helper text colors & states | `ChangeUsernameActivity.java:1205-1260` (available green, invalid red, checking gray) | `StatusRole` palette tints | `StatusRole` with `statusSuccess`, `statusError`, `statusPending` |
+| Live debounce UX | `ChangeUsernameActivity.java:825-835` (300ms debounce on keystroke) | 300ms debounce | 300ms debounce + prior request job cancellation |
+| Error animation | `ChangeUsernameActivity.java:1400-1412` (`shakeIfOff` spring shake) | `TelegramShake.shakeViewSpring` | `TelegramShake.shakeViewSpring` + haptic feedback |
+| Content margins | `ChangeUsernameActivity.java:659` (21dp horizontal padding) | 24dp padding | 21dp horizontal padding (`TextInfoPrivacyCell` standard) |
+
+Notes / leftovers:
+- Aligned `activity_change_username.xml` toolbar to 56dp and horizontal padding to 21dp.
+
 

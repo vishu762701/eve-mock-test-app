@@ -9,16 +9,15 @@
     <!-- Telegram-style Top Toolbar -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/design_touch_min"
+        android:layout_height="@dimen/telegram_action_bar_height"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="4dp"
         style="@style/Widget.Eve.Token.ToolbarRow">
 
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="@dimen/design_touch_min"
-            android:layout_height="@dimen/design_touch_min"
+            android:layout_width="@dimen/telegram_action_bar_back_width"
+            android:layout_height="match_parent"
             android:contentDescription="@string/username_back"
             android:src="@drawable/ic_back"
             app:tint="@color/telegram_type_primary"
@@ -29,14 +28,14 @@
             style="@style/TextAppearance.Eve.Telegram.NavigationTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="@dimen/telegram_action_bar_title_start"
             android:layout_weight="1"
             android:text="@string/username_title" />
 
         <ImageButton
             android:id="@+id/btnDone"
-            android:layout_width="@dimen/design_touch_min"
-            android:layout_height="@dimen/design_touch_min"
+            android:layout_width="@dimen/telegram_action_bar_back_width"
+            android:layout_height="match_parent"
             android:contentDescription="@string/username_done"
             android:src="@drawable/ic_ab_done"
             app:tint="@color/telegram_type_primary"
@@ -47,7 +46,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="24dp"
+        android:paddingHorizontal="21dp"
         android:paddingTop="20dp">
 
         <LinearLayout
