@@ -58,6 +58,15 @@
             android:exported="false"
             android:theme="@style/Theme.Eve.Home" />
         <activity android:name=".ui.profile.EveQrLiveScannerActivity" android:exported="false" android:theme="@style/Theme.Eve.QrScene" />
+        <activity android:name=".ui.profile.QrShareActivity" android:exported="true"
+            android:theme="@style/Theme.Eve.QrScene">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="eve-mock-test" android:host="qr" />
+            </intent-filter>
+        </activity>
         <activity android:name=".ui.profile.UsernameCardActivity" android:exported="true"
             android:theme="@style/Theme.Eve.QrScene">
             <intent-filter>

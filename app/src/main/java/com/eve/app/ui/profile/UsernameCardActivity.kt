@@ -37,7 +37,7 @@ import java.io.File
  * This is an ADAPTED screen; Telegram QrShareView's 7k-line scene transitions,
  * account/network-backed gifts, paid links and live scanner are NOT ported.
  */
-class UsernameCardActivity : EveBaseActivity() {
+open class UsernameCardActivity : EveBaseActivity() {
     private lateinit var scene: TelegramQrSceneView
     private lateinit var username: String
     private lateinit var qrLink: String
@@ -126,7 +126,7 @@ class UsernameCardActivity : EveBaseActivity() {
         tools.addView(tool("Copy", "Copy EVE profile link") {
             (getSystemService(CLIPBOARD_SERVICE) as ClipboardManager)
                 .setPrimaryClip(ClipData.newPlainText("EVE profile link", qrLink))
-            AppBulletin.showSuccess(this, "Profile link copied")
+            AppBulletin.showSuccess(this, "Link copied to clipboard")
         }, LinearLayout.LayoutParams(0, px(48), 1f))
 
         val closeParams = FrameLayout.LayoutParams(px(48), px(48), Gravity.TOP or Gravity.START)

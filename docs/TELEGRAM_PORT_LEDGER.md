@@ -238,7 +238,7 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | PopupMenu Theme parent | `ActionBarPopupWindow.java` | `Widget.Material3.PopupMenu` | `Widget.AppCompat.PopupMenu` with Telegram popup drawable |
 Leftovers / ASSUMED values: None
 
-## A1 Profile screen gooey avatar + exact collapse choreography - DONE
+## A1 Profile screen gooey avatar + exact collapse choreography - DONE (commit 936ab9f7)
 Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
@@ -250,6 +250,19 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | Profile info rows & cards | `ProfileActivity.java:2100` (flat full-width rows, 21dp divider insets) | Floating rounded cards with 12dp horizontal margin | Edge-to-edge flat section (`layout_marginHorizontal="0dp"`, `cornerRadiusDp=0f`), 21dp divider insets |
 | Copy phone & username | `ProfileActivity.java:2340` (Long press copy with Telegram bulletin) | Generic clipboard strings with `t.me` | Authentic `AppBulletin.showSuccess` notifications, `eve-mock-test://username/$uname` link format |
 Leftovers / ASSUMED values: None
+
+## A2 QR screen: exact Telegram QR share screen - DONE
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| QR Entrypoint & Activity | `QrShareActivity.java:43-120` | `UsernameCardActivity` only | `QrShareActivity` + backwards-compatible `UsernameCardActivity` registered in manifest |
+| QR Code Writer | `TelegramQRCodeWriter.java:46-150` | Default ZXing QRCodeWriter | Authentic `TelegramQRCodeWriter` with rounded modules & center circular badge |
+| Backdrop & Shader Rendering | `QrBackdrops.java`, `QrRender.java` | Static card background | Hardware `RenderNode` & `RenderEffect` blur, specular rim effect, dual gradient backdrops (`QrPalettes`) |
+| Emoji Pattern Lattice | `QrShareView.java:3800-4200` | None / static icons | Animated Lottie / Unicode emoji lattice field with orbit, breath, and wave physics (`QrPatternField`, `QrEmojiPattern`) |
+| Scan Overlay & Camera | `QrScanOverlay.java`, `QrScannerGlass.java` | No live scan overlay | Morphing scanner frame with `RimPainter` specular edge glow (`EveQrLiveScannerActivity`, `QrScanMorphLayout`) |
+| Copy Link Bulletin | `QrShareActivity.java:180` | Generic text | Telegram `AppBulletin.showSuccess` ("Link copied to clipboard") |
+Leftovers / ASSUMED values: None
+
 
 
 
