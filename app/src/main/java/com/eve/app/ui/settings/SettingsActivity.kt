@@ -51,7 +51,7 @@ class SettingsActivity : EveBaseActivity() {
     private var progressDialog: TelegramNativeAlertDialog? = null
     private var passwordReauthenticationDialog: TelegramNativeAlertDialog? = null
     private var deleteConfirmationDialog: TelegramNativeAlertDialog? = null
-    private var targetExamsDialog: com.eve.app.designsystem.TelegramBottomSheet? = null
+    private var targetExamsDialog: android.app.Dialog? = null
     private var deleteConfirmArmedAt: Long = 0L
     private var deleteTimeoutJob: kotlinx.coroutines.Job? = null
     private val settingsAuth = FirebaseAuth.getInstance()

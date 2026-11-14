@@ -2515,7 +2515,7 @@ class MainActivity : EveBaseActivity() {
     }
 
     private var logoutConfirmation: com.eve.app.designsystem.TelegramNativeAlertDialog? = null
-    private var targetExamsDialog: com.eve.app.designsystem.TelegramBottomSheet? = null
+    private var targetExamsDialog: android.app.Dialog? = null
     private fun confirmLogout() {
         if (logoutPending || isFinishing || isDestroyed || logoutConfirmation?.isShowing == true) return
         val dialog = com.eve.app.designsystem.TelegramNativeAlertDialog.Builder(this)
