@@ -455,6 +455,7 @@ class MainActivity : EveBaseActivity() {
 
         binding.rvExams.layoutManager = LinearLayoutManager(this)
         binding.rvExams.adapter = adapter
+        setupCategorySwipeGesture()
         if (restoreThemeContent) {
             binding.rvExams.layoutAnimation = null
             render(viewModel.state.value)
@@ -2264,10 +2265,84 @@ class MainActivity : EveBaseActivity() {
         }
     }
 
+    private fun setupCategorySwipeGesture() {
+        val gestureDetector = android.view.GestureDetector(this, object : android.view.GestureDetector.SimpleOnGestureListener() {
+            private val SWIPE_THRESHOLD = 100 * resources.displayMetrics.density
+            private val SWIPE_VELOCITY = 150 * resources.displayMetrics.density
+
+            override fun onFling(
+                e1: android.view.MotionEvent?,
+                e2: android.view.MotionEvent,
+                velocityX: Float,
+                velocityY: Float
+            ): Boolean {
+                if (e1 == null || isSearchActive) return false
+                val diffX = e2.x - e1.x
+                val diffY = e2.y - e1.y
+                if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY) {
+                    val currentData = (viewModel.state.value as? UiState.Success)?.data ?: return false
+                    val categories = HomeAppearance.categories(currentData.categories, this@MainActivity)
+                    if (categories.size <= 1) return false
+                    val currentIndex = categories.indexOf(viewModel.selectedCategory.value)
+                    if (currentIndex == -1) return false
+
+                    if (diffX < 0) {
+                        // Swiped left -> Next category tab
+                        if (currentIndex < categories.size - 1) {
+                            val next = categories[currentIndex + 1]
+                            com.eve.app.util.VibrationHelper.vibrateLightHaptic(this@MainActivity)
+                            viewModel.selectCategory(next)
+                            return true
+                        }
+                    } else {
+                        // Swiped right -> Previous category tab
+                        if (currentIndex > 0) {
+                            val prev = categories[currentIndex - 1]
+                            com.eve.app.util.VibrationHelper.vibrateLightHaptic(this@MainActivity)
+                            viewModel.selectCategory(prev)
+                            return true
+                        }
+                    }
+                }
+                return false
+            }
+        })
+
+        binding.rvExams.addOnItemTouchListener(object : androidx.recyclerview.widget.RecyclerView.SimpleOnItemTouchListener() {
+            override fun onInterceptTouchEvent(rv: androidx.recyclerview.widget.RecyclerView, e: android.view.MotionEvent): Boolean {
+                gestureDetector.onTouchEvent(e)
+                return false
+            }
+        })
+    }
+
     private fun renderChips(categories: List<String>, selected: String) {
-        HomeAppearance.renderCategoryChips(binding.chipGroupCategory, categories, selected,
+        val categoryCounts = (viewModel.state.value as? UiState.Success)?.data?.exams?.let { exams ->
+            val map = mutableMapOf<String, Int>()
+            map[com.eve.app.util.Constants.CATEGORY_ALL] = exams.size
+            for (exam in exams) {
+                map[exam.category] = (map[exam.category] ?: 0) + 1
+            }
+            map
+        } ?: emptyMap()
+
+        val orderedCategories = HomeAppearance.categories(categories, this)
+
+        HomeAppearance.renderCategoryChips(
+            group = binding.chipGroupCategory,
+            categories = orderedCategories,
+            selected = selected,
+            categoryCounts = categoryCounts,
+            onLongClick = { category ->
+                com.eve.app.util.VibrationHelper.vibrateLightHaptic(this@MainActivity)
+                CategoryReorderBottomSheet.show(this@MainActivity, orderedCategories) { newOrder ->
+                    renderChips(categories, viewModel.selectedCategory.value)
+                }
+                true
+            },
             currentSelection = { viewModel.selectedCategory.value },
-            onSelect = viewModel::selectCategory)
+            onSelect = viewModel::selectCategory
+        )
     }
 
     private fun goToLogin() {

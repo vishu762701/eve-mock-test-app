@@ -356,7 +356,7 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | Profile & QR sharing integration | `UsernameCardActivity.java` | Direct image file chooser | `UsernameCardActivity.kt` wired to `TelegramShareAlert` with username link and rendered QR thumbnail |
 Leftovers / ASSUMED values: None
 
-## C8 Avatar tools (`PhotoCropActivity`, `ProfileGalleryView`) - DONE
+## C8 Avatar tools (`PhotoCropActivity`, `ProfileGalleryView`) - DONE (commit 660c6120)
 Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
@@ -364,6 +364,17 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | Photo 90-degree rotate tool | `PhotoCropActivity.java:rotate` | None | Added `rotate90()` in `AvatarCropView.kt`, toolbar rotate button (`ic_rotate.webp` from Telegram source), and haptic click |
 | ProfileGalleryView visuals | `ProfileGalleryView.java:1-400` (fullscreen viewer, top dash page indicator, vertical drag-down dismiss) | Basic ImageView | `ProfileGalleryView.kt` with fullscreen black backdrop, dash indicators, vertical drag dismiss with alpha fade, share/save |
 | Camera / Gallery picker sheet | `ImageUpdater.java:openMenu` | Basic bottom sheet | `ProfilePhotoMenu.kt` authentic Telegram BottomSheet (`Choose photo`, `Take photo`, `Upload from gallery`, `Remove photo`) |
+Leftovers / ASSUMED values: None
+
+## C1 Chat-folder style category tabs on Home (`FilterTabsView`, `FiltersView`) - DONE
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| Category badge counts | `FilterTabsView.java:counter` | Plain text chips without counts | Dynamic item count badges on each category tab (`chip.setBadgeCount(count)`) |
+| Folder reorder bottom sheet | `FiltersView.java:1-800`, `FilterCreateActivity.java` | Fixed sort order | `CategoryReorderBottomSheet.kt` bottom sheet allowing move up/down and reset to default |
+| Persisted folder preferences | `MessagesController.java:dialogFilters` | None | `CategoryOrderManager.kt` persists custom category order in SharedPreferences |
+| Long-press to edit folders | `FilterTabsView.java:onLongClick` | None | Long-pressing any category chip triggers light haptics and opens `CategoryReorderBottomSheet` |
+| Horizontal swipe between category tabs | `DialogsActivity.java:onFling` | Vertical scrolling only | `setupCategorySwipeGesture` on Home list switches category tabs with light haptics |
 Leftovers / ASSUMED values: None
 
 

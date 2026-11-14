@@ -76,12 +76,15 @@ object EveDesignSystem {
             context: Context,
             category: String,
             isSelected: Boolean,
+            count: Int = 0,
             onSelect: () -> Unit
         ): TelegramChip = TelegramChip(context).apply {
             text = category
+            if (count > 0) setBadgeCount(count)
             isCheckable = true
             isChecked = isSelected
-            contentDescription = category
+            isCheckedIconVisible = false
+            contentDescription = if (count > 0) "$category, $count items" else category
             setOnCheckedChangeListener { _, checked ->
                 if (checked) onSelect()
             }
