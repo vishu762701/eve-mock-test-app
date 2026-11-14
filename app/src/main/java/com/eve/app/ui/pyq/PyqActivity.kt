@@ -19,7 +19,7 @@ import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.Constants
 import com.eve.app.util.SubmissionRetryPolicy
 import com.eve.app.util.UiState
-import com.google.android.material.chip.Chip
+import com.eve.app.designsystem.TelegramChip
 import kotlinx.coroutines.launch
 
 class PyqActivity : EveBaseActivity() {
@@ -215,7 +215,7 @@ class PyqActivity : EveBaseActivity() {
                 val yearToShow = selectedYear?.takeIf { it in years } ?: years.keys.first()
                 selectedYear = yearToShow
                 for (i in 0 until binding.chipGroupYears.childCount) {
-                    (binding.chipGroupYears.getChildAt(i) as? Chip)?.isChecked = years.keys.elementAt(i) == yearToShow
+                    (binding.chipGroupYears.getChildAt(i) as? TelegramChip)?.isChecked = years.keys.elementAt(i) == yearToShow
                 }
                 renderPapers(yearToShow)
             }

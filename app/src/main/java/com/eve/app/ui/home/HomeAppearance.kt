@@ -5,8 +5,8 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.R
 import com.eve.app.designsystem.EveDesignSystem
+import com.eve.app.designsystem.TelegramChip
 import com.eve.app.util.Constants
-import com.google.android.material.chip.Chip
 
 /** Native Home presentation powered by EveDesignSystem foundation. */
 object HomeAppearance {
@@ -22,7 +22,7 @@ object HomeAppearance {
         EveDesignSystem.Shapes.applyCardSquircle(view)
     }
 
-    fun categoryChip(context: Context, category: String, selected: String, onSelect: () -> Unit): Chip =
+    fun categoryChip(context: Context, category: String, selected: String, onSelect: () -> Unit): TelegramChip =
         EveDesignSystem.Components.createCategoryChip(
             context = context,
             category = category,
@@ -35,18 +35,18 @@ object HomeAppearance {
                             currentSelection: () -> String, onSelect: (String) -> Unit) {
         fun refreshPalette() {
             for (index in 0 until group.childCount) {
-                (group.getChildAt(index) as? Chip)?.let {
+                (group.getChildAt(index) as? TelegramChip)?.let {
                     EveDesignSystem.Components.refreshCategoryChipPalette(it)
                 }
             }
         }
         if (group.childCount == categories.size) {
             val same = (0 until group.childCount).all { i ->
-                (group.getChildAt(i) as? Chip)?.text?.toString() == categories[i]
+                (group.getChildAt(i) as? TelegramChip)?.text?.toString() == categories[i]
             }
             if (same) {
                 val selectedChip = (0 until group.childCount)
-                    .mapNotNull { group.getChildAt(it) as? Chip }
+                    .mapNotNull { group.getChildAt(it) as? TelegramChip }
                     .firstOrNull { it.text.toString() == selected }
                 if (selectedChip != null && group.checkedChipId != selectedChip.id) {
                     group.check(selectedChip.id)

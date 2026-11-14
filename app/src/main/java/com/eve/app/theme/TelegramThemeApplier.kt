@@ -101,6 +101,9 @@ object TelegramThemeApplier {
                     view.setTextColor(palette.textPrimary)
                 }
             }
+            is com.eve.app.designsystem.TelegramChip -> {
+                view.updateAppearance()
+            }
             is Chip -> {
                 val unselectedBg = if (palette.isDark) 0x1AFFFFFF else palette.surface
                 view.chipBackgroundColor = ColorStateList(

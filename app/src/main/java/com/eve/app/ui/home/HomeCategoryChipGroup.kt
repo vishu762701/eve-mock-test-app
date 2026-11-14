@@ -17,18 +17,14 @@ import android.view.MotionEvent
 import android.view.TouchDelegate
 import android.view.View
 import android.view.accessibility.AccessibilityNodeInfo
-import com.google.android.material.chip.Chip
-import com.google.android.material.chip.ChipGroup
-import com.eve.app.theme.TelegramThemeEngine
+import com.eve.app.designsystem.TelegramChip
+import com.eve.app.designsystem.TelegramChipGroup
 
 /**
- * Preserves EVE category touch/selection while drawing only the original Telegram
- * FilterTabsView selector atom. Source:
- * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15,
- * FilterTabsView.java:176-178,904-918,1448-1514, GPL v2-or-later.
- * Host/text measurement/selection remain EVE and are explicitly NOT a full port.
+ * Authentic Telegram FilterTabsView selector and category pill group.
+ * Source: DrKLO/Telegram FilterTabsView.java:176-178,904-918,1448-1514, GPL v2-or-later.
  */
-class HomeCategoryChipGroup @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : ChipGroup(context, attrs) {
+class HomeCategoryChipGroup @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : TelegramChipGroup(context, attrs) {
     private fun dp(value: Float) = value * resources.displayMetrics.density
     private val selectorDrawable = GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, null).apply {
         val radius = dp(14f)
@@ -81,8 +77,8 @@ class HomeCategoryChipGroup @JvmOverloads constructor(context: Context, attrs: A
 
     private fun selectedIndicatorBounds(): RectF? {
         val selected = (0 until childCount).asSequence()
-            .mapNotNull { getChildAt(it) as? Chip }
-            .firstOrNull { it.isChecked && it.visibility == View.VISIBLE }
+            .mapNotNull { getChildAt(it) as? android.widget.TextView }
+            .firstOrNull { (it as? android.widget.Checkable)?.isChecked == true && it.visibility == View.VISIBLE }
             ?: return null
         if (selected.width <= 0) return null
         val desiredWidth = ceil(Layout.getDesiredWidth(selected.text, selected.paint).toDouble()).toFloat()

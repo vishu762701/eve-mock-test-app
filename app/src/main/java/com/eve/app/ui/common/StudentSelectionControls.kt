@@ -6,8 +6,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import com.eve.app.R
+import com.eve.app.designsystem.TelegramChip
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.chip.Chip
 
 /** The same shared actions used by Practice/PYQ and native visual verification. */
 object StudentSelectionControls {
@@ -19,7 +19,7 @@ object StudentSelectionControls {
             setTextColor(palette.textPrimary)
         }
 
-    fun year(context: Context): Chip = Chip(context).apply {
+    fun year(context: Context): TelegramChip = TelegramChip(context).apply {
         isCheckable = true
         isCheckedIconVisible = false
         setEnsureMinTouchTargetSize(true)

@@ -67,7 +67,7 @@
         <item name="android:stateListAnimator">@animator/design_press_scale</item>
     </style>
     <style name="Widget.Eve.Token.Card" parent="Widget.Eve.Token.Card.Base" />
-    <style name="Widget.Eve.Token.Chip" parent="Widget.Material3.Chip.Assist">
+    <style name="Widget.Eve.Token.Chip" parent="">
         <item name="android:textAppearance">@style/TextAppearance.Eve.Token.Chip</item>
         <item name="android:includeFontPadding">false</item><item name="android:textColor">@color/on_accent</item>
         <item name="chipBackgroundColor">@color/accent</item><item name="chipStrokeColor">@color/transparent</item>
@@ -120,7 +120,7 @@
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:includeFontPadding">false</item>
     </style>
-    <style name="Widget.Eve.Token.SegmentedTabs" parent="Widget.Material3.TabLayout">
+    <style name="Widget.Eve.Token.SegmentedTabs" parent="Widget.Design.TabLayout">
         <item name="android:elevation">@dimen/design_zero</item>
         <item name="android:background">@drawable/design_tab_track</item>
         <item name="android:minHeight">@dimen/design_tab_height</item>

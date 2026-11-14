@@ -8,10 +8,10 @@
         </LinearLayout>
     </com.eve.app.ui.common.EveGlassToolbar>
     <HorizontalScrollView android:id="@+id/scrollReportType" android:layout_width="match_parent" android:layout_height="wrap_content" android:scrollbars="none" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
-        <com.google.android.material.chip.ChipGroup android:id="@+id/chipGroupReportType" android:layout_width="wrap_content" android:layout_height="wrap_content" app:singleLine="true" app:singleSelection="true">
-            <com.google.android.material.chip.Chip android:id="@+id/chipContentIssues" style="@style/Widget.Eve.Token.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="Content Issues (Questions)" />
-            <com.google.android.material.chip.Chip android:id="@+id/chipTechnicalIssues" style="@style/Widget.Eve.Token.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Technical / Bug Reports" />
-        </com.google.android.material.chip.ChipGroup>
+        <com.eve.app.designsystem.TelegramChipGroup android:id="@+id/chipGroupReportType" android:layout_width="wrap_content" android:layout_height="wrap_content" app:singleLine="true" app:singleSelection="true">
+            <com.eve.app.designsystem.TelegramChip android:id="@+id/chipContentIssues" style="@style/Widget.Eve.Token.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="Content Issues (Questions)" />
+            <com.eve.app.designsystem.TelegramChip android:id="@+id/chipTechnicalIssues" style="@style/Widget.Eve.Token.Chip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Technical / Bug Reports" />
+        </com.eve.app.designsystem.TelegramChipGroup>
     </HorizontalScrollView>
     <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout android:id="@+id/swipeRefresh" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false">

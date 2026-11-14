@@ -95,8 +95,8 @@ import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import android.view.ViewConfiguration
 import android.view.HapticFeedbackConstants
 import org.telegram.ui.Components.CubicBezierInterpolator
+import com.eve.app.designsystem.TelegramChip
 import com.eve.app.util.HomeBannerLinkValidator
-import com.google.android.material.chip.Chip
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.FirebaseMessaging
 import android.util.Log
@@ -2209,7 +2209,7 @@ class MainActivity : EveBaseActivity() {
         if (!::binding.isInitialized) return
         val group = binding.chipGroupCategory
         for (index in 0 until group.childCount) {
-            (group.getChildAt(index) as? Chip)?.let {
+            (group.getChildAt(index) as? TelegramChip)?.let {
                 com.eve.app.designsystem.EveDesignSystem.Components.refreshCategoryChipPalette(it)
             }
         }

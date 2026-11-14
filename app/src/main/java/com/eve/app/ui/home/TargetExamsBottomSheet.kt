@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.eve.app.data.model.Exam
 import com.eve.app.databinding.BottomSheetTargetExamsBinding
 import com.eve.app.designsystem.TelegramBottomSheet
+import com.eve.app.designsystem.TelegramChip
 import com.google.android.material.chip.Chip
 
 object TargetExamsBottomSheet {
@@ -25,8 +26,8 @@ object TargetExamsBottomSheet {
     }
 
     /** Shared production chip creation: readable at large text, bounded label, full accessible name. */
-    fun examChip(context: Context, name: String, checked: Boolean): Chip =
-        Chip(context, null, com.google.android.material.R.attr.chipStyle).apply {
+    fun examChip(context: Context, name: String, checked: Boolean): TelegramChip =
+        TelegramChip(context).apply {
             id = android.view.View.generateViewId()
             text = name
             contentDescription = name

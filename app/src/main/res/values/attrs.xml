@@ -50,4 +50,11 @@
         <attr name="android:checked" />
         <attr name="size" format="dimension" />
     </declare-styleable>
+    <declare-styleable name="TelegramChipGroup">
+        <attr name="singleSelection" format="boolean" />
+        <attr name="singleLine" format="boolean" />
+        <attr name="selectionRequired" format="boolean" />
+        <attr name="chipSpacingHorizontal" format="dimension" />
+        <attr name="chipSpacingVertical" format="dimension" />
+    </declare-styleable>
 </resources>

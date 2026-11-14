@@ -276,17 +276,18 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | Quiz answer tinting | `ChatMessageCell.java:29600-29650` (green for correct, red for chosen wrong) | Single accent color for all choices | Authentic Telegram quiz colors: green (`0xFF4FAE4E`) for correct option, red (`0xFFDF3F40`) for wrong chosen option |
 | Detailed votes breakdown | `PollVotesAlert.java:45-210` (bottom sheet breakdown) | Simple expandable rows only | `PollVotesAlert` (`TelegramBottomSheet`) displaying poll header, question, percentages, vote count, and quiz explanation |
 | Material buttons purge | `ENGINEERING_STANDARD.md` section 2 | `MaterialButton` in `activity_main.xml`, `dialog_create_poll.xml`, `item_poll_admin.xml` | Purged all `MaterialButton` instances in favor of `AppCompatButton` and Telegram design components |
+
+## A4 Tabs, pills, chips, segmented controls (app-wide) - DONE
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| Filter tabs & sliding strip | `FilterTabsView.java:176-178,904-918`, `PagerSlidingTabStrip.java:36-220` (44/48dp height, animated bottom rounded indicator with `EASE_OUT_QUINT`, scroll-to-center on select, badge counters) | Generic or Material TabLayout | `TelegramTabsView.kt` with authentic rounded bottom indicator (`CubicBezierInterpolator.EASE_OUT_QUINT`), badge counters, scroll-to-center, ViewPager2 binding |
+| Pill & filter chip geometry | `FiltersView.java:697-760`, `FilterTabsView.java:176-178` (32dp height, 16dp radius, 48dp min touch target) | Inconsistent Material chip geometry | `TelegramChip.kt` with exact 32dp height, 16dp capsule radius, 48dp min touch target, 14sp text |
+| Pill checked / unchecked styling | `FiltersView.java:710-745` (Checked: accent blue `#229AF0` fill, bold white text; Unchecked: fieldBackground with hairline stroke and textPrimary) | Material3 chip tonal elevation / dynamic tinting | Authentic Telegram styling: checked accent `#229AF0` with bold white text; unchecked fieldBackground (`0x24FFFFFF` dark / `0x14000000` light) with hairline stroke |
+| Pill touch feedback | `ScaleStateListAnimator.java`, `FiltersView.java` (0.96 scale touch animation with `EASE_OUT_QUINT`) | Material state layer overlay | Touch scale animation to 0.96 with `CubicBezierInterpolator.EASE_OUT_QUINT` |
+| Chip group layout & spacing | `FiltersView.java:650-680` (8dp horizontal, 8dp vertical pill spacing) | Material ChipGroup with default spacing | `TelegramChipGroup.kt` with authentic 8dp pill spacing, singleLine/flow wrapping, single/multi-selection |
+| App-wide layout migration | `AGENTS.md`, `ENGINEERING_STANDARD.md` section 2 | `com.google.android.material.chip.ChipGroup` and `Chip` in layouts | Replaced in `bottom_sheet_target_exams.xml`, `activity_flagged_questions.xml`, `activity_mistakes.xml`, `activity_practice.xml`, `activity_pyq.xml`, `activity_result.xml` with `TelegramChipGroup` and `TelegramChip` |
+| App-wide code migration | `SOURCE_OF_TRUTH.md` | Material Chip imports in `HomeAppearance.kt`, `StudentSelectionControls.kt`, `TargetExamsBottomSheet.kt`, `PyqActivity.kt`, `MainActivity.kt` | Migrated all references to `TelegramChip` / `TelegramChipGroup` |
+| Style tokens Material3 purge | `A0 / A4 Audit` | `Widget.Eve.Token.Chip` inheriting from `Widget.Material3.Chip.Assist`, `Widget.Eve.Token.SegmentedTabs` from `Widget.Material3.TabLayout` | Unparented `Widget.Eve.Token.Chip` (`parent=""`), unparented Material3 from `Widget.Eve.Token.SegmentedTabs` (`parent="Widget.Design.TabLayout"`) |
 Leftovers / ASSUMED values: None
-
-
-
-
-
-
-
-
-
-
-
-
 

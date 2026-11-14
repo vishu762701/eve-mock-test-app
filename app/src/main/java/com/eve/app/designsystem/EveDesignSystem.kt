@@ -77,36 +77,14 @@ object EveDesignSystem {
             category: String,
             isSelected: Boolean,
             onSelect: () -> Unit
-        ): Chip = Chip(context).apply {
+        ): TelegramChip = TelegramChip(context).apply {
             text = category
             isCheckable = true
             isChecked = isSelected
-            DesignType.apply(this, DesignType.Role.CHIP)
-            chipStrokeWidth = 0f
-            // Owner override R05: Monochrome category filter pills
-            // NIGHT selected: EXACT #FFFFFF bg, #000000 text/icons
-            // DAY selected: EXACT #000000 bg, #FFFFFF text/icons
-            // Unselected: quiet theme-neutral surfaces with WCAG AA readable text
-            refreshCategoryChipPalette(this)
-            // Telegram FilterTabsView.java:388-400,649-659 measures title/counter only;
-            // no selected checkmark consumes width. Only Home's category chip follows
-            // this verified source property; TargetExamsBottomSheet keeps its checkmark.
-            isCheckedIconVisible = false
-            setEnsureMinTouchTargetSize(true)
-            chipMinHeight = resources.getDimension(R.dimen.design_pill_height)
-            chipStartPadding = resources.getDimension(R.dimen.design_pill_padding)
-            chipEndPadding = chipStartPadding
-            textStartPadding = 0f
-            textEndPadding = 0f
-            shapeAppearanceModel = shapeAppearanceModel.withCornerSize(com.google.android.material.shape.RelativeCornerSize(.5f))
-            maxWidth = kotlin.math.round(resources.configuration.screenWidthDp * resources.displayMetrics.density).toInt() -
-                2 * resources.getDimensionPixelSize(R.dimen.design_screen_margin)
-            DesignPress.bind(this)
-            isSingleLine = true
-            ellipsize = android.text.TextUtils.TruncateAt.END
             contentDescription = category
-            textAlignment = View.TEXT_ALIGNMENT_CENTER
-            setOnClickListener { onSelect() }
+            setOnCheckedChangeListener { _, checked ->
+                if (checked) onSelect()
+            }
         }
 
         fun applyHomeCard(card: MaterialCardView) {
