@@ -66,6 +66,7 @@
         <item name="android:windowBackground">@color/bg_app</item>
         <item name="android:statusBarColor">@color/transparent</item>
         <item name="android:navigationBarColor">@color/transparent</item>
+        <item name="android:windowAnimationStyle">@style/Eve.WindowAnimation</item>
         <item name="snackbarStyle">@style/Widget.Eve.Token.Snackbar</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
