@@ -461,6 +461,15 @@ class MainActivity : EveBaseActivity() {
         binding.rvExams.layoutManager = LinearLayoutManager(this)
         binding.rvExams.adapter = adapter
         setupCategorySwipeGesture()
+        binding.pullRefreshLayout.setOnRefreshListener {
+            val current = auth.currentUser
+            if (current != null) {
+                val admin = AdminRepository.isCachedAdmin(this@MainActivity, current.uid)
+                viewModel.loadForUser(current.uid, admin)
+            } else {
+                viewModel.load()
+            }
+        }
         if (restoreThemeContent) {
             binding.rvExams.layoutAnimation = null
             render(viewModel.state.value)
@@ -2331,6 +2340,7 @@ class MainActivity : EveBaseActivity() {
                 }
             }
             is UiState.Success -> {
+                binding.pullRefreshLayout.isRefreshing = false
                 binding.progressGroup.visibility = View.GONE
                 binding.btnRetry.visibility = View.GONE
                 val data = state.data
@@ -2372,6 +2382,7 @@ class MainActivity : EveBaseActivity() {
                 }
             }
             is UiState.Error -> {
+                binding.pullRefreshLayout.isRefreshing = false
                 hasEmptyPlayed = false
                 if (lastLoadedItems.isNotEmpty()) {
                     binding.loadingHome.visibility = View.GONE

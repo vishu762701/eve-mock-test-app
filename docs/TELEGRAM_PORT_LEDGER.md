@@ -377,7 +377,7 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | Horizontal swipe between category tabs | `DialogsActivity.java:onFling` | Vertical scrolling only | `setupCategorySwipeGesture` on Home list switches category tabs with light haptics |
 Leftovers / ASSUMED values: None
 
-## C2 Telegram search (`DialogsSearchAdapter`, `FiltersView`) - DONE
+## C2 Telegram search (`DialogsSearchAdapter`, `FiltersView`) - DONE (commit c6f852e4)
 Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
@@ -386,6 +386,19 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | Individual query deletion | `DialogsSearchAdapter.java:deleteRecentSearch` | None (clear all only) | `HomeSearchHistory.remove(...)` wired to row close icon with light haptic feedback |
 | Search type filter chips | `FiltersView.java:697-760` | None during search | `searchFilterGroup` chips ("All", "Exams", "Feedback") for narrowing search results |
 | Empty search placeholder | `DialogsSearchAdapter.java`, `EmptyTextProgressView.java` | "No matching items" | Telegram animated placeholder, "No results found", and descriptive query subtitle |
+Leftovers / ASSUMED values: None
+CI Verification: Run 43564279140 passed green on main.
+
+## C3 Telegram pull-to-refresh (`PullForegroundDrawable`) - DONE
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| Snap height & threshold | `PullForegroundDrawable.java:35` (`SNAP_HEIGHT = 0.85f`, max overscroll 72dp) | Material circular spinner (40dp) | Exact `SNAP_HEIGHT = 0.85f` snap threshold with 72dp max overscroll |
+| Pull damping physics | `DialogsActivity.java:4233` (`dy *= startPullParallax - endPullParallax * k`) | Linear scroll / standard drag | Authentic Telegram parallax damping (`startPullParallax = 0.45f`, `endPullParallax = 0.25f`) |
+| Arrow rotation & tooltip crossfade | `PullForegroundDrawable.java:446-482` | None | 180° rotation animator (250ms `EASE_BOTH`) and 170ms text crossfade between "Pull down to refresh" and "Release to refresh" |
+| Radial progress spinner | `RadialProgressView.java` | Material indeterminate spinner | `TelegramRadialProgressView` spinning at top center during refresh state |
+| Light haptic feedback | `AndroidUtilities.vibrateCursor` | None | Light haptic feedback (`VibrationHelper.vibrateLightHaptic`) on crossing snap threshold and refresh trigger |
+| List screen integrations | `DialogsActivity.java`, `TopicsFragment.java` | Standard pull-to-refresh | Integrated on Home (`MainActivity`), PYQ (`PyqActivity`), and Syllabus (`SyllabusActivity`) |
 Leftovers / ASSUMED values: None
 
 

@@ -67,6 +67,15 @@ class PyqActivity : EveBaseActivity() {
             override fun onNothingSelected(parent: android.widget.AdapterView<*>?) = Unit
         }
 
+        binding.pullRefreshLayout.setOnRefreshListener {
+            val exam = selectedExam
+            if (exam != null) {
+                viewModel.loadSets(exam)
+            } else {
+                viewModel.loadExams()
+            }
+        }
+
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { viewModel.exams.collect(::renderExams) }
@@ -119,6 +128,7 @@ class PyqActivity : EveBaseActivity() {
                 }
             }
             is UiState.Error -> {
+                binding.pullRefreshLayout.isRefreshing = false
                 binding.progress.visibility = View.GONE
                 if (exams.isNotEmpty()) {
                     binding.tvMessage.visibility = View.GONE
@@ -129,6 +139,7 @@ class PyqActivity : EveBaseActivity() {
                 }
             }
             is UiState.Success -> {
+                binding.pullRefreshLayout.isRefreshing = false
                 binding.progress.visibility = View.GONE
                 val wantedId = viewModel.selectedExamId ?: restoredExamId ?: selectedExam?.id
                 exams = state.data
@@ -174,6 +185,7 @@ class PyqActivity : EveBaseActivity() {
                 }
             }
             is UiState.Error -> {
+                binding.pullRefreshLayout.isRefreshing = false
                 binding.progress.visibility = View.GONE
                 if (sets.isNotEmpty()) {
                     com.eve.app.util.AppBulletin.showError(this@PyqActivity, "Couldn't refresh sets: ${state.message}")
@@ -187,6 +199,7 @@ class PyqActivity : EveBaseActivity() {
                 }
             }
             is UiState.Success -> {
+                binding.pullRefreshLayout.isRefreshing = false
                 binding.progress.visibility = View.GONE
                 binding.chipGroupYears.removeAllViews()
                 binding.chipGroupPapers.removeAllViews()
