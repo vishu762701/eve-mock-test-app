@@ -51,7 +51,7 @@
                     <androidx.appcompat.widget.AppCompatButton android:id="@+id/btnHomeBannerCta" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_gravity="bottom|end" android:contentDescription="Open Home banner link" android:ellipsize="end" android:maxLines="1" android:visibility="gone" />
                 </FrameLayout>
             </FrameLayout>
-            <androidx.appcompat.widget.AppCompatButton android:id="@+id/btnAdmin" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_marginTop="@dimen/design_screen_margin" android:text="Admin Dashboard" android:visibility="gone" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnAdmin" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_marginTop="@dimen/design_screen_margin" android:text="Admin Dashboard" android:visibility="gone" />
             <com.eve.app.designsystem.DesignCardView
                 android:id="@+id/cardPoll"
                 android:layout_width="match_parent"
