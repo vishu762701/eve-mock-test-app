@@ -58,7 +58,6 @@ open class TelegramChip @JvmOverloads constructor(
         isCheckedIconVisible = false
         isCloseIconVisible = false
         setEnsureMinTouchTargetSize(true)
-        minTouchTargetSize = dp(48f).toFloat()
 
         val hPad = dp(14f).toFloat()
         chipStartPadding = hPad
