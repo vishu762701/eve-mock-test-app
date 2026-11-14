@@ -91,7 +91,7 @@ Notes / leftovers:
 - Aligned `TextInfoPrivacyCell` sides padding to 21dp.
 - Added `DividerCell` palette updates to `TelegramThemeApplier`.
 
-## F6 Loading skeletons - PENDING_CI
+## F6 Loading skeletons - DONE (commit 7d57ad93)
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | RadialProgressView size & stroke | `RadialProgressView.java:62, 70` (40dp size, 3dp stroke) | 40dp size, 3dp stroke | 40dp size, 3dp stroke (`TelegramRadialProgressView`) |
@@ -104,3 +104,18 @@ Notes / leftovers:
 - Added `typealias RadialProgressView = TelegramRadialProgressView` and `typealias FlickerLoadingView = TelegramFlickerSkeletonView`.
 - Removed unused `ProgressBar` imports in `MainActivity.kt` and `PollsAdminAdapter.kt`.
 - Verified all indeterminate loading across Eve screens uses `TelegramRadialProgressView`.
+
+## F7 Home screen / Dialogs list style - PENDING_CI
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| DialogCell item height | `DialogCell.java:172` (`heightDefault = 70` to 72dp) | 50dp (`design_row_with_gap`) | 72dp minHeight (`item_exam.xml`) |
+| DialogCell avatar size | `DialogCell.java:700` (52-56dp avatar, 26dp radius) | 56dp | 56dp squircle / circle avatar |
+| Title typography | `DialogCell.java:1252`, `Theme.dialogs_namePaint` (17sp medium) | 17sp roboto medium | `TextAppearance.Eve.Telegram.ListTitle` (17sp roboto medium) |
+| Subtitle typography | `DialogCell.java:1253`, `Theme.dialogs_messagePaint` (16sp regular) | 16sp regular | `TextAppearance.Eve.Telegram.ListPreview` (16sp regular) |
+| Dialogs list item animator | `DialogsActivity.java:376` (200ms item animator) | Default animator | 200ms `TelegramDialogsListHelper` animator |
+| Scroll to top on title tap | `DialogsActivity.java` (tap ActionBar title to scroll to top) | None | `TelegramDialogsListHelper.install(rvExams, titleView)` |
+| Long-click actions | `DialogsActivity.java` (context menu for pin/unpin/options) | Stock dialog | `TelegramPopupMenu` via `showPinPopupMenu` |
+
+Notes / leftovers:
+- Aligned `item_exam.xml` minHeight to 72dp matching Telegram `DialogCell.java:172`.
+- Preserved existing `TelegramDialogsListHelper` 200ms item animations and title-tap scroll-to-top behavior.
