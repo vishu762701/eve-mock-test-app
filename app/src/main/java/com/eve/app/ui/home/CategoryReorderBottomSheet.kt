@@ -66,7 +66,7 @@ class CategoryReorderBottomSheet(
         val tvTitle = TextView(context).apply {
             text = "Edit Folders"
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 19f)
-            typeface = FontManager.telegramBoldTypeface(context)
+            typeface = FontManager.boldTypeface(context)
             setTextColor(palette.textPrimary)
             gravity = Gravity.CENTER
             setPadding(0, 0, 0, dp(4f))
@@ -171,7 +171,7 @@ class CategoryReorderBottomSheet(
         val btnDone = AppCompatButton(context).apply {
             text = "Done"
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
-            typeface = FontManager.telegramBoldTypeface(context)
+            typeface = FontManager.boldTypeface(context)
             setTextColor(Color.WHITE)
             background = GradientDrawable().apply {
                 cornerRadius = dp(10f).toFloat()
