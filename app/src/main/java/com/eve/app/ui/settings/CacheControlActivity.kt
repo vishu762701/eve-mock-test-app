@@ -22,8 +22,6 @@ import com.eve.app.designsystem.ShadowSectionCell
 import com.eve.app.designsystem.StorageUsageView
 import com.eve.app.designsystem.TelegramActionBar
 import com.eve.app.designsystem.TelegramBottomSheet
-import com.eve.app.designsystem.TelegramCheckBox2
-import com.eve.app.designsystem.TelegramHaptics
 import com.eve.app.designsystem.TelegramNativeAlertDialog
 import com.eve.app.designsystem.TextCell
 import com.eve.app.designsystem.TextCheckCell
@@ -32,6 +30,7 @@ import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.CacheManager
+import com.eve.app.util.VibrationHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -68,7 +67,7 @@ class CacheControlActivity : EveBaseActivity() {
         val palette = TelegramThemeEngine.resolveCurrentPalette(this)
 
         rootContainer = FrameLayout(this).apply {
-            setBackgroundColor(palette.background)
+            setBackgroundColor(palette.windowBackground)
         }
         setContentView(rootContainer)
 
@@ -298,7 +297,7 @@ class CacheControlActivity : EveBaseActivity() {
                         clearTemp = false
                     )
                     withContext(Dispatchers.Main) {
-                        TelegramHaptics.feedbackClick(this@CacheControlActivity)
+                        VibrationHelper.vibrateLightHaptic(this@CacheControlActivity)
                         AppBulletin.showSuccess(this@CacheControlActivity, "Local database optimized")
                         loadStorageData()
                     }
@@ -388,7 +387,7 @@ class CacheControlActivity : EveBaseActivity() {
                         clearTemp = checkTemp
                     )
                     withContext(Dispatchers.Main) {
-                        TelegramHaptics.feedbackClick(this@CacheControlActivity)
+                        VibrationHelper.vibrateLightHaptic(this@CacheControlActivity)
                         AppBulletin.showSuccess(this@CacheControlActivity, "Cache cleared successfully")
                         loadStorageData()
                     }

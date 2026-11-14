@@ -18,7 +18,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.util.CacheManager
-import com.eve.app.util.CubicBezierInterpolator
+import org.telegram.ui.Components.CubicBezierInterpolator
 
 /**
  * Authentic Telegram Storage Diagram View.
