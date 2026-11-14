@@ -149,8 +149,8 @@ open class TelegramChip @JvmOverloads constructor(
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
         val selectedBg = ContextCompat.getColor(context, R.color.category_pill_selected_bg)
         val unselectedBg = ContextCompat.getColor(context, R.color.category_pill_unselected_bg)
-        val selectedFg = if (palette.isDark) Color.BLACK else Color.WHITE
-        val unselectedFg = palette.textPrimary
+        val selectedFg = ContextCompat.getColor(context, R.color.category_pill_selected_fg)
+        val unselectedFg = ContextCompat.getColor(context, R.color.category_pill_unselected_fg)
 
         chipBackgroundColor = ColorStateList(
             arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),

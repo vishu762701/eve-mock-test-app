@@ -87,7 +87,11 @@ class TelegramNativeAlertDialog private constructor(
         window?.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
         window?.setDimAmount(0.5f)
 
-        val root = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
+        val root = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            clipChildren = false
+            clipToPadding = false
+        }
         titleText?.let { label ->
             root.addView(TextView(context).apply {
                 tag = "telegram_native_alert_title"
@@ -260,13 +264,15 @@ class TelegramNativeAlertDialog private constructor(
             val actions = LinearLayout(context).apply {
                 tag = "telegram_native_alert_actions"
                 orientation = if (verticalActions) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
+                clipChildren = false
+                clipToPadding = false
                 if (verticalActions) {
                     gravity = Gravity.END or Gravity.CENTER_VERTICAL
                     setPadding(dp(16), 0, dp(16), 0)
                 } else {
                     // AlertDialog.java:1108,1160-1163: bar padding 8dp, 40dp buttons at the top-right.
-                    gravity = Gravity.END or Gravity.TOP
-                    setPadding(dp(8), dp(8), dp(16), dp(8))
+                    gravity = Gravity.END or Gravity.CENTER_VERTICAL
+                    setPadding(dp(8), dp(4), dp(16), dp(8))
                 }
             }
             fun addAction(which: Int, label: CharSequence, listener: DialogInterface.OnClickListener?) {
@@ -320,8 +326,8 @@ class TelegramNativeAlertDialog private constructor(
             neutralText?.let { addAction(DialogInterface.BUTTON_NEUTRAL, it, onNeutral) }
             negativeText?.let { addAction(DialogInterface.BUTTON_NEGATIVE, it, onNegative) }
             positiveText?.let { addAction(DialogInterface.BUTTON_POSITIVE, it, onPositive) }
-            // Telegram 52dp horizontal bar; 48dp buttons in vertical layout
-            val rowHeight = if (verticalActions) dp(48 * actionLabels.size + 16) else dp(52)
+            // Telegram actions row: wrap content so full 48dp touch targets are never clipped
+            val rowHeight = LinearLayout.LayoutParams.WRAP_CONTENT
             root.addView(actions, LinearLayout.LayoutParams(-1, rowHeight))
         }
         customContent?.let {

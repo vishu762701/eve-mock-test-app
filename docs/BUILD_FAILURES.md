@@ -22,7 +22,25 @@ Audit Scope: Full repository inspection across all GitHub Actions workflows and 
 
 Out of the last 30 workflow runs across the repository, the failures have been isolated to their exact job, step, log trace, and architectural root cause:
 
-### Run 1: 43609228825
+### Run 1: 43612934987
+- **Workflow**: `build.yml` (Manual FULL `workflow_dispatch`)
+- **Commit**: `07828644` (fix(ui): reconcile component contracts for RadioButton, TelegramChip, BottomSheet and AlertDialog)
+- **Failed Job**: `Native UI (gesture)` and `Native UI (three-button)`
+- **Failed Step**: `Verify approved native UI behavior` (Step 6)
+- **Exact Error**:
+  - `ManualUiSpecificationTest.kt:205`: `java.lang.AssertionError: expected:<-11250600> but was:<-15065823>` (`category_pill_unselected_fg` mismatch with `palette.textPrimary`).
+  - `DesignRecoveryTest.kt:452`: `Entire Continue button must fit above system navigation expected:<126> but was:<124>` (2px margin clipping in three-button mode).
+  - `AdminDeletionRegressionTest.kt:63`: `PerformException: Action will not be performed because the target view does not match one or more of the following constraints: (view has effective visibility <VISIBLE> and view.getGlobalVisibleRect() covers at least <90> percent of the view's area)` (Dialog button height 48dp inside fixed 52dp bar with 8dp top padding clipped button below 90% visibility).
+- **Root Cause**:
+  1. `TelegramChip` text colors referenced dynamic palette text colors rather than the contract resources `category_pill_selected_fg` and `category_pill_unselected_fg`.
+  2. Dialog action container had fixed 52dp height and lacked `clipChildren=false`, vertically clipping the 48dp action button by more than 10%.
+  3. `bottom_sheet_target_exams.xml` bottom padding was 48dp, leaving the button 2px short of 100% visible height above three-button navigation bar.
+- **Resolution**:
+  1. Wired `category_pill_selected_fg` and `category_pill_unselected_fg` in `TelegramChip.kt`.
+  2. Changed `TelegramNativeAlertDialog` actions row height to `WRAP_CONTENT`, centered button gravity, and added `clipChildren = false` and `clipToPadding = false` on both `root` and `actions`.
+  3. Increased `bottom_sheet_target_exams.xml` bottom padding to `72dp`.
+
+### Run 2: 43609228825
 - **Workflow**: `build.yml` (Manual FULL `workflow_dispatch`)
 - **Commit**: `3687f283` (fix(build): ensure 32-bit safety in telegram_lottie.cpp and add proguard keep rules)
 - **Failed Job**: `Native UI (gesture)` and `Native UI (three-button)`
