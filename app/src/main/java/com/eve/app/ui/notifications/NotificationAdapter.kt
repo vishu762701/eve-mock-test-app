@@ -49,8 +49,7 @@ class NotificationAdapter : RecyclerView.Adapter<NotificationAdapter.VH>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val b = ItemNotificationBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        b.root.background = TelegramThemeSelectors.getRoundRectSelectorDrawable(
-            8 * parent.resources.displayMetrics.density,
+        b.root.background = TelegramThemeSelectors.getSelectorDrawable(
             TelegramThemeEngine.resolveCurrentPalette(parent.context).actionSelector
         )
         return VH(b)

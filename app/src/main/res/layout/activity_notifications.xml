@@ -1,8 +1,33 @@
 <?xml version='1.0' encoding='utf-8'?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" style="@style/Widget.Eve.Token.Screen" android:clipChildren="false" android:clipToPadding="false">
-    <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.ToolbarRow">
-            <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/telegram_type_primary" style="@style/Widget.Eve.Token.IconButton" />
+<!-- Telegram Android NotificationsSettingsActivity.java (56dp ActionBar, 21dp padding) -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    style="@style/Widget.Eve.Token.Screen"
+    android:clipChildren="false"
+    android:clipToPadding="false">
+
+    <com.eve.app.ui.common.EveGlassToolbar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/telegram_action_bar_height"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            style="@style/Widget.Eve.Token.ToolbarRow">
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="@dimen/telegram_action_bar_back_width"
+                android:layout_height="match_parent"
+                android:contentDescription="Back"
+                android:src="@drawable/ic_back"
+                app:tint="@color/telegram_type_primary"
+                style="@style/Widget.Eve.Token.IconButton" />
             <TextView
                 android:id="@+id/tvActionBarTitle"
                 style="@style/TextAppearance.Eve.Telegram.NavigationTitle"
@@ -10,18 +35,62 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="@dimen/design_row_gap"
+                android:layout_marginStart="@dimen/telegram_action_bar_title_start"
                 android:singleLine="true"
                 android:ellipsize="end"
                 android:text="Notifications" />
         </LinearLayout>
     </com.eve.app.ui.common.EveGlassToolbar>
-    <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-        <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvNotifications" android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll" />
-        <LinearLayout android:id="@+id/emptyGroup" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:orientation="vertical" android:visibility="gone" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
-            <com.airbnb.lottie.LottieAnimationView android:id="@+id/lottieEmpty" android:layout_width="140dp" android:layout_height="140dp" app:lottie_autoPlay="false" app:lottie_loop="false" app:lottie_rawRes="@raw/notification_bell" style="@style/Widget.Eve.Token.Lottie" />
-            <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_section_gap" android:gravity="center" android:text="No notifications yet" />
-            <TextView style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:gravity="center" android:text="New exams and updates will appear here" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        style="@style/Widget.Eve.Token.Column">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvNotifications"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:clipChildren="false"
+            style="@style/Widget.Eve.Token.Scroll" />
+
+        <LinearLayout
+            android:id="@+id/emptyGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            style="@style/Widget.Eve.Token.Column">
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/lottieEmpty"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                app:lottie_autoPlay="false"
+                app:lottie_loop="false"
+                app:lottie_rawRes="@raw/notification_bell"
+                style="@style/Widget.Eve.Token.Lottie" />
+            <TextView
+                style="@style/TextAppearance.Eve.Token.Heading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/design_section_gap"
+                android:gravity="center"
+                android:text="No notifications yet" />
+            <TextView
+                style="@style/TextAppearance.Eve.Token.Body"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/design_row_gap"
+                android:gravity="center"
+                android:text="New exams and updates will appear here" />
         </LinearLayout>
     </FrameLayout>
 </LinearLayout>

@@ -1,9 +1,70 @@
 <?xml version='1.0' encoding='utf-8'?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:ns2="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="top" android:orientation="horizontal" android:layout_marginVertical="@dimen/design_row_gap" android:minHeight="@dimen/design_row_with_gap" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
-    <ImageView android:id="@+id/ivNotificationIcon" android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:layout_marginTop="2dp" android:contentDescription="Notification" android:src="@drawable/ic_bell" app:tint="@color/accent" />
-    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_pill_padding" android:layout_weight="1" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Row">
-        <TextView android:id="@+id/tvTitle" style="@style/TextAppearance.Eve.Telegram.NotificationTitle" android:tag="eve_telegram_type" android:layout_width="match_parent" android:layout_height="wrap_content" ns2:text="Naya Exam Available!" />
-        <TextView android:id="@+id/tvBody" style="@style/TextAppearance.Eve.Telegram.NotificationBody" android:tag="eve_telegram_type" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_tab_padding" ns2:text="A new mock test has been added. Try it now!" />
-        <TextView android:id="@+id/tvTime" style="@style/TextAppearance.Eve.Telegram.NotificationTime" android:tag="eve_telegram_type" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" ns2:text="2 hours ago" />
+<!-- Telegram Android NotificationsCheckCell.java (21dp padding, 64dp minHeight, inset divider) -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:ns2="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="top"
+        android:orientation="horizontal"
+        android:minHeight="64dp"
+        android:paddingStart="21dp"
+        android:paddingEnd="21dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp">
+
+        <ImageView
+            android:id="@+id/ivNotificationIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginTop="2dp"
+            android:contentDescription="Notification"
+            android:src="@drawable/ic_bell"
+            app:tint="@color/accent" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="18dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvTitle"
+                style="@style/TextAppearance.Eve.Telegram.NotificationTitle"
+                android:tag="eve_telegram_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                ns2:text="Naya Exam Available!" />
+
+            <TextView
+                android:id="@+id/tvBody"
+                style="@style/TextAppearance.Eve.Telegram.NotificationBody"
+                android:tag="eve_telegram_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                ns2:text="A new mock test has been added. Try it now!" />
+
+            <TextView
+                android:id="@+id/tvTime"
+                style="@style/TextAppearance.Eve.Telegram.NotificationTime"
+                android:tag="eve_telegram_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                ns2:text="2 hours ago" />
+        </LinearLayout>
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="63dp"
+        android:background="@color/telegram_divider" />
 </LinearLayout>

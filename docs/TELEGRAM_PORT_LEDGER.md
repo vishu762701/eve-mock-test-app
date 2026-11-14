@@ -145,7 +145,7 @@ Notes / leftovers:
 Notes / leftovers:
 - Aligned `activity_change_username.xml` toolbar to 56dp and horizontal padding to 21dp.
 
-## F10 Settings and Theme - PENDING_CI
+## F10 Settings and Theme - DONE (commit 4502f529)
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | Settings row cell layout | `SettingsActivity.java:1169-1250` (`SettingCell`) | Card containers (`DesignCardView`) | Flat list rows, 28x28dp icon chips, 16sp title, 13sp subtitle, 50dp min height |
@@ -159,6 +159,20 @@ Notes / leftovers:
 Notes / leftovers:
 - Removed card wrappers from `activity_settings.xml` in favor of Telegram full-width flat list cells.
 - Preserved all theme-toggle and reveal animation host files intact (`ThemeSwitchAnimator.kt`, `ThemeManager.kt`, `TelegramMenuPopup.kt`, `ThemeFrameCoordinator.kt`).
+
+## F11 Notifications settings - PENDING_CI
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| Notification cell padding & minHeight | `NotificationsCheckCell.java:963` (21dp padding, 64dp minHeight) | 14dp padding, wrap_content | 21dp horizontal padding, 64dp minHeight (`item_notification.xml`) |
+| Inset hairline divider | `NotificationsCheckCell.java:232` (left inset divider) | None | 63dp left margin inset divider (`@color/telegram_divider`) |
+| List item touch selector | `NotificationsSettingsActivity.java:1228` (`Theme.getSelectorDrawable`) | Round-rect 8dp | `TelegramThemeSelectors.getSelectorDrawable` flat ripple selector |
+| Notifications screen ActionBar | `NotificationsSettingsActivity.java` (56dp bar, 54dp back, 18dp title margin) | 48dp bar, 48dp back, 6dp title margin | 56dp `telegram_action_bar_height`, 54dp back button, 18dp title margin |
+| SendNotification ActionBars | `NotificationsSettingsActivity.java` (56dp normal & selection ActionBars) | wrap_content, 48dp buttons | 56dp height, 54dp back/cancel/delete buttons, 18dp title margin |
+| Daily reminder scheduling | `ReminderScheduler.kt`, `DailyReminderWorker.kt` | Preserved Eve logic | Preserved Eve reminder scheduling logic untouched, wired to `TelegramSwitch` |
+
+Notes / leftovers:
+- Aligned `activity_notifications.xml`, `item_notification.xml`, `NotificationAdapter.kt`, and `activity_send_notification.xml` with Telegram source metrics.
+
 
 
 
