@@ -91,7 +91,49 @@ class BookmarksActivity : EveBaseActivity() {
 
         adapter = BookmarkAdapter(
             onOpenQuestion = { bookmark -> openQuestionInTest(bookmark) },
-            onUnbookmark = { bookmark -> removeBookmark(bookmark) },
+            onUnbookmark = onUnbookmark@{ bookmark ->
+                if (!hasBookmarksOwner()) { finish(); return@onUnbookmark }
+                val id = bookmark.questionId
+                if (id.isBlank() || !pendingRemovalIds.add(id)) return@onUnbookmark
+
+                lifecycleScope.launch {
+                    try {
+                        val result = viewModel.unbookmark(id)
+                        if (!hasBookmarksOwner() || isFinishing || isDestroyed) return@launch
+                        if (result.isFailure) {
+                            val failedIndex = adapter.currentList.indexOfFirst { it.questionId == id }
+                            if (failedIndex >= 0) adapter.notifyItemChanged(failedIndex)
+                            AppBulletin.showError(this@BookmarksActivity, "Couldn't remove bookmark. Try again.")
+                            return@launch
+                        }
+                        if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) return@launch
+                        com.eve.app.util.AppUndoBar.show(
+                            context = this@BookmarksActivity,
+                            message = "Bookmark removed",
+                            timeLeftMs = com.eve.app.util.AppUndoBar.TIME_LIGHT,
+                            onUndo = onUndo@{
+                                if (!hasBookmarksOwner() || isFinishing || isDestroyed) {
+                                    if (!hasBookmarksOwner()) finish()
+                                    return@onUndo
+                                }
+                                lifecycleScope.launch {
+                                    val restored = viewModel.bookmark(bookmark)
+                                    if (!hasBookmarksOwner() || isFinishing || isDestroyed) return@launch
+                                    if (restored.isSuccess) {
+                                        viewModel.load()
+                                        AppBulletin.show(this@BookmarksActivity, "Bookmark restored")
+                                    } else {
+                                        AppBulletin.showError(this@BookmarksActivity, "Couldn't restore bookmark. Try again.")
+                                        viewModel.load()
+                                    }
+                                }
+                            }
+                        )
+                    } finally {
+                        pendingRemovalIds.remove(id)
+                    }
+                }
+            },
             isHindi = { LanguageManager.isHindi(this) },
             onCopyQuestion = { bookmark -> copyQuestion(bookmark) },
             onShareQuestion = { bookmark -> shareQuestion(bookmark) },

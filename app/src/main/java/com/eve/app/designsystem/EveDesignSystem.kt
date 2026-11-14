@@ -85,6 +85,9 @@ object EveDesignSystem {
             isChecked = isSelected
             isCheckedIconVisible = false
             contentDescription = if (count > 0) "$category, $count items" else category
+            setOnClickListener {
+                onSelect()
+            }
             setOnCheckedChangeListener { _, checked ->
                 if (checked) onSelect()
             }

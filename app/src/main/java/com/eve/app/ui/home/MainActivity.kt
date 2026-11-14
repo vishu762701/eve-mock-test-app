@@ -837,7 +837,7 @@ class MainActivity : EveBaseActivity() {
                 isFocusable = true
                 setOnClickListener {
                     com.eve.app.util.VibrationHelper.vibrateLightHaptic(this@MainActivity)
-                    HomeSearchHistory.clear(this@MainActivity, uid)
+                    HomeSearchHistory.clear(this, uid)
                     showSearchSuggestions("")
                 }
             }
