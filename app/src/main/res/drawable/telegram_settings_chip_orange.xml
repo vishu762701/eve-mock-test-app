@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Port of Telegram IconBackgroundColors.ORANGE_DEEP (SettingsActivity.java:726, IconBackgroundColors.java:14) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="10dp" />
+    <gradient
+        android:angle="270"
+        android:startColor="#F28B31"
+        android:endColor="#E26314" />
+</shape>

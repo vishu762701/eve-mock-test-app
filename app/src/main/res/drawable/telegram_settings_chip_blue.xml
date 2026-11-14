@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Port of Telegram IconBackgroundColors.BLUE_LIGHT (SettingsActivity.java:762, IconBackgroundColors.java:6) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="10dp" />
+    <gradient
+        android:angle="270"
+        android:startColor="#1BA4ED"
+        android:endColor="#1488E1" />
+</shape>

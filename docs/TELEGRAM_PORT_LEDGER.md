@@ -132,7 +132,7 @@ Notes / leftovers:
 - Added long-click `TelegramPopupMenu` for phone, username (with username + link copy), and birthday.
 - Wired copy feedback through `AppBulletin.showSuccess`.
 
-## F9 Username change - PENDING_CI
+## F9 Username change - DONE (commit 1fcc7cb6)
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | ActionBar & Done action | `ChangeUsernameActivity.java:700-750` (56dp bar, 54dp checkmark, IME Done link) | 48dp toolbar, 48dp checkmark | 56dp `telegram_action_bar_height`, 54dp checkmark, IME Done linkage |
@@ -144,5 +144,21 @@ Notes / leftovers:
 
 Notes / leftovers:
 - Aligned `activity_change_username.xml` toolbar to 56dp and horizontal padding to 21dp.
+
+## F10 Settings and Theme - PENDING_CI
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| Settings row cell layout | `SettingsActivity.java:1169-1250` (`SettingCell`) | Card containers (`DesignCardView`) | Flat list rows, 28x28dp icon chips, 16sp title, 13sp subtitle, 50dp min height |
+| Icon chip gradient colors | `IconBackgroundColors.java:3-23`, `SettingsActivity.java:719-727` | Flat tinted vector drawables | Exact Telegram hex gradients (Purple, Red, Orange, Cyan, Blue, Gray) with 10dp radius |
+| Hairline divider inset | `SettingsActivity.java:1169-1250` (65dp-67dp left divider inset) | Full width or card dividers | 67dp left margin inset divider matching icon + text start |
+| Section spacing | `ShadowSectionCell.java:1-118` (12dp section gap) | Card margin gaps | 12dp `ShadowSectionCell` height gap between sections |
+| Section header padding & typography | `HeaderCell.java:39-80` (14-15sp bold, 21dp left padding, 40dp height) | Variable padding | 14-15sp roboto medium, 21dp start/end padding, 15dp top, 7dp bottom |
+| List item touch selector | `Theme.java:4798-4850` (`getSelectorDrawable`) | Round-rect card ripple (8dp) | Authentic rectangular ripple selector (`TelegramThemeSelectors.getSelectorDrawable`) |
+| Theme screen layout | `ThemeActivity.java`, `ThemesHorizontalListCell.java` | Card headers | 56dp ActionBar, 21dp horizontal padding, authentic HeaderCell section labels |
+
+Notes / leftovers:
+- Removed card wrappers from `activity_settings.xml` in favor of Telegram full-width flat list cells.
+- Preserved all theme-toggle and reveal animation host files intact (`ThemeSwitchAnimator.kt`, `ThemeManager.kt`, `TelegramMenuPopup.kt`, `ThemeFrameCoordinator.kt`).
+
 
 

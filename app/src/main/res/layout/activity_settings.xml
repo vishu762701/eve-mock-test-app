@@ -1,90 +1,602 @@
-<?xml version='1.0' encoding='utf-8'?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Screen">
-    <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/telegram_action_bar_height" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.ToolbarRow">
-            <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/telegram_action_bar_back_width" android:layout_height="match_parent" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/telegram_type_primary" style="@style/Widget.Eve.Token.IconButton" />
-            <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:tag="eve_telegram_type" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="@dimen/telegram_action_bar_title_start" android:maxLines="1" android:ellipsize="end" android:text="Settings" />
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Telegram Android SettingsActivity.java:1169-1250 (SettingCell), 719-727 (IconBackgroundColors) -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:clipToPadding="false"
+    android:clipChildren="false"
+    style="@style/Widget.Eve.Token.Screen">
+
+    <com.eve.app.ui.common.EveGlassToolbar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/telegram_action_bar_height"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:clipToPadding="false"
+            android:clipChildren="false"
+            style="@style/Widget.Eve.Token.ToolbarRow">
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="@dimen/telegram_action_bar_back_width"
+                android:layout_height="match_parent"
+                android:contentDescription="Back"
+                android:src="@drawable/ic_back"
+                app:tint="@color/telegram_type_primary"
+                style="@style/Widget.Eve.Token.IconButton" />
+            <TextView
+                style="@style/TextAppearance.Eve.Telegram.NavigationTitle"
+                android:tag="eve_telegram_type"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="@dimen/telegram_action_bar_title_start"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="Settings" />
         </LinearLayout>
     </com.eve.app.ui.common.EveGlassToolbar>
-    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true" android:overScrollMode="ifContentScrolls" android:scrollbars="none" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-            <TextView style="@style/TextAppearance.Eve.Telegram.SettingsSection" android:tag="eve_telegram_type" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="PREFERENCES" />
-            <com.eve.app.designsystem.DesignCardView style="@style/Widget.Eve.Token.Card" android:layout_width="match_parent" android:layout_height="wrap_content">
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                    <LinearLayout android:id="@+id/rowAppearance" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="@dimen/design_bottom_bar_height" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                        <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Appearance" android:src="@drawable/msg_palette" app:tint="@color/system_purple" />
-                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_pill_padding" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                            <TextView style="@style/TextAppearance.Eve.Telegram.SettingsLabel" android:tag="eve_telegram_type" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Appearance" />
-                            <TextView android:id="@+id/tvAppearanceValue" style="@style/TextAppearance.Eve.Telegram.SettingsDetail" android:tag="eve_telegram_type" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Theme and accent colors" />
-                        </LinearLayout>
-                        <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:src="@drawable/ic_chevron_right" app:tint="@color/text_secondary" />
-                    </LinearLayout>
-                    <LinearLayout android:id="@+id/rowReminder" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="@dimen/design_bottom_bar_height" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                        <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Reminder" android:src="@drawable/ic_bell" app:tint="@color/system_orange" />
-                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_pill_padding" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                            <TextView style="@style/TextAppearance.Eve.Telegram.SettingsLabel" android:tag="eve_telegram_type" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Daily Practice Reminder" />
-                            <TextView style="@style/TextAppearance.Eve.Telegram.SettingsDetail" android:tag="eve_telegram_type" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Get notified every day to keep your streak" />
-                        </LinearLayout>
-                        <com.eve.app.designsystem.TelegramSwitch android:id="@+id/switchReminder" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-                    </LinearLayout>
-                    <LinearLayout android:id="@+id/rowDailyGoal" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="@dimen/design_bottom_bar_height" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                        <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Daily Goal" android:src="@drawable/ic_trophy" app:tint="@color/system_orange" />
-                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_pill_padding" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                            <TextView style="@style/TextAppearance.Eve.Telegram.SettingsLabel" android:tag="eve_telegram_type" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Daily Goal" />
-                            <TextView android:id="@+id/tvDailyGoalValue" style="@style/TextAppearance.Eve.Telegram.SettingsDetail" android:tag="eve_telegram_type" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2 tests per day" />
-                        </LinearLayout>
-                        <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:src="@drawable/ic_chevron_right" app:tint="@color/text_secondary" />
-                    </LinearLayout>
-                    <LinearLayout android:id="@+id/rowTargetExams" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="@dimen/design_bottom_bar_height" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                        <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="My Exams" android:src="@drawable/ic_topic" app:tint="@color/system_blue" />
-                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_pill_padding" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                            <TextView style="@style/TextAppearance.Eve.Telegram.SettingsLabel" android:tag="eve_telegram_type" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="My Exams" />
-                            <TextView style="@style/TextAppearance.Eve.Telegram.SettingsDetail" android:tag="eve_telegram_type" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Choose exams for personalized feed" />
-                        </LinearLayout>
-                        <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:src="@drawable/ic_chevron_right" app:tint="@color/text_secondary" />
-                    </LinearLayout>
-                    <LinearLayout android:id="@+id/rowLanguage" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="@dimen/design_bottom_bar_height" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                        <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="App Language" android:src="@drawable/ic_language" app:tint="@color/system_blue" />
-                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_pill_padding" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                            <TextView style="@style/TextAppearance.Eve.Telegram.SettingsLabel" android:tag="eve_telegram_type" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="App Language" />
-                            <TextView android:id="@+id/tvLanguageValue" style="@style/TextAppearance.Eve.Telegram.SettingsDetail" android:tag="eve_telegram_type" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="System default" />
-                        </LinearLayout>
-                        <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:src="@drawable/ic_chevron_right" app:tint="@color/text_secondary" />
-                    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:overScrollMode="ifContentScrolls"
+        android:scrollbars="none"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        style="@style/Widget.Eve.Token.Scroll">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:clipToPadding="false"
+            android:clipChildren="false">
+
+            <!-- PREFERENCES SECTION -->
+            <TextView
+                style="@style/TextAppearance.Eve.Telegram.SettingsSection"
+                android:tag="eve_telegram_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="21dp"
+                android:paddingEnd="21dp"
+                android:paddingTop="15dp"
+                android:paddingBottom="7dp"
+                android:text="PREFERENCES" />
+
+            <!-- Appearance -->
+            <LinearLayout
+                android:id="@+id/rowAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="50dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="21dp"
+                android:paddingEnd="20dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
+
+                <FrameLayout
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:background="@drawable/telegram_settings_chip_purple">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="Appearance"
+                        android:src="@drawable/msg_palette"
+                        app:tint="@android:color/white" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        style="@style/TextAppearance.Eve.Telegram.SettingsLabel"
+                        android:tag="eve_telegram_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Appearance" />
+                    <TextView
+                        android:id="@+id/tvAppearanceValue"
+                        style="@style/TextAppearance.Eve.Telegram.SettingsDetail"
+                        android:tag="eve_telegram_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Theme and accent colors" />
                 </LinearLayout>
-            </com.eve.app.designsystem.DesignCardView>
-            <TextView style="@style/TextAppearance.Eve.Telegram.SettingsSection" android:tag="eve_telegram_type" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="INFORMATION" />
-            <com.eve.app.designsystem.DesignCardView style="@style/Widget.Eve.Token.Card" android:layout_width="match_parent" android:layout_height="wrap_content">
-                <LinearLayout android:id="@+id/rowAbout" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="@dimen/design_bottom_bar_height" android:clickable="true" android:focusable="true" android:contentDescription="About Eve" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                    <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:importantForAccessibility="no" android:src="@drawable/ic_info" app:tint="@color/telegram_type_primary" />
-                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_pill_padding" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                        <TextView style="@style/TextAppearance.Eve.Telegram.SettingsLabel" android:tag="eve_telegram_type" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="About" />
-                        <TextView style="@style/TextAppearance.Eve.Telegram.SettingsDetail" android:tag="eve_telegram_type" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="App information and details" />
-                    </LinearLayout>
-                    <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:importantForAccessibility="no" android:src="@drawable/ic_chevron_right" app:tint="@color/text_secondary" />
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="@color/text_secondary" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="67dp"
+                android:background="@color/telegram_divider" />
+
+            <!-- Daily Practice Reminder -->
+            <LinearLayout
+                android:id="@+id/rowReminder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="50dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="21dp"
+                android:paddingEnd="20dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
+
+                <FrameLayout
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:background="@drawable/telegram_settings_chip_red">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="Reminder"
+                        android:src="@drawable/ic_bell"
+                        app:tint="@android:color/white" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        style="@style/TextAppearance.Eve.Telegram.SettingsLabel"
+                        android:tag="eve_telegram_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Daily Practice Reminder" />
+                    <TextView
+                        style="@style/TextAppearance.Eve.Telegram.SettingsDetail"
+                        android:tag="eve_telegram_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Get notified every day to keep your streak" />
                 </LinearLayout>
-            </com.eve.app.designsystem.DesignCardView>
-            <TextView style="@style/TextAppearance.Eve.Telegram.SettingsSection" android:tag="eve_telegram_type" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="ACCOUNT" />
-            <com.eve.app.designsystem.DesignCardView style="@style/Widget.Eve.Token.Card" android:layout_width="match_parent" android:layout_height="wrap_content">
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                    <LinearLayout android:id="@+id/rowLogout" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="@dimen/design_bottom_bar_height" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                        <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Log Out" android:src="@drawable/ic_logout" app:tint="@color/telegram_type_primary" />
-                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_pill_padding" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                            <TextView style="@style/TextAppearance.Eve.Telegram.SettingsLabel" android:tag="eve_telegram_type" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Log Out" />
-                            <TextView style="@style/TextAppearance.Eve.Telegram.SettingsDetail" android:tag="eve_telegram_type" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Sign out of your account" />
-                        </LinearLayout>
-                        <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:importantForAccessibility="no" android:src="@drawable/ic_chevron_right" app:tint="@color/text_secondary" />
-                    </LinearLayout>
-                    <LinearLayout android:id="@+id/rowDeleteAccount" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="@dimen/design_bottom_bar_height" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                        <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Delete Account" android:src="@drawable/ic_delete" app:tint="@color/system_red" />
-                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_pill_padding" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                            <TextView style="@style/TextAppearance.Eve.Token.Body.red" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Delete Account" />
-                            <TextView style="@style/TextAppearance.Eve.Telegram.SettingsDetail" android:tag="eve_telegram_type" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Permanently delete account and all data" />
-                        </LinearLayout>
-                        <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Go" android:src="@drawable/ic_chevron_right" app:tint="@color/text_secondary" />
-                    </LinearLayout>
+
+                <com.eve.app.designsystem.TelegramSwitch
+                    android:id="@+id/switchReminder"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="67dp"
+                android:background="@color/telegram_divider" />
+
+            <!-- Daily Goal -->
+            <LinearLayout
+                android:id="@+id/rowDailyGoal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="50dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="21dp"
+                android:paddingEnd="20dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
+
+                <FrameLayout
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:background="@drawable/telegram_settings_chip_orange">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="Daily Goal"
+                        android:src="@drawable/ic_trophy"
+                        app:tint="@android:color/white" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        style="@style/TextAppearance.Eve.Telegram.SettingsLabel"
+                        android:tag="eve_telegram_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Daily Goal" />
+                    <TextView
+                        android:id="@+id/tvDailyGoalValue"
+                        style="@style/TextAppearance.Eve.Telegram.SettingsDetail"
+                        android:tag="eve_telegram_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="2 tests per day" />
                 </LinearLayout>
-            </com.eve.app.designsystem.DesignCardView>
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="@color/text_secondary" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="67dp"
+                android:background="@color/telegram_divider" />
+
+            <!-- My Exams -->
+            <LinearLayout
+                android:id="@+id/rowTargetExams"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="50dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="21dp"
+                android:paddingEnd="20dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
+
+                <FrameLayout
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:background="@drawable/telegram_settings_chip_cyan">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="My Exams"
+                        android:src="@drawable/ic_topic"
+                        app:tint="@android:color/white" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        style="@style/TextAppearance.Eve.Telegram.SettingsLabel"
+                        android:tag="eve_telegram_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="My Exams" />
+                    <TextView
+                        style="@style/TextAppearance.Eve.Telegram.SettingsDetail"
+                        android:tag="eve_telegram_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Choose exams for personalized feed" />
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="@color/text_secondary" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="67dp"
+                android:background="@color/telegram_divider" />
+
+            <!-- App Language -->
+            <LinearLayout
+                android:id="@+id/rowLanguage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="50dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="21dp"
+                android:paddingEnd="20dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
+
+                <FrameLayout
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:background="@drawable/telegram_settings_chip_purple">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="App Language"
+                        android:src="@drawable/ic_language"
+                        app:tint="@android:color/white" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        style="@style/TextAppearance.Eve.Telegram.SettingsLabel"
+                        android:tag="eve_telegram_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="App Language" />
+                    <TextView
+                        android:id="@+id/tvLanguageValue"
+                        style="@style/TextAppearance.Eve.Telegram.SettingsDetail"
+                        android:tag="eve_telegram_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="System default" />
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="@color/text_secondary" />
+            </LinearLayout>
+
+            <!-- Telegram ShadowSectionCell (12dp gap) -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="12dp" />
+
+            <!-- INFORMATION SECTION -->
+            <TextView
+                style="@style/TextAppearance.Eve.Telegram.SettingsSection"
+                android:tag="eve_telegram_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="21dp"
+                android:paddingEnd="21dp"
+                android:paddingTop="15dp"
+                android:paddingBottom="7dp"
+                android:text="INFORMATION" />
+
+            <!-- About -->
+            <LinearLayout
+                android:id="@+id/rowAbout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="50dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="About Eve"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="21dp"
+                android:paddingEnd="20dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
+
+                <FrameLayout
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:background="@drawable/telegram_settings_chip_blue">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_info"
+                        app:tint="@android:color/white" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        style="@style/TextAppearance.Eve.Telegram.SettingsLabel"
+                        android:tag="eve_telegram_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="About" />
+                    <TextView
+                        style="@style/TextAppearance.Eve.Telegram.SettingsDetail"
+                        android:tag="eve_telegram_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="App information and details" />
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="@color/text_secondary" />
+            </LinearLayout>
+
+            <!-- Telegram ShadowSectionCell (12dp gap) -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="12dp" />
+
+            <!-- ACCOUNT SECTION -->
+            <TextView
+                style="@style/TextAppearance.Eve.Telegram.SettingsSection"
+                android:tag="eve_telegram_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="21dp"
+                android:paddingEnd="21dp"
+                android:paddingTop="15dp"
+                android:paddingBottom="7dp"
+                android:text="ACCOUNT" />
+
+            <!-- Log Out -->
+            <LinearLayout
+                android:id="@+id/rowLogout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="50dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="21dp"
+                android:paddingEnd="20dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
+
+                <FrameLayout
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:background="@drawable/telegram_settings_chip_gray">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="Log Out"
+                        android:src="@drawable/ic_logout"
+                        app:tint="@android:color/white" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        style="@style/TextAppearance.Eve.Telegram.SettingsLabel"
+                        android:tag="eve_telegram_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Log Out" />
+                    <TextView
+                        style="@style/TextAppearance.Eve.Telegram.SettingsDetail"
+                        android:tag="eve_telegram_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Sign out of your account" />
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="@color/text_secondary" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="67dp"
+                android:background="@color/telegram_divider" />
+
+            <!-- Delete Account -->
+            <LinearLayout
+                android:id="@+id/rowDeleteAccount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="50dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="21dp"
+                android:paddingEnd="20dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
+
+                <FrameLayout
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:background="@drawable/telegram_settings_chip_red">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="Delete Account"
+                        android:src="@drawable/ic_delete"
+                        app:tint="@android:color/white" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        style="@style/TextAppearance.Eve.Token.Body.red"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Delete Account" />
+                    <TextView
+                        style="@style/TextAppearance.Eve.Telegram.SettingsDetail"
+                        android:tag="eve_telegram_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Permanently delete account and all data" />
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:contentDescription="Go"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="@color/text_secondary" />
+            </LinearLayout>
+
+            <!-- Bottom clearance -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="24dp" />
+
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

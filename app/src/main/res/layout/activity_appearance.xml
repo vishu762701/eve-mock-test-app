@@ -68,6 +68,10 @@
                 android:tag="eve_telegram_type"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingStart="21dp"
+                android:paddingEnd="21dp"
+                android:paddingTop="15dp"
+                android:paddingBottom="7dp"
                 android:text="PREVIEW" />
 
             <com.eve.app.designsystem.DesignCardView
@@ -124,6 +128,10 @@
                 android:tag="eve_telegram_type"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingStart="21dp"
+                android:paddingEnd="21dp"
+                android:paddingTop="15dp"
+                android:paddingBottom="7dp"
                 android:text="MODE" />
 
             <com.eve.app.designsystem.DesignCardView
@@ -167,6 +175,10 @@
                 android:tag="eve_telegram_type"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingStart="21dp"
+                android:paddingEnd="21dp"
+                android:paddingTop="15dp"
+                android:paddingBottom="7dp"
                 android:text="COLOR THEMES" />
 
             <HorizontalScrollView
@@ -174,7 +186,7 @@
                 android:layout_height="wrap_content"
                 android:scrollbars="none"
                 android:clipToPadding="false"
-                android:paddingHorizontal="@dimen/design_screen_margin">
+                android:paddingHorizontal="21dp">
                 <LinearLayout
                     android:id="@+id/layoutThemesContainer"
                     android:layout_width="wrap_content"
@@ -188,6 +200,10 @@
                 android:tag="eve_telegram_type"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingStart="21dp"
+                android:paddingEnd="21dp"
+                android:paddingTop="15dp"
+                android:paddingBottom="7dp"
                 android:text="ACCENT COLOR" />
 
             <HorizontalScrollView
@@ -195,7 +211,7 @@
                 android:layout_height="wrap_content"
                 android:scrollbars="none"
                 android:clipToPadding="false"
-                android:paddingHorizontal="@dimen/design_screen_margin">
+                android:paddingHorizontal="21dp">
                 <LinearLayout
                     android:id="@+id/layoutAccentsContainer"
                     android:layout_width="wrap_content"
@@ -209,6 +225,10 @@
                 android:tag="eve_telegram_type"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingStart="21dp"
+                android:paddingEnd="21dp"
+                android:paddingTop="15dp"
+                android:paddingBottom="7dp"
                 android:text="CUSTOMIZATION" />
 
             <com.eve.app.designsystem.DesignCardView

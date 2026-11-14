@@ -41,6 +41,10 @@ import com.eve.app.util.SubmissionRetryPolicy
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 
+/**
+ * Telegram Android SettingsActivity.java:1169-1250 (SettingCell), 719-727 (rows and icon chip colors),
+ * IconBackgroundColors.java:3-23.
+ */
 class SettingsActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
@@ -606,7 +610,6 @@ class SettingsActivity : EveBaseActivity() {
     override fun onApplyThemePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
         super.onApplyThemePalette(palette)
         if (::binding.isInitialized) {
-            val radius = 8 * resources.displayMetrics.density
             val rows = listOf(
                 binding.rowAppearance,
                 binding.rowReminder,
@@ -618,8 +621,7 @@ class SettingsActivity : EveBaseActivity() {
                 binding.rowDeleteAccount
             )
             rows.forEach { row ->
-                row.background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
-                    radius,
+                row.background = com.eve.app.designsystem.TelegramThemeSelectors.getSelectorDrawable(
                     palette.actionSelector
                 )
             }
