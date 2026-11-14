@@ -263,7 +263,7 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | Copy Link Bulletin | `QrShareActivity.java:180` | Generic text | Telegram `AppBulletin.showSuccess` ("Link copied to clipboard") |
 Leftovers / ASSUMED values: None
 
-## A3 Polls: exact Telegram poll & quiz behaviour - DONE (commit a3a85692)
+## A3 Polls: exact Telegram poll & quiz behaviour - DONE (commit ce187e1f)
 Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
