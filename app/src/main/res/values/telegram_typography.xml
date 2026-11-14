@@ -49,6 +49,7 @@
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/telegram_type_primary</item>
     </style>
+    <style name="TextAppearance.Eve.Telegram.SettingsTitle" parent="TextAppearance.Eve.Telegram.SettingsLabel" />
     <style name="TextAppearance.Eve.Telegram.SettingsDetail" parent="TextAppearance.Material3.BodyLarge">
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
