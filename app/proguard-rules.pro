@@ -46,3 +46,35 @@
 # Lottie Animations
 -keep class com.airbnb.lottie.** { *; }
 -dontwarn com.airbnb.lottie.**
+
+# JNI Methods & Telegram Native Components
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+-keep class org.telegram.ui.Components.RLottieNative { *; }
+-keep class com.eve.app.telegram.qr.QrBackdropNative { *; }
+
+# Profile Gooey RenderEffect / AGSL / RuntimeShader & View Hierarchy
+-keep class com.eve.app.ui.profile.ProfileGooeyView { *; }
+-keep class com.eve.app.ui.profile.ProfileGooeyMotionMath { *; }
+-keep class com.eve.app.ui.profile.ProfileAvatarTrajectory { *; }
+-keep class android.graphics.RenderEffect { *; }
+-keep class android.graphics.RuntimeShader { *; }
+
+# Telegram Ports & Custom Design System Components (Reflection / Layout Inflation)
+-keep class org.telegram.** { *; }
+-keep class com.eve.app.designsystem.** { *; }
+-keep class com.eve.app.ui.components.** { *; }
+
+# Parcelables
+-keep class * implements android.os.Parcelable {
+    public static final android.os.Parcelable$Creator *;
+}
+
+# Firebase & Database Models
+-keepclassmembers class * {
+    @com.google.firebase.database.IgnoreExtraProperties <fields>;
+    @com.google.firebase.firestore.PropertyName <fields>;
+    @com.google.firebase.database.PropertyName <fields>;
+    @com.google.firebase.firestore.ServerTimestamp <fields>;
+}

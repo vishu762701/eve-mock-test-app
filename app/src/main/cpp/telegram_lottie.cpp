@@ -164,7 +164,7 @@ JNIEXPORT jlong JNICALL Java_org_telegram_ui_Components_RLottieNative_nCreate(
         tlottie_drop(instance);
         return 0;
     }
-    return reinterpret_cast<jlong>(instance);
+    return static_cast<jlong>(reinterpret_cast<uintptr_t>(instance));
 }
 
 JNIEXPORT jlong JNICALL Java_org_telegram_ui_Components_RLottieNative_nCreateWithJson(
@@ -181,19 +181,19 @@ JNIEXPORT jlong JNICALL Java_org_telegram_ui_Components_RLottieNative_nCreateWit
         tlottie_drop(instance);
         return 0;
     }
-    return reinterpret_cast<jlong>(instance);
+    return static_cast<jlong>(reinterpret_cast<uintptr_t>(instance));
 }
 
 JNIEXPORT void JNICALL Java_org_telegram_ui_Components_RLottieNative_nDestroy(JNIEnv *, jclass, jlong ptr) {
     if (ptr != 0) {
-        tlottie_drop(reinterpret_cast<TLottieInstance *>(ptr));
+        tlottie_drop(reinterpret_cast<TLottieInstance *>(static_cast<uintptr_t>(ptr)));
     }
 }
 
 JNIEXPORT jint JNICALL Java_org_telegram_ui_Components_RLottieNative_nGetFrame(
         JNIEnv *env, jclass, jlong ptr, jint frame, jobject bitmap, jboolean clear) {
     if (ptr == 0 || bitmap == nullptr) return 0;
-    auto *instance = reinterpret_cast<TLottieInstance *>(ptr);
+    auto *instance = reinterpret_cast<TLottieInstance *>(static_cast<uintptr_t>(ptr));
     AndroidBitmapInfo bitmapInfo;
     if (AndroidBitmap_getInfo(env, bitmap, &bitmapInfo) != ANDROID_BITMAP_RESULT_SUCCESS ||
         (bitmapInfo.format != ANDROID_BITMAP_FORMAT_RGBA_8888 &&
