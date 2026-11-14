@@ -46,9 +46,33 @@ open class TelegramChipGroup @JvmOverloads constructor(
         }
 
     var isSingleSelection: Boolean = true
+    var isSelectionRequired: Boolean = false
 
     private var checkedId: Int = View.NO_ID
-    private var onCheckedChangeListener: ((group: TelegramChipGroup, checkedId: Int) -> Unit)? = null
+
+    val checkedChipId: Int
+        get() = checkedId
+
+    val checkedChipIds: List<Int>
+        get() {
+            if (isSingleSelection) {
+                return if (checkedId != View.NO_ID) listOf(checkedId) else emptyList()
+            }
+            val result = mutableListOf<Int>()
+            for (i in 0 until childCount) {
+                val child = getChildAt(i)
+                if (child is Checkable && child.isChecked) {
+                    result.add(child.id)
+                }
+            }
+            return result
+        }
+
+    fun interface OnCheckedStateChangeListener {
+        fun onCheckedChanged(group: TelegramChipGroup, checkedIds: List<Int>)
+    }
+
+    private var onCheckedStateChangeListener: OnCheckedStateChangeListener? = null
 
     init {
         if (attrs != null) {
@@ -61,8 +85,8 @@ open class TelegramChipGroup @JvmOverloads constructor(
         }
     }
 
-    fun setOnCheckedStateChangeListener(listener: (group: TelegramChipGroup, checkedId: Int) -> Unit) {
-        this.onCheckedChangeListener = listener
+    fun setOnCheckedStateChangeListener(listener: OnCheckedStateChangeListener?) {
+        this.onCheckedStateChangeListener = listener
     }
 
     fun check(id: Int) {
@@ -74,14 +98,54 @@ open class TelegramChipGroup @JvmOverloads constructor(
         if (id != View.NO_ID) {
             setCheckedStateForView(id, true)
         }
-        onCheckedChangeListener?.invoke(this, checkedId)
+        notifyCheckChanged()
     }
 
     fun clearCheck() {
-        check(View.NO_ID)
+        if (isSingleSelection && checkedId != View.NO_ID) {
+            setCheckedStateForView(checkedId, false)
+        }
+        checkedId = View.NO_ID
+        notifyCheckChanged()
     }
 
-    fun getCheckedChipId(): Int = checkedId
+    private fun notifyCheckChanged() {
+        onCheckedStateChangeListener?.onCheckedChanged(this, checkedChipIds)
+    }
+
+    override fun onViewAdded(child: View) {
+        super.onViewAdded(child)
+        if (child.id == View.NO_ID) {
+            child.id = View.generateViewId()
+        }
+        if (child is android.widget.CompoundButton) {
+            child.setOnCheckedChangeListener { buttonView, isChecked ->
+                if (isSingleSelection) {
+                    if (isChecked) {
+                        check(buttonView.id)
+                    } else if (isSelectionRequired && checkedId == buttonView.id) {
+                        buttonView.isChecked = true
+                    }
+                } else {
+                    notifyCheckChanged()
+                }
+            }
+        } else {
+            child.setOnClickListener {
+                if (isSingleSelection) {
+                    check(child.id)
+                } else if (child is Checkable) {
+                    child.toggle()
+                    notifyCheckChanged()
+                }
+            }
+        }
+        if (child is Checkable && child.isChecked) {
+            if (isSingleSelection) {
+                check(child.id)
+            }
+        }
+    }
 
     private fun setCheckedStateForView(viewId: Int, isChecked: Boolean) {
         val target = findViewById<View>(viewId)
@@ -99,13 +163,6 @@ open class TelegramChipGroup @JvmOverloads constructor(
             id = chipId
             text = chipText
             isChecked = checked
-            setOnClickListener {
-                if (isSingleSelection) {
-                    check(id)
-                } else {
-                    isChecked = !isChecked
-                }
-            }
         }
         addView(chip)
         if (checked) {

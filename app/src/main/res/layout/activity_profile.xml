@@ -27,14 +27,14 @@
             android:layout_gravity="top|center_horizontal"
             android:layout_marginTop="66dp">
 
-            <ImageView
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/ivProfilePhoto"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:contentDescription="Profile photo"
                 android:scaleType="centerCrop"
                 android:background="@drawable/design_avatar_surface"
-                android:clipToOutline="true"
+                app:shapeAppearanceOverlay="@style/ShapeCircle"
                 android:src="@drawable/ic_person" />
             <View android:id="@+id/profilePhotoScrim" android:layout_width="match_parent"
                 android:layout_height="match_parent" android:importantForAccessibility="no"
