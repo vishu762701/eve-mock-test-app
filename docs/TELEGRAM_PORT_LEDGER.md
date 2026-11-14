@@ -251,7 +251,7 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | Copy phone & username | `ProfileActivity.java:2340` (Long press copy with Telegram bulletin) | Generic clipboard strings with `t.me` | Authentic `AppBulletin.showSuccess` notifications, `eve-mock-test://username/$uname` link format |
 Leftovers / ASSUMED values: None
 
-## A2 QR screen: exact Telegram QR share screen - DONE
+## A2 QR screen: exact Telegram QR share screen - DONE (commit d2fcd6f2)
 Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
@@ -262,6 +262,22 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | Scan Overlay & Camera | `QrScanOverlay.java`, `QrScannerGlass.java` | No live scan overlay | Morphing scanner frame with `RimPainter` specular edge glow (`EveQrLiveScannerActivity`, `QrScanMorphLayout`) |
 | Copy Link Bulletin | `QrShareActivity.java:180` | Generic text | Telegram `AppBulletin.showSuccess` ("Link copied to clipboard") |
 Leftovers / ASSUMED values: None
+
+## A3 Polls: exact Telegram poll & quiz behaviour - DONE
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| Question limit & counter | `PollCreateActivity.java:120`, `ChatAttachAlertPollLayout.java:234` (255 max chars) | No live countdown counter | 255 char limit with live countdown counter (`MAX_QUESTION_LENGTH = 255`), turns red when exceeded |
+| Option limit & counter | `PollCreateActivity.java:121`, `ChatAttachAlertPollLayout.java:235` (100 max chars) | Unenforced or missing counter | 100 char limit per option with live countdown counter (`MAX_ANSWER_LENGTH = 100`) |
+| Dynamic options (2-10) | `PollCreateActivity.java:210-240` (min 2, max 10 options) | Fixed 2-6 options in alert dialog | Dynamic 2-10 options with animated `LayoutTransition` addition and deletion |
+| Quiz mode & Explanation | `PollCreateActivity.java:310-380` (quiz mode, correct answer radio indicator, 200 max explanation) | No quiz mode support | `PollCreateActivity` supports Quiz Mode toggle, `TelegramRadioIndicator` selection of correct answer, and explanation (200 char limit) |
+| Vote percentage animation | `LineProgressView.java:70-110`, `ChatMessageCell.java:29480-29530` (300ms DecelerateInterpolator) | Instant or generic bar | `TelegramLineProgressView` smooth animated percentage fill on vote submission |
+| Percentage normalization | `ChatMessageCell.java:29518-29547` (sum to exactly 100%) | Simple integer rounding | `Poll.getNormalizedPercentages()` ensures fractional percentages sum up to 100% |
+| Quiz answer tinting | `ChatMessageCell.java:29600-29650` (green for correct, red for chosen wrong) | Single accent color for all choices | Authentic Telegram quiz colors: green (`0xFF4FAE4E`) for correct option, red (`0xFFDF3F40`) for wrong chosen option |
+| Detailed votes breakdown | `PollVotesAlert.java:45-210` (bottom sheet breakdown) | Simple expandable rows only | `PollVotesAlert` (`TelegramBottomSheet`) displaying poll header, question, percentages, vote count, and quiz explanation |
+| Material buttons purge | `ENGINEERING_STANDARD.md` section 2 | `MaterialButton` in `activity_main.xml`, `dialog_create_poll.xml`, `item_poll_admin.xml` | Purged all `MaterialButton` instances in favor of `AppCompatButton` and Telegram design components |
+Leftovers / ASSUMED values: None
+
 
 
 

@@ -8,7 +8,10 @@ data class Poll(
     val endsAt: Long = 0L,
     val active: Boolean = true,
     val createdBy: String = "",
-    val voteCounts: Map<String, Long> = emptyMap()
+    val voteCounts: Map<String, Long> = emptyMap(),
+    val quizMode: Boolean = false,
+    val correctOptionIndex: Int = -1,
+    val explanation: String = ""
 ) {
     val totalVotes: Long
         get() = voteCounts.values.sum()

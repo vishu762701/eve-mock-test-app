@@ -29,16 +29,26 @@ class PollRepository(
         options: List<String>,
         endsAt: Long,
         active: Boolean,
-        createdBy: String
+        createdBy: String,
+        quizMode: Boolean = false,
+        correctOptionIndex: Int = -1,
+        explanation: String = ""
     ): String {
         val cleanedOptions = options.map { it.trim() }.filter { it.isNotBlank() }
-        val body = mapOf(
+        val body: MutableMap<String, Any> = mutableMapOf(
             "question" to question.trim(),
             "options" to cleanedOptions,
             "endsAt" to endsAt,
             "active" to active,
             "createdBy" to createdBy
         )
+        if (quizMode) {
+            body["quizMode"] = true
+            body["correctOptionIndex"] = correctOptionIndex
+            if (explanation.isNotBlank()) {
+                body["explanation"] = explanation.trim()
+            }
+        }
         val res = api.createPoll(body)
         if (!res.success || res.data == null) {
             throw IllegalStateException(res.error ?: "Failed to create poll")

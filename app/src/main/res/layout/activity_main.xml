@@ -47,10 +47,10 @@
                 <androidx.viewpager2.widget.ViewPager2 android:id="@+id/vpHomeBanners" android:layout_width="match_parent" android:layout_height="match_parent" android:clipChildren="false" android:clipToPadding="false" android:alpha="1" android:overScrollMode="never" />
                 <View android:id="@+id/homeBannerMatte" android:layout_width="match_parent" android:layout_height="match_parent" android:clickable="false" android:focusable="false" />
                 <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
-                    <com.google.android.material.button.MaterialButton android:id="@+id/btnHomeBannerCta" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_gravity="bottom|end" android:contentDescription="Open Home banner link" android:ellipsize="end" android:maxLines="1" android:visibility="gone" />
+                    <androidx.appcompat.widget.AppCompatButton android:id="@+id/btnHomeBannerCta" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_gravity="bottom|end" android:contentDescription="Open Home banner link" android:ellipsize="end" android:maxLines="1" android:visibility="gone" />
                 </FrameLayout>
             </FrameLayout>
-            <com.google.android.material.button.MaterialButton android:id="@+id/btnAdmin" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_marginTop="@dimen/design_screen_margin" android:text="Admin Dashboard" android:visibility="gone" />
+            <androidx.appcompat.widget.AppCompatButton android:id="@+id/btnAdmin" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_marginTop="@dimen/design_screen_margin" android:text="Admin Dashboard" android:visibility="gone" />
             <com.eve.app.designsystem.DesignCardView
                 android:id="@+id/cardPoll"
                 android:layout_width="match_parent"
@@ -100,7 +100,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/design_row_gap" />
-                    <com.google.android.material.button.MaterialButton
+                    <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnSubmitHomeVote"
                         style="@style/Widget.Eve.Token.Button.Secondary"
                         android:layout_width="match_parent"
@@ -143,7 +143,7 @@
                     <com.airbnb.lottie.LottieAnimationView android:id="@+id/ivMessageIcon" android:layout_width="160dp" android:layout_height="160dp" app:lottie_autoPlay="false" app:lottie_loop="false" app:lottie_rawRes="@raw/error_404" style="@style/Widget.Eve.Token.Lottie" />
                     <TextView android:id="@+id/tvMessage" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_section_gap" android:gravity="center" />
                     <TextView android:id="@+id/tvMessageSub" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="260dp" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:gravity="center" />
-                    <com.google.android.material.button.MaterialButton android:id="@+id/btnRetry" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="18dp" android:text="Try again" android:visibility="gone" />
+                    <androidx.appcompat.widget.AppCompatButton android:id="@+id/btnRetry" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="18dp" android:text="Try again" android:visibility="gone" />
                 </LinearLayout>
             </FrameLayout>
         </LinearLayout>
@@ -162,7 +162,7 @@
             <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:importantForAccessibility="no" android:src="@drawable/ic_maintenance" app:tint="@color/system_blue" />
             <TextView android:id="@+id/tvMaintenanceTitle" android:accessibilityHeading="true" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_shadow_room" android:text="Scheduled Maintenance" />
             <TextView android:id="@+id/tvMaintenanceMessage" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:gravity="center" android:text="Eve Mock Test is currently undergoing scheduled maintenance. Please check back shortly." />
-            <com.google.android.material.button.MaterialButton android:id="@+id/btnCheckMaintenanceAgain" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minHeight="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_icon_size" android:text="Check Again" />
+            <androidx.appcompat.widget.AppCompatButton android:id="@+id/btnCheckMaintenanceAgain" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minHeight="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_icon_size" android:text="Check Again" />
         </LinearLayout>
     </ScrollView>
     <FrameLayout android:id="@+id/forceUpdateOverlay" android:layout_width="match_parent" android:layout_height="match_parent" android:clickable="true" android:focusable="true" android:visibility="gone" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
@@ -170,7 +170,7 @@
             <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:src="@drawable/ic_refresh" app:tint="@color/system_blue" />
             <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_shadow_room" android:text="Update Required" />
             <TextView android:id="@+id/tvForceUpdateMessage" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:gravity="center" android:text="A newer version of Eve Mock Test is required to continue. Please update to the latest version for improved stability, questions, and security." />
-            <com.google.android.material.button.MaterialButton android:id="@+id/btnForceUpdateNow" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_icon_size" android:text="Update App Now" />
+            <androidx.appcompat.widget.AppCompatButton android:id="@+id/btnForceUpdateNow" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_icon_size" android:text="Update App Now" />
         </LinearLayout>
     </FrameLayout>
     </FrameLayout>

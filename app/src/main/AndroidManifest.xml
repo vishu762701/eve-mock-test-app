@@ -77,6 +77,10 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".ui.poll.PollCreateActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Eve.AdminHub" />
+        <activity
             android:name=".ui.profile.ProfileActivity"
             android:exported="false"
             android:theme="@style/Theme.Eve.Profile" />

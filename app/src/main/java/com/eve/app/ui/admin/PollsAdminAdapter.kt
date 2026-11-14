@@ -159,6 +159,10 @@ class PollsAdminAdapter(
                 animateResults(expanded)
             }
             binding.root.setOnClickListener(toggle)
+            binding.root.setOnLongClickListener {
+                com.eve.app.ui.poll.PollVotesAlert.show(context, poll)
+                true
+            }
             com.eve.app.designsystem.DesignPress.bind(binding.tvTapToView)
             binding.tvTapToView.setOnClickListener(toggle)
             binding.tvTapToView.isFocusable = true

@@ -1630,9 +1630,14 @@ class MainActivity : EveBaseActivity() {
                 activePollVotedIndex = effectiveVote
 
                 binding.cardPoll.visibility = if (isSearchActive) View.GONE else View.VISIBLE
+                binding.tvHomePollHeader.text = if (poll.quizMode) "💡 Quiz" else "🗳️ Community Poll"
                 binding.tvHomePollQuestion.text = poll.question
                 binding.tvHomePollTotalVotes.text = "${poll.totalVotes} total votes"
                 binding.tvHomePollStatus.text = if (poll.isCurrentlyActive) "Active" else "Closed"
+                binding.cardPoll.setOnLongClickListener {
+                    com.eve.app.ui.poll.PollVotesAlert.show(this@MainActivity, poll)
+                    true
+                }
 
                 if (effectiveVote != null || !poll.isCurrentlyActive) {
                     binding.rgHomePollOptions.visibility = View.GONE
@@ -1723,20 +1728,28 @@ class MainActivity : EveBaseActivity() {
 
             val isMyChoice = (myVote == index)
             val isLeading = votes == maxVotes && votes > 0
+            val isQuiz = poll.quizMode
+            val isCorrect = isQuiz && poll.correctOptionIndex == index
+            val isWrongChoice = isQuiz && isMyChoice && !isCorrect
+
+            val itemColor = when {
+                isCorrect -> 0xFF4FAE4E.toInt()
+                isWrongChoice -> 0xFFDF3F40.toInt()
+                isMyChoice || isLeading -> palette.accent
+                else -> palette.textSecondary
+            }
+
             rowBinding.ivOptionCheck.visibility = if (isMyChoice) View.VISIBLE else View.GONE
             if (isMyChoice) {
                 rowBinding.ivOptionCheck.setChecked(true, false)
-                rowBinding.tvOptionTitle.setTextColor(palette.accent)
+                rowBinding.ivOptionCheck.setColors(palette.textSecondary, itemColor, android.graphics.Color.WHITE)
+            }
+            if (isMyChoice || isLeading || isCorrect) {
+                rowBinding.tvOptionTitle.setTextColor(if (isCorrect || isWrongChoice) itemColor else palette.textPrimary)
                 rowBinding.tvOptionTitle.setTypeface(null, android.graphics.Typeface.BOLD)
-                rowBinding.tvOptionPercent.setTextColor(palette.accent)
-                rowBinding.pbOption.progressColor = palette.accent
-                rowBinding.pbOption.backColor = androidx.core.graphics.ColorUtils.setAlphaComponent(palette.accent, 40)
-            } else if (isLeading) {
-                rowBinding.tvOptionTitle.setTextColor(palette.accent)
-                rowBinding.tvOptionTitle.setTypeface(null, android.graphics.Typeface.BOLD)
-                rowBinding.tvOptionPercent.setTextColor(palette.accent)
-                rowBinding.pbOption.progressColor = palette.accent
-                rowBinding.pbOption.backColor = androidx.core.graphics.ColorUtils.setAlphaComponent(palette.accent, 40)
+                rowBinding.tvOptionPercent.setTextColor(itemColor)
+                rowBinding.pbOption.progressColor = itemColor
+                rowBinding.pbOption.backColor = androidx.core.graphics.ColorUtils.setAlphaComponent(itemColor, 40)
             } else {
                 rowBinding.tvOptionTitle.setTextColor(palette.textPrimary)
                 rowBinding.tvOptionTitle.setTypeface(null, android.graphics.Typeface.NORMAL)
@@ -1751,6 +1764,16 @@ class MainActivity : EveBaseActivity() {
             rowBinding.tvOptionVotes.text = "$votes votes"
 
             binding.layoutHomePollResults.addView(rowBinding.root)
+        }
+
+        if (poll.quizMode && poll.explanation.isNotBlank() && myVote != null) {
+            val explTv = android.widget.TextView(this).apply {
+                text = "💡 ${poll.explanation}"
+                textSize = 13f
+                setTextColor(palette.textSecondary)
+                setPadding(0, 16, 0, 4)
+            }
+            binding.layoutHomePollResults.addView(explTv)
         }
     }
 

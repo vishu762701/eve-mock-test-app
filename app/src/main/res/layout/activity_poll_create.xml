@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    style="@style/Widget.Eve.Token.Screen">
+
+    <!-- Telegram 56dp Action Bar -->
+    <com.eve.app.designsystem.TelegramActionBar
+        android:id="@+id/actionBar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/telegram_action_bar_height" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Section 1: Question -->
+            <com.eve.app.ui.admin.tg.HeaderCell
+                android:id="@+id/headerQuestion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="21dp"
+                android:paddingEnd="16dp"
+                android:paddingVertical="8dp">
+
+                <EditText
+                    android:id="@+id/etQuestion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="36dp"
+                    android:background="@android:color/transparent"
+                    android:hint="Ask a question..."
+                    android:inputType="textCapSentences|textMultiLine"
+                    android:maxLength="255"
+                    android:maxLines="4"
+                    android:textColor="@color/telegram_type_primary"
+                    android:textColorHint="@color/telegram_type_secondary"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tvQuestionCounter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:layout_marginTop="2dp"
+                    android:textColor="@color/telegram_type_secondary"
+                    android:textSize="12sp"
+                    android:text="255" />
+            </FrameLayout>
+
+            <com.eve.app.ui.admin.tg.ShadowSectionCell
+                android:layout_width="match_parent"
+                android:layout_height="12dp" />
+
+            <!-- Section 2: Options -->
+            <com.eve.app.ui.admin.tg.HeaderCell
+                android:id="@+id/headerOptions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:id="@+id/layoutOptionsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <TextView
+                android:id="@+id/btnAddOption"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/telegram_action_icon_ripple"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="21dp"
+                android:text="Add an Option..."
+                android:textColor="@color/telegram_accent"
+                android:textSize="16sp" />
+
+            <com.eve.app.ui.admin.tg.ShadowSectionCell
+                android:layout_width="match_parent"
+                android:layout_height="12dp" />
+
+            <!-- Section 3: Settings -->
+            <com.eve.app.ui.admin.tg.HeaderCell
+                android:id="@+id/headerSettings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.eve.app.designsystem.TextCheckCell
+                android:id="@+id/cellAnonymous"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.eve.app.designsystem.TextCheckCell
+                android:id="@+id/cellMultipleAnswers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.eve.app.designsystem.TextCheckCell
+                android:id="@+id/cellQuizMode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <!-- Section 4: Quiz Explanation (Visible only when Quiz Mode active) -->
+            <LinearLayout
+                android:id="@+id/layoutQuizSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <com.eve.app.ui.admin.tg.ShadowSectionCell
+                    android:layout_width="match_parent"
+                    android:layout_height="12dp" />
+
+                <com.eve.app.ui.admin.tg.HeaderCell
+                    android:id="@+id/headerExplanation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="21dp"
+                    android:paddingEnd="16dp"
+                    android:paddingVertical="8dp">
+
+                    <EditText
+                        android:id="@+id/etExplanation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="36dp"
+                        android:background="@android:color/transparent"
+                        android:hint="Add an explanation..."
+                        android:inputType="textCapSentences|textMultiLine"
+                        android:maxLength="200"
+                        android:maxLines="3"
+                        android:textColor="@color/telegram_type_primary"
+                        android:textColorHint="@color/telegram_type_secondary"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/tvExplanationCounter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|end"
+                        android:layout_marginTop="2dp"
+                        android:textColor="@color/telegram_type_secondary"
+                        android:textSize="12sp"
+                        android:text="200" />
+                </FrameLayout>
+
+                <com.eve.app.ui.admin.tg.TextInfoPrivacyCell
+                    android:id="@+id/infoPrivacyExplanation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <com.eve.app.ui.admin.tg.ShadowSectionCell
+                android:layout_width="match_parent"
+                android:layout_height="12dp" />
+
+            <!-- Section 5: Duration -->
+            <com.eve.app.ui.admin.tg.HeaderCell
+                android:id="@+id/headerDuration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.eve.app.designsystem.DesignSpinner
+                android:id="@+id/spDuration"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/design_input_height"
+                android:layout_marginHorizontal="21dp"
+                android:layout_marginVertical="8dp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="32dp" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
