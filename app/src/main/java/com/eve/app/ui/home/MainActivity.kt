@@ -792,6 +792,10 @@ class MainActivity : EveBaseActivity() {
         super.onRestoreInstanceState(state)
     }
 
+    private fun clearSearchHistory(uid: String) {
+        HomeSearchHistory.clear(this, uid)
+    }
+
     /** UI-only related suggestions from real EVE exams; never fabricated entries. */
     private fun showSearchSuggestions(query: String): Boolean {
         val list = binding.searchSuggestionsList
@@ -837,7 +841,7 @@ class MainActivity : EveBaseActivity() {
                 isFocusable = true
                 setOnClickListener {
                     com.eve.app.util.VibrationHelper.vibrateLightHaptic(this@MainActivity)
-                    HomeSearchHistory.clear(this, uid)
+                    clearSearchHistory(uid)
                     showSearchSuggestions("")
                 }
             }
