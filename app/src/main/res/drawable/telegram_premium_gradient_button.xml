@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Derived from Telegram Android ThemeColors.java:807-809 (key_premiumGradient1..3)
+  Copyright Nikolai Kudashov, 2013-2018. GNU GPL v2 or later. See THIRD_PARTY_NOTICES.md.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="8dp" />
+    <gradient
+        android:type="linear"
+        android:angle="0"
+        android:startColor="#FF55A5FF"
+        android:centerColor="#FFA767FF"
+        android:endColor="#FFDB5C9D" />
+</shape>

@@ -173,7 +173,7 @@ Notes / leftovers:
 Notes / leftovers:
 - Aligned `activity_notifications.xml`, `item_notification.xml`, `NotificationAdapter.kt`, and `activity_send_notification.xml` with Telegram source metrics.
 
-## F12 Language - PENDING_CI
+## F12 Language - DONE (commit dfd4800d)
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | LanguageCell height | `LanguageCell.java:68` (60dp + if (needDivider) 1 else 0) | 54dp | 60dp + if (needDivider) 1 else 0 |
@@ -186,6 +186,20 @@ Notes / leftovers:
 Notes / leftovers:
 - Ported exact Telegram `LanguageCell.java` layout: left radio button at 20dp, 62dp text start inset, 60dp height, 59dp divider inset.
 - Integrated `TelegramActionBar` search filtering with real-time matching and empty results view.
+
+## F13 Premium - PENDING_CI
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| ActionBar geometry | `PremiumPreviewFragment.java:232` (56dp bar, 54dp back, 18dp title margin) | 48dp glass toolbar | 56dp `telegram_action_bar_height`, 54dp back button, 18dp title margin |
+| Feature list cells | `PremiumFeatureCell.java:48-78` (28x28dp icon, 62dp text start inset, 15sp text, 62dp inset divider) | DesignCardView with simple vertical rows | Exact `PremiumFeatureCell` layout (28x28dp icon, 62dp text inset, 15sp, 62dp divider) |
+| Subscribe gradient button | `PremiumButtonView.java:65`, `ThemeColors.java:807-810` (48dp height, 8dp radius, `#55A5FF` -> `#A767FF` -> `#DB5C9D` gradient) | MaterialButton | 48dp height, 8dp radius, Telegram Premium linear gradient with ripple |
+| Section structure | `PremiumPreviewFragment.java` (flat list layout) | 3 nested `DesignCardView` containers | Flat layout per Telegram `PremiumPreviewFragment` |
+| Payment logic | `PremiumActivity.kt`, `PremiumRepository.kt` | Preserved Eve logic | Preserved payment order creation, UPI/QR checkout, and ownership guard |
+
+Notes / leftovers:
+- Created authentic `telegram_premium_gradient_button.xml` and `telegram_premium_button_selector.xml` with exact hex gradient from `ThemeColors.java:807-810`.
+- Replaced cards with flat feature cells in `activity_premium.xml` and `PremiumBenefitRows.kt`.
+
 
 
 
