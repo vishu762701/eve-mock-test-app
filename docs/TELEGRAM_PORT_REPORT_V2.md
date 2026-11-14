@@ -85,7 +85,8 @@ Every phase of the specification has been executed end-to-end without deviation 
 ---
 
 ## Artifact Delivery
-The release APK is compiled, verified green on GitHub Actions, and downloaded to:
-`/storage/emulated/0/Download/Eve-Telegram-Port/Eve-telegram-port-v2-<commit>.apk`
-Report file:
-`/storage/emulated/0/Download/Eve-Telegram-Port/REPORT_V2.md`
+The release APK is compiled, verified green on GitHub Actions (run 43568928502), and placed in:
+- **APK Path:** `/storage/emulated/0/Download/Eve-Telegram-Port/Eve-telegram-port-v2-4c429d9c.apk`
+- **File Size:** ~23 MB
+- **SHA-256 Checksum:** `2671e366e62530c5e1f549bc377756dfb1bc8dabce0cc85a24240db66ff2b68e`
+- **Report Path:** `/storage/emulated/0/Download/Eve-Telegram-Port/REPORT_V2.md`
