@@ -33,7 +33,10 @@ import com.eve.app.util.FontManager
 class BookmarkAdapter(
     private val onOpenQuestion: (BookmarkedQuestion) -> Unit,
     private val onUnbookmark: (BookmarkedQuestion) -> Unit,
-    private val isHindi: () -> Boolean
+    private val isHindi: () -> Boolean,
+    private val onCopyQuestion: ((BookmarkedQuestion) -> Unit)? = null,
+    private val onShareQuestion: ((BookmarkedQuestion) -> Unit)? = null,
+    private val onLongClickQuestion: ((BookmarkedQuestion, View) -> Unit)? = null
 ) : ListAdapter<BookmarkedQuestion, BookmarkAdapter.BookmarkViewHolder>(DiffCallback) {
 
     private val expandedExplanations = mutableSetOf<String>()
@@ -161,6 +164,21 @@ class BookmarkAdapter(
             com.eve.app.designsystem.DesignPress.bind(binding.btnBookmark) {
                 DesignIconStates.bookmark(binding.btnBookmark, false)
                 binding.swipeRow.commit()
+            }
+
+            // Quick actions: Copy and Share
+            com.eve.app.designsystem.DesignPress.bind(binding.btnCardCopy) {
+                onCopyQuestion?.invoke(item)
+            }
+            com.eve.app.designsystem.DesignPress.bind(binding.btnCardShare) {
+                onShareQuestion?.invoke(item)
+            }
+
+            // Contextual menu on long click
+            binding.cardBookmark.setOnLongClickListener { anchorView ->
+                com.eve.app.util.VibrationHelper.vibrateLightHaptic(context)
+                onLongClickQuestion?.invoke(item, anchorView)
+                true
             }
 
             // Tap card to open question in test flow

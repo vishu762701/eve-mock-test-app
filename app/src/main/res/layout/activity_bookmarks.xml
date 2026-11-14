@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:ns2="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" style="@style/Widget.Eve.Token.Screen" android:clipChildren="false" android:clipToPadding="false">
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/telegram_action_bar_height" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.ToolbarRow">
+        <LinearLayout android:id="@+id/toolbarNormal" android:layout_width="match_parent" android:layout_height="@dimen/telegram_action_bar_height" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.ToolbarRow">
             <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/telegram_action_bar_back_width" android:layout_height="match_parent" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/telegram_type_primary" style="@style/Widget.Eve.Token.IconButton" />
             <LinearLayout
                 android:layout_width="0dp"
@@ -9,14 +9,25 @@
                 android:layout_weight="1"
                 android:layout_marginStart="@dimen/telegram_action_bar_title_start"
                 android:orientation="vertical">
-                <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Bookmarked Questions"  android:tag="eve_telegram_type" />
-        <com.eve.app.designsystem.UiArcTextMorphView android:id="@+id/tvBookmarkCount" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone" ns2:text="3 questions saved" ns2:visibility="visible" />
+                <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Saved Questions" android:tag="eve_telegram_type" />
+                <com.eve.app.designsystem.UiArcTextMorphView android:id="@+id/tvBookmarkCount" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone" ns2:text="3 questions saved" ns2:visibility="visible" />
             </LinearLayout>
+            <ImageButton android:id="@+id/btnSearch" android:layout_width="48dp" android:layout_height="48dp" android:contentDescription="Search saved questions" android:src="@drawable/ic_search" app:tint="@color/telegram_type_primary" style="@style/Widget.Eve.Token.IconButton" />
+        </LinearLayout>
+        <LinearLayout android:id="@+id/toolbarSearch" android:layout_width="match_parent" android:layout_height="@dimen/telegram_action_bar_height" android:gravity="center_vertical" android:orientation="horizontal" android:visibility="gone" style="@style/Widget.Eve.Token.ToolbarRow">
+            <ImageButton android:id="@+id/btnSearchBack" android:layout_width="@dimen/telegram_action_bar_back_width" android:layout_height="match_parent" android:contentDescription="Close search" android:src="@drawable/ic_back" app:tint="@color/telegram_type_primary" style="@style/Widget.Eve.Token.IconButton" />
+            <EditText android:id="@+id/etSearchBookmarks" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@null" android:hint="Search saved questions…" android:imeOptions="actionSearch" android:inputType="text" android:singleLine="true" android:textColor="@color/telegram_type_primary" android:textColorHint="@color/telegram_type_secondary" android:textSize="18sp" />
+            <ImageButton android:id="@+id/btnClearSearch" android:layout_width="48dp" android:layout_height="48dp" android:contentDescription="Clear search" android:src="@drawable/ic_close" app:tint="@color/telegram_type_secondary" android:visibility="gone" style="@style/Widget.Eve.Token.IconButton" />
         </LinearLayout>
     </com.eve.app.ui.common.EveGlassToolbar>
+    <HorizontalScrollView android:id="@+id/filterScroll" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone" android:scrollbars="none" android:clipToPadding="false" android:clipChildren="false">
+        <com.eve.app.designsystem.TelegramChipGroup android:id="@+id/chipGroupFilters" android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingHorizontal="16dp" android:paddingVertical="6dp" app:chipSpacingHorizontal="8dp" app:singleLine="true" app:singleSelection="true" />
+    </HorizontalScrollView>
     <TextView android:id="@+id/tvOfflineBanner" style="@style/TextAppearance.Eve.Token.Body.orange" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="@string/offline_banner_text" android:visibility="gone" />
     <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-        <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvBookmarks" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll" />
+        <com.eve.app.designsystem.TelegramPullRefreshLayout android:id="@+id/pullRefreshLayout" android:layout_width="match_parent" android:layout_height="match_parent">
+            <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvBookmarks" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll" />
+        </com.eve.app.designsystem.TelegramPullRefreshLayout>
         <FrameLayout android:id="@+id/progressGroup" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="visible">
             <com.eve.app.designsystem.TelegramFlickerSkeletonView android:layout_width="match_parent" android:layout_height="match_parent" app:flickerRowType="history" style="@style/Widget.Eve.Token.Scroll" />
         </FrameLayout>

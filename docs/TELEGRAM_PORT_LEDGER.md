@@ -389,7 +389,7 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 Leftovers / ASSUMED values: None
 CI Verification: Run 43564279140 passed green on main.
 
-## C3 Telegram pull-to-refresh (`PullForegroundDrawable`) - DONE
+## C3 Telegram pull-to-refresh (`PullForegroundDrawable`) - DONE (commit 7dc97240)
 Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
@@ -399,6 +399,18 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | Radial progress spinner | `RadialProgressView.java` | Material indeterminate spinner | `TelegramRadialProgressView` spinning at top center during refresh state |
 | Light haptic feedback | `AndroidUtilities.vibrateCursor` | None | Light haptic feedback (`VibrationHelper.vibrateLightHaptic`) on crossing snap threshold and refresh trigger |
 | List screen integrations | `DialogsActivity.java`, `TopicsFragment.java` | Standard pull-to-refresh | Integrated on Home (`MainActivity`), PYQ (`PyqActivity`), and Syllabus (`SyllabusActivity`) |
+Leftovers / ASSUMED values: None
+CI Verification: Run 43565703287 passed green on main.
+
+## C9 Saved-messages style Bookmarks screen (`BookmarksActivity.kt`) - DONE
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| ActionBar & live search | `SavedMessagesActivity.java:1-500` (56dp bar, morphing search view) | 48dp toolbar, no search | 56dp `telegram_action_bar_height`, search icon morphing to live search bar with real-time text filtering |
+| Filter pills | `FiltersView.java:697-760` | None | Dynamic horizontal `TelegramChipGroup` pills ("All" and topic tags) with light haptics |
+| Message bubble styling | `ChatMessageCell.java` | Standard card | 16dp rounded card, question badge, clean typography, quick copy & share buttons |
+| Long-press popup menu | `ActionBarPopupWindow.java` | Swipe to remove only | Long-press `TelegramPopupMenu` with "Open in Test", "Copy Question", "Share Question", and destructive "Remove" |
+| Pull to refresh | `PullForegroundDrawable` | None | Integrated `TelegramPullRefreshLayout` with curved pull header and haptics |
 Leftovers / ASSUMED values: None
 
 

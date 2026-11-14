@@ -2,9 +2,15 @@ package com.eve.app.ui.bookmarks
 
 import com.eve.app.ui.common.EveBaseActivity
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
@@ -14,8 +20,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.R
 import com.eve.app.data.model.BookmarkedQuestion
 import com.eve.app.databinding.ActivityBookmarksBinding
+import com.eve.app.designsystem.TelegramPopupMenu
+import com.eve.app.designsystem.TelegramShareAlert
 import com.eve.app.designsystem.UiArcSwipeRow
 import com.eve.app.ui.test.TestActivity
+import com.eve.app.util.AppBulletin
 import com.eve.app.util.Constants
 import com.eve.app.util.EmptyStateAnimationHelper
 import com.eve.app.util.LanguageManager
@@ -23,6 +32,7 @@ import com.eve.app.util.NetworkUtil
 import com.eve.app.util.SecurityHelper
 import com.eve.app.util.UiState
 import com.eve.app.util.SubmissionRetryPolicy
+import com.eve.app.util.VibrationHelper
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -36,8 +46,15 @@ class BookmarksActivity : EveBaseActivity() {
     private var hasResumedOnce = false
     private val bookmarksAuth = FirebaseAuth.getInstance()
     private var bookmarksOwnerUid: String? = null
+
+    private var fullBookmarksList: List<BookmarkedQuestion> = emptyList()
+    private var currentFilterTopic: String? = null
+    private var currentSearchQuery: String = ""
+    private var isSearchOpen: Boolean = false
+
     private fun hasBookmarksOwner(): Boolean =
         SubmissionRetryPolicy.ownsSubmission(bookmarksOwnerUid, bookmarksAuth.currentUser?.uid)
+
     private val bookmarksAuthListener = FirebaseAuth.AuthStateListener {
         if (bookmarksOwnerUid != null && !hasBookmarksOwner()) finish()
     }
@@ -55,67 +72,15 @@ class BookmarksActivity : EveBaseActivity() {
 
         com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
 
+        setupSearchAndFilters()
+
         adapter = BookmarkAdapter(
             onOpenQuestion = { bookmark -> openQuestionInTest(bookmark) },
-            onUnbookmark = onUnbookmark@{ bookmark ->
-                if (!hasBookmarksOwner()) { finish(); return@onUnbookmark }
-                val id = bookmark.questionId
-                if (id.isBlank() || !pendingRemovalIds.add(id)) return@onUnbookmark
-
-                // Keep the row visible until the Worker confirms deletion.
-                // A denial or network failure must not display a false success.
-                lifecycleScope.launch {
-                    try {
-                        val result = viewModel.unbookmark(id)
-                        if (!hasBookmarksOwner() || isFinishing || isDestroyed) return@launch
-                        if (result.isFailure) {
-                            // UiArcSwipeRow commits/collapses before invoking its
-                            // callback. Rebind the *same* row after server denial
-                            // so it is neither stranded invisible nor falsely removed.
-                            val failedIndex = adapter.currentList.indexOfFirst { it.questionId == id }
-                            if (failedIndex >= 0) adapter.notifyItemChanged(failedIndex)
-                            com.eve.app.util.AppBulletin.showError(
-                                this@BookmarksActivity,
-                                "Couldn't remove bookmark. Try again."
-                            )
-                            return@launch
-                        }
-                        if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) return@launch
-                        com.eve.app.util.AppUndoBar.show(
-                            context = this@BookmarksActivity,
-                            message = "Bookmark removed",
-                            timeLeftMs = com.eve.app.util.AppUndoBar.TIME_LIGHT,
-                            onUndo = onUndo@{
-                                if (!hasBookmarksOwner() || isFinishing || isDestroyed) {
-                                    if (!hasBookmarksOwner()) finish()
-                                    return@onUndo
-                                }
-                                lifecycleScope.launch {
-                                    val restored = viewModel.bookmark(bookmark)
-                                    if (!hasBookmarksOwner() || isFinishing || isDestroyed) return@launch
-                                    if (restored.isSuccess) {
-                                        // Refresh the same canonical server-backed list; no
-                                        // second local bookmark state or speculative row.
-                                        viewModel.load()
-                                        com.eve.app.util.AppBulletin.show(
-                                            this@BookmarksActivity, "Bookmark restored"
-                                        )
-                                    } else {
-                                        com.eve.app.util.AppBulletin.showError(
-                                            this@BookmarksActivity,
-                                            "Couldn't restore bookmark. Try again."
-                                        )
-                                        viewModel.load()
-                                    }
-                                }
-                            }
-                        )
-                    } finally {
-                        pendingRemovalIds.remove(id)
-                    }
-                }
-            },
-            isHindi = { LanguageManager.isHindi(this) }
+            onUnbookmark = { bookmark -> removeBookmark(bookmark) },
+            isHindi = { LanguageManager.isHindi(this) },
+            onCopyQuestion = { bookmark -> copyQuestion(bookmark) },
+            onShareQuestion = { bookmark -> shareQuestion(bookmark) },
+            onLongClickQuestion = { bookmark, anchor -> showBookmarkContextMenu(bookmark, anchor) }
         )
 
         binding.rvBookmarks.layoutManager = LinearLayoutManager(this)
@@ -123,11 +88,12 @@ class BookmarksActivity : EveBaseActivity() {
         binding.rvBookmarks.addOnScrollListener(object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: androidx.recyclerview.widget.RecyclerView, newState: Int) {
                 if (newState == androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_DRAGGING) {
-                    com.eve.app.designsystem.UiArcSwipeRow.closeActiveRow()
+                    UiArcSwipeRow.closeActiveRow()
                 }
             }
         })
 
+        binding.pullRefreshLayout.setOnRefreshListener { viewModel.load() }
         com.eve.app.designsystem.DesignPress.bind(binding.btnRetry) { viewModel.load() }
 
         lifecycleScope.launch {
@@ -138,6 +104,195 @@ class BookmarksActivity : EveBaseActivity() {
                         binding.tvOfflineBanner.visibility = if (online) View.GONE else View.VISIBLE
                     }
                 }
+            }
+        }
+    }
+
+    private fun setupSearchAndFilters() {
+        binding.btnSearch.setOnClickListener {
+            isSearchOpen = true
+            binding.toolbarNormal.visibility = View.GONE
+            binding.toolbarSearch.visibility = View.VISIBLE
+            binding.etSearchBookmarks.requestFocus()
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+            imm?.showSoftInput(binding.etSearchBookmarks, InputMethodManager.SHOW_IMPLICIT)
+        }
+
+        binding.btnSearchBack.setOnClickListener {
+            isSearchOpen = false
+            binding.etSearchBookmarks.setText("")
+            currentSearchQuery = ""
+            binding.toolbarSearch.visibility = View.GONE
+            binding.toolbarNormal.visibility = View.VISIBLE
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+            imm?.hideSoftInputFromWindow(binding.etSearchBookmarks.windowToken, 0)
+            applyFilterAndSearch()
+        }
+
+        binding.btnClearSearch.setOnClickListener {
+            binding.etSearchBookmarks.setText("")
+            currentSearchQuery = ""
+            applyFilterAndSearch()
+        }
+
+        binding.etSearchBookmarks.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                currentSearchQuery = s?.toString().orEmpty()
+                binding.btnClearSearch.visibility = if (currentSearchQuery.isEmpty()) View.GONE else View.VISIBLE
+                applyFilterAndSearch()
+            }
+            override fun afterTextChanged(s: Editable?) = Unit
+        })
+    }
+
+    private fun applyFilterAndSearch() {
+        var list = fullBookmarksList
+        val filter = currentFilterTopic
+        if (!filter.isNullOrBlank() && filter != "All") {
+            list = list.filter { it.topic.equals(filter, ignoreCase = true) || it.examName.equals(filter, ignoreCase = true) }
+        }
+        val q = currentSearchQuery.trim()
+        if (q.isNotBlank()) {
+            val hindi = LanguageManager.isHindi(this)
+            list = list.filter {
+                it.displayQuestionText(hindi).contains(q, ignoreCase = true) ||
+                it.displayOptionText("A", hindi).contains(q, ignoreCase = true) ||
+                it.displayOptionText("B", hindi).contains(q, ignoreCase = true) ||
+                it.displayOptionText("C", hindi).contains(q, ignoreCase = true) ||
+                it.displayOptionText("D", hindi).contains(q, ignoreCase = true) ||
+                it.topic.contains(q, ignoreCase = true) ||
+                it.examName.contains(q, ignoreCase = true)
+            }
+        }
+        adapter.submitList(list)
+        val empty = list.isEmpty()
+        binding.rvBookmarks.visibility = if (empty) View.GONE else View.VISIBLE
+        binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
+        if (empty) {
+            if (fullBookmarksList.isNotEmpty()) {
+                binding.tvMessage.text = "No matching questions"
+                binding.tvMessageSub.text = "Try a different search query or filter pill."
+            } else {
+                binding.tvMessage.text = "No bookmarks yet"
+                binding.tvMessageSub.text = "Questions bookmarked during tests will appear here for review."
+            }
+        }
+        binding.tvBookmarkCount.text = "${list.size} saved"
+    }
+
+    private fun updateFilterChips(bookmarks: List<BookmarkedQuestion>) {
+        val topics = bookmarks.mapNotNull { it.topic.takeIf { t -> t.isNotBlank() } }.distinct()
+        if (topics.isNotEmpty()) {
+            binding.filterScroll.visibility = View.VISIBLE
+            binding.chipGroupFilters.removeAllViews()
+            val allPills = listOf("All") + topics
+            allPills.forEach { pill ->
+                val chip = com.eve.app.designsystem.TelegramChip(this).apply {
+                    text = pill
+                    isCheckable = true
+                    isChecked = (currentFilterTopic == null && pill == "All") || currentFilterTopic == pill
+                    setOnClickListener {
+                        VibrationHelper.vibrateLightHaptic(this@BookmarksActivity)
+                        currentFilterTopic = if (pill == "All") null else pill
+                        applyFilterAndSearch()
+                    }
+                }
+                binding.chipGroupFilters.addView(chip)
+            }
+        } else {
+            binding.filterScroll.visibility = View.GONE
+        }
+    }
+
+    private fun copyQuestion(bookmark: BookmarkedQuestion) {
+        val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val hindi = LanguageManager.isHindi(this)
+        val text = buildString {
+            append("Q. ").append(bookmark.displayQuestionText(hindi)).append("\n")
+            append("A. ").append(bookmark.displayOptionText("A", hindi)).append("\n")
+            append("B. ").append(bookmark.displayOptionText("B", hindi)).append("\n")
+            append("C. ").append(bookmark.displayOptionText("C", hindi)).append("\n")
+            append("D. ").append(bookmark.displayOptionText("D", hindi)).append("\n")
+            if (bookmark.correctAnswer.isNotBlank()) {
+                append("Correct: ").append(bookmark.correctAnswer).append("\n")
+            }
+        }
+        cm.setPrimaryClip(ClipData.newPlainText("Question", text))
+        AppBulletin.showSuccess(this, "Question copied to clipboard")
+    }
+
+    private fun shareQuestion(bookmark: BookmarkedQuestion) {
+        val hindi = LanguageManager.isHindi(this)
+        val shareAlert = TelegramShareAlert(
+            context = this,
+            title = bookmark.examName.ifBlank { "Saved Question" },
+            subtitle = if (bookmark.questionNumber > 0) "Question ${bookmark.questionNumber}" else null,
+            shareText = "${bookmark.displayQuestionText(hindi)}\n\nShared via Eve",
+            shareUrl = null,
+            previewBitmap = null
+        )
+        shareAlert.show()
+    }
+
+    private fun showBookmarkContextMenu(bookmark: BookmarkedQuestion, anchor: View) {
+        VibrationHelper.vibrateLightHaptic(this)
+        val popup = TelegramPopupMenu(this)
+        popup.addItem(1, "Open in Test", R.drawable.ic_back) {
+            openQuestionInTest(bookmark)
+        }
+        popup.addItem(2, "Copy Question", R.drawable.ic_copy) {
+            copyQuestion(bookmark)
+        }
+        popup.addItem(3, "Share Question", R.drawable.ic_share) {
+            shareQuestion(bookmark)
+        }
+        popup.addItem(4, "Remove from Bookmarks", R.drawable.ic_delete, isDestructive = true) {
+            removeBookmark(bookmark)
+        }
+        popup.showAsDropDown(anchor, 0, 0)
+    }
+
+    private fun removeBookmark(bookmark: BookmarkedQuestion) {
+        if (!hasBookmarksOwner()) { finish(); return }
+        val id = bookmark.questionId
+        if (id.isBlank() || !pendingRemovalIds.add(id)) return
+
+        lifecycleScope.launch {
+            try {
+                val result = viewModel.unbookmark(id)
+                if (!hasBookmarksOwner() || isFinishing || isDestroyed) return@launch
+                if (result.isFailure) {
+                    val failedIndex = adapter.currentList.indexOfFirst { it.questionId == id }
+                    if (failedIndex >= 0) adapter.notifyItemChanged(failedIndex)
+                    AppBulletin.showError(this@BookmarksActivity, "Couldn't remove bookmark. Try again.")
+                    return@launch
+                }
+                if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) return@launch
+                com.eve.app.util.AppUndoBar.show(
+                    context = this@BookmarksActivity,
+                    message = "Bookmark removed",
+                    timeLeftMs = com.eve.app.util.AppUndoBar.TIME_LIGHT,
+                    onUndo = onUndo@{
+                        if (!hasBookmarksOwner() || isFinishing || isDestroyed) {
+                            if (!hasBookmarksOwner()) finish()
+                            return@onUndo
+                        }
+                        lifecycleScope.launch {
+                            val restored = viewModel.bookmark(bookmark)
+                            if (!hasBookmarksOwner() || isFinishing || isDestroyed) return@launch
+                            if (restored.isSuccess) {
+                                viewModel.load()
+                                AppBulletin.show(this@BookmarksActivity, "Bookmark restored")
+                            } else {
+                                AppBulletin.showError(this@BookmarksActivity, "Couldn't restore bookmark. Try again.")
+                                viewModel.load()
+                            }
+                        }
+                    }
+                )
+            } finally {
+                pendingRemovalIds.remove(id)
             }
         }
     }
@@ -157,18 +312,16 @@ class BookmarksActivity : EveBaseActivity() {
         super.onResume()
         if (!hasBookmarksOwner()) { finish(); return }
         hasEmptyPlayed = false
-        // Bookmarks may change in TestActivity using a separate repository
-        // instance. Returning to this screen must refresh its server snapshot.
         if (hasResumedOnce) viewModel.load() else hasResumedOnce = true
     }
 
     override fun onPause() {
         super.onPause()
-        com.eve.app.designsystem.UiArcSwipeRow.closeActiveRow()
+        UiArcSwipeRow.closeActiveRow()
     }
 
     override fun onDestroy() {
-        com.eve.app.designsystem.UiArcSwipeRow.closeActiveRow()
+        UiArcSwipeRow.closeActiveRow()
         if (::binding.isInitialized) {
             EmptyStateAnimationHelper.stopEmptyState(binding.ivMessageIcon)
         }
@@ -193,12 +346,13 @@ class BookmarksActivity : EveBaseActivity() {
                 binding.messageGroup.visibility = View.GONE
             }
             is UiState.Success -> {
+                binding.pullRefreshLayout.isRefreshing = false
                 binding.progressGroup.visibility = View.GONE
                 binding.btnRetry.visibility = View.GONE
-                adapter.submitList(state.data)
+                fullBookmarksList = state.data
+                updateFilterChips(state.data)
+                applyFilterAndSearch()
                 val empty = state.data.isEmpty()
-                binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE
-                binding.rvBookmarks.visibility = if (empty) View.GONE else View.VISIBLE
                 if (empty) {
                     binding.tvBookmarkCount.visibility = View.GONE
                     hasEmptyPlayed = EmptyStateAnimationHelper.showEmptyState(
@@ -215,11 +369,12 @@ class BookmarksActivity : EveBaseActivity() {
             }
             is UiState.Error -> {
                 hasEmptyPlayed = false
+                binding.pullRefreshLayout.isRefreshing = false
                 binding.progressGroup.visibility = View.GONE
                 if (::adapter.isInitialized && adapter.itemCount > 0) {
                     binding.rvBookmarks.visibility = View.VISIBLE
                     binding.messageGroup.visibility = View.GONE
-                    com.eve.app.util.AppBulletin.showError(this@BookmarksActivity, "Couldn't refresh bookmarks: ${state.message}")
+                    AppBulletin.showError(this@BookmarksActivity, "Couldn't refresh bookmarks: ${state.message}")
                 } else {
                     binding.rvBookmarks.visibility = View.GONE
                     binding.messageGroup.visibility = View.VISIBLE
@@ -240,7 +395,7 @@ class BookmarksActivity : EveBaseActivity() {
     private fun openQuestionInTest(bookmark: BookmarkedQuestion) {
         if (!hasBookmarksOwner()) { finish(); return }
         if (bookmark.examId.isBlank() && bookmark.questionId.isBlank()) {
-            com.eve.app.util.AppBulletin.showError(this, "Question details unavailable")
+            AppBulletin.showError(this, "Question details unavailable")
             return
         }
 
