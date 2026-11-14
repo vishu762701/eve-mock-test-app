@@ -75,10 +75,6 @@ class TelegramPullRefreshLayout @JvmOverloads constructor(
             }
         }
 
-    fun setRefreshing(refreshing: Boolean) {
-        this.isRefreshing = refreshing
-    }
-
     fun setOnRefreshListener(listener: OnRefreshListener?) {
         this.onRefreshListener = listener
     }
