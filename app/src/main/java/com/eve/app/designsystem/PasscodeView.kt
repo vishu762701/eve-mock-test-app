@@ -361,6 +361,7 @@ class PasscodeView @JvmOverloads constructor(
         }, 350L)
     }
 
+    @android.annotation.SuppressLint("MissingPermission")
     private fun promptBiometrics() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             val executor = ContextCompat.getMainExecutor(context)
