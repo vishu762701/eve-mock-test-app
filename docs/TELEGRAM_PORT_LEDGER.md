@@ -1,6 +1,7 @@
 # EVE Telegram UI Port Ledger
 
 ## F1 ActionBar on every screen - DONE (commit cf4989af)
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | ActionBar height | `ActionBar.java:1914-1920` (56dp portrait, 48dp landscape) | 48dp (`design_touch_min`) / `wrap_content` | `@dimen/telegram_action_bar_height` (56dp port, 48dp land) |
@@ -18,6 +19,7 @@ Notes / leftovers:
 - `TelegramActionBar` ported to `designsystem/TelegramActionBar.kt` with backward-compatibility subclass in `ui/admin/tg/`.
 
 ## F2 Switch, CheckBox, RadioButton - DONE (commit 3dbf7c5e)
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | Switch track & thumb | `Switch.java` (31x14dp track, 17dp travel, thumb r=8dp, night thumb `#181819`, day white) | Stock SwitchCompat | `com.eve.app.designsystem.TelegramSwitch` |
@@ -34,6 +36,7 @@ Notes / leftovers:
 - `TextCheckCell` promoted to `com.eve.app.designsystem` with admin package backwards compatibility.
 
 ## F3 Popup menu, AlertDialog, BottomSheet - DONE (commit a201fe25)
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | AlertDialog vertical button threshold | `AlertDialog.java:980` (`buttonsWidth > screenWidth - 64dp`) | Narrow heuristic | `buttonsWidth > screenWidth - dp(64)` |
@@ -55,6 +58,7 @@ Notes / leftovers:
 - Spinner dropdowns and AutoComplete views now use `@drawable/telegram_dialog_popup_fixed_alert4`.
 
 ## F4 Bulletin and undo - DONE (commit 244ca02c)
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | Bulletin corner radius | `Bulletin.java:817` (`dp(16)`) | 16dp | 16dp |
@@ -73,6 +77,7 @@ Notes / leftovers:
 - Aligned `CircularCountdownView` and `layout_undo_bar.xml` to Telegram's authentic 18dp ring and 10dp card radius.
 
 ## F5 List cells, headers, dividers, section backgrounds - DONE (commit dac538a8)
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | TextCell min height | `TextCell.java:64, 186` (50dp, 71dp for multiline) | Fixed 50dp | 50dp min height, 71dp for multiline/subtitle |
@@ -92,6 +97,7 @@ Notes / leftovers:
 - Added `DividerCell` palette updates to `TelegramThemeApplier`.
 
 ## F6 Loading skeletons - DONE (commit 7d57ad93)
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | RadialProgressView size & stroke | `RadialProgressView.java:62, 70` (40dp size, 3dp stroke) | 40dp size, 3dp stroke | 40dp size, 3dp stroke (`TelegramRadialProgressView`) |
@@ -106,6 +112,7 @@ Notes / leftovers:
 - Verified all indeterminate loading across Eve screens uses `TelegramRadialProgressView`.
 
 ## F7 Home screen / Dialogs list style - DONE (commit 6261ff82)
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | DialogCell item height | `DialogCell.java:172` (`heightDefault = 70` to 72dp) | 50dp (`design_row_with_gap`) | 72dp minHeight (`item_exam.xml`) |
@@ -121,6 +128,7 @@ Notes / leftovers:
 - Preserved existing `TelegramDialogsListHelper` 200ms item animations and title-tap scroll-to-top behavior.
 
 ## F8 Profile - DONE (commit 48688ec6)
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | Collapsing header avatar | `ProfileActivity.java:6039-6047`, `ProfileGooeyView.java:397-405` (100dp to 42dp) | 100dp to 42dp collapsing gooey avatar | 100dp to 42dp collapsing gooey avatar (`ProfileGooeyView`) |
@@ -133,6 +141,7 @@ Notes / leftovers:
 - Wired copy feedback through `AppBulletin.showSuccess`.
 
 ## F9 Username change - DONE (commit 1fcc7cb6)
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | ActionBar & Done action | `ChangeUsernameActivity.java:700-750` (56dp bar, 54dp checkmark, IME Done link) | 48dp toolbar, 48dp checkmark | 56dp `telegram_action_bar_height`, 54dp checkmark, IME Done linkage |
@@ -146,6 +155,7 @@ Notes / leftovers:
 - Aligned `activity_change_username.xml` toolbar to 56dp and horizontal padding to 21dp.
 
 ## F10 Settings and Theme - DONE (commit 4502f529)
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | Settings row cell layout | `SettingsActivity.java:1169-1250` (`SettingCell`) | Card containers (`DesignCardView`) | Flat list rows, 28x28dp icon chips, 16sp title, 13sp subtitle, 50dp min height |
@@ -161,6 +171,7 @@ Notes / leftovers:
 - Preserved all theme-toggle and reveal animation host files intact (`ThemeSwitchAnimator.kt`, `ThemeManager.kt`, `TelegramMenuPopup.kt`, `ThemeFrameCoordinator.kt`).
 
 ## F11 Notifications settings - DONE (commit 0e889e87)
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | Notification cell padding & minHeight | `NotificationsCheckCell.java:963` (21dp padding, 64dp minHeight) | 14dp padding, wrap_content | 21dp horizontal padding, 64dp minHeight (`item_notification.xml`) |
@@ -174,6 +185,7 @@ Notes / leftovers:
 - Aligned `activity_notifications.xml`, `item_notification.xml`, `NotificationAdapter.kt`, and `activity_send_notification.xml` with Telegram source metrics.
 
 ## F12 Language - DONE (commit dfd4800d)
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | LanguageCell height | `LanguageCell.java:68` (60dp + if (needDivider) 1 else 0) | 54dp | 60dp + if (needDivider) 1 else 0 |
@@ -188,6 +200,7 @@ Notes / leftovers:
 - Integrated `TelegramActionBar` search filtering with real-time matching and empty results view.
 
 ## F13 Premium - DONE (commit 8049676e)
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | ActionBar geometry | `PremiumPreviewFragment.java:232` (56dp bar, 54dp back, 18dp title margin) | 48dp glass toolbar | 56dp `telegram_action_bar_height`, 54dp back button, 18dp title margin |
@@ -201,6 +214,7 @@ Notes / leftovers:
 - Replaced cards with flat feature cells in `activity_premium.xml` and `PremiumBenefitRows.kt`.
 
 ## F14 Remaining Eve-only screens - DONE (commit eca81dac)
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | Screen ActionBars | `ActionBar.java:70-130` (56dp bar, 54dp back button, 18dp title margin) | 48dp / varied toolbars | 56dp `telegram_action_bar_height` across all 13 screens (Feedback, About, Syllabus, History, Bookmarks, Mistakes, Performance, Leaderboard, PYQ, Result, Test, Login, Notifications) |
@@ -215,6 +229,7 @@ Notes / leftovers:
 - Zero leftover iOS large-title navigation bars or unstyled platform dialogs.
 
 ## F15 Admin - DONE (commit 11744fa5)
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | Admin Navigation & Bar | `ActionBar.java:70-130`, `Theme.java` | Standard Material Toolbar | `TelegramActionBar` (56dp height, 54dp back button, 18dp title margin, menu popup items) |
@@ -277,7 +292,7 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | Detailed votes breakdown | `PollVotesAlert.java:45-210` (bottom sheet breakdown) | Simple expandable rows only | `PollVotesAlert` (`TelegramBottomSheet`) displaying poll header, question, percentages, vote count, and quiz explanation |
 | Material buttons purge | `ENGINEERING_STANDARD.md` section 2 | `MaterialButton` in `activity_main.xml`, `dialog_create_poll.xml`, `item_poll_admin.xml` | Purged all `MaterialButton` instances in favor of `AppCompatButton` and Telegram design components |
 
-## A4 Tabs, pills, chips, segmented controls (app-wide) - DONE
+## A4 Tabs, pills, chips, segmented controls (app-wide) - DONE (commit 4a2289b2)
 Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
