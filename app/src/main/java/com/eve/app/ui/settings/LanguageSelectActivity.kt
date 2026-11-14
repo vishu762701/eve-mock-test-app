@@ -1,5 +1,5 @@
 /*
- * Derived from Telegram Android LanguageSelectActivity.java.
+ * Derived from Telegram Android LanguageSelectActivity.java and LanguageCell.java.
  * Copyright Nikolai Kudashov, 2013-2018. GNU GPL v2 or later.
  * See THIRD_PARTY_NOTICES.md.
  */
@@ -12,6 +12,7 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -20,7 +21,6 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
-import com.eve.app.R
 import com.eve.app.designsystem.TelegramThemeSelectors
 import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.ui.admin.tg.HeaderCell
@@ -33,7 +33,8 @@ import com.eve.app.util.EveNavigationHelper
 
 /**
  * Telegram LanguageSelectActivity.java port for Eve.
- * Uses F1 TelegramActionBar, F2 TelegramRadioIndicator, and F5 HeaderCell/ShadowSectionCell/TextInfoPrivacyCell.
+ * Uses F1 TelegramActionBar (with animated search filter), F2 TelegramRadioIndicator,
+ * F5 HeaderCell/ShadowSectionCell/TextInfoPrivacyCell, and exact LanguageCell.java:30-80 layout.
  */
 class LanguageSelectActivity : EveBaseActivity() {
 
@@ -49,11 +50,17 @@ class LanguageSelectActivity : EveBaseActivity() {
         LanguageOption("hi", "हिन्दी", "Hindi")
     )
 
-    private val rowCells = mutableListOf<LanguageCell>()
+    private var selectedTag: String = ""
+    private lateinit var languagesContainer: LinearLayout
+    private lateinit var headerCell: HeaderCell
+    private lateinit var shadowCell: ShadowSectionCell
+    private lateinit var infoCell: TextInfoPrivacyCell
+    private lateinit var emptyView: TextView
+    private lateinit var palette: TelegramThemeEngine.ResolvedPalette
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val palette = TelegramThemeEngine.resolveCurrentPalette(this)
+        palette = TelegramThemeEngine.resolveCurrentPalette(this)
 
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -63,6 +70,9 @@ class LanguageSelectActivity : EveBaseActivity() {
         val actionBar = TelegramActionBar(this).apply {
             setTitle("Language")
             onBackPressed = { EveNavigationHelper.finishWithTransition(this@LanguageSelectActivity) }
+            enableSearch("Search") { query ->
+                filterLanguages(query.trim())
+            }
         }
         root.addView(actionBar, LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
@@ -74,7 +84,7 @@ class LanguageSelectActivity : EveBaseActivity() {
             setBackgroundColor(palette.surface)
         }
 
-        val headerCell = HeaderCell(this).apply {
+        headerCell = HeaderCell(this).apply {
             setText("App Language")
         }
         listColumn.addView(headerCell, LinearLayout.LayoutParams(
@@ -82,45 +92,34 @@ class LanguageSelectActivity : EveBaseActivity() {
             ViewGroup.LayoutParams.WRAP_CONTENT
         ))
 
-        val currentTags = AppCompatDelegate.getApplicationLocales().toLanguageTags()
-        val selectedTag = when {
-            currentTags.isEmpty() -> ""
-            currentTags.startsWith("hi") -> "hi"
-            else -> "en"
+        languagesContainer = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
         }
+        listColumn.addView(languagesContainer, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ))
 
-        options.forEachIndexed { index, option ->
-            val cell = LanguageCell(this, palette).apply {
-                setLanguage(option.nativeTitle, option.englishSubtitle, option.tag == selectedTag)
-                needDivider = index < options.lastIndex
-                setOnClickListener {
-                    val locales = if (option.tag.isEmpty()) {
-                        LocaleListCompat.getEmptyLocaleList()
-                    } else {
-                        LocaleListCompat.forLanguageTags(option.tag)
-                    }
-                    rowCells.forEachIndexed { i, c ->
-                        c.setChecked(i == index, animated = true)
-                    }
-                    AppCompatDelegate.setApplicationLocales(locales)
-                    EveNavigationHelper.finishWithTransition(this@LanguageSelectActivity)
-                }
-            }
-            rowCells.add(cell)
-            listColumn.addView(cell, LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            ))
+        emptyView = TextView(this).apply {
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+            setTextColor(palette.textSecondary)
+            gravity = Gravity.CENTER
+            text = "No results"
+            visibility = View.GONE
+            setPadding(0, dp(48f), 0, dp(48f))
         }
+        listColumn.addView(emptyView, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ))
 
-        val shadowCell = ShadowSectionCell(this).apply {
-        }
+        shadowCell = ShadowSectionCell(this)
         listColumn.addView(shadowCell, LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         ))
 
-        val infoCell = TextInfoPrivacyCell(this).apply {
+        infoCell = TextInfoPrivacyCell(this).apply {
             setText("Choose your preferred language for Eve's interface.")
             setBackgroundColor(palette.windowBackground)
         }
@@ -128,6 +127,15 @@ class LanguageSelectActivity : EveBaseActivity() {
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         ))
+
+        val currentTags = AppCompatDelegate.getApplicationLocales().toLanguageTags()
+        selectedTag = when {
+            currentTags.isEmpty() -> ""
+            currentTags.startsWith("hi") -> "hi"
+            else -> "en"
+        }
+
+        renderLanguageList(options)
 
         val scrollView = ScrollView(this).apply {
             isVerticalScrollBarEnabled = false
@@ -145,7 +153,68 @@ class LanguageSelectActivity : EveBaseActivity() {
         setContentView(root)
     }
 
-    /** LanguageCell (TextRadioCell / LanguageCell.java): 54dp height, native title + subtitle + TelegramRadioIndicator. */
+    private fun dp(v: Float): Int = (v * resources.displayMetrics.density + 0.5f).toInt()
+
+    private fun filterLanguages(query: String) {
+        val filtered = if (query.isEmpty()) {
+            options
+        } else {
+            options.filter {
+                it.nativeTitle.contains(query, ignoreCase = true) ||
+                    it.englishSubtitle.contains(query, ignoreCase = true)
+            }
+        }
+
+        val isSearching = query.isNotEmpty()
+        headerCell.visibility = if (isSearching) View.GONE else View.VISIBLE
+        shadowCell.visibility = if (isSearching) View.GONE else View.VISIBLE
+        infoCell.visibility = if (isSearching) View.GONE else View.VISIBLE
+
+        if (filtered.isEmpty()) {
+            languagesContainer.visibility = View.GONE
+            emptyView.visibility = View.VISIBLE
+        } else {
+            languagesContainer.visibility = View.VISIBLE
+            emptyView.visibility = View.GONE
+            renderLanguageList(filtered)
+        }
+    }
+
+    private fun renderLanguageList(items: List<LanguageOption>) {
+        languagesContainer.removeAllViews()
+        items.forEachIndexed { index, option ->
+            val cell = LanguageCell(this, palette).apply {
+                setLanguage(option.nativeTitle, option.englishSubtitle, option.tag == selectedTag)
+                needDivider = index < items.lastIndex
+                setOnClickListener {
+                    selectedTag = option.tag
+                    setChecked(true, animated = true)
+                    val locales = if (option.tag.isEmpty()) {
+                        LocaleListCompat.getEmptyLocaleList()
+                    } else {
+                        LocaleListCompat.forLanguageTags(option.tag)
+                    }
+                    AppCompatDelegate.setApplicationLocales(locales)
+                    languagesContainer.postDelayed({
+                        EveNavigationHelper.finishWithTransition(this@LanguageSelectActivity)
+                    }, 150L)
+                }
+            }
+            languagesContainer.addView(cell, LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ))
+        }
+    }
+
+    /**
+     * Exact Telegram Cells/LanguageCell.java port:
+     * - 60dp height (dp(60) + if (needDivider) 1 else 0)
+     * - RadioButton at start (22x22dp, size 20dp, marginStart 20dp)
+     * - Native title: 16sp, marginStart 62dp, marginEnd 23dp
+     * - Subtitle: 13sp, marginStart 62dp, marginEnd 23dp
+     * - Divider: drawn from marginStartDp - 3 = 59dp to measuredWidth
+     */
     private class LanguageCell(
         context: Context,
         palette: TelegramThemeEngine.ResolvedPalette
@@ -154,10 +223,24 @@ class LanguageSelectActivity : EveBaseActivity() {
         private val density = resources.displayMetrics.density
         private fun dp(v: Float): Int = (v * density + 0.5f).toInt()
 
+        private val marginStartDp = 62
+        private val marginEndDp = 23
+
+        private val radioIndicator = TelegramRadioIndicator(
+            density,
+            dp(20f)
+        ) { true }.apply {
+            setColors(palette.textSecondary, palette.accent)
+        }
+
+        private val radioView = ImageView(context).apply {
+            setImageDrawable(radioIndicator)
+            scaleType = ImageView.ScaleType.CENTER
+        }
+
         private val titleView = TextView(context).apply {
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
             setTextColor(palette.textPrimary)
-            setLines(1)
             isSingleLine = true
             ellipsize = TextUtils.TruncateAt.END
             gravity = Gravity.START or Gravity.CENTER_VERTICAL
@@ -166,22 +249,9 @@ class LanguageSelectActivity : EveBaseActivity() {
         private val subtitleView = TextView(context).apply {
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
             setTextColor(palette.textSecondary)
-            setLines(1)
             isSingleLine = true
             ellipsize = TextUtils.TruncateAt.END
             gravity = Gravity.START or Gravity.CENTER_VERTICAL
-        }
-
-        private val radioIndicator = TelegramRadioIndicator(
-            density,
-            dp(22f)
-        ) { true }.apply {
-            setColors(palette.textSecondary, palette.accent)
-        }
-
-        private val radioView = ImageView(context).apply {
-            setImageDrawable(radioIndicator)
-            scaleType = ImageView.ScaleType.CENTER
         }
 
         private val dividerPaint = Paint().apply {
@@ -202,6 +272,16 @@ class LanguageSelectActivity : EveBaseActivity() {
             isFocusable = true
             setWillNotDraw(false)
 
+            // RadioButton at start (per LanguageCell.java:47)
+            addView(radioView, LayoutParams(
+                dp(22f),
+                dp(22f),
+                Gravity.START or Gravity.CENTER_VERTICAL
+            ).apply {
+                marginStart = dp(20f)
+            })
+
+            // Text column (per LanguageCell.java:55, 63)
             val textCol = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
                 addView(titleView, LinearLayout.LayoutParams(
@@ -211,7 +291,9 @@ class LanguageSelectActivity : EveBaseActivity() {
                 addView(subtitleView, LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
-                ).apply { topMargin = dp(2f) })
+                ).apply {
+                    topMargin = dp(2f)
+                })
             }
 
             addView(textCol, LayoutParams(
@@ -219,16 +301,8 @@ class LanguageSelectActivity : EveBaseActivity() {
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 Gravity.START or Gravity.CENTER_VERTICAL
             ).apply {
-                marginStart = dp(21f)
-                marginEnd = dp(64f)
-            })
-
-            addView(radioView, LayoutParams(
-                dp(24f),
-                dp(24f),
-                Gravity.END or Gravity.CENTER_VERTICAL
-            ).apply {
-                marginEnd = dp(21f)
+                marginStart = dp(marginStartDp.toFloat())
+                marginEnd = dp(marginEndDp.toFloat())
             })
         }
 
@@ -245,7 +319,7 @@ class LanguageSelectActivity : EveBaseActivity() {
         override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
             super.onMeasure(
                 MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.EXACTLY),
-                MeasureSpec.makeMeasureSpec(dp(54f) + if (needDivider) 1 else 0, MeasureSpec.EXACTLY)
+                MeasureSpec.makeMeasureSpec(dp(60f) + if (needDivider) 1 else 0, MeasureSpec.EXACTLY)
             )
         }
 
@@ -253,7 +327,7 @@ class LanguageSelectActivity : EveBaseActivity() {
             super.onDraw(canvas)
             if (needDivider) {
                 canvas.drawLine(
-                    dp(21f).toFloat(),
+                    dp((marginStartDp - 3).toFloat()).toFloat(),
                     (height - 1).toFloat(),
                     width.toFloat(),
                     (height - 1).toFloat(),

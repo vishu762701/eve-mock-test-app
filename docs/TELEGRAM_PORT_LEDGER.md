@@ -160,7 +160,7 @@ Notes / leftovers:
 - Removed card wrappers from `activity_settings.xml` in favor of Telegram full-width flat list cells.
 - Preserved all theme-toggle and reveal animation host files intact (`ThemeSwitchAnimator.kt`, `ThemeManager.kt`, `TelegramMenuPopup.kt`, `ThemeFrameCoordinator.kt`).
 
-## F11 Notifications settings - PENDING_CI
+## F11 Notifications settings - DONE (commit 0e889e87)
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | Notification cell padding & minHeight | `NotificationsCheckCell.java:963` (21dp padding, 64dp minHeight) | 14dp padding, wrap_content | 21dp horizontal padding, 64dp minHeight (`item_notification.xml`) |
@@ -172,6 +172,21 @@ Notes / leftovers:
 
 Notes / leftovers:
 - Aligned `activity_notifications.xml`, `item_notification.xml`, `NotificationAdapter.kt`, and `activity_send_notification.xml` with Telegram source metrics.
+
+## F12 Language - PENDING_CI
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| LanguageCell height | `LanguageCell.java:68` (60dp + if (needDivider) 1 else 0) | 54dp | 60dp + if (needDivider) 1 else 0 |
+| RadioButton placement & size | `LanguageCell.java:47` (22x22dp, size 20dp, start margin 20dp, START \| CENTER_VERTICAL) | END (right-aligned, 24dp) | START (left-aligned, 22x22dp, start margin 20dp) |
+| Text column insets | `LanguageCell.java:34, 55, 63` (marginStart 62dp, marginEnd 23dp) | start 21dp, end 64dp | start 62dp, end 23dp (16sp title, 13sp subtitle) |
+| Divider inset | `LanguageCell.java:97` (marginStartDp - 3 = 59dp) | 21dp | 59dp (`canvas.drawLine(dp(59f), height-1, width, height-1, dividerPaint)`) |
+| Search filter | `LanguageSelectActivity.java:140-160` (ActionBarMenuItem search field) | No search filter | `actionBar.enableSearch("Search")` dynamic filter on native & English titles + empty state |
+| Locale application | `LanguageSelectActivity.java:630+` (`setLocale`) | Instant apply | Preserved `AppCompatDelegate.setApplicationLocales` with animated radio feedback |
+
+Notes / leftovers:
+- Ported exact Telegram `LanguageCell.java` layout: left radio button at 20dp, 62dp text start inset, 60dp height, 59dp divider inset.
+- Integrated `TelegramActionBar` search filtering with real-time matching and empty results view.
+
 
 
 
