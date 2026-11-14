@@ -1,0 +1,334 @@
+[
+  {
+    "id": "switch_track_width_dp",
+    "component": "Switch",
+    "telegram_file": "org/telegram/ui/Components/Switch.java",
+    "telegram_line": 380,
+    "telegram_snippet": "int width = AndroidUtilities.dp(31);",
+    "kind": "dp",
+    "value": 31,
+    "eve_symbol": "SWITCH_TRACK_WIDTH_DP"
+  },
+  {
+    "id": "switch_track_height_dp",
+    "component": "Switch",
+    "telegram_file": "org/telegram/ui/Components/Switch.java",
+    "telegram_line": 448,
+    "telegram_snippet": "rectF.set(x, y, x + width, y + AndroidUtilities.dpf2(14));",
+    "kind": "dp",
+    "value": 14,
+    "eve_symbol": "SWITCH_TRACK_HEIGHT_DP"
+  },
+  {
+    "id": "switch_track_radius_dp",
+    "component": "Switch",
+    "telegram_file": "org/telegram/ui/Components/Switch.java",
+    "telegram_line": 449,
+    "telegram_snippet": "canvasToDraw.drawRoundRect(rectF, AndroidUtilities.dpf2(7), AndroidUtilities.dpf2(7), paint);",
+    "kind": "dp",
+    "value": 7,
+    "eve_symbol": "SWITCH_TRACK_RADIUS_DP"
+  },
+  {
+    "id": "switch_backplate_radius_dp",
+    "component": "Switch",
+    "telegram_file": "org/telegram/ui/Components/Switch.java",
+    "telegram_line": 450,
+    "telegram_snippet": "canvasToDraw.drawCircle(tx, ty, AndroidUtilities.dpf2(10), paint);",
+    "kind": "dp",
+    "value": 10,
+    "eve_symbol": "SWITCH_BACKPLATE_RADIUS_DP"
+  },
+  {
+    "id": "switch_thumb_radius_dp",
+    "component": "Switch",
+    "telegram_file": "org/telegram/ui/Components/Switch.java",
+    "telegram_line": 497,
+    "telegram_snippet": "canvasToDraw.drawCircle(tx, ty, AndroidUtilities.dp(8), paint);",
+    "kind": "dp",
+    "value": 8,
+    "eve_symbol": "SWITCH_THUMB_RADIUS_DP"
+  },
+  {
+    "id": "switch_thumb_travel_dp",
+    "component": "Switch",
+    "telegram_file": "org/telegram/ui/Components/Switch.java",
+    "telegram_line": 384,
+    "telegram_snippet": "int tx = x + AndroidUtilities.dp(7) + (int) (AndroidUtilities.dp(17) * progress);",
+    "pattern": "dp\\((\\d+)\\)\\s*\\*\\s*progress",
+    "kind": "dp",
+    "value": 17,
+    "eve_symbol": "SWITCH_THUMB_TRAVEL_DP"
+  },
+  {
+    "id": "switch_thumb_offset_dp",
+    "component": "Switch",
+    "telegram_file": "org/telegram/ui/Components/Switch.java",
+    "telegram_line": 384,
+    "telegram_snippet": "int tx = x + AndroidUtilities.dp(7) + (int) (AndroidUtilities.dp(17) * progress);",
+    "kind": "dp",
+    "value": 7,
+    "eve_symbol": "SWITCH_THUMB_OFFSET_DP"
+  },
+  {
+    "id": "switch_duration_ms",
+    "component": "Switch",
+    "telegram_file": "org/telegram/ui/Components/Switch.java",
+    "telegram_line": 238,
+    "telegram_snippet": "checkAnimator.setDuration(200);",
+    "kind": "ms",
+    "value": 200,
+    "eve_symbol": "SWITCH_ANIMATION_DURATION_MS"
+  },
+  {
+    "id": "switch_ripple_radius_dp",
+    "component": "Switch",
+    "telegram_file": "org/telegram/ui/Components/Switch.java",
+    "telegram_line": 199,
+    "telegram_snippet": "rippleDrawable.setRadius(AndroidUtilities.dp(18));",
+    "kind": "dp",
+    "value": 18,
+    "eve_symbol": "SWITCH_RIPPLE_RADIUS_DP"
+  },
+  {
+    "id": "sheet_open_duration_ms",
+    "component": "BottomSheet",
+    "telegram_file": "org/telegram/ui/ActionBar/BottomSheet.java",
+    "telegram_line": 213,
+    "telegram_snippet": "public int openDuration = 400;",
+    "kind": "ms",
+    "value": 400,
+    "eve_symbol": "BOTTOM_SHEET_OPEN_DURATION_MS"
+  },
+  {
+    "id": "sheet_open_delay_ms",
+    "component": "BottomSheet",
+    "telegram_file": "org/telegram/ui/ActionBar/BottomSheet.java",
+    "telegram_line": 1777,
+    "telegram_snippet": "currentSheetAnimation.setStartDelay(waitingKeyboard ? 0 : 20);",
+    "kind": "ms",
+    "value": 20,
+    "eve_symbol": "BOTTOM_SHEET_OPEN_DELAY_MS"
+  },
+  {
+    "id": "sheet_dim_alpha",
+    "component": "BottomSheet",
+    "telegram_file": "org/telegram/ui/ActionBar/BottomSheet.java",
+    "telegram_line": 222,
+    "telegram_snippet": "protected int dimBehindAlpha = 51;",
+    "kind": "alpha",
+    "value": 0.2,
+    "eve_symbol": "BOTTOM_SHEET_DIM_ALPHA"
+  },
+  {
+    "id": "sheet_dismiss_duration_ms",
+    "component": "BottomSheet",
+    "telegram_file": "org/telegram/ui/ActionBar/BottomSheet.java",
+    "telegram_line": 510,
+    "telegram_snippet": "animator.setDuration(320);",
+    "kind": "ms",
+    "value": 320,
+    "eve_symbol": "BOTTOM_SHEET_DISMISS_DURATION_MS"
+  },
+  {
+    "id": "sheet_dismiss_fast_ms",
+    "component": "BottomSheet",
+    "telegram_file": "org/telegram/ui/ActionBar/BottomSheet.java",
+    "telegram_line": 1902,
+    "telegram_snippet": "currentSheetAnimation.setDuration(cellType == Builder.CELL_TYPE_CALL ? 330 : 180);",
+    "kind": "ms",
+    "value": 180,
+    "eve_symbol": "BOTTOM_SHEET_DISMISS_FAST_MS"
+  },
+  {
+    "id": "action_bar_height_portrait_dp",
+    "component": "ActionBar",
+    "telegram_file": "org/telegram/ui/ActionBar/ActionBar.java",
+    "telegram_line": 1918,
+    "telegram_snippet": "return dp(56);",
+    "kind": "dp",
+    "value": 56,
+    "eve_symbol": "ACTION_BAR_HEIGHT_PORTRAIT_DP"
+  },
+  {
+    "id": "action_bar_height_landscape_dp",
+    "component": "ActionBar",
+    "telegram_file": "org/telegram/ui/ActionBar/ActionBar.java",
+    "telegram_line": 1916,
+    "telegram_snippet": "return dp(48);",
+    "kind": "dp",
+    "value": 48,
+    "eve_symbol": "ACTION_BAR_HEIGHT_LANDSCAPE_DP"
+  },
+  {
+    "id": "action_bar_back_size_dp",
+    "component": "ActionBar",
+    "telegram_file": "org/telegram/ui/ActionBar/ActionBar.java",
+    "telegram_line": 270,
+    "telegram_snippet": "addView(backButtonImageView, LayoutHelper.createFrame(54, 54, Gravity.LEFT | Gravity.TOP));",
+    "kind": "dp",
+    "value": 54,
+    "eve_symbol": "ACTION_BAR_BACK_SIZE_DP"
+  },
+  {
+    "id": "profile_avatar_size_dp",
+    "component": "ProfileGooeyView",
+    "telegram_file": "org/telegram/ui/Components/ProfileGooeyView.java",
+    "telegram_line": 37,
+    "telegram_snippet": "private static final float AVATAR_SIZE_DP = 100;",
+    "kind": "dp",
+    "value": 100,
+    "eve_symbol": "PROFILE_AVATAR_SIZE_DP"
+  },
+  {
+    "id": "profile_black_bar_dp",
+    "component": "ProfileGooeyView",
+    "telegram_file": "org/telegram/ui/Components/ProfileGooeyView.java",
+    "telegram_line": 38,
+    "telegram_snippet": "private static final float BLACK_KING_BAR = 32;",
+    "kind": "dp",
+    "value": 32,
+    "eve_symbol": "PROFILE_BLACK_BAR_DP"
+  },
+  {
+    "id": "profile_gooey_intensity",
+    "component": "ProfileGooeyView",
+    "telegram_file": "org/telegram/ui/Components/ProfileGooeyView.java",
+    "telegram_line": 61,
+    "telegram_snippet": "setIntensity(15f);",
+    "kind": "ratio",
+    "value": 15,
+    "eve_symbol": "PROFILE_GOOEY_INTENSITY"
+  },
+  {
+    "id": "profile_action_target_height_dp",
+    "component": "ProfileActionsView",
+    "telegram_file": "org/telegram/ui/ProfileActivity.java",
+    "telegram_line": 3909,
+    "telegram_snippet": "actionsView = new ProfileActionsView(context, dp(74));",
+    "kind": "dp",
+    "value": 74,
+    "eve_symbol": "PROFILE_ACTION_TARGET_HEIGHT_DP"
+  },
+  {
+    "id": "profile_action_xpadding_dp",
+    "component": "ProfileActionsView",
+    "telegram_file": "org/telegram/ui/Components/ProfileActionsView.java",
+    "telegram_line": 134,
+    "telegram_snippet": "xpadding = dpf2(14);",
+    "kind": "dp",
+    "value": 14,
+    "eve_symbol": "PROFILE_ACTION_XPADDING_DP"
+  },
+  {
+    "id": "profile_action_between_padding_dp",
+    "component": "ProfileActionsView",
+    "telegram_file": "org/telegram/ui/Components/ProfileActionsView.java",
+    "telegram_line": 253,
+    "telegram_snippet": "final float betweenPadding = xpadding / 2f;",
+    "kind": "dp",
+    "value": 7,
+    "eve_symbol": "PROFILE_ACTION_BETWEEN_PADDING_DP"
+  },
+  {
+    "id": "profile_action_round_radius_dp",
+    "component": "ProfileActionsView",
+    "telegram_file": "org/telegram/ui/Components/ProfileActionsView.java",
+    "telegram_line": 513,
+    "telegram_snippet": "return dp(16);",
+    "kind": "dp",
+    "value": 16,
+    "eve_symbol": "PROFILE_ACTION_ROUND_RADIUS_DP"
+  },
+  {
+    "id": "profile_action_drawable_size_dp",
+    "component": "ProfileActionsView",
+    "telegram_file": "org/telegram/ui/Components/ProfileActionsView.java",
+    "telegram_line": 390,
+    "telegram_snippet": "final int drawableSize = dp(24);",
+    "kind": "dp",
+    "value": 24,
+    "eve_symbol": "PROFILE_ACTION_DRAWABLE_SIZE_DP"
+  },
+  {
+    "id": "button_bounce_press_ms",
+    "component": "ButtonBounce",
+    "telegram_file": "org/telegram/ui/Components/ButtonBounce.java",
+    "telegram_line": 85,
+    "telegram_snippet": "animator.setDuration((long) (60 * durationPressMultiplier));",
+    "kind": "ms",
+    "value": 60,
+    "eve_symbol": "BUTTON_BOUNCE_PRESS_MS"
+  },
+  {
+    "id": "button_bounce_release_ms",
+    "component": "ButtonBounce",
+    "telegram_file": "org/telegram/ui/Components/ButtonBounce.java",
+    "telegram_line": 89,
+    "telegram_snippet": "animator.setDuration((long) (350 * durationReleaseMultiplier));",
+    "kind": "ms",
+    "value": 350,
+    "eve_symbol": "BUTTON_BOUNCE_RELEASE_MS"
+  },
+  {
+    "id": "button_bounce_overshoot",
+    "component": "ButtonBounce",
+    "telegram_file": "org/telegram/ui/Components/ButtonBounce.java",
+    "telegram_line": 20,
+    "telegram_snippet": "this(viewToInvalidate, 1f, 5.0f);",
+    "pattern": ",\\s*([\\d.]+)f\\);",
+    "kind": "ratio",
+    "value": 5,
+    "eve_symbol": "BUTTON_BOUNCE_OVERSHOOT"
+  },
+  {
+    "id": "button_bounce_duration_ms",
+    "component": "ButtonBounce",
+    "telegram_file": "org/telegram/ui/Components/ButtonBounce.java",
+    "telegram_line": 115,
+    "telegram_snippet": "bounceAnimator.setDuration(320);",
+    "kind": "ms",
+    "value": 320,
+    "eve_symbol": "BUTTON_BOUNCE_DURATION_MS"
+  },
+  {
+    "id": "poll_max_question_length",
+    "component": "Poll",
+    "telegram_file": "org/telegram/ui/Components/ChatAttachAlertPollLayout.java",
+    "telegram_line": 191,
+    "telegram_snippet": "public static final int MAX_QUESTION_LENGTH = 255;",
+    "kind": "ratio",
+    "value": 255,
+    "eve_symbol": "POLL_MAX_QUESTION_LENGTH"
+  },
+  {
+    "id": "poll_max_answer_length",
+    "component": "Poll",
+    "telegram_file": "org/telegram/ui/Components/ChatAttachAlertPollLayout.java",
+    "telegram_line": 192,
+    "telegram_snippet": "public static final int MAX_ANSWER_LENGTH = 100;",
+    "kind": "ratio",
+    "value": 100,
+    "eve_symbol": "POLL_MAX_ANSWER_LENGTH"
+  },
+  {
+    "id": "poll_max_solution_length",
+    "component": "Poll",
+    "telegram_file": "org/telegram/ui/Components/ChatAttachAlertPollLayout.java",
+    "telegram_line": 193,
+    "telegram_snippet": "public static final int MAX_SOLUTION_LENGTH = 200;",
+    "kind": "ratio",
+    "value": 200,
+    "eve_symbol": "POLL_MAX_SOLUTION_LENGTH"
+  },
+  {
+    "id": "poll_max_options_default",
+    "component": "Poll",
+    "telegram_file": "org/telegram/messenger/AppGlobalConfig.java",
+    "telegram_line": 70,
+    "telegram_snippet": "public final ConfigInt pollAnswersMax = ofInt(\"poll_answers_max\", 12);",
+    "kind": "ratio",
+    "value": 12,
+    "eve_symbol": "POLL_MAX_OPTIONS_DEFAULT"
+  }
+]

@@ -197,7 +197,7 @@ class ProfileActivity : EveBaseActivity() {
             }
         }.also { FirebaseAuth.getInstance().addAuthStateListener(it) }
         binding.tvStatus.text = ProfilePresenceStatus.label(null)
-        binding.btnBack.setOnClickListener { showPersonalQr() }
+        binding.btnBack.setOnClickListener { finish() }
         binding.btnProfileMenu.setOnClickListener { showProfileOptions() }
         setPersonalEditingEnabled(false)
 

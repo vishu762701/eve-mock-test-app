@@ -409,8 +409,9 @@ class ProfileGooeyView @JvmOverloads constructor(
         }
 
         override fun setIntensity(intensity: Float) {
-            effectNode.setRenderEffect(RenderEffect.createBlurEffect(intensity, intensity, Shader.TileMode.CLAMP))
-            effectNotchNode.setRenderEffect(RenderEffect.createBlurEffect(intensity, intensity, Shader.TileMode.CLAMP))
+            val safeIntensity = intensity.coerceAtLeast(0.1f)
+            effectNode.setRenderEffect(RenderEffect.createBlurEffect(safeIntensity, safeIntensity, Shader.TileMode.CLAMP))
+            effectNotchNode.setRenderEffect(RenderEffect.createBlurEffect(safeIntensity, safeIntensity, Shader.TileMode.CLAMP))
             filter.colorFilter = ColorMatrixColorFilter(floatArrayOf(
                 1f, 0f, 0f, 0f, 0f,
                 0f, 1f, 0f, 0f, 0f,
@@ -420,51 +421,55 @@ class ProfileGooeyView @JvmOverloads constructor(
         }
 
         override fun setBlurIntensity(intensity: Float) {
-            if (intensity == 0f) {
+            val b = intensity * this@ProfileGooeyView.intensity / factorMult
+            if (b <= 0.05f) {
                 blurNode.setRenderEffect(null)
             } else {
-                val b = intensity * this@ProfileGooeyView.intensity / factorMult
                 blurNode.setRenderEffect(RenderEffect.createBlurEffect(b, b, Shader.TileMode.DECAL))
             }
         }
 
         override fun draw(drawer: (Canvas) -> Unit, canvas: Canvas) {
-            if (!canvas.isHardwareAccelerated) {
+            if (!canvas.isHardwareAccelerated || width <= 0 || height <= 0) {
                 drawer(canvas)
                 return
             }
 
-            whole.set(0f, 0f, width.toFloat(), height.toFloat())
-            if (childCount > 0) {
-                val child = getChildAt(0)
-                val w = child.width * child.scaleX
-                val h = child.height * child.scaleY
-                val l = child.x
-                val t = child.y
+            try {
+                whole.set(0f, 0f, width.toFloat(), height.toFloat())
+                if (childCount > 0) {
+                    val child = getChildAt(0)
+                    val w = child.width * child.scaleX
+                    val h = child.height * child.scaleY
+                    val l = child.x
+                    val t = child.y
 
-                wholeOptimized.set(l, t, l + w, t + h)
-                val info = notchInfo
-                if (info != null) {
-                    wholeOptimized.union(info.bounds)
+                    wholeOptimized.set(l, t, l + w, t + h)
+                    val info = notchInfo
+                    if (info != null) {
+                        wholeOptimized.union(info.bounds)
+                    }
+                    wholeOptimized.inset(-dp(20), -dp(20))
+                    val intersects = wholeOptimized.intersect(whole)
+                    if (!intersects) {
+                        wholeOptimized.set(whole)
+                    }
+                    wholeOptimized.top = 0f
+                } else {
+                    wholeOptimized.set(whole)
                 }
-                wholeOptimized.inset(-dp(20), -dp(20))
-                wholeOptimized.intersect(whole)
-                wholeOptimized.top = 0f
-            } else {
-                wholeOptimized.set(whole)
-            }
-            wholeOptimized.bottom += dp(BLACK_KING_BAR)
+                wholeOptimized.bottom += dp(BLACK_KING_BAR)
 
-            val rw = Math.ceil(wholeOptimized.width().toDouble()).toInt().coerceAtLeast(1)
-            val rh = Math.ceil(wholeOptimized.height().toDouble()).toInt().coerceAtLeast(1)
-            val left = wholeOptimized.left
-            val top = wholeOptimized.top
+                val rw = Math.ceil(wholeOptimized.width().toDouble()).toInt().coerceAtLeast(1)
+                val rh = Math.ceil(wholeOptimized.height().toDouble()).toInt().coerceAtLeast(1)
+                val left = wholeOptimized.left
+                val top = wholeOptimized.top
 
-            node.setPosition(0, 0, rw, rh)
-            blurNode.setPosition(0, 0, rw, rh)
-            effectNode.setPosition(0, 0, rw, rh)
-            effectNotchNode.setPosition(0, 0, rw, rh)
-            wholeOptimized.set(0f, 0f, rw.toFloat(), rh.toFloat())
+                node.setPosition(0, 0, rw, rh)
+                blurNode.setPosition(0, 0, rw, rh)
+                effectNode.setPosition(0, 0, rw, rh)
+                effectNotchNode.setPosition(0, 0, rw, rh)
+                wholeOptimized.set(0f, 0f, rw.toFloat(), rh.toFloat())
 
             // Telegram ProfileGooeyView.java:342-348: raw avatar buffer and alpha.
             var c = node.beginRecording()
@@ -599,6 +604,9 @@ class ProfileGooeyView @JvmOverloads constructor(
                 if (blurImageAlpha != 255) canvas.restore()
             }
             canvas.restore()
+            } catch (_: Throwable) {
+                drawer(canvas)
+            }
         }
     }
 }

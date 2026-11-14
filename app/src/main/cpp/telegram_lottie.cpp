@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstdio>
+#include <cstring>
 #include <string>
 #include <vector>
 
@@ -184,7 +185,9 @@ JNIEXPORT jlong JNICALL Java_org_telegram_ui_Components_RLottieNative_nCreateWit
 }
 
 JNIEXPORT void JNICALL Java_org_telegram_ui_Components_RLottieNative_nDestroy(JNIEnv *, jclass, jlong ptr) {
-    tlottie_drop(reinterpret_cast<TLottieInstance *>(ptr));
+    if (ptr != 0) {
+        tlottie_drop(reinterpret_cast<TLottieInstance *>(ptr));
+    }
 }
 
 JNIEXPORT jint JNICALL Java_org_telegram_ui_Components_RLottieNative_nGetFrame(
@@ -195,8 +198,18 @@ JNIEXPORT jint JNICALL Java_org_telegram_ui_Components_RLottieNative_nGetFrame(
     if (AndroidBitmap_getInfo(env, bitmap, &bitmapInfo) != ANDROID_BITMAP_RESULT_SUCCESS ||
         (bitmapInfo.format != ANDROID_BITMAP_FORMAT_RGBA_8888 &&
          bitmapInfo.format != ANDROID_BITMAP_FORMAT_A_8)) return 0;
+    if (bitmapInfo.width == 0 || bitmapInfo.height == 0) return 0;
     void *rawPixels = nullptr;
-    if (AndroidBitmap_lockPixels(env, bitmap, &rawPixels) < 0) return 0;
+    if (AndroidBitmap_lockPixels(env, bitmap, &rawPixels) < 0 || rawPixels == nullptr) return 0;
+
+    struct ScopedUnlock {
+        JNIEnv *env;
+        jobject bmp;
+        ~ScopedUnlock() {
+            AndroidBitmap_unlockPixels(env, bmp);
+        }
+    } unlocker{env, bitmap};
+
     const size_t count = static_cast<size_t>(bitmapInfo.width) * bitmapInfo.height;
     int32_t result;
     if (bitmapInfo.format == ANDROID_BITMAP_FORMAT_A_8) {
@@ -208,9 +221,9 @@ JNIEXPORT jint JNICALL Java_org_telegram_ui_Components_RLottieNative_nGetFrame(
             if (!clear) {
                 const auto *source = static_cast<const uint8_t *>(rawPixels);
                 for (uint32_t y = 0; y < bitmapInfo.height; ++y) {
-                    std::copy_n(source + static_cast<size_t>(y) * bitmapInfo.stride,
-                                bitmapInfo.width,
-                                alpha + static_cast<size_t>(y) * bitmapInfo.width);
+                    std::memcpy(alpha + static_cast<size_t>(y) * bitmapInfo.width,
+                                source + static_cast<size_t>(y) * bitmapInfo.stride,
+                                bitmapInfo.width);
                 }
             }
         }
@@ -220,41 +233,39 @@ JNIEXPORT jint JNICALL Java_org_telegram_ui_Components_RLottieNative_nGetFrame(
         if (result == TLOTTIE_OK && !temporary.empty()) {
             auto *destination = static_cast<uint8_t *>(rawPixels);
             for (uint32_t y = 0; y < bitmapInfo.height; ++y) {
-                std::copy_n(alpha + static_cast<size_t>(y) * bitmapInfo.width, bitmapInfo.width,
-                            destination + static_cast<size_t>(y) * bitmapInfo.stride);
+                std::memcpy(destination + static_cast<size_t>(y) * bitmapInfo.stride,
+                            alpha + static_cast<size_t>(y) * bitmapInfo.width,
+                            bitmapInfo.width);
             }
         }
     } else {
         std::vector<uint32_t> temporary;
         auto *pixels = static_cast<uint32_t *>(rawPixels);
-        if (bitmapInfo.stride != bitmapInfo.width * sizeof(uint32_t)) {
+        const size_t rowBytes = static_cast<size_t>(bitmapInfo.width) * sizeof(uint32_t);
+        if (bitmapInfo.stride != rowBytes) {
             temporary.resize(count);
             pixels = temporary.data();
             if (!clear) {
                 const auto *source = static_cast<const uint8_t *>(rawPixels);
                 for (uint32_t y = 0; y < bitmapInfo.height; ++y) {
-                    std::copy_n(
-                            reinterpret_cast<const uint32_t *>(
-                                    source + static_cast<size_t>(y) * bitmapInfo.stride),
-                            bitmapInfo.width,
-                            pixels + static_cast<size_t>(y) * bitmapInfo.width);
+                    std::memcpy(pixels + static_cast<size_t>(y) * bitmapInfo.width,
+                                source + static_cast<size_t>(y) * bitmapInfo.stride,
+                                rowBytes);
                 }
             }
         }
         result = tlottie_render_with_options(instance, static_cast<float>(frame),
                 bitmapInfo.width, bitmapInfo.height, pixels, count, 1,
                 kDefaultCurveTolerance, clear ? 1 : 0);
-        if (result == TLOTTIE_OK) {
-            if (!temporary.empty()) {
-                auto *destination = static_cast<uint8_t *>(rawPixels);
-                for (uint32_t y = 0; y < bitmapInfo.height; ++y) {
-                    std::copy_n(pixels + static_cast<size_t>(y) * bitmapInfo.width, bitmapInfo.width,
-                                reinterpret_cast<uint32_t *>(destination + static_cast<size_t>(y) * bitmapInfo.stride));
-                }
+        if (result == TLOTTIE_OK && !temporary.empty()) {
+            auto *destination = static_cast<uint8_t *>(rawPixels);
+            for (uint32_t y = 0; y < bitmapInfo.height; ++y) {
+                std::memcpy(destination + static_cast<size_t>(y) * bitmapInfo.stride,
+                            pixels + static_cast<size_t>(y) * bitmapInfo.width,
+                            rowBytes);
             }
         }
     }
-    AndroidBitmap_unlockPixels(env, bitmap);
     return result == TLOTTIE_OK ? frame : -5;
 }
 }

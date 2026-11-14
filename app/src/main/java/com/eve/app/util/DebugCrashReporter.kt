@@ -4,9 +4,13 @@ import android.app.Activity
 import android.app.Application
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ContentValues
 import android.content.Context
 import android.content.DialogInterface
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import android.widget.ScrollView
 import android.widget.TextView
@@ -80,9 +84,37 @@ object DebugCrashReporter {
             crashFile.writeText(crashPayload)
         } catch (_: Throwable) {}
 
-        // Never write exception traces into shared storage automatically.
-        // The debug-only crash dialog provides an explicit Copy Trace action.
+        // 2. Owner-authorized debug crash trace in Download/Eve-Crash/crash-<timestamp>.txt
+        if (BuildConfig.DEBUG) {
+            val timestamp = System.currentTimeMillis()
+            val fileName = "crash-$timestamp.txt"
+            try {
+                // Direct file write (works on storage permission / pre-Q / accessible shared directories)
+                val downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                val crashDir = File(downloadDir, "Eve-Crash")
+                if (!crashDir.exists()) crashDir.mkdirs()
+                val targetFile = File(crashDir, fileName)
+                targetFile.writeText(crashPayload)
+            } catch (_: Throwable) {}
 
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                try {
+                    val resolver = context.contentResolver
+                    val contentValues = ContentValues().apply {
+                        put(MediaStore.Downloads.DISPLAY_NAME, fileName)
+                        put(MediaStore.Downloads.MIME_TYPE, "text/plain")
+                        put(MediaStore.Downloads.RELATIVE_PATH, "${Environment.DIRECTORY_DOWNLOADS}/Eve-Crash")
+                    }
+                    val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+                    if (uri != null) {
+                        resolver.openOutputStream(uri)?.use { stream ->
+                            stream.write(crashPayload.toByteArray(Charsets.UTF_8))
+                            stream.flush()
+                        }
+                    }
+                } catch (_: Throwable) {}
+            }
+        }
     }
 
     fun hasCrash(context: Context): Boolean {

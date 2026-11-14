@@ -126,8 +126,14 @@ public final class RLottieNative {
      * @throws IllegalStateException if already recycled
      */
     public int getFrame(int frame, Bitmap bitmap, boolean clear) {
-        checkNotRecycled();
-        return getFrame(mNativePtr, frame, bitmap, clear);
+        if (bitmap == null || bitmap.isRecycled()) {
+            return -1;
+        }
+        synchronized (this) {
+            checkNotRecycled();
+            if (mNativePtr == 0) return -1;
+            return getFrame(mNativePtr, frame, bitmap, clear);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -167,8 +173,11 @@ public final class RLottieNative {
      */
     public void recycle() {
         if (mRecycled.compareAndSet(false, true)) {
-            long ptr = mNativePtr;
-            mNativePtr = 0;
+            long ptr;
+            synchronized (this) {
+                ptr = mNativePtr;
+                mNativePtr = 0;
+            }
             if (ptr != 0) {
                 destroy(ptr);
             }
