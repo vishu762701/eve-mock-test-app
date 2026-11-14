@@ -19,6 +19,12 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.Gravity
+import android.util.TypedValue
+import android.graphics.Typeface
+import android.widget.LinearLayout
+import android.widget.ImageView
+import android.widget.TextView
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.GestureDetector
