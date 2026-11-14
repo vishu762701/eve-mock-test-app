@@ -227,7 +227,7 @@ class TelegramPullRefreshLayout @JvmOverloads constructor(
     override fun dispatchDraw(canvas: Canvas) {
         if (currentPull > 0f) {
             val palette = TelegramThemeEngine.resolveCurrentPalette(context)
-            backgroundPaint.color = palette.backgroundSecondary
+            backgroundPaint.color = palette.windowBackground
             canvas.drawRect(0f, 0f, width.toFloat(), currentPull, backgroundPaint)
 
             if (!isRefreshing) {

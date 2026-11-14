@@ -83,9 +83,9 @@ class PullForegroundDrawable(
     fun updateColors() {
         val view = hostView ?: return
         val palette = TelegramThemeEngine.resolveCurrentPalette(view.context)
-        backgroundPaint.color = palette.backgroundSecondary
+        backgroundPaint.color = palette.windowBackground
         tooltipTextPaint.color = palette.textPrimary
-        paintWhite.color = palette.backgroundPrimary
+        paintWhite.color = palette.surface
         arrowDrawable.setColor(palette.accent)
     }
 

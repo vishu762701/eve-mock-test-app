@@ -462,10 +462,9 @@ class MainActivity : EveBaseActivity() {
         binding.rvExams.adapter = adapter
         setupCategorySwipeGesture()
         binding.pullRefreshLayout.setOnRefreshListener {
-            val current = auth.currentUser
+            val current = FirebaseAuth.getInstance().currentUser
             if (current != null) {
-                val admin = AdminRepository.isCachedAdmin(this@MainActivity, current.uid)
-                viewModel.loadForUser(current.uid, admin)
+                viewModel.loadForUser(current.uid, isAdminUser)
             } else {
                 viewModel.load()
             }
