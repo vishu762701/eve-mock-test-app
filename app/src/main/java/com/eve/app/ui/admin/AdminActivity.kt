@@ -1,5 +1,6 @@
 package com.eve.app.ui.admin
 
+// Telegram F15 Admin: Styled with shared TelegramActionBar and Telegram cells (HeaderCell, TextCell, TextCheckCell)
 import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri

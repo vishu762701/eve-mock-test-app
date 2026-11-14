@@ -200,7 +200,7 @@ Notes / leftovers:
 - Created authentic `telegram_premium_gradient_button.xml` and `telegram_premium_button_selector.xml` with exact hex gradient from `ThemeColors.java:807-810`.
 - Replaced cards with flat feature cells in `activity_premium.xml` and `PremiumBenefitRows.kt`.
 
-## F14 Remaining Eve-only screens - PENDING_CI
+## F14 Remaining Eve-only screens - DONE (commit eca81dac)
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
 | Screen ActionBars | `ActionBar.java:70-130` (56dp bar, 54dp back button, 18dp title margin) | 48dp / varied toolbars | 56dp `telegram_action_bar_height` across all 13 screens (Feedback, About, Syllabus, History, Bookmarks, Mistakes, Performance, Leaderboard, PYQ, Result, Test, Login, Notifications) |
@@ -213,6 +213,20 @@ Notes / leftovers:
 Notes / leftovers:
 - All 13 Eve-only screens audited and unified under shared F1-F6 Telegram components.
 - Zero leftover iOS large-title navigation bars or unstyled platform dialogs.
+
+## F15 Admin - PENDING_CI
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| Admin Navigation & Bar | `ActionBar.java:70-130`, `Theme.java` | Standard Material Toolbar | `TelegramActionBar` (56dp height, 54dp back button, 18dp title margin, menu popup items) |
+| Admin Section Headers & List Cells | `HeaderCell.java:25-50`, `TextCell.java:30-70`, `TextCheckCell.java:30-80` | Generic cards / unstyled LinearLayouts | Dedicated Telegram cells in `ui/admin/tg/` (`HeaderCell`, `TextCell`, `TextCheckCell`, `TextDetailCell`, `DividerCell`, `ShadowSectionCell`) |
+| Admin Segmented Tabs | `SegmentedControl.java` | TabLayout / Material tabs | `TelegramSegmentedTabs.kt` with Telegram pill sliding indicator |
+| Admin Dialogs & Action Menus | `AlertDialog.java:120-250`, `ActionBarPopupWindow.java:50-120` | MaterialAlertDialogBuilder / PopupMenu | `TelegramNativeAlertDialog` and `TelegramPopupMenu` across admin sub-screens |
+| Admin Permissions & Logic | `AdminAccessGate.kt`, `AdminRepository.kt` | Preserved Eve logic | Preserved RBAC, superadmin rights enforcement, and Firestore admin pipelines |
+
+Notes / leftovers:
+- Admin dashboard and all sub-screens (ManageExams, ManageQuestions, AdminsAndRights, AdminRightsEdit, AppConfig, SystemMonitor, EditAbout, FeedbackMessages, FlaggedQuestions, ManagePolls, ManagePremium, EmojiStudio) styled with shared Telegram components.
+- Admin permissions and business logic completely preserved.
+
 
 
 
