@@ -121,7 +121,7 @@ class SettingsActivity : EveBaseActivity() {
         ).forEach { com.eve.app.designsystem.DesignPress.bind(it) }
 
         binding.rowAppearance.setOnClickListener {
-            startActivity(Intent(this, AppearanceActivity::class.java))
+            startActivity(Intent(this, ThemeActivity::class.java))
         }
 
         binding.rowPasscode.setOnClickListener {

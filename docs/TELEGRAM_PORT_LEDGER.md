@@ -319,7 +319,7 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | Settings entry | `SettingsActivity.java:Privacy and Security` | No passcode entry | "Privacy and Security" section with "Passcode Lock" row (`rowPasscode`) in `SettingsActivity` |
 Leftovers / ASSUMED values: None
 
-## C5 Storage and cache screen (`CacheControlActivity`) - DONE
+## C5 Storage and cache screen (`CacheControlActivity`) - DONE (commit 3aadcc5d, CI 43559336154)
 Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
 |---|---|---|---|
@@ -331,6 +331,19 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | Local database optimization | `CacheControlActivity.java:clearDatabaseItem` | None | Local database maintenance prompt with WAL/SHM checkpoint clear |
 | Settings entry | `SettingsActivity.java:rowStorage` (`IconBackgroundColors.GREEN`, pie-chart storage vector icon) | No data/storage row | Added "Data and Storage" (`rowStorage`) with green chip, `ic_storage` vector, and dynamic cache size indicator |
 Leftovers / ASSUMED values: None
+
+## C6 Theme screen (`ThemeActivity` with accent color picker) - DONE
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| Theme screen & alias | `ThemeActivity.java:1-850` | `AppearanceActivity` only | `ThemeActivity.kt` registered and wired in `SettingsActivity.kt` and `AndroidManifest.xml` |
+| Text size slider | `ThemeActivity.java:TextSizeCell` (12 to 30 sp range, live preview, 2dp track, 20dp thumb) | None | `TelegramSeekBarView.kt` with discrete steps 12-30 sp, live question & option text size update, saved in `TelegramThemeEngine` |
+| Corner radius slider | `ThemeActivity.java:BubbleRadiusCell` (0 to 17 dp range, live preview) | None | `TelegramSeekBarView.kt` with discrete steps 0-17 dp, live preview card corner radius update, saved in `TelegramThemeEngine` |
+| Auto-Night Mode schedule | `ThemeActivity.java:scheduleHeaderRow` (Disabled, Scheduled 22:00-07:00) | None | Auto-Night Mode setting with single-choice dialog picker and SharedPreferences storage |
+| Material controls purge | `A0 / ENGINEERING_STANDARD.md` | `MaterialButton` in `activity_appearance.xml` | Replaced all `MaterialButton` controls with `AppCompatButton` and purged unused `MaterialCardView` |
+| Accent color circles | `ThemeActivity.java:accent` (Telegram circular color swatches with white checkmark) | Color circles | Telegram accent color picker row with white checkmark and preview synchronization |
+Leftovers / ASSUMED values: None
+
 
 
 

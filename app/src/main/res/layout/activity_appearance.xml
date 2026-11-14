@@ -33,7 +33,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Appearance" />
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnApply"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/design_touch_min"
@@ -105,7 +105,7 @@
                         android:layout_marginTop="@dimen/design_screen_margin"
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
-                        <com.google.android.material.button.MaterialButton
+                        <androidx.appcompat.widget.AppCompatButton
                             android:id="@+id/btnPreviewAction"
                             style="@style/Widget.Eve.Token.Button"
                             android:layout_width="wrap_content"
@@ -144,14 +144,14 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:padding="4dp">
-                    <com.google.android.material.button.MaterialButton
+                    <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnModeDay"
                         style="@style/Widget.Eve.Token.Button.Secondary"
                         android:layout_width="0dp"
                         android:layout_height="@dimen/design_touch_min"
                         android:layout_weight="1"
                         android:text="Day" />
-                    <com.google.android.material.button.MaterialButton
+                    <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnModeNight"
                         style="@style/Widget.Eve.Token.Button.Secondary"
                         android:layout_width="0dp"
@@ -159,7 +159,7 @@
                         android:layout_weight="1"
                         android:layout_marginHorizontal="4dp"
                         android:text="Night" />
-                    <com.google.android.material.button.MaterialButton
+                    <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnModeSystem"
                         style="@style/Widget.Eve.Token.Button.Secondary"
                         android:layout_width="0dp"
@@ -219,6 +219,115 @@
                     android:orientation="horizontal" />
             </HorizontalScrollView>
 
+            <!-- MESSAGE TEXT SIZE -->
+            <TextView
+                style="@style/TextAppearance.Eve.Telegram.SettingsSection"
+                android:tag="eve_telegram_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="21dp"
+                android:paddingEnd="21dp"
+                android:paddingTop="15dp"
+                android:paddingBottom="7dp"
+                android:text="MESSAGE TEXT SIZE" />
+
+            <com.eve.app.designsystem.DesignCardView
+                style="@style/Widget.Eve.Token.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:orientation="vertical">
+                    <com.eve.app.designsystem.TelegramSeekBarView
+                        android:id="@+id/seekTextSize"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp" />
+                </LinearLayout>
+            </com.eve.app.designsystem.DesignCardView>
+
+            <!-- CORNER RADIUS -->
+            <TextView
+                style="@style/TextAppearance.Eve.Telegram.SettingsSection"
+                android:tag="eve_telegram_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="21dp"
+                android:paddingEnd="21dp"
+                android:paddingTop="15dp"
+                android:paddingBottom="7dp"
+                android:text="CORNER RADIUS" />
+
+            <com.eve.app.designsystem.DesignCardView
+                style="@style/Widget.Eve.Token.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:orientation="vertical">
+                    <com.eve.app.designsystem.TelegramSeekBarView
+                        android:id="@+id/seekCornerRadius"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp" />
+                </LinearLayout>
+            </com.eve.app.designsystem.DesignCardView>
+
+            <!-- AUTO-NIGHT MODE -->
+            <TextView
+                style="@style/TextAppearance.Eve.Telegram.SettingsSection"
+                android:tag="eve_telegram_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="21dp"
+                android:paddingEnd="21dp"
+                android:paddingTop="15dp"
+                android:paddingBottom="7dp"
+                android:text="AUTO-NIGHT MODE" />
+
+            <com.eve.app.designsystem.DesignCardView
+                style="@style/Widget.Eve.Token.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <LinearLayout
+                    android:id="@+id/rowAutoNight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="50dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp">
+
+                    <TextView
+                        style="@style/TextAppearance.Eve.Telegram.SettingsLabel"
+                        android:tag="eve_telegram_type"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Auto-Night Mode" />
+
+                    <TextView
+                        android:id="@+id/tvAutoNightValue"
+                        style="@style/TextAppearance.Eve.Telegram.SettingsDetail"
+                        android:tag="eve_telegram_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:text="Disabled" />
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="@color/text_secondary" />
+                </LinearLayout>
+            </com.eve.app.designsystem.DesignCardView>
+
             <!-- UTILITIES & RESTORE -->
             <TextView
                 style="@style/TextAppearance.Eve.Telegram.SettingsSection"
@@ -239,14 +348,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
-                    <com.google.android.material.button.MaterialButton
+                    <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnResetDefault"
                         style="@style/Widget.Eve.Token.Button.Secondary"
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/design_touch_min"
                         android:layout_margin="8dp"
                         android:text="Reset to Default (House Theme)" />
-                    <com.google.android.material.button.MaterialButton
+                    <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnImportTheme"
                         style="@style/Widget.Eve.Token.Button.Secondary"
                         android:layout_width="match_parent"

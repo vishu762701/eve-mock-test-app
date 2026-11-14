@@ -616,4 +616,32 @@ object TelegramThemeEngine {
 
         return Color.argb(a8, srcR, srcG, srcB)
     }
+
+    const val KEY_FONT_SIZE = "font_size"
+    const val KEY_BUBBLE_RADIUS = "bubble_radius"
+    const val KEY_AUTO_NIGHT_SCHEDULE = "auto_night_schedule"
+
+    fun getFontSize(context: Context): Int {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getInt(KEY_FONT_SIZE, 16)
+    }
+
+    fun setFontSize(context: Context, size: Int) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit().putInt(KEY_FONT_SIZE, size).apply()
+    }
+
+    fun getBubbleRadius(context: Context): Int {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getInt(KEY_BUBBLE_RADIUS, 10)
+    }
+
+    fun setBubbleRadius(context: Context, radius: Int) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit().putInt(KEY_BUBBLE_RADIUS, radius).apply()
+    }
+
+    fun getAutoNightSchedule(context: Context): Int {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getInt(KEY_AUTO_NIGHT_SCHEDULE, 0)
+    }
+
+    fun setAutoNightSchedule(context: Context, mode: Int) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit().putInt(KEY_AUTO_NIGHT_SCHEDULE, mode).apply()
+    }
 }

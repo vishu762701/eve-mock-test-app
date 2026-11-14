@@ -137,6 +137,7 @@
         <activity android:name=".ui.about.AboutActivity" android:exported="false" />
         <activity android:name=".ui.settings.SettingsActivity" android:exported="false" />
         <activity android:name=".ui.settings.AppearanceActivity" android:exported="false" />
+        <activity android:name=".ui.settings.ThemeActivity" android:exported="false" />
         <activity android:name=".ui.settings.LanguageSelectActivity" android:exported="false" />
         <activity android:name=".ui.about.ContentDisplayActivity" android:exported="false" />
         <activity android:name=".ui.admin.EditAboutActivity" android:exported="false" />

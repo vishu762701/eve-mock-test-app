@@ -10,14 +10,14 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.widget.AppCompatButton
 import androidx.core.content.ContextCompat
 import com.eve.app.R
 import com.eve.app.databinding.ActivityAppearanceBinding
+import com.eve.app.designsystem.DesignCardView
 import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AppBulletin
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.card.MaterialCardView
 
 /**
  * Settings > Appearance: Full Telegram-style theme and accent color customizer.
@@ -28,6 +28,8 @@ class AppearanceActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityAppearanceBinding
     private var isApplied = false
+    private var currentFontSize: Int = 16
+    private var currentBubbleRadius: Int = 10
 
     private val importThemeLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -42,6 +44,9 @@ class AppearanceActivity : EveBaseActivity() {
         setContentView(binding.root)
 
         TelegramThemeEngine.init(this)
+        currentFontSize = TelegramThemeEngine.getFontSize(this)
+        currentBubbleRadius = TelegramThemeEngine.getBubbleRadius(this)
+
         if (savedInstanceState != null) {
             val dayTheme = savedInstanceState.getString("preview_day_theme", "day")
             val dayAccent = savedInstanceState.getInt("preview_day_accent", 9)
@@ -50,6 +55,8 @@ class AppearanceActivity : EveBaseActivity() {
             val modeStr = savedInstanceState.getString("preview_mode", TelegramThemeEngine.ThemeMode.SYSTEM.name)
             val mode = try { TelegramThemeEngine.ThemeMode.valueOf(modeStr) } catch (_: Exception) { TelegramThemeEngine.ThemeMode.SYSTEM }
             TelegramThemeEngine.restorePreviewState(dayTheme, dayAccent, nightTheme, nightAccent, mode, this)
+            currentFontSize = savedInstanceState.getInt("preview_font_size", currentFontSize)
+            currentBubbleRadius = savedInstanceState.getInt("preview_bubble_radius", currentBubbleRadius)
         } else {
             TelegramThemeEngine.beginPreview()
         }
@@ -60,11 +67,14 @@ class AppearanceActivity : EveBaseActivity() {
         }
         listOf(
             binding.btnApply, binding.btnResetDefault, binding.btnImportTheme,
-            binding.btnModeDay, binding.btnModeNight, binding.btnModeSystem
+            binding.btnModeDay, binding.btnModeNight, binding.btnModeSystem,
+            binding.rowAutoNight
         ).forEach { com.eve.app.designsystem.DesignPress.bind(it) }
 
         binding.btnApply.setOnClickListener {
             isApplied = true
+            TelegramThemeEngine.setFontSize(this, currentFontSize)
+            TelegramThemeEngine.setBubbleRadius(this, currentBubbleRadius)
             TelegramThemeEngine.applyChanges(this)
             AppBulletin.show(this, "Theme applied")
             finish()
@@ -79,6 +89,10 @@ class AppearanceActivity : EveBaseActivity() {
 
         binding.btnResetDefault.setOnClickListener {
             TelegramThemeEngine.resetPreviewToDefaults(this)
+            currentFontSize = 16
+            currentBubbleRadius = 10
+            binding.seekTextSize.currentValue = currentFontSize
+            binding.seekCornerRadius.currentValue = currentBubbleRadius
             updateModeButtons()
             rebuildThemesList()
             rebuildAccentsList()
@@ -94,10 +108,49 @@ class AppearanceActivity : EveBaseActivity() {
             }
         }
 
+        // Text Size Slider
+        binding.seekTextSize.minValue = 12
+        binding.seekTextSize.maxValue = 30
+        binding.seekTextSize.currentValue = currentFontSize
+        binding.seekTextSize.onValueChanged = { newSize ->
+            currentFontSize = newSize
+            updatePreviewCard()
+        }
+
+        // Corner Radius Slider
+        binding.seekCornerRadius.minValue = 0
+        binding.seekCornerRadius.maxValue = 17
+        binding.seekCornerRadius.currentValue = currentBubbleRadius
+        binding.seekCornerRadius.onValueChanged = { newRadius ->
+            currentBubbleRadius = newRadius
+            updatePreviewCard()
+        }
+
+        // Auto-Night Schedule
+        updateAutoNightLabel()
+        binding.rowAutoNight.setOnClickListener {
+            val options = arrayOf("Disabled", "Scheduled (22:00 – 07:00)")
+            val current = TelegramThemeEngine.getAutoNightSchedule(this)
+            com.eve.app.designsystem.TelegramNativeAlertDialog.Builder(this)
+                .setTitle("Auto-Night Mode")
+                .setSingleChoiceItems(options, current) { dialog, which ->
+                    TelegramThemeEngine.setAutoNightSchedule(this, which)
+                    updateAutoNightLabel()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+
         setupModeButtons()
         rebuildThemesList()
         rebuildAccentsList()
         updatePreviewCard()
+    }
+
+    private fun updateAutoNightLabel() {
+        val schedule = TelegramThemeEngine.getAutoNightSchedule(this)
+        binding.tvAutoNightValue.text = if (schedule == 1) "Scheduled" else "Disabled"
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -107,6 +160,8 @@ class AppearanceActivity : EveBaseActivity() {
         outState.putString("preview_night_theme", TelegramThemeEngine.getNightThemeId())
         outState.putInt("preview_night_accent", TelegramThemeEngine.getNightAccentId())
         outState.putString("preview_mode", TelegramThemeEngine.getThemeMode().name)
+        outState.putInt("preview_font_size", currentFontSize)
+        outState.putInt("preview_bubble_radius", currentBubbleRadius)
     }
 
     override fun onDestroy() {
@@ -158,7 +213,7 @@ class AppearanceActivity : EveBaseActivity() {
         val defaultBg = palette.surfaceInset
         val defaultFg = palette.textPrimary
 
-        fun highlight(btn: MaterialButton, active: Boolean) {
+        fun highlight(btn: AppCompatButton, active: Boolean) {
             val bg = if (active) selectedBg else defaultBg
             val fg = if (active) selectedFg else defaultFg
             btn.backgroundTintList = ColorStateList.valueOf(bg)
@@ -182,12 +237,12 @@ class AppearanceActivity : EveBaseActivity() {
         val density = resources.displayMetrics.density
         for (theme in filteredThemes) {
             val isSelected = theme.id == activeThemeId
-            val card = MaterialCardView(this).apply {
+            val card = DesignCardView(this).apply {
                 radius = 16 * density
                 strokeWidth = if (isSelected) (2 * density).toInt() else 0
                 strokeColor = if (isSelected) theme.baseAccentColor else Color.TRANSPARENT
                 setCardBackgroundColor(palette.surface)
-                elevation = 4 * density
+                cardElevation = 4 * density
 
                 val lp = LinearLayout.LayoutParams((100 * density).toInt(), (110 * density).toInt()).apply {
                     marginEnd = (12 * density).toInt()
@@ -299,10 +354,14 @@ class AppearanceActivity : EveBaseActivity() {
 
     private fun updatePreviewCard() {
         val palette = TelegramThemeEngine.resolveCurrentPalette(this)
+        val density = resources.displayMetrics.density
         binding.cardPreview.setCardBackgroundColor(palette.surface)
+        binding.cardPreview.radius = currentBubbleRadius * density
         binding.layoutPreviewContent.setBackgroundColor(palette.surface)
         binding.tvPreviewTitle.setTextColor(palette.textPrimary)
+        binding.tvPreviewTitle.textSize = currentFontSize.toFloat()
         binding.tvPreviewSubtitle.setTextColor(palette.textSecondary)
+        binding.tvPreviewSubtitle.textSize = (currentFontSize - 2).coerceAtLeast(12).toFloat()
         binding.tvPreviewTag.setTextColor(palette.textSecondary)
         binding.btnPreviewAction.backgroundTintList = ColorStateList.valueOf(palette.accent)
         binding.btnPreviewAction.setTextColor(palette.onAccent)
