@@ -138,7 +138,7 @@ class UiArcMotionComponentsTest {
         val root = loadXml("src/main/res/layout/activity_admin_analytics.xml")
         val group = findElementById(root, "chipGroupTimeRange")
         assertNotNull("chipGroupTimeRange must exist in activity_admin_analytics.xml", group)
-        assertEquals("com.eve.app.designsystem.UiArcSegmentedControl", group?.tagName)
+        assertEquals("com.eve.app.designsystem.TelegramSegmentedControl", group?.tagName)
 
         // All 3 contract IDs must be declared for static assertions and runtime mapping
         assertNotNull("chipLast7Days exists", findElementById(root, "chipLast7Days"))
@@ -285,7 +285,7 @@ class UiArcMotionComponentsTest {
         val root = loadXml("src/main/res/layout/activity_manage_exams.xml")
         val numberField = findElementById(root, "numberFieldQuestionCount")
         assertNotNull("numberFieldQuestionCount must exist in activity_manage_exams.xml", numberField)
-        assertEquals("com.eve.app.designsystem.UiArcNumberField", numberField?.tagName)
+        assertEquals("com.eve.app.designsystem.TelegramNumberField", numberField?.tagName)
 
         val etQuestionCount = findElementById(root, "etQuestionCount")
         assertNotNull("etQuestionCount must be nested inside number field", etQuestionCount)
@@ -441,7 +441,7 @@ class UiArcMotionComponentsTest {
         val root = loadXml("src/main/res/layout/activity_manage_syllabus.xml")
         val morphSelect = findElementById(root, "morphSelectExam")
         assertNotNull("morphSelectExam must exist in activity_manage_syllabus.xml", morphSelect)
-        assertEquals("com.eve.app.designsystem.UiArcMorphSelectView", morphSelect?.tagName)
+        assertEquals("com.eve.app.designsystem.TelegramMorphSelectView", morphSelect?.tagName)
 
         val tilSelect = findElementById(root, "tilSelectExam")
         assertNotNull("Accessible tilSelectExam fallback must be preserved", tilSelect)
@@ -474,7 +474,7 @@ class UiArcMotionComponentsTest {
         val adminRoot = loadXml("src/main/res/layout/activity_admin.xml")
         val statsBand = findElementById(adminRoot, "statsBandUserManagement")
         assertNotNull("statsBandUserManagement must exist in activity_admin.xml", statsBand)
-        assertEquals("com.eve.app.designsystem.UiArcStatsBandView", statsBand?.tagName)
+        assertEquals("com.eve.app.designsystem.TelegramStatsBandView", statsBand?.tagName)
 
         val cardStats = findElementById(adminRoot, "cardUserStats")
         assertNotNull("cardUserStats must exist in activity_admin.xml", cardStats)
@@ -525,7 +525,7 @@ class UiArcMotionComponentsTest {
         val syllabusRoot = loadXml("src/main/res/layout/activity_manage_syllabus.xml")
         val fileUpload = findElementById(syllabusRoot, "fileUploadView")
         assertNotNull("fileUploadView must exist as container in activity_manage_syllabus.xml", fileUpload)
-        assertEquals("com.eve.app.designsystem.UiArcFileUploadView", fileUpload?.tagName)
+        assertEquals("com.eve.app.designsystem.TelegramFileUploadView", fileUpload?.tagName)
 
         val btnChoosePdf = findElementById(syllabusRoot, "btnChoosePdf")
         assertNotNull("btnChoosePdf must exist nested in file upload container", btnChoosePdf)
@@ -538,7 +538,7 @@ class UiArcMotionComponentsTest {
         // Repair A3: Morph Select error container and typography styles
         val morphSelect = findElementById(syllabusRoot, "morphSelectExam")
         assertNotNull("morphSelectExam must exist in activity_manage_syllabus.xml", morphSelect)
-        assertEquals("com.eve.app.designsystem.UiArcMorphSelectView", morphSelect?.tagName)
+        assertEquals("com.eve.app.designsystem.TelegramMorphSelectView", morphSelect?.tagName)
     }
 
     @Test

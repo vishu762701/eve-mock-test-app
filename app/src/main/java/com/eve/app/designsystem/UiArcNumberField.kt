@@ -27,7 +27,7 @@ import kotlin.math.pow
  * - Direct keyboard entry preserved with real-time bounds enforcement
  * - Full accessibility with TalkBack announcements and reduced-motion support
  */
-class UiArcNumberField @JvmOverloads constructor(
+open class UiArcNumberField @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0

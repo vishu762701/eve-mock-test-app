@@ -27,7 +27,7 @@ import kotlin.math.roundToLong
  * - High-precision long counting without float truncation
  * - Instant final value setting under reduced motion
  */
-class UiArcStatsBandView @JvmOverloads constructor(
+open class UiArcStatsBandView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0

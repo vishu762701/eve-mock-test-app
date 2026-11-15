@@ -9,7 +9,7 @@
     </com.eve.app.ui.common.EveGlassToolbar>
     <androidx.core.widget.NestedScrollView android:id="@+id/scrollEditContent" android:visibility="gone" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-            <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/Widget.Eve.Token.Card">
+            <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/surface" android:padding="@dimen/design_card_padding">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
                     <TextView style="@style/TextAppearance.Eve.Token.Heading.blue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Exam Information" />
                     <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:hint="Exam Name">
@@ -43,8 +43,8 @@
                     <com.google.android.material.button.MaterialButton android:id="@+id/btnPickEmoji" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_gap" android:text="✨ Pick Animated Emoji" />
                     <com.google.android.material.button.MaterialButton android:id="@+id/btnSaveExamDetails" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_section_gap" android:text="Save Exam Details" />
                 </LinearLayout>
-            </com.eve.app.designsystem.DesignCardView>
-            <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
+            </FrameLayout>
+            <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:background="@color/surface" android:padding="@dimen/design_card_padding">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
                         <TextView style="@style/TextAppearance.Eve.Token.Heading.blue" android:id="@+id/tvQuestionsHeader" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Questions (0)" />
@@ -57,7 +57,7 @@
                     <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/tvNoQuestions" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_shadow_room" android:layout_marginBottom="@dimen/design_section_gap" android:gravity="center" android:text="No questions added yet. Add manually or bulk upload via CSV/Excel." android:visibility="gone" />
                     <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvQuestions" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:nestedScrollingEnabled="false" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll.Inner" />
                 </LinearLayout>
-            </com.eve.app.designsystem.DesignCardView>
+            </FrameLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </LinearLayout>

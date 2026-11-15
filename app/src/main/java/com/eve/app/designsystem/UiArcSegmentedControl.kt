@@ -34,7 +34,7 @@ import com.google.android.material.shape.ShapeAppearanceModel
  * - Preserves exact option labels ("Last 7 days", "Last 30 days", "All time") and ID contracts
  * - Keyboard / D-pad arrow navigation, TalkBack selection state, large font support, and reduced-motion handling
  */
-class UiArcSegmentedControl @JvmOverloads constructor(
+open class UiArcSegmentedControl @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0

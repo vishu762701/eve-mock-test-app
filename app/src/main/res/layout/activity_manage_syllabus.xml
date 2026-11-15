@@ -35,16 +35,16 @@
             android:clipChildren="false"
             style="@style/Widget.Eve.Token.Scroll">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
+                <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:background="@color/surface" android:padding="@dimen/design_card_padding">
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
                         <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Add / Upload New Syllabus" />
                         <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Associate a syllabus PDF (max 20MB) with an exam." />
-                        <com.eve.app.designsystem.UiArcUploadStepperView android:id="@+id/stepperNewSyllabus" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" />
-                        <com.eve.app.designsystem.UiArcMorphSelectView android:id="@+id/morphSelectExam" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" />
+                        <com.eve.app.designsystem.TelegramUploadStepperView android:id="@+id/stepperNewSyllabus" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" />
+                        <com.eve.app.designsystem.TelegramMorphSelectView android:id="@+id/morphSelectExam" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" />
                         <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilSelectExam" style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:hint="Select Exam" android:visibility="gone">
                             <com.eve.app.designsystem.DesignAutoComplete style="@style/Widget.Eve.Token.Input" android:id="@+id/actvSelectExam" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="none" />
                         </com.eve.app.designsystem.DesignInputLayout>
-                        <com.eve.app.designsystem.UiArcFileUploadView android:id="@+id/fileUploadView" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding">
+                        <com.eve.app.designsystem.TelegramFileUploadView android:id="@+id/fileUploadView" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding">
                             <com.google.android.material.button.MaterialButton android:id="@+id/btnChoosePdf" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:text="Choose PDF Document" app:icon="@drawable/ic_upload" />
                             <LinearLayout android:id="@+id/layoutSelectedPdf" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Tile">
                                 <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="PDF file" android:src="@drawable/msg_filehq" app:tint="@color/system_blue" />
@@ -55,11 +55,11 @@
                                 <ImageView android:id="@+id/ivUploadCheckDone" android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Uploaded" android:src="@drawable/round_check2" app:tint="@color/system_green" android:visibility="gone" />
                                 <ImageButton android:id="@+id/btnClearSelectedPdf" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Clear" android:src="@drawable/smiles_tab_clear" app:tint="@color/text_secondary" style="@style/Widget.Eve.Token.IconButton" />
                             </LinearLayout>
-                        </com.eve.app.designsystem.UiArcFileUploadView>
+                        </com.eve.app.designsystem.TelegramFileUploadView>
                         <com.eve.app.designsystem.TelegramRadialProgressView android:id="@+id/progressBarUpload" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_marginTop="@dimen/design_card_gap" android:visibility="gone" />
                         <com.google.android.material.button.MaterialButton android:id="@+id/btnUploadSyllabus" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_screen_margin" android:text="Upload &amp; Assign Syllabus" />
                     </LinearLayout>
-                </com.eve.app.designsystem.DesignCardView>
+                </FrameLayout>
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_marginTop="@dimen/design_icon_size" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
                     <TextView style="@style/TextAppearance.Eve.Token.Heading" android:id="@+id/tvExistingHeader" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Existing Syllabuses" />
                     <TextView style="@style/TextAppearance.Eve.Token.Secondary.blue" android:id="@+id/tvSyllabusCount" android:layout_width="wrap_content" android:layout_height="wrap_content" ns2:text="3 Active" />

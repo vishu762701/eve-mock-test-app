@@ -332,7 +332,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
-                    <com.eve.app.designsystem.UiArcStatsBandView
+                    <com.eve.app.designsystem.TelegramStatsBandView
                         android:id="@+id/statsBandUserManagement"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />

@@ -18,7 +18,7 @@ import com.eve.app.R
  * Read-only UIArc Stepper adaptation for EVE's existing single-screen workflow.
  * Completion comes exclusively from validated Exam ID, bounded PDF and backend success.
  */
-class UiArcUploadStepperView @JvmOverloads constructor(
+open class UiArcUploadStepperView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : LinearLayout(context, attrs) {
     private val density = resources.displayMetrics.density

@@ -7,12 +7,12 @@
             <ImageButton android:id="@+id/btnRefresh" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" android:contentDescription="Refresh" android:src="@drawable/ic_refresh" app:tint="@color/text_primary" style="@style/Widget.Eve.Token.IconButton" />
         </LinearLayout>
     </com.eve.app.ui.common.EveGlassToolbar>
-    <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:layout_marginBottom="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
+    <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:layout_marginBottom="@dimen/design_card_gap" android:background="@color/surface" android:padding="@dimen/design_card_padding">
         <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
             <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="Search" android:src="@drawable/ic_search" app:tint="@color/text_secondary" />
             <EditText style="@style/Widget.Eve.Token.Input" android:id="@+id/etSearchExam" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:layout_marginStart="@dimen/design_card_gap" android:hint="Search by exam name or category..." android:imeOptions="actionSearch" android:inputType="text" android:maxLines="1" />
         </LinearLayout>
-    </com.eve.app.designsystem.DesignCardView>
+    </FrameLayout>
     <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout android:id="@+id/swipeRefresh" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false">
             <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvExams" android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll" />

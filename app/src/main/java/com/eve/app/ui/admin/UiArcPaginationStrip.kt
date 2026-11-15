@@ -15,7 +15,7 @@ import com.eve.app.designsystem.DesignTokens
 import com.eve.app.designsystem.UiArcMotion
 
 /** Five page slots with a single traveling highlight, no copy of the web React runtime. */
-class UiArcPaginationStrip @JvmOverloads constructor(
+open class UiArcPaginationStrip @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : FrameLayout(context, attrs) {
     private val slot = (48f * resources.displayMetrics.density).toInt()

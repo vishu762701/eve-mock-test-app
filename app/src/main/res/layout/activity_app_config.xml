@@ -9,7 +9,7 @@
     </com.eve.app.ui.common.EveGlassToolbar>
     <androidx.core.widget.NestedScrollView android:id="@+id/scrollConfigContent" android:visibility="gone" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-            <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/Widget.Eve.Token.Card">
+            <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/surface" android:padding="@dimen/design_card_padding">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
                     <TextView style="@style/TextAppearance.Eve.Token.Heading.blue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Live Backend Controls" />
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_section_gap" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
@@ -35,13 +35,13 @@
                     <com.google.android.material.button.MaterialButton android:id="@+id/btnSaveConfig" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_section_gap" android:text="Save &amp; Apply Configuration" />
                     <com.google.android.material.button.MaterialButton android:id="@+id/btnTestAiHealth" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_padding" android:text="Test AI Connection" />
                 </LinearLayout>
-            </com.eve.app.designsystem.DesignCardView>
-            <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
+            </FrameLayout>
+            <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:background="@color/surface" android:padding="@dimen/design_card_padding">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
                     <TextView style="@style/TextAppearance.Eve.Token.Heading.blue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="App Configuration Safety Guide" />
                     <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:text="To manage safety limits and maintenance status directly from the Admin Panel:\n\n1. Configure parameters above:\n   • minimum_supported_version_code: (Number, e.g. 2). Users with lower version will see a blocking update prompt.\n   • maintenance_mode: (Boolean: true/false). Halts student access immediately.\n   • maintenance_message: (String). The message displayed to students during maintenance.\n\n2. Tap 'Save Configuration' to immediately update the backend." />
                 </LinearLayout>
-            </com.eve.app.designsystem.DesignCardView>
+            </FrameLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </LinearLayout>

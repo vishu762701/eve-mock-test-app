@@ -39,7 +39,7 @@ import com.eve.app.util.FontManager
  * - Official Inter typography and accessible validation error display
  * - Instant jump with reduced motion
  */
-class UiArcMorphSelectView @JvmOverloads constructor(
+open class UiArcMorphSelectView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
