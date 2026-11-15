@@ -6,13 +6,13 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import com.eve.app.R
+import com.eve.app.designsystem.TelegramButton
 import com.eve.app.designsystem.TelegramChip
-import com.google.android.material.button.MaterialButton
 
 /** The same shared actions used by Practice/PYQ and native visual verification. */
 object StudentSelectionControls {
-    fun action(context: Context): MaterialButton =
-        (LayoutInflater.from(context).inflate(R.layout.item_student_action, null) as MaterialButton).apply {
+    fun action(context: Context): TelegramButton =
+        (LayoutInflater.from(context).inflate(R.layout.item_student_action, null) as TelegramButton).apply {
             layoutParams = ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
             rippleColor = ColorStateList.valueOf(palette.actionSelector)

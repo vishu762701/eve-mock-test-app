@@ -661,7 +661,7 @@ class EditExamActivity : EveBaseActivity() {
         val etOptionC = dialogView.findViewById<EditText>(R.id.etOptionC)
         val etOptionD = dialogView.findViewById<EditText>(R.id.etOptionD)
         val rgCorrectAnswer = dialogView.findViewById<RadioGroup>(R.id.rgCorrectAnswer)
-        val btnReformatAi = dialogView.findViewById<MaterialButton>(R.id.btnReformatAi)
+        val btnReformatAi = dialogView.findViewById<com.eve.app.designsystem.TelegramButton>(R.id.btnReformatAi)
         val pbReformat = dialogView.findViewById<TelegramRadialProgressView>(R.id.pbReformat)
         val etExplanation = dialogView.findViewById<EditText>(R.id.etExplanation)
         val etTopic = dialogView.findViewById<EditText>(R.id.etTopic)

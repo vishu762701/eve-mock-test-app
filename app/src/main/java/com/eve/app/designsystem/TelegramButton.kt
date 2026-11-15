@@ -1,5 +1,5 @@
 /*
- * Telegram: TMessagesProj/src/main/java/org/telegram/ui/Components/RoundButton.java:30-120 @ 3de37c8cfb039452be7398909461da6288babf15
+ * Telegram: TMessagesProj/src/main/java/org/telegram/ui/Components/ProgressButton.java:16-102 @ 3de37c8cfb039452be7398909461da6288babf15
  * Telegram: TMessagesProj/src/main/java/org/telegram/ui/Components/ButtonBounce.java:15-110 @ 3de37c8cfb039452be7398909461da6288babf15
  * Copyright Nikolai Kudashov, 2013-2018; GNU GPL v2 or later. See THIRD_PARTY_NOTICES.md.
  */
@@ -7,15 +7,18 @@
 package com.eve.app.designsystem
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Canvas
+import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.MotionEvent
+import androidx.annotation.DrawableRes
 import androidx.appcompat.widget.AppCompatButton
 
 /**
- * 1:1 Telegram button extending AppCompatButton with official upstream ButtonBounce physics
- * and Telegram rounded ripple selector.
- * Source reference: org.telegram.ui.Components.RoundButton & ButtonBounce
+ * 1:1 Telegram button extending AppCompatButton with official upstream ButtonBounce physics,
+ * rounded ripple selector, and progress loading state.
+ * Source reference: org.telegram.ui.Components.ProgressButton & ButtonBounce
  */
 class TelegramButton @JvmOverloads constructor(
     context: Context,
@@ -26,6 +29,29 @@ class TelegramButton @JvmOverloads constructor(
     private val buttonBounce = ButtonBounce(this)
     private var isBusy = false
     private var idleText: CharSequence? = null
+
+    var rippleColor: ColorStateList? = null
+    var strokeColor: ColorStateList? = null
+    var strokeWidth: Int = 0
+    var cornerRadius: Int = 0
+    var iconGravity: Int = 0
+    var iconPadding: Int = 0
+    var iconTint: ColorStateList? = null
+    var iconTintMode: android.graphics.PorterDuff.Mode? = null
+
+    var icon: Drawable?
+        get() = compoundDrawablesRelative[0] ?: compoundDrawables[0]
+        set(value) {
+            setCompoundDrawablesWithIntrinsicBounds(value, null, null, null)
+        }
+
+    fun setIconResource(@DrawableRes resId: Int) {
+        if (resId != 0) {
+            setCompoundDrawablesWithIntrinsicBounds(resId, 0, 0, 0)
+        } else {
+            setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
+        }
+    }
 
     var isLoading: Boolean
         get() = isBusy

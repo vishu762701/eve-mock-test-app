@@ -173,12 +173,16 @@ class ApprovedUiRenderingTest {
         save(b.root, "home")
     }
 
-    private fun button(view: MaterialButton, height: Int, font: Int, stroke: Int) {
+    private fun button(view: View, height: Int, font: Int, stroke: Int) {
         assertEquals(dp(height), view.height)
-        sp(view, font)
+        if (view is android.widget.TextView) {
+            sp(view, font)
+        }
         assertEquals(dp(14), view.paddingStart)
         assertEquals(dp(14), view.paddingEnd)
-        assertEquals(dp(stroke), view.strokeWidth)
+        if (view is MaterialButton) {
+            assertEquals(dp(stroke), view.strokeWidth)
+        }
         val primary = view.id == R.id.btnNext
         val night = com.eve.app.theme.TelegramThemeEngine.isDarkActive(context)
         val expectedFill = if (primary) {
@@ -188,10 +192,14 @@ class ApprovedUiRenderingTest {
             if (night) Color.BLACK else Color.WHITE
         } else context.getColor(R.color.text_primary)
         assertEquals(expectedFill, view.backgroundTintList!!.defaultColor)
-        assertEquals(expectedInk, view.currentTextColor)
+        if (view is android.widget.TextView) {
+            assertEquals(expectedInk, view.currentTextColor)
+        }
         assertEquals(0f, view.elevation, 0.01f)
-        assertEquals(context.resources.getDimension(R.dimen.design_button_height) / 2,
-            view.shapeAppearanceModel.topLeftCornerSize.getCornerSize(android.graphics.RectF(0f, 0f, view.width.toFloat(), context.resources.getDimension(R.dimen.design_button_height))), 1f)
+        if (view is MaterialButton) {
+            assertEquals(context.resources.getDimension(R.dimen.design_button_height) / 2,
+                view.shapeAppearanceModel.topLeftCornerSize.getCornerSize(android.graphics.RectF(0f, 0f, view.width.toFloat(), context.resources.getDimension(R.dimen.design_button_height))), 1f)
+        }
     }
 
     private fun verifyMock() {

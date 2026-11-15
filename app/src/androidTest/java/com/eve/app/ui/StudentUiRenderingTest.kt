@@ -314,7 +314,7 @@ class StudentUiRenderingTest {
                 layout.height <= view.height - view.compoundPaddingTop - view.compoundPaddingBottom)
         }
         if (view is TextView && view.text.isNotBlank() && view.height > 0 && view.width > 0) {
-            if (view is com.google.android.material.button.MaterialButton) {
+            if (view is com.google.android.material.button.MaterialButton || view is com.eve.app.designsystem.TelegramButton) {
                 assertEquals("Locked capsules keep one line at enlarged font scales: $label / ${view.text}", 1, view.lineCount)
                 if (view.resources.configuration.fontScale <= 1f) assertEquals("Default-size action text must fit: $label / ${view.text}", 0, view.layout.getEllipsisCount(0))
                 assertEquals("Ellipsized capsules retain the complete accessible label", view.text.toString(), view.createAccessibilityNodeInfo().text.toString())
@@ -322,7 +322,7 @@ class StudentUiRenderingTest {
             val foreground = androidx.core.graphics.ColorUtils.compositeColors(androidx.core.graphics.ColorUtils.setAlphaComponent(view.currentTextColor, Math.round(android.graphics.Color.alpha(view.currentTextColor) * alpha)), background)
             val largeOrPrimary = (view.textSize / view.resources.displayMetrics.scaledDensity >= if (view.typeface?.isBold == true) 18f else 24f)
             val ratio = androidx.core.graphics.ColorUtils.calculateContrast(foreground, background)
-            val lockedDisabled = view is com.google.android.material.button.MaterialButton && !view.isEnabled &&
+            val lockedDisabled = (view is com.google.android.material.button.MaterialButton || view is com.eve.app.designsystem.TelegramButton) && !view.isEnabled &&
                 view.currentTextColor == view.context.getColor(R.color.text_secondary) &&
                 view.backgroundTintList?.getColorForState(view.drawableState, 0) == view.context.getColor(R.color.track)
             if (lockedDisabled) {
@@ -334,7 +334,7 @@ class StudentUiRenderingTest {
         if (view is ViewGroup) for (i in 0 until view.childCount) checkText(view.getChildAt(i), label, background, alpha)
     }
     private fun surfaceColor(view: View): Int? {
-        if (view is com.google.android.material.button.MaterialButton) return view.backgroundTintList?.getColorForState(view.drawableState, 0)
+        if (view is com.google.android.material.button.MaterialButton || view is com.eve.app.designsystem.TelegramButton) return view.backgroundTintList?.getColorForState(view.drawableState, 0)
         if (view is com.google.android.material.chip.Chip) return view.chipBackgroundColor?.getColorForState(view.drawableState, 0)
         if (view is com.google.android.material.card.MaterialCardView) return view.cardBackgroundColor.getColorForState(view.drawableState, 0)
         fun color(drawable: android.graphics.drawable.Drawable?): Int? = when (drawable) {
