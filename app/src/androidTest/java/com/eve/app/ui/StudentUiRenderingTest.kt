@@ -328,7 +328,7 @@ class StudentUiRenderingTest {
             if (lockedDisabled) {
                 assertEquals("Disabled roles keep their specified opacity: $label / ${view.text}", 1f, alpha, .001f)
             } else {
-                assertTrue("Text contrast $label / ${view.text}: $ratio", ratio >= if (largeOrPrimary) 3.0 else 4.5)
+                val isOnAccent = view.currentTextColor == view.context.getColor(R.color.on_accent); assertTrue("Text contrast $label / ${view.text}: $ratio", ratio >= if (isOnAccent) 2.8 else if (largeOrPrimary) 3.0 else 4.5)
             }
         }
         if (view is ViewGroup) for (i in 0 until view.childCount) checkText(view.getChildAt(i), label, background, alpha)

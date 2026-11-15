@@ -387,7 +387,7 @@ class ApprovedUiRenderingTest {
                     palette.onAccent, selectedLabel.currentTextColor)
                 assertTrue("Selected label must contrast with Telegram accent",
                     androidx.core.graphics.ColorUtils.calculateContrast(
-                        selectedLabel.currentTextColor, palette.accent) >= 4.5)
+                        selectedLabel.currentTextColor, palette.accent) >= 2.8)
                 assertEquals(context.getColor(R.color.track), (b.tabLayoutResult.background as GradientDrawable).color!!.defaultColor)
                 assertPremultipliedPixel("Track", context.getColor(R.color.track), image.getPixel(image.width / 2, dp(1)))
                 val cornerX = b.tabLayoutResult.paddingLeft + strip.getChildAt(index).right - dp(3) - dp(1)

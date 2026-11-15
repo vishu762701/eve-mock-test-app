@@ -426,8 +426,7 @@ object TelegramThemeEngine {
         val accessibleFilterTabUnactiveText = TelegramColorRoles.accessibleForeground(
             role("actionBarTabUnactiveText"), listOf(surface, windowBg)
         )
-        val onAccent = if (ColorUtils.calculateContrast(Color.BLACK, accent) >=
-            ColorUtils.calculateContrast(Color.WHITE, accent)) Color.BLACK else Color.WHITE
+        val onAccent = if (ColorUtils.calculateContrast(Color.WHITE, accent) >= 2.8) Color.WHITE else Color.BLACK
         return ResolvedPalette(
             windowBackground = windowBg,
             surface = surface,
