@@ -191,12 +191,12 @@ class LoginActivity : EveBaseActivity() {
         view.translationY = 0f
         // The new content is visible and accessible immediately. Translate/fade
         // the same existing TextView; never create ghost focusable form controls.
-        if (!animate || !com.eve.app.theme.TelegramAnimationRuntime.isMotionEnabled(this)) return
+        if (!animate || !com.eve.app.telegram.animation.TelegramAnimationRuntime.isMotionEnabled(this)) return
         view.translationY = 4f * resources.displayMetrics.density
         view.alpha = 0.75f
         view.animate().translationY(0f).alpha(1f)
             .setDuration(250L)
-            .setInterpolator(com.eve.app.designsystem.CubicBezierInterpolator.EASE_OUT_QUINT).start()
+            .setInterpolator(org.telegram.ui.Components.CubicBezierInterpolator.EASE_OUT_QUINT).start()
     }
 
     private fun toggleMode(animate: Boolean = true) {
@@ -204,11 +204,11 @@ class LoginActivity : EveBaseActivity() {
         isSignUpMode = !isSignUpMode
         binding.tvError.visibility = View.GONE
         androidx.transition.TransitionManager.endTransitions(binding.cardLogin)
-        if (animate && com.eve.app.theme.TelegramAnimationRuntime.isMotionEnabled(this)) {
+        if (animate && com.eve.app.telegram.animation.TelegramAnimationRuntime.isMotionEnabled(this)) {
             androidx.transition.TransitionManager.beginDelayedTransition(
                 binding.cardLogin, androidx.transition.ChangeBounds().apply {
                     duration = 250L
-                    interpolator = com.eve.app.designsystem.CubicBezierInterpolator.EASE_OUT_QUINT
+                    interpolator = org.telegram.ui.Components.CubicBezierInterpolator.EASE_OUT_QUINT
                 }
             )
         }

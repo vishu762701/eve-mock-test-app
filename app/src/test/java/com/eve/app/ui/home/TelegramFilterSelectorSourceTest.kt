@@ -48,7 +48,7 @@ class TelegramFilterSelectorSourceTest {
         assertTrue(group.contains("animationTime += dt / 320.0f"))
         assertTrue(group.contains("postOnAnimation(indicatorAnimation)"))
         assertTrue(group.contains("removeCallbacks(indicatorAnimation)"))
-        assertTrue(group.contains("!UiArcMotion.isMotionEnabled(context)"))
+        assertTrue(group.contains("!TelegramAnimationRuntime.isMotionEnabled(context)"))
     }
 
     @Test fun originalSelectorGeometryAndDayNightRoleResolutionAreWired() {

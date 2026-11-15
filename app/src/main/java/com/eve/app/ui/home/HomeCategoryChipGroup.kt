@@ -11,7 +11,7 @@ import android.text.Layout
 import kotlin.math.ceil
 import android.util.AttributeSet
 import android.os.SystemClock
-import com.eve.app.theme.TelegramAnimationRuntime
+import com.eve.app.telegram.animation.TelegramAnimationRuntime
 import org.telegram.ui.Components.CubicBezierInterpolator
 import android.view.MotionEvent
 import android.view.TouchDelegate

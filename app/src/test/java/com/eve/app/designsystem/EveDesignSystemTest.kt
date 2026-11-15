@@ -211,7 +211,7 @@ class EveDesignSystemTest {
         assertTrue("No invented spring width morph is permitted for this original-source search",
             !search.contains("UiArcMotion.Spring.MORPH") &&
                 !search.contains("UiArcMotion.Spring.SMOOTH"))
-        assertTrue(search.contains("if (!UiArcMotion.isMotionEnabled(this))"))
+        assertTrue(search.contains("TelegramAnimationRuntime.isMotionEnabled(this)"))
     }
 
     /** ChipGroup must never toggle the active Home category off on a repeat tap. */

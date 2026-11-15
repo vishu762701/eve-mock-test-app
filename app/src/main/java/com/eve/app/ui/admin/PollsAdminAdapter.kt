@@ -13,8 +13,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.R
 import com.eve.app.data.model.Poll
 import com.eve.app.databinding.ItemPollAdminBinding
-import com.eve.app.designsystem.CubicBezierInterpolator
-import com.eve.app.theme.TelegramAnimationRuntime
+import org.telegram.ui.Components.CubicBezierInterpolator
+import com.eve.app.telegram.animation.TelegramAnimationRuntime
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

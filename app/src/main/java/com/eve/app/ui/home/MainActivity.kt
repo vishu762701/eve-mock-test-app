@@ -1,6 +1,6 @@
 package com.eve.app.ui.home
 
-import com.eve.app.theme.TelegramAnimationRuntime
+import com.eve.app.telegram.animation.TelegramAnimationRuntime
 
 import android.graphics.Outline
 import android.view.ViewOutlineProvider

@@ -2,7 +2,7 @@ package com.eve.app.ui.settings
 
 import com.eve.app.designsystem.RadioCell
 import com.eve.app.designsystem.TelegramNativeAlertDialog
-import com.eve.app.theme.TelegramAnimationRuntime
+import com.eve.app.telegram.animation.TelegramAnimationRuntime
 
 import com.eve.app.ui.common.EveBaseActivity
 

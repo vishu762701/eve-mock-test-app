@@ -17,8 +17,8 @@ import androidx.core.content.ContextCompat
 import com.eve.app.R
 import com.eve.app.data.model.ScorePoint
 import com.eve.app.designsystem.DesignTokens
-import com.eve.app.designsystem.CubicBezierInterpolator
-import com.eve.app.theme.TelegramAnimationRuntime
+import org.telegram.ui.Components.CubicBezierInterpolator
+import com.eve.app.telegram.animation.TelegramAnimationRuntime
 import com.eve.app.util.FontManager
 import java.text.SimpleDateFormat
 import java.util.Date
