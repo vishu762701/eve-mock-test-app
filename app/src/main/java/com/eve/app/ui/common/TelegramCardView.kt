@@ -72,10 +72,6 @@ class TelegramCardView @JvmOverloads constructor(
         strokeColor = colors?.defaultColor ?: 0
     }
 
-    fun setRippleColor(colors: ColorStateList?) {
-        rippleColor = colors
-    }
-
     override fun onDraw(canvas: Canvas) {
         val halfStroke = strokeWidth / 2f
         rect.set(
