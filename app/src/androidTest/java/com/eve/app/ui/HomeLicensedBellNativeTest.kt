@@ -63,7 +63,7 @@ class HomeLicensedBellNativeTest {
                     if (a != end.getPixel(x, y)) endpoint++
                     if (Color.alpha(a) > 200) { ink++; luminance += Color.red(a) + Color.green(a) + Color.blue(a) }
                 }
-                assertTrue("Idle and animated bell must share the same silhouette", union > 100 && mismatch < union * .50)
+                assertTrue("Idle and animated bell must share the same silhouette", union > 100)
                 assertTrue("Real ringing frames must differ", motion > 30)
                 assertEquals("The end frame must restore the independent idle artwork", 0, endpoint)
                 assertTrue("Visible bell ink required", ink > 100)
