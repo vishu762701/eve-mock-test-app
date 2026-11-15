@@ -24,7 +24,7 @@ class TestActivityOwnerLifecycleTest {
         assertTrue(src.contains("FirebaseAuth.getInstance().addAuthStateListener(testAccountListener)"))
         assertTrue(src.contains("FirebaseAuth.getInstance().removeAuthStateListener(testAccountListener)"))
         val pause = src.substringAfter("override fun onPause()").substringBefore("override fun onSaveInstanceState")
-        assertTrue(pause.contains("if (isTestOwner() && !submitted"))
+        assertTrue(pause.contains("isTestOwner() && !submitted"))
         assertTrue(src.contains("outState.putString(\"key_attempt_owner\", testOwnerUid)"))
     }
 

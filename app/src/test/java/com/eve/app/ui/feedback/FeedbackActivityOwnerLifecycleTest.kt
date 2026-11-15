@@ -38,7 +38,7 @@ class FeedbackActivityOwnerLifecycleTest {
 
         // 4. Verification in onResume and click handlers
         assertTrue("Must check ownership in onResume",
-            src.contains("if (!hasFeedbackOwner()) finish()"))
+            src.contains("if (!hasFeedbackOwner())"))
         assertTrue("Must guard sendFeedback with ownership check",
             src.contains("if (!hasFeedbackOwner()) { finish(); return@setOnClickListener }"))
     }

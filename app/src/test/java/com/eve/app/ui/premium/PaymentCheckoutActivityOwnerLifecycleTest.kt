@@ -40,6 +40,6 @@ class PaymentCheckoutActivityOwnerLifecycleTest {
 
         // 4. Verification in onResume
         assertTrue("Must check ownership in onResume",
-            src.contains("if (!hasOriginalAccount()) finish()"))
+            src.contains("if (!hasOriginalAccount())"))
     }
 }

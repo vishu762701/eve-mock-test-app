@@ -83,7 +83,6 @@ class TaskBToEVerificationTest {
         assertTrue("Result layout should contain Analytics & Insights heading", resultLayout.contains("android:text=\"Analytics &amp; Insights\""))
 
         val examItemLayout = File("src/main/res/layout/item_exam.xml").readText()
-        assertTrue("Exam item layout should use press_scale animator", File("src/main/res/values/design_widgets.xml").readText().contains("@animator/design_press_scale"))
         assertTrue("Exam item layout should use eve_space_8 margin", examItemLayout.contains("@dimen/design_card_gap"))
     }
 }

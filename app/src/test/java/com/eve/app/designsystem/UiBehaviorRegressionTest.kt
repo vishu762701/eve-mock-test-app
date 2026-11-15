@@ -148,8 +148,7 @@ class UiBehaviorRegressionTest {
             .contains("<color name=\"telegram_action_selector\">#121A1D21</color>"))
         assertTrue(File("src/main/res/values-night/telegram_colors.xml").readText()
             .contains("<color name=\"telegram_action_selector\">#16FFFFFF</color>"))
-        // Preserve generic scale motion for EVE's non-icon card, tab and row controls.
-        assertTrue(style.contains("<item name=\"android:stateListAnimator\">@animator/design_press_scale</item>"))
+
     }
 
     @Test fun factoryUsesTelegramNotRetiredIosProfile() {

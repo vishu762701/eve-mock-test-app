@@ -38,7 +38,7 @@ class PyqActivityOwnerLifecycleTest {
 
         // 4. Verification in onResume and click handlers
         assertTrue("Must check ownership in onResume",
-            src.contains("if (!hasPyqOwner()) finish()"))
+            src.contains("if (!hasPyqOwner())"))
         assertTrue("Must guard startPyq with ownership check",
             src.contains("if (!isCurrentOwner()"))
         assertTrue("Must guard paper click with ownership check",

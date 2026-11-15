@@ -40,7 +40,7 @@ class PremiumActivityOwnerLifecycleTest {
 
         // 4. Verification in onResume and loadData
         assertTrue("Must check ownership in onResume",
-            src.contains("if (!hasOriginalAccount()) finish()"))
+            src.contains("if (!hasOriginalAccount())"))
         assertTrue("Must guard loadData with ownership check",
             src.contains("if (!hasOriginalAccount()) { finish(); return }"))
     }

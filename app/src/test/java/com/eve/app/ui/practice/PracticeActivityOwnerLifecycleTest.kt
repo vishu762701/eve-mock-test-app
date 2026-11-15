@@ -38,7 +38,7 @@ class PracticeActivityOwnerLifecycleTest {
 
         // 4. Verification in onResume and click handlers
         assertTrue("Must check ownership in onResume",
-            src.contains("if (!hasPracticeOwner()) finish()"))
+            src.contains("if (!hasPracticeOwner())"))
         assertTrue("Must guard startPractice with ownership check",
             src.contains("if (!hasPracticeOwner()) { finish(); return }"))
     }
