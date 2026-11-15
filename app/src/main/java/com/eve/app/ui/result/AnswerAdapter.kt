@@ -58,7 +58,7 @@ class AnswerAdapter(
         fun bind(item: AnswerItem) {
             val ctx = b.root.context
             val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(ctx)
-            b.root.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
+            b.root.background = com.eve.app.designsystem.TelegramThemeSelectors.getSelectorDrawable(ctx, false)
             val questionKey = if (item.questionId.isNotBlank()) item.questionId else "q_${item.number}"
             val isExpanded = expandedQuestionKeys.contains(questionKey)
 
@@ -315,9 +315,7 @@ class AnswerAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val b = ItemAnswerBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        b.root.rippleColor = android.content.res.ColorStateList.valueOf(
-            com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(parent.context).actionSelector
-        )
+        b.root.background = com.eve.app.designsystem.TelegramThemeSelectors.getSelectorDrawable(parent.context, false)
         return VH(b)
     }
 

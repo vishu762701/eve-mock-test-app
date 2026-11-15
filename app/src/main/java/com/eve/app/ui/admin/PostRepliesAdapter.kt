@@ -46,7 +46,7 @@ class PostRepliesAdapter(
             }
             binding.tvReplyTime.text = timeText
             binding.tvReplyTime.setTextColor(palette.textSecondary)
-            binding.root.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
+            binding.root.background = com.eve.app.designsystem.TelegramThemeSelectors.getSelectorDrawable(binding.root.context, false)
 
             // Dimming the whole View would also make its decorative outline translucent.
             binding.btnMarkRead.alpha = 1f
