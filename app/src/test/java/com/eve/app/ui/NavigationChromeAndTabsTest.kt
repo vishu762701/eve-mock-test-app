@@ -64,7 +64,7 @@ class NavigationChromeAndTabsTest {
 
         val fallback = findElementById(doc.documentElement, "ivNotificationIdle")
         assertNotNull("Bell must have a persistent vector fallback at idle", fallback)
-        assertEquals("@drawable/ic_home_notification", fallback?.designAttribute("android:src"))
+        assertEquals("@drawable/msg_notifications", fallback?.designAttribute("android:src"))
         val action = findElementById(doc.documentElement, "notificationAction")
         assertNotNull("Notification tap target must be accessible", action)
         assertEquals("true", action?.designAttribute("android:clickable"))

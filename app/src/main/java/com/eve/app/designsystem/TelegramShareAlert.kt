@@ -140,7 +140,7 @@ class TelegramShareAlert(
 
         // Destination: Telegram
         val btnTelegram = createDestinationButton(
-            iconRes = R.drawable.ic_send_plane,
+            iconRes = R.drawable.msg_send,
             label = "Telegram",
             bgColor = 0xFF229AF0.toInt(),
             iconTint = 0xFFFFFFFF.toInt()
@@ -151,7 +151,7 @@ class TelegramShareAlert(
 
         // Destination: WhatsApp
         val btnWhatsApp = createDestinationButton(
-            iconRes = R.drawable.ic_send_plane,
+            iconRes = R.drawable.msg_send,
             label = "WhatsApp",
             bgColor = 0xFF25D366.toInt(),
             iconTint = 0xFFFFFFFF.toInt()

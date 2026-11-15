@@ -492,6 +492,19 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 Leftovers / ASSUMED values: None
 CI Verification: Run 43568252136 passed green on main.
 
+## C18 Complete 1:1 Telegram Source, Icon, Physics & Asset Overhaul - DONE
+Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
+| value | Telegram (File.java:line) | Eve before | Eve after |
+|---|---|---|---|
+| Verbatim Upstream Assets | `TMessagesProj/src/main/res/drawable-*dpi/` | 22 recorded imports, generic vector XML icons | 370 recorded byte-identical imports verified by `verify_telegram_imports.py` @ `3de37c8cfb03` |
+| Navigation & Action Icons | `ic_ab_back.webp`, `ic_ab_other.webp`, `ic_ab_done.webp`, `msg_search.webp`, `smiles_tab_clear.webp` | Material vectors | Upstream Telegram webp assets across all 4 screen densities (mdpi, hdpi, xhdpi, xxhdpi) |
+| Drawer & Home Icons | `msg_contacts.webp`, `msg_saved.webp`, `msg_settings.webp`, `msg_notifications.webp`, `msg_stats.webp`, `filled_earn_stars.webp`, `msg_channel.webp` | Legacy vector icons (`ic_home_notification`, `ic_leaderboard_star`, `ic_performance_increase`, `ic_syllabus`, `ic_settings`) | Official byte-for-byte Telegram drawer assets across MainActivity, SettingsActivity, ResultActivity |
+| Quiz & Poll Physics & Icons | `RadioButton.java` eraser dot, `poll_right.webp`, `poll_wrong.webp`, `poll_remove.webp`, `round_check2.webp` | Custom XML indicator drawables (`ic_status_circle_*`) | Authentic Telegram Quiz check/cross drawables and `TelegramRadioButton` `ButtonBounce` spring integration |
+| 9-patch Shadows & Hairlines | `greydivider.9.png`, `greydivider_bottom.9.png`, `popup_fixed_alert4.9.png` | Approximate flat views / local 9-patches | Authentic upstream 9-patch assets in `drawable-mdpi`, `drawable-hdpi`, `drawable-xhdpi`, `drawable-xxhdpi` |
+| Admin Screen Dialogs & Cells | `TelegramNativeAlertDialog`, `TextCell`, `HeaderCell`, `ShadowSectionCell`, `DividerCell` | Legacy Material dialogs / cards | Pure Telegram flat cell architecture and 100% `TelegramNativeAlertDialog` across all 18 Admin screens |
+Leftovers / ASSUMED values: None
+
+
 
 
 

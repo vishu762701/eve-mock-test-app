@@ -89,9 +89,9 @@ class ResultAndTestPolishVerificationTest {
     fun testStatusIndicatorCircleMapping() {
         fun resolveStatusDrawable(item: AnswerItem): Int {
             return when {
-                !item.isAttempted -> R.drawable.ic_status_circle_unattempted
-                item.isCorrect -> R.drawable.ic_status_circle_right
-                else -> R.drawable.ic_status_circle_wrong
+                !item.isAttempted -> R.drawable.poll_remove
+                item.isCorrect -> R.drawable.poll_right
+                else -> R.drawable.poll_wrong
             }
         }
 
@@ -99,9 +99,9 @@ class ResultAndTestPolishVerificationTest {
         val wrongItem = AnswerItem(number = 2, questionText = "Q2", selected = "A", selectedText = "A", correct = "B", correctText = "B")
         val unattemptedItem = AnswerItem(number = 3, questionText = "Q3", selected = "", selectedText = "", correct = "A", correctText = "A")
 
-        assertEquals(R.drawable.ic_status_circle_right, resolveStatusDrawable(rightItem))
-        assertEquals(R.drawable.ic_status_circle_wrong, resolveStatusDrawable(wrongItem))
-        assertEquals(R.drawable.ic_status_circle_unattempted, resolveStatusDrawable(unattemptedItem))
+        assertEquals(R.drawable.poll_right, resolveStatusDrawable(rightItem))
+        assertEquals(R.drawable.poll_wrong, resolveStatusDrawable(wrongItem))
+        assertEquals(R.drawable.poll_remove, resolveStatusDrawable(unattemptedItem))
     }
 
     @Test
@@ -163,7 +163,7 @@ class ResultAndTestPolishVerificationTest {
 
         assertTrue("btnBookmark must exist", content.contains("android:id=\"@+id/btnBookmark\""))
         assertTrue("btnReport must exist", content.contains("android:id=\"@+id/btnReport\""))
-        assertTrue("btnReport must use ic_report_flag_premium", content.contains("@drawable/ic_report_flag_premium"))
+        assertTrue("btnReport must use msg_report", content.contains("@drawable/msg_report"))
         assertFalse("btnReport must not use a local drawable background", content.contains("android:background=\"@drawable/"))
         assertTrue("Bookmark/report must use bare backgrounds", content.contains("@style/Widget.Eve.Token.IconButton"))
         assertTrue("Touch target FrameLayout must be 48dp", content.contains("android:layout_width=\"@dimen/design_touch_min\"") && content.contains("android:layout_height=\"@dimen/design_touch_min\""))
@@ -181,7 +181,7 @@ class ResultAndTestPolishVerificationTest {
         assertTrue("layoutOptionsContainer must exist to show question options", content.contains("android:id=\"@+id/layoutOptionsContainer\""))
         assertTrue("layoutSolutionDetails must exist", content.contains("android:id=\"@+id/layoutSolutionDetails\""))
         assertTrue("layoutSolutionDetails must be initially gone", content.contains("android:id=\"@+id/layoutSolutionDetails\"") && content.contains("android:visibility=\"gone\""))
-        assertTrue("Report icon in item_answer must use ic_report_flag_premium", content.contains("android:id=\"@+id/ivReportQuestion\"") && content.contains("@drawable/ic_report_flag_premium"))
+        assertTrue("Report icon in item_answer must use msg_report", content.contains("android:id=\"@+id/ivReportQuestion\"") && content.contains("@drawable/msg_report"))
         assertFalse("Report icon in item_answer must not have a local drawable background", content.contains("android:background=\"@drawable/"))
     }
 

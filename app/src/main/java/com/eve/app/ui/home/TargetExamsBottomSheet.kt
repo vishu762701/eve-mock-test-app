@@ -34,7 +34,7 @@ object TargetExamsBottomSheet {
             contentDescription = name
             isCheckable = true
             isChecked = checked
-            setCheckedIconResource(com.eve.app.R.drawable.ic_target_exam_checked)
+            setCheckedIconResource(com.eve.app.R.drawable.round_check2)
             checkedIconTint = androidx.core.content.ContextCompat.getColorStateList(context, com.eve.app.R.color.on_accent)
             com.eve.app.designsystem.DesignType.apply(this, com.eve.app.designsystem.DesignType.Role.CHIP)
             val density = resources.displayMetrics.density

@@ -223,7 +223,7 @@ class AdminActivity : EveBaseActivity() {
             startActivity(Intent(this, ManageSyllabusActivity::class.java))
         }
 
-        binding.rowHomeBanner.setTextAndIcon("Home Banner", R.drawable.ic_image)
+        binding.rowHomeBanner.setTextAndIcon("Home Banner", R.drawable.msg_photos)
         binding.rowHomeBanner.setOnClickListener { showHomeBannerOptionsDialog() }
 
         binding.rowFloatingLink.setTextAndIcon("Floating Link", R.drawable.ic_link)
@@ -265,12 +265,12 @@ class AdminActivity : EveBaseActivity() {
             startActivity(Intent(this, FlaggedQuestionsActivity::class.java))
         }
 
-        binding.rowFeedback.setTextAndIcon("Feedback Messages", R.drawable.ic_message_dots)
+        binding.rowFeedback.setTextAndIcon("Feedback Messages", R.drawable.msg_contacts)
         binding.rowFeedback.setOnClickListener {
             startActivity(Intent(this, FeedbackMessagesActivity::class.java))
         }
 
-        binding.rowCreateFeedbackPost.setTextAndIcon("Create Feedback Post", R.drawable.ic_campaign)
+        binding.rowCreateFeedbackPost.setTextAndIcon("Create Feedback Post", R.drawable.msg_channel)
         binding.rowCreateFeedbackPost.setOnClickListener { showCreateFeedbackPostDialog() }
 
         binding.btnManageFeedbackPosts.setTextAndIcon("Manage Feedback Posts", R.drawable.ic_edit)
@@ -294,7 +294,7 @@ class AdminActivity : EveBaseActivity() {
             startActivity(Intent(this, ActivityLogActivity::class.java))
         }
 
-        binding.rowSystemMonitor.setTextAndIcon("System Health & Operations", R.drawable.ic_maintenance)
+        binding.rowSystemMonitor.setTextAndIcon("System Health & Operations", R.drawable.msg_permissions)
         binding.rowSystemMonitor.setOnClickListener {
             startActivity(Intent(this, SystemMonitorActivity::class.java))
         }
@@ -315,7 +315,7 @@ class AdminActivity : EveBaseActivity() {
             handleMaintenanceToggle(isChecked)
         }
 
-        binding.rowAppConfig.setTextAndIcon("App Config & Maintenance", R.drawable.ic_maintenance)
+        binding.rowAppConfig.setTextAndIcon("App Config & Maintenance", R.drawable.msg_permissions)
         binding.rowAppConfig.setOnClickListener {
             startActivity(Intent(this, AppConfigActivity::class.java))
         }
@@ -339,12 +339,12 @@ class AdminActivity : EveBaseActivity() {
         searchItems.clear()
         val allCandidates = listOf(
             SearchItem("Exams", "CONTENT", listOf("exams", "परीक्षा", "mock tests", "manage exams"), lottieRes = R.raw.tg_folder_in, requiredRight = "manage_exams") { showExamsOptionsDialog() },
-            SearchItem("Manage Existing Exams", "CONTENT", listOf("existing exams", "published", "edit exams"), iconRes = R.drawable.ic_exam_placeholder, requiredRight = "manage_exams") { startActivity(Intent(this, ManageExistingExamsActivity::class.java)) },
+            SearchItem("Manage Existing Exams", "CONTENT", listOf("existing exams", "published", "edit exams"), iconRes = R.drawable.msg_filehq, requiredRight = "manage_exams") { startActivity(Intent(this, ManageExistingExamsActivity::class.java)) },
             SearchItem("Manage Exams (Hierarchy)", "CONTENT", listOf("create exam", "exam tree", "category"), iconRes = R.drawable.ic_edit, requiredRight = "manage_exams") { startActivity(Intent(this, ManageExamsActivity::class.java)) },
             SearchItem("Questions", "CONTENT", listOf("questions", "प्रश्न", "question bank", "mcq"), iconRes = R.drawable.ic_edit, requiredRight = "manage_questions") { startActivity(Intent(this, ManageQuestionsActivity::class.java)) },
             SearchItem("AI Generated Tests", "CONTENT", listOf("ai tests", "एआई टेस्ट", "automated", "generate test"), lottieRes = R.raw.tg_qr_code_logo, requiredRight = "manage_generated_tests") { startActivity(Intent(this, GeneratedTestsActivity::class.java)) },
             SearchItem("Syllabus", "CONTENT", listOf("syllabus", "पाठ्यक्रम", "pdf", "topics"), lottieRes = R.raw.tg_saved_messages, requiredRight = "manage_syllabus") { startActivity(Intent(this, ManageSyllabusActivity::class.java)) },
-            SearchItem("Home Banner", "CONTENT", listOf("home banner", "बैनर", "promotions", "banner link"), iconRes = R.drawable.ic_image, requiredRight = "manage_content") { showHomeBannerOptionsDialog() },
+            SearchItem("Home Banner", "CONTENT", listOf("home banner", "बैनर", "promotions", "banner link"), iconRes = R.drawable.msg_photos, requiredRight = "manage_content") { showHomeBannerOptionsDialog() },
             SearchItem("Floating Link", "CONTENT", listOf("floating link", "फ्लोटिंग लिंक", "quick link", "url"), iconRes = R.drawable.ic_link, requiredRight = "manage_content") { showFloatingLinkDialog() },
             SearchItem("Animated Emoji", "CONTENT", listOf("animated emoji", "इमोजी", "stickers", "studio"), lottieRes = R.raw.tg_fire_on, requiredRight = "manage_content") { startActivity(Intent(this, com.eve.app.ui.admin.emoji.EmojiStudioActivity::class.java)) },
             SearchItem("Users", "PEOPLE", listOf("users", "उपयोगकर्ता", "students", "ban user", "signups"), lottieRes = R.raw.tg_chats_archive, requiredRight = "manage_users") { startActivity(Intent(this, ManageUsersActivity::class.java)) },
@@ -352,15 +352,15 @@ class AdminActivity : EveBaseActivity() {
             SearchItem("Premium Management", "PEOPLE", listOf("premium", "प्रीमियम", "subscription", "grant premium"), lottieRes = R.raw.premium_star, requiredRight = "manage_premium") { startActivity(Intent(this, ManagePremiumActivity::class.java)) },
             SearchItem("Broadcast Notification", "COMMUNICATION", listOf("broadcast", "प्रसारण", "notification", "push"), iconRes = R.drawable.ic_broadcast, requiredRight = "send_broadcasts") { startActivity(Intent(this, SendNotificationActivity::class.java)) },
             SearchItem("Flagged Questions Inbox", "COMMUNICATION", listOf("flagged questions", "फ्लैग्ड", "reports", "moderation"), lottieRes = R.raw.tg_report_police, requiredRight = "moderate_feedback") { startActivity(Intent(this, FlaggedQuestionsActivity::class.java)) },
-            SearchItem("Feedback Messages", "COMMUNICATION", listOf("feedback", "प्रतिक्रिया", "replies", "student messages"), iconRes = R.drawable.ic_message_dots, requiredRight = "moderate_feedback") { startActivity(Intent(this, FeedbackMessagesActivity::class.java)) },
-            SearchItem("Create Feedback Post", "COMMUNICATION", listOf("create feedback post", "नया पोस्ट", "survey"), iconRes = R.drawable.ic_campaign, requiredRight = "moderate_feedback") { showCreateFeedbackPostDialog() },
+            SearchItem("Feedback Messages", "COMMUNICATION", listOf("feedback", "प्रतिक्रिया", "replies", "student messages"), iconRes = R.drawable.msg_contacts, requiredRight = "moderate_feedback") { startActivity(Intent(this, FeedbackMessagesActivity::class.java)) },
+            SearchItem("Create Feedback Post", "COMMUNICATION", listOf("create feedback post", "नया पोस्ट", "survey"), iconRes = R.drawable.msg_channel, requiredRight = "moderate_feedback") { showCreateFeedbackPostDialog() },
             SearchItem("Manage Feedback Posts", "COMMUNICATION", listOf("manage feedback posts", "पोस्ट प्रबंधन"), iconRes = R.drawable.ic_edit, requiredRight = "moderate_feedback") { showManageFeedbackPostsDialog() },
             SearchItem("Polls", "COMMUNICATION", listOf("polls", "सर्वेक्षण", "vote", "student poll"), lottieRes = R.raw.tg_tab_poll, requiredRight = "moderate_feedback") { startActivity(Intent(this, ManagePollsActivity::class.java)) },
             SearchItem("Analytics & Crash Reports", "INSIGHTS", listOf("analytics", "एनालिटिक्स", "reports", "stats"), lottieRes = R.raw.tg_statistic_preload, requiredRight = "view_analytics_logs") { startActivity(Intent(this, AdminAnalyticsActivity::class.java)) },
             SearchItem("Recent Actions (Audit Log)", "INSIGHTS", listOf("recent actions", "audit log", "गतिविधियां", "history"), lottieRes = R.raw.tg_filters, requiredRight = "view_analytics_logs") { startActivity(Intent(this, ActivityLogActivity::class.java)) },
-            SearchItem("System Health & Operations", "INSIGHTS", listOf("system health", "operations", "health monitor"), iconRes = R.drawable.ic_maintenance, requiredRight = "view_analytics_logs") { startActivity(Intent(this, SystemMonitorActivity::class.java)) },
+            SearchItem("System Health & Operations", "INSIGHTS", listOf("system health", "operations", "health monitor"), iconRes = R.drawable.msg_permissions, requiredRight = "view_analytics_logs") { startActivity(Intent(this, SystemMonitorActivity::class.java)) },
             SearchItem("API Usage & Cost Monitor", "INSIGHTS", listOf("api usage", "cost monitor", "usage tracker", "gemini calls"), lottieRes = R.raw.tg_statistic_preload, requiredRight = "view_analytics_logs") { startActivity(Intent(this, ApiUsageActivity::class.java)) },
-            SearchItem("App Config & Maintenance", "SYSTEM", listOf("app config", "maintenance", "रखरखाव", "config"), iconRes = R.drawable.ic_maintenance, requiredRight = "manage_config_maintenance") { startActivity(Intent(this, AppConfigActivity::class.java)) },
+            SearchItem("App Config & Maintenance", "SYSTEM", listOf("app config", "maintenance", "रखरखाव", "config"), iconRes = R.drawable.msg_permissions, requiredRight = "manage_config_maintenance") { startActivity(Intent(this, AppConfigActivity::class.java)) },
             SearchItem("Version Status", "SYSTEM", listOf("version status", "वर्जन", "build info", "min version"), iconRes = R.drawable.ic_info, requiredRight = "manage_config_maintenance") { startActivity(Intent(this, AppConfigActivity::class.java)) },
             SearchItem("Export All Exam Data", "SYSTEM", listOf("export data", "निर्यात", "backup json", "download exams"), iconRes = R.drawable.ic_download, requiredRight = "export_data") { exportExamData() },
             SearchItem("Edit About / Privacy / Terms", "SYSTEM", listOf("edit about", "privacy policy", "terms of service"), iconRes = R.drawable.ic_edit, requiredRight = "manage_content") { startActivity(Intent(this, EditAboutActivity::class.java)) }

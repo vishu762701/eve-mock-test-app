@@ -224,7 +224,7 @@
                         android:layout_height="20dp"
                         android:layout_gravity="center"
                         android:contentDescription="Daily Goal"
-                        android:src="@drawable/ic_trophy"
+                        android:src="@drawable/filled_earn_stars"
                         app:tint="@android:color/white" />
                 </FrameLayout>
 
@@ -288,7 +288,7 @@
                         android:layout_height="20dp"
                         android:layout_gravity="center"
                         android:contentDescription="My Exams"
-                        android:src="@drawable/ic_topic"
+                        android:src="@drawable/msg_filehq"
                         app:tint="@android:color/white" />
                 </FrameLayout>
 
@@ -427,7 +427,7 @@
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:layout_gravity="center"
-                        android:src="@drawable/ic_lock"
+                        android:src="@drawable/ic_lock_header"
                         app:tint="#FFFFFF" />
                 </FrameLayout>
 
@@ -488,7 +488,7 @@
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:layout_gravity="center"
-                        android:src="@drawable/ic_storage"
+                        android:src="@drawable/files_storage"
                         app:tint="#FFFFFF" />
                 </FrameLayout>
 

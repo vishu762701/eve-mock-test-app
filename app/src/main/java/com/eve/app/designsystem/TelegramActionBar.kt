@@ -134,7 +134,7 @@ open class TelegramActionBar @JvmOverloads constructor(
         })
 
         // 3. Search Action Button
-        searchButton.setImageResource(R.drawable.ic_search)
+        searchButton.setImageResource(R.drawable.msg_search)
         searchButton.scaleType = ImageView.ScaleType.CENTER
         searchButton.setColorFilter(palette.textPrimary)
         searchButton.background = circleSelector()
@@ -148,7 +148,7 @@ open class TelegramActionBar @JvmOverloads constructor(
         }
 
         // 3a. Filter Action Button
-        filterButton.setImageResource(R.drawable.ic_filter)
+        filterButton.setImageResource(R.drawable.menu_tag_filter)
         filterButton.scaleType = ImageView.ScaleType.CENTER
         filterButton.setColorFilter(palette.textPrimary)
         filterButton.background = circleSelector()
@@ -194,7 +194,7 @@ open class TelegramActionBar @JvmOverloads constructor(
             marginEnd = dp(8f)
         })
 
-        clearButton.setImageResource(R.drawable.ic_close)
+        clearButton.setImageResource(R.drawable.smiles_tab_clear)
         clearButton.scaleType = ImageView.ScaleType.CENTER
         clearButton.setColorFilter(palette.textSecondary)
         clearButton.background = circleSelector()
@@ -325,7 +325,7 @@ open class TelegramActionBar @JvmOverloads constructor(
 
     fun showDoneAction(onClick: () -> Unit) {
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
-        actionButton.setImageResource(R.drawable.ic_done)
+        actionButton.setImageResource(R.drawable.ic_ab_done)
         actionButton.setColorFilter(palette.accent)
         actionButton.contentDescription = "Done"
         actionButton.visibility = View.VISIBLE

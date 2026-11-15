@@ -63,9 +63,9 @@ class AnswerAdapter(
             val isExpanded = expandedQuestionKeys.contains(questionKey)
 
             val statusDrawable = when {
-                !item.isAttempted -> R.drawable.ic_status_circle_unattempted
-                item.isCorrect -> R.drawable.ic_status_circle_right
-                else -> R.drawable.ic_status_circle_wrong
+                !item.isAttempted -> R.drawable.poll_remove
+                item.isCorrect -> R.drawable.poll_right
+                else -> R.drawable.poll_wrong
             }
             b.ivStatusCircle.setImageResource(statusDrawable)
             b.tvQuestionNum.text = "Q${item.number}"
@@ -126,7 +126,7 @@ class AnswerAdapter(
                             badge.setTextColor(semanticForeground(R.color.system_green_text, R.color.system_green_container))
                             textView.setTextColor(ContextCompat.getColor(ctx, R.color.system_green_text))
                             statusIv.visibility = View.VISIBLE
-                            statusIv.setImageResource(R.drawable.ic_check_circle)
+                            statusIv.setImageResource(R.drawable.poll_right)
                             statusIv.imageTintList = android.content.res.ColorStateList.valueOf(
                                 semanticForeground(R.color.system_green, R.color.system_green_container, 1, 3.0)
                             )
@@ -137,7 +137,7 @@ class AnswerAdapter(
                             badge.setTextColor(semanticForeground(R.color.system_red_text, R.color.system_red_container))
                             textView.setTextColor(ContextCompat.getColor(ctx, R.color.system_red_text))
                             statusIv.visibility = View.VISIBLE
-                            statusIv.setImageResource(R.drawable.ic_close)
+                            statusIv.setImageResource(R.drawable.poll_wrong)
                             statusIv.imageTintList = android.content.res.ColorStateList.valueOf(
                                 semanticForeground(R.color.system_red, R.color.system_red_container, 1, 3.0)
                             )

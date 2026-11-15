@@ -70,11 +70,11 @@ class AppBulletin private constructor(
             return null
         }
         fun make(activity: Activity, message: CharSequence, durationMs: Long = durationForMessage(message),
-                 iconRes: Int = R.drawable.ic_check_circle, actionText: String? = null,
+                 iconRes: Int = R.drawable.round_check2, actionText: String? = null,
                  onAction: (() -> Unit)? = null): AppBulletin =
             AppBulletin(activity, message, durationMs, iconRes, actionText, onAction)
         fun show(context: Context, message: CharSequence, durationMs: Long = durationForMessage(message),
-                 iconRes: Int = R.drawable.ic_check_circle, actionText: String? = null,
+                 iconRes: Int = R.drawable.round_check2, actionText: String? = null,
                  onAction: (() -> Unit)? = null) {
             val activity = findActivity(context)
             if (activity != null && !activity.isFinishing && !activity.isDestroyed) {
@@ -82,7 +82,7 @@ class AppBulletin private constructor(
             }
         }
         fun showSuccess(context: Context, message: CharSequence) = show(context, message)
-        fun showError(context: Context, message: CharSequence) = show(context, message, DURATION_ERROR, R.drawable.ic_info)
+        fun showError(context: Context, message: CharSequence) = show(context, message, DURATION_ERROR, R.drawable.msg_warning)
     }
 
     fun show() {

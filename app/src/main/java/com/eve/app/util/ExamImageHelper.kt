@@ -116,7 +116,7 @@ object ExamImageHelper {
             if (onFailure != null) {
                 onFailure.invoke()
             } else {
-                imageView.setImageResource(R.drawable.ic_exam_placeholder)
+                imageView.setImageResource(R.drawable.msg_filehq)
                 imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE
                 imageView.setPadding(10, 10, 10, 10)
             }
@@ -146,8 +146,8 @@ object ExamImageHelper {
         imageView.setPadding(0, 0, 0, 0)
         imageView.scaleType = ImageView.ScaleType.CENTER_CROP
         imageView.load(imageUrl) {
-            placeholder(R.drawable.ic_exam_placeholder)
-            error(R.drawable.ic_exam_placeholder)
+            placeholder(R.drawable.msg_filehq)
+            error(R.drawable.msg_filehq)
             listener(
                 onError = { _, _ -> onFailure?.invoke() }
             )

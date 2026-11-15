@@ -45,7 +45,7 @@ object PremiumBenefitRows {
                     minimumHeight = dp(56f)
 
                     val icon = ImageView(context).apply {
-                        setImageResource(R.drawable.ic_check_circle)
+                        setImageResource(R.drawable.round_check2)
                         setColorFilter(ContextCompat.getColor(context, R.color.text_primary))
                         scaleType = ImageView.ScaleType.CENTER_INSIDE
                     }

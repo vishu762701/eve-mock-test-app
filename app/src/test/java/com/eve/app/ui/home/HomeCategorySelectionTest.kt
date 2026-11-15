@@ -65,9 +65,9 @@ class HomeCategorySelectionTest {
             chip.contains("isCheckedIconVisible = false"))
         assertTrue("Selected category must remain checked as a filter state",
             chip.contains("isChecked = isSelected"))
-        assertTrue("Target exam checked icon must not be removed by Home-only change",
+        assertTrue("Target exam checked icon must use round_check2",
             File("src/main/java/com/eve/app/ui/home/TargetExamsBottomSheet.kt").readText()
-                .contains("ic_target_exam_checked"))
+                .contains("round_check2"))
     }
 
     @Test fun viewModelPersistsStateAndRenderChecksSingleChipAtomically() {

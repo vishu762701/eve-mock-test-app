@@ -51,7 +51,7 @@
         <item name="boxBackgroundColor">@color/surface_inset</item><item name="boxStrokeColor">@color/design_input_stroke</item>
         <item name="boxStrokeWidth">@dimen/design_focus_stroke</item><item name="boxStrokeWidthFocused">@dimen/design_focus_stroke</item>
         <item name="boxStrokeErrorColor">@color/system_red</item>
-        <item name="errorIconDrawable">@drawable/ic_warning</item>
+        <item name="errorIconDrawable">@drawable/msg_warning</item>
         <item name="hintTextColor">@color/text_secondary</item><item name="android:textColorHint">@color/text_secondary</item>
         <item name="errorTextColor">@color/system_red_text</item><item name="errorTextAppearance">@style/TextAppearance.Eve.Token.Error</item>
         <item name="helperTextTextAppearance">@style/TextAppearance.Eve.Token.Secondary</item>

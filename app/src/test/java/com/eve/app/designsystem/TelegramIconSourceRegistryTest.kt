@@ -131,7 +131,7 @@ class TelegramIconSourceRegistryTest {
         assertTrue(home.contains("android:id=\"@+id/ivNotificationIdle\""))
         val fallback = Regex("<ImageView[^>]*android:id=\"@\\+id/ivNotificationIdle\"[^>]*/>")
             .find(home)?.value ?: throw AssertionError("Home bell fallback missing")
-        assertTrue("Home must use its approved independent bell", fallback.contains("android:src=\"@drawable/ic_home_notification\""))
+        assertTrue("Home must use its approved independent bell", fallback.contains("android:src=\"@drawable/msg_notifications\""))
         assertTrue("All Home animation frames use independent artwork", home.contains("app:lottie_rawRes=\"@raw/home_notification_bell\""))
     }
 }

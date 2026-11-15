@@ -11,7 +11,7 @@ class HomeBellArtworkTest {
 
     @Test fun everyHomeFrameAndFallbackUsesTheApprovedIndependentSource() {
         val home = File("src/main/res/layout/activity_main.xml").readText()
-        assertTrue(home.contains("@drawable/ic_home_notification"))
+        assertTrue(home.contains("@drawable/msg_notifications"))
         assertTrue(home.contains("@raw/home_notification_bell"))
         assertFalse(home.contains("@drawable/ic_bell\""))
         assertFalse(home.contains("@raw/notification_bell\""))

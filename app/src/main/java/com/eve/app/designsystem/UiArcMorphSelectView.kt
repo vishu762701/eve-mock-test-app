@@ -119,7 +119,7 @@ class UiArcMorphSelectView @JvmOverloads constructor(
 
         ivTriggerIcon = ImageView(context).apply {
             layoutParams = LayoutParams(Math.round(20f * density), Math.round(20f * density))
-            setImageResource(R.drawable.ic_topic)
+            setImageResource(R.drawable.msg_filehq)
             setColorFilter(ContextCompat.getColor(context, R.color.system_blue))
             visibility = GONE
         }
@@ -137,7 +137,7 @@ class UiArcMorphSelectView @JvmOverloads constructor(
 
         ivChevron = ImageView(context).apply {
             layoutParams = LayoutParams(Math.round(20f * density), Math.round(20f * density))
-            setImageResource(R.drawable.ic_chevron_down)
+            setImageResource(R.drawable.msg_go_down)
             setColorFilter(ContextCompat.getColor(context, R.color.text_secondary))
         }
 

@@ -49,7 +49,7 @@ class HomeLicensedBellNativeTest {
                 val later = frame(.35f)
                 val end = frame(1f)
                 val fallback = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
-                val drawable = AppCompatResources.getDrawable(context, R.drawable.ic_home_notification)!!.mutate()
+                val drawable = AppCompatResources.getDrawable(context, R.drawable.msg_notifications)!!.mutate()
                 drawable.setTint(if (dark) Color.WHITE else Color.BLACK)
                 drawable.setBounds(48, 48, 144, 144)
                 drawable.draw(Canvas(fallback))

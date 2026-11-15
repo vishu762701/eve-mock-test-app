@@ -416,7 +416,7 @@ class ManageSyllabusActivity : EveBaseActivity() {
                 id = it.id,
                 label = it.examName,
                 meta = it.categoryOrOther,
-                iconRes = R.drawable.ic_topic
+                iconRes = R.drawable.msg_filehq
             )
         }
         binding.morphSelectExam.setOptions(morphOptions, selectedExamForNewSyllabus?.id)

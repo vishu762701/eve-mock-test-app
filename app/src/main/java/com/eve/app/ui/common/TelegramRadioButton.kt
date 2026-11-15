@@ -19,7 +19,14 @@ class TelegramRadioButton @JvmOverloads constructor(
     internal var indicator: TelegramRadioIndicator? = null
         private set
     private var palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette? = null
+    private val bounce = com.eve.app.designsystem.ButtonBounce(this)
+
     init { applyChoiceStyle() }
+
+    override fun setPressed(pressed: Boolean) {
+        super.setPressed(pressed)
+        bounce.setPressed(pressed)
+    }
 
     private fun motionEnabled(): Boolean =
         android.provider.Settings.Global.getFloat(context.contentResolver,
@@ -109,6 +116,6 @@ class TelegramRadioButton @JvmOverloads constructor(
         val pad = resources.getDimensionPixelSize(R.dimen.design_card_padding)
         setPaddingRelative(0, pad, pad, pad)
         compoundDrawablePadding = pad
-        stateListAnimator = android.animation.AnimatorInflater.loadStateListAnimator(context, R.animator.design_press_scale)
+        stateListAnimator = null
     }
 }
