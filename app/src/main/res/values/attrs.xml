@@ -27,6 +27,8 @@
     <attr name="designTrack" format="color" />
     <attr name="designAccent" format="color" />
     <attr name="designOnAccent" format="color" />
+    <attr name="designGlassCapsule" format="boolean" />
+    <attr name="designGlassRadius" format="dimension" />
     <declare-styleable name="TelegramFlickerSkeletonView">
         <attr name="flickerRowType" format="enum">
             <enum name="home_exam" value="0" />
