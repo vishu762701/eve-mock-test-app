@@ -1,5 +1,17 @@
 # EVE Telegram UI Port Ledger
 
+> **CRITICAL NOTICE FOR AI AGENTS (LAW 6 ENFORCEMENT):**
+> The historical `- DONE` entries below from earlier checkpoints do **NOT** mean the full app layout/component conversion is complete!
+> A live audit of `app/src/main/res/layout/` and `app/src/main/java/com/eve/app/ui/` confirms the following **4 Mandatory Implementation Batches are still `OPEN (NOT DONE)`** and MUST all be completed sequentially in a single uninterrupted session before writing a final report:
+> - **BATCH 1 (`STATUS: OPEN`) — Student List & Item Layouts (18 XML files + Adapters)**: Replace `DesignCardView`, `MaterialCardView`, and `UiArcSwipeRow` with flat Telegram cells (`DialogCell`, `SharedDocumentCell`, `ChatMessageCell`, `ManageChatUserCell`, `TextCell`, `HeaderCell`, `ShadowSectionCell`, `DividerCell`) in:
+>   `item_exam.xml`, `item_exam_test.xml`, `item_sub_exam.xml`, `item_history.xml`, `item_bookmark_card.xml`, `item_mistake.xml`, `item_syllabus.xml`, `item_leaderboard.xml`, `item_answer.xml`, `item_palette_circle.xml`, `item_feedback_post.xml`, `item_feedback_message.xml`, `item_post_reply.xml`, `layout_bulletin.xml`, `layout_telegram_bulletin.xml`, `layout_undo_bar.xml`, `bottom_sheet_payment_method.xml`, `dialog_reply_feedback.xml`.
+> - **BATCH 2 (`STATUS: OPEN`) — Student Activity Screens & Charts (12 XML files + Activities/Views)**: Replace all remaining `DesignCardView`, `MaterialCardView`, and `UiArc*` (`UiArcInViewTitleView`, `UiArcStatsBandView`, `UiArcAlertView`, etc.) with pure Telegram flat sections, `TelegramActionBar`, `TelegramTabsView`, `BaseChartView`/`LinearChartView`/`BarChartView` physics in:
+>   `activity_main.xml`, `activity_result.xml`, `activity_result_detail.xml`, `activity_performance.xml`, `activity_leaderboard.xml`, `activity_bookmarks.xml`, `activity_feedback.xml`, `activity_premium.xml`, `activity_payment_checkout.xml`, `activity_appearance.xml`, `activity_content_display.xml`.
+> - **BATCH 3 (`STATUS: OPEN`) — All Admin Activity Screens, Dialogs & Item Layouts (23 XML files + Admin Adapters)**: Replace all `DesignCardView` and `UiArc*` views with pure Telegram flat cells (`TextCell`, `TextCheckCell`, `TextDetailCell`, `HeaderCell`, `ShadowSectionCell`, `PollCreateActivity` rows, `ChannelAdminLogActivity` rows) in:
+>   `activity_admin.xml`, `activity_admin_analytics.xml`, `activity_api_usage.xml`, `activity_app_config.xml`, `activity_edit_exam.xml`, `activity_manage_exams.xml`, `activity_manage_existing_exams.xml`, `activity_manage_premium.xml`, `activity_manage_syllabus.xml`, `activity_manage_users.xml`, `dialog_manage_banners.xml`, `item_admin_banner.xml`, `item_admin_premium_user.xml`, `item_admin_syllabus.xml`, `item_admin_transaction.xml`, `item_analytics_exam.xml`, `item_analytics_question.xml`, `item_existing_exam_admin.xml`, `item_flagged_question.xml`, `item_generated_test.xml`, `item_manage_question.xml`, `item_poll_admin.xml`, `item_sent_broadcast.xml`, `item_user_admin.xml`.
+> - **BATCH 4 (`STATUS: OPEN`) — Final DesignSystem Cleanup & Full Test Suite Alignment**: Purge unused `Design*` / `UiArc*` layout references, align `ApprovedUiRenderingTest.kt`, `StudentUiRenderingTest.kt`, `SharedDesignSystemTest.kt`, and unit tests under Law 4, and verify `grep -rn "DesignCardView\|MaterialCardView\|UiArc" app/src/main/res/layout/` returns **0 matches** with a GREEN CI build on `main` (Law 5 & Law 6).
+
+
 ## F1 ActionBar on every screen - DONE (commit cf4989af)
 Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |
@@ -491,24 +503,3 @@ Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [
 | Authentic QR Generator | `TelegramQRCodeWriter`, `QrUiTheme` | Default QR | Exact Telegram QR renderer with circular dots, corner eye geometry, gradient backdrops, and save/share |
 Leftovers / ASSUMED values: None
 CI Verification: Run 43568252136 passed green on main.
-
-## C18 Complete 1:1 Telegram Source, Icon, Physics & Asset Overhaul - DONE
-Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
-| value | Telegram (File.java:line) | Eve before | Eve after |
-|---|---|---|---|
-| Verbatim Upstream Assets | `TMessagesProj/src/main/res/drawable-*dpi/` | 22 recorded imports, generic vector XML icons | 370 recorded byte-identical imports verified by `verify_telegram_imports.py` @ `3de37c8cfb03` |
-| Navigation & Action Icons | `ic_ab_back.webp`, `ic_ab_other.webp`, `ic_ab_done.webp`, `msg_search.webp`, `smiles_tab_clear.webp` | Material vectors | Upstream Telegram webp assets across all 4 screen densities (mdpi, hdpi, xhdpi, xxhdpi) |
-| Drawer & Home Icons | `msg_contacts.webp`, `msg_saved.webp`, `msg_settings.webp`, `msg_notifications.webp`, `msg_stats.webp`, `filled_earn_stars.webp`, `msg_channel.webp` | Legacy vector icons (`ic_home_notification`, `ic_leaderboard_star`, `ic_performance_increase`, `ic_syllabus`, `ic_settings`) | Official byte-for-byte Telegram drawer assets across MainActivity, SettingsActivity, ResultActivity |
-| Quiz & Poll Physics & Icons | `RadioButton.java` eraser dot, `poll_right.webp`, `poll_wrong.webp`, `poll_remove.webp`, `round_check2.webp` | Custom XML indicator drawables (`ic_status_circle_*`) | Authentic Telegram Quiz check/cross drawables and `TelegramRadioButton` `ButtonBounce` spring integration |
-| 9-patch Shadows & Hairlines | `greydivider.9.png`, `greydivider_bottom.9.png`, `popup_fixed_alert4.9.png` | Approximate flat views / local 9-patches | Authentic upstream 9-patch assets in `drawable-mdpi`, `drawable-hdpi`, `drawable-xhdpi`, `drawable-xxhdpi` |
-| Admin Screen Dialogs & Cells | `TelegramNativeAlertDialog`, `TextCell`, `HeaderCell`, `ShadowSectionCell`, `DividerCell` | Legacy Material dialogs / cards | Pure Telegram flat cell architecture and 100% `TelegramNativeAlertDialog` across all 18 Admin screens |
-Leftovers / ASSUMED values: None
-
-
-
-
-
-
-
-
-
