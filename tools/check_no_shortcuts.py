@@ -4,10 +4,14 @@ EVE Repository Anti-Shortcut & Anti-Wrapper Validator.
 Enforces LAW 7 (Zero-Shortcut & Anti-Wrapper Enforcement) across all code, layouts, and governance.
 
 Checks:
-1. Governance files contain Law 5, Law 6, and Law 7 (LAW 7, ZERO-SHORTCUT, check_no_shortcuts.py).
-2. Layouts under app/src/main/res/layout/ contain zero occurrences of DesignCardView, MaterialCardView, or UiArc.
+1. Governance files contain Laws 5, 6, 7, 8, and 9 (LAW 7, ZERO-SHORTCUT, check_no_shortcuts.py).
+2. Layouts under app/src/main/res/layout/ contain zero occurrences of DesignCardView, MaterialCardView, UiArc,
+   EveGlassToolbar, DesignGlassLayout, DesignInputLayout, DesignSegmentedTabs, DesignSpinner,
+   DesignAutoComplete, DesignIconActionButton, DesignLoadingView, DesignAccuracyRing, MaterialButton,
+   MaterialToolbar, AppBarLayout, TextInputLayout, TextInputEditText, CircularProgressIndicator,
+   Chip, TabItem, or ShapeableImageView.
 3. Strict ban on typealias aliasing (typealias Telegram* = UiArc* / Design*).
-4. In --strict mode, bans any Telegram*.kt from extending, referencing, or importing UiArc* or DesignCardView.
+4. Strict ban on any Telegram*.kt from extending, referencing, or importing UiArc* or DesignCardView.
 """
 
 import argparse
@@ -32,6 +36,8 @@ REQUIRED_GOVERNANCE_TERMS = [
     ("Law 5 / LAW 5", re.compile(r"\b(?:LAW|Law)\s*5\b")),
     ("Law 6 / LAW 6", re.compile(r"\b(?:LAW|Law)\s*6\b")),
     ("Law 7 / LAW 7", re.compile(r"\b(?:LAW|Law)\s*7\b")),
+    ("Law 8 / LAW 8", re.compile(r"\b(?:LAW|Law)\s*8\b")),
+    ("Law 9 / LAW 9", re.compile(r"\b(?:LAW|Law)\s*9\b")),
     ("ZERO-SHORTCUT", re.compile(r"ZERO-SHORTCUT")),
     ("check_no_shortcuts.py", re.compile(r"check_no_shortcuts\.py")),
 ]
@@ -39,6 +45,15 @@ REQUIRED_GOVERNANCE_TERMS = [
 TYPEALIAS_PATTERN = re.compile(r"typealias\s+Telegram\w*\s*=\s*(?:UiArc|Design|Material)\w*")
 STRICT_WRAPPER_PATTERN = re.compile(r"class\s+Telegram\w*[\s\S]*?:\s*(?:UiArc|DesignCardView)\w*")
 IMPORT_UIARC_PATTERN = re.compile(r"import\s+com\.eve\.app\.(?:designsystem|ui\.\w+)\.UiArc\w*")
+
+LEGACY_LAYOUT_PATTERN = re.compile(
+    r"DesignCardView|MaterialCardView|UiArc|EveGlassToolbar|DesignGlassLayout|"
+    r"DesignInputLayout|DesignSegmentedTabs|DesignSpinner|DesignAutoComplete|"
+    r"DesignIconActionButton|DesignLoadingView|DesignAccuracyRing|MaterialButton|"
+    r"MaterialToolbar|AppBarLayout|TextInputLayout|TextInputEditText|"
+    r"CircularProgressIndicator|Chip|TabItem|ShapeableImageView"
+)
+BASIC_LAYOUT_PATTERN = re.compile(r"DesignCardView|MaterialCardView|UiArc")
 
 
 def check_governance(repo_root: Path) -> list[str]:
@@ -63,13 +78,13 @@ def check_governance(repo_root: Path) -> list[str]:
     return violations
 
 
-def check_layouts(repo_root: Path) -> list[str]:
+def check_layouts(repo_root: Path, legacy_widgets: bool = True) -> list[str]:
     violations = []
     layout_dir = repo_root / "app" / "src" / "main" / "res" / "layout"
     if not layout_dir.is_dir():
         return violations
 
-    shortcut_pattern = re.compile(r"DesignCardView|MaterialCardView|UiArc")
+    shortcut_pattern = LEGACY_LAYOUT_PATTERN if legacy_widgets else BASIC_LAYOUT_PATTERN
     for xml_file in layout_dir.glob("*.xml"):
         content = xml_file.read_text(encoding="utf-8")
         matches = shortcut_pattern.findall(content)
@@ -78,7 +93,7 @@ def check_layouts(repo_root: Path) -> list[str]:
     return violations
 
 
-def check_source_shortcuts(repo_root: Path, strict: bool = False) -> list[str]:
+def check_source_shortcuts(repo_root: Path, strict: bool = True) -> list[str]:
     violations = []
     src_dir = repo_root / "app" / "src" / "main" / "java"
     if not src_dir.is_dir():
@@ -108,26 +123,49 @@ def check_source_shortcuts(repo_root: Path, strict: bool = False) -> list[str]:
 
 def main():
     parser = argparse.ArgumentParser(description="EVE Anti-Shortcut and Anti-Wrapper Validator (Law 7)")
-    parser.add_argument("--check-governance", action="store_true", help="Validate Law 5, Law 6, and Law 7 enshrinement in governance files")
-    parser.add_argument("--strict", action="store_true", help="Enforce strict ban on any Telegram*.kt referencing or subclassing UiArc*")
-    parser.add_argument("--root", type=str, default=".", help="Root directory of the repository")
+    parser.add_argument(
+        "--check-governance",
+        "--governance-only",
+        dest="governance_only",
+        action="store_true",
+        help="Validate Laws 5, 6, 7, 8, and 9 enshrinement in governance files"
+    )
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        default=True,
+        help="Enforce strict ban on any Telegram*.kt referencing or subclassing UiArc* (default: True)"
+    )
+    parser.add_argument(
+        "--no-strict",
+        dest="strict",
+        action="store_false",
+        help="Disable strict mode for Telegram*.kt class inspection"
+    )
+    parser.add_argument(
+        "--basic-layouts-only",
+        action="store_true",
+        help="Check only basic shortcuts (DesignCardView, MaterialCardView, UiArc) during intermediate migration"
+    )
+    parser.add_argument(
+        "--root",
+        type=str,
+        default=".",
+        help="Root directory of the repository"
+    )
 
     args = parser.parse_args()
     repo_root = Path(args.root).resolve()
 
     all_violations = []
 
-    if args.check_governance:
+    if args.governance_only:
         all_violations.extend(check_governance(repo_root))
     else:
-        # Default run: checks governance, layouts, and source shortcuts
+        # Default run: checks governance, layouts, and strict source shortcuts
         all_violations.extend(check_governance(repo_root))
-        all_violations.extend(check_layouts(repo_root))
+        all_violations.extend(check_layouts(repo_root, legacy_widgets=not args.basic_layouts_only))
         all_violations.extend(check_source_shortcuts(repo_root, strict=args.strict))
-
-    if args.strict:
-        # Also run strict source check if requested specifically
-        all_violations.extend(check_source_shortcuts(repo_root, strict=True))
 
     if all_violations:
         print("ANTI-SHORTCUT CHECK FAILED — VIOLATIONS FOUND:")

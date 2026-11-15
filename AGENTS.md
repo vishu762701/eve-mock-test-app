@@ -3,7 +3,7 @@ Always read and follow ENGINEERING_STANDARD.md first. Then read SOURCE_OF_TRUTH.
 # EVE agent entrypoint
 The owner's latest explicit message defines scope and is the supreme repository authority. Do exactly that, completely, in the running app. No substitution, no simplification, no "inspired by".
 
-## The 7 Permanent Core Laws
+## The 9 Permanent Core Laws
 1. **LAW 1 — MASTERPIECE GENIUS HUMAN CRAFTSMANSHIP (100% EFFORT & HIGHEST THINKING ALWAYS)**:
    Every AI model or agent working on EVE must operate at 100% maximum cognitive depth, architectural foresight, and attention to detail. Think through every micro-interaction, frame timing, touch state, pixel alignment, memory lifecycle, dark/light transition, and edge case to 100% perfection. Never ship lazy approximations, placeholders, or "good enough" wrappers.
 2. **LAW 2 — ZERO-OMISSION 1:1 TELEGRAM SOURCE PORTING (EXACT SETTINGS, PHYSICS, MATRIX, SHADERS & SUBSYSTEMS)**:
@@ -18,6 +18,10 @@ The owner's latest explicit message defines scope and is the supreme repository 
    Every requirement in the owner's prompt must be completed 100% end-to-end before generating a completion report. Never stop after Phase 1 or Batch 1, never skip secondary screens/layouts/adapters, and never trust historical "DONE" labels in `docs/` without auditing the live source tree (`app/src/main/`) directly.
 7. **LAW 7 — ZERO-SHORTCUT & ANTI-WRAPPER ENFORCEMENT (NO FAKE SUBCLASSES, NO COSMETIC RENAMES, NO NO-OP STUBS)**:
    Strict ban on fake inheritance and aliasing: never create a `Telegram*` class that extends, wraps, or typealiases a legacy `UiArc*`, `Design*`, or `Material*` class just to satisfy a grep or naming check. Strict ban on no-op animation stubs: never replace an animated component with a static assignment or empty method. Every `Telegram*` component must implement authentic upstream `DrKLO/Telegram` algorithms validated by `tools/check_no_shortcuts.py`.
+8. **LAW 8 — MANDATORY MASTERPIECE SERVER, BACKEND & RULES SYNCHRONIZATION**:
+   Whenever any feature, field, permission, or UI flow is added, changed, or removed on Android, the agent MUST simultaneously inspect and update all corresponding Cloudflare Worker routes (`backend/src/routes/`), D1 SQL migrations (`backend/migrations/`), `firestore.rules`, `storage.rules`, and backend tests (`backend/test/`) to masterpiece production quality so every function works end-to-end with zero client/server contract mismatch.
+9. **LAW 9 — CONTINUOUS DEAD-FILE & JUNK-FILE PURGE**:
+   Zero unused, obsolete, duplicate, or dead files may remain in the repository. Whenever a legacy class (`UiArc*`, `Design*`, `EveGlassToolbar`), unused layout, unused drawable, or temporary script is replaced or no longer referenced, delete it in the same commit and keep the tree 100% clean.
 
 ## Execution Rules
 - Execute every phase of the owner's request to 100% completion across as many sequential finished batches as required (implement -> self-review -> push to `main` -> verify exact-SHA FAST green -> immediately start the next batch until 100% of the requested scope is finished). Never stop at a plan, audit, checkpoint, or partial Phase 1 batch.

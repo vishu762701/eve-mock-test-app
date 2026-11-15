@@ -2,7 +2,7 @@
 
 The single workflow policy and repository constitution. Authority order: (1) the owner's latest explicit message, (2) this file, (3) SOURCE_OF_TRUTH.md (architecture + security), (4) existing code. Old prompts, reports and checkpoints are history, never requirements.
 
-## 1. The 7 Permanent Core Laws
+## 1. The 9 Permanent Core Laws
 
 ### LAW 1 — MASTERPIECE GENIUS HUMAN CRAFTSMANSHIP (100% EFFORT & HIGHEST THINKING ALWAYS)
 Every AI model or agent working on EVE must operate at 100% maximum cognitive depth, architectural foresight, and attention to detail—NOT like a shortcut-taking AI, but like a world-class Principal Engineer and Masterpiece Product Designer. Think through every micro-interaction, frame timing, touch state, pixel alignment, memory lifecycle, dark/light transition, and edge case to 100% perfection. Never ship lazy approximations, placeholders, or "good enough" wrappers. Own the complete authorized outcome. Done means it works end-to-end in the running app: UI, state, backend, resources, Day/Night, RTL, Hindi/Devanagari, back/gesture navigation, small screens, accessibility and tests where relevant.
@@ -39,6 +39,12 @@ Every requirement in the owner's prompt must be completed 100% end-to-end before
 Taking shortcuts to bypass grep checks or fake Telegram compatibility is strictly forbidden and actively validated by `tools/check_no_shortcuts.py`:
 1. **Strict Ban on Fake Inheritance / Aliasing**: Never create a `Telegram*` class that extends, wraps, or typealiases a legacy `UiArc*`, `Design*`, or `Material*` class (e.g., `class TelegramX : UiArcX` is strictly forbidden) just to satisfy a grep or naming check.
 2. **Strict Ban on No-Op Physics / Animation Stubs**: Never replace an animated component with a static `text = value.toString()` or empty method. Every `Telegram*` component must implement the complete upstream `DrKLO/Telegram` (3de37c8cfb03) Canvas, Matrix, CubicBezierInterpolator, SpringAnimation, ButtonBounce, or NumberTextView algorithm.
+
+### LAW 8 — MANDATORY MASTERPIECE SERVER, BACKEND & RULES SYNCHRONIZATION
+Whenever any feature, field, permission, or UI flow is added, changed, or removed on Android, the agent MUST simultaneously inspect and update all corresponding Cloudflare Worker routes (`backend/src/routes/`), D1 SQL migrations (`backend/migrations/`), `firestore.rules`, `storage.rules`, and backend tests (`backend/test/`) to masterpiece production quality so every function works end-to-end with zero client/server contract mismatch.
+
+### LAW 9 — CONTINUOUS DEAD-FILE & JUNK-FILE PURGE
+Zero unused, obsolete, duplicate, or dead files may remain in the repository. Whenever a legacy class (`UiArc*`, `Design*`, `EveGlassToolbar`), unused layout, unused drawable, or temporary script is replaced or no longer referenced, delete it in the same commit and keep the tree 100% clean.
 
 ## 2. Core Workflow Rules
 1. Do exactly what the owner asked. Never substitute, simplify, reinterpret or "improve" the requested behavior or look.
