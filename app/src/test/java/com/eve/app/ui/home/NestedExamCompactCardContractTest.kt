@@ -12,7 +12,7 @@ class NestedExamCompactCardContractTest {
         val document = DocumentBuilderFactory.newInstance().newDocumentBuilder()
             .parse(File("src/main/res/layout/item_sub_exam.xml"))
         val root = document.documentElement
-        assertEquals("com.eve.app.designsystem.DesignCardView", root.nodeName)
+        assertEquals("FrameLayout", root.nodeName)
         assertEquals("wrap_content", root.getAttribute("android:layout_height"))
         assertEquals("56dp", root.getAttribute("android:minHeight"))
         assertEquals("true", root.getAttribute("android:clickable"))

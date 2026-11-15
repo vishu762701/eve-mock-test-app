@@ -38,9 +38,7 @@ class SyllabusAdapter(
         val binding = ItemSyllabusBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         )
-        binding.root.rippleColor = android.content.res.ColorStateList.valueOf(
-            com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(parent.context).actionSelector
-        )
+        binding.root.background = com.eve.app.designsystem.TelegramThemeSelectors.getSelectorDrawable(parent.context, false)
         return SyllabusViewHolder(binding)
     }
 
@@ -58,7 +56,7 @@ class SyllabusAdapter(
             binding.tvCategory.setTextColor(palette.accent)
             binding.tvExamName.text = exam.examName
             binding.tvExamName.setTextColor(palette.textPrimary)
-            binding.root.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
+            binding.root.background = com.eve.app.designsystem.TelegramThemeSelectors.getSelectorDrawable(binding.root.context, false)
             binding.btnDownload.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
             binding.btnOpen.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
 

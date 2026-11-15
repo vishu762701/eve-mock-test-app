@@ -49,7 +49,7 @@ class AppBulletinHostTest {
         val activity = controller.get()
         activity.setTheme(R.style.Theme_Eve)
         val root = activity.layoutInflater.inflate(R.layout.layout_telegram_bulletin, android.widget.FrameLayout(activity), false)
-        val card = root.findViewById<com.google.android.material.card.MaterialCardView>(R.id.cardBulletin)
+        val card = root.findViewById<com.eve.app.util.TelegramBulletinLayout>(R.id.cardBulletin)
         val row = card.getChildAt(0) as android.widget.LinearLayout
         val icon = root.findViewById<View>(R.id.ivBulletinIcon)
         val message = root.findViewById<TextView>(R.id.tvBulletinMessage)

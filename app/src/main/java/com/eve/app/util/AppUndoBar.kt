@@ -142,6 +142,12 @@ class AppUndoBar private constructor(
             setCardBackgroundColor(UNDO_BACKGROUND)
             radius = 10f * density
             strokeWidth = 0
+        } ?: run {
+            card.background = android.graphics.drawable.GradientDrawable().apply {
+                shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+                cornerRadius = 10f * density
+                setColor(UNDO_BACKGROUND)
+            }
         }
         tvMessage.setTextColor(UNDO_INFO_COLOR)
         btnUndo.setTextColor(UNDO_CANCEL_COLOR)

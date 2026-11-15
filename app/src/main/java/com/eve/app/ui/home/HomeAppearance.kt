@@ -117,7 +117,9 @@ object HomeAppearance {
         }
     }
 
-    fun applyCard(card: com.google.android.material.card.MaterialCardView) {
-        EveDesignSystem.Components.applyHomeCard(card)
+    fun applyCard(view: View) {
+        if (view is com.google.android.material.card.MaterialCardView) {
+            EveDesignSystem.Components.applyHomeCard(view)
+        }
     }
 }

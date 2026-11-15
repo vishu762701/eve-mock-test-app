@@ -42,15 +42,11 @@ class FeedbackMessagesAdapter(
             if (!item.read) {
                 binding.tvUnreadBadge.visibility = View.VISIBLE
                 binding.tvUnreadBadge.setTextColor(palette.accent)
-                binding.cardMessage.strokeWidth = 0
-                binding.cardMessage.setStrokeColor(palette.hairline)
             } else {
                 binding.tvUnreadBadge.visibility = View.GONE
-                binding.cardMessage.strokeWidth = 0
-                binding.cardMessage.setStrokeColor(palette.hairline)
             }
 
-            binding.cardMessage.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
+            binding.cardMessage.background = com.eve.app.designsystem.TelegramThemeSelectors.getSelectorDrawable(binding.root.context, false)
             binding.btnReply.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
             binding.btnDeleteMessage.background = com.eve.app.designsystem.TelegramThemeSelectors.getCircleSelectorDrawable(
                 palette.actionSelector
@@ -66,9 +62,7 @@ class FeedbackMessagesAdapter(
         val binding = ItemFeedbackMessageBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         )
-        binding.cardMessage.rippleColor = android.content.res.ColorStateList.valueOf(
-            com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(parent.context).actionSelector
-        )
+        binding.cardMessage.background = com.eve.app.designsystem.TelegramThemeSelectors.getSelectorDrawable(parent.context, false)
         return ViewHolder(binding)
     }
 

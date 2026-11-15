@@ -15,15 +15,16 @@ import com.eve.app.R
 import com.eve.app.data.model.BookmarkedQuestion
 import com.eve.app.databinding.ItemBookmarkCardBinding
 import com.eve.app.designsystem.DesignIconStates
-import com.eve.app.designsystem.UiArcMotion
-import com.eve.app.designsystem.UiArcSwipeRow
 import com.eve.app.util.FontManager
+import org.telegram.ui.Components.CubicBezierInterpolator
+import com.eve.app.designsystem.DesignMotion
+import com.eve.app.designsystem.TelegramThemeSelectors
 
 /**
  * BookmarkAdapter with UIArc Expandable Card motion.
  * Genuine native translation of official UIArc Expandable Card specification:
  * - Registry: https://uiarc.dev/r/expandable-card.json
- * - Inline height morphing with UiArcMotion.Spring.SMOOTH
+ * - Inline height morphing with CubicBezierInterpolator.EASE_OUT_QUINT
  * - Opening: Delayed text fade-in (120ms entrance delay, Ease.STANDARD)
  * - Closing: Fast text fade-out (100ms) with closeHold (60ms) before height collapse
  * - Rapid reversal support without glitching
@@ -91,7 +92,7 @@ class BookmarkAdapter(
             heightAnimator = null
             alphaAnimator?.cancel()
             alphaAnimator = null
-            binding.swipeRow.resetRow()
+            // flat row reset
         }
 
         fun bind(item: BookmarkedQuestion) {
@@ -99,12 +100,7 @@ class BookmarkAdapter(
             val context = binding.root.context
             val hindi = isHindi()
 
-            binding.swipeRow.resetRow()
-            binding.swipeRow.setOnSwipeActionListener(object : com.eve.app.designsystem.UiArcSwipeRow.OnSwipeActionListener {
-                override fun onActionTriggered(row: com.eve.app.designsystem.UiArcSwipeRow) {
-                    onUnbookmark(item)
-                }
-            })
+            // flat row reset
 
             // Header tags
             binding.tvExamTag.text = item.examName.ifBlank { "Practice Test" }
@@ -158,7 +154,7 @@ class BookmarkAdapter(
             styleOption(binding.tvOptionD, "D")
 
             val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(context)
-            binding.cardBookmark.rippleColor = ColorStateList.valueOf(palette.actionSelector)
+            binding.cardBookmark.background = TelegramThemeSelectors.getSelectorDrawable(context, false)
             binding.tvExamTag.setTextColor(palette.accent)
             binding.tvQuestionNumber.setTextColor(palette.textSecondary)
             binding.tvTopicTag.setTextColor(palette.textSecondary)
@@ -208,7 +204,7 @@ class BookmarkAdapter(
             DesignIconStates.bookmark(binding.btnBookmark, true)
             com.eve.app.designsystem.DesignPress.bind(binding.btnBookmark) {
                 DesignIconStates.bookmark(binding.btnBookmark, false)
-                binding.swipeRow.commit()
+                onUnbookmark(item)
             }
 
             // Quick actions: Copy and Share
@@ -263,7 +259,7 @@ class BookmarkAdapter(
         private fun expandExplanation(context: android.content.Context) {
             binding.btnToggleExplanation.text = "Hide Explanation"
 
-            if (!UiArcMotion.isMotionEnabled(context)) {
+            if (!DesignMotion.enabled(context)) {
                 binding.tvExplanation.visibility = View.VISIBLE
                 binding.tvExplanation.alpha = 1f
                 binding.tvExplanation.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
@@ -301,8 +297,8 @@ class BookmarkAdapter(
             binding.tvExplanation.requestLayout()
 
             val hAnim = ValueAnimator.ofInt(startingHeight, targetHeight).apply {
-                duration = UiArcMotion.Spring.SMOOTH.settlingDurationMs
-                interpolator = UiArcMotion.Spring.SMOOTH
+                duration = 220L
+                interpolator = CubicBezierInterpolator.EASE_OUT_QUINT
                 addUpdateListener {
                     val h = it.animatedValue as Int
                     binding.tvExplanation.layoutParams.height = h
@@ -321,8 +317,8 @@ class BookmarkAdapter(
 
             val aAnim = ValueAnimator.ofFloat(binding.tvExplanation.alpha, 1f).apply {
                 startDelay = if (wasCollapsing) 0L else 120L
-                duration = UiArcMotion.Duration.STANDARD
-                interpolator = UiArcMotion.Ease.STANDARD
+                duration = 180L
+                interpolator = CubicBezierInterpolator.EASE_OUT_QUINT
                 addUpdateListener {
                     binding.tvExplanation.alpha = it.animatedValue as Float
                 }
@@ -339,7 +335,7 @@ class BookmarkAdapter(
         private fun collapseExplanation(context: android.content.Context) {
             binding.btnToggleExplanation.text = "View Explanation"
 
-            if (!UiArcMotion.isMotionEnabled(context)) {
+            if (!DesignMotion.enabled(context)) {
                 binding.tvExplanation.visibility = View.GONE
                 binding.tvExplanation.alpha = 1f
                 binding.tvExplanation.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
@@ -356,7 +352,7 @@ class BookmarkAdapter(
 
             val aAnim = ValueAnimator.ofFloat(binding.tvExplanation.alpha, 0f).apply {
                 duration = 100L
-                interpolator = UiArcMotion.Ease.STANDARD
+                interpolator = CubicBezierInterpolator.EASE_OUT_QUINT
                 addUpdateListener {
                     binding.tvExplanation.alpha = it.animatedValue as Float
                 }
@@ -371,8 +367,8 @@ class BookmarkAdapter(
 
             val hAnim = ValueAnimator.ofInt(startingHeight, 0).apply {
                 startDelay = if (wasExpanding) 0L else 60L
-                duration = UiArcMotion.Spring.SMOOTH.settlingDurationMs
-                interpolator = UiArcMotion.Spring.SMOOTH
+                duration = 220L
+                interpolator = CubicBezierInterpolator.EASE_OUT_QUINT
                 addUpdateListener {
                     val h = it.animatedValue as Int
                     binding.tvExplanation.layoutParams.height = h
@@ -399,9 +395,7 @@ class BookmarkAdapter(
             parent,
             false
         )
-        binding.cardBookmark.rippleColor = ColorStateList.valueOf(
-            com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(parent.context).actionSelector
-        )
+        binding.cardBookmark.background = TelegramThemeSelectors.getSelectorDrawable(parent.context, false)
         return BookmarkViewHolder(binding)
     }
 

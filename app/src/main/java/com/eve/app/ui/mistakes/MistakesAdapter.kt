@@ -55,7 +55,7 @@ class MistakesAdapter(
             val hindi = isHindi()
             val learned = isLearned(item.questionId)
             val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(itemView.context)
-            binding.root.rippleColor = android.content.res.ColorStateList.valueOf(palette.actionSelector)
+            binding.root.background = com.eve.app.designsystem.TelegramThemeSelectors.getSelectorDrawable(itemView.context, false)
 
             val qText = if (hindi && item.questionTextHi.isNotBlank()) item.questionTextHi else item.questionText
             binding.tvQuestionText.text = qText
@@ -105,9 +105,7 @@ class MistakesAdapter(
             parent,
             false
         )
-        binding.root.rippleColor = android.content.res.ColorStateList.valueOf(
-            com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(parent.context).actionSelector
-        )
+        binding.root.background = com.eve.app.designsystem.TelegramThemeSelectors.getSelectorDrawable(parent.context, false)
         return MistakeViewHolder(binding)
     }
 

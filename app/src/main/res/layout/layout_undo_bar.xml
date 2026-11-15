@@ -12,14 +12,11 @@
     android:paddingBottom="8dp"
     android:tag="no_theme">
 
-    <com.google.android.material.card.MaterialCardView
+    <FrameLayout
         android:id="@+id/cardUndo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        app:cardCornerRadius="10dp"
-        app:cardElevation="0dp"
-        app:strokeWidth="0dp">
+        android:layout_gravity="bottom">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -61,5 +58,5 @@
                 android:fontFamily="sans-serif-medium"
                 android:textColor="#6BB7FF" />
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+    </FrameLayout>
 </FrameLayout>

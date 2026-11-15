@@ -52,12 +52,10 @@ class LeaderboardAdapter(
             b.tvName.text = if (isMe) "${entry.displayName} (You)" else entry.displayName
             b.tvName.setTextColor(palette.textPrimary)
             b.tvScore.setTextColor(if (isMe) palette.accent else palette.textPrimary)
-            b.root.setCardBackgroundColor(
-                if (isMe) (if (palette.isDark) 0x33007AFF else 0x1F007AFF) else palette.surfaceInset
+            b.root.setBackgroundColor(
+                if (isMe) (if (palette.isDark) 0x33007AFF else 0x1F007AFF) else palette.windowBackgroundWhite
             )
-            b.root.strokeColor = palette.hairline
-            b.root.strokeWidth = 0
-            b.root.rippleColor = ColorStateList.valueOf(palette.actionSelector)
+            b.root.foreground = com.eve.app.designsystem.TelegramThemeSelectors.getSelectorDrawable(ctx, false)
         }
     }
 

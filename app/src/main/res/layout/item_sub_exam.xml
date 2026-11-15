@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- EVE nested-exam host is ADAPTED; original Telegram TextCell.java:98-104
-     supplies 16sp list text, and the existing authentic large_notes.webp icon
-     is repurposed without its former boxed holder. It is NOT a Telegram exam cell. -->
-<com.eve.app.designsystem.DesignCardView
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cardContainer"
-    style="@style/Widget.Eve.Token.Card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:minHeight="56dp"
     android:clickable="true"
     android:focusable="true"
-    app:rippleColor="@color/design_role_ripple">
+    android:background="?attr/selectableItemBackground">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -45,4 +41,4 @@
             android:ellipsize="end"
             tools:text="English" />
     </LinearLayout>
-</com.eve.app.designsystem.DesignCardView>
+</FrameLayout>

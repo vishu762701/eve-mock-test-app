@@ -93,7 +93,7 @@ class AnswerAdapter(
             // composites twice. Keep the semantic fills and adjust only the ink.
             fun semanticForeground(colorRes: Int, containerRes: Int, layers: Int = 2, ratio: Double = 4.5): Int {
                 val container = ContextCompat.getColor(ctx, containerRes)
-                var background = b.root.cardBackgroundColor.defaultColor
+                var background = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(ctx).windowBackgroundWhite
                 repeat(layers) { background = ColorUtils.compositeColors(container, background) }
                 return com.eve.app.theme.TelegramColorRoles.accessibleForeground(
                     ContextCompat.getColor(ctx, colorRes), listOf(background), ratio)

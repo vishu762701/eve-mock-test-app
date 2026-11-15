@@ -158,7 +158,7 @@ class AppBulletin private constructor(
                     if (view === v) dispose(overlayAlreadyDetaching = true)
                 }
             })
-            val card = root.findViewById<MaterialCardView>(R.id.cardBulletin)
+            val card = root.findViewById<TelegramBulletinLayout>(R.id.cardBulletin)
             val text = root.findViewById<TextView>(R.id.tvBulletinMessage)
             val messageScroll = root.findViewById<ScrollView>(R.id.bulletinMessageScroll)
             val icon = root.findViewById<ImageView>(R.id.ivBulletinIcon)

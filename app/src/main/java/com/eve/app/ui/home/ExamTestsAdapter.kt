@@ -117,7 +117,7 @@ class ExamTestsAdapter(
             val palette = TelegramThemeEngine.resolveCurrentPalette(binding.root.context)
             binding.tvSubExamName.text = item.exam.examName
             binding.tvSubExamName.setTextColor(palette.textPrimary)
-            binding.cardContainer.rippleColor = ColorStateList.valueOf(palette.actionSelector)
+            binding.cardContainer.background = com.eve.app.designsystem.TelegramThemeSelectors.getSelectorDrawable(binding.root.context, false)
             binding.cardContainer.contentDescription = "Open ${item.exam.examName} tests"
             com.eve.app.designsystem.DesignPress.bind(binding.cardContainer) { onSubExamClick(item.exam) }
         }
@@ -132,7 +132,7 @@ class ExamTestsAdapter(
             binding.tvSubtitle.visibility = View.VISIBLE
             binding.tvSubtitle.setTextColor(palette.textSecondary)
             binding.tvStatus.visibility = View.VISIBLE
-            binding.cardContainer.rippleColor = ColorStateList.valueOf(palette.actionSelector)
+            binding.cardContainer.background = com.eve.app.designsystem.TelegramThemeSelectors.getSelectorDrawable(binding.root.context, false)
             com.eve.app.designsystem.DesignPress.bind(binding.cardContainer)
 
             val context = binding.root.context

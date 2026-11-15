@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Modal">
     <TextView style="@style/TextAppearance.Eve.Telegram.DialogTitle" android:tag="eve_telegram_type" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Reply to Student Feedback" />
-    <com.eve.app.designsystem.DesignCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
+    <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:background="@drawable/design_pill_surface" android:padding="16dp">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
                 <TextView android:id="@+id/tvOriginalSenderName" style="@style/TextAppearance.Eve.Token.Body.blue" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Student Name" />
@@ -10,7 +10,7 @@
             <TextView android:id="@+id/tvOriginalSenderEmail" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="student@example.com" />
             <TextView android:id="@+id/tvOriginalMessageText" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:maxLines="6" android:scrollbars="vertical" android:text="Original message content goes here in full context." />
         </LinearLayout>
-    </com.eve.app.designsystem.DesignCardView>
+    </FrameLayout>
     <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilReply" style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_pill_padding" android:hint="Type your response to student...">
         <com.google.android.material.textfield.TextInputEditText android:id="@+id/etReplyText" style="@style/Widget.Eve.Token.Input" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="top|start" android:inputType="textMultiLine|textCapSentences" android:minLines="3" />
     </com.eve.app.designsystem.DesignInputLayout>
