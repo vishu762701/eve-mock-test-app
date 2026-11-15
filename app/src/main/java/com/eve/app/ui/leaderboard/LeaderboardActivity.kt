@@ -27,6 +27,10 @@ import kotlinx.coroutines.launch
  */
 class LeaderboardActivity : EveBaseActivity() {
 
+    companion object {
+        val inMemoryLeaderboardCache = mutableMapOf<String, List<com.eve.app.data.model.LeaderboardEntry>>()
+    }
+
     private lateinit var binding: ActivityLeaderboardBinding
     private val viewModel: LeaderboardViewModel by viewModels()
     private lateinit var examId: String
@@ -69,6 +73,12 @@ class LeaderboardActivity : EveBaseActivity() {
 
         binding.rvLeaderboard.layoutManager = LinearLayoutManager(this)
         binding.rvLeaderboard.adapter = adapter
+        val cached = inMemoryLeaderboardCache[examId]
+        if (!cached.isNullOrEmpty()) {
+            adapter.submit(cached)
+            binding.rvLeaderboard.visibility = View.VISIBLE
+            binding.progressGroup.visibility = View.GONE
+        }
 
         com.eve.app.designsystem.DesignPress.bind(binding.btnRetry) { viewModel.load(examId) }
 
@@ -125,6 +135,7 @@ class LeaderboardActivity : EveBaseActivity() {
             is UiState.Success -> {
                 binding.progressGroup.visibility = View.GONE
                 binding.btnRetry.visibility = View.GONE
+                inMemoryLeaderboardCache[examId] = state.data
                 adapter.submit(state.data)
                 val empty = state.data.isEmpty()
                 binding.rvLeaderboard.visibility = if (empty) View.GONE else View.VISIBLE

@@ -28,6 +28,10 @@ import kotlinx.coroutines.launch
 
 class HistoryActivity : EveBaseActivity() {
 
+    companion object {
+        var cachedAttempts: List<com.eve.app.data.model.Attempt>? = null
+    }
+
     private lateinit var binding: ActivityHistoryBinding
     private val viewModel: HistoryViewModel by viewModels()
     private val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
@@ -57,6 +61,13 @@ class HistoryActivity : EveBaseActivity() {
 
         binding.rvHistory.layoutManager = LinearLayoutManager(this)
         binding.rvHistory.adapter = adapter
+        cachedAttempts?.let {
+            if (it.isNotEmpty()) {
+                adapter.submit(it)
+                binding.rvHistory.visibility = View.VISIBLE
+                binding.loadingHistory.visibility = View.GONE
+            }
+        }
         // UIArc Scroll Area adaptation: keep RecyclerView's native virtualization,
         // scroll gesture, and unobtrusive fading overlay indicator (900ms idle).
         binding.rvHistory.isVerticalScrollBarEnabled = true
@@ -126,6 +137,7 @@ class HistoryActivity : EveBaseActivity() {
             is UiState.Success -> {
                 binding.progressGroup.visibility = View.GONE
                 binding.btnRetry.visibility = View.GONE
+                cachedAttempts = state.data
                 adapter.submit(state.data)
                 val empty = state.data.isEmpty()
                 binding.messageGroup.visibility = if (empty) View.VISIBLE else View.GONE

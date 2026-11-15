@@ -61,11 +61,12 @@ open class QrShareActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        username = ProfileQrPayload.parse(intent?.dataString.orEmpty()) ?: run {
+        val parsed = ProfileQrPayload.parse(intent?.dataString.orEmpty()) ?: run {
             finish()
             return
         }
-        qrLink = requireNotNull(ProfileQrPayload.encode(username))
+        username = parsed
+        qrLink = ProfileQrPayload.encode(username) ?: intent?.dataString ?: "eve-mock-test://user/$username"
         applyQrSystemBars()
         @Suppress("DEPRECATION")
         emojiPickerScroll = savedInstanceState?.getParcelable("qr_picker_scroll")

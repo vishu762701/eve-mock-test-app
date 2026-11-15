@@ -497,8 +497,7 @@ class MainActivity : EveBaseActivity() {
             savedInstanceState?.getBoolean("home_availability_confirmed_off", false) == true
         )
 
-        binding.availabilityCheckingOverlay.visibility =
-            if (canReuseOnTheme || hasConfirmedCachedOff) View.GONE else View.VISIBLE
+        binding.availabilityCheckingOverlay.visibility = View.GONE
         binding.maintenanceOverlay.visibility = View.GONE
         updateAvailabilityInteraction()
         // onResume owns the first request as well as subsequent refreshes.
@@ -1875,6 +1874,12 @@ class MainActivity : EveBaseActivity() {
                 minHeight = resources.getDimensionPixelSize(R.dimen.design_touch_min)
                 setTextAppearance(R.style.TextAppearance_Eve_Token_Body)
                 setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_primary))
+                isClickable = true
+                isFocusable = true
+                setOnClickListener {
+                    binding.rgHomePollOptions.check(id)
+                    performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+                }
             }
             val lp = android.widget.RadioGroup.LayoutParams(
                 android.widget.RadioGroup.LayoutParams.MATCH_PARENT,
@@ -1886,7 +1891,6 @@ class MainActivity : EveBaseActivity() {
         }
 
         binding.btnSubmitHomeVote.isEnabled = true
-        com.eve.app.designsystem.DesignPress.bind(binding.btnSubmitHomeVote)
         binding.btnSubmitHomeVote.setOnClickListener {
             val liveUser = FirebaseAuth.getInstance().currentUser
             if (liveUser == null || liveUser.uid != uid) return@setOnClickListener
@@ -2621,6 +2625,19 @@ class MainActivity : EveBaseActivity() {
         com.eve.app.designsystem.DesignPress.bind(binding.ivDrawerAvatar)
         binding.ivDrawerAvatar.setOnClickListener {
             navigateFromDrawer(Intent(this, ProfileActivity::class.java))
+        }
+
+        binding.btnDrawerQr.setOnClickListener {
+            val user = FirebaseAuth.getInstance().currentUser
+            val uid = user?.uid ?: "student"
+            val username = (user?.displayName ?: "").replace(" ", "_").lowercase()
+            val normalized = com.eve.app.ui.profile.ProfileQrPayload.normalize(username)
+            val payload = if (normalized != null) {
+                com.eve.app.ui.profile.ProfileQrPayload.encode(normalized)
+            } else {
+                "eve-mock-test://user/$uid"
+            }
+            navigateFromDrawer(Intent(this, com.eve.app.ui.profile.QrShareActivity::class.java).setData(android.net.Uri.parse(payload)))
         }
 
         val drawerRows = listOf(

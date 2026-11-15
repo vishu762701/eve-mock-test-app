@@ -38,6 +38,14 @@
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:text="Settings" />
+            <ImageButton
+                android:id="@+id/btnQr"
+                android:layout_width="@dimen/design_touch_min"
+                android:layout_height="match_parent"
+                android:contentDescription="QR code"
+                android:src="@drawable/telegram_profile_qr"
+                app:tint="@color/telegram_type_primary"
+                style="@style/Widget.Eve.Token.IconButton" />
         </LinearLayout>
     </com.eve.app.ui.common.EveGlassToolbar>
 

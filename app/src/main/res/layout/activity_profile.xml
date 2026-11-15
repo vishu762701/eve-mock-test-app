@@ -63,9 +63,9 @@
                 android:layout_width="@dimen/telegram_action_bar_back_width"
                 android:layout_height="match_parent"
                 android:background="@drawable/telegram_action_icon_ripple"
-                android:contentDescription="Personal QR code"
+                android:contentDescription="Back"
                 android:scaleType="center"
-                android:src="@drawable/telegram_profile_qr"
+                android:src="@drawable/ic_back"
                 app:tint="@color/telegram_type_primary" />
 
             <TextView
@@ -80,6 +80,16 @@
                 android:ellipsize="end"
                 android:alpha="0"
                 android:text="Profile" />
+
+            <ImageButton
+                android:id="@+id/btnProfileQr"
+                android:layout_width="@dimen/design_touch_min"
+                android:layout_height="match_parent"
+                android:background="@drawable/telegram_action_icon_ripple"
+                android:contentDescription="Personal QR code"
+                android:scaleType="center"
+                android:src="@drawable/telegram_profile_qr"
+                app:tint="@color/telegram_type_primary" />
 
             <ImageButton
                 android:id="@+id/btnProfileMenu"

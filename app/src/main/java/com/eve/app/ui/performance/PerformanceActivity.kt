@@ -29,6 +29,10 @@ import kotlinx.coroutines.launch
  */
 class PerformanceActivity : EveBaseActivity() {
 
+    companion object {
+        var cachedPerformanceData: PerformanceData? = null
+    }
+
     private lateinit var binding: ActivityPerformanceBinding
     private val viewModel: PerformanceViewModel by viewModels()
     private val topicAdapter = TopicStatAdapter()
@@ -60,6 +64,16 @@ class PerformanceActivity : EveBaseActivity() {
         binding.rvTopics.layoutManager = LinearLayoutManager(this)
         binding.rvTopics.adapter = topicAdapter
         binding.rvTopics.isNestedScrollingEnabled = false
+
+        cachedPerformanceData?.let {
+            if (it.totalAttempts > 0) {
+                lastRenderedData = it
+                binding.messageGroup.visibility = View.GONE
+                binding.contentGroup.visibility = View.VISIBLE
+                binding.progressGroup.visibility = View.GONE
+                renderData(it)
+            }
+        }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -112,6 +126,7 @@ class PerformanceActivity : EveBaseActivity() {
                 binding.progressGroup.visibility = View.GONE
                 binding.btnRetry.visibility = View.GONE
                 val data = state.data
+                cachedPerformanceData = data
                 lastRenderedData = data
                 if (data.totalAttempts == 0) {
                     binding.contentGroup.visibility = View.GONE

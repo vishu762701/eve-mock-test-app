@@ -199,6 +199,7 @@ class ProfileActivity : EveBaseActivity() {
         }.also { FirebaseAuth.getInstance().addAuthStateListener(it) }
         binding.tvStatus.text = ProfilePresenceStatus.label(null)
         binding.btnBack.setOnClickListener { finish() }
+        binding.btnProfileQr.setOnClickListener { showPersonalQr() }
         binding.btnProfileMenu.setOnClickListener { showProfileOptions() }
         setPersonalEditingEnabled(false)
 
@@ -895,24 +896,33 @@ class ProfileActivity : EveBaseActivity() {
         if (FirebaseAuth.getInstance().currentUser?.uid != profileOwnerUid) { finish(); return }
         if (!profileConfirmed) { loadProfile(); return }
         if (qrNavigationPending) return
-        val payload = ProfileQrPayload.encode(currentUsername)
-        if (payload == null) { binding.cellUsername.performClick(); return }
+        val normalized = ProfileQrPayload.normalize(currentUsername)
+        val payload = if (normalized != null) {
+            ProfileQrPayload.encode(normalized)
+        } else {
+            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: "student"
+            "eve-mock-test://user/$uid"
+        }
         qrNavigationPending = true
-        startActivity(Intent(this, UsernameCardActivity::class.java).setData(Uri.parse(payload)))
+        startActivity(Intent(this, QrShareActivity::class.java).setData(Uri.parse(payload)))
     }
 
     private fun showProfileOptions() {
         if (!isProfileOwner() || isFinishing || isDestroyed) return
         if (profileOptionsPopup?.isShowing == true) { profileOptionsPopup?.dismiss(); return }
         profileOptionsPopup = ProfileOverflowPopup(binding.btnProfileMenu).also { popup ->
-            popup.show(profileConfirmed && ProfileQrPayload.normalize(currentUsername) != null,
+            popup.show(
+                usernameEnabled = profileConfirmed && ProfileQrPayload.normalize(currentUsername) != null,
                 onUsername = { binding.cellUsername.performClick() },
                 onCopyLink = {
                     val payload = ProfileQrPayload.encode(currentUsername) ?: return@show
                     (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
                         .setPrimaryClip(ClipData.newPlainText("Profile link", payload))
                     AppBulletin.showSuccess(this, "Profile link copied")
-                }, canEdit = profileConfirmed)
+                },
+                onShareQr = { showPersonalQr() },
+                canEdit = profileConfirmed
+            )
         }
     }
 

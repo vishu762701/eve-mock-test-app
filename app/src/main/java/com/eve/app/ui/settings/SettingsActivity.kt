@@ -113,6 +113,18 @@ class SettingsActivity : EveBaseActivity() {
         setContentView(binding.root)
 
         com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
+        binding.btnQr.setOnClickListener {
+            val user = FirebaseAuth.getInstance().currentUser
+            val uid = user?.uid ?: "student"
+            val username = (user?.displayName ?: "").replace(" ", "_").lowercase()
+            val normalized = com.eve.app.ui.profile.ProfileQrPayload.normalize(username)
+            val payload = if (normalized != null) {
+                com.eve.app.ui.profile.ProfileQrPayload.encode(normalized)
+            } else {
+                "eve-mock-test://user/$uid"
+            }
+            startActivity(Intent(this, com.eve.app.ui.profile.QrShareActivity::class.java).setData(android.net.Uri.parse(payload)))
+        }
         listOf(
             binding.rowAppearance, binding.rowAbout, binding.rowLogout,
             binding.rowDailyGoal, binding.rowTargetExams, binding.rowLanguage,

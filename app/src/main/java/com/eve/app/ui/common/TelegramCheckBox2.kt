@@ -55,6 +55,23 @@ class TelegramCheckBox2 @JvmOverloads constructor(
     private fun dp(v: Float): Float = v * density
     private fun dp(v: Int): Int = (v * density + 0.5f).toInt()
 
+    private val bounce = com.eve.app.designsystem.ButtonBounce(this)
+
+    override fun setPressed(pressed: Boolean) {
+        super.setPressed(pressed)
+        bounce.setPressed(pressed)
+    }
+
+    override fun onTouchEvent(event: android.view.MotionEvent): Boolean {
+        bounce.onTouchEvent(event)
+        return super.onTouchEvent(event)
+    }
+
+    override fun performClick(): Boolean {
+        toggle()
+        return super.performClick()
+    }
+
     private var componentSize: Float = 21f // default 21dp like Telegram CheckBox2
     private var animationDuration: Long = com.eve.app.designsystem.TelegramParity.CHECKBOX_ANIMATION_DURATION_MS
     private var drawUnchecked: Boolean = true
@@ -330,7 +347,18 @@ class TelegramCheckBox2 @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas) {
         if (visibility != VISIBLE) return
+        val bounceScale = bounce.scale
+        if (bounceScale != 1f) {
+            canvas.save()
+            canvas.scale(bounceScale, bounceScale, width / 2f, height / 2f)
+            drawContent(canvas)
+            canvas.restore()
+        } else {
+            drawContent(canvas)
+        }
+    }
 
+    private fun drawContent(canvas: Canvas) {
         val icon = iconDrawable
         if (icon != null) {
             val cx = width shr 1

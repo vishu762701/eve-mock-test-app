@@ -15,15 +15,22 @@ internal object ProfileQrPayload {
         if (value.length > 128) return null
         return runCatching {
             val uri = URI(value)
-            if (uri.scheme != "eve-mock-test" || uri.rawAuthority != "username" ||
-                uri.rawQuery != null || uri.rawFragment != null) return null
+            if (uri.scheme != "eve-mock-test") return null
+            val auth = uri.rawAuthority ?: return null
+            if (uri.rawQuery != null || uri.rawFragment != null) return null
             val path = uri.rawPath ?: return null
             if (!path.startsWith("/") || path.count { it == '/' } != 1) return null
-            normalize(path.substring(1))
+            val identifier = path.substring(1)
+            if (auth == "username") {
+                normalize(identifier)
+            } else if (auth == "user") {
+                identifier.takeIf { it.isNotBlank() }
+            } else null
         }.getOrNull()
     }
     fun matrix(value: String, size: Int = 512) = QRCodeWriter().encode(
-        requireNotNull(encode(value)), BarcodeFormat.QR_CODE, size, size,
+        encode(value) ?: if (value.startsWith("eve-mock-test://")) value else "eve-mock-test://user/$value",
+        BarcodeFormat.QR_CODE, size, size,
         mapOf(EncodeHintType.MARGIN to 4)
     )
 }

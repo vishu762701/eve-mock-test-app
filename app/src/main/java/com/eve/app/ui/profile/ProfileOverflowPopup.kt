@@ -21,7 +21,7 @@ internal class ProfileOverflowPopup(private val anchor: View) {
     private var window: ActionBarPopupWindow? = null
     val isShowing: Boolean get() = window?.isShowing == true
 
-    fun show(usernameEnabled: Boolean, onUsername: () -> Unit, onCopyLink: () -> Unit, canEdit: Boolean = true) {
+    fun show(usernameEnabled: Boolean, onUsername: () -> Unit, onCopyLink: () -> Unit, onShareQr: (() -> Unit)? = null, canEdit: Boolean = true) {
         if (isShowing) return
         val context = anchor.context
         PopupPlatform.density = context.resources.displayMetrics.density
@@ -81,7 +81,10 @@ internal class ProfileOverflowPopup(private val anchor: View) {
             layout.addView(item, LinearLayout.LayoutParams(-1, -2))
         }
         row("Change username", R.drawable.profile_menu_username_change, true, false, canEdit, onUsername)
-        row("Copy link to profile", R.drawable.profile_msg_link2, false, true, usernameEnabled, onCopyLink)
+        row("Copy link to profile", R.drawable.profile_msg_link2, false, onShareQr == null, usernameEnabled, onCopyLink)
+        if (onShareQr != null) {
+            row("Share QR code", R.drawable.telegram_profile_qr, false, true, true, onShareQr)
+        }
         val frame = android.graphics.Rect()
         anchor.getWindowVisibleDisplayFrame(frame)
         layout.measure(View.MeasureSpec.makeMeasureSpec((frame.width() - dp(40f)).coerceAtLeast(dp(48f)), View.MeasureSpec.AT_MOST),

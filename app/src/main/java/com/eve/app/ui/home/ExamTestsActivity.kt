@@ -31,6 +31,10 @@ import kotlinx.coroutines.launch
 
 class ExamTestsActivity : EveBaseActivity() {
 
+    companion object {
+        private val inMemoryCache = mutableMapOf<String, List<ExamTestListItem>>()
+    }
+
     private lateinit var binding: ActivityExamTestsBinding
     private val examRepo = ExamRepository()
     private lateinit var adapter: ExamTestsAdapter
@@ -104,6 +108,12 @@ class ExamTestsActivity : EveBaseActivity() {
             }
         })
         binding.rvTests.adapter = adapter
+        val cached = inMemoryCache[examId]
+        if (!cached.isNullOrEmpty()) {
+            adapter.submitList(cached)
+            binding.rvTests.visibility = View.VISIBLE
+            binding.loadingTests.visibility = View.GONE
+        }
     }
 
     override fun onStart() {
@@ -225,6 +235,7 @@ class ExamTestsActivity : EveBaseActivity() {
                     binding.tvEmpty.visibility = View.GONE
                     binding.rvTests.visibility = View.VISIBLE
                     adapter.submitList(combinedItems)
+                    inMemoryCache[examId] = combinedItems
                 }
                 lastLoadedTime = System.currentTimeMillis()
             } catch (e: Exception) {
