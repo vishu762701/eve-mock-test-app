@@ -10,7 +10,7 @@
                 android:layout_marginStart="@dimen/telegram_action_bar_title_start"
                 android:orientation="vertical">
                 <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Saved Questions" android:tag="eve_telegram_type" />
-                <com.eve.app.designsystem.UiArcTextMorphView android:id="@+id/tvBookmarkCount" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone" ns2:text="3 questions saved" ns2:visibility="visible" />
+                <TextView android:id="@+id/tvBookmarkCount" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone" ns2:text="3 questions saved" ns2:visibility="visible" />
             </LinearLayout>
             <ImageButton android:id="@+id/btnSearch" android:layout_width="48dp" android:layout_height="48dp" android:contentDescription="Search saved questions" android:src="@drawable/ic_search" app:tint="@color/telegram_type_primary" style="@style/Widget.Eve.Token.IconButton" />
         </LinearLayout>

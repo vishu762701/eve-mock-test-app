@@ -93,7 +93,6 @@ class PerformanceActivity : EveBaseActivity() {
 
     override fun onDestroy() {
         if (::binding.isInitialized) {
-            binding.tvLoadingPerformance.stopShimmer()
             com.eve.app.util.EmptyStateAnimationHelper.stopEmptyState(binding.ivMessageIcon)
         }
         super.onDestroy()
@@ -106,13 +105,11 @@ class PerformanceActivity : EveBaseActivity() {
                 if (lastRenderedData == null) {
                     binding.progressGroup.visibility = View.VISIBLE
                     binding.contentGroup.visibility = View.GONE
-                    binding.tvLoadingPerformance.startShimmer()
                 }
                 binding.messageGroup.visibility = View.GONE
             }
             is UiState.Success -> {
                 binding.progressGroup.visibility = View.GONE
-                binding.tvLoadingPerformance.stopShimmer()
                 binding.btnRetry.visibility = View.GONE
                 val data = state.data
                 lastRenderedData = data
@@ -135,7 +132,6 @@ class PerformanceActivity : EveBaseActivity() {
             }
             is UiState.Error -> {
                 binding.progressGroup.visibility = View.GONE
-                binding.tvLoadingPerformance.stopShimmer()
                 if (lastRenderedData != null) {
                     binding.contentGroup.visibility = View.VISIBLE
                     binding.messageGroup.visibility = View.GONE

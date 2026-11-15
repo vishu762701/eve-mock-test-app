@@ -6,7 +6,7 @@
             <TextView android:ellipsize="end" android:maxLines="1" android:layout_marginStart="@dimen/telegram_action_bar_title_start" android:layout_weight="1" android:id="@+id/tvExamName" style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="0dp" android:layout_height="wrap_content" android:text="Leaderboard"  android:tag="eve_telegram_type" />
         </LinearLayout>
     </com.eve.app.ui.common.EveGlassToolbar>
-    <com.eve.app.designsystem.DesignCardView style="@style/Widget.Eve.Token.Card" android:id="@+id/cardYourRank" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:layout_marginBottom="@dimen/design_card_gap" android:visibility="gone">
+    <FrameLayout android:id="@+id/cardYourRank" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:layout_marginBottom="@dimen/design_card_gap" android:visibility="gone" android:background="@color/surface" android:padding="@dimen/design_card_padding">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
             <FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/Widget.Eve.Token.CompactTile" android:clipChildren="false" android:clipToPadding="false">
                 <TextView android:id="@+id/tvRankMedallion" style="@style/TextAppearance.Eve.Token.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" />
@@ -18,7 +18,7 @@
             </LinearLayout>
             <TextView android:id="@+id/tvYourScore" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_card_gap" android:gravity="end" />
         </LinearLayout>
-    </com.eve.app.designsystem.DesignCardView>
+    </FrameLayout>
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
         <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Top Scorers" />
         <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Highest scores across all participants" />

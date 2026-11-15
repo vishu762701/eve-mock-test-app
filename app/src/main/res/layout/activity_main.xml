@@ -42,7 +42,7 @@
             </LinearLayout>
         </FrameLayout>
         <LinearLayout android:id="@+id/contentSheet" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-            <com.eve.app.designsystem.UiArcAlertView android:id="@+id/tvOfflineBanner" style="@style/TextAppearance.Eve.Token.Secondary.orange" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="@string/offline_banner_text" android:visibility="gone" />
+            <TextView android:id="@+id/tvOfflineBanner" style="@style/TextAppearance.Eve.Token.Secondary.orange" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="@string/offline_banner_text" android:visibility="gone" />
             <FrameLayout android:id="@+id/panelHomeBanner" android:layout_width="match_parent" android:layout_height="@dimen/design_banner_height" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_marginTop="@dimen/design_row_gap" android:layout_marginBottom="@dimen/design_row_gap" android:clipChildren="false" android:clipToPadding="false" android:visibility="gone" style="@style/Widget.Eve.Token.Column">
                 <View android:id="@+id/blurHomeBannerMaterial" android:layout_width="match_parent" android:layout_height="match_parent" />
                 <androidx.viewpager2.widget.ViewPager2 android:id="@+id/vpHomeBanners" android:layout_width="match_parent" android:layout_height="match_parent" android:clipChildren="false" android:clipToPadding="false" android:alpha="1" android:overScrollMode="never" />
@@ -52,7 +52,7 @@
                 </FrameLayout>
             </FrameLayout>
             <com.google.android.material.button.MaterialButton android:id="@+id/btnAdmin" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_marginTop="@dimen/design_screen_margin" android:text="Admin Dashboard" android:visibility="gone" />
-            <com.eve.app.designsystem.DesignCardView
+            <FrameLayout
                 android:id="@+id/cardPoll"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -60,7 +60,8 @@
                 android:layout_marginTop="@dimen/design_row_gap"
                 android:layout_marginBottom="@dimen/design_card_gap"
                 android:visibility="gone"
-                style="@style/Widget.Eve.Token.Card">
+                android:background="@color/surface"
+                android:padding="@dimen/design_card_padding">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -125,7 +126,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/design_card_gap" />
                 </LinearLayout>
-            </com.eve.app.designsystem.DesignCardView>
+            </FrameLayout>
             <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:clipChildren="false" android:clipToPadding="false" android:scrollbars="none">
                 <com.eve.app.ui.home.HomeCategoryChipGroup android:id="@+id/chipGroupCategory" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_section_gap" android:layout_marginEnd="@dimen/design_section_gap" app:chipSpacingHorizontal="@dimen/design_card_gap" app:singleLine="true" app:singleSelection="true" app:selectionRequired="true" />
             </HorizontalScrollView>
@@ -154,9 +155,9 @@
             </FrameLayout>
         </LinearLayout>
     </LinearLayout>
-        <com.eve.app.designsystem.DesignCardView android:id="@+id/cardFloatingAirplane" android:contentDescription="Open community link" android:importantForAccessibility="yes" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minWidth="@dimen/design_touch_min" android:minHeight="@dimen/design_touch_min" android:layout_gravity="bottom|end" android:layout_marginEnd="20dp" android:layout_marginBottom="14dp" android:clickable="true" android:focusable="true" android:visibility="gone" app:cardElevation="@dimen/design_zero" app:cardMaxElevation="@dimen/design_zero" app:strokeWidth="@dimen/design_zero" app:strokeColor="@android:color/transparent" app:cardBackgroundColor="@color/transparent" app:rippleColor="@android:color/transparent" android:background="@null" android:foreground="@null" android:outlineProvider="none" style="@style/Widget.Eve.Token.Card.Clear">
+        <FrameLayout android:id="@+id/cardFloatingAirplane" android:contentDescription="Open community link" android:importantForAccessibility="yes" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minWidth="@dimen/design_touch_min" android:minHeight="@dimen/design_touch_min" android:layout_gravity="bottom|end" android:layout_marginEnd="20dp" android:layout_marginBottom="14dp" android:clickable="true" android:focusable="true" android:visibility="gone" app:cardElevation="@dimen/design_zero" app:cardMaxElevation="@dimen/design_zero" app:strokeWidth="@dimen/design_zero" app:strokeColor="@android:color/transparent" app:cardBackgroundColor="@color/transparent" app:rippleColor="@android:color/transparent" android:background="@null" android:foreground="@null" android:outlineProvider="none">
             <com.airbnb.lottie.LottieAnimationView android:id="@+id/lottieFloatingAirplane" android:importantForAccessibility="no" android:layout_width="@dimen/floating_link_icon_size" android:layout_height="@dimen/floating_link_icon_size" android:layout_gravity="center" android:clickable="false" android:focusable="false" android:contentDescription="Open community link" app:lottie_autoPlay="false" app:lottie_loop="true" app:lottie_rawRes="@raw/man_flying_on_paper_airplane" style="@style/Widget.Eve.Token.Lottie" />
-        </com.eve.app.designsystem.DesignCardView>
+        </FrameLayout>
     <FrameLayout android:id="@+id/availabilityCheckingOverlay" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/bg_app" android:clickable="true" android:focusable="true" android:visibility="gone" android:elevation="32dp" style="@style/Widget.Eve.Token.Column">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="center" android:orientation="vertical" android:padding="24dp">
             <com.eve.app.designsystem.TelegramRadialProgressView android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" />

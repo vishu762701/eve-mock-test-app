@@ -123,7 +123,7 @@ class UiArcMotionComponentsTest {
         val root = loadXml("src/main/res/layout/activity_feedback.xml")
         val btn = findElementById(root, "btnSendFeedback")
         assertNotNull("btnSendFeedback must exist in activity_feedback.xml", btn)
-        assertEquals("com.eve.app.designsystem.UiArcButton", btn?.tagName)
+        assertEquals("com.eve.app.designsystem.TelegramButton", btn?.tagName)
         assertEquals("@dimen/design_touch_min", btn?.getAttribute("android:layout_height"))
         assertEquals("Send Feedback", btn?.getAttribute("android:text"))
 
@@ -152,11 +152,11 @@ class UiArcMotionComponentsTest {
 
         val tvAttempts = findElementById(root, "tvTotalAttempts")
         assertNotNull("tvTotalAttempts must exist in activity_performance.xml", tvAttempts)
-        assertEquals("com.eve.app.designsystem.UiArcAnimatedCounterView", tvAttempts?.tagName)
+        assertEquals("TextView", tvAttempts?.tagName)
 
         val tvAccuracy = findElementById(root, "tvOverallAccuracy")
         assertNotNull("tvOverallAccuracy must exist in activity_performance.xml", tvAccuracy)
-        assertEquals("com.eve.app.designsystem.UiArcAnimatedCounterView", tvAccuracy?.tagName)
+        assertEquals("TextView", tvAccuracy?.tagName)
     }
 
     @Test
@@ -164,7 +164,7 @@ class UiArcMotionComponentsTest {
         val root = loadXml("src/main/res/layout/activity_result.xml")
         val badge = findElementById(root, "tvCutoffVerdict")
         assertNotNull("tvCutoffVerdict must exist in activity_result.xml", badge)
-        assertEquals("com.eve.app.designsystem.UiArcBadgeView", badge?.tagName)
+        assertEquals("com.eve.app.ui.common.TelegramBadgeView", badge?.tagName)
     }
 
     @Test
@@ -172,7 +172,7 @@ class UiArcMotionComponentsTest {
         val root = loadXml("src/main/res/layout/activity_performance.xml")
         val shimmer = findElementById(root, "tvLoadingPerformance")
         assertNotNull("tvLoadingPerformance must exist in activity_performance.xml", shimmer)
-        assertEquals("com.eve.app.designsystem.UiArcTextShimmerView", shimmer?.tagName)
+        assertEquals("TextView", shimmer?.tagName)
         assertEquals("Loading performance data…", shimmer?.getAttribute("android:text"))
     }
 
@@ -302,12 +302,12 @@ class UiArcMotionComponentsTest {
         val root = loadXml("src/main/res/layout/activity_performance.xml")
         val headingScore = findElementById(root, "tvHeadingScoreTrend")
         assertNotNull("tvHeadingScoreTrend must exist in activity_performance.xml", headingScore)
-        assertEquals("com.eve.app.designsystem.UiArcInViewTitleView", headingScore?.tagName)
+        assertEquals("TextView", headingScore?.tagName)
         assertEquals("Score Trend", headingScore?.getAttribute("android:text"))
 
         val headingTopic = findElementById(root, "tvHeadingTopicAccuracy")
         assertNotNull("tvHeadingTopicAccuracy must exist in activity_performance.xml", headingTopic)
-        assertEquals("com.eve.app.designsystem.UiArcInViewTitleView", headingTopic?.tagName)
+        assertEquals("TextView", headingTopic?.tagName)
         assertEquals("Topic-wise Accuracy", headingTopic?.getAttribute("android:text"))
     }
 
@@ -357,7 +357,7 @@ class UiArcMotionComponentsTest {
         val root = loadXml("src/main/res/layout/activity_bookmarks.xml")
         val tvCount = findElementById(root, "tvBookmarkCount")
         assertNotNull("tvBookmarkCount must exist in activity_bookmarks.xml", tvCount)
-        assertEquals("com.eve.app.designsystem.UiArcTextMorphView", tvCount?.tagName)
+        assertEquals("TextView", tvCount?.tagName)
     }
 
     @Test
@@ -369,7 +369,7 @@ class UiArcMotionComponentsTest {
         val root = loadXml("src/main/res/layout/activity_main.xml")
         val banner = findElementById(root, "tvOfflineBanner")
         assertNotNull("tvOfflineBanner must exist in activity_main.xml", banner)
-        assertEquals("com.eve.app.designsystem.UiArcAlertView", banner?.tagName)
+        assertEquals("TextView", banner?.tagName)
     }
 
     @Test
@@ -384,7 +384,7 @@ class UiArcMotionComponentsTest {
         val root = loadXml("src/main/res/layout/item_bookmark_card.xml")
         val swipeRow = findElementById(root, "swipeRow")
         assertNotNull("swipeRow must exist in item_bookmark_card.xml", swipeRow)
-        assertEquals("com.eve.app.designsystem.UiArcSwipeRow", swipeRow?.tagName)
+        assertEquals("FrameLayout", swipeRow?.tagName)
 
         val btnBookmark = findElementById(root, "btnBookmark")
         assertNotNull("Accessible btnBookmark fallback must be preserved", btnBookmark)
@@ -551,15 +551,15 @@ class UiArcMotionComponentsTest {
         val resultRoot = loadXml("src/main/res/layout/activity_result.xml")
         val tvCorrect = findElementById(resultRoot, "tvCorrectCount")
         assertNotNull("tvCorrectCount must exist in activity_result.xml", tvCorrect)
-        assertEquals("com.eve.app.designsystem.UiArcSlotTextView", tvCorrect?.tagName)
+        assertEquals("com.eve.app.ui.common.TelegramSlotTextView", tvCorrect?.tagName)
 
         val tvWrong = findElementById(resultRoot, "tvWrongCount")
         assertNotNull("tvWrongCount must exist in activity_result.xml", tvWrong)
-        assertEquals("com.eve.app.designsystem.UiArcSlotTextView", tvWrong?.tagName)
+        assertEquals("com.eve.app.ui.common.TelegramSlotTextView", tvWrong?.tagName)
 
         val tvUnattempted = findElementById(resultRoot, "tvUnattemptedCount")
         assertNotNull("tvUnattemptedCount must exist in activity_result.xml", tvUnattempted)
-        assertEquals("com.eve.app.designsystem.UiArcSlotTextView", tvUnattempted?.tagName)
+        assertEquals("com.eve.app.ui.common.TelegramSlotTextView", tvUnattempted?.tagName)
     }
 
     @Test
@@ -597,10 +597,10 @@ class UiArcMotionComponentsTest {
         val premiumRoot = loadXml("src/main/res/layout/activity_premium.xml")
         val tvPlanTitle = findElementById(premiumRoot, "tvPlanTitle")
         assertNotNull("tvPlanTitle must exist in activity_premium.xml", tvPlanTitle)
-        assertEquals("com.eve.app.designsystem.UiArcTextRevealView", tvPlanTitle?.tagName)
+        assertEquals("TextView", tvPlanTitle?.tagName)
 
         val tvActiveTitle = findElementById(premiumRoot, "tvActiveTitle")
         assertNotNull("tvActiveTitle must exist in activity_premium.xml", tvActiveTitle)
-        assertEquals("com.eve.app.designsystem.UiArcTextRevealView", tvActiveTitle?.tagName)
+        assertEquals("TextView", tvActiveTitle?.tagName)
     }
 }

@@ -74,11 +74,11 @@
                 android:paddingBottom="7dp"
                 android:text="PREVIEW" />
 
-            <com.eve.app.designsystem.DesignCardView
+            <com.eve.app.ui.common.TelegramCardView
                 android:id="@+id/cardPreview"
-                style="@style/Widget.Eve.Token.Card"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:background="@color/surface">
                 <LinearLayout
                     android:id="@+id/layoutPreviewContent"
                     android:layout_width="match_parent"
@@ -120,7 +120,7 @@
                             android:text="Server Evaluated" />
                     </LinearLayout>
                 </LinearLayout>
-            </com.eve.app.designsystem.DesignCardView>
+            </com.eve.app.ui.common.TelegramCardView>
 
             <!-- THEME MODE (DAY / NIGHT / SYSTEM) -->
             <TextView
@@ -134,10 +134,10 @@
                 android:paddingBottom="7dp"
                 android:text="MODE" />
 
-            <com.eve.app.designsystem.DesignCardView
-                style="@style/Widget.Eve.Token.Card"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:background="@color/surface">
                 <LinearLayout
                     android:id="@+id/layoutModeSelector"
                     android:layout_width="match_parent"
@@ -167,7 +167,7 @@
                         android:layout_weight="1"
                         android:text="System" />
                 </LinearLayout>
-            </com.eve.app.designsystem.DesignCardView>
+            </FrameLayout>
 
             <!-- THEMES PRESETS -->
             <TextView
@@ -231,10 +231,10 @@
                 android:paddingBottom="7dp"
                 android:text="MESSAGE TEXT SIZE" />
 
-            <com.eve.app.designsystem.DesignCardView
-                style="@style/Widget.Eve.Token.Card"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:background="@color/surface">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -245,7 +245,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="48dp" />
                 </LinearLayout>
-            </com.eve.app.designsystem.DesignCardView>
+            </FrameLayout>
 
             <!-- CORNER RADIUS -->
             <TextView
@@ -259,10 +259,10 @@
                 android:paddingBottom="7dp"
                 android:text="CORNER RADIUS" />
 
-            <com.eve.app.designsystem.DesignCardView
-                style="@style/Widget.Eve.Token.Card"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:background="@color/surface">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -273,7 +273,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="48dp" />
                 </LinearLayout>
-            </com.eve.app.designsystem.DesignCardView>
+            </FrameLayout>
 
             <!-- AUTO-NIGHT MODE -->
             <TextView
@@ -287,10 +287,10 @@
                 android:paddingBottom="7dp"
                 android:text="AUTO-NIGHT MODE" />
 
-            <com.eve.app.designsystem.DesignCardView
-                style="@style/Widget.Eve.Token.Card"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:background="@color/surface">
                 <LinearLayout
                     android:id="@+id/rowAutoNight"
                     android:layout_width="match_parent"
@@ -326,7 +326,7 @@
                         android:src="@drawable/ic_chevron_right"
                         app:tint="@color/text_secondary" />
                 </LinearLayout>
-            </com.eve.app.designsystem.DesignCardView>
+            </FrameLayout>
 
             <!-- UTILITIES & RESTORE -->
             <TextView
@@ -340,10 +340,10 @@
                 android:paddingBottom="7dp"
                 android:text="CUSTOMIZATION" />
 
-            <com.eve.app.designsystem.DesignCardView
-                style="@style/Widget.Eve.Token.Card"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:background="@color/surface">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -364,7 +364,7 @@
                         android:layout_marginBottom="8dp"
                         android:text="Import .attheme File" />
                 </LinearLayout>
-            </com.eve.app.designsystem.DesignCardView>
+            </FrameLayout>
 
         </LinearLayout>
     </ScrollView>

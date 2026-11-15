@@ -21,29 +21,29 @@
             <FrameLayout android:id="@+id/layoutResultContentContainer" android:layout_width="match_parent" android:layout_height="match_parent" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
                 <androidx.core.widget.NestedScrollView android:id="@+id/scrollResultContent" android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false" android:fillViewport="true" android:overScrollMode="ifContentScrolls" android:scrollbars="vertical" android:visibility="visible" style="@style/Widget.Eve.Token.Scroll">
                     <LinearLayout android:id="@+id/sectionOverview" android:layout_width="match_parent" android:layout_height="wrap_content" android:clipChildren="false" android:clipToPadding="false" android:orientation="vertical" style="@style/Widget.Eve.Token.Column">
-                        <com.eve.app.designsystem.DesignCardView android:id="@+id/cardResultHero" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="@dimen/design_zero" android:layout_marginBottom="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Card">
+                        <FrameLayout android:id="@+id/cardResultHero" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="@dimen/design_zero" android:layout_marginBottom="@dimen/design_card_gap" android:background="@color/surface" android:padding="@dimen/design_card_padding">
                             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:layout_gravity="center" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
                                 <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="TOTAL SCORE" />
                                 <TextView android:id="@+id/tvScore" style="@style/TextAppearance.Eve.Token.Title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" />
                                 <TextView android:id="@+id/tvScorePercentage" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:text="--% Score" />
                                 <TextView android:id="@+id/tvStats" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:gravity="center" android:visibility="gone" />
                             </LinearLayout>
-                        </com.eve.app.designsystem.DesignCardView>
+                        </FrameLayout>
                         <LinearLayout android:id="@+id/headerOverviewStatistics" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
                             <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Statistics" />
                             <TextView style="@style/TextAppearance.Eve.Token.Link" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="View Details ›" />
                         </LinearLayout>
                         <com.eve.app.ui.result.ResultStatisticsGrid android:id="@+id/rowOverviewStatisticsTiles" android:layout_width="match_parent" android:layout_height="wrap_content" android:baselineAligned="false" android:orientation="horizontal">
                             <LinearLayout android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:minHeight="96dp" android:layout_marginEnd="@dimen/design_screen_margin" android:gravity="center" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Tile">
-                                <com.eve.app.designsystem.UiArcSlotTextView android:id="@+id/tvCorrectCount" style="@style/TextAppearance.Eve.Token.Heading.green" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="0" />
+                                <com.eve.app.ui.common.TelegramSlotTextView android:id="@+id/tvCorrectCount" style="@style/TextAppearance.Eve.Token.Heading.green" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="0" />
                                 <TextView style="@style/TextAppearance.Eve.Token.Secondary.green" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Right" />
                             </LinearLayout>
                             <LinearLayout android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:minHeight="96dp" android:layout_marginEnd="@dimen/design_screen_margin" android:gravity="center" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Tile">
-                                <com.eve.app.designsystem.UiArcSlotTextView android:id="@+id/tvWrongCount" style="@style/TextAppearance.Eve.Token.Heading.red" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="0" />
+                                <com.eve.app.ui.common.TelegramSlotTextView android:id="@+id/tvWrongCount" style="@style/TextAppearance.Eve.Token.Heading.red" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="0" />
                                 <TextView style="@style/TextAppearance.Eve.Token.Secondary.red" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Wrong" />
                             </LinearLayout>
                             <LinearLayout android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:minHeight="96dp" android:layout_marginEnd="@dimen/design_screen_margin" android:gravity="center" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Tile">
-                                <com.eve.app.designsystem.UiArcSlotTextView android:id="@+id/tvUnattemptedCount" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="0" />
+                                <com.eve.app.ui.common.TelegramSlotTextView android:id="@+id/tvUnattemptedCount" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="0" />
                                 <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Unattempted" />
                             </LinearLayout>
                             <LinearLayout android:layout_width="@dimen/design_zero" android:layout_height="wrap_content" android:minHeight="96dp" android:gravity="center" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Tile">
@@ -55,7 +55,7 @@
                             <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Performance Standing" />
                             <TextView style="@style/TextAppearance.Eve.Token.Link" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="View Details ›" />
                         </LinearLayout>
-                        <com.eve.app.designsystem.DesignCardView style="@style/Widget.Eve.Token.Card" android:id="@+id/cardPerformanceStanding" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="@dimen/design_zero" android:layout_marginBottom="@dimen/design_card_gap" android:clickable="true" android:focusable="true">
+                        <FrameLayout style="@style/Widget.Eve.Token.Card" android:id="@+id/cardPerformanceStanding" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="@dimen/design_zero" android:layout_marginBottom="@dimen/design_card_gap" android:clickable="true" android:focusable="true" android:background="@color/surface" android:padding="@dimen/design_card_padding">
                             <com.eve.app.ui.result.ResponsiveResultRow android:layout_width="match_parent" android:layout_height="wrap_content" android:baselineAligned="false" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false">
                                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginEnd="@dimen/design_card_gap" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
                                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap" android:orientation="vertical" style="@style/Widget.Eve.Token.Tile" android:clipChildren="false" android:clipToPadding="false">
@@ -78,15 +78,15 @@
                                     </LinearLayout>
                                 </LinearLayout>
                             </com.eve.app.ui.result.ResponsiveResultRow>
-                        </com.eve.app.designsystem.DesignCardView>
+                        </FrameLayout>
                         <LinearLayout android:id="@+id/sectionCutoff" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:clipChildren="false" android:clipToPadding="false" android:orientation="vertical" style="@style/Widget.Eve.Token.Column">
-                            <com.eve.app.designsystem.DesignCardView style="@style/Widget.Eve.Token.Card" android:id="@+id/cardCutoffVerdict" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap">
+                            <FrameLayout style="@style/Widget.Eve.Token.Card" android:id="@+id/cardCutoffVerdict" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap" android:background="@color/surface" android:padding="@dimen/design_card_padding">
                                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
                                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
                                         <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Selected Category:" />
                                         <TextView android:id="@+id/tvCutoffSelectedCategory" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:minHeight="@dimen/design_touch_min" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:text="General" app:drawableEndCompat="@drawable/ic_chevron_down" app:drawableTint="@color/text_primary" android:drawablePadding="@dimen/design_row_gap" />
                                         <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
-                                        <com.eve.app.designsystem.UiArcBadgeView android:id="@+id/tvCutoffVerdict" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Checking..." />
+                                        <com.eve.app.ui.common.TelegramBadgeView android:id="@+id/tvCutoffVerdict" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Checking..." />
                                     </LinearLayout>
                                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
                                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
@@ -100,13 +100,13 @@
                                     </LinearLayout>
                                     <TextView android:id="@+id/tvCutoffRelationship" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:text="Qualification verdict message." />
                                 </LinearLayout>
-                            </com.eve.app.designsystem.DesignCardView>
+                            </FrameLayout>
                         </LinearLayout>
                         <LinearLayout android:id="@+id/headerOverviewAnalytics" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:layout_marginBottom="@dimen/design_card_gap" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
                             <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Analytics &amp; Insights" />
                             <TextView style="@style/TextAppearance.Eve.Token.Link" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="View Details ›" />
                         </LinearLayout>
-                        <com.eve.app.designsystem.DesignCardView style="@style/Widget.Eve.Token.Card" android:id="@+id/cardOverviewAnalytics" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap" android:clickable="true" android:focusable="true">
+                        <FrameLayout style="@style/Widget.Eve.Token.Card" android:id="@+id/cardOverviewAnalytics" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap" android:clickable="true" android:focusable="true" android:background="@color/surface" android:padding="@dimen/design_card_padding">
                             <com.eve.app.ui.result.ResponsiveResultRow android:layout_width="match_parent" android:layout_height="wrap_content" android:baselineAligned="false" android:gravity="center_vertical" android:orientation="horizontal" app:eveHorizontalBreakpoint="366dp" android:clipChildren="false" android:clipToPadding="false">
                                 <com.eve.app.designsystem.DesignAccuracyRing android:id="@+id/gaugeTopicAccuracy" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_marginEnd="@dimen/design_pill_padding" />
                                 <com.eve.app.ui.result.ResponsiveResultRow android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:baselineAligned="false" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false">
@@ -124,7 +124,7 @@
                                     </LinearLayout>
                                 </com.eve.app.ui.result.ResponsiveResultRow>
                             </com.eve.app.ui.result.ResponsiveResultRow>
-                        </com.eve.app.designsystem.DesignCardView>
+                        </FrameLayout>
                     </LinearLayout>
                 </androidx.core.widget.NestedScrollView>
                 <LinearLayout android:id="@+id/sectionReview" android:layout_width="match_parent" android:layout_height="match_parent" android:clipChildren="false" android:clipToPadding="false" android:orientation="vertical" android:visibility="gone" style="@style/Widget.Eve.Token.Column">
@@ -159,7 +159,7 @@
                 </LinearLayout>
                 <androidx.core.widget.NestedScrollView android:id="@+id/scrollLeaderboard" android:layout_width="match_parent" android:layout_height="match_parent" android:clipChildren="false" android:clipToPadding="false" android:fillViewport="true" android:visibility="gone" android:overScrollMode="ifContentScrolls" style="@style/Widget.Eve.Token.Scroll">
                     <LinearLayout android:id="@+id/sectionLeaderboard" android:layout_width="match_parent" android:layout_height="wrap_content" android:clipChildren="false" android:clipToPadding="false" android:orientation="vertical" style="@style/Widget.Eve.Token.Column">
-                        <com.eve.app.designsystem.DesignCardView style="@style/Widget.Eve.Token.Card" android:id="@+id/cardLeaderboardHero" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap">
+                        <FrameLayout style="@style/Widget.Eve.Token.Card" android:id="@+id/cardLeaderboardHero" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/design_card_gap" android:background="@color/surface" android:padding="@dimen/design_card_padding">
                             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_horizontal" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
                                 <FrameLayout android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
                                     <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:layout_gravity="center" android:contentDescription="Leaderboard Trophy" android:src="@drawable/filled_earn_stars" app:tint="@color/system_orange" />
@@ -172,7 +172,7 @@
                                 </com.eve.app.ui.result.ResponsiveResultRow>
                                 <com.google.android.material.button.MaterialButton android:id="@+id/btnOpenLeaderboard" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_shadow_room" android:text="View Full Leaderboard" app:icon="@drawable/filled_earn_stars" app:iconGravity="textStart" app:iconPadding="@dimen/design_card_gap" />
                             </LinearLayout>
-                        </com.eve.app.designsystem.DesignCardView>
+                        </FrameLayout>
                     </LinearLayout>
                 </androidx.core.widget.NestedScrollView>
             </FrameLayout>

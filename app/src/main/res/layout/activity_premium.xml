@@ -121,7 +121,7 @@
                                 android:layout_gravity="center" />
                         </FrameLayout>
 
-                        <com.eve.app.designsystem.UiArcTextRevealView
+                        <TextView
                             android:id="@+id/tvPlanTitle"
                             style="@style/TextAppearance.Eve.Token.Heading"
                             android:layout_width="wrap_content"
@@ -253,7 +253,7 @@
                                 android:layout_gravity="center" />
                         </FrameLayout>
 
-                        <com.eve.app.designsystem.UiArcTextRevealView
+                        <TextView
                             android:id="@+id/tvActiveTitle"
                             style="@style/TextAppearance.Eve.Token.Heading"
                             android:layout_width="wrap_content"

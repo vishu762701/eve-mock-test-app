@@ -136,7 +136,7 @@ class FloatingLinkValidationTest {
         assertTrue(
             "cardFloatingAirplane must be a child of homeContentHost for full screen drag coverage",
             xml.contains("<FrameLayout android:id=\"@+id/homeContentHost\"") &&
-                xml.indexOf("<com.eve.app.designsystem.DesignCardView android:id=\"@+id/cardFloatingAirplane\"") >
+                xml.indexOf("android:id=\"@+id/cardFloatingAirplane\"") >
                 xml.indexOf("</LinearLayout>\n    </LinearLayout>")
         )
     }
