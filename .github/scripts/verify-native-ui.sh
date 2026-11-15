@@ -152,6 +152,8 @@ adb shell wm dismiss-keyguard
 # retain focus instead of the ActivityScenario app and cascade focus failures.
 # Do not force-stop SystemUI, Quickstep or the test app.
 adb shell input keyevent KEYCODE_BACK
+adb shell input keyevent KEYCODE_HOME
+adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS || true
 # Install precompiled, checksum-verified binaries; do not run Gradle per emulator.
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
