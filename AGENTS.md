@@ -3,7 +3,7 @@ Always read and follow ENGINEERING_STANDARD.md first. Then read SOURCE_OF_TRUTH.
 # EVE agent entrypoint
 The owner's latest explicit message defines scope and is the supreme repository authority. Do exactly that, completely, in the running app. No substitution, no simplification, no "inspired by".
 
-## The 5 Permanent Core Laws
+## The 6 Permanent Core Laws
 1. **LAW 1 — MASTERPIECE GENIUS HUMAN CRAFTSMANSHIP (100% EFFORT & HIGHEST THINKING ALWAYS)**:
    Every AI model or agent working on EVE must operate at 100% maximum cognitive depth, architectural foresight, and attention to detail. Think through every micro-interaction, frame timing, touch state, pixel alignment, memory lifecycle, dark/light transition, and edge case to 100% perfection. Never ship lazy approximations, placeholders, or "good enough" wrappers.
 2. **LAW 2 — ZERO-OMISSION 1:1 TELEGRAM SOURCE PORTING (EXACT SETTINGS, PHYSICS, MATRIX, SHADERS & SUBSYSTEMS)**:
@@ -13,13 +13,12 @@ The owner's latest explicit message defines scope and is the supreme repository 
 4. **LAW 4 — 100% UNRESTRICTED OWNER FREEDOM TO ADD / DELETE / CHANGE ANYTHING (ZERO TEST LOCKS)**:
    The Owner has absolute, unrestricted authority to add, delete, or change any file, screen, activity, layout, Telegram component, color, dimension, or feature at any time (`No UI/UX choice is permanently locked` against the Owner). NO test or script is permitted to block an Owner change; all conflicting tests or fixture counts must be updated forward in the same commit.
 5. **LAW 5 — MANDATORY CI BUILD RECOVERY LOOP (FAILED BUILD = TASK NOT COMPLETE)**:
-   - A task is NEVER complete if any local or GitHub Actions CI build fails.
-   - Whenever any build fails (FAST or FULL), never treat the task as finished and never leave a red build on `main`.
-   - Immediately inspect the failure log, trace the root cause, fix the code or outdated test forward, commit, and push the fix to `main`.
-   - Poll and verify the new GitHub Actions build on `main` until it finishes with a confirmed GREEN (`success`) status. Only after the pushed `main` commit passes green is the task considered complete.
+   Never consider a task complete if a build fails. Whenever any build fails, immediately diagnose the root cause, fix it forward, push the fix to `main`, and verify that the new build on `main` succeeds (GREEN) before declaring the task done.
+6. **LAW 6 — ZERO-STOP FULL-SCOPE CONTINUOUS EXECUTION (NEVER STOP AT PARTIAL COMPLETION OR PHASE 1)**:
+   Never stop after a single batch when the Owner's request spans multiple phases, screens, layouts, or the whole app. Execute sequential, coherent `main` batches continuously (Batch 1 -> CI green -> Batch 2 -> CI green -> Batch 3 -> CI green -> ...) in the same uninterrupted session until 100% of every requested screen, XML layout, adapter, icon, physics animation, and component across the entire repository is completed. Never trust historical `"DONE"` labels in `docs/TELEGRAM_PORT_LEDGER.md` without verifying live `app/src/main/` code and layouts directly.
 
 ## Execution Rules
-- One request = one finished batch: implement, self-review, build (exact-SHA FAST), report. Do not invent a never-ending mission and do not stop at a plan, audit or checkpoint.
+- Execute every phase of the owner's request to 100% completion across as many sequential finished batches as required (implement -> self-review -> push to `main` -> verify exact-SHA FAST green -> immediately start the next batch until 100% of the requested scope is finished). Never stop at a plan, audit, checkpoint, or partial Phase 1 batch.
 - Full build-failure elimination: maintain zero build failures across FAST and FULL CI pipelines. If a build fails, fix and re-push to `main` until it succeeds.
 - Old prompts, reports, checkpoints and most of `docs/` are history and evidence, not instructions. Open a doc only when your task needs it.
 - Do not introduce independent rules. This file adds no policy beyond ENGINEERING_STANDARD.md.

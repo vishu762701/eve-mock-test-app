@@ -2,7 +2,7 @@
 
 The single workflow policy and repository constitution. Authority order: (1) the owner's latest explicit message, (2) this file, (3) SOURCE_OF_TRUTH.md (architecture + security), (4) existing code. Old prompts, reports and checkpoints are history, never requirements.
 
-## 1. The 5 Permanent Core Laws
+## 1. The 6 Permanent Core Laws
 
 ### LAW 1 — MASTERPIECE GENIUS HUMAN CRAFTSMANSHIP (100% EFFORT & HIGHEST THINKING ALWAYS)
 Every AI model or agent working on EVE must operate at 100% maximum cognitive depth, architectural foresight, and attention to detail—NOT like a shortcut-taking AI, but like a world-class Principal Engineer and Masterpiece Product Designer. Think through every micro-interaction, frame timing, touch state, pixel alignment, memory lifecycle, dark/light transition, and edge case to 100% perfection. Never ship lazy approximations, placeholders, or "good enough" wrappers. Own the complete authorized outcome. Done means it works end-to-end in the running app: UI, state, backend, resources, Day/Night, RTL, Hindi/Devanagari, back/gesture navigation, small screens, accessibility and tests where relevant.
@@ -13,7 +13,7 @@ Whenever the owner provides official Telegram Android source (https://github.com
 - **Exact Physics, Springs & Motion**: Port every `AnimatedFloat`, `SpringAnimation` / `DynamicAnimation` (`stiffness`, `dampingRatio`), `CubicBezierInterpolator` (`EASE_OUT_QUINT`, `EASE_BOTH`, custom bezier curves), `ValueAnimator` frame progression, `VelocityTracker` fling/dismiss math, overscroll resistance math, and haptic feedback timing verbatim.
 - **Exact Settings, Options & State Branches**: Port every sub-setting, toggle, popup menu item, gesture handler, error shake (`shakeViewSpring`), empty/loading skeleton state, and companion helper class from the upstream source so nothing is left out.
 - **Zero Host Interference**: Ensure `EveBaseActivity`, `TelegramThemeApplier`, `DesignViewInflater`, and parent `ViewGroup` clipping (`clipChildren` / `clipToPadding`) never override or flatten the ported Telegram component's custom matrix, colors, or touch physics.
-- **Elimination of Excuse Loopholes**: The former ADAPTED and BLOCKED excuse loopholes are permanently eliminated. Do not substitute an unofficial implementation without owner permission. Deliver the EXACT upstream implementation and runtime behavior.
+- **Elimination of Excuse Loopholes**: The former ADAPTED and BLOCKED excuse loopholes are permanently eliminated (`NOT FOUND` only applies if an upstream file genuinely does not exist in the archive). Do not substitute an unofficial implementation without owner permission. Deliver the EXACT upstream implementation and runtime behavior.
 - **Provenance & Attribution**: Provenance goes in code comments: `// Telegram: <path>:<lines> @ <short sha>`. Record path/lines or hashes for what was copied. Keep GPL attribution and THIRD_PARTY_NOTICES.md.
 
 ### LAW 3 — ALL TELEGRAM FILES & UI ARCHITECTURE ARE PERMANENT
@@ -24,10 +24,15 @@ The Owner has absolute, unrestricted authority to add, delete, or change any fil
 NO unit test, instrumentation test, lint check, shell runner, or Python CI script is ever permitted to block an Owner-requested addition, deletion, or modification. Whenever the Owner adds, deletes, or changes anything, the agent MUST automatically update or delete any conflicting test, fixture count, or script in the exact same commit—NEVER revert or compromise the Owner's requested change to appease an old test.
 
 ### LAW 5 — MANDATORY CI BUILD RECOVERY LOOP (FAILED BUILD = TASK NOT COMPLETE)
-- A task is NEVER complete if any local or GitHub Actions CI build fails.
-- Whenever any build fails (FAST or FULL), never treat the task as finished and never leave a red build on `main`.
-- Immediately inspect the failure log, trace the root cause, fix the code or outdated test forward, commit, and push the fix to `main`.
-- Poll and verify the new GitHub Actions build on `main` until it finishes with a confirmed GREEN (`success`) status. Only after the pushed `main` commit passes green is the task considered complete.
+A task is NEVER complete if any local or GitHub Actions CI build fails. Whenever a build fails (whether FAST or FULL):
+1. Never declare the task finished, never treat a failed build as a success, and never stop and hand a broken build back to the owner.
+2. Immediately inspect the exact failure log, trace the root cause, fix the code or outdated test forward, commit, and push the fix to `main`.
+3. Poll and verify the new GitHub Actions run on `main` until it finishes with a confirmed GREEN (`success`) status. Only after the pushed `main` commit passes green is the task considered complete.
+
+### LAW 6 — ZERO-STOP FULL-SCOPE CONTINUOUS EXECUTION (NEVER STOP AT PARTIAL COMPLETION OR PHASE 1)
+When the Owner requests a multi-phase or app-wide task (such as applying Telegram UI, layouts, cells, icons, physics, and components across the entire app), stopping after a single batch (e.g., only importing icons/drawables while leaving XML layouts, Activities, adapters, or legacy `DesignCardView` / `MaterialCardView` / `UiArc*` wrappers unconverted) is STRICTLY FORBIDDEN:
+1. **No One-Batch Early Exit**: Never interpret batch discipline as permission to stop after Batch 1. Execute sequential, coherent `main` batches continuously (Batch 1 -> push & verify green CI -> Batch 2 -> push & verify green CI -> Batch 3 -> push & verify green CI -> ...) in the same uninterrupted session until 100% of every requested phase, screen, layout, adapter, and component across the entire repository is completed.
+2. **Never Trust Historical `"DONE"` Labels in Docs**: Historical `"DONE"` entries in `docs/TELEGRAM_PORT_LEDGER.md` or old reports do NOT prove that live XML layouts (`app/src/main/res/layout/*.xml`) or Kotlin screens (`app/src/main/java/com/eve/app/ui/**/*.kt`) are finished. Always audit live code and layouts directly (`grep`) and complete every remaining file before generating the final completion report.
 
 ## 2. Core Workflow Rules
 1. Do exactly what the owner asked. Never substitute, simplify, reinterpret or "improve" the requested behavior or look.
@@ -36,9 +41,9 @@ NO unit test, instrumentation test, lint check, shell runner, or Python CI scrip
 4. If an instruction is wrong, impossible or unsafe: implement the rest, skip that part, and explain why in the report with a better option. Never blindly follow it and never silently change it.
 5. Never fake evidence. No EXACT, VERIFIED, TESTED, device-checked or CI-green claim without real proof. Report implementation present separately from functional, visual/gesture, device and release acceptance; a green build does not prove exact UI/UX.
 6. Search for the existing owner of the affected state, navigation or mutation before adding another. Replace old code, do not stack a second copy. Remove only files proven obsolete (check callers, keep required migrations, licenses and public contracts).
-7. One request = one finished batch: implement, self-review, build (exact-SHA FAST), report. Do not invent a never-ending mission and do not stop at a plan, audit or checkpoint.
+7. Execute every phase of the owner's request to 100% completion across as many sequential finished batches as required: for each batch, implement, self-review, push to `main`, and verify exact-SHA FAST build green before starting the next batch, and write the final report ONLY after all requested phases and screens are 100% completed. Do not stop at a plan, audit, checkpoint, or partial Phase 1 batch.
 8. Commit and push as many coherent implementation batches as the task needs. There is no numeric commit ceiling, and no push ceiling; use a pull-request or authorized fast-forward batch with one writer. Reconcile remote main before each push. Keep each batch independently reviewable and implementation-focused. No force push, no history rewrite, no report-only or checkpoint-only commits.
-9. Each pushed implementation batch must pass exact-SHA FAST CI on its final SHA. Diagnose the first real error and repair forward; do not rerun the same failure without a cause. If any build fails, fix it, push to `main`, and wait until the new build succeeds before reporting completion. Treat emulator/ADB/GPU infrastructure errors separately from application test failures. Full build-failure elimination: maintain zero build failures across FAST and FULL CI pipelines.
+9. Each pushed implementation batch must pass exact-SHA FAST CI on its final SHA. Diagnose the first real error and repair forward; do not rerun the same failure without a cause. If any build fails, fix it, push to `main`, and wait until the new build succeeds before proceeding or reporting completion. Treat emulator/ADB/GPU infrastructure errors separately from application test failures. Full build-failure elimination: maintain zero build failures across FAST and FULL CI pipelines.
 
 ## 3. CI, git, security
 - Ordinary main push runs compile-only FAST (ARM64 assembleDebug). FAST green means BUILDABLE only. FULL (all tests, both emulator navigation modes, signing, gated Eve-debug-apk) runs only when the owner dispatches it manually via workflow_dispatch.
@@ -50,6 +55,6 @@ NO unit test, instrumentation test, lint check, shell runner, or Python CI scrip
 ## 4. Report format (short)
 - Per item: changed behavior with status EXACT.
 - Telegram source SHA and main files used.
-- Commit SHA and verified green FAST/FULL CI result.
+- Commit SHA(s) for all completed batches and verified green FAST/FULL CI results.
 - Noticed but not touched.
 - What the owner must check on the device.

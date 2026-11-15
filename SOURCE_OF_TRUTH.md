@@ -9,17 +9,14 @@
 - If this file and the actual code disagree, trust the code, and report the mismatch under "Noticed but not touched (outside scope)" in the Final Report.
 - Never claim current state from memory or older chats. Inspect real files and current remote HEAD/CI; use `git status` and `git log -1` only when a local checkout is accessible.
 
-## Product authority & The 5 Permanent Core Laws
-EVE is governed by 5 Permanent Core Laws:
+## Product authority & The 6 Permanent Core Laws
+EVE is governed by 6 Permanent Core Laws:
 1. **Law 1 (Masterpiece Genius Human Craftsmanship)**: 100% effort, deepest architectural thinking, and pixel-perfect attention to detail across every touch state, frame timing, and edge case.
 2. **Law 2 (Zero-Omission 1:1 Telegram Source Porting)**: Exact 1:1 porting of complete transitive subsystems from official Telegram Android (Matrix/Canvas draw passes, physics/springs/overshoot, CubicBezierInterpolator, shaders, settings screens, and dialogs). No shallow constant-picking, and no ADAPTED or BLOCKED excuse loopholes.
 3. **Law 3 (All Telegram Files & UI Architecture Are Permanent)**: All ported Telegram components (`TelegramActionBar`, `TelegramBottomSheet`, `TelegramNativeAlertDialog`, `TextCell`, `HeaderCell`, `ShadowSectionCell`, `DividerCell`, `TextCheckCell`, `TelegramSwitch`, `TelegramRadioButton`, `TelegramCheckBox2`, `TelegramTabsView`, `ButtonBounce`, `TelegramThemeEngine`, QR and gooey renderers) are a permanent part of the repository.
 4. **Law 4 (100% Unrestricted Owner Freedom to Add / Delete / Change Anything - Zero Test Locks)**: The Owner has absolute, unrestricted authority to add, delete, or change any file, screen, component, or layout at any time (`No UI/UX choice is permanently locked` against the Owner). NO test or script is permitted to block an Owner change; all conflicting tests or fixture counts must be updated forward in the same commit. For authorized tasks follow `docs/telegram-integration-process.md`, including continuous Analysis, Mapping, Implementation and Verification. Telegram archive hashes and GPL evidence are in `THIRD_PARTY_NOTICES.md`. Useless rules, obsolete process friction, and artificial UI locks are permanently eliminated.
-5. **LAW 5 — MANDATORY CI BUILD RECOVERY LOOP (FAILED BUILD = TASK NOT COMPLETE)**:
-   - A task is NEVER complete if any local or GitHub Actions CI build fails.
-   - Whenever any build fails (FAST or FULL), never treat the task as finished and never leave a red build on `main`.
-   - Immediately inspect the failure log, trace the root cause, fix the code or outdated test forward, commit, and push the fix to `main`.
-   - Poll and verify the new GitHub Actions build on `main` until it finishes with a confirmed GREEN (`success`) status. Only after the pushed `main` commit passes green is the task considered complete.
+5. **Law 5 (Mandatory CI Build Recovery Loop - Failed Build Is Never Complete)**: Whenever any build fails, the agent must never treat the task as finished; it must diagnose the root cause, fix it forward, push to `main`, and verify that the new build on `main` passes green before declaring success.
+6. **Law 6 (Zero-Stop Full-Scope Continuous Execution - Never Stop at Partial Completion)**: When the Owner requests an app-wide or multi-phase change, the agent must never stop after a single partial batch (such as only importing icons while leaving XML layouts, Activities, or legacy `DesignCardView` / `MaterialCardView` / `UiArc*` wrappers unconverted). It must execute sequential `main` batches continuously (verifying green CI after each batch) until 100% of every requested screen, layout, adapter, and component across the repository is completed, verifying live `app/src/main/` files directly rather than relying on historical `"DONE"` labels in `docs/TELEGRAM_PORT_LEDGER.md`.
 
 ## 1. Repository identity
 - Remote origin: `git@github.com:vishu762701/eve-mock-test-app.git`
@@ -38,7 +35,7 @@ EVE is governed by 5 Permanent Core Laws:
 ## 2. Architecture and module boundaries
 
 ### A. Native Android client (`app/`)
-- Technology: Kotlin, AndroidX, Material 3, ViewBinding, MVVM.
+- Technology: Kotlin, AndroidX, Telegram Source-Derived UI Architecture (`TelegramActionBar`, `TelegramBottomSheet`, `TextCell`, `HeaderCell`, `ShadowSectionCell`, `DialogCell`, `TelegramThemeEngine`), ViewBinding, MVVM.
 - Test engine: `TestActivity.kt`, `CircularTimerView.kt`, `QuestionAdapter.kt` (scrollable question/options content, 2x2 action button grid, question palette, server-evaluated submissions).
 - Result and analytics: `ResultActivity.kt`, `ResultDetailActivity.kt` (single-screen summary cards, Statistics, Performance, Analytics, Review tab with isolated scroll, Leaderboard).
 - Home and discovery: `MainActivity.kt`, `HomeAppearance.kt` (themed Home canvas, exam discovery/search, category filtering, rotating content banner and drawer navigation; obsolete streak pill and bottom tabs were removed).
@@ -69,7 +66,7 @@ EVE is governed by 5 Permanent Core Laws:
 2. Preserve unrelated screens and effects by default, but the owner can explicitly change/remove the current Telegram theme reveal, Lottie motion, navigation layout and any other UI/UX feature.
 3. Validate Day/Night, contrast, readable font scaling, Hindi fallback, touch targets and supported Android API behavior for the chosen new design.
 4. `design_colors.xml` and other existing tokens describe the current theme only. Old hardcoded colors, dimensions and "locked" tests must be updated together when design changes.
-5. Automatically remove only files proven obsolete because of the current requested change; repository-wide cleanup requires a separate explicit owner request. Follow evidence rules in `ENGINEERING_STANDARD.md`.
+5. Automatically remove or replace files and legacy wrappers (`DesignCardView`, `MaterialCardView`, `UiArc*`, `Design*`) whenever superseded by the current requested change. Follow evidence rules in `ENGINEERING_STANDARD.md`.
 
 ## 4. Verification (run for the layer you changed; both if the change spans both)
 - `Build Eve APK` runs compile-only FAST on normal main pushes (`:app:assembleDebug`), without automatic JVM, backend, Firebase, Rust, lint or emulator verification. A task may contain any number of sequential, coherent implementation pushes; there is no one-push-per-task rule or numeric commit/push ceiling. Every pushed batch needs exact-SHA FAST. Only owner-requested manual `workflow_dispatch` enables FULL validation, both emulator navigation modes, signing checks and gated `Eve-debug-apk` publication. A successful client build never proves live Worker/D1 migration or production contract parity.
