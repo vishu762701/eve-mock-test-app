@@ -215,9 +215,12 @@ class ResultAndTestPolishVerificationTest {
         assertTrue("sectionLeaderboard must exist", content.contains("android:id=\"@+id/sectionLeaderboard\""))
 
         // Approved tab order: Overview -> Review -> Leaderboard
-        val reviewIdx = content.indexOf("android:text=\"Review\"")
-        val overviewIdx = content.indexOf("android:text=\"Overview\"")
-        val leaderboardIdx = content.indexOf("android:text=\"Leaderboard\"")
+        val resultTabsFile = File("src/main/java/com/eve/app/ui/result/ResultTabs.kt").takeIf { it.exists() }
+            ?: File("app/src/main/java/com/eve/app/ui/result/ResultTabs.kt")
+        val resultTabsContent = resultTabsFile.readText()
+        val overviewIdx = resultTabsContent.indexOf("\"Overview\"")
+        val reviewIdx = resultTabsContent.indexOf("\"Review\"")
+        val leaderboardIdx = resultTabsContent.indexOf("\"Leaderboard\"")
         assertTrue("Overview tab must appear before Review", overviewIdx in 0 until reviewIdx)
         assertTrue("Review tab must appear before Leaderboard", reviewIdx in 0 until leaderboardIdx)
 

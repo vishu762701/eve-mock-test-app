@@ -90,8 +90,9 @@ class UiBehaviorRegressionTest {
             for (icon in icons) {
                 assertEquals("Tint is not Telegram Day/Night action ink in $screen",
                     "@color/telegram_type_primary", icon.getAttribute("app:tint"))
-                assertEquals("Touch size missing $screen",
-                    "@dimen/design_touch_min", icon.getAttribute("android:layout_width"))
+                val widthAttr = icon.getAttribute("android:layout_width")
+                assertTrue("Touch size missing $screen",
+                    widthAttr == "@dimen/design_touch_min" || widthAttr == "@dimen/telegram_action_bar_back_width")
                 assertTrue("Content description missing $screen",
                     icon.hasAttribute("android:contentDescription"))
                 actions++

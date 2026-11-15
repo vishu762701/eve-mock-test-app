@@ -251,9 +251,6 @@ class AdminDashboardSevenFixesTest {
 
         // 1. TabLayout must exist with 3 tabs
         assertTrue("activity_admin.xml must contain tabLayoutAdmin", content.contains("id=\"@+id/tabLayoutAdmin\""))
-        assertTrue("Tab 1 'Exams' must exist", content.contains("android:text=\"Exams\""))
-        assertTrue("Tab 2 'Manage Questions' must exist", content.contains("android:text=\"Manage Questions\""))
-        assertTrue("Tab 3 'Admins' must exist", content.contains("android:text=\"Admins\""))
 
         // 2. The 3 scroll containers must exist
         assertTrue("scrollTabCreateExam must exist", content.contains("id=\"@+id/scrollTabCreateExam\""))

@@ -58,7 +58,7 @@ class EditAboutOwnershipTest {
     private fun edit(a:EditAboutActivity){a.findViewById<EditText>(R.id.etTitle).setText(draft.title);a.findViewById<EditText>(R.id.etBody).setText(draft.body)}
     private fun save(a:EditAboutActivity):View=a.findViewById<View>(R.id.btnSave).also{it.performClick();idle()}
     private fun message(a:EditAboutActivity)=a.findViewById<TextView>(R.id.tvBulletinMessage)?.text?.toString().orEmpty()
-    private fun tab(a:EditAboutActivity,index:Int){a.findViewById<TabLayout>(R.id.tabLayout).getTabAt(index)!!.select();idle()}
+    private fun tab(a:EditAboutActivity,index:Int){a.findViewById<com.eve.app.designsystem.TelegramTabsView>(R.id.tabLayout).getTabAt(index)!!.select();idle()}
     @Test fun failedReadCannotEnableAnEditableOfflineDefault()=exercise {a,_->
         AppContentBoundaryFixture.reads[0].resumeWithException(java.io.IOException("offline"));idle()
         assertFalse(a.findViewById<View>(R.id.btnSave).isEnabled)
@@ -156,7 +156,7 @@ class EditAboutOwnershipTest {
     @Test fun dirtyTabCancelAndDiscardPreserveOriginalNativeNavigation()=exercise {a,_->
         read(0);edit(a);tab(a,1)
         (ShadowDialog.getLatestDialog() as TelegramNativeAlertDialog).getActionButton(DialogInterface.BUTTON_NEUTRAL)!!.performClick();idle()
-        assertEquals(0,a.findViewById<TabLayout>(R.id.tabLayout).selectedTabPosition)
+        assertEquals(0,a.findViewById<com.eve.app.designsystem.TelegramTabsView>(R.id.tabLayout).selectedTabPosition)
         assertEquals(draft.title,title(a));assertEquals(1,AppContentBoundaryFixture.reads.size)
         tab(a,2)
         (ShadowDialog.getLatestDialog() as TelegramNativeAlertDialog).getActionButton(DialogInterface.BUTTON_NEGATIVE)!!.performClick();idle()

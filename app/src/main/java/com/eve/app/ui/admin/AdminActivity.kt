@@ -677,14 +677,14 @@ class AdminActivity : EveBaseActivity() {
     // Retained question/exam helpers for contract verification
     private fun showAddQuestionDialog(selectedExam: Exam) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_question, null)
-        val etQuestion = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etQuestionText)
-        val etOptA = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etOptionA)
-        val etOptB = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etOptionB)
-        val etOptC = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etOptionC)
-        val etOptD = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etOptionD)
+        val etQuestion = dialogView.findViewById<android.widget.EditText>(R.id.etQuestionText)
+        val etOptA = dialogView.findViewById<android.widget.EditText>(R.id.etOptionA)
+        val etOptB = dialogView.findViewById<android.widget.EditText>(R.id.etOptionB)
+        val etOptC = dialogView.findViewById<android.widget.EditText>(R.id.etOptionC)
+        val etOptD = dialogView.findViewById<android.widget.EditText>(R.id.etOptionD)
         val rgCorrect = dialogView.findViewById<android.widget.RadioGroup>(R.id.rgCorrectAnswer)
-        val etExplanation = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etExplanation)
-        val etTopic = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etTopic)
+        val etExplanation = dialogView.findViewById<android.widget.EditText>(R.id.etExplanation)
+        val etTopic = dialogView.findViewById<android.widget.EditText>(R.id.etTopic)
 
         TelegramNativeAlertDialog.Builder(this)
             .setTitle("Add Question to ${selectedExam.examName}")
