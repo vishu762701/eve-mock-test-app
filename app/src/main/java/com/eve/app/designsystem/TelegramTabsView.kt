@@ -13,6 +13,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.graphics.Typeface
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 import android.util.AttributeSet
@@ -23,8 +24,10 @@ import android.view.ViewGroup
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.core.view.setPadding
 import androidx.viewpager2.widget.ViewPager2
+import com.eve.app.R
 import com.eve.app.theme.TelegramThemeEngine
 import org.telegram.ui.Components.CubicBezierInterpolator
 
@@ -32,7 +35,7 @@ import org.telegram.ui.Components.CubicBezierInterpolator
  * Reusable Telegram tab strip matching FilterTabsView.java and PagerSlidingTabStrip.java.
  *
  * - Height: 44dp / 48dp
- * - Indicator: bottom rounded line (height 3dp, corner radius 1.5dp) animating with EASE_OUT_QUINT
+ * - Indicator: bottom rounded line (height 3dp, corner radius 1.5dp) or stretch segmented pill animating with EASE_OUT_QUINT
  * - Scroll-to-center on select
  * - Badge counters support
  * - Day / night authentic Telegram colors
@@ -70,10 +73,30 @@ class TelegramTabsView @JvmOverloads constructor(
     val selectedTabPosition: Int
         get() = currentPosition
 
-    var tabMode: Int = 0
-    var tabGravity: Int = 0
+    val tabCount: Int
+        get() = tabsContainer.childCount
+
+    var tabMode: Int = com.google.android.material.tabs.TabLayout.MODE_FIXED
+        set(value) {
+            field = value
+            updateTabsLayout()
+        }
+
+    var tabGravity: Int = com.google.android.material.tabs.TabLayout.GRAVITY_FILL
+        set(value) {
+            field = value
+            updateTabsLayout()
+        }
+
+    var tabIndicatorGravity: Int = com.google.android.material.tabs.TabLayout.INDICATOR_GRAVITY_STRETCH
+    var tabSelectedIndicator: Drawable? = null
+    var tabTextColors: ColorStateList? = null
 
     class Tab(val position: Int, val text: String, private val tabsView: TelegramTabsView) {
+        val customView: View?
+            get() = (tabsView.tabsContainer.getChildAt(position) as? ViewGroup)?.findViewById<TextView>(android.R.id.text1)
+                ?: tabsView.tabsContainer.getChildAt(position)
+
         fun select() {
             tabsView.selectTab(position, notify = true, animated = true)
         }
@@ -109,11 +132,63 @@ class TelegramTabsView @JvmOverloads constructor(
         setWillNotDraw(false)
 
         addView(tabsContainer)
+
+        val palette = TelegramThemeEngine.resolveCurrentPalette(context)
+        indicatorPaint.color = palette.accent
+        tabSelectedIndicator = GradientDrawable().apply {
+            cornerRadius = dp(34f).toFloat()
+            setColor(palette.accent)
+        }
+        tabTextColors = ColorStateList(
+            arrayOf(intArrayOf(android.R.attr.state_selected), intArrayOf()),
+            intArrayOf(
+                palette.onAccent,
+                ContextCompat.getColor(context, R.color.text_primary)
+            )
+        )
+
+        attrs?.let {
+            val a = context.obtainStyledAttributes(it, com.google.android.material.R.styleable.TabLayout, defStyleAttr, 0)
+            if (a.hasValue(com.google.android.material.R.styleable.TabLayout_tabMode)) {
+                tabMode = a.getInt(com.google.android.material.R.styleable.TabLayout_tabMode, com.google.android.material.tabs.TabLayout.MODE_FIXED)
+            }
+            if (a.hasValue(com.google.android.material.R.styleable.TabLayout_tabGravity)) {
+                tabGravity = a.getInt(com.google.android.material.R.styleable.TabLayout_tabGravity, com.google.android.material.tabs.TabLayout.GRAVITY_FILL)
+            }
+            if (a.hasValue(com.google.android.material.R.styleable.TabLayout_tabIndicatorGravity)) {
+                tabIndicatorGravity = a.getInt(com.google.android.material.R.styleable.TabLayout_tabIndicatorGravity, com.google.android.material.tabs.TabLayout.INDICATOR_GRAVITY_STRETCH)
+            }
+            a.recycle()
+        }
+    }
+
+    private fun updateTabsLayout() {
+        val isFixed = (tabMode == com.google.android.material.tabs.TabLayout.MODE_FIXED || tabGravity == com.google.android.material.tabs.TabLayout.GRAVITY_FILL)
+        for (i in 0 until tabsContainer.childCount) {
+            val child = tabsContainer.getChildAt(i)
+            val lp = (child.layoutParams as? LinearLayout.LayoutParams) ?: LinearLayout.LayoutParams(
+                if (isFixed) 0 else LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
+            )
+            lp.width = if (isFixed) 0 else LinearLayout.LayoutParams.WRAP_CONTENT
+            lp.weight = if (isFixed) 1f else 0f
+            child.layoutParams = lp
+        }
+        tabsContainer.layoutParams = LayoutParams(
+            if (isFixed) LayoutParams.MATCH_PARENT else LayoutParams.WRAP_CONTENT,
+            LayoutParams.MATCH_PARENT
+        )
     }
 
     fun addTab(title: String, count: Int = 0) {
         val position = tabsContainer.childCount
         val tabView = createTabView(title, count, position)
+        val isFixed = (tabMode == com.google.android.material.tabs.TabLayout.MODE_FIXED || tabGravity == com.google.android.material.tabs.TabLayout.GRAVITY_FILL)
+        tabView.layoutParams = LinearLayout.LayoutParams(
+            if (isFixed) 0 else LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            if (isFixed) 1f else 0f
+        )
         tabsContainer.addView(tabView)
         if (position == 0) {
             selectTab(0, notify = false, animated = false)
@@ -122,9 +197,15 @@ class TelegramTabsView @JvmOverloads constructor(
 
     fun setTabs(tabs: List<Pair<String, Int>>) {
         tabsContainer.removeAllViews()
+        val isFixed = (tabMode == com.google.android.material.tabs.TabLayout.MODE_FIXED || tabGravity == com.google.android.material.tabs.TabLayout.GRAVITY_FILL)
         for (i in tabs.indices) {
             val (title, count) = tabs[i]
             val tabView = createTabView(title, count, i)
+            tabView.layoutParams = LinearLayout.LayoutParams(
+                if (isFixed) 0 else LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                if (isFixed) 1f else 0f
+            )
             tabsContainer.addView(tabView)
         }
         if (tabs.isNotEmpty()) {
@@ -134,13 +215,16 @@ class TelegramTabsView @JvmOverloads constructor(
 
     private fun createTabView(title: String, count: Int, position: Int): View {
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
+        val isFixed = (tabMode == com.google.android.material.tabs.TabLayout.MODE_FIXED || tabGravity == com.google.android.material.tabs.TabLayout.GRAVITY_FILL)
         val tabLayout = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER
-            setPadding(dp(16f), 0, dp(16f), 0)
+            val hPad = if (isFixed) 0 else dp(16f)
+            setPadding(hPad, 0, hPad, 0)
             layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.MATCH_PARENT
+                if (isFixed) 0 else LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                if (isFixed) 1f else 0f
             )
 
             val mask = GradientDrawable().apply {
@@ -156,13 +240,14 @@ class TelegramTabsView @JvmOverloads constructor(
             }
         }
 
+        val isSelected = (position == currentPosition)
         val tvTitle = TextView(context).apply {
             id = android.R.id.text1
             text = title
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
             includeFontPadding = false
-            setTextColor(if (position == currentPosition) palette.accent else palette.textSecondary)
-            typeface = if (position == currentPosition) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
+            setTextColor(if (isSelected) palette.onAccent else ContextCompat.getColor(context, R.color.text_primary))
+            typeface = if (isSelected) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
         }
         tabLayout.addView(tvTitle)
 
@@ -177,15 +262,8 @@ class TelegramTabsView @JvmOverloads constructor(
                 setPadding(dp(6f), dp(2f), dp(6f), dp(2f))
                 background = GradientDrawable().apply {
                     cornerRadius = dp(9f).toFloat()
-                    setColor(if (position == currentPosition) palette.accent else palette.textSecondary)
+                    setColor(if (isSelected) palette.accent else palette.textSecondary)
                 }
-                val lp = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    marginStart = dp(6f)
-                }
-                layoutParams = lp
             }
             tabLayout.addView(tvCount)
         }
@@ -200,6 +278,7 @@ class TelegramTabsView @JvmOverloads constructor(
 
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
         indicatorPaint.color = palette.accent
+        (tabSelectedIndicator as? GradientDrawable)?.setColor(palette.accent)
 
         // Update tab views typography and colors
         for (i in 0 until tabsContainer.childCount) {
@@ -208,7 +287,7 @@ class TelegramTabsView @JvmOverloads constructor(
             val countView = container.findViewById<TextView>(android.R.id.text2)
             val isSelected = (i == position)
 
-            titleView?.setTextColor(if (isSelected) palette.accent else palette.textSecondary)
+            titleView?.setTextColor(if (isSelected) palette.onAccent else ContextCompat.getColor(context, R.color.text_primary))
             titleView?.typeface = if (isSelected) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
 
             if (countView != null) {
@@ -240,17 +319,23 @@ class TelegramTabsView @JvmOverloads constructor(
         val fromTab = tabsContainer.getChildAt(fromPos)
         val toTab = tabsContainer.getChildAt(toPos) ?: return
 
-        fromIndicatorLeft = fromTab?.let { (it.left + dp(12f)).toFloat() } ?: (toTab.left + dp(12f)).toFloat()
-        fromIndicatorRight = fromTab?.let { (it.right - dp(12f)).toFloat() } ?: (toTab.right - dp(12f)).toFloat()
-        toIndicatorLeft = (toTab.left + dp(12f)).toFloat()
-        toIndicatorRight = (toTab.right - dp(12f)).toFloat()
+        val isStretch = (tabIndicatorGravity == com.google.android.material.tabs.TabLayout.INDICATOR_GRAVITY_STRETCH)
+        val inset = if (isStretch) 0f else dp(12f).toFloat()
+
+        fromIndicatorLeft = (fromTab?.left?.toFloat() ?: toTab.left.toFloat()) + inset
+        fromIndicatorRight = (fromTab?.right?.toFloat() ?: toTab.right.toFloat()) - inset
+        toIndicatorLeft = toTab.left.toFloat() + inset
+        toIndicatorRight = toTab.right.toFloat() - inset
+
+        val top = if (isStretch) paddingTop.toFloat() else (height - dp(3f)).toFloat()
+        val bottom = if (isStretch) (height - paddingBottom).toFloat() else height.toFloat()
 
         if (!animated) {
             indicatorRect.set(
                 toIndicatorLeft,
-                (height - dp(3f)).toFloat(),
+                top,
                 toIndicatorRight,
-                height.toFloat()
+                bottom
             )
             invalidate()
             return
@@ -266,9 +351,9 @@ class TelegramTabsView @JvmOverloads constructor(
                 val right = fromIndicatorRight + (toIndicatorRight - fromIndicatorRight) * p
                 indicatorRect.set(
                     left,
-                    (height - dp(3f)).toFloat(),
+                    top,
                     right,
-                    height.toFloat()
+                    bottom
                 )
                 invalidate()
             }
@@ -279,7 +364,9 @@ class TelegramTabsView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         if (!indicatorRect.isEmpty) {
-            canvas.drawRoundRect(indicatorRect, dp(1.5f).toFloat(), dp(1.5f).toFloat(), indicatorPaint)
+            val isStretch = (tabIndicatorGravity == com.google.android.material.tabs.TabLayout.INDICATOR_GRAVITY_STRETCH)
+            val radius = if (isStretch) dp(34f).toFloat() else dp(1.5f).toFloat()
+            canvas.drawRoundRect(indicatorRect, radius, radius, indicatorPaint)
         }
     }
 
@@ -296,6 +383,14 @@ class TelegramTabsView @JvmOverloads constructor(
 
     fun updatePalette(palette: TelegramThemeEngine.ResolvedPalette) {
         indicatorPaint.color = palette.accent
+        (tabSelectedIndicator as? GradientDrawable)?.setColor(palette.accent)
+        tabTextColors = ColorStateList(
+            arrayOf(intArrayOf(android.R.attr.state_selected), intArrayOf()),
+            intArrayOf(
+                palette.onAccent,
+                ContextCompat.getColor(context, R.color.text_primary)
+            )
+        )
         for (i in 0 until tabsContainer.childCount) {
             val tabView = tabsContainer.getChildAt(i) as? LinearLayout ?: continue
             val mask = GradientDrawable().apply {
@@ -304,7 +399,7 @@ class TelegramTabsView @JvmOverloads constructor(
             }
             tabView.background = RippleDrawable(ColorStateList.valueOf(palette.actionSelector), null, mask)
             val tvTitle = tabView.findViewById<TextView>(android.R.id.text1)
-            tvTitle?.setTextColor(if (i == currentPosition) palette.accent else palette.textSecondary)
+            tvTitle?.setTextColor(if (i == currentPosition) palette.onAccent else ContextCompat.getColor(context, R.color.text_primary))
             val tvCount = tabView.findViewById<TextView>(android.R.id.text2)
             (tvCount?.background as? GradientDrawable)?.setColor(if (i == currentPosition) palette.accent else palette.textSecondary)
         }

@@ -10,7 +10,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.eve.app.R
 import com.eve.app.data.model.Exam
-import com.eve.app.designsystem.TelegramPaginationStrip
+import com.eve.app.ui.admin.TelegramPaginationStrip
 import com.eve.app.designsystem.TelegramUploadStepperView
 import com.eve.app.ui.admin.ExamWithStats
 import com.eve.app.ui.admin.ExistingExamsAdapter

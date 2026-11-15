@@ -7,6 +7,9 @@ import com.eve.app.databinding.ActivityResultBinding
 object ResultTabs {
     fun bind(binding: ActivityResultBinding, onReviewSelected: () -> Unit) {
         val track = binding.tabLayoutResult
+        val scrollable = track.resources.configuration.fontScale > 1.2f && track.resources.configuration.screenWidthDp < 600
+        track.tabMode = if (scrollable) com.google.android.material.tabs.TabLayout.MODE_SCROLLABLE else com.google.android.material.tabs.TabLayout.MODE_FIXED
+        track.tabGravity = if (scrollable) com.google.android.material.tabs.TabLayout.GRAVITY_START else com.google.android.material.tabs.TabLayout.GRAVITY_FILL
         track.layoutParams = track.layoutParams.apply {
             height = track.resources.getDimensionPixelSize(com.eve.app.R.dimen.design_tab_height)
         }
