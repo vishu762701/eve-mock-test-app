@@ -1,4 +1,6 @@
 /*
+ * Telegram: TMessagesProj/src/main/java/org/telegram/ui/Components/OutlineTextContainerView.java:30-220 @ 3de37c8cfb03
+ * Telegram: TMessagesProj/src/main/java/org/telegram/ui/Components/OutlineEditText.java:20-100 @ 3de37c8cfb03
  * Derived from Telegram Android OutlineTextContainerView.java @ 3de37c8cfb039452be7398909461da6288babf15
  * Copyright Nikolai Kudashov, 2013-2018. GNU GPL v2 or later. See THIRD_PARTY_NOTICES.md.
  */
@@ -18,7 +20,9 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.view.animation.CycleInterpolator
+import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -28,7 +32,6 @@ import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.util.FontManager
 import com.eve.app.util.VibrationHelper
 import org.telegram.ui.Components.CubicBezierInterpolator
-import kotlin.math.max
 
 /**
  * Typealias for Telegram canonical naming.
@@ -51,7 +54,8 @@ class TelegramOutlineEditText @JvmOverloads constructor(
     private fun dpInt(v: Float): Int = (v * density + 0.5f).toInt()
 
     private val palette = TelegramThemeEngine.resolveCurrentPalette(context)
-    val editText: TelegramEditText
+    var editText: EditText
+        private set
     private val tvError: TextView
     private val inputFrame: FrameLayout
 
@@ -69,6 +73,22 @@ class TelegramOutlineEditText @JvmOverloads constructor(
 
     private var selectionAnimator: ValueAnimator? = null
     private var titleAnimator: ValueAnimator? = null
+
+    var endIconMode: Int = 0
+
+    var isErrorEnabled: Boolean
+        get() = tvError.visibility == View.VISIBLE
+        set(value) {
+            if (!value) clearError()
+        }
+
+    var error: CharSequence?
+        get() = tvError.text
+        set(value) = setError(value?.toString())
+
+    var hint: CharSequence?
+        get() = hintText
+        set(value) = setHint(value?.toString().orEmpty())
 
     init {
         orientation = VERTICAL
@@ -90,7 +110,7 @@ class TelegramOutlineEditText @JvmOverloads constructor(
         inputFrame.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, dpInt(54f))
         inputFrame.setPadding(dpInt(14f), dpInt(6f), dpInt(14f), dpInt(6f))
 
-        editText = TelegramEditText(context).apply {
+        val defaultEt = TelegramEditText(context).apply {
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT,
@@ -99,8 +119,9 @@ class TelegramOutlineEditText @JvmOverloads constructor(
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
             setPadding(0, dpInt(6f), 0, 0)
         }
-        inputFrame.addView(editText)
-        addView(inputFrame)
+        editText = defaultEt
+        inputFrame.addView(defaultEt)
+        super.addView(inputFrame, -1, inputFrame.layoutParams)
 
         tvError = TextView(context).apply {
             layoutParams = LayoutParams(
@@ -116,19 +137,24 @@ class TelegramOutlineEditText @JvmOverloads constructor(
             setTextColor(0xFFE53935.toInt())
             visibility = View.GONE
         }
-        addView(tvError)
+        super.addView(tvError, -1, tvError.layoutParams)
 
-        editText.setOnFocusChangeListener { _, hasFocus ->
+        setupEditText(defaultEt)
+        updateColors()
+    }
+
+    private fun setupEditText(et: EditText) {
+        et.setOnFocusChangeListener { _, hasFocus ->
             animateFocus(hasFocus)
-            val hasText = editText.text?.isNotEmpty() == true
+            val hasText = et.text?.isNotEmpty() == true
             animateTitle(hasFocus || hasText)
         }
 
-        editText.addTextChangedListener(object : TextWatcher {
+        et.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val hasText = !s.isNullOrEmpty()
-                val isFocused = editText.hasFocus()
+                val isFocused = et.hasFocus()
                 animateTitle(hasText || isFocused)
                 if (hasText && tvError.visibility == View.VISIBLE) {
                     clearError()
@@ -136,8 +162,27 @@ class TelegramOutlineEditText @JvmOverloads constructor(
             }
             override fun afterTextChanged(s: Editable?) = Unit
         })
+    }
 
-        updateColors()
+    override fun addView(child: View?, index: Int, params: ViewGroup.LayoutParams?) {
+        if (child == null) return
+        if (child === inputFrame || child === tvError) {
+            super.addView(child, index, params)
+            return
+        }
+        if (child is EditText) {
+            inputFrame.removeAllViews()
+            editText = child
+            child.background = null
+            setupEditText(child)
+            inputFrame.addView(child, FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                Gravity.CENTER_VERTICAL
+            ))
+            return
+        }
+        super.addView(child, index, params)
     }
 
     var text: String

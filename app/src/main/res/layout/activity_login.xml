@@ -87,7 +87,7 @@
                     android:lineSpacingExtra="2dp"
                     android:text="Sign in to keep your mock tests and results in sync." />
 
-                <com.eve.app.designsystem.DesignInputLayout
+                <com.eve.app.designsystem.TelegramOutlineEditText
                     android:id="@+id/tilName"
                     style="@style/Widget.Eve.Token.TextInput"
                     android:layout_width="match_parent"
@@ -97,7 +97,7 @@
                     android:hint="Full name"
                     android:visibility="gone">
 
-                    <com.google.android.material.textfield.TextInputEditText
+                    <com.eve.app.designsystem.TelegramEditText
                         android:id="@+id/etName"
                         style="@style/Widget.Eve.Token.Input"
                         android:layout_width="match_parent"
@@ -105,9 +105,9 @@
                         android:inputType="textCapWords"
                         android:imeOptions="actionNext"
                         android:maxLines="1" />
-                </com.eve.app.designsystem.DesignInputLayout>
+                </com.eve.app.designsystem.TelegramOutlineEditText>
 
-                <com.eve.app.designsystem.DesignInputLayout
+                <com.eve.app.designsystem.TelegramOutlineEditText
                     android:id="@+id/tilEmail"
                     style="@style/Widget.Eve.Token.TextInput"
                     android:layout_width="match_parent"
@@ -116,7 +116,7 @@
                     android:layout_marginBottom="@dimen/design_screen_margin"
                     android:hint="Email">
 
-                    <com.google.android.material.textfield.TextInputEditText
+                    <com.eve.app.designsystem.TelegramEditText
                         android:id="@+id/etEmail"
                         style="@style/Widget.Eve.Token.Input"
                         android:layout_width="match_parent"
@@ -124,9 +124,9 @@
                         android:inputType="textEmailAddress"
                         android:imeOptions="actionNext"
                         android:maxLines="1" />
-                </com.eve.app.designsystem.DesignInputLayout>
+                </com.eve.app.designsystem.TelegramOutlineEditText>
 
-                <com.eve.app.designsystem.DesignInputLayout
+                <com.eve.app.designsystem.TelegramOutlineEditText
                     android:id="@+id/tilPassword"
                     style="@style/Widget.Eve.Token.TextInput"
                     android:layout_width="match_parent"
@@ -134,7 +134,7 @@
                     android:hint="Password"
                     app:endIconMode="password_toggle">
 
-                    <com.google.android.material.textfield.TextInputEditText
+                    <com.eve.app.designsystem.TelegramEditText
                         android:id="@+id/etPassword"
                         style="@style/Widget.Eve.Token.Input"
                         android:layout_width="match_parent"
@@ -142,7 +142,7 @@
                         android:imeOptions="actionDone"
                         android:inputType="textPassword"
                         android:maxLines="1" />
-                </com.eve.app.designsystem.DesignInputLayout>
+                </com.eve.app.designsystem.TelegramOutlineEditText>
 
                 <TextView
                     android:id="@+id/tvError"

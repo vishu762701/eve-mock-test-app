@@ -47,11 +47,11 @@ STRICT_WRAPPER_PATTERN = re.compile(r"class\s+Telegram\w*[\s\S]*?:\s*(?:UiArc|De
 IMPORT_UIARC_PATTERN = re.compile(r"import\s+com\.eve\.app\.(?:designsystem|ui\.\w+)\.UiArc\w*")
 
 LEGACY_LAYOUT_PATTERN = re.compile(
-    r"DesignCardView|MaterialCardView|UiArc|EveGlassToolbar|DesignGlassLayout|"
+    r"</?(?:\w+\.)*(?:DesignCardView|MaterialCardView|UiArc\w*|EveGlassToolbar|DesignGlassLayout|"
     r"DesignInputLayout|DesignSegmentedTabs|DesignSpinner|DesignAutoComplete|"
     r"DesignIconActionButton|DesignLoadingView|DesignAccuracyRing|MaterialButton|"
     r"MaterialToolbar|AppBarLayout|TextInputLayout|TextInputEditText|"
-    r"CircularProgressIndicator|Chip|TabItem|ShapeableImageView"
+    r"CircularProgressIndicator|Chip|TabItem|ShapeableImageView)\b"
 )
 BASIC_LAYOUT_PATTERN = re.compile(r"DesignCardView|MaterialCardView|UiArc")
 

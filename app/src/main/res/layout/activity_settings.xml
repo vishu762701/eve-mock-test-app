@@ -9,7 +9,7 @@
     android:clipChildren="false"
     style="@style/Widget.Eve.Token.Screen">
 
-    <com.eve.app.ui.common.EveGlassToolbar
+    <com.eve.app.designsystem.TelegramActionBar
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <LinearLayout
@@ -47,7 +47,7 @@
                 app:tint="@color/telegram_type_primary"
                 style="@style/Widget.Eve.Token.IconButton" />
         </LinearLayout>
-    </com.eve.app.ui.common.EveGlassToolbar>
+    </com.eve.app.designsystem.TelegramActionBar>
 
     <ScrollView
         android:layout_width="match_parent"

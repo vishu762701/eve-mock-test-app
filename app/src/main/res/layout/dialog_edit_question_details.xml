@@ -1,21 +1,21 @@
 <?xml version='1.0' encoding='utf-8'?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:maxHeight="520dp" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
-        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Question Text">
-            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etQuestionText" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textMultiLine" android:minLines="2" style="@style/Widget.Eve.Token.Input" />
-        </com.eve.app.designsystem.DesignInputLayout>
-        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:hint="Option A">
-            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etOptionA" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" style="@style/Widget.Eve.Token.Input" />
-        </com.eve.app.designsystem.DesignInputLayout>
-        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:hint="Option B">
-            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etOptionB" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" style="@style/Widget.Eve.Token.Input" />
-        </com.eve.app.designsystem.DesignInputLayout>
-        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:hint="Option C">
-            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etOptionC" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" style="@style/Widget.Eve.Token.Input" />
-        </com.eve.app.designsystem.DesignInputLayout>
-        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:hint="Option D">
-            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etOptionD" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" style="@style/Widget.Eve.Token.Input" />
-        </com.eve.app.designsystem.DesignInputLayout>
+        <com.eve.app.designsystem.TelegramOutlineEditText style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Question Text">
+            <com.eve.app.designsystem.TelegramEditText android:id="@+id/etQuestionText" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textMultiLine" android:minLines="2" style="@style/Widget.Eve.Token.Input" />
+        </com.eve.app.designsystem.TelegramOutlineEditText>
+        <com.eve.app.designsystem.TelegramOutlineEditText style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:hint="Option A">
+            <com.eve.app.designsystem.TelegramEditText android:id="@+id/etOptionA" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" style="@style/Widget.Eve.Token.Input" />
+        </com.eve.app.designsystem.TelegramOutlineEditText>
+        <com.eve.app.designsystem.TelegramOutlineEditText style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:hint="Option B">
+            <com.eve.app.designsystem.TelegramEditText android:id="@+id/etOptionB" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" style="@style/Widget.Eve.Token.Input" />
+        </com.eve.app.designsystem.TelegramOutlineEditText>
+        <com.eve.app.designsystem.TelegramOutlineEditText style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:hint="Option C">
+            <com.eve.app.designsystem.TelegramEditText android:id="@+id/etOptionC" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" style="@style/Widget.Eve.Token.Input" />
+        </com.eve.app.designsystem.TelegramOutlineEditText>
+        <com.eve.app.designsystem.TelegramOutlineEditText style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:hint="Option D">
+            <com.eve.app.designsystem.TelegramEditText android:id="@+id/etOptionD" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" style="@style/Widget.Eve.Token.Input" />
+        </com.eve.app.designsystem.TelegramOutlineEditText>
         <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:text="Correct Answer" />
         <RadioGroup android:id="@+id/rgCorrectAnswer" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
             <com.eve.app.ui.common.TelegramRadioButton android:id="@+id/rbA" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:text="A" style="@style/Widget.Eve.Token.Radio" />
@@ -28,11 +28,11 @@
             <com.eve.app.designsystem.TelegramButton android:id="@+id/btnReformatAi" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:minWidth="@dimen/design_zero" android:text="✨ Reformat with AI" />
         </LinearLayout>
         <com.eve.app.designsystem.TelegramRadialProgressView android:id="@+id/pbReformat" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center" android:visibility="gone" />
-        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:hint="Explanation (Key Points format)">
-            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etExplanation" style="@style/Widget.Eve.Token.Input" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="top|start" android:inputType="textMultiLine" android:minLines="3" />
-        </com.eve.app.designsystem.DesignInputLayout>
-        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:hint="Topic (Optional)">
-            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etTopic" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" style="@style/Widget.Eve.Token.Input" />
-        </com.eve.app.designsystem.DesignInputLayout>
+        <com.eve.app.designsystem.TelegramOutlineEditText style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:hint="Explanation (Key Points format)">
+            <com.eve.app.designsystem.TelegramEditText android:id="@+id/etExplanation" style="@style/Widget.Eve.Token.Input" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="top|start" android:inputType="textMultiLine" android:minLines="3" />
+        </com.eve.app.designsystem.TelegramOutlineEditText>
+        <com.eve.app.designsystem.TelegramOutlineEditText style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:hint="Topic (Optional)">
+            <com.eve.app.designsystem.TelegramEditText android:id="@+id/etTopic" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" style="@style/Widget.Eve.Token.Input" />
+        </com.eve.app.designsystem.TelegramOutlineEditText>
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

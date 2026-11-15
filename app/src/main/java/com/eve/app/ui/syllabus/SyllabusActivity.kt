@@ -144,6 +144,7 @@ class SyllabusActivity : EveBaseActivity() {
     }
 
     private fun setupToolbar() {
+        binding.toolbar.setTitle("Exam Syllabus")
         binding.toolbar.setNavigationOnClickListener { com.eve.app.util.EveNavigationHelper.finishWithTransition(this) }
         binding.swipeRefresh.setOnRefreshListener { loadExams() }
     }

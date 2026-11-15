@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='utf-8'?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Screen">
-    <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
+    <com.eve.app.designsystem.TelegramActionBar android:layout_width="match_parent" android:layout_height="wrap_content">
         <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/telegram_action_bar_height" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.ToolbarRow">
             <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/telegram_action_bar_back_width" android:layout_height="match_parent" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/telegram_type_primary" style="@style/Widget.Eve.Token.IconButton" />
             <TextView android:ellipsize="end" android:maxLines="1" android:layout_marginStart="@dimen/telegram_action_bar_title_start" android:layout_weight="1" style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="0dp" android:layout_height="wrap_content" android:text="App Config &amp; Maintenance"  android:tag="eve_telegram_type" />
             <com.eve.app.designsystem.TelegramRadialProgressView android:id="@+id/progressBar" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:visibility="visible" />
         </LinearLayout>
-    </com.eve.app.ui.common.EveGlassToolbar>
+    </com.eve.app.designsystem.TelegramActionBar>
     <androidx.core.widget.NestedScrollView android:id="@+id/scrollConfigContent" android:visibility="gone" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
             <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/surface" android:padding="@dimen/design_card_padding">
@@ -19,12 +19,12 @@
                         </LinearLayout>
                         <com.eve.app.designsystem.TelegramSwitch android:id="@+id/switchMaintenanceMode" android:layout_width="wrap_content" android:layout_height="wrap_content" />
                     </LinearLayout>
-                    <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:hint="Maintenance Message">
-                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etMaintenanceMessage" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textMultiLine" android:minLines="2" style="@style/Widget.Eve.Token.Input" />
-                    </com.eve.app.designsystem.DesignInputLayout>
-                    <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:hint="Minimum Supported Version Code">
-                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etMinVersionCode" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="number" style="@style/Widget.Eve.Token.Input" />
-                    </com.eve.app.designsystem.DesignInputLayout>
+                    <com.eve.app.designsystem.TelegramOutlineEditText style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:hint="Maintenance Message">
+                        <com.eve.app.designsystem.TelegramEditText android:id="@+id/etMaintenanceMessage" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textMultiLine" android:minLines="2" style="@style/Widget.Eve.Token.Input" />
+                    </com.eve.app.designsystem.TelegramOutlineEditText>
+                    <com.eve.app.designsystem.TelegramOutlineEditText style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:hint="Minimum Supported Version Code">
+                        <com.eve.app.designsystem.TelegramEditText android:id="@+id/etMinVersionCode" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="number" style="@style/Widget.Eve.Token.Input" />
+                    </com.eve.app.designsystem.TelegramOutlineEditText>
                     <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/tvCurrentVersionNotice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Current installed app version code: 1" />
                     <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_section_gap" android:text="Default AI Test Status" />
                     <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Applies to all exams unless an exam overrides it. Existing tests are not changed." />

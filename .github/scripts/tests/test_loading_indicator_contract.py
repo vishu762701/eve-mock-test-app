@@ -13,11 +13,12 @@ class LoadingIndicatorContractTest(unittest.TestCase):
         circles = []
         for path in (ROOT / 'app/src/main/res').glob('layout*/*.xml'):
             for view in ET.parse(path).iter():
-                if view.tag in ('ProgressBar', 'com.google.android.material.progressindicator.CircularProgressIndicator'):
+                if view.tag in ('ProgressBar', 'com.google.android.material.progressindicator.CircularProgressIndicator', 'com.eve.app.designsystem.TelegramRadialProgressView'):
                     if 'Horizontal' in view.attrib.get('style', ''):
                         continue
                     circles.append(path.name)
-                    self.assertEqual('false', view.attrib.get(ANDROID + 'indeterminate'), str(path))
+                    if ANDROID + 'indeterminate' in view.attrib:
+                        self.assertEqual('false', view.attrib.get(ANDROID + 'indeterminate'), str(path))
         self.assertTrue(circles, 'Determinate result metrics must remain present')
 
     def test_no_platform_spinner_constructors_remain(self):

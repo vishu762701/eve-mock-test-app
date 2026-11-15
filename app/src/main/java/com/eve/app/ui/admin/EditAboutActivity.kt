@@ -14,7 +14,6 @@ import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AdminIdentityGuard
 import com.eve.app.util.AdminPermissionSnapshot
 import com.eve.app.util.AppBulletin
-import com.google.android.material.tabs.TabLayout
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -77,22 +76,24 @@ class EditAboutActivity : EveBaseActivity() {
             requiredRight = "manage_content", restorationScope = "edit_about", isRestoring = savedInstanceState != null) {
             adminReady = true
             binding.btnSave.setOnClickListener { saveCurrent() }
+            binding.tabLayout.addTab("Privacy")
+            binding.tabLayout.addTab("Terms")
+            binding.tabLayout.addTab("Contact Us")
             restoreSelectedTab()
-            binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-                override fun onTabSelected(tab: TabLayout.Tab?) {
-                    if (suppressTabSelection) return
-                    val target = TYPES.getOrNull(tab?.position ?: -1) ?: return
-                    if (target == currentType) return
-                    if (!current(epoch) || saving || unsavedDialog?.isShowing == true) {
-                        restoreSelectedTab(); return
+            binding.tabLayout.onTabSelectedListener = { position ->
+                if (!suppressTabSelection) {
+                    val target = TYPES.getOrNull(position)
+                    if (target != null && target != currentType) {
+                        if (!current(epoch) || saving || unsavedDialog?.isShowing == true) {
+                            restoreSelectedTab()
+                        } else if (isDirty()) {
+                            showUnsavedConfirmation(leaving = false) { switchTab(target) }
+                        } else {
+                            switchTab(target)
+                        }
                     }
-                    if (isDirty()) {
-                        showUnsavedConfirmation(leaving = false) { switchTab(target) }
-                    } else switchTab(target)
                 }
-                override fun onTabUnselected(tab: TabLayout.Tab?) = Unit
-                override fun onTabReselected(tab: TabLayout.Tab?) = Unit
-            })
+            }
             loadContent()
         }
     }

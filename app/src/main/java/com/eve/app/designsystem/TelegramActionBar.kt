@@ -71,6 +71,26 @@ open class TelegramActionBar @JvmOverloads constructor(
     var onBackPressed: (() -> Unit)? = null
     private var searchBackBound = false
 
+    var drawHairline: Boolean = false
+    var scrollBackdropEnabled: Boolean = false
+    var glassEnabled: Boolean = false
+
+    fun setNavigationOnClickListener(listener: OnClickListener?) {
+        backButton.setOnClickListener(listener)
+    }
+
+    override fun onViewAdded(child: View) {
+        super.onViewAdded(child)
+        if (child !== backButton && child !== titlesContainer && child !== searchContainer &&
+            child !== searchButton && child !== filterButton && child !== actionButton) {
+            backButton.visibility = View.GONE
+            titlesContainer.visibility = View.GONE
+            searchButton.visibility = View.GONE
+            filterButton.visibility = View.GONE
+            actionButton.visibility = View.GONE
+        }
+    }
+
     init {
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
         val barHeight = try {

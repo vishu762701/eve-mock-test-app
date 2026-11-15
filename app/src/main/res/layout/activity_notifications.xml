@@ -9,7 +9,7 @@
     android:clipChildren="false"
     android:clipToPadding="false">
 
-    <com.eve.app.ui.common.EveGlassToolbar
+    <com.eve.app.designsystem.TelegramActionBar
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <LinearLayout
@@ -40,7 +40,7 @@
                 android:ellipsize="end"
                 android:text="Notifications" />
         </LinearLayout>
-    </com.eve.app.ui.common.EveGlassToolbar>
+    </com.eve.app.designsystem.TelegramActionBar>
 
     <FrameLayout
         android:layout_width="match_parent"

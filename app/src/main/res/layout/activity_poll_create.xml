@@ -179,7 +179,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <com.eve.app.designsystem.DesignSpinner
+            <com.eve.app.designsystem.TelegramSpinner
                 android:id="@+id/spDuration"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/design_input_height"

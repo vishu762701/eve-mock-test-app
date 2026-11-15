@@ -136,6 +136,8 @@ class AdminActivity : EveBaseActivity() {
         setContentView(binding.root)
 
         setupActionBar()
+        binding.tabLayoutAdmin.addTab("Manage Questions")
+        binding.tabLayoutAdmin.addTab("Admins")
         binding.progressBarAdmin.visibility = View.VISIBLE
         binding.scrollAdminHub.visibility = View.GONE
 

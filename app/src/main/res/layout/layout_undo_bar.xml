@@ -53,7 +53,7 @@
                 android:minWidth="48dp"
                 android:layout_marginStart="8dp"
                 android:text="UNDO"
-                android:textAppearance="@style/TextAppearance.Eve.Token.Chip"
+                android:textAppearance="@style/TextAppearance.Eve.Token.Body"
                 android:textStyle="bold"
                 android:fontFamily="sans-serif-medium"
                 android:textColor="#6BB7FF" />

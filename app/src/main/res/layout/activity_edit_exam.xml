@@ -1,45 +1,45 @@
 <?xml version='1.0' encoding='utf-8'?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Screen">
-    <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
+    <com.eve.app.designsystem.TelegramActionBar android:layout_width="match_parent" android:layout_height="wrap_content">
         <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/telegram_action_bar_height" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.ToolbarRow">
             <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/telegram_action_bar_back_width" android:layout_height="match_parent" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/telegram_type_primary" style="@style/Widget.Eve.Token.IconButton" />
             <TextView android:ellipsize="end" android:maxLines="1" android:layout_marginStart="@dimen/telegram_action_bar_title_start" android:layout_weight="1" android:id="@+id/tvToolbarTitle" style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="0dp" android:layout_height="wrap_content" android:text="Edit Exam"  android:tag="eve_telegram_type" />
             <com.eve.app.designsystem.TelegramRadialProgressView android:id="@+id/progressBar" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:visibility="visible" />
         </LinearLayout>
-    </com.eve.app.ui.common.EveGlassToolbar>
+    </com.eve.app.designsystem.TelegramActionBar>
     <androidx.core.widget.NestedScrollView android:id="@+id/scrollEditContent" android:visibility="gone" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
             <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/surface" android:padding="@dimen/design_card_padding">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
                     <TextView style="@style/TextAppearance.Eve.Token.Heading.blue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Exam Information" />
-                    <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:hint="Exam Name">
-                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etExamName" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="textCapWords" style="@style/Widget.Eve.Token.Input" />
-                    </com.eve.app.designsystem.DesignInputLayout>
-                    <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:hint="Time Limit (minutes)">
-                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etExamMinutes" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="number" style="@style/Widget.Eve.Token.Input" />
-                    </com.eve.app.designsystem.DesignInputLayout>
+                    <com.eve.app.designsystem.TelegramOutlineEditText style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:hint="Exam Name">
+                        <com.eve.app.designsystem.TelegramEditText android:id="@+id/etExamName" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="textCapWords" style="@style/Widget.Eve.Token.Input" />
+                    </com.eve.app.designsystem.TelegramOutlineEditText>
+                    <com.eve.app.designsystem.TelegramOutlineEditText style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:hint="Time Limit (minutes)">
+                        <com.eve.app.designsystem.TelegramEditText android:id="@+id/etExamMinutes" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="number" style="@style/Widget.Eve.Token.Input" />
+                    </com.eve.app.designsystem.TelegramOutlineEditText>
                     <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:text="Category" />
-                    <com.eve.app.designsystem.DesignSpinner android:id="@+id/spCategory" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:layout_marginTop="4dp" style="@style/Widget.Eve.Token.Spinner" />
+                    <com.eve.app.designsystem.TelegramSpinner android:id="@+id/spCategory" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:layout_marginTop="4dp" style="@style/Widget.Eve.Token.Spinner" />
                     <TextView style="@style/TextAppearance.Eve.Token.Body.blue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_section_gap" android:text="Category Cutoffs (Optional)" />
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginEnd="4dp" android:layout_weight="1" android:hint="General">
-                            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etCutoffGeneral" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="numberDecimal" style="@style/Widget.Eve.Token.Input" />
-                        </com.eve.app.designsystem.DesignInputLayout>
-                        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:layout_weight="1" android:hint="OBC">
-                            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etCutoffObc" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="numberDecimal" style="@style/Widget.Eve.Token.Input" />
-                        </com.eve.app.designsystem.DesignInputLayout>
+                        <com.eve.app.designsystem.TelegramOutlineEditText style="@style/Widget.Eve.Token.TextInput" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginEnd="4dp" android:layout_weight="1" android:hint="General">
+                            <com.eve.app.designsystem.TelegramEditText android:id="@+id/etCutoffGeneral" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="numberDecimal" style="@style/Widget.Eve.Token.Input" />
+                        </com.eve.app.designsystem.TelegramOutlineEditText>
+                        <com.eve.app.designsystem.TelegramOutlineEditText style="@style/Widget.Eve.Token.TextInput" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:layout_weight="1" android:hint="OBC">
+                            <com.eve.app.designsystem.TelegramEditText android:id="@+id/etCutoffObc" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="numberDecimal" style="@style/Widget.Eve.Token.Input" />
+                        </com.eve.app.designsystem.TelegramOutlineEditText>
                     </LinearLayout>
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginEnd="4dp" android:layout_weight="1" android:hint="SC">
-                            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etCutoffSc" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="numberDecimal" style="@style/Widget.Eve.Token.Input" />
-                        </com.eve.app.designsystem.DesignInputLayout>
-                        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:layout_weight="1" android:hint="ST">
-                            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etCutoffSt" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="numberDecimal" style="@style/Widget.Eve.Token.Input" />
-                        </com.eve.app.designsystem.DesignInputLayout>
+                        <com.eve.app.designsystem.TelegramOutlineEditText style="@style/Widget.Eve.Token.TextInput" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginEnd="4dp" android:layout_weight="1" android:hint="SC">
+                            <com.eve.app.designsystem.TelegramEditText android:id="@+id/etCutoffSc" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="numberDecimal" style="@style/Widget.Eve.Token.Input" />
+                        </com.eve.app.designsystem.TelegramOutlineEditText>
+                        <com.eve.app.designsystem.TelegramOutlineEditText style="@style/Widget.Eve.Token.TextInput" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:layout_weight="1" android:hint="ST">
+                            <com.eve.app.designsystem.TelegramEditText android:id="@+id/etCutoffSt" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="numberDecimal" style="@style/Widget.Eve.Token.Input" />
+                        </com.eve.app.designsystem.TelegramOutlineEditText>
                     </LinearLayout>
-                    <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:hint="EWS Cutoff">
-                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etCutoffEws" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="numberDecimal" style="@style/Widget.Eve.Token.Input" />
-                    </com.eve.app.designsystem.DesignInputLayout>
+                    <com.eve.app.designsystem.TelegramOutlineEditText style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:hint="EWS Cutoff">
+                        <com.eve.app.designsystem.TelegramEditText android:id="@+id/etCutoffEws" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="numberDecimal" style="@style/Widget.Eve.Token.Input" />
+                    </com.eve.app.designsystem.TelegramOutlineEditText>
                     <com.eve.app.designsystem.TelegramButton android:id="@+id/btnPickEmoji" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_gap" android:text="✨ Pick Animated Emoji" />
                     <com.eve.app.designsystem.TelegramButton android:id="@+id/btnSaveExamDetails" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_section_gap" android:text="Save Exam Details" />
                 </LinearLayout>

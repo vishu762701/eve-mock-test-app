@@ -17,9 +17,9 @@
             <com.eve.app.ui.common.TelegramRadioButton android:id="@+id/rbReasonQuestionMissingOptionsVisible" style="@style/Widget.Eve.Token.Radio" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Question not visible but Options visible" android:minHeight="@dimen/design_touch_min" />
             <com.eve.app.ui.common.TelegramRadioButton android:id="@+id/rbReasonOther" style="@style/Widget.Eve.Token.Radio" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Other" android:minHeight="@dimen/design_touch_min" />
         </RadioGroup>
-        <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilComment" style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:hint="Details (Optional)">
-            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etReportComment" style="@style/Widget.Eve.Token.Input" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="top|start" android:inputType="textMultiLine" android:minLines="3" />
-        </com.eve.app.designsystem.DesignInputLayout>
+        <com.eve.app.designsystem.TelegramOutlineEditText android:id="@+id/tilComment" style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:hint="Details (Optional)">
+            <com.eve.app.designsystem.TelegramEditText android:id="@+id/etReportComment" style="@style/Widget.Eve.Token.Input" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="top|start" android:inputType="textMultiLine" android:minLines="3" />
+        </com.eve.app.designsystem.TelegramOutlineEditText>
         <TextView android:id="@+id/tvCommentError" style="@style/TextAppearance.Eve.Token.Secondary.red" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:visibility="gone" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

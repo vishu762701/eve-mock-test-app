@@ -27,7 +27,7 @@
             android:layout_gravity="top|center_horizontal"
             android:layout_marginTop="66dp">
 
-            <com.google.android.material.imageview.ShapeableImageView
+            <com.eve.app.designsystem.TelegramAvatarImageView
                 android:id="@+id/ivProfilePhoto"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
@@ -43,7 +43,7 @@
     </com.eve.app.ui.profile.ProfileGooeyView>
 
     <!-- Telegram Profile Top Bar (56dp height, 54dp QR frame, 20sp title, 48dp kebab menu) -->
-    <com.eve.app.ui.common.EveGlassToolbar
+    <com.eve.app.designsystem.TelegramActionBar
         android:id="@+id/glassToolbar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/telegram_action_bar_height"
@@ -101,7 +101,7 @@
                 android:src="@drawable/ic_more_vert"
                 app:tint="@color/telegram_type_primary" />
         </LinearLayout>
-    </com.eve.app.ui.common.EveGlassToolbar>
+    </com.eve.app.designsystem.TelegramActionBar>
 
     <!-- Scrollable content -->
     <com.eve.app.ui.profile.ProfilePullScrollView
@@ -186,7 +186,7 @@
                 android:layout_marginTop="2dp"
                 tools:text="Student" />
 
-            <com.google.android.material.chip.Chip
+            <com.eve.app.designsystem.TelegramChip
                 android:id="@+id/chipAdmin"
                 style="@style/Widget.Eve.Token.Chip"
                 android:layout_width="wrap_content"
@@ -197,7 +197,7 @@
                 android:text="Admin"
                 android:visibility="gone" />
 
-            <com.google.android.material.chip.Chip
+            <com.eve.app.designsystem.TelegramChip
                 android:id="@+id/chipPremium"
                 style="@style/Widget.Eve.Token.Chip"
                 android:layout_width="wrap_content"

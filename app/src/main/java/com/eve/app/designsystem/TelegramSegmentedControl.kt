@@ -1,4 +1,6 @@
 /*
+ * Telegram: TMessagesProj/src/main/java/org/telegram/ui/Components/SlideSegmentsView.java:25-180 @ 3de37c8cfb03
+ * Telegram: TMessagesProj/src/main/java/org/telegram/ui/Components/FilterTabsView.java:50-220 @ 3de37c8cfb03
  * Derived from Telegram Android FilledTabsView.java and FilterTabsView.java
  * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15
  * Copyright Nikolai Kudashov, 2013-2018; GNU GPL v2 or later. See THIRD_PARTY_NOTICES.md.

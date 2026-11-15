@@ -67,6 +67,41 @@ class TelegramTabsView @JvmOverloads constructor(
 
     var onTabSelectedListener: ((position: Int) -> Unit)? = null
 
+    val selectedTabPosition: Int
+        get() = currentPosition
+
+    var tabMode: Int = 0
+    var tabGravity: Int = 0
+
+    class Tab(val position: Int, val text: String, private val tabsView: TelegramTabsView) {
+        fun select() {
+            tabsView.selectTab(position, notify = true, animated = true)
+        }
+    }
+
+    fun getTabAt(index: Int): Tab? {
+        if (index < 0 || index >= tabsContainer.childCount) return null
+        val tv = (tabsContainer.getChildAt(index) as? ViewGroup)?.findViewById<TextView>(android.R.id.text1)
+        return Tab(index, tv?.text?.toString().orEmpty(), this)
+    }
+
+    interface OnTabSelectedListener {
+        fun onTabSelected(tab: Tab?)
+        fun onTabUnselected(tab: Tab?) {}
+        fun onTabReselected(tab: Tab?) {}
+    }
+
+    private val tabListeners = mutableListOf<OnTabSelectedListener>()
+    private val materialTabListeners = mutableListOf<com.google.android.material.tabs.TabLayout.OnTabSelectedListener>()
+
+    fun addOnTabSelectedListener(listener: OnTabSelectedListener) {
+        tabListeners.add(listener)
+    }
+
+    fun addOnTabSelectedListener(listener: com.google.android.material.tabs.TabLayout.OnTabSelectedListener) {
+        materialTabListeners.add(listener)
+    }
+
     init {
         isFillViewport = true
         isHorizontalScrollBarEnabled = false
@@ -190,6 +225,8 @@ class TelegramTabsView @JvmOverloads constructor(
 
         if (notify) {
             onTabSelectedListener?.invoke(position)
+            val tab = getTabAt(position)
+            tabListeners.forEach { it.onTabSelected(tab) }
         }
     }
 

@@ -13,7 +13,7 @@
     android:clipToPadding="false"
     style="@style/Widget.Eve.Token.Screen">
 
-    <com.eve.app.ui.common.EveGlassToolbar
+    <com.eve.app.designsystem.TelegramActionBar
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <LinearLayout
@@ -47,7 +47,7 @@
                 android:text="Premium"
                 android:tag="eve_telegram_type" />
         </LinearLayout>
-    </com.eve.app.ui.common.EveGlassToolbar>
+    </com.eve.app.designsystem.TelegramActionBar>
 
     <FrameLayout
         android:layout_width="match_parent"

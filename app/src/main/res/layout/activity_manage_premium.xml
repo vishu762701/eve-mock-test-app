@@ -1,17 +1,14 @@
 <?xml version='1.0' encoding='utf-8'?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Screen">
-    <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
+    <com.eve.app.designsystem.TelegramActionBar android:layout_width="match_parent" android:layout_height="wrap_content">
         <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/telegram_action_bar_height" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.ToolbarRow">
             <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/telegram_type_primary" style="@style/Widget.Eve.Token.IconButton" />
             <TextView android:id="@+id/tvHeaderTitle" style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="@dimen/design_row_gap" android:singleLine="true" android:ellipsize="end" android:text="Premium Management" android:tag="eve_telegram_type" />
             <ImageButton android:id="@+id/btnRefresh" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" android:contentDescription="Refresh" android:src="@drawable/ic_refresh" app:tint="@color/text_primary" style="@style/Widget.Eve.Token.IconButton" />
         </LinearLayout>
-    </com.eve.app.ui.common.EveGlassToolbar>
-    <com.eve.app.designsystem.DesignSegmentedTabs android:id="@+id/tabLayout" style="@style/Widget.Eve.Token.SegmentedTabs" android:layout_width="match_parent" android:layout_height="@dimen/design_tab_height" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_marginTop="@dimen/design_card_gap" android:layout_marginBottom="@dimen/design_card_gap" app:tabMode="fixed" app:tabGravity="fill">
-        <com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Settings" />
-        <com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Transactions" />
-        <com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Users" />
-    </com.eve.app.designsystem.DesignSegmentedTabs>
+    </com.eve.app.designsystem.TelegramActionBar>
+    <com.eve.app.designsystem.TelegramTabsView android:id="@+id/tabLayout" style="@style/Widget.Eve.Token.SegmentedTabs" android:layout_width="match_parent" android:layout_height="@dimen/design_tab_height" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_marginTop="@dimen/design_card_gap" android:layout_marginBottom="@dimen/design_card_gap" app:tabMode="fixed" app:tabGravity="fill">
+        </com.eve.app.designsystem.TelegramTabsView>
     <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
         <com.eve.app.designsystem.TelegramRadialProgressView android:id="@+id/progressAdmin" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_gravity="center" android:visibility="visible" />
         <androidx.core.widget.NestedScrollView android:id="@+id/containerSettings" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll">
@@ -20,22 +17,22 @@
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
                         <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Premium Plan" />
                         <com.eve.app.designsystem.TelegramSwitch android:id="@+id/switchEnablePremium" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:text="Enable Premium Purchases" />
-                        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:hint="Plan Name">
-                            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etPlanName" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="text" style="@style/Widget.Eve.Token.Input" />
-                        </com.eve.app.designsystem.DesignInputLayout>
-                        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:hint="Price (INR)">
-                            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etPriceInr" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="number" style="@style/Widget.Eve.Token.Input" />
-                        </com.eve.app.designsystem.DesignInputLayout>
+                        <com.eve.app.designsystem.TelegramOutlineEditText style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:hint="Plan Name">
+                            <com.eve.app.designsystem.TelegramEditText android:id="@+id/etPlanName" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="text" style="@style/Widget.Eve.Token.Input" />
+                        </com.eve.app.designsystem.TelegramOutlineEditText>
+                        <com.eve.app.designsystem.TelegramOutlineEditText style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:hint="Price (INR)">
+                            <com.eve.app.designsystem.TelegramEditText android:id="@+id/etPriceInr" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="number" style="@style/Widget.Eve.Token.Input" />
+                        </com.eve.app.designsystem.TelegramOutlineEditText>
                         <com.eve.app.designsystem.TelegramSwitch android:id="@+id/switchLifetime" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:text="Lifetime Plan (No Expiry)" />
-                        <com.eve.app.designsystem.DesignInputLayout android:id="@+id/tilDurationDays" style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:hint="Duration in Days (e.g. 7, 30, 90, 365)">
-                            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etDurationDays" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="number" style="@style/Widget.Eve.Token.Input" />
-                        </com.eve.app.designsystem.DesignInputLayout>
-                        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:hint="Student Description">
-                            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etDescription" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textMultiLine" android:minLines="2" style="@style/Widget.Eve.Token.Input" />
-                        </com.eve.app.designsystem.DesignInputLayout>
-                        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:hint="Benefits (one per line)">
-                            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etBenefits" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textMultiLine" android:minLines="4" style="@style/Widget.Eve.Token.Input" />
-                        </com.eve.app.designsystem.DesignInputLayout>
+                        <com.eve.app.designsystem.TelegramOutlineEditText android:id="@+id/tilDurationDays" style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:hint="Duration in Days (e.g. 7, 30, 90, 365)">
+                            <com.eve.app.designsystem.TelegramEditText android:id="@+id/etDurationDays" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="number" style="@style/Widget.Eve.Token.Input" />
+                        </com.eve.app.designsystem.TelegramOutlineEditText>
+                        <com.eve.app.designsystem.TelegramOutlineEditText style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:hint="Student Description">
+                            <com.eve.app.designsystem.TelegramEditText android:id="@+id/etDescription" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textMultiLine" android:minLines="2" style="@style/Widget.Eve.Token.Input" />
+                        </com.eve.app.designsystem.TelegramOutlineEditText>
+                        <com.eve.app.designsystem.TelegramOutlineEditText style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:hint="Benefits (one per line)">
+                            <com.eve.app.designsystem.TelegramEditText android:id="@+id/etBenefits" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textMultiLine" android:minLines="4" style="@style/Widget.Eve.Token.Input" />
+                        </com.eve.app.designsystem.TelegramOutlineEditText>
                     </LinearLayout>
                 </FrameLayout>
                 <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:background="@color/surface" android:padding="@dimen/design_card_padding">
@@ -43,12 +40,12 @@
                         <TextView style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Payment Methods &amp; Expiry" />
                         <com.eve.app.designsystem.TelegramSwitch android:id="@+id/switchQrEnabled" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:text="Enable QR Code Payment" />
                         <com.eve.app.designsystem.TelegramSwitch android:id="@+id/switchUpiEnabled" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:text="Enable UPI Intent Payment" />
-                        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:hint="Payment Session Expiry (Minutes)">
-                            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etSessionExpiry" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="number" style="@style/Widget.Eve.Token.Input" />
-                        </com.eve.app.designsystem.DesignInputLayout>
-                        <com.eve.app.designsystem.DesignInputLayout style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:hint="Merchant UPI VPA (e.g. evemocktest@upi)">
-                            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etMerchantVpa" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="text" style="@style/Widget.Eve.Token.Input" />
-                        </com.eve.app.designsystem.DesignInputLayout>
+                        <com.eve.app.designsystem.TelegramOutlineEditText style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:hint="Payment Session Expiry (Minutes)">
+                            <com.eve.app.designsystem.TelegramEditText android:id="@+id/etSessionExpiry" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="number" style="@style/Widget.Eve.Token.Input" />
+                        </com.eve.app.designsystem.TelegramOutlineEditText>
+                        <com.eve.app.designsystem.TelegramOutlineEditText style="@style/Widget.Eve.Token.TextInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding" android:hint="Merchant UPI VPA (e.g. evemocktest@upi)">
+                            <com.eve.app.designsystem.TelegramEditText android:id="@+id/etMerchantVpa" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="text" style="@style/Widget.Eve.Token.Input" />
+                        </com.eve.app.designsystem.TelegramOutlineEditText>
                     </LinearLayout>
                 </FrameLayout>
                 <com.eve.app.designsystem.TelegramButton android:id="@+id/btnSaveSettings" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_shadow_room" android:text="Save Settings" />

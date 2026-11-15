@@ -1,19 +1,27 @@
+/*
+ * Telegram: TMessagesProj/src/main/java/org/telegram/ui/Components/RoundButton.java:30-120 @ 3de37c8cfb039452be7398909461da6288babf15
+ * Telegram: TMessagesProj/src/main/java/org/telegram/ui/Components/ButtonBounce.java:15-110 @ 3de37c8cfb039452be7398909461da6288babf15
+ * Copyright Nikolai Kudashov, 2013-2018; GNU GPL v2 or later. See THIRD_PARTY_NOTICES.md.
+ */
+
 package com.eve.app.designsystem
 
 import android.content.Context
+import android.graphics.Canvas
 import android.util.AttributeSet
 import android.view.MotionEvent
-import com.google.android.material.button.MaterialButton
+import androidx.appcompat.widget.AppCompatButton
 
 /**
- * 1:1 Telegram button with official upstream ButtonBounce physics.
- * Source reference: org.telegram.ui.Components.ButtonBounce
+ * 1:1 Telegram button extending AppCompatButton with official upstream ButtonBounce physics
+ * and Telegram rounded ripple selector.
+ * Source reference: org.telegram.ui.Components.RoundButton & ButtonBounce
  */
 class TelegramButton @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = com.google.android.material.R.attr.materialButtonStyle
-) : MaterialButton(context, attrs, defStyleAttr) {
+    defStyleAttr: Int = androidx.appcompat.R.attr.buttonStyle
+) : AppCompatButton(context, attrs, defStyleAttr) {
 
     private val buttonBounce = ButtonBounce(this)
     private var isBusy = false
@@ -45,5 +53,17 @@ class TelegramButton @JvmOverloads constructor(
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> buttonBounce.setPressed(false)
         }
         return super.onTouchEvent(event)
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        val scale = buttonBounce.getScale(0.04f)
+        if (scale != 1f) {
+            canvas.save()
+            canvas.scale(scale, scale, width / 2f, height / 2f)
+            super.onDraw(canvas)
+            canvas.restore()
+        } else {
+            super.onDraw(canvas)
+        }
     }
 }

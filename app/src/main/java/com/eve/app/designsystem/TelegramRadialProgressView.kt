@@ -92,6 +92,22 @@ class TelegramRadialProgressView @JvmOverloads constructor(
         progressAnimationStart = animatedProgress
         progressTime = 0f
     }
+
+    fun setPercentage(percentage: Float) {
+        setProgress(percentage / 100f)
+    }
+
+    var progress: Int
+        get() = (currentProgress * 100).toInt()
+        set(value) {
+            setProgress(value / 100f)
+        }
+
+    val progressDrawable: android.graphics.drawable.Drawable? = null
+
+    fun setIndicatorColor(color: Int) {
+        setProgressColor(color)
+    }
     fun sync(from: TelegramRadialProgressView) {
         lastUpdateTime = from.lastUpdateTime
         radOffset = from.radOffset

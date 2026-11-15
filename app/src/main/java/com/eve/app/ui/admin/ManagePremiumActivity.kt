@@ -22,7 +22,6 @@ import com.google.firebase.auth.FirebaseAuth
 import androidx.lifecycle.Lifecycle
 import kotlinx.coroutines.CancellationException
 import com.eve.app.designsystem.TelegramSwitch
-import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.launch
 import com.eve.app.data.remote.toUserFriendlyMessage
 
@@ -190,31 +189,30 @@ class ManagePremiumActivity : EveBaseActivity() {
     }
 
     private fun setupTabs() {
-        binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-                when (tab?.position) {
-                    0 -> {
-                        binding.containerSettings.visibility = View.VISIBLE
-                        binding.containerTransactions.visibility = View.GONE
-                        binding.containerUsers.visibility = View.GONE
-                    }
-                    1 -> {
-                        binding.containerSettings.visibility = View.GONE
-                        binding.containerTransactions.visibility = View.VISIBLE
-                        binding.containerUsers.visibility = View.GONE
-                        loadTransactions()
-                    }
-                    2 -> {
-                        binding.containerSettings.visibility = View.GONE
-                        binding.containerTransactions.visibility = View.GONE
-                        binding.containerUsers.visibility = View.VISIBLE
-                        loadUsers()
-                    }
+        binding.tabLayout.addTab("Settings")
+        binding.tabLayout.addTab("Transactions")
+        binding.tabLayout.addTab("Users")
+        binding.tabLayout.onTabSelectedListener = { position ->
+            when (position) {
+                0 -> {
+                    binding.containerSettings.visibility = View.VISIBLE
+                    binding.containerTransactions.visibility = View.GONE
+                    binding.containerUsers.visibility = View.GONE
+                }
+                1 -> {
+                    binding.containerSettings.visibility = View.GONE
+                    binding.containerTransactions.visibility = View.VISIBLE
+                    binding.containerUsers.visibility = View.GONE
+                    loadTransactions()
+                }
+                2 -> {
+                    binding.containerSettings.visibility = View.GONE
+                    binding.containerTransactions.visibility = View.GONE
+                    binding.containerUsers.visibility = View.VISIBLE
+                    loadUsers()
                 }
             }
-            override fun onTabUnselected(tab: TabLayout.Tab?) {}
-            override fun onTabReselected(tab: TabLayout.Tab?) {}
-        })
+        }
 
         binding.switchLifetime.setOnCheckedChangeListener { _, isChecked ->
             binding.tilDurationDays.visibility = if (isChecked) View.GONE else View.VISIBLE
