@@ -9,12 +9,13 @@
 - If this file and the actual code disagree, trust the code, and report the mismatch under "Noticed but not touched (outside scope)" in the Final Report.
 - Never claim current state from memory or older chats. Inspect real files and current remote HEAD/CI; use `git status` and `git log -1` only when a local checkout is accessible.
 
-## Product authority & The 4 Permanent Core Laws
-EVE is governed by 4 Permanent Core Laws:
+## Product authority & The 5 Permanent Core Laws
+EVE is governed by 5 Permanent Core Laws:
 1. **Law 1 (Masterpiece Genius Human Craftsmanship)**: 100% effort, deepest architectural thinking, and pixel-perfect attention to detail across every touch state, frame timing, and edge case.
 2. **Law 2 (Zero-Omission 1:1 Telegram Source Porting)**: Exact 1:1 porting of complete transitive subsystems from official Telegram Android (Matrix/Canvas draw passes, physics/springs/overshoot, CubicBezierInterpolator, shaders, settings screens, and dialogs). No shallow constant-picking, and no ADAPTED or BLOCKED excuse loopholes.
 3. **Law 3 (All Telegram Files & UI Architecture Are Permanent)**: All ported Telegram components (`TelegramActionBar`, `TelegramBottomSheet`, `TelegramNativeAlertDialog`, `TextCell`, `HeaderCell`, `ShadowSectionCell`, `DividerCell`, `TextCheckCell`, `TelegramSwitch`, `TelegramRadioButton`, `TelegramCheckBox2`, `TelegramTabsView`, `ButtonBounce`, `TelegramThemeEngine`, QR and gooey renderers) are a permanent part of the repository.
 4. **Law 4 (100% Unrestricted Owner Freedom to Add / Delete / Change Anything - Zero Test Locks)**: The Owner has absolute, unrestricted authority to add, delete, or change any file, screen, component, or layout at any time (`No UI/UX choice is permanently locked` against the Owner). NO test or script is permitted to block an Owner change; all conflicting tests or fixture counts must be updated forward in the same commit. For authorized tasks follow `docs/telegram-integration-process.md`, including continuous Analysis, Mapping, Implementation and Verification. Telegram archive hashes and GPL evidence are in `THIRD_PARTY_NOTICES.md`. Useless rules, obsolete process friction, and artificial UI locks are permanently eliminated.
+5. **Law 5 (Mandatory CI Build Recovery Loop - Failed Build Is Never Complete)**: Whenever any build fails, the agent must never treat the task as finished; it must diagnose the root cause, fix it forward, push to `main`, and verify that the new build on `main` passes green before declaring success.
 
 ## 1. Repository identity
 - Remote origin: `git@github.com:vishu762701/eve-mock-test-app.git`
