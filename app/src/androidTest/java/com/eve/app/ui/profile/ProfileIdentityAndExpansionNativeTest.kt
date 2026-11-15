@@ -82,7 +82,8 @@ class ProfileIdentityAndExpansionNativeTest {
                 b.layoutCategoryOptions.visibility = View.GONE
                 layout()
                 assertEquals(reminderBeforeExpansion, b.cellReminder.top)
-                assertEquals("Personal QR code", b.btnBack.contentDescription.toString())
+                assertEquals("Back", b.btnBack.contentDescription.toString())
+                assertEquals("Personal QR code", b.btnProfileQr.contentDescription.toString())
                 assertTrue(b.btnProfileMenu.width >= (48 * density).toInt())
                 assertTrue(b.btnBack.width >= (48 * density).toInt())
                 fun save(name: String) {

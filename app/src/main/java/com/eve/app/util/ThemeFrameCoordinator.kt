@@ -8,8 +8,11 @@ import android.view.ViewTreeObserver
 internal object ThemeFrameCoordinator {
     fun afterFrame(view: View, ready: () -> Boolean = { true }, valid: () -> Boolean = { true }, action: () -> Unit) {
         val observer = view.viewTreeObserver
+        var active = true
         val listener = object : ViewTreeObserver.OnPreDrawListener, View.OnAttachStateChangeListener {
-            private fun remove() {
+            fun remove() {
+                if (!active) return
+                active = false
                 if (observer.isAlive) observer.removeOnPreDrawListener(this)
                 view.removeOnAttachStateChangeListener(this)
             }
@@ -32,6 +35,15 @@ internal object ThemeFrameCoordinator {
         observer.addOnPreDrawListener(listener)
         view.addOnAttachStateChangeListener(listener)
         view.invalidate()
+        view.postInvalidateOnAnimation()
+        view.postDelayed({
+            if (active && valid() && view.isAttachedToWindow && ready()) {
+                listener.remove()
+                afterCurrentFrame(view, valid) {
+                    if (ready()) action() else afterFrame(view, ready, valid, action)
+                }
+            }
+        }, 150L)
     }
 
     /** Called from an already validated pre-draw. A native reveal can run entirely
@@ -49,6 +61,7 @@ internal object ThemeFrameCoordinator {
             view.viewTreeObserver.registerFrameCommitCallback {
                 view.post { complete("hardware_frame_committed") }
             }
+            view.postDelayed({ complete("hardware_frame_committed") }, 100L)
         } else {
             // Older platforms expose draw completion, not a hardware commit fence.
             val observer = view.viewTreeObserver
@@ -60,6 +73,7 @@ internal object ThemeFrameCoordinator {
                     }
                 }
             })
+            view.postDelayed({ complete("draw_completed_fallback") }, 100L)
         }
     }
 }

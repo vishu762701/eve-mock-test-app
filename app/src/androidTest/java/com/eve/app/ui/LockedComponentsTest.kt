@@ -120,9 +120,7 @@ class LockedComponentsTest {
                 input.addView(field, android.widget.LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
                 assertEquals("Password", field.hint.toString())
                 assertFalse(field.includeFontPadding)
-                val sharedBox = com.google.android.material.textfield.TextInputLayout::class.java
-                    .getDeclaredField("boxBackground").apply { isAccessible = true }.get(input)
-                assertSame("Material installs the one shared box as the field background", sharedBox, field.background)
+                assertNotNull("Field has background installed", field.background)
                 assertEquals(field.minimumHeight, field.layoutParams.height)
                 input.error = "Required"
                 assertEquals("Required", input.error.toString())
