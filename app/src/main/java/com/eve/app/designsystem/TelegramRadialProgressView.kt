@@ -60,6 +60,27 @@ class TelegramRadialProgressView @JvmOverloads constructor(
     // Test-only capture opt-in. Real attached loading spinners retain upstream arc motion.
     private var frozenForStaticSnapshot = false
 
+    init {
+        attrs?.let {
+            val a = context.obtainStyledAttributes(it, intArrayOf(
+                android.R.attr.indeterminate,
+                android.R.attr.max,
+                android.R.attr.progress
+            ))
+            val isIndet = a.getBoolean(0, true)
+            val max = a.getInt(1, 100).coerceAtLeast(1)
+            val prog = a.getInt(2, 0)
+            a.recycle()
+            if (!isIndet) {
+                noProgress = false
+                currentProgress = (prog.toFloat() / max).coerceIn(0f, 1f)
+                animatedProgress = currentProgress
+                progressAnimationStart = currentProgress
+                currentCircleLength = maxOf(4f, 360f * animatedProgress)
+            }
+        }
+    }
+
     fun freezeForStaticSnapshot() {
         if (frozenForStaticSnapshot) return
         // The source's 85-ms advance yields a visible arc at the first software capture.
@@ -85,12 +106,23 @@ class TelegramRadialProgressView @JvmOverloads constructor(
         }
     }
 
-    fun setNoProgress(value: Boolean) { noProgress = value }
+    fun setNoProgress(value: Boolean) {
+        if (noProgress == value) return
+        noProgress = value
+        invalidate()
+    }
+
     fun setProgress(value: Float) {
-        currentProgress = value
-        if (animatedProgress > value) animatedProgress = value
+        noProgress = false
+        val next = value.coerceIn(0f, 1f)
+        if (currentProgress == next && animatedProgress == next) return
+        currentProgress = next
+        if (animatedProgress > next) {
+            animatedProgress = next
+        }
         progressAnimationStart = animatedProgress
         progressTime = 0f
+        invalidate()
     }
 
     fun setPercentage(percentage: Float) {
@@ -133,10 +165,6 @@ class TelegramRadialProgressView @JvmOverloads constructor(
     }
 
     private fun updateAnimation(dt: Long) {
-        radOffset += 360f * dt / ROTATION_TIME
-        val count = (radOffset / 360f).toInt()
-        radOffset -= count * 360f
-
         if (toCircle && toCircleProgress != 1f) {
             toCircleProgress += 16f / 220f
             if (toCircleProgress > 1f) toCircleProgress = 1f
@@ -146,6 +174,10 @@ class TelegramRadialProgressView @JvmOverloads constructor(
         }
 
         if (noProgress) {
+            radOffset += 360f * dt / ROTATION_TIME
+            val count = (radOffset / 360f).toInt()
+            radOffset -= count * 360f
+
             if (toCircleProgress == 0f) {
                 currentProgressTime += dt
                 if (currentProgressTime >= RISING_TIME) currentProgressTime = RISING_TIME
@@ -177,8 +209,11 @@ class TelegramRadialProgressView @JvmOverloads constructor(
                     if (dx > 0f) radOffset += old - currentCircleLength
                 }
             }
+            if (!frozenForStaticSnapshot && isShown && isAttachedToWindow) invalidate()
         } else {
+            radOffset = -90f
             val progressDiff = currentProgress - progressAnimationStart
+            var isAnimating = false
             if (progressDiff > 0f) {
                 progressTime += dt
                 if (progressTime >= 200f) {
@@ -188,11 +223,14 @@ class TelegramRadialProgressView @JvmOverloads constructor(
                 } else {
                     animatedProgress = progressAnimationStart + progressDiff *
                         decelerateInterpolator.getInterpolation(progressTime / 200f)
+                    isAnimating = true
                 }
             }
             currentCircleLength = maxOf(4f, 360f * animatedProgress)
+            if (isAnimating && !frozenForStaticSnapshot) {
+                invalidate()
+            }
         }
-        if (!frozenForStaticSnapshot) invalidate()
     }
 
     fun setSize(value: Int) { size = value; invalidate() }
@@ -210,7 +248,13 @@ class TelegramRadialProgressView @JvmOverloads constructor(
         circleRect.set(x, y, x + size, y + size)
         drawingCircleLength = currentCircleLength
         canvas.drawArc(circleRect, radOffset, drawingCircleLength, false, progressPaint)
-        if (!frozenForStaticSnapshot) updateAnimation()
+        if (!frozenForStaticSnapshot) {
+            val isSpinning = noProgress && isShown && isAttachedToWindow
+            val isProgressAnimating = !noProgress && (animatedProgress < currentProgress || (toCircleProgress > 0f && toCircleProgress < 1f))
+            if (isSpinning || isProgressAnimating) {
+                updateAnimation()
+            }
+        }
     }
 
     fun drawAt(canvas: Canvas, cx: Float, cy: Float) {
