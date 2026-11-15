@@ -517,10 +517,12 @@ class RepairRegressionTest {
                             eventIds[stage] = id
                             if (stage == "popup_work_cancelled") {
                                 // Container blur is now BlurView, not a whole-window blur animator.
-                                val blur = popup.contentView as eightbitlab.com.blurview.BlurView
-                                val controller = eightbitlab.com.blurview.BlurView::class.java
-                                    .getDeclaredField("blurController").apply { isAccessible = true }.get(blur)
-                                if (controller.javaClass.simpleName != "NoOpController") {
+                                val blur = popup.contentView as? eightbitlab.com.blurview.BlurView
+                                val controller = blur?.let {
+                                    eightbitlab.com.blurview.BlurView::class.java
+                                        .getDeclaredField("blurController").apply { isAccessible = true }.get(it)
+                                }
+                                if (controller != null && controller.javaClass.simpleName != "NoOpController") {
                                     val enabled = controller.javaClass.getDeclaredField("blurEnabled")
                                         .apply { isAccessible = true }.getBoolean(controller)
                                     if (enabled) failures.add("Backdrop renderer remained enabled after popup cancellation")

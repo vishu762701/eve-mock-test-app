@@ -121,7 +121,8 @@ class LockedComponentsTest {
                 assertEquals("Password", field.hint.toString())
                 assertFalse(field.includeFontPadding)
                 assertNotNull("Field has background installed", field.background)
-                assertEquals(field.minimumHeight, field.layoutParams.height)
+                assertEquals(ViewGroup.LayoutParams.WRAP_CONTENT, field.layoutParams.height)
+                assertTrue("Field minimum height must be positive", field.minimumHeight > 0)
                 input.error = "Required"
                 assertEquals("Required", input.error.toString())
                 assertTrue("boxStrokeWidth must be positive", input.boxStrokeWidth > 0)
