@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:ns2="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Screen">
     <com.eve.app.ui.common.EveGlassToolbar android:layout_width="match_parent" android:layout_height="wrap_content">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/telegram_action_bar_height" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.ToolbarRow">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="@dimen/telegram_action_bar_height" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.ToolbarRow">
             <ImageButton android:id="@+id/btnBack" android:layout_width="@dimen/telegram_action_bar_back_width" android:layout_height="match_parent" android:contentDescription="Back" android:src="@drawable/ic_back" app:tint="@color/telegram_type_primary" style="@style/Widget.Eve.Token.IconButton" />
             <LinearLayout
                 android:layout_width="0dp"
@@ -9,8 +9,8 @@
                 android:layout_weight="1"
                 android:layout_marginStart="@dimen/telegram_action_bar_title_start"
                 android:orientation="vertical">
-                <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:maxLines="1" android:singleLine="true" android:ellipsize="end" android:text="Manage Syllabus"  android:tag="eve_telegram_type" />
-        <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Upload, assign and manage syllabus PDFs" />
+                <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle.WithSubtitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:maxLines="1" android:singleLine="true" android:ellipsize="end" android:text="Manage Syllabus"  android:tag="eve_telegram_type" />
+                <TextView style="@style/TextAppearance.Eve.Telegram.NavigationSubtitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:maxLines="1" android:singleLine="true" android:ellipsize="end" android:text="Upload, assign and manage syllabus PDFs" />
             </LinearLayout>
             <com.eve.app.designsystem.TelegramRadialProgressView android:id="@+id/progressBarTop" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:visibility="gone" />
         </LinearLayout>
