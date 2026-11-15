@@ -122,6 +122,7 @@ class ExamTestsActivity : EveBaseActivity() {
     override fun onResume() {
         super.onResume()
         if (!hasExamTestsOwner()) { finish(); return }
+        if (!::binding.isInitialized) return
         val now = System.currentTimeMillis()
         if (adapter.itemCount == 0) {
             loadData(showLoading = true)

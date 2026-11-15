@@ -81,7 +81,8 @@ class PerformanceActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (!hasPerformanceOwner()) finish()
+        if (!hasPerformanceOwner()) { finish(); return }
+        if (!::binding.isInitialized) return
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

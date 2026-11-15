@@ -124,7 +124,7 @@ class AdminHubTelegramFidelityTest {
 
     @Test
     fun testTelegramAdminSearchUsesSourceTimingAndCancelsStaleTransitions() {
-        val source = File("src/main/java/com/eve/app/ui/admin/tg/TelegramActionBar.kt").readText()
+        val source = File("src/main/java/com/eve/app/designsystem/TelegramActionBar.kt").readText()
         assertTrue("Original ActionBar search timing must be retained", source.contains("setDuration(150L)"))
         assertTrue("Search must retain Telegram's outgoing title scale", source.contains("scaleX(0.95f).scaleY(0.95f)"))
         assertTrue("Search must cancel stale completion callbacks", source.contains("generation != searchAnimationGeneration"))
@@ -147,7 +147,7 @@ class AdminHubTelegramFidelityTest {
 
     @Test
     fun testAdminSearchSystemBackClosesSearchBeforeLeavingActivity() {
-        val actionBar = File("src/main/java/com/eve/app/ui/admin/tg/TelegramActionBar.kt").readText()
+        val actionBar = File("src/main/java/com/eve/app/designsystem/TelegramActionBar.kt").readText()
         assertTrue("Search-back must be lifecycle bound", actionBar.contains("bindSystemBack(owner: OnBackPressedDispatcherOwner)"))
         assertTrue("System Back must collapse expanded search", actionBar.contains("if (isSearchExpanded) {\n                    closeSearch()"))
         assertTrue("Fallback Back must forward rather than recurse", actionBar.contains("isEnabled = false"))

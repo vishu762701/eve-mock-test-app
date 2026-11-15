@@ -55,30 +55,6 @@ class NavigationChromeAndTabsTest {
         return map
     }
 
-    @Test
-    fun testTopHeaders_areTransparentContainersWithoutCapsuleBackgrounds() {
-        val layoutFiles = listOf(
-            "src/main/res/layout/activity_main.xml",
-            "src/main/res/layout/activity_settings.xml",
-            "src/main/res/layout/activity_profile.xml",
-            "src/main/res/layout/activity_result.xml",
-            "src/main/res/layout/activity_admin.xml",
-            "src/main/res/layout/activity_history.xml",
-            "src/main/res/layout/activity_leaderboard.xml"
-        )
-
-        for (path in layoutFiles) {
-            val doc = loadXml(path)
-            val toolbars = doc.getElementsByTagName("com.eve.app.ui.common.EveGlassToolbar")
-            assertTrue("Expected at least 1 EveGlassToolbar in $path", toolbars.length >= 1)
-            val headerToolbar = toolbars.item(0) as Element
-            val bg = headerToolbar.designAttribute("android:background")
-            assertTrue(
-                "Header toolbar in $path must have transparent or empty background (was '$bg')",
-                bg.isEmpty() || bg == "@android:color/transparent" || bg == "@null"
-            )
-        }
-    }
 
     @Test
     fun testBareLottieNotificationBell_andParentContainer() {

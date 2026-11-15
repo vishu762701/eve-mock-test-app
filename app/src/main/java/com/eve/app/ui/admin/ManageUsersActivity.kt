@@ -155,7 +155,8 @@ class ManageUsersActivity : EveBaseActivity() {
         super.onSaveInstanceState(outState)
         outState.putString("users_owner_uid", authorizedUid?.takeIf { it == FirebaseAuth.getInstance().currentUser?.uid })
         outState.putInt("users_page", currentPage)
-        outState.putString("users_query", binding.etSearchUser.text?.toString().orEmpty())
+        val query = if (::binding.isInitialized) binding.etSearchUser.text?.toString().orEmpty() else ""
+        outState.putString("users_query", query)
     }
 
     override fun onStop() {

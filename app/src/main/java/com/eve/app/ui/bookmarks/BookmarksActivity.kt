@@ -468,6 +468,7 @@ class BookmarksActivity : EveBaseActivity() {
     override fun onResume() {
         super.onResume()
         if (!hasBookmarksOwner()) { finish(); return }
+        if (!::binding.isInitialized) return
         hasEmptyPlayed = false
         if (hasResumedOnce) viewModel.load() else hasResumedOnce = true
     }

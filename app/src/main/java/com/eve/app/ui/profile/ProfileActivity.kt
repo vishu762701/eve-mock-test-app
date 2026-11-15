@@ -937,6 +937,7 @@ class ProfileActivity : EveBaseActivity() {
         super.onResume()
         qrNavigationPending = false
         if (profileOwnerUid != null && FirebaseAuth.getInstance().currentUser?.uid != profileOwnerUid) { finish(); return }
+        if (!::binding.isInitialized) return
     }
 
     override fun onPause() {
@@ -1239,8 +1240,10 @@ class ProfileActivity : EveBaseActivity() {
             clearCameraTemp()
             discardCroppedPhoto()
         }
-        binding.layoutActions.stopLoading(binding.btnSetPhoto)
-        binding.layoutActions.setDrawingBlur(false)
+        if (::binding.isInitialized) {
+            binding.layoutActions.stopLoading(binding.btnSetPhoto)
+            binding.layoutActions.setDrawingBlur(false)
+        }
         birthdayDialog?.dismiss()
         birthdayDialog = null
         profileAuthListener?.let { FirebaseAuth.getInstance().removeAuthStateListener(it) }

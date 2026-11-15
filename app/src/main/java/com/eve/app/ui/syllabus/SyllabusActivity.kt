@@ -127,6 +127,7 @@ class SyllabusActivity : EveBaseActivity() {
     override fun onResume() {
         super.onResume()
         if (!hasSyllabusOwner()) { finish(); return }
+        if (!::binding.isInitialized) return
         binding.emptyStateView.resetPlayOnNextShow()
     }
 

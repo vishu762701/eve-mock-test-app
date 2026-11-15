@@ -7,7 +7,7 @@
     <color name="hairline">#D9D9D9</color>
     <color name="track">#0F000000</color>
     <color name="accent">#229AF0</color>
-    <color name="on_accent">#000000</color>
+    <color name="on_accent">#FFFFFF</color>
     <color name="solid_white">#FFFFFF</color>
     <color name="transparent">#00000000</color>
     <color name="glass_tint">#C2FFFFFF</color>

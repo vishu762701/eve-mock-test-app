@@ -101,7 +101,8 @@ class FeedbackActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (!hasFeedbackOwner()) finish()
+        if (!hasFeedbackOwner()) { finish(); return }
+        if (!::binding.isInitialized) return
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

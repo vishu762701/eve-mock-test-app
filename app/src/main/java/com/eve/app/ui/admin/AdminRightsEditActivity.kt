@@ -134,6 +134,7 @@ class AdminRightsEditActivity : EveBaseActivity() {
         super.onStart()
         if (gateReady && !ownerCurrent()) {
             finish()
+            return
         }
     }
 

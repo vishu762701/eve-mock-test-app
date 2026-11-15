@@ -852,7 +852,7 @@ class TestActivity : EveBaseActivity() {
 
     override fun onPause() {
         super.onPause()
-        if (isTestOwner() && !submitted && totalQuestions > 0) {
+        if (::binding.isInitialized && isTestOwner() && !submitted && totalQuestions > 0) {
             viewModel.saveCurrentSession(examId, binding.viewPager.currentItem)
         }
     }
@@ -861,7 +861,8 @@ class TestActivity : EveBaseActivity() {
         super.onSaveInstanceState(outState)
         outState.putBoolean("key_empty_played", hasEmptyPlayed)
         outState.putInt("saved_question_position", currentQuestionPosition)
-        viewModel.writeToBundle(outState, binding.viewPager.currentItem)
+        val pos = if (::binding.isInitialized) binding.viewPager.currentItem else currentQuestionPosition
+        viewModel.writeToBundle(outState, pos)
         outState.putString("key_attempt_owner", testOwnerUid)
     }
 

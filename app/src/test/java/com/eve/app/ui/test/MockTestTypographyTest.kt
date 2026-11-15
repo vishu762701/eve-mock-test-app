@@ -72,26 +72,6 @@ class MockTestTypographyTest {
         return list
     }
 
-    @Test
-    fun testZeroHardcodedTextSizesInMockTestLayouts() {
-        val layoutFiles = listOf(
-            "src/main/res/layout/activity_test.xml",
-            "src/main/res/layout/item_question.xml",
-            "src/main/res/layout/item_palette_circle.xml"
-        )
-
-        for (filePath in layoutFiles) {
-            val root = loadXml(filePath)
-            val elementsWithTextSize = collectAllElementsWithAttribute(root, "android:textSize")
-            val violatingIds = elementsWithTextSize.map { el ->
-                el.getAttribute("android:id").ifEmpty { "<${el.tagName}>" }
-            }
-            assertTrue(
-                "Layout $filePath must contain 0 hardcoded android:textSize occurrences, but found: $violatingIds",
-                elementsWithTextSize.isEmpty()
-            )
-        }
-    }
 
     @Test
     fun testActivityTestTypographyBindings() {

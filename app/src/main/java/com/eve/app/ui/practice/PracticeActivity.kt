@@ -76,7 +76,8 @@ class PracticeActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (!hasPracticeOwner()) finish()
+        if (!hasPracticeOwner()) { finish(); return }
+        if (!::binding.isInitialized) return
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

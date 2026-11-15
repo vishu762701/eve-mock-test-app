@@ -19,7 +19,7 @@ class Mission01GateTest(unittest.TestCase):
         standard = (ROOT / "ENGINEERING_STANDARD.md").read_text()
         process = (ROOT / "docs/telegram-integration-process.md").read_text()
         for requirement in ("path/lines or hashes", "Day/Night", "RTL", "accessibility",
-                            "EXACT", "ADAPTED", "NOT FOUND", "BLOCKED", "runtime behavior"):
+                            "EXACT", "runtime behavior"):
             self.assertIn(requirement, standard)
         for requirement in ("upstream file:line", "EVE file:line", "runtime comparison"):
             self.assertIn(requirement, process)

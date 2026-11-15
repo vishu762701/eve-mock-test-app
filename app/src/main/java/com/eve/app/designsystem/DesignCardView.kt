@@ -12,7 +12,6 @@ class DesignCardView @JvmOverloads constructor(
 ) : MaterialCardView(context, attrs, defStyleAttr) {
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        ShadowHost.releaseClipping(this)
         if (isClickable) TouchTargets.ensure(this)
     }
 }

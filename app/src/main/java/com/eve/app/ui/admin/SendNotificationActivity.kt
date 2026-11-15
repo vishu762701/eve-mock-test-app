@@ -91,6 +91,7 @@ class SendNotificationActivity : EveBaseActivity() {
         super.onStart()
         if (adminReady && !ownerCurrent()) {
             finish()
+            return
         }
     }
 

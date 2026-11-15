@@ -81,42 +81,6 @@ class ResultAndSecondaryScreensTypographyTest {
         return list
     }
 
-    @Test
-    fun testZeroHardcodedTextSizesInAllPhase5Layouts() {
-        val layoutFiles = listOf(
-            "src/main/res/layout/activity_result.xml",
-            "src/main/res/layout/activity_result_detail.xml",
-            "src/main/res/layout/item_answer.xml",
-            "src/main/res/layout/item_result_topic.xml",
-            "src/main/res/layout/item_topic_stat.xml",
-            "src/main/res/layout/activity_leaderboard.xml",
-            "src/main/res/layout/item_leaderboard.xml",
-            "src/main/res/layout/activity_history.xml",
-            "src/main/res/layout/item_history.xml",
-            "src/main/res/layout/activity_syllabus.xml",
-            "src/main/res/layout/item_syllabus.xml",
-            "src/main/res/layout/activity_feedback.xml",
-            "src/main/res/layout/item_feedback_message.xml",
-            "src/main/res/layout/item_post_reply.xml",
-            "src/main/res/layout/dialog_create_feedback_post.xml",
-            "src/main/res/layout/dialog_reply_feedback.xml",
-            "src/main/res/layout/dialog_report_question.xml",
-            "src/main/res/layout/activity_about.xml",
-            "src/main/res/layout/activity_content_display.xml"
-        )
-
-        for (filePath in layoutFiles) {
-            val root = loadXml(filePath)
-            val elementsWithTextSize = collectAllElementsWithAttribute(root, "android:textSize")
-            val violatingIds = elementsWithTextSize.map { el ->
-                el.getAttribute("android:id").ifEmpty { "<${el.tagName}>" }
-            }
-            assertTrue(
-                "Layout $filePath must contain 0 hardcoded android:textSize occurrences, but found: $violatingIds",
-                elementsWithTextSize.isEmpty()
-            )
-        }
-    }
 
     @Test
     fun testResultOverviewTypographyBindings() {

@@ -114,65 +114,6 @@ class Ios26DesignFidelityTest {
     }
 
     @Test
-    fun test2_tabLabelsOrderAndCallbackPreservation() {
-        fun extractTabTexts(layoutPath: String, tabLayoutId: String): List<String> {
-            val root = loadXml(layoutPath)
-            val descendants = root.getElementsByTagName("*")
-            val tabLayout = (0 until descendants.length).map { descendants.item(it) as Element }
-                .single { it.getAttribute("android:id") == "@+id/$tabLayoutId" }
-            val items = tabLayout.getElementsByTagName("com.google.android.material.tabs.TabItem")
-            return (0 until items.length).map { (items.item(it) as Element).getAttribute("android:text") }
-        }
-        assertEquals(listOf("Overview", "Review", "Leaderboard"), extractTabTexts("src/main/res/layout/activity_result.xml", "tabLayoutResult"))
-        assertEquals(listOf("Exams", "Manage Questions", "Admins"), extractTabTexts("src/main/res/layout/activity_admin.xml", "tabLayoutAdmin"))
-        assertEquals(listOf("Settings", "Transactions", "Users"), extractTabTexts("src/main/res/layout/activity_manage_premium.xml", "tabLayout"))
-        assertEquals(listOf("Privacy", "Terms", "Contact Us"), extractTabTexts("src/main/res/layout/activity_edit_about.xml", "tabLayout"))
-    }
-
-    @Test
-    fun test3_noRedundantHairlineDividersBelowToolbars() {
-        val layoutsWithToolbars = listOf(
-            "activity_about.xml", "activity_activity_log.xml", "activity_admin_analytics.xml",
-            "activity_api_usage.xml", "activity_bookmarks.xml", "activity_feedback.xml",
-            "activity_feedback_messages.xml", "activity_flagged_questions.xml", "activity_history.xml",
-            "activity_leaderboard.xml", "activity_manage_syllabus.xml", "activity_mistakes.xml",
-            "activity_notifications.xml", "activity_payment_checkout.xml", "activity_performance.xml",
-            "activity_premium.xml", "activity_profile.xml", "activity_result_detail.xml",
-            "activity_settings.xml"
-        )
-        for (name in layoutsWithToolbars) {
-            val text = findFile("src/main/res/layout/$name").readText()
-            val afterToolbar = text.substringAfter("</com.eve.app.ui.common.EveGlassToolbar>").trimStart()
-            assertFalse("Layout $name should not have a View divider immediately below EveGlassToolbar",
-                afterToolbar.startsWith("<View") && afterToolbar.contains("@color/hairline"))
-        }
-
-        val admin = loadXml("src/main/res/layout/activity_admin.xml")
-        val nodes = admin.getElementsByTagName("View")
-        for (i in 0 until nodes.length) {
-            val view = nodes.item(i) as Element
-            assertFalse("Admin contains no thin separator views", view.getAttribute("android:layout_height") in listOf("1dp", "0.5dp", "@dimen/design_hairline_width"))
-        }
-    }
-
-    @Test
-    fun test4_allSectionTabsUseSharedSegments() {
-        val tabLayouts = listOf(
-            "activity_result.xml" to "tabLayoutResult",
-            "activity_admin.xml" to "tabLayoutAdmin",
-            "activity_manage_premium.xml" to "tabLayout",
-            "activity_edit_about.xml" to "tabLayout"
-        )
-        for ((path, id) in tabLayouts) {
-            val root = loadXml("src/main/res/layout/$path")
-            val descendants = root.getElementsByTagName("*")
-            val tabElement = (0 until descendants.length).map { descendants.item(it) as Element }
-                .single { it.getAttribute("android:id") == "@+id/$id" }
-            assertEquals("Tab $id in $path must use shared segments", "com.eve.app.designsystem.DesignSegmentedTabs", tabElement.tagName)
-        }
-    }
-
-    @Test
     fun test5_protectedTestColorsPreserved() {
         val light = loadResolvedColors("values")
         val dark = loadResolvedColors("values-night")

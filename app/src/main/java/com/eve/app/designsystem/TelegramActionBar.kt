@@ -337,4 +337,61 @@ open class TelegramActionBar @JvmOverloads constructor(
         actionButton.visibility = View.GONE
         searchButton.visibility = if (onSearchTextChanged != null) View.VISIBLE else View.GONE
     }
+
+    var menuDrawable: MenuDrawable? = null
+
+    fun setMenuButton(onClick: () -> Unit) {
+        val palette = TelegramThemeEngine.resolveCurrentPalette(context)
+        val menu = MenuDrawable().apply {
+            setColor(palette.textPrimary)
+        }
+        menuDrawable = menu
+        backButton.setImageDrawable(menu)
+        backButton.contentDescription = "Menu"
+        backButton.setOnClickListener {
+            if (isSearchExpanded) {
+                closeSearch()
+            } else {
+                onClick()
+            }
+        }
+    }
+
+    fun setBackButton(onClick: (() -> Unit)? = null) {
+        val palette = TelegramThemeEngine.resolveCurrentPalette(context)
+        backDrawable.setColor(palette.textPrimary)
+        backButton.setImageDrawable(backDrawable)
+        backButton.contentDescription = "Back"
+        if (onClick != null) {
+            onBackPressed = onClick
+        }
+        backButton.setOnClickListener {
+            if (isSearchExpanded) {
+                closeSearch()
+            } else {
+                onBackPressed?.invoke()
+            }
+        }
+    }
+
+    fun updatePalette(palette: TelegramThemeEngine.TelegramPalette) {
+        val circleSelector = {
+            TelegramThemeSelectors.getCircleSelectorDrawable(palette.actionSelector)
+        }
+        backDrawable.setColor(palette.textPrimary)
+        menuDrawable?.setColor(palette.textPrimary)
+        backButton.background = circleSelector()
+        titleTextView.setTextColor(palette.textPrimary)
+        subtitleTextView.setTextColor(palette.textSecondary)
+        searchButton.setColorFilter(palette.textPrimary)
+        searchButton.background = circleSelector()
+        filterButton.setColorFilter(palette.textPrimary)
+        filterButton.background = circleSelector()
+        actionButton.setColorFilter(palette.accent)
+        actionButton.background = circleSelector()
+        clearButton.setColorFilter(palette.textSecondary)
+        clearButton.background = circleSelector()
+        searchEditText.setTextColor(palette.textPrimary)
+        searchEditText.setHintTextColor(palette.textSecondary)
+    }
 }

@@ -226,7 +226,8 @@ class MistakesActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (!hasMistakesOwner()) finish()
+        if (!hasMistakesOwner()) { finish(); return }
+        if (!::binding.isInitialized) return
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

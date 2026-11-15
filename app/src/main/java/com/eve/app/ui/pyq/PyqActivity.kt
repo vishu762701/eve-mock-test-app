@@ -99,7 +99,8 @@ class PyqActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (!hasPyqOwner()) finish()
+        if (!hasPyqOwner()) { finish(); return }
+        if (!::binding.isInitialized) return
     }
 
     override fun onDestroy() {

@@ -149,6 +149,7 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
+        if (!::binding.isInitialized) return
         if (reauthorizeOnResume && ::binding.isInitialized) {
             reauthorizeOnResume = false
             val live = FirebaseAuth.getInstance().currentUser

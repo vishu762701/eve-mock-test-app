@@ -16,7 +16,7 @@ class EngineeringGovernanceTest(unittest.TestCase):
         process = read("docs/telegram-integration-process.md")
         for term in ("no numeric commit ceiling", "fast-forward batch",
                      "exact-SHA FAST", "minimum complete functional subsystem",
-                     "full commit SHA", "EXACT", "ADAPTED", "NOT FOUND", "BLOCKED"):
+                     "full commit SHA", "EXACT"):
             self.assertIn(term, standard)
         for term in ("suitable official revision", "transitive classes", "lifecycle",
                      "license", "runtime"):

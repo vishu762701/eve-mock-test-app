@@ -82,6 +82,7 @@ class FeedbackMessagesActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
+        if (!::binding.isInitialized) return
         binding.emptyStateView.resetPlayOnNextShow()
         if (reauthorizeOnResume && ::binding.isInitialized) {
             reauthorizeOnResume = false

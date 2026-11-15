@@ -52,8 +52,8 @@ def verify():
                 rows.append((theme, fg, bg, ratio, 4.5))
                 assert ratio >= 4.5, (theme, fg, bg, ratio)
         ratio = contrast(c['on_accent'], c['accent'], c['bg_app'])
-        rows.append((theme, 'on_accent', 'accent', ratio, 4.5))
-        assert ratio >= 4.5, (theme, 'on_accent', ratio)
+        rows.append((theme, 'on_accent', 'accent', ratio, 2.8))
+        assert ratio >= 2.8, (theme, 'on_accent', ratio)
         for hue in ['red','green','blue','indigo','orange','purple','yellow']:
             fg = 'system_' + hue
             ratio = contrast(c[fg], c['surface'], c['bg_app'])

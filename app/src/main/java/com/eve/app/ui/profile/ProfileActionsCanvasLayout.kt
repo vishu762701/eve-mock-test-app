@@ -188,6 +188,10 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
         invalidate()
     }
 
+    fun updatePalette(palette: TelegramThemeEngine.TelegramPalette) {
+        invalidate()
+    }
+
     fun setDrawingBlur(drawing: Boolean) {
         if (!drawing && (renderNode != null || avatarView != null)) {
             renderNode = null

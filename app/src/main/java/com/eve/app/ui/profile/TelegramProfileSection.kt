@@ -46,6 +46,10 @@ class TelegramProfileSection @JvmOverloads constructor(
         super.onDetachedFromWindow()
     }
 
+    fun updatePalette(palette: TelegramThemeEngine.TelegramPalette) {
+        invalidate()
+    }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         rect.set(0f, 0f, width.toFloat(), height.toFloat())

@@ -256,4 +256,21 @@ class TelegramTabsView @JvmOverloads constructor(
             viewPager.setCurrentItem(position, true)
         }
     }
+
+    fun updatePalette(palette: TelegramThemeEngine.TelegramPalette) {
+        indicatorPaint.color = palette.accent
+        for (i in 0 until tabsContainer.childCount) {
+            val tabView = tabsContainer.getChildAt(i) as? LinearLayout ?: continue
+            val mask = GradientDrawable().apply {
+                cornerRadius = dp(6f).toFloat()
+                setColor(Color.WHITE)
+            }
+            tabView.background = RippleDrawable(ColorStateList.valueOf(palette.actionSelector), null, mask)
+            val tvTitle = tabView.findViewById<TextView>(android.R.id.text1)
+            tvTitle?.setTextColor(if (i == currentPosition) palette.accent else palette.textSecondary)
+            val tvCount = tabView.findViewById<TextView>(android.R.id.text2)
+            (tvCount?.background as? GradientDrawable)?.setColor(if (i == currentPosition) palette.accent else palette.textSecondary)
+        }
+        invalidate()
+    }
 }

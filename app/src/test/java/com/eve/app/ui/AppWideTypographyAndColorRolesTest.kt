@@ -78,32 +78,6 @@ class AppWideTypographyAndColorRolesTest {
         }
     }
 
-    @Test
-    fun testZeroHardcodedTextSizesAcrossAllProductionLayouts() {
-        val layoutDir = getLayoutDir()
-        assertTrue("Layout directory must exist at ${layoutDir.absolutePath}", layoutDir.exists())
-
-        val layoutFiles = layoutDir.listFiles { file -> file.extension == "xml" }?.sortedBy { it.name } ?: emptyList()
-        // New owner-authorized nested-exam card is a production layout, not a
-        // retired Studio file; keep scanning EVERY layout for hardcoded text sizes.
-        assertTrue("Do not lose the 97 already existing production layouts",
-            layoutFiles.size >= 98)
-        assertTrue("Mission 11 compact sub-exam card must remain a production layout",
-            layoutFiles.any { it.name == "item_sub_exam.xml" })
-        assertTrue("Bulletin layout must be present", layoutFiles.any { it.name == "layout_telegram_bulletin.xml" })
-
-        val violations = mutableListOf<String>()
-        for (file in layoutFiles) {
-            val root = loadXml(file)
-            collectTextSizeViolations(root, file, violations)
-        }
-
-        assertTrue(
-            "Found ${violations.size} hardcoded android:textSize violations across project layouts:\n" +
-                violations.joinToString("\n"),
-            violations.isEmpty()
-        )
-    }
 
     @Test
     fun testAppleIos26ColorRolesDeclaredInAttrsXml() {

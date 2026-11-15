@@ -121,6 +121,7 @@ class NotificationsActivity : EveBaseActivity() {
             finish()
             return
         }
+        if (!::binding.isInitialized) return
         if (binding.emptyGroup.visibility == View.VISIBLE && !hasEmptyPlayed && !binding.lottieEmpty.isAnimating) {
             binding.lottieEmpty.resumeAnimation()
         }

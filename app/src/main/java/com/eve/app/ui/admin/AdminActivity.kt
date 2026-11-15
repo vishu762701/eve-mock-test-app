@@ -626,6 +626,7 @@ class AdminActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
+        if (!::binding.isInitialized) return
         refreshAdminRightsAfterStop()
     }
 

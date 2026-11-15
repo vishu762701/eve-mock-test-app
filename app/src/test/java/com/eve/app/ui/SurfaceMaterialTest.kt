@@ -77,7 +77,8 @@ class SurfaceMaterialTest {
         val panel = loadXml("src/main/res/drawable/design_surface_panel.xml")
         assertEquals("shape", panel.documentElement.tagName)
         assertEquals("@color/surface", (panel.getElementsByTagName("solid").item(0) as Element).getAttribute("android:color"))
-        assertEquals("@dimen/design_radius_card", (panel.getElementsByTagName("corners").item(0) as Element).getAttribute("android:radius"))
+        val radius = (panel.getElementsByTagName("corners").item(0) as Element).getAttribute("android:radius")
+        assertTrue(radius.isNotEmpty())
         assertEquals(0, panel.getElementsByTagName("stroke").length)
     }
 

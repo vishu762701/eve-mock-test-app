@@ -50,7 +50,11 @@
         android:scrollbars="none"
         android:clipToPadding="false"
         android:clipChildren="false"
-        style="@style/Widget.Eve.Token.Scroll">
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp"
+        android:paddingLeft="0dp"
+        android:paddingRight="0dp"
+        android:paddingBottom="@dimen/design_scroll_clearance">
 
         <LinearLayout
             android:layout_width="match_parent"

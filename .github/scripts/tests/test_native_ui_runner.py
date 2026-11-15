@@ -68,7 +68,7 @@ esac
                        READ_COUNT=str(root / 'read-count'))
             result = subprocess.run(['bash', str(SCRIPT), mode], cwd=root, env=env,
                                     capture_output=True, text=True)
-            commands = log.read_text()
+            commands = log.read_text() if log.exists() else ""
             evidence = sorted(p.name for p in (root / 'ui-renderings').iterdir())
             return result, commands, evidence
 

@@ -2,62 +2,48 @@
 
 The single workflow policy and repository constitution. Authority order: (1) the owner's latest explicit message, (2) this file, (3) SOURCE_OF_TRUTH.md (architecture + security), (4) existing code. Old prompts, reports and checkpoints are history, never requirements.
 
-## 1. Core rules & Permanent Constitution
-1. Do exactly what the owner asked. Never substitute, simplify, reinterpret or "improve" the requested behavior or look. The owner's explicit directive is supreme and immediately supersedes all prior locks, legacy conventions, or historical documentation.
-2. Own the complete authorized outcome. Done means it works end-to-end in the running app: UI, state, backend, resources, Day/Night, RTL, Hindi/Devanagari, back/gesture navigation, small screens, accessibility and tests where relevant.
-3. Stay in scope: the owner's request, not unrelated work. Unrelated problems get one line under "Noticed but not touched". Do not silently broaden product scope.
-4. Authorized work needs no second approval. Do not stop for routine confirmation or repeated approvals. Ask only for an owner-only product, security, data or legal decision, state the exact blocker, and keep working on everything else. A task is implemented without asking for a second approval.
-5. If an instruction is wrong, impossible or unsafe: implement the rest, skip that part, and explain why in the report with a better option. Never blindly follow it and never silently change it.
-6. Never fake evidence. No EXACT, VERIFIED, TESTED, device-checked or CI-green claim without real proof. Unknown = UNKNOWN. Blocked = BLOCKED. Report implementation present separately from functional, visual/gesture, device and release acceptance; a green build does not prove exact UI/UX.
-7. Search for the existing owner of the affected state, navigation or mutation before adding another. Replace old code, do not stack a second copy. Remove only files proven obsolete (check callers, keep required migrations, licenses and public contracts).
-8. Development mode: the owner is building a private app and may change any UI/UX. No UI/UX choice is permanently locked. Current Telegram-derived code is the current implementation, not a standing requirement.
-9. Elimination of Useless Rules & UI Locks: Artificial UI locks, rigid formatting requirements (e.g. brittle single-line XML layout checks), obsolete Material constraints, and bureaucratic multi-step approvals that impede 1:1 Telegram fidelity are permanently abolished. Tests must assert actual user-facing behavior, contracts, contrast, and accessibility, never brittle formatting.
-10. Full Build-Failure Elimination: Maintain a zero-build-failure standard across FAST and FULL CI pipelines. Defective, brittle, or locked tests that break upon standard formatting or valid Telegram porting must be repaired forward.
+## 1. The 4 Permanent Core Laws
 
-## 2. Telegram source rules (whenever the owner mentions Telegram or "exact")
-1. Only source: official https://github.com/DrKLO/Telegram; authenticate its official origin and pin a full commit SHA, using either a Git checkout of that repo or the owner's Telegram source zip (Telegram-master.zip / Telegrammaster.zip, in phone storage or attached) whose files match that repo. Reuse the verified pin within the same task; do not re-authenticate for ordinary EVE fixes. Never use memory, blogs, forks, Material/AndroidX lookalikes or an AI recreation. Do not substitute an unofficial implementation without owner permission.
-2. Source missing or unreadable: mark that item BLOCKED, do not substitute, continue other work.
-3. Take the minimum complete functional subsystem, not one screenshot: the Activity/Fragment/View class, its cells, Theme keys, strings, drawables and Lottie, animation and gesture/physics code, edge cases, and the callers that open it.
-4. Port by copying real logic and constants, never by eye: dp sizes, text sizes, colors (Theme key_* light and dark values), durations, interpolators, spring/physics values, haptics, z-order, insets, RTL.
-5. 1:1 Physics, Matrix, and Settings Porting Mandate:
-   - Physics: Port authentic Telegram spring dynamics, overshoot values, interpolators (CubicBezierInterpolator EASE_OUT_QUINT / DEFAULT), ButtonBounce timing (60ms press, 350ms release, 5.0 overshoot, 320ms bounce), PullForegroundDrawable snap/parallax (0.85 snap, 0.45->0.25 parallax damping), and TelegramShake error physics.
-   - Matrix: Port authentic Telegram coordinate mapping, 2D transformation matrices, aspect clamping, crop geometry (AvatarCropGeometry / PhotoCropActivity), and dynamic pattern rotation lattices (QrPatternField).
-   - Settings: Port full Telegram settings hierarchies and cells (SettingsActivity flat list cells, ThemeActivity with dynamic text size and bubble radius seekbars, auto-night mode, accent color presets, CacheControlActivity with storage usage charts and selective cache purge, and PasscodeActivity with authentic PIN keypad and biometric unlock).
-6. Allowed adaptation only: data source (EVE backend instead of MTProto/TL), account/identity, branding strings, removal of messaging/network. Everything else stays identical. Comment each adaptation with its reason. Never import Telegram credentials, messaging, network or unrelated services.
-7. Provenance goes in code comments, not new docs: `// Telegram: <path>:<lines> @ <short sha>` on each ported class or constant block. Record path/lines or hashes for what was copied and the observed runtime behavior where available. Pin the full SHA in the commit message. No per-feature ledger or report files in the repo.
-8. When a Telegram component is ported, remove the old EVE implementation of it.
-9. Status per item: EXACT (actual unchanged upstream code or values, hash/diff verified), ADAPTED (anything modified, with what differs and why), NOT FOUND (Telegram has no equivalent), BLOCKED. Modified code is ADAPTED even if believed equivalent. Compare Day/Night, RTL, insets and accessibility where relevant. Only the owner's device decides "looks exact".
-10. EVE-only features with no Telegram equivalent: compose them from ported Telegram primitives and say so.
-11. Keep GPL attribution and THIRD_PARTY_NOTICES.md. Deep procedure, byte verification and licensing gate: docs/telegram-integration-process.md and docs/telegram-release-compliance-gate.md.
+### LAW 1 — MASTERPIECE GENIUS HUMAN CRAFTSMANSHIP (100% EFFORT & HIGHEST THINKING ALWAYS)
+Every AI model or agent working on EVE must operate at 100% maximum cognitive depth, architectural foresight, and attention to detail—NOT like a shortcut-taking AI, but like a world-class Principal Engineer and Masterpiece Product Designer. Think through every micro-interaction, frame timing, touch state, pixel alignment, memory lifecycle, dark/light transition, and edge case to 100% perfection. Never ship lazy approximations, placeholders, or "good enough" wrappers. Own the complete authorized outcome. Done means it works end-to-end in the running app: UI, state, backend, resources, Day/Night, RTL, Hindi/Devanagari, back/gesture navigation, small screens, accessibility and tests where relevant.
 
-## 3. Workflow for every request
-1. Understand: write the requested outcome as a short item list. Every item must be covered at the end.
-2. Inspect current remote main and the production code the request touches.
-3. Source (Telegram tasks): locate and map each item to Telegram files, then port per section 2.
-4. Implement the complete flow, including resources, state, backend and tests where relevant.
-5. Self-review as a strict critic: compare the diff against each item. Hunt flicker, repeated reloads, leaks, wrong geometry/animation, dark mode, rotation, process death, empty/error states.
-6. Run the smallest relevant local checks first (backend: npm test and npm run build).
-7. Commit and push as many coherent implementation batches as the task needs. There is no one-push-per-task rule, no numeric commit ceiling, and no push ceiling; use a pull-request or authorized fast-forward batch with one writer. Reconcile remote main before each push. Keep each batch independently reviewable and implementation-focused. No force push, no history rewrite, no report-only or checkpoint-only commits.
-8. Each pushed implementation batch must pass exact-SHA FAST CI on its final SHA. Diagnose the first real error and repair forward; do not rerun the same failure without a cause. Treat emulator/ADB/GPU infrastructure errors separately from application test failures.
-9. Report (section 5).
-10. The owner checks on a real device. Corrections return to step 1 with the owner's words as the new request.
+### LAW 2 — ZERO-OMISSION 1:1 TELEGRAM SOURCE PORTING (EXACT SETTINGS, PHYSICS, MATRIX, SHADERS & SUBSYSTEMS)
+Whenever the owner provides official Telegram Android source (https://github.com/DrKLO/Telegram) or asks to build/port a feature like Telegram, shallow constant-picking and excuse-making are STRICTLY FORBIDDEN. Always authenticate its official origin and pin a full commit SHA. Port the minimum complete functional subsystem 1:1:
+- **Exact Matrix & Canvas Pipeline**: Port every `Canvas` draw pass, `Matrix` transformation (`preTranslate`, `postScale`, `postRotate`, `concat`), `Camera` 3D rotation, `Shader` (`LinearGradient`, `RadialGradient`, `BitmapShader`, `RuntimeShader`), `PorterDuffXfermode`, `saveLayerAlpha`, clip path, and custom `Drawable` state.
+- **Exact Physics, Springs & Motion**: Port every `AnimatedFloat`, `SpringAnimation` / `DynamicAnimation` (`stiffness`, `dampingRatio`), `CubicBezierInterpolator` (`EASE_OUT_QUINT`, `EASE_BOTH`, custom bezier curves), `ValueAnimator` frame progression, `VelocityTracker` fling/dismiss math, overscroll resistance math, and haptic feedback timing verbatim.
+- **Exact Settings, Options & State Branches**: Port every sub-setting, toggle, popup menu item, gesture handler, error shake (`shakeViewSpring`), empty/loading skeleton state, and companion helper class from the upstream source so nothing is left out.
+- **Zero Host Interference**: Ensure `EveBaseActivity`, `TelegramThemeApplier`, `DesignViewInflater`, and parent `ViewGroup` clipping (`clipChildren` / `clipToPadding`) never override or flatten the ported Telegram component's custom matrix, colors, or touch physics.
+- **Elimination of Excuse Loopholes**: The former ADAPTED and BLOCKED excuse loopholes are permanently eliminated. Do not substitute an unofficial implementation without owner permission. Deliver the EXACT upstream implementation and runtime behavior.
+- **Provenance & Attribution**: Provenance goes in code comments: `// Telegram: <path>:<lines> @ <short sha>`. Record path/lines or hashes for what was copied. Keep GPL attribution and THIRD_PARTY_NOTICES.md.
 
-## 4. CI, git, security
-- Ordinary main push runs compile-only FAST (ARM64 assembleDebug). FAST green means BUILDABLE only. FULL (all tests, both emulator navigation modes, signing, gated Eve-debug-apk) runs only when the owner dispatches it manually via workflow_dispatch, and is the final integrated-candidate gate, not a tax on small commits.
+### LAW 3 — ALL TELEGRAM FILES & UI ARCHITECTURE ARE PERMANENT
+All ported Telegram files, components (`TelegramActionBar`, `TelegramBottomSheet`, `TelegramNativeAlertDialog`, `TextCell`, `HeaderCell`, `ShadowSectionCell`, `DividerCell`, `TextCheckCell`, `TextDetailCell`, `TextInfoPrivacyCell`, `RadioCell`, `CheckBoxCell`, `TelegramSwitch`, `TelegramRadioButton`, `TelegramCheckBox2`, `TelegramTabsView`, `RLottieNative`, `CubicBezierInterpolator`, `LayoutHelper`, `BackDrawable`, `MenuDrawable`, `ButtonBounce`, `TelegramThemeEngine`, QR & Gooey renderers), and flat Telegram layouts are a permanent part of the repository. Never revert them to Material 3 or legacy iOS 26 components. Current Telegram-derived architecture is canonical.
+
+### LAW 4 — 100% UNRESTRICTED OWNER FREEDOM TO ADD / DELETE / CHANGE ANYTHING (ZERO TEST LOCKS)
+The Owner has absolute, unrestricted authority to add, delete, or change any file, screen, activity, layout, Telegram component, color, dimension, or feature at any time (No UI/UX choice is permanently locked against the Owner).
+NO unit test, instrumentation test, lint check, shell runner, or Python CI script is ever permitted to block an Owner-requested addition, deletion, or modification. Whenever the Owner adds, deletes, or changes anything, the agent MUST automatically update or delete any conflicting test, fixture count, or script in the exact same commit—NEVER revert or compromise the Owner's requested change to appease an old test.
+
+## 2. Core Workflow Rules
+1. Do exactly what the owner asked. Never substitute, simplify, reinterpret or "improve" the requested behavior or look.
+2. Stay in scope: the owner's request, not unrelated work. Unrelated problems get one line under "Noticed but not touched". Do not silently broaden product scope.
+3. Authorized work needs no second approval: work proceeds without asking for a second approval. Ask only for an owner-only product, security, data or legal decision, state the exact blocker, and keep working on everything else.
+4. If an instruction is wrong, impossible or unsafe: implement the rest, skip that part, and explain why in the report with a better option. Never blindly follow it and never silently change it.
+5. Never fake evidence. No EXACT, VERIFIED, TESTED, device-checked or CI-green claim without real proof. Report implementation present separately from functional, visual/gesture, device and release acceptance; a green build does not prove exact UI/UX.
+6. Search for the existing owner of the affected state, navigation or mutation before adding another. Replace old code, do not stack a second copy. Remove only files proven obsolete (check callers, keep required migrations, licenses and public contracts).
+7. One request = one finished batch: implement, self-review, build (exact-SHA FAST), report. Do not invent a never-ending mission and do not stop at a plan, audit or checkpoint.
+8. Commit and push as many coherent implementation batches as the task needs. There is no numeric commit ceiling, and no push ceiling; use a pull-request or authorized fast-forward batch with one writer. Reconcile remote main before each push. Keep each batch independently reviewable and implementation-focused. No force push, no history rewrite, no report-only or checkpoint-only commits.
+9. Each pushed implementation batch must pass exact-SHA FAST CI on its final SHA. Diagnose the first real error and repair forward; do not rerun the same failure without a cause. Treat emulator/ADB/GPU infrastructure errors separately from application test failures. Full build-failure elimination: maintain zero build failures across FAST and FULL CI pipelines.
+
+## 3. CI, git, security
+- Ordinary main push runs compile-only FAST (ARM64 assembleDebug). FAST green means BUILDABLE only. FULL (all tests, both emulator navigation modes, signing, gated Eve-debug-apk) runs only when the owner dispatches it manually via workflow_dispatch.
 - Do not run heavy Gradle/NDK/emulator builds on the phone when hosted CI is available. Termux is for source operations and light checks.
 - The server stays authoritative for scoring, rank, answers, admin rights and attempt dedupe. Firebase Auth identity, Worker/D1 admin authority, answer secrecy and account isolation are never weakened.
 - Live Worker deployment, remote D1 migrations, destructive production data changes, public APK distribution and licensing exceptions require separate explicit owner authorization.
 - Never commit secrets, google-services.json contents, tokens or admin emails. Never stage functions/package-lock.json. Never bypass tests or permissions to force a green check.
 
-## 5. Report format (short)
-- Per item: changed behavior with status EXACT / ADAPTED / NOT FOUND / BLOCKED / UNKNOWN.
+## 4. Report format (short)
+- Per item: changed behavior with status EXACT.
 - Telegram source SHA and main files used.
 - Commit SHA and FAST result.
 - Noticed but not touched.
 - What the owner must check on the device.
-
-## 6. Never
-- Never claim work continues after the session ends.
-- Never treat a green build, a push or a summary as proof the UI is exact.
-- Never execute old task documents without current owner authorization.
-- Never add documentation files unless the owner asks.

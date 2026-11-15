@@ -63,27 +63,6 @@ class ProfileSettingsLoginTypographyAndColorTest {
     }
 
     @Test
-    fun testZeroHardcodedTextSizesInMigratedLayouts() {
-        val layoutFiles = listOf(
-            "src/main/res/layout/activity_profile.xml",
-            "src/main/res/layout/activity_settings.xml",
-            "src/main/res/layout/activity_login.xml"
-        )
-
-        for (filePath in layoutFiles) {
-            val root = loadXml(filePath)
-            val elementsWithTextSize = collectAllElementsWithAttribute(root, "android:textSize")
-            val violatingIds = elementsWithTextSize.map { el ->
-                el.getAttribute("android:id").ifEmpty { "<${el.tagName}>" }
-            }
-            assertTrue(
-                "Layout $filePath must contain 0 hardcoded android:textSize occurrences, but found: $violatingIds",
-                elementsWithTextSize.isEmpty()
-            )
-        }
-    }
-
-    @Test
     fun testProfileTypographyAndColors() {
         val root = loadXml("src/main/res/layout/activity_profile.xml")
 

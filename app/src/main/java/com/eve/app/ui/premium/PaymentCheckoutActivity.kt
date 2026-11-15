@@ -105,7 +105,8 @@ class PaymentCheckoutActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (!hasOriginalAccount()) finish()
+        if (!hasOriginalAccount()) { finish(); return }
+        if (!::binding.isInitialized) return
     }
 
     private fun setupViews() {

@@ -91,7 +91,8 @@ class HistoryActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (!hasHistoryOwner()) finish()
+        if (!hasHistoryOwner()) { finish(); return }
+        if (!::binding.isInitialized) return
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

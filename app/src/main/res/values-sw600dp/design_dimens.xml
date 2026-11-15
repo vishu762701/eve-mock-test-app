@@ -28,7 +28,7 @@
     <dimen name="design_ring_size">72dp</dimen>
     <dimen name="design_ring_stroke">4dp</dimen>
     <dimen name="design_touch_min">48dp</dimen>
-    <dimen name="design_card_elevation">9dp</dimen>
+    <dimen name="design_card_elevation">0dp</dimen>
     <dimen name="design_shadow_y">6dp</dimen>
     <dimen name="design_shadow_blur">20dp</dimen>
     <dimen name="design_shadow_room">20dp</dimen>

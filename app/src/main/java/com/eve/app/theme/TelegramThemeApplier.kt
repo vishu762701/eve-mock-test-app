@@ -48,9 +48,32 @@ object TelegramThemeApplier {
         if (view.tag == "no_theme" || view.tag == "status_color" || view.tag == "semantic_status") {
             return
         }
+        if (view.tag == "eve_telegram_exact") {
+            (view as? com.eve.app.designsystem.TelegramActionBar)?.updatePalette(palette)
+            (view as? com.eve.app.designsystem.TelegramTabsView)?.updatePalette(palette)
+            (view as? com.eve.app.ui.profile.TelegramProfileSection)?.updatePalette(palette)
+            (view as? com.eve.app.ui.profile.ProfileActionsCanvasLayout)?.updatePalette(palette)
+            return
+        }
 
         applyBackgroundRole(view, palette)
         when (view) {
+            is com.eve.app.designsystem.TelegramActionBar -> {
+                view.updatePalette(palette)
+                return
+            }
+            is com.eve.app.designsystem.TelegramTabsView -> {
+                view.updatePalette(palette)
+                return
+            }
+            is com.eve.app.ui.profile.TelegramProfileSection -> {
+                view.updatePalette(palette)
+                return
+            }
+            is com.eve.app.ui.profile.ProfileActionsCanvasLayout -> {
+                view.updatePalette(palette)
+                return
+            }
             is com.eve.app.designsystem.TelegramFlickerSkeletonView -> {
                 view.updateTheme(palette)
                 return

@@ -164,7 +164,8 @@ class SettingsActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (!hasSettingsOwner() && !deletingFirebaseCredential) finish()
+        if (!hasSettingsOwner() && !deletingFirebaseCredential) { finish(); return }
+        if (!::binding.isInitialized) return
         refreshLanguageText()
         binding.tvPasscodeValue.text = if (com.eve.app.util.PasscodeManager.isPasscodeEnabled(this)) "On" else "Off"
         binding.tvStorageValue.text = com.eve.app.util.CacheManager.formatFileSize(com.eve.app.util.CacheManager.getTotalCacheSize(this))
@@ -334,6 +335,7 @@ class SettingsActivity : EveBaseActivity() {
     }
 
     private fun refreshLanguageText() {
+        if (!::binding.isInitialized) return
         val current = AppCompatDelegate.getApplicationLocales()
         val text = when {
             current.isEmpty -> "System default"

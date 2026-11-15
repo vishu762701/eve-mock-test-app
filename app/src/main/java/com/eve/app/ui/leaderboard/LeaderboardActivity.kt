@@ -95,7 +95,8 @@ class LeaderboardActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (!hasLeaderboardOwner()) finish()
+        if (!hasLeaderboardOwner()) { finish(); return }
+        if (!::binding.isInitialized) return
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
