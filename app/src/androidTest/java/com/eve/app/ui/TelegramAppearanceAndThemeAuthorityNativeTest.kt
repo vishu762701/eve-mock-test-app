@@ -77,7 +77,7 @@ class TelegramAppearanceAndThemeAuthorityNativeTest {
             val button = com.google.android.material.button.MaterialButton(context).apply {
                 tag = "accent_button"
             }
-            val tabs = com.eve.app.designsystem.DesignSegmentedTabs(context)
+            val tabs = com.eve.app.designsystem.TelegramTabsView(context)
             val textView = android.widget.TextView(context).apply {
                 setTextColor(android.graphics.Color.BLACK)
             }

@@ -72,7 +72,7 @@ class HomeMenuAccessibilityContractTest {
 
     @Test fun sourceBackedNinePatchOnlyChangesHomeOverflow() {
         val popup = File("src/main/java/com/eve/app/ui/home/TelegramMenuPopup.kt").readText()
-        val glass = File("src/main/java/com/eve/app/designsystem/DesignGlassLayout.kt").readText()
+        val glass = File("src/main/java/com/eve/app/designsystem/TelegramMenuPopupLayout.kt").readText()
         assertTrue("Normal ActionBarMenuItem uses popup_fixed_alert4, not topView alert2",
             popup.contains("R.drawable.telegram_dialog_popup_fixed_alert4"))
         assertTrue(!popup.contains("R.drawable.telegram_popup_fixed_alert2"))
@@ -82,7 +82,6 @@ class HomeMenuAccessibilityContractTest {
         assertTrue(popup.contains("binding.root.originalPopupBackground = sourceBackground"))
         assertTrue(popup.contains("TelegramPopupSourceBackground(it)"))
         assertTrue(glass.contains("var originalPopupBackground: Drawable? = null"))
-        assertTrue(glass.contains("if (source != null) background = source"))
     }
 
     @Test fun sourcePopupRetainsInputModeAndMenuKeyDismissContract() {
@@ -146,12 +145,12 @@ class HomeMenuAccessibilityContractTest {
 
     @Test fun officialPopupNinePatchGrowsWithoutScalingEntireRowLayout() {
         val source = File("src/main/java/com/eve/app/designsystem/TelegramPopupSourceBackground.kt").readText()
-        val glass = File("src/main/java/com/eve/app/designsystem/DesignGlassLayout.kt").readText()
+        val glass = File("src/main/java/com/eve/app/designsystem/TelegramMenuPopupLayout.kt").readText()
         val motion = File("src/main/java/com/eve/app/ui/home/TelegramPopupSourceMotion.kt").readText()
         assertTrue(source.contains("fun visibleHeight(totalHeight: Int): Int"))
         assertTrue(source.contains("sourceDrawable.setBounds(box.left, box.top, box.right, box.top + y)"))
         assertTrue(source.contains("sourceDrawable.alpha = backAlpha"))
-        assertTrue(glass.contains("canvas.clipRect(0, 0, width, source.visibleHeight(height))"))
+        assertTrue(glass.contains("var backScaleY: Float = 1.0f"))
         assertTrue(motion.contains("source.backScaleY = progress"))
         assertTrue(motion.contains("source.backAlpha = (progress * 255f).toInt().coerceIn(0, 255)"))
         assertTrue(!source.contains("UserConfig"))

@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.test.platform.app.InstrumentationRegistry
 import com.eve.app.R
-import com.eve.app.ui.common.EveGlassToolbar
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -32,7 +31,7 @@ class Ios26ChromeTest {
                 for ((name, layout) in cases) {
                     val whole = LayoutInflater.from(context).inflate(layout, null)
                     fun chrome(view: View): View? {
-                        if (view is EveGlassToolbar || view is com.eve.app.designsystem.TelegramActionBar || view.id == R.id.telegramActionBar) return view
+                        if (view is com.eve.app.designsystem.TelegramActionBar || view.id == R.id.telegramActionBar) return view
                         if (view is ViewGroup) for (i in 0 until view.childCount) chrome(view.getChildAt(i))?.let { return it }
                         return null
                     }

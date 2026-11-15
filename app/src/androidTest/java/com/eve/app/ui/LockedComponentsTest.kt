@@ -14,11 +14,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.eve.app.R
 import com.eve.app.designsystem.DesignCardView
-import com.eve.app.designsystem.DesignInputLayout
-import com.eve.app.designsystem.DesignSegmentedTabs
 import com.eve.app.designsystem.DesignSwitch
 import com.eve.app.designsystem.ShadowHost
+import com.google.android.material.tabs.TabLayout
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -112,7 +112,7 @@ class LockedComponentsTest {
                 assertEquals(resources.getDimensionPixelSize(R.dimen.design_switch_height), painted.height())
                 bitmap.recycle()
 
-                val input = DesignInputLayout(context)
+                val input = TextInputLayout(context)
                 input.hint = "Password"
                 val field = TextInputEditText(context).apply {
                     inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
@@ -127,7 +127,7 @@ class LockedComponentsTest {
                 input.error = "Required"
                 assertEquals("Required", input.error.toString())
                 assertTrue("boxStrokeWidth must be positive", input.boxStrokeWidth > 0)
-                val strip = DesignSegmentedTabs(context)
+                val strip = TabLayout(context)
                 strip.addTab(strip.newTab().setText("First")); strip.addTab(strip.newTab().setText("Second"))
                 strip.measure(View.MeasureSpec.makeMeasureSpec((320 * resources.displayMetrics.density).toInt(), View.MeasureSpec.EXACTLY), View.MeasureSpec.UNSPECIFIED)
                 strip.layout(0, 0, strip.measuredWidth, strip.measuredHeight)

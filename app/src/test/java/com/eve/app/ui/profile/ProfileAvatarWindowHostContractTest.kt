@@ -11,7 +11,7 @@ class ProfileAvatarWindowHostContractTest {
         val xml = File("src/main/res/layout/activity_profile.xml").readText()
         val renderer = xml.indexOf("<com.eve.app.ui.profile.ProfileGooeyView")
         val scroll = xml.indexOf("<com.eve.app.ui.profile.ProfilePullScrollView")
-        val toolbar = xml.indexOf("<com.eve.app.ui.common.EveGlassToolbar")
+        val toolbar = xml.indexOf("<com.eve.app.designsystem.TelegramActionBar")
         assertTrue(renderer > 0 && scroll > renderer && toolbar > renderer)
         val overlay = xml.substring(renderer, scroll)
         assertTrue(overlay.contains("android:id=\"@+id/avatarGooey\""))

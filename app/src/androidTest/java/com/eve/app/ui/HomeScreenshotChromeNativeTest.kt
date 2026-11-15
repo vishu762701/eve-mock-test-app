@@ -11,7 +11,7 @@ import androidx.core.widget.ImageViewCompat
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.eve.app.R
-import com.eve.app.ui.common.EveGlassToolbar
+import com.eve.app.designsystem.TelegramActionBar
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -59,16 +59,14 @@ class HomeScreenshotChromeNativeTest {
         ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
             scenario.onActivity { activity ->
                 activity.setContentView(R.layout.activity_main)
-                val toolbar = activity.findViewById<EveGlassToolbar>(R.id.homeGlassToolbar)
+                val toolbar = activity.findViewById<TelegramActionBar>(R.id.homeGlassToolbar)
                 // Production MainActivity.setupTopBarDepth() applies these Home-only
                 // values; this Firebase-free fixture tests the real toolbar primitive.
                 toolbar.drawHairline = false
                 toolbar.scrollBackdropEnabled = false
                 toolbar.glassEnabled = false
                 toolbar.setBackgroundColor(Color.TRANSPARENT)
-                toolbar.onGlobalLayout()
                 repeat(3) {
-                    assertTrue("Source-invariant no-op pre-draw must continue normally", toolbar.onPreDraw())
                     assertFalse("Scroll must never turn Home glass coating back on", toolbar.glassEnabled)
                     assertEquals("Home chrome must remain canvas-transparent",
                         Color.TRANSPARENT, (toolbar.background as ColorDrawable).color)

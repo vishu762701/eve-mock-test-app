@@ -235,7 +235,7 @@ class ProfileSettingsLoginTypographyAndColorTest {
         // The Profile header is the sharp foreground of the allowed glass toolbar.
         val header = profile.getElementsByTagName("LinearLayout").item(0) as Element
         assertEquals("", header.designAttribute("android:background"))
-        assertEquals("com.eve.app.ui.common.EveGlassToolbar", (header.parentNode as Element).tagName)
+        assertEquals("com.eve.app.designsystem.TelegramActionBar", (header.parentNode as Element).tagName)
 
         fun hex(resourcePath: String, token: String): String {
             val root = loadXml(resourcePath)
