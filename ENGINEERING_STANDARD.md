@@ -2,7 +2,7 @@
 
 The single workflow policy and repository constitution. Authority order: (1) the owner's latest explicit message, (2) this file, (3) SOURCE_OF_TRUTH.md (architecture + security), (4) existing code. Old prompts, reports and checkpoints are history, never requirements.
 
-## 1. The 6 Permanent Core Laws
+## 1. The 7 Permanent Core Laws
 
 ### LAW 1 — MASTERPIECE GENIUS HUMAN CRAFTSMANSHIP (100% EFFORT & HIGHEST THINKING ALWAYS)
 Every AI model or agent working on EVE must operate at 100% maximum cognitive depth, architectural foresight, and attention to detail—NOT like a shortcut-taking AI, but like a world-class Principal Engineer and Masterpiece Product Designer. Think through every micro-interaction, frame timing, touch state, pixel alignment, memory lifecycle, dark/light transition, and edge case to 100% perfection. Never ship lazy approximations, placeholders, or "good enough" wrappers. Own the complete authorized outcome. Done means it works end-to-end in the running app: UI, state, backend, resources, Day/Night, RTL, Hindi/Devanagari, back/gesture navigation, small screens, accessibility and tests where relevant.
@@ -23,16 +23,22 @@ All ported Telegram files, components (`TelegramActionBar`, `TelegramBottomSheet
 The Owner has absolute, unrestricted authority to add, delete, or change any file, screen, activity, layout, Telegram component, color, dimension, or feature at any time (No UI/UX choice is permanently locked against the Owner).
 NO unit test, instrumentation test, lint check, shell runner, or Python CI script is ever permitted to block an Owner-requested addition, deletion, or modification. Whenever the Owner adds, deletes, or changes anything, the agent MUST automatically update or delete any conflicting test, fixture count, or script in the exact same commit—NEVER revert or compromise the Owner's requested change to appease an old test.
 
-### LAW 5 — MANDATORY CI BUILD RECOVERY LOOP (FAILED BUILD = TASK NOT COMPLETE)
-A task is NEVER complete if any local or GitHub Actions CI build fails. Whenever a build fails (whether FAST or FULL):
-1. Never declare the task finished, never treat a failed build as a success, and never stop and hand a broken build back to the owner.
-2. Immediately inspect the exact failure log, trace the root cause, fix the code or outdated test forward, commit, and push the fix to `main`.
-3. Poll and verify the new GitHub Actions run on `main` until it finishes with a confirmed GREEN (`success`) status. Only after the pushed `main` commit passes green is the task considered complete.
+### LAW 5 — MANDATORY UNCONDITIONAL CI BUILD RECOVERY LOOP (FAILED BUILD = TASK NOT COMPLETE)
+A task is NEVER complete if ANY local build, unit test, instrumentation test, fast compile (FAST), or full verification (FULL) build fails.
+1. Never abandon a failing build, never hand a broken build back to the owner, and never push a docs-only commit to bypass `.github/workflows/build.yml`.
+2. Whenever any build fails, immediately fetch the failure logs (`gh run view <run_id> --log-failed`), trace the root cause, fix the code or outdated test forward, commit, and push the fix to `main`.
+3. Poll and verify the new GitHub Actions run on `main` (`gh run watch <run_id> --exit-status`) until `conclusion == "success"` (100% GREEN). Repeat as many times as needed until the build succeeds. Only after the pushed `main` commit passes green is the task considered complete.
 
-### LAW 6 — ZERO-STOP FULL-SCOPE CONTINUOUS EXECUTION (NEVER STOP AT PARTIAL COMPLETION OR PHASE 1)
-When the Owner requests a multi-phase or app-wide task (such as applying Telegram UI, layouts, cells, icons, physics, and components across the entire app), stopping after a single batch (e.g., only importing icons/drawables while leaving XML layouts, Activities, adapters, or legacy `DesignCardView` / `MaterialCardView` / `UiArc*` wrappers unconverted) is STRICTLY FORBIDDEN:
-1. **No One-Batch Early Exit**: Never interpret batch discipline as permission to stop after Batch 1. Execute sequential, coherent `main` batches continuously (Batch 1 -> push & verify green CI -> Batch 2 -> push & verify green CI -> Batch 3 -> push & verify green CI -> ...) in the same uninterrupted session until 100% of every requested phase, screen, layout, adapter, and component across the entire repository is completed.
-2. **Never Trust Historical `"DONE"` Labels in Docs**: Historical `"DONE"` entries in `docs/TELEGRAM_PORT_LEDGER.md` or old reports do NOT prove that live XML layouts (`app/src/main/res/layout/*.xml`) or Kotlin screens (`app/src/main/java/com/eve/app/ui/**/*.kt`) are finished. Always audit live code and layouts directly (`grep`) and complete every remaining file before generating the final completion report.
+### LAW 6 — ZERO-STOP 100% FULL-SCOPE TASK COMPLETION (NEVER STOP AT PARTIAL COMPLETION)
+Every requirement in the owner's prompt must be completed 100% end-to-end before generating a completion report. When the Owner requests a multi-phase or app-wide task:
+1. **Never Stop After Phase 1 or Batch 1**: Never interpret batch discipline as permission to stop after Batch 1. Execute sequential, coherent `main` batches continuously (Batch 1 -> push & verify green CI -> Batch 2 -> push & verify green CI -> Batch 3 -> push & verify green CI -> ...) in the same uninterrupted session until 100% of every requested phase, screen, layout, adapter, and component across the entire repository is completed.
+2. **Never Skip Secondary Screens or Adapters**: Never omit any layout, activity, dialog, cell, adapter, or component within scope.
+3. **Never Trust Historical `"DONE"` Labels in Docs**: Historical `"DONE"` entries in `docs/TELEGRAM_PORT_LEDGER.md` or old reports do NOT prove that live XML layouts (`app/src/main/res/layout/*.xml`) or Kotlin screens (`app/src/main/java/com/eve/app/ui/**/*.kt`) are finished. Always audit live code and layouts directly (`grep`) and complete every remaining file before generating the final completion report.
+
+### LAW 7 — ZERO-SHORTCUT & ANTI-WRAPPER ENFORCEMENT (NO FAKE SUBCLASSES, NO COSMETIC RENAMES, NO NO-OP STUBS)
+Taking shortcuts to bypass grep checks or fake Telegram compatibility is strictly forbidden and actively validated by `tools/check_no_shortcuts.py`:
+1. **Strict Ban on Fake Inheritance / Aliasing**: Never create a `Telegram*` class that extends, wraps, or typealiases a legacy `UiArc*`, `Design*`, or `Material*` class (e.g., `class TelegramX : UiArcX` is strictly forbidden) just to satisfy a grep or naming check.
+2. **Strict Ban on No-Op Physics / Animation Stubs**: Never replace an animated component with a static `text = value.toString()` or empty method. Every `Telegram*` component must implement the complete upstream `DrKLO/Telegram` (3de37c8cfb03) Canvas, Matrix, CubicBezierInterpolator, SpringAnimation, ButtonBounce, or NumberTextView algorithm.
 
 ## 2. Core Workflow Rules
 1. Do exactly what the owner asked. Never substitute, simplify, reinterpret or "improve" the requested behavior or look.

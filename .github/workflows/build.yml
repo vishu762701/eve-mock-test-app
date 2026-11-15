@@ -82,7 +82,9 @@ jobs:
           fi
 
       - name: Anti-stub check across Telegram ports (FAST and FULL)
-        run: python3 tools/check_no_stubs.py
+        run: |
+          python3 tools/check_no_stubs.py
+          python3 tools/check_no_shortcuts.py --check-governance
 
       # Documentation, governance and security suites are manual FULL only.
       - name: Verify docs and governance contracts (manual FULL only)
@@ -90,6 +92,7 @@ jobs:
         run: |
           node .github/scripts/verify-docs.mjs
           python3 -B .github/scripts/tests/test_engineering_governance.py
+          python3 -B .github/scripts/tests/test_no_shortcuts_contract.py
 
       - name: Accept Android SDK licenses and install Platform 36
         run: |
