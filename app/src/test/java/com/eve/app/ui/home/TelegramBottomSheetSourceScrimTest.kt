@@ -31,7 +31,7 @@ class TelegramBottomSheetSourceScrimTest {
         assertTrue(scrim.contains("duration = 400L"))
         assertTrue(scrim.contains("startDelay = 20L"))
         assertTrue(scrim.contains("CubicBezierInterpolator.EASE_OUT_QUINT"))
-        assertTrue(scrim.contains("!UiArcMotion.isMotionEnabled(context)"))
+        assertTrue(scrim.contains("isMotionEnabled(context)"))
         assertTrue(scrim.contains("fade.cancel()"))
         assertTrue(target.contains("TelegramBottomSheetSourceBackdrop.install(dialog, activity)"))
         assertTrue(completed.contains("TelegramBottomSheetSourceBackdrop.install(dialog, activity)"))

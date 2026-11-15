@@ -47,7 +47,7 @@ class AppBulletin private constructor(
     private val activityRef = WeakReference(activity)
     private var host: Host? = null
     private val actionable get() = !actionText.isNullOrBlank() && onAction != null
-    private val important get() = actionable || (iconRes == R.drawable.ic_info && durationMs == DURATION_ERROR)
+    private val important get() = actionable || ((iconRes == R.drawable.msg_warning || iconRes == R.drawable.ic_info) && durationMs == DURATION_ERROR)
 
     companion object {
         const val DURATION_SHORT = 1500L

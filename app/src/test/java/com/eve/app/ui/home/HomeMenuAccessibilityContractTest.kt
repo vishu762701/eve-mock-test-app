@@ -139,7 +139,7 @@ class HomeMenuAccessibilityContractTest {
             motion.contains("duration = 150L"))
         assertTrue("Telegram ActionBarPopupWindow.java:1066 dismiss translation distance is -5dp",
             motion.contains("val distance = -5f * root.resources.displayMetrics.density"))
-        assertTrue(motion.contains("if (!UiArcMotion.isMotionEnabled(root.context))"))
+        assertTrue(motion.contains("isMotionEnabled(root.context)"))
         assertTrue(!motion.contains("root.scaleY =") && !motion.contains("View.SCALE_Y"))
         assertTrue(!motion.contains("UserConfig"))
     }

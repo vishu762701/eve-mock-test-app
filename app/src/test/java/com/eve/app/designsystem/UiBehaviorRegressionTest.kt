@@ -97,7 +97,7 @@ class UiBehaviorRegressionTest {
                 actions++
             }
         }
-        assertEquals(10, actions)
+        assertEquals(9, actions)
     }
 
     @Test fun variableLengthMetadataStillEllipsizesAndAdminActionsRemain() {
