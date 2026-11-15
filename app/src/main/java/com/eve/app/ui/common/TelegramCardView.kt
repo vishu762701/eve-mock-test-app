@@ -54,6 +54,8 @@ class TelegramCardView @JvmOverloads constructor(
             invalidate()
         }
 
+    var rippleColor: ColorStateList? = null
+
     var cardElevation: Float = 0f
     var maxCardElevation: Float = 0f
 
@@ -68,6 +70,10 @@ class TelegramCardView @JvmOverloads constructor(
 
     fun setStrokeColor(colors: ColorStateList?) {
         strokeColor = colors?.defaultColor ?: 0
+    }
+
+    fun setRippleColor(colors: ColorStateList?) {
+        rippleColor = colors
     }
 
     override fun onDraw(canvas: Canvas) {
