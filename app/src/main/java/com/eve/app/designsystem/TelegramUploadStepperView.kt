@@ -8,7 +8,6 @@
 
 package com.eve.app.designsystem
 
-import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
@@ -16,21 +15,18 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
-import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import com.eve.app.R
-import com.eve.app.telegram.animation.TelegramAnimationRuntime
 import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.util.FontManager
-import org.telegram.ui.Components.CubicBezierInterpolator
 
 /**
  * 1:1 Telegram upload stepper view.
  * Displays sequential progress markers ("Exam", "PDF", "Upload") with Telegram theme palette
- * and CubicBezierInterpolator physics.
+ * and accessible state messages.
  */
 open class TelegramUploadStepperView @JvmOverloads constructor(
     context: Context,
@@ -130,26 +126,21 @@ open class TelegramUploadStepperView @JvmOverloads constructor(
             row.addView(stepContainer)
         }
 
-        update(examSelected = false, pdfSelected = false, uploaded = false)
+        update(examReady = false, pdfReady = false, uploading = false, uploaded = false, failed = false)
     }
 
     fun update(
-        examSelected: Boolean,
-        pdfSelected: Boolean,
+        examReady: Boolean,
+        pdfReady: Boolean,
+        uploading: Boolean,
         uploaded: Boolean,
-        errorOccurred: Boolean = false,
-        isBusy: Boolean = false
+        failed: Boolean
     ) {
-        val newCompleted = when {
-            uploaded -> 2
-            pdfSelected -> 1
-            examSelected -> 0
-            else -> -1
-        }
-
-        completed = newCompleted
-        error = errorOccurred
-        busy = isBusy
+        val state = UploadStepState.from(examReady, pdfReady, uploading, uploaded, failed)
+        val progress = state.progress
+        completed = progress
+        error = state.failed
+        busy = state.uploading
 
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
         val onAccent = ContextCompat.getColor(context, R.color.on_accent)
@@ -157,8 +148,9 @@ open class TelegramUploadStepperView @JvmOverloads constructor(
         for (i in 0..2) {
             val marker = markers[i]
             val label = stageLabels[i]
-            val isDone = i <= completed
-            val isCurrent = i == completed + 1
+            val isDone = i < progress && (i < 2 || state.uploaded)
+            val isCurrent = i == progress.coerceAtMost(2) && !state.uploaded
+            val failedStage = state.failed && i == 2
 
             val bg = marker.background as? GradientDrawable ?: GradientDrawable().apply {
                 shape = GradientDrawable.OVAL
@@ -169,9 +161,14 @@ open class TelegramUploadStepperView @JvmOverloads constructor(
                 marker.setTextColor(onAccent)
                 marker.text = "✓"
                 label.setTextColor(palette.textPrimary)
+            } else if (failedStage) {
+                bg.setColor(ContextCompat.getColor(context, R.color.system_red))
+                marker.setTextColor(onAccent)
+                marker.text = "!"
+                label.setTextColor(palette.textPrimary)
             } else if (isCurrent) {
-                bg.setColor(if (error) ContextCompat.getColor(context, R.color.system_red) else palette.surfaceInset)
-                marker.setTextColor(if (error) onAccent else palette.accent)
+                bg.setColor(palette.surfaceInset)
+                marker.setTextColor(palette.accent)
                 marker.text = (i + 1).toString()
                 label.setTextColor(palette.textPrimary)
             } else {
@@ -185,20 +182,17 @@ open class TelegramUploadStepperView @JvmOverloads constructor(
 
         for (i in connectors.indices) {
             val connector = connectors[i]
-            val active = i < completed
+            val active = i < progress - 1
             connector.setBackgroundColor(
                 if (active) palette.accent
                 else ContextCompat.getColor(context, R.color.hairline)
             )
         }
 
-        caption.text = when {
-            error -> "Upload failed. Please check the file and try again."
-            busy -> "Uploading syllabus to server…"
-            uploaded -> "Syllabus uploaded successfully!"
-            pdfSelected -> "PDF selected. Ready to upload."
-            examSelected -> "Exam selected. Please choose a syllabus PDF."
-            else -> "Step 1: Choose an exam above."
-        }
+        caption.text = state.message
+        contentDescription = state.message
     }
+
+    fun update(examReady: Boolean, pdfReady: Boolean, uploaded: Boolean) =
+        update(examReady, pdfReady, uploading = false, uploaded = uploaded, failed = false)
 }

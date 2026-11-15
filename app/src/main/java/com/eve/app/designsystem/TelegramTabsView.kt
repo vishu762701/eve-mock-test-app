@@ -297,15 +297,44 @@ class TelegramTabsView @JvmOverloads constructor(
             }
         }
 
-        post {
-            animateIndicator(prevPosition, position, animated)
-            scrollToCenter(position)
+        val tab = tabsContainer.getChildAt(position)
+        if (tab != null && tab.width > 0) {
+            val isStretch = (tabIndicatorGravity == com.google.android.material.tabs.TabLayout.INDICATOR_GRAVITY_STRETCH)
+            val inset = if (isStretch) 0f else dp(12f).toFloat()
+            val left = tab.left.toFloat() + inset
+            val right = tab.right.toFloat() - inset
+            val top = if (isStretch) paddingTop.toFloat() else (height - dp(3f)).toFloat()
+            val bottom = if (isStretch) (height - paddingBottom).toFloat() else height.toFloat()
+            indicatorRect.set(left, top, right, bottom)
+            invalidate()
+            if (animated) {
+                animateIndicator(prevPosition, position, true)
+            }
+        } else {
+            post {
+                animateIndicator(prevPosition, position, animated)
+                scrollToCenter(position)
+            }
         }
 
         if (notify) {
             onTabSelectedListener?.invoke(position)
-            val tab = getTabAt(position)
-            tabListeners.forEach { it.onTabSelected(tab) }
+            val tabObj = getTabAt(position)
+            tabListeners.forEach { it.onTabSelected(tabObj) }
+        }
+    }
+
+    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        super.onLayout(changed, l, t, r, b)
+        val tab = tabsContainer.getChildAt(currentPosition)
+        if (tab != null && tab.width > 0) {
+            val isStretch = (tabIndicatorGravity == com.google.android.material.tabs.TabLayout.INDICATOR_GRAVITY_STRETCH)
+            val inset = if (isStretch) 0f else dp(12f).toFloat()
+            val left = tab.left.toFloat() + inset
+            val right = tab.right.toFloat() - inset
+            val top = if (isStretch) paddingTop.toFloat() else (height - dp(3f)).toFloat()
+            val bottom = if (isStretch) (height - paddingBottom).toFloat() else height.toFloat()
+            indicatorRect.set(left, top, right, bottom)
         }
     }
 
