@@ -63,7 +63,10 @@ class TelegramCheckBox2 @JvmOverloads constructor(
     }
 
     override fun onTouchEvent(event: android.view.MotionEvent): Boolean {
-        bounce.onTouchEvent(event)
+        when (event.action) {
+            android.view.MotionEvent.ACTION_DOWN -> bounce.setPressed(true)
+            android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> bounce.setPressed(false)
+        }
         return super.onTouchEvent(event)
     }
 
@@ -347,7 +350,7 @@ class TelegramCheckBox2 @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas) {
         if (visibility != VISIBLE) return
-        val bounceScale = bounce.scale
+        val bounceScale = bounce.getScale(0.04f)
         if (bounceScale != 1f) {
             canvas.save()
             canvas.scale(bounceScale, bounceScale, width / 2f, height / 2f)

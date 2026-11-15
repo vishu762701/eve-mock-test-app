@@ -29,12 +29,15 @@ class TelegramRadioButton @JvmOverloads constructor(
     }
 
     override fun onTouchEvent(event: android.view.MotionEvent): Boolean {
-        bounce.onTouchEvent(event)
+        when (event.action) {
+            android.view.MotionEvent.ACTION_DOWN -> bounce.setPressed(true)
+            android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> bounce.setPressed(false)
+        }
         return super.onTouchEvent(event)
     }
 
     override fun onDraw(canvas: android.graphics.Canvas) {
-        val scale = bounce.scale
+        val scale = bounce.getScale(0.04f)
         if (scale != 1f) {
             canvas.save()
             canvas.scale(scale, scale, width / 2f, height / 2f)

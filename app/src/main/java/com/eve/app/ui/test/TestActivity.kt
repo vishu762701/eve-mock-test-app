@@ -409,7 +409,7 @@ class TestActivity : EveBaseActivity() {
     private fun renderQuestions(state: UiState<List<Question>>) {
         when (state) {
             is UiState.Loading -> {
-                if (adapter.itemCount > 0) {
+                if ((binding.viewPager.adapter?.itemCount ?: 0) > 0) {
                     binding.loadingTest.visibility = View.GONE
                     binding.viewPager.visibility = View.VISIBLE
                 } else {

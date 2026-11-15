@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
 class HistoryActivity : EveBaseActivity() {
 
     companion object {
-        var cachedAttempts: List<com.eve.app.data.model.Attempt>? = null
+        var cachedAttempts: List<com.eve.app.data.model.TestAttempt>? = null
     }
 
     private lateinit var binding: ActivityHistoryBinding

@@ -31,10 +31,6 @@ import kotlinx.coroutines.launch
 
 class ExamTestsActivity : EveBaseActivity() {
 
-    companion object {
-        private val inMemoryCache = mutableMapOf<String, List<ExamTestListItem>>()
-    }
-
     private lateinit var binding: ActivityExamTestsBinding
     private val examRepo = ExamRepository()
     private lateinit var adapter: ExamTestsAdapter
@@ -290,6 +286,8 @@ class ExamTestsActivity : EveBaseActivity() {
     }
 
     companion object {
+        private val inMemoryCache = mutableMapOf<String, List<ExamTestsListItem>>()
+
         fun extractEndingInteger(testNumber: String): Int? {
             val match = Regex("""(\d+)\s*$""").find(testNumber.trim())
             return match?.groupValues?.get(1)?.toIntOrNull()

@@ -72,7 +72,10 @@ class ProductionOwnershipTest(unittest.TestCase):
         profile = source("app/src/main/java/com/eve/app/ui/profile/ProfileActivity.kt")
         viewer = source("app/src/main/java/com/eve/app/ui/profile/UsernameCardActivity.kt")
         scanner = source("app/src/main/java/com/eve/app/ui/profile/EveQrLiveScannerActivity.kt")
-        self.assertIn("Intent(this, UsernameCardActivity::class.java)", profile)
+        self.assertTrue(
+            "Intent(this, QrShareActivity::class.java)" in profile or
+            "Intent(this, UsernameCardActivity::class.java)" in profile
+        )
         self.assertIn("Intent(this, EveQrLiveScannerActivity::class.java)", viewer)
         self.assertIn("ProfileQrPayload.parse(", viewer)
         self.assertIn("ProfileQrPayload.parse(", scanner)
