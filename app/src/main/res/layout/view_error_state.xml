@@ -3,5 +3,5 @@
     <com.airbnb.lottie.LottieAnimationView android:id="@+id/lottieView" android:layout_width="180dp" android:layout_height="180dp" app:lottie_rawRes="@raw/error_404" app:lottie_autoPlay="true" app:lottie_loop="true" style="@style/Widget.Eve.Token.Lottie" />
     <TextView android:id="@+id/tvErrorTitle" style="@style/TextAppearance.Eve.Token.Heading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_section_gap" android:gravity="center" />
     <TextView android:id="@+id/tvErrorMessage" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center" />
-    <com.google.android.material.button.MaterialButton android:id="@+id/btnRetry" style="@style/Widget.Eve.Token.Button" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_section_gap" android:text="Retry" android:visibility="gone" />
+    <com.eve.app.designsystem.TelegramButton android:id="@+id/btnRetry" style="@style/Widget.Eve.Token.Button" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_section_gap" android:text="Retry" android:visibility="gone" />
 </LinearLayout>

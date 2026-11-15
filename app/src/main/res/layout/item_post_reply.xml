@@ -7,8 +7,8 @@
         </LinearLayout>
         <TextView android:id="@+id/tvReplyText" style="@style/TextAppearance.Eve.Telegram.ListPreview" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:text="Reply message text here..."  android:tag="eve_telegram_type" />
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:gravity="center_vertical|end" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
-            <com.google.android.material.button.MaterialButton android:id="@+id/btnMarkRead" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:text="Mark Read" />
-            <com.google.android.material.button.MaterialButton android:id="@+id/btnDeleteReply" style="@style/Widget.Eve.Token.Button.Destructive" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_card_gap" android:text="Delete" />
+            <com.eve.app.designsystem.TelegramButton android:id="@+id/btnMarkRead" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:text="Mark Read" />
+            <com.eve.app.designsystem.TelegramButton android:id="@+id/btnDeleteReply" style="@style/Widget.Eve.Token.Button.Destructive" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_card_gap" android:text="Delete" />
         </LinearLayout>
     </LinearLayout>
     <View android:layout_width="match_parent" android:layout_height="1px" android:background="@color/hairline" android:layout_gravity="bottom" />

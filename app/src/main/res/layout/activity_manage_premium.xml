@@ -51,7 +51,7 @@
                         </com.eve.app.designsystem.DesignInputLayout>
                     </LinearLayout>
                 </FrameLayout>
-                <com.google.android.material.button.MaterialButton android:id="@+id/btnSaveSettings" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_shadow_room" android:text="Save Settings" />
+                <com.eve.app.designsystem.TelegramButton android:id="@+id/btnSaveSettings" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_shadow_room" android:text="Save Settings" />
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
         <FrameLayout android:id="@+id/containerTransactions" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
@@ -60,7 +60,7 @@
         </FrameLayout>
         <LinearLayout android:id="@+id/containerUsers" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
-                <com.google.android.material.button.MaterialButton android:id="@+id/btnGrantManual" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:text="+ Grant Premium Manually" app:icon="@drawable/ic_star_filled" />
+                <com.eve.app.designsystem.TelegramButton android:id="@+id/btnGrantManual" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:text="+ Grant Premium Manually" app:icon="@drawable/ic_star_filled" />
             </LinearLayout>
             <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">
                 <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvPremiumUsers" android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Scroll" />

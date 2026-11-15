@@ -60,7 +60,7 @@ class AnalyticsFilterActivityTest {
         val c=open(state)
         try {
             assertEquals(listOf(7),QuestionReviewBoundaryFixture.analyticsDays)
-            assertEquals(R.id.chipLast7Days,c.get().findViewById<com.eve.app.designsystem.UiArcSegmentedControl>(R.id.chipGroupTimeRange).checkedChipId)
+            assertEquals(R.id.chipLast7Days,c.get().findViewById<com.eve.app.designsystem.TelegramSegmentedControl>(R.id.chipGroupTimeRange).checkedChipId)
         } finally { close(c) }
     }
 }

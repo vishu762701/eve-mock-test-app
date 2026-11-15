@@ -34,7 +34,7 @@
                         </LinearLayout>
                         <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:text="Top Issues / Exceptions:" />
                         <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/tvTopCrashIssues" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/analytics_telemetry_unavailable_detail" />
-                        <com.google.android.material.button.MaterialButton android:id="@+id/btnOpenCrashlyticsConsole" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_screen_margin" android:text="View Full Details in Firebase Console" />
+                        <com.eve.app.designsystem.TelegramButton android:id="@+id/btnOpenCrashlyticsConsole" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_screen_margin" android:text="View Full Details in Firebase Console" />
                     </LinearLayout>
                 </FrameLayout>
                 <FrameLayout android:id="@+id/cardBarChart" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_gap" android:background="@color/surface" android:padding="@dimen/design_card_padding">

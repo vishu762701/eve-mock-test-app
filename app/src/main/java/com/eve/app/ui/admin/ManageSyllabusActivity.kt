@@ -22,9 +22,8 @@ import com.eve.app.data.model.Exam
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.databinding.ActivityManageSyllabusBinding
 import com.eve.app.databinding.ItemAdminSyllabusBinding
-import com.eve.app.designsystem.UiArcFileUploadView
-import com.eve.app.designsystem.UiArcMorphSelectView
-import com.eve.app.designsystem.UiArcMotion
+import com.eve.app.designsystem.TelegramFileUploadView
+import com.eve.app.designsystem.TelegramMorphSelectView
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.SecurityHelper
 import com.eve.app.util.AdminAccessGate
@@ -219,7 +218,7 @@ class ManageSyllabusActivity : EveBaseActivity() {
         } ?: false
         val validPdf = selectedPdfUri != null &&
             selectedPdfBytes?.let {
-                it.isNotEmpty() && it.size.toLong() <= UiArcFileUploadView.MAX_FILE_SIZE_BYTES
+                it.isNotEmpty() && it.size.toLong() <= TelegramFileUploadView.MAX_FILE_SIZE_BYTES
             } == true
         binding.stepperNewSyllabus.update(
             validExam, validExam && validPdf, uploadInFlight, uploadSucceeded, uploadFailed
@@ -412,7 +411,7 @@ class ManageSyllabusActivity : EveBaseActivity() {
             selectedExamRestoreId = null
         }
         val morphOptions = allExams.map {
-            com.eve.app.designsystem.UiArcMorphSelectView.Option(
+            TelegramMorphSelectView.Option(
                 id = it.id,
                 label = it.examName,
                 meta = it.categoryOrOther,
@@ -488,7 +487,7 @@ class ManageSyllabusActivity : EveBaseActivity() {
     private suspend fun readPdfWithinLimit(uri: Uri): ByteArray = withContext(Dispatchers.IO) {
         contentResolver.openInputStream(uri)?.use { input ->
             PdfSelectionReader.requirePdfContent(
-                PdfSelectionReader.readBounded(input, UiArcFileUploadView.MAX_FILE_SIZE_BYTES)
+                PdfSelectionReader.readBounded(input, TelegramFileUploadView.MAX_FILE_SIZE_BYTES)
             )
         } ?: throw java.io.IOException("Unable to open the selected PDF.")
     }

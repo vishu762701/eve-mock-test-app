@@ -37,7 +37,7 @@ REQUIRED_GOVERNANCE_TERMS = [
 ]
 
 TYPEALIAS_PATTERN = re.compile(r"typealias\s+Telegram\w*\s*=\s*(?:UiArc|Design|Material)\w*")
-STRICT_WRAPPER_PATTERN = re.compile(r"class\s+Telegram\w*\s*(?:<[^>]+>)?\s*(?:\([^)]*\))?\s*:\s*(?:UiArc|DesignCardView)\w*")
+STRICT_WRAPPER_PATTERN = re.compile(r"class\s+Telegram\w*[\s\S]*?:\s*(?:UiArc|DesignCardView)\w*")
 IMPORT_UIARC_PATTERN = re.compile(r"import\s+com\.eve\.app\.(?:designsystem|ui\.\w+)\.UiArc\w*")
 
 

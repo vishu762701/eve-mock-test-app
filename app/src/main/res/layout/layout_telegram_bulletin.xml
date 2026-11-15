@@ -16,7 +16,7 @@
                 <TextView android:id="@+id/tvBulletinMessage" android:layout_width="match_parent"
                     android:layout_height="wrap_content" style="@style/TextAppearance.Eve.Bulletin" />
             </ScrollView>
-            <com.google.android.material.button.MaterialButton android:id="@+id/btnBulletinAction"
+            <com.eve.app.designsystem.TelegramButton android:id="@+id/btnBulletinAction"
                 style="@style/Widget.Material3.Button.TextButton" android:layout_width="wrap_content"
                 android:layout_height="wrap_content" android:minHeight="48dp" android:minWidth="48dp"
                 android:layout_marginStart="8dp" android:visibility="gone" />

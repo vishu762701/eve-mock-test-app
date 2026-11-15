@@ -14,7 +14,7 @@ import android.app.Dialog
 import android.content.Context
 import android.view.View
 import android.view.WindowManager
-import com.eve.app.designsystem.UiArcMotion
+import com.eve.app.telegram.animation.TelegramAnimationRuntime
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import org.telegram.ui.Components.CubicBezierInterpolator
 import android.graphics.Canvas
@@ -115,7 +115,7 @@ internal object TelegramBottomSheetSourceBackdrop {
             }
         })
 
-        if (!UiArcMotion.isMotionEnabled(context)) {
+        if (!TelegramAnimationRuntime.isMotionEnabled(context)) {
             scrim.alpha = 51
         } else {
             val fade = ValueAnimator.ofInt(0, 51).apply {

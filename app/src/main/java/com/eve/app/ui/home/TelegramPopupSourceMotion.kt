@@ -7,7 +7,7 @@ import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.view.View
 import android.view.animation.DecelerateInterpolator
-import com.eve.app.designsystem.UiArcMotion
+import com.eve.app.telegram.animation.TelegramAnimationRuntime
 import com.eve.app.designsystem.TelegramPopupSourceBackground
 import java.util.WeakHashMap
 
@@ -56,7 +56,7 @@ internal object TelegramPopupSourceMotion {
 
     fun entrance(root: View, rows: List<View>) {
         cancel(root, rows)
-        if (!UiArcMotion.isMotionEnabled(root.context)) return
+        if (!TelegramAnimationRuntime.isMotionEnabled(root.context)) return
         val visible = rows.filter { it.visibility == View.VISIBLE }
         if (visible.isEmpty()) return
         val count = visible.size
@@ -109,7 +109,7 @@ internal object TelegramPopupSourceMotion {
 
     fun exit(root: View, rows: List<View>, onEnd: () -> Unit) {
         cancel(root, rows)
-        if (!UiArcMotion.isMotionEnabled(root.context)) {
+        if (!TelegramAnimationRuntime.isMotionEnabled(root.context)) {
             onEnd()
             return
         }

@@ -16,9 +16,9 @@
             </LinearLayout>
         </LinearLayout>
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_screen_margin" android:gravity="end|center_vertical" android:orientation="horizontal" android:clipChildren="false" android:clipToPadding="false" style="@style/Widget.Eve.Token.Column">
-            <com.google.android.material.button.MaterialButton android:id="@+id/btnChangeExam" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:text="Reassign" />
-            <com.google.android.material.button.MaterialButton android:id="@+id/btnReplacePdf" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_card_gap" android:text="Replace PDF" />
-            <com.google.android.material.button.MaterialButton android:id="@+id/btnDeletePdf" style="@style/Widget.Eve.Token.Button.Destructive" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_card_gap" android:text="Delete" />
+            <com.eve.app.designsystem.TelegramButton android:id="@+id/btnChangeExam" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:text="Reassign" />
+            <com.eve.app.designsystem.TelegramButton android:id="@+id/btnReplacePdf" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_card_gap" android:text="Replace PDF" />
+            <com.eve.app.designsystem.TelegramButton android:id="@+id/btnDeletePdf" style="@style/Widget.Eve.Token.Button.Destructive" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginStart="@dimen/design_card_gap" android:text="Delete" />
         </LinearLayout>
     </LinearLayout>
 </com.eve.app.ui.common.TelegramCardView>

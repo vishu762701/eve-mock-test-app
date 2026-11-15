@@ -7,7 +7,7 @@ import androidx.annotation.DrawableRes
 import androidx.appcompat.widget.AppCompatTextView
 
 /**
- * 1:1 Telegram status badge view replacing legacy UiArcBadgeView.
+ * 1:1 Telegram status badge view.
  */
 class TelegramBadgeView @JvmOverloads constructor(
     context: Context,

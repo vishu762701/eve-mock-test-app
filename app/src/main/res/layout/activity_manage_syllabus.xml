@@ -45,7 +45,7 @@
                             <com.eve.app.designsystem.DesignAutoComplete style="@style/Widget.Eve.Token.Input" android:id="@+id/actvSelectExam" android:layout_width="match_parent" android:layout_height="@dimen/design_input_height" android:inputType="none" />
                         </com.eve.app.designsystem.DesignInputLayout>
                         <com.eve.app.designsystem.TelegramFileUploadView android:id="@+id/fileUploadView" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_card_padding">
-                            <com.google.android.material.button.MaterialButton android:id="@+id/btnChoosePdf" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:text="Choose PDF Document" app:icon="@drawable/ic_upload" />
+                            <com.eve.app.designsystem.TelegramButton android:id="@+id/btnChoosePdf" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:text="Choose PDF Document" app:icon="@drawable/ic_upload" />
                             <LinearLayout android:id="@+id/layoutSelectedPdf" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:visibility="gone" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Tile">
                                 <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:contentDescription="PDF file" android:src="@drawable/msg_filehq" app:tint="@color/system_blue" />
                                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/design_card_gap" android:layout_weight="1" android:orientation="vertical">
@@ -57,7 +57,7 @@
                             </LinearLayout>
                         </com.eve.app.designsystem.TelegramFileUploadView>
                         <com.eve.app.designsystem.TelegramRadialProgressView android:id="@+id/progressBarUpload" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:layout_marginTop="@dimen/design_card_gap" android:visibility="gone" />
-                        <com.google.android.material.button.MaterialButton android:id="@+id/btnUploadSyllabus" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_screen_margin" android:text="Upload &amp; Assign Syllabus" />
+                        <com.eve.app.designsystem.TelegramButton android:id="@+id/btnUploadSyllabus" style="@style/Widget.Eve.Token.Button" android:layout_width="match_parent" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_screen_margin" android:text="Upload &amp; Assign Syllabus" />
                     </LinearLayout>
                 </FrameLayout>
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="@dimen/design_screen_margin" android:layout_marginTop="@dimen/design_icon_size" android:gravity="center_vertical" android:orientation="horizontal" android:clipToPadding="false" android:clipChildren="false" style="@style/Widget.Eve.Token.Column">

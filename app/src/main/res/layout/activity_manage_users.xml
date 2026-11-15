@@ -23,7 +23,7 @@
             <ImageView android:layout_width="@dimen/design_icon_size" android:layout_height="@dimen/design_icon_size" android:src="@drawable/ic_users" app:tint="@color/text_secondary" />
             <TextView style="@style/TextAppearance.Eve.Token.Heading" android:id="@+id/tvEmptyTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_section_gap" android:text="No students found" />
             <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:id="@+id/tvEmptyMessage" android:layout_width="260dp" android:layout_height="wrap_content" android:layout_marginTop="@dimen/design_row_gap" android:gravity="center" android:text="No registered users match your search." />
-            <com.google.android.material.button.MaterialButton android:id="@+id/btnRetryUsers" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_gap" android:text="Retry" android:visibility="gone" />
+            <com.eve.app.designsystem.TelegramButton android:id="@+id/btnRetryUsers" style="@style/Widget.Eve.Token.Button.Secondary" android:layout_width="wrap_content" android:layout_height="@dimen/design_touch_min" android:layout_marginTop="@dimen/design_card_gap" android:text="Retry" android:visibility="gone" />
         </LinearLayout>
     </FrameLayout>
     <LinearLayout android:id="@+id/layoutPagination" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:visibility="gone" android:paddingBottom="@dimen/design_card_gap" style="@style/Widget.Eve.Token.Column">

@@ -23,6 +23,7 @@ import android.view.animation.OvershootInterpolator
 import android.widget.FrameLayout
 import com.eve.app.R
 import com.eve.app.theme.TelegramThemeEngine
+import com.eve.app.telegram.animation.TelegramAnimationRuntime
 
 /** Modal inline loading spinner; NEVER blocks or mutates any EVE network operation. */
 class TelegramNativeSpinnerDialog(context: Context) :
@@ -72,7 +73,7 @@ class TelegramNativeSpinnerDialog(context: Context) :
         super.show()
         panel?.let { view ->
             view.animate().cancel()
-            if (UiArcMotion.isMotionEnabled(context)) {
+            if (TelegramAnimationRuntime.isMotionEnabled(context)) {
                 view.scaleX = 0f
                 view.scaleY = 0f
                 view.animate()

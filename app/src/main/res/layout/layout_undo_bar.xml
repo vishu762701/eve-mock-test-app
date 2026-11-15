@@ -44,7 +44,7 @@
                 android:fontFamily="sans-serif"
                 android:textColor="#FFFFFF" />
 
-            <com.google.android.material.button.MaterialButton
+            <com.eve.app.designsystem.TelegramButton
                 android:id="@+id/btnUndoAction"
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
