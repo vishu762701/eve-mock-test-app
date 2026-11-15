@@ -15,9 +15,9 @@ class ButtonBounce constructor(
     var view: View? = null,
     private val durationPressMultiplier: Float = 1f,
     private val durationReleaseMultiplier: Float = 1f,
-    private val overshoot: Float = 5.0f
+    private val overshoot: Float = TelegramParity.BUTTON_BOUNCE_OVERSHOOT.toFloat()
 ) {
-    constructor(viewToInvalidate: View?) : this(viewToInvalidate, 1f, 1f, 5.0f)
+    constructor(viewToInvalidate: View?) : this(viewToInvalidate, 1f, 1f, TelegramParity.BUTTON_BOUNCE_OVERSHOOT.toFloat())
 
     constructor(viewToInvalidate: View?, durationMultiplier: Float, overshoot: Float) :
         this(viewToInvalidate, durationMultiplier, durationMultiplier, overshoot)
@@ -63,11 +63,11 @@ class ButtonBounce constructor(
                 })
                 if (isPressedState) {
                     interpolator = org.telegram.ui.Components.CubicBezierInterpolator.DEFAULT
-                    duration = (60 * durationPressMultiplier).toLong()
+                    duration = (TelegramParity.BUTTON_BOUNCE_PRESS_MS * durationPressMultiplier).toLong()
                     startDelay = 0
                 } else {
                     interpolator = OvershootInterpolator(overshoot)
-                    duration = (350 * durationReleaseMultiplier).toLong()
+                    duration = (TelegramParity.BUTTON_BOUNCE_RELEASE_MS * durationReleaseMultiplier).toLong()
                     startDelay = releaseDelay
                 }
                 start()
@@ -95,8 +95,8 @@ class ButtonBounce constructor(
                     }
                 }
             })
-            duration = 320
-            interpolator = OvershootInterpolator()
+            duration = TelegramParity.BUTTON_BOUNCE_DURATION_MS
+            interpolator = OvershootInterpolator(overshoot)
             start()
         }
     }

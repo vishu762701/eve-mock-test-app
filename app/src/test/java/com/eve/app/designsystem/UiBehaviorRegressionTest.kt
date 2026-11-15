@@ -261,8 +261,15 @@ class UiBehaviorRegressionTest {
     @Test fun historyResultUsesSourcePairedTitleAndSubtitle() {
         val view = File("src/main/res/layout/activity_result.xml").readText()
         val source = File("src/main/java/com/eve/app/ui/result/ResultActivity.kt").readText()
-        val title = view.lineSequence().first { it.contains("android:id=\"@+id/tvResultTitle\"") }
-        val subtitle = view.lineSequence().first { it.contains("android:id=\"@+id/tvResultSubtitle\"") }
+        val titleIdx = view.indexOf("android:id=\"@+id/tvResultTitle\"")
+        val titleStart = view.lastIndexOf("<TextView", titleIdx)
+        val titleEnd = view.indexOf("/>", titleIdx) + 2
+        val title = if (titleIdx >= 0 && titleStart >= 0 && titleEnd > titleIdx) view.substring(titleStart, titleEnd) else ""
+
+        val subtitleIdx = view.indexOf("android:id=\"@+id/tvResultSubtitle\"")
+        val subStart = view.lastIndexOf("<TextView", subtitleIdx)
+        val subEnd = view.indexOf("/>", subtitleIdx) + 2
+        val subtitle = if (subtitleIdx >= 0 && subStart >= 0 && subEnd > subtitleIdx) view.substring(subStart, subEnd) else ""
         assertTrue(title.contains("@style/TextAppearance.Eve.Telegram.NavigationTitle"))
         assertTrue(subtitle.contains("style=\"@style/TextAppearance.Eve.Telegram.NavigationSubtitle\""))
         assertTrue(subtitle.contains("android:tag=\"eve_telegram_type\""))

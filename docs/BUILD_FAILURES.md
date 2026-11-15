@@ -22,7 +22,18 @@ Audit Scope: Full repository inspection across all GitHub Actions workflows and 
 
 Out of the last 30 workflow runs across the repository, the failures have been isolated to their exact job, step, log trace, and architectural root cause:
 
-### Run 1: 43623278083
+### Run 1: 43627282408
+- **Workflow**: `build.yml` (Manual FULL `workflow_dispatch`)
+- **Commit**: `973bf043` (fix(ui): restore profile chips to Material Chip and singleLine constraint on result title)
+- **Failed Job**: `build`
+- **Failed Step**: `FULL test lint and compile AndroidTest sources`
+- **Exact Error**:
+  - `com.eve.app.designsystem.UiBehaviorRegressionTest > historyResultUsesSourcePairedTitleAndSubtitle FAILED`
+  - `java.lang.AssertionError at UiBehaviorRegressionTest.kt:266`
+- **Root Cause**: Brittle UI lock / single-line XML assertion. `UiBehaviorRegressionTest` assumed the `<TextView>` tag for `tvResultTitle` occupied a single contiguous line via `view.lineSequence().first`. When multiline formatted, the `android:id` line omitted the style attribute, throwing an assertion failure.
+- **Resolution**: Modernized `UiBehaviorRegressionTest.kt` to extract the complete `<TextView ... />` tag using boundary substrings, eliminating brittle single-line formatting locks while strictly validating styles, tags, and subtitle linkage.
+
+### Run 2: 43623278083
 - **Workflow**: `build.yml` (Manual FULL `workflow_dispatch`)
 - **Commit**: `6ba4ce24` (fix(theme): configure materialSwitchStyle to remove decorative track outline)
 - **Failed Job**: `Native UI (gesture)` and `Native UI (three-button)`

@@ -1,9 +1,9 @@
 # EVE Engineering Standard
 
-The single workflow policy. Authority order: (1) the owner's latest explicit message, (2) this file, (3) SOURCE_OF_TRUTH.md (architecture + security), (4) existing code. Old prompts, reports and checkpoints are history, never requirements.
+The single workflow policy and repository constitution. Authority order: (1) the owner's latest explicit message, (2) this file, (3) SOURCE_OF_TRUTH.md (architecture + security), (4) existing code. Old prompts, reports and checkpoints are history, never requirements.
 
-## 1. Core rules
-1. Do exactly what the owner asked. Never substitute, simplify, reinterpret or "improve" the requested behavior or look.
+## 1. Core rules & Permanent Constitution
+1. Do exactly what the owner asked. Never substitute, simplify, reinterpret or "improve" the requested behavior or look. The owner's explicit directive is supreme and immediately supersedes all prior locks, legacy conventions, or historical documentation.
 2. Own the complete authorized outcome. Done means it works end-to-end in the running app: UI, state, backend, resources, Day/Night, RTL, Hindi/Devanagari, back/gesture navigation, small screens, accessibility and tests where relevant.
 3. Stay in scope: the owner's request, not unrelated work. Unrelated problems get one line under "Noticed but not touched". Do not silently broaden product scope.
 4. Authorized work needs no second approval. Do not stop for routine confirmation or repeated approvals. Ask only for an owner-only product, security, data or legal decision, state the exact blocker, and keep working on everything else. A task is implemented without asking for a second approval.
@@ -11,18 +11,24 @@ The single workflow policy. Authority order: (1) the owner's latest explicit mes
 6. Never fake evidence. No EXACT, VERIFIED, TESTED, device-checked or CI-green claim without real proof. Unknown = UNKNOWN. Blocked = BLOCKED. Report implementation present separately from functional, visual/gesture, device and release acceptance; a green build does not prove exact UI/UX.
 7. Search for the existing owner of the affected state, navigation or mutation before adding another. Replace old code, do not stack a second copy. Remove only files proven obsolete (check callers, keep required migrations, licenses and public contracts).
 8. Development mode: the owner is building a private app and may change any UI/UX. No UI/UX choice is permanently locked. Current Telegram-derived code is the current implementation, not a standing requirement.
+9. Elimination of Useless Rules & UI Locks: Artificial UI locks, rigid formatting requirements (e.g. brittle single-line XML layout checks), obsolete Material constraints, and bureaucratic multi-step approvals that impede 1:1 Telegram fidelity are permanently abolished. Tests must assert actual user-facing behavior, contracts, contrast, and accessibility, never brittle formatting.
+10. Full Build-Failure Elimination: Maintain a zero-build-failure standard across FAST and FULL CI pipelines. Defective, brittle, or locked tests that break upon standard formatting or valid Telegram porting must be repaired forward.
 
 ## 2. Telegram source rules (whenever the owner mentions Telegram or "exact")
 1. Only source: official https://github.com/DrKLO/Telegram; authenticate its official origin and pin a full commit SHA, using either a Git checkout of that repo or the owner's Telegram source zip (Telegram-master.zip / Telegrammaster.zip, in phone storage or attached) whose files match that repo. Reuse the verified pin within the same task; do not re-authenticate for ordinary EVE fixes. Never use memory, blogs, forks, Material/AndroidX lookalikes or an AI recreation. Do not substitute an unofficial implementation without owner permission.
 2. Source missing or unreadable: mark that item BLOCKED, do not substitute, continue other work.
 3. Take the minimum complete functional subsystem, not one screenshot: the Activity/Fragment/View class, its cells, Theme keys, strings, drawables and Lottie, animation and gesture/physics code, edge cases, and the callers that open it.
 4. Port by copying real logic and constants, never by eye: dp sizes, text sizes, colors (Theme key_* light and dark values), durations, interpolators, spring/physics values, haptics, z-order, insets, RTL.
-5. Allowed adaptation only: data source (EVE backend instead of MTProto/TL), account/identity, branding strings, removal of messaging/network. Everything else stays identical. Comment each adaptation with its reason. Never import Telegram credentials, messaging, network or unrelated services.
-6. Provenance goes in code comments, not new docs: `// Telegram: <path>:<lines> @ <short sha>` on each ported class or constant block. Record path/lines or hashes for what was copied and the observed runtime behavior where available. Pin the full SHA in the commit message. No per-feature ledger or report files in the repo.
-7. When a Telegram component is ported, remove the old EVE implementation of it.
-8. Status per item: EXACT (actual unchanged upstream code or values, hash/diff verified), ADAPTED (anything modified, with what differs and why), NOT FOUND (Telegram has no equivalent), BLOCKED. Modified code is ADAPTED even if believed equivalent. Compare Day/Night, RTL, insets and accessibility where relevant. Only the owner's device decides "looks exact".
-9. EVE-only features with no Telegram equivalent: compose them from ported Telegram primitives and say so.
-10. Keep GPL attribution and THIRD_PARTY_NOTICES.md. Deep procedure, byte verification and licensing gate: docs/telegram-integration-process.md and docs/telegram-release-compliance-gate.md.
+5. 1:1 Physics, Matrix, and Settings Porting Mandate:
+   - Physics: Port authentic Telegram spring dynamics, overshoot values, interpolators (CubicBezierInterpolator EASE_OUT_QUINT / DEFAULT), ButtonBounce timing (60ms press, 350ms release, 5.0 overshoot, 320ms bounce), PullForegroundDrawable snap/parallax (0.85 snap, 0.45->0.25 parallax damping), and TelegramShake error physics.
+   - Matrix: Port authentic Telegram coordinate mapping, 2D transformation matrices, aspect clamping, crop geometry (AvatarCropGeometry / PhotoCropActivity), and dynamic pattern rotation lattices (QrPatternField).
+   - Settings: Port full Telegram settings hierarchies and cells (SettingsActivity flat list cells, ThemeActivity with dynamic text size and bubble radius seekbars, auto-night mode, accent color presets, CacheControlActivity with storage usage charts and selective cache purge, and PasscodeActivity with authentic PIN keypad and biometric unlock).
+6. Allowed adaptation only: data source (EVE backend instead of MTProto/TL), account/identity, branding strings, removal of messaging/network. Everything else stays identical. Comment each adaptation with its reason. Never import Telegram credentials, messaging, network or unrelated services.
+7. Provenance goes in code comments, not new docs: `// Telegram: <path>:<lines> @ <short sha>` on each ported class or constant block. Record path/lines or hashes for what was copied and the observed runtime behavior where available. Pin the full SHA in the commit message. No per-feature ledger or report files in the repo.
+8. When a Telegram component is ported, remove the old EVE implementation of it.
+9. Status per item: EXACT (actual unchanged upstream code or values, hash/diff verified), ADAPTED (anything modified, with what differs and why), NOT FOUND (Telegram has no equivalent), BLOCKED. Modified code is ADAPTED even if believed equivalent. Compare Day/Night, RTL, insets and accessibility where relevant. Only the owner's device decides "looks exact".
+10. EVE-only features with no Telegram equivalent: compose them from ported Telegram primitives and say so.
+11. Keep GPL attribution and THIRD_PARTY_NOTICES.md. Deep procedure, byte verification and licensing gate: docs/telegram-integration-process.md and docs/telegram-release-compliance-gate.md.
 
 ## 3. Workflow for every request
 1. Understand: write the requested outcome as a short item list. Every item must be covered at the end.

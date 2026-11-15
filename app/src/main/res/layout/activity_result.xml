@@ -10,16 +10,7 @@
                 android:layout_weight="1"
                 android:layout_marginStart="@dimen/telegram_action_bar_title_start"
                 android:orientation="vertical">
-                <TextView
-                    android:id="@+id/tvResultTitle"
-                    style="@style/TextAppearance.Eve.Telegram.NavigationTitle"
-                    android:tag="eve_telegram_type"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:maxLines="1"
-                    android:singleLine="true"
-                    android:ellipsize="end"
-                    android:text="Test Result" />
+                <TextView android:id="@+id/tvResultTitle" style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:tag="eve_telegram_type" android:layout_width="match_parent" android:layout_height="wrap_content" android:maxLines="1" android:singleLine="true" android:ellipsize="end" android:text="Test Result" />
             <TextView android:id="@+id/tvResultSubtitle" style="@style/TextAppearance.Eve.Telegram.NavigationSubtitle" android:tag="eve_telegram_type" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:visibility="gone" />
             </LinearLayout>
                 <ImageButton android:id="@+id/btnShare" android:layout_width="@dimen/design_touch_min" android:layout_height="@dimen/design_touch_min" android:layout_marginEnd="@dimen/design_card_gap" android:contentDescription="Share" android:src="@drawable/ic_share" app:tint="@color/text_primary" style="@style/Widget.Eve.Token.IconButton" />
