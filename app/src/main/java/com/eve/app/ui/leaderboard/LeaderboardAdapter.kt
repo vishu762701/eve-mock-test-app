@@ -53,7 +53,7 @@ class LeaderboardAdapter(
             b.tvName.setTextColor(palette.textPrimary)
             b.tvScore.setTextColor(if (isMe) palette.accent else palette.textPrimary)
             b.root.setBackgroundColor(
-                if (isMe) (if (palette.isDark) 0x33007AFF else 0x1F007AFF) else palette.windowBackgroundWhite
+                if (isMe) (if (palette.isDark) 0x33007AFF else 0x1F007AFF) else palette.surface
             )
             b.root.foreground = com.eve.app.designsystem.TelegramThemeSelectors.getSelectorDrawable(ctx, false)
         }
