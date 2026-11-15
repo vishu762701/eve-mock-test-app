@@ -1,17 +1,24 @@
 package com.eve.app.designsystem
 
+import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 import android.util.StateSet
+import com.eve.app.theme.TelegramThemeEngine
 
 /**
  * Authentic Telegram Theme selector drawables ported from upstream Telegram Android:
  * Theme.java:4798-4850 (getRoundRectSelectorDrawable, getSelectorDrawable).
  */
 object TelegramThemeSelectors {
+
+    fun getSelectorDrawable(context: Context, whiteBackground: Boolean = false): Drawable {
+        val palette = TelegramThemeEngine.resolveCurrentPalette(context)
+        return getSelectorDrawable(palette.actionSelector)
+    }
 
     /**
      * Port of Telegram's Theme.getRoundRectSelectorDrawable(int corners, int color).
