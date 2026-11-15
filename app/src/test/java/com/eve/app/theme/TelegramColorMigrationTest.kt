@@ -93,7 +93,7 @@ class TelegramColorMigrationTest {
                 fun fill(view: android.view.View) = (view.background as android.graphics.drawable.GradientDrawable).color!!.defaultColor
                 assertEquals("Semantic tile fill is preserved", container, fill(tile))
                 assertEquals("Nested badge fill is preserved", container, fill(text))
-                val tileBackground = ColorUtils.compositeColors(fill(tile), binding.root.cardBackgroundColor.defaultColor)
+                val tileBackground = ColorUtils.compositeColors(fill(tile), themed.getColor(R.color.surface))
                 val badgeBackground = ColorUtils.compositeColors(fill(text), tileBackground)
                 assertTrue("Double-composited badge text dark=$dark", ColorUtils.calculateContrast(text.currentTextColor, badgeBackground) >= 4.5)
                 assertTrue("Status icon dark=$dark", ColorUtils.calculateContrast(status.imageTintList!!.defaultColor, tileBackground) >= 3.0)
