@@ -60,8 +60,8 @@ class TelegramPaletteCircleView @JvmOverloads constructor(
         cardBackgroundColor = ColorStateList.valueOf(color)
     }
 
-    fun setStrokeColor(@ColorInt color: Int) {
-        strokeColor = color
+    fun setStrokeColor(colors: ColorStateList?) {
+        strokeColor = colors?.defaultColor ?: 0
     }
 
     override fun onDraw(canvas: Canvas) {
