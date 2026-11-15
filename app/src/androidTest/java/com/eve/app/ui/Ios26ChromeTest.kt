@@ -32,7 +32,7 @@ class Ios26ChromeTest {
                 for ((name, layout) in cases) {
                     val whole = LayoutInflater.from(context).inflate(layout, null)
                     fun chrome(view: View): View? {
-                        if (view is EveGlassToolbar || view is com.eve.app.designsystem.TelegramActionBar || view.id == R.id.telegramActionBar || view.id == R.id.headerBar) return view
+                        if (view is EveGlassToolbar || view is com.eve.app.designsystem.TelegramActionBar || view.id == R.id.telegramActionBar) return view
                         if (view is ViewGroup) for (i in 0 until view.childCount) chrome(view.getChildAt(i))?.let { return it }
                         return null
                     }
