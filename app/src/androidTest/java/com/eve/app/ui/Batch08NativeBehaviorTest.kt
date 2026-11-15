@@ -10,10 +10,10 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.eve.app.R
 import com.eve.app.data.model.Exam
-import com.eve.app.designsystem.UiArcUploadStepperView
+import com.eve.app.designsystem.TelegramPaginationStrip
+import com.eve.app.designsystem.TelegramUploadStepperView
 import com.eve.app.ui.admin.ExamWithStats
 import com.eve.app.ui.admin.ExistingExamsAdapter
-import com.eve.app.ui.admin.UiArcPaginationStrip
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -26,7 +26,7 @@ class Batch08NativeBehaviorTest {
         ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
             val tapped = AtomicInteger(-1)
             scenario.onActivity { activity ->
-                val strip = UiArcPaginationStrip(activity)
+                val strip = TelegramPaginationStrip(activity)
                 activity.setContentView(strip)
                 strip.bind(10, 25) { tapped.set(it) }
                 val row = strip.getChildAt(1) as LinearLayout
@@ -50,7 +50,7 @@ class Batch08NativeBehaviorTest {
     @Test fun stepperNeverMarksInvalidOrInterruptedUploadComplete() {
         ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
             scenario.onActivity { activity ->
-                val progress = UiArcUploadStepperView(activity)
+                val progress = TelegramUploadStepperView(activity)
                 activity.setContentView(progress)
                 progress.update(false, false, true, true, true)
                 assertTrue(progress.contentDescription.contains("Step 1 of 3"))

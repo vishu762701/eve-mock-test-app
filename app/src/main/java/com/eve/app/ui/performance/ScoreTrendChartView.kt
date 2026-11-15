@@ -17,7 +17,8 @@ import androidx.core.content.ContextCompat
 import com.eve.app.R
 import com.eve.app.data.model.ScorePoint
 import com.eve.app.designsystem.DesignTokens
-import com.eve.app.designsystem.UiArcMotion
+import com.eve.app.designsystem.CubicBezierInterpolator
+import com.eve.app.theme.TelegramAnimationRuntime
 import com.eve.app.util.FontManager
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -180,7 +181,7 @@ class ScoreTrendChartView @JvmOverloads constructor(
         val oldPoints = points
         points = newPoints
 
-        if (!UiArcMotion.isMotionEnabled(context)) {
+        if (!TelegramAnimationRuntime.isMotionEnabled(context)) {
             drawProgress = 1f
             hasRevealed = true
             animatedPercents = FloatArray(newPoints.size) { newPoints[it].percent.toFloat() }
@@ -203,8 +204,8 @@ class ScoreTrendChartView @JvmOverloads constructor(
 
             morphAnimator?.cancel()
             morphAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
-                duration = UiArcMotion.Spring.SMOOTH.settlingDurationMs
-                interpolator = UiArcMotion.Spring.SMOOTH
+                duration = 250L
+                interpolator = CubicBezierInterpolator.EASE_OUT_QUINT
                 addUpdateListener { va ->
                     val fraction = va.animatedValue as Float
                     for (i in targetPercents.indices) {
@@ -227,7 +228,7 @@ class ScoreTrendChartView @JvmOverloads constructor(
 
         drawAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
             duration = DRAW_DURATION
-            interpolator = UiArcMotion.Ease.IN_OUT
+            interpolator = CubicBezierInterpolator.DEFAULT
             addUpdateListener { va ->
                 drawProgress = va.animatedValue as Float
                 invalidate()
@@ -311,8 +312,8 @@ class ScoreTrendChartView @JvmOverloads constructor(
     private fun showCrosshair() {
         crosshairFadeAnimator?.cancel()
         crosshairFadeAnimator = ValueAnimator.ofFloat(crosshairAlpha, 1f).apply {
-            duration = UiArcMotion.Duration.FAST
-            interpolator = UiArcMotion.Ease.STANDARD
+            duration = 180L
+            interpolator = CubicBezierInterpolator.DEFAULT
             addUpdateListener { va ->
                 crosshairAlpha = va.animatedValue as Float
                 invalidate()
@@ -324,8 +325,8 @@ class ScoreTrendChartView @JvmOverloads constructor(
     private fun hideCrosshair() {
         crosshairFadeAnimator?.cancel()
         crosshairFadeAnimator = ValueAnimator.ofFloat(crosshairAlpha, 0f).apply {
-            duration = UiArcMotion.Duration.INSTANT
-            interpolator = UiArcMotion.Ease.STANDARD
+            duration = 100L
+            interpolator = CubicBezierInterpolator.DEFAULT
             addUpdateListener { va ->
                 crosshairAlpha = va.animatedValue as Float
                 invalidate()
@@ -337,8 +338,8 @@ class ScoreTrendChartView @JvmOverloads constructor(
     private fun animateCrosshairTo(targetX: Float) {
         val startX = animatedCrosshairX
         ValueAnimator.ofFloat(startX, targetX).apply {
-            duration = UiArcMotion.Spring.SNAPPY.settlingDurationMs
-            interpolator = UiArcMotion.Spring.SNAPPY
+            duration = 200L
+            interpolator = CubicBezierInterpolator.EASE_OUT_QUINT
             addUpdateListener { va ->
                 animatedCrosshairX = va.animatedValue as Float
                 invalidate()

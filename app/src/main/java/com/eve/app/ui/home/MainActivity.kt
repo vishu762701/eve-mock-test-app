@@ -1,6 +1,6 @@
 package com.eve.app.ui.home
 
-import com.eve.app.designsystem.UiArcMotion
+import com.eve.app.theme.TelegramAnimationRuntime
 
 import android.graphics.Outline
 import android.view.ViewOutlineProvider
@@ -382,7 +382,7 @@ class MainActivity : EveBaseActivity() {
         com.eve.app.designsystem.DesignPress.bind(binding.btnMenu) {
             if (ThemeSwitchAnimator.isTransitioning || isFinishing || isDestroyed) return@bind
             prepareDrawerSurface()
-            binding.drawerLayout.openDrawer(GravityCompat.START, UiArcMotion.isMotionEnabled(this))
+            binding.drawerLayout.openDrawer(GravityCompat.START, TelegramAnimationRuntime.isMotionEnabled(this))
         }
         loadProfilePhoto(user)
         lifecycleScope.launch(lifecycleExceptionHandler) {
@@ -430,7 +430,7 @@ class MainActivity : EveBaseActivity() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                    binding.drawerLayout.closeDrawer(GravityCompat.START, UiArcMotion.isMotionEnabled(this@MainActivity))
+                    binding.drawerLayout.closeDrawer(GravityCompat.START, TelegramAnimationRuntime.isMotionEnabled(this@MainActivity))
                 } else if (isSearchActive) {
                     closeSearch()
                 } else {
@@ -1134,7 +1134,7 @@ class MainActivity : EveBaseActivity() {
         }
         binding.btnSearchBack.alpha = 1f
         binding.etSearch.alpha = 1f
-        if (!UiArcMotion.isMotionEnabled(this)) {
+        if (!TelegramAnimationRuntime.isMotionEnabled(this)) {
             binding.titleGroup.visibility = View.GONE
             binding.normalTopBar.visibility = View.GONE
             binding.normalTopBar.alpha = 1f
@@ -1170,7 +1170,7 @@ class MainActivity : EveBaseActivity() {
         currentSearchQuery = ""
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         imm?.hideSoftInputFromWindow(binding.etSearch.windowToken, 0)
-        if (!UiArcMotion.isMotionEnabled(this)) {
+        if (!TelegramAnimationRuntime.isMotionEnabled(this)) {
             binding.searchTopBar.visibility = View.GONE
             binding.searchTopBar.alpha = 0f
             binding.normalTopBar.visibility = View.VISIBLE
@@ -1273,7 +1273,7 @@ class MainActivity : EveBaseActivity() {
         }
         pinPopupMenu = popup
         popup.setOnDismissListener { if (pinPopupMenu === popup) pinPopupMenu = null }
-        com.eve.app.designsystem.DesignPopupGlass.around(anchorView) { popup.show(anchorView) }
+        popup.show(anchorView)
     }
 
     private fun openFeedbackForPost(post: com.eve.app.data.model.FeedbackPost) {

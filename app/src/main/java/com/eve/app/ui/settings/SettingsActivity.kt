@@ -1,8 +1,8 @@
 package com.eve.app.ui.settings
 
+import com.eve.app.designsystem.RadioCell
 import com.eve.app.designsystem.TelegramNativeAlertDialog
-import com.eve.app.designsystem.UiArcMotion
-import com.eve.app.designsystem.UiArcRadioCardsGroup
+import com.eve.app.theme.TelegramAnimationRuntime
 
 import com.eve.app.ui.common.EveBaseActivity
 
@@ -269,13 +269,38 @@ class SettingsActivity : EveBaseActivity() {
                 addView(tvDesc)
             }
 
-            val radioGroup = UiArcRadioCardsGroup(this).apply {
-                layoutParams = android.widget.LinearLayout.LayoutParams(
-                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
-                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
-                )
+            val options = listOf(
+                "1" to "1 test per day — Light daily practice",
+                "2" to "2 tests per day — Steady rhythm to improve consistency",
+                "3" to "3 tests per day — Accelerate syllabus coverage",
+                "5" to "5 tests per day — Intensive focus for upcoming exams"
+            )
+
+            val radioCells = mutableListOf<RadioCell>()
+            var dialog: TelegramNativeAlertDialog? = null
+
+            for ((value, label) in options) {
+                val cell = RadioCell(this).apply {
+                    layoutParams = android.widget.LinearLayout.LayoutParams(
+                        android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                    )
+                    setText(label, value == currentGoal.toString(), true)
+                    setOnClickListener {
+                        val chosenGoal = value.toIntOrNull() ?: 1
+                        prefs.edit().putInt(StreakHelper.KEY_DAILY_GOAL, chosenGoal).apply()
+                        refreshText()
+                        radioCells.forEach { it.setChecked(it === this, true) }
+                        if (TelegramAnimationRuntime.isMotionEnabled(this@SettingsActivity)) {
+                            postDelayed({ dialog?.dismiss() }, 200L)
+                        } else {
+                            dialog?.dismiss()
+                        }
+                    }
+                }
+                radioCells.add(cell)
+                container.addView(cell)
             }
-            container.addView(radioGroup)
 
             val dialogView = android.widget.ScrollView(this).apply {
                 clipChildren = false
@@ -283,43 +308,7 @@ class SettingsActivity : EveBaseActivity() {
                 addView(container)
             }
 
-            val options = listOf(
-                UiArcRadioCardsGroup.RadioCardOption(
-                    value = "1",
-                    title = "1 test per day",
-                    description = "Light daily practice to keep momentum"
-                ),
-                UiArcRadioCardsGroup.RadioCardOption(
-                    value = "2",
-                    title = "2 tests per day",
-                    description = "Steady rhythm to improve consistency"
-                ),
-                UiArcRadioCardsGroup.RadioCardOption(
-                    value = "3",
-                    title = "3 tests per day",
-                    description = "Accelerate syllabus coverage"
-                ),
-                UiArcRadioCardsGroup.RadioCardOption(
-                    value = "5",
-                    title = "5 tests per day",
-                    description = "Intensive focus for upcoming exams"
-                )
-            )
-
-            var dialog: com.eve.app.designsystem.TelegramNativeAlertDialog? = null
-
-            radioGroup.setCardOptions(options, currentGoal.toString()) { selectedValue ->
-                val chosenGoal = selectedValue.toIntOrNull() ?: 1
-                prefs.edit().putInt(StreakHelper.KEY_DAILY_GOAL, chosenGoal).apply()
-                refreshText()
-                if (UiArcMotion.isMotionEnabled(this)) {
-                    radioGroup.postDelayed({ dialog?.dismiss() }, 200L)
-                } else {
-                    dialog?.dismiss()
-                }
-            }
-
-            dialog = com.eve.app.designsystem.TelegramNativeAlertDialog.Builder(this)
+            dialog = TelegramNativeAlertDialog.Builder(this)
                 .setTitle("Select Daily Goal")
                 .setView(dialogView)
                 .setNegativeButton("Cancel", null)

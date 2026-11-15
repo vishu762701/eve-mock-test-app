@@ -84,7 +84,7 @@ jobs:
       - name: Anti-stub check across Telegram ports (FAST and FULL)
         run: |
           python3 tools/check_no_stubs.py
-          python3 tools/check_no_shortcuts.py --governance-only
+          python3 tools/check_no_shortcuts.py
 
       # Documentation, governance and security suites are manual FULL only.
       - name: Verify docs and governance contracts (manual FULL only)

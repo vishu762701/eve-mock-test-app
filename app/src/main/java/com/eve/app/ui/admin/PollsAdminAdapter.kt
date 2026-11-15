@@ -13,7 +13,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.R
 import com.eve.app.data.model.Poll
 import com.eve.app.databinding.ItemPollAdminBinding
-import com.eve.app.designsystem.UiArcMotion
+import com.eve.app.designsystem.CubicBezierInterpolator
+import com.eve.app.theme.TelegramAnimationRuntime
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -174,7 +175,7 @@ class PollsAdminAdapter(
             val availableWidth = binding.root.width - binding.root.paddingLeft - binding.root.paddingRight
             panel.visibility = View.VISIBLE
             if (availableWidth <= 0 || !panel.isAttachedToWindow ||
-                !UiArcMotion.isMotionEnabled(panel.context)) {
+                !TelegramAnimationRuntime.isMotionEnabled(panel.context)) {
                 panel.layoutParams = panel.layoutParams.apply {
                     height = ViewGroup.LayoutParams.WRAP_CONTENT
                 }
@@ -198,8 +199,8 @@ class PollsAdminAdapter(
             }
             panel.layoutParams = panel.layoutParams.apply { height = start }
             val animator = ValueAnimator.ofInt(start, destination).apply {
-                duration = UiArcMotion.Spring.SMOOTH.settlingDurationMs
-                interpolator = UiArcMotion.Spring.SMOOTH // Non-overshooting height.
+                duration = 250L
+                interpolator = CubicBezierInterpolator.EASE_OUT_QUINT // Non-overshooting height.
                 addUpdateListener { frame ->
                     val next = frame.animatedValue as Int
                     if (panel.layoutParams.height != next) {

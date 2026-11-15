@@ -80,7 +80,7 @@ class UserAdminAdapter(
                 }
                 activePopup = popup
                 popup.setOnDismissListener { if (activePopup === popup) activePopup = null }
-                com.eve.app.designsystem.DesignPopupGlass.around(view) { popup.show(view) }
+                popup.show(view)
             }
         }
 

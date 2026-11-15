@@ -16,7 +16,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.R
 import com.eve.app.data.model.Exam
 import com.eve.app.databinding.ItemExistingExamAdminBinding
-import com.eve.app.designsystem.UiArcMotion
+import com.eve.app.designsystem.CubicBezierInterpolator
+import com.eve.app.theme.TelegramAnimationRuntime
 
 data class ExamWithStats(
     val exam: Exam,
@@ -49,14 +50,10 @@ class ExistingExamsAdapter(
         private val expandedWidths = mutableMapOf<View, Int>()
         private val density get() = binding.root.resources.displayMetrics.density
         private val touchMin get() = (48f * density).toInt()
-        private val widthSpring = UiArcMotion.SpringCurve(0.42f, 0f, 550L)
         private val originalNamePadding = binding.tvExamName.paddingLeft
         private var currentAction: View? = null
         private var boundExamId: String? = null
         private var boundExpanded = false
-        private val hoverSpring = UiArcMotion.SpringCurve(
-            visualDuration = 0.26f, bounce = 0f, settlingDurationMs = 360L
-        )
         private val actionButtons get() =
             listOf(binding.btnQuickPreview, binding.btnQuickEdit, binding.btnMoreOptions)
 
@@ -92,13 +89,13 @@ class ExistingExamsAdapter(
             actionAnimators.remove(view)?.cancel()
             val oldWidth = view.width.coerceAtLeast(0)
             val target = targetWidth.coerceAtLeast(0)
-            if (!UiArcMotion.isMotionEnabled(view.context) || oldWidth == 0) {
+            if (!TelegramAnimationRuntime.isMotionEnabled(view.context) || oldWidth == 0) {
                 view.layoutParams = view.layoutParams.apply { width = target }
                 return
             }
             ValueAnimator.ofInt(oldWidth, target).apply {
-                duration = widthSpring.settlingDurationMs
-                interpolator = widthSpring
+                duration = 250L
+                interpolator = CubicBezierInterpolator.EASE_OUT_QUINT
                 addUpdateListener {
                     val width = it.animatedValue as Int
                     if (view.layoutParams.width != width) {
@@ -138,7 +135,7 @@ class ExistingExamsAdapter(
             }
             binding.tvMoreLabel.animate().cancel()
             binding.tvMoreLabel.animate().alpha(if (active === more) 1f else 0f)
-                .setDuration(if (UiArcMotion.isMotionEnabled(binding.root.context)) UiArcMotion.Duration.FAST else 0L)
+                .setDuration(if (TelegramAnimationRuntime.isMotionEnabled(binding.root.context)) 180L else 0L)
                 .start()
         }
 
@@ -204,10 +201,10 @@ class ExistingExamsAdapter(
                     else -> return@setOnHoverListener false
                 }
                 binding.root.animate().cancel()
-                if (UiArcMotion.isMotionEnabled(binding.root.context)) {
+                if (TelegramAnimationRuntime.isMotionEnabled(binding.root.context)) {
                     binding.root.animate().translationY(lift)
-                        .setDuration(hoverSpring.settlingDurationMs)
-                        .setInterpolator(hoverSpring)
+                        .setDuration(250L)
+                        .setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT)
                         .start()
                 } else binding.root.translationY = 0f
                 false // Preserve native focus, click and child quick-action dispatch.
@@ -226,10 +223,10 @@ class ExistingExamsAdapter(
             boundExpanded = item.isExpanded
             binding.btnExpandExam.visibility = if (item.hasChildren) View.VISIBLE else View.GONE
             val targetAngle = if (item.isExpanded) 90f else 0f
-            if (animatedExpansion && UiArcMotion.isMotionEnabled(binding.root.context)) {
+            if (animatedExpansion && TelegramAnimationRuntime.isMotionEnabled(binding.root.context)) {
                 binding.btnExpandExam.animate().rotation(targetAngle)
-                    .setDuration(hoverSpring.settlingDurationMs)
-                    .setInterpolator(hoverSpring).start()
+                    .setDuration(250L)
+                    .setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT).start()
             } else binding.btnExpandExam.rotation = targetAngle
             val state = if (item.isExpanded) "Expanded" else "Collapsed"
             binding.btnExpandExam.contentDescription =
@@ -304,13 +301,13 @@ class ExistingExamsAdapter(
 
             bindActionMorph()
             if (item.treeDepth > 0 && pendingEntranceIds.remove(exam.id) &&
-                UiArcMotion.isMotionEnabled(binding.root.context)) {
+                TelegramAnimationRuntime.isMotionEnabled(binding.root.context)) {
                 binding.root.alpha = 0f
                 binding.root.translationY = 6f * density
                 binding.root.animate().alpha(1f).translationY(0f)
-                    .setStartDelay(((item.treeDepth - 1).coerceAtMost(4) * UiArcMotion.Stagger.ITEM_MS))
-                    .setDuration(UiArcMotion.Spring.SMOOTH.settlingDurationMs)
-                    .setInterpolator(UiArcMotion.Spring.SMOOTH).start()
+                    .setStartDelay(((item.treeDepth - 1).coerceAtMost(4) * 24L))
+                    .setDuration(250L)
+                    .setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT).start()
             }
             binding.root.setOnClickListener { onExamClick(exam) }
             binding.btnQuickEdit.setOnClickListener { onEditClick(exam) }
@@ -325,7 +322,7 @@ class ExistingExamsAdapter(
                 }
                 activePopup = popup
                 popup.setOnDismissListener { if (activePopup === popup) activePopup = null }
-                com.eve.app.designsystem.DesignPopupGlass.around(view) { popup.show(view) }
+                popup.show(view)
             }
         }
     }

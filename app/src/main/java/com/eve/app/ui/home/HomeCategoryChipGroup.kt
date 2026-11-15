@@ -11,7 +11,7 @@ import android.text.Layout
 import kotlin.math.ceil
 import android.util.AttributeSet
 import android.os.SystemClock
-import com.eve.app.designsystem.UiArcMotion
+import com.eve.app.theme.TelegramAnimationRuntime
 import org.telegram.ui.Components.CubicBezierInterpolator
 import android.view.MotionEvent
 import android.view.TouchDelegate
@@ -94,7 +94,7 @@ class HomeCategoryChipGroup @JvmOverloads constructor(context: Context, attrs: A
         val target = selectedIndicatorBounds()
         val previous = lastRenderedBounds
         if (target == null || previous == null ||
-            !UiArcMotion.isMotionEnabled(context) || !isAttachedToWindow ||
+            !TelegramAnimationRuntime.isMotionEnabled(context) || !isAttachedToWindow ||
             (previous.left == target.left && previous.right == target.right)) {
             animatingIndicator = false
             lastRenderedBounds = target

@@ -106,7 +106,6 @@ class StudentUiRenderingTest {
                             root.layout(0, 0, root.measuredWidth, root.measuredHeight)
                         }
                         assertTrue("$name has a usable native viewport", root.width > 0 && root.height > 0)
-                        walk(root).filterIsInstance<com.eve.app.designsystem.UiArcInViewTitleView>().forEach { it.revealInstant() }
                         android.util.Log.i("EveStudentUi", "Contrast stage $name ${if (dark) "night" else "day"} $width/$font")
                         if (!baseline && name != "mock-test") {
                             try { checkText(root, "$name $width/$font", root.context.getColor(R.color.bg_app)) }

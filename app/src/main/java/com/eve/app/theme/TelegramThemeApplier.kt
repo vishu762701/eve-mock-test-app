@@ -12,8 +12,8 @@ import android.widget.RadioButton
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import com.eve.app.R
-import com.eve.app.designsystem.DesignGlassLayout
-import com.eve.app.designsystem.DesignSegmentedTabs
+import com.eve.app.designsystem.TelegramMenuPopupLayout
+import com.eve.app.designsystem.TelegramTabsView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
@@ -83,14 +83,12 @@ object TelegramThemeApplier {
                 view.updatePalette(palette)
                 return
             }
-            is DesignSegmentedTabs -> {
-                // TabLayout owns its selected/unselected label colors. Recursing into
-                // its child TextViews would classify onAccent BLACK/WHITE as a generic
-                // primary text role and overwrite it with textPrimary.
+            is TelegramTabsView -> {
+                // TelegramTabsView owns its selected/unselected label colors.
                 view.updatePalette(palette)
                 return
             }
-            is DesignGlassLayout -> {
+            is TelegramMenuPopupLayout -> {
                 view.updatePalette(palette)
             }
             is androidx.swiperefreshlayout.widget.SwipeRefreshLayout -> {

@@ -337,7 +337,7 @@ class ManageUsersActivity : EveBaseActivity() {
             val step = (48f * resources.displayMetrics.density).toInt()
             val centered = ((logicalIndex + 0.5f) * step - viewport.width / 2f)
                 .toInt().coerceAtLeast(0)
-            if (com.eve.app.designsystem.UiArcMotion.isMotionEnabled(this)) {
+            if (com.eve.app.theme.TelegramAnimationRuntime.isMotionEnabled(this)) {
                 viewport.smoothScrollTo(centered, 0)
             } else viewport.scrollTo(centered, 0)
         }

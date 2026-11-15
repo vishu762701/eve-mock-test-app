@@ -191,12 +191,12 @@ class LoginActivity : EveBaseActivity() {
         view.translationY = 0f
         // The new content is visible and accessible immediately. Translate/fade
         // the same existing TextView; never create ghost focusable form controls.
-        if (!animate || !com.eve.app.designsystem.UiArcMotion.isMotionEnabled(this)) return
+        if (!animate || !com.eve.app.theme.TelegramAnimationRuntime.isMotionEnabled(this)) return
         view.translationY = 4f * resources.displayMetrics.density
         view.alpha = 0.75f
         view.animate().translationY(0f).alpha(1f)
-            .setDuration(com.eve.app.designsystem.UiArcMotion.Duration.STANDARD)
-            .setInterpolator(com.eve.app.designsystem.UiArcMotion.Ease.ENTER).start()
+            .setDuration(250L)
+            .setInterpolator(com.eve.app.designsystem.CubicBezierInterpolator.EASE_OUT_QUINT).start()
     }
 
     private fun toggleMode(animate: Boolean = true) {
@@ -204,12 +204,11 @@ class LoginActivity : EveBaseActivity() {
         isSignUpMode = !isSignUpMode
         binding.tvError.visibility = View.GONE
         androidx.transition.TransitionManager.endTransitions(binding.cardLogin)
-        if (animate && com.eve.app.designsystem.UiArcMotion.isMotionEnabled(this)) {
-            val motion = com.eve.app.designsystem.UiArcMotion.Spring.SMOOTH
+        if (animate && com.eve.app.theme.TelegramAnimationRuntime.isMotionEnabled(this)) {
             androidx.transition.TransitionManager.beginDelayedTransition(
                 binding.cardLogin, androidx.transition.ChangeBounds().apply {
-                    duration = motion.settlingDurationMs
-                    interpolator = motion
+                    duration = 250L
+                    interpolator = com.eve.app.designsystem.CubicBezierInterpolator.EASE_OUT_QUINT
                 }
             )
         }

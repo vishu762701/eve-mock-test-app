@@ -10,7 +10,6 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.DefaultItemAnimator
-import com.eve.app.designsystem.UiArcMotion
 import com.eve.app.util.Constants
 import com.eve.app.data.model.Exam
 import com.eve.app.data.remote.ApiClient
@@ -122,8 +121,8 @@ class ManageExistingExamsActivity : EveBaseActivity() {
         binding.rvExams.layoutManager = LinearLayoutManager(this)
         binding.rvExams.adapter = adapter
         (binding.rvExams.itemAnimator as? DefaultItemAnimator)?.apply {
-            addDuration = UiArcMotion.Spring.SMOOTH.settlingDurationMs
-            removeDuration = UiArcMotion.Duration.FAST
+            addDuration = 250L
+            removeDuration = 180L
         }
 
         binding.etSearchExam.doAfterTextChanged { text ->

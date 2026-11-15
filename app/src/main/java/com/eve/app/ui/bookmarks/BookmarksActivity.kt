@@ -23,7 +23,6 @@ import com.eve.app.data.model.BookmarkedQuestion
 import com.eve.app.databinding.ActivityBookmarksBinding
 import com.eve.app.designsystem.TelegramPopupMenu
 import com.eve.app.designsystem.TelegramShareAlert
-import com.eve.app.designsystem.UiArcSwipeRow
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.Constants
@@ -145,7 +144,6 @@ class BookmarksActivity : EveBaseActivity() {
         binding.rvBookmarks.addOnScrollListener(object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: androidx.recyclerview.widget.RecyclerView, newState: Int) {
                 if (newState == androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_DRAGGING) {
-                    UiArcSwipeRow.closeActiveRow()
                 }
             }
         })
@@ -475,11 +473,9 @@ class BookmarksActivity : EveBaseActivity() {
 
     override fun onPause() {
         super.onPause()
-        UiArcSwipeRow.closeActiveRow()
     }
 
     override fun onDestroy() {
-        UiArcSwipeRow.closeActiveRow()
         if (::binding.isInitialized) {
             EmptyStateAnimationHelper.stopEmptyState(binding.ivMessageIcon)
         }
