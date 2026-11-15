@@ -306,7 +306,9 @@ class DesignRecoveryTest {
                         profile.ivProfilePhoto.background = null
                         profile.ivProfilePhoto.setPadding(0, 0, 0, 0)
                         profile.ivProfilePhoto.setImageDrawable(com.eve.app.util.AvatarDrawable.create(activity, "Aarti Sharma", "recovery-fixture"))
+                        freezeAnimations(profile.root)
                     }
+                    android.util.Log.i("EveNativeQrStage", "recovery-profile-sync-$dark")
                     instrumentation.waitForIdleSync()
                     capture("profile", dark, profile.root, scenario)
                     lateinit var result: ActivityResultBinding
@@ -325,7 +327,9 @@ class DesignRecoveryTest {
                         result.tvLeaderboardScoreChip.text = "Score: 78"
                         result.tvLeaderboardPercentileChip.text = "Percentile: 97.4%"
                         activity.setContentView(result.root)
+                        freezeAnimations(result.root)
                     }
+                    android.util.Log.i("EveNativeQrStage", "recovery-result-overview-sync-$dark")
                     instrumentation.waitForIdleSync()
                     capture("result-overview", dark, result.root, scenario)
                     scenario.onActivity { activity ->
@@ -342,10 +346,16 @@ class DesignRecoveryTest {
                             submit(listOf(item))
                             expandSolution(item.questionId)
                         }
+                        freezeAnimations(result.root)
                     }
+                    android.util.Log.i("EveNativeQrStage", "recovery-result-review-sync-$dark")
                     instrumentation.waitForIdleSync()
                     capture("result-review", dark, result.root, scenario)
-                    scenario.onActivity { result.tabLayoutResult.getTabAt(2)!!.select() }
+                    scenario.onActivity {
+                        result.tabLayoutResult.getTabAt(2)!!.select()
+                        freezeAnimations(result.root)
+                    }
+                    android.util.Log.i("EveNativeQrStage", "recovery-result-leaderboard-sync-$dark")
                     instrumentation.waitForIdleSync()
                     capture("result-leaderboard", dark, result.root, scenario)
                     lateinit var home: com.eve.app.databinding.ActivityMainBinding
@@ -383,7 +393,9 @@ class DesignRecoveryTest {
                                 ViewGroup.LayoutParams.MATCH_PARENT, android.view.Gravity.CENTER_HORIZONTAL))
                         }
                         activity.setContentView(frame)
+                        freezeAnimations(frame)
                     }
+                    android.util.Log.i("EveNativeQrStage", "recovery-home-sync-$dark")
                     instrumentation.waitForIdleSync()
                     capture("home-360dp", dark, home.root, scenario)
                     scenario.onActivity { activity ->
@@ -481,9 +493,26 @@ class DesignRecoveryTest {
         }
     }
 
+    private fun freezeAnimations(view: View) {
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                freezeAnimations(view.getChildAt(i))
+            }
+        }
+        if (view is com.eve.app.designsystem.TelegramRadialProgressView) {
+            view.freezeForStaticSnapshot()
+        }
+        if (view is com.airbnb.lottie.LottieAnimationView) {
+            view.cancelAnimation()
+            view.progress = 1f
+        }
+    }
+
     private fun capture(name: String, dark: Boolean, root: View, scenario: ActivityScenario<RepairVerificationActivity>) {
+        android.util.Log.i("EveNativeQrStage", "recovery-capture-start-$name-$dark")
         val frame = java.util.concurrent.CountDownLatch(1)
         scenario.onActivity {
+            freezeAnimations(root)
             root.viewTreeObserver.registerFrameCommitCallback { frame.countDown() }
             root.invalidate()
         }
@@ -499,5 +528,6 @@ class DesignRecoveryTest {
             val uri = resolver.insert(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)!!
             resolver.openOutputStream(uri)!!.use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
         } finally { bitmap.recycle() }
+        android.util.Log.i("EveNativeQrStage", "recovery-capture-done-$name-$dark")
     }
 }

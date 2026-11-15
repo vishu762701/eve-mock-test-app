@@ -64,9 +64,13 @@ class TelegramRadialProgressView @JvmOverloads constructor(
         if (attrs != null) {
             val ns = "http://schemas.android.com/apk/res/android"
             val isIndet = attrs.getAttributeBooleanValue(ns, "indeterminate", true)
+            val hasExplicitIndet = attrs.getAttributeValue(ns, "indeterminate") != null
             val max = attrs.getAttributeIntValue(ns, "max", 100).coerceAtLeast(1)
             val prog = attrs.getAttributeIntValue(ns, "progress", 0)
-            if (!isIndet) {
+            val hasExplicitProgress = attrs.getAttributeValue(ns, "progress") != null
+            val styleAttr = attrs.getAttributeValue(null, "style")
+            val isRingStyle = styleAttr != null && styleAttr.contains("Ring")
+            if ((hasExplicitIndet && !isIndet) || (!hasExplicitIndet && hasExplicitProgress) || isRingStyle) {
                 noProgress = false
                 currentProgress = (prog.toFloat() / max).coerceIn(0f, 1f)
                 animatedProgress = currentProgress
@@ -256,7 +260,13 @@ class TelegramRadialProgressView @JvmOverloads constructor(
         circleRect.set(cx - size / 2f, cy - size / 2f, cx + size / 2f, cy + size / 2f)
         drawingCircleLength = currentCircleLength
         canvas.drawArc(circleRect, radOffset, drawingCircleLength, false, progressPaint)
-        updateAnimation()
+        if (!frozenForStaticSnapshot) {
+            val isSpinning = noProgress && isShown && isAttachedToWindow
+            val isProgressAnimating = !noProgress && (animatedProgress < currentProgress || (toCircleProgress > 0f && toCircleProgress < 1f))
+            if (isSpinning || isProgressAnimating) {
+                updateAnimation()
+            }
+        }
     }
 
     fun isCircle(): Boolean = kotlin.math.abs(drawingCircleLength) >= 360f
