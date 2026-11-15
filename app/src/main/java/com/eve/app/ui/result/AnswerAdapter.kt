@@ -91,12 +91,21 @@ class AnswerAdapter(
 
             // The badge overlays the already tinted option: its container alpha
             // composites twice. Keep the semantic fills and adjust only the ink.
+            // Test both Telegram palette surface and app background so contrast holds on any container backing.
             fun semanticForeground(colorRes: Int, containerRes: Int, layers: Int = 2, ratio: Double = 4.5): Int {
                 val container = ContextCompat.getColor(ctx, containerRes)
-                var background = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(ctx).surface
-                repeat(layers) { background = ColorUtils.compositeColors(container, background) }
+                val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(ctx)
+                val testBgs = listOf(
+                    palette.surface,
+                    ContextCompat.getColor(ctx, R.color.bg_app),
+                    ContextCompat.getColor(ctx, R.color.surface_inset)
+                ).distinct().map { base ->
+                    var background = base
+                    repeat(layers) { background = ColorUtils.compositeColors(container, background) }
+                    background
+                }
                 return com.eve.app.theme.TelegramColorRoles.accessibleForeground(
-                    ContextCompat.getColor(ctx, colorRes), listOf(background), ratio)
+                    ContextCompat.getColor(ctx, colorRes), testBgs, ratio)
             }
 
             fun bindOptionRow(
@@ -123,8 +132,8 @@ class AnswerAdapter(
                         isCorrect -> {
                             layout.setBackgroundResource(R.drawable.design_tile_green)
                             badge.setBackgroundResource(R.drawable.design_badge_green)
-                            badge.setTextColor(semanticForeground(R.color.system_green_text, R.color.system_green_container))
-                            textView.setTextColor(ContextCompat.getColor(ctx, R.color.system_green_text))
+                            badge.setTextColor(semanticForeground(R.color.system_green_text, R.color.system_green_container, 2, 4.5))
+                            textView.setTextColor(semanticForeground(R.color.system_green_text, R.color.system_green_container, 1, 4.5))
                             statusIv.visibility = View.VISIBLE
                             statusIv.setImageResource(R.drawable.poll_right)
                             statusIv.imageTintList = android.content.res.ColorStateList.valueOf(
@@ -134,8 +143,8 @@ class AnswerAdapter(
                         isSelected -> {
                             layout.setBackgroundResource(R.drawable.design_tile_red)
                             badge.setBackgroundResource(R.drawable.design_badge_red)
-                            badge.setTextColor(semanticForeground(R.color.system_red_text, R.color.system_red_container))
-                            textView.setTextColor(ContextCompat.getColor(ctx, R.color.system_red_text))
+                            badge.setTextColor(semanticForeground(R.color.system_red_text, R.color.system_red_container, 2, 4.5))
+                            textView.setTextColor(semanticForeground(R.color.system_red_text, R.color.system_red_container, 1, 4.5))
                             statusIv.visibility = View.VISIBLE
                             statusIv.setImageResource(R.drawable.poll_wrong)
                             statusIv.imageTintList = android.content.res.ColorStateList.valueOf(

@@ -193,7 +193,7 @@ jobs:
     needs: [build, backend, firebase-functions]
     if: ${{ needs.build.outputs.full == 'true' && success() }}
     runs-on: ubuntu-latest
-    timeout-minutes: 32
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:

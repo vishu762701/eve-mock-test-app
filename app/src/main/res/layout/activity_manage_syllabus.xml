@@ -9,7 +9,7 @@
                 android:layout_weight="1"
                 android:layout_marginStart="@dimen/telegram_action_bar_title_start"
                 android:orientation="vertical">
-                <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Manage Syllabus"  android:tag="eve_telegram_type" />
+                <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:maxLines="1" android:singleLine="true" android:ellipsize="end" android:text="Manage Syllabus"  android:tag="eve_telegram_type" />
         <TextView style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Upload, assign and manage syllabus PDFs" />
             </LinearLayout>
             <com.eve.app.designsystem.TelegramRadialProgressView android:id="@+id/progressBarTop" android:layout_width="@dimen/design_ring_size" android:layout_height="@dimen/design_ring_size" android:visibility="gone" />

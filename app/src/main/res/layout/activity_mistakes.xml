@@ -9,7 +9,7 @@
                 android:layout_weight="1"
                 android:layout_marginStart="@dimen/telegram_action_bar_title_start"
                 android:orientation="vertical">
-                <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Mistake Notebook"  android:tag="eve_telegram_type" />
+                <TextView style="@style/TextAppearance.Eve.Telegram.NavigationTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:maxLines="1" android:singleLine="true" android:ellipsize="end" android:text="Mistake Notebook"  android:tag="eve_telegram_type" />
         <TextView android:id="@+id/tvSubtitle" style="@style/TextAppearance.Eve.Token.Secondary" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Review your incorrect and skipped questions" />
             </LinearLayout>
         </LinearLayout>
