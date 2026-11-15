@@ -2,86 +2,6 @@
   "revision": "3de37c8cfb039452be7398909461da6288babf15",
   "imports": [
     {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/greydivider.9.png",
-      "eve": "app/src/main/res/drawable-mdpi/telegram_menu_greydivider.9.png",
-      "sha256": "08fcaed4891c9dec8cd9774df438d5e367419886bb0a9b867f0c7eb8ff89df8b"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/greydivider.9.png",
-      "eve": "app/src/main/res/drawable-hdpi/telegram_menu_greydivider.9.png",
-      "sha256": "84f8905c4e97c8eefb64d6c5d88b9d8790e9ea4e254202cd06d8ac5eb6cfbb15"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/greydivider.9.png",
-      "eve": "app/src/main/res/drawable-xhdpi/telegram_menu_greydivider.9.png",
-      "sha256": "daf5731b3290361fa2bfa4fc7fe934dace0d8018cc270bf9e32b36d153978d58"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/greydivider.9.png",
-      "eve": "app/src/main/res/drawable-xxhdpi/telegram_menu_greydivider.9.png",
-      "sha256": "bcb4e022907ef3a3a23235a26a1ea230db37ce438966961282868de88a3300e2"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_photos.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_photos.webp",
-      "sha256": "827c471e88d212ad57a484f772faad44b453f37e426b37f947442b080fde8df2"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_camera.webp",
-      "eve": "app/src/main/res/drawable-mdpi/ic_camera.webp",
-      "sha256": "545cf38922349e4960b98f072d6421bbfc2d8ca220c623aa5f5e3adf045c2dcc"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_photos.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_photos.webp",
-      "sha256": "c07d8f9e33a903dbbedb756085271a9293ac96c630cfbf1d237b2c9c51af07af"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_camera.webp",
-      "eve": "app/src/main/res/drawable-hdpi/ic_camera.webp",
-      "sha256": "ea1830f00700d3f31a951781e65468a417414317554517f510717363f01daf52"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_photos.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_photos.webp",
-      "sha256": "d080ccba942928794f7146493b72816e201b27bb984c849890f75780255d5443"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_camera.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/ic_camera.webp",
-      "sha256": "23385df81a23a1bc6762938ef71eb3165467ee095f066ef37c1421a125d0ca3b"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_photos.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_photos.webp",
-      "sha256": "f3dff42f17a9503dbf6b7315e01bb1d42fc36ecf151b146723c62743a366fa1b"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_camera.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/ic_camera.webp",
-      "sha256": "92cacb2eeb6c1c4190e8f7c664678b6cf1eed62e69934ff88491580dbc3c3f8d"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_delete.webp",
-      "eve": "app/src/main/res/drawable-mdpi/ic_delete.webp",
-      "sha256": "0701b4a4ebca6417762be23462cc3e5625a6cfd5bd0f40b44f2d193f567c4ae2"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_delete.webp",
-      "eve": "app/src/main/res/drawable-hdpi/ic_delete.webp",
-      "sha256": "c7c5aaf309ce1202ab691edb91373ae7f2449e4ab8caf22a0905f2f598768b51"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_delete.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/ic_delete.webp",
-      "sha256": "53ad74f3c566461a3072a411f32c293899ab2572e48a937cbe79ef09d9fb16a7"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_delete.png",
-      "eve": "app/src/main/res/drawable-xxhdpi/ic_delete.png",
-      "sha256": "deb1041dd8bbee0ad63b39b80f1a5a031ecd2ee3207192493d9f66792f8e3e55"
-    },
-    {
       "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/CubicBezierInterpolator.java",
       "eve": "app/src/main/java/org/telegram/ui/Components/CubicBezierInterpolator.java",
       "sha256": "747f7b8f511249f14bc1b567088d7e0da3639729263a6f56243eb61c2ba19387"
@@ -92,429 +12,9 @@
       "sha256": "ba04283b54726919dab9e2c4fa3e14963af2a0cee62b196eac58a10007ebac11"
     },
     {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/sheet_shadow_round.9.png",
-      "eve": "app/src/main/res/drawable-mdpi/sheet_shadow_round.9.png",
-      "sha256": "41551b1471c6902a876443a1d84b931ddc8d0efcf288a7358d9b989f60bdff77"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/sheet_shadow_round.9.png",
-      "eve": "app/src/main/res/drawable-hdpi/sheet_shadow_round.9.png",
-      "sha256": "9b07bb6fbfbf58e874c0394bc2e75e71b6e1404193b2aafe7061b6ec658312c0"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/sheet_shadow_round.9.png",
-      "eve": "app/src/main/res/drawable-xhdpi/sheet_shadow_round.9.png",
-      "sha256": "163ebea76ae472408be1c3f6254206cf472227641a64af6483798ca895b420e0"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/sheet_shadow_round.9.png",
-      "eve": "app/src/main/res/drawable-xxhdpi/sheet_shadow_round.9.png",
-      "sha256": "ea79ff700936b4797c49c186463a0e558da9ee9a8c998dfe074b41479676f02b"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/greydivider_bottom.9.png",
-      "eve": "app/src/main/res/drawable-mdpi/greydivider_bottom.9.png",
-      "sha256": "76a380f185c6869856e6e6ffc4c57c91d4598e53e8323f777f1a986a21f531d5"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/greydivider_bottom.9.png",
-      "eve": "app/src/main/res/drawable-hdpi/greydivider_bottom.9.png",
-      "sha256": "4eac1510cd03f53bad1d5b75840cb04091b038f68b6051cddba1fc70c9037915"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/greydivider_bottom.9.png",
-      "eve": "app/src/main/res/drawable-xhdpi/greydivider_bottom.9.png",
-      "sha256": "95eb36844dad4db2b7ad2c358ba86fc987b60ef310c38953ff249df2f23fb68c"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/greydivider_bottom.9.png",
-      "eve": "app/src/main/res/drawable-xxhdpi/greydivider_bottom.9.png",
-      "sha256": "a0ce0bc438bafd59d82e0b9583accd241257746aff4a451cadccd9b6dc4d579f"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/popup_fixed_alert4.9.png",
-      "eve": "app/src/main/res/drawable-mdpi/popup_fixed_alert4.9.png",
-      "sha256": "6557266c5b8caf3e2a293dfb3083494a2db77d00f7a829387356dbd261fef99f"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/popup_fixed_alert4.9.png",
-      "eve": "app/src/main/res/drawable-hdpi/popup_fixed_alert4.9.png",
-      "sha256": "947bab8642f394213ebd617bd27e0187ce2b9d81eda9199b1bcde2a0c68b6f4e"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/popup_fixed_alert4.9.png",
-      "eve": "app/src/main/res/drawable-xhdpi/popup_fixed_alert4.9.png",
-      "sha256": "b17e6b374f698950f81507a409891aec5385e20c549922762516f18f883952f2"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/popup_fixed_alert4.9.png",
-      "eve": "app/src/main/res/drawable-xxhdpi/popup_fixed_alert4.9.png",
-      "sha256": "9d78c7ec81e0938056a37177cef0899e338d817a23e7e4db4f820ec0d78a4505"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/ic_ab_back.webp",
-      "eve": "app/src/main/res/drawable-mdpi/ic_ab_back.webp",
-      "sha256": "dc131a7de3faea33a5b22ddff0a2c1f380a17740af5c816ee7dab330e92a323b"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/ic_ab_back.webp",
-      "eve": "app/src/main/res/drawable-hdpi/ic_ab_back.webp",
-      "sha256": "f15cfdfff716d710d70701ba6f1244f0e45380fa9592674f1e9a79aeaadd4d7f"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/ic_ab_back.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/ic_ab_back.webp",
-      "sha256": "3c485929ec2487a9ca53f9f52b2ab91da0595456ac34d39b1cc90be280840b8d"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/ic_ab_back.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/ic_ab_back.webp",
-      "sha256": "a1a41777fb63cefd07aa7480687c55cfcf1ea0d2a8dda35c312e466e1a1195ea"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/ic_ab_other.webp",
-      "eve": "app/src/main/res/drawable-mdpi/ic_ab_other.webp",
-      "sha256": "1753372e5d4e9da59a39e0828271be283828cc2f09e319ed01e170c6e2b71ee3"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/ic_ab_other.webp",
-      "eve": "app/src/main/res/drawable-hdpi/ic_ab_other.webp",
-      "sha256": "b6a2c9b85adaab7c63b9f4ab1b5e5e87c50aed1302ec0fc4b1faa0fd65d97780"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/ic_ab_other.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/ic_ab_other.webp",
-      "sha256": "0e61b9b1b27198c178f407ee78590dbfa9e624bf4a59131394c5f25b9cbde9ec"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/ic_ab_other.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/ic_ab_other.webp",
-      "sha256": "0ec992659736897f869e2fa5baad353cb1c4d0f4b0f35ef3cf94de3c067cb499"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/ic_ab_done.webp",
-      "eve": "app/src/main/res/drawable-mdpi/ic_ab_done.webp",
-      "sha256": "bd423d9161de653c4b8658f2abcd2d4c974976ff79d653274c3c34ab2abbba31"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/ic_ab_done.webp",
-      "eve": "app/src/main/res/drawable-hdpi/ic_ab_done.webp",
-      "sha256": "7d64c482d47741d2143db109e4024c166fd2aaf025f32c9f9524456c0c6c270c"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/ic_ab_done.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/ic_ab_done.webp",
-      "sha256": "480afa50bf24da4c60c2b9db3a2b1b6cb59cf4232b0d6eafb6e1976ce8e95ab3"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/ic_ab_done.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/ic_ab_done.webp",
-      "sha256": "78bce3757bb9a9922ff52a3f4b181e96122367e7e1f2bc22dd59cb6a17702a51"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_search.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_search.webp",
-      "sha256": "c31d2043aec83ca82f4f5fe7cdba64882744ce0e6f0e2ad1adae8ec9af5acbbe"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_search.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_search.webp",
-      "sha256": "fd3b4a1c77b300853815e9e3a8706087e6eac5de04e3ba31da61a1fddfde5e79"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_search.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_search.webp",
-      "sha256": "e8e30acecf18ed0f0eafa871a46481ec3d0c31b2dec2a4c847fcac2da5f14a0d"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_search.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_search.webp",
-      "sha256": "478962bae4ca0c8d48ba0a8b3eebe5900d063f3a47380bdb9448fc0d43317ca6"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/navbar_search_tag.webp",
-      "eve": "app/src/main/res/drawable-mdpi/navbar_search_tag.webp",
-      "sha256": "690bbfe23cd29b44a0937f6971ee26689a6db6d382bc391941f80e46020f7084"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/navbar_search_tag.webp",
-      "eve": "app/src/main/res/drawable-hdpi/navbar_search_tag.webp",
-      "sha256": "a4392f73be17853f5bcf121887365ec4d65e60b4b957060b9c2a7f0bc3ed0016"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/navbar_search_tag.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/navbar_search_tag.webp",
-      "sha256": "e3b43a8097602e3949bfc457eedf1845a236de95f3de93dfe3003ed8286fadcc"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/navbar_search_tag.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/navbar_search_tag.webp",
-      "sha256": "9a61a10b595aad8d8d7febf98c64a76c36214b4a4b77f2732ae5d0f8e1c3a1dd"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/smiles_tab_clear.webp",
-      "eve": "app/src/main/res/drawable-mdpi/smiles_tab_clear.webp",
-      "sha256": "567af9cd73f2d3bbd1d06cd5c23daa47b72354142dd6e0629a085a5a832a870d"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/smiles_tab_clear.webp",
-      "eve": "app/src/main/res/drawable-hdpi/smiles_tab_clear.webp",
-      "sha256": "6aa5680169c3d77e3e82a297a9b19f51a92c05cbd4717f8ca27c59b8664e6f67"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/smiles_tab_clear.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/smiles_tab_clear.webp",
-      "sha256": "5f658b76d1de1f8c8de84770bc15ef84f6485ff9f995e42259b017c1145fe489"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/smiles_tab_clear.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/smiles_tab_clear.webp",
-      "sha256": "ee132bf815aae44a3db8d7f5cf5e54fd61c5b5138b18bc7b1f63d174b455bcba"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_close.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_close.webp",
-      "sha256": "a1e61bda529d8b1bda80f5ac1b9c699654df2b41929d32fa58cf251a589b4254"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_close.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_close.webp",
-      "sha256": "9032086b82f1e3749684623dac292437b1103d62584c9bf5d2bc64a22aeddb09"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_close.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_close.webp",
-      "sha256": "dcfe1e98da128ca402a9effd97e3c39078d0f73bdd06246f68db91ec0d343c21"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_close.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_close.webp",
-      "sha256": "ffa64614089ddf3e99cfb91c0b4c2e3db9685ea9ecd119e85fe5a3adc40c51ee"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_contacts.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_contacts.webp",
-      "sha256": "5cb19d5984342ba434908b57b335e7372d98c63fe16b6659f87ffc7e06356c64"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_contacts.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_contacts.webp",
-      "sha256": "69d0d5c37b1f75102f67c11f959b004698a6b8a07a9a4ea18c0d3c07576b3804"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_contacts.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_contacts.webp",
-      "sha256": "3c64db096f36c3ef234d963c346c59d4e3cd329a47be8cc43bdedf4e54a37eb8"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_contacts.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_contacts.webp",
-      "sha256": "ab75bc7b7e640e306b1400f905110e9dce77e68b54660c740a8df86b19251cb5"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_saved.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_saved.webp",
-      "sha256": "873ad24c7b1951de855a069a66e5e0f63500e24cbf8c3a4ab1099a182ae29f73"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_saved.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_saved.webp",
-      "sha256": "7453f638e2a396bfdaa04910f1a7cb6eb304d88cc11d44b9f8bd8de4f9dcac06"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_saved.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_saved.webp",
-      "sha256": "09b8b18ba5f5f161945483ea13aec029bc4d47dc271e330720cdff3f397b4c2c"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_saved.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_saved.webp",
-      "sha256": "457066fd5447cd0389503b422a1eecee520cd17cbfd5b2c111d4a8c5f9b763c0"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_settings.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_settings.webp",
-      "sha256": "2925dc314bb1f10136ac78876200582920fecf040b11522b2f5ea4720059cfcd"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_settings.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_settings.webp",
-      "sha256": "4c9fe16609aa3630d06321a76e06430690489ca031ccdc43acab18818fb32a83"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_settings.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_settings.webp",
-      "sha256": "e735a8870d541b8f2345cae5b52edce665ade5f9b7c8a6f76e9f33bdb9f379e8"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_settings.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_settings.webp",
-      "sha256": "529c7688d9fba136d955208bdc57afc0ad36bed1619055a210f09c141ec738cb"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_notifications.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_notifications.webp",
-      "sha256": "f3c78e5ec946f3c7ddeef1415ce23784b28a95ec3868f87d5d7f94827649ee3c"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_notifications.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_notifications.webp",
-      "sha256": "0e4959d49c10d05a9862004cf05eab48c3a33274798902df197531d56aa2c924"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_notifications.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_notifications.webp",
-      "sha256": "5284bb5714e6484d61b729c15037436a0418306594b81ee15b03f132d9248b36"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_notifications.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_notifications.webp",
-      "sha256": "034b4e54108cc940709a25ae0481f8623db8110f48860f77b0ad779894f5b150"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_help.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_help.webp",
-      "sha256": "0b60b149f939f6f22bd94303b9aba96c42ce0232a7f24bc84060de1a7454a87c"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_help.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_help.webp",
-      "sha256": "68a9c5a3344f14a696f2d132c9d4803dd4d8e2f04c38173a97bfb55f1c32332b"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_help.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_help.webp",
-      "sha256": "cd776093e678229f3e7cfdce6f56e7b31433876b9126f6b1b3dea0393f6ddf35"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_help.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_help.webp",
-      "sha256": "8605fd9a98cdf4c08a664d8e5ee00dced35845efef46261ef8968c1e0d92d21c"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_policy.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_policy.webp",
-      "sha256": "086fb367d6f4038a5d7465e03751f2b1c4cd1de906516a01e1a96d6f8278ce83"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_policy.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_policy.webp",
-      "sha256": "090f3f4d25c97b009c7917b5275db66c8610266a9988122b301829de69ed0a77"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_policy.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_policy.webp",
-      "sha256": "dee9b4646ca72ab6ecb3d573ed4da28aea79c20f8269c89b2f4e1e7ddffccc1c"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_policy.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_policy.webp",
-      "sha256": "8bf2916cbf71361bdb21a3dceb1f74e06e013d625809f52ce35818e0632bee74"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_share.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_share.webp",
-      "sha256": "41a6ccb0401fbb20bb820a113130ceec9661ec7062909ddd77e87e6a1cb5f15c"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_share.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_share.webp",
-      "sha256": "53da4ea3b3592d7cb16264e312d39da1a07faecb5d496a2863499eee9d1f490e"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_share.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_share.webp",
-      "sha256": "7544455a2adb66462452fc722604765a9de02811f4ba5e4a6d2860e878220287"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_share.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_share.webp",
-      "sha256": "cdd2ac1d504a374132d60a377f0cd78c5e9d262a711a9f4cbb9b5e8b59e6b51a"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_qrcode.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_qrcode.webp",
-      "sha256": "8956948ac2bcca22d111a217d5740b4c9b20f495becc50387edddfe2977c7926"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_qrcode.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_qrcode.webp",
-      "sha256": "29e0d1890b97162e50d9cacc648eac359764722c9608e88bbb24f06bdc181dd6"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_qrcode.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_qrcode.webp",
-      "sha256": "3a2341fe7d09b27234e40bfe542a129933b5addc6af916447fe9e8b8d30e954e"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_qrcode.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_qrcode.webp",
-      "sha256": "c11f7643f207764ba9fb3c79ef1db9b0b070a256c2cf3223bbe5e03b74203fc1"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/ic_lock_header.webp",
-      "eve": "app/src/main/res/drawable-mdpi/ic_lock_header.webp",
-      "sha256": "a7bc1e5820397e50cd347dccb3d0eddf2e2d1b195d1dae6b31458b137b637553"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/ic_lock_header.webp",
-      "eve": "app/src/main/res/drawable-hdpi/ic_lock_header.webp",
-      "sha256": "f92b05430e751271788be793d7cf6fd109591d84567dc12e1b40862094efced4"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/ic_lock_header.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/ic_lock_header.webp",
-      "sha256": "f289f03b87eec9f9692f48a16633b73d1ce6a677c7cc14e3b9e79810add30719"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/ic_lock_header.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/ic_lock_header.webp",
-      "sha256": "eb0231573a541179aa82210cb216bb86a8dc5aabd4d2a5423c9abf96c1169c6c"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_theme.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_theme.webp",
-      "sha256": "83ef697f1fab9f4a9d546e435d3256e1782ea02d7316dbc13375309fc530e40a"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_theme.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_theme.webp",
-      "sha256": "c683b52c94541be46b1f5146ba3c5604f936bf0942dddbdb334333d5bb2c06d8"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_theme.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_theme.webp",
-      "sha256": "75a14a53378e60375c1205dbd3f6c491edb57a34d20027591fcda17746982bd8"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_theme.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_theme.webp",
-      "sha256": "58aa716a9b8cd6e487fcc86d9faefb1ee3271d0d405743161da102a11c7ee31c"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_language.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_language.webp",
-      "sha256": "cbf4776b4448c38c99b7a58dd8d7616589d7f842fd7af7f89c450226eb1c0518"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_language.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_language.webp",
-      "sha256": "6e47a0fa85bbb765f1a0fbe4631c2b254ab34a8a391a5e6963cf60d51229e2da"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_language.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_language.webp",
-      "sha256": "30be702e10d00eb4004ebaad78067ef406fb884b575d9a3d6cf9b33b3013459f"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_language.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_language.webp",
-      "sha256": "1f9672b11e371e9b50b67a9c43f4c1cab4d043c0b40e9e3d003f867c0716e0a4"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/files_storage.webp",
-      "eve": "app/src/main/res/drawable-mdpi/files_storage.webp",
-      "sha256": "e899772361d4f743a58ac0a5dc60ea7c4a5a169ef0e8877bc8a14214a409306a"
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/checkbig.webp",
+      "eve": "app/src/main/res/drawable-hdpi/checkbig.webp",
+      "sha256": "d0d1fa14acd99fdcd2fe905077dfeb122e52afe02f8039ecad9825f3e6434a62"
     },
     {
       "upstream": "TMessagesProj/src/main/res/drawable-hdpi/files_storage.webp",
@@ -522,819 +22,9 @@
       "sha256": "79b437a5f0fbc9d095c28fb7b98356a4ea85930c5e53634ca4aa5ad55c471782"
     },
     {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/files_storage.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/files_storage.webp",
-      "sha256": "1927191709abe031ae4ce0cae4cbf316cd40525721486ad8b05a40fdae1a0e1c"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/files_storage.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/files_storage.webp",
-      "sha256": "8902a7eeef1179a1cb55aa931d32631040881380748ea774470836bca941aef5"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_filled_storageusage.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_filled_storageusage.webp",
-      "sha256": "482d1a8554891d7733ad2ade365a580267246303f15381ab9d21ebea008339fb"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_filled_storageusage.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_filled_storageusage.webp",
-      "sha256": "163af0c9029355eb46153ce926aa7153d1a8fd8019bf022985ff7b0b538618e0"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_filled_storageusage.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_filled_storageusage.webp",
-      "sha256": "bda9231ade848351d8d0c74763c29435a752e5b1b25a7d283efd2b55387947f5"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_filled_storageusage.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_filled_storageusage.webp",
-      "sha256": "13fa9b4dac8895896198ca609948a9a131157a0088b1acdd141fc2e4251122cf"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_permissions.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_permissions.webp",
-      "sha256": "8b2c8bb0259d6d4998ffc84e3a6590a4377309507a47b4b9a0afb1b73a6b3b18"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_permissions.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_permissions.webp",
-      "sha256": "bfecc45692da99d176687ddf9a9ed8e868ac24841bc8943b040a570119838d63"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_permissions.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_permissions.webp",
-      "sha256": "58983e8752316947ab8833f17978d1456e67a3645b74ce38f97ae1c254adc65b"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_permissions.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_permissions.webp",
-      "sha256": "78a4c2d1e682293187470ea2216d921924ae354403e564bb6260835685939060"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_info.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_info.webp",
-      "sha256": "0f52a91c3db394f3ba7a7a07c4693e94fc37d8f8e8fa5d4358c2e743b37b0620"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_info.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_info.webp",
-      "sha256": "04a312aa8791511b843cdbb47516cdd58b520885590fe6d496aa1e5303289b37"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_info.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_info.webp",
-      "sha256": "061d4b6f6c5846fcbfa2e3ac325899d9c42e6f49127fabecbf6d7bc3d13bdfe3"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_info.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_info.webp",
-      "sha256": "fd0801fc7d0bdcddb1a5365a57790c154aef76f71e107351c5e1675f7a107323"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_copy.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_copy.webp",
-      "sha256": "f2c12012e8974a3ca52123044e5240543723b5af4efa832ce3959dce512fee50"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_copy.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_copy.webp",
-      "sha256": "4bf576bbaed88c0fd95473a0a712de1615363b694e6bd2f0b4780c15f99783d6"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_copy.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_copy.webp",
-      "sha256": "44f3da840d0b029d85d02818cd88bc536943ff2d6312e49d61608e8272842d67"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_copy.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_copy.webp",
-      "sha256": "9818796f4fac8d2a1e1ae09ad923ac012d35426cafd5566c8fd7062c6c5e605d"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_link.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_link.webp",
-      "sha256": "1d872ba286d05087409beb975b321ce5818b80218b8c1d9087aa3b74189999c7"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_link.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_link.webp",
-      "sha256": "faed86655fdbaeb6c97977f3185cc835d813d65e2ecda34b183b49c5bbe152f1"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_link.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_link.webp",
-      "sha256": "ced8762979cd98dd5ed751c05f4319425028539a9861e02eec0b4a231e993cde"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_link.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_link.webp",
-      "sha256": "72e9124017de96198753c5e409b14fae28a347e6edd9ac664454c4b1e69b8eb7"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/qr_at_large.webp",
-      "eve": "app/src/main/res/drawable-mdpi/qr_at_large.webp",
-      "sha256": "42820740e4bca39e939acdae3ed34ea03a158cdebddeb9434c90682cdffa65d8"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/qr_at_large.webp",
-      "eve": "app/src/main/res/drawable-hdpi/qr_at_large.webp",
-      "sha256": "38c7cfbe5f753f7a21e110432ae35c54ca2172835e9367b94a6d9e3f0f654424"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/qr_at_large.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/qr_at_large.webp",
-      "sha256": "ebcd79bce4ff2378a55e2d8b28261741ce08181a71e07361ef26868c5e95e0c8"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/qr_at_large.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/qr_at_large.webp",
-      "sha256": "8e5b733f5c8e60d6a68be265046f30a9f0cedf036d82df06570ea8e7cf5794d9"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/qr_gallery.webp",
-      "eve": "app/src/main/res/drawable-mdpi/qr_gallery.webp",
-      "sha256": "484b83078e040ca96d054cb1f2fc3924b93d029197da9afb2fb1ec8ab502351b"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/qr_gallery.webp",
-      "eve": "app/src/main/res/drawable-hdpi/qr_gallery.webp",
-      "sha256": "aa19a6559f936abf0076d995c43d3fe747b5a7e41fc0e0997963dad8b5ce7124"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/qr_gallery.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/qr_gallery.webp",
-      "sha256": "def9dcc4c02a22520dc9aaf9918f4ffa77aef466d9c1b85807b25fa8cd31fe02"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/qr_gallery.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/qr_gallery.webp",
-      "sha256": "5ca865848c13360438bac923748be04b3f5f5c1c22ea9139298b949c092f3362"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/qr_flashlight.webp",
-      "eve": "app/src/main/res/drawable-mdpi/qr_flashlight.webp",
-      "sha256": "58936aed129971f825f73bc2a0c38a356fd323d174df21d2e07348b1af988314"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/qr_flashlight.webp",
-      "eve": "app/src/main/res/drawable-hdpi/qr_flashlight.webp",
-      "sha256": "5ac49313028f5cb20aa9f8c24f2827070a9b75c10ed0afeadd71cc9f4f1eaa24"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/qr_flashlight.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/qr_flashlight.webp",
-      "sha256": "65f9f232dec0955476ad8b75197e6cfd613570a30131f0db3931a6d6da84d8da"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/qr_flashlight.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/qr_flashlight.webp",
-      "sha256": "8849a3d20065553ec264ebea3a61e664df329625d37993f7b11ecacb1fa50708"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/poll_add_circle.webp",
-      "eve": "app/src/main/res/drawable-mdpi/poll_add_circle.webp",
-      "sha256": "4810b5e70aeca508210322a22f24871460253088e2ee3a324b7995abf56eb10f"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/poll_add_circle.webp",
-      "eve": "app/src/main/res/drawable-hdpi/poll_add_circle.webp",
-      "sha256": "d49c68b6ab4e8af015ec3097d3dc49edfd73ecb65280e3a86de921120ab1f626"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/poll_add_circle.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/poll_add_circle.webp",
-      "sha256": "bdf17ec312a6c5756f388500bbddc689b53c4a863336b1409d40783531c32d63"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/poll_add_circle.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/poll_add_circle.webp",
-      "sha256": "de9e4339186d41bee939d6b2e1951e626f5c0e6282e9b3ff523182630cce8a76"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/poll_add_plus.webp",
-      "eve": "app/src/main/res/drawable-mdpi/poll_add_plus.webp",
-      "sha256": "26cc9b8173bddbc6a5c88ee3bc90c77d504bcd693a612c8c67b9ddbdb1591cd8"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/poll_add_plus.webp",
-      "eve": "app/src/main/res/drawable-hdpi/poll_add_plus.webp",
-      "sha256": "8542d039e53360b6410d59175fff2d08308dbdd1576197eca5b7d594412bc97e"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/poll_add_plus.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/poll_add_plus.webp",
-      "sha256": "a25993f863f9b6ebd9b8e252716fafd7a01e649376eef0391cba149dcef933cb"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/poll_add_plus.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/poll_add_plus.webp",
-      "sha256": "b05ee494eed8b2a3040052d153b65ba79c3da9534589b75b96561bb28574fdc3"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/poll_remove.webp",
-      "eve": "app/src/main/res/drawable-mdpi/poll_remove.webp",
-      "sha256": "0689c730cebd6cbaaf4b4aba2be8d4606b183919eba9bb7aa808901a254f33d2"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/poll_remove.webp",
-      "eve": "app/src/main/res/drawable-hdpi/poll_remove.webp",
-      "sha256": "635391b8d0569d4e640a238d00b8e7bb0ee77c304d705be47438b6389f0b6766"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/poll_remove.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/poll_remove.webp",
-      "sha256": "38453a3055ec008f242727942ea32a1a0f7dd3b23aae457a00e4cc57acf7e66f"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/poll_remove.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/poll_remove.webp",
-      "sha256": "ba18936b00e69036c6d5c465b57d3305ad5609ac3210e46f0d4c2a097be214a1"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/poll_right.webp",
-      "eve": "app/src/main/res/drawable-mdpi/poll_right.webp",
-      "sha256": "8bfaa178b67eea866924a36fafca2598f53fe7f2d01f53e57661553e2e3f1a92"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/poll_right.webp",
-      "eve": "app/src/main/res/drawable-hdpi/poll_right.webp",
-      "sha256": "b9d0ed317ca2a68c4b3ff1c5fbbf2ff2ca8490200d5b037f7af81a68da72f7c3"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/poll_right.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/poll_right.webp",
-      "sha256": "12f520f2aa8eebca40e50199ca947b8a372983674d6f44692f93d4d3085ab0ce"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/poll_right.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/poll_right.webp",
-      "sha256": "84b50bf67a8d5a7cf07c88688e7051a454e488512a3064440cef659a05a9df6d"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/poll_wrong.webp",
-      "eve": "app/src/main/res/drawable-mdpi/poll_wrong.webp",
-      "sha256": "0c24f8dd34acb543f01276436fed91a533558f3faeda12bd5dbe329493e477bd"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/poll_wrong.webp",
-      "eve": "app/src/main/res/drawable-hdpi/poll_wrong.webp",
-      "sha256": "2077d3b08ea98486436d5a0b3de9e436462e8dfd5b2828197ea8c4998a7da4e2"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/poll_wrong.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/poll_wrong.webp",
-      "sha256": "7abfc01a608d0de1afd18418de8ae64220ca2f7cce6f17fb698c145ac3e588a8"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/poll_wrong.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/poll_wrong.webp",
-      "sha256": "ab7d3de206cda4aef34007e2155645ff46e74d5c2bee12a7fff29293e4d7633b"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_markread.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_markread.webp",
-      "sha256": "cdefe9514e33ab81d86dc235ea19ae01bf9de22b848938dd9060e09f556357dd"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_markread.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_markread.webp",
-      "sha256": "33d4f7e3a6105897c784cb0a92e90992f5ce15b6d64d827906279daa25e9c289"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_markread.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_markread.webp",
-      "sha256": "7b42b72ef8185143ede74b741373df24bcb77ce972f95d30ba2c252c3a21a9b0"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_markread.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_markread.webp",
-      "sha256": "420a67cd6d76d3c31da79ae2db7c6b8706d3f5220331a74d499b277a26952af9"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_report.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_report.webp",
-      "sha256": "8914c7faa580ae23c6c0b25679e82d8637b410231d148bb0850b00d0c600e7e8"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_report.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_report.webp",
-      "sha256": "9df4693ff62c93de0082a33bac9a1d44a0784b9ea4e2a6146994a0ddb978831b"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_report.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_report.webp",
-      "sha256": "4beee6167a9164fd2fe90d986d54342bd5e5c372845b89f6ce867942474d6592"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_report.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_report.webp",
-      "sha256": "d0d565c1c699ac6828c99088ed7590e6ee058d3775c54b4b87ced7a80c603efe"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_fave.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_fave.webp",
-      "sha256": "f2dd7d3d80c4256a336e665c8952bb23e12fa86187f76919a1e7fdd08fb64da6"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_fave.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_fave.webp",
-      "sha256": "2fb2d47069ff1dd1f2aa00ef662a356c847071e8bebb3df7e6ab588a5e334564"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_fave.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_fave.webp",
-      "sha256": "8c80e7aab23691f4c224827419f4468834c9abfc79def8bd7fd7e83eb2fc06bd"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_fave.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_fave.webp",
-      "sha256": "e8e3760521ff9e2f5656addda6232e925b908d23af81c388e6090da841f28fcf"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_unfave.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_unfave.webp",
-      "sha256": "6bef8f3afe3d27b8965f2d17a32e083f6f073b9208b5890cdf31e22674dfd2ac"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_unfave.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_unfave.webp",
-      "sha256": "43783b91c1297ccf51fb40815d5a7155fc3e4d4396631658cc2d537d56013d39"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_unfave.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_unfave.webp",
-      "sha256": "fc2e2c6911ca1cc3646a7c56d9b0395f0218cef02a8a075a3e84669870598895"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_unfave.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_unfave.webp",
-      "sha256": "3b013b4c95c6ed03bc0401b15e38bf1c3be39605d167f3730a1fda1ece726f31"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/tabs_reorder.webp",
-      "eve": "app/src/main/res/drawable-mdpi/tabs_reorder.webp",
-      "sha256": "03e0c12eda5e55f72fd4c0ce7bb17b9f514d65ba0a34ed98b3893b76edcaa12f"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/tabs_reorder.webp",
-      "eve": "app/src/main/res/drawable-hdpi/tabs_reorder.webp",
-      "sha256": "6119d2ee5743f05f268e575a4009cd958ffa48da040aee7bf2caa96e4a856d0b"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/tabs_reorder.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/tabs_reorder.webp",
-      "sha256": "12cb12a2047d96911e3d3f4486ecab5421eac4637b730f882322432f4e6b3095"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/tabs_reorder.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/tabs_reorder.webp",
-      "sha256": "ffe7fbc8d3075b9ae622fa3d9ed99ea57efad439a3965c88e8e6a608055f5def"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_stats.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_stats.webp",
-      "sha256": "d0b7de6683a778ede8f565ed9042ed1b5ed38f05d961c3e8b63876ed72df83d2"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_stats.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_stats.webp",
-      "sha256": "bbadfda4097687ad64199cfea40b81ea5604745a6f93e9606ebbc22d3deefc64"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_stats.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_stats.webp",
-      "sha256": "defb964e7ef12eea22eb832e23793605c499c8552119a2bc1e5d89bb59052571"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_stats.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_stats.webp",
-      "sha256": "3adf9185782f0033b2fd155cc0449fc29de7384a160fbd525dba47a567b1d281"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_filled_data_messages.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_filled_data_messages.webp",
-      "sha256": "e3ffa86f816fa5150f9963893b27042940d20b0d8086f4dda621ab2f1c533ba4"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_filled_data_messages.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_filled_data_messages.webp",
-      "sha256": "0a9a1942fd909f9b7b58dd1122e9d283547e9def02dcd76fa37396fde0f360c9"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_filled_data_messages.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_filled_data_messages.webp",
-      "sha256": "5f23373f1949bdd8640ea7eabfba83237dc5232a97b4cef711a394a15b22bbbb"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_filled_data_messages.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_filled_data_messages.webp",
-      "sha256": "cf8bc8f56b09d5d5e56052bb58a0a711f619c5d21c4c44b17ce23674bfec52b5"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_recent.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_recent.webp",
-      "sha256": "6197b1132671816f12ed39cfbaba44c93388979d98e48f80d43f7a68db98822e"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_recent.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_recent.webp",
-      "sha256": "f14ecda8de3585862da42c5d3100b65dc3839d403032ceef26ae7cd1442216fa"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_recent.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_recent.webp",
-      "sha256": "80b9cc3c9687832b7ae6ad2d49bdf0706795b58b97416d87ee5a208d45c108b8"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_recent.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_recent.webp",
-      "sha256": "a80b5f882566991a9d8ff3c13e5dc695c7cd16f5eb354db70d1706b43fe0d666"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_filehq.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_filehq.webp",
-      "sha256": "023818805e20163fb85ba62486e1767a8a89741117b583510ff41f74f0474330"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_filehq.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_filehq.webp",
-      "sha256": "462347aa66a287114dfb4586e2de45534b4f867347990c4225df364d2138e3cb"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_filehq.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_filehq.webp",
-      "sha256": "4ac7fadf911592a184dbe8032457f87096d7c041c7635549cf1aeb12295120e2"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_filehq.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_filehq.webp",
-      "sha256": "ec68b5f82706205d8a50d9673838365a8e0bd77f2c1a855957bdc58cc9a95282"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_download.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_download.webp",
-      "sha256": "e6f6ee0f50d3c6c0d4ad399d263d4f027f0800666218c38c16033902f941e2bb"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_download.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_download.webp",
-      "sha256": "acbce52dc236896807aadc7438a0973b839a44fbff32abdb4a1282da90e7d927"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_download.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_download.webp",
-      "sha256": "7fd7b1b59b7f2a5266325b641eb78b2e56800a13d5808b811e22c49028069557"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_download.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_download.webp",
-      "sha256": "933815df791278b01ce382b863bddba612dfacb9ac7c721b91a6cf10d86ab73a"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_check_s.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_check_s.webp",
-      "sha256": "b05519f6b842646374058982664e247fe81f1bb63bbeac42cdc8a3e6de94b65e"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_check_s.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_check_s.webp",
-      "sha256": "93fcde2c8d2b035d83cf85d69191288906d2078261c0797edcfb728ec952c41e"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_check_s.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_check_s.webp",
-      "sha256": "998595a8dce4dd261d6cffa6d5de3fa410be81bf5cb6eaabdf5204076fd34460"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_check_s.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_check_s.webp",
-      "sha256": "53e6f7f8835e316ec652b674020c9ceac0ad6ca32c194e3d93d28dc3cba2aa4f"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_warning.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_warning.webp",
-      "sha256": "c96d41db3c886e8cb8c28126467a4647cbe4d0af3d1f45ead0f7d04f982fe2c5"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_warning.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_warning.webp",
-      "sha256": "2200d4453585a81b242abd785e337e1d57173eb174b7989c87a50ccb4ecbcb27"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_warning.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_warning.webp",
-      "sha256": "4d29c65615d8416cdef98704423f05e12836d5fcbdc0e27fa2de78ac3df54ba8"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_warning.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_warning.webp",
-      "sha256": "d465b3a84461b36ca402f91c2ac23e5144617e1960b3194ffef188bbb976438e"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_admins.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_admins.webp",
-      "sha256": "894a9d358daf4089a74d6f7f258e99fdfe8d65310056e1b234c908bdbd2d429a"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_admins.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_admins.webp",
-      "sha256": "747eb97352e98f8b57a3644d33e4c1ef0f9d58ff59c7268fb80bf7a35aa429ad"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_admins.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_admins.webp",
-      "sha256": "19d42a3e0469b0c310fa4725840c98d6a6cba6845a27ce77579314901a99ce5b"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_admins.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_admins.webp",
-      "sha256": "8eb888336dbf7bffe13600aab66e0ceb4f07f3dc677b7e103d91d27801a39cca"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_block.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_block.webp",
-      "sha256": "7341e68f84d74234de93a47869bc351d7f2ffc2d99463dee22ba4d7c14ab49af"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_block.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_block.webp",
-      "sha256": "b8a1c999b2bf8f0964befb793dee5ee49327aaa88f23d0b2afab0d5ad490f100"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_block.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_block.webp",
-      "sha256": "9a89e95a37ad46afc63a91620f8345713dda26b8c93170cbe85f65dcd38fbedd"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_block.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_block.webp",
-      "sha256": "3ae026394e1eb82b48222e9d3eaa14873a348f9e59a49cc1e13cc760300a1886"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_list.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_list.webp",
-      "sha256": "f89d3c679cf392b9725a983758b9b6039845db1e6bb1e9902e891ba948c1a722"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_list.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_list.webp",
-      "sha256": "235012ce6a5b25c7eeaca1969a020faf01cfe9c638e9228376f9e6604333cb49"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_list.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_list.webp",
-      "sha256": "3200c8f06d26cb2900870a99d452323bbaa4f246b767d954c505a9bd5887531a"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_list.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_list.webp",
-      "sha256": "bb6fd155a6be2799b457e2a2ac5a5ab0bef1d125e206cb695f389f29982cae12"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_pin.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_pin.webp",
-      "sha256": "e8ef8bb01e95108ac9b7e38d15b933ca760a750b4d3b257e31692d978d788538"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_pin.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_pin.webp",
-      "sha256": "aab11c0a64a29595738c1d4c8816b824f1994405470f3c34287fa573dd06bc1e"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_pin.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_pin.webp",
-      "sha256": "d72e938b173f5f7094d84609b029d67a74c693a7a3c398885fec448027a80828"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_pin.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_pin.webp",
-      "sha256": "f8fd0b6a5726647172d339c6e2d53a9f3b353eb905d2ac48d95b38bbe4bf3f8d"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_unpin.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_unpin.webp",
-      "sha256": "7de06857518ee0296a80783a71dc615cdf7634d39053f7e1a3af402ed2694332"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_unpin.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_unpin.webp",
-      "sha256": "c1e986afaa81ba6685ec6115fd65df3ff0c457617a5b64df1b35032f4a22f547"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_unpin.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_unpin.webp",
-      "sha256": "62a0a125a008118b7c2b43c0e93940b984bff91fada6509cdbb4e154f0dbebb7"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_unpin.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_unpin.webp",
-      "sha256": "4bedba9c5a61cbd29d1d2585b6044c67e78aeb65919736711f387bd55183aa4d"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_send.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_send.webp",
-      "sha256": "dabf91255165966a99c6b949e1e5c61a14aa2bdfae79dd043569af439a233c67"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_send.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_send.webp",
-      "sha256": "b308996b401bf5322f3f80fd9e8ecf30392727d785520bbee40405d287f59bd5"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_send.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_send.webp",
-      "sha256": "d0333af3b7db3394e4985d3f98449db9b43403086bf60a415b181c4a87a22328"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_send.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_send.webp",
-      "sha256": "2b6366c5fab9ddb398e3a623a6cb4cf5b690a849ff96ede8b90212cc24e899eb"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_bot.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_bot.webp",
-      "sha256": "16f5bad176bb0733d411df93537fb2342f01176d460021db9d95b36821de1ea7"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_bot.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_bot.webp",
-      "sha256": "505e55410ac99dfcf47d91e67f10f3ae5b9b3750b8cb66180a6421cbfaec04fd"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_bot.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_bot.webp",
-      "sha256": "adc620e50df78f06dbade917a3a87c2488065876425ae7f556429411d1b665e4"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_bot.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_bot.webp",
-      "sha256": "f21773ed549c7500c2c2577a2d25d034fb40e8bbf9d8c09bc36b7333afa1a545"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_log.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_log.webp",
-      "sha256": "820e7f3cadbcab76c639be9ab4a3ea15f9f00caf735fcf7bf787323cdfa7ad87"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_log.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_log.webp",
-      "sha256": "1343994f682d1ee73450b7ea0e225108fa0a80e20ba530c95d05dcfe8f6db1e3"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_log.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_log.webp",
-      "sha256": "dc5d80b9ebca7d6f32efba7db804b6e7d3651852f1d9962592710e4e24e306f6"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_log.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_log.webp",
-      "sha256": "0b0b457d4d38c668cf55bb4ad4a8ea0b088740dd04dd092de984c49b568061f5"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_reactions.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_reactions.webp",
-      "sha256": "399f6d16793572a8e46829adefb8868a53ccbf5cf2b46dd9b9590b5348298031"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_reactions.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_reactions.webp",
-      "sha256": "47ef6201f0ded243eee3aad647c5c8df1826fd23ad92800f00ffb53273f2d1ef"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_reactions.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_reactions.webp",
-      "sha256": "04b99a9ad73e70059ba50024451a447fb754e3d613bee60c88d9125d0532f3b6"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_reactions.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_reactions.webp",
-      "sha256": "74387aa6923880f94d64c7ed855a56af4f85f64878d9f309ffd1f2762ad6de76"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/menu_browser_bookmarks.webp",
-      "eve": "app/src/main/res/drawable-mdpi/menu_browser_bookmarks.webp",
-      "sha256": "7ae2785dabb6e9bf3d711a1ce582b666129da3235ac9348d0e3ac967846680f0"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/menu_browser_bookmarks.webp",
-      "eve": "app/src/main/res/drawable-hdpi/menu_browser_bookmarks.webp",
-      "sha256": "a2c4d7d9c31164425c9849777d5ce2164367b13f79331bc8452817a9579d1f6b"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/menu_browser_bookmarks.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/menu_browser_bookmarks.webp",
-      "sha256": "9569e339988dd9b2687c16f33b014332413601f6054781d49ead303682a6a877"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/menu_browser_bookmarks.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/menu_browser_bookmarks.webp",
-      "sha256": "283d3123c1b194471b0cf9cb0c3669f94a06e66192355a81183d33ebd274349a"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/large_notes.webp",
-      "eve": "app/src/main/res/drawable-mdpi/large_notes.webp",
-      "sha256": "8e6cdfa4fa8103e3d0a441e68023e457b4cfc3724653364a368231ff7ab48430"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/large_notes.webp",
-      "eve": "app/src/main/res/drawable-hdpi/large_notes.webp",
-      "sha256": "2f4e571154cfc2a40e6652bd9004d76b383fc5d2fd1b67e19bd9e423ce57b48b"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/large_notes.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/large_notes.webp",
-      "sha256": "7668ec03ef61274e970fbe2a78d70c46d7b10d77b73118e4b1aa9d296c2a21af"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/large_notes.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/large_notes.webp",
-      "sha256": "b45b9d4c8f4c34b799344cfbcdcc58625adaf2fb979f40b3d7d6957249746cfd"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_calendar.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_calendar.webp",
-      "sha256": "d81f98f5b5a2bb69a995c8ebe3df6951b0aaf8a53f55674f36ca9004fd6a159e"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_calendar.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_calendar.webp",
-      "sha256": "99e9f5ce32cda2b3fce142e91256e5ffda601dbdff91315373315a0d93de634f"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_calendar.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_calendar.webp",
-      "sha256": "7d6551d529e796b083d85a99967f3ae3c171870b23756e2ecf766f4ba8665e03"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_calendar.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_calendar.webp",
-      "sha256": "dba1cf0239e6feab1f245e417e3fcc51be5a752da3228dd9f95788604cf3f41e"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/ic_rating_star.webp",
-      "eve": "app/src/main/res/drawable-mdpi/ic_rating_star.webp",
-      "sha256": "34cefcee9d35cafd0ba8ec44200ff49bc41afd327f2f6db29151fe19b025229c"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/ic_rating_star.webp",
-      "eve": "app/src/main/res/drawable-hdpi/ic_rating_star.webp",
-      "sha256": "b91738560fc3cd4cd54dfc11a48e6a3b06b444d57d00ce7019bd67eac249be25"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/ic_rating_star.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/ic_rating_star.webp",
-      "sha256": "43720dab3945de7aab28755d0b24cb3d1d93c8a43b3b9cb7601b0677024b4269"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/ic_rating_star.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/ic_rating_star.webp",
-      "sha256": "83f7161abddae21134666e0253b9b3972f2716266485d31b4b2cc4f5beb7caac"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/ic_rating_star_filled.webp",
-      "eve": "app/src/main/res/drawable-mdpi/ic_rating_star_filled.webp",
-      "sha256": "99c36bd064b14508dbb93424c0fafc01a8965cdb4da6296bc2fbc421870dc341"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/ic_rating_star_filled.webp",
-      "eve": "app/src/main/res/drawable-hdpi/ic_rating_star_filled.webp",
-      "sha256": "01e40b2cd170a9ee68f6bcd1e26e392332e775a1d1708d5a0e9954dda4e6c1fd"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/ic_rating_star_filled.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/ic_rating_star_filled.webp",
-      "sha256": "501faa12fe3373819c34f437aea76cddac88659daf6a1d250c7e0ea46b6e1157"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/ic_rating_star_filled.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/ic_rating_star_filled.webp",
-      "sha256": "7eebdb0a87e27a85c48973048017953ebb1d9f66939f714d34c87228b9774869"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/filled_earn_stars.webp",
-      "eve": "app/src/main/res/drawable-mdpi/filled_earn_stars.webp",
-      "sha256": "22b11779bf30d9f0f8468ec915756060e32be60dee6aaf674bd54335a01d244c"
-    },
-    {
       "upstream": "TMessagesProj/src/main/res/drawable-hdpi/filled_earn_stars.webp",
       "eve": "app/src/main/res/drawable-hdpi/filled_earn_stars.webp",
       "sha256": "cb358116d99424bb61d2f666f60108d3d6e78c21234369e32b8ef136c6b7d4fa"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/filled_earn_stars.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/filled_earn_stars.webp",
-      "sha256": "b8fa08d06c844cda172ff1b725028fdc7a2936eaa4b37dac541caf3dad020eba"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/filled_earn_stars.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/filled_earn_stars.webp",
-      "sha256": "544c365d66eb08e13741d61cd003c5646e928c4c1ef0c2491767355edf873d91"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/filled_star_plus.webp",
-      "eve": "app/src/main/res/drawable-mdpi/filled_star_plus.webp",
-      "sha256": "acffce2382d25e393c8088f7ceb486411fe0f04ab2c0119b2cc3c63868cae97e"
     },
     {
       "upstream": "TMessagesProj/src/main/res/drawable-hdpi/filled_star_plus.webp",
@@ -1342,479 +32,9 @@
       "sha256": "998fb1d48c2cc73eef9f322837a47a903c137011604ddbacc08957eb897ac7ae"
     },
     {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/filled_star_plus.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/filled_star_plus.webp",
-      "sha256": "30405ed58ef800fcff9c56391d6e35e79b5af4c38d367043ef798b2ba04e9966"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/filled_star_plus.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/filled_star_plus.webp",
-      "sha256": "5651f21eaebd99242da3de76255ee50904efe515203bd7a5029d73eaf5cc5a6b"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_channel.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_channel.webp",
-      "sha256": "fd61bf8389bfe7951e359806ff85319c33a89416db8f52c53142035838aa3b56"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_channel.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_channel.webp",
-      "sha256": "d812248c45c9436e150c9afb0d9be15ec2d20924b35e7307dee47b35270cc219"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_channel.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_channel.webp",
-      "sha256": "3d166a373927296d29d13ffbcbbd926288273cbac11a89de6ea6f1a86608ec2a"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_channel.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_channel.webp",
-      "sha256": "b66a756c5934877578e2e12cdabbc2722c01a8a3d2e04b03fb9060b887b365be"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_channel_create.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_channel_create.webp",
-      "sha256": "59703ef8e439e037cc8fd5cddd687e4a7762d2add634bf83aee2a05f3fdf6aae"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_channel_create.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_channel_create.webp",
-      "sha256": "0e00477516cd11daad0082771521e076ca7aa336ce29aa776464055921da0164"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_channel_create.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_channel_create.webp",
-      "sha256": "a727034f234f60c0d2bb3a0eeaa7c47e2b24a7ffdb95d6ae66cafa11283ce77e"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_channel_create.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_channel_create.webp",
-      "sha256": "cf10ae8e967175fc07e11c5555ae963fed371670a15957489a93d2ee821e0636"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_archive.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_archive.webp",
-      "sha256": "b3c12bf78c7cb7b5ab9d04b3039c653d659d73b945e4b6e9be738b6ecdb9c21c"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_archive.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_archive.webp",
-      "sha256": "f4c2d0365304566139ea5fe7407ce1266e894af801eb2d44c03203ca0f29dd6c"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_archive.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_archive.webp",
-      "sha256": "57236c540fb06486e0ae6774408ceae4cc031e48bdc97bcd856430dbf2fc1ce6"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_archive.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_archive.webp",
-      "sha256": "dd8bccb699ebf2ed52a8517a498cb9f47a26e41f782849d4190c8e4729a2cd65"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_edit.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_edit.webp",
-      "sha256": "6a0b85bf5c849f5ece7c2bf3934e9455f5fb188d1093ce5b103e4b6b661fd9a3"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_edit.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_edit.webp",
-      "sha256": "0b491ccfd63d77cfa65aab470105223498b5b4637f192d9a90258a3570ba2f82"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_edit.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_edit.webp",
-      "sha256": "acdfea3ba1aa9b46a843749550e00c59d7535f94ce86e8f4868540ebc69178cb"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_edit.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_edit.webp",
-      "sha256": "578a46c3af456c027491e8069a1ef97e0ec4027ccfcf72157c4593617e86ef53"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_photo_rotate.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_photo_rotate.webp",
-      "sha256": "ccb85df729a3042aa9ea88061a052f0bbed7c14a0d2df6a8dd2f17169e3da351"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_photo_rotate.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_photo_rotate.webp",
-      "sha256": "6271dd4a4ebb25fc9a8a94bf47a5615700ad6a317d6f4db0c12b7c6b973772e5"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_photo_rotate.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_photo_rotate.webp",
-      "sha256": "3cfc557a7de7a74b7977588afe00fdaf1ba2e9817ab47d9bf1f54f759aea6a9d"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_photo_rotate.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_photo_rotate.webp",
-      "sha256": "ddd4e4f44f47a13eff146101004272af06f57b74cc84ab3952b33539f3ae8b1d"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_leave.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_leave.webp",
-      "sha256": "690e5db44024fdefa5290fc06da7bd1f1f4c7317874b41ca25df0c33fd75dc66"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_leave.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_leave.webp",
-      "sha256": "21b306f640308adcfb5e59e972d8cab869d0063d5074c839fc7f8f8040560261"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_leave.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_leave.webp",
-      "sha256": "6d007eca4eedd8a32f17173520d4365382244e10a28b694354905315bfb0e6d6"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_leave.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_leave.webp",
-      "sha256": "6ee230dd08cd949c62e8353d64b67ffa1a114e7053052526d86b2192124f03c0"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_calls.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_calls.webp",
-      "sha256": "f581971063d2cbc10616a7ee48494671a642a275444a5fc6d73e843812e48c44"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_calls.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_calls.webp",
-      "sha256": "591bd13035bc3d98dd23c61ed5f922d39252eed0d73eaff8a0521e960f3e40b7"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_calls.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_calls.webp",
-      "sha256": "e92cd6ca808c95601f6a3949b846fdba9921920ef29a186823816b3f221c6062"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_calls.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_calls.webp",
-      "sha256": "b655d03e9af28614cde3b7a1f334e549e17df557c539e774970f4622dce6a03a"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_groups.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_groups.webp",
-      "sha256": "f5ab40cdf3de465a60ea83f3743e392698cda0f45e901871e496a679823a3410"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_groups.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_groups.webp",
-      "sha256": "cb3ed7970185639272810f744739052829d3b58cd4cc5cd884cacbed0ad490d6"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_groups.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_groups.webp",
-      "sha256": "c9430873a6e0e3727e0c914933cb3db69a8375d5d0968dd47bf0e28a44f89778"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_groups.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_groups.webp",
-      "sha256": "4c782b9c8de860fea3ea916b40c5daaa784a02d3ea49ba60a2909ee5e63cbd8f"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_mute.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_mute.webp",
-      "sha256": "6dd6d84ea8c3a441f4906fa4c1d5857b8c72b9c005ee6e6f8bf0a39e6f8dff28"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_mute.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_mute.webp",
-      "sha256": "c7dfd0faadba12bd608dc86c9f777e9d0c089f241e02de1074af74eb4fc43fea"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_mute.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_mute.webp",
-      "sha256": "d98dccaa44111c053ac90e11a2c0761fff7bbc027d102189bfdc60860d2e6b3d"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_mute.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_mute.webp",
-      "sha256": "a70b0843b64565fb2d058ee20d32c316fdbc6cd0d47e5dd31eb6c12184a34aa2"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_arrowright.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_arrowright.webp",
-      "sha256": "6d2b7477dc80eb6863827a023e15c6493270d6fd3417ed5f16cdc3256ad7d234"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_arrowright.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_arrowright.webp",
-      "sha256": "6502f564b74f42a59d63c71b5c52d026656ed8534821346697d78bbfdf1203f5"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_arrowright.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_arrowright.webp",
-      "sha256": "fcdf18618b729ec6fcb9b8e0e2b5d361befeb2ab70856e3d2e0221102712b8c3"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_arrowright.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_arrowright.webp",
-      "sha256": "4fb8db09614888ff6a2c747966afaf02fe2009dba9146b1f623c999d403b00c2"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_go_down.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_go_down.webp",
-      "sha256": "c78cf2d8be63a9276738700d75b13403f82976118b14e76010b6fc81443bcb8d"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_go_down.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_go_down.webp",
-      "sha256": "f6951cf210c2546de4cdf208a6b9229fe87bdfd837021151e4d5a0e7438fc251"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_go_down.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_go_down.webp",
-      "sha256": "8a3bb721aafb8223fca9923b973d1f6ebde487bf5e35afb84217d31efd716225"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_go_down.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_go_down.webp",
-      "sha256": "5ab35b8c006881f5206c379d93dce7f48961575cb87854ea8e1d4d25e99ab22a"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_retry.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_retry.webp",
-      "sha256": "0a5c22342a6ab90e077764f77fe5a28bca2f2f1ef3bf3df1b9eb39a55e4411a7"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_retry.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_retry.webp",
-      "sha256": "bf8fbd38d54b9e46e1fcb8c901630f605b212ceb15ed261810af467637730ec4"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_retry.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_retry.webp",
-      "sha256": "f40e4ee301e0e055596c48fdbef429adff7f5435a296fda3d13bca2e0816dbe4"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_retry.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_retry.webp",
-      "sha256": "5a50f380b40e7e2e8e17ed2697b6336e046ab167461587308c7cf0c4b9a78fea"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/fingerprint.webp",
-      "eve": "app/src/main/res/drawable-mdpi/fingerprint.webp",
-      "sha256": "8f80013883a78d503da89c8754aed74b2e242aa4efd4e61792acdb388f6cf74b"
-    },
-    {
       "upstream": "TMessagesProj/src/main/res/drawable-hdpi/fingerprint.webp",
       "eve": "app/src/main/res/drawable-hdpi/fingerprint.webp",
       "sha256": "5236518c40ab07305615b4662b42bbbd5c7fc67d6b16d010642feca1460183d9"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/fingerprint.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/fingerprint.webp",
-      "sha256": "874bdbb14568f3f2d3efeaf83acbed56cb9e4fc2545f6905eb42bc2a3fd486ff"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/fingerprint.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/fingerprint.webp",
-      "sha256": "b99296b3c93e942be53c615441ac5e3fd9052c42ecb02e2ffd9cf8d7e454fa95"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_secret.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_secret.webp",
-      "sha256": "43f6ab528fb348e7b2372f2ce075c09135f0d9d9283af97bfaca4303d0ffeb44"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_secret.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_secret.webp",
-      "sha256": "3f609b9e397dcfdaa1a4a72615061d5a133363a16dac6a739a73ff1bb4816dd9"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_secret.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_secret.webp",
-      "sha256": "7091bc225e9c2b248bad063a3fdc0ac45e4bd95c318422d73400ec3a6b62d450"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_secret.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_secret.webp",
-      "sha256": "9fd480c9df86ab39cef1bc5c81b8472d9c61c0c403421440481caba1310f98e9"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg2_email.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg2_email.webp",
-      "sha256": "75a90559d5e1d1261fd0436a678bf38a44dfe26d02ea42bcdc39a60c51796dcc"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg2_email.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg2_email.webp",
-      "sha256": "f73b3297abb9eaff2b740fd9843f3656bef49be0af43809d9b43d3b4309c0965"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg2_email.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg2_email.webp",
-      "sha256": "384ba61fd5788964cd32c45cee4b23a8841e8c99155f80ba633e63a7ffab8ca7"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg2_email.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg2_email.webp",
-      "sha256": "0803aedbfb09ae3b878cc899083aacb349c87b90f682d63c837794adbde89020"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_mini_upload.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_mini_upload.webp",
-      "sha256": "eb784a0ac917a1e6d9d5aaef1133e1f916e567ad3c9bba02a36e08ad54cc3c2b"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_mini_upload.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_mini_upload.webp",
-      "sha256": "a3264c25708d46cd703e5bb005a33620f10cb558780ece40c4bba9d4b683dbb8"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_mini_upload.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_mini_upload.webp",
-      "sha256": "48d0594e036162f2f0bb98a1d1f204da7f355cc009a845c51bfde53311c2ef7a"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_mini_upload.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_mini_upload.webp",
-      "sha256": "ec6e203c3b358377426c1e2723746ea437ba490de32dca6791e3350a06ade794"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_brightness_high.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_brightness_high.webp",
-      "sha256": "37d188da5604ea934ea9db2cc5be03226fc81d62d182287faa198fddb254dbd8"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_brightness_high.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_brightness_high.webp",
-      "sha256": "dbaaeddb4d1b2f8e9bebeba4f50f6c89ea870b084a14beef0e9f174680d01091"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_brightness_high.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_brightness_high.webp",
-      "sha256": "7c01f92403026865eef6594a8ba41bf4048600f395b19a4a327d5202cf2f99c3"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_brightness_high.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_brightness_high.webp",
-      "sha256": "f8805950ba92591beec9baeaaf85389a4c0961f660942af5af224a59ee38023a"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_remove.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_remove.webp",
-      "sha256": "d546c82a1fd40dea69bc105461a56df93a62d1c36eed72210b06fa71e4531035"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_remove.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_remove.webp",
-      "sha256": "9f5896049eda1f265bd6f83362ff1ba342c22b357a1f40837c316788da72a409"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_remove.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_remove.webp",
-      "sha256": "3a57b6078a9d581d82c3cfd5e3b13d370ca755819a028662a360b61af101fa07"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_remove.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_remove.webp",
-      "sha256": "23e8ded3ad33d89d7d5c27a8dbd2f4820491d046e257e387da27be3da386d893"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_add.webp",
-      "eve": "app/src/main/res/drawable-mdpi/msg_add.webp",
-      "sha256": "16a19c8a27cb2ae608eceb53e50c13544900a903361129e218ddce732a1cd9b3"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_add.webp",
-      "eve": "app/src/main/res/drawable-hdpi/msg_add.webp",
-      "sha256": "81a346f323ffd18cda8952127fc1f9b0f31747f8e7e1083ba1d0024e95caf9e5"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_add.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/msg_add.webp",
-      "sha256": "79e39cc14ae116ddc8cf79d03eeff9cb94a5297080f69e6f1139be2f7abb80df"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_add.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/msg_add.webp",
-      "sha256": "11fca749f2b1798686325cb28a47808d63d235707335120192dbb511e885f042"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/menu_lightbulb.webp",
-      "eve": "app/src/main/res/drawable-mdpi/menu_lightbulb.webp",
-      "sha256": "5a6b87b38b0178a6ebd9928ad6d0d2df4d01c3e52b483f855b0ef034a1e3e7c8"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/menu_lightbulb.webp",
-      "eve": "app/src/main/res/drawable-hdpi/menu_lightbulb.webp",
-      "sha256": "a00a0bf2278447888952a313a0454dd5153e8d72c803d294ef9d0369bb57b263"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/menu_lightbulb.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/menu_lightbulb.webp",
-      "sha256": "a3f269d8864f3775fa774a34f0653b40fea977e4c9c4d9aea5d353f66efc35de"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/menu_lightbulb.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/menu_lightbulb.webp",
-      "sha256": "be27a059e7cebce87e66fc0bc26b76f5cd74bab7a4b278498d2f82969fdcc838"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/round_check2.webp",
-      "eve": "app/src/main/res/drawable-mdpi/round_check2.webp",
-      "sha256": "4a4c6d38df47c66bd1c20245569eee59243a7324e446938e5bc3d406f3760357"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/round_check2.webp",
-      "eve": "app/src/main/res/drawable-hdpi/round_check2.webp",
-      "sha256": "daace4c145dab80a9995a34cbfe2537b747a11acf3f26e8f7c5c004e7c2a75b9"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/round_check2.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/round_check2.webp",
-      "sha256": "8c31fb5e4dd4836d42f2c73b47bc76fd6d0480d95d5f427b64f62408d0067478"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/round_check2.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/round_check2.webp",
-      "sha256": "9b007622cdccaf688ddec06857d91c4dccdb9caef0e0ed5d14d9d8622f673cc5"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/checkbig.webp",
-      "eve": "app/src/main/res/drawable-mdpi/checkbig.webp",
-      "sha256": "146513e852e9a593bd4a5124584ba69da3fe1d6eb370c46adacd3317a01050cb"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/checkbig.webp",
-      "eve": "app/src/main/res/drawable-hdpi/checkbig.webp",
-      "sha256": "d0d1fa14acd99fdcd2fe905077dfeb122e52afe02f8039ecad9825f3e6434a62"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/checkbig.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/checkbig.webp",
-      "sha256": "e347c1ae6e9059848023b36cf968f016206ec942750426d94e6f7e3213b65dd3"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/checkbig.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/checkbig.webp",
-      "sha256": "ad231657266b9ef0c970af3b9f032120a27be0d3764e620e26cd623311d74d59"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/mini_boost_badge.webp",
-      "eve": "app/src/main/res/drawable-mdpi/mini_boost_badge.webp",
-      "sha256": "b0afae366a966959c05c9379bfa76639fa0e45e634897115995f9237c8f0d280"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/mini_boost_badge.webp",
-      "eve": "app/src/main/res/drawable-hdpi/mini_boost_badge.webp",
-      "sha256": "a337f0cfab5bd591e095c5ed3bea3a8e196490e35ef44cdde769625945821960"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/mini_boost_badge.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/mini_boost_badge.webp",
-      "sha256": "7b94a8058e526a9fdfb0267cfa28e563343039453f3c091cd3d749b7587b0eef"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/mini_boost_badge.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/mini_boost_badge.webp",
-      "sha256": "d32d4311ab5d7b06b994374fd9e36ef4161905989ee9a04bde895e06d5748476"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/floating_check.webp",
-      "eve": "app/src/main/res/drawable-mdpi/floating_check.webp",
-      "sha256": "09467738e7b5fc322c282fa835c3144f786cabe3e4b4304283c194ddd768194c"
     },
     {
       "upstream": "TMessagesProj/src/main/res/drawable-hdpi/floating_check.webp",
@@ -1822,14 +42,479 @@
       "sha256": "065570b571ad665295a7d940a744052f19878129cc586e1b9f62253ece7f7a0b"
     },
     {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/floating_check.webp",
-      "eve": "app/src/main/res/drawable-xhdpi/floating_check.webp",
-      "sha256": "f7dfb0aec60b34564ef8bfa4d776805f8e1a4292042bf002dfeea6a33fecdef1"
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/greydivider.9.png",
+      "eve": "app/src/main/res/drawable-hdpi/greydivider.9.png",
+      "sha256": "84f8905c4e97c8eefb64d6c5d88b9d8790e9ea4e254202cd06d8ac5eb6cfbb15"
     },
     {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/floating_check.webp",
-      "eve": "app/src/main/res/drawable-xxhdpi/floating_check.webp",
-      "sha256": "302c87f45191564285f1d38acebd32ea46b042ec10e1d93f5cf6e4c0acd6543a"
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/greydivider_bottom.9.png",
+      "eve": "app/src/main/res/drawable-hdpi/greydivider_bottom.9.png",
+      "sha256": "4eac1510cd03f53bad1d5b75840cb04091b038f68b6051cddba1fc70c9037915"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/ic_ab_back.webp",
+      "eve": "app/src/main/res/drawable-hdpi/ic_ab_back.webp",
+      "sha256": "f15cfdfff716d710d70701ba6f1244f0e45380fa9592674f1e9a79aeaadd4d7f"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/ic_ab_done.webp",
+      "eve": "app/src/main/res/drawable-hdpi/ic_ab_done.webp",
+      "sha256": "7d64c482d47741d2143db109e4024c166fd2aaf025f32c9f9524456c0c6c270c"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/ic_ab_other.webp",
+      "eve": "app/src/main/res/drawable-hdpi/ic_ab_other.webp",
+      "sha256": "b6a2c9b85adaab7c63b9f4ab1b5e5e87c50aed1302ec0fc4b1faa0fd65d97780"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_camera.webp",
+      "eve": "app/src/main/res/drawable-hdpi/ic_camera.webp",
+      "sha256": "ea1830f00700d3f31a951781e65468a417414317554517f510717363f01daf52"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_delete.webp",
+      "eve": "app/src/main/res/drawable-hdpi/ic_delete.webp",
+      "sha256": "c7c5aaf309ce1202ab691edb91373ae7f2449e4ab8caf22a0905f2f598768b51"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/ic_lock_header.webp",
+      "eve": "app/src/main/res/drawable-hdpi/ic_lock_header.webp",
+      "sha256": "f92b05430e751271788be793d7cf6fd109591d84567dc12e1b40862094efced4"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/ic_rating_star.webp",
+      "eve": "app/src/main/res/drawable-hdpi/ic_rating_star.webp",
+      "sha256": "b91738560fc3cd4cd54dfc11a48e6a3b06b444d57d00ce7019bd67eac249be25"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/ic_rating_star_filled.webp",
+      "eve": "app/src/main/res/drawable-hdpi/ic_rating_star_filled.webp",
+      "sha256": "01e40b2cd170a9ee68f6bcd1e26e392332e775a1d1708d5a0e9954dda4e6c1fd"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/large_notes.webp",
+      "eve": "app/src/main/res/drawable-hdpi/large_notes.webp",
+      "sha256": "2f4e571154cfc2a40e6652bd9004d76b383fc5d2fd1b67e19bd9e423ce57b48b"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/menu_browser_bookmarks.webp",
+      "eve": "app/src/main/res/drawable-hdpi/menu_browser_bookmarks.webp",
+      "sha256": "a2c4d7d9c31164425c9849777d5ce2164367b13f79331bc8452817a9579d1f6b"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/menu_lightbulb.webp",
+      "eve": "app/src/main/res/drawable-hdpi/menu_lightbulb.webp",
+      "sha256": "a00a0bf2278447888952a313a0454dd5153e8d72c803d294ef9d0369bb57b263"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/menu_tag_filter.webp",
+      "eve": "app/src/main/res/drawable-hdpi/menu_tag_filter.webp",
+      "sha256": "3b85fa210eebdf4302085c30f4c3018789974cd366b805e55ea22b24b8fc0279"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/mini_boost_badge.webp",
+      "eve": "app/src/main/res/drawable-hdpi/mini_boost_badge.webp",
+      "sha256": "a337f0cfab5bd591e095c5ed3bea3a8e196490e35ef44cdde769625945821960"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg2_email.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg2_email.webp",
+      "sha256": "f73b3297abb9eaff2b740fd9843f3656bef49be0af43809d9b43d3b4309c0965"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_add.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_add.webp",
+      "sha256": "81a346f323ffd18cda8952127fc1f9b0f31747f8e7e1083ba1d0024e95caf9e5"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_admins.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_admins.webp",
+      "sha256": "747eb97352e98f8b57a3644d33e4c1ef0f9d58ff59c7268fb80bf7a35aa429ad"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_archive.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_archive.webp",
+      "sha256": "f4c2d0365304566139ea5fe7407ce1266e894af801eb2d44c03203ca0f29dd6c"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_arrowright.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_arrowright.webp",
+      "sha256": "6502f564b74f42a59d63c71b5c52d026656ed8534821346697d78bbfdf1203f5"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_block.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_block.webp",
+      "sha256": "b8a1c999b2bf8f0964befb793dee5ee49327aaa88f23d0b2afab0d5ad490f100"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_bot.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_bot.webp",
+      "sha256": "505e55410ac99dfcf47d91e67f10f3ae5b9b3750b8cb66180a6421cbfaec04fd"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_brightness_high.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_brightness_high.webp",
+      "sha256": "dbaaeddb4d1b2f8e9bebeba4f50f6c89ea870b084a14beef0e9f174680d01091"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_calendar.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_calendar.webp",
+      "sha256": "99e9f5ce32cda2b3fce142e91256e5ffda601dbdff91315373315a0d93de634f"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_calls.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_calls.webp",
+      "sha256": "591bd13035bc3d98dd23c61ed5f922d39252eed0d73eaff8a0521e960f3e40b7"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_channel.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_channel.webp",
+      "sha256": "d812248c45c9436e150c9afb0d9be15ec2d20924b35e7307dee47b35270cc219"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_channel_create.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_channel_create.webp",
+      "sha256": "0e00477516cd11daad0082771521e076ca7aa336ce29aa776464055921da0164"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_check_s.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_check_s.webp",
+      "sha256": "93fcde2c8d2b035d83cf85d69191288906d2078261c0797edcfb728ec952c41e"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_close.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_close.webp",
+      "sha256": "9032086b82f1e3749684623dac292437b1103d62584c9bf5d2bc64a22aeddb09"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_contacts.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_contacts.webp",
+      "sha256": "69d0d5c37b1f75102f67c11f959b004698a6b8a07a9a4ea18c0d3c07576b3804"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_copy.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_copy.webp",
+      "sha256": "4bf576bbaed88c0fd95473a0a712de1615363b694e6bd2f0b4780c15f99783d6"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_download.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_download.webp",
+      "sha256": "acbce52dc236896807aadc7438a0973b839a44fbff32abdb4a1282da90e7d927"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_edit.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_edit.webp",
+      "sha256": "0b491ccfd63d77cfa65aab470105223498b5b4637f192d9a90258a3570ba2f82"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_fave.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_fave.webp",
+      "sha256": "2fb2d47069ff1dd1f2aa00ef662a356c847071e8bebb3df7e6ab588a5e334564"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_filehq.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_filehq.webp",
+      "sha256": "462347aa66a287114dfb4586e2de45534b4f867347990c4225df364d2138e3cb"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_filled_data_messages.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_filled_data_messages.webp",
+      "sha256": "0a9a1942fd909f9b7b58dd1122e9d283547e9def02dcd76fa37396fde0f360c9"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_filled_storageusage.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_filled_storageusage.webp",
+      "sha256": "163af0c9029355eb46153ce926aa7153d1a8fd8019bf022985ff7b0b538618e0"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_go_down.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_go_down.webp",
+      "sha256": "f6951cf210c2546de4cdf208a6b9229fe87bdfd837021151e4d5a0e7438fc251"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_groups.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_groups.webp",
+      "sha256": "cb3ed7970185639272810f744739052829d3b58cd4cc5cd884cacbed0ad490d6"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_help.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_help.webp",
+      "sha256": "68a9c5a3344f14a696f2d132c9d4803dd4d8e2f04c38173a97bfb55f1c32332b"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_info.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_info.webp",
+      "sha256": "04a312aa8791511b843cdbb47516cdd58b520885590fe6d496aa1e5303289b37"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_language.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_language.webp",
+      "sha256": "6e47a0fa85bbb765f1a0fbe4631c2b254ab34a8a391a5e6963cf60d51229e2da"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_leave.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_leave.webp",
+      "sha256": "21b306f640308adcfb5e59e972d8cab869d0063d5074c839fc7f8f8040560261"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_link.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_link.webp",
+      "sha256": "faed86655fdbaeb6c97977f3185cc835d813d65e2ecda34b183b49c5bbe152f1"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_link2.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_link2.webp",
+      "sha256": "14be126366b4e0add4a5c05cd1097e40d63d4cde3bdad9cbb45f1cc24cf3f6a9"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_list.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_list.webp",
+      "sha256": "235012ce6a5b25c7eeaca1969a020faf01cfe9c638e9228376f9e6604333cb49"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_log.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_log.webp",
+      "sha256": "1343994f682d1ee73450b7ea0e225108fa0a80e20ba530c95d05dcfe8f6db1e3"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_markread.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_markread.webp",
+      "sha256": "33d4f7e3a6105897c784cb0a92e90992f5ce15b6d64d827906279daa25e9c289"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_mini_autodelete_timer.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_mini_autodelete_timer.webp",
+      "sha256": "4da35978e3bb63fa25d46607d3bff82065fefe93ab90c4ab129350aea8b37350"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_mini_upload.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_mini_upload.webp",
+      "sha256": "a3264c25708d46cd703e5bb005a33620f10cb558780ece40c4bba9d4b683dbb8"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_mute.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_mute.webp",
+      "sha256": "c7dfd0faadba12bd608dc86c9f777e9d0c089f241e02de1074af74eb4fc43fea"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_notifications.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_notifications.webp",
+      "sha256": "0e4959d49c10d05a9862004cf05eab48c3a33274798902df197531d56aa2c924"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_permissions.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_permissions.webp",
+      "sha256": "bfecc45692da99d176687ddf9a9ed8e868ac24841bc8943b040a570119838d63"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_photo_rotate.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_photo_rotate.webp",
+      "sha256": "6271dd4a4ebb25fc9a8a94bf47a5615700ad6a317d6f4db0c12b7c6b973772e5"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_photos.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_photos.webp",
+      "sha256": "c07d8f9e33a903dbbedb756085271a9293ac96c630cfbf1d237b2c9c51af07af"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_pin.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_pin.webp",
+      "sha256": "aab11c0a64a29595738c1d4c8816b824f1994405470f3c34287fa573dd06bc1e"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_policy.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_policy.webp",
+      "sha256": "090f3f4d25c97b009c7917b5275db66c8610266a9988122b301829de69ed0a77"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_qrcode.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_qrcode.webp",
+      "sha256": "29e0d1890b97162e50d9cacc648eac359764722c9608e88bbb24f06bdc181dd6"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_reactions.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_reactions.webp",
+      "sha256": "47ef6201f0ded243eee3aad647c5c8df1826fd23ad92800f00ffb53273f2d1ef"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_recent.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_recent.webp",
+      "sha256": "f14ecda8de3585862da42c5d3100b65dc3839d403032ceef26ae7cd1442216fa"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_remove.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_remove.webp",
+      "sha256": "9f5896049eda1f265bd6f83362ff1ba342c22b357a1f40837c316788da72a409"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_report.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_report.webp",
+      "sha256": "9df4693ff62c93de0082a33bac9a1d44a0784b9ea4e2a6146994a0ddb978831b"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_retry.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_retry.webp",
+      "sha256": "bf8fbd38d54b9e46e1fcb8c901630f605b212ceb15ed261810af467637730ec4"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_saved.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_saved.webp",
+      "sha256": "7453f638e2a396bfdaa04910f1a7cb6eb304d88cc11d44b9f8bd8de4f9dcac06"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_search.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_search.webp",
+      "sha256": "fd3b4a1c77b300853815e9e3a8706087e6eac5de04e3ba31da61a1fddfde5e79"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_secret.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_secret.webp",
+      "sha256": "3f609b9e397dcfdaa1a4a72615061d5a133363a16dac6a739a73ff1bb4816dd9"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_send.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_send.webp",
+      "sha256": "b308996b401bf5322f3f80fd9e8ecf30392727d785520bbee40405d287f59bd5"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_settings.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_settings.webp",
+      "sha256": "4c9fe16609aa3630d06321a76e06430690489ca031ccdc43acab18818fb32a83"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_share.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_share.webp",
+      "sha256": "53da4ea3b3592d7cb16264e312d39da1a07faecb5d496a2863499eee9d1f490e"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_stats.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_stats.webp",
+      "sha256": "bbadfda4097687ad64199cfea40b81ea5604745a6f93e9606ebbc22d3deefc64"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_theme.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_theme.webp",
+      "sha256": "c683b52c94541be46b1f5146ba3c5604f936bf0942dddbdb334333d5bb2c06d8"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_unfave.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_unfave.webp",
+      "sha256": "43783b91c1297ccf51fb40815d5a7155fc3e4d4396631658cc2d537d56013d39"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_unpin.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_unpin.webp",
+      "sha256": "c1e986afaa81ba6685ec6115fd65df3ff0c457617a5b64df1b35032f4a22f547"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_warning.webp",
+      "eve": "app/src/main/res/drawable-hdpi/msg_warning.webp",
+      "sha256": "2200d4453585a81b242abd785e337e1d57173eb174b7989c87a50ccb4ecbcb27"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/navbar_search_tag.webp",
+      "eve": "app/src/main/res/drawable-hdpi/navbar_search_tag.webp",
+      "sha256": "a4392f73be17853f5bcf121887365ec4d65e60b4b957060b9c2a7f0bc3ed0016"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/poll_add_circle.webp",
+      "eve": "app/src/main/res/drawable-hdpi/poll_add_circle.webp",
+      "sha256": "d49c68b6ab4e8af015ec3097d3dc49edfd73ecb65280e3a86de921120ab1f626"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/poll_add_plus.webp",
+      "eve": "app/src/main/res/drawable-hdpi/poll_add_plus.webp",
+      "sha256": "8542d039e53360b6410d59175fff2d08308dbdd1576197eca5b7d594412bc97e"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/poll_remove.webp",
+      "eve": "app/src/main/res/drawable-hdpi/poll_remove.webp",
+      "sha256": "635391b8d0569d4e640a238d00b8e7bb0ee77c304d705be47438b6389f0b6766"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/poll_right.webp",
+      "eve": "app/src/main/res/drawable-hdpi/poll_right.webp",
+      "sha256": "b9d0ed317ca2a68c4b3ff1c5fbbf2ff2ca8490200d5b037f7af81a68da72f7c3"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/poll_wrong.webp",
+      "eve": "app/src/main/res/drawable-hdpi/poll_wrong.webp",
+      "sha256": "2077d3b08ea98486436d5a0b3de9e436462e8dfd5b2828197ea8c4998a7da4e2"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/popup_fixed_alert4.9.png",
+      "eve": "app/src/main/res/drawable-hdpi/popup_fixed_alert4.9.png",
+      "sha256": "947bab8642f394213ebd617bd27e0187ce2b9d81eda9199b1bcde2a0c68b6f4e"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/qr_at_large.webp",
+      "eve": "app/src/main/res/drawable-hdpi/qr_at_large.webp",
+      "sha256": "38c7cfbe5f753f7a21e110432ae35c54ca2172835e9367b94a6d9e3f0f654424"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/qr_flashlight.webp",
+      "eve": "app/src/main/res/drawable-hdpi/qr_flashlight.webp",
+      "sha256": "5ac49313028f5cb20aa9f8c24f2827070a9b75c10ed0afeadd71cc9f4f1eaa24"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/qr_gallery.webp",
+      "eve": "app/src/main/res/drawable-hdpi/qr_gallery.webp",
+      "sha256": "aa19a6559f936abf0076d995c43d3fe747b5a7e41fc0e0997963dad8b5ce7124"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/round_check2.webp",
+      "eve": "app/src/main/res/drawable-hdpi/round_check2.webp",
+      "sha256": "daace4c145dab80a9995a34cbfe2537b747a11acf3f26e8f7c5c004e7c2a75b9"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/sheet_shadow_round.9.png",
+      "eve": "app/src/main/res/drawable-hdpi/sheet_shadow_round.9.png",
+      "sha256": "9b07bb6fbfbf58e874c0394bc2e75e71b6e1404193b2aafe7061b6ec658312c0"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/smiles_tab_clear.webp",
+      "eve": "app/src/main/res/drawable-hdpi/smiles_tab_clear.webp",
+      "sha256": "6aa5680169c3d77e3e82a297a9b19f51a92c05cbd4717f8ca27c59b8664e6f67"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/tabs_reorder.webp",
+      "eve": "app/src/main/res/drawable-hdpi/tabs_reorder.webp",
+      "sha256": "6119d2ee5743f05f268e575a4009cd958ffa48da040aee7bf2caa96e4a856d0b"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/greydivider.9.png",
+      "eve": "app/src/main/res/drawable-hdpi/telegram_menu_greydivider.9.png",
+      "sha256": "84f8905c4e97c8eefb64d6c5d88b9d8790e9ea4e254202cd06d8ac5eb6cfbb15"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/checkbig.webp",
+      "eve": "app/src/main/res/drawable-mdpi/checkbig.webp",
+      "sha256": "146513e852e9a593bd4a5124584ba69da3fe1d6eb370c46adacd3317a01050cb"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/files_storage.webp",
+      "eve": "app/src/main/res/drawable-mdpi/files_storage.webp",
+      "sha256": "e899772361d4f743a58ac0a5dc60ea7c4a5a169ef0e8877bc8a14214a409306a"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/filled_earn_stars.webp",
+      "eve": "app/src/main/res/drawable-mdpi/filled_earn_stars.webp",
+      "sha256": "22b11779bf30d9f0f8468ec915756060e32be60dee6aaf674bd54335a01d244c"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/filled_star_plus.webp",
+      "eve": "app/src/main/res/drawable-mdpi/filled_star_plus.webp",
+      "sha256": "acffce2382d25e393c8088f7ceb486411fe0f04ab2c0119b2cc3c63868cae97e"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/fingerprint.webp",
+      "eve": "app/src/main/res/drawable-mdpi/fingerprint.webp",
+      "sha256": "8f80013883a78d503da89c8754aed74b2e242aa4efd4e61792acdb388f6cf74b"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/floating_check.webp",
+      "eve": "app/src/main/res/drawable-mdpi/floating_check.webp",
+      "sha256": "09467738e7b5fc322c282fa835c3144f786cabe3e4b4304283c194ddd768194c"
     },
     {
       "upstream": "TMessagesProj/src/main/res/drawable-mdpi/greydivider.9.png",
@@ -1837,9 +522,474 @@
       "sha256": "08fcaed4891c9dec8cd9774df438d5e367419886bb0a9b867f0c7eb8ff89df8b"
     },
     {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/greydivider.9.png",
-      "eve": "app/src/main/res/drawable-hdpi/greydivider.9.png",
-      "sha256": "84f8905c4e97c8eefb64d6c5d88b9d8790e9ea4e254202cd06d8ac5eb6cfbb15"
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/greydivider_bottom.9.png",
+      "eve": "app/src/main/res/drawable-mdpi/greydivider_bottom.9.png",
+      "sha256": "76a380f185c6869856e6e6ffc4c57c91d4598e53e8323f777f1a986a21f531d5"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/ic_ab_back.webp",
+      "eve": "app/src/main/res/drawable-mdpi/ic_ab_back.webp",
+      "sha256": "dc131a7de3faea33a5b22ddff0a2c1f380a17740af5c816ee7dab330e92a323b"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/ic_ab_done.webp",
+      "eve": "app/src/main/res/drawable-mdpi/ic_ab_done.webp",
+      "sha256": "bd423d9161de653c4b8658f2abcd2d4c974976ff79d653274c3c34ab2abbba31"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/ic_ab_other.webp",
+      "eve": "app/src/main/res/drawable-mdpi/ic_ab_other.webp",
+      "sha256": "1753372e5d4e9da59a39e0828271be283828cc2f09e319ed01e170c6e2b71ee3"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_camera.webp",
+      "eve": "app/src/main/res/drawable-mdpi/ic_camera.webp",
+      "sha256": "545cf38922349e4960b98f072d6421bbfc2d8ca220c623aa5f5e3adf045c2dcc"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_delete.webp",
+      "eve": "app/src/main/res/drawable-mdpi/ic_delete.webp",
+      "sha256": "0701b4a4ebca6417762be23462cc3e5625a6cfd5bd0f40b44f2d193f567c4ae2"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/ic_lock_header.webp",
+      "eve": "app/src/main/res/drawable-mdpi/ic_lock_header.webp",
+      "sha256": "a7bc1e5820397e50cd347dccb3d0eddf2e2d1b195d1dae6b31458b137b637553"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/ic_rating_star.webp",
+      "eve": "app/src/main/res/drawable-mdpi/ic_rating_star.webp",
+      "sha256": "34cefcee9d35cafd0ba8ec44200ff49bc41afd327f2f6db29151fe19b025229c"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/ic_rating_star_filled.webp",
+      "eve": "app/src/main/res/drawable-mdpi/ic_rating_star_filled.webp",
+      "sha256": "99c36bd064b14508dbb93424c0fafc01a8965cdb4da6296bc2fbc421870dc341"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/large_notes.webp",
+      "eve": "app/src/main/res/drawable-mdpi/large_notes.webp",
+      "sha256": "8e6cdfa4fa8103e3d0a441e68023e457b4cfc3724653364a368231ff7ab48430"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/menu_browser_bookmarks.webp",
+      "eve": "app/src/main/res/drawable-mdpi/menu_browser_bookmarks.webp",
+      "sha256": "7ae2785dabb6e9bf3d711a1ce582b666129da3235ac9348d0e3ac967846680f0"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/menu_lightbulb.webp",
+      "eve": "app/src/main/res/drawable-mdpi/menu_lightbulb.webp",
+      "sha256": "5a6b87b38b0178a6ebd9928ad6d0d2df4d01c3e52b483f855b0ef034a1e3e7c8"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/menu_tag_filter.webp",
+      "eve": "app/src/main/res/drawable-mdpi/menu_tag_filter.webp",
+      "sha256": "4e36e8116bcb5a34f07a23a838c1ba106c3fa483c86bf633dcdf84bb9842b67e"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/mini_boost_badge.webp",
+      "eve": "app/src/main/res/drawable-mdpi/mini_boost_badge.webp",
+      "sha256": "b0afae366a966959c05c9379bfa76639fa0e45e634897115995f9237c8f0d280"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg2_email.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg2_email.webp",
+      "sha256": "75a90559d5e1d1261fd0436a678bf38a44dfe26d02ea42bcdc39a60c51796dcc"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_add.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_add.webp",
+      "sha256": "16a19c8a27cb2ae608eceb53e50c13544900a903361129e218ddce732a1cd9b3"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_admins.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_admins.webp",
+      "sha256": "894a9d358daf4089a74d6f7f258e99fdfe8d65310056e1b234c908bdbd2d429a"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_archive.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_archive.webp",
+      "sha256": "b3c12bf78c7cb7b5ab9d04b3039c653d659d73b945e4b6e9be738b6ecdb9c21c"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_arrowright.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_arrowright.webp",
+      "sha256": "6d2b7477dc80eb6863827a023e15c6493270d6fd3417ed5f16cdc3256ad7d234"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_block.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_block.webp",
+      "sha256": "7341e68f84d74234de93a47869bc351d7f2ffc2d99463dee22ba4d7c14ab49af"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_bot.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_bot.webp",
+      "sha256": "16f5bad176bb0733d411df93537fb2342f01176d460021db9d95b36821de1ea7"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_brightness_high.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_brightness_high.webp",
+      "sha256": "37d188da5604ea934ea9db2cc5be03226fc81d62d182287faa198fddb254dbd8"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_calendar.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_calendar.webp",
+      "sha256": "d81f98f5b5a2bb69a995c8ebe3df6951b0aaf8a53f55674f36ca9004fd6a159e"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_calls.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_calls.webp",
+      "sha256": "f581971063d2cbc10616a7ee48494671a642a275444a5fc6d73e843812e48c44"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_channel.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_channel.webp",
+      "sha256": "fd61bf8389bfe7951e359806ff85319c33a89416db8f52c53142035838aa3b56"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_channel_create.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_channel_create.webp",
+      "sha256": "59703ef8e439e037cc8fd5cddd687e4a7762d2add634bf83aee2a05f3fdf6aae"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_check_s.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_check_s.webp",
+      "sha256": "b05519f6b842646374058982664e247fe81f1bb63bbeac42cdc8a3e6de94b65e"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_close.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_close.webp",
+      "sha256": "a1e61bda529d8b1bda80f5ac1b9c699654df2b41929d32fa58cf251a589b4254"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_contacts.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_contacts.webp",
+      "sha256": "5cb19d5984342ba434908b57b335e7372d98c63fe16b6659f87ffc7e06356c64"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_copy.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_copy.webp",
+      "sha256": "f2c12012e8974a3ca52123044e5240543723b5af4efa832ce3959dce512fee50"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_download.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_download.webp",
+      "sha256": "e6f6ee0f50d3c6c0d4ad399d263d4f027f0800666218c38c16033902f941e2bb"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_edit.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_edit.webp",
+      "sha256": "6a0b85bf5c849f5ece7c2bf3934e9455f5fb188d1093ce5b103e4b6b661fd9a3"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_fave.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_fave.webp",
+      "sha256": "f2dd7d3d80c4256a336e665c8952bb23e12fa86187f76919a1e7fdd08fb64da6"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_filehq.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_filehq.webp",
+      "sha256": "023818805e20163fb85ba62486e1767a8a89741117b583510ff41f74f0474330"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_filled_data_messages.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_filled_data_messages.webp",
+      "sha256": "e3ffa86f816fa5150f9963893b27042940d20b0d8086f4dda621ab2f1c533ba4"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_filled_storageusage.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_filled_storageusage.webp",
+      "sha256": "482d1a8554891d7733ad2ade365a580267246303f15381ab9d21ebea008339fb"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_go_down.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_go_down.webp",
+      "sha256": "c78cf2d8be63a9276738700d75b13403f82976118b14e76010b6fc81443bcb8d"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_groups.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_groups.webp",
+      "sha256": "f5ab40cdf3de465a60ea83f3743e392698cda0f45e901871e496a679823a3410"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_help.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_help.webp",
+      "sha256": "0b60b149f939f6f22bd94303b9aba96c42ce0232a7f24bc84060de1a7454a87c"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_info.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_info.webp",
+      "sha256": "0f52a91c3db394f3ba7a7a07c4693e94fc37d8f8e8fa5d4358c2e743b37b0620"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_language.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_language.webp",
+      "sha256": "cbf4776b4448c38c99b7a58dd8d7616589d7f842fd7af7f89c450226eb1c0518"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_leave.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_leave.webp",
+      "sha256": "690e5db44024fdefa5290fc06da7bd1f1f4c7317874b41ca25df0c33fd75dc66"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_link.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_link.webp",
+      "sha256": "1d872ba286d05087409beb975b321ce5818b80218b8c1d9087aa3b74189999c7"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_link2.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_link2.webp",
+      "sha256": "106337afb932b661aac2bb861bc463b1909820f12f177b3acac8f5efe40c6757"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_list.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_list.webp",
+      "sha256": "f89d3c679cf392b9725a983758b9b6039845db1e6bb1e9902e891ba948c1a722"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_log.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_log.webp",
+      "sha256": "820e7f3cadbcab76c639be9ab4a3ea15f9f00caf735fcf7bf787323cdfa7ad87"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_markread.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_markread.webp",
+      "sha256": "cdefe9514e33ab81d86dc235ea19ae01bf9de22b848938dd9060e09f556357dd"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_mini_autodelete_timer.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_mini_autodelete_timer.webp",
+      "sha256": "3f1d342a869a50800e4b1570db7acc53cf639dac29064cb085a23e6ff179b420"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_mini_upload.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_mini_upload.webp",
+      "sha256": "eb784a0ac917a1e6d9d5aaef1133e1f916e567ad3c9bba02a36e08ad54cc3c2b"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_mute.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_mute.webp",
+      "sha256": "6dd6d84ea8c3a441f4906fa4c1d5857b8c72b9c005ee6e6f8bf0a39e6f8dff28"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_notifications.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_notifications.webp",
+      "sha256": "f3c78e5ec946f3c7ddeef1415ce23784b28a95ec3868f87d5d7f94827649ee3c"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_permissions.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_permissions.webp",
+      "sha256": "8b2c8bb0259d6d4998ffc84e3a6590a4377309507a47b4b9a0afb1b73a6b3b18"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_photo_rotate.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_photo_rotate.webp",
+      "sha256": "ccb85df729a3042aa9ea88061a052f0bbed7c14a0d2df6a8dd2f17169e3da351"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_photos.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_photos.webp",
+      "sha256": "827c471e88d212ad57a484f772faad44b453f37e426b37f947442b080fde8df2"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_pin.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_pin.webp",
+      "sha256": "e8ef8bb01e95108ac9b7e38d15b933ca760a750b4d3b257e31692d978d788538"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_policy.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_policy.webp",
+      "sha256": "086fb367d6f4038a5d7465e03751f2b1c4cd1de906516a01e1a96d6f8278ce83"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_qrcode.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_qrcode.webp",
+      "sha256": "8956948ac2bcca22d111a217d5740b4c9b20f495becc50387edddfe2977c7926"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_reactions.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_reactions.webp",
+      "sha256": "399f6d16793572a8e46829adefb8868a53ccbf5cf2b46dd9b9590b5348298031"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_recent.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_recent.webp",
+      "sha256": "6197b1132671816f12ed39cfbaba44c93388979d98e48f80d43f7a68db98822e"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_remove.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_remove.webp",
+      "sha256": "d546c82a1fd40dea69bc105461a56df93a62d1c36eed72210b06fa71e4531035"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_report.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_report.webp",
+      "sha256": "8914c7faa580ae23c6c0b25679e82d8637b410231d148bb0850b00d0c600e7e8"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_retry.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_retry.webp",
+      "sha256": "0a5c22342a6ab90e077764f77fe5a28bca2f2f1ef3bf3df1b9eb39a55e4411a7"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_saved.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_saved.webp",
+      "sha256": "873ad24c7b1951de855a069a66e5e0f63500e24cbf8c3a4ab1099a182ae29f73"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_search.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_search.webp",
+      "sha256": "c31d2043aec83ca82f4f5fe7cdba64882744ce0e6f0e2ad1adae8ec9af5acbbe"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_secret.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_secret.webp",
+      "sha256": "43f6ab528fb348e7b2372f2ce075c09135f0d9d9283af97bfaca4303d0ffeb44"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_send.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_send.webp",
+      "sha256": "dabf91255165966a99c6b949e1e5c61a14aa2bdfae79dd043569af439a233c67"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_settings.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_settings.webp",
+      "sha256": "2925dc314bb1f10136ac78876200582920fecf040b11522b2f5ea4720059cfcd"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_share.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_share.webp",
+      "sha256": "41a6ccb0401fbb20bb820a113130ceec9661ec7062909ddd77e87e6a1cb5f15c"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_stats.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_stats.webp",
+      "sha256": "d0b7de6683a778ede8f565ed9042ed1b5ed38f05d961c3e8b63876ed72df83d2"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_theme.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_theme.webp",
+      "sha256": "83ef697f1fab9f4a9d546e435d3256e1782ea02d7316dbc13375309fc530e40a"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_unfave.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_unfave.webp",
+      "sha256": "6bef8f3afe3d27b8965f2d17a32e083f6f073b9208b5890cdf31e22674dfd2ac"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_unpin.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_unpin.webp",
+      "sha256": "7de06857518ee0296a80783a71dc615cdf7634d39053f7e1a3af402ed2694332"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_warning.webp",
+      "eve": "app/src/main/res/drawable-mdpi/msg_warning.webp",
+      "sha256": "c96d41db3c886e8cb8c28126467a4647cbe4d0af3d1f45ead0f7d04f982fe2c5"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/navbar_search_tag.webp",
+      "eve": "app/src/main/res/drawable-mdpi/navbar_search_tag.webp",
+      "sha256": "690bbfe23cd29b44a0937f6971ee26689a6db6d382bc391941f80e46020f7084"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/poll_add_circle.webp",
+      "eve": "app/src/main/res/drawable-mdpi/poll_add_circle.webp",
+      "sha256": "4810b5e70aeca508210322a22f24871460253088e2ee3a324b7995abf56eb10f"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/poll_add_plus.webp",
+      "eve": "app/src/main/res/drawable-mdpi/poll_add_plus.webp",
+      "sha256": "26cc9b8173bddbc6a5c88ee3bc90c77d504bcd693a612c8c67b9ddbdb1591cd8"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/poll_remove.webp",
+      "eve": "app/src/main/res/drawable-mdpi/poll_remove.webp",
+      "sha256": "0689c730cebd6cbaaf4b4aba2be8d4606b183919eba9bb7aa808901a254f33d2"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/poll_right.webp",
+      "eve": "app/src/main/res/drawable-mdpi/poll_right.webp",
+      "sha256": "8bfaa178b67eea866924a36fafca2598f53fe7f2d01f53e57661553e2e3f1a92"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/poll_wrong.webp",
+      "eve": "app/src/main/res/drawable-mdpi/poll_wrong.webp",
+      "sha256": "0c24f8dd34acb543f01276436fed91a533558f3faeda12bd5dbe329493e477bd"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/popup_fixed_alert4.9.png",
+      "eve": "app/src/main/res/drawable-mdpi/popup_fixed_alert4.9.png",
+      "sha256": "6557266c5b8caf3e2a293dfb3083494a2db77d00f7a829387356dbd261fef99f"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/qr_at_large.webp",
+      "eve": "app/src/main/res/drawable-mdpi/qr_at_large.webp",
+      "sha256": "42820740e4bca39e939acdae3ed34ea03a158cdebddeb9434c90682cdffa65d8"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/qr_flashlight.webp",
+      "eve": "app/src/main/res/drawable-mdpi/qr_flashlight.webp",
+      "sha256": "58936aed129971f825f73bc2a0c38a356fd323d174df21d2e07348b1af988314"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/qr_gallery.webp",
+      "eve": "app/src/main/res/drawable-mdpi/qr_gallery.webp",
+      "sha256": "484b83078e040ca96d054cb1f2fc3924b93d029197da9afb2fb1ec8ab502351b"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/round_check2.webp",
+      "eve": "app/src/main/res/drawable-mdpi/round_check2.webp",
+      "sha256": "4a4c6d38df47c66bd1c20245569eee59243a7324e446938e5bc3d406f3760357"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/sheet_shadow_round.9.png",
+      "eve": "app/src/main/res/drawable-mdpi/sheet_shadow_round.9.png",
+      "sha256": "41551b1471c6902a876443a1d84b931ddc8d0efcf288a7358d9b989f60bdff77"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/smiles_tab_clear.webp",
+      "eve": "app/src/main/res/drawable-mdpi/smiles_tab_clear.webp",
+      "sha256": "567af9cd73f2d3bbd1d06cd5c23daa47b72354142dd6e0629a085a5a832a870d"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/tabs_reorder.webp",
+      "eve": "app/src/main/res/drawable-mdpi/tabs_reorder.webp",
+      "sha256": "03e0c12eda5e55f72fd4c0ce7bb17b9f514d65ba0a34ed98b3893b76edcaa12f"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/greydivider.9.png",
+      "eve": "app/src/main/res/drawable-mdpi/telegram_menu_greydivider.9.png",
+      "sha256": "08fcaed4891c9dec8cd9774df438d5e367419886bb0a9b867f0c7eb8ff89df8b"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/checkbig.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/checkbig.webp",
+      "sha256": "e347c1ae6e9059848023b36cf968f016206ec942750426d94e6f7e3213b65dd3"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/files_storage.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/files_storage.webp",
+      "sha256": "1927191709abe031ae4ce0cae4cbf316cd40525721486ad8b05a40fdae1a0e1c"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/filled_earn_stars.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/filled_earn_stars.webp",
+      "sha256": "b8fa08d06c844cda172ff1b725028fdc7a2936eaa4b37dac541caf3dad020eba"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/filled_star_plus.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/filled_star_plus.webp",
+      "sha256": "30405ed58ef800fcff9c56391d6e35e79b5af4c38d367043ef798b2ba04e9966"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/fingerprint.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/fingerprint.webp",
+      "sha256": "874bdbb14568f3f2d3efeaf83acbed56cb9e4fc2545f6905eb42bc2a3fd486ff"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/floating_check.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/floating_check.webp",
+      "sha256": "f7dfb0aec60b34564ef8bfa4d776805f8e1a4292042bf002dfeea6a33fecdef1"
     },
     {
       "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/greydivider.9.png",
@@ -1847,8 +997,918 @@
       "sha256": "daf5731b3290361fa2bfa4fc7fe934dace0d8018cc270bf9e32b36d153978d58"
     },
     {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/greydivider_bottom.9.png",
+      "eve": "app/src/main/res/drawable-xhdpi/greydivider_bottom.9.png",
+      "sha256": "95eb36844dad4db2b7ad2c358ba86fc987b60ef310c38953ff249df2f23fb68c"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/ic_ab_back.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/ic_ab_back.webp",
+      "sha256": "3c485929ec2487a9ca53f9f52b2ab91da0595456ac34d39b1cc90be280840b8d"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/ic_ab_done.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/ic_ab_done.webp",
+      "sha256": "480afa50bf24da4c60c2b9db3a2b1b6cb59cf4232b0d6eafb6e1976ce8e95ab3"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/ic_ab_other.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/ic_ab_other.webp",
+      "sha256": "0e61b9b1b27198c178f407ee78590dbfa9e624bf4a59131394c5f25b9cbde9ec"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_camera.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/ic_camera.webp",
+      "sha256": "23385df81a23a1bc6762938ef71eb3165467ee095f066ef37c1421a125d0ca3b"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_delete.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/ic_delete.webp",
+      "sha256": "53ad74f3c566461a3072a411f32c293899ab2572e48a937cbe79ef09d9fb16a7"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/ic_lock_header.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/ic_lock_header.webp",
+      "sha256": "f289f03b87eec9f9692f48a16633b73d1ce6a677c7cc14e3b9e79810add30719"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/ic_rating_star.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/ic_rating_star.webp",
+      "sha256": "43720dab3945de7aab28755d0b24cb3d1d93c8a43b3b9cb7601b0677024b4269"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/ic_rating_star_filled.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/ic_rating_star_filled.webp",
+      "sha256": "501faa12fe3373819c34f437aea76cddac88659daf6a1d250c7e0ea46b6e1157"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/large_notes.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/large_notes.webp",
+      "sha256": "7668ec03ef61274e970fbe2a78d70c46d7b10d77b73118e4b1aa9d296c2a21af"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/menu_browser_bookmarks.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/menu_browser_bookmarks.webp",
+      "sha256": "9569e339988dd9b2687c16f33b014332413601f6054781d49ead303682a6a877"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/menu_lightbulb.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/menu_lightbulb.webp",
+      "sha256": "a3f269d8864f3775fa774a34f0653b40fea977e4c9c4d9aea5d353f66efc35de"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/menu_tag_filter.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/menu_tag_filter.webp",
+      "sha256": "ce5acd745a977f027d71327d195f7f08ee9c061d6c93c2888cebd5bbc8b9d4a1"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/mini_boost_badge.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/mini_boost_badge.webp",
+      "sha256": "7b94a8058e526a9fdfb0267cfa28e563343039453f3c091cd3d749b7587b0eef"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg2_email.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg2_email.webp",
+      "sha256": "384ba61fd5788964cd32c45cee4b23a8841e8c99155f80ba633e63a7ffab8ca7"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_add.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_add.webp",
+      "sha256": "79e39cc14ae116ddc8cf79d03eeff9cb94a5297080f69e6f1139be2f7abb80df"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_admins.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_admins.webp",
+      "sha256": "19d42a3e0469b0c310fa4725840c98d6a6cba6845a27ce77579314901a99ce5b"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_archive.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_archive.webp",
+      "sha256": "57236c540fb06486e0ae6774408ceae4cc031e48bdc97bcd856430dbf2fc1ce6"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_arrowright.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_arrowright.webp",
+      "sha256": "fcdf18618b729ec6fcb9b8e0e2b5d361befeb2ab70856e3d2e0221102712b8c3"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_block.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_block.webp",
+      "sha256": "9a89e95a37ad46afc63a91620f8345713dda26b8c93170cbe85f65dcd38fbedd"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_bot.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_bot.webp",
+      "sha256": "adc620e50df78f06dbade917a3a87c2488065876425ae7f556429411d1b665e4"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_brightness_high.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_brightness_high.webp",
+      "sha256": "7c01f92403026865eef6594a8ba41bf4048600f395b19a4a327d5202cf2f99c3"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_calendar.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_calendar.webp",
+      "sha256": "7d6551d529e796b083d85a99967f3ae3c171870b23756e2ecf766f4ba8665e03"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_calls.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_calls.webp",
+      "sha256": "e92cd6ca808c95601f6a3949b846fdba9921920ef29a186823816b3f221c6062"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_channel.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_channel.webp",
+      "sha256": "3d166a373927296d29d13ffbcbbd926288273cbac11a89de6ea6f1a86608ec2a"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_channel_create.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_channel_create.webp",
+      "sha256": "a727034f234f60c0d2bb3a0eeaa7c47e2b24a7ffdb95d6ae66cafa11283ce77e"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_check_s.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_check_s.webp",
+      "sha256": "998595a8dce4dd261d6cffa6d5de3fa410be81bf5cb6eaabdf5204076fd34460"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_close.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_close.webp",
+      "sha256": "dcfe1e98da128ca402a9effd97e3c39078d0f73bdd06246f68db91ec0d343c21"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_contacts.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_contacts.webp",
+      "sha256": "3c64db096f36c3ef234d963c346c59d4e3cd329a47be8cc43bdedf4e54a37eb8"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_copy.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_copy.webp",
+      "sha256": "44f3da840d0b029d85d02818cd88bc536943ff2d6312e49d61608e8272842d67"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_download.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_download.webp",
+      "sha256": "7fd7b1b59b7f2a5266325b641eb78b2e56800a13d5808b811e22c49028069557"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_edit.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_edit.webp",
+      "sha256": "acdfea3ba1aa9b46a843749550e00c59d7535f94ce86e8f4868540ebc69178cb"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_fave.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_fave.webp",
+      "sha256": "8c80e7aab23691f4c224827419f4468834c9abfc79def8bd7fd7e83eb2fc06bd"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_filehq.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_filehq.webp",
+      "sha256": "4ac7fadf911592a184dbe8032457f87096d7c041c7635549cf1aeb12295120e2"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_filled_data_messages.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_filled_data_messages.webp",
+      "sha256": "5f23373f1949bdd8640ea7eabfba83237dc5232a97b4cef711a394a15b22bbbb"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_filled_storageusage.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_filled_storageusage.webp",
+      "sha256": "bda9231ade848351d8d0c74763c29435a752e5b1b25a7d283efd2b55387947f5"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_go_down.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_go_down.webp",
+      "sha256": "8a3bb721aafb8223fca9923b973d1f6ebde487bf5e35afb84217d31efd716225"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_groups.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_groups.webp",
+      "sha256": "c9430873a6e0e3727e0c914933cb3db69a8375d5d0968dd47bf0e28a44f89778"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_help.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_help.webp",
+      "sha256": "cd776093e678229f3e7cfdce6f56e7b31433876b9126f6b1b3dea0393f6ddf35"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_info.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_info.webp",
+      "sha256": "061d4b6f6c5846fcbfa2e3ac325899d9c42e6f49127fabecbf6d7bc3d13bdfe3"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_language.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_language.webp",
+      "sha256": "30be702e10d00eb4004ebaad78067ef406fb884b575d9a3d6cf9b33b3013459f"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_leave.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_leave.webp",
+      "sha256": "6d007eca4eedd8a32f17173520d4365382244e10a28b694354905315bfb0e6d6"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_link.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_link.webp",
+      "sha256": "ced8762979cd98dd5ed751c05f4319425028539a9861e02eec0b4a231e993cde"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_link2.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_link2.webp",
+      "sha256": "d1f47c4626cb37ae5512b0731b6c505362cc0f826d38519be8280207ad16b717"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_list.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_list.webp",
+      "sha256": "3200c8f06d26cb2900870a99d452323bbaa4f246b767d954c505a9bd5887531a"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_log.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_log.webp",
+      "sha256": "dc5d80b9ebca7d6f32efba7db804b6e7d3651852f1d9962592710e4e24e306f6"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_markread.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_markread.webp",
+      "sha256": "7b42b72ef8185143ede74b741373df24bcb77ce972f95d30ba2c252c3a21a9b0"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_mini_autodelete_timer.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_mini_autodelete_timer.webp",
+      "sha256": "007746432b9d9c5e0364ea28d5961791c4d9dfeb636d58744f08b5ef5427b4ca"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_mini_upload.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_mini_upload.webp",
+      "sha256": "48d0594e036162f2f0bb98a1d1f204da7f355cc009a845c51bfde53311c2ef7a"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_mute.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_mute.webp",
+      "sha256": "d98dccaa44111c053ac90e11a2c0761fff7bbc027d102189bfdc60860d2e6b3d"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_notifications.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_notifications.webp",
+      "sha256": "5284bb5714e6484d61b729c15037436a0418306594b81ee15b03f132d9248b36"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_permissions.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_permissions.webp",
+      "sha256": "58983e8752316947ab8833f17978d1456e67a3645b74ce38f97ae1c254adc65b"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_photo_rotate.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_photo_rotate.webp",
+      "sha256": "3cfc557a7de7a74b7977588afe00fdaf1ba2e9817ab47d9bf1f54f759aea6a9d"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_photos.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_photos.webp",
+      "sha256": "d080ccba942928794f7146493b72816e201b27bb984c849890f75780255d5443"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_pin.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_pin.webp",
+      "sha256": "d72e938b173f5f7094d84609b029d67a74c693a7a3c398885fec448027a80828"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_policy.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_policy.webp",
+      "sha256": "dee9b4646ca72ab6ecb3d573ed4da28aea79c20f8269c89b2f4e1e7ddffccc1c"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_qrcode.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_qrcode.webp",
+      "sha256": "3a2341fe7d09b27234e40bfe542a129933b5addc6af916447fe9e8b8d30e954e"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_reactions.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_reactions.webp",
+      "sha256": "04b99a9ad73e70059ba50024451a447fb754e3d613bee60c88d9125d0532f3b6"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_recent.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_recent.webp",
+      "sha256": "80b9cc3c9687832b7ae6ad2d49bdf0706795b58b97416d87ee5a208d45c108b8"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_remove.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_remove.webp",
+      "sha256": "3a57b6078a9d581d82c3cfd5e3b13d370ca755819a028662a360b61af101fa07"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_report.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_report.webp",
+      "sha256": "4beee6167a9164fd2fe90d986d54342bd5e5c372845b89f6ce867942474d6592"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_retry.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_retry.webp",
+      "sha256": "f40e4ee301e0e055596c48fdbef429adff7f5435a296fda3d13bca2e0816dbe4"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_saved.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_saved.webp",
+      "sha256": "09b8b18ba5f5f161945483ea13aec029bc4d47dc271e330720cdff3f397b4c2c"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_search.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_search.webp",
+      "sha256": "e8e30acecf18ed0f0eafa871a46481ec3d0c31b2dec2a4c847fcac2da5f14a0d"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_secret.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_secret.webp",
+      "sha256": "7091bc225e9c2b248bad063a3fdc0ac45e4bd95c318422d73400ec3a6b62d450"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_send.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_send.webp",
+      "sha256": "d0333af3b7db3394e4985d3f98449db9b43403086bf60a415b181c4a87a22328"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_settings.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_settings.webp",
+      "sha256": "e735a8870d541b8f2345cae5b52edce665ade5f9b7c8a6f76e9f33bdb9f379e8"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_share.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_share.webp",
+      "sha256": "7544455a2adb66462452fc722604765a9de02811f4ba5e4a6d2860e878220287"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_stats.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_stats.webp",
+      "sha256": "defb964e7ef12eea22eb832e23793605c499c8552119a2bc1e5d89bb59052571"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_theme.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_theme.webp",
+      "sha256": "75a14a53378e60375c1205dbd3f6c491edb57a34d20027591fcda17746982bd8"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_unfave.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_unfave.webp",
+      "sha256": "fc2e2c6911ca1cc3646a7c56d9b0395f0218cef02a8a075a3e84669870598895"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_unpin.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_unpin.webp",
+      "sha256": "62a0a125a008118b7c2b43c0e93940b984bff91fada6509cdbb4e154f0dbebb7"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_warning.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/msg_warning.webp",
+      "sha256": "4d29c65615d8416cdef98704423f05e12836d5fcbdc0e27fa2de78ac3df54ba8"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/navbar_search_tag.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/navbar_search_tag.webp",
+      "sha256": "e3b43a8097602e3949bfc457eedf1845a236de95f3de93dfe3003ed8286fadcc"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/poll_add_circle.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/poll_add_circle.webp",
+      "sha256": "bdf17ec312a6c5756f388500bbddc689b53c4a863336b1409d40783531c32d63"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/poll_add_plus.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/poll_add_plus.webp",
+      "sha256": "a25993f863f9b6ebd9b8e252716fafd7a01e649376eef0391cba149dcef933cb"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/poll_remove.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/poll_remove.webp",
+      "sha256": "38453a3055ec008f242727942ea32a1a0f7dd3b23aae457a00e4cc57acf7e66f"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/poll_right.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/poll_right.webp",
+      "sha256": "12f520f2aa8eebca40e50199ca947b8a372983674d6f44692f93d4d3085ab0ce"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/poll_wrong.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/poll_wrong.webp",
+      "sha256": "7abfc01a608d0de1afd18418de8ae64220ca2f7cce6f17fb698c145ac3e588a8"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/popup_fixed_alert4.9.png",
+      "eve": "app/src/main/res/drawable-xhdpi/popup_fixed_alert4.9.png",
+      "sha256": "b17e6b374f698950f81507a409891aec5385e20c549922762516f18f883952f2"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/qr_at_large.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/qr_at_large.webp",
+      "sha256": "ebcd79bce4ff2378a55e2d8b28261741ce08181a71e07361ef26868c5e95e0c8"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/qr_flashlight.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/qr_flashlight.webp",
+      "sha256": "65f9f232dec0955476ad8b75197e6cfd613570a30131f0db3931a6d6da84d8da"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/qr_gallery.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/qr_gallery.webp",
+      "sha256": "def9dcc4c02a22520dc9aaf9918f4ffa77aef466d9c1b85807b25fa8cd31fe02"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/round_check2.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/round_check2.webp",
+      "sha256": "8c31fb5e4dd4836d42f2c73b47bc76fd6d0480d95d5f427b64f62408d0067478"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/sheet_shadow_round.9.png",
+      "eve": "app/src/main/res/drawable-xhdpi/sheet_shadow_round.9.png",
+      "sha256": "163ebea76ae472408be1c3f6254206cf472227641a64af6483798ca895b420e0"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/smiles_tab_clear.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/smiles_tab_clear.webp",
+      "sha256": "5f658b76d1de1f8c8de84770bc15ef84f6485ff9f995e42259b017c1145fe489"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/tabs_reorder.webp",
+      "eve": "app/src/main/res/drawable-xhdpi/tabs_reorder.webp",
+      "sha256": "12cb12a2047d96911e3d3f4486ecab5421eac4637b730f882322432f4e6b3095"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/greydivider.9.png",
+      "eve": "app/src/main/res/drawable-xhdpi/telegram_menu_greydivider.9.png",
+      "sha256": "daf5731b3290361fa2bfa4fc7fe934dace0d8018cc270bf9e32b36d153978d58"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/checkbig.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/checkbig.webp",
+      "sha256": "ad231657266b9ef0c970af3b9f032120a27be0d3764e620e26cd623311d74d59"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/files_storage.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/files_storage.webp",
+      "sha256": "8902a7eeef1179a1cb55aa931d32631040881380748ea774470836bca941aef5"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/filled_earn_stars.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/filled_earn_stars.webp",
+      "sha256": "544c365d66eb08e13741d61cd003c5646e928c4c1ef0c2491767355edf873d91"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/filled_star_plus.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/filled_star_plus.webp",
+      "sha256": "5651f21eaebd99242da3de76255ee50904efe515203bd7a5029d73eaf5cc5a6b"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/fingerprint.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/fingerprint.webp",
+      "sha256": "b99296b3c93e942be53c615441ac5e3fd9052c42ecb02e2ffd9cf8d7e454fa95"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/floating_check.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/floating_check.webp",
+      "sha256": "302c87f45191564285f1d38acebd32ea46b042ec10e1d93f5cf6e4c0acd6543a"
+    },
+    {
       "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/greydivider.9.png",
       "eve": "app/src/main/res/drawable-xxhdpi/greydivider.9.png",
+      "sha256": "bcb4e022907ef3a3a23235a26a1ea230db37ce438966961282868de88a3300e2"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/greydivider_bottom.9.png",
+      "eve": "app/src/main/res/drawable-xxhdpi/greydivider_bottom.9.png",
+      "sha256": "a0ce0bc438bafd59d82e0b9583accd241257746aff4a451cadccd9b6dc4d579f"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/ic_ab_back.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/ic_ab_back.webp",
+      "sha256": "a1a41777fb63cefd07aa7480687c55cfcf1ea0d2a8dda35c312e466e1a1195ea"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/ic_ab_done.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/ic_ab_done.webp",
+      "sha256": "78bce3757bb9a9922ff52a3f4b181e96122367e7e1f2bc22dd59cb6a17702a51"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/ic_ab_other.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/ic_ab_other.webp",
+      "sha256": "0ec992659736897f869e2fa5baad353cb1c4d0f4b0f35ef3cf94de3c067cb499"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_camera.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/ic_camera.webp",
+      "sha256": "92cacb2eeb6c1c4190e8f7c664678b6cf1eed62e69934ff88491580dbc3c3f8d"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_delete.png",
+      "eve": "app/src/main/res/drawable-xxhdpi/ic_delete.png",
+      "sha256": "deb1041dd8bbee0ad63b39b80f1a5a031ecd2ee3207192493d9f66792f8e3e55"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/ic_lock_header.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/ic_lock_header.webp",
+      "sha256": "eb0231573a541179aa82210cb216bb86a8dc5aabd4d2a5423c9abf96c1169c6c"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/ic_rating_star.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/ic_rating_star.webp",
+      "sha256": "83f7161abddae21134666e0253b9b3972f2716266485d31b4b2cc4f5beb7caac"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/ic_rating_star_filled.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/ic_rating_star_filled.webp",
+      "sha256": "7eebdb0a87e27a85c48973048017953ebb1d9f66939f714d34c87228b9774869"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/large_notes.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/large_notes.webp",
+      "sha256": "b45b9d4c8f4c34b799344cfbcdcc58625adaf2fb979f40b3d7d6957249746cfd"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/menu_browser_bookmarks.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/menu_browser_bookmarks.webp",
+      "sha256": "283d3123c1b194471b0cf9cb0c3669f94a06e66192355a81183d33ebd274349a"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/menu_lightbulb.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/menu_lightbulb.webp",
+      "sha256": "be27a059e7cebce87e66fc0bc26b76f5cd74bab7a4b278498d2f82969fdcc838"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/menu_tag_filter.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/menu_tag_filter.webp",
+      "sha256": "00d64898e1b6246d3c57d7adf77d1e74eb27b9c4f243ab3599c5854cc0b6f3c7"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/mini_boost_badge.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/mini_boost_badge.webp",
+      "sha256": "d32d4311ab5d7b06b994374fd9e36ef4161905989ee9a04bde895e06d5748476"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg2_email.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg2_email.webp",
+      "sha256": "0803aedbfb09ae3b878cc899083aacb349c87b90f682d63c837794adbde89020"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_add.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_add.webp",
+      "sha256": "11fca749f2b1798686325cb28a47808d63d235707335120192dbb511e885f042"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_admins.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_admins.webp",
+      "sha256": "8eb888336dbf7bffe13600aab66e0ceb4f07f3dc677b7e103d91d27801a39cca"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_archive.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_archive.webp",
+      "sha256": "dd8bccb699ebf2ed52a8517a498cb9f47a26e41f782849d4190c8e4729a2cd65"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_arrowright.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_arrowright.webp",
+      "sha256": "4fb8db09614888ff6a2c747966afaf02fe2009dba9146b1f623c999d403b00c2"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_block.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_block.webp",
+      "sha256": "3ae026394e1eb82b48222e9d3eaa14873a348f9e59a49cc1e13cc760300a1886"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_bot.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_bot.webp",
+      "sha256": "f21773ed549c7500c2c2577a2d25d034fb40e8bbf9d8c09bc36b7333afa1a545"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_brightness_high.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_brightness_high.webp",
+      "sha256": "f8805950ba92591beec9baeaaf85389a4c0961f660942af5af224a59ee38023a"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_calendar.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_calendar.webp",
+      "sha256": "dba1cf0239e6feab1f245e417e3fcc51be5a752da3228dd9f95788604cf3f41e"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_calls.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_calls.webp",
+      "sha256": "b655d03e9af28614cde3b7a1f334e549e17df557c539e774970f4622dce6a03a"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_channel.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_channel.webp",
+      "sha256": "b66a756c5934877578e2e12cdabbc2722c01a8a3d2e04b03fb9060b887b365be"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_channel_create.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_channel_create.webp",
+      "sha256": "cf10ae8e967175fc07e11c5555ae963fed371670a15957489a93d2ee821e0636"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_check_s.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_check_s.webp",
+      "sha256": "53e6f7f8835e316ec652b674020c9ceac0ad6ca32c194e3d93d28dc3cba2aa4f"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_close.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_close.webp",
+      "sha256": "ffa64614089ddf3e99cfb91c0b4c2e3db9685ea9ecd119e85fe5a3adc40c51ee"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_contacts.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_contacts.webp",
+      "sha256": "ab75bc7b7e640e306b1400f905110e9dce77e68b54660c740a8df86b19251cb5"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_copy.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_copy.webp",
+      "sha256": "9818796f4fac8d2a1e1ae09ad923ac012d35426cafd5566c8fd7062c6c5e605d"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_download.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_download.webp",
+      "sha256": "933815df791278b01ce382b863bddba612dfacb9ac7c721b91a6cf10d86ab73a"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_edit.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_edit.webp",
+      "sha256": "578a46c3af456c027491e8069a1ef97e0ec4027ccfcf72157c4593617e86ef53"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_fave.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_fave.webp",
+      "sha256": "e8e3760521ff9e2f5656addda6232e925b908d23af81c388e6090da841f28fcf"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_filehq.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_filehq.webp",
+      "sha256": "ec68b5f82706205d8a50d9673838365a8e0bd77f2c1a855957bdc58cc9a95282"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_filled_data_messages.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_filled_data_messages.webp",
+      "sha256": "cf8bc8f56b09d5d5e56052bb58a0a711f619c5d21c4c44b17ce23674bfec52b5"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_filled_storageusage.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_filled_storageusage.webp",
+      "sha256": "13fa9b4dac8895896198ca609948a9a131157a0088b1acdd141fc2e4251122cf"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_go_down.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_go_down.webp",
+      "sha256": "5ab35b8c006881f5206c379d93dce7f48961575cb87854ea8e1d4d25e99ab22a"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_groups.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_groups.webp",
+      "sha256": "4c782b9c8de860fea3ea916b40c5daaa784a02d3ea49ba60a2909ee5e63cbd8f"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_help.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_help.webp",
+      "sha256": "8605fd9a98cdf4c08a664d8e5ee00dced35845efef46261ef8968c1e0d92d21c"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_info.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_info.webp",
+      "sha256": "fd0801fc7d0bdcddb1a5365a57790c154aef76f71e107351c5e1675f7a107323"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_language.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_language.webp",
+      "sha256": "1f9672b11e371e9b50b67a9c43f4c1cab4d043c0b40e9e3d003f867c0716e0a4"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_leave.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_leave.webp",
+      "sha256": "6ee230dd08cd949c62e8353d64b67ffa1a114e7053052526d86b2192124f03c0"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_link.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_link.webp",
+      "sha256": "72e9124017de96198753c5e409b14fae28a347e6edd9ac664454c4b1e69b8eb7"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_link2.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_link2.webp",
+      "sha256": "925259bb8e660810b943de7cb49cae47a6566be63a290e99c2664f6c0a9cfca3"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_list.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_list.webp",
+      "sha256": "bb6fd155a6be2799b457e2a2ac5a5ab0bef1d125e206cb695f389f29982cae12"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_log.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_log.webp",
+      "sha256": "0b0b457d4d38c668cf55bb4ad4a8ea0b088740dd04dd092de984c49b568061f5"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_markread.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_markread.webp",
+      "sha256": "420a67cd6d76d3c31da79ae2db7c6b8706d3f5220331a74d499b277a26952af9"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_mini_autodelete_timer.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_mini_autodelete_timer.webp",
+      "sha256": "53c912a675a64119aac90e8dd5629b3e70f10636299ce7900473faf674fb0a10"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_mini_upload.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_mini_upload.webp",
+      "sha256": "ec6e203c3b358377426c1e2723746ea437ba490de32dca6791e3350a06ade794"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_mute.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_mute.webp",
+      "sha256": "a70b0843b64565fb2d058ee20d32c316fdbc6cd0d47e5dd31eb6c12184a34aa2"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_notifications.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_notifications.webp",
+      "sha256": "034b4e54108cc940709a25ae0481f8623db8110f48860f77b0ad779894f5b150"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_permissions.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_permissions.webp",
+      "sha256": "78a4c2d1e682293187470ea2216d921924ae354403e564bb6260835685939060"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_photo_rotate.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_photo_rotate.webp",
+      "sha256": "ddd4e4f44f47a13eff146101004272af06f57b74cc84ab3952b33539f3ae8b1d"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_photos.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_photos.webp",
+      "sha256": "f3dff42f17a9503dbf6b7315e01bb1d42fc36ecf151b146723c62743a366fa1b"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_pin.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_pin.webp",
+      "sha256": "f8fd0b6a5726647172d339c6e2d53a9f3b353eb905d2ac48d95b38bbe4bf3f8d"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_policy.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_policy.webp",
+      "sha256": "8bf2916cbf71361bdb21a3dceb1f74e06e013d625809f52ce35818e0632bee74"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_qrcode.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_qrcode.webp",
+      "sha256": "c11f7643f207764ba9fb3c79ef1db9b0b070a256c2cf3223bbe5e03b74203fc1"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_reactions.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_reactions.webp",
+      "sha256": "74387aa6923880f94d64c7ed855a56af4f85f64878d9f309ffd1f2762ad6de76"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_recent.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_recent.webp",
+      "sha256": "a80b5f882566991a9d8ff3c13e5dc695c7cd16f5eb354db70d1706b43fe0d666"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_remove.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_remove.webp",
+      "sha256": "23e8ded3ad33d89d7d5c27a8dbd2f4820491d046e257e387da27be3da386d893"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_report.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_report.webp",
+      "sha256": "d0d565c1c699ac6828c99088ed7590e6ee058d3775c54b4b87ced7a80c603efe"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_retry.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_retry.webp",
+      "sha256": "5a50f380b40e7e2e8e17ed2697b6336e046ab167461587308c7cf0c4b9a78fea"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_saved.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_saved.webp",
+      "sha256": "457066fd5447cd0389503b422a1eecee520cd17cbfd5b2c111d4a8c5f9b763c0"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_search.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_search.webp",
+      "sha256": "478962bae4ca0c8d48ba0a8b3eebe5900d063f3a47380bdb9448fc0d43317ca6"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_secret.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_secret.webp",
+      "sha256": "9fd480c9df86ab39cef1bc5c81b8472d9c61c0c403421440481caba1310f98e9"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_send.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_send.webp",
+      "sha256": "2b6366c5fab9ddb398e3a623a6cb4cf5b690a849ff96ede8b90212cc24e899eb"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_settings.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_settings.webp",
+      "sha256": "529c7688d9fba136d955208bdc57afc0ad36bed1619055a210f09c141ec738cb"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_share.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_share.webp",
+      "sha256": "cdd2ac1d504a374132d60a377f0cd78c5e9d262a711a9f4cbb9b5e8b59e6b51a"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_stats.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_stats.webp",
+      "sha256": "3adf9185782f0033b2fd155cc0449fc29de7384a160fbd525dba47a567b1d281"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_theme.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_theme.webp",
+      "sha256": "58aa716a9b8cd6e487fcc86d9faefb1ee3271d0d405743161da102a11c7ee31c"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_unfave.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_unfave.webp",
+      "sha256": "3b013b4c95c6ed03bc0401b15e38bf1c3be39605d167f3730a1fda1ece726f31"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_unpin.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_unpin.webp",
+      "sha256": "4bedba9c5a61cbd29d1d2585b6044c67e78aeb65919736711f387bd55183aa4d"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_warning.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/msg_warning.webp",
+      "sha256": "d465b3a84461b36ca402f91c2ac23e5144617e1960b3194ffef188bbb976438e"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/navbar_search_tag.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/navbar_search_tag.webp",
+      "sha256": "9a61a10b595aad8d8d7febf98c64a76c36214b4a4b77f2732ae5d0f8e1c3a1dd"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/poll_add_circle.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/poll_add_circle.webp",
+      "sha256": "de9e4339186d41bee939d6b2e1951e626f5c0e6282e9b3ff523182630cce8a76"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/poll_add_plus.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/poll_add_plus.webp",
+      "sha256": "b05ee494eed8b2a3040052d153b65ba79c3da9534589b75b96561bb28574fdc3"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/poll_remove.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/poll_remove.webp",
+      "sha256": "ba18936b00e69036c6d5c465b57d3305ad5609ac3210e46f0d4c2a097be214a1"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/poll_right.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/poll_right.webp",
+      "sha256": "84b50bf67a8d5a7cf07c88688e7051a454e488512a3064440cef659a05a9df6d"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/poll_wrong.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/poll_wrong.webp",
+      "sha256": "ab7d3de206cda4aef34007e2155645ff46e74d5c2bee12a7fff29293e4d7633b"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/popup_fixed_alert4.9.png",
+      "eve": "app/src/main/res/drawable-xxhdpi/popup_fixed_alert4.9.png",
+      "sha256": "9d78c7ec81e0938056a37177cef0899e338d817a23e7e4db4f820ec0d78a4505"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/qr_at_large.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/qr_at_large.webp",
+      "sha256": "8e5b733f5c8e60d6a68be265046f30a9f0cedf036d82df06570ea8e7cf5794d9"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/qr_flashlight.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/qr_flashlight.webp",
+      "sha256": "8849a3d20065553ec264ebea3a61e664df329625d37993f7b11ecacb1fa50708"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/qr_gallery.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/qr_gallery.webp",
+      "sha256": "5ca865848c13360438bac923748be04b3f5f5c1c22ea9139298b949c092f3362"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/round_check2.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/round_check2.webp",
+      "sha256": "9b007622cdccaf688ddec06857d91c4dccdb9caef0e0ed5d14d9d8622f673cc5"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/sheet_shadow_round.9.png",
+      "eve": "app/src/main/res/drawable-xxhdpi/sheet_shadow_round.9.png",
+      "sha256": "ea79ff700936b4797c49c186463a0e558da9ee9a8c998dfe074b41479676f02b"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/smiles_tab_clear.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/smiles_tab_clear.webp",
+      "sha256": "ee132bf815aae44a3db8d7f5cf5e54fd61c5b5138b18bc7b1f63d174b455bcba"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/tabs_reorder.webp",
+      "eve": "app/src/main/res/drawable-xxhdpi/tabs_reorder.webp",
+      "sha256": "ffe7fbc8d3075b9ae622fa3d9ed99ea57efad439a3965c88e8e6a608055f5def"
+    },
+    {
+      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/greydivider.9.png",
+      "eve": "app/src/main/res/drawable-xxhdpi/telegram_menu_greydivider.9.png",
       "sha256": "bcb4e022907ef3a3a23235a26a1ea230db37ce438966961282868de88a3300e2"
     }
   ]
