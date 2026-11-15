@@ -101,7 +101,7 @@ open class TelegramSegmentedControl @JvmOverloads constructor(
             setPadding(p, p, p, p)
             background = TelegramThemeSelectors.getRoundRectSelectorDrawable(
                 dp(16f).toFloat(),
-                palette.fieldBackground
+                palette.surfaceInset
             )
         }
 

@@ -105,7 +105,7 @@ open class TelegramUploadStepperView @JvmOverloads constructor(
                 layoutParams = LayoutParams(size, size)
                 background = GradientDrawable().apply {
                     shape = GradientDrawable.OVAL
-                    setColor(palette.fieldBackground)
+                    setColor(palette.surfaceInset)
                 }
                 setTextColor(palette.textSecondary)
             }
@@ -168,12 +168,12 @@ open class TelegramUploadStepperView @JvmOverloads constructor(
                 marker.text = "✓"
                 label.setTextColor(palette.textPrimary)
             } else if (isCurrent) {
-                bg.setColor(if (error) ContextCompat.getColor(context, R.color.error_red) else palette.fieldBackground)
+                bg.setColor(if (error) ContextCompat.getColor(context, R.color.system_red) else palette.surfaceInset)
                 marker.setTextColor(if (error) onAccent else palette.accent)
                 marker.text = (i + 1).toString()
                 label.setTextColor(palette.textPrimary)
             } else {
-                bg.setColor(palette.fieldBackground)
+                bg.setColor(palette.surfaceInset)
                 marker.setTextColor(palette.textSecondary)
                 marker.text = (i + 1).toString()
                 label.setTextColor(palette.textSecondary)

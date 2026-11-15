@@ -76,7 +76,7 @@ open class TelegramNumberField @JvmOverloads constructor(
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
 
         btnMinus = ImageView(context).apply {
-            setImageResource(R.drawable.msg_arrowleft)
+            setImageResource(R.drawable.msg_remove)
             setColorFilter(palette.accent)
             contentDescription = "Decrease count"
             isClickable = true
@@ -91,7 +91,7 @@ open class TelegramNumberField @JvmOverloads constructor(
         }
 
         btnPlus = ImageView(context).apply {
-            setImageResource(R.drawable.msg_arrowright)
+            setImageResource(R.drawable.msg_add)
             setColorFilter(palette.accent)
             contentDescription = "Increase count"
             isClickable = true

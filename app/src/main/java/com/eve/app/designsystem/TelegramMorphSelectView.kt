@@ -88,7 +88,7 @@ open class TelegramMorphSelectView @JvmOverloads constructor(
             setPadding(dp(16f), dp(8f), dp(16f), dp(8f))
             background = GradientDrawable().apply {
                 cornerRadius = dp(12f).toFloat()
-                setColor(palette.fieldBackground)
+                setColor(palette.surfaceInset)
                 setStroke(dp(1f), ContextCompat.getColor(context, R.color.hairline))
             }
             setOnClickListener { toggle() }
@@ -141,7 +141,7 @@ open class TelegramMorphSelectView @JvmOverloads constructor(
             setPadding(dp(4f), dp(4f), dp(4f), dp(4f))
             background = GradientDrawable().apply {
                 cornerRadius = dp(12f).toFloat()
-                setColor(palette.windowBackgroundWhite)
+                setColor(palette.surface)
                 setStroke(dp(1f), ContextCompat.getColor(context, R.color.hairline))
             }
             layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply {
@@ -158,7 +158,7 @@ open class TelegramMorphSelectView @JvmOverloads constructor(
             setPadding(dp(12f), dp(8f), dp(12f), dp(8f))
             background = TelegramThemeSelectors.getRoundRectSelectorDrawable(
                 dp(8f).toFloat(),
-                palette.fieldBackground
+                palette.surfaceInset
             )
             addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -185,7 +185,7 @@ open class TelegramMorphSelectView @JvmOverloads constructor(
 
         tvError = TextView(context).apply {
             visibility = View.GONE
-            setTextColor(ContextCompat.getColor(context, R.color.error_red))
+            setTextColor(ContextCompat.getColor(context, R.color.system_red))
             setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 12f)
             setPadding(dp(16f), dp(4f), dp(16f), 0)
         }
