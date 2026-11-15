@@ -68,6 +68,10 @@ class MenuDrawable(private var type: Int = TYPE_DEFAULT) : Drawable() {
         invalidateSelf()
     }
 
+    fun setColor(color: Int) {
+        setIconColor(color)
+    }
+
     fun setBackColor(color: Int) {
         backColor = color
         invalidateSelf()

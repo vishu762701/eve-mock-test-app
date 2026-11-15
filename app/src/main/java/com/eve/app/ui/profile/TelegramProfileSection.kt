@@ -46,7 +46,7 @@ class TelegramProfileSection @JvmOverloads constructor(
         super.onDetachedFromWindow()
     }
 
-    fun updatePalette(palette: TelegramThemeEngine.TelegramPalette) {
+    fun updatePalette(palette: TelegramThemeEngine.ResolvedPalette) {
         invalidate()
     }
 

@@ -1,6 +1,13 @@
 package com.eve.app.ui.admin.tg
 
+import android.content.Context
+import android.util.AttributeSet
+
 /**
- * Typealias forwarding to canonical [com.eve.app.designsystem.TelegramActionBar].
+ * Forwarding class for [com.eve.app.designsystem.TelegramActionBar].
  */
-typealias TelegramActionBar = com.eve.app.designsystem.TelegramActionBar
+open class TelegramActionBar @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) : com.eve.app.designsystem.TelegramActionBar(context, attrs, defStyleAttr)

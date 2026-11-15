@@ -374,7 +374,7 @@ open class TelegramActionBar @JvmOverloads constructor(
         }
     }
 
-    fun updatePalette(palette: TelegramThemeEngine.TelegramPalette) {
+    fun updatePalette(palette: TelegramThemeEngine.ResolvedPalette) {
         val circleSelector = {
             TelegramThemeSelectors.getCircleSelectorDrawable(palette.actionSelector)
         }

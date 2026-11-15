@@ -188,7 +188,7 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
         invalidate()
     }
 
-    fun updatePalette(palette: TelegramThemeEngine.TelegramPalette) {
+    fun updatePalette(palette: TelegramThemeEngine.ResolvedPalette) {
         invalidate()
     }
 

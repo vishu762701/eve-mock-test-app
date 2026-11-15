@@ -257,7 +257,7 @@ class TelegramTabsView @JvmOverloads constructor(
         }
     }
 
-    fun updatePalette(palette: TelegramThemeEngine.TelegramPalette) {
+    fun updatePalette(palette: TelegramThemeEngine.ResolvedPalette) {
         indicatorPaint.color = palette.accent
         for (i in 0 until tabsContainer.childCount) {
             val tabView = tabsContainer.getChildAt(i) as? LinearLayout ?: continue
