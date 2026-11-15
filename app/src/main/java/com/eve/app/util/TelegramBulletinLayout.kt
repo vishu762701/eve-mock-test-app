@@ -1,6 +1,7 @@
 package com.eve.app.util
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
@@ -26,13 +27,20 @@ class TelegramBulletinLayout @JvmOverloads constructor(
             invalidate()
         }
 
+    var cardBackgroundColor: ColorStateList = ColorStateList.valueOf(0)
+        get() = ColorStateList.valueOf(bgPaint.color)
+        set(value) {
+            field = value
+            bgPaint.color = value.defaultColor
+            invalidate()
+        }
+
     init {
         setWillNotDraw(false)
     }
 
     fun setCardBackgroundColor(@ColorInt color: Int) {
-        bgPaint.color = color
-        invalidate()
+        cardBackgroundColor = ColorStateList.valueOf(color)
     }
 
     override fun onDraw(canvas: Canvas) {

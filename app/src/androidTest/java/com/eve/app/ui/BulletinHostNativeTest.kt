@@ -363,14 +363,14 @@ class BulletinHostNativeTest {
                 instrumentation.waitForIdleSync()
                 SystemClock.sleep(350)
                 scenario.onActivity { activity ->
-                    val card = activity.findViewById<MaterialCardView>(R.id.cardBulletin)
+                    val card = activity.findViewById<com.eve.app.util.TelegramBulletinLayout>(R.id.cardBulletin)
                     assertEquals(0xEA272F38.toInt(), card.cardBackgroundColor.defaultColor)
                 }
                 captureWindow("bulletin-day")
                 verifyCompositedContrast(scenario)
                 scenario.onActivity { activity ->
                     TelegramThemeEngine.setPreviewMode(TelegramThemeEngine.ThemeMode.NIGHT, activity)
-                    val card = activity.findViewById<MaterialCardView>(R.id.cardBulletin)
+                    val card = activity.findViewById<com.eve.app.util.TelegramBulletinLayout>(R.id.cardBulletin)
                     assertEquals(0xF5181818.toInt(), card.cardBackgroundColor.defaultColor)
                 }
                 instrumentation.waitForIdleSync()
@@ -386,7 +386,7 @@ class BulletinHostNativeTest {
                         val theme = requireNotNull(TelegramThemeEngine.registerCustomTheme(activity, file))
                         TelegramThemeEngine.setPreviewDayTheme(theme.id, 0, activity)
                         TelegramThemeEngine.setPreviewMode(TelegramThemeEngine.ThemeMode.DAY, activity)
-                        val card = activity.findViewById<MaterialCardView>(R.id.cardBulletin)
+                        val card = activity.findViewById<com.eve.app.util.TelegramBulletinLayout>(R.id.cardBulletin)
                         assertEquals(0xAA123456.toInt(), card.cardBackgroundColor.defaultColor)
                     }
                     instrumentation.waitForIdleSync()
