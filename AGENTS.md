@@ -13,7 +13,10 @@ The owner's latest explicit message defines scope and is the supreme repository 
 4. **LAW 4 — 100% UNRESTRICTED OWNER FREEDOM TO ADD / DELETE / CHANGE ANYTHING (ZERO TEST LOCKS)**:
    The Owner has absolute, unrestricted authority to add, delete, or change any file, screen, activity, layout, Telegram component, color, dimension, or feature at any time (`No UI/UX choice is permanently locked` against the Owner). NO test or script is permitted to block an Owner change; all conflicting tests or fixture counts must be updated forward in the same commit.
 5. **LAW 5 — MANDATORY CI BUILD RECOVERY LOOP (FAILED BUILD = TASK NOT COMPLETE)**:
-   Never consider a task complete if a build fails. Whenever any build fails, immediately diagnose the root cause, fix it forward, push the fix to `main`, and verify that the new build on `main` succeeds (GREEN) before declaring the task done.
+   - A task is NEVER complete if any local or GitHub Actions CI build fails.
+   - Whenever any build fails (FAST or FULL), never treat the task as finished and never leave a red build on `main`.
+   - Immediately inspect the failure log, trace the root cause, fix the code or outdated test forward, commit, and push the fix to `main`.
+   - Poll and verify the new GitHub Actions build on `main` until it finishes with a confirmed GREEN (`success`) status. Only after the pushed `main` commit passes green is the task considered complete.
 
 ## Execution Rules
 - One request = one finished batch: implement, self-review, build (exact-SHA FAST), report. Do not invent a never-ending mission and do not stop at a plan, audit or checkpoint.

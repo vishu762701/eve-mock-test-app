@@ -24,10 +24,10 @@ The Owner has absolute, unrestricted authority to add, delete, or change any fil
 NO unit test, instrumentation test, lint check, shell runner, or Python CI script is ever permitted to block an Owner-requested addition, deletion, or modification. Whenever the Owner adds, deletes, or changes anything, the agent MUST automatically update or delete any conflicting test, fixture count, or script in the exact same commit—NEVER revert or compromise the Owner's requested change to appease an old test.
 
 ### LAW 5 — MANDATORY CI BUILD RECOVERY LOOP (FAILED BUILD = TASK NOT COMPLETE)
-A task is NEVER complete if any local or GitHub Actions CI build fails. Whenever a build fails (whether FAST or FULL):
-1. Never declare the task finished, never treat a failed build as a success, and never stop and hand a broken build back to the owner.
-2. Immediately inspect the exact failure log, trace the root cause, fix the code or outdated test forward, commit, and push the fix to `main`.
-3. Poll and verify the new GitHub Actions run on `main` until it finishes with a confirmed GREEN (`success`) status. Only after the pushed `main` commit passes green is the task considered complete.
+- A task is NEVER complete if any local or GitHub Actions CI build fails.
+- Whenever any build fails (FAST or FULL), never treat the task as finished and never leave a red build on `main`.
+- Immediately inspect the failure log, trace the root cause, fix the code or outdated test forward, commit, and push the fix to `main`.
+- Poll and verify the new GitHub Actions build on `main` until it finishes with a confirmed GREEN (`success`) status. Only after the pushed `main` commit passes green is the task considered complete.
 
 ## 2. Core Workflow Rules
 1. Do exactly what the owner asked. Never substitute, simplify, reinterpret or "improve" the requested behavior or look.
