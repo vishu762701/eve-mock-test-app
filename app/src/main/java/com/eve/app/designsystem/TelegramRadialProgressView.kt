@@ -61,16 +61,11 @@ class TelegramRadialProgressView @JvmOverloads constructor(
     private var frozenForStaticSnapshot = false
 
     init {
-        attrs?.let {
-            val a = context.obtainStyledAttributes(it, intArrayOf(
-                android.R.attr.indeterminate,
-                android.R.attr.max,
-                android.R.attr.progress
-            ))
-            val isIndet = a.getBoolean(0, true)
-            val max = a.getInt(1, 100).coerceAtLeast(1)
-            val prog = a.getInt(2, 0)
-            a.recycle()
+        if (attrs != null) {
+            val ns = "http://schemas.android.com/apk/res/android"
+            val isIndet = attrs.getAttributeBooleanValue(ns, "indeterminate", true)
+            val max = attrs.getAttributeIntValue(ns, "max", 100).coerceAtLeast(1)
+            val prog = attrs.getAttributeIntValue(ns, "progress", 0)
             if (!isIndet) {
                 noProgress = false
                 currentProgress = (prog.toFloat() / max).coerceIn(0f, 1f)
