@@ -34,7 +34,9 @@ class QrEmojiPickerNativeTest {
         ActivityScenario.launch(RepairVerificationActivity::class.java).use { scenario ->
             lateinit var picker: QrEmojiPickerGrid
             var selected = emptyList<QrEmojiChoice>()
+            var testActivity: android.app.Activity? = null
             scenario.onActivity { activity ->
+                testActivity = activity
                 val json = activity.resources.openRawResource(R.raw.tg_fire_on).bufferedReader().use { it.readText() }
                 picker = QrEmojiPickerGrid(activity, { selected }, {
                     selected = QrEmojiPattern.toggle(selected, it)
@@ -63,36 +65,49 @@ class QrEmojiPickerNativeTest {
             var framesReady = false
             val deadline = SystemClock.uptimeMillis() + 30_000L
             while (!framesReady && SystemClock.uptimeMillis() < deadline) {
-                scenario.onActivity {
+                val checkLatch = CountDownLatch(1)
+                testActivity?.runOnUiThread {
                     framesReady = cells(picker).size == 7 &&
                         frames.size == 7 && frames.all { it.isRunning }
+                    checkLatch.countDown()
                 }
+                checkLatch.await(500, TimeUnit.MILLISECONDS)
                 if (!framesReady) Thread.sleep(100L)
             }
             assertTrue("Seven real native QR frames never became ready", framesReady)
             Log.i("EveNativeQrStage", "picker-frames-ready")
-            scenario.onActivity { activity ->
-                val visible = cells(picker)
-                assertEquals(7, visible.size)
-                visible.forEach { assertTrue(it.performClick()) }
-                assertEquals(6, selected.size)
-                assertEquals("c:fixture-2", selected.first().key)
-                assertFalse(visible.first().isSelected)
-                assertTrue(visible.last().contentDescription.toString().contains("selected 6 of 6"))
-                assertEquals(7, frames.size)
-                assertTrue("Actual visible window must run native picker frames", frames.all { it.isRunning })
-                val image = Bitmap.createBitmap(picker.width, picker.height, Bitmap.Config.ARGB_8888)
-                Log.i("EveNativeQrStage", "picker-draw-start")
-                picker.draw(Canvas(image))
-                Log.i("EveNativeQrStage", "picker-draw-finished")
-                val pixels = IntArray(image.width * image.height)
-                image.getPixels(pixels, 0, image.width, 0, 0, image.width, image.height)
-                assertTrue("Real picker must paint local native animation pixels", pixels.any { it ushr 24 > 0 })
-                image.recycle()
-                activity.setContentView(View(activity))
-                assertTrue(frames.all { !it.isRunning && it.callback == null })
-                Log.i("EveNativeQrStage", "picker-detached")
+            val finishLatch = CountDownLatch(1)
+            var assertionError: Throwable? = null
+            testActivity?.runOnUiThread {
+                try {
+                    val visible = cells(picker)
+                    assertEquals(7, visible.size)
+                    visible.forEach { assertTrue(it.performClick()) }
+                    assertEquals(6, selected.size)
+                    assertEquals("c:fixture-2", selected.first().key)
+                    assertFalse(visible.first().isSelected)
+                    assertTrue(visible.last().contentDescription.toString().contains("selected 6 of 6"))
+                    assertEquals(7, frames.size)
+                    assertTrue("Actual visible window must run native picker frames", frames.all { it.isRunning })
+                    val image = Bitmap.createBitmap(picker.width, picker.height, Bitmap.Config.ARGB_8888)
+                    Log.i("EveNativeQrStage", "picker-draw-start")
+                    picker.draw(Canvas(image))
+                    Log.i("EveNativeQrStage", "picker-draw-finished")
+                    val pixels = IntArray(image.width * image.height)
+                    image.getPixels(pixels, 0, image.width, 0, 0, image.width, image.height)
+                    assertTrue("Real picker must paint local native animation pixels", pixels.any { it ushr 24 > 0 })
+                    image.recycle()
+                    testActivity!!.setContentView(View(testActivity))
+                    assertTrue(frames.all { !it.isRunning && it.callback == null })
+                    Log.i("EveNativeQrStage", "picker-detached")
+                } catch (t: Throwable) {
+                    assertionError = t
+                } finally {
+                    finishLatch.countDown()
+                }
             }
+            assertTrue("Picker finish assertions completed", finishLatch.await(10, TimeUnit.SECONDS))
+            assertionError?.let { throw it }
         }
     }
 }

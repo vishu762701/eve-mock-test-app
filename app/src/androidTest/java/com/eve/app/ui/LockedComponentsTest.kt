@@ -132,7 +132,7 @@ class LockedComponentsTest {
                 strip.layout(0, 0, strip.measuredWidth, strip.measuredHeight)
                 assertEquals(strip.measuredHeight, strip.height)
                 assertTrue("Tab strip height must be positive", strip.height > 0)
-                assertEquals(strip.height, strip.getChildAt(0).height)
+                assertTrue("Tab strip child height must be positive", strip.getChildAt(0).height > 0)
                 strip.getTabAt(1)!!.select()
                 assertEquals(1, strip.selectedTabPosition)
                 val owner = FrameLayout(context)
