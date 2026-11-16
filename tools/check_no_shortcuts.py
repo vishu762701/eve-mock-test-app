@@ -99,24 +99,37 @@ def check_source_shortcuts(repo_root: Path, strict: bool = True) -> list[str]:
     if not src_dir.is_dir():
         return violations
 
-    for kt_file in src_dir.rglob("*.kt"):
-        content = kt_file.read_text(encoding="utf-8")
-        # 1. Ban typealias aliasing
-        if TYPEALIAS_PATTERN.search(content):
-            violations.append(f"Forbidden typealias shortcut in {kt_file.relative_to(repo_root)}")
+    for code_file in sorted(list(src_dir.rglob("*.kt")) + list(src_dir.rglob("*.java"))):
+        content = code_file.read_text(encoding="utf-8")
+        if code_file.suffix == ".kt":
+            # 1. Ban typealias aliasing
+            if TYPEALIAS_PATTERN.search(content):
+                violations.append(f"Forbidden typealias shortcut in {code_file.relative_to(repo_root)}")
 
-        # 2. In strict mode, ban any Telegram*.kt from extending or importing UiArc* / DesignCardView
-        if strict and kt_file.name.startswith("Telegram"):
-            if STRICT_WRAPPER_PATTERN.search(content):
-                violations.append(
-                    f"Strict anti-shortcut violation in {kt_file.relative_to(repo_root)}: "
-                    f"Telegram class must not subclass legacy UiArc* or DesignCardView"
-                )
-            if IMPORT_UIARC_PATTERN.search(content):
-                violations.append(
-                    f"Strict anti-shortcut violation in {kt_file.relative_to(repo_root)}: "
-                    f"Telegram class must not import legacy UiArc* classes"
-                )
+            # 2. In strict mode, ban any Telegram*.kt from extending or importing UiArc* / DesignCardView
+            if strict and code_file.name.startswith("Telegram"):
+                if STRICT_WRAPPER_PATTERN.search(content):
+                    violations.append(
+                        f"Strict anti-shortcut violation in {code_file.relative_to(repo_root)}: "
+                        f"Telegram class must not subclass legacy UiArc* or DesignCardView"
+                    )
+                if IMPORT_UIARC_PATTERN.search(content):
+                    violations.append(
+                        f"Strict anti-shortcut violation in {code_file.relative_to(repo_root)}: "
+                        f"Telegram class must not import legacy UiArc* classes"
+                    )
+
+        # 3. Ban hardcoded low-contrast text colors across app/src/main/java/
+        if "0xFFE53935" in content:
+            violations.append(
+                f"Low-contrast text color violation in {code_file.relative_to(repo_root)}: "
+                f"Hardcoded 0xFFE53935 is banned; use R.color.system_red_text"
+            )
+        if "setTextColor(0xFF34C759.toInt())" in content:
+            violations.append(
+                f"Low-contrast text color violation in {code_file.relative_to(repo_root)}: "
+                f"Hardcoded setTextColor(0xFF34C759.toInt()) is banned; use R.color.system_green_text"
+            )
 
     return violations
 

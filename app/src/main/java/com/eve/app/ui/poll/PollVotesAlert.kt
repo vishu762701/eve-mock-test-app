@@ -13,6 +13,7 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.core.graphics.ColorUtils
+import com.eve.app.R
 import com.eve.app.data.model.Poll
 import com.eve.app.databinding.ItemPollOptionResultBinding
 import com.eve.app.designsystem.TelegramBottomSheet
@@ -71,8 +72,8 @@ object PollVotesAlert {
                 rowBinding.ivOptionCheck.visibility = View.VISIBLE
                 rowBinding.ivOptionCheck.setChecked(true, false)
                 rowBinding.ivOptionCheck.setColors(palette.textSecondary, 0xFF34C759.toInt(), android.graphics.Color.WHITE)
-                rowBinding.tvOptionTitle.setTextColor(0xFF34C759.toInt())
-                rowBinding.tvOptionPercent.setTextColor(0xFF34C759.toInt())
+                rowBinding.tvOptionTitle.setTextColor(context.getColor(R.color.system_green_text))
+                rowBinding.tvOptionPercent.setTextColor(context.getColor(R.color.system_green_text))
                 rowBinding.pbOption.progressColor = 0xFF34C759.toInt()
                 rowBinding.pbOption.backColor = ColorUtils.setAlphaComponent(0xFF34C759.toInt(), 40)
             } else if (isLeading) {

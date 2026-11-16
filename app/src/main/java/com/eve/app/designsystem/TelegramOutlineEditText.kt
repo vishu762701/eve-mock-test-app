@@ -134,7 +134,7 @@ class TelegramOutlineEditText @JvmOverloads constructor(
             }
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
             typeface = FontManager.telegramRegularTypeface(context)
-            setTextColor(0xFFE53935.toInt())
+            setTextColor(context.getColor(R.color.system_red_text))
             visibility = View.GONE
         }
         super.addView(tvError, -1, tvError.layoutParams)
@@ -267,7 +267,7 @@ class TelegramOutlineEditText @JvmOverloads constructor(
 
         val normalOutline = palette.hairline
         val focusedOutline = palette.accent
-        val errorOutline = 0xFFE53935.toInt()
+        val errorOutline = context.getColor(R.color.system_red)
 
         val baseColor = ColorUtils.blendARGB(normalOutline, focusedOutline, selectionProgress)
         val finalColor = ColorUtils.blendARGB(baseColor, errorOutline, errorProgress)
@@ -277,6 +277,7 @@ class TelegramOutlineEditText @JvmOverloads constructor(
         val focusedHint = palette.accent
         val baseHintColor = ColorUtils.blendARGB(normalHint, focusedHint, selectionProgress)
         textPaint.color = ColorUtils.blendARGB(baseHintColor, errorOutline, errorProgress)
+        tvError.setTextColor(context.getColor(R.color.system_red_text))
     }
 
     private fun drawOutlineAndLabel(canvas: Canvas) {
