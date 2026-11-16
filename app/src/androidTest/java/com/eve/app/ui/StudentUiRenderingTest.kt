@@ -347,20 +347,21 @@ class StudentUiRenderingTest {
         }
         var ancestor = view.parent
         while (ancestor is View) {
-            if (ancestor is com.google.android.material.tabs.TabLayout && view.isSelected) {
+            val currentAncestor = ancestor
+            if (currentAncestor is com.google.android.material.tabs.TabLayout && view.isSelected) {
                 // The indicator is painted beneath the selected label, not assigned
                 // as its background; use that real drawable for composited contrast.
-                return color(ancestor.tabSelectedIndicator)
+                return color(currentAncestor.tabSelectedIndicator)
             }
-            if (ancestor is com.eve.app.designsystem.TelegramTabsView) {
-                val isSelectedTab = view.isSelected || (view.parent is View && (view.parent as View).isSelected) || (0 until ancestor.tabCount).any { idx ->
-                    idx == ancestor.selectedTabPosition && (ancestor.getTabAt(idx)?.customView == view || (view.parent is View && ancestor.getTabAt(idx)?.customView == view.parent))
+            if (currentAncestor is com.eve.app.designsystem.TelegramTabsView) {
+                val isSelectedTab = view.isSelected || (view.parent is View && (view.parent as View).isSelected) || (0 until currentAncestor.tabCount).any { idx ->
+                    idx == currentAncestor.selectedTabPosition && (currentAncestor.getTabAt(idx)?.customView == view || (view.parent is View && currentAncestor.getTabAt(idx)?.customView == view.parent))
                 }
                 if (isSelectedTab) {
-                    return color(ancestor.tabSelectedIndicator) ?: com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(view.context).accent
+                    return color(currentAncestor.tabSelectedIndicator) ?: com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(view.context).accent
                 }
             }
-            if (ancestor is com.eve.app.designsystem.TelegramSegmentedControl) {
+            if (currentAncestor is com.eve.app.designsystem.TelegramSegmentedControl) {
                 if (view is TextView && view.isSelected) {
                     return com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(view.context).accent
                 }
