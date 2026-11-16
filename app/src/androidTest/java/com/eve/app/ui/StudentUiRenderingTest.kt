@@ -345,6 +345,7 @@ class StudentUiRenderingTest {
         if (view is com.google.android.material.chip.Chip) return view.chipBackgroundColor?.getColorForState(view.drawableState, 0)
         if (view is com.google.android.material.card.MaterialCardView) return view.cardBackgroundColor.getColorForState(view.drawableState, 0)
         if (view is com.eve.app.ui.common.TelegramCardView) return view.cardBackgroundColor?.getColorForState(view.drawableState, 0)
+        if (view is com.eve.app.ui.profile.TelegramProfileSection) return com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(view.context).surface
         fun color(drawable: android.graphics.drawable.Drawable?): Int? = when (drawable) {
             is android.graphics.drawable.ColorDrawable -> drawable.color
             is android.graphics.drawable.GradientDrawable -> drawable.color?.getColorForState(view.drawableState, 0)
