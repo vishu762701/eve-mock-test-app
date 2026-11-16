@@ -372,6 +372,8 @@ class ProfileActivity : EveBaseActivity() {
         val headerContentAlpha = (1f - progress * 1.8f).coerceIn(0f, 1f)
         binding.tvName.alpha = headerContentAlpha
         binding.tvStatus.alpha = headerContentAlpha
+        binding.chipAdmin.alpha = headerContentAlpha
+        binding.chipPremium.alpha = headerContentAlpha
 
         // Telegram ProfileActionsView.java:247-337 stages backgrounds and
         // icon/text independently as the 74dp action area collapses.
@@ -382,10 +384,17 @@ class ProfileActivity : EveBaseActivity() {
             listOf(binding.btnSetPhoto, binding.btnEditInfo, binding.btnSettings),
             actionsCollapseState
         )
-        // Shift sections up as the 74dp action row collapses so no empty gap remains below status/chips.
-        val collapsedActionShift = -(1f - actionsCollapseState.fraction) * (74f * density)
-        binding.cardPersonalInfo.translationY = collapsedActionShift
-        binding.cardCategory.translationY = collapsedActionShift
+        // Close the collapsed header & action row space so Account lands directly under the toolbar.
+        val toolbarBottom = binding.glassToolbar.bottom.toFloat()
+        val collapsedGap = if (binding.glassToolbar.height > 0 && binding.cardPersonalInfo.top > 0) {
+            ((binding.cardPersonalInfo.top.toFloat() - 100f * density) - (toolbarBottom + 8f * density))
+                .coerceAtLeast(0f)
+        } else {
+            74f * density
+        }
+        val collapsedShift = -collapsedGap * progress
+        binding.cardPersonalInfo.translationY = collapsedShift
+        binding.cardCategory.translationY = collapsedShift
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
             if (progress > 0f && progress < 1f) {
                 val blurNode = binding.avatarGooey.getBlurRenderNode()
