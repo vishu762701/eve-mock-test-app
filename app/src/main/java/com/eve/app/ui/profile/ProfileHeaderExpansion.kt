@@ -7,7 +7,9 @@ import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.view.View
 import android.widget.FrameLayout
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
+import com.eve.app.R
 import com.eve.app.databinding.ActivityProfileBinding
 import com.eve.app.theme.TelegramThemeEngine
 import kotlin.math.roundToInt
@@ -51,9 +53,17 @@ internal object ProfileHeaderExpansion {
         }
         val palette = TelegramThemeEngine.resolveCurrentPalette(binding.root.context)
         binding.tvName.setTextColor(ColorUtils.blendARGB(palette.textPrimary, Color.WHITE, f))
-        binding.tvStatus.setTextColor(ColorUtils.blendARGB(palette.textSecondary, Color.WHITE, f))
+        val isOnlineStatus = binding.tvStatus.text?.toString() == "online"
+        val baseStatusColor = if (isOnlineStatus) {
+            ContextCompat.getColor(binding.root.context, R.color.telegram_type_section)
+        } else {
+            palette.textSecondary
+        }
+        binding.tvStatus.setTextColor(ColorUtils.blendARGB(baseStatusColor, Color.WHITE, f))
         val ink = ColorStateList.valueOf(ColorUtils.blendARGB(palette.textPrimary, Color.WHITE, f))
-        binding.btnBack.imageTintList = ink; binding.btnProfileMenu.imageTintList = ink
+        binding.btnBack.imageTintList = ink
+        binding.btnProfileQr.imageTintList = ink
+        binding.btnProfileMenu.imageTintList = ink
         if (f > 0) {
             image.scaleX = 1f; image.scaleY = 1f; image.translationY = 0f
             binding.avatarGooey.setGooeyEnabled(false); binding.avatarGooey.setBlurIntensity(0f)
