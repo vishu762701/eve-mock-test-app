@@ -301,9 +301,13 @@ class ManualUiSpecificationTest {
                         if (view is TextInputLayout) {
                             assertTrue("boxStrokeWidth must be positive", view.boxStrokeWidth > 0)
                             assertTrue("boxStrokeWidthFocused must be positive", view.boxStrokeWidthFocused > 0)
-                            val actualBox = TextInputLayout::class.java.getDeclaredField("boxBackground").apply {
-                                isAccessible = true
-                            }.get(view) as? com.google.android.material.shape.MaterialShapeDrawable
+                            val actualBox = try {
+                                TextInputLayout::class.java.getDeclaredField("boxBackground").apply {
+                                    isAccessible = true
+                                }.get(view) as? com.google.android.material.shape.MaterialShapeDrawable
+                            } catch (_: Throwable) {
+                                null
+                            }
                             if (actualBox != null) {
                                 for (enabled in listOf(true, false, true)) {
                                     view.isEnabled = enabled

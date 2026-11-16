@@ -40,7 +40,9 @@ class DesignRecoveryTest {
             val lostReadiness = java.util.concurrent.CountDownLatch(1)
             val complete = java.util.concurrent.CountDownLatch(1)
             val calls = java.util.concurrent.atomic.AtomicInteger(0)
+            var currentActivity: RepairVerificationActivity? = null
             scenario.onActivity { activity ->
+                currentActivity = activity
                 val root = android.widget.FrameLayout(activity)
                 activity.setContentView(root)
                 com.eve.app.util.ThemeFrameCoordinator.afterFrame(root, ready = {
@@ -53,7 +55,11 @@ class DesignRecoveryTest {
             }
             assertTrue("The committed frame must recheck readiness", lostReadiness.await(5, java.util.concurrent.TimeUnit.SECONDS))
             assertEquals("An obscured host must not consume its handoff", 0, calls.get())
-            scenario.onActivity { phase.set(2); it.window.decorView.invalidate() }
+            val act = requireNotNull(currentActivity)
+            TestLooperHelper.runOnActivityNonBlocking(act, 5_000L) {
+                phase.set(2)
+                it.window.decorView.invalidate()
+            }
             assertTrue("Restoring readiness must finish on a fresh committed frame", complete.await(5, java.util.concurrent.TimeUnit.SECONDS))
             instrumentation.waitForIdleSync()
             assertEquals("Handoff must run once", 1, calls.get())
@@ -494,18 +500,7 @@ class DesignRecoveryTest {
     }
 
     private fun freezeAnimations(view: View) {
-        if (view is ViewGroup) {
-            for (i in 0 until view.childCount) {
-                freezeAnimations(view.getChildAt(i))
-            }
-        }
-        if (view is com.eve.app.designsystem.TelegramRadialProgressView) {
-            view.freezeForStaticSnapshot()
-        }
-        if (view is com.airbnb.lottie.LottieAnimationView) {
-            view.cancelAnimation()
-            view.progress = 1f
-        }
+        TestLooperHelper.freezeAllAnimations(view)
     }
 
     private fun capture(name: String, dark: Boolean, root: View, scenario: ActivityScenario<RepairVerificationActivity>) {

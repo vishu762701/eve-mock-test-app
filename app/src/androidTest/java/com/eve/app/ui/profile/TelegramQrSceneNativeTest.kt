@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.eve.app.ui.TestLooperHelper
 import com.google.zxing.BinaryBitmap
 import com.google.zxing.RGBLuminanceSource
 import com.google.zxing.common.HybridBinarizer
@@ -44,7 +45,9 @@ class TelegramQrSceneNativeTest {
         val intent = Intent(ApplicationProvider.getApplicationContext(), UsernameCardActivity::class.java)
             .setData(Uri.parse(link))
         ActivityScenario.launch<UsernameCardActivity>(intent).use { scenario ->
+            var currentActivity: UsernameCardActivity? = null
             scenario.onActivity { activity ->
+                currentActivity = activity
                 val root = activity.findViewById<ViewGroup>(android.R.id.content)
                 val target = descendants(root).filterIsInstance<TelegramQrSceneView>().single()
                 // The source-derived reveal/emoji canvas may animate continuously.
@@ -67,7 +70,8 @@ class TelegramQrSceneNativeTest {
             }
             assertTrue("QR scene never laid out", layoutReady.await(30, TimeUnit.SECONDS))
             Log.i("EveNativeQrStage", "scene-layout-ready")
-            scenario.onActivity { activity ->
+            val act1 = requireNotNull(currentActivity)
+            TestLooperHelper.runOnActivityNonBlocking(act1, 30_000L) { activity ->
                 val root = activity.findViewById<ViewGroup>(android.R.id.content)
                 val scene = descendants(root).filterIsInstance<TelegramQrSceneView>().single()
                 assertTrue("Real laid out QR canvas", scene.width > 250 && scene.height > 400)
@@ -104,7 +108,9 @@ class TelegramQrSceneNativeTest {
             }
             Log.i("EveNativeQrStage", "scene-before-recreate")
             scenario.recreate()
-            scenario.onActivity { activity ->
+            scenario.onActivity { currentActivity = it }
+            val act2 = requireNotNull(currentActivity)
+            TestLooperHelper.runOnActivityNonBlocking(act2, 30_000L) { activity ->
                 val scene = descendants(activity.findViewById(android.R.id.content))
                     .filterIsInstance<TelegramQrSceneView>().single()
                 assertEquals("QR palette must survive configuration recreation", 2, scene.selectedPalette)

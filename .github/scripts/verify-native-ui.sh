@@ -262,8 +262,7 @@ PY
         -e visualCases "$visual_cases"; then
       :
     else
-      status=$?
-      break
+      status=1
     fi
   done <<< "$case_batches"
   if [[ "$shard" -lt 4 ]]; then

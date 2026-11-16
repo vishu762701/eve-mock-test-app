@@ -51,6 +51,22 @@ def summarize_native_xml(path: Path) -> list[str]:
                 failures.append(clean(f"{case.get('classname', '')}.{case.get('name', '')}: {message}"))
     return failures
 
+def extract_native_log_failures(path: Path) -> list[str]:
+    failures: list[str] = []
+    if not path.is_dir():
+        return failures
+    for log in sorted(path.glob("instrumentation-*.log")):
+        try:
+            content = log.read_text(errors="replace")
+        except OSError:
+            continue
+        for match in re.finditer(r"INSTRUMENTATION_STATUS: stack=(.*?)(?=\nINSTRUMENTATION_STATUS|\nTime:|\nFAILURES|\Z)", content, re.DOTALL):
+            stack = match.group(1).strip()
+            first_line = clean(stack.splitlines()[0]) if stack else ""
+            if first_line and first_line not in failures:
+                failures.append(clean(f"{log.name}: {first_line}"))
+    return failures
+
 def classify_native_infrastructure(paths: list[Path]) -> str | None:
     """Evidence hint only: no JUnit case means infrastructure must not be called an app failure."""
     for path in paths:
@@ -75,6 +91,8 @@ def main(argv: list[str]) -> int:
     if argv[0] == "--native":
         paths = [Path(p) for p in argv[1:]]
         errors = [entry for path in paths for entry in summarize_native_xml(path)]
+        if not errors:
+            errors = [entry for path in paths for entry in extract_native_log_failures(path)]
         if errors:
             lines.extend([f"**Native assertions:** {len(errors)}", "", *("- " + item for item in errors[:10])])
         else:

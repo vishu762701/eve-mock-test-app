@@ -38,7 +38,7 @@ class EngineeringGovernanceTest(unittest.TestCase):
             "      - name: FULL test", 1)[0]
         self.assertIn("gradle :app:assembleDebug --stacktrace", fast)
         self.assertNotIn(":app:testDebugUnitTest", fast)
-        self.assertNotIn(":app:compileDebugAndroidTestKotlin", fast)
+        self.assertIn(":app:compileDebugAndroidTestKotlin", fast)
         self.assertIn("if [[ \"$GITHUB_EVENT_NAME\" == \"workflow_dispatch\" ]]", workflow)
         self.assertIn("Verify docs and governance contracts (manual FULL only)", workflow)
         self.assertIn("steps.verification_profile.outputs.full == 'true'", workflow)

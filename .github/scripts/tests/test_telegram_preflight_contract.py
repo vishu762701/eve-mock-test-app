@@ -37,9 +37,10 @@ class TelegramPreflightContractTest(unittest.TestCase):
         full_step = build[build.index("      - name: FULL test", compile_step):
                           build.index("      - name: Verify missing release", compile_step)]
         self.assertIn(":app:assembleDebug", fast_step)
-        for task in (":app:testDebugUnitTest", ":app:compileDebugAndroidTestKotlin",
-                     ":app:lintDebug", ":app:compileDebugUnitTestKotlin"):
+        for task in (":app:testDebugUnitTest", ":app:compileDebugUnitTestKotlin"):
             self.assertNotIn(task, fast_step)
+        for task in (":app:compileDebugAndroidTestKotlin", ":app:lintDebug"):
+            self.assertIn(task, fast_step)
         for task in (":app:compileDebugUnitTestKotlin", ":app:compileDebugAndroidTestKotlin",
                      ":app:lintDebug", ":app:testDebugUnitTest"):
             self.assertIn(task, full_step)

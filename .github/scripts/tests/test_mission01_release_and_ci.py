@@ -95,9 +95,9 @@ class Mission01GateTest(unittest.TestCase):
         fast_step = build.split("      - name: FAST compile", 1)[1].split("      - name: FULL test", 1)[0]
         full_step = build.split("      - name: FULL test", 1)[1].split("      - name: Verify missing release", 1)[0]
         self.assertIn(":app:assembleDebug", fast_step)
-        for task in (":app:compileDebugUnitTestKotlin", ":app:testDebugUnitTest",
-                     ":app:compileDebugAndroidTestKotlin"):
+        for task in (":app:compileDebugUnitTestKotlin", ":app:testDebugUnitTest"):
             self.assertNotIn(task, fast_step)
+        self.assertIn(":app:compileDebugAndroidTestKotlin", fast_step)
         for task in (":app:compileDebugUnitTestKotlin",
                      ":app:compileDebugAndroidTestKotlin", ":app:lintDebug",
                      ":app:testDebugUnitTest"):

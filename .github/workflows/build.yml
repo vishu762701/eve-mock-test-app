@@ -140,14 +140,14 @@ jobs:
             gradle :app:assembleDebug --stacktrace --console=plain 2>&1 | tee ci-fast-gradle.log
           else
             # The owner's normal development build targets ARM64 phones only.
-            gradle :app:assembleDebug -Peve.nativeAbis=arm64-v8a --stacktrace --console=plain 2>&1 | tee ci-fast-gradle.log
+            gradle :app:assembleDebug -Peve.nativeAbis=arm64-v8a :app:compileDebugAndroidTestKotlin :app:lintDebug --stacktrace --console=plain 2>&1 | tee ci-fast-gradle.log
           fi
 
       - name: FULL test lint and compile AndroidTest sources
         if: ${{ steps.verification_profile.outputs.full == 'true' }}
         run: |
           set -euo pipefail
-          gradle :app:compileDebugUnitTestKotlin :app:compileDebugAndroidTestKotlin :app:assembleDebugAndroidTest :app:lintDebug :app:testDebugUnitTest --stacktrace --console=plain 2>&1 | tee ci-full-gradle.log
+          gradle :app:compileDebugUnitTestKotlin :app:compileDebugAndroidTestKotlin :app:assembleDebugAndroidTest :app:lintDebug :app:testDebugUnitTest --continue --stacktrace --console=plain 2>&1 | tee ci-full-gradle.log
 
       - name: Verify missing release credentials are rejected
         if: ${{ steps.verification_profile.outputs.full == 'true' }}
@@ -266,6 +266,18 @@ jobs:
       - name: Summarize failing instrumentation assertions
         if: ${{ failure() }}
         run: python3 .github/scripts/ci_failure_report.py --native app/build/outputs/androidTest-results/connected ui-renderings
+
+      - name: Archive native UI instrumentation logs and test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-ui-results-${{ matrix.navigation }}
+          path: |
+            ui-renderings/*.log
+            ui-renderings/*.html
+            ui-renderings/*.json
+            app/build/outputs/androidTest-results/
+          if-no-files-found: ignore
 
   backend:
     if: ${{ github.event_name == 'workflow_dispatch' }}

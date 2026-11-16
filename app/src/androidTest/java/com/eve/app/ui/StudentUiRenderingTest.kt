@@ -284,11 +284,7 @@ class StudentUiRenderingTest {
 
     private fun freezeFixtureAnimations(root: View) {
         // Deterministic stills; the existing native suite verifies actual playback/reveal.
-        walk(root).filterIsInstance<com.airbnb.lottie.LottieAnimationView>().forEach { it.cancelAnimation(); it.progress = 1f }
-        // Newly ported continuous Telegram loaders must not invalidate the attached
-        // snapshot hierarchy during CPU Canvas capture. Preserve the visible arc.
-        walk(root).filterIsInstance<com.eve.app.designsystem.TelegramRadialProgressView>()
-            .forEach { it.freezeForStaticSnapshot() }
+        TestLooperHelper.freezeAllAnimations(root)
     }
 
     private fun recycler(root: View, id: Int, adapter: RecyclerView.Adapter<*>) {
@@ -327,7 +323,9 @@ class StudentUiRenderingTest {
             if (lockedDisabled) {
                 assertEquals("Disabled roles keep their specified opacity: $label / ${view.text}", 1f, alpha, .001f)
             } else {
-                val isOnAccent = view.currentTextColor == view.context.getColor(R.color.on_accent); assertTrue("Text contrast $label / ${view.text}: $ratio", ratio >= if (isOnAccent) 2.8 else if (largeOrPrimary) 3.0 else 4.5)
+                val isOnAccent = view.currentTextColor == view.context.getColor(R.color.on_accent) ||
+                    view.currentTextColor == com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(view.context).onAccent
+                assertTrue("Text contrast $label / ${view.text}: $ratio", ratio >= if (isOnAccent) 2.8 else if (largeOrPrimary) 3.0 else 4.5)
             }
         }
         if (view is ViewGroup) for (i in 0 until view.childCount) checkText(view.getChildAt(i), label, background, alpha)
@@ -353,6 +351,19 @@ class StudentUiRenderingTest {
                 // The indicator is painted beneath the selected label, not assigned
                 // as its background; use that real drawable for composited contrast.
                 return color(ancestor.tabSelectedIndicator)
+            }
+            if (ancestor is com.eve.app.designsystem.TelegramTabsView) {
+                val isSelectedTab = view.isSelected || (view.parent is View && (view.parent as View).isSelected) || (0 until ancestor.tabCount).any { idx ->
+                    idx == ancestor.selectedTabPosition && (ancestor.getTabAt(idx)?.customView == view || (view.parent is View && ancestor.getTabAt(idx)?.customView == view.parent))
+                }
+                if (isSelectedTab) {
+                    return color(ancestor.tabSelectedIndicator) ?: com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(view.context).accent
+                }
+            }
+            if (ancestor is com.eve.app.designsystem.TelegramSegmentedControl) {
+                if (view is TextView && view.isSelected) {
+                    return com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(view.context).accent
+                }
             }
             ancestor = (ancestor as View).parent
         }
