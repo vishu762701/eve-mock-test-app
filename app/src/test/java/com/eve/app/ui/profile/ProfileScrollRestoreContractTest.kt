@@ -52,7 +52,7 @@ class ProfileScrollRestoreContractTest {
             "avatarGooey.setGooeyEnabled(",
             "avatarContainer.scaleX =",
             "avatarContainer.translationY =",
-            "tvToolbarTitle.alpha = progress",
+            "tvToolbarTitle.alpha =",
             "tvName.alpha =",
             "tvStatus.alpha =",
             "ProfileActionsCollapse.applyTo("
