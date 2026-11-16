@@ -1,5 +1,6 @@
 package com.eve.app.ui.profile
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -18,6 +19,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.eve.app.ui.RepairVerificationActivity
+import com.eve.app.ui.TestLooperHelper
 import com.eve.app.R
 import com.eve.app.telegram.qr.QrScannerControl
 import org.junit.Assert.*
@@ -46,7 +48,9 @@ class QrCameraGlassNativeTest {
             lateinit var root: QrScanMorphLayout
             lateinit var control: View
             val frame = CountDownLatch(1)
+            var currentActivity: Activity? = null
             scenario.onActivity { activity ->
+                currentActivity = activity
                 root = QrScanMorphLayout(activity)
                 val preview = PreviewView(activity).apply {
                     implementationMode = PreviewView.ImplementationMode.COMPATIBLE
@@ -65,11 +69,11 @@ class QrCameraGlassNativeTest {
                 root.postOnAnimation { root.invalidate(); root.postOnAnimation { frame.countDown() } }
             }
             assertTrue("Hardware frame scheduled", frame.await(5, TimeUnit.SECONDS))
-            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+            val act = requireNotNull(currentActivity)
             val copied = CountDownLatch(1)
             var result = -1
             lateinit var pixels: Bitmap
-            scenario.onActivity { activity ->
+            TestLooperHelper.runOnActivityNonBlocking(act, 15_000L) { activity ->
                 assertTrue("Actual hardware window", root.isHardwareAccelerated)
                 val xy = IntArray(2)
                 control.getLocationInWindow(xy)
@@ -89,7 +93,7 @@ class QrCameraGlassNativeTest {
                 assertTrue("Blur removed the black/white stripes: $values", values.max() - values.min() < 24)
                 assertTrue("Real camera content contributes: $values", values.all { it in 80..230 })
             } finally { pixels.recycle() }
-            scenario.onActivity { activity ->
+            TestLooperHelper.runOnActivityNonBlocking(act, 15_000L) { activity ->
                 root.setPreviewStreaming(false)
                 root.dispose()
                 root.dispose()

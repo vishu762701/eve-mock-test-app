@@ -1,5 +1,6 @@
 package com.eve.app.ui
 
+import android.app.Activity
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -70,7 +71,9 @@ class StudentUiRenderingTest {
                     android.util.Log.i("EveStudentUi", "Render $name ${if (dark) "night" else "day"} $width/$font")
                     lateinit var root: View
                     val settled = java.util.concurrent.CountDownLatch(1)
+                    var currentActivity: Activity? = null
                     scenario.onActivity { activity ->
+                        currentActivity = activity
                         val config = Configuration(activity.resources.configuration).apply {
                             uiMode = uiMode and Configuration.UI_MODE_NIGHT_MASK.inv() or
                                 if (dark) Configuration.UI_MODE_NIGHT_YES else Configuration.UI_MODE_NIGHT_NO
@@ -98,7 +101,8 @@ class StudentUiRenderingTest {
                     val framesSettled = settled.await(45, java.util.concurrent.TimeUnit.SECONDS)
                     android.util.Log.i("EveStudentUi", "Frames settled=$framesSettled $name ${if (dark) "night" else "day"} $width/$font")
                     assertTrue("Two native frames must settle $name $width/$font", framesSettled)
-                    scenario.onActivity {
+                    val act = requireNotNull(currentActivity)
+                    TestLooperHelper.runOnActivityNonBlocking(act, 30_000L) {
                         val density = root.resources.displayMetrics.density
                         repeat(3) {
                             root.measure(View.MeasureSpec.makeMeasureSpec(Math.round(width * density), View.MeasureSpec.EXACTLY),
@@ -123,7 +127,7 @@ class StudentUiRenderingTest {
                         walk(root).filterIsInstance<com.airbnb.lottie.LottieAnimationView>().forEach { it.cancelAnimation() }
                     }
                     android.util.Log.i("EveStudentUi", "Capture complete $name ${if (dark) "night" else "day"} $width/$font")
-                    scenario.onActivity { it.setContentView(FrameLayout(it)) }
+                    TestLooperHelper.runOnActivityNonBlocking(act, 10_000L) { it.setContentView(FrameLayout(it)) }
                     android.util.Log.i("EveStudentUi", "Fixture complete $name ${if (dark) "night" else "day"} $width/$font")
 
                 }
@@ -183,7 +187,7 @@ class StudentUiRenderingTest {
             "home", "home-drawer", "home-feedback", "home-loading" -> {
                 HomeAppearance.tintNotificationBell(root.findViewById(R.id.btnNotification))
                 text(R.id.tvWelcome, "Hi, Ananya")
-                val group = root.findViewById<com.google.android.material.chip.ChipGroup>(R.id.chipGroupCategory)
+                val group = root.findViewById<ViewGroup>(R.id.chipGroupCategory)
                 for (label in listOf("All", "SSC", "Banking")) group.addView(HomeAppearance.categoryChip(context, label, "All") {})
                 recycler(root, R.id.rvExams, ExamAdapter({ _, _, _ -> }).apply { submit(listOf(HomeListItem.Header("Recommended exams")) +
                     List(6) { HomeListItem.ExamRow(exam.copy(id = "exam-$it", category = if (it == 0) "SSC" else "Banking", examName = if (it == 0) exam.examName else "Banking • Practice ${it + 1}"), it == 1, it == 0) }) })
@@ -247,12 +251,18 @@ class StudentUiRenderingTest {
             }
             "practice", "pyq" -> {
                 root.findViewById<Spinner>(R.id.spExam).adapter = ArrayAdapter(context, R.layout.item_exam_dropdown, listOf(exam.examName))
-                val group = root.findViewById<com.google.android.material.chip.ChipGroup>(if (name == "practice") R.id.chipGroupTopics else R.id.chipGroupPapers)
+                val group = root.findViewById<ViewGroup>(if (name == "practice") R.id.chipGroupTopics else R.id.chipGroupPapers)
                 for (label in listOf("Reasoning • 20 questions", "General awareness • 30 questions", "Quantitative aptitude • 18 questions")) group.addView(com.eve.app.ui.common.StudentSelectionControls.action(context).apply { text = label })
-                if (name == "pyq") { show(R.id.tvPapersLabel); root.findViewById<com.google.android.material.chip.ChipGroup>(R.id.chipGroupYears).addView(com.eve.app.ui.common.StudentSelectionControls.year(context).apply { text = "2025"; isChecked = true }) }
+                if (name == "pyq") { show(R.id.tvPapersLabel); root.findViewById<ViewGroup>(R.id.chipGroupYears).addView(com.eve.app.ui.common.StudentSelectionControls.year(context).apply { text = "2025"; isChecked = true }) }
             }
             "premium-active" -> { show(R.id.layoutNotPremium, false); show(R.id.layoutPremiumActive) }
-            "feedback-error" -> root.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.tilFeedback).error = "Please enter your message"
+            "feedback-error" -> {
+                val til = root.findViewById<View>(R.id.tilFeedback)
+                when (til) {
+                    is com.eve.app.designsystem.TelegramOutlineEditText -> til.error = "Please enter your message"
+                    is com.google.android.material.textfield.TextInputLayout -> til.error = "Please enter your message"
+                }
+            }
             "feedback-loading" -> { text(R.id.etFeedbackMessage, "Please add more reasoning practice."); show(R.id.progressBar); root.findViewById<View>(R.id.btnSendFeedback).isEnabled = false }
             "notifications-empty" -> { HomeAppearance.tintNotificationBell(root.findViewById(R.id.lottieEmpty)); show(R.id.emptyGroup); show(R.id.rvNotifications, false) }
             "payment-success" -> { text(R.id.tvStatusText, "Payment received"); root.findViewById<TextView>(R.id.tvStatusText).setTextColor(context.getColor(R.color.system_green_text)) }
@@ -262,7 +272,7 @@ class StudentUiRenderingTest {
             "content" -> { text(R.id.tvHeaderTitle, "Privacy Policy"); text(R.id.tvTitle, "Your privacy"); text(R.id.tvLastUpdated, "Updated 11 October 2026"); text(R.id.tvBody, "Your learning data belongs to you.\n\nEVE stores your practice history to sync progress across devices. You can manage your account and preferences in Settings.\n\nContact support if you need help with your account.") }
             "content-contact" -> { text(R.id.tvHeaderTitle, "Contact Us"); text(R.id.tvTitle, "We are here to help"); show(R.id.tvLastUpdated, false); show(R.id.layoutContactActions); text(R.id.tvEmailValue, "support@example.invalid"); text(R.id.tvPhoneValue, "+91 90000 00000"); text(R.id.tvWebsiteValue, "https://example.invalid/eve"); text(R.id.tvBody, "Choose a contact option above for help with your account or practice sessions.") }
             "completed-exam" -> { text(R.id.tvCompletedTitle, "SSC CGL • Mock Test 1"); text(R.id.tvCompletedScore, "Score: 76.5 / 100") }
-            "target-exams" -> for (label in listOf("SSC CGL", "Banking", "Railways", "Teaching")) root.findViewById<com.google.android.material.chip.ChipGroup>(R.id.chipGroupExams).addView(HomeAppearance.categoryChip(context, label, "SSC CGL") {})
+            "target-exams" -> for (label in listOf("SSC CGL", "Banking", "Railways", "Teaching")) root.findViewById<ViewGroup>(R.id.chipGroupExams).addView(HomeAppearance.categoryChip(context, label, "SSC CGL") {})
             "mock-test" -> {
                 text(R.id.tvTestTitle, "SSC CGL • Mock Test 1")
                 root.findViewById<com.eve.app.ui.common.CircularTimerView>(R.id.circularTimerView).setTime(120, 600)
@@ -334,6 +344,7 @@ class StudentUiRenderingTest {
         if (view is com.google.android.material.button.MaterialButton || view is com.eve.app.designsystem.TelegramButton) return view.backgroundTintList?.getColorForState(view.drawableState, 0)
         if (view is com.google.android.material.chip.Chip) return view.chipBackgroundColor?.getColorForState(view.drawableState, 0)
         if (view is com.google.android.material.card.MaterialCardView) return view.cardBackgroundColor.getColorForState(view.drawableState, 0)
+        if (view is com.eve.app.ui.common.TelegramCardView) return view.cardBackgroundColor?.getColorForState(view.drawableState, 0)
         fun color(drawable: android.graphics.drawable.Drawable?): Int? = when (drawable) {
             is android.graphics.drawable.ColorDrawable -> drawable.color
             is android.graphics.drawable.GradientDrawable -> drawable.color?.getColorForState(view.drawableState, 0)

@@ -61,7 +61,7 @@ class DesignRecoveryTest {
                 it.window.decorView.invalidate()
             }
             assertTrue("Restoring readiness must finish on a fresh committed frame", complete.await(5, java.util.concurrent.TimeUnit.SECONDS))
-            instrumentation.waitForIdleSync()
+            TestLooperHelper.runOnActivityNonBlocking(act, 5_000L) {}
             assertEquals("Handoff must run once", 1, calls.get())
         }
     }

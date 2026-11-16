@@ -1,10 +1,15 @@
 package com.eve.app.ui
 
 import android.app.Activity
+import android.graphics.drawable.Animatable
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.ProgressBar
 import com.airbnb.lottie.LottieAnimationView
+import com.eve.app.designsystem.TelegramFlickerSkeletonView
 import com.eve.app.designsystem.TelegramRadialProgressView
+import com.eve.app.telegram.qr.QrEmojiCell
 import com.eve.app.ui.profile.TelegramQrSceneView
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -59,9 +64,23 @@ object TestLooperHelper {
         if (view is TelegramQrSceneView) {
             view.pausePlayback()
         }
+        if (view is TelegramFlickerSkeletonView) {
+            view.isReducedMotionForTest = true
+        }
+        if (view is QrEmojiCell) {
+            view.setMotionEnabled(false)
+        }
         if (view is LottieAnimationView) {
             view.cancelAnimation()
             view.progress = 1f
         }
+        (view.background as? Animatable)?.stop()
+        if (view is ImageView) {
+            (view.drawable as? Animatable)?.stop()
+        }
+        if (view is ProgressBar) {
+            (view.indeterminateDrawable as? Animatable)?.stop()
+        }
+        view.clearAnimation()
     }
 }
