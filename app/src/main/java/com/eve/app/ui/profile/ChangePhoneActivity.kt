@@ -16,6 +16,8 @@ import androidx.lifecycle.lifecycleScope
 import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.ProfileRequestOwner
 import com.eve.app.databinding.ActivityChangePhoneBinding
+import com.eve.app.designsystem.BackDrawable
+import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.EveNavigationHelper
@@ -28,6 +30,7 @@ class ChangePhoneActivity : EveBaseActivity() {
     private var editorOwnerUid: String? = null
 
     private lateinit var binding: ActivityChangePhoneBinding
+    private val backDrawable = BackDrawable(false)
     private var originalPhone: String = ""
     private var saveInFlight = false
 
@@ -36,6 +39,7 @@ class ChangePhoneActivity : EveBaseActivity() {
         editorOwnerUid = ProfileEditorAccountGuard.bind(this, savedInstanceState) ?: return
         binding = ActivityChangePhoneBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.btnBack.setImageDrawable(backDrawable)
 
         val currentPhone = intent.getStringExtra("current_phone") ?: ""
         originalPhone = currentPhone.trim()
@@ -58,6 +62,7 @@ class ChangePhoneActivity : EveBaseActivity() {
 
         binding.etPhone.doAfterTextChanged {
             binding.tvStatus.visibility = View.GONE
+            applyEditorPalette(TelegramThemeEngine.resolveCurrentPalette(this))
         }
 
         if (savedInstanceState == null) {
@@ -79,6 +84,19 @@ class ChangePhoneActivity : EveBaseActivity() {
         }
     }
 
+    override fun onApplyThemePalette(palette: TelegramThemeEngine.ResolvedPalette) {
+        super.onApplyThemePalette(palette)
+        if (::binding.isInitialized) applyEditorPalette(palette)
+    }
+
+    private fun applyEditorPalette(palette: TelegramThemeEngine.ResolvedPalette) {
+        backDrawable.setColor(palette.textPrimary)
+        backDrawable.setRotatedColor(palette.textPrimary)
+        val isError = binding.tvStatus.visibility == View.VISIBLE
+        binding.tvStatus.setTextColor(palette.statusError)
+        binding.linePhone.setBackgroundColor(if (isError) palette.statusError else palette.accent)
+    }
+
     private fun savePhone() {
         val ownerUid = editorOwnerUid ?: return
         if (FirebaseAuth.getInstance().currentUser?.uid != ownerUid) { finish(); return }
@@ -90,6 +108,7 @@ class ChangePhoneActivity : EveBaseActivity() {
             if (digitsOnly.length < 7 || digitsOnly.length > 15) {
                 binding.tvStatus.text = "Please enter a valid phone number (7-15 digits)"
                 binding.tvStatus.visibility = View.VISIBLE
+                applyEditorPalette(TelegramThemeEngine.resolveCurrentPalette(this))
                 TelegramShake.shakeViewSpring(binding.etPhone, 10f)
                 VibrationHelper.vibrateAppError(this)
                 return
