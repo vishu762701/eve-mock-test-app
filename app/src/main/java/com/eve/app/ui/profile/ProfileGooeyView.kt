@@ -410,8 +410,11 @@ class ProfileGooeyView @JvmOverloads constructor(
 
         override fun setIntensity(intensity: Float) {
             val safeIntensity = intensity.coerceAtLeast(0.1f)
-            effectNode.setRenderEffect(RenderEffect.createBlurEffect(safeIntensity, safeIntensity, Shader.TileMode.CLAMP))
-            effectNotchNode.setRenderEffect(RenderEffect.createBlurEffect(safeIntensity, safeIntensity, Shader.TileMode.CLAMP))
+            // effectNode and effectNotchNode record at 1/3 resolution (gooScaleFactor = 3f).
+            // Dividing blur radius by 3f prevents the 12dp camera notch from dissolving below the 125/255 metaball alpha cutoff.
+            val nodeBlur = (safeIntensity / 3f).coerceAtLeast(1f)
+            effectNode.setRenderEffect(RenderEffect.createBlurEffect(nodeBlur, nodeBlur, Shader.TileMode.CLAMP))
+            effectNotchNode.setRenderEffect(RenderEffect.createBlurEffect(nodeBlur, nodeBlur, Shader.TileMode.CLAMP))
             filter.colorFilter = ColorMatrixColorFilter(floatArrayOf(
                 1f, 0f, 0f, 0f, 0f,
                 0f, 1f, 0f, 0f, 0f,
@@ -439,8 +442,8 @@ class ProfileGooeyView @JvmOverloads constructor(
                 whole.set(0f, 0f, width.toFloat(), height.toFloat())
                 if (childCount > 0) {
                     val child = getChildAt(0)
-                    val w = child.width * child.scaleX
-                    val h = child.height * child.scaleY
+                    val w = child.width.toFloat()
+                    val h = child.height.toFloat()
                     val l = child.x
                     val t = child.y
 
@@ -498,12 +501,13 @@ class ProfileGooeyView @JvmOverloads constructor(
                 c.restore()
             }
             val hBridge = ProfileGooeyMotionMath.liquidBridgeHeight(
-                pullProgress, dp(7) * gooScaleFactor
+                pullProgress, dp(18) * gooScaleFactor
             )
             if (childCount > 0) {
                 val child = getChildAt(0)
-                val cx = child.x + child.width * child.scaleX / 2f - left
-                val cy = child.y + child.height * child.scaleY / 2f + dp(BLACK_KING_BAR) - top
+                // Scale pivots around child center; use unscaled half-width/height for true center.
+                val cx = child.x + child.width / 2f - left
+                val cy = child.y + child.height / 2f + dp(BLACK_KING_BAR) - top
                 val r = child.width / 2f * child.scaleX
 
                 path.rewind()
@@ -569,7 +573,7 @@ class ProfileGooeyView @JvmOverloads constructor(
             canvas.save()
             canvas.translate(left, top - dp(BLACK_KING_BAR))
             if (info != null) {
-                canvas.clipRect(0f, info.bounds.top, rw.toFloat(), rh.toFloat())
+                canvas.clipRect(0f, info.bounds.top - top + dp(BLACK_KING_BAR), rw.toFloat(), rh.toFloat())
             }
             canvas.saveLayer(wholeOptimized, filter)
             canvas.scale(gooScaleFactor, gooScaleFactor)
