@@ -273,14 +273,23 @@ class ProfileActivity : EveBaseActivity() {
     private fun positionFullWindowAvatarHost() {
         val contentRoot = findViewById<ViewGroup>(android.R.id.content)
         val insets = ViewCompat.getRootWindowInsets(binding.root)
+        binding.avatarGooey.refreshNotchInfo(insets)
         val physicalTop = insets?.getInsets(
             WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.displayCutout()
         )?.top ?: 0
         // SystemBarHelper may have padded android.R.id.content before dispatch
         // reaches this child. Prefer the authoritative larger inset.
         val statusTop = maxOf(physicalTop, contentRoot?.paddingTop ?: 0)
+        val density = resources.displayMetrics.density
+        val scrollChild = binding.profileScrollView.getChildAt(0)
+        if (scrollChild != null && binding.profileScrollView.height > 0) {
+            val requiredHeight = binding.profileScrollView.height + (180f * density).roundToInt()
+            if (scrollChild.minimumHeight != requiredHeight) {
+                scrollChild.minimumHeight = requiredHeight
+            }
+        }
         binding.profileScrollView.maximumPull = (binding.root.width - binding.glassToolbar.height -
-            152f * resources.displayMetrics.density).coerceAtLeast(0f)
+            152f * density).coerceAtLeast(0f)
         ProfileHeaderExpansion.apply(binding, expansionFraction, statusTop)
         if (expansionFraction > 0) {
             binding.avatarGooey.translationY = -statusTop.toFloat()
@@ -346,11 +355,7 @@ class ProfileActivity : EveBaseActivity() {
             // Telegram ProfileGooeyView.java:397-405 uses this center for
             // the round front-camera mask. The EVE scroll trajectory is
             // adapted because the renderer now lives outside the scroll.
-            val targetCenterY = if (info.isLikelyCircle) {
-                info.bounds.bottom - info.bounds.width() / 2f
-            } else {
-                info.bounds.centerY()
-            }
+            val targetCenterY = binding.avatarGooey.notchCenterY(info)
             val initialCenterY = binding.avatarContainer.top +
                 binding.avatarContainer.height / 2f
             ProfileAvatarTrajectory.offsetToNotch(initialCenterY, targetCenterY, progress)
@@ -370,12 +375,17 @@ class ProfileActivity : EveBaseActivity() {
 
         // Telegram ProfileActionsView.java:247-337 stages backgrounds and
         // icon/text independently as the 74dp action area collapses.
+        val actionsCollapseState = if (resources.configuration.fontScale > 1.4f)
+            ProfileActionsCollapse.atHeight(scrollY.toFloat(), density, binding.layoutActions.layoutParams.height.toFloat())
+        else ProfileActionsCollapse.atScroll(scrollY.toFloat(), density)
         ProfileActionsCollapse.applyTo(
             listOf(binding.btnSetPhoto, binding.btnEditInfo, binding.btnSettings),
-            if (resources.configuration.fontScale > 1.4f)
-                ProfileActionsCollapse.atHeight(scrollY.toFloat(), density, binding.layoutActions.layoutParams.height.toFloat())
-            else ProfileActionsCollapse.atScroll(scrollY.toFloat(), density)
+            actionsCollapseState
         )
+        // Shift sections up as the 74dp action row collapses so no empty gap remains below status/chips.
+        val collapsedActionShift = -(1f - actionsCollapseState.fraction) * (74f * density)
+        binding.cardPersonalInfo.translationY = collapsedActionShift
+        binding.cardCategory.translationY = collapsedActionShift
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
             if (progress > 0f && progress < 1f) {
                 val blurNode = binding.avatarGooey.getBlurRenderNode()
