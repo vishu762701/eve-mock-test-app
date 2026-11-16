@@ -22,6 +22,8 @@ The owner's latest explicit message defines scope and is the supreme repository 
    Whenever the target screen or feature adds, changes, or removes any backend field, permission, or UI flow, simultaneously inspect and update all corresponding Cloudflare Worker routes (`backend/src/routes/`), D1 SQL migrations (`backend/migrations/`), `firestore.rules`, `storage.rules`, and backend tests (`backend/test/`).
 9. **LAW 9 — CONTINUOUS DEAD-FILE & JUNK-FILE PURGE**:
    Zero unused, obsolete, duplicate, or dead files may remain in the touched scope. Whenever a legacy class (`UiArc*`, `Design*`, `EveGlassToolbar`), unused layout, or unused drawable is replaced and no longer referenced, delete it in the same commit.
+10. **LAW 10 — MANDATORY DEEP RENDERING, COORDINATE & SOURCE AUDIT BEFORE COMPLETION**:
+   Never stop at XML/wrapper polish. Before claiming any screen is complete or 100% Telegram-matched, inspect EVERY custom `View`, `Canvas`, `RenderNode`, `Matrix`, blur radius, scale pivot, alpha threshold, and inset coordinate in that screen's package, and verify no `ADAPTED` / `NOT ported` gaps remain unaddressed.
 
 ## Execution Rules
 - Focus strictly on the 1 screen or 1 feature requested by the Owner: implement -> self-review -> push to `main` -> verify exact-SHA FAST green (and FULL when requested) -> deliver APK artifact.
