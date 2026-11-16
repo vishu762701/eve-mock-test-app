@@ -362,9 +362,9 @@ class ProfileActivity : EveBaseActivity() {
         }
 
         // Alpha fading of toolbar title vs avatar/name per Telegram ProfileActivity:
-        // Title is strictly hidden at scroll 0 and only fades in once collapse reaches 0.75
-        binding.tvToolbarTitle.alpha = progress // tvToolbarTitle.alpha = progress
-        val headerContentAlpha = (1f - progress * 1.5f).coerceIn(0f, 1f)
+        // Title stays hidden until header name fades out (progress > 0.65), preventing duplicate name display.
+        binding.tvToolbarTitle.alpha = ((progress - 0.65f) / 0.35f).coerceIn(0f, 1f)
+        val headerContentAlpha = (1f - progress * 1.8f).coerceIn(0f, 1f)
         binding.tvName.alpha = headerContentAlpha
         binding.tvStatus.alpha = headerContentAlpha
 
