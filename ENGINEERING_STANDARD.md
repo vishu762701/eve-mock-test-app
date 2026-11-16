@@ -57,7 +57,8 @@ Remove only files proven obsolete within the touched scope. Whenever a legacy cl
 7. Each pushed implementation change must pass exact-SHA FAST CI on its final SHA. Treat emulator/ADB/GPU infrastructure errors separately from application test failures. Maintain zero build failures across FAST and FULL CI pipelines.
 
 ## 3. CI, git, security
-- Ordinary main push runs compile-only FAST (ARM64 assembleDebug, test compilation, and lint). FULL (all tests, both emulator navigation modes, signing, gated Eve-debug-apk) runs when dispatched manually via workflow_dispatch, while `build-universal-dev-apk.yml` provides a fast 4-ABI debug APK artifact on demand.
+- Ordinary main push runs compile-only FAST (ARM64 assembleDebug, test compilation, and lint).
+- **Zero Cancelled CI Runs (`[skip ci]` Batching Rule)**: Whenever pushing multiple sequential commits to `main` (such as multi-file updates via `create_or_update_file`), ALWAYS include `[skip ci]` in the commit message of all intermediate commits (`1..N-1`) and omit `[skip ci]` ONLY on the final commit (`N`). This guarantees exactly one clean GitHub Actions build on the final SHA with zero cancelled (`!`) runs. FULL (all tests, both emulator navigation modes, signing, gated Eve-debug-apk) runs when dispatched manually via workflow_dispatch, while `build-universal-dev-apk.yml` provides a fast 4-ABI debug APK artifact on demand.
 - Do not run heavy Gradle/NDK/emulator builds on the phone when hosted CI is available.
 - Live Worker deployment, remote D1 migrations, destructive production data changes, public APK distribution and licensing exceptions require separate explicit owner authorization.
 - Never commit secrets, google-services.json contents, tokens or admin emails. Never stage functions/package-lock.json.
