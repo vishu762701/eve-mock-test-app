@@ -143,6 +143,15 @@ jobs:
             gradle :app:assembleDebug -Peve.nativeAbis=arm64-v8a :app:compileDebugAndroidTestKotlin :app:lintDebug --stacktrace --console=plain 2>&1 | tee ci-fast-gradle.log
           fi
 
+      - name: Upload FAST push debug APK artifact
+        if: ${{ steps.verification_profile.outputs.full != 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Eve-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
+
       - name: FULL test lint and compile AndroidTest sources
         if: ${{ steps.verification_profile.outputs.full == 'true' }}
         run: |
