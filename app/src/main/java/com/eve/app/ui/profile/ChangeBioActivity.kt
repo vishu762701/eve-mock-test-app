@@ -17,6 +17,8 @@ import androidx.lifecycle.lifecycleScope
 import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.ProfileRequestOwner
 import com.eve.app.databinding.ActivityChangeBioBinding
+import com.eve.app.designsystem.BackDrawable
+import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.EveNavigationHelper
@@ -29,6 +31,7 @@ import com.google.firebase.auth.FirebaseAuth
 class ChangeBioActivity : EveBaseActivity() {
     private var editorOwnerUid: String? = null
     private lateinit var binding: ActivityChangeBioBinding
+    private val backDrawable = BackDrawable(false)
     private var originalBio: String = ""
     private var saveInFlight = false
 
@@ -37,6 +40,7 @@ class ChangeBioActivity : EveBaseActivity() {
         editorOwnerUid = ProfileEditorAccountGuard.bind(this, savedInstanceState) ?: return
         binding = ActivityChangeBioBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.btnBack.setImageDrawable(backDrawable)
 
         // A missing field means production has not yet deployed Bio. Fail closed.
         val original = intent.getStringExtra("current_bio")
@@ -79,6 +83,7 @@ class ChangeBioActivity : EveBaseActivity() {
         binding.etBio.doAfterTextChanged { editable ->
             updateCount(editable?.toString().orEmpty())
             binding.tvStatus.visibility = View.GONE
+            applyEditorPalette(TelegramThemeEngine.resolveCurrentPalette(this))
         }
 
         // ChangeBioActivity.java:245-252 requests focus and shows the keyboard
@@ -103,6 +108,19 @@ class ChangeBioActivity : EveBaseActivity() {
      * ChangeBioActivity.java:88-102 counts Unicode code points; EVE's Worker
      * additionally caps UTF-16 units, so the stricter remaining value is shown.
      */
+    override fun onApplyThemePalette(palette: TelegramThemeEngine.ResolvedPalette) {
+        super.onApplyThemePalette(palette)
+        if (::binding.isInitialized) applyEditorPalette(palette)
+    }
+
+    private fun applyEditorPalette(palette: TelegramThemeEngine.ResolvedPalette) {
+        backDrawable.setColor(palette.textPrimary)
+        backDrawable.setRotatedColor(palette.textPrimary)
+        val isError = binding.tvStatus.visibility == View.VISIBLE
+        binding.tvStatus.setTextColor(palette.statusError)
+        binding.lineBio.setBackgroundColor(if (isError) palette.statusError else palette.accent)
+    }
+
     private fun updateCount(text: String) {
         binding.tvCount.text = BioLengthInputFilter.remaining(text).toString()
     }
@@ -118,6 +136,7 @@ class ChangeBioActivity : EveBaseActivity() {
         if (!BioLengthInputFilter.fits(bio)) {
             binding.tvStatus.text = "Bio cannot exceed 160 characters"
             binding.tvStatus.visibility = View.VISIBLE
+            applyEditorPalette(TelegramThemeEngine.resolveCurrentPalette(this))
             // ChangeBioActivity.java:112-128: a rejected input shakes the
             // counter with the source damped-sine shake and 200 ms vibration.
             TelegramShake.shakeView(binding.tvCount)
