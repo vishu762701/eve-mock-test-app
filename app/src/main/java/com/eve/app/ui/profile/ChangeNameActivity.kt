@@ -13,7 +13,10 @@ import androidx.core.view.doOnLayout
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.ProfileRequestOwner
+import androidx.core.widget.doAfterTextChanged
 import com.eve.app.databinding.ActivityChangeNameBinding
+import com.eve.app.designsystem.BackDrawable
+import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.EveNavigationHelper
@@ -28,6 +31,8 @@ class ChangeNameActivity : EveBaseActivity() {
     private var editorOwnerUid: String? = null
 
     private lateinit var binding: ActivityChangeNameBinding
+    private val backDrawable = BackDrawable(false)
+    private var hasValidationError = false
     private var saveInFlight = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,6 +40,13 @@ class ChangeNameActivity : EveBaseActivity() {
         editorOwnerUid = ProfileEditorAccountGuard.bind(this, savedInstanceState) ?: return
         binding = ActivityChangeNameBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.btnBack.setImageDrawable(backDrawable)
+        binding.etName.doAfterTextChanged {
+            if (hasValidationError) {
+                hasValidationError = false
+                applyEditorPalette(TelegramThemeEngine.resolveCurrentPalette(this))
+            }
+        }
 
         val user = FirebaseAuth.getInstance().currentUser
         val initialName = intent.getStringExtra("current_name") ?: user?.displayName ?: ""
@@ -71,6 +83,17 @@ class ChangeNameActivity : EveBaseActivity() {
         }
     }
 
+    override fun onApplyThemePalette(palette: TelegramThemeEngine.ResolvedPalette) {
+        super.onApplyThemePalette(palette)
+        if (::binding.isInitialized) applyEditorPalette(palette)
+    }
+
+    private fun applyEditorPalette(palette: TelegramThemeEngine.ResolvedPalette) {
+        backDrawable.setColor(palette.textPrimary)
+        backDrawable.setRotatedColor(palette.textPrimary)
+        binding.lineName.setBackgroundColor(if (hasValidationError) palette.statusError else palette.accent)
+    }
+
     private fun saveName() {
         val ownerUid = editorOwnerUid ?: return
         if (FirebaseAuth.getInstance().currentUser?.uid != ownerUid) { finish(); return }
@@ -82,6 +105,8 @@ class ChangeNameActivity : EveBaseActivity() {
             // ChangeNameActivity.java:140-149 gives its field a red line state on
             // invalid edits; EVE exposes that feedback through the shared source
             // shake/error haptic because this single-field host has no error line.
+            hasValidationError = true
+            applyEditorPalette(TelegramThemeEngine.resolveCurrentPalette(this))
             TelegramShake.shakeViewSpring(binding.etName, 10f)
             VibrationHelper.vibrateAppError(this)
             AppBulletin.showError(this, "Enter a display name of 1–100 characters")
