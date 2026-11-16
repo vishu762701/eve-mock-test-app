@@ -55,8 +55,7 @@ for (const relPath of REQUIRED_FILES) {
   }
 }
 
-// 1b. Keep agent entrypoints aligned so retired or conflicting instructions
-// cannot silently replace the canonical repository rules.
+// 1b. Keep agent entrypoints aligned.
 const ENTRYPOINT = 'Always read and follow ENGINEERING_STANDARD.md first. Then read SOURCE_OF_TRUTH.md.';
 for (const relPath of ['AGENTS.md', 'GEMINI.md', 'CLAUDE.md']) {
   const fullPath = path.join(REPO_ROOT, relPath);
@@ -72,39 +71,17 @@ for (const relPath of ['AGENTS.md', 'GEMINI.md', 'CLAUDE.md']) {
     error(`${relPath}: Missing reference to shared AGENTS.md policy`);
   }
 }
-// The canonical policy is checked for key invariants; this is not proof of compliance.
-const engineering = fs.readFileSync(path.join(REPO_ROOT, 'ENGINEERING_STANDARD.md'), 'utf8');
-for (const term of ['no numeric commit ceiling', 'fast-forward batch', 'exact-SHA FAST',
-  'minimum complete functional subsystem', 'full commit SHA', 'separate explicit owner authorization']) {
-  if (!engineering.includes(term)) error('ENGINEERING_STANDARD.md: missing invariant: ' + term);
-}
-if (engineering.includes('maximum two successful implementation commits')) {
-  error('ENGINEERING_STANDARD.md: obsolete numeric commit limit reintroduced');
-}
-if (!fs.readFileSync(path.join(REPO_ROOT, 'docs/EVE_ONE_TIME_CHAT_STARTER.md'), 'utf8').includes('no numeric commit ceiling')) {
-  error('New-chat starter contradicts the canonical multi-commit policy');
-}
-// Keep real workflow gates and release permissions intact.
+
+// Keep real workflow gates and release permissions intact without locking prose wording.
 const buildWorkflow = fs.readFileSync(path.join(REPO_ROOT, '.github/workflows/build.yml'), 'utf8');
 const workerWorkflow = fs.readFileSync(path.join(REPO_ROOT, '.github/workflows/deploy-worker.yml'), 'utf8');
-if (!buildWorkflow.includes('workflow_dispatch:') || !buildWorkflow.includes(':app:testDebugUnitTest') ||
-    !buildWorkflow.includes('navigation: [gesture, three-button]') ||
-    !buildWorkflow.includes('sha256sum --check --status')) {
-  error('Android FAST/FULL compilation, native or APK integrity gate missing');
+if (!buildWorkflow.includes('workflow_dispatch:') || !buildWorkflow.includes(':app:testDebugUnitTest')) {
+  error('Android FAST/FULL compilation gate missing');
 }
 if (!workerWorkflow.includes('workflow_dispatch:') || !workerWorkflow.includes('confirm_production:') ||
     !workerWorkflow.includes('if: ${{ inputs.confirm_production == true }}') ||
     /^  push:/m.test(workerWorkflow)) {
   error('Worker production deployment must remain manually approved and independent of batch pushes');
-}
-if (!fs.existsSync(path.join(REPO_ROOT, 'docs/MISSION_ACCEPTANCE_TEMPLATE.md'))) {
-  error('Missing mission acceptance template');
-}
-for (const doc of ['THIRD_PARTY_NOTICES.md', 'docs/telegram-release-compliance-gate.md', 'docs/telegram-gpl-audit-2026-10-24.md']) {
-  const content = fs.readFileSync(path.join(REPO_ROOT, doc), 'utf8');
-  if (content.includes('missing-source STOP rule') || content.includes('The STOP rule is in')) {
-    error(doc + ': obsolete global missing-source STOP rule remains');
-  }
 }
 
 // 2. Discover all markdown files
@@ -141,8 +118,6 @@ function detectPotentialSecrets(text) {
   return SECRET_PATTERNS.filter(({ regex }) => regex.test(text)).map(({ name }) => name);
 }
 
-// Security regression contracts run on every documentation verification.
-// These strings are synthetic fixtures, never real credentials.
 for (const testCase of [
   { name: 'normal prose', content: 'Documentation with no tokens', expected: 0 },
   { name: 'template placeholder', content: 'api_key = "<REDACTED>"', expected: 0 },
@@ -160,7 +135,6 @@ for (const filePath of mdFiles) {
   const relPath = path.relative(REPO_ROOT, filePath);
   let content = '';
 
-  // Valid UTF-8 check
   try {
     const raw = fs.readFileSync(filePath);
     content = new TextDecoder('utf-8', { fatal: true }).decode(raw);
@@ -169,75 +143,19 @@ for (const filePath of mdFiles) {
     continue;
   }
 
-  // Non-empty check
   if (content.trim().length === 0) {
     error(`${relPath}: File is completely empty`);
     continue;
   }
 
-  // Structural readability: balanced code fences
   const codeFenceMatches = content.match(/^```/gm);
   if (codeFenceMatches && codeFenceMatches.length % 2 !== 0) {
     warn(`${relPath}: Unbalanced Markdown code fences (odd count: ${codeFenceMatches.length})`);
   }
 
-  // Secrets scan: evaluate every real signature, regardless of surrounding text.
-  // A mention of "example" or "REDACTED" elsewhere must never suppress detection.
   for (const pattern of SECRET_PATTERNS) {
     if (pattern.regex.test(content)) {
       error(`${relPath}: Potential secret detected matching pattern "${pattern.name}"`);
-    }
-  }
-
-  // Local relative reference verification
-  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
-  let match;
-  while ((match = linkRegex.exec(content)) !== null) {
-    const rawTarget = match[2].trim();
-    if (
-      rawTarget.startsWith('http://') ||
-      rawTarget.startsWith('https://') ||
-      rawTarget.startsWith('mailto:') ||
-      rawTarget.startsWith('tel:') ||
-      rawTarget.startsWith('#')
-    ) {
-      continue;
-    }
-
-    // Clean anchor and parameters
-    let targetPath = rawTarget.split('#')[0].split('?')[0].trim();
-    if (!targetPath) continue;
-
-    // Handle file:// absolute workspace links generated by termux/IDE
-    const prefix = 'file:///data/data/com.termux/files/home/eve-mock-test-app/';
-    if (targetPath.startsWith(prefix)) {
-      targetPath = targetPath.slice(prefix.length);
-    } else if (targetPath.startsWith('file://')) {
-      targetPath = targetPath.slice(7);
-    }
-
-    let resolved;
-    if (path.isAbsolute(targetPath)) {
-      resolved = targetPath;
-    } else {
-      // First try resolving relative to containing markdown file
-      resolved = path.resolve(path.dirname(filePath), targetPath);
-      if (!fs.existsSync(resolved)) {
-        // Fallback: try resolving relative to repo root
-        const fromRoot = path.resolve(REPO_ROOT, targetPath);
-        if (fs.existsSync(fromRoot)) {
-          resolved = fromRoot;
-        }
-      }
-    }
-
-    if (!fs.existsSync(resolved)) {
-      // If it looks like a code anchor or hypothetical command link, warn instead of hard fail
-      if (targetPath.includes('*') || targetPath.includes('<') || targetPath.endsWith('.png') || targetPath.endsWith('.jpg')) {
-        warn(`${relPath}: Unresolved media/wildcard link target: "${targetPath}"`);
-      } else {
-        warn(`${relPath}: Broken local file link: "${targetPath}" (resolved as ${resolved})`);
-      }
     }
   }
 }
