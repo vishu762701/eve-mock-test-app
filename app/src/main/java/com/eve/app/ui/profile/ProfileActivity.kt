@@ -54,7 +54,10 @@ import com.eve.app.databinding.ActivityProfileBinding
 import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.designsystem.TelegramNativeAlertDialog
 import com.eve.app.designsystem.TelegramRadialProgressView
+import com.eve.app.designsystem.BackDrawable
 import com.eve.app.designsystem.TelegramPopupMenu
+import com.eve.app.util.VibrationHelper
+import org.telegram.ui.Components.CubicBezierInterpolator
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.ui.settings.SettingsActivity
 import com.eve.app.util.AppBulletin
@@ -80,6 +83,7 @@ private const val STATE_CROP_FILE = "profile_photo_crop_file"
 class ProfileActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityProfileBinding
+    private val backDrawable = BackDrawable(false)
     private val adminRepo = AdminRepository()
     private var progressDialog: TelegramNativeAlertDialog? = null
     private var pendingPhotoUri: Uri? = null
@@ -180,6 +184,7 @@ class ProfileActivity : EveBaseActivity() {
         binding = ActivityProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.glassToolbar.bringToFront()
+        binding.btnBack.setImageDrawable(backDrawable)
         setupAvatarWindowHost()
         restoreCameraCaptureState(savedInstanceState)
 
@@ -473,11 +478,27 @@ class ProfileActivity : EveBaseActivity() {
                     palette.actionSelector
                 )
             }
+            backDrawable.setColor(palette.textPrimary)
+            backDrawable.setRotatedColor(palette.textPrimary)
+            binding.cardPersonalInfo.updatePalette(palette)
+            binding.cardCategory.updatePalette(palette)
+            val sectionColor = ContextCompat.getColor(this, R.color.telegram_type_section)
+            binding.tvAccountHeader.setTextColor(sectionColor)
+            binding.tvStudyHeader.setTextColor(sectionColor)
+            binding.dividerMobile.setBackgroundColor(palette.hairline)
+            binding.dividerUsername.setBackgroundColor(palette.hairline)
+            binding.dividerCategory.setBackgroundColor(palette.hairline)
+            binding.radioGeneral.updatePalette(palette)
+            binding.radioObc.updatePalette(palette)
+            binding.radioSc.updatePalette(palette)
+            binding.radioSt.updatePalette(palette)
+            binding.switchReminder.invalidate()
             binding.cellMobile.background = rowSelector()
             binding.cellUsername.background = rowSelector()
             binding.cellBirthday.background = rowSelector()
             binding.cellCategory.background = rowSelector()
             binding.cellReminder.background = rowSelector()
+            ProfileHeaderExpansion.apply(binding, expansionFraction, 0)
             if (expansionFraction > 0) positionFullWindowAvatarHost()
         }
     }
@@ -565,13 +586,16 @@ class ProfileActivity : EveBaseActivity() {
 
         // Category cell & expansion
         binding.cellCategory.setOnClickListener {
+            VibrationHelper.vibrateLightHaptic(this)
             val isExpanded = binding.layoutCategoryOptions.visibility == View.VISIBLE
             if (isExpanded) {
                 binding.layoutCategoryOptions.visibility = View.GONE
-                binding.ivCategoryArrow.animate().rotation(0f).setDuration(150).start()
+                binding.ivCategoryArrow.animate().rotation(0f).setDuration(220L)
+                    .setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT).start()
             } else {
                 binding.layoutCategoryOptions.visibility = View.VISIBLE
-                binding.ivCategoryArrow.animate().rotation(90f).setDuration(150).start()
+                binding.ivCategoryArrow.animate().rotation(90f).setDuration(220L)
+                    .setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT).start()
             }
         }
 
@@ -596,7 +620,7 @@ class ProfileActivity : EveBaseActivity() {
         if (categorySaveInFlight || !profileConfirmed) return
         // Close the radio list without claiming a persisted selection prematurely.
         binding.layoutCategoryOptions.visibility = View.GONE
-        binding.ivCategoryArrow.animate().rotation(0f).setDuration(150).start()
+        binding.ivCategoryArrow.animate().rotation(0f).setDuration(220L).setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT).start()
         if (cat.equals(currentCategory, ignoreCase = true)) return
 
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
