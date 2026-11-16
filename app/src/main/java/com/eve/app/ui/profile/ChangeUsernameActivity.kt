@@ -20,6 +20,7 @@ import androidx.lifecycle.lifecycleScope
 import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.ProfileRequestOwner
 import com.eve.app.databinding.ActivityChangeUsernameBinding
+import com.eve.app.designsystem.BackDrawable
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.EveNavigationHelper
@@ -33,6 +34,7 @@ class ChangeUsernameActivity : EveBaseActivity() {
     private var editorOwnerUid: String? = null
 
     private lateinit var binding: ActivityChangeUsernameBinding
+    private val backDrawable = BackDrawable(false)
     private var currentUsername: String = ""
     private var checkJob: Job? = null
     private var isUsernameValid: Boolean = false
@@ -46,6 +48,7 @@ class ChangeUsernameActivity : EveBaseActivity() {
         editorOwnerUid = ProfileEditorAccountGuard.bind(this, savedInstanceState) ?: return
         binding = ActivityChangeUsernameBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.btnBack.setImageDrawable(backDrawable)
         binding.tvStatus.tag = "semantic_status"
 
         currentUsername = intent.getStringExtra("current_username") ?: ""
@@ -201,6 +204,8 @@ class ChangeUsernameActivity : EveBaseActivity() {
     }
 
     private fun applyStatusPalette(palette: TelegramThemeEngine.ResolvedPalette) {
+        backDrawable.setColor(palette.textPrimary)
+        backDrawable.setRotatedColor(palette.textPrimary)
         val ink = when (statusRole) {
             StatusRole.AVAILABLE -> palette.statusSuccess
             StatusRole.INVALID -> palette.statusError
