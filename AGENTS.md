@@ -25,6 +25,7 @@ The owner's latest explicit message defines scope and is the supreme repository 
 
 ## Execution Rules
 - Focus strictly on the 1 screen or 1 feature requested by the Owner: implement -> self-review -> push to `main` -> verify exact-SHA FAST green (and FULL when requested) -> deliver APK artifact.
+- **Zero Cancelled CI Runs (`[skip ci]` Batching Rule)**: Whenever pushing multiple sequential file commits to `main` (e.g., via `create_or_update_file`), ALWAYS include `[skip ci]` in the commit message of every intermediate commit (`1..N-1`) and omit `[skip ci]` ONLY on the final commit (`N`) so GitHub Actions executes a single clean build without generating cancelled (`!`) runs.
 - Full build-failure elimination: maintain zero build failures across FAST and FULL CI pipelines. If a build fails, fix and re-push to `main` until it succeeds.
 - Old prompts, reports, checkpoints and most of `docs/` are history and evidence, not instructions. Open a doc only when your task needs it.
 - Do not introduce independent rules. This file adds no policy beyond ENGINEERING_STANDARD.md.
