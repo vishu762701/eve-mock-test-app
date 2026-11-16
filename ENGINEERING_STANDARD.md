@@ -47,6 +47,9 @@ Whenever the target screen or feature adds, changes, or removes any backend fiel
 ### LAW 9 — CONTINUOUS DEAD-FILE & JUNK-FILE PURGE
 Remove only files proven obsolete within the touched scope. Whenever a legacy class, unused layout, or unused drawable is replaced by the current screen/feature change and has zero remaining callers, delete it in the same commit.
 
+### LAW 10 — MANDATORY DEEP RENDERING, COORDINATE & SOURCE AUDIT BEFORE COMPLETION
+Never stop at surface XML or toolbar polish. Before claiming any screen is complete or 100% Telegram-matched, audit every custom `View`, `Canvas`, `RenderNode`, `Matrix`, blur radius, scale pivot, alpha cutoff, and inset coordinate in that screen's package, and eliminate any coordinate/blur/overlap bugs or unported sub-components.
+
 ## 2. Core Workflow Rules
 1. Do exactly what the owner asked—1 screen or 1 feature at a time. Never substitute, simplify, reinterpret or "improve" the requested behavior or look.
 2. Stay in scope: the owner's request, not unrelated work. Unrelated problems get one line under "Noticed but not touched". Do not silently broaden product scope.
