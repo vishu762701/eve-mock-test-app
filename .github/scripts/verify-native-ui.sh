@@ -7,9 +7,11 @@ collect_evidence() {
   # Stream crash/events while ADB is alive. Pulling logcat only in the EXIT
   # trap loses tombstones whenever the QEMU guest disappears mid-JNI test.
   if [[ -n "$guest_crash_pid" ]]; then
-    kill "$guest_crash_pid" 2>/dev/null || true
+    pkill -9 -P "$guest_crash_pid" 2>/dev/null || true
+    kill -9 "$guest_crash_pid" 2>/dev/null || true
     wait "$guest_crash_pid" 2>/dev/null || true
   fi
+  pkill -9 -f "adb.*logcat" 2>/dev/null || true
   echo "NATIVE_GUEST_CRASH_STREAM_BEGIN"
   if [[ -f "$guest_crash_log" ]]; then
     tail -n 120 "$guest_crash_log" || true
@@ -93,6 +95,14 @@ collect_evidence() {
   if [[ "${messaging_disabled:-0}" == 1 ]]; then
     timeout 12s adb shell pm enable --user 0 com.google.android.apps.messaging || true
   fi
+  # Clean up all lingering adb stream processes so the emulator shutdown socket never blocks
+  pkill -9 -f "adb.*logcat" 2>/dev/null || true
+  # In case QEMU deadlocks during shutdown after tests have finished and evidence is saved,
+  # schedule a fallback force-kill after 15 seconds so the runner action never hangs.
+  (
+    sleep 15
+    pkill -9 -f "qemu-system-x86_64" 2>/dev/null || true
+  ) >/dev/null 2>&1 &
 }
 trap collect_evidence EXIT
 # Each matrix job owns a fresh emulator and runs exactly one navigation mode.
