@@ -506,7 +506,8 @@ class ProfileGooeyView @JvmOverloads constructor(
             // ProfileGooeyView.java:358-390: alpha-mask and reversible liquid bridge.
             val gooScaleFactor = 2f + factorMult
             val info = notchInfo
-            val notchTargetY = if (info != null) notchCenterY(info) + dp(BLACK_KING_BAR) - top else dp(BLACK_KING_BAR)
+            val cutoutOffsetY = -translationY
+            val notchTargetY = if (info != null) notchCenterY(info) + cutoutOffsetY + dp(BLACK_KING_BAR) - top else dp(BLACK_KING_BAR)
             val notchRad = if (info != null) min(info.bounds.width(), info.bounds.height()) / 2f else dp(8)
             val engage = ((pullProgress - 0.18f) / 0.22f).coerceIn(0f, 1f) *
                 ((0.98f - pullProgress) / 0.12f).coerceIn(0f, 1f)
@@ -552,7 +553,7 @@ class ProfileGooeyView @JvmOverloads constructor(
             c.scale(1f / gooScaleFactor, 1f / gooScaleFactor, 0f, 0f)
             val avTopY = if (childCount > 0) {
                 val child = getChildAt(0)
-                (child.y + child.height / 2f - top) - (child.width / 2f * child.scaleX)
+                (child.y + child.height / 2f) - (child.width / 2f * child.scaleX)
             } else 0f
             if (info != null) {
                 c.translate(-left, -top)
@@ -560,7 +561,7 @@ class ProfileGooeyView @JvmOverloads constructor(
                 if (info.isLikelyCircle) {
                     val rad = (min(info.bounds.width(), info.bounds.height()) / 2f) *
                         ((pullProgress - 0.15f) / 0.20f).coerceIn(0f, 1f)
-                    val cy = notchCenterY(info)
+                    val cy = notchCenterY(info) + cutoutOffsetY
                     if (rad > 0.5f) {
                         c.drawCircle(info.bounds.centerX(), cy, rad, blackPaint)
                     }
@@ -606,7 +607,7 @@ class ProfileGooeyView @JvmOverloads constructor(
             canvas.save()
             canvas.translate(left, top - dp(BLACK_KING_BAR))
             if (info != null) {
-                canvas.clipRect(0f, info.bounds.top - top + dp(BLACK_KING_BAR), rw.toFloat(), rh.toFloat())
+                canvas.clipRect(0f, info.bounds.top + cutoutOffsetY - top + dp(BLACK_KING_BAR), rw.toFloat(), rh.toFloat())
             }
             canvas.saveLayer(wholeOptimized, filter)
             canvas.scale(gooScaleFactor, gooScaleFactor)
