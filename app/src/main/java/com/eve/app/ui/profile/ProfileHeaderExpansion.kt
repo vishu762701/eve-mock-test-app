@@ -102,12 +102,7 @@ internal object ProfileHeaderExpansion {
         }
         val palette = TelegramThemeEngine.resolveCurrentPalette(binding.root.context)
         binding.tvName.setTextColor(ColorUtils.blendARGB(palette.textPrimary, Color.WHITE, f))
-        val isOnlineStatus = binding.tvStatus.text?.toString() == "online"
-        val baseStatusColor = if (isOnlineStatus) {
-            ContextCompat.getColor(binding.root.context, R.color.telegram_type_section)
-        } else {
-            palette.textSecondary
-        }
+        val baseStatusColor = palette.textSecondary
         // ProfileActivity.java:6394 blends subtitle to 0xB3FFFFFF on expanded photo
         binding.tvStatus.setTextColor(ColorUtils.blendARGB(baseStatusColor, 0xB3FFFFFF.toInt(), f))
         val ink = ColorStateList.valueOf(ColorUtils.blendARGB(palette.textPrimary, Color.WHITE, f))
