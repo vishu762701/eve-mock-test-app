@@ -347,13 +347,13 @@
                 </LinearLayout>
             </com.eve.app.ui.profile.ProfileActionsCanvasLayout>
 
-            <!-- Card 1: Personal Information (flat full-width profile cells, 21dp divider insets) -->
+            <!-- Card 1: Personal Information (rounded 16dp inset section card, 21dp divider insets) -->
             <com.eve.app.ui.profile.TelegramProfileSection
                 android:id="@+id/cardPersonalInfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginHorizontal="0dp">
+                android:layout_marginTop="12dp"
+                android:layout_marginHorizontal="14dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -482,7 +482,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="Date of Birth" />
+                            android:text="Birthday" />
                     </LinearLayout>
 
                 </LinearLayout>
@@ -492,7 +492,7 @@
             <com.eve.app.ui.profile.TelegramProfileSection
                 android:id="@+id/cardCategory"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:layout_marginTop="16dp" android:layout_marginHorizontal="0dp">
+                android:layout_marginTop="12dp" android:layout_marginHorizontal="14dp">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
 
                     <TextView
