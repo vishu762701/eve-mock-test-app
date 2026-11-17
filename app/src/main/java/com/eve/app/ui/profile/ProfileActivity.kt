@@ -518,8 +518,8 @@ class ProfileActivity : EveBaseActivity() {
             profileOptionsPopup?.dismiss(immediate = true)
             profilePhotoMenu?.dismiss()
             // Telegram: ProfileActivity.java:1271-1280 @ 3de37c8cfb039452be7398909461da6288babf15
-            // Dynamic action button color calculation based on perceived brightness and HSV adaptation
-            val baseColor = if (palette.isDark) 0xFF212D3B.toInt() else 0xFF527DA3.toInt()
+            // In Light Mode (28033.jpg), header brightness > 0.8f produces pure Color.WHITE (#FFFFFF) cards with black outline icons.
+            val baseColor = if (palette.isDark) 0xFF212D3B.toInt() else Color.WHITE
             val brightness = TelegramThemeEngine.computePerceivedBrightnessTg(baseColor)
             val btnColor = if (brightness > 0.8f) {
                 Color.WHITE
@@ -587,7 +587,7 @@ class ProfileActivity : EveBaseActivity() {
     }
 
     private fun setupCells() {
-        // Mobile cell
+        // Mobile cell (28037.jpg: Copy + Replace number)
         binding.cellMobile.setOnClickListener {
             if (!isProfileOwner()) return@setOnClickListener
             val intent = Intent(this, ChangePhoneActivity::class.java).apply {
@@ -600,15 +600,18 @@ class ProfileActivity : EveBaseActivity() {
             val phone = currentPhone.ifBlank { binding.tvMobileValue.text.toString() }
             if (phone.isNotBlank()) {
                 TelegramPopupMenu(this)
-                    .addItem(1, getString(R.string.copy_phone), R.drawable.ic_copy) {
+                    .addItem(1, "Copy", R.drawable.ic_copy) {
                         copyToClipboard("Phone", phone, "Phone copied to clipboard")
+                    }
+                    .addItem(2, "Replace number", R.drawable.telegram_profile_outline_edit) {
+                        binding.cellMobile.performClick()
                     }
                     .show(binding.cellMobile)
                 true
             } else false
         }
 
-        // Username cell
+        // Username cell (28039.jpg: Copy username + Change username)
         binding.cellUsername.setOnClickListener {
             if (!isProfileOwner()) return@setOnClickListener
             val intent = Intent(this, ChangeUsernameActivity::class.java).apply {
@@ -624,15 +627,15 @@ class ProfileActivity : EveBaseActivity() {
                     .addItem(1, getString(R.string.copy_username), R.drawable.ic_copy) {
                         copyToClipboard("Username", "@$uname", "Username copied to clipboard")
                     }
-                    .addItem(2, getString(R.string.copy_link), R.drawable.ic_link) {
-                        copyToClipboard("Link", "eve-mock-test://username/$uname", "Link copied to clipboard")
+                    .addItem(2, "Change username", R.drawable.telegram_profile_outline_edit) {
+                        binding.cellUsername.performClick()
                     }
                     .show(binding.cellUsername)
                 true
             } else false
         }
 
-        // Birthday cell
+        // Birthday cell (28041.jpg: Copy + Change + Remove in destructive red)
         binding.cellBirthday.setOnClickListener {
             showBirthdayPicker(currentDob)
         }
@@ -640,8 +643,14 @@ class ProfileActivity : EveBaseActivity() {
             val dob = currentDob.ifBlank { binding.tvBirthdayValue.text.toString() }
             if (dob.isNotBlank() && dob != "—") {
                 TelegramPopupMenu(this)
-                    .addItem(1, getString(R.string.copy_birthday), R.drawable.ic_copy) {
+                    .addItem(1, "Copy", R.drawable.ic_copy) {
                         copyToClipboard("Birthday", dob, getString(R.string.birthday_copied))
+                    }
+                    .addItem(2, "Change", R.drawable.telegram_profile_outline_edit) {
+                        showBirthdayPicker(currentDob)
+                    }
+                    .addItem(3, "Remove", R.drawable.ic_delete, isDestructive = true) {
+                        removeBirthday()
                     }
                     .show(binding.cellBirthday)
                 true
@@ -866,6 +875,34 @@ class ProfileActivity : EveBaseActivity() {
 
     private fun formatTelegramBirthday(dobString: String): String =
         ProfileBirthday.format(dobString)
+
+    private fun removeBirthday() {
+        if (birthdaySaveInFlight || !profileConfirmed || currentDob.isBlank()) return
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        if (userId != profileOwnerUid) { finish(); return }
+        birthdaySaveInFlight = true
+        binding.cellBirthday.isEnabled = false
+        lifecycleScope.launch {
+            try {
+                val response = ApiClient.apiService.updateProfile(mapOf("dob" to ""), ProfileRequestOwner(userId))
+                if (response.success) {
+                    val confirmed = ApiClient.apiService.getProfile(ProfileRequestOwner(userId))
+                    if (confirmed.success && confirmed.data?.id == userId) {
+                        ProfileSession.store.accept(userId, confirmed.data)
+                        currentDob = confirmed.data.dob
+                        binding.tvBirthdayValue.text = formatTelegramBirthday(currentDob)
+                        AppBulletin.showSuccess(this@ProfileActivity, "Birthday removed")
+                    }
+                }
+            } catch (cancel: CancellationException) {
+                throw cancel
+            } catch (_: Exception) {
+            } finally {
+                binding.cellBirthday.isEnabled = profileConfirmed
+                birthdaySaveInFlight = false
+            }
+        }
+    }
 
     private fun setupAdminAndPremium(email: String?) {
         val setupAdminUi = {
