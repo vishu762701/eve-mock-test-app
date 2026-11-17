@@ -312,6 +312,13 @@ class ProfileActivity : EveBaseActivity() {
                 resources.configuration.smallestScreenWidthDp < 600 &&
                 resources.configuration.orientation != android.content.res.Configuration.ORIENTATION_LANDSCAPE
         }
+        binding.profileScrollView.collapseRangeProvider = {
+            val toolbarBottom = binding.glassToolbar.bottom
+            val cardTop = binding.cardPersonalInfo.top
+            if (toolbarBottom > 0 && cardTop > toolbarBottom) {
+                (cardTop - toolbarBottom - (8f * density).roundToInt()).coerceAtLeast(0)
+            } else 0
+        }
         binding.profileScrollView.onExpansionChanged = { fraction ->
             expansionFraction = fraction
             // Expanded photo mode must restore the window renderer even after
@@ -332,7 +339,18 @@ class ProfileActivity : EveBaseActivity() {
 
     private fun renderProfileScrollState(scrollY: Int, density: Float) {
         if (expansionFraction > 0) return
-        val progress = ProfileScrollState.progress(scrollY, density)
+        val legacyProgress = ProfileScrollState.progress(scrollY, density)
+        val toolbarBottom = binding.glassToolbar.bottom.toFloat()
+        val naturalRange = if (binding.glassToolbar.height > 0 && binding.cardPersonalInfo.top > toolbarBottom) {
+            (binding.cardPersonalInfo.top.toFloat() - toolbarBottom - 8f * density).coerceAtLeast(100f * density)
+        } else {
+            100f * density
+        }
+        val progress = if (naturalRange > 100f * density) {
+            (scrollY.toFloat() / naturalRange).coerceIn(0f, 1f)
+        } else {
+            legacyProgress
+        }
         // Gooey avatar update (ProfileActivity.java:6039-6047)
         binding.avatarGooey.setPullProgress(progress)
         val blur = ((progress.coerceIn(0.2f, 0.7f) - 0.2f) / 0.5f).coerceAtMost(0.75f)
@@ -352,10 +370,8 @@ class ProfileActivity : EveBaseActivity() {
         binding.avatarContainer.scaleX = currentScale
         binding.avatarContainer.scaleY = currentScale
         binding.avatarContainer.translationY = if (info != null) {
-            // Telegram ProfileGooeyView.java:397-405 uses this center for
-            // the round front-camera mask. The EVE scroll trajectory is
-            // adapted because the renderer now lives outside the scroll.
-            val targetCenterY = binding.avatarGooey.notchCenterY(info)
+            // Convert DisplayCutout screen centerY into avatarGooey local coordinates (-translationY).
+            val targetCenterY = binding.avatarGooey.notchCenterY(info) - binding.avatarGooey.translationY
             val initialCenterY = binding.avatarContainer.top +
                 binding.avatarContainer.height / 2f
             ProfileAvatarTrajectory.offsetToNotch(initialCenterY, targetCenterY, progress)
@@ -376,25 +392,20 @@ class ProfileActivity : EveBaseActivity() {
         binding.chipPremium.alpha = headerContentAlpha
 
         // Telegram ProfileActionsView.java:247-337 stages backgrounds and
-        // icon/text independently as the 74dp action area collapses.
+        // icon/text independently at 1:1 scroll speed as the action row reaches the toolbar.
+        val actionsTotalHeight = binding.layoutActions.layoutParams.height.toFloat().coerceAtLeast(74f * density)
+        val actionsStartScroll = (binding.layoutActions.top.toFloat() - toolbarBottom).coerceAtLeast(0f)
+        val actionsScrollDelta = (scrollY.toFloat() - actionsStartScroll).coerceAtLeast(0f)
         val actionsCollapseState = if (resources.configuration.fontScale > 1.4f)
-            ProfileActionsCollapse.atHeight(scrollY.toFloat(), density, binding.layoutActions.layoutParams.height.toFloat())
-        else ProfileActionsCollapse.atScroll(scrollY.toFloat(), density)
+            ProfileActionsCollapse.atHeight(actionsScrollDelta, density, actionsTotalHeight)
+        else ProfileActionsCollapse.atScroll(actionsScrollDelta, density)
         ProfileActionsCollapse.applyTo(
             listOf(binding.btnSetPhoto, binding.btnEditInfo, binding.btnSettings),
             actionsCollapseState
         )
-        // Close the collapsed header & action row space so Account lands directly under the toolbar.
-        val toolbarBottom = binding.glassToolbar.bottom.toFloat()
-        val collapsedGap = if (binding.glassToolbar.height > 0 && binding.cardPersonalInfo.top > 0) {
-            ((binding.cardPersonalInfo.top.toFloat() - 100f * density) - (toolbarBottom + 8f * density))
-                .coerceAtLeast(0f)
-        } else {
-            74f * density
-        }
-        val collapsedShift = -collapsedGap * progress
-        binding.cardPersonalInfo.translationY = collapsedShift
-        binding.cardCategory.translationY = collapsedShift
+        // Keep 1:1 finger-tracked scroll with zero artificial translationY multiplier.
+        binding.cardPersonalInfo.translationY = 0f
+        binding.cardCategory.translationY = 0f
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
             if (progress > 0f && progress < 1f) {
                 val blurNode = binding.avatarGooey.getBlurRenderNode()
