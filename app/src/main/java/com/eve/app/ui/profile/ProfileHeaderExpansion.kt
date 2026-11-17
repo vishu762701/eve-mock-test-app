@@ -49,7 +49,7 @@ internal object ProfileHeaderExpansion {
         if (binding.profilePhotoScrim.background == null) {
             binding.profilePhotoScrim.background = GradientDrawable(
                 GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0x4D000000, Color.TRANSPARENT, Color.TRANSPARENT, 0x88000000.toInt())
+                intArrayOf(0x40000000, Color.TRANSPARENT, 0x22000000, 0xE6000000.toInt())
             )
         }
         (binding.profilePhotoScrim.background as GradientDrawable).cornerRadius = cornerRadius
