@@ -18,7 +18,7 @@ class TelegramProfileSection @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : LinearLayout(context, attrs) {
     private val density = resources.displayMetrics.density
-    var cornerRadiusDp: Float = 0f
+    var cornerRadiusDp: Float = 16f
         set(value) { field = value; invalidate() }
     private val rect = RectF()
     private val clip = Path()
@@ -26,7 +26,7 @@ class TelegramProfileSection @JvmOverloads constructor(
     private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val hairlinePaint = Paint().apply { strokeWidth = 1f }
     // SharedConfig.java:684 defaults this upstream preference to false.
-    var shadowsInSections = false
+    var shadowsInSections = true
         set(value) { field = value; invalidate() }
     private val themeListener: (TelegramThemeEngine.ResolvedPalette) -> Unit = { invalidate() }
 
