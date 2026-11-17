@@ -297,7 +297,7 @@ class ProfileActivity : EveBaseActivity() {
         }
         val image = binding.avatarContainer
         val params = image.layoutParams as FrameLayout.LayoutParams
-        val desiredTop = (66f * resources.displayMetrics.density).roundToInt() + statusTop
+        val desiredTop = (35f * resources.displayMetrics.density).roundToInt() + statusTop
         if (params.topMargin != desiredTop) {
             params.topMargin = desiredTop
             image.layoutParams = params
@@ -312,12 +312,14 @@ class ProfileActivity : EveBaseActivity() {
                 resources.configuration.smallestScreenWidthDp < 600 &&
                 resources.configuration.orientation != android.content.res.Configuration.ORIENTATION_LANDSCAPE
         }
-        binding.profileScrollView.collapseRangeProvider = {
+        binding.profileScrollView.collapseStopsProvider = {
             val toolbarBottom = binding.glassToolbar.bottom
-            val cardTop = binding.cardPersonalInfo.top
-            if (toolbarBottom > 0 && cardTop > toolbarBottom) {
-                (cardTop - toolbarBottom - (8f * density).roundToInt()).coerceAtLeast(0)
-            } else 0
+            val actionsTop = binding.layoutActions.top
+            val actionsHeight = binding.layoutActions.height.coerceAtLeast((74f * density).roundToInt())
+            if (toolbarBottom > 0 && actionsTop > toolbarBottom) {
+                val headerStop = (actionsTop - toolbarBottom).coerceAtLeast(0)
+                headerStop to (headerStop + actionsHeight)
+            } else (100f * density).roundToInt() to (174f * density).roundToInt()
         }
         binding.profileScrollView.onExpansionChanged = { fraction ->
             expansionFraction = fraction
@@ -339,18 +341,7 @@ class ProfileActivity : EveBaseActivity() {
 
     private fun renderProfileScrollState(scrollY: Int, density: Float) {
         if (expansionFraction > 0) return
-        val legacyProgress = ProfileScrollState.progress(scrollY, density)
-        val toolbarBottom = binding.glassToolbar.bottom.toFloat()
-        val naturalRange = if (binding.glassToolbar.height > 0 && binding.cardPersonalInfo.top > toolbarBottom) {
-            (binding.cardPersonalInfo.top.toFloat() - toolbarBottom - 8f * density).coerceAtLeast(100f * density)
-        } else {
-            100f * density
-        }
-        val progress = if (naturalRange > 100f * density) {
-            (scrollY.toFloat() / naturalRange).coerceIn(0f, 1f)
-        } else {
-            legacyProgress
-        }
+        val progress = ProfileScrollState.progress(scrollY, density)
         // Gooey avatar update (ProfileActivity.java:6039-6047)
         binding.avatarGooey.setPullProgress(progress)
         val blur = ((progress.coerceIn(0.2f, 0.7f) - 0.2f) / 0.5f).coerceAtMost(0.75f)
@@ -370,8 +361,8 @@ class ProfileActivity : EveBaseActivity() {
         binding.avatarContainer.scaleX = currentScale
         binding.avatarContainer.scaleY = currentScale
         binding.avatarContainer.translationY = if (info != null) {
-            // Convert DisplayCutout screen centerY into avatarGooey local coordinates (-translationY).
-            val targetCenterY = binding.avatarGooey.notchCenterY(info) - binding.avatarGooey.translationY
+            // avatarGooey.translationY = -statusTop already places local y=0 at physical screen y=0.
+            val targetCenterY = binding.avatarGooey.notchCenterY(info)
             val initialCenterY = binding.avatarContainer.top +
                 binding.avatarContainer.height / 2f
             ProfileAvatarTrajectory.offsetToNotch(initialCenterY, targetCenterY, progress)
@@ -382,20 +373,29 @@ class ProfileActivity : EveBaseActivity() {
             -scrollY.toFloat() + endOffset * progress
         }
 
-        // Alpha fading of toolbar title vs avatar/name per Telegram ProfileActivity:
-        // Title stays hidden until header name fades out (progress > 0.65), preventing duplicate name display.
-        binding.tvToolbarTitle.alpha = ((progress - 0.65f) / 0.35f).coerceIn(0f, 1f)
-        val headerContentAlpha = (1f - progress * 1.8f).coerceIn(0f, 1f)
+        // Alpha fading & scale of toolbar title vs header name/status per Telegram ProfileActivity.java:8757:
+        val diff = 1f - progress
+        val nameScale = 1f + 0.12f * diff
+        binding.tvName.scaleX = nameScale
+        binding.tvName.scaleY = nameScale
+        binding.tvToolbarTitle.alpha = ((progress - 0.60f) / 0.40f).coerceIn(0f, 1f)
+        val headerContentAlpha = (1f - progress * 1.45f).coerceIn(0f, 1f)
         binding.tvName.alpha = headerContentAlpha
         binding.tvStatus.alpha = headerContentAlpha
         binding.chipAdmin.alpha = headerContentAlpha
         binding.chipPremium.alpha = headerContentAlpha
 
-        // Telegram ProfileActionsView.java:247-337 stages backgrounds and
-        // icon/text independently at 1:1 scroll speed as the action row reaches the toolbar.
+        // Telegram ProfileActivity.java:11267-11269 + ProfileActionsView.java:247-337:
+        // Actions stay 100% height until reaching toolbarBottom, then stay pinned at toolbarBottom while collapsing over 74dp.
+        val toolbarBottom = binding.glassToolbar.bottom.toFloat()
         val actionsTotalHeight = binding.layoutActions.layoutParams.height.toFloat().coerceAtLeast(74f * density)
-        val actionsStartScroll = (binding.layoutActions.top.toFloat() - toolbarBottom).coerceAtLeast(0f)
+        val actionsStartScroll = if (binding.glassToolbar.height > 0 && binding.layoutActions.top > toolbarBottom) {
+            (binding.layoutActions.top.toFloat() - toolbarBottom).coerceAtLeast(0f)
+        } else {
+            100f * density
+        }
         val actionsScrollDelta = (scrollY.toFloat() - actionsStartScroll).coerceAtLeast(0f)
+        binding.layoutActions.translationY = actionsScrollDelta.coerceIn(0f, actionsTotalHeight)
         val actionsCollapseState = if (resources.configuration.fontScale > 1.4f)
             ProfileActionsCollapse.atHeight(actionsScrollDelta, density, actionsTotalHeight)
         else ProfileActionsCollapse.atScroll(actionsScrollDelta, density)
@@ -403,7 +403,6 @@ class ProfileActivity : EveBaseActivity() {
             listOf(binding.btnSetPhoto, binding.btnEditInfo, binding.btnSettings),
             actionsCollapseState
         )
-        // Keep 1:1 finger-tracked scroll with zero artificial translationY multiplier.
         binding.cardPersonalInfo.translationY = 0f
         binding.cardCategory.translationY = 0f
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
