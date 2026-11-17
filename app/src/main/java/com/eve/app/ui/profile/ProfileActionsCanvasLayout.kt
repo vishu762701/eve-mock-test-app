@@ -257,10 +257,10 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
 
     private fun iconMix(): Float {
         // ProfileActionsView.java:412-418: dark surfaces use filled white;
-        // light surfaces blend to white when their parent photo expands.
+        // light surfaces (#FFFFFF in Light Mode, 28033.jpg) use dark outline icons (mix=0f)
+        // and blend to filled white (mix=1f) when parent photo expands (28045.jpg).
         if (!ProfileActionIcons.isLightButtonColor(surfaceColor)) return 1f
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return 0f
-        return ((parentExpanded - .75f) / .25f).coerceIn(0f, 1f)
+        return ((parentExpanded - .35f) / .50f).coerceIn(0f, 1f)
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -268,7 +268,8 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
         if (childCount < 3 || state.backgroundAlpha <= 0f) return
         val mix = iconMix()
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
-        val baseTextColor = if (palette.isDark) Color.WHITE else Color.BLACK
+        val isLight = ProfileActionIcons.isLightButtonColor(surfaceColor)
+        val baseTextColor = if (palette.isDark || !isLight) Color.WHITE else Color.BLACK
         val textColor = ColorUtils.blendARGB(baseTextColor, Color.WHITE, mix)
         val itemHeight = max(0f, dp(54f) * state.fraction)
         val radius = dp(16f)
@@ -276,12 +277,25 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
         val second = outline
         val n = min(childCount, 3)
 
-        val isLight = ColorUtils.calculateLuminance(surfaceColor) > 0.72
+        // When expanded (28045.jpg), paint the black bottom extension of the expanded photo header
+        if (parentExpanded > 0f) {
+            surfacePaint.clearShadowLayer()
+            surfacePaint.color = Color.BLACK
+            surfacePaint.alpha = (255f * parentExpanded * state.backgroundAlpha).roundToInt().coerceIn(0, 255)
+            canvas.drawRect(0f, -dp(20f), width.toFloat(), height.toFloat(), surfacePaint)
+        }
+
         if (isLight && parentExpanded < 0.5f) {
-            val shadowAlpha = ((state.backgroundAlpha * 0.1f) * 32).roundToInt().coerceIn(0, 255)
-            surfacePaint.setShadowLayer(dp(1.5f), 0f, 0f, Color.argb(shadowAlpha, 0, 0, 0))
+            val shadowAlpha = ((state.backgroundAlpha * (1f - parentExpanded * 2f).coerceIn(0f, 1f)) * 22f).roundToInt().coerceIn(0, 255)
+            surfacePaint.setShadowLayer(dp(3f), 0f, dp(1f), Color.argb(shadowAlpha, 0, 0, 0))
         } else {
             surfacePaint.clearShadowLayer()
+        }
+
+        val activeSurfaceColor = if (parentExpanded > 0f) {
+            ColorUtils.blendARGB(surfaceColor, 0x33FFFFFF, parentExpanded)
+        } else {
+            surfaceColor
         }
 
         // Stage 1: Button surface backgrounds & radial highlights (ProfileActionsView.java:298-329)
@@ -298,14 +312,14 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
             val checkpoint = canvas.save()
             canvas.scale(scale, scale, centerX, centerY)
 
-            surfacePaint.color = surfaceColor
-            surfacePaint.alpha = (Color.alpha(surfaceColor) * state.backgroundAlpha).roundToInt().coerceIn(0, 255)
+            surfacePaint.color = activeSurfaceColor
+            surfacePaint.alpha = (Color.alpha(activeSurfaceColor) * state.backgroundAlpha).roundToInt().coerceIn(0, 255)
             canvas.drawRoundRect(rect, radius, radius, surfacePaint)
 
             radialGradient?.let { grad ->
                 shaderMatrix.setTranslate(left, top)
                 grad.setLocalMatrix(shaderMatrix)
-                shaderPaint.alpha = (Color.alpha(surfaceColor) * state.backgroundAlpha).roundToInt().coerceIn(0, 255)
+                shaderPaint.alpha = (Color.alpha(activeSurfaceColor) * state.backgroundAlpha).roundToInt().coerceIn(0, 255)
                 canvas.drawRoundRect(rect, radius, radius, shaderPaint)
             }
             canvas.restoreToCount(checkpoint)
