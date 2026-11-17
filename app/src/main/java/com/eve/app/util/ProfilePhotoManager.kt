@@ -269,7 +269,9 @@ object ProfilePhotoManager {
                 imageView.setPadding(0, 0, 0, 0)
                 imageView.scaleType = ImageView.ScaleType.CENTER_CROP
                 val fallbackDrawable = AvatarDrawable.create(imageView.context, effectiveName, effectiveId)
-                imageView.load(googlePhotoUrl) {
+                val highResUrl = googlePhotoUrl.replace(Regex("=s\\d+(-c)?$"), "=s800-c")
+                imageView.load(highResUrl) {
+                    size(coil.size.Size.ORIGINAL)
                     placeholder(fallbackDrawable)
                     error(fallbackDrawable)
                 }
