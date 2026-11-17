@@ -24,6 +24,8 @@ import kotlin.math.abs
 class ProfilePullScrollView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : NestedScrollView(context, attrs) {
     var canExpand: () -> Boolean = { false }
     var onExpansionChanged: (Float) -> Unit = {}
+    var onOverPullWhenExpanded: (() -> Unit)? = null
+    private var overPullTriggered = false
     var collapseStopsProvider: () -> Pair<Int, Int> = { 0 to 0 }
     private var scrollVelocityTracker: VelocityTracker? = null
     private var snapAnimator: ValueAnimator? = null
@@ -65,7 +67,7 @@ class ProfilePullScrollView @JvmOverloads constructor(context: Context, attrs: A
                 scrollVelocityTracker?.recycle()
                 scrollVelocityTracker = VelocityTracker.obtain().also { it.addMovement(event) }
                 downY = event.y; downX = event.x; lastDragY = event.y
-                dragging = false; latched = isExpanded
+                dragging = false; latched = isExpanded; overPullTriggered = false
             }
             MotionEvent.ACTION_MOVE -> if (beginPull(event)) return true
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
@@ -135,6 +137,12 @@ class ProfilePullScrollView @JvmOverloads constructor(context: Context, attrs: A
             MotionEvent.ACTION_MOVE -> {
                 if (event.pointerCount != 1) { finishDrag(cancelled = true); return true }
                 // Telegram halves drag travel before the expansion latch opens.
+                if (isExpanded && pull >= maximumPull && (event.y - downY) > 56f * resources.displayMetrics.density && !overPullTriggered) {
+                    overPullTriggered = true
+                    onOverPullWhenExpanded?.invoke()
+                    finishDrag(cancelled = true)
+                    return true
+                }
                 val resistance = if (latched) 1f else .5f
                 updatePull(pull + (event.y - lastDragY) * resistance)
                 lastDragY = event.y
