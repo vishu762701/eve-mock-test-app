@@ -28,10 +28,51 @@ internal class QrEmojiPickerGrid(
     private val toggle: (QrEmojiChoice) -> Unit,
     private val selectedDrawable: (String) -> Drawable?,
     private val loadFrame: suspend (QrEmojiChoice, Int) -> Drawable = { choice, size ->
-        NativeQrDrawable.fromJson(QrAnimationAssets.json(context.applicationContext, choice.source), size)
+        if (choice.source.isBlank()) {
+            createStandardGlyphDrawable(choice.alt)
+        } else {
+            NativeQrDrawable.fromJson(QrAnimationAssets.json(context.applicationContext, choice.source), size)
+        }
     },
     private val tint: () -> Int = { 0x33FFFFFF }
 ) : FrameLayout(context) {
+    companion object {
+        fun createStandardGlyphDrawable(alt: String): Drawable = object : Drawable() {
+            private val glyphPaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+                textAlign = android.graphics.Paint.Align.CENTER
+            }
+            override fun draw(canvas: android.graphics.Canvas) {
+                val b = bounds
+                if (b.isEmpty) return
+                glyphPaint.textSize = b.height() * 0.72f
+                val cy = b.exactCenterY() - (glyphPaint.ascent() + glyphPaint.descent()) / 2f
+                canvas.drawText(alt, b.exactCenterX(), cy, glyphPaint)
+            }
+            override fun setAlpha(alpha: Int) { glyphPaint.alpha = alpha }
+            override fun setColorFilter(colorFilter: android.graphics.ColorFilter?) { glyphPaint.colorFilter = colorFilter }
+            @Deprecated("Drawable opacity")
+            override fun getOpacity(): Int = android.graphics.PixelFormat.TRANSLUCENT
+        }
+
+        fun defaultPresetChoices(): List<QrEmojiChoice> = listOf(
+            QrEmojiPattern.standard("❤️"),
+            QrEmojiPattern.custom("tg_fire_on", "🔥", "res:raw/tg_fire_on"),
+            QrEmojiPattern.standard("😎"),
+            QrEmojiPattern.custom("premium_star", "🤩", "res:raw/premium_star"),
+            QrEmojiPattern.standard("🌸"),
+            QrEmojiPattern.standard("❄️"),
+            QrEmojiPattern.standard("🎮"),
+            QrEmojiPattern.standard("💎"),
+            QrEmojiPattern.custom("flying_plane", "🚀", "res:raw/man_flying_on_paper_airplane"),
+            QrEmojiPattern.standard("🏆"),
+            QrEmojiPattern.standard("🧸"),
+            QrEmojiPattern.standard("👻"),
+            QrEmojiPattern.standard("🦊"),
+            QrEmojiPattern.standard("🐱"),
+            QrEmojiPattern.standard("🐵"),
+            QrEmojiPattern.standard("🐣")
+        )
+    }
     private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
     private var assetScope: CoroutineScope? = null
     private var sourceOpenAnimator: ValueAnimator? = null
@@ -254,7 +295,7 @@ internal class QrEmojiPickerGrid(
     }
 
     fun setItems(items: List<QrEmojiChoice>) {
-        choices = items.filter { it.source.startsWith("https://") || it.source.startsWith("res:raw/") }
+        choices = items.filter { it.source.isBlank() || it.source.startsWith("https://") || it.source.startsWith("res:raw/") }
             .distinctBy { it.key }
         cells.notifyDataSetChanged()
         pendingScroll?.let { manager.onRestoreInstanceState(it) }
