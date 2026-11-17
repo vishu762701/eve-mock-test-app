@@ -23,6 +23,7 @@ import kotlin.math.abs
 class ProfilePullScrollView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : NestedScrollView(context, attrs) {
     var canExpand: () -> Boolean = { false }
     var onExpansionChanged: (Float) -> Unit = {}
+    var collapseRangeProvider: () -> Int = { 0 }
     var motionEnabled: () -> Boolean = { DesignMotion.enabled(context) }
     var maximumPull: Float = 0f
         set(value) {
@@ -83,7 +84,17 @@ class ProfilePullScrollView @JvmOverloads constructor(context: Context, attrs: A
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (!dragging && (event.actionMasked != MotionEvent.ACTION_MOVE || !beginPull(event))) return super.onTouchEvent(event)
+        if (!dragging && (event.actionMasked != MotionEvent.ACTION_MOVE || !beginPull(event))) {
+            val handled = super.onTouchEvent(event)
+            if (event.actionMasked == MotionEvent.ACTION_UP && !isExpanded && pull <= 0f) {
+                val range = collapseRangeProvider()
+                if (range > 0 && scrollY in 1 until range) {
+                    val target = if (scrollY >= range / 2) range else 0
+                    post { smoothScrollTo(0, target) }
+                }
+            }
+            return handled
+        }
         tracker?.addMovement(event)
         when (event.actionMasked) {
             MotionEvent.ACTION_MOVE -> {
