@@ -64,10 +64,12 @@ internal object ProfileHeaderExpansion {
         binding.btnBack.imageTintList = ink
         binding.btnProfileQr.imageTintList = ink
         binding.btnProfileMenu.imageTintList = ink
+        val chipFade = (1f - f * 2f).coerceIn(0f, 1f)
         if (f > 0) {
             image.scaleX = 1f; image.scaleY = 1f; image.translationY = 0f
             binding.avatarGooey.setGooeyEnabled(false); binding.avatarGooey.setBlurIntensity(0f)
             binding.tvName.alpha = 1f; binding.tvStatus.alpha = 1f; binding.tvToolbarTitle.alpha = 0f
+            binding.chipAdmin.alpha = chipFade; binding.chipPremium.alpha = chipFade
         }
         binding.avatarTouchTarget.contentDescription = if (f > 0) "Collapse profile photo" else "Profile photo options"
     }
