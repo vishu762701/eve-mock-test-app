@@ -23,7 +23,7 @@ internal object ProfileHeaderExpansion {
         val size = (100 * density + (binding.root.width.coerceAtLeast((100 * density).toInt()) - 100 * density) * f).roundToInt()
         val image = binding.avatarContainer
         val lp = image.layoutParams as FrameLayout.LayoutParams
-        val top = ((66 * density) * (1 - f)).roundToInt() + statusTop
+        val top = ((35 * density) * (1 - f)).roundToInt() + statusTop
         if (lp.width != size || lp.height != size || lp.topMargin != top) {
             lp.width = size; lp.height = size; lp.topMargin = top; image.layoutParams = lp
         }
@@ -32,7 +32,7 @@ internal object ProfileHeaderExpansion {
         binding.ivProfilePhoto.shapeAppearanceModel = binding.ivProfilePhoto.shapeAppearanceModel.toBuilder()
             .setAllCornerSizes(size / 2f * (1 - f)).build()
         val outerLp = binding.avatarOuterContainer.layoutParams
-        val height = (120 * density + binding.profileScrollView.maximumPull * f).roundToInt()
+        val height = (84 * density + binding.profileScrollView.maximumPull * f).roundToInt()
         if (outerLp.height != height) { outerLp.height = height; binding.avatarOuterContainer.layoutParams = outerLp }
         binding.profilePhotoScrim.visibility = if (f > 0) View.VISIBLE else View.GONE
         if (binding.profilePhotoScrim.background == null) binding.profilePhotoScrim.background = GradientDrawable(
