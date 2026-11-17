@@ -208,36 +208,55 @@ open class QrShareActivity : EveBaseActivity() {
         val sheet = TelegramBottomSheet(this)
         val grid = GridLayout(this).apply {
             columnCount = 6
-            setPadding(px(10), px(12), px(10), px(12))
+            setPadding(px(10), px(12), px(10), px(16))
         }
         val cell = (resources.displayMetrics.widthPixels - px(40)) / 6
-        for (index in 0 until scene.paletteCount) {
+        val swatchViews = mutableListOf<Pair<Int, View>>()
+        fun updateSwatches() {
+            for ((idx, v) in swatchViews) {
+                val sel = scene.selectedPalette == idx
+                v.isSelected = sel
+                v.background = GradientDrawable(
+                    GradientDrawable.Orientation.TL_BR,
+                    intArrayOf(
+                        com.eve.app.telegram.qr.QrPalettes.center(idx),
+                        com.eve.app.telegram.qr.QrPalettes.edge(idx)
+                    )
+                ).apply {
+                    shape = GradientDrawable.OVAL
+                    setStroke(px(if (sel) 3 else 1), if (sel) Color.WHITE else 0x336D7072)
+                }
+            }
+        }
+        val swatchCount = minOf(30, scene.paletteCount)
+        for (index in 0 until swatchCount) {
             val swatch = View(this).apply {
                 isClickable = true
                 isFocusable = true
                 contentDescription = scene.paletteName(index)
-                isSelected = scene.selectedPalette == index
-                background = GradientDrawable().apply {
-                    shape = GradientDrawable.OVAL
-                    setColor(scene.palettePreviewColor(index))
-                    setStroke(px(if (isSelected) 3 else 1), if (isSelected) Color.WHITE else 0x336D7072)
-                }
                 com.eve.app.telegram.components.ScaleStateListAnimator.apply(this, .025f, 1.2f)
                 setOnClickListener {
                     scene.setPalette(index)
-                    sheet.dismiss()
+                    updateSwatches()
                 }
             }
+            swatchViews.add(index to swatch)
             grid.addView(swatch, GridLayout.LayoutParams().apply {
                 width = cell - px(8)
                 height = cell - px(8)
                 setMargins(px(4), px(4), px(4), px(4))
             })
         }
+        updateSwatches()
         sheet.setCustomView(ScrollView(this).apply {
             background = glassBackground(24)
             addView(grid)
         })
+        val sheetHeightPx = (cell * 5) + px(36)
+        scene.setPickerPlacement(1f, (resources.displayMetrics.heightPixels - sheetHeightPx).toFloat())
+        sheet.setOnDismissListener {
+            scene.setPickerPlacement(0f, 0f)
+        }
         sheet.show()
     }
 
@@ -353,17 +372,21 @@ open class QrShareActivity : EveBaseActivity() {
             }
         }
         catalogueJob = lifecycleScope.launch {
+            val presets = QrEmojiPickerGrid.defaultPresetChoices()
             val items = EmojiRepository().getPublicQrItems(limit = 24).getOrElse {
-                loading.text = "Animated catalogue unavailable"
+                if (sheet.isShowing) {
+                    grid.setItems(presets)
+                    loading.text = "Presets"
+                }
                 return@launch
             }
             if (!sheet.isShowing) return@launch
             val available = items.filter { it.enabled && it.kind == "lottie" &&
                 (it.url.startsWith("https://") || it.url.startsWith("res:raw/")) }
                 .map { QrEmojiPattern.custom(it.id, it.altEmoji, it.url) }
-            grid.setItems(available)
-            loading.text = if (available.isEmpty()) "No animated EVE emoji assets are available" else
-                "${available.size} animated EVE emojis"
+            val merged = (available + presets).distinctBy { it.key }
+            grid.setItems(merged)
+            loading.text = "Presets"
         }
     }
 
