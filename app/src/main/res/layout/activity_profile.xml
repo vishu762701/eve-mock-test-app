@@ -68,19 +68,43 @@
                 android:src="@drawable/ic_back"
                 app:tint="@color/telegram_type_primary" />
 
-            <TextView
-                android:id="@+id/tvToolbarTitle"
-                style="@style/TextAppearance.Eve.Telegram.NavigationTitle"
-                android:tag="eve_telegram_type"
+            <FrameLayout
+                android:id="@+id/toolbarTitleContainer"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="18dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="9dp"
                 android:layout_weight="1"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:ellipsize="end"
-                android:alpha="0"
-                android:text="Profile" />
+                android:clipChildren="false"
+                android:clipToPadding="false">
+
+                <TextView
+                    android:id="@+id/tvToolbarTitle"
+                    style="@style/TextAppearance.Eve.Telegram.NavigationTitle"
+                    android:tag="eve_telegram_type"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|start"
+                    android:layout_marginTop="7dp"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:alpha="0"
+                    android:text="Profile" />
+
+                <TextView
+                    android:id="@+id/tvToolbarSubtitle"
+                    style="@style/TextAppearance.Eve.Telegram.ProfileStatus"
+                    android:tag="eve_telegram_type"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|start"
+                    android:layout_marginTop="30dp"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:alpha="0"
+                    tools:text="online" />
+            </FrameLayout>
 
             <ImageButton
                 android:id="@+id/btnProfileQr"
@@ -503,14 +527,14 @@
                             android:orientation="vertical">
 
                             <TextView
-                            android:id="@+id/tvCategoryValue"
-                            style="@style/TextAppearance.Eve.Telegram.SettingsLabel"
-                            android:tag="eve_telegram_type"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:ellipsize="end"
-                            android:maxLines="1"
-                            tools:text="General" />
+                                android:id="@+id/tvCategoryValue"
+                                style="@style/TextAppearance.Eve.Telegram.SettingsLabel"
+                                android:tag="eve_telegram_type"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="end"
+                                android:maxLines="1"
+                                tools:text="General" />
 
                             <TextView
                                 android:id="@+id/tvCategoryLabel"
