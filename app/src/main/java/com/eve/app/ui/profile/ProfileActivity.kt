@@ -101,6 +101,7 @@ class ProfileActivity : EveBaseActivity() {
     private var profileLoadJob: Job? = null
     private var presenceSequence = 0L
     private var expansionFraction = 0f
+    private var wasAbsorbedIntoNotch = false
     private var qrNavigationPending = false
     private var profileOptionsPopup: ProfileOverflowPopup? = null
     private var profileAuthListener: FirebaseAuth.AuthStateListener? = null
@@ -350,6 +351,19 @@ class ProfileActivity : EveBaseActivity() {
         // Telegram ProfileActivity.java:6053 hides the entire renderer at
         // its fully absorbed camera endpoint, then restores it on reverse scroll.
         ProfileScrollState.applyGooeyVisibility(binding.avatarGooey, progress)
+        if (progress >= 1f && !wasAbsorbedIntoNotch) {
+            wasAbsorbedIntoNotch = true
+            if (scrollY > 0) {
+                try {
+                    binding.root.performHapticFeedback(
+                        android.view.HapticFeedbackConstants.KEYBOARD_TAP,
+                        android.view.HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING
+                    )
+                } catch (_: Exception) {}
+            }
+        } else if (progress < 0.95f) {
+            wasAbsorbedIntoNotch = false
+        }
 
         // Avatar translation towards notch & scale (ProfileActivity.java:8730-8740)
         val info = binding.avatarGooey.notchInfo
@@ -361,29 +375,50 @@ class ProfileActivity : EveBaseActivity() {
         binding.avatarContainer.scaleX = currentScale
         binding.avatarContainer.scaleY = currentScale
         binding.avatarContainer.translationY = if (info != null) {
-            // avatarGooey.translationY = -statusTop already places local y=0 at physical screen y=0.
             val targetCenterY = binding.avatarGooey.notchCenterY(info)
             val initialCenterY = binding.avatarContainer.top +
                 binding.avatarContainer.height / 2f
             ProfileAvatarTrajectory.offsetToNotch(initialCenterY, targetCenterY, progress)
         } else {
-            // Without a built-in cutout, retain the original scrolling
-            // header displacement and source dynamic status-bar offset.
             val endOffset = binding.avatarGooey.getEndOffset(true, currentScale)
             -scrollY.toFloat() + endOffset * progress
         }
 
-        // Alpha fading & scale of toolbar title vs header name/status per Telegram ProfileActivity.java:8757:
+        // Official Telegram ProfileActivity.java:8747-8789 diagonal X/Y trajectory of Name & Status into ActionBar:
         val diff = 1f - progress
         val nameScale = 1f + 0.12f * diff
+        val isRtl = binding.root.layoutDirection == View.LAYOUT_DIRECTION_RTL
+        binding.tvName.pivotX = if (isRtl) binding.tvName.width.toFloat() else 0f
+        binding.tvName.pivotY = 0f
         binding.tvName.scaleX = nameScale
         binding.tvName.scaleY = nameScale
-        binding.tvToolbarTitle.alpha = ((progress - 0.60f) / 0.40f).coerceIn(0f, 1f)
-        val headerContentAlpha = (1f - progress * 1.45f).coerceIn(0f, 1f)
+
+        val targetStartX = 63f * density
+        val nameTargetX = if (isRtl) {
+            (binding.root.width - targetStartX) - binding.tvName.right
+        } else {
+            targetStartX - binding.tvName.left
+        }
+        val statusTargetX = if (isRtl) {
+            (binding.root.width - targetStartX) - binding.tvStatus.right
+        } else {
+            targetStartX - binding.tvStatus.left
+        }
+        binding.tvName.translationX = nameTargetX * progress
+        binding.tvStatus.translationX = statusTargetX * progress
+
+        // Seamless handoff at ActionBar endpoint so there are never two duplicate titles on screen:
+        val toolbarHandoff = ((progress - 0.85f) / 0.15f).coerceIn(0f, 1f)
+        val headerContentAlpha = (1f - toolbarHandoff).coerceIn(0f, 1f)
+        val chipAlpha = (1f - progress * 1.6f).coerceIn(0f, 1f)
+        binding.tvToolbarTitle.alpha = toolbarHandoff
+        binding.tvToolbarSubtitle.alpha = toolbarHandoff
+        binding.tvToolbarSubtitle.text = binding.tvStatus.text
+        binding.tvToolbarSubtitle.setTextColor(binding.tvStatus.currentTextColor)
         binding.tvName.alpha = headerContentAlpha
         binding.tvStatus.alpha = headerContentAlpha
-        binding.chipAdmin.alpha = headerContentAlpha
-        binding.chipPremium.alpha = headerContentAlpha
+        binding.chipAdmin.alpha = chipAlpha
+        binding.chipPremium.alpha = chipAlpha
 
         // Telegram ProfileActivity.java:11267-11269 + ProfileActionsView.java:247-337:
         // Actions stay 100% height until reaching toolbarBottom, then stay pinned at toolbarBottom while collapsing over 74dp.
