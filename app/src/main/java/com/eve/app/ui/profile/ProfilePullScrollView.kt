@@ -23,7 +23,8 @@ import kotlin.math.abs
 class ProfilePullScrollView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : NestedScrollView(context, attrs) {
     var canExpand: () -> Boolean = { false }
     var onExpansionChanged: (Float) -> Unit = {}
-    var collapseRangeProvider: () -> Int = { 0 }
+    var collapseStopsProvider: () -> Pair<Int, Int> = { 0 to 0 }
+    private var scrollVelocityTracker: VelocityTracker? = null
     var motionEnabled: () -> Boolean = { DesignMotion.enabled(context) }
     var maximumPull: Float = 0f
         set(value) {
@@ -58,6 +59,8 @@ class ProfilePullScrollView @JvmOverloads constructor(context: Context, attrs: A
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 animator?.cancel(); animator = null
+                scrollVelocityTracker?.recycle()
+                scrollVelocityTracker = VelocityTracker.obtain().also { it.addMovement(event) }
                 downY = event.y; downX = event.x; lastDragY = event.y
                 dragging = false; latched = isExpanded
             }
@@ -85,12 +88,24 @@ class ProfilePullScrollView @JvmOverloads constructor(context: Context, attrs: A
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         if (!dragging && (event.actionMasked != MotionEvent.ACTION_MOVE || !beginPull(event))) {
+            scrollVelocityTracker?.addMovement(event)
             val handled = super.onTouchEvent(event)
-            if (event.actionMasked == MotionEvent.ACTION_UP && !isExpanded && pull <= 0f) {
-                val range = collapseRangeProvider()
-                if (range > 0 && scrollY in 1 until range) {
-                    val target = if (scrollY >= range / 2) range else 0
-                    post { smoothScrollTo(0, target) }
+            if ((event.actionMasked == MotionEvent.ACTION_UP || event.actionMasked == MotionEvent.ACTION_CANCEL) && !isExpanded && pull <= 0f) {
+                scrollVelocityTracker?.computeCurrentVelocity(1000)
+                val vy = scrollVelocityTracker?.yVelocity ?: 0f
+                scrollVelocityTracker?.recycle()
+                scrollVelocityTracker = null
+                val density = resources.displayMetrics.density
+                val (headerStop, fullStop) = collapseStopsProvider()
+                if (event.actionMasked == MotionEvent.ACTION_UP && abs(vy) < 600f * density && fullStop > headerStop && headerStop > 0) {
+                    val s = scrollY
+                    if (s in 1 until headerStop) {
+                        val target = if (s >= (headerStop * 0.45f).toInt()) headerStop else 0
+                        post { smoothScrollTo(0, target) }
+                    } else if (s in (headerStop + 1) until fullStop) {
+                        val target = if (s - headerStop >= ((fullStop - headerStop) * 0.45f).toInt()) fullStop else headerStop
+                        post { smoothScrollTo(0, target) }
+                    }
                 }
             }
             return handled
@@ -168,6 +183,7 @@ class ProfilePullScrollView @JvmOverloads constructor(context: Context, attrs: A
     override fun onDetachedFromWindow() {
         animator?.cancel(); animator = null
         tracker?.recycle(); tracker = null; dragging = false
+        scrollVelocityTracker?.recycle(); scrollVelocityTracker = null
         updatePull(if (isExpanded) maximumPull else 0f)
         super.onDetachedFromWindow()
     }
