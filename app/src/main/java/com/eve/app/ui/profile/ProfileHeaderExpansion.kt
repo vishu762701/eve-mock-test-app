@@ -7,9 +7,7 @@ import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.view.View
 import android.widget.FrameLayout
-import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
-import com.eve.app.R
 import com.eve.app.databinding.ActivityProfileBinding
 import com.eve.app.theme.TelegramThemeEngine
 import kotlin.math.min
@@ -45,15 +43,15 @@ internal object ProfileHeaderExpansion {
         if (outerLp.height != height) {
             outerLp.height = height; binding.avatarOuterContainer.layoutParams = outerLp
         }
-        binding.profilePhotoScrim.visibility = if (f > 0f) View.VISIBLE else View.GONE
+        binding.profilePhotoScrim.visibility = if (morph > 0f) View.VISIBLE else View.GONE
         if (binding.profilePhotoScrim.background == null) {
             binding.profilePhotoScrim.background = GradientDrawable(
                 GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(0x40000000, Color.TRANSPARENT, 0x22000000, 0xE6000000.toInt())
+                intArrayOf(0x55000000, Color.TRANSPARENT, Color.TRANSPARENT, 0xCC000000.toInt(), Color.BLACK)
             )
         }
         (binding.profilePhotoScrim.background as GradientDrawable).cornerRadius = cornerRadius
-        binding.profilePhotoScrim.alpha = f
+        binding.profilePhotoScrim.alpha = morph
 
         // ProfileActivity.java:6357-6399: Quadratic Bezier (kx=8dp, ky=8dp) from centered header to bottom-left (18dp/16dp)
         val statusBottom = size - 10f * density
@@ -64,9 +62,9 @@ internal object ProfileHeaderExpansion {
         val maxScale = if (binding.tvName.width > 0) {
             min(1.38f, ((rootWidth - 36f * density) / binding.tvName.width.toFloat()).coerceAtLeast(1f))
         } else 1.38f
-        val targetScale = 1f + (maxScale - 1f) * f
+        val targetScale = 1f + (maxScale - 1f) * morph
         binding.tvName.pivotX = if (isRtl) binding.tvName.width.toFloat() else 0f
-        binding.tvName.pivotY = binding.tvName.height.toFloat() * f
+        binding.tvName.pivotY = binding.tvName.height.toFloat() * morph
         binding.tvName.scaleX = targetScale
         binding.tvName.scaleY = targetScale
 
@@ -82,15 +80,16 @@ internal object ProfileHeaderExpansion {
         }
         val kx = (if (isRtl) -8f else 8f) * density
         val ky = 8f * density
-        val oneMinusF = 1f - f
+        val oneMinusM = 1f - morph
+        val preLatchPushY = (size - 100f * density) * (1f - morph)
         val nameCx = kx + endNameX * 0.5f
         val nameCy = ky + endNameY * 0.5f
         val statusCx = kx + endStatusX * 0.5f
         val statusCy = ky + endStatusY * 0.5f
-        binding.tvName.translationX = 2f * oneMinusF * f * nameCx + f * f * endNameX
-        binding.tvName.translationY = 2f * oneMinusF * f * nameCy + f * f * endNameY
-        binding.tvStatus.translationX = 2f * oneMinusF * f * statusCx + f * f * endStatusX
-        binding.tvStatus.translationY = 2f * oneMinusF * f * statusCy + f * f * endStatusY
+        binding.tvName.translationX = 2f * oneMinusM * morph * nameCx + morph * morph * endNameX
+        binding.tvName.translationY = preLatchPushY + 2f * oneMinusM * morph * nameCy + morph * morph * endNameY
+        binding.tvStatus.translationX = 2f * oneMinusM * morph * statusCx + morph * morph * endStatusX
+        binding.tvStatus.translationY = preLatchPushY + 2f * oneMinusM * morph * statusCy + morph * morph * endStatusY
 
         val contentOffset = (size - binding.layoutActions.top) * f
         val column = binding.layoutActions.parent as android.view.ViewGroup
@@ -101,18 +100,25 @@ internal object ProfileHeaderExpansion {
             if (following) child.translationY = contentOffset
         }
         val palette = TelegramThemeEngine.resolveCurrentPalette(binding.root.context)
-        binding.tvName.setTextColor(ColorUtils.blendARGB(palette.textPrimary, Color.WHITE, f))
+        binding.tvName.setTextColor(ColorUtils.blendARGB(palette.textPrimary, Color.WHITE, morph))
         val baseStatusColor = palette.textSecondary
         // ProfileActivity.java:6394 blends subtitle to 0xB3FFFFFF on expanded photo
-        binding.tvStatus.setTextColor(ColorUtils.blendARGB(baseStatusColor, 0xB3FFFFFF.toInt(), f))
-        val ink = ColorStateList.valueOf(ColorUtils.blendARGB(palette.textPrimary, Color.WHITE, f))
+        binding.tvStatus.setTextColor(ColorUtils.blendARGB(baseStatusColor, 0xB3FFFFFF.toInt(), morph))
+        val ink = ColorStateList.valueOf(ColorUtils.blendARGB(palette.textPrimary, Color.WHITE, morph))
         binding.btnBack.imageTintList = ink
         binding.btnProfileQr.imageTintList = ink
         binding.btnProfileMenu.imageTintList = ink
-        val chipFade = (1f - f * 2f).coerceIn(0f, 1f)
+        val chipFade = (1f - morph * 2f).coerceIn(0f, 1f)
         if (f > 0f) {
             image.scaleX = 1f; image.scaleY = 1f; image.translationY = 0f
-            binding.avatarGooey.setGooeyEnabled(false); binding.avatarGooey.setBlurIntensity(0f)
+            if (f <= 0.33f) {
+                binding.avatarGooey.setGooeyEnabled(true)
+                binding.avatarGooey.setPullProgress(0.35f * (f / 0.33f))
+                binding.avatarGooey.setBlurIntensity(0f)
+            } else {
+                binding.avatarGooey.setGooeyEnabled(false)
+                binding.avatarGooey.setBlurIntensity(0f)
+            }
             binding.tvName.alpha = 1f; binding.tvStatus.alpha = 1f
             binding.tvToolbarTitle.alpha = 0f; binding.tvToolbarSubtitle.alpha = 0f
             binding.chipAdmin.alpha = chipFade; binding.chipPremium.alpha = chipFade
