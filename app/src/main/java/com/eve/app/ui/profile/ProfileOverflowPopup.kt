@@ -21,7 +21,7 @@ internal class ProfileOverflowPopup(private val anchor: View) {
     private var window: ActionBarPopupWindow? = null
     val isShowing: Boolean get() = window?.isShowing == true
 
-    fun show(usernameEnabled: Boolean, onUsername: () -> Unit, onCopyLink: () -> Unit, onShareQr: (() -> Unit)? = null, canEdit: Boolean = true) {
+    fun show(usernameEnabled: Boolean, onUsername: () -> Unit, onCopyLink: () -> Unit, onShareQr: (() -> Unit)? = null, canEdit: Boolean = true, onChangeColor: (() -> Unit)? = null) {
         if (isShowing) return
         val context = anchor.context
         PopupPlatform.density = context.resources.displayMetrics.density
@@ -80,7 +80,10 @@ internal class ProfileOverflowPopup(private val anchor: View) {
             item.setItemHeight(ceil(maxOf(dp(48f), textHeight).toFloat() / PopupPlatform.density).toInt())
             layout.addView(item, LinearLayout.LayoutParams(-1, -2))
         }
-        row("Change username", R.drawable.profile_menu_username_change, true, false, canEdit, onUsername)
+        if (onChangeColor != null) {
+            row("Change profile color", R.drawable.msg_palette, true, false, true, onChangeColor)
+        }
+        row("Change username", R.drawable.profile_menu_username_change, onChangeColor == null, false, canEdit, onUsername)
         row("Copy link to profile", R.drawable.profile_msg_link2, false, onShareQr == null, usernameEnabled, onCopyLink)
         if (onShareQr != null) {
             row("Share QR code", R.drawable.telegram_profile_qr, false, true, true, onShareQr)
