@@ -72,7 +72,7 @@
                 android:id="@+id/toolbarTitleContainer"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_marginStart="9dp"
+                android:layout_marginStart="42dp"
                 android:layout_weight="1"
                 android:clipChildren="false"
                 android:clipToPadding="false">
@@ -83,7 +83,8 @@
                     android:tag="eve_telegram_type"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="top|start"
+                    android:layout_gravity="top|center_horizontal"
+                    android:gravity="center"
                     android:layout_marginTop="7dp"
                     android:maxLines="1"
                     android:singleLine="true"
@@ -97,7 +98,8 @@
                     android:tag="eve_telegram_type"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="top|start"
+                    android:layout_gravity="top|center_horizontal"
+                    android:gravity="center"
                     android:layout_marginTop="30dp"
                     android:maxLines="1"
                     android:singleLine="true"
@@ -347,7 +349,7 @@
                 </LinearLayout>
             </com.eve.app.ui.profile.ProfileActionsCanvasLayout>
 
-            <!-- Card 1: Personal Information (rounded 16dp inset section card, 21dp divider insets) -->
+            <!-- Card 1: Personal Information (flat full-width profile cells, 21dp divider insets) -->
             <com.eve.app.ui.profile.TelegramProfileSection
                 android:id="@+id/cardPersonalInfo"
                 android:layout_width="match_parent"
