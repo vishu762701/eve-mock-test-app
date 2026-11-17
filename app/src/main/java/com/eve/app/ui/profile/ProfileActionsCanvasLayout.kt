@@ -277,23 +277,24 @@ class ProfileActionsCanvasLayout @JvmOverloads constructor(
         val second = outline
         val n = min(childCount, 3)
 
-        // When expanded (28045.jpg), paint the black bottom extension of the expanded photo header
-        if (parentExpanded > 0f) {
+        val expandMorph = ((parentExpanded - 0.33f) / 0.67f).coerceIn(0f, 1f)
+        // When expanded (28045.jpg), paint the seamless black bottom extension of the expanded photo header
+        if (expandMorph > 0f) {
             surfacePaint.clearShadowLayer()
             surfacePaint.color = Color.BLACK
-            surfacePaint.alpha = (255f * parentExpanded * state.backgroundAlpha).roundToInt().coerceIn(0, 255)
-            canvas.drawRect(0f, -dp(20f), width.toFloat(), height.toFloat(), surfacePaint)
+            surfacePaint.alpha = (255f * expandMorph * expandMorph * state.backgroundAlpha).roundToInt().coerceIn(0, 255)
+            canvas.drawRect(0f, -dp(4f), width.toFloat(), height.toFloat(), surfacePaint)
         }
 
-        if (isLight && parentExpanded < 0.5f) {
-            val shadowAlpha = ((state.backgroundAlpha * (1f - parentExpanded * 2f).coerceIn(0f, 1f)) * 22f).roundToInt().coerceIn(0, 255)
+        if (isLight && expandMorph < 0.5f) {
+            val shadowAlpha = ((state.backgroundAlpha * (1f - expandMorph * 2f).coerceIn(0f, 1f)) * 22f).roundToInt().coerceIn(0, 255)
             surfacePaint.setShadowLayer(dp(3f), 0f, dp(1f), Color.argb(shadowAlpha, 0, 0, 0))
         } else {
             surfacePaint.clearShadowLayer()
         }
 
-        val activeSurfaceColor = if (parentExpanded > 0f) {
-            ColorUtils.blendARGB(surfaceColor, 0x33FFFFFF, parentExpanded)
+        val activeSurfaceColor = if (expandMorph > 0f) {
+            ColorUtils.blendARGB(surfaceColor, 0x28FFFFFF, expandMorph)
         } else {
             surfaceColor
         }
