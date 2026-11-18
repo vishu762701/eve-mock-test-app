@@ -23,6 +23,8 @@ cleanup() {
       tail -n 100 "$instrumentation_log" || true
     fi
     if [[ -f "${full_logcat_log:-}" ]]; then
+      echo "=== FULL LOGCAT RELEVANT LINES ==="
+      grep -E -C 2 "PORT_SMOKE|PortedScreensSmokeTest|ChangeNameActivity|am_create_activity|ActivityTaskManager.*START|FATAL EXCEPTION|ANR in " "$full_logcat_log" | head -n 150 || true
       echo "=== FULL LOGCAT TAIL ==="
       tail -n 150 "$full_logcat_log" || true
     fi
