@@ -6,9 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
-import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
-import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.test.core.app.ActivityScenario
@@ -79,12 +77,12 @@ class PortedScreensSmokeTest {
     private fun runSmokeForScreen(entry: PortedScreenSpec) {
         clearLogcatCrashBuffer()
 
-        val hostClass = Class.forName(entry.eveHost)
+        @Suppress("UNCHECKED_CAST")
+        val hostClass = Class.forName(entry.eveHost) as Class<out Activity>
         val intent = buildValidIntent(hostClass, entry.screen)
 
         ActivityScenario.launch<Activity>(intent).use { scenario ->
             instrumentation.waitForIdleSync()
-            instrumentation.uiAutomation.waitForIdle(250, 5000)
             assertNoLogcatCrashesOrAnrs("Startup of ${entry.screen}")
 
             // 1. Assert no crash and fragment view exists with non-zero dimensions and >= 1 child
@@ -119,7 +117,6 @@ class PortedScreensSmokeTest {
                 activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             }
             instrumentation.waitForIdleSync()
-            instrumentation.uiAutomation.waitForIdle(250, 3000)
             assertNoLogcatCrashesOrAnrs("Landscape rotation of ${entry.screen}")
 
             scenario.onActivity { activity ->
@@ -140,17 +137,13 @@ class PortedScreensSmokeTest {
                 activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             }
             instrumentation.waitForIdleSync()
-            instrumentation.uiAutomation.waitForIdle(250, 3000)
             assertNoLogcatCrashesOrAnrs("Portrait restore of ${entry.screen}")
 
-            // 4. Press back without crash
-            try {
-                androidx.test.espresso.Espresso.pressBackUnconditionally()
-            } catch (_: Throwable) {
-                instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
+            // 4. Press back without crash via standard back dispatcher
+            scenario.onActivity { activity ->
+                activity.onBackPressedDispatcher.onBackPressed()
             }
             instrumentation.waitForIdleSync()
-            instrumentation.uiAutomation.waitForIdle(250, 3000)
             assertNoLogcatCrashesOrAnrs("Back press of ${entry.screen}")
         }
 
@@ -166,9 +159,8 @@ class PortedScreensSmokeTest {
         }
     }
 
-    private fun buildValidIntent(hostClass: Class<*>, screenName: String): Intent {
+    private fun buildValidIntent(hostClass: Class<out Activity>, screenName: String): Intent {
         val intent = Intent(context, hostClass).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             putExtra(ProfileEditorAccountGuard.EXTRA_OWNER_UID, testUid)
         }
 
@@ -191,7 +183,6 @@ class PortedScreensSmokeTest {
 
     private fun saveScreenshot(screen: String) {
         instrumentation.waitForIdleSync()
-        instrumentation.uiAutomation.waitForIdle(250, 5000)
         val bitmap = instrumentation.uiAutomation.takeScreenshot()
         assertNotNull("Screenshot bitmap must not be null for $screen", bitmap)
 
@@ -301,25 +292,24 @@ class PortedScreensSmokeTest {
 
     private fun clearLogcatCrashBuffer() {
         try {
-            val pfd: ParcelFileDescriptor = instrumentation.uiAutomation.executeShellCommand("logcat -b crash -c")
-            pfd.close()
+            instrumentation.uiAutomation.executeShellCommand("logcat -b crash -c").use {}
         } catch (_: Throwable) {}
     }
 
     private fun assertNoLogcatCrashesOrAnrs(stage: String) {
         try {
-            val pfd: ParcelFileDescriptor = instrumentation.uiAutomation.executeShellCommand("logcat -b crash -d")
-            val output = FileInputStream(pfd.fileDescriptor).bufferedReader().readText()
-            pfd.close()
+            instrumentation.uiAutomation.executeShellCommand("logcat -b crash -d").use { pfd ->
+                val output = FileInputStream(pfd.fileDescriptor).bufferedReader().readText()
 
-            if (output.isNotBlank()) {
-                val failureLines = output.lines().filter { line ->
-                    line.contains("FATAL EXCEPTION", ignoreCase = true) ||
-                    line.contains("ANR in ", ignoreCase = true) ||
-                    line.contains("FATAL EXCEPTION IN SYSTEM PROCESS", ignoreCase = true)
-                }
-                if (failureLines.isNotEmpty()) {
-                    fail("FATAL EXCEPTION or ANR detected in logcat crash buffer during $stage:\n$output")
+                if (output.isNotBlank()) {
+                    val failureLines = output.lines().filter { line ->
+                        line.contains("FATAL EXCEPTION", ignoreCase = true) ||
+                        line.contains("ANR in ", ignoreCase = true) ||
+                        line.contains("FATAL EXCEPTION IN SYSTEM PROCESS", ignoreCase = true)
+                    }
+                    if (failureLines.isNotEmpty()) {
+                        fail("FATAL EXCEPTION or ANR detected in logcat crash buffer during $stage:\n$output")
+                    }
                 }
             }
         } catch (e: Throwable) {

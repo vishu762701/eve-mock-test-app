@@ -13,8 +13,18 @@ cleanup() {
   fi
   # Pull evidence if emulator is still accessible
   if [[ "$(timeout 5s adb get-state 2>/dev/null || true)" == "device" ]]; then
-    timeout 12s adb pull /sdcard/Pictures/eve-approved-ui ui-renderings/ 2>/dev/null || true
+    timeout 12s adb pull /sdcard/Pictures/eve-approved-ui/. ui-renderings/ 2>/dev/null || true
     timeout 12s adb pull /sdcard/ui-renderings/. ui-renderings/ 2>/dev/null || true
+  fi
+  if [[ "$exit_code" -ne 0 ]]; then
+    if [[ -f "${instrumentation_log:-}" ]]; then
+      echo "=== INSTRUMENTATION LOG TAIL ==="
+      tail -n 100 "$instrumentation_log" || true
+    fi
+    if [[ -f "${guest_crash_log:-}" ]]; then
+      echo "=== GUEST CRASH LOG TAIL ==="
+      tail -n 100 "$guest_crash_log" || true
+    fi
   fi
   exit "$exit_code"
 }
