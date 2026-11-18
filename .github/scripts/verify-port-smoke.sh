@@ -42,7 +42,8 @@ adb shell wm dismiss-keyguard
 
 # 3. Configure gesture navigation mode
 echo "Configuring gesture navigation mode..."
-adb shell cmd overlay enable-exclusive --category "com.android.internal.systemui.navbar.gesture"
+adb shell am start -W -a android.settings.SETTINGS > ui-renderings/emulator-foreground-setup.log || true
+adb shell cmd overlay enable-exclusive --category "com.android.internal.systemui.navbar.gestural"
 actual_mode=""
 for attempt in $(seq 1 30); do
   actual_mode="$(adb shell settings get secure navigation_mode 2>/dev/null | tr -d '\r')"
@@ -55,6 +56,11 @@ if [[ "$actual_mode" != "2" ]]; then
   exit 1
 fi
 echo "Gesture navigation verified (mode 2)."
+adb shell input keyevent KEYCODE_WAKEUP
+adb shell wm dismiss-keyguard
+adb shell input keyevent KEYCODE_BACK
+adb shell input keyevent KEYCODE_HOME
+adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS || true
 
 # 4. Install prebuilt APKs
 echo "Installing prebuilt APKs..."
