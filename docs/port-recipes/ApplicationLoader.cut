@@ -16,7 +16,6 @@ remove-statement "private static PushListenerController.IPushListenerServiceProv
 remove-statement "private static IMapsProvider mapsProvider;"
 remove-statement "private static ILocationServiceProvider locationServiceProvider;"
 remove-statement "private final Runnable debugEverySecondChecks = () -> AndroidUtilities.runOnUIThread(() -> {"
-remove-statement "private static int lastKnownNetworkType = -1;"
 remove-statement "private static long lastNetworkCheckTypeTime;"
 
 remove-method onConfigurationChanged

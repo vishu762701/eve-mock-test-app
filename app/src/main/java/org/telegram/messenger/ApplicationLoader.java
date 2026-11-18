@@ -38,6 +38,7 @@ public class ApplicationLoader extends Application {
     private static ConnectivityManager connectivityManager;
     private static volatile boolean applicationInited = false;
     private static volatile  ConnectivityManager.NetworkCallback networkCallback;
+    private static int lastKnownNetworkType = -1;
 
     public static long startTime;
 

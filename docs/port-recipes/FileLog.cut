@@ -36,6 +36,7 @@ remove-statement "private static volatile boolean gsonDisabled;"
 remove-statement "private static HashSet<String> privateFields;"
 remove-statement "public static class ByteArrayHexAdapter extends TypeAdapter<byte[]> {"
 remove-statement "private static class TLObjectDeserializer implements JsonSerializer<TLObject> {"
+remove-statement "if (getInstance().streamWriter != null) {" all
 
 remove-method postProtocolDump
 remove-method dumpResponseAndRequest

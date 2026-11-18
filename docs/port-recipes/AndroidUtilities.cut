@@ -67,9 +67,28 @@ remove-method shakeView
 remove-method shakeViewSpring all
 remove-method formatSpannable all
 remove-method formatSpannableSimple
+remove-method appCenterLog all
+remove-method shouldShowClipboardToast all
+remove-method getAlbumDir all
+remove-method forEachViews all
+remove-method translitSafe all
+remove-method replaceTags all
+remove-method replaceSingleTag all
+remove-method premiumText all
+remove-method getBuildVersionInfo all
+remove-method printStackTrace all
+remove-method logFlagSecure all
+remove-method dumpStackTrace all
+remove-method printLayoutRequestedChain all
+remove-method getHelloWorld all
+remove-method isProxyLink all
+remove-method getSharingDirectory all
+remove-method generatePicturePath all
+remove-method addMediaToGallery all
 remove-statement "if (!TextUtils.isEmpty(SharedConfig.storageCacheDir)) {"
 
 # Patches
+patch-line "                Theme.reloadAllResources(context);" "                // no-op" "decouple reloadAllResources"
 patch-line "        if (activity == null || activity.isFinishing()) activity = LaunchActivity.instance;" "        if (activity == null || activity.isFinishing()) activity = findActivity(ApplicationLoader.applicationContext);" "fallback to applicationContext activity lookup"
 patch-line "            return BitwiseUtils.hasFlag(flags, View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);" "            return (flags & View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR) != 0;" "use standard bitwise check"
 patch-line "        final int newFlags = BitwiseUtils.setFlag(oldFlags, flag, enable);" "        final int newFlags = enable ? (oldFlags | flag) : (oldFlags & ~flag);" "use standard bitwise check"

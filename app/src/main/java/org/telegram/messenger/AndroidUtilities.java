@@ -8,10 +8,8 @@
 
 package org.telegram.messenger;
 
-import static org.telegram.messenger.LocaleController.formatString;
 import static org.telegram.messenger.LocaleController.getString;
 
-import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
@@ -86,7 +84,6 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowInsets;
@@ -124,7 +121,6 @@ import androidx.viewpager.widget.ViewPager;
 
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.CubicBezierInterpolator;
-import org.telegram.ui.Components.TypefaceSpan;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -440,70 +436,6 @@ public class AndroidUtilities {
             return findActivity(((ContextWrapper) context).getBaseContext());
         }
         return null;
-    }
-
-    public static SpannableStringBuilder premiumText(String str, Runnable runnable) {
-        return replaceSingleTag(str, -1, REPLACING_TAG_TYPE_LINKBOLD, runnable);
-    }
-
-    public static SpannableStringBuilder replaceSingleTag(String str, Runnable runnable) {
-        return replaceSingleTag(str, -1, 0, runnable);
-    }
-
-    public static SpannableStringBuilder replaceSingleTag(String str, int colorKey, int type, Runnable runnable) {
-        return replaceSingleTag(str, colorKey, type, runnable, null);
-    }
-
-    public static SpannableStringBuilder replaceSingleTag(String str, int colorKey, int type, Runnable runnable, Theme.ResourcesProvider resourcesProvider) {
-        int startIndex = str.indexOf("**");
-        int endIndex = str.indexOf("**", startIndex + 1);
-        str = str.replace("**", "");
-        int index = -1;
-        int len = 0;
-        if (startIndex >= 0 && endIndex >= 0 && endIndex - startIndex > 2) {
-            len = endIndex - startIndex - 2;
-            index = startIndex;
-        }
-        SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(str);
-        if (/*runnable != null &&*/ index >= 0) {
-            if (type == REPLACING_TAG_TYPE_LINK_NBSP) {
-                spannableStringBuilder.replace(index, index + len, AndroidUtilities.replaceMultipleCharSequence(" ", spannableStringBuilder.subSequence(index, index + len), " "));
-            }
-            if (type == REPLACING_TAG_TYPE_LINK || type == REPLACING_TAG_TYPE_LINK_NBSP || type == REPLACING_TAG_TYPE_LINKBOLD || type == REPLACING_TAG_TYPE_UNDERLINE) {
-                spannableStringBuilder.setSpan(new ClickableSpan() {
-
-                    @Override
-                    public void updateDrawState(@NonNull TextPaint ds) {
-                        super.updateDrawState(ds);
-                        ds.setUnderlineText(type == REPLACING_TAG_TYPE_UNDERLINE);
-                        if (colorKey >= 0) {
-                            ds.setColor(Theme.getColor(colorKey, resourcesProvider));
-                        }
-                        if (type == REPLACING_TAG_TYPE_LINKBOLD) {
-                            ds.setTypeface(AndroidUtilities.bold());
-                        }
-                    }
-
-                    @Override
-                    public void onClick(@NonNull View view) {
-                        if (runnable != null) {
-                            runnable.run();
-                        }
-                    }
-                }, index, index + len, 0);
-            } else {
-                spannableStringBuilder.setSpan(new CharacterStyle() {
-                    @Override
-                    public void updateDrawState(TextPaint textPaint) {
-                        textPaint.setTypeface(AndroidUtilities.bold());
-                        int wasAlpha = textPaint.getAlpha();
-                        textPaint.setColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlueText, resourcesProvider));
-                        textPaint.setAlpha(wasAlpha);
-                    }
-                }, index, index + len, 0);
-            }
-        }
-        return spannableStringBuilder;
     }
 
     public static SpannableStringBuilder makeClickable(CharSequence str, int type, Runnable runnable, Theme.ResourcesProvider resourcesProvider) {
@@ -1876,7 +1808,7 @@ public class AndroidUtilities {
             density = context.getResources().getDisplayMetrics().density;
             float newDensity = density;
             if (firstConfigurationWas && Math.abs(oldDensity - newDensity) > 0.001) {
-                Theme.reloadAllResources(context);
+                // no-op // EVE-PATCH: decouple reloadAllResources
             }
             firstConfigurationWas = true;
             Configuration configuration = newConfiguration;
@@ -2298,100 +2230,6 @@ public class AndroidUtilities {
     public static final int FLAG_TAG_URL = 8;
     public static final int FLAG_TAG_ALL = FLAG_TAG_BR | FLAG_TAG_BOLD | FLAG_TAG_URL;
 
-    public static SpannableStringBuilder replaceTags(String str) {
-        return replaceTags(str, FLAG_TAG_ALL);
-    }
-
-    public static SpannableStringBuilder replaceTags(String str, int flag, Object... args) {
-        try {
-            int start;
-            int end;
-            StringBuilder stringBuilder = new StringBuilder(str);
-            if ((flag & FLAG_TAG_BR) != 0) {
-                while ((start = stringBuilder.indexOf("<br>")) != -1) {
-                    stringBuilder.replace(start, start + 4, "\n");
-                }
-                while ((start = stringBuilder.indexOf("<br/>")) != -1) {
-                    stringBuilder.replace(start, start + 5, "\n");
-                }
-            }
-            ArrayList<Integer> bolds = new ArrayList<>();
-            if ((flag & FLAG_TAG_BOLD) != 0) {
-                while ((start = stringBuilder.indexOf("<b>")) != -1) {
-                    stringBuilder.replace(start, start + 3, "");
-                    end = stringBuilder.indexOf("</b>");
-                    if (end == -1) {
-                        end = stringBuilder.indexOf("<b>");
-                    }
-                    stringBuilder.replace(end, end + 4, "");
-                    bolds.add(start);
-                    bolds.add(end);
-                }
-                while ((start = stringBuilder.indexOf("**")) != -1) {
-                    stringBuilder.replace(start, start + 2, "");
-                    end = stringBuilder.indexOf("**");
-                    if (end >= 0) {
-                        stringBuilder.replace(end, end + 2, "");
-                        bolds.add(start);
-                        bolds.add(end);
-                    }
-                }
-            }
-            if ((flag & FLAG_TAG_URL) != 0) {
-                while ((start = stringBuilder.indexOf("**")) != -1) {
-                    stringBuilder.replace(start, start + 2, "");
-                    end = stringBuilder.indexOf("**");
-                    if (end >= 0) {
-                        stringBuilder.replace(end, end + 2, "");
-                        bolds.add(start);
-                        bolds.add(end);
-                    }
-                }
-            }
-            SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(stringBuilder);
-            for (int a = 0; a < bolds.size() / 2; a++) {
-                spannableStringBuilder.setSpan(new TypefaceSpan(AndroidUtilities.bold()), bolds.get(a * 2), bolds.get(a * 2 + 1), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            }
-            return spannableStringBuilder;
-        } catch (Exception e) {
-            FileLog.e(e);
-        }
-        return new SpannableStringBuilder(str);
-    }
-
-    public static CharSequence replaceTags(CharSequence cs) {
-        if (cs instanceof SpannableStringBuilder) {
-            return replaceTags((SpannableStringBuilder) cs);
-        } else {
-            return replaceTags(new SpannableStringBuilder(cs));
-        }
-    }
-
-    public static SpannableStringBuilder replaceTags(SpannableStringBuilder stringBuilder) {
-        try {
-            int start;
-            int end;
-            ArrayList<Integer> bolds = new ArrayList<>();
-            while ((start = AndroidUtilities.charSequenceIndexOf(stringBuilder, "**")) != -1) {
-                stringBuilder.replace(start, start + 2, "");
-                end = AndroidUtilities.charSequenceIndexOf(stringBuilder, "**");
-                if (end >= 0) {
-                    stringBuilder.replace(end, end + 2, "");
-                    bolds.add(start);
-                    bolds.add(end);
-                }
-            }
-            SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(stringBuilder);
-            for (int a = 0; a < bolds.size() / 2; a++) {
-                spannableStringBuilder.setSpan(new TypefaceSpan(AndroidUtilities.bold()), bolds.get(a * 2), bolds.get(a * 2 + 1), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            }
-            return spannableStringBuilder;
-        } catch (Exception e) {
-            FileLog.e(e);
-        }
-        return stringBuilder;
-    }
-
     private static Pattern linksPattern;
 
     public static class LinkMovementMethodMy extends LinkMovementMethod {
@@ -2458,70 +2296,6 @@ public class AndroidUtilities {
             window.clearFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
         }
     }*/
-
-    public static void appCenterLog(Throwable e) {
-        ApplicationLoader.appCenterLog(e);
-    }
-
-    public static boolean shouldShowClipboardToast() {
-        return (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || !OneUIUtilities.hasBuiltInClipboardToasts()) && Build.VERSION.SDK_INT < 32;
-    }
-
-    public static void addMediaToGallery(String fromPath) {
-        if (fromPath == null) {
-            return;
-        }
-        File f = new File(fromPath);
-        addMediaToGallery(f);
-    }
-
-    public static void addMediaToGallery(File file) {
-        Uri uri = Uri.fromFile(file);
-        if (uri == null) {
-            return;
-        }
-        try {
-            Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-            mediaScanIntent.setData(uri);
-            ApplicationLoader.applicationContext.sendBroadcast(mediaScanIntent);
-        } catch (Exception e) {
-            FileLog.e(e);
-        }
-    }
-
-    private static File getAlbumDir(boolean secretChat) {
-        if (
-            secretChat ||
-            !BuildVars.NO_SCOPED_STORAGE ||
-            (
-                Build.VERSION.SDK_INT >= 33 &&
-                ApplicationLoader.applicationContext.checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED
-            ) || (
-                Build.VERSION.SDK_INT <= 33 &&
-                ApplicationLoader.applicationContext.checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-            )
-        ) {
-            return FileLoader.getDirectory(FileLoader.MEDIA_DIR_IMAGE);
-        }
-        File storageDir = null;
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Telegram");
-            if (!storageDir.mkdirs()) {
-                if (!storageDir.exists()) {
-                    if (BuildVars.LOGS_ENABLED) {
-                        FileLog.d("failed to create directory");
-                    }
-                    return null;
-                }
-            }
-        } else {
-            if (BuildVars.LOGS_ENABLED) {
-                FileLog.d("External storage is not mounted READ/WRITE.");
-            }
-        }
-
-        return storageDir;
-    }
 
     public static String getPath(final Uri uri) {
         try {
@@ -2604,25 +2378,6 @@ public class AndroidUtilities {
 
     public static boolean isMediaDocument(Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
-    }
-
-    public static File generatePicturePath() {
-        return generatePicturePath(false, null);
-    }
-
-    public static File generatePicturePath(boolean secretChat, String ext) {
-        try {
-            File publicDir = FileLoader.getDirectory(FileLoader.MEDIA_DIR_IMAGE_PUBLIC);
-            if (secretChat || publicDir == null) {
-                File storageDir = ApplicationLoader.applicationContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-                return new File(storageDir, generateFileName(0, ext));
-            } else {
-                return new File(publicDir, generateFileName(0, ext));
-            }
-        } catch (Exception e) {
-            FileLog.e(e);
-        }
-        return null;
     }
 
     public static String generateFileName(int type, String ext) {
@@ -3130,13 +2885,6 @@ public class AndroidUtilities {
         return accessibilityManager.isEnabled() && accessibilityManager.isTouchExplorationEnabled();
     }
 
-    public static boolean isProxyLink(Uri data) {
-        final Activity activity = AndroidUtilities.getActivity();
-        if (activity == null) return false;
-        final Intent intent = new Intent(Intent.ACTION_VIEW, data);
-        return handleProxyIntent(activity, intent, false);
-    }
-
     public static float getAnimatorDurationScale() {
         try {
             return Settings.Global.getFloat(
@@ -3590,10 +3338,6 @@ public class AndroidUtilities {
 
     public static float computeDampingRatio(float tension /* stiffness */, float friction /* damping */, float mass) {
         return friction / (2f * (float) Math.sqrt(mass * tension));
-    }
-
-    public static File getSharingDirectory() {
-        return new File(FileLoader.getDirectory(FileLoader.MEDIA_DIR_CACHE), "sharing/");
     }
 
     public static String getCertificateSHA256Fingerprint() {
@@ -4262,36 +4006,6 @@ public class AndroidUtilities {
         return isActivityRunning(activity);
     }
 
-    public static void forEachViews(View view, Utilities.Callback<View> consumer) {
-        if (view instanceof ViewGroup) {
-            ViewGroup viewGroup = (ViewGroup) view;
-            for (int i = 0; i < viewGroup.getChildCount(); i++) {
-                consumer.run(view);
-                forEachViews(viewGroup.getChildAt(i), consumer);
-            }
-        } else {
-            consumer.run(view);
-        }
-    }
-
-    public static void forEachViews(RecyclerView recyclerView, Utilities.Callback<View> consumer) {
-        if (recyclerView == null) {
-            return;
-        }
-        for (int i = 0; i < recyclerView.getChildCount(); i++) {
-            consumer.run(recyclerView.getChildAt(i));
-        }
-        for (int i = 0; i < recyclerView.getCachedChildCount(); i++) {
-            consumer.run(recyclerView.getCachedChildAt(i));
-        }
-        for (int i = 0; i < recyclerView.getHiddenChildCount(); i++) {
-            consumer.run(recyclerView.getHiddenChildAt(i));
-        }
-        for (int i = 0; i < recyclerView.getAttachedScrapChildCount(); i++) {
-            consumer.run(recyclerView.getAttachedScrapChildAt(i));
-        }
-    }
-
     public static int getDominantColor(Bitmap bitmap) {
         if (bitmap == null) {
             return Color.WHITE;
@@ -4317,21 +4031,6 @@ public class AndroidUtilities {
             return 0;
         }
         return Color.argb(255, r / amount, g / amount, b / amount);
-    }
-
-    @NonNull
-    public static String translitSafe(String str) {
-        try {
-            if (str != null) {
-                str = str.toLowerCase();
-            }
-            String s = LocaleController.getInstance().getTranslitString(str, false);
-            if (s == null) {
-                return "";
-            }
-            return s;
-        } catch (Exception ignore) {}
-        return "";
     }
 
 	public static void quietSleep(long millis) {
@@ -4577,104 +4276,6 @@ public class AndroidUtilities {
             FileLog.e(e);
         }
         return false;
-    }
-
-    public static String getHelloWorld() {
-        return "Hello World!";
-    }
-
-    public static String getBuildVersionInfo() {
-        try {
-            PackageInfo pInfo = ApplicationLoader.applicationContext.getPackageManager().getPackageInfo(ApplicationLoader.applicationContext.getPackageName(), 0);
-            int code = pInfo.versionCode / 10;
-            String abi = "";
-            switch (pInfo.versionCode % 10) {
-                case 1:
-                case 2:
-                    abi = "store bundled " + Build.CPU_ABI + " " + Build.CPU_ABI2;
-                    break;
-                default:
-                case 9:
-                    if (ApplicationLoader.isStandaloneBuild()) {
-                        abi = "direct " + Build.CPU_ABI + " " + Build.CPU_ABI2;
-                    } else {
-                        abi = "universal " + Build.CPU_ABI + " " + Build.CPU_ABI2;
-                    }
-                    break;
-            }
-            return formatString("TelegramVersion", R.string.TelegramVersion, String.format(Locale.US, "v%s (%d) %s", pInfo.versionName, code, abi));
-        } catch (Exception e) {
-            FileLog.e(e);
-        }
-        return null;
-    }
-
-    public static StackTraceElement[] dumpStackTrace() {
-        return Thread.currentThread().getStackTrace();
-    }
-
-    public static void printStackTrace(String tag) {
-        if (!BuildConfig.DEBUG_PRIVATE_VERSION) {
-            return;
-        }
-
-        StackTraceElement[] elements = Thread.currentThread().getStackTrace();
-        printStackTrace(elements, tag);
-    }
-
-    public static void printStackTrace(StackTraceElement[] elements, String tag) {
-        if (!BuildConfig.DEBUG_PRIVATE_VERSION) {
-            return;
-        }
-
-        final String t = "[" + tag + "]";
-        for (int a = 3, N = Math.min(elements.length, 14); a < N; a++) {
-            FileLog.d(t + " " + elements[a]);
-        }
-        FileLog.d(t);
-    }
-
-    public static void printLayoutRequestedChain(View view) {
-        if (view == null) {
-            FileLog.d("LayoutCheck view == null");
-            return;
-        }
-
-        int level = 0;
-        View current = view;
-
-        while (current != null) {
-            ViewParent parent = current.getParent();
-
-            FileLog.d(
-                "LayoutCheck level=" + level +
-                ", view=" + current.getClass().getSimpleName() +
-                "@" + Integer.toHexString(System.identityHashCode(current)) +
-                ", isLayoutRequested=" + current.isLayoutRequested()
-            );
-            if (!(parent instanceof View)) {
-                if (parent != null) {
-                    FileLog.d(
-                        "LayoutCheck level=" + (level + 1) +
-                        ", parent=" + parent.getClass().getSimpleName() +
-                        " (not a View)"
-                    );
-                }
-                break;
-            }
-            current = (View) parent;
-            level++;
-        }
-        FileLog.d("LayoutCheck");
-    }
-
-    public static void logFlagSecure() {
-        if (!BuildConfig.DEBUG_VERSION) {
-            return;
-        }
-
-        FileLog.d("[FLAG_SECURE]");
-        printStackTrace("FLAG_SECURE");
     }
 
     @Nullable
