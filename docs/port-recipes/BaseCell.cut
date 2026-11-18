@@ -1,0 +1,6 @@
+upstream org/telegram/ui/Cells/BaseCell.java
+to app/src/main/java/org/telegram/ui/Cells/BaseCell.java
+
+remove-method listenInvalidate
+patch-line "public abstract class BaseCell extends ViewGroup implements SizeNotifierFrameLayout.IViewWithInvalidateCallback {" "public abstract class BaseCell extends ViewGroup {" "decouple SizeNotifierFrameLayout"
+prune-imports

@@ -1,0 +1,143 @@
+upstream org/telegram/ui/ActionBar/Theme.java
+to app/src/main/java/org/telegram/ui/ActionBar/Theme.java
+
+# Remove coupled methods touching TLRPC, MessagesController, UserConfig, ConnectionsManager
+remove-method createLoader all
+remove-method checkCurrentWallpaper all
+remove-method checkCurrentWallpaperInternal all
+remove-method createWallpaperForAccent all
+remove-method saveAutoNightThemeConfig all
+remove-method fillThemeValues all
+remove-method applyThemeFile all
+remove-method applyTheme all
+remove-method applyThemeInBackground all
+remove-method refreshThemeColors all
+remove-method deleteThemeAccent all
+remove-method saveThemeAccents all
+remove-method saveOtherThemes all
+remove-method createNewTheme all
+remove-method saveCurrentTheme all
+remove-method checkCurrentRemoteTheme all
+remove-method loadRemoteThemes all
+remove-method getBaseThemeKey all
+remove-method getBaseThemeByKey all
+remove-method setThemeFileReference all
+remove-method setThemeUploadInfo all
+remove-method setColor all
+remove-method setThemeWallpaper all
+remove-method loadWallpaper all
+remove-method loadWallpaperInternal all
+remove-method createBackgroundDrawable all
+remove-method createDefaultWallpaper all
+remove-method loadScreenSizedBitmap all
+remove-method getThemedWallpaper all
+remove-method getCachedWallpaper all
+remove-method getCachedWallpaperNonBlocking all
+remove-method switchThemeWithReveal all
+remove-method turnOffAutoNight all
+
+# Remove chat status drawables and visualizers
+remove-method getCurrentGradientWallpaper all
+remove-method getCurrentAudiVisualizerDrawable all
+remove-method unrefAudioVisualizeDrawable all
+remove-method getAnimatedOutAudioVisualizerDrawable all
+remove-method getChatStatusDrawable all
+remove-method getFragmentContextViewWavesDrawable all
+remove-method getRadialSeekbarShadowDrawable all
+remove-method createChatResources all
+remove-method createCommonMessageResources all
+remove-method applyChatTheme all
+remove-method applyChatMessageSelectedBackgroundColor all
+remove-method createDialogsResources all
+remove-method reloadWallpaper all
+remove-method calcBackgroundColor all
+remove-method getServiceMessageColor all
+remove-method hasWallpaperFromTheme all
+remove-method isCustomTheme all
+remove-method isThemeWallpaperPublic all
+remove-method setRippleDrawableForceSoftware all
+remove-method of all
+
+# Remove inner classes or methods in ThemeInfo / ThemeAccent touching TLRPC
+remove-method didReceivedNotification all
+remove-method createWithJson all
+remove-method addObservers all
+remove-method removeObservers all
+remove-method onFinishLoadingRemoteTheme all
+remove-method accentEquals all
+remove-method fillAccentValues all
+remove-method createNewAccent all
+remove-method getPathToWallpaper all
+remove-method saveToFile all
+remove-method loadWallpapers all
+remove-method loadOverrideWallpaper all
+remove-method setOverrideWallpaper all
+remove-method generateWallpaperName all
+remove-method loadThemeDocument all
+remove-method createBackground all
+remove-method applyProfileTheme all
+remove-method createProfileResources all
+remove-method getSaveJson all
+
+# Remove sensor auto-night and preview methods
+remove-method createCommonChatResources all
+remove-method checkAutoNightThemeConditions all
+remove-method cancelAutoNightThemeCallbacks all
+remove-method needSwitchToTheme all
+remove-method createThemePreviewImage all
+remove-method applyServiceShaderMatrixForView all
+remove-method applyChatServiceMessageColor all
+remove-method createCommonResources all
+remove-method applyCommonTheme all
+remove-method SensorEventListener all
+
+# Remove unported inner classes
+remove-statement "public static class PatternsLoader implements NotificationCenter.NotificationCenterDelegate {"
+remove-statement "public static class BackgroundDrawableSettings {"
+remove-statement "public static class OverrideWallpaperInfo {"
+
+# Remove unported drawables statements
+remove-statement "private static RoundVideoProgressShadow roundPlayDrawable;"
+remove-statement "private static FragmentContextViewWavesDrawable fragmentContextViewWavesDrawable;"
+remove-statement "private static HashMap<MessageObject, AudioVisualizerDrawable> animatedOutVisualizerDrawables;"
+remove-statement "private static AudioVisualizerDrawable chat_msgAudioVisualizeDrawable;"
+remove-statement "private static BackgroundGradientDrawable.Disposable backgroundGradientDisposable;"
+remove-statement "public static ScamDrawable dialogs_scamDrawable;"
+remove-statement "public static ScamDrawable dialogs_fakeDrawable;"
+remove-statement "public static RLottieDrawable dialogs_archiveAvatarDrawable;"
+remove-statement "public static RLottieDrawable dialogs_archiveDrawable;"
+remove-statement "public static RLottieDrawable dialogs_unarchiveDrawable;"
+remove-statement "public static RLottieDrawable dialogs_pinArchiveDrawable;"
+remove-statement "public static RLottieDrawable dialogs_unpinArchiveDrawable;"
+remove-statement "public static RLottieDrawable dialogs_hidePsaDrawable;"
+remove-statement "public static RLottieDrawable dialogs_swipeMuteDrawable;"
+remove-statement "public static RLottieDrawable dialogs_swipeUnmuteDrawable;"
+remove-statement "public static RLottieDrawable dialogs_swipeDeleteDrawable;"
+remove-statement "public static RLottieDrawable dialogs_swipeCommunityUngroup;"
+remove-statement "public static RLottieDrawable dialogs_swipeReadDrawable;"
+remove-statement "public static RLottieDrawable dialogs_swipeUnreadDrawable;"
+remove-statement "public static RLottieDrawable dialogs_swipePinDrawable;"
+remove-statement "public static RLottieDrawable dialogs_swipeUnpinDrawable;"
+remove-statement "private static StatusDrawable[] chat_status_drawables = new StatusDrawable[6];"
+remove-statement "public static MsgClockDrawable chat_msgClockDrawable;"
+remove-statement "public static PathAnimator playPauseAnimator;"
+remove-statement "private static int[] lastLoadingThemesTime = new int[UserConfig.MAX_ACCOUNT_COUNT];"
+remove-statement "private static long[] remoteThemesHash = new long[UserConfig.MAX_ACCOUNT_COUNT];"
+remove-statement "public TLRPC.TL_theme info;" all
+remove-statement "public TLRPC.TL_wallPaper pattern;"
+remove-statement "public TLRPC.InputFile uploadedThumb;" all
+remove-statement "public TLRPC.InputFile uploadedFile;" all
+remove-statement "if (!TextUtils.isEmpty(accents)) {"
+remove-statement "if (drawable instanceof StatusDrawable) {"
+
+# Patches for Eve environment
+patch-line "        SharedPreferences preferences = MessagesController.getGlobalMainSettings();" "        SharedPreferences preferences = ApplicationLoader.applicationContext != null ? ApplicationLoader.applicationContext.getSharedPreferences(\\"mainconfig\\", Context.MODE_PRIVATE) : null;" "use app shared preferences"
+patch-line "    private static boolean[] loadingRemoteThemes = new boolean[UserConfig.MAX_ACCOUNT_COUNT];" "    private static boolean[] loadingRemoteThemes = new boolean[4];" "use fixed account count"
+patch-line "        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {" "        for (int a = 0; a < 4; a++) {" "use fixed account count in static loop"
+patch-line "public static class ThemeInfo implements NotificationCenter.NotificationCenterDelegate {" "public static class ThemeInfo {" "decouple NotificationCenter from ThemeInfo"
+patch-line "            return SharedConfig.compactMode;" "            return false;" "decouple SharedConfig from isCompactMode"
+patch-line "        return resourcesProvider != null ? resourcesProvider.isCompactMode() : SharedConfig.compactMode;" "        return resourcesProvider != null && resourcesProvider.isCompactMode();" "decouple SharedConfig"
+patch-line "        if (SharedConfig.compactMode) {" "        if (false) {" "decouple SharedConfig from getColor"
+patch-line "        if (drawable == null) {" "        if (drawable != null) { drawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY)); } if (drawable == null) {" "apply color filter to drawable"
+
+prune-imports

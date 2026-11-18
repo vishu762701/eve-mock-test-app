@@ -1,0 +1,144 @@
+upstream org/telegram/messenger/LocaleController.java
+to app/src/main/java/org/telegram/messenger/LocaleController.java
+
+# Remove network / langpack sync
+remove-method startLangpackRequest
+remove-method finishLangpackRequest
+remove-method cancelRemoteLanguageRequest
+remove-method applyRemoteLanguage
+remove-method saveRemoteLocaleStringsForCurrentLocale
+remove-method saveRemoteLocaleStrings all
+remove-method getLangpackQueue
+remove-method writeLocaleFile
+remove-method getDifferenceType
+remove-method loadRemoteLanguages all
+remove-method runWaiters
+remove-method checkUpdateForCurrentRemoteLocale
+remove-method checkPatchLangpack
+remove-method checkForcePatchLangpack
+remove-method reloadCurrentRemoteLocale
+remove-method shouldReinstallLangpack
+remove-method patched
+
+# Remove file / local language management
+remove-method loadOtherLanguages
+remove-method saveOtherLanguages
+remove-method deleteLanguage
+remove-method applyLanguageFile
+remove-method getLocaleFileStrings all
+remove-method hasMalformedCopy
+remove-method deleteMalformedCopy
+remove-method applyLanguage all
+
+# Remove XML parser
+remove-method escapeString
+remove-method escapeXmlText
+remove-method isXmlChar
+remove-method isXmlReference
+
+# Remove transliteration
+remove-method getTranslitString all
+
+# Remove TLRPC coupled formatters
+remove-method formatEntityFormattedDate all
+remove-method formatEntityFormattedDateRelative
+remove-method formatUserStatus all
+remove-method formatLocationUpdateDate
+remove-method formatLocationLeftTime
+remove-method formatDateOnline
+
+# Remove chat date formatters
+remove-method formatDateChat all
+remove-method formatStoryDate
+remove-method formatRelativeDate
+remove-method formatDateCallLog
+remove-method formatStatusExpireDateTime
+remove-method formatDateTime
+remove-method formatShortDateTime
+remove-method formatStartsTime all
+remove-method formatSectionDate
+remove-method formatYearMonthDay
+remove-method formatYearMont
+remove-method formatDateForBan
+remove-method stringForMessageListDate
+remove-method formatJoined
+remove-method formatImportedDate
+remove-method getFormatterDay
+remove-method getFormatterDayWithSeconds
+remove-method getFormatterConstDay
+remove-method getFormatterWeek
+remove-method getFormatterWeekLong
+remove-method getFormatterDayMonth
+remove-method getFormatterYear
+remove-method getFormatterYearMax
+remove-method getFormatterStats
+remove-method getFormatterBannedUntil
+remove-method getFormatterBannedUntilThisYear
+remove-method getChatDate
+remove-method getChatDateShort
+remove-method getChatFullDate
+remove-method getFormatterScheduleDay
+remove-method getFormatterScheduleYear
+remove-method getFormatterMonthYear
+remove-method getFormatterMonthOnly
+remove-method getFormatterGiveawayCard
+remove-method getFormatterBoostExpired
+remove-method getFormatterGiveawayMonthDay
+remove-method getFormatterGiveawayMonthDayYear
+remove-method getFormatterScheduleSend
+remove-method createFormatter
+remove-method recreateFormatters
+remove-method onDeviceConfigurationChange
+
+# Remove Localization internal methods and fields
+remove-method checkLocalizationInternal
+remove-method getLocalizedString
+remove-method getServerString
+remove-statement "private Localization localizationInternalDefault;"
+remove-statement "private volatile Locale localizationInternalLastLocale;"
+remove-statement "private volatile Localization localizationInternal = Localization.EMPTY;"
+remove-statement "private volatile boolean localizationInternalPending;"
+remove-statement "private @NonNull Localization localizationExternal = Localization.EMPTY;"
+remove-statement "private int localizationExternalSize;"
+remove-statement "private boolean reloadLastFile;"
+remove-statement "private String languageOverride;"
+remove-statement "private HashMap<String, String> translitChars;"
+remove-statement "private HashMap<String, String> ruTranslitChars;"
+
+# Remove FastDateFormat fields
+remove-statement "private volatile FastDateFormat formatterDay;"
+remove-statement "private volatile FastDateFormat formatterDayWithSeconds;"
+remove-statement "private volatile FastDateFormat formatterConstDay;"
+remove-statement "private volatile FastDateFormat formatterWeek;"
+remove-statement "private volatile FastDateFormat formatterWeekLong;"
+remove-statement "private volatile FastDateFormat formatterDayMonth;"
+remove-statement "private volatile FastDateFormat formatterYear;"
+remove-statement "private volatile FastDateFormat formatterYearMax;"
+remove-statement "private volatile FastDateFormat formatterStats;"
+remove-statement "private volatile FastDateFormat formatterBannedUntil;"
+remove-statement "private volatile FastDateFormat formatterBannedUntilThisYear;"
+remove-statement "private volatile FastDateFormat chatDate;"
+remove-statement "private volatile FastDateFormat chatDateShort;"
+remove-statement "private volatile FastDateFormat chatFullDate;"
+remove-statement "private volatile FastDateFormat formatterScheduleDay;"
+remove-statement "private volatile FastDateFormat formatterScheduleYear;"
+remove-statement "private volatile FastDateFormat formatterMonthYear;"
+remove-statement "private volatile FastDateFormat formatterMonthOnly;"
+remove-statement "private volatile FastDateFormat formatterGiveawayCard;"
+remove-statement "private volatile FastDateFormat formatterBoostExpired;"
+remove-statement "private volatile FastDateFormat formatterGiveawayMonthDay;"
+remove-statement "private volatile FastDateFormat formatterGiveawayMonthDayYear;"
+remove-statement "private final FastDateFormat[] formatterScheduleSend = new FastDateFormat[18];"
+
+# Patches for Eve environment
+patch-line "    public static boolean isRTL = false;" "    public static boolean isRTL = androidx.core.text.TextUtilsCompat.getLayoutDirectionFromLocale(java.util.Locale.getDefault()) == androidx.core.view.ViewCompat.LAYOUT_DIRECTION_RTL;" "initialize RTL from system locale"
+patch-line "            SharedPreferences preferences = MessagesController.getGlobalMainSettings();" "            SharedPreferences preferences = ApplicationLoader.applicationContext != null ? ApplicationLoader.applicationContext.getSharedPreferences(\\"mainconfig\\", Context.MODE_PRIVATE) : null;" "use app shared preferences"
+patch-line "            applyLanguage(currentInfo, override, true, UserConfig.selectedAccount);" "            currentLocale = currentInfo != null && currentInfo.locale != null ? currentInfo.locale : systemDefaultLocale;" "set local currentLocale without MTProto sync"
+patch-line "                if (!getFormatterDayMonth().getTimeZone().equals(TimeZone.getDefault())) {" "                if (false) {" "skip timezone change recreation"
+patch-line "        if (BuildVars.USE_CLOUD_STRINGS) {" "        if (stringRes != 0 && context != null) { try { return context.getString(stringRes); } catch (Exception ignored) {} } if (false) {" "resolve strings from Android resources"
+patch-line "        checkLocalizationInternal();" "        if (key != null && context != null) { int id = context.getResources().getIdentifier(key, \\"string\\", context.getPackageName()); if (id != 0) return context.getString(id); }" "fallback identifier resolution"
+patch-line "        value = localizationInternal.getByResNameOrResId(context, key, stringRes);" "        value = null;" "bypass localizationInternal"
+patch-line "        return localizationInternal.getByResName(fallback);" "        return fallback != null && context != null ? context.getString(context.getResources().getIdentifier(fallback, \\"string\\", context.getPackageName())) : null;" "fallback string resolution"
+patch-line "            case StarsController.currency:" "            case \\"XTR\\":" "replace StarsController constant"
+
+prune-imports

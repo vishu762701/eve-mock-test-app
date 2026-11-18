@@ -1,0 +1,54 @@
+upstream org/telegram/messenger/FileLog.java
+remove-import com.google.gson.ExclusionStrategy
+remove-import com.google.gson.FieldAttributes
+remove-import com.google.gson.Gson
+remove-import com.google.gson.GsonBuilder
+remove-import com.google.gson.JsonElement
+remove-import com.google.gson.JsonObject
+remove-import com.google.gson.JsonSerializationContext
+remove-import com.google.gson.JsonSerializer
+remove-import com.google.gson.TypeAdapter
+remove-import com.google.gson.stream.JsonReader
+remove-import com.google.gson.stream.JsonWriter
+remove-import org.telegram.messenger.time.FastDateFormat
+remove-import org.telegram.messenger.video.MediaCodecVideoConvertor
+remove-import org.telegram.tgnet.NativeByteBuffer
+remove-import org.telegram.tgnet.TLObject
+remove-import org.telegram.tgnet.TLRPC
+remove-import org.telegram.ui.Components.AnimatedFileDrawable
+remove-import org.telegram.ui.LaunchActivity
+
+remove-statement "private FastDateFormat dateFormat = null;"
+remove-statement "private FastDateFormat fileDateFormat = null;"
+remove-statement "private File currentFile = null;"
+remove-statement "private File networkFile = null;"
+remove-statement "private File tonlibFile = null;"
+remove-statement "private boolean initied;"
+remove-statement "private boolean initiing;"
+remove-statement "private OutputStreamWriter tlStreamWriter = null;"
+remove-statement "private File tlRequestsFile = null;"
+remove-statement "private final static String mtproto_tag = \"MTProto\";"
+remove-statement "private static Gson gson;"
+remove-statement "private static ExclusionStrategy exclusionStrategy;"
+remove-statement "private static final int MAX_PENDING_PROTOCOL_DUMPS = 8;"
+remove-statement "private static final AtomicInteger pendingProtocolDumps = new AtomicInteger();"
+
+remove-method postProtocolDump
+remove-method dumpResponseAndRequest
+remove-method dumpUnparsedMessage
+remove-method disableGson
+remove-method checkGson
+remove-method getNetworkLogPath
+remove-method getTonlibLogPath
+remove-method dumpMemory
+remove-method dumpANR
+remove-method fatal params=2 ptypes=Throwable,boolean
+remove-method e params=2 ptypes=Throwable,boolean
+remove-method cleanupLogs
+remove-method needSent
+
+patch-line "                        localInstance.init();" "                        // no-op init" "wire to no-op"
+patch-line "        getInstance().init();" "        // no-op init" "wire to no-op"
+remove-method init
+
+prune-imports

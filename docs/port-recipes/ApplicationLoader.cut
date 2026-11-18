@@ -1,0 +1,62 @@
+upstream org/telegram/messenger/ApplicationLoader.java
+remove-import org.telegram.messenger.utils.Choreographer60FpsContent
+remove-import org.telegram.messenger.voip.VideoCapturerDevice
+remove-import org.telegram.tgnet.ConnectionsManager
+remove-import org.telegram.tgnet.TLRPC
+remove-import org.telegram.ui.ActionBar.BaseFragment
+remove-import org.telegram.ui.Components.ForegroundDetector
+remove-import org.telegram.ui.Components.ItemOptions
+remove-import org.telegram.ui.IUpdateLayout
+remove-import org.telegram.ui.LauncherIconController
+remove-import com.google.android.gms.common.ConnectionResult
+remove-import com.google.android.gms.common.GooglePlayServicesUtil
+remove-import org.json.JSONObject
+
+remove-statement "private static PushListenerController.IPushListenerServiceProvider pushProvider;"
+remove-statement "private static IMapsProvider mapsProvider;"
+remove-statement "private static ILocationServiceProvider locationServiceProvider;"
+
+remove-method getLocationServiceProvider
+remove-method onCreateLocationServiceProvider
+remove-method getMapsProvider
+remove-method onCreateMapsProvider
+remove-method getPushProvider
+remove-method onCreatePushProvider
+remove-method postInitApplication
+remove-method onCreate
+remove-method startPushService
+remove-method initPushServices
+remove-method checkPlayServices
+remove-method startAppCenter
+remove-method checkForUpdates
+remove-method appCenterLog
+remove-method appCenterLogInternal
+remove-method checkForUpdatesInternal
+remove-method startAppCenterInternal
+remove-method logDualCamera
+remove-method logDualCameraInternal
+remove-method checkApkInstallPermissions
+remove-method openApkInstall
+remove-method showUpdateAppPopup
+remove-method showCustomUpdateAppPopup
+remove-method takeUpdateLayout
+remove-method parseTLUpdate
+remove-method processUpdate
+remove-method onSuggestionFill
+remove-method onSuggestionClick
+remove-method addItemOptions
+remove-method checkRequestPermissionResult
+remove-method consumePush
+remove-method onResume
+remove-method onPause
+remove-method openSettings
+remove-method isCustomUpdate
+remove-method downloadUpdate
+remove-method cancelDownloadingUpdate
+remove-method isDownloadingUpdate
+remove-method getDownloadingUpdateProgress
+remove-method checkUpdate
+remove-method getUpdate
+remove-method getDownloadedUpdateFile
+
+prune-imports

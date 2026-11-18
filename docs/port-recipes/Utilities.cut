@@ -1,0 +1,6 @@
+upstream org/telegram/messenger/Utilities.java
+remove-import com.carrotsearch.randomizedtesting.Xoroshiro128PlusRandom
+remove-import org.telegram.tgnet.ConnectionsManager
+patch-line "    public static Random fastRandom = new Xoroshiro128PlusRandom(random.nextLong());" "    public static Random fastRandom = new Random(random.nextLong());" "use java.util.Random"
+remove-method isGoodPrime
+prune-imports

@@ -1,0 +1,58 @@
+upstream org/telegram/messenger/AndroidUtilities.java
+to app/src/main/java/org/telegram/messenger/AndroidUtilities.java
+
+# Remove coupled methods touching TLRPC, MessagesController, UserConfig, ConnectionsManager
+remove-method googleVoiceClientService_performAction
+remove-method loadVCardFromStream all
+remove-method formapMapUrl
+remove-method getAccountInProduction
+remove-method openDocument all
+remove-method openForView all
+remove-method isBannedForever
+remove-method showProxyAlert all
+remove-method getWallPaperUrl
+remove-method findPhoto all
+remove-method findDocument all
+
+# Remove telephony and SMS retriever
+remove-method endIncomingCall
+remove-method setWaitingForSms
+
+# Remove custom camera / video / proxy
+remove-method handleProxyIntent
+remove-method openSharing
+remove-method scrollToFragmentRow
+remove-method updateVisibleRows
+remove-method updateVisibleRow
+remove-method updateViewVisibilityAnimated all
+remove-method hasDialogOnTop
+remove-method dumpCanvas
+remove-method needShowPasscode all
+remove-method isMapsInstalled all
+remove-method updateViewShow all
+
+# Remove unported spans / UI components
+remove-method highlightText all
+remove-method replaceArrows all
+remove-method replaceLinks all
+remove-method gatherLinks all
+remove-method addLinks all
+remove-method addLinksSafe all
+remove-method pruneOverlaps all
+remove-method calcDrawableColor all
+remove-method checkPhonePattern all
+remove-method addToClipboard all
+remove-method generateSearchName all
+remove-method findClickableView all
+remove-method makeGlobalBlurBitmap all
+remove-method makeBlurBitmap all
+remove-method allGlobalViews all
+remove-method getRootView all
+
+# Patches
+patch-line "        if (activity == null || activity.isFinishing()) activity = LaunchActivity.instance;" "        if (activity == null || activity.isFinishing()) activity = findActivity(ApplicationLoader.applicationContext);" "fallback to applicationContext activity lookup"
+patch-line "                    return PhoneFormat.getInstance().format(result.toString());" "                    return result.toString();" "bypass PhoneFormat in VcardItem"
+patch-line "            return BitwiseUtils.hasFlag(flags, View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);" "            return (flags & View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR) != 0;" "use standard bitwise check"
+patch-line "        final int newFlags = BitwiseUtils.setFlag(oldFlags, flag, enable);" "        final int newFlags = enable ? (oldFlags | flag) : (oldFlags & ~flag);" "use standard bitwise check"
+
+prune-imports
