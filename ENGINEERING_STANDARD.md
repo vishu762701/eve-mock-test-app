@@ -47,8 +47,52 @@ Whenever the target screen or feature adds, changes, or removes any backend fiel
 ### LAW 9 — CONTINUOUS DEAD-FILE & JUNK-FILE PURGE
 Remove only files proven obsolete within the touched scope. Whenever a legacy class, unused layout, or unused drawable is replaced by the current screen/feature change and has zero remaining callers, delete it in the same commit.
 
-## 2. Core Workflow Rules
-1. Do exactly what the owner asked—1 screen or 1 feature at a time. Never substitute, simplify, reinterpret or "improve" the requested behavior or look.
+## 2. Telegram Porting Rules (R1–R10)
+
+### R1 — SOURCE
+The only truth is the official Telegram source zip (https://github.com/DrKLO/Telegram). Never write Telegram UI from memory. If the zip cannot be listed with `unzip -l`, STOP and report BLOCKED.
+
+### R2 — COPY, DON'T REWRITE
+Telegram classes are copied byte-for-byte from the zip into `app/src/main/java/org/telegram/<same path>`, same name, same package, staying Java (no Kotlin conversion). Same for res (layouts, drawables, animations, Lottie, strings, styles): copy the real files.
+
+### R3 — ALLOWED EDITS
+Allowed edits to a copied file: only (a) cutting account/chat/network/DB dependencies via a small interface, (b) resource/id wiring. Mark each `// EVE-PATCH: <reason>`. Constants, durations, interpolators, thresholds and matrices stay exactly as in the source.
+
+### R4 — MISSING FRAMEWORK CLASS
+When a framework class is missing (AndroidUtilities, Theme, LocaleController, ActionBar, Components…): copy the real class from the zip. If it drags in account/chat code, make the smallest `// EVE-SHIM` with the SAME method signatures and real behavior for what the screen uses. Never re-implement behavior from memory.
+
+### R5 — EVE LOGIC BOUNDARY
+EVE logic (data, auth, admin, API, navigation) lives only in `com.eve.app` adapter classes, never inside `org/telegram`.
+
+### R6 — FULL FUNCTION
+Full function, not only visuals: every gesture, physics (spring/fling/overscroll), matrix/canvas math, animation, haptic, state, back gesture, keyboard inset, Day/Night, RTL and Hindi behavior must come from the source and work in the running app.
+
+### R7 — NO EXTRA CODE
+Add nothing the screen does not need (no new features, helpers, abstractions, docs, report files, demo tests). Touch no other screen. Search the repo before creating any class; reuse the existing owner; never create a duplicate.
+
+### R8 — NO FAKES
+No wrapper subclass forwarding to another class, no typealias, no empty/no-op stub, no TODO, no "simplified / approximate / inspired by".
+
+### R9 — DELETE DEAD
+After the swap, delete old Eve files of this screen with zero callers (show grep proof). Remove duplicate copies of the same Telegram class (keep the `org/telegram` one).
+
+### R10 — TERMUX
+No Gradle/NDK/emulator builds on the phone; GitHub Actions only. Extract the Telegram zip to `~/tg-src` (outside the repo, never commit it). After every step S0–S6 write done/next/commit SHA into `~/eve-handoff.txt` so a stopped session can resume.
+
+## 2b. Porting Workflow Steps (S0–S6)
+
+Execute in strict order and print each step's output:
+
+- **S0 PREFLIGHT**: Run `unzip -l <zip> | head` and `unzip -z <zip>` (commit SHA). Locate the screen's source files; print path + line count.
+- **S1 CLOSURE TABLE** (no code before this): Open the real entry class and follow every import, layout, drawable, style, string, animation, Lottie transitively. Table: item | upstream path:lines | VERBATIM / SHIM / CUT | already in Eve? (path).
+- **S2 PHYSICS SHEET**: For every gesture/animation/matrix on the screen, list source file:line and the literal constants (duration, interpolator, stiffness, thresholds, matrix math).
+- **S3 IMPLEMENT**: Copy per the table, add adapters, switch Eve's entry point to the ported screen, delete dead files (R9).
+- **S4 BUILD**: Push to main, wait for GitHub Actions FAST on the exact SHA. If red: read the log, fix, push, repeat until green.
+- **S5 PROOF**: Print sha256 of every VERBATIM file next to the zip's sha256. List every EVE-PATCH and EVE-SHIM. Label each element EXACT / ADAPTED (reason) / NOT FOUND / BLOCKED.
+- **S6 REPORT** (max 25 lines): Status per element, VERBATIM/SHIM/CUT counts, commit SHA, CI result, "Noticed but not touched", and what to compare on the phone against the Telegram screen.
+
+## 2c. Core Workflow Rules
+1. Do exactly what the owner asked—**1 screen or 1 feature at a time**. Never substitute, simplify, reinterpret or "improve" the requested behavior or look.
 2. Stay in scope: the owner's request, not unrelated work. Unrelated problems get one line under "Noticed but not touched". Do not silently broaden product scope.
 3. Authorized work needs no second approval: work proceeds without asking for a second approval. Ask only for an owner-only product, security, data or legal decision.
 4. Never fake evidence. No EXACT, VERIFIED, TESTED, device-checked or CI-green claim without real proof. Report implementation present separately from functional, visual/gesture, device and release acceptance.

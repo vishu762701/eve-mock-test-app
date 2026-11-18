@@ -14,7 +14,7 @@ class AdminHubTelegramFidelityTest {
         assertTrue("Root must use @color/bg_app", xml.contains("android:background=\"@color/bg_app\""))
 
         // Telegram ActionBar
-        assertTrue("Must contain TelegramActionBar", xml.contains("<com.eve.app.ui.admin.tg.TelegramActionBar"))
+        assertTrue("Must contain TelegramActionBar", xml.contains("<com.eve.app.designsystem.TelegramActionBar"))
 
         // Telegram Section Headers
         assertTrue("Must contain HeaderCell for Content", xml.contains("android:id=\"@+id/headerContent\""))
@@ -93,7 +93,7 @@ class AdminHubTelegramFidelityTest {
     @Test
     fun testRecentActionsTelegramLogFidelity() {
         val logXml = File("src/main/res/layout/activity_activity_log.xml").readText()
-        assertTrue("Log layout must contain TelegramActionBar", logXml.contains("<com.eve.app.ui.admin.tg.TelegramActionBar"))
+        assertTrue("Log layout must contain TelegramActionBar", logXml.contains("<com.eve.app.designsystem.TelegramActionBar"))
         assertTrue("Log layout must contain TelegramSegmentedTabs", logXml.contains("<com.eve.app.ui.admin.tg.TelegramSegmentedTabs"))
         assertTrue("Log layout must contain rvAuditLogs", logXml.contains("android:id=\"@+id/rvAuditLogs\""))
         assertTrue("Log layout must contain progressBar", logXml.contains("android:id=\"@+id/progressBar\""))

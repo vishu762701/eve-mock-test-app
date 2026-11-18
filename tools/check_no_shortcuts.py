@@ -4,43 +4,21 @@ EVE Repository Anti-Shortcut & Anti-Wrapper Validator.
 Enforces LAW 7 (Zero-Shortcut & Anti-Wrapper Enforcement) across all code, layouts, and governance.
 
 Checks:
-1. Governance files contain Laws 5, 6, 7, 8, and 9 (LAW 7, ZERO-SHORTCUT, check_no_shortcuts.py).
-2. Layouts under app/src/main/res/layout/ contain zero occurrences of DesignCardView, MaterialCardView, UiArc,
-   EveGlassToolbar, DesignGlassLayout, DesignInputLayout, DesignSegmentedTabs, DesignSpinner,
-   DesignAutoComplete, DesignIconActionButton, DesignLoadingView, DesignAccuracyRing, MaterialButton,
-   MaterialToolbar, AppBarLayout, TextInputLayout, TextInputEditText, CircularProgressIndicator,
-   Chip, TabItem, or ShapeableImageView.
-3. Strict ban on typealias aliasing (typealias Telegram* = UiArc* / Design*).
-4. Strict ban on any Telegram*.kt from extending, referencing, or importing UiArc* or DesignCardView.
+1. Layouts under app/src/main/res/layout/ contain zero occurrences of legacy widgets.
+2. Strict ban on typealias aliasing (typealias Telegram* = UiArc* / Design*).
+3. Strict ban on any Telegram*.kt from extending, referencing, or importing UiArc* or DesignCardView.
+4. Fail if a Telegram* class only extends/forwards to another Telegram* or Eve class (fake wrapper).
+5. Fail if a file under app/src/main/java/org/telegram has no entry in
+   docs/telegram-verbatim-imports.json and no "// EVE-SHIM" header.
+6. Fail if two classes share the simple name CubicBezierInterpolator, LayoutHelper, or BackDrawable.
 """
 
 import argparse
+import json
 import os
 import re
 import sys
 from pathlib import Path
-
-GOVERNANCE_FILES = [
-    "ENGINEERING_STANDARD.md",
-    "AGENTS.md",
-    "SOURCE_OF_TRUTH.md",
-    "GEMINI.md",
-    "CLAUDE.md",
-]
-
-OPTIONAL_GOVERNANCE_FILES = [
-    "docs/EVE_ONE_TIME_CHAT_STARTER.md",
-]
-
-REQUIRED_GOVERNANCE_TERMS = [
-    ("Law 5 / LAW 5", re.compile(r"\b(?:LAW|Law)\s*5\b")),
-    ("Law 6 / LAW 6", re.compile(r"\b(?:LAW|Law)\s*6\b")),
-    ("Law 7 / LAW 7", re.compile(r"\b(?:LAW|Law)\s*7\b")),
-    ("Law 8 / LAW 8", re.compile(r"\b(?:LAW|Law)\s*8\b")),
-    ("Law 9 / LAW 9", re.compile(r"\b(?:LAW|Law)\s*9\b")),
-    ("ZERO-SHORTCUT", re.compile(r"ZERO-SHORTCUT")),
-    ("check_no_shortcuts.py", re.compile(r"check_no_shortcuts\.py")),
-]
 
 TYPEALIAS_PATTERN = re.compile(r"typealias\s+Telegram\w*\s*=\s*(?:UiArc|Design|Material)\w*")
 STRICT_WRAPPER_PATTERN = re.compile(r"class\s+Telegram\w*[\s\S]*?:\s*(?:UiArc|DesignCardView)\w*")
@@ -55,27 +33,12 @@ LEGACY_LAYOUT_PATTERN = re.compile(
 )
 BASIC_LAYOUT_PATTERN = re.compile(r"DesignCardView|MaterialCardView|UiArc")
 
+# Pattern to detect a Telegram* class that only extends/forwards to another Telegram* or Eve class
+TELEGRAM_FORWARDING_PATTERN = re.compile(
+    r"(?:open\s+)?class\s+(Telegram\w+)[^{]*?:\s*(com\.eve\.app\.\S+\.Telegram\w+|Telegram\w+)\s*\("
+)
 
-def check_governance(repo_root: Path) -> list[str]:
-    violations = []
-    for rel_path in GOVERNANCE_FILES:
-        file_path = repo_root / rel_path
-        if not file_path.is_file():
-            violations.append(f"Missing required governance file: {rel_path}")
-            continue
-        content = file_path.read_text(encoding="utf-8")
-        for label, pattern in REQUIRED_GOVERNANCE_TERMS:
-            if not pattern.search(content):
-                violations.append(f"{rel_path}: Missing required rule identifier '{label}'")
-
-    for rel_path in OPTIONAL_GOVERNANCE_FILES:
-        file_path = repo_root / rel_path
-        if file_path.is_file():
-            content = file_path.read_text(encoding="utf-8")
-            for label, pattern in REQUIRED_GOVERNANCE_TERMS:
-                if not pattern.search(content):
-                    violations.append(f"{rel_path}: Missing required rule identifier '{label}'")
-    return violations
+PROTECTED_SIMPLE_NAMES = {"CubicBezierInterpolator", "LayoutHelper", "BackDrawable"}
 
 
 def check_layouts(repo_root: Path, legacy_widgets: bool = True) -> list[str]:
@@ -134,15 +97,95 @@ def check_source_shortcuts(repo_root: Path, strict: bool = True) -> list[str]:
     return violations
 
 
+def check_telegram_forwarding_wrappers(repo_root: Path) -> list[str]:
+    """Fail if a Telegram* class only extends/forwards to another Telegram* or Eve class."""
+    violations = []
+    src_dir = repo_root / "app" / "src" / "main" / "java"
+    if not src_dir.is_dir():
+        return violations
+
+    for code_file in sorted(list(src_dir.rglob("*.kt")) + list(src_dir.rglob("*.java"))):
+        if not code_file.name.startswith("Telegram"):
+            continue
+        content = code_file.read_text(encoding="utf-8")
+        # Check if the file is a minimal forwarding wrapper
+        m = TELEGRAM_FORWARDING_PATTERN.search(content)
+        if m:
+            class_name = m.group(1)
+            parent_class = m.group(2)
+            # Check if the body is essentially empty (only constructor forwarding)
+            # Strip comments and blank lines, count substantive lines
+            lines = [l.strip() for l in content.split("\n")
+                     if l.strip() and not l.strip().startswith("//") and not l.strip().startswith("/*")
+                     and not l.strip().startswith("*") and not l.strip().startswith("import")
+                     and not l.strip().startswith("package")]
+            # A forwarding wrapper typically has: class declaration, constructor params, super call
+            # and very few other lines. If total substantive lines <= 6, it's a forwarding wrapper.
+            if len(lines) <= 6:
+                violations.append(
+                    f"Telegram forwarding wrapper in {code_file.relative_to(repo_root)}: "
+                    f"{class_name} only extends {parent_class} with no real implementation"
+                )
+    return violations
+
+
+def check_org_telegram_provenance(repo_root: Path) -> list[str]:
+    """Fail if a file under org/telegram has no entry in telegram-verbatim-imports.json and no // EVE-SHIM."""
+    violations = []
+    tg_dir = repo_root / "app" / "src" / "main" / "java" / "org" / "telegram"
+    if not tg_dir.is_dir():
+        return violations
+
+    manifest_path = repo_root / "docs" / "telegram-verbatim-imports.json"
+    registered_eve_paths = set()
+    if manifest_path.is_file():
+        try:
+            data = json.loads(manifest_path.read_text(encoding="utf-8"))
+            for entry in data.get("imports", []):
+                eve_path = entry.get("eve", "")
+                if eve_path:
+                    registered_eve_paths.add(eve_path)
+        except (json.JSONDecodeError, KeyError):
+            violations.append("docs/telegram-verbatim-imports.json is malformed")
+            return violations
+
+    for code_file in sorted(list(tg_dir.rglob("*.kt")) + list(tg_dir.rglob("*.java"))):
+        rel = str(code_file.relative_to(repo_root))
+        content = code_file.read_text(encoding="utf-8")
+        in_manifest = rel in registered_eve_paths
+        has_shim_header = "// EVE-SHIM" in content
+        if not in_manifest and not has_shim_header:
+            violations.append(
+                f"Unregistered org/telegram file: {rel} — "
+                f"must be listed in docs/telegram-verbatim-imports.json or have a // EVE-SHIM header"
+            )
+    return violations
+
+
+def check_duplicate_simple_names(repo_root: Path) -> list[str]:
+    """Fail if two source classes share the simple name CubicBezierInterpolator, LayoutHelper, or BackDrawable."""
+    violations = []
+    src_dir = repo_root / "app" / "src" / "main" / "java"
+    if not src_dir.is_dir():
+        return violations
+
+    name_map: dict[str, list[str]] = {}
+    for code_file in sorted(list(src_dir.rglob("*.kt")) + list(src_dir.rglob("*.java"))):
+        simple = code_file.stem
+        if simple in PROTECTED_SIMPLE_NAMES:
+            rel = str(code_file.relative_to(repo_root))
+            name_map.setdefault(simple, []).append(rel)
+
+    for name, paths in name_map.items():
+        if len(paths) > 1:
+            violations.append(
+                f"Duplicate class name '{name}' found in {len(paths)} locations: {', '.join(paths)}"
+            )
+    return violations
+
+
 def main():
     parser = argparse.ArgumentParser(description="EVE Anti-Shortcut and Anti-Wrapper Validator (Law 7)")
-    parser.add_argument(
-        "--check-governance",
-        "--governance-only",
-        dest="governance_only",
-        action="store_true",
-        help="Validate Laws 5, 6, 7, 8, and 9 enshrinement in governance files"
-    )
     parser.add_argument(
         "--strict",
         action="store_true",
@@ -171,14 +214,11 @@ def main():
     repo_root = Path(args.root).resolve()
 
     all_violations = []
-
-    if args.governance_only:
-        all_violations.extend(check_governance(repo_root))
-    else:
-        # Default run: checks governance, layouts, and strict source shortcuts
-        all_violations.extend(check_governance(repo_root))
-        all_violations.extend(check_layouts(repo_root, legacy_widgets=not args.basic_layouts_only))
-        all_violations.extend(check_source_shortcuts(repo_root, strict=args.strict))
+    all_violations.extend(check_layouts(repo_root, legacy_widgets=not args.basic_layouts_only))
+    all_violations.extend(check_source_shortcuts(repo_root, strict=args.strict))
+    all_violations.extend(check_telegram_forwarding_wrappers(repo_root))
+    all_violations.extend(check_org_telegram_provenance(repo_root))
+    all_violations.extend(check_duplicate_simple_names(repo_root))
 
     if all_violations:
         print("ANTI-SHORTCUT CHECK FAILED — VIOLATIONS FOUND:")

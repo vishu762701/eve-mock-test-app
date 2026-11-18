@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <com.eve.app.ui.admin.tg.TelegramActionBar
+        <com.eve.app.designsystem.TelegramActionBar
             android:id="@+id/actionBar"
             android:layout_width="match_parent"
             android:layout_height="56dp" />

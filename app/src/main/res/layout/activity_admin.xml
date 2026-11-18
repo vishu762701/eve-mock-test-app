@@ -9,7 +9,7 @@
     android:background="@color/bg_app"
     style="@style/Widget.Eve.Token.Screen">
 
-    <com.eve.app.ui.admin.tg.TelegramActionBar
+    <com.eve.app.designsystem.TelegramActionBar
         android:id="@+id/telegramActionBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

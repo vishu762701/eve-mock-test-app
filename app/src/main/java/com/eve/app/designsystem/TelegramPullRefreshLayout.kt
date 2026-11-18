@@ -11,7 +11,7 @@ import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.core.view.ViewCompat
-import com.eve.app.telegram.components.CubicBezierInterpolator
+import org.telegram.ui.Components.CubicBezierInterpolator
 import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.util.VibrationHelper
 

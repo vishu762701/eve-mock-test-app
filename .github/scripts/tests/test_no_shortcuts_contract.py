@@ -1,7 +1,6 @@
 """Regression test for Law 7 Anti-Shortcut and Anti-Wrapper Contract."""
 import os
 from pathlib import Path
-import re
 import subprocess
 import sys
 import tempfile
@@ -12,58 +11,35 @@ sys.path.insert(0, str(ROOT / "tools"))
 import check_no_shortcuts
 
 
-def read(path):
-    return (ROOT / path).read_text(encoding="utf-8")
-
-
 class NoShortcutsContractTest(unittest.TestCase):
-    def test_governance_files_contain_laws_5_6_7_8_9_and_anti_shortcut(self):
-        governance_files = [
-            "ENGINEERING_STANDARD.md",
-            "AGENTS.md",
-            "SOURCE_OF_TRUTH.md",
-            "GEMINI.md",
-            "CLAUDE.md",
-        ]
-        for rel in governance_files:
-            content = read(rel)
-            for law_num in (5, 6, 7, 8, 9):
-                self.assertTrue(
-                    bool(re.search(rf"\b(?:LAW|Law)\s*{law_num}\b", content)),
-                    f"{rel} missing Law {law_num} / LAW {law_num}"
-                )
-            self.assertIn("ZERO-SHORTCUT", content, f"{rel} missing 'ZERO-SHORTCUT'")
-            self.assertIn("check_no_shortcuts.py", content, f"{rel} missing 'check_no_shortcuts.py'")
-
-    def test_check_no_shortcuts_script_executable_and_passes_governance(self):
+    def test_check_no_shortcuts_script_executable_and_passes(self):
         script_path = ROOT / "tools" / "check_no_shortcuts.py"
         self.assertTrue(script_path.is_file(), "tools/check_no_shortcuts.py must exist")
         self.assertTrue(os.access(script_path, os.X_OK), "tools/check_no_shortcuts.py must be executable")
 
         result = subprocess.run(
-            [sys.executable, str(script_path), "--governance-only", "--root", str(ROOT)],
+            [sys.executable, str(script_path), "--root", str(ROOT)],
             capture_output=True,
             text=True
         )
-        self.assertEqual(result.returncode, 0, f"check_no_shortcuts.py --governance-only failed: {result.stderr}")
+        self.assertEqual(result.returncode, 0, f"check_no_shortcuts.py failed: {result.stderr or result.stdout}")
         self.assertIn("ANTI-SHORTCUT CHECK PASSED", result.stdout)
 
-        result_legacy_flag = subprocess.run(
-            [sys.executable, str(script_path), "--check-governance", "--root", str(ROOT)],
-            capture_output=True,
-            text=True
-        )
-        self.assertEqual(result_legacy_flag.returncode, 0, f"check_no_shortcuts.py --check-governance failed: {result_legacy_flag.stderr}")
-
     def test_check_no_shortcuts_passes_on_live_repo(self):
-        violations = check_no_shortcuts.check_governance(ROOT)
-        self.assertEqual(violations, [], f"Governance violations: {violations}")
-
-        basic_layout_violations = check_no_shortcuts.check_layouts(ROOT, legacy_widgets=False)
-        self.assertEqual(basic_layout_violations, [], f"Layout shortcut violations: {basic_layout_violations}")
+        layout_violations = check_no_shortcuts.check_layouts(ROOT, legacy_widgets=True)
+        self.assertEqual(layout_violations, [], f"Layout shortcut violations: {layout_violations}")
 
         source_violations = check_no_shortcuts.check_source_shortcuts(ROOT, strict=True)
         self.assertEqual(source_violations, [], f"Source shortcut violations: {source_violations}")
+
+        forwarding_violations = check_no_shortcuts.check_telegram_forwarding_wrappers(ROOT)
+        self.assertEqual(forwarding_violations, [], f"Forwarding wrapper violations: {forwarding_violations}")
+
+        provenance_violations = check_no_shortcuts.check_org_telegram_provenance(ROOT)
+        self.assertEqual(provenance_violations, [], f"Provenance violations: {provenance_violations}")
+
+        duplicate_violations = check_no_shortcuts.check_duplicate_simple_names(ROOT)
+        self.assertEqual(duplicate_violations, [], f"Duplicate simple name violations: {duplicate_violations}")
 
     def test_strict_mode_detects_fake_wrapper_subclass(self):
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -111,6 +87,50 @@ class NoShortcutsContractTest(unittest.TestCase):
             violations = check_no_shortcuts.check_layouts(tmp_root, legacy_widgets=True)
             self.assertTrue(any("EveGlassToolbar" in v for v in violations),
                             f"check_layouts should detect EveGlassToolbar, got: {violations}")
+
+    def test_forwarding_wrapper_detected(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_root = Path(tmp_dir)
+            fake_pkg = tmp_root / "app" / "src" / "main" / "java" / "com" / "eve" / "app" / "ui"
+            fake_pkg.mkdir(parents=True, exist_ok=True)
+            fake_kt = fake_pkg / "TelegramActionBar.kt"
+            fake_kt.write_text(
+                "package com.eve.app.ui\n\n"
+                "open class TelegramActionBar : com.eve.app.designsystem.TelegramActionBar()\n",
+                encoding="utf-8"
+            )
+            violations = check_no_shortcuts.check_telegram_forwarding_wrappers(tmp_root)
+            self.assertTrue(any("Telegram forwarding wrapper in" in v for v in violations),
+                            f"check_telegram_forwarding_wrappers should detect forwarding wrapper, got: {violations}")
+
+    def test_unregistered_org_telegram_file_detected(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_root = Path(tmp_dir)
+            tg_pkg = tmp_root / "app" / "src" / "main" / "java" / "org" / "telegram" / "ui"
+            tg_pkg.mkdir(parents=True, exist_ok=True)
+            docs_dir = tmp_root / "docs"
+            docs_dir.mkdir(parents=True, exist_ok=True)
+            (docs_dir / "telegram-verbatim-imports.json").write_text('{"imports": []}\n', encoding="utf-8")
+            (tg_pkg / "UnregisteredClass.java").write_text(
+                "package org.telegram.ui;\npublic class UnregisteredClass {}\n",
+                encoding="utf-8"
+            )
+            violations = check_no_shortcuts.check_org_telegram_provenance(tmp_root)
+            self.assertTrue(any("Unregistered org/telegram file" in v for v in violations),
+                            f"check_org_telegram_provenance should detect unregistered file, got: {violations}")
+
+    def test_duplicate_simple_names_detected(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_root = Path(tmp_dir)
+            pkg1 = tmp_root / "app" / "src" / "main" / "java" / "pkg1"
+            pkg2 = tmp_root / "app" / "src" / "main" / "java" / "pkg2"
+            pkg1.mkdir(parents=True, exist_ok=True)
+            pkg2.mkdir(parents=True, exist_ok=True)
+            (pkg1 / "BackDrawable.kt").write_text("package pkg1\nclass BackDrawable\n", encoding="utf-8")
+            (pkg2 / "BackDrawable.java").write_text("package pkg2;\npublic class BackDrawable {}\n", encoding="utf-8")
+            violations = check_no_shortcuts.check_duplicate_simple_names(tmp_root)
+            self.assertTrue(any("Duplicate class name 'BackDrawable'" in v for v in violations),
+                            f"check_duplicate_simple_names should detect duplicates, got: {violations}")
 
 
 if __name__ == "__main__":

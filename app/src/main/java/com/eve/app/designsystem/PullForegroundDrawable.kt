@@ -16,7 +16,7 @@ import android.text.TextPaint
 import android.view.View
 import android.view.animation.LinearInterpolator
 import androidx.core.graphics.ColorUtils
-import com.eve.app.telegram.components.CubicBezierInterpolator
+import org.telegram.ui.Components.CubicBezierInterpolator
 import com.eve.app.theme.TelegramThemeEngine
 
 /**

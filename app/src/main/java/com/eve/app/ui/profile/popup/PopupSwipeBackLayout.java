@@ -2,6 +2,8 @@
 // notification locks and the unused Telegram slider type are excluded.
 package com.eve.app.ui.profile.popup;
 
+import org.telegram.ui.Components.CubicBezierInterpolator;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;

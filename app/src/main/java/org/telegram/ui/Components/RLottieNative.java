@@ -1,3 +1,4 @@
+// EVE-SHIM: Native Lottie bridge — real method signatures, EVE playback backend.
 package org.telegram.ui.Components;
 
 import android.graphics.Bitmap;

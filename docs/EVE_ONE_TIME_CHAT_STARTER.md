@@ -10,7 +10,7 @@ Proceed without routine approvals. There is no numeric commit ceiling: use coher
 Respond in Roman Hinglish. Code and commands in English.
 
 ## Telegram source
-When the task needs official Telegram source, use the owner's Telegram source zip from phone storage or the chat attachment if it matches the official repo, otherwise a pinned official DrKLO/Telegram Git checkout. Follow ENGINEERING_STANDARD.md section 1 & 2.
+The official Telegram source zip lives in phone storage. Extract it to `~/tg-src` (outside the repo, never commit it) and verify provenance with `unzip -z <zip>` (commit SHA). Termux cannot attach files. Follow ENGINEERING_STANDARD.md sections 1 & 2 (R1–R10, S0–S6).
 
 ## Interruption
 If a real tool or session limit stops you, leave one short handoff: HEAD, uncommitted work, failing gate, next action. An ended session cannot keep working on its own.
