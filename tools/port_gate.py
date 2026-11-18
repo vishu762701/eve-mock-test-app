@@ -584,6 +584,9 @@ def check_should_run_smoke(manifest_path: Path, diff_ref: str = None) -> int:
 
     changed_files = get_git_changed_files(diff_ref)
     if not changed_files:
+        if diff_ref:
+            print("PORT SMOKE CHECK: No changed files detected for diff-ref; skipping.")
+            return 1
         print("PORT SMOKE CHECK: No changed files detected or git diff unavailable; defaulting to RUN.")
         return 0
 
