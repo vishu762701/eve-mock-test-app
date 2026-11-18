@@ -116,16 +116,16 @@
           "eve": "app/src/main/java/org/telegram/ui/ActionBar/Theme.java",
           "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/Theme.java",
           "mode": "CUT",
-          "eve_sha256": "313bfb11ec8b1a2503abd8d99eb04ff74ef2099698ba3da5a0be4a06ef97fbca",
+          "eve_sha256": "82529366cfe331281e7e423b3ab75f1791d0d14f945dab51e118aeb16a9cc5cf",
           "upstream_sha256": "1fa79468035c4fa03ce591bfd43baa4bdc22f9d04bd6f7555a173ad685427627",
           "upstream_lines": 10400,
-          "kept_lines": 5113,
+          "kept_lines": 5107,
           "originality_pct": 100.0,
           "removed_methods_reason": "cut remote theme loading, wallpaper background shaders, auto-night sensor and chat status drawables",
           "known_debt": false,
           "recipe_path": "docs/port-recipes/Theme.cut",
-          "recipe_sha256": "bf89f7840ed4ab175abb161afb1dcd4fa2dc3b616013231b346064d6ec8acc89",
-          "result_sha256": "313bfb11ec8b1a2503abd8d99eb04ff74ef2099698ba3da5a0be4a06ef97fbca"
+          "recipe_sha256": "c5a552bd96d285e0597000372a968e207b478493562d0e05d18f814e3d7f23c2",
+          "result_sha256": "82529366cfe331281e7e423b3ab75f1791d0d14f945dab51e118aeb16a9cc5cf"
         },
         {
           "eve": "app/src/main/java/org/telegram/ui/ActionBar/ThemeColors.java",

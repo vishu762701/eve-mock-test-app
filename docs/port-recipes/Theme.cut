@@ -172,6 +172,10 @@ remove-statement "public static MessageDrawable chat_msgOutMediaDrawable;"
 remove-statement "public static MessageDrawable chat_msgOutMediaSelectedDrawable;"
 
 # Remove static init statements referencing deleted logic
+remove-statement "String themesString = themeConfig.getString(\"themes2\", null);"
+remove-statement "int remoteVersion = themeConfig.getInt(\"remote_version\", 0);"
+remove-statement "int appRemoteThemesVersion = 1;"
+remove-statement "themeConfig.edit().putInt(\"remote_version\", appRemoteThemesVersion).apply();"
 remove-statement "if (remoteVersion == appRemoteThemesVersion) {"
 remove-statement "if (!TextUtils.isEmpty(themesString)) {" all
 remove-statement "int switchToTheme = needSwitchToTheme();"
@@ -190,6 +194,7 @@ remove-statement "if (overrideWallpaper != null) {"
 # Patches for Eve environment
 patch-line "                overrideWallpaper = themeAccent.overrideWallpaper;" "                // no-op" "skip overrideWallpaper in getAccent"
 patch-line "                overrideWallpaper = accent.overrideWallpaper;" "                // no-op" "skip overrideWallpaper in setCurrentAccentId"
+patch-line "        SharedPreferences themeConfig = ApplicationLoader.applicationContext.getSharedPreferences(\"themeconfig\", Activity.MODE_PRIVATE);" "        if (ApplicationLoader.applicationContext == null) { try { ApplicationLoader.applicationContext = (Context) Class.forName(\"android.app.ActivityThread\").getMethod(\"currentApplication\").invoke(null); } catch (Throwable ignored) {} } SharedPreferences themeConfig = ApplicationLoader.applicationContext != null ? ApplicationLoader.applicationContext.getSharedPreferences(\"themeconfig\", Activity.MODE_PRIVATE) : null;" "initialize app context safely in static init"
 patch-line "        SharedPreferences preferences = MessagesController.getGlobalMainSettings();" "        SharedPreferences preferences = ApplicationLoader.applicationContext != null ? ApplicationLoader.applicationContext.getSharedPreferences(\"mainconfig\", Context.MODE_PRIVATE) : null;" "use app shared preferences"
 patch-line "public static class ThemeInfo implements NotificationCenter.NotificationCenterDelegate {" "public static class ThemeInfo {" "decouple NotificationCenter from ThemeInfo"
 patch-line "            return SharedConfig.compactMode;" "            return false;" "decouple SharedConfig from isCompactMode"

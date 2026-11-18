@@ -2808,7 +2808,7 @@ public class Theme {
         currentColorsNoAccent = new SparseIntArray();
         currentColors = new SparseIntArray();
 
-        SharedPreferences themeConfig = ApplicationLoader.applicationContext.getSharedPreferences("themeconfig", Activity.MODE_PRIVATE);
+        if (ApplicationLoader.applicationContext == null) { try { ApplicationLoader.applicationContext = (Context) Class.forName("android.app.ActivityThread").getMethod("currentApplication").invoke(null); } catch (Throwable ignored) {} } SharedPreferences themeConfig = ApplicationLoader.applicationContext != null ? ApplicationLoader.applicationContext.getSharedPreferences("themeconfig", Activity.MODE_PRIVATE) : null; // EVE-PATCH: initialize app context safely in static init
 
         ThemeInfo themeInfo = new ThemeInfo();
         themeInfo.name = "Blue";
@@ -2931,12 +2931,6 @@ public class Theme {
         sortAccents(themeInfo);
         themes.add(themeInfo);
         themesDict.put("Night", themeInfo);
-
-        String themesString = themeConfig.getString("themes2", null);
-
-        int remoteVersion = themeConfig.getInt("remote_version", 0);
-        int appRemoteThemesVersion = 1;
-        themeConfig.edit().putInt("remote_version", appRemoteThemesVersion).apply();
 
         sortThemes();
 
