@@ -454,16 +454,16 @@ def get_git_changed_files(diff_ref: str = None) -> list[str]:
     cmd_candidates = []
     if diff_ref:
         cmd_candidates.append(["git", "diff", "--name-only", diff_ref])
+    else:
+        before = os.environ.get("GITHUB_EVENT_BEFORE")
+        sha = os.environ.get("GITHUB_SHA")
+        if before and sha and before != "0000000000000000000000000000000000000000":
+            cmd_candidates.append(["git", "diff", "--name-only", f"{before}..{sha}"])
 
-    before = os.environ.get("GITHUB_EVENT_BEFORE")
-    sha = os.environ.get("GITHUB_SHA")
-    if before and sha and before != "0000000000000000000000000000000000000000":
-        cmd_candidates.append(["git", "diff", "--name-only", f"{before}..{sha}"])
-
-    cmd_candidates.append(["git", "diff", "--name-only", "HEAD~1..HEAD"])
-    cmd_candidates.append(["git", "diff", "--name-only", "HEAD~1"])
-    cmd_candidates.append(["git", "diff", "--name-only", "HEAD"])
-    cmd_candidates.append(["git", "status", "--porcelain"])
+        cmd_candidates.append(["git", "diff", "--name-only", "HEAD~1..HEAD"])
+        cmd_candidates.append(["git", "diff", "--name-only", "HEAD~1"])
+        cmd_candidates.append(["git", "diff", "--name-only", "HEAD"])
+        cmd_candidates.append(["git", "status", "--porcelain"])
 
     for cmd in cmd_candidates:
         try:
@@ -484,7 +484,7 @@ def get_git_changed_files(diff_ref: str = None) -> list[str]:
                     files.append(line[3:].strip())
                 else:
                     files.append(line)
-            if files:
+            if diff_ref is not None or files:
                 return files
         except Exception:
             continue
