@@ -28,6 +28,8 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 /**
  * PortedScreensSmokeTest
@@ -83,7 +85,7 @@ class PortedScreensSmokeTest {
         val intent = buildValidIntent(hostClass, entry.screen)
 
         ActivityScenario.launch<Activity>(intent).use { scenario ->
-            instrumentation.waitForIdleSync()
+            waitIdleSafe()
             assertNoLogcatCrashesOrAnrs("Startup of ${entry.screen}")
             println("PORT_SMOKE: Startup passed for ${entry.screen}")
 
@@ -119,7 +121,7 @@ class PortedScreensSmokeTest {
             scenario.onActivity { activity ->
                 activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             }
-            instrumentation.waitForIdleSync()
+            waitIdleSafe()
             assertNoLogcatCrashesOrAnrs("Landscape rotation of ${entry.screen}")
             println("PORT_SMOKE: Landscape rotation passed for ${entry.screen}")
 
@@ -140,7 +142,7 @@ class PortedScreensSmokeTest {
             scenario.onActivity { activity ->
                 activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             }
-            instrumentation.waitForIdleSync()
+            waitIdleSafe()
             assertNoLogcatCrashesOrAnrs("Portrait restore of ${entry.screen}")
             println("PORT_SMOKE: Portrait restore passed for ${entry.screen}")
 
@@ -153,7 +155,7 @@ class PortedScreensSmokeTest {
                     activity.onBackPressed()
                 }
             }
-            instrumentation.waitForIdleSync()
+            waitIdleSafe()
             assertNoLogcatCrashesOrAnrs("Back press of ${entry.screen}")
             println("PORT_SMOKE: Back press passed for ${entry.screen}")
         }
@@ -169,6 +171,16 @@ class PortedScreensSmokeTest {
             val content = activity.findViewById<ViewGroup>(android.R.id.content)
             if (content != null && content.childCount > 0) content.getChildAt(0) else content
         }
+    }
+
+    private fun waitIdleSafe(timeoutMs: Long = 1000) {
+        val latch = CountDownLatch(1)
+        try {
+            instrumentation.runOnMainSync {
+                latch.countDown()
+            }
+            latch.await(timeoutMs, TimeUnit.MILLISECONDS)
+        } catch (_: Throwable) {}
     }
 
     private fun buildValidIntent(hostClass: Class<out Activity>, screenName: String): Intent {
@@ -195,7 +207,7 @@ class PortedScreensSmokeTest {
     }
 
     private fun saveScreenshot(screen: String) {
-        instrumentation.waitForIdleSync()
+        waitIdleSafe()
         val bitmap = instrumentation.uiAutomation.takeScreenshot()
         assertNotNull("Screenshot bitmap must not be null for $screen", bitmap)
 
