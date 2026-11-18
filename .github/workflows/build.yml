@@ -85,6 +85,7 @@ jobs:
         run: |
           python3 tools/check_no_stubs.py
           python3 tools/check_no_shortcuts.py
+          python3 tools/port_gate.py --check
 
       # Documentation, governance and security suites are manual FULL only.
       - name: Verify docs and governance contracts (manual FULL only)

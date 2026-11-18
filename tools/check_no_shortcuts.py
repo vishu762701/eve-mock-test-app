@@ -181,6 +181,7 @@ def check_org_telegram_provenance(repo_root: Path) -> list[str]:
         return violations
 
     manifest_path = repo_root / "docs" / "telegram-verbatim-imports.json"
+    port_manifest_path = repo_root / "docs" / "port-manifest.json"
     registered_eve_paths = set()
     if manifest_path.is_file():
         try:
@@ -193,15 +194,26 @@ def check_org_telegram_provenance(repo_root: Path) -> list[str]:
             violations.append("docs/telegram-verbatim-imports.json is malformed")
             return violations
 
+    if port_manifest_path.is_file():
+        try:
+            pdata = json.loads(port_manifest_path.read_text(encoding="utf-8"))
+            for screen in pdata.get("screens", []):
+                for f in screen.get("files", []):
+                    eve_p = f.get("eve", "")
+                    if eve_p:
+                        registered_eve_paths.add(eve_p)
+        except Exception:
+            pass
+
     for code_file in sorted(list(tg_dir.rglob("*.kt")) + list(tg_dir.rglob("*.java"))):
         rel = str(code_file.relative_to(repo_root))
         content = code_file.read_text(encoding="utf-8")
         in_manifest = rel in registered_eve_paths
-        has_shim_header = "// EVE-SHIM" in content
+        has_shim_header = any(h in content for h in ("// EVE-SHIM", "// EVE-PATCH", "// EVE-ORIGINAL"))
         if not in_manifest and not has_shim_header:
             violations.append(
                 f"Unregistered org/telegram file: {rel} — "
-                f"must be listed in docs/telegram-verbatim-imports.json or have a // EVE-SHIM header"
+                f"must be listed in docs/telegram-verbatim-imports.json, docs/port-manifest.json, or have an EVE header"
             )
     return violations
 
