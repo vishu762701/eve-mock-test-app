@@ -145,7 +145,7 @@ class PortedScreensSmokeTest {
 
             // 4. Press back without crash
             try {
-                instrumentation.uiAutomation.pressBack()
+                androidx.test.espresso.Espresso.pressBackUnconditionally()
             } catch (_: Throwable) {
                 instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
             }
