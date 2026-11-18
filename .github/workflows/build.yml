@@ -127,7 +127,7 @@ jobs:
 
       - name: Prepare pinned Telegram QR native renderer toolchain
         env:
-          EVE_ALL_ABIS: ${{ steps.verification_profile.outputs.full == 'true' }}
+          EVE_ALL_ABIS: ${{ steps.verification_profile.outputs.full == 'true' || steps.port_smoke_check.outputs.port_smoke_needed == 'true' }}
         run: bash .github/scripts/prepare-qr-native.sh
 
       # Exercise the same optimized CPU/C API feature set used by the JNI build.
@@ -154,7 +154,7 @@ jobs:
             gradle :app:assembleDebug --stacktrace --console=plain 2>&1 | tee ci-fast-gradle.log
           elif [[ "${{ steps.port_smoke_check.outputs.port_smoke_needed }}" == "true" ]]; then
             # Port smoke runs on x86_64 emulator; assemble all ABIs and androidTest APK
-            gradle :app:assembleDebug :app:assembleDebugAndroidTest :app:lintDebug --stacktrace --console=plain 2>&1 | tee ci-fast-gradle.log
+            gradle :app:assembleDebug -Peve.nativeAbis=arm64-v8a,x86_64 :app:assembleDebugAndroidTest -Peve.nativeAbis=arm64-v8a,x86_64 :app:lintDebug --stacktrace --console=plain 2>&1 | tee ci-fast-gradle.log
           else
             # The owner's normal development build targets ARM64 phones only.
             gradle :app:assembleDebug -Peve.nativeAbis=arm64-v8a :app:compileDebugAndroidTestKotlin :app:lintDebug --stacktrace --console=plain 2>&1 | tee ci-fast-gradle.log
