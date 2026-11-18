@@ -14,6 +14,7 @@
     "app/src/main/java/org/telegram/ui/ActionBar/INavigationLayout.java",
     "app/src/main/java/org/telegram/ui/ActionBar/Theme.java",
     "app/src/main/java/org/telegram/ui/ActionBar/ThemeDescription.java",
+    "app/src/main/java/org/telegram/ui/ChangeNameActivity.java",
     "app/src/main/java/org/telegram/ui/Components/EditTextBoldCursor.java"
   ],
   "screens": [
@@ -35,7 +36,10 @@
           "kept_lines": 234,
           "originality_pct": 95.8,
           "removed_methods_reason": "",
-          "known_debt": false
+          "known_debt": true,
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "f148f35b8e548ef8720a2dab6b840e95cbcbf3e9d17bc40e1938ba223c43c2f0"
         },
         {
           "eve": "app/src/main/java/org/telegram/ui/Components/LayoutHelper.java",
@@ -47,7 +51,10 @@
           "kept_lines": 271,
           "originality_pct": 100.0,
           "removed_methods_reason": "",
-          "known_debt": false
+          "known_debt": false,
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "eb94f013d5cb4376133190b837d89b1f9224c48a5f21e269396d189f0c534ec3"
         },
         {
           "eve": "app/src/main/java/org/telegram/ui/Components/CubicBezierInterpolator.java",
@@ -59,7 +66,10 @@
           "kept_lines": 84,
           "originality_pct": 100.0,
           "removed_methods_reason": "",
-          "known_debt": false
+          "known_debt": false,
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "747f7b8f511249f14bc1b567088d7e0da3639729263a6f56243eb61c2ba19387"
         },
         {
           "eve": "app/src/main/java/org/telegram/ui/Components/Easings.java",
@@ -71,7 +81,10 @@
           "kept_lines": 18,
           "originality_pct": 100.0,
           "removed_methods_reason": "",
-          "known_debt": false
+          "known_debt": false,
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "ba04283b54726919dab9e2c4fa3e14963af2a0cee62b196eac58a10007ebac11"
         },
         {
           "eve": "app/src/main/java/org/telegram/ui/Components/RLottieNative.java",
@@ -83,7 +96,10 @@
           "kept_lines": 316,
           "originality_pct": 100.0,
           "removed_methods_reason": "not a Telegram class; native Lottie bridge for EVE",
-          "known_debt": false
+          "known_debt": false,
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "d8f4f1f018d3dc45139cea0431fd1b2f82779fb835f46b869ec04f31cf05dea1"
         },
         {
           "eve": "app/src/main/java/org/telegram/ui/Components/EditTextBoldCursor.java",
@@ -95,7 +111,10 @@
           "kept_lines": 166,
           "originality_pct": 52.11,
           "removed_methods_reason": "",
-          "known_debt": true
+          "known_debt": true,
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "fdfd7bdb07f8d234ef7f880b7b8ec512e8046c7665785a7bd23ac7c9d3a346a9"
         },
         {
           "eve": "app/src/main/java/org/telegram/ui/ActionBar/Theme.java",
@@ -107,7 +126,10 @@
           "kept_lines": 73,
           "originality_pct": 43.94,
           "removed_methods_reason": "",
-          "known_debt": true
+          "known_debt": true,
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "535b0434841f5d8f09ef74a0e452e1073a71eea4187ba3aaecde219273085302"
         },
         {
           "eve": "app/src/main/java/org/telegram/ui/ActionBar/ThemeDescription.java",
@@ -119,7 +141,10 @@
           "kept_lines": 20,
           "originality_pct": 43.75,
           "removed_methods_reason": "",
-          "known_debt": true
+          "known_debt": true,
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "5dc4250b5c30bfafa5c2edb0622bbade328472db3a69c77f78bfa1d7901c4cea"
         },
         {
           "eve": "app/src/main/java/org/telegram/ui/ActionBar/INavigationLayout.java",
@@ -131,7 +156,10 @@
           "kept_lines": 14,
           "originality_pct": 45.45,
           "removed_methods_reason": "",
-          "known_debt": true
+          "known_debt": true,
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "0708fd8e578d64a5d4175b76a79d15dafb4c5e1c725a6816e0924e3eb4a76e2a"
         },
         {
           "eve": "app/src/main/java/org/telegram/ui/ActionBar/BaseFragment.java",
@@ -143,7 +171,10 @@
           "kept_lines": 104,
           "originality_pct": 76.47,
           "removed_methods_reason": "",
-          "known_debt": true
+          "known_debt": true,
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "779cbfc4830e71a4f64ff3f8401a9b1c9490704de5d6945cebbe180ce69692e4"
         },
         {
           "eve": "app/src/main/java/org/telegram/ui/ActionBar/ActionBar.java",
@@ -155,7 +186,10 @@
           "kept_lines": 123,
           "originality_pct": 66.35,
           "removed_methods_reason": "",
-          "known_debt": true
+          "known_debt": true,
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "f798d351272928934c240e8700ecfd6f6e7c0634b60191e9c398218701257882"
         },
         {
           "eve": "app/src/main/java/org/telegram/ui/ActionBar/ActionBarMenu.java",
@@ -167,7 +201,10 @@
           "kept_lines": 47,
           "originality_pct": 43.9,
           "removed_methods_reason": "",
-          "known_debt": true
+          "known_debt": true,
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "cb7ecd523c1ede0a6700346ba97db15acd0eec6491b6361a4de1ef228646678e"
         },
         {
           "eve": "app/src/main/java/org/telegram/ui/ActionBar/ActionBarMenuItem.java",
@@ -179,7 +216,10 @@
           "kept_lines": 46,
           "originality_pct": 67.57,
           "removed_methods_reason": "",
-          "known_debt": true
+          "known_debt": true,
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "3089cde2c9eae629510b531c265c8de5034a40d72db7e5d747465845979024a9"
         },
         {
           "eve": "app/src/main/java/org/telegram/messenger/AndroidUtilities.java",
@@ -191,7 +231,10 @@
           "kept_lines": 111,
           "originality_pct": 69.79,
           "removed_methods_reason": "",
-          "known_debt": true
+          "known_debt": true,
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "05e4114919025bc0f2003aac9c15ee9d4ef0c01e24405584eec9319dd2de70ff"
         },
         {
           "eve": "app/src/main/java/org/telegram/messenger/LocaleController.java",
@@ -203,7 +246,10 @@
           "kept_lines": 21,
           "originality_pct": 47.06,
           "removed_methods_reason": "",
-          "known_debt": true
+          "known_debt": true,
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "8fae38838869d508cbcc79bd9a1fae0400706bafb9f9c9fdd72a3315da1de3aa"
         },
         {
           "eve": "app/src/main/java/org/telegram/messenger/R.java",
@@ -215,7 +261,10 @@
           "kept_lines": 15,
           "originality_pct": 0.0,
           "removed_methods_reason": "",
-          "known_debt": true
+          "known_debt": true,
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "7c77be01f90557e4fc689aeac90836d3ae324c6b94aa6cb0d74b3c86ad08d97a"
         },
         {
           "eve": "app/src/main/java/org/telegram/messenger/ApplicationLoader.java",
@@ -227,7 +276,10 @@
           "kept_lines": 10,
           "originality_pct": 85.71,
           "removed_methods_reason": "",
-          "known_debt": true
+          "known_debt": true,
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "faa21f5e4e27d21e8c60bf318838cebe5a5d893e69bdb63eff93527dc8c51e5d"
         }
       ]
     }

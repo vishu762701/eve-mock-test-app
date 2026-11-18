@@ -39,6 +39,7 @@ KNOWN_DEBT_ALLOWLIST = {
     "app/src/main/java/org/telegram/ui/ActionBar/INavigationLayout.java",
     "app/src/main/java/org/telegram/ui/ActionBar/Theme.java",
     "app/src/main/java/org/telegram/ui/ActionBar/ThemeDescription.java",
+    "app/src/main/java/org/telegram/ui/ChangeNameActivity.java",
     "app/src/main/java/org/telegram/ui/Components/EditTextBoldCursor.java",
 }
 
@@ -275,10 +276,19 @@ def record_manifest(upstream_root: Path, output_path: Path, allow_known_debt: bo
                     if not (allow_known_debt and is_known):
                         failed_files.append((eve_rel, orig_pct, "originality < 95.0%"))
 
+            recipe_path = fspec.get("recipe_path", "")
+            if not recipe_path and (REPO_ROOT / f"docs/port-recipes/{Path(eve_rel).stem}.cut").is_file():
+                recipe_path = f"docs/port-recipes/{Path(eve_rel).stem}.cut"
+
+            recipe_sha = sha256_file(REPO_ROOT / recipe_path) if (recipe_path and (REPO_ROOT / recipe_path).is_file()) else ""
+
             file_entry = {
                 "eve": eve_rel,
                 "upstream": up_rel,
                 "mode": mode,
+                "recipe_path": recipe_path,
+                "recipe_sha256": recipe_sha,
+                "result_sha256": eve_hash,
                 "eve_sha256": eve_hash,
                 "upstream_sha256": up_hash,
                 "upstream_lines": up_lines,
@@ -312,7 +322,7 @@ def record_manifest(upstream_root: Path, output_path: Path, allow_known_debt: bo
     return 0
 
 
-def check_manifest(manifest_path: Path) -> int:
+def check_manifest(manifest_path: Path, upstream_path: Path | None = None) -> int:
     if not manifest_path.is_file():
         print(f"ERROR: Manifest file not found: {manifest_path}", file=sys.stderr)
         return 1
@@ -398,12 +408,41 @@ def check_manifest(manifest_path: Path) -> int:
 
             current_hash = sha256_file(local_path)
             expected_hash = f.get("eve_sha256", "")
+            result_hash = f.get("result_sha256", expected_hash)
             if current_hash != expected_hash:
                 errors.append(f"Stale hash for {eve_rel}: manifest={expected_hash[:8]} vs disk={current_hash[:8]}")
+            if result_hash and current_hash != result_hash:
+                errors.append(f"Result sha256 mismatch for {eve_rel}: manifest result={result_hash[:8]} vs disk={current_hash[:8]}")
 
             mode = f.get("mode", "")
             orig_pct = f.get("originality_pct", 0.0)
             is_debt = f.get("known_debt", False)
+            recipe_path = f.get("recipe_path", "")
+            recipe_sha = f.get("recipe_sha256", "")
+
+            if mode == "CUT":
+                if not is_debt:
+                    if not recipe_path:
+                        errors.append(f"mode CUT requires recipe under docs/port-recipes/ for {eve_rel}")
+                    elif not recipe_path.startswith("docs/port-recipes/"):
+                        errors.append(f"recipe_path must be located under docs/port-recipes/: {recipe_path}")
+                    else:
+                        r_file = REPO_ROOT / recipe_path
+                        if not r_file.is_file():
+                            errors.append(f"Recipe file missing on disk: {recipe_path}")
+                        else:
+                            r_hash = sha256_file(r_file)
+                            if r_hash != recipe_sha:
+                                errors.append(f"Recipe sha256 mismatch for {recipe_path}: disk={r_hash[:8]} vs manifest={recipe_sha[:8]}")
+                else:
+                    if recipe_path:
+                        r_file = REPO_ROOT / recipe_path
+                        if not r_file.is_file():
+                            errors.append(f"Recipe file missing on disk: {recipe_path}")
+                        else:
+                            r_hash = sha256_file(r_file)
+                            if r_hash != recipe_sha:
+                                errors.append(f"Recipe sha256 mismatch for {recipe_path}: disk={r_hash[:8]} vs manifest={recipe_sha[:8]}")
 
             if is_debt:
                 if eve_rel not in known_debt_allowlist:
@@ -429,6 +468,36 @@ def check_manifest(manifest_path: Path) -> int:
                     errors.append(
                         f"Visual class {eve_rel} kept ratio < 50% ({ratio:.1f}%) with no removed_methods_reason"
                     )
+
+    # Optional rebuild check if upstream path provided
+    if upstream_path:
+        if not upstream_path.is_dir():
+            errors.append(f"Specified upstream directory not found: {upstream_path}")
+        else:
+            tgcut_tool = Path.home() / "tg-tools" / "tgcut.py"
+            if not tgcut_tool.is_file():
+                errors.append(f"Tool tgcut.py not found at {tgcut_tool}")
+            else:
+                import tempfile
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    for s in screens:
+                        for f in s.get("files", []):
+                            r_path = f.get("recipe_path", "")
+                            if r_path and (REPO_ROOT / r_path).is_file():
+                                res = subprocess.run(
+                                    [sys.executable, str(tgcut_tool), "build", str(REPO_ROOT / r_path), "--repo", tmpdir, "--src", str(upstream_path)],
+                                    capture_output=True,
+                                    text=True
+                                )
+                                if res.returncode != 0:
+                                    errors.append(f"tgcut build failed for {r_path}: {res.stderr}\n{res.stdout}")
+                                    continue
+                                built_file = Path(tmpdir) / f["eve"]
+                                if not built_file.is_file():
+                                    errors.append(f"tgcut build output missing for {f['eve']}")
+                                    continue
+                                if sha256_file(built_file) != sha256_file(REPO_ROOT / f["eve"]):
+                                    errors.append(f"tgcut rebuild byte mismatch for {f['eve']}")
 
     # Check for unmanifested files
     unregistered = disk_files - manifest_files
@@ -562,7 +631,8 @@ def main():
         return record_manifest(upstream_path, manifest_path, args.allow_known_debt)
 
     elif args.check:
-        return check_manifest(manifest_path)
+        upstream_path = Path(args.upstream).resolve() if args.upstream else None
+        return check_manifest(manifest_path, upstream_path)
 
     elif args.should_run_smoke:
         return check_should_run_smoke(manifest_path, args.diff_ref)
