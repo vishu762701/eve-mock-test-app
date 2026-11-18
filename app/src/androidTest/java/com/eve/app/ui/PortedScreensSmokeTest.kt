@@ -141,7 +141,12 @@ class PortedScreensSmokeTest {
 
             // 4. Press back without crash via standard back dispatcher
             scenario.onActivity { activity ->
-                activity.onBackPressedDispatcher.onBackPressed()
+                if (activity is androidx.activity.ComponentActivity) {
+                    activity.onBackPressedDispatcher.onBackPressed()
+                } else {
+                    @Suppress("DEPRECATION")
+                    activity.onBackPressed()
+                }
             }
             instrumentation.waitForIdleSync()
             assertNoLogcatCrashesOrAnrs("Back press of ${entry.screen}")
