@@ -4,7 +4,7 @@
  * emoji, Lottie, downloaded images, checkboxes or swipe-back submenus. */
 package com.eve.app.ui.profile.popup;
 import static com.eve.app.ui.profile.popup.PopupPlatform.dp;
-import com.eve.app.telegram.components.LayoutHelper;
+import org.telegram.ui.Components.LayoutHelper;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;

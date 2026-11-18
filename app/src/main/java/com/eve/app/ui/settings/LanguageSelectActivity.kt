@@ -24,7 +24,7 @@ import androidx.core.os.LocaleListCompat
 import com.eve.app.designsystem.TelegramThemeSelectors
 import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.ui.admin.tg.HeaderCell
-import com.eve.app.ui.admin.tg.ShadowSectionCell
+import org.telegram.ui.Cells.ShadowSectionCell
 import com.eve.app.designsystem.TelegramActionBar
 import com.eve.app.ui.admin.tg.TextInfoPrivacyCell
 import com.eve.app.ui.common.EveBaseActivity

@@ -23,6 +23,7 @@ import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
+import org.telegram.ui.ActionBar.BackDrawable
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcherOwner
@@ -49,7 +50,7 @@ open class TelegramActionBar @JvmOverloads constructor(
     private fun dp(v: Float): Int = (v * density + 0.5f).toInt()
 
     val backButton: ImageButton = ImageButton(context)
-    val backDrawable: BackDrawable = BackDrawable()
+    val backDrawable: BackDrawable = BackDrawable(false)
     private val titlesContainer: LinearLayout = LinearLayout(context)
     val titleTextView: TextView = TextView(context)
     val subtitleTextView: TextView = TextView(context)
