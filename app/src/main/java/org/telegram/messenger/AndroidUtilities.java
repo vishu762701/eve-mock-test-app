@@ -2406,28 +2406,6 @@ public class AndroidUtilities {
         return Settings.Global.getInt(ApplicationLoader.applicationContext.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
     }
 
-    public static File generateVideoPath() {
-        return generateVideoPath(false);
-    }
-
-    private static SimpleDateFormat generatingVideoPathFormat;
-
-    public static File generateVideoPath(boolean secretChat) {
-        try {
-            File storageDir = getAlbumDir(secretChat);
-            Date date = new Date();
-            date.setTime(System.currentTimeMillis() + Utilities.random.nextInt(1000) + 1);
-            if (generatingVideoPathFormat == null) {
-                generatingVideoPathFormat = new SimpleDateFormat("yyyyMMdd_HHmmss_SSS", Locale.US);
-            }
-            String timeStamp = generatingVideoPathFormat.format(date);
-            return new File(storageDir, "VID_" + timeStamp + ".mp4");
-        } catch (Exception e) {
-            FileLog.e(e);
-        }
-        return null;
-    }
-
     public static String formatFileSize(long size) {
         return formatFileSize(size, false, false);
     }
@@ -4058,14 +4036,6 @@ public class AndroidUtilities {
         return clone;
     }
 
-    public static void checkAndroidTheme(Context context, boolean open) {
-        // this hack is done to support prefers-color-scheme in webviews 🤦
-        if (context == null) {
-            return;
-        }
-        context.setTheme(Theme.isCurrentThemeDark() && open ? R.style.Theme_TMessages_Dark : R.style.Theme_TMessages);
-    }
-
     private static Boolean isHonor;
     public static boolean isHonor() {
         if (isHonor == null) {
@@ -4078,30 +4048,6 @@ public class AndroidUtilities {
             }
         }
         return isHonor;
-    }
-
-    public static CharSequence withLearnMore(CharSequence text, Runnable onClick) {
-        SpannableString link = new SpannableString(getString(R.string.LearnMoreArrow));
-        link.setSpan(new ClickableSpan() {
-            @Override
-            public void onClick(@NonNull View widget) {
-                if (onClick != null) {
-                    onClick.run();
-                }
-            }
-
-            @Override
-            public void updateDrawState(@NonNull TextPaint ds) {
-                ds.setUnderlineText(false);
-                ds.setColor(ds.linkColor);
-            }
-        }, 0, link.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-        SpannableStringBuilder result = new SpannableStringBuilder(text);
-        result.append(" ");
-        result.append(link);
-
-        return replaceArrows(result, true);
     }
 
     public static View findChildViewUnder(ViewGroup parent, float x, float y) {

@@ -63,10 +63,8 @@ import androidx.annotation.Nullable;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.math.MathUtils;
 
-import org.json.JSONArray;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
-import org.telegram.messenger.BuildVars;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.R;
 import org.telegram.messenger.Utilities;
@@ -80,7 +78,6 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -150,34 +147,6 @@ public class Theme {
 
         ThemeAccent() {
 
-        }
-
-        public ThemeAccent(ThemeAccent other) {
-            this.id = other.id;
-            this.parentTheme = other.parentTheme;
-            this.accentColor = other.accentColor;
-            this.myMessagesAccentColor = other.myMessagesAccentColor;
-            this.myMessagesGradientAccentColor1 = other.myMessagesGradientAccentColor1;
-            this.myMessagesGradientAccentColor2 = other.myMessagesGradientAccentColor2;
-            this.myMessagesGradientAccentColor3 = other.myMessagesGradientAccentColor3;
-            this.myMessagesAnimated = other.myMessagesAnimated;
-            this.backgroundOverrideColor = other.backgroundOverrideColor;
-            this.backgroundGradientOverrideColor1 = other.backgroundGradientOverrideColor1;
-            this.backgroundGradientOverrideColor2 = other.backgroundGradientOverrideColor2;
-            this.backgroundGradientOverrideColor3 = other.backgroundGradientOverrideColor3;
-            this.backgroundRotation = other.backgroundRotation;
-            this.patternSlug = other.patternSlug;
-            this.patternIntensity = other.patternIntensity;
-            this.patternMotion = other.patternMotion;
-            this.info = other.info;
-            this.pattern = other.pattern;
-            this.account = other.account;
-            this.pathToFile = other.pathToFile;
-            this.uploadingThumb = other.uploadingThumb;
-            this.uploadingFile = other.uploadingFile;
-            this.uploadedThumb = other.uploadedThumb;
-            this.uploadedFile = other.uploadedFile;
-            this.overrideWallpaper = other.overrideWallpaper;
         }
 
         // a color of the table being built, not of the active theme
@@ -468,7 +437,7 @@ public class Theme {
                 inBubble = getColorFromTable(currentColors, key_chat_inBubble, null);
             }
 
-            if (accentColor != parentTheme.accentBaseColor || myMessagesAccentColor != 0 || info != null && info.emoticon != null) {
+            if (accentColor != parentTheme.accentBaseColor || myMessagesAccentColor != 0) { // EVE-PATCH: decouple info from accent bubble check
                 // compact mode's outgoing keys are neutral, so the hue shift above leaves them as is:
                 // follow the accent the way the regular bubble does
                 final int replyLine = colorInTable(currentColors, key_chat_outReplyLine);
@@ -487,25 +456,6 @@ public class Theme {
             }
 
             int gradientAverageColor = outBubble;
-            if (info != null && info.emoticon != null && !isDarkTheme) {
-                currentColors.delete(key_chat_selectedBackground);
-                gradientAverageColor = averageColor(currentColors, key_chat_wallpaper_gradient_to1, key_chat_wallpaper_gradient_to2, key_chat_wallpaper_gradient_to3);
-                if (gradientAverageColor == 0) {
-                    gradientAverageColor = averageColor(currentColors, key_chat_wallpaper);
-                }
-                if (gradientAverageColor == 0) {
-                    gradientAverageColor = accentColor;
-                }
-
-                int outOverlay = bubbleSelectedOverlay(outBubble, gradientAverageColor);
-                currentColors.put(key_chat_outBubbleSelectedOverlay, outOverlay);
-                currentColors.put(key_chat_outBubbleGradientSelectedOverlay, outOverlay);
-                currentColors.put(key_chat_outBubbleSelected, Theme.blendOver(outBubble, outOverlay));
-
-                int inOverlay = bubbleSelectedOverlay(inBubble, accentColor);
-                currentColors.put(key_chat_inBubbleSelectedOverlay, inOverlay);
-                currentColors.put(key_chat_inBubbleSelected, Theme.blendOver(inBubble, inOverlay));
-            }
 
             if (!isDarkTheme) {
                 currentColors.put(key_chat_inTextSelectionHighlight, textSelectionBackground(false, inBubble, accentColor));
@@ -812,72 +762,15 @@ public class Theme {
 
         }
 
-        public ThemeInfo(ThemeInfo other) {
-            this.name = other.name;
-            this.pathToFile = other.pathToFile;
-            this.pathToWallpaper = other.pathToWallpaper;
-            this.assetName = other.assetName;
-            this.slug = other.slug;
-            this.badWallpaper = other.badWallpaper;
-            this.isBlured = other.isBlured;
-            this.isMotion = other.isMotion;
-            this.patternBgColor = other.patternBgColor;
-            this.patternBgGradientColor1 = other.patternBgGradientColor1;
-            this.patternBgGradientColor2 = other.patternBgGradientColor2;
-            this.patternBgGradientColor3 = other.patternBgGradientColor3;
-            this.patternBgGradientRotation = other.patternBgGradientRotation;
-            this.patternIntensity = other.patternIntensity;
-            this.account = other.account;
-            this.info = other.info;
-            this.loaded = other.loaded;
-            this.uploadingThumb = other.uploadingThumb;
-            this.uploadingFile = other.uploadingFile;
-            this.uploadedThumb = other.uploadedThumb;
-            this.uploadedFile = other.uploadedFile;
-            this.previewBackgroundColor = other.previewBackgroundColor;
-            this.previewBackgroundGradientColor1 = other.previewBackgroundGradientColor1;
-            this.previewBackgroundGradientColor2 = other.previewBackgroundGradientColor2;
-            this.previewBackgroundGradientColor3 = other.previewBackgroundGradientColor3;
-            this.previewWallpaperOffset = other.previewWallpaperOffset;
-            this.previewInColor = other.previewInColor;
-            this.previewOutColor = other.previewOutColor;
-            this.firstAccentIsDefault = other.firstAccentIsDefault;
-            this.previewParsed = other.previewParsed;
-            this.themeLoaded = other.themeLoaded;
-            this.sortIndex = other.sortIndex;
-            this.defaultAccentCount = other.defaultAccentCount;
-            this.accentBaseColor = other.accentBaseColor;
-            this.currentAccentId = other.currentAccentId;
-            this.prevAccentId = other.prevAccentId;
-            this.themeAccentsMap = other.themeAccentsMap;
-            this.themeAccents = other.themeAccents;
-            this.accentsByThemeId = other.accentsByThemeId;
-            this.lastAccentId = other.lastAccentId;
-            this.loadingThemeWallpaperName = other.loadingThemeWallpaperName;
-            this.newPathToWallpaper = other.newPathToWallpaper;
-            this.overrideWallpaper = other.overrideWallpaper;
-        }
-
         public String getName() {
-            if ("Blue".equals(name)) {
-                return getString(R.string.ThemeClassic);
-            } else if ("Dark Blue".equals(name)) {
-                return getString(R.string.ThemeDark);
-            } else if ("Arctic Blue".equals(name)) {
-                return getString(R.string.ThemeArcticBlue);
-            } else if ("Day".equals(name)) {
-                return getString(R.string.ThemeDay);
-            } else if ("Night".equals(name)) {
-                return getString(R.string.ThemeNight);
-            }
-            return info != null ? info.title : name;
+            return name != null ? name : ""; // EVE-PATCH: decouple info from getName
         }
 
         public void setCurrentAccentId(int id) {
             currentAccentId = id;
             ThemeAccent accent = getAccent(false);
             if (accent != null) {
-                overrideWallpaper = accent.overrideWallpaper;
+                // no-op // EVE-PATCH: skip overrideWallpaper in setCurrentAccentId
             }
         }
 
@@ -992,9 +885,6 @@ public class Theme {
         }
 
         public String getKey() {
-            if (info != null) {
-                return "remote" + info.id;
-            }
             return name;
         }
 
@@ -1119,6 +1009,9 @@ public class Theme {
                 themeAccent.patternIntensity = accent.patternIntensity;
                 themeAccent.patternMotion = accent.patternMotion;
                 themeAccent.parentTheme = this;
+                if (overrideWallpaper != null) {
+                    themeAccent.overrideWallpaper = new OverrideWallpaperInfo(overrideWallpaper, this, themeAccent);
+                }
                 prevAccentId = currentAccentId;
                 currentAccentId = themeAccent.id = id;
                 // no-op // EVE-PATCH: skip overrideWallpaper in getAccent
@@ -1215,20 +1108,6 @@ public class Theme {
     private static long lastThemeSwitchTime;
     private static boolean switchDayRunnableScheduled;
     private static boolean switchNightRunnableScheduled;
-    private static Runnable switchDayBrightnessRunnable = new Runnable() {
-        @Override
-        public void run() {
-            switchDayRunnableScheduled = false;
-            applyDayNightThemeMaybe(false);
-        }
-    };
-    private static Runnable switchNightBrightnessRunnable = new Runnable() {
-        @Override
-        public void run() {
-            switchNightRunnableScheduled = false;
-            applyDayNightThemeMaybe(true);
-        }
-    };
 
     public static int DEFALT_THEME_ACCENT_ID = 99;
     public static int selectedAutoNightType = AUTO_NIGHT_TYPE_NONE;
@@ -1247,7 +1126,6 @@ public class Theme {
 
     private static int loadingCurrentTheme;
     private static int lastLoadingCurrentThemeTime;
-    private static boolean[] loadingRemoteThemes = new boolean[4]; // EVE-PATCH: use fixed account count
 
     public static ArrayList<ThemeInfo> themes;
     private static ArrayList<ThemeInfo> otherThemes;
@@ -3061,44 +2939,7 @@ public class Theme {
 
         int remoteVersion = themeConfig.getInt("remote_version", 0);
         int appRemoteThemesVersion = 1;
-        if (remoteVersion == appRemoteThemesVersion) {
-            for (int a = 0; a < 4; a++) { // EVE-PATCH: use fixed account count in static loop
-                remoteThemesHash[a] = themeConfig.getLong("2remoteThemesHash" + (a != 0 ? a : ""), 0);
-                lastLoadingThemesTime[a] = themeConfig.getInt("lastLoadingThemesTime" + (a != 0 ? a : ""), 0);
-            }
-        }
         themeConfig.edit().putInt("remote_version", appRemoteThemesVersion).apply();
-        if (!TextUtils.isEmpty(themesString)) {
-            try {
-                JSONArray jsonArray = new JSONArray(themesString);
-                for (int a = 0; a < jsonArray.length(); a++) {
-                    themeInfo = ThemeInfo.createWithJson(jsonArray.getJSONObject(a));
-                    if (themeInfo != null) {
-                        otherThemes.add(themeInfo);
-                        themes.add(themeInfo);
-                        themesDict.put(themeInfo.getKey(), themeInfo);
-                        themeInfo.loadWallpapers(themeConfig);
-                    }
-                }
-            } catch (Exception e) {
-                FileLog.e(e);
-            }
-        } else {
-            themesString = themeConfig.getString("themes", null);
-            if (!TextUtils.isEmpty(themesString)) {
-                String[] themesArr = themesString.split("&");
-                for (int a = 0; a < themesArr.length; a++) {
-                    themeInfo = ThemeInfo.createWithString(themesArr[a]);
-                    if (themeInfo != null) {
-                        otherThemes.add(themeInfo);
-                        themes.add(themeInfo);
-                        themesDict.put(themeInfo.getKey(), themeInfo);
-                    }
-                }
-                saveOtherThemes(true, true);
-                themeConfig.edit().remove("themes").commit();
-            }
-        }
 
         sortThemes();
 
@@ -3157,10 +2998,10 @@ public class Theme {
                     if (info.themeAccentsMap != null && info.themeAccentsMap.get(info.currentAccentId) == null) {
                         info.currentAccentId = info.firstAccentIsDefault ? DEFALT_THEME_ACCENT_ID : 0;
                     }
-                    info.loadWallpapers(themeConfig);
+                    // no-op // EVE-PATCH: skip loadWallpapers in static init
                     ThemeAccent accent = info.getAccent(false);
                     if (accent != null) {
-                        info.overrideWallpaper = accent.overrideWallpaper;
+                        // no-op // EVE-PATCH: skip overrideWallpaper in static init
                     }
                 }
             }
@@ -3200,12 +3041,6 @@ public class Theme {
             currentDayTheme = applyingTheme;
         }
 
-        int switchToTheme = needSwitchToTheme();
-        if (switchToTheme == 2) {
-            applyingTheme = currentNightTheme;
-        }
-        applyTheme(applyingTheme, false, false, switchToTheme == 2);
-        AndroidUtilities.runOnUIThread(Theme::checkAutoNightThemeConditions);
     }
 
     private static void sortAccents(ThemeInfo info) {
@@ -3292,84 +3127,6 @@ public class Theme {
         stateListDrawable.addState(new int[]{android.R.attr.state_selected}, pressedDrawable);
         stateListDrawable.addState(new int[]{}, defaultDrawable);
         return stateListDrawable;
-    }
-
-    public static Drawable createEditTextDrawable(Context context, boolean alert) {
-        return createEditTextDrawable(context, getColor(alert ? key_dialogInputField : key_windowBackgroundWhiteInputField), getColor(alert ? key_dialogInputFieldActivated : key_windowBackgroundWhiteInputFieldActivated));
-    }
-
-    public static Drawable createEditTextDrawable(Context context, int color, int colorActivated) {
-        Resources resources = context.getResources();
-        Drawable defaultDrawable = resources.getDrawable(R.drawable.search_dark).mutate();
-        defaultDrawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
-        Drawable pressedDrawable = resources.getDrawable(R.drawable.search_dark_activated).mutate();
-        pressedDrawable.setColorFilter(new PorterDuffColorFilter(colorActivated, PorterDuff.Mode.MULTIPLY));
-        StateListDrawable stateListDrawable = new StateListDrawable() {
-            @Override
-            public boolean selectDrawable(int index) {
-                return super.selectDrawable(index);
-            }
-        };
-        stateListDrawable.addState(new int[]{android.R.attr.state_enabled, android.R.attr.state_focused}, pressedDrawable);
-        stateListDrawable.addState(new int[]{android.R.attr.state_focused}, pressedDrawable);
-        stateListDrawable.addState(StateSet.WILD_CARD, defaultDrawable);
-        return stateListDrawable;
-    }
-
-    public static boolean canStartHolidayAnimation() {
-        return canStartHolidayAnimation;
-    }
-
-    public static int getEventType() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        int monthOfYear = calendar.get(Calendar.MONTH);
-        int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
-        int minutes = calendar.get(Calendar.MINUTE);
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-
-        int eventType = -1;
-        if (monthOfYear == 11 && dayOfMonth >= 24 && dayOfMonth <= 31 || monthOfYear == 0 && dayOfMonth == 1) {
-            eventType = 0;
-        } else if (monthOfYear == 1 && dayOfMonth == 14) {
-            eventType = 1;
-        } else if (monthOfYear == 9 && dayOfMonth >= 30 || monthOfYear == 10 && dayOfMonth == 1 && hour < 12) {
-            eventType = 2;
-        }
-        return eventType;
-    }
-
-    public static Drawable getCurrentHolidayDrawable() {
-        if ((System.currentTimeMillis() - lastHolidayCheckTime) >= 60 * 1000) {
-            lastHolidayCheckTime = System.currentTimeMillis();
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(System.currentTimeMillis());
-            int monthOfYear = calendar.get(Calendar.MONTH);
-            int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
-            int minutes = calendar.get(Calendar.MINUTE);
-            int hour = calendar.get(Calendar.HOUR_OF_DAY);
-            if (monthOfYear == 0 && dayOfMonth == 1 && hour <= 23) {
-                canStartHolidayAnimation = true;
-            } else {
-                canStartHolidayAnimation = false;
-            }
-            if (dialogs_holidayDrawable == null) {
-                if (monthOfYear == 11 && dayOfMonth >= (BuildVars.DEBUG_PRIVATE_VERSION ? 29 : 31) && dayOfMonth <= 31 || monthOfYear == 0 && dayOfMonth == 1) {
-                    dialogs_holidayDrawable = ApplicationLoader.applicationContext.getResources().getDrawable(R.drawable.newyear);
-                    dialogs_holidayDrawableOffsetX = -dp(3);
-                    dialogs_holidayDrawableOffsetY = -dp(-7);
-                }
-            }
-        }
-        return dialogs_holidayDrawable;
-    }
-
-    public static int getCurrentHolidayDrawableXOffset() {
-        return dialogs_holidayDrawableOffsetX;
-    }
-
-    public static int getCurrentHolidayDrawableYOffset() {
-        return dialogs_holidayDrawableOffsetY;
     }
 
     public static Drawable createSimpleSelectorDrawable(Context context, int resource, int defaultColor, int pressedColor) {
@@ -3592,7 +3349,7 @@ public class Theme {
             public void draw(@NonNull Canvas canvas) {
                 Rect bounds = getBounds();
                 rect.set(bounds.left, bounds.top, bounds.right, bounds.bottom);
-                applyServiceShaderMatrixForView(view, containerView);
+                // no-op // EVE-PATCH: decouple service shader matrix
                 canvas.drawRoundRect(rect, rad, rad, backgroundPaint != null ? backgroundPaint : Theme.getThemePaint(Theme.key_paint_chatActionBackground, resourcesProvider));
                 if (resourcesProvider != null ? resourcesProvider.hasGradientService() : hasGradientService()) {
                     canvas.drawRoundRect(rect, rad, rad, Theme.getThemePaint(Theme.key_paint_chatActionBackgroundDarken, resourcesProvider));
@@ -4277,30 +4034,6 @@ public class Theme {
         return new BaseCell.RippleDrawableSafe(colorStateList, null, maskDrawable);
     }
 
-    public static void applyPreviousTheme() {
-        if (previousTheme == null) {
-            return;
-        }
-        hasPreviousTheme = false;
-        if (isInNigthMode && currentNightTheme != null) {
-            applyTheme(currentNightTheme, true, false, true);
-        } else if (!isApplyingAccent) {
-            applyTheme(previousTheme, true, false, false);
-        }
-        isApplyingAccent = false;
-        previousTheme = null;
-        checkAutoNightThemeConditions();
-    }
-
-    public static void clearPreviousTheme() {
-        if (previousTheme == null) {
-            return;
-        }
-        hasPreviousTheme = false;
-        isApplyingAccent = false;
-        previousTheme = null;
-    }
-
     private static void sortThemes() {
         Collections.sort(themes, (o1, o2) -> {
             if (o1.pathToFile == null && o1.assetName == null) {
@@ -4609,10 +4342,6 @@ public class Theme {
         return Color.argb(Color.alpha(color), r, g, b);
     }
 
-    public static void onUpdateThemeAccents() {
-        refreshThemeColors();
-    }
-
     public static int[] getDefaultColors() {
         return defaultColors;
     }
@@ -4676,68 +4405,6 @@ public class Theme {
         if (apply) {
             applyDayNightThemeMaybe(true);
         }
-    }
-
-    public static void setChangingWallpaper(boolean value) {
-        changingWallpaper = value;
-        if (!changingWallpaper) {
-            checkAutoNightThemeConditions(false);
-        }
-    }
-
-    public static void applyDayNightThemeMaybe(boolean night) {
-        if (previousTheme != null) {
-            return;
-        }
-
-        if (night) {
-            if (currentTheme != currentNightTheme && (currentTheme == null || currentNightTheme != null &&  currentTheme.isDark() != currentNightTheme.isDark())) {
-                isInNigthMode = true;
-                lastThemeSwitchTime = SystemClock.elapsedRealtime();
-                switchingNightTheme = true;
-                switchThemeWithReveal(currentNightTheme, true, -1, null);
-                switchingNightTheme = false;
-            }
-        } else {
-            ThemeInfo dayTheme = currentDayTheme;
-            if (dayTheme != null && dayTheme.isDark() && selectedAutoNightType != AUTO_NIGHT_TYPE_NONE && defaultTheme != null) {
-                dayTheme = defaultTheme;
-            }
-            if (currentTheme != dayTheme && (currentTheme == null || dayTheme != null && currentTheme.isDark() != dayTheme.isDark())) {
-                isInNigthMode = false;
-                lastThemeSwitchTime = SystemClock.elapsedRealtime();
-                switchingNightTheme = true;
-                switchThemeWithReveal(dayTheme, true, -1, null);
-                switchingNightTheme = false;
-            }
-        }
-    }
-
-    public static boolean deleteTheme(ThemeInfo themeInfo) {
-        if (themeInfo.pathToFile == null) {
-            return false;
-        }
-        boolean currentThemeDeleted = false;
-        if (currentTheme == themeInfo) {
-            applyTheme(defaultTheme, true, false, false);
-            currentThemeDeleted = true;
-        }
-        if (themeInfo == currentNightTheme) {
-            currentNightTheme = themesDict.get("Dark Blue");
-        }
-
-        themeInfo.removeObservers();
-        otherThemes.remove(themeInfo);
-        themesDict.remove(themeInfo.name);
-        themes.remove(themeInfo);
-        File file = new File(themeInfo.pathToFile);
-        file.delete();
-        saveOtherThemes(true);
-        return currentThemeDeleted;
-    }
-
-    public static boolean isThemeInstalled(ThemeInfo themeInfo) {
-        return themeInfo != null && themesDict.get(themeInfo.getKey()) != null;
     }
 
     public static File getAssetFile(String assetName) {
@@ -4880,67 +4547,6 @@ public class Theme {
 
         dialogs_countTextPaint.setTextSize(dp(12));
         dialogs_countTextPaint2.setTextSize(dp(13));
-    }
-
-    public static void applyDialogsTheme() {
-        if (dialogs_namePaint == null) {
-            return;
-        }
-        for (int a = 0; a < 2; a++) {
-            dialogs_namePaint[a].setColor(getColor(key_chats_name));
-            dialogs_nameEncryptedPaint[a].setColor(getColor(key_chats_secretName));
-            dialogs_messagePaint[a].setColor(dialogs_messagePaint[a].linkColor = getColor(key_chats_message));
-            dialogs_messagePrintingPaint[a].setColor(getColor(key_chats_actionMessage));
-        }
-        dialogs_searchNamePaint.setColor(getColor(key_chats_name));
-        dialogs_searchNameEncryptedPaint.setColor(getColor(key_chats_secretName));
-        dialogs_messageNamePaint.setColor(dialogs_messageNamePaint.linkColor = getColor(key_chats_nameMessage_threeLines));
-        dialogs_tabletSeletedPaint.setColor(getColor(key_chats_tabletSelectedOverlay));
-        dialogs_pinnedPaint.setColor(getColor(key_chats_pinnedOverlay));
-        dialogs_timePaint.setColor(getColor(key_chats_date));
-        dialogs_timePaintBold.setColor(getColor(key_chats_date_bold));
-        dialogs_timePaintBoldAccent.setColor(getColor(key_telegram_color_text));
-        dialogs_countTextPaint.setColor(getColor(key_chats_unreadCounterText));
-        dialogs_countTextPaint2.setColor(getColor(key_chats_unreadCounterText));
-        dialogs_archiveTextPaint.setColor(getColor(key_chats_archiveText));
-        dialogs_archiveTextPaintSmall.setColor(getColor(key_chats_archiveText));
-        dialogs_countPaint.setColor(getColor(key_chats_unreadCounter));
-        dialogs_countGrayPaint.setColor(getColor(key_chats_unreadCounterMuted));
-        dialogs_actionMessagePaint.setColor(getColor(key_chats_actionMessage));
-        dialogs_errorPaint.setColor(getColor(key_chats_sentError));
-        dialogs_onlinePaint.setColor(getColor(key_windowBackgroundWhiteBlueText3));
-        dialogs_offlinePaint.setColor(getColor(key_windowBackgroundWhiteGrayText3));
-
-        setDrawableColorByKey(dialogs_lockDrawable, key_chats_secretIcon);
-        setDrawableColorByKey(dialogs_lock2Drawable, key_chats_pinnedIcon);
-        setDrawableColorByKey(dialogs_checkDrawable, key_chats_sentCheck);
-        setDrawableColorByKey(dialogs_communityCardsDrawable, key_windowBackgroundWhiteBlackText);
-        setDrawableColorByKey(dialogs_checkReadDrawable, key_chats_sentReadCheck);
-        setDrawableColorByKey(dialogs_halfCheckDrawable, key_chats_sentReadCheck);
-        setDrawableColorByKey(dialogs_clockDrawable, key_chats_sentClock);
-        setDrawableColorByKey(dialogs_errorDrawable, key_chats_sentErrorIcon);
-        setDrawableColorByKey(dialogs_pinnedDrawable, key_chats_pinnedIcon);
-        setDrawableColorByKey(dialogs_pinnedDrawable2, key_chats_pinnedIcon);
-        setDrawableColorByKey(dialogs_pinnedDrawable2Accent, key_telegram_color_text);
-        setDrawableColorByKey(dialogs_reorderDrawable, key_chats_pinnedIcon);
-        setDrawableColorByKey(dialogs_muteDrawable, key_chats_muteIcon);
-        setDrawableColorByKey(dialogs_unmuteDrawable, key_chats_muteIcon);
-        setDrawableColorByKey(dialogs_hiddenDrawable, key_chats_muteIcon);
-
-        setDrawableColorByKey(dialogs_mentionDrawable, key_chats_unreadCounter);
-        setDrawableColorByKey(dialogs_reactionsMentionDrawable, key_dialogReactionMentionBackground);
-        setDrawableColorByKey(dialogs_pollMentionDrawable, key_color_purple);
-
-        setDrawableColorByKey(dialogs_mentionDrawableMuted, key_chats_unreadCounterMuted);
-        setDrawableColorByKey(dialogs_reactionsMentionDrawableMuted, key_chats_unreadCounterMuted);
-        setDrawableColorByKey(dialogs_pollMentionDrawableMuted, key_chats_unreadCounterMuted);
-
-        setDrawableColorByKey(dialogs_forum_arrowDrawable, key_chats_message);
-        setDrawableColorByKey(dialogs_verifiedDrawable, key_chats_verifiedBackground);
-        setDrawableColorByKey(dialogs_verifiedCheckDrawable, key_chats_verifiedCheck);
-        setDrawableColorByKey(dialogs_holidayDrawable, key_actionBarDefaultTitle);
-        setDrawableColorByKey(dialogs_scamDrawable, key_chats_draft);
-        setDrawableColorByKey(dialogs_fakeDrawable, key_chats_draft);
     }
 
     public static void destroyResources() {
@@ -5354,7 +4960,7 @@ public class Theme {
 
 
     public static boolean isPatternWallpaper() {
-        String selectedBgSlug = getSelectedBackgroundSlug();
+        String selectedBgSlug = ""; // EVE-PATCH: decouple getSelectedBackgroundSlug
         return isPatternWallpaper || "CJz3BZ6YGEYBAAAABboWp6SAv04".equals(selectedBgSlug) || "qeZWES8rGVIEAAAARfWlK1lnfiI".equals(selectedBgSlug);
     }
 
@@ -5489,7 +5095,7 @@ public class Theme {
 
     /** Changes on every theme color update: an explicit {@link #invalidateTheme()} or a {@link ThemeBind} update pass. */
     public static int getThemeGenerationId() {
-        return themeGenerationId + ThemeBind.generation();
+        return themeGenerationId; // EVE-PATCH: decouple ThemeBind
     }
 
 

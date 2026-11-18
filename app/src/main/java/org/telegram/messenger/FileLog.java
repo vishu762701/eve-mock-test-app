@@ -66,14 +66,30 @@ public class FileLog {
     }
 
     public static void e(final Throwable e) {
-        e.printStackTrace(); // EVE-PATCH: log throwable locally
+        e(e, true);
+    }
+
+    public static void e(final Throwable e, boolean logToAppCenter) {
+        if (!BuildVars.LOGS_ENABLED) {
+            return;
+        }
+        ensureInitied();
+        e.printStackTrace();
     }
 
     public static void fatal(final Throwable e) {
-        e.printStackTrace(); // EVE-PATCH: log fatal throwable locally
+        fatal(e, true);
     }
 
     private static long dumpedHeap;
+
+    public static void fatal(final Throwable e, boolean logToAppCenter) {
+        if (!BuildVars.LOGS_ENABLED) {
+            return;
+        }
+        ensureInitied();
+        e.printStackTrace();
+    }
 
     public static void d(final String message) {
         if (!BuildVars.LOGS_ENABLED) {

@@ -1,6 +1,10 @@
 upstream org/telegram/ui/ActionBar/Theme.java
 to app/src/main/java/org/telegram/ui/ActionBar/Theme.java
 
+# Remove copy constructors referencing removed fields
+remove-method ThemeAccent ptypes=ThemeAccent
+remove-method ThemeInfo ptypes=ThemeInfo
+
 # Remove coupled methods touching TLRPC, MessagesController, UserConfig, ConnectionsManager
 remove-method createLoader all
 remove-method checkCurrentWallpaper all
@@ -98,6 +102,22 @@ remove-method createCommonResources all
 remove-method applyCommonTheme all
 remove-method SensorEventListener all
 
+# Remove unused methods referencing missing drawables / deleted logic
+remove-method createEditTextDrawable all
+remove-method canStartHolidayAnimation all
+remove-method getEventType all
+remove-method getCurrentHolidayDrawable all
+remove-method getCurrentHolidayDrawableXOffset all
+remove-method getCurrentHolidayDrawableYOffset all
+remove-method applyPreviousTheme all
+remove-method clearPreviousTheme all
+remove-method onUpdateThemeAccents all
+remove-method setChangingWallpaper all
+remove-method applyDayNightThemeMaybe all
+remove-method deleteTheme all
+remove-method isThemeInstalled all
+remove-method applyDialogsTheme all
+
 # Remove unported inner classes
 remove-statement "public static class PatternsLoader implements NotificationCenter.NotificationCenterDelegate {"
 remove-statement "public static class BackgroundDrawableSettings {"
@@ -130,6 +150,7 @@ remove-statement "public static MsgClockDrawable chat_msgClockDrawable;"
 remove-statement "public static PathAnimator playPauseAnimator;"
 remove-statement "private static int[] lastLoadingThemesTime = new int[UserConfig.MAX_ACCOUNT_COUNT];"
 remove-statement "private static long[] remoteThemesHash = new long[UserConfig.MAX_ACCOUNT_COUNT];"
+remove-statement "private static boolean[] loadingRemoteThemes = new boolean[UserConfig.MAX_ACCOUNT_COUNT];"
 remove-statement "public TLRPC.TL_theme info;" all
 remove-statement "public TLRPC.TL_wallPaper pattern;"
 remove-statement "public TLRPC.InputFile uploadedThumb;" all
@@ -137,8 +158,7 @@ remove-statement "public TLRPC.InputFile uploadedFile;" all
 remove-statement "if (!TextUtils.isEmpty(accents)) {"
 remove-statement "if (drawable instanceof StatusDrawable) {"
 remove-statement "if (preferences.contains(\"overrideThemeWallpaper\") || preferences.contains(\"selectedBackground2\")) {"
-remove-statement "if (themeInfo.overrideWallpaper != null) {"
-remove-statement "if (overrideWallpaper != null) {"
+
 remove-statement "public OverrideWallpaperInfo overrideWallpaper;" all
 remove-statement "public static MessageDrawable chat_msgInDrawable;"
 remove-statement "public static MessageDrawable chat_msgInSelectedDrawable;"
@@ -149,15 +169,36 @@ remove-statement "public static MessageDrawable chat_msgInMediaSelectedDrawable;
 remove-statement "public static MessageDrawable chat_msgOutMediaDrawable;"
 remove-statement "public static MessageDrawable chat_msgOutMediaSelectedDrawable;"
 
+# Remove static init statements referencing deleted logic
+remove-statement "if (remoteVersion == appRemoteThemesVersion) {"
+remove-statement "if (!TextUtils.isEmpty(themesString)) {" all
+remove-statement "int switchToTheme = needSwitchToTheme();"
+remove-statement "if (switchToTheme == 2) {"
+remove-statement "applyTheme(applyingTheme, false, false, switchToTheme == 2);"
+remove-statement "AndroidUtilities.runOnUIThread(Theme::checkAutoNightThemeConditions);"
+remove-statement "private static Runnable switchDayBrightnessRunnable = new Runnable() {"
+remove-statement "private static Runnable switchNightBrightnessRunnable = new Runnable() {"
+
+# Remove statements in ThemeInfo and ThemeAccent
+remove-statement "if (\"Blue\".equals(name)) {"
+remove-statement "if (info != null && info.emoticon != null && !isDarkTheme) {"
+remove-statement "if (info != null) {"
+
 # Patches for Eve environment
 patch-line "                overrideWallpaper = themeAccent.overrideWallpaper;" "                // no-op" "skip overrideWallpaper in getAccent"
+patch-line "                overrideWallpaper = accent.overrideWallpaper;" "                // no-op" "skip overrideWallpaper in setCurrentAccentId"
 patch-line "        SharedPreferences preferences = MessagesController.getGlobalMainSettings();" "        SharedPreferences preferences = ApplicationLoader.applicationContext != null ? ApplicationLoader.applicationContext.getSharedPreferences(\"mainconfig\", Context.MODE_PRIVATE) : null;" "use app shared preferences"
-patch-line "    private static boolean[] loadingRemoteThemes = new boolean[UserConfig.MAX_ACCOUNT_COUNT];" "    private static boolean[] loadingRemoteThemes = new boolean[4];" "use fixed account count"
-patch-line "        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {" "        for (int a = 0; a < 4; a++) {" "use fixed account count in static loop"
 patch-line "public static class ThemeInfo implements NotificationCenter.NotificationCenterDelegate {" "public static class ThemeInfo {" "decouple NotificationCenter from ThemeInfo"
 patch-line "            return SharedConfig.compactMode;" "            return false;" "decouple SharedConfig from isCompactMode"
 patch-line "        return resourcesProvider != null ? resourcesProvider.isCompactMode() : SharedConfig.compactMode;" "        return resourcesProvider != null && resourcesProvider.isCompactMode();" "decouple SharedConfig"
 patch-line "        if (SharedConfig.compactMode) {" "        if (false) {" "decouple SharedConfig from getColor"
 patch-line "        if (drawable == null) {" "        if (drawable != null) { drawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY)); } if (drawable == null) {" "apply color filter to drawable"
+patch-line "            return info != null ? info.title : name;" "            return name != null ? name : \"\";" "decouple info from getName"
+patch-line "            if (accentColor != parentTheme.accentBaseColor || myMessagesAccentColor != 0 || info != null && info.emoticon != null) {" "            if (accentColor != parentTheme.accentBaseColor || myMessagesAccentColor != 0) {" "decouple info from accent bubble check"
+patch-line "                    info.loadWallpapers(themeConfig);" "                    // no-op" "skip loadWallpapers in static init"
+patch-line "                        info.overrideWallpaper = accent.overrideWallpaper;" "                        // no-op" "skip overrideWallpaper in static init"
+patch-line "                applyServiceShaderMatrixForView(view, containerView);" "                // no-op" "decouple service shader matrix"
+patch-line "        String selectedBgSlug = getSelectedBackgroundSlug();" "        String selectedBgSlug = \"\";" "decouple getSelectedBackgroundSlug"
+patch-line "        return themeGenerationId + ThemeBind.generation();" "        return themeGenerationId;" "decouple ThemeBind"
 
 prune-imports

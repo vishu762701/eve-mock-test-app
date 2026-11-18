@@ -84,6 +84,10 @@ remove-method getHelloWorld all
 remove-method isProxyLink all
 remove-method getSharingDirectory all
 remove-method generatePicturePath all
+remove-method generateVideoPath all
+remove-statement "private static SimpleDateFormat generatingVideoPathFormat;"
+remove-method checkAndroidTheme all
+remove-method withLearnMore all
 remove-method addMediaToGallery all
 remove-statement "if (!TextUtils.isEmpty(SharedConfig.storageCacheDir)) {"
 

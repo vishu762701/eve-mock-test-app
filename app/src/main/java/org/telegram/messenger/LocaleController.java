@@ -8,20 +8,15 @@
 
 package org.telegram.messenger;
 
-import static org.telegram.messenger.AndroidUtilities.dp;
 import static org.telegram.messenger.AndroidUtilities.formatWholeNumber;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.icu.text.RelativeDateTimeFormatter;
 import android.os.Build;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 
@@ -65,17 +60,6 @@ public class LocaleController {
     private String currentSystemLocale;
 
     private HashMap<String, String> currencyValues;
-
-    private class TimeZoneChangedReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            ApplicationLoader.applicationHandler.post(() -> {
-                if (false) { // EVE-PATCH: skip timezone change recreation
-                    LocaleController.getInstance().recreateFormatters();
-                }
-            });
-        }
-    }
 
     public static class LocaleInfo {
 
@@ -394,12 +378,6 @@ public class LocaleController {
         }
 
         try {
-            IntentFilter timezoneFilter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
-            if (Build.VERSION.SDK_INT >= 33) {
-                ApplicationLoader.applicationContext.registerReceiver(new TimeZoneChangedReceiver(), timezoneFilter, Context.RECEIVER_NOT_EXPORTED);
-            } else {
-                ApplicationLoader.applicationContext.registerReceiver(new TimeZoneChangedReceiver(), timezoneFilter);
-            }
         } catch (Exception e) {
             FileLog.e(e);
         }
@@ -721,9 +699,9 @@ public class LocaleController {
                 stringBuilder.insert(a, symbol);
             }
 
-            String value = getString(key, res); // EVE-PATCH: resolve plural from resources
+            String value = getString(key); // EVE-PATCH: resolve plural from resources
             if (value == null) {
-                value = getString(key, res); // EVE-PATCH: resolve plural from resources
+                value = getString(key); // EVE-PATCH: resolve plural from resources
             }
             if (value == null) {
                 try {
@@ -731,7 +709,7 @@ public class LocaleController {
                 } catch (Exception e2) {}
             }
             if (value == null) {
-                value = getString(key, res); // EVE-PATCH: fallback plural from resources
+                value = getString(key); // EVE-PATCH: fallback plural from resources
             }
             value = value.replace("%d", "%1$s");
             value = value.replace("%1$d", "%1$s");
@@ -1550,46 +1528,6 @@ public class LocaleController {
         return name;
     }
 
-    public static CharSequence getCountryWithFlag(String code, int textSizeDp) {
-        return getCountryWithFlag(code, textSizeDp, R.string.Fragment);
-    }
-
-    public static CharSequence getCountryWithFlag(String code, int textSizeDp, int fragmentResId) {
-        final SpannableStringBuilder sb = new SpannableStringBuilder();
-        final String flag = LocaleController.getLanguageFlag(code);
-
-        if (!TextUtils.isEmpty(flag)) {
-            sb.append(flag).append(" ");
-        }
-
-        String countryName = getCountryName(code, fragmentResId);
-        if (!TextUtils.isEmpty(countryName)) {
-            sb.append(countryName);
-        } else {
-            sb.append(code);
-        }
-
-        final TextPaint paint = new TextPaint();
-        paint.setTextSize(dp(textSizeDp));
-        return Emoji.replaceEmoji(sb, paint.getFontMetricsInt(), true);
-    }
-
-    public static String getCountryName(String code) {
-        return getCountryName(code, R.string.Fragment);
-    }
-
-    public static String getCountryName(String code, int fragmentResId) {
-        if (code != null && code.equalsIgnoreCase("ft")) {
-            return LocaleController.getString(fragmentResId);
-        }
-        try {
-            return new Locale("", code).getDisplayCountry(LocaleController.getInstance().getCurrentLocale());
-        } catch (Exception e) {
-            FileLog.e(e);
-        }
-        return null;
-    }
-
     // -------- API 24+ localized relative formatter --------
     @RequiresApi(api = Build.VERSION_CODES.N)
     private static final class RelativeIcu {
@@ -1635,19 +1573,7 @@ public class LocaleController {
         final Context context = ApplicationLoader.applicationContext;
         String value;
 
-        if (stringRes != 0 && context != null) { try { return context.getString(stringRes); } catch (Exception ignored) {} } if (false) { // EVE-PATCH: resolve strings from Android resources
-            value = localizationExternal.getByResNameOrResId(context, key, stringRes);
-            if (value != null) {
-                return value;
-            }
-
-            value = localizationExternal.getByResName(fallback);
-            if (value != null) {
-                return value;
-            }
-        }
-
-        if (key != null && context != null) { int id = context.getResources().getIdentifier(key, "string", context.getPackageName()); if (id != 0) return context.getString(id); } // EVE-PATCH: fallback identifier resolution
+        if (key != null && context != null) { int id = context.getResources().getIdentifier(key, "string", context.getPackageName()); if (id != 0) return context.getString(id); } if (stringRes != 0 && context != null) { try { return context.getString(stringRes); } catch (Exception ignored) {} } // EVE-PATCH: fallback identifier resolution
         value = null; // EVE-PATCH: bypass localizationInternal
         if (value != null) {
             return value;

@@ -37,6 +37,10 @@ remove-statement "private static HashSet<String> privateFields;"
 remove-statement "public static class ByteArrayHexAdapter extends TypeAdapter<byte[]> {"
 remove-statement "private static class TLObjectDeserializer implements JsonSerializer<TLObject> {"
 remove-statement "if (getInstance().streamWriter != null) {" all
+remove-statement "if (BuildVars.DEBUG_VERSION && needSent(e) && logToAppCenter) {"
+remove-statement "if (BuildVars.DEBUG_VERSION && e.getMessage() != null && e.getMessage().contains(\"disk image is malformed\") && !databaseIsMalformed) {"
+remove-statement "if (e instanceof OutOfMemoryError) {"
+remove-statement "if (logToAppCenter && BuildVars.DEBUG_VERSION && needSent(e)) {"
 
 remove-method postProtocolDump
 remove-method dumpResponseAndRequest
@@ -47,15 +51,11 @@ remove-method getNetworkLogPath
 remove-method getTonlibLogPath
 remove-method dumpMemory
 remove-method dumpANR
-remove-method fatal params=2 ptypes=Throwable,boolean
-remove-method e params=2 ptypes=Throwable,boolean
 remove-method cleanupLogs
 remove-method needSent
 
 patch-line "                        localInstance.init();" "                        // no-op init" "wire to no-op"
 patch-line "        getInstance().init();" "        // no-op init" "wire to no-op"
-patch-line "        e(e, true);" "        e.printStackTrace();" "log throwable locally"
-patch-line "        fatal(e, true);" "        e.printStackTrace();" "log fatal throwable locally"
 remove-method init
 
 prune-imports
