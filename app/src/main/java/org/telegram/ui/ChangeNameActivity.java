@@ -77,7 +77,10 @@ public class ChangeNameActivity extends BaseFragment {
                 } else if (id == done_button) {
                     if (firstNameField.getText().length() != 0) {
                         saveName();
-                        finishFragment();
+                        // EVE-PATCH: Eve save flow is asynchronous; finish is handled by delegate on verified success per R3 & R5
+                        if (eveDelegate == null) {
+                            finishFragment();
+                        }
                     }
                 }
             }

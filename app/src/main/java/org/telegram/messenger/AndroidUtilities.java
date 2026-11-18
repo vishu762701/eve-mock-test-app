@@ -26,6 +26,21 @@ public class AndroidUtilities {
         }
     }
 
+    public static boolean isTablet() {
+        return false;
+    }
+
+    public static void checkDisplaySize(Context context, android.content.res.Configuration newConfiguration) {
+        try {
+            if (context != null && context.getResources() != null) {
+                density = context.getResources().getDisplayMetrics().density;
+                displaySize.x = context.getResources().getDisplayMetrics().widthPixels;
+                displaySize.y = context.getResources().getDisplayMetrics().heightPixels;
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
     public static int dp(float value) {
         if (value == 0) {
             return 0;

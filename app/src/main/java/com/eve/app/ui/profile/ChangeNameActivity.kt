@@ -31,6 +31,8 @@ class ChangeNameActivity : EveBaseActivity(), INavigationLayout, TelegramChangeN
         super.onCreate(savedInstanceState)
         editorOwnerUid = ProfileEditorAccountGuard.bind(this, savedInstanceState) ?: return
 
+        org.telegram.messenger.AndroidUtilities.checkDisplaySize(this, resources.configuration)
+
         container = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
