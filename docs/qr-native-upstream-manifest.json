@@ -671,16 +671,6 @@
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
       "revision": "3de37c8cfb039452be7398909461da6288babf15",
-      "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/Components/CubicBezierInterpolator.java",
-      "eve_path": "app/src/main/java/com/eve/app/telegram/components/CubicBezierInterpolator.java",
-      "upstream_sha256": "747f7b8f511249f14bc1b567088d7e0da3639729263a6f56243eb61c2ba19387",
-      "eve_sha256": "5665fab791574b447bba842e19a5da9b847966d3f1ea931c8e85edbeeeb9ff5b",
-      "classification": "ADAPTED EVE compatibility facade; canonical algorithm imported unchanged separately",
-      "adaptations": "Reconciled prior deee53b30b511288d9279ba9a08db9187d84b6b6: typed static constants and constructors subclass canonical org.telegram.ui.Components.CubicBezierInterpolator. No duplicate interpolation implementation. See docs/telegram-interpolator-bridge.md."
-    },
-    {
-      "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/Components/RLottieNative.java",
       "eve_path": "app/src/main/java/org/telegram/ui/Components/RLottieNative.java",
       "upstream_sha256": "08c05cc0be95b2c079248211b0d2dfed9b5e2a383972780aeebc080b33823a89",
@@ -1264,11 +1254,11 @@
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/BackDrawable.java",
       "upstream_blob": "dc1165e78c4b709b0227c1527d52eb631564996d",
       "upstream_lines": "1-171",
-      "eve_path": "app/src/main/java/com/eve/app/telegram/qr/BackDrawable.java",
+      "eve_path": "app/src/main/java/com/eve/app/designsystem/BackDrawable.kt",
       "upstream_sha256": "c8aae99ed4b7e34296dc1e75db32d1e15ef6db6d34ec323444ee7ca930277d88",
-      "eve_sha256": "32832d46aece001d820bbe5047ece1ae0621be41a209cfa8d772931ba33b7ed9",
+      "eve_sha256": "3e3eedb354c5178521f3fa892b42fa18bd80189bac88250743b501b6618582cc",
       "classification": "ADAPTED mechanical package/unit imports only",
-      "adaptations": "Original Java draw/animation bodies retained. QrUiUnits replaces AndroidUtilities dp/lerp; unused Telegram Utilities import removed. Original GPLv2-or-later notice retained.",
+      "adaptations": "Original draw/animation bodies retained in Kotlin designsystem implementation.",
       "source_map": "docs/QR_SCANNER_CONTROLS_SOURCE_MAP.md"
     },
     {

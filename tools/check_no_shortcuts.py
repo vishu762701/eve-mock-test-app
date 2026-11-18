@@ -33,11 +33,6 @@ LEGACY_LAYOUT_PATTERN = re.compile(
 )
 BASIC_LAYOUT_PATTERN = re.compile(r"DesignCardView|MaterialCardView|UiArc")
 
-# Pattern to detect a Telegram* class that only extends/forwards to another Telegram* or Eve class
-TELEGRAM_FORWARDING_PATTERN = re.compile(
-    r"(?:open\s+)?class\s+(Telegram\w+)[^{]*?:\s*(com\.eve\.app\.\S+\.Telegram\w+|Telegram\w+)\s*\("
-)
-
 PROTECTED_SIMPLE_NAMES = {"CubicBezierInterpolator", "LayoutHelper", "BackDrawable"}
 
 
@@ -97,8 +92,67 @@ def check_source_shortcuts(repo_root: Path, strict: bool = True) -> list[str]:
     return violations
 
 
+def strip_comments(text: str) -> str:
+    text = re.sub(r"//.*", "", text)
+    text = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
+    return text
+
+
+def class_declares_no_own_members(content: str, is_kotlin: bool, class_name: str) -> tuple[bool, str]:
+    """
+    Returns (True, parent_class) if a Telegram* class only extends another class
+    and declares no member of its own (only constructors / super calls).
+    """
+    clean = strip_comments(content)
+    if is_kotlin:
+        # Match class declaration: class ClassName ... : SuperClass(...) [ { ... } ]
+        m = re.search(rf"\bclass\s+{re.escape(class_name)}\b([^{{]*)(?:\{{([\s\S]*)\}})?", clean)
+        if not m:
+            return False, ""
+        header = m.group(1) or ""
+        body = m.group(2)
+        if ":" not in header:
+            return False, ""
+        colon_part = header.split(":", 1)[1].strip()
+        super_match = re.search(r"([A-Za-z0-9_.]+)", colon_part)
+        parent_class = super_match.group(1) if super_match else "super class"
+
+        # If primary constructor defines properties with val or var, those are members
+        if re.search(r"\b(val|var)\b", header):
+            return False, ""
+
+        # If there is no body, it only has primary constructor forwarding to super
+        if body is None:
+            return True, parent_class
+
+        # If there is a body, strip constructor(...) calls, super(...) calls, and init { ... } blocks
+        body_clean = re.sub(r"\binit\s*\{[^}]*\}", "", body)
+        body_clean = re.sub(r"\bconstructor\s*\([^)]*\)(?:\s*:\s*super\([^)]*\))?\s*(?:\{[^}]*\})?", "", body_clean)
+
+        # Check if any member keywords remain: fun, val, var, class, object, interface
+        if re.search(r"\b(fun|val|var|class|object|interface)\b", body_clean):
+            return False, ""
+
+        remaining = re.sub(r"[\s;{}]", "", body_clean)
+        return len(remaining) == 0, parent_class
+    else:
+        # Java: class ClassName ... extends SuperClass ... { ... }
+        m = re.search(rf"\bclass\s+{re.escape(class_name)}\b[^{{]*\bextends\s+([A-Za-z0-9_.]+)[^{{]*\{{([\s\S]*)\}}", clean)
+        if not m:
+            return False, ""
+        parent_class = m.group(1)
+        body = m.group(2)
+
+        # Remove constructors: [public|protected|private] ClassName(...) [throws ...] { super(...); }
+        ctor_pattern = rf"(?:public|protected|private)?\s*{re.escape(class_name)}\s*\([^)]*\)\s*(?:throws\s+[^{{]+)?\{{[^}}]*\}}"
+        body_no_ctor = re.sub(ctor_pattern, "", body)
+
+        remaining = re.sub(r"[\s;{}]", "", body_no_ctor)
+        return len(remaining) == 0, parent_class
+
+
 def check_telegram_forwarding_wrappers(repo_root: Path) -> list[str]:
-    """Fail if a Telegram* class only extends/forwards to another Telegram* or Eve class."""
+    """Fail if a Telegram* class (kt or java) declares no member of its own (only constructors / super call)."""
     violations = []
     src_dir = repo_root / "app" / "src" / "main" / "java"
     if not src_dir.is_dir():
@@ -108,24 +162,14 @@ def check_telegram_forwarding_wrappers(repo_root: Path) -> list[str]:
         if not code_file.name.startswith("Telegram"):
             continue
         content = code_file.read_text(encoding="utf-8")
-        # Check if the file is a minimal forwarding wrapper
-        m = TELEGRAM_FORWARDING_PATTERN.search(content)
-        if m:
-            class_name = m.group(1)
-            parent_class = m.group(2)
-            # Check if the body is essentially empty (only constructor forwarding)
-            # Strip comments and blank lines, count substantive lines
-            lines = [l.strip() for l in content.split("\n")
-                     if l.strip() and not l.strip().startswith("//") and not l.strip().startswith("/*")
-                     and not l.strip().startswith("*") and not l.strip().startswith("import")
-                     and not l.strip().startswith("package")]
-            # A forwarding wrapper typically has: class declaration, constructor params, super call
-            # and very few other lines. If total substantive lines <= 6, it's a forwarding wrapper.
-            if len(lines) <= 6:
-                violations.append(
-                    f"Telegram forwarding wrapper in {code_file.relative_to(repo_root)}: "
-                    f"{class_name} only extends {parent_class} with no real implementation"
-                )
+        is_kotlin = code_file.suffix == ".kt"
+        class_name = code_file.stem
+        no_members, parent_class = class_declares_no_own_members(content, is_kotlin, class_name)
+        if no_members:
+            violations.append(
+                f"Telegram forwarding wrapper in {code_file.relative_to(repo_root)}: "
+                f"{class_name} only extends {parent_class} declaring no members of its own (constructors only)"
+            )
     return violations
 
 

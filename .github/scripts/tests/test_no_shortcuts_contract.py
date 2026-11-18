@@ -103,6 +103,50 @@ class NoShortcutsContractTest(unittest.TestCase):
             self.assertTrue(any("Telegram forwarding wrapper in" in v for v in violations),
                             f"check_telegram_forwarding_wrappers should detect forwarding wrapper, got: {violations}")
 
+    def test_forwarding_wrapper_java_detected(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_root = Path(tmp_dir)
+            fake_pkg = tmp_root / "app" / "src" / "main" / "java" / "com" / "eve" / "app" / "ui"
+            fake_pkg.mkdir(parents=True, exist_ok=True)
+            fake_java = fake_pkg / "TelegramActionBar.java"
+            fake_java.write_text(
+                "package com.eve.app.ui;\n\n"
+                "public class TelegramActionBar extends com.eve.app.designsystem.TelegramActionBar {\n"
+                "    public TelegramActionBar(android.content.Context context) {\n"
+                "        super(context);\n"
+                "    }\n"
+                "}\n",
+                encoding="utf-8"
+            )
+            violations = check_no_shortcuts.check_telegram_forwarding_wrappers(tmp_root)
+            self.assertTrue(any("Telegram forwarding wrapper in" in v for v in violations),
+                            f"check_telegram_forwarding_wrappers should detect Java forwarding wrapper, got: {violations}")
+
+    def test_telegram_class_with_own_members_not_flagged(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_root = Path(tmp_dir)
+            pkg = tmp_root / "app" / "src" / "main" / "java" / "com" / "eve" / "app" / "ui"
+            pkg.mkdir(parents=True, exist_ok=True)
+            # Kotlin class with real method
+            (pkg / "TelegramRealKt.kt").write_text(
+                "package com.eve.app.ui\n\n"
+                "open class TelegramRealKt : BaseView() {\n"
+                "    fun customAction() = 42\n"
+                "}\n",
+                encoding="utf-8"
+            )
+            # Java class with real method
+            (pkg / "TelegramRealJava.java").write_text(
+                "package com.eve.app.ui;\n\n"
+                "public class TelegramRealJava extends BaseView {\n"
+                "    public TelegramRealJava() { super(); }\n"
+                "    public void doWork() {}\n"
+                "}\n",
+                encoding="utf-8"
+            )
+            violations = check_no_shortcuts.check_telegram_forwarding_wrappers(tmp_root)
+            self.assertEqual(violations, [], f"Classes with own members should not be flagged: {violations}")
+
     def test_unregistered_org_telegram_file_detected(self):
         with tempfile.TemporaryDirectory() as tmp_dir:
             tmp_root = Path(tmp_dir)
