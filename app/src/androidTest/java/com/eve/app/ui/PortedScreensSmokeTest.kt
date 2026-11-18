@@ -10,7 +10,6 @@ import android.os.SystemClock
 import android.provider.MediaStore
 import android.view.View
 import android.view.ViewGroup
-import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -79,69 +78,65 @@ class PortedScreensSmokeTest {
 
         @Suppress("UNCHECKED_CAST")
         val hostClass = Class.forName(entry.eveHost) as Class<out Activity>
-        val intent = buildValidIntent(hostClass, entry.screen)
+        val intent = buildValidIntent(hostClass, entry.screen).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
 
-        ActivityScenario.launch<Activity>(intent).use { scenario ->
+        val activity = instrumentation.startActivitySync(intent)
+        assertNotNull("Activity ${entry.screen} failed to launch", activity)
+        assertFalse("Activity ${entry.screen} must not be finishing prematurely", activity.isFinishing)
+        assertFalse("Activity ${entry.screen} must not be destroyed", activity.isDestroyed)
+
+        try {
             SystemClock.sleep(600)
             println("PORT_SMOKE: Startup passed for ${entry.screen}")
 
             // 1. Assert no crash and fragment view exists with non-zero dimensions and >= 1 child
-            scenario.onActivity { activity ->
-                assertFalse("Activity ${entry.screen} must not be finishing prematurely", activity.isFinishing)
-                assertFalse("Activity ${entry.screen} must not be destroyed", activity.isDestroyed)
+            val hostView = extractHostView(activity)
+            assertNotNull("Host view / fragment container must exist for ${entry.screen}", hostView)
+            assertTrue(
+                "Fragment view width must be > 0 (was ${hostView!!.width}) for ${entry.screen}",
+                hostView.width > 0
+            )
+            assertTrue(
+                "Fragment view height must be > 0 (was ${hostView.height}) for ${entry.screen}",
+                hostView.height > 0
+            )
 
-                val hostView = extractHostView(activity)
-                assertNotNull("Host view / fragment container must exist for ${entry.screen}", hostView)
-                assertTrue(
-                    "Fragment view width must be > 0 (was ${hostView!!.width}) for ${entry.screen}",
-                    hostView.width > 0
-                )
-                assertTrue(
-                    "Fragment view height must be > 0 (was ${hostView.height}) for ${entry.screen}",
-                    hostView.height > 0
-                )
-
-                val containerGroup = hostView as? ViewGroup
-                assertNotNull("Host view must be a ViewGroup for ${entry.screen}", containerGroup)
-                assertTrue(
-                    "Fragment view container must have at least one child (had ${containerGroup?.childCount}) for ${entry.screen}",
-                    (containerGroup?.childCount ?: 0) >= 1
-                )
-            }
+            val containerGroup = hostView as? ViewGroup
+            assertNotNull("Host view must be a ViewGroup for ${entry.screen}", containerGroup)
+            assertTrue(
+                "Fragment view container must have at least one child (had ${containerGroup?.childCount}) for ${entry.screen}",
+                (containerGroup?.childCount ?: 0) >= 1
+            )
 
             // 2. Save screenshot before rotation
             saveScreenshot(entry.screen)
             println("PORT_SMOKE: Screenshot saved for ${entry.screen}")
 
             // 3. Rotate once to landscape and verify
-            scenario.onActivity { activity ->
-                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-            }
+            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             SystemClock.sleep(800)
             println("PORT_SMOKE: Landscape rotation passed for ${entry.screen}")
 
-            scenario.onActivity { activity ->
-                val hostView = extractHostView(activity)
-                assertNotNull("Host view after landscape rotation must exist for ${entry.screen}", hostView)
-                assertTrue(
-                    "Host view width after landscape rotation must be > 0 for ${entry.screen}",
-                    hostView!!.width > 0
-                )
-                assertTrue(
-                    "Host view height after landscape rotation must be > 0 for ${entry.screen}",
-                    hostView.height > 0
-                )
-            }
+            val landscapeView = extractHostView(activity)
+            assertNotNull("Host view after landscape rotation must exist for ${entry.screen}", landscapeView)
+            assertTrue(
+                "Host view width after landscape rotation must be > 0 for ${entry.screen}",
+                landscapeView!!.width > 0
+            )
+            assertTrue(
+                "Host view height after landscape rotation must be > 0 for ${entry.screen}",
+                landscapeView.height > 0
+            )
 
             // Rotate back to portrait
-            scenario.onActivity { activity ->
-                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-            }
+            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             SystemClock.sleep(800)
             println("PORT_SMOKE: Portrait restore passed for ${entry.screen}")
 
             // 4. Press back without crash via standard back dispatcher
-            scenario.onActivity { activity ->
+            activity.runOnUiThread {
                 if (activity is androidx.activity.ComponentActivity) {
                     activity.onBackPressedDispatcher.onBackPressed()
                 } else {
@@ -151,6 +146,11 @@ class PortedScreensSmokeTest {
             }
             SystemClock.sleep(400)
             println("PORT_SMOKE: Back press passed for ${entry.screen}")
+        } finally {
+            if (!activity.isFinishing && !activity.isDestroyed) {
+                activity.finish()
+            }
+            SystemClock.sleep(300)
         }
 
         println("PORT_SMOKE: Screen ${entry.screen} fully verified cleanly")
