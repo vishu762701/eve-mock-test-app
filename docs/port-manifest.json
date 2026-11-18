@@ -266,7 +266,7 @@
           "eve": "app/src/main/java/org/telegram/messenger/AndroidUtilities.java",
           "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/AndroidUtilities.java",
           "mode": "CUT",
-          "eve_sha256": "eb57548d78f13c40ff95d34f2885fe43718107a1c11a12dd8d17cb1a97f40c0c",
+          "eve_sha256": "d93a330c924e422847d0362af6ddd46cd359fee73cd589caec261cdcd427764e",
           "upstream_sha256": "76f05cd9afa91adfdf6ba89f72e00ea7c632cd1f737458aaae96033facfd98b9",
           "upstream_lines": 7141,
           "kept_lines": 4529,
@@ -274,8 +274,8 @@
           "removed_methods_reason": "cut telephony, custom camera, unported spans and coupled TLRPC helpers",
           "known_debt": false,
           "recipe_path": "docs/port-recipes/AndroidUtilities.cut",
-          "recipe_sha256": "2f96f558263ab90cda3e70701c2276b39a0216757ce4b24db8f090d1b69c68f4",
-          "result_sha256": "eb57548d78f13c40ff95d34f2885fe43718107a1c11a12dd8d17cb1a97f40c0c"
+          "recipe_sha256": "723b19694a9687e45a998a08480c8d18fdc336fe406bbae3153e867b18f910e6",
+          "result_sha256": "d93a330c924e422847d0362af6ddd46cd359fee73cd589caec261cdcd427764e"
         },
         {
           "eve": "app/src/main/java/org/telegram/messenger/LocaleController.java",

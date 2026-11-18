@@ -100,5 +100,6 @@ patch-line "            if (SharedConfig.useSystemBoldFont && Build.VERSION.SDK_
 patch-line "        return ApplicationLoader.applicationContext != null && ApplicationLoader.applicationContext.getResources().getBoolean(R.bool.isTablet);" "        return false;" "phone default for tablet"
 patch-line "        SharedConfig.updateTabletConfig();" "        // no-op" "decouple SharedConfig"
 patch-line "        return isTabletInternal() && !SharedConfig.forceDisableTabletMode;" "        return isTabletInternal();" "decouple SharedConfig"
+patch-line "    public static void applyPendingOrientationUnlock(Activity activity) {" "    @SuppressLint(\"WrongConstant\") public static void applyPendingOrientationUnlock(Activity activity) {" "suppress wrong constant lint"
 
 prune-imports

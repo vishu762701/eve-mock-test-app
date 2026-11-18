@@ -1481,7 +1481,7 @@ public class AndroidUtilities {
         pendingUnlockActivity = null;
     }
 
-    public static void applyPendingOrientationUnlock(Activity activity) {
+    @SuppressLint("WrongConstant") public static void applyPendingOrientationUnlock(Activity activity) { // EVE-PATCH: suppress wrong constant lint
         if (activity == null || pendingUnlockOrientation == -10 || prevOrientation != -10 || isLargeScreen(activity)) {
             return;
         }
