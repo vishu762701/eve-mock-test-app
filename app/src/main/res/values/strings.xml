@@ -133,4 +133,10 @@
     <string name="link_copied">Link copied to clipboard</string>
     <string name="copy_birthday">Copy Date of Birth</string>
     <string name="birthday_copied">Date of birth copied to clipboard</string>
+
+    <!-- Telegram ChangeNameActivity strings -->
+    <string name="FirstName">First name (required)</string>
+    <string name="LastName">Last name (optional)</string>
+    <string name="EditName">Edit Name</string>
+    <string name="Done">Done</string>
 </resources>

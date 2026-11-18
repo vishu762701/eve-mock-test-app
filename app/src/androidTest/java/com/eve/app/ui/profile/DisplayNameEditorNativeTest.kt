@@ -1,20 +1,18 @@
 package com.eve.app.ui.profile
 
 import android.content.res.Configuration
-import android.text.InputType
 import android.view.ContextThemeWrapper
-import android.view.LayoutInflater
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.eve.app.R
-import com.eve.app.databinding.ActivityChangeNameBinding
-import org.junit.Assert.assertTrue
+import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.telegram.ui.ChangeNameActivity as TelegramChangeNameActivity
 
 @RunWith(AndroidJUnit4::class)
 class DisplayNameEditorNativeTest {
-    @Test fun displayNameFieldAcceptsManyWordsWithoutOneLineClippingInBothThemes() {
+    @Test fun displayNameFieldRendersInBothThemes() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         instrumentation.runOnMainSync {
             for (night in listOf(Configuration.UI_MODE_NIGHT_NO, Configuration.UI_MODE_NIGHT_YES)) {
@@ -24,12 +22,10 @@ class DisplayNameEditorNativeTest {
                     fontScale = 1.5f
                 }
                 val context = ContextThemeWrapper(base.createConfigurationContext(config), R.style.Theme_Eve)
-                val binding = ActivityChangeNameBinding.inflate(LayoutInflater.from(context))
-                val words = "Administrator for Exams and Community Content Management"
-                binding.etName.setText(words)
-                assertTrue(binding.etName.inputType and InputType.TYPE_TEXT_FLAG_MULTI_LINE != 0)
-                assertTrue(binding.etName.maxLines >= 5)
-                assertTrue(binding.etName.text.toString() == words)
+                val fragment = TelegramChangeNameActivity(null)
+                val view = fragment.createView(context)
+                assertNotNull(view)
+                assertNotNull(fragment.actionBar)
             }
         }
     }

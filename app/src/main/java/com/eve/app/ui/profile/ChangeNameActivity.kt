@@ -1,119 +1,114 @@
-/*
- * Derived from Telegram Android ChangeNameActivity.java, Copyright Nikolai Kudashov.
- * GNU GPL v2 or later. See THIRD_PARTY_NOTICES.md.
- */
-
 package com.eve.app.ui.profile
 
 import android.app.Activity
 import android.os.Bundle
-import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
-import androidx.core.view.doOnLayout
+import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.ProfileRequestOwner
-import androidx.core.widget.doAfterTextChanged
-import com.eve.app.databinding.ActivityChangeNameBinding
-import com.eve.app.designsystem.BackDrawable
-import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AppBulletin
-import com.eve.app.util.EveNavigationHelper
 import com.eve.app.util.TelegramShake
 import com.eve.app.util.VibrationHelper
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import org.telegram.ui.ActionBar.INavigationLayout
+import org.telegram.ui.ChangeNameActivity as TelegramChangeNameActivity
 
-class ChangeNameActivity : EveBaseActivity() {
+class ChangeNameActivity : EveBaseActivity(), INavigationLayout, TelegramChangeNameActivity.ChangeNameDelegate {
     private var editorOwnerUid: String? = null
-
-    private lateinit var binding: ActivityChangeNameBinding
-    private val backDrawable = BackDrawable(false)
-    private var hasValidationError = false
     private var saveInFlight = false
+
+    private lateinit var fragment: TelegramChangeNameActivity
+    private lateinit var container: FrameLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         editorOwnerUid = ProfileEditorAccountGuard.bind(this, savedInstanceState) ?: return
-        binding = ActivityChangeNameBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        binding.btnBack.setImageDrawable(backDrawable)
-        binding.etName.doAfterTextChanged {
-            if (hasValidationError) {
-                hasValidationError = false
-                applyEditorPalette(TelegramThemeEngine.resolveCurrentPalette(this))
-            }
+
+        fragment = TelegramChangeNameActivity(null)
+        fragment.setParentLayout(this)
+        fragment.setEveDelegate(this)
+        fragment.onFragmentCreate()
+
+        container = FrameLayout(this).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
         }
 
+        val fragmentView = fragment.createView(this)
+        val actionBar = fragment.actionBar
+
+        container.addView(fragmentView)
+        container.addView(actionBar)
+
+        setContentView(container)
+
+        fragment.onTransitionAnimationEnd(true, false)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (::fragment.isInitialized) {
+            fragment.onResume()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (::fragment.isInitialized) {
+            fragment.onPause()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (::fragment.isInitialized) {
+            fragment.onFragmentDestroy()
+        }
+    }
+
+    // --- INavigationLayout implementation ---
+    override fun closeLastFragment(animated: Boolean) {
+        finish()
+    }
+
+    override fun getView(): ViewGroup = container
+    override fun getParentActivity(): Activity = this
+
+    // --- ChangeNameDelegate implementation (Eve save flow & account guard) ---
+    override fun getInitialFirstName(): String {
         val user = FirebaseAuth.getInstance().currentUser
-        val initialName = intent.getStringExtra("current_name") ?: user?.displayName ?: ""
-        binding.etName.setText(initialName)
-        binding.etName.setSelection(binding.etName.text.length)
-
-        // ChangeNameActivity.java:118-126,190-196: the name field requests
-        // focus and shows the keyboard when the editor opens.
-        binding.etName.imeOptions = EditorInfo.IME_ACTION_DONE
-        binding.etName.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                saveName()
-                true
-            } else {
-                false
-            }
-        }
-        if (savedInstanceState == null) {
-            binding.etName.doOnLayout {
-                if (isFinishing || isDestroyed) return@doOnLayout
-                binding.etName.requestFocus()
-                binding.etName.setSelection(binding.etName.text.length)
-                (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager)
-                    .showSoftInput(binding.etName, InputMethodManager.SHOW_IMPLICIT)
-            }
-        }
-
-        binding.btnBack.setOnClickListener {
-            EveNavigationHelper.finishWithTransition(this)
-        }
-
-        binding.btnDone.setOnClickListener {
-            saveName()
-        }
+        val fullName = intent.getStringExtra("current_name") ?: user?.displayName ?: ""
+        val parts = fullName.trim().split(" ", limit = 2)
+        return parts.getOrNull(0) ?: ""
     }
 
-    override fun onApplyThemePalette(palette: TelegramThemeEngine.ResolvedPalette) {
-        super.onApplyThemePalette(palette)
-        if (::binding.isInitialized) applyEditorPalette(palette)
+    override fun getInitialLastName(): String {
+        val user = FirebaseAuth.getInstance().currentUser
+        val fullName = intent.getStringExtra("current_name") ?: user?.displayName ?: ""
+        val parts = fullName.trim().split(" ", limit = 2)
+        return parts.getOrNull(1) ?: ""
     }
 
-    private fun applyEditorPalette(palette: TelegramThemeEngine.ResolvedPalette) {
-        backDrawable.setColor(palette.textPrimary)
-        backDrawable.setRotatedColor(palette.textPrimary)
-        binding.lineName.setBackgroundColor(if (hasValidationError) palette.statusError else palette.accent)
-    }
-
-    private fun saveName() {
+    override fun saveName(first: String, last: String) {
         val ownerUid = editorOwnerUid ?: return
         if (FirebaseAuth.getInstance().currentUser?.uid != ownerUid) { finish(); return }
         if (saveInFlight) return
-        // EVE display names may contain many words; the canonical @username has separate rules.
-        // Normalize whitespace to match the backend's bounded display_name column contract.
-        val name = binding.etName.text.toString().trim().replace(Regex("\\s+"), " ")
+
+        val name = "$first $last".trim().replace(Regex("\\s+"), " ")
         if (name.isBlank() || name.length > 100) {
-            // ChangeNameActivity.java:140-149 gives its field a red line state on
-            // invalid edits; EVE exposes that feedback through the shared source
-            // shake/error haptic because this single-field host has no error line.
-            hasValidationError = true
-            applyEditorPalette(TelegramThemeEngine.resolveCurrentPalette(this))
-            TelegramShake.shakeViewSpring(binding.etName, 10f)
+            TelegramShake.shakeViewSpring(fragment.fragmentView, 10f)
             VibrationHelper.vibrateAppError(this)
             AppBulletin.showError(this, "Enter a display name of 1–100 characters")
             return
         }
-        // ChangeNameActivity.java:67-72,178-180: returns without a network write
-        // when the confirmed name is unchanged, and finishes the editor.
+
         val confirmedName = (intent.getStringExtra("current_name")
             ?: FirebaseAuth.getInstance().currentUser?.displayName ?: "")
             .trim().replace(Regex("\\s+"), " ")
@@ -121,10 +116,9 @@ class ChangeNameActivity : EveBaseActivity() {
             finish()
             return
         }
+
         val user = FirebaseAuth.getInstance().currentUser ?: return
         saveInFlight = true
-        binding.btnDone.isEnabled = false
-        binding.etName.isEnabled = false
         lifecycleScope.launch {
             try {
                 val response = ApiClient.apiService.updateProfile(mapOf("displayName" to name), ProfileRequestOwner(ownerUid))
@@ -132,11 +126,9 @@ class ChangeNameActivity : EveBaseActivity() {
                     val confirmed = ApiClient.apiService.getProfile(ProfileRequestOwner(ownerUid))
                     if (confirmed.success && confirmed.data?.displayName == name &&
                         FirebaseAuth.getInstance().currentUser?.uid == user.uid && confirmed.data.id == ownerUid) {
-                        // Firebase identity displayName is a secondary cache; EVE backend is authoritative.
                         try {
                             user.updateProfile(UserProfileChangeRequest.Builder().setDisplayName(name).build()).await()
                         } catch (_: Exception) {
-                            // Keep the successful server value; profile reload reads the EVE API.
                         }
                         setResult(Activity.RESULT_OK)
                         finish()
@@ -155,8 +147,6 @@ class ChangeNameActivity : EveBaseActivity() {
                     e.localizedMessage ?: "Failed to update display name")
             } finally {
                 saveInFlight = false
-                binding.btnDone.isEnabled = true
-                binding.etName.isEnabled = true
             }
         }
     }

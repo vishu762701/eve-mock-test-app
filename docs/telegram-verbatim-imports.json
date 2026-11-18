@@ -12,6 +12,11 @@
       "sha256": "ba04283b54726919dab9e2c4fa3e14963af2a0cee62b196eac58a10007ebac11"
     },
     {
+      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/LayoutHelper.java",
+      "eve": "app/src/main/java/org/telegram/ui/Components/LayoutHelper.java",
+      "sha256": "eb94f013d5cb4376133190b837d89b1f9224c48a5f21e269396d189f0c534ec3"
+    },
+    {
       "upstream": "TMessagesProj/src/main/res/drawable-hdpi/checkbig.webp",
       "eve": "app/src/main/res/drawable-hdpi/checkbig.webp",
       "sha256": "d0d1fa14acd99fdcd2fe905077dfeb122e52afe02f8039ecad9825f3e6434a62"
