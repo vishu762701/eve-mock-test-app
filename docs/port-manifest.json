@@ -89,11 +89,11 @@
           "eve": "app/src/main/java/org/telegram/ui/Components/EditTextBoldCursor.java",
           "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/EditTextBoldCursor.java",
           "mode": "CUT",
-          "eve_sha256": "981f60b32be6bf482a4665d3326bedad07a23a3171d90204e1259623099977a1",
+          "eve_sha256": "fdfd7bdb07f8d234ef7f880b7b8ec512e8046c7665785a7bd23ac7c9d3a346a9",
           "upstream_sha256": "00f6fdc6b45d025b84ada460d92aa863e054d00144e42bf93a02db6ebfe09f67",
           "upstream_lines": 1430,
           "kept_lines": 166,
-          "originality_pct": 52.82,
+          "originality_pct": 52.11,
           "removed_methods_reason": "",
           "known_debt": true
         },

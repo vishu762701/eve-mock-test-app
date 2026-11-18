@@ -160,7 +160,7 @@ public class EditTextBoldCursor extends AppCompatEditText {
                 }
             } catch (Exception ignored) {
             }
-            invalidate();
+            postInvalidateDelayed(500);
         }
     }
 }
