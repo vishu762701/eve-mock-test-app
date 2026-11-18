@@ -131,7 +131,6 @@ internal object ProfilePhotoMenu {
         }
 
         val dialog = TelegramBottomSheet.Builder(activity)
-            .setTitle(activity.getString(R.string.profile_choose_photo), isBig = true)
             .setCustomView(content)
             .create()
         dialogRef = dialog

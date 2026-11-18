@@ -1,4 +1,4 @@
-/* Derived from Telegram RecyclerListView.java:3285-3292,3587-3615.
+/* Derived from Telegram RecyclerListView.java:3285-3292,3587-3615 & ShadowSectionCell.java.
  * Copyright Nikolai Kudashov / Telegram contributors. GNU GPL v2 or later.
  * EVE adapter: a fixed grouped section instead of RecyclerView item decoration.
  * See THIRD_PARTY_NOTICES.md. */
@@ -18,14 +18,15 @@ class TelegramProfileSection @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : LinearLayout(context, attrs) {
     private val density = resources.displayMetrics.density
-    var cornerRadiusDp: Float = 0f
+    var cornerRadiusDp: Float = 16f
         set(value) { field = value; invalidate() }
     private val rect = RectF()
     private val clip = Path()
     private val surfacePaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val hairlinePaint = Paint().apply { strokeWidth = 1f }
     // SharedConfig.java:684 defaults this upstream preference to false.
-    var shadowsInSections = false
+    var shadowsInSections = true
         set(value) { field = value; invalidate() }
     private val themeListener: (TelegramThemeEngine.ResolvedPalette) -> Unit = { invalidate() }
 
@@ -47,6 +48,7 @@ class TelegramProfileSection @JvmOverloads constructor(
     }
 
     fun updatePalette(palette: TelegramThemeEngine.ResolvedPalette) {
+        hairlinePaint.color = palette.hairline
         invalidate()
     }
 
@@ -65,11 +67,16 @@ class TelegramProfileSection @JvmOverloads constructor(
             surfacePaint.setShadowLayer(0f, 0f, 0f, 0)
         }
         surfacePaint.color = palette.surface
+        hairlinePaint.color = palette.hairline
         if (r > 0f) {
             if (shadowsInSections) canvas.drawRoundRect(rect, r, r, strokePaint)
             canvas.drawRoundRect(rect, r, r, surfacePaint)
         } else {
             canvas.drawRect(rect, surfacePaint)
+            if (width > 0 && height > 1) {
+                canvas.drawLine(0f, 0.5f, width.toFloat(), 0.5f, hairlinePaint)
+                canvas.drawLine(0f, height - 0.5f, width.toFloat(), height - 0.5f, hairlinePaint)
+            }
         }
     }
 

@@ -54,7 +54,10 @@ import com.eve.app.databinding.ActivityProfileBinding
 import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.designsystem.TelegramNativeAlertDialog
 import com.eve.app.designsystem.TelegramRadialProgressView
+import com.eve.app.designsystem.BackDrawable
 import com.eve.app.designsystem.TelegramPopupMenu
+import com.eve.app.util.VibrationHelper
+import org.telegram.ui.Components.CubicBezierInterpolator
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.ui.settings.SettingsActivity
 import com.eve.app.util.AppBulletin
@@ -80,6 +83,7 @@ private const val STATE_CROP_FILE = "profile_photo_crop_file"
 class ProfileActivity : EveBaseActivity() {
 
     private lateinit var binding: ActivityProfileBinding
+    private val backDrawable = BackDrawable(false)
     private val adminRepo = AdminRepository()
     private var progressDialog: TelegramNativeAlertDialog? = null
     private var pendingPhotoUri: Uri? = null
@@ -93,10 +97,11 @@ class ProfileActivity : EveBaseActivity() {
     private var profileOwnerUid: String? = null
     private var profileConfirmed = false
     private var currentDisplayName = ""
-    private var birthdayDialog: TelegramNativeAlertDialog? = null
+    private var birthdayDialog: android.app.Dialog? = null
     private var profileLoadJob: Job? = null
     private var presenceSequence = 0L
     private var expansionFraction = 0f
+    private var wasAbsorbedIntoNotch = false
     private var qrNavigationPending = false
     private var profileOptionsPopup: ProfileOverflowPopup? = null
     private var profileAuthListener: FirebaseAuth.AuthStateListener? = null
@@ -180,6 +185,7 @@ class ProfileActivity : EveBaseActivity() {
         binding = ActivityProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.glassToolbar.bringToFront()
+        binding.btnBack.setImageDrawable(backDrawable)
         setupAvatarWindowHost()
         restoreCameraCaptureState(savedInstanceState)
 
@@ -197,7 +203,7 @@ class ProfileActivity : EveBaseActivity() {
                 finish()
             }
         }.also { FirebaseAuth.getInstance().addAuthStateListener(it) }
-        binding.tvStatus.text = ProfilePresenceStatus.label(null)
+        binding.tvStatus.text = ProfilePresenceStatus.label(true)
         binding.btnBack.setOnClickListener { finish() }
         binding.btnProfileQr.setOnClickListener { showPersonalQr() }
         binding.btnProfileMenu.setOnClickListener { showProfileOptions() }
@@ -268,14 +274,23 @@ class ProfileActivity : EveBaseActivity() {
     private fun positionFullWindowAvatarHost() {
         val contentRoot = findViewById<ViewGroup>(android.R.id.content)
         val insets = ViewCompat.getRootWindowInsets(binding.root)
+        binding.avatarGooey.refreshNotchInfo(insets)
         val physicalTop = insets?.getInsets(
             WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.displayCutout()
         )?.top ?: 0
         // SystemBarHelper may have padded android.R.id.content before dispatch
         // reaches this child. Prefer the authoritative larger inset.
         val statusTop = maxOf(physicalTop, contentRoot?.paddingTop ?: 0)
+        val density = resources.displayMetrics.density
+        val scrollChild = binding.profileScrollView.getChildAt(0)
+        if (scrollChild != null && binding.profileScrollView.height > 0) {
+            val requiredHeight = binding.profileScrollView.height + (260f * density).roundToInt()
+            if (scrollChild.minimumHeight != requiredHeight) {
+                scrollChild.minimumHeight = requiredHeight
+            }
+        }
         binding.profileScrollView.maximumPull = (binding.root.width - binding.glassToolbar.height -
-            152f * resources.displayMetrics.density).coerceAtLeast(0f)
+            152f * density).coerceAtLeast(0f)
         ProfileHeaderExpansion.apply(binding, expansionFraction, statusTop)
         if (expansionFraction > 0) {
             binding.avatarGooey.translationY = -statusTop.toFloat()
@@ -283,7 +298,7 @@ class ProfileActivity : EveBaseActivity() {
         }
         val image = binding.avatarContainer
         val params = image.layoutParams as FrameLayout.LayoutParams
-        val desiredTop = (66f * resources.displayMetrics.density).roundToInt() + statusTop
+        val desiredTop = (35f * resources.displayMetrics.density).roundToInt() + statusTop
         if (params.topMargin != desiredTop) {
             params.topMargin = desiredTop
             image.layoutParams = params
@@ -298,11 +313,17 @@ class ProfileActivity : EveBaseActivity() {
                 resources.configuration.smallestScreenWidthDp < 600 &&
                 resources.configuration.orientation != android.content.res.Configuration.ORIENTATION_LANDSCAPE
         }
+        binding.profileScrollView.onOverPullWhenExpanded = {
+            openFullPhotoViewer()
+        }
         binding.profileScrollView.onExpansionChanged = { fraction ->
             expansionFraction = fraction
             // Expanded photo mode must restore the window renderer even after
             // a prior fully-collapsed camera endpoint.
-            if (fraction > 0f) ProfileScrollState.applyGooeyVisibility(binding.avatarGooey, 0f)
+            if (fraction > 0f) {
+                ProfileScrollState.applyGooeyVisibility(binding.avatarGooey, 0f)
+                binding.glassToolbar.setBackgroundColor(Color.TRANSPARENT)
+            }
             positionFullWindowAvatarHost()
             if (fraction == 0f) renderProfileScrollState(binding.profileScrollView.scrollY, density)
         }
@@ -327,6 +348,19 @@ class ProfileActivity : EveBaseActivity() {
         // Telegram ProfileActivity.java:6053 hides the entire renderer at
         // its fully absorbed camera endpoint, then restores it on reverse scroll.
         ProfileScrollState.applyGooeyVisibility(binding.avatarGooey, progress)
+        if (progress >= 1f && !wasAbsorbedIntoNotch) {
+            wasAbsorbedIntoNotch = true
+            if (scrollY > 0) {
+                try {
+                    binding.root.performHapticFeedback(
+                        android.view.HapticFeedbackConstants.KEYBOARD_TAP,
+                        android.view.HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING
+                    )
+                } catch (_: Exception) {}
+            }
+        } else if (progress < 0.95f) {
+            wasAbsorbedIntoNotch = false
+        }
 
         // Avatar translation towards notch & scale (ProfileActivity.java:8730-8740)
         val info = binding.avatarGooey.notchInfo
@@ -338,39 +372,60 @@ class ProfileActivity : EveBaseActivity() {
         binding.avatarContainer.scaleX = currentScale
         binding.avatarContainer.scaleY = currentScale
         binding.avatarContainer.translationY = if (info != null) {
-            // Telegram ProfileGooeyView.java:397-405 uses this center for
-            // the round front-camera mask. The EVE scroll trajectory is
-            // adapted because the renderer now lives outside the scroll.
-            val targetCenterY = if (info.isLikelyCircle) {
-                info.bounds.bottom - info.bounds.width() / 2f
-            } else {
-                info.bounds.centerY()
-            }
+            val targetCenterY = binding.avatarGooey.notchCenterY(info)
             val initialCenterY = binding.avatarContainer.top +
                 binding.avatarContainer.height / 2f
             ProfileAvatarTrajectory.offsetToNotch(initialCenterY, targetCenterY, progress)
         } else {
-            // Without a built-in cutout, retain the original scrolling
-            // header displacement and source dynamic status-bar offset.
             val endOffset = binding.avatarGooey.getEndOffset(true, currentScale)
             -scrollY.toFloat() + endOffset * progress
         }
 
-        // Alpha fading of toolbar title vs avatar/name per Telegram ProfileActivity:
-        // Title is strictly hidden at scroll 0 and only fades in once collapse reaches 0.75
-        binding.tvToolbarTitle.alpha = progress // tvToolbarTitle.alpha = progress
-        val headerContentAlpha = (1f - progress * 1.5f).coerceIn(0f, 1f)
+        // Official Telegram (VN20261117_173850.mp4 00:08-00:20): Name & Status stay horizontally centered as they rise into the sticky top bar
+        val diff = 1f - progress
+        val nameScale = 0.90f + 0.10f * diff
+        binding.tvName.pivotX = binding.tvName.width / 2f
+        binding.tvName.pivotY = binding.tvName.height / 2f
+        binding.tvName.scaleX = nameScale
+        binding.tvName.scaleY = nameScale
+        binding.tvName.translationX = 0f
+        binding.tvStatus.translationX = 0f
+        binding.tvName.translationY = 0f
+        binding.tvStatus.translationY = 0f
+
+        val headerContentAlpha = (1f - progress).coerceIn(0f, 1f)
+        val chipAlpha = (1f - progress * 1.8f).coerceIn(0f, 1f)
+        binding.tvToolbarTitle.alpha = progress
+        binding.tvToolbarSubtitle.alpha = progress
+        binding.tvToolbarTitle.translationY = (1f - progress) * (18f * density)
+        binding.tvToolbarSubtitle.translationY = (1f - progress) * (18f * density)
+        binding.tvToolbarSubtitle.text = binding.tvStatus.text
+        binding.tvToolbarSubtitle.setTextColor(binding.tvStatus.currentTextColor)
         binding.tvName.alpha = headerContentAlpha
         binding.tvStatus.alpha = headerContentAlpha
+        binding.chipAdmin.alpha = chipAlpha
+        binding.chipPremium.alpha = chipAlpha
 
-        // Telegram ProfileActionsView.java:247-337 stages backgrounds and
-        // icon/text independently as the 74dp action area collapses.
+        val palette = TelegramThemeEngine.resolveCurrentPalette(this)
+        val toolbarAlpha = (((progress - 0.75f) / 0.25f).coerceIn(0f, 1f) * 242f).roundToInt()
+        binding.glassToolbar.setBackgroundColor(
+            if (toolbarAlpha > 0) androidx.core.graphics.ColorUtils.setAlphaComponent(palette.surface, toolbarAlpha)
+            else Color.TRANSPARENT
+        )
+
+        // Telegram ProfileActionsView.java:247-337 collapse over scroll
+        val actionsTotalHeight = binding.layoutActions.layoutParams.height.toFloat().coerceAtLeast(74f * density)
+        val actionsCollapseState = if (resources.configuration.fontScale > 1.4f)
+            ProfileActionsCollapse.atHeight(scrollY.toFloat(), density, actionsTotalHeight)
+        else ProfileActionsCollapse.atScroll(scrollY.toFloat(), density)
         ProfileActionsCollapse.applyTo(
             listOf(binding.btnSetPhoto, binding.btnEditInfo, binding.btnSettings),
-            if (resources.configuration.fontScale > 1.4f)
-                ProfileActionsCollapse.atHeight(scrollY.toFloat(), density, binding.layoutActions.layoutParams.height.toFloat())
-            else ProfileActionsCollapse.atScroll(scrollY.toFloat(), density)
+            actionsCollapseState
         )
+        val collapseShift = -(1f - actionsCollapseState.fraction) * (54f * density)
+        binding.layoutActions.translationY = 0f
+        binding.cardPersonalInfo.translationY = collapseShift
+        binding.cardCategory.translationY = collapseShift
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
             if (progress > 0f && progress < 1f) {
                 val blurNode = binding.avatarGooey.getBlurRenderNode()
@@ -395,11 +450,7 @@ class ProfileActivity : EveBaseActivity() {
         binding.avatarTouchTarget.setOnClickListener {
             if (hasProfilePhoto() && binding.profileScrollView.canExpand()) {
                 if (binding.profileScrollView.isExpanded) {
-                    val uri = ProfilePhotoManager.getCustomPhotoUri(this, profileOwnerUid)
-                        ?: FirebaseAuth.getInstance().currentUser?.photoUrl
-                    if (uri != null) {
-                        com.eve.app.designsystem.ProfileGalleryView.show(this, listOf(uri))
-                    } else {
+                    if (!openFullPhotoViewer()) {
                         binding.profileScrollView.setExpanded(false)
                     }
                 } else {
@@ -408,12 +459,7 @@ class ProfileActivity : EveBaseActivity() {
             } else showProfilePhotoMenu()
         }
         binding.avatarTouchTarget.setOnLongClickListener {
-            val uri = ProfilePhotoManager.getCustomPhotoUri(this, profileOwnerUid)
-                ?: FirebaseAuth.getInstance().currentUser?.photoUrl
-            if (uri != null) {
-                com.eve.app.designsystem.ProfileGalleryView.show(this, listOf(uri))
-                true
-            } else false
+            openFullPhotoViewer()
         }
         binding.btnCancelPhoto.setOnClickListener {
             cancelPhotoPreview()
@@ -439,6 +485,18 @@ class ProfileActivity : EveBaseActivity() {
         }
     }
 
+    private fun openFullPhotoViewer(): Boolean {
+        val customUri = ProfilePhotoManager.getCustomPhotoUri(this, profileOwnerUid)
+        val rawGoogleUrl = FirebaseAuth.getInstance().currentUser?.photoUrl?.toString()
+        val uri = customUri ?: rawGoogleUrl
+            ?.replace(Regex("=s\\d+(-c)?$"), "=s800-c")
+            ?.let(Uri::parse)
+        return if (uri != null) {
+            com.eve.app.designsystem.ProfileGalleryView.show(this, listOf(uri))
+            true
+        } else false
+    }
+
     /**
      * Telegram ProfileActionsView.java:520-587 applies ButtonBounce to each
      * active action, not to the entire scrolling container.
@@ -450,7 +508,7 @@ class ProfileActivity : EveBaseActivity() {
             profilePhotoMenu?.dismiss()
             // Telegram: ProfileActivity.java:1271-1280 @ 3de37c8cfb039452be7398909461da6288babf15
             // Dynamic action button color calculation based on perceived brightness and HSV adaptation
-            val baseColor = if (palette.isDark) 0xFF212D3B.toInt() else 0xFF527DA3.toInt()
+            val baseColor = if (palette.isDark) 0xFF212D3B.toInt() else Color.WHITE
             val brightness = TelegramThemeEngine.computePerceivedBrightnessTg(baseColor)
             val btnColor = if (brightness > 0.8f) {
                 Color.WHITE
@@ -473,11 +531,27 @@ class ProfileActivity : EveBaseActivity() {
                     palette.actionSelector
                 )
             }
+            backDrawable.setColor(palette.textPrimary)
+            backDrawable.setRotatedColor(palette.textPrimary)
+            binding.cardPersonalInfo.updatePalette(palette)
+            binding.cardCategory.updatePalette(palette)
+            val sectionColor = ContextCompat.getColor(this, R.color.telegram_type_section)
+            binding.tvAccountHeader.setTextColor(sectionColor)
+            binding.tvStudyHeader.setTextColor(sectionColor)
+            binding.dividerMobile.setBackgroundColor(palette.hairline)
+            binding.dividerUsername.setBackgroundColor(palette.hairline)
+            binding.dividerCategory.setBackgroundColor(palette.hairline)
+            binding.radioGeneral.updatePalette(palette)
+            binding.radioObc.updatePalette(palette)
+            binding.radioSc.updatePalette(palette)
+            binding.radioSt.updatePalette(palette)
+            binding.switchReminder.invalidate()
             binding.cellMobile.background = rowSelector()
             binding.cellUsername.background = rowSelector()
             binding.cellBirthday.background = rowSelector()
             binding.cellCategory.background = rowSelector()
             binding.cellReminder.background = rowSelector()
+            ProfileHeaderExpansion.apply(binding, expansionFraction, 0)
             if (expansionFraction > 0) positionFullWindowAvatarHost()
         }
     }
@@ -501,77 +575,107 @@ class ProfileActivity : EveBaseActivity() {
         AppBulletin.showSuccess(this, successMessage)
     }
 
-    private fun setupCells() {
-        // Mobile cell
-        binding.cellMobile.setOnClickListener {
-            if (!isProfileOwner()) return@setOnClickListener
-            val intent = Intent(this, ChangePhoneActivity::class.java).apply {
-                putExtra(ProfileEditorAccountGuard.EXTRA_OWNER_UID, profileOwnerUid)
-                putExtra("current_phone", currentPhone)
-            }
-            editPhoneLauncher.launch(intent)
+    private fun launchPhoneEditor() {
+        if (!isProfileOwner()) return
+        val intent = Intent(this, ChangePhoneActivity::class.java).apply {
+            putExtra(ProfileEditorAccountGuard.EXTRA_OWNER_UID, profileOwnerUid)
+            putExtra("current_phone", currentPhone)
         }
-        binding.cellMobile.setOnLongClickListener {
-            val phone = currentPhone.ifBlank { binding.tvMobileValue.text.toString() }
-            if (phone.isNotBlank()) {
-                TelegramPopupMenu(this)
-                    .addItem(1, getString(R.string.copy_phone), R.drawable.ic_copy) {
-                        copyToClipboard("Phone", phone, "Phone copied to clipboard")
-                    }
-                    .show(binding.cellMobile)
-                true
-            } else false
-        }
+        editPhoneLauncher.launch(intent)
+    }
 
-        // Username cell
-        binding.cellUsername.setOnClickListener {
-            if (!isProfileOwner()) return@setOnClickListener
-            val intent = Intent(this, ChangeUsernameActivity::class.java).apply {
-                putExtra(ProfileEditorAccountGuard.EXTRA_OWNER_UID, profileOwnerUid)
-                putExtra("current_username", currentUsername)
-            }
-            editUsernameLauncher.launch(intent)
+    private fun launchUsernameEditor() {
+        if (!isProfileOwner()) return
+        val intent = Intent(this, ChangeUsernameActivity::class.java).apply {
+            putExtra(ProfileEditorAccountGuard.EXTRA_OWNER_UID, profileOwnerUid)
+            putExtra("current_username", currentUsername)
         }
-        binding.cellUsername.setOnLongClickListener {
-            val uname = currentUsername.ifBlank { binding.tvUsernameValue.text.toString().removePrefix("@") }
-            if (uname.isNotBlank()) {
-                TelegramPopupMenu(this)
-                    .addItem(1, getString(R.string.copy_username), R.drawable.ic_copy) {
-                        copyToClipboard("Username", "@$uname", "Username copied to clipboard")
-                    }
-                    .addItem(2, getString(R.string.copy_link), R.drawable.ic_link) {
-                        copyToClipboard("Link", "eve-mock-test://username/$uname", "Link copied to clipboard")
-                    }
-                    .show(binding.cellUsername)
-                true
-            } else false
-        }
+        editUsernameLauncher.launch(intent)
+    }
 
-        // Birthday cell
-        binding.cellBirthday.setOnClickListener {
+    private fun showMobileContextMenu(): Boolean {
+        if (!isProfileOwner()) return false
+        val phone = currentPhone.trim()
+        if (phone.isBlank()) {
+            launchPhoneEditor()
+            return true
+        }
+        TelegramPopupMenu(this)
+            .addItem(1, "Copy", R.drawable.ic_copy) {
+                copyToClipboard("Phone", phone, "Phone copied to clipboard")
+            }
+            .addItem(2, "Replace number", R.drawable.telegram_profile_outline_edit) {
+                launchPhoneEditor()
+            }
+            .show(binding.cellMobile)
+        return true
+    }
+
+    private fun showUsernameContextMenu(): Boolean {
+        if (!isProfileOwner()) return false
+        val uname = currentUsername.trim().removePrefix("@")
+        if (uname.isBlank()) {
+            launchUsernameEditor()
+            return true
+        }
+        TelegramPopupMenu(this)
+            .addItem(1, getString(R.string.copy_username), R.drawable.ic_copy) {
+                copyToClipboard("Username", "@$uname", "Username copied to clipboard")
+            }
+            .addItem(2, "Change username", R.drawable.telegram_profile_outline_edit) {
+                launchUsernameEditor()
+            }
+            .show(binding.cellUsername)
+        return true
+    }
+
+    private fun showBirthdayContextMenu(): Boolean {
+        if (!isProfileOwner()) return false
+        val dob = currentDob.trim()
+        if (dob.isBlank()) {
             showBirthdayPicker(currentDob)
+            return true
         }
-        binding.cellBirthday.setOnLongClickListener {
-            val dob = currentDob.ifBlank { binding.tvBirthdayValue.text.toString() }
-            if (dob.isNotBlank() && dob != "—") {
-                TelegramPopupMenu(this)
-                    .addItem(1, getString(R.string.copy_birthday), R.drawable.ic_copy) {
-                        copyToClipboard("Birthday", dob, getString(R.string.birthday_copied))
-                    }
-                    .show(binding.cellBirthday)
-                true
-            } else false
-        }
+        val formatted = binding.tvBirthdayValue.text.toString().ifBlank { formatTelegramBirthday(dob) }
+        TelegramPopupMenu(this)
+            .addItem(1, "Copy", R.drawable.ic_copy) {
+                copyToClipboard("Birthday", formatted, getString(R.string.birthday_copied))
+            }
+            .addItem(2, "Change", R.drawable.telegram_profile_outline_edit) {
+                showBirthdayPicker(currentDob)
+            }
+            .addItem(3, "Remove", R.drawable.ic_delete, isDestructive = true) {
+                removeBirthday()
+            }
+            .show(binding.cellBirthday)
+        return true
+    }
+
+    private fun setupCells() {
+        // Mobile cell (VN20261117_173850.mp4 00:34-00:36: tap/long-press opens Copy + Replace number)
+        binding.cellMobile.setOnClickListener { showMobileContextMenu() }
+        binding.cellMobile.setOnLongClickListener { showMobileContextMenu() }
+
+        // Username cell (VN20261117_173850.mp4 00:37-00:39: tap/long-press opens Copy username + Change username)
+        binding.cellUsername.setOnClickListener { showUsernameContextMenu() }
+        binding.cellUsername.setOnLongClickListener { showUsernameContextMenu() }
+
+        // Birthday cell (VN20261117_173850.mp4 00:40-00:50: tap/long-press opens Copy + Change + Remove)
+        binding.cellBirthday.setOnClickListener { showBirthdayContextMenu() }
+        binding.cellBirthday.setOnLongClickListener { showBirthdayContextMenu() }
 
         // Category cell & expansion
         binding.cellCategory.setOnClickListener {
+            VibrationHelper.vibrateLightHaptic(this)
             val isExpanded = binding.layoutCategoryOptions.visibility == View.VISIBLE
             if (isExpanded) {
                 binding.layoutCategoryOptions.visibility = View.GONE
-                binding.ivCategoryArrow.animate().rotation(0f).setDuration(150).start()
+                binding.ivCategoryArrow.animate().rotation(0f).setDuration(220L)
+                    .setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT).start()
             } else {
                 binding.layoutCategoryOptions.visibility = View.VISIBLE
-                binding.ivCategoryArrow.animate().rotation(90f).setDuration(150).start()
+                binding.ivCategoryArrow.animate().rotation(90f).setDuration(220L)
+                    .setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT).start()
             }
         }
 
@@ -596,7 +700,7 @@ class ProfileActivity : EveBaseActivity() {
         if (categorySaveInFlight || !profileConfirmed) return
         // Close the radio list without claiming a persisted selection prematurely.
         binding.layoutCategoryOptions.visibility = View.GONE
-        binding.ivCategoryArrow.animate().rotation(0f).setDuration(150).start()
+        binding.ivCategoryArrow.animate().rotation(0f).setDuration(220L).setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT).start()
         if (cat.equals(currentCategory, ignoreCase = true)) return
 
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
@@ -670,13 +774,28 @@ class ProfileActivity : EveBaseActivity() {
         }
 
         val context = this
+        val palette = TelegramThemeEngine.resolveCurrentPalette(context)
         val density = resources.displayMetrics.density
-        fun dp(v: Int): Int = (v * density).toInt()
+        fun dp(v: Int): Int = (v * density + 0.5f).toInt()
 
-        val layout = LinearLayout(context).apply {
+        val root = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(0, dp(6), 0, dp(16))
+        }
+
+        val titleView = TextView(context).apply {
+            text = "Birthday"
+            setTextColor(palette.textPrimary)
+            setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 20f)
+            typeface = android.graphics.Typeface.DEFAULT_BOLD
+            setPadding(dp(21), dp(8), dp(21), dp(4))
+        }
+        root.addView(titleView, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+
+        val wheelRow = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             weightSum = 1.0f
-            setPadding(dp(16), dp(12), dp(16), dp(12))
+            setPadding(dp(16), dp(4), dp(16), dp(4))
         }
 
         val dayPicker = NumberPicker(context).apply {
@@ -685,7 +804,10 @@ class ProfileActivity : EveBaseActivity() {
             value = cal.get(Calendar.DAY_OF_MONTH)
         }
 
-        val months = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+        val months = arrayOf(
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        )
         val monthPicker = NumberPicker(context).apply {
             minValue = 0
             maxValue = 11
@@ -710,21 +832,55 @@ class ProfileActivity : EveBaseActivity() {
         yearPicker.setOnValueChangedListener { _, _, _ -> updateDays() }
         updateDays()
 
-        layout.addView(dayPicker, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.3f))
-        layout.addView(monthPicker, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.35f))
-        layout.addView(yearPicker, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.35f))
+        wheelRow.addView(dayPicker, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.28f))
+        wheelRow.addView(monthPicker, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.44f))
+        wheelRow.addView(yearPicker, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.28f))
+        root.addView(wheelRow, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
 
-        val dialog = TelegramNativeAlertDialog.Builder(context)
-            .setTitle("Date of Birth")
-            .setView(layout)
-            .setPositiveButton("Set") { _, _ ->
+        val hintView = TextView(context).apply {
+            text = "Only your contacts can see your birthday."
+            setTextColor(palette.textSecondary)
+            setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13f)
+            gravity = android.view.Gravity.CENTER
+            setPadding(dp(21), dp(8), dp(21), dp(14))
+        }
+        root.addView(hintView, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+
+        var sheetRef: com.eve.app.designsystem.TelegramBottomSheet? = null
+        val saveBtn = TextView(context).apply {
+            text = "Save"
+            setTextColor(Color.WHITE)
+            setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 15f)
+            typeface = android.graphics.Typeface.DEFAULT_BOLD
+            gravity = android.view.Gravity.CENTER
+            isClickable = true
+            isFocusable = true
+            background = android.graphics.drawable.GradientDrawable().apply {
+                shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+                cornerRadius = dp(8).toFloat()
+                setColor(palette.accent)
+            }
+            setOnClickListener {
                 val formatted = String.format(Locale.US, "%02d/%02d/%04d", dayPicker.value, monthPicker.value + 1, yearPicker.value)
+                sheetRef?.dismiss()
                 saveBirthday(formatted)
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        }
+        root.addView(
+            saveBtn,
+            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(48)).apply {
+                marginStart = dp(16)
+                marginEnd = dp(16)
+            }
+        )
+
+        val dialog = com.eve.app.designsystem.TelegramBottomSheet.Builder(context)
+            .setCustomView(root)
+            .create()
+        sheetRef = dialog
         birthdayDialog = dialog
         dialog.setOnDismissListener { if (birthdayDialog === dialog) birthdayDialog = null }
+        dialog.show()
     }
 
     private var birthdaySaveInFlight = false
@@ -770,6 +926,34 @@ class ProfileActivity : EveBaseActivity() {
                     ProfileSession.store.invalidate(userId)
                     profileConfirmed = false; setPersonalEditingEnabled(false)
                 }
+                binding.cellBirthday.isEnabled = profileConfirmed
+                birthdaySaveInFlight = false
+            }
+        }
+    }
+
+    private fun removeBirthday() {
+        if (birthdaySaveInFlight || !profileConfirmed || currentDob.isBlank()) return
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        if (userId != profileOwnerUid) { finish(); return }
+        birthdaySaveInFlight = true
+        binding.cellBirthday.isEnabled = false
+        lifecycleScope.launch {
+            try {
+                val response = ApiClient.apiService.updateProfile(mapOf("dob" to ""), ProfileRequestOwner(userId))
+                if (response.success) {
+                    val confirmed = ApiClient.apiService.getProfile(ProfileRequestOwner(userId))
+                    if (confirmed.success && confirmed.data?.id == userId) {
+                        ProfileSession.store.accept(userId, confirmed.data)
+                        currentDob = confirmed.data.dob
+                        binding.tvBirthdayValue.text = formatTelegramBirthday(currentDob)
+                        AppBulletin.showSuccess(this@ProfileActivity, "Birthday removed")
+                    }
+                }
+            } catch (cancel: CancellationException) {
+                throw cancel
+            } catch (_: Exception) {
+            } finally {
                 binding.cellBirthday.isEnabled = profileConfirmed
                 birthdaySaveInFlight = false
             }
@@ -842,11 +1026,14 @@ class ProfileActivity : EveBaseActivity() {
                 val profile = ProfileSession.store.get(user.uid)
                 if (FirebaseAuth.getInstance().currentUser?.uid != user.uid) return@launch
                 renderConfirmedProfile(profile)
-                if (requestSequence == presenceSequence) binding.tvStatus.text = ProfilePresenceStatus.label(profile.isOnline)
+                if (requestSequence == presenceSequence) {
+                    binding.tvStatus.text = ProfilePresenceStatus.label(profile.isOnline)
+                    if (profile.isOnline == null && isProfileOwner()) binding.tvStatus.text = ProfilePresenceStatus.label(true)
+                }
             } catch (cancel: CancellationException) {
                 throw cancel
             } catch (e: Exception) {
-                if (requestSequence == presenceSequence) binding.tvStatus.text = ProfilePresenceStatus.label(null)
+                if (requestSequence == presenceSequence) binding.tvStatus.text = ProfilePresenceStatus.label(true)
                 AppBulletin.showError(this@ProfileActivity, if (profileConfirmed)
                     "Could not check for profile updates. Showing the last confirmed information."
                     else "Profile unavailable. Check your connection and reopen your profile.")
@@ -913,15 +1100,18 @@ class ProfileActivity : EveBaseActivity() {
         profileOptionsPopup = ProfileOverflowPopup(binding.btnProfileMenu).also { popup ->
             popup.show(
                 usernameEnabled = profileConfirmed && ProfileQrPayload.normalize(currentUsername) != null,
-                onUsername = { binding.cellUsername.performClick() },
+                onUsername = { launchUsernameEditor() },
                 onCopyLink = {
                     val payload = ProfileQrPayload.encode(currentUsername) ?: return@show
                     (getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
                         .setPrimaryClip(ClipData.newPlainText("Profile link", payload))
                     AppBulletin.showSuccess(this, "Profile link copied")
                 },
-                onShareQr = { showPersonalQr() },
-                canEdit = profileConfirmed
+                onShareQr = null,
+                canEdit = profileConfirmed,
+                onChangeColor = {
+                    startActivity(Intent(this, com.eve.app.ui.settings.AppearanceActivity::class.java))
+                }
             )
         }
     }
@@ -936,10 +1126,11 @@ class ProfileActivity : EveBaseActivity() {
                 renderConfirmedProfile(profile)
                 val value = profile.isOnline
                 binding.tvStatus.text = ProfilePresenceStatus.label(value)
+                if (value == null && isProfileOwner()) binding.tvStatus.text = ProfilePresenceStatus.label(true)
             }
         } catch (cancel: CancellationException) { throw cancel }
         catch (_: Exception) {
-            if (sequence == presenceSequence) binding.tvStatus.text = ProfilePresenceStatus.label(null)
+            if (sequence == presenceSequence) binding.tvStatus.text = ProfilePresenceStatus.label(true)
         }
     }
 
@@ -958,7 +1149,6 @@ class ProfileActivity : EveBaseActivity() {
                 binding.profileScrollView.scrollY, binding.profileScrollView.isExpanded))
         }
         presenceSequence++
-        if (::binding.isInitialized) binding.tvStatus.text = ProfilePresenceStatus.label(null)
         super.onPause()
     }
 

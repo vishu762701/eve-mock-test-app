@@ -1,5 +1,5 @@
 /*
- * Telegram: TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarPopupWindow.java & ActionBarMenuSubItem.java @ 3de37c8cfb039452be7398909461da6288babf15
+ * Telegram: TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarPopupWindow.java & ItemOptions.java @ 3de37c8cfb039452be7398909461da6288babf15
  * Copyright Nikolai Kudashov, 2013-2018. GNU GPL v2 or later. See THIRD_PARTY_NOTICES.md.
  */
 
@@ -10,9 +10,11 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.GradientDrawable
 import android.text.TextUtils
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.HapticFeedbackConstants
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
@@ -29,13 +31,6 @@ import com.eve.app.R
 import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.util.FontManager
 
-/**
- * Source-accurate Telegram popup menu.
- * Upstream:
- * - ActionBarPopupWindow.java: 196dp min width, 8dp padding, 6dp gap, popup_fixed_alert4 9-patch
- * - ActionBarMenuSubItem.java: 48dp row height, 16sp text, 18dp padding, ripple feedback
- * - Animation: R.style.PopupContextAnimation (@anim/popup_context_in)
- */
 class TelegramPopupMenu(private val context: Context) : PopupWindow(context) {
 
     private val density = context.resources.displayMetrics.density
@@ -56,16 +51,14 @@ class TelegramPopupMenu(private val context: Context) : PopupWindow(context) {
         height = ViewGroup.LayoutParams.WRAP_CONTENT
         isFocusable = true
         isOutsideTouchable = true
-        elevation = 0f // 9-patch supplies authentic shadow
+        elevation = dp(8f).toFloat()
 
-        // Telegram ActionBarPopupWindow.java:1394 PopupContextAnimation
         animationStyle = R.style.PopupContextAnimation
         inputMethodMode = INPUT_METHOD_NOT_NEEDED
         softInputMode = WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED
 
-        // Authentic 9-patch background tinted to dialogSurface
         val bgDrawable = AppCompatResources.getDrawable(context, R.drawable.telegram_dialog_popup_fixed_alert4)?.mutate()
-        val surfaceColor = if (palette.isDark) 0xFF262626.toInt() else palette.dialogSurface
+        val surfaceColor = if (palette.isDark) 0xFF262626.toInt() else Color.WHITE
         bgDrawable?.colorFilter = PorterDuffColorFilter(surfaceColor, PorterDuff.Mode.MULTIPLY)
         setBackgroundDrawable(bgDrawable ?: ColorDrawable(Color.TRANSPARENT))
 
@@ -82,9 +75,6 @@ class TelegramPopupMenu(private val context: Context) : PopupWindow(context) {
         }
     }
 
-    /**
-     * Adds a 48dp item row following ActionBarMenuSubItem.java:28-60.
-     */
     fun addItem(
         id: Int,
         text: CharSequence,
@@ -110,7 +100,7 @@ class TelegramPopupMenu(private val context: Context) : PopupWindow(context) {
             val iconInk = if (isDestructive) {
                 ContextCompat.getColor(context, R.color.design_destructive_text)
             } else {
-                palette.textSecondary
+                if (palette.isDark) Color.WHITE else palette.textPrimary
             }
 
             val textView = TextView(context).apply {
@@ -135,7 +125,7 @@ class TelegramPopupMenu(private val context: Context) : PopupWindow(context) {
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                     Gravity.START or Gravity.CENTER_VERTICAL
                 ).apply {
-                    marginStart = dp(38f) // 24dp icon + 14dp gap
+                    marginStart = dp(38f)
                 })
             } else {
                 addView(textView, FrameLayout.LayoutParams(
@@ -159,9 +149,6 @@ class TelegramPopupMenu(private val context: Context) : PopupWindow(context) {
         return this
     }
 
-    /**
-     * Adds a 6dp group gap following Telegram ActionBarPopupWindow.java:215.
-     */
     fun addGap(): TelegramPopupMenu {
         val gap = View(context).apply {
             minimumHeight = dp(6f)
@@ -174,6 +161,35 @@ class TelegramPopupMenu(private val context: Context) : PopupWindow(context) {
     }
 
     fun show(anchor: View, xOffset: Int = 0, yOffset: Int = 0) {
-        showAsDropDown(anchor, xOffset, yOffset)
+        try {
+            anchor.performHapticFeedback(
+                HapticFeedbackConstants.LONG_PRESS,
+                HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING
+            )
+        } catch (_: Exception) {}
+        val origBg = anchor.background
+        val origZ = anchor.translationZ
+        val highlight = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = dp(12f).toFloat()
+            setColor(if (palette.isDark) 0xFF2C2C2E.toInt() else Color.WHITE)
+        }
+        anchor.background = highlight
+        anchor.translationZ = dp(6f).toFloat()
+        setOnDismissListener {
+            anchor.background = origBg
+            anchor.translationZ = origZ
+        }
+        showAsDropDown(anchor, xOffset + dp(14f), yOffset)
+        try {
+            val container = contentView.rootView
+            val wm = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
+            val lp = container.layoutParams as? WindowManager.LayoutParams
+            if (wm != null && lp != null) {
+                lp.flags = lp.flags or WindowManager.LayoutParams.FLAG_DIM_BEHIND
+                lp.dimAmount = if (palette.isDark) 0.45f else 0.30f
+                wm.updateViewLayout(container, lp)
+            }
+        } catch (_: Exception) {}
     }
 }

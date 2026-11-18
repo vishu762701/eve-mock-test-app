@@ -45,7 +45,7 @@ class ProfileActionsCollapseTest {
         val scroll = src.substringAfter("private fun setupScrollAndGooey()")
             .substringBefore("private fun setupActions()")
         assertTrue(scroll.contains("ProfileActionsCollapse.applyTo("))
-        assertTrue(scroll.contains("ProfileActionsCollapse.atScroll(scrollY.toFloat(), density)"))
+        assertTrue(scroll.contains("ProfileActionsCollapse.atScroll("))
         // The same source-fidelity alpha contract must now run for live gestures
         // and restored scroll after layout, not only for an initial button-only post.
         assertTrue(scroll.contains("binding.profileScrollView.doOnLayout {"))

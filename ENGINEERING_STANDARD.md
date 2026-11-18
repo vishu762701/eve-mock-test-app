@@ -91,20 +91,17 @@ Execute in strict order and print each step's output:
 - **S5 PROOF**: Print sha256 of every VERBATIM file next to the zip's sha256. List every EVE-PATCH and EVE-SHIM. Label each element EXACT / ADAPTED (reason) / NOT FOUND / BLOCKED.
 - **S6 REPORT** (max 25 lines): Status per element, VERBATIM/SHIM/CUT counts, commit SHA, CI result, "Noticed but not touched", and what to compare on the phone against the Telegram screen.
 
-## 2c. Core Workflow Rules
+## 3. Core Workflow Rules
 1. Do exactly what the owner asked—**1 screen or 1 feature at a time**. Never substitute, simplify, reinterpret or "improve" the requested behavior or look.
 2. Stay in scope: the owner's request, not unrelated work. Unrelated problems get one line under "Noticed but not touched". Do not silently broaden product scope.
 3. Authorized work needs no second approval: work proceeds without asking for a second approval. Ask only for an owner-only product, security, data or legal decision.
 4. Never fake evidence. No EXACT, VERIFIED, TESTED, device-checked or CI-green claim without real proof. Report implementation present separately from functional, visual/gesture, device and release acceptance.
 5. Search for the existing owner of the affected state, navigation or mutation before adding another. Replace old code, do not stack a second copy. Remove only files proven obsolete.
-6. Commit and push coherent implementation changes for the target screen/feature. There is no numeric commit ceiling, and no push ceiling; use a pull-request or authorized fast-forward batch with one writer. Reconcile remote main before each push.
-7. Each pushed implementation change must pass exact-SHA FAST CI on its final SHA. Treat emulator/ADB/GPU infrastructure errors separately from application test failures. Maintain zero build failures across FAST and FULL CI pipelines.
-
-## 3. CI, git, security
-- Ordinary main push runs compile-only FAST (ARM64 assembleDebug, test compilation, and lint). FULL (all tests, both emulator navigation modes, signing, gated Eve-debug-apk) runs when dispatched manually via workflow_dispatch, while `build-universal-dev-apk.yml` provides a fast 4-ABI debug APK artifact on demand.
-- Do not run heavy Gradle/NDK/emulator builds on the phone when hosted CI is available.
-- Live Worker deployment, remote D1 migrations, destructive production data changes, public APK distribution and licensing exceptions require separate explicit owner authorization.
-- Never commit secrets, google-services.json contents, tokens or admin emails. Never stage functions/package-lock.json.
+6. Commit and push coherent changes to `main` only (no feature branches, no force-push). Reconcile remote main before each push. Exact-SHA FAST CI must pass on the final SHA. Treat emulator/ADB infrastructure errors separately from app test failures.
+7. `[skip ci]` batching: when pushing several sequential commits, put `[skip ci]` in every commit message except the last, so exactly one clean run happens on the final SHA.
+8. Never commit secrets, google-services.json contents, tokens or admin emails. Never stage `functions/package-lock.json`.
+9. Live Worker deployment, remote D1 migrations, destructive production data changes, public APK distribution and licensing exceptions require separate explicit owner authorization.
+10. Termux handoff: if a real tool or session limit stops you, leave one short handoff in `~/eve-handoff.txt`: HEAD, uncommitted work, failing gate, next action.
 
 ## 4. Report format (short)
 - Changed screen/feature behavior with status EXACT.

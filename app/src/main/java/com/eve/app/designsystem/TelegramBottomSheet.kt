@@ -137,15 +137,26 @@ open class TelegramBottomSheet(
         // Responsive maxWidth: on tablets cap at 640dp
         val maxSheetWidth = dp(640f)
         val screenWidth = context.resources.displayMetrics.widthPixels
+        val screenHeight = context.resources.displayMetrics.heightPixels
+        val targetSheetWidth = if (screenWidth > maxSheetWidth) maxSheetWidth else screenWidth
         if (screenWidth > maxSheetWidth) {
             sheetLp.width = maxSheetWidth
         }
+        container.minimumWidth = screenWidth
+        container.minimumHeight = screenHeight
+        sheetContainer.minimumWidth = targetSheetWidth
+        contentLayout.minimumWidth = targetSheetWidth - sheetContainer.paddingLeft - sheetContainer.paddingRight
 
         container.addView(sheetContainer, sheetLp)
         super.setContentView(container, ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
         ))
+        window?.let { win ->
+            win.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            win.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            win.setGravity(Gravity.BOTTOM or Gravity.FILL_HORIZONTAL)
+        }
     }
 
     override fun setContentView(view: View) {
@@ -166,6 +177,11 @@ open class TelegramBottomSheet(
 
     override fun show() {
         super.show()
+        window?.let { win ->
+            win.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            win.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            win.setGravity(Gravity.BOTTOM or Gravity.FILL_HORIZONTAL)
+        }
         startOpenAnimation()
     }
 

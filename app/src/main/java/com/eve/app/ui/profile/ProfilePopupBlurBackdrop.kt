@@ -37,6 +37,7 @@ import kotlin.math.max
  * position watcher are NOT integrated. Never claim complete source parity.
  */
 internal class ProfilePopupBlurBackdrop private constructor(
+    private val anchorView: View,
     private val popupContent: View,
     private var snapshot: Bitmap?,
     private val sourceWidth: Int,
@@ -91,7 +92,7 @@ internal class ProfilePopupBlurBackdrop private constructor(
                     colorFilter = ColorMatrixColorFilter(matrix)
                 })
                 val location = IntArray(2).also(scene::getLocationOnScreen)
-                val result = ProfilePopupBlurBackdrop(popupContent, altered,
+                val result = ProfilePopupBlurBackdrop(anchor, popupContent, altered,
                     scene.width, scene.height, location[0], location[1],
                     palette.submenuBackground, palette.isDark)
                 altered = null // transferred to drawable; recycled on dismissal
@@ -154,6 +155,10 @@ internal class ProfilePopupBlurBackdrop private constructor(
         val shader = bitmapShader
         if (bmp != null && !bmp.isRecycled && shader != null) {
             popupContent.getLocationOnScreen(origin)
+            if (origin[0] == 0 && origin[1] == 0 && anchorView.isAttachedToWindow) {
+                anchorView.getLocationOnScreen(origin)
+                origin[0] = origin[0] + anchorView.width - popupContent.width
+            }
             shaderMatrix.reset()
             shaderMatrix.setScale(sourceWidth.toFloat() / bmp.width,
                 sourceHeight.toFloat() / bmp.height)

@@ -6,41 +6,47 @@
     android:orientation="vertical"
     style="@style/Widget.Eve.Token.Screen">
 
-    <!-- Telegram-style Top Toolbar -->
-    <LinearLayout
+    <!-- Telegram ActionBar (56dp height, 54dp back/done frames, 18dp title start) -->
+    <com.eve.app.designsystem.TelegramActionBar
         android:layout_width="match_parent"
-        android:layout_height="@dimen/telegram_action_bar_height"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        style="@style/Widget.Eve.Token.ToolbarRow">
+        android:layout_height="wrap_content">
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="@dimen/telegram_action_bar_back_width"
-            android:layout_height="match_parent"
-            android:contentDescription="@string/username_back"
-            android:src="@drawable/ic_back"
-            app:tint="@color/telegram_type_primary"
-            style="@style/Widget.Eve.Token.IconButton" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/telegram_action_bar_height"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            style="@style/Widget.Eve.Token.ToolbarRow">
 
-        <TextView
-            android:id="@+id/tvToolbarTitle"
-            style="@style/TextAppearance.Eve.Telegram.NavigationTitle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/telegram_action_bar_title_start"
-            android:layout_weight="1"
-            android:text="@string/username_title" />
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="@dimen/telegram_action_bar_back_width"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/username_back"
+                android:src="@drawable/ic_back"
+                app:tint="@color/telegram_type_primary"
+                style="@style/Widget.Eve.Token.IconButton" />
 
-        <ImageButton
-            android:id="@+id/btnDone"
-            android:layout_width="@dimen/telegram_action_bar_back_width"
-            android:layout_height="match_parent"
-            android:contentDescription="@string/username_done"
-            android:src="@drawable/ic_ab_done"
-            app:tint="@color/telegram_type_primary"
-            style="@style/Widget.Eve.Token.IconButton" />
-    </LinearLayout>
+            <TextView
+                android:id="@+id/tvToolbarTitle"
+                style="@style/TextAppearance.Eve.Telegram.NavigationTitle"
+                android:tag="eve_telegram_type"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/telegram_action_bar_title_start"
+                android:layout_weight="1"
+                android:text="@string/username_title" />
+
+            <ImageButton
+                android:id="@+id/btnDone"
+                android:layout_width="@dimen/telegram_action_bar_back_width"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/username_done"
+                android:src="@drawable/ic_ab_done"
+                app:tint="@color/telegram_type_primary"
+                style="@style/Widget.Eve.Token.IconButton" />
+        </LinearLayout>
+    </com.eve.app.designsystem.TelegramActionBar>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -57,6 +63,7 @@
 
             <TextView
                 style="@style/TextAppearance.Eve.Telegram.EditInput"
+                android:tag="eve_telegram_type"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@"
@@ -66,6 +73,7 @@
             <EditText
                 android:id="@+id/etUsername"
                 style="@style/TextAppearance.Eve.Telegram.EditInput"
+                android:tag="eve_telegram_type"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -88,6 +96,7 @@
             android:id="@+id/tvStatus"
             android:accessibilityLiveRegion="polite"
             style="@style/TextAppearance.Eve.Telegram.EditHelp"
+            android:tag="eve_telegram_type"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -96,6 +105,7 @@
         <TextView
             android:id="@+id/tvHelp"
             style="@style/TextAppearance.Eve.Telegram.EditHelp"
+            android:tag="eve_telegram_type"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"

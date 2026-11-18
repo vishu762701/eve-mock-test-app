@@ -1,6 +1,6 @@
 /*
  * EVE input adapter derived from Telegram ProfileActivity.java:4190-4237,
- * 4320-4340,8465-8520, DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15.
+ * 4320-4340,8465-8625, DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15.
  * Copyright Nikolai Kudashov / Telegram contributors. GPL v2 or later.
  */
 package com.eve.app.ui.profile
@@ -10,6 +10,7 @@ import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
 import android.util.AttributeSet
+import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.VelocityTracker
 import android.view.ViewConfiguration
@@ -19,10 +20,15 @@ import androidx.core.widget.NestedScrollView
 import com.eve.app.designsystem.DesignMotion
 import kotlin.math.abs
 
-/** Source-derived resistance, 0.33 expansion latch and motion; EVE NestedScrollView host. */
+/** Source-derived resistance, 0.33 expansion latch + haptics and EASE_OUT_QUINT snap physics. */
 class ProfilePullScrollView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : NestedScrollView(context, attrs) {
     var canExpand: () -> Boolean = { false }
     var onExpansionChanged: (Float) -> Unit = {}
+    var onOverPullWhenExpanded: (() -> Unit)? = null
+    private var overPullTriggered = false
+    var collapseStopsProvider: () -> Pair<Int, Int> = { 0 to 0 }
+    private var scrollVelocityTracker: VelocityTracker? = null
+    private var snapAnimator: ValueAnimator? = null
     var motionEnabled: () -> Boolean = { DesignMotion.enabled(context) }
     var maximumPull: Float = 0f
         set(value) {
@@ -57,8 +63,11 @@ class ProfilePullScrollView @JvmOverloads constructor(context: Context, attrs: A
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 animator?.cancel(); animator = null
+                snapAnimator?.cancel(); snapAnimator = null
+                scrollVelocityTracker?.recycle()
+                scrollVelocityTracker = VelocityTracker.obtain().also { it.addMovement(event) }
                 downY = event.y; downX = event.x; lastDragY = event.y
-                dragging = false; latched = isExpanded
+                dragging = false; latched = isExpanded; overPullTriggered = false
             }
             MotionEvent.ACTION_MOVE -> if (beginPull(event)) return true
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
@@ -82,17 +91,80 @@ class ProfilePullScrollView @JvmOverloads constructor(context: Context, attrs: A
         return true
     }
 
+    private fun animateSnapTo(targetY: Int) {
+        snapAnimator?.cancel()
+        val startY = scrollY
+        if (startY == targetY) return
+        if (!motionEnabled()) {
+            scrollTo(0, targetY)
+            return
+        }
+        snapAnimator = ValueAnimator.ofInt(startY, targetY).apply {
+            duration = 280L
+            interpolator = CubicBezierInterpolator.EASE_OUT_QUINT
+            addUpdateListener { scrollTo(0, it.animatedValue as Int) }
+            start()
+        }
+    }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (!dragging && (event.actionMasked != MotionEvent.ACTION_MOVE || !beginPull(event))) return super.onTouchEvent(event)
+        if (!dragging && (event.actionMasked != MotionEvent.ACTION_MOVE || !beginPull(event))) {
+            scrollVelocityTracker?.addMovement(event)
+            val handled = super.onTouchEvent(event)
+            if ((event.actionMasked == MotionEvent.ACTION_UP || event.actionMasked == MotionEvent.ACTION_CANCEL) && !isExpanded && pull <= 0f) {
+                scrollVelocityTracker?.computeCurrentVelocity(1000)
+                val vy = scrollVelocityTracker?.yVelocity ?: 0f
+                scrollVelocityTracker?.recycle()
+                scrollVelocityTracker = null
+                val density = resources.displayMetrics.density
+                val (headerStop, fullStop) = collapseStopsProvider()
+                // ProfileActivity.java:4227-4236: snap with EASE_OUT_QUINT on release when not flinging fast
+                if (event.actionMasked == MotionEvent.ACTION_UP && abs(vy) < 1000f * density && fullStop > headerStop && headerStop > 0) {
+                    val s = scrollY
+                    if (s in 1 until headerStop) {
+                        val target = if (s >= (headerStop * 0.4f).toInt() || vy < -300f * density) headerStop else 0
+                        post { animateSnapTo(target) }
+                    } else if (s in (headerStop + 1) until fullStop) {
+                        val target = if (s - headerStop >= ((fullStop - headerStop) * 0.4f).toInt() || vy < -300f * density) fullStop else headerStop
+                        post { animateSnapTo(target) }
+                    }
+                }
+            }
+            return handled
+        }
         tracker?.addMovement(event)
         when (event.actionMasked) {
             MotionEvent.ACTION_MOVE -> {
                 if (event.pointerCount != 1) { finishDrag(cancelled = true); return true }
                 // Telegram halves drag travel before the expansion latch opens.
+                if (isExpanded && pull >= maximumPull && (event.y - downY) > 56f * resources.displayMetrics.density && !overPullTriggered) {
+                    overPullTriggered = true
+                    onOverPullWhenExpanded?.invoke()
+                    finishDrag(cancelled = true)
+                    return true
+                }
                 val resistance = if (latched) 1f else .5f
                 updatePull(pull + (event.y - lastDragY) * resistance)
                 lastDragY = event.y
-                if (expansionFraction >= .33f) latched = true
+                if (!latched && expansionFraction >= .33f) {
+                    latched = true
+                    // ProfileActivity.java:8539: LONG_PRESS haptic on crossing 0.33f pull-to-expand latch
+                    try {
+                        performHapticFeedback(
+                            HapticFeedbackConstants.LONG_PRESS,
+                            HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING
+                        )
+                    } catch (_: Exception) {}
+                } else if (latched && isExpanded && expansionFraction < .33f) {
+                    latched = false
+                    // ProfileActivity.java:8621: KEYBOARD_TAP haptic on collapsing below 0.33f
+                    try {
+                        performHapticFeedback(
+                            HapticFeedbackConstants.KEYBOARD_TAP,
+                            HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING
+                        )
+                    } catch (_: Exception) {}
+                }
                 if (pull <= 0f) {
                     latched = false
                     // Hand an upward continuation back to real NestedScrollView scrolling.
@@ -124,9 +196,18 @@ class ProfilePullScrollView @JvmOverloads constructor(context: Context, attrs: A
 
     private fun settle(expanded: Boolean, velocity: Float, animated: Boolean = true) {
         animator?.cancel(); animator = null
+        val wasExpanded = isExpanded
         isExpanded = expanded
         val target = if (expanded) maximumPull else 0f
         if (!animated || !motionEnabled() || maximumPull <= 0 || target == pull) { updatePull(target); return }
+        if (wasExpanded != expanded) {
+            try {
+                performHapticFeedback(
+                    if (expanded) HapticFeedbackConstants.LONG_PRESS else HapticFeedbackConstants.KEYBOARD_TAP,
+                    HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING
+                )
+            } catch (_: Exception) {}
+        }
         val density = resources.displayMetrics.density
         val factor = abs(velocity).coerceIn(1100f * density, 2000f * density) / (1100f * density)
         animator = ValueAnimator.ofFloat(pull, target).apply {
@@ -156,6 +237,7 @@ class ProfilePullScrollView @JvmOverloads constructor(context: Context, attrs: A
     }
     override fun onDetachedFromWindow() {
         animator?.cancel(); animator = null
+        snapAnimator?.cancel(); snapAnimator = null
         tracker?.recycle(); tracker = null; dragging = false
         updatePull(if (isExpanded) maximumPull else 0f)
         super.onDetachedFromWindow()

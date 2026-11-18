@@ -98,6 +98,28 @@ class ProfileGooeyView @JvmOverloads constructor(
 
     var notchInfo: NotchInfoUtils.NotchInfo? = null
 
+    fun refreshNotchInfo(insets: WindowInsetsCompat? = null) {
+        val cutout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            insets?.displayCutout ?: rootWindowInsets?.displayCutout
+        } else null
+        val info = NotchInfoUtils.getInfo(context, cutout)
+        if (info != null && info.gravity == Gravity.CENTER && (width == 0 || width <= height)) {
+            notchInfo = info
+        }
+    }
+
+    internal fun notchCenterY(info: NotchInfoUtils.NotchInfo): Float {
+        return if (info.isLikelyCircle) {
+            if (info.bounds.height() > info.bounds.width() * 1.25f) {
+                info.bounds.centerY()
+            } else {
+                info.bounds.bottom - info.bounds.width() / 2f
+            }
+        } else {
+            info.bounds.centerY()
+        }
+    }
+
     private interface Impl {
         fun onSizeChanged(w: Int, h: Int)
         fun setIntensity(intensity: Float)
@@ -124,16 +146,8 @@ class ProfileGooeyView @JvmOverloads constructor(
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        // A reused View may keep its dimensions across detach/reattach, so
-        // Android need not dispatch onSizeChanged again. Restore its resources.
         if (notchInfo == null) {
-            val cutout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                rootWindowInsets?.displayCutout
-            } else null
-            val info = NotchInfoUtils.getInfo(context, cutout)
-            if (info != null && info.gravity == Gravity.CENTER && width <= height) {
-                notchInfo = info
-            }
+            refreshNotchInfo()
         }
         impl.setIntensity(intensity)
         impl.setBlurIntensity(blurIntensity)
@@ -327,7 +341,7 @@ class ProfileGooeyView @JvmOverloads constructor(
                         val rad = min(info.bounds.width(), info.bounds.height()) / 2f
                         offscreen.drawCircle(
                             info.bounds.centerX(),
-                            info.bounds.bottom - info.bounds.width() / 2f,
+                            notchCenterY(info),
                             rad, blackPaint
                         )
                     } else if (info.isAccurate) {
@@ -410,8 +424,10 @@ class ProfileGooeyView @JvmOverloads constructor(
 
         override fun setIntensity(intensity: Float) {
             val safeIntensity = intensity.coerceAtLeast(0.1f)
-            effectNode.setRenderEffect(RenderEffect.createBlurEffect(safeIntensity, safeIntensity, Shader.TileMode.CLAMP))
-            effectNotchNode.setRenderEffect(RenderEffect.createBlurEffect(safeIntensity, safeIntensity, Shader.TileMode.CLAMP))
+            // effectNode and effectNotchNode record at 1/3 resolution (gooScaleFactor = 3f).
+            val nodeBlur = (safeIntensity / 2.6f).coerceAtLeast(1f)
+            effectNode.setRenderEffect(RenderEffect.createBlurEffect(nodeBlur, nodeBlur, Shader.TileMode.CLAMP))
+            effectNotchNode.setRenderEffect(RenderEffect.createBlurEffect(nodeBlur, nodeBlur, Shader.TileMode.CLAMP))
             filter.colorFilter = ColorMatrixColorFilter(floatArrayOf(
                 1f, 0f, 0f, 0f, 0f,
                 0f, 1f, 0f, 0f, 0f,
@@ -439,8 +455,8 @@ class ProfileGooeyView @JvmOverloads constructor(
                 whole.set(0f, 0f, width.toFloat(), height.toFloat())
                 if (childCount > 0) {
                     val child = getChildAt(0)
-                    val w = child.width * child.scaleX
-                    val h = child.height * child.scaleY
+                    val w = child.width.toFloat()
+                    val h = child.height.toFloat()
                     val l = child.x
                     val t = child.y
 
@@ -489,6 +505,12 @@ class ProfileGooeyView @JvmOverloads constructor(
 
             // ProfileGooeyView.java:358-390: alpha-mask and reversible liquid bridge.
             val gooScaleFactor = 2f + factorMult
+            val info = notchInfo
+            val notchTargetY = if (info != null) notchCenterY(info) + dp(BLACK_KING_BAR) - top else dp(BLACK_KING_BAR)
+            val notchRad = if (info != null) min(info.bounds.width(), info.bounds.height()) / 2f else dp(8)
+            val engage = ((pullProgress - 0.18f) / 0.22f).coerceIn(0f, 1f) *
+                ((0.98f - pullProgress) / 0.12f).coerceIn(0f, 1f)
+
             c = effectNode.beginRecording()
             c.scale(1f / gooScaleFactor, 1f / gooScaleFactor, 0f, 0f)
             if (imageAlpha < 255) {
@@ -498,20 +520,23 @@ class ProfileGooeyView @JvmOverloads constructor(
                 c.restore()
             }
             val hBridge = ProfileGooeyMotionMath.liquidBridgeHeight(
-                pullProgress, dp(7) * gooScaleFactor
+                pullProgress, dp(14) * gooScaleFactor
             )
             if (childCount > 0) {
                 val child = getChildAt(0)
-                val cx = child.x + child.width * child.scaleX / 2f - left
-                val cy = child.y + child.height * child.scaleY / 2f + dp(BLACK_KING_BAR) - top
+                val cx = child.x + child.width / 2f - left
+                val cy = child.y + child.height / 2f + dp(BLACK_KING_BAR) - top
                 val r = child.width / 2f * child.scaleX
+                val reachUp = r + hBridge * 0.55f * engage
 
                 path.rewind()
-                path.moveTo(cx - r, cy - cos(Math.PI / 4).toFloat() * r)
-                path.lineTo(cx, cy - r - hBridge * 0.25f)
-                path.lineTo(cx + r, cy - cos(Math.PI / 4).toFloat() * r)
+                path.moveTo(cx - r * 0.7071f, cy - cos(Math.PI / 4).toFloat() * r)
+                path.lineTo(cx, cy - reachUp)
+                path.lineTo(cx + r * 0.7071f, cy - cos(Math.PI / 4).toFloat() * r)
                 path.close()
-                c.drawPath(path, blackPaint)
+                if (engage > 0.01f) {
+                    c.drawPath(path, blackPaint)
+                }
             }
             if (imageAlpha > 0) {
                 if (imageAlpha != 255) c.saveLayerAlpha(wholeOptimized, imageAlpha)
@@ -524,21 +549,27 @@ class ProfileGooeyView @JvmOverloads constructor(
             // notchless bar mask, with the matching liquid cusp.
             c = effectNotchNode.beginRecording()
             c.scale(1f / gooScaleFactor, 1f / gooScaleFactor, 0f, 0f)
-            val info = notchInfo
             if (info != null) {
                 c.translate(-left, -top)
                 c.translate(0f, dp(BLACK_KING_BAR))
                 if (info.isLikelyCircle) {
-                    val rad = min(info.bounds.width(), info.bounds.height()) / 2f
-                    val cy = info.bounds.bottom - info.bounds.width() / 2f
-                    c.drawCircle(info.bounds.centerX(), cy, rad, blackPaint)
+                    val rad = (min(info.bounds.width(), info.bounds.height()) / 2f) *
+                        ((pullProgress - 0.15f) / 0.25f).coerceIn(0f, 1f)
+                    val cy = notchCenterY(info)
+                    if (rad > 0.5f) {
+                        c.drawCircle(info.bounds.centerX(), cy, rad, blackPaint)
+                    }
+                    val bridgeDown = (rad + hBridge * 0.65f) * engage
+                    val neckHalfW = max(rad * 0.85f, dp(5)) * engage
 
                     path.rewind()
-                    path.moveTo(info.bounds.centerX() - hBridge / 2f, cy)
-                    path.lineTo(info.bounds.centerX(), cy + rad + hBridge)
-                    path.lineTo(info.bounds.centerX() + hBridge / 2f, cy)
+                    path.moveTo(info.bounds.centerX() - neckHalfW, cy)
+                    path.lineTo(info.bounds.centerX(), cy + bridgeDown)
+                    path.lineTo(info.bounds.centerX() + neckHalfW, cy)
                     path.close()
-                    c.drawPath(path, blackPaint)
+                    if (engage > 0.01f) {
+                        c.drawPath(path, blackPaint)
+                    }
                 } else if (info.isAccurate) {
                     c.drawPath(info.path, blackPaint)
                 } else {
@@ -569,7 +600,7 @@ class ProfileGooeyView @JvmOverloads constructor(
             canvas.save()
             canvas.translate(left, top - dp(BLACK_KING_BAR))
             if (info != null) {
-                canvas.clipRect(0f, info.bounds.top, rw.toFloat(), rh.toFloat())
+                canvas.clipRect(0f, info.bounds.top - top + dp(BLACK_KING_BAR), rw.toFloat(), rh.toFloat())
             }
             canvas.saveLayer(wholeOptimized, filter)
             canvas.scale(gooScaleFactor, gooScaleFactor)
@@ -577,7 +608,7 @@ class ProfileGooeyView @JvmOverloads constructor(
             canvas.drawRenderNode(effectNode)
             canvas.restore()
 
-            val blurImageAlpha = MathUtils.clamp(imageAlphaNoClamp * 3 / 4, 0, 255)
+            val blurImageAlpha = MathUtils.clamp(imageAlphaNoClamp, 0, 255)
             if (blurImageAlpha < 255) {
                 canvas.saveLayer(wholeOptimized, null)
                 if (blurIntensity != 0f) {
