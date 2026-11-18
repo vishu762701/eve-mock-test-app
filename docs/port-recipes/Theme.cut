@@ -131,7 +131,7 @@ remove-statement "if (!TextUtils.isEmpty(accents)) {"
 remove-statement "if (drawable instanceof StatusDrawable) {"
 
 # Patches for Eve environment
-patch-line "        SharedPreferences preferences = MessagesController.getGlobalMainSettings();" "        SharedPreferences preferences = ApplicationLoader.applicationContext != null ? ApplicationLoader.applicationContext.getSharedPreferences(\\"mainconfig\\", Context.MODE_PRIVATE) : null;" "use app shared preferences"
+patch-line "        SharedPreferences preferences = MessagesController.getGlobalMainSettings();" "        SharedPreferences preferences = ApplicationLoader.applicationContext != null ? ApplicationLoader.applicationContext.getSharedPreferences(\"mainconfig\", Context.MODE_PRIVATE) : null;" "use app shared preferences"
 patch-line "    private static boolean[] loadingRemoteThemes = new boolean[UserConfig.MAX_ACCOUNT_COUNT];" "    private static boolean[] loadingRemoteThemes = new boolean[4];" "use fixed account count"
 patch-line "        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {" "        for (int a = 0; a < 4; a++) {" "use fixed account count in static loop"
 patch-line "public static class ThemeInfo implements NotificationCenter.NotificationCenterDelegate {" "public static class ThemeInfo {" "decouple NotificationCenter from ThemeInfo"

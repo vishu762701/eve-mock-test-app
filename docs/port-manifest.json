@@ -116,7 +116,7 @@
           "eve": "app/src/main/java/org/telegram/ui/ActionBar/Theme.java",
           "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/Theme.java",
           "mode": "CUT",
-          "eve_sha256": "9138fffd434aa50a5795befe7032afc65f13a98261f9b946528306a860ded89c",
+          "eve_sha256": "ceb5d8b10c2a3aec2bb78eaa882d44ee562758103c9f4d6c6cd002967371356d",
           "upstream_sha256": "1fa79468035c4fa03ce591bfd43baa4bdc22f9d04bd6f7555a173ad685427627",
           "upstream_lines": 10400,
           "kept_lines": 5044,
@@ -124,8 +124,8 @@
           "removed_methods_reason": "cut remote theme loading, wallpaper background shaders, auto-night sensor and chat status drawables",
           "known_debt": false,
           "recipe_path": "docs/port-recipes/Theme.cut",
-          "recipe_sha256": "e33f7d0996be3e36016fbdd25e3f927a580ad8c613e0da6f3af172be6ab1a7fb",
-          "result_sha256": "9138fffd434aa50a5795befe7032afc65f13a98261f9b946528306a860ded89c"
+          "recipe_sha256": "07156cdfc0e09946a2e18fb71281c3a04548460cbd828a03d48103f4e2756501",
+          "result_sha256": "ceb5d8b10c2a3aec2bb78eaa882d44ee562758103c9f4d6c6cd002967371356d"
         },
         {
           "eve": "app/src/main/java/org/telegram/ui/ActionBar/ThemeColors.java",
@@ -281,7 +281,7 @@
           "eve": "app/src/main/java/org/telegram/messenger/LocaleController.java",
           "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/LocaleController.java",
           "mode": "CUT",
-          "eve_sha256": "d5594e006581366604b6ddb047b12456f7ac61746f836173c16cd1a7f0bbe1c6",
+          "eve_sha256": "fef842942f6dd1adf36f44fac060d3ddf11875c0393c64af98219b2f4859a929",
           "upstream_sha256": "c9c52628e5427ff80c61c27fa31117beb52b1c7b8ea670f93233b5adad4e015e",
           "upstream_lines": 4850,
           "kept_lines": 1828,
@@ -289,8 +289,8 @@
           "removed_methods_reason": "cut remote langpack sync, transliteration, chat date formatters and XML parser",
           "known_debt": false,
           "recipe_path": "docs/port-recipes/LocaleController.cut",
-          "recipe_sha256": "e71c5c5cae384a41a09d8ccadef00c54f99ca6ac595dcb8a50e014e9571fb011",
-          "result_sha256": "d5594e006581366604b6ddb047b12456f7ac61746f836173c16cd1a7f0bbe1c6"
+          "recipe_sha256": "78c67f5351223d3c661abc1de6879ae9ff015b08df6ef518ae1ed583e08a68f6",
+          "result_sha256": "fef842942f6dd1adf36f44fac060d3ddf11875c0393c64af98219b2f4859a929"
         },
         {
           "eve": "app/src/main/java/org/telegram/ui/Components/TypefaceSpan.java",

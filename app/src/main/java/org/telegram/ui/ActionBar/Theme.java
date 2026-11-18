@@ -3116,7 +3116,7 @@ public class Theme {
         sortThemes();
 
         ThemeInfo applyingTheme = null;
-        SharedPreferences preferences = ApplicationLoader.applicationContext != null ? ApplicationLoader.applicationContext.getSharedPreferences(\mainconfig\, Context.MODE_PRIVATE) : null; // EVE-PATCH: use app shared preferences
+        SharedPreferences preferences = ApplicationLoader.applicationContext != null ? ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Context.MODE_PRIVATE) : null; // EVE-PATCH: use app shared preferences
         try {
             final ThemeInfo themeDarkBlue = themesDict.get("Dark Blue");
 

@@ -375,7 +375,7 @@ public class LocaleController {
         boolean override = false;
 
         try {
-            SharedPreferences preferences = ApplicationLoader.applicationContext != null ? ApplicationLoader.applicationContext.getSharedPreferences(\mainconfig\, Context.MODE_PRIVATE) : null; // EVE-PATCH: use app shared preferences
+            SharedPreferences preferences = ApplicationLoader.applicationContext != null ? ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Context.MODE_PRIVATE) : null; // EVE-PATCH: use app shared preferences
             String lang = preferences.getString("language", null);
             if (lang != null) {
                 currentInfo = getLanguageFromDict(lang);
@@ -959,7 +959,7 @@ public class LocaleController {
         amount = Math.abs(amount);
         Currency currency = Currency.getInstance(type);
         switch (type) {
-            case \XTR\: // EVE-PATCH: replace StarsController constant
+            case "XTR": // EVE-PATCH: replace StarsController constant
                 customFormat = " %.0f";
                 doubleAmount = amount;
                 break;
@@ -2049,13 +2049,13 @@ public class LocaleController {
             }
         }
 
-        if (key != null && context != null) { int id = context.getResources().getIdentifier(key, \string\, context.getPackageName()); if (id != 0) return context.getString(id); } // EVE-PATCH: fallback identifier resolution
+        if (key != null && context != null) { int id = context.getResources().getIdentifier(key, "string", context.getPackageName()); if (id != 0) return context.getString(id); } // EVE-PATCH: fallback identifier resolution
         value = null; // EVE-PATCH: bypass localizationInternal
         if (value != null) {
             return value;
         }
 
-        return fallback != null && context != null ? context.getString(context.getResources().getIdentifier(fallback, \string\, context.getPackageName())) : null; // EVE-PATCH: fallback string resolution
+        return fallback != null && context != null ? context.getString(context.getResources().getIdentifier(fallback, "string", context.getPackageName())) : null; // EVE-PATCH: fallback string resolution
     }
 
 
