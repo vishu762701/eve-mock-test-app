@@ -402,6 +402,7 @@ jobs:
           name: port-smoke-screenshots
           path: |
             ui-renderings/port-*.png
+            ui-renderings/*.log
           if-no-files-found: ignore
 
   publish-apk:

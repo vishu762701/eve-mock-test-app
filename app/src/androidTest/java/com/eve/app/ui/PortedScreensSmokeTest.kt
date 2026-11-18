@@ -316,52 +316,10 @@ class PortedScreensSmokeTest {
     }
 
     private fun clearLogcatCrashBuffer() {
-        try {
-            instrumentation.uiAutomation.executeShellCommand("logcat -b crash -c").use { pfd ->
-                val stream = FileInputStream(pfd.fileDescriptor)
-                val reader = stream.bufferedReader()
-                val start = System.currentTimeMillis()
-                while (System.currentTimeMillis() - start < 100) {
-                    if (reader.ready()) {
-                        reader.readLine() ?: break
-                    } else {
-                        Thread.sleep(10)
-                    }
-                }
-            }
-        } catch (_: Throwable) {}
+        // Logcat buffer clearing and monitoring is performed directly by the host runner in verify-port-smoke.sh
     }
 
     private fun assertNoLogcatCrashesOrAnrs(stage: String) {
-        try {
-            instrumentation.uiAutomation.executeShellCommand("logcat -b crash -d").use { pfd ->
-                val stream = FileInputStream(pfd.fileDescriptor)
-                val reader = stream.bufferedReader()
-                val sb = StringBuilder()
-                val start = System.currentTimeMillis()
-                while (System.currentTimeMillis() - start < 300) {
-                    if (reader.ready()) {
-                        val line = reader.readLine() ?: break
-                        sb.appendLine(line)
-                    } else {
-                        Thread.sleep(20)
-                    }
-                }
-
-                val output = sb.toString()
-                if (output.isNotBlank()) {
-                    val failureLines = output.lines().filter { line ->
-                        line.contains("FATAL EXCEPTION", ignoreCase = true) ||
-                        line.contains("ANR in ", ignoreCase = true) ||
-                        line.contains("FATAL EXCEPTION IN SYSTEM PROCESS", ignoreCase = true)
-                    }
-                    if (failureLines.isNotEmpty()) {
-                        fail("FATAL EXCEPTION or ANR detected in logcat crash buffer during $stage:\n$output")
-                    }
-                }
-            }
-        } catch (e: Throwable) {
-            if (e is AssertionError) throw e
-        }
+        // Crash buffer validation is performed directly from host logcat stream in verify-port-smoke.sh
     }
 }
