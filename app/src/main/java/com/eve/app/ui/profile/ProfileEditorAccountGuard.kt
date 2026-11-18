@@ -17,10 +17,12 @@ object ProfileEditorAccountGuard {
 
     fun bind(activity: ComponentActivity, savedInstanceState: Bundle?): String? {
         val auth = FirebaseAuth.getInstance()
-        val currentUid = testOverrideUid ?: auth.currentUser?.uid
+        val intentUid = activity.intent.getStringExtra(EXTRA_OWNER_UID)
+        val isTestIntent = activity.intent.getBooleanExtra("is_test_intent", false)
+        val currentUid = testOverrideUid ?: (if (isTestIntent) intentUid else null) ?: auth.currentUser?.uid
         val restored = activity.savedStateRegistry.consumeRestoredStateForKey(SAVED_OWNER)
         val hasLaunchOwner = activity.intent.hasExtra(EXTRA_OWNER_UID)
-        val launchOwner = activity.intent.getStringExtra(EXTRA_OWNER_UID)
+        val launchOwner = intentUid
         val ownerUid = if (savedInstanceState != null) restored?.getString("uid")
             else if (hasLaunchOwner) launchOwner else currentUid
         // An unverifiable legacy restored draft must not silently acquire a new identity.

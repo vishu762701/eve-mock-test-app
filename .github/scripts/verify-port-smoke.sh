@@ -47,6 +47,9 @@ adb shell settings put secure user_setup_complete 1
 adb shell settings put global device_provisioned 1
 adb shell settings put secure gesture_setup_complete 1
 adb shell settings put secure system_navigation_keys_migrated 1
+adb shell settings put global window_animation_scale 0
+adb shell settings put global transition_animation_scale 0
+adb shell settings put global animator_duration_scale 0
 adb shell input keyevent KEYCODE_WAKEUP
 adb shell wm dismiss-keyguard
 
@@ -83,6 +86,10 @@ if ! adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTes
   echo "INFRA: Failed to install app-debug-androidTest.apk." >&2
   exit 1
 fi
+adb shell appops set com.eve.app MANAGE_EXTERNAL_STORAGE allow || true
+adb shell appops set com.eve.app.test MANAGE_EXTERNAL_STORAGE allow || true
+adb shell pm grant com.eve.app android.permission.READ_MEDIA_IMAGES || true
+adb shell pm grant com.eve.app.test android.permission.READ_MEDIA_IMAGES || true
 
 # 5. Push port manifest as additional asset location
 if [[ -f docs/port-manifest.json ]]; then
@@ -129,10 +136,18 @@ if ! grep -qE "OK \([0-9]+ test" "$instrumentation_log" && ! grep -q "INSTRUMENT
   exit 1
 fi
 
+# Check logcat crash buffer for FATAL EXCEPTION or ANR
+if grep -qE "FATAL EXCEPTION|ANR in " "$guest_crash_log"; then
+  echo "PORT SMOKE FAILURE: FATAL EXCEPTION or ANR detected in crash buffer:" >&2
+  grep -E -C 3 "FATAL EXCEPTION|ANR in " "$guest_crash_log" | head -n 40 >&2
+  exit 1
+fi
+
 # 10. Pull and verify screenshots
 echo "Pulling screenshots from emulator..."
 mkdir -p ui-renderings
 timeout 15s adb pull /sdcard/Pictures/eve-approved-ui/. ui-renderings/ 2>/dev/null || true
+timeout 15s adb pull /sdcard/Pictures/. ui-renderings/ 2>/dev/null || true
 timeout 15s adb pull /sdcard/ui-renderings/. ui-renderings/ 2>/dev/null || true
 
 # Verify that at least one port screenshot was saved

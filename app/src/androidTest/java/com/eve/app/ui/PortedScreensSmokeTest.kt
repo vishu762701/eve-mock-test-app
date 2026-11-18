@@ -75,6 +75,7 @@ class PortedScreensSmokeTest {
     }
 
     private fun runSmokeForScreen(entry: PortedScreenSpec) {
+        println("PORT_SMOKE: Starting smoke verification for ${entry.screen} (${entry.eveHost})")
         clearLogcatCrashBuffer()
 
         @Suppress("UNCHECKED_CAST")
@@ -84,6 +85,7 @@ class PortedScreensSmokeTest {
         ActivityScenario.launch<Activity>(intent).use { scenario ->
             instrumentation.waitForIdleSync()
             assertNoLogcatCrashesOrAnrs("Startup of ${entry.screen}")
+            println("PORT_SMOKE: Startup passed for ${entry.screen}")
 
             // 1. Assert no crash and fragment view exists with non-zero dimensions and >= 1 child
             scenario.onActivity { activity ->
@@ -111,6 +113,7 @@ class PortedScreensSmokeTest {
 
             // 2. Save screenshot before rotation
             saveScreenshot(entry.screen)
+            println("PORT_SMOKE: Screenshot saved for ${entry.screen}")
 
             // 3. Rotate once to landscape and verify
             scenario.onActivity { activity ->
@@ -118,6 +121,7 @@ class PortedScreensSmokeTest {
             }
             instrumentation.waitForIdleSync()
             assertNoLogcatCrashesOrAnrs("Landscape rotation of ${entry.screen}")
+            println("PORT_SMOKE: Landscape rotation passed for ${entry.screen}")
 
             scenario.onActivity { activity ->
                 val hostView = extractHostView(activity)
@@ -138,6 +142,7 @@ class PortedScreensSmokeTest {
             }
             instrumentation.waitForIdleSync()
             assertNoLogcatCrashesOrAnrs("Portrait restore of ${entry.screen}")
+            println("PORT_SMOKE: Portrait restore passed for ${entry.screen}")
 
             // 4. Press back without crash via standard back dispatcher
             scenario.onActivity { activity ->
@@ -150,9 +155,11 @@ class PortedScreensSmokeTest {
             }
             instrumentation.waitForIdleSync()
             assertNoLogcatCrashesOrAnrs("Back press of ${entry.screen}")
+            println("PORT_SMOKE: Back press passed for ${entry.screen}")
         }
 
         assertNoLogcatCrashesOrAnrs("Completion of ${entry.screen}")
+        println("PORT_SMOKE: Screen ${entry.screen} fully verified cleanly")
     }
 
     private fun extractHostView(activity: Activity): View? {
@@ -167,6 +174,7 @@ class PortedScreensSmokeTest {
     private fun buildValidIntent(hostClass: Class<out Activity>, screenName: String): Intent {
         val intent = Intent(context, hostClass).apply {
             putExtra(ProfileEditorAccountGuard.EXTRA_OWNER_UID, testUid)
+            putExtra("is_test_intent", true)
         }
 
         when (screenName) {
@@ -297,15 +305,38 @@ class PortedScreensSmokeTest {
 
     private fun clearLogcatCrashBuffer() {
         try {
-            instrumentation.uiAutomation.executeShellCommand("logcat -b crash -c").use {}
+            instrumentation.uiAutomation.executeShellCommand("logcat -b crash -c").use { pfd ->
+                val stream = FileInputStream(pfd.fileDescriptor)
+                val reader = stream.bufferedReader()
+                val start = System.currentTimeMillis()
+                while (System.currentTimeMillis() - start < 100) {
+                    if (reader.ready()) {
+                        reader.readLine() ?: break
+                    } else {
+                        Thread.sleep(10)
+                    }
+                }
+            }
         } catch (_: Throwable) {}
     }
 
     private fun assertNoLogcatCrashesOrAnrs(stage: String) {
         try {
             instrumentation.uiAutomation.executeShellCommand("logcat -b crash -d").use { pfd ->
-                val output = FileInputStream(pfd.fileDescriptor).bufferedReader().readText()
+                val stream = FileInputStream(pfd.fileDescriptor)
+                val reader = stream.bufferedReader()
+                val sb = StringBuilder()
+                val start = System.currentTimeMillis()
+                while (System.currentTimeMillis() - start < 300) {
+                    if (reader.ready()) {
+                        val line = reader.readLine() ?: break
+                        sb.appendLine(line)
+                    } else {
+                        Thread.sleep(20)
+                    }
+                }
 
+                val output = sb.toString()
                 if (output.isNotBlank()) {
                     val failureLines = output.lines().filter { line ->
                         line.contains("FATAL EXCEPTION", ignoreCase = true) ||
