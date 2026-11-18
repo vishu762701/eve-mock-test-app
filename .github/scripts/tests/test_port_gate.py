@@ -35,6 +35,13 @@ class PortGateContractTest(unittest.TestCase):
             if tmp_manifest.is_file():
                 tmp_manifest.unlink()
 
+    def test_should_run_smoke_detects_triggers(self):
+        # When checking with --diff-ref HEAD, no unstaged changes in working copy trigger unless staged/working
+        res = subprocess.run([sys.executable, str(PORT_GATE), "--should-run-smoke", "--diff-ref", "HEAD"], cwd=ROOT, capture_output=True, text=True)
+        # Should exit 1 with no relevant changes
+        self.assertEqual(res.returncode, 1)
+        self.assertIn("PORT SMOKE CHECK", res.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()

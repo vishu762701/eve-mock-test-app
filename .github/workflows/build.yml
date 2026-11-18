@@ -6,7 +6,6 @@ on:
     branches: [ main ]
     paths-ignore:
       - '**.md'
-      - 'docs/**'
       - '.github/scripts/**'
       - '.github/workflows/docs.yml'
       - '.github/workflows/android-dependency-evidence.yml'
@@ -16,7 +15,6 @@ on:
     branches: [ main ]
     paths-ignore:
       - '**.md'
-      - 'docs/**'
       - '.github/scripts/**'
       - '.github/workflows/docs.yml'
       - '.github/workflows/android-dependency-evidence.yml'
@@ -45,6 +43,7 @@ jobs:
       apk_sha256: ${{ steps.apk_digest.outputs.sha256 }}
       test_apk_sha256: ${{ steps.apk_digest.outputs.test_sha256 }}
       full: ${{ steps.verification_profile.outputs.full }}
+      port_smoke_needed: ${{ steps.port_smoke_check.outputs.port_smoke_needed }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -86,6 +85,20 @@ jobs:
           python3 tools/check_no_stubs.py
           python3 tools/check_no_shortcuts.py
           python3 tools/port_gate.py --check
+
+      - name: Check if port smoke is needed
+        id: port_smoke_check
+        run: |
+          needed=false
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            needed=true
+          else
+            if python3 tools/port_gate.py --should-run-smoke; then
+              needed=true
+            fi
+          fi
+          echo "port_smoke_needed=$needed" >> "$GITHUB_OUTPUT"
+          echo "Port smoke needed: $needed"
 
       # Documentation, governance and security suites are manual FULL only.
       - name: Verify docs and governance contracts (manual FULL only)
@@ -139,6 +152,9 @@ jobs:
           if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
             # Manual FULL keeps the complete four-ABI artifact for both emulators and release evidence.
             gradle :app:assembleDebug --stacktrace --console=plain 2>&1 | tee ci-fast-gradle.log
+          elif [[ "${{ steps.port_smoke_check.outputs.port_smoke_needed }}" == "true" ]]; then
+            # Port smoke runs on x86_64 emulator; assemble all ABIs and androidTest APK
+            gradle :app:assembleDebug :app:assembleDebugAndroidTest :app:lintDebug --stacktrace --console=plain 2>&1 | tee ci-fast-gradle.log
           else
             # The owner's normal development build targets ARM64 phones only.
             gradle :app:assembleDebug -Peve.nativeAbis=arm64-v8a :app:compileDebugAndroidTestKotlin :app:lintDebug --stacktrace --console=plain 2>&1 | tee ci-fast-gradle.log
@@ -174,7 +190,7 @@ jobs:
           fi
 
       - name: Fingerprint built APK
-        if: ${{ steps.verification_profile.outputs.full == 'true' }}
+        if: ${{ steps.verification_profile.outputs.full == 'true' || steps.port_smoke_check.outputs.port_smoke_needed == 'true' }}
         id: apk_digest
         run: |
           set -euo pipefail
@@ -185,7 +201,7 @@ jobs:
 
       # Internal immutable handoff, stable across rerun-failed-jobs attempts.
       - name: Save candidate APK for gated publication
-        if: ${{ steps.verification_profile.outputs.full == 'true' }}
+        if: ${{ steps.verification_profile.outputs.full == 'true' || steps.port_smoke_check.outputs.port_smoke_needed == 'true' }}
         uses: actions/cache/save@v4
         with:
           path: |
@@ -332,6 +348,61 @@ jobs:
         run: |
           npm install --no-package-lock
           npm test
+
+  port-smoke:
+    name: Port Smoke (API 35 x86_64 gesture)
+    needs: [build]
+    if: ${{ (needs.build.outputs.port_smoke_needed == 'true' || needs.build.outputs.full == 'true') && success() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+      - name: Restore prebuilt app and instrumentation APKs
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            app/build/outputs/apk/debug/app-debug.apk
+            app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+          key: eve-apk-${{ github.run_id }}-${{ github.sha }}
+          fail-on-cache-miss: true
+      - name: Verify original APK checksums
+        env:
+          APP_SHA256: ${{ needs.build.outputs.apk_sha256 }}
+          TEST_SHA256: ${{ needs.build.outputs.test_apk_sha256 }}
+        run: |
+          set -euo pipefail
+          test -n "$APP_SHA256"
+          test -n "$TEST_SHA256"
+          echo "$APP_SHA256  app/build/outputs/apk/debug/app-debug.apk" | sha256sum --check --status
+          echo "$TEST_SHA256  app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk" | sha256sum --check --status
+      - name: Enable KVM for port smoke verification
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Run Ported Screens Smoke Test on Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          target: google_apis
+          profile: pixel_2
+          emulator-build: 16428233
+          emulator-options: -no-window -gpu swangle -no-snapshot -noaudio -no-boot-anim -feature -Vulkan
+          ram-size: 3072M
+          heap-size: 512M
+          disable-animations: false
+          script: bash .github/scripts/verify-port-smoke.sh
+      - name: Upload port smoke screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: port-smoke-screenshots
+          path: |
+            ui-renderings/port-*.png
+          if-no-files-found: ignore
 
   publish-apk:
     name: Publish verified debug APK

@@ -109,6 +109,12 @@ android {
             it.maxHeapSize = "2048m"
         }
     }
+
+    sourceSets {
+        getByName("androidTest") {
+            assets.srcDirs("src/androidTest/assets", "../docs")
+        }
+    }
 }
 
 dependencies {

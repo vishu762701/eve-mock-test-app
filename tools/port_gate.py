@@ -449,6 +449,95 @@ def check_manifest(manifest_path: Path) -> int:
     return 0
 
 
+def get_git_changed_files(diff_ref: str = None) -> list[str]:
+    import subprocess
+    cmd_candidates = []
+    if diff_ref:
+        cmd_candidates.append(["git", "diff", "--name-only", diff_ref])
+
+    before = os.environ.get("GITHUB_EVENT_BEFORE")
+    sha = os.environ.get("GITHUB_SHA")
+    if before and sha and before != "0000000000000000000000000000000000000000":
+        cmd_candidates.append(["git", "diff", "--name-only", f"{before}..{sha}"])
+
+    cmd_candidates.append(["git", "diff", "--name-only", "HEAD~1..HEAD"])
+    cmd_candidates.append(["git", "diff", "--name-only", "HEAD~1"])
+    cmd_candidates.append(["git", "diff", "--name-only", "HEAD"])
+    cmd_candidates.append(["git", "status", "--porcelain"])
+
+    for cmd in cmd_candidates:
+        try:
+            res = subprocess.run(
+                cmd,
+                cwd=REPO_ROOT,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                check=True
+            )
+            files = []
+            for line in res.stdout.splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                if len(line) > 3 and line[2] == " ":
+                    files.append(line[3:].strip())
+                else:
+                    files.append(line)
+            if files:
+                return files
+        except Exception:
+            continue
+    return []
+
+
+def load_manifest(manifest_path: Path) -> dict:
+    if not manifest_path.is_file():
+        return {}
+    try:
+        return json.loads(manifest_path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def check_should_run_smoke(manifest_path: Path, diff_ref: str = None) -> int:
+    manifest = load_manifest(manifest_path)
+    host_activity_files = set()
+    for s in manifest.get("screens", []):
+        eve_host = s.get("eve_host", "")
+        if eve_host:
+            rel = "app/src/main/java/" + eve_host.replace(".", "/")
+            host_activity_files.add(rel + ".kt")
+            host_activity_files.add(rel + ".java")
+            cls_name = eve_host.split(".")[-1]
+            host_activity_files.add(f"{cls_name}.kt")
+            host_activity_files.add(f"{cls_name}.java")
+
+    changed_files = get_git_changed_files(diff_ref)
+    if not changed_files:
+        print("PORT SMOKE CHECK: No changed files detected or git diff unavailable; defaulting to RUN.")
+        return 0
+
+    triggered = []
+    for f in changed_files:
+        norm = f.replace("\\", "/")
+        if norm.startswith("app/src/main/java/org/telegram/"):
+            triggered.append(f)
+        elif norm == "docs/port-manifest.json":
+            triggered.append(f)
+        elif any(norm.endswith(act) or norm == act for act in host_activity_files):
+            triggered.append(f)
+
+    if triggered:
+        print(f"PORT SMOKE CHECK: Triggered by {len(triggered)} relevant file(s):")
+        for t in triggered:
+            print(f"  - {t}")
+        return 0
+    else:
+        print("PORT SMOKE CHECK: No org/telegram, manifest, or host Activity changes.")
+        return 1
+
+
 def main():
     parser = argparse.ArgumentParser(description="EVE Port Gate tool")
     parser.add_argument("--record", action="store_true", help="Record manifest against upstream source")
@@ -456,6 +545,8 @@ def main():
     parser.add_argument("--manifest", type=str, default=str(DEFAULT_MANIFEST), help="Path to port-manifest.json")
     parser.add_argument("--check", action="store_true", help="Verify repository against manifest")
     parser.add_argument("--allow-known-debt", action="store_true", help="Allow known pilot debt during record")
+    parser.add_argument("--should-run-smoke", action="store_true", help="Check whether port-smoke test is triggered by git diff")
+    parser.add_argument("--diff-ref", type=str, default=None, help="Base ref for git diff check")
 
     args = parser.parse_args()
     manifest_path = Path(args.manifest)
@@ -472,6 +563,9 @@ def main():
 
     elif args.check:
         return check_manifest(manifest_path)
+
+    elif args.should_run_smoke:
+        return check_should_run_smoke(manifest_path, args.diff_ref)
 
     else:
         parser.print_help()

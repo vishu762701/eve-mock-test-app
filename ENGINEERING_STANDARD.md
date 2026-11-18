@@ -19,7 +19,7 @@ Never replace Telegram UI with Material or lookalikes. Kotlin Telegram* approxim
 The owner has absolute authority to add, delete, or change any file, screen, layout, Telegram component, or feature at any time (No UI/UX choice is permanently locked against the owner). Never block requested changes with tests: update or delete conflicting tests in the exact same commit.
 
 ### LAW 5 — MANDATORY CI BUILD RECOVERY LOOP
-A task is never complete if any build fails. Never abandon a failing build or push docs-only commits to bypass CI. On failure, fetch logs (`gh run view <run_id> --log-failed`), fix forward, push to `main`, and poll (`gh run watch <run_id> --exit-status`) until 100% green on the exact SHA.
+A task is never complete if any build fails. Never abandon a failing build or push docs-only commits to bypass CI. On failure, fetch logs (`gh run view <run_id> --log-failed`), fix forward, push to `main`, and poll (`gh run watch <run_id> --exit-status`) until 100% green on the exact SHA. A port job is done only when FAST + port_gate --check + port-smoke are green on the exact SHA.
 
 ### LAW 6 — ONE SCREEN OR ONE FEATURE AT A TIME
 Development is strictly scoped to 1 screen or 1 feature at a time. Work only on the requested target without silently broadening scope. Complete that single screen/feature end-to-end and verify green build before moving to the next.
