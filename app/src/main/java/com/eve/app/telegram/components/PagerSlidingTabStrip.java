@@ -23,6 +23,8 @@ import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+
+import org.telegram.ui.Components.CubicBezierInterpolator;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;

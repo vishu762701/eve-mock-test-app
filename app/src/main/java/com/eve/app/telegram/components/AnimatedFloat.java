@@ -1,11 +1,12 @@
 package com.eve.app.telegram.components;
 
-
 import android.animation.TimeInterpolator;
 import android.os.SystemClock;
 import android.view.View;
 
 import androidx.core.math.MathUtils;
+
+import org.telegram.ui.Components.CubicBezierInterpolator;
 
 import com.eve.app.telegram.components.QrUiUnits;
 
