@@ -13,7 +13,7 @@ package com.eve.app.ui.profile.popup;
 
 import static com.eve.app.ui.profile.popup.PopupPlatform.dp;
 
-import org.telegram.ui.Components.LayoutHelper;
+import com.eve.app.telegram.components.LayoutHelper;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;

@@ -1910,51 +1910,6 @@
       "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/greydivider.9.png",
       "eve": "app/src/main/res/drawable-xxhdpi/telegram_menu_greydivider.9.png",
       "sha256": "bcb4e022907ef3a3a23235a26a1ea230db37ce438966961282868de88a3300e2"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/LayoutHelper.java",
-      "eve": "app/src/main/java/org/telegram/ui/Components/LayoutHelper.java",
-      "sha256": "eb94f013d5cb4376133190b837d89b1f9224c48a5f21e269396d189f0c534ec3"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/BackDrawable.java",
-      "eve": "app/src/main/java/org/telegram/ui/ActionBar/BackDrawable.java",
-      "sha256": "c8aae99ed4b7e34296dc1e75db32d1e15ef6db6d34ec323444ee7ca930277d88"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/DividerCell.java",
-      "eve": "app/src/main/java/org/telegram/ui/Cells/DividerCell.java",
-      "sha256": "fedb655b84627bc4839d0f98547fa000bdf7d5d26e13760f045484b824ea8548"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/ShadowSectionCell.java",
-      "eve": "app/src/main/java/org/telegram/ui/Cells/ShadowSectionCell.java",
-      "sha256": "f2ca179b4c99d56d3dcca8565c8003555ddc65c70c9e0a7266d673b1d9a948f7"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-hdpi/greydivider_top.9.png",
-      "eve": "app/src/main/res/drawable-hdpi/greydivider_top.9.png",
-      "sha256": "3e16c8f93ca5ae30b058fa64ebe29a9a0fc5b7536e2ff0755e5bac33786e2ea3"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-mdpi/greydivider_top.9.png",
-      "eve": "app/src/main/res/drawable-mdpi/greydivider_top.9.png",
-      "sha256": "7d2315ddf97e41fe5037c89572e80b2846fc904a75811a0e70d6d861b6b6efde"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/greydivider_top.9.png",
-      "eve": "app/src/main/res/drawable-xhdpi/greydivider_top.9.png",
-      "sha256": "c7960e4c0cfb40124ed109e00699e602967d7bd42106c1da87be01b8173bacda"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/greydivider_top.9.png",
-      "eve": "app/src/main/res/drawable-xxhdpi/greydivider_top.9.png",
-      "sha256": "5953542957cf7c2a0e473130fd9c05d5351fd9e32102cbb045d5100137f8f2bf"
-    },
-    {
-      "upstream": "TMessagesProj/src/main/res/drawable/transparent.xml",
-      "eve": "app/src/main/res/drawable/transparent.xml",
-      "sha256": "ad97b41503014aaed50e58fbc3eaa6fac8c501b0304bd7ddc24c477fa45a6d20"
     }
   ]
 }

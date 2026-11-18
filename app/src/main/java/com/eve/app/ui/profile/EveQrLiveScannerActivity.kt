@@ -37,7 +37,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.eve.app.R
 import com.eve.app.telegram.qr.QrScannerControl
 import com.eve.app.telegram.qr.QrScannerLayout
-import org.telegram.ui.ActionBar.BackDrawable
+import com.eve.app.designsystem.BackDrawable
 import com.eve.app.telegram.qr.QrScanFound
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AppBulletin

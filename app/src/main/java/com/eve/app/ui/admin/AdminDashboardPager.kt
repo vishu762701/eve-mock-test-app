@@ -13,7 +13,7 @@ import com.eve.app.R
 import com.eve.app.telegram.components.PagerSlidingTabStrip
 import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.ui.admin.tg.HeaderCell
-import org.telegram.ui.Cells.ShadowSectionCell
+import com.eve.app.ui.admin.tg.ShadowSectionCell
 
 /** EVE's five existing admin sections, hosted by the upstream Telegram pager tab renderer. */
 internal class AdminDashboardPager(
