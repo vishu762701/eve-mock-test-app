@@ -1,6 +1,7 @@
 // EVE-SHIM: minimal EditTextBoldCursor foundation with real cursor & underline physics
 package org.telegram.ui.Components;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -8,11 +9,12 @@ import android.graphics.Rect;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.view.Gravity;
-import android.widget.EditText;
+import androidx.appcompat.widget.AppCompatEditText;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.ui.ActionBar.Theme;
 
-public class EditTextBoldCursor extends EditText {
+@SuppressLint("AppCompatCustomView")
+public class EditTextBoldCursor extends AppCompatEditText {
     private float cursorWidth = 1.5f;
     private int cursorSize = 20;
     private int cursorColor = 0xff000000;
