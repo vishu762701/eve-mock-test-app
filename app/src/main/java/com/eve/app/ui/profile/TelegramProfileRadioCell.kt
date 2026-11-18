@@ -1,6 +1,6 @@
 /*
  * Telegram-derived profile single-choice row.
- * Upstream DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15/RadioCell.java:55-85,96-108,132-137.
+ * Upstream DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335/RadioCell.java:55-85,96-108,132-137.
  * Indicator reuses EVE's GPL-noticed port of Telegram RadioButton.java.
  * ADAPTED: independent EVE view hierarchy, theme role, input/checked API and density handling.
  * GPL v2 or later. See THIRD_PARTY_NOTICES.md and docs/EVE_PROFILE_CATEGORY_PROVENANCE.md.

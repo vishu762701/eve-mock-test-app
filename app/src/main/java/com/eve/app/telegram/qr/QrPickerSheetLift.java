@@ -6,7 +6,7 @@ import androidx.core.graphics.ColorUtils;
 
 /**
  * ADAPTED original Java QR picker glass sheet lift from official
- * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15,
+ * DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335,
  * QrShareView.java:4730-4767,4793-4828.
  * No Telegram account/network state. Copyright Telegram contributors;
  * unresolved GPL distribution obligations in THIRD_PARTY_NOTICES.md.

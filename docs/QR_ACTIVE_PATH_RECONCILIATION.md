@@ -4,7 +4,7 @@ Live base: e0963d7dcdfec04bcbe90f56dea26246b549e93b, refetched main with no
 concurrent commit. Exact-SHA FAST 41403654857 SUCCESS, docs 41403654877 SUCCESS,
 verbatim imports 41403654789 SUCCESS. Native navigation/publication skipped;
 artifact count zero. Official Telegram pin remains
-3de37c8cfb039452be7398909461da6288babf15. Whole QR acceptance stays OPEN.
+21f7d109da6ab3506c9e9577f98c6a38771ab335. Whole QR acceptance stays OPEN.
 
 Latest owner steering: preserve green QR, fix only proven critical functional
 defects, record other gaps, continue Profile/Admin/Home/Exam/shared implementation.

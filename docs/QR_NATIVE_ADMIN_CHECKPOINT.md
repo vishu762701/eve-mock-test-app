@@ -10,7 +10,7 @@ R2: “admin dashboard ... telegram jaisi ... with all tabs”, preserving exist
 Owner subsequently approved dependencies and routine implementation (“Boss sab approve h bas exact telegram krva de”). Production deployment remains separately gated. Existing EVE identity, permissions and backend authorization remain authoritative. Telegram account/protocol infrastructure is excluded by the engineering standard. EVE has no Telegram-owned gifts/account data: this is a required explicit service-adapter difference, never a license to fabricate inventory.
 
 Base EVE main: `5d8cbae75a9ac72bcf5e819bf478726a2611e72a`.
-Official Telegram checkout: `3de37c8cfb039452be7398909461da6288babf15`.
+Official Telegram checkout: `21f7d109da6ab3506c9e9577f98c6a38771ab335`.
 Official Telegram-selected tlottie gitlink: `31f1b542f88e7b4be9a01e749920d857535fc715`.
 
 ## Requirement ledger

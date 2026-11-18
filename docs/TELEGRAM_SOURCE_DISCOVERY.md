@@ -24,7 +24,7 @@ claim of screen-level parity.
 The archive has no `.git` directory. To verify revision identity directly, a
 partial Git checkout was fetched into `/tmp/eve-telegram-git` with
 `git fetch --depth 1 --filter=blob:none origin
-3de37c8cfb039452be7398909461da6288babf15` and `HEAD` was set to that commit.
+21f7d109da6ab3506c9e9577f98c6a38771ab335` and `HEAD` was set to that commit.
 No working tree was checked out and no EVE repository or archive file was
 modified. Sixteen representative source/resource files were hashed locally and
 compared with `git show HEAD:<path>`; all matched, including `gradle.properties`,
@@ -43,7 +43,7 @@ also passes `verify_telegram_imports.py --upstream /tmp/eve-telegram-git`.
 | Version name | `13.1.1` (`gradle.properties:APP_VERSION_NAME`) |
 | Version code | `7237` (`gradle.properties:APP_VERSION_CODE`) |
 | Upstream repository | `https://github.com/DrKLO/Telegram` |
-| Revision | `3de37c8cfb039452be7398909461da6288babf15` |
+| Revision | `21f7d109da6ab3506c9e9577f98c6a38771ab335` |
 | License | GNU GPL v2 or later. Root `LICENSE` is GPLv2; Java file headers state "GNU GPL v. 2 or later" and retain Telegram contributor copyright. |
 
 The revision was independently checked against GitHub's immutable commit objects in
@@ -71,7 +71,7 @@ The 10 Git blob SHA-1 values computed via `sha1("blob " + length + "\0" + bytes)
 | `TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBar.java` | `8d3b92d6a680224b9cc7b80f620b656f1184ee3a` | `8d3b92d6a680224b9cc7b80f620b656f1184ee3a` | PASS |
 | `TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarMenu.java` | `49c4c96c20a07e773f332aa158ada3c0807372fc` | `49c4c96c20a07e773f332aa158ada3c0807372fc` | PASS |
 
-All 10 Git blobs match the official Git tree at commit `3de37c8cfb039452be7398909461da6288babf15`.
+All 10 Git blobs match the official Git tree at commit `21f7d109da6ab3506c9e9577f98c6a38771ab335`.
 
 ## GitHub Governance Verification
 

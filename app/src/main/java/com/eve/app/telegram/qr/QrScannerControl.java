@@ -14,7 +14,7 @@ import android.widget.Button;
 import com.eve.app.designsystem.DesignMotion;
 
 /** ADAPTED original Java QrScanOverlay.java:689-701,770-802,867-920 at
- * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15.
+ * DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335.
  * Telegram contributors; root GPLv2 and release review apply.
  * EVE native View owns accessibility, keyboard clicks and a >=48dp hit target;
  * source visual shape, press convergence, torch fill and icons remain Java. */

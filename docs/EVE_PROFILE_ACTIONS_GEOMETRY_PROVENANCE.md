@@ -2,7 +2,7 @@
 
 Status: **PARTIAL; STATIC PROPERTY PORT, NOT A COMPLETE TELEGRAM RENDERER.**
 
-Official reference: `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`; content of uploaded `Telegrammaster(5).zip`, SHA-256 `4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10` (local archive actually hashed). The archive does **not** contain `EVE_MANIFEST.sha256`; independent upstream file-tree verification and GPL license obligations are documented in `THIRD_PARTY_NOTICES.md`.
+Official reference: `DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335`; content of uploaded `Telegrammaster(5).zip`, SHA-256 `4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10` (local archive actually hashed). The archive does **not** contain `EVE_MANIFEST.sha256`; independent upstream file-tree verification and GPL license obligations are documented in `THIRD_PARTY_NOTICES.md`.
 
 Original source: `TMessagesProj/src/main/java/org/telegram/ui/Components/ProfileActionsView.java` at this immutable revision.
 
@@ -27,7 +27,7 @@ No backend, production deployment, credentials, auth, photo storage, navigation 
  
 ## Self-profile Canvas renderer replacement (2026-11-01)
 
-Official `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`,
+Official `DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335`,
 `Components/ProfileActionsView.java:116-141,176-224,247-337,383-464,510-587,
 1027-1034,1214-1234`. EVE `ProfileActionsCanvasLayout.kt` paints the
 MODE_MY_PROFILE surfaces, icons and labels in one Canvas drawing path.
@@ -45,7 +45,7 @@ Classification: **ADAPTED**, not full 100%-exact upstream View. EVE uses
 Integrated with Telegram's radial gradient highlight, light-mode shadow,
 API 29+ `RenderNode` avatar blur shader (`drawingBlur`), dynamic action loading
 lifecycle (`startLoading`/`stopLoading`), and authentic Telegram `LoadingDrawable`
-(`LoadingDrawable.java:28-405@3de37c8cfb039452be7398909461da6288babf15`). Canvas rendering
+(`LoadingDrawable.java:28-405@21f7d109da6ab3506c9e9577f98c6a38771ab335`). Canvas rendering
 stages strictly mirror upstream (`ProfileActionsView.java:298-338`): Stage 1 button backgrounds &
 radial highlights, Stage 2 RenderNode avatar blur shader (with `getLocationInWindow` coordinate alignment),
 and Stage 3 text labels, action icons and `LoadingDrawable` shimmer overlay on top (`ProfileActionsView.java:475-515`).

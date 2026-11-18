@@ -9,7 +9,7 @@ import java.util.Random;
 
 /**
  * ADAPTED original Java emoji-only QR background light sweep and 12dp raster.
- * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15
+ * DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335
  * QrShareView.java:2488-2559,2561-2562,2805-2838,3111-3160.
  * No gifts, account, sensors, premium services or Telegram network dependencies.
  * Copyright Telegram contributors; unresolved GPL release obligations remain.

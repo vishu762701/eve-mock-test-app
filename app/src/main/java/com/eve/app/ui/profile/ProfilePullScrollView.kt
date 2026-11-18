@@ -1,6 +1,6 @@
 /*
  * EVE input adapter derived from Telegram ProfileActivity.java:4190-4237,
- * 4320-4340,8465-8625, DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15.
+ * 4320-4340,8465-8625, DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335.
  * Copyright Nikolai Kudashov / Telegram contributors. GPL v2 or later.
  */
 package com.eve.app.ui.profile

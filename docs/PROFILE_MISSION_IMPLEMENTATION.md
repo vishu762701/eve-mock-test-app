@@ -4,7 +4,7 @@
 
 Official origin: https://telegram.org/apps/android links the Android repository
 https://github.com/DrKLO/Telegram. Live Git HEAD at source-work start and GitHub's
-immutable commit API agreed on **3de37c8cfb039452be7398909461da6288babf15**.
+immutable commit API agreed on **21f7d109da6ab3506c9e9577f98c6a38771ab335**.
 `docs/sources/profile-mission/source-map.json` records the root tree, fetched source
 hashes, Git blob matches and seven exact asset pairs. This is HTTPS-origin/tree
 verification, not a claim of a signed commit or complete application equivalence.

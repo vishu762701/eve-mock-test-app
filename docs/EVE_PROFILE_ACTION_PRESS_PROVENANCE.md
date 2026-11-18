@@ -2,7 +2,7 @@
 
 Status: **SOURCE-EXACT press/release constants and curves, ADAPTED Android View touch routing. Not complete original ProfileActionsView rendering.**
 
-Genuine source: verified `Telegrammaster(5).zip` SHA-256 `4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10`, independently authenticated against `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15` as recorded in `THIRD_PARTY_NOTICES.md`; `EVE_MANIFEST.sha256` **ABSENT**. Source file Git blobs:
+Genuine source: verified `Telegrammaster(5).zip` SHA-256 `4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10`, independently authenticated against `DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335` as recorded in `THIRD_PARTY_NOTICES.md`; `EVE_MANIFEST.sha256` **ABSENT**. Source file Git blobs:
 - `TMessagesProj/src/main/java/org/telegram/ui/Components/ButtonBounce.java`: `0bfa7b714e9bcbf6f4a1ac9955f98adb416f37f6`
 - `Components/ProfileActionsView.java`: `ce74c418eb851e1c4234e1a5abedb6e98f85321a`
 - `Components/CubicBezierInterpolator.java`: `3a9cae100e17a03abacf2f4df71db2b82757b968`

@@ -1,6 +1,6 @@
 /*
  * Self-profile action Canvas renderer, isolated from Telegram account/network modules.
- * Source: DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15
+ * Source: DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335
  * TMessagesProj/src/main/java/org/telegram/ui/Components/ProfileActionsView.java:
  * 116-141, 155-162, 176-224, 247-337, 341-373, 375-384, 383-464, 465-475, 510-587, 1027-1034, 1214-1234.
  * Copyright Nikolai Kudashov / Telegram contributors; GPL v2 or later.

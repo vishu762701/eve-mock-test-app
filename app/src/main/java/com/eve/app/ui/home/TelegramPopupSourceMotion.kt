@@ -14,7 +14,7 @@ import java.util.WeakHashMap
 /**
  * EVE-isolated original Telegram popup row timing / cascade. NOT the complete renderer.
  *
- * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15
+ * DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335
  * ActionBarPopupWindow.java:843-913,1024-1069 (GPL-2-or-later header).
  * AndroidUtilities.java:5225-5230 (GPL-2-or-later header).
  *

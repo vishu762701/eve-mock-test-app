@@ -1,6 +1,6 @@
 # Canonical Telegram CubicBezierInterpolator bridge
 
-- Original source: `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`
+- Original source: `DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335`
 - Upstream file: `TMessagesProj/src/main/java/org/telegram/ui/Components/CubicBezierInterpolator.java`
 - EVE canonical file: `app/src/main/java/org/telegram/ui/Components/CubicBezierInterpolator.java`
 - Verified Git blob SHA-1 (upstream and EVE): `3a9cae100e17a03abacf2f4df71db2b82757b968`

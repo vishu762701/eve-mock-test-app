@@ -1,6 +1,6 @@
 /*
- * Telegram: TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBar.java:150-305,1400-1550,1914-1920 @ 3de37c8cfb039452be7398909461da6288babf15
- * Telegram: TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarMenuItem.java:1316-1390 @ 3de37c8cfb039452be7398909461da6288babf15
+ * Telegram: TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBar.java:150-305,1400-1550,1914-1920 @ 21f7d109da6ab3506c9e9577f98c6a38771ab335
+ * Telegram: TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarMenuItem.java:1316-1390 @ 21f7d109da6ab3506c9e9577f98c6a38771ab335
  * Copyright Nikolai Kudashov, 2013-2018. GNU GPL v2 or later. See THIRD_PARTY_NOTICES.md.
  */
 

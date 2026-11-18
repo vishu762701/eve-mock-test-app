@@ -2,7 +2,7 @@
 
 **Status: SOURCE-ALIGNED semantics; ADAPTED native-View representation, NOT a verbatim Telegram AccessibilityNodeProvider.**
 
-Original source identity: locally validated `Telegrammaster(5).zip` SHA-256 `4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10`, matching official `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`. Original `TMessagesProj/src/main/java/org/telegram/ui/Components/ProfileActionsView.java:1247-1356`, Git blob `ce74c418eb851e1c4234e1a5abedb6e98f85321a`. `EVE_MANIFEST.sha256` ABSENT. GPL obligations recorded in `THIRD_PARTY_NOTICES.md`.
+Original source identity: locally validated `Telegrammaster(5).zip` SHA-256 `4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10`, matching official `DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335`. Original `TMessagesProj/src/main/java/org/telegram/ui/Components/ProfileActionsView.java:1247-1356`, Git blob `ce74c418eb851e1c4234e1a5abedb6e98f85321a`. `EVE_MANIFEST.sha256` ABSENT. GPL obligations recorded in `THIRD_PARTY_NOTICES.md`.
 
 | Accessibility property | Telegram source | EVE implementation | Classification |
 |---|---|---|---|

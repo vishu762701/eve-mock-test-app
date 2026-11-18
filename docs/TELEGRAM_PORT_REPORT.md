@@ -9,7 +9,7 @@ Every feature across **F1 to F15** has been ported directly from the official Te
 
 ## Pinned Source of Truth
 - **Upstream Repository:** Official Telegram Android (`DrKLO/Telegram`)
-- **Pinned Commit SHA:** `3de37c8cfb039452be7398909461da6288babf15`
+- **Pinned Commit SHA:** `21f7d109da6ab3506c9e9577f98c6a38771ab335`
 - **Extracted Source Root:** `~/tg-src/Telegram-master/`
 - **Target Branch:** `main`
 

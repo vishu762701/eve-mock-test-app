@@ -2,7 +2,7 @@ package com.eve.app.telegram.qr;
 
 /**
  * ADAPTED EVE host of official Telegram QR island-to-sheet geometric motion.
- * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15
+ * DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335
  * QrShareView.java:5317-5433 (stepSheet/drawSheet), 1904-1918 (reveal).
  * Upstream 420ms SHEET_EASE cubic-bezier(0.16,1,0.3,1), island
  * 144x40dp -> floating sheet 10dp inset, 28.17dp target radius.

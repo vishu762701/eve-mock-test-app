@@ -24,7 +24,7 @@ import kotlin.math.min
  * EVE's local-only username QR renderer. Static card geometry and rounded QR
  * cells trace to Telegram QrShareView.java:1879-1881,2046-2061,3808-3819,
  * 3858-3869,4060-4099 and TelegramQRCodeWriter.java:100-166,184-233 at
- * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15.
+ * DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335.
  * ADAPTED: EVE link/center mark and Android Canvas, no Telegram account,
  * server backdrops, premium, marketplace or original QrShareView animation.
  */

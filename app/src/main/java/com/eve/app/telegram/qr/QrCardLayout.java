@@ -4,7 +4,7 @@ import android.graphics.RectF;
 
 /**
  * ADAPTED original Java username-card geometry from QrShareView.java:1879-1881,
- * 2046-2061,3808-3819 at DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15.
+ * 2046-2061,3808-3819 at DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335.
  * Copyright Telegram contributors; root GPLv2 and EVE release gate apply.
  * EVE has no paid/temporary link chip. Measured native controls bound the compact
  * window fallback; the entire source card scales together instead of adding offsets.

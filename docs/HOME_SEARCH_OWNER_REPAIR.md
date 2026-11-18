@@ -34,7 +34,7 @@ No real Firebase app/token, user data, push registration, Worker request or writ
 
 | Upstream path:lines@SHA | EVE path:lines | Classification / reason |
 |---|---|---|
-| Existing ActionBarMenuItem.java:935-1041@3de37c8cfb039452be7398909461da6288babf15 | app/src/main/java/com/eve/app/ui/home/MainActivity.kt search renderer | ADAPTED existing icon/search fade; unchanged by this repair |
+| Existing ActionBarMenuItem.java:935-1041@21f7d109da6ab3506c9e9577f98c6a38771ab335 | app/src/main/java/com/eve/app/ui/home/MainActivity.kt search renderer | ADAPTED existing icon/search fade; unchanged by this repair |
 | EVE Firebase/SavedState contract; no Telegram authentication imported | MainActivity.kt:124,291,622,643,1733 | EVE-authored UID metadata/restore checks; no EXACT claim or new state owner |
 
 One immutable origin UID tags manual state; saving after identity replacement cannot

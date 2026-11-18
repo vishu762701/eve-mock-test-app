@@ -6,7 +6,7 @@ suite in the existing Android FAST/FULL build job. This is not QR screen accepta
 ## Source and reproduction
 
 Official Telegram HTTPS Git HEAD and GitHub commit API agree on
-`3de37c8cfb039452be7398909461da6288babf15`, root tree
+`21f7d109da6ab3506c9e9577f98c6a38771ab335`, root tree
 `cc3c6ccf48e4167fdec764dfd04e765043f55093`. `git ls-tree` selects tlottie
 `31f1b542f88e7b4be9a01e749920d857535fc715`. An HTTPS checkout of
 `https://github.com/dkaraush/tlottie` fetched that immutable commit; all **69**
@@ -70,7 +70,7 @@ All upstream tlottie references below are at
 |---|---|---|---|---|
 | gitlink `TMessagesProj/jni/tlottie` → `src/tests/dos.rs:652-667,2657-2687` | `app/src/main/cpp/vendor/tlottie/src/tests/dos.rs:652-671,2662-2730` | ADAPTED test construction and added parser-boundary coverage | optimized native suite | host CPU only; no UI claim |
 | gitlink → `src/composition/json.rs:90-100`, `src/composition/limits.rs:127-128` | same vendor paths/lines | EXACT bytes; limits untouched | parser regressions + new memory-boundary assertion | host CPU only |
-| `TMessagesProj/jni/lottie.cpp` @ `3de37c8cfb039452be7398909461da6288babf15` | `app/src/main/cpp/telegram_lottie.cpp` | EXACT bytes; unchanged by this repair | existing JNI instrumentation test remains | device evidence pending |
+| `TMessagesProj/jni/lottie.cpp` @ `21f7d109da6ab3506c9e9577f98c6a38771ab335` | `app/src/main/cpp/telegram_lottie.cpp` | EXACT bytes; unchanged by this repair | existing JNI instrumentation test remains | device evidence pending |
 
 Per-file upstream and EVE digests are in `qr-native-upstream-manifest.json`;
 only the test module changes classification. Remaining native work: Android

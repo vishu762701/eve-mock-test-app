@@ -53,7 +53,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 /**
  * EVE-only live scanner, source-timed to Telegram QrScanOverlay.java:101-102,370-396.
  * ADAPTED: CameraX/ZXing, secure EVE deep-link routing; never opens Telegram or external URLs.
- * Reference: DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15
+ * Reference: DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335
  */
 class EveQrLiveScannerActivity : EveBaseActivity() {
     private val worker = Executors.newSingleThreadExecutor()

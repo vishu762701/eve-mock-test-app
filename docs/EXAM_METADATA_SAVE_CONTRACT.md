@@ -4,7 +4,7 @@ Development integration; whole Admin/source/device acceptance remains NOT MET.
 Base main 980a92cf4a10e4b16b0a691303b4c340ad30bf6e, exact-SHA FAST
 [41535796716](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41535796716)
 SUCCESS; documentation 41535796467 SUCCESS. Official upstream remains
-3de37c8cfb039452be7398909461da6288babf15; no Telegram code/assets are imported here.
+21f7d109da6ab3506c9e9577f98c6a38771ab335; no Telegram code/assets are imported here.
 
 ## Requirement and production chain
 
@@ -75,7 +75,7 @@ still use the existing API semantics; no optimistic-version protocol is claimed.
 | Upstream relationship | EVE integration | Classification / reason |
 |---|---|---|
 | No Telegram exam/Worker service transplanted | app/src/main/java/com/eve/app/ui/admin/EditExamActivity.kt:52,166,198,252; app/src/main/java/com/eve/app/data/repository/ExamRepository.kt:166,175; app/src/main/java/com/eve/app/util/AdminAccessGate.kt:38 | ADAPTED EVE integration; source renderer and business state are not claimed EXACT |
-| Existing source dialog policy AlertDialog.java:1161-1173,1526-1528@3de37c8cfb039452be7398909461da6288babf15 | Existing native dialog/canonical question form, unchanged by this metadata save | ADAPTED existing source mapping; no new import or visual parity claim |
+| Existing source dialog policy AlertDialog.java:1161-1173,1526-1528@21f7d109da6ab3506c9e9577f98c6a38771ab335 | Existing native dialog/canonical question form, unchanged by this metadata save | ADAPTED existing source mapping; no new import or visual parity claim |
 | EVE canonical rename algorithm from 196c59d55b9710fcfb99bb1f2b4e8629f6bb9aee | backend/src/routes/exams.ts:55,68,344 shared by both existing entry points | ADAPTED EVE business integration; original eight tests plus real metadata race/rollback cases |
 
 Fail-before: six actual Activity/repository cases failed (pending/missing defaults,

@@ -5,7 +5,7 @@ Base main 40a7bb30fcc2bbb3468d482a0ec6a9e4633e811b; exact-SHA FAST
 [41395975426](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41395975426)
 SUCCESS, docs 41395975313 SUCCESS. All earlier scanner/native/picker/admin work
 is preserved. Official fetched source stays pinned to
-DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15.
+DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335.
 
 Actual source opened: QrShareView.java:995-1024,1200-1272,3164-3415,3588-3660;
 Components/RLottieNative.java:123-144,226-242; jni/lottie.cpp:190-264;
@@ -20,11 +20,11 @@ at the full SHA above; native file is under TMessagesProj/jni.
 
 | Original property:line@SHA | EVE path:line | Classification / reason | Verification |
 |---|---|---|---|
-| QrShareView.java:1015-1016,3171-3180,3281-3304@3de37c8cfb039452be7398909461da6288babf15 | app/src/main/java/com/eve/app/telegram/qr/QrEmojiAppearance.java:34 | ADAPTED original Java per-pattern timestamp array, per-screen salt, seeded 0..300ms delay and 380ms ready-item appearance; EVE clock/readiness inputs and six-item bounds | five deterministic production-helper JVM tests |
-| QrShareView.java:3187-3192,3245-3250@3de37c8cfb039452be7398909461da6288babf15 | QrEmojiAppearance.java:52; ui/profile/TelegramQrSceneView.kt:411 | ADAPTED original backOut envelope multiplied by existing source slot/breath/wave scale; no new shine response | source endpoints/overshoot, separate old/new arrays and late-frame timing tests |
-| QrShareView.java:1015-1016,3369-3411@3de37c8cfb039452be7398909461da6288babf15 | ui/profile/TelegramQrSceneView.kt:134,379 | ADAPTED actual current/outgoing pattern ownership; picked-later sentinel avoids applying a second appearance delay on top of source slot swap | rapid pattern replacement/isolation helper tests, existing six-pick/restoration suite |
-| QrShareView.java:3291-3304,3596-3652@3de37c8cfb039452be7398909461da6288babf15 | ui/profile/TelegramQrSceneView.kt:219,226 | ADAPTED real scene reveal callback; items wait until open settles, source close keeps already-open items; EVE reduced-motion/unbound host settles immediately | existing reveal/cancellation tests and whole host suite; physical motion pending |
-| QrShareView.java:3314-3334; RLottieNative.java:128-130; lottie.cpp:190-258@3de37c8cfb039452be7398909461da6288babf15 | telegram/animation/NativeQrDrawable.kt:28 | ADAPTED EVE Drawable around unchanged native renderer; ready only after actual native frame return, no synthetic thumbnail/Unicode frame; export reads cached frame without advancing live playback | Android JNI readiness/frozen-frame/close test compiles; actual device execution pending |
+| QrShareView.java:1015-1016,3171-3180,3281-3304@21f7d109da6ab3506c9e9577f98c6a38771ab335 | app/src/main/java/com/eve/app/telegram/qr/QrEmojiAppearance.java:34 | ADAPTED original Java per-pattern timestamp array, per-screen salt, seeded 0..300ms delay and 380ms ready-item appearance; EVE clock/readiness inputs and six-item bounds | five deterministic production-helper JVM tests |
+| QrShareView.java:3187-3192,3245-3250@21f7d109da6ab3506c9e9577f98c6a38771ab335 | QrEmojiAppearance.java:52; ui/profile/TelegramQrSceneView.kt:411 | ADAPTED original backOut envelope multiplied by existing source slot/breath/wave scale; no new shine response | source endpoints/overshoot, separate old/new arrays and late-frame timing tests |
+| QrShareView.java:1015-1016,3369-3411@21f7d109da6ab3506c9e9577f98c6a38771ab335 | ui/profile/TelegramQrSceneView.kt:134,379 | ADAPTED actual current/outgoing pattern ownership; picked-later sentinel avoids applying a second appearance delay on top of source slot swap | rapid pattern replacement/isolation helper tests, existing six-pick/restoration suite |
+| QrShareView.java:3291-3304,3596-3652@21f7d109da6ab3506c9e9577f98c6a38771ab335 | ui/profile/TelegramQrSceneView.kt:219,226 | ADAPTED real scene reveal callback; items wait until open settles, source close keeps already-open items; EVE reduced-motion/unbound host settles immediately | existing reveal/cancellation tests and whole host suite; physical motion pending |
+| QrShareView.java:3314-3334; RLottieNative.java:128-130; lottie.cpp:190-258@21f7d109da6ab3506c9e9577f98c6a38771ab335 | telegram/animation/NativeQrDrawable.kt:28 | ADAPTED EVE Drawable around unchanged native renderer; ready only after actual native frame return, no synthetic thumbnail/Unicode frame; export reads cached frame without advancing live playback | Android JNI readiness/frozen-frame/close test compiles; actual device execution pending |
 
 Original path is emojiPatternOrNone -> Pattern.emojiShownAt -> drawEmojiField ->
 drawEmoji -> popIn -> emojiFrame/ImageReceiver. Telegram ImageReceiver/account/

@@ -6,7 +6,7 @@ import android.graphics.Path;
 
 /**
  * ADAPTED original Java QR scanner found-code corners:
- * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15
+ * DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335
  * QrScanOverlay.java:108-112,346-355,700-782,994-1011,1040-1063.
  * Telegram contributors retain copyright; combined GPL review is OPEN.
  * EVE's CameraX/ZXing coordinates are supplied in preview-local pixels.

@@ -3,7 +3,7 @@ package com.eve.app.telegram.qr;
 /**
  * Original Telegram Java emoji lattice slot transition equations extracted
  * from QrShareView.java:208-211,3187-3205,3369-3407 at
- * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15.
+ * DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335.
  * ADAPTED public host for EVE's independently authenticated QR asset catalogue.
  * No Telegram Document/AnimatedEmojiDrawable, account or network dependency.
  * Copyright Telegram contributors; see THIRD_PARTY_NOTICES.md.

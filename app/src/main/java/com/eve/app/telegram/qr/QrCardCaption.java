@@ -24,7 +24,7 @@ import java.util.Locale;
 /**
  * ADAPTED original Java username layout/drawing from QrShareView.java:3858-3892,
  * 4060-4109, SettingsSearchCell.java:40-79 and StaticLayoutEx.java:56-145 at
- * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15.
+ * DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335.
  * Copyright Telegram contributors / Nikolai Kudashov, 2013-2018.
  * SettingsSearchCell/StaticLayoutEx: GPLv2 or later; root/per-file and combined
  * release review remain OPEN. EVE supplies only its validated username/resources.

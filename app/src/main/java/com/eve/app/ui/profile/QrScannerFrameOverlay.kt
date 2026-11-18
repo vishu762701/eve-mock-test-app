@@ -12,7 +12,7 @@ import kotlin.math.min
 
 /**
  * Adapted EVE Canvas integration of Telegram QrScanOverlay.java:579-599,659-708
- * @ DrKLO/Telegram 3de37c8cfb039452be7398909461da6288babf15.
+ * @ DrKLO/Telegram 21f7d109da6ab3506c9e9577f98c6a38771ab335.
  * No Telegram account or camera stack is imported.
  */
 internal data class QrScannerFrameBounds(

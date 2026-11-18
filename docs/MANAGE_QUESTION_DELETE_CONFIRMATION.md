@@ -21,7 +21,7 @@ repository or mutation manager. No new dialog renderer or screen.
 
 | Upstream file:lines@SHA | EVE file:lines | Classification / reason |
 |---|---|---|
-| AlertDialog.java:1161-1173,1526-1528@3de37c8cfb039452be7398909461da6288babf15 | app/src/main/java/com/eve/app/designsystem/TelegramNativeAlertDialog.kt:224,235,244 -> ui/admin/ManageQuestionsActivity.kt:248 | ADAPTED existing source renderer, unchanged; EVE retains 48dp accessible controls and current destructive color token |
+| AlertDialog.java:1161-1173,1526-1528@21f7d109da6ab3506c9e9577f98c6a38771ab335 | app/src/main/java/com/eve/app/designsystem/TelegramNativeAlertDialog.kt:224,235,244 -> ui/admin/ManageQuestionsActivity.kt:248 | ADAPTED existing source renderer, unchanged; EVE retains 48dp accessible controls and current destructive color token |
 | EVE question/permission/API contract; no Telegram exam administration equivalent transplanted | ui/admin/AdminViewModel.kt:226 -> data/repository/ExamRepository.kt:278 -> data/remote/EveApiService.kt:304 -> backend/src/routes/questions.ts:337 | EVE-authored business integration, no EXACT or Telegram backend claim |
 
 Actual fail-before: three native callback cases failed (premature success, denial

@@ -4,7 +4,7 @@ import static com.eve.app.telegram.components.QrUiUnits.lerp;
 
 /**
  * ADAPTED original Java card bounce/pulse from QrShareView.java:1534-1542,
- * 1578-1596,1043,3668-3687, DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15.
+ * 1578-1596,1043,3668-3687, DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335.
  * EVE passes monotonic frame time and motion policy instead of global clocks.
  * Telegram contributors; original root GPLv2 and release-review obligations apply.
  */

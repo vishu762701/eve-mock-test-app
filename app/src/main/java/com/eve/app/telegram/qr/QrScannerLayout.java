@@ -3,7 +3,7 @@ package com.eve.app.telegram.qr;
 import android.graphics.RectF;
 
 /** ADAPTED original Java QrScanOverlay.java:579-599, ActionBar.java:1914-1920
- * at DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15.
+ * at DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335.
  * Telegram contributors; root GPLv2 and release gate apply.
  * EVE fits the complete source composition between measured system/close bounds
  * only when a compact window cannot contain the original title/frame/buttons. */

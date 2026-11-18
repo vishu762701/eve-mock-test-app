@@ -2,7 +2,7 @@
 
 Status: ADAPTED; whole QR experience remains OPEN. Official origin independently
 re-fetched: https://github.com/DrKLO/Telegram, full commit
-3de37c8cfb039452be7398909461da6288babf15. All source paths below start at
+21f7d109da6ab3506c9e9577f98c6a38771ab335. All source paths below start at
 TMessagesProj/src/main/. Binary identities and current EVE digests are recorded in
 qr-native-upstream-manifest.json; hashes prove identity, not screen acceptance.
 

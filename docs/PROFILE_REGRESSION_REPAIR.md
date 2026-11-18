@@ -11,7 +11,7 @@ not acceptance of the complete owner mission or a claim of Telegram screen parit
   and [41262868296](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41262868296), both successful.
 - Official origin rechecked at `https://telegram.org/apps`, linking DrKLO/Telegram.
   `git ls-remote ... HEAD` and immutable GitHub objects identify
-  **3de37c8cfb039452be7398909461da6288babf15**, 13.1.1 (7237).
+  **21f7d109da6ab3506c9e9577f98c6a38771ab335**, 13.1.1 (7237).
   This agrees with the previous profile source pin; no revisions were mixed. The
   attached screenshots contain no build-version metadata: their precise app revision
   remains UNKNOWN; correspondence with the selected self-profile/QR mode is INFERRED.
@@ -310,7 +310,7 @@ the official header/actions draft remains outside the repository while gates are
 The former plain ScrollView/raw black-square bitmap and Material buttons have
 been replaced with an immersive EVE QR canvas, secured sharing/saving controls,
 camera still-image decoding and EVE's existing username-only deep-link contract.
-Reference source: official \`DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15\`,
+Reference source: official \`DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335\`,
 the user ZIP \`Telegrammaster.zip\`, SHA-256
 \`4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10\`.
 The official repository master HEAD and four source blobs were inspected again
@@ -344,7 +344,7 @@ does not change the \`personal-qr\` acceptance status from OPEN.
 
 ## Profile-specific captured popup blur (2026-11-01)
 
-At source revision `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`,
+At source revision `DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335`,
 `ProfileActivity.java:4073-4090,16979-16996` installs a Blur3 source bitmap
 factory on its three-dot menu. The chain is `ScrimOptions.java:349-368` ->
 `AndroidUtilities.java:6032-6094` (15x sampled global window capture and
@@ -402,7 +402,7 @@ screen is introduced. The existing CPU/GPU draw/gesture/identity paths remain.
 
 | Upstream file:lines@SHA | EVE file:lines | Classification / reason | Verification |
 |---|---|---|---|
-| Components/ProfileGooeyView.java:142-254,270-482,486-497@3de37c8cfb039452be7398909461da6288babf15 | app/src/main/java/com/eve/app/ui/profile/ProfileGooeyView.kt:103 | ADAPTED existing renderer; EVE Impl.release and attach/detach hooks add explicit resource ownership. Upstream has no corresponding detach-release hook, so cleanup is not claimed EXACT/source-identical. | ProfileGooeyLifecycleTest actual CPU pixels/recycle/same-size reattach and actual RenderNode display-list discard/re-record; existing math/pipeline guards remain. |
+| Components/ProfileGooeyView.java:142-254,270-482,486-497@21f7d109da6ab3506c9e9577f98c6a38771ab335 | app/src/main/java/com/eve/app/ui/profile/ProfileGooeyView.kt:103 | ADAPTED existing renderer; EVE Impl.release and attach/detach hooks add explicit resource ownership. Upstream has no corresponding detach-release hook, so cleanup is not claimed EXACT/source-identical. | ProfileGooeyLifecycleTest actual CPU pixels/recycle/same-size reattach and actual RenderNode display-list discard/re-record; existing math/pipeline guards remain. |
 
 CPU release first detaches its software Canvas before recycling/nulling the bitmap.
 GPU release discards all four display lists and clears their effects. Reattach

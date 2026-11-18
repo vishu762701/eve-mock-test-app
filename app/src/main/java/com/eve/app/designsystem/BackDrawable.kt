@@ -1,5 +1,5 @@
 /*
- * Telegram: TMessagesProj/src/main/java/org/telegram/ui/ActionBar/BackDrawable.java:1-180 @ 3de37c8cfb039452be7398909461da6288babf15
+ * Telegram: TMessagesProj/src/main/java/org/telegram/ui/ActionBar/BackDrawable.java:1-180 @ 21f7d109da6ab3506c9e9577f98c6a38771ab335
  * Copyright Nikolai Kudashov, 2013-2018. GNU GPL v2 or later. See THIRD_PARTY_NOTICES.md.
  */
 

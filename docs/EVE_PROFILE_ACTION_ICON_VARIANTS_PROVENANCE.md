@@ -2,7 +2,7 @@
 
 **Scope:** The three Profile action buttons already rendered in EVE (Set Photo, Edit Info, Settings). FID-04 **PARTIAL**, not complete original Telegram Canvas renderer.
 
-Official source: `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`, locally authenticated ZIP `Telegrammaster(5).zip` SHA-256 `4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10`; absent `EVE_MANIFEST.sha256` expressly not verified. All assets use unchanged Telegram vectors, with byte-exact Git blob SHA proven by `ProfileActionIconSourceTest`. Upstream source mapping: `TMessagesProj/src/main/java/org/telegram/ui/Components/ProfileActionsView.java:407-460,1215-1234` and `org/telegram/messenger/AndroidUtilities.java:4925-4926`.
+Official source: `DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335`, locally authenticated ZIP `Telegrammaster(5).zip` SHA-256 `4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10`; absent `EVE_MANIFEST.sha256` expressly not verified. All assets use unchanged Telegram vectors, with byte-exact Git blob SHA proven by `ProfileActionIconSourceTest`. Upstream source mapping: `TMessagesProj/src/main/java/org/telegram/ui/Components/ProfileActionsView.java:407-460,1215-1234` and `org/telegram/messenger/AndroidUtilities.java:4925-4926`.
 
 | Property | Official source | EVE mapping | Classification |
 |---|---|---|---|

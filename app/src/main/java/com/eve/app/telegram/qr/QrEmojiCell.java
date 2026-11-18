@@ -9,7 +9,7 @@ import android.view.View;
 
 /**
  * Original Telegram QrEmojiPanel.Cell Java drawing/press algorithm.
- * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15, lines 517-630.
+ * DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335, lines 517-630.
  * ADAPTED: EVE-owned Drawable and key replace Telegram Document/account services;
  * native animation loading/recycling belongs to the EVE RecyclerView adapter.
  * Telegram contributors; applicable GPL obligations remain in THIRD_PARTY_NOTICES.

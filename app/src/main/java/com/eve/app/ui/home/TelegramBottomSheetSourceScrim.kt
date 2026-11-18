@@ -1,6 +1,6 @@
 /*
  * UI-only source adaptation from official Telegram Android BottomSheet.java:135-192.
- * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15
+ * DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335
  * Copyright Nikolai Kudashov, 2013-2018; GNU GPL v2 or later.
  *
  * Original Paint/PorterDuff SRC/bounds/insets/alpha logic is retained.

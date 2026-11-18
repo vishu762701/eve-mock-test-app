@@ -23,7 +23,7 @@ import kotlin.math.roundToInt
 
 /**
  * Authentic Telegram LoadingDrawable ported from:
- * org.telegram.ui.Components.LoadingDrawable.java:28-405@3de37c8cfb039452be7398909461da6288babf15
+ * org.telegram.ui.Components.LoadingDrawable.java:28-405@21f7d109da6ab3506c9e9577f98c6a38771ab335
  * License: GPL v2 or later.
  * Provides shimmering gradient sweep, customizable stroke outline, and authentic appear/disappear gradient transitions.
  */

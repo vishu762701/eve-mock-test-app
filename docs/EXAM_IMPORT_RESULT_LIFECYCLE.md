@@ -3,7 +3,7 @@
 Base main 07b448e5e70b53569db6a4ba328bd0baf34edca8: exact-SHA FAST
 [41544036446](https://github.com/vishu762701/eve-mock-test-app/actions/runs/41544036446)
 SUCCESS, documentation 41544036310 SUCCESS. Official Telegram refetched on recovery,
-still 3de37c8cfb039452be7398909461da6288babf15. No new upstream import or revision mix.
+still 21f7d109da6ab3506c9e9577f98c6a38771ab335. No new upstream import or revision mix.
 
 | ID | Authorized outcome | Actual implementation | Status |
 |---|---|---|---|
@@ -33,7 +33,7 @@ source skin, dismissal behavior and business mutations are retained.
 | Source relationship | EVE path:lines | Classification / reason |
 |---|---|---|
 | EVE file/result/permission contract; no Telegram exam-import service transplanted | app/src/main/java/com/eve/app/ui/admin/EditExamActivity.kt:96,237,383,403,579 | ADAPTED EVE integration; existing registry/editor owner, bounded operation concurrency and lifecycle; not a Telegram source-parity claim |
-| Existing AlertDialog.java:1161-1173,1526-1528@3de37c8cfb039452be7398909461da6288babf15 | EditExamActivity.kt:459,517,554,738,821 -> existing TelegramNativeAlertDialog | ADAPTED existing source-derived renderer; current Activity owns its four windows; no new upstream code/assets |
+| Existing AlertDialog.java:1161-1173,1526-1528@21f7d109da6ab3506c9e9577f98c6a38771ab335 | EditExamActivity.kt:459,517,554,738,821 -> existing TelegramNativeAlertDialog | ADAPTED existing source-derived renderer; current Activity owns its four windows; no new upstream code/assets |
 | Host PFD verification | app/build.gradle.kts host Test task JVM arguments | EVE test-toolchain adaptation only; java.io reflection opening required by Robolectric on JDK21, never an APK permission or gate suppression |
 
 Three initial actual callback/provider cases failed: recreated pending-gate result

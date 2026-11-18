@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Ported from Telegram Android TMessagesProj/src/main/res/drawable/filled_poll_deadline_24.xml -->
-<!-- DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15; GNU GPL v2 or later -->
+<!-- DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335; GNU GPL v2 or later -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="@dimen/design_icon_size"
     android:height="@dimen/design_icon_size"

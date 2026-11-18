@@ -1,7 +1,7 @@
 # Telegram → EVE fidelity audit
 
 **Recorded:** 2026-11-12
-**Telegram source:** `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`,
+**Telegram source:** `DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335`,
 13.1.1/7237, extracted from `/sdcard/Download/Telegrammaster.zip`
 (SHA-256 `4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10`).
 **EVE working tree:** `ab1ec2cefb1883575cbdeba1bd022edf3332cd79` plus uncommitted
@@ -83,7 +83,7 @@ profile field contract.
 
 **Source identity verified:** 16 representative archive files, including all
 edited source Java files and the imported assets, match
-`DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15` byte-for-byte through a
+`DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335` byte-for-byte through a
 partial Git checkout; `verify_telegram_imports.py` passes 16/16 recorded assets.
 
 **Build passed:** `:app:compileDebugKotlin` and

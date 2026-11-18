@@ -11,7 +11,7 @@ import android.view.View;
 
 /**
  * ADAPTED original Java camera-layer recording from Telegram CameraView.java:1012-1035,1096-1106
- * and QrScanOverlay.java:517-546,804-879 at 3de37c8cfb039452be7398909461da6288babf15.
+ * and QrScanOverlay.java:517-546,804-879 at 21f7d109da6ab3506c9e9577f98c6a38771ab335.
  * Copyright Telegram contributors; root GPLv2 and EVE release-compliance gate apply.
  * EVE records only the CameraX PreviewView child, never controls or a window screenshot.
  * UI-thread ownership; no CPU readback during live preview. New framework types stay in QrRender.

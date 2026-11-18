@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 /**
  * ADAPTED original Java grid layer from QrEmojiPanel.java:493-515 and smooth
  * bottom/island masks from QrShareActivity.java:506-518,593-609,659-669.
- * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15.
+ * DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335.
  * EVE uses AndroidX RecyclerView and its local selection overlay; no pack strip.
  * Telegram contributors; GPL release obligations in THIRD_PARTY_NOTICES.
  */

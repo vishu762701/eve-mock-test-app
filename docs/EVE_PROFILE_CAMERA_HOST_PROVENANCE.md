@@ -2,7 +2,7 @@
 
 **FID-04 STATUS: PARTIAL. Android compile and native source tests alone do not prove 100% visual or gesture parity.**
 
-Reference: `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`. Owner-supplied `Telegrammaster(5).zip` locally SHA-256-checked: `4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10`. `EVE_MANIFEST.sha256` is **ABSENT**; official source tree identity/GPL notices in `THIRD_PARTY_NOTICES.md`.
+Reference: `DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335`. Owner-supplied `Telegrammaster(5).zip` locally SHA-256-checked: `4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10`. `EVE_MANIFEST.sha256` is **ABSENT**; official source tree identity/GPL notices in `THIRD_PARTY_NOTICES.md`.
 
 **Root cause verified from current EVE source:** `activity_profile.xml:65-95` nested the original 120dp-high avatar shell directly around `ProfileGooeyView`; EVE `ProfileGooeyView.kt:onSizeChanged` (following upstream `ProfileGooeyView.java:117-126`) discards notch data whenever the view is wider than tall. A phone-width, 120dp-high renderer will normally satisfy that rejection condition even in portrait. Upstream `ProfileActivity.java:5354-5359` instead attaches `avatarGooey` as `MATCH_PARENT` within `avatarContainer2`, itself a full-window content host.
 
@@ -28,7 +28,7 @@ Files and impact:
 ## Profile avatar scale correction at the camera endpoint (2026-11-01)
 
 Original `ProfileActivity.java:8730-8740` (pinned
-`DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`)
+`DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335`)
 uses `avatarScale = lerp(intoSize, 96, diff) / 100` where `intoSize`
 is 24dp without a circular notch or half the notch width in dp. The EVE
 adapter incorrectly used `1 - (1 - getAvatarEndScale()) * progress`, which

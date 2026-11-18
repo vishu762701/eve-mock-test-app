@@ -19,7 +19,7 @@ class TelegramContinuousExecutionContractTest(unittest.TestCase):
         workflow = read(".github/workflows/verify-official-telegram-imports.yml")
         script = read(".github/scripts/verify-official-telegram-imports.sh")
         self.assertIn("workflow_dispatch:", workflow)
-        self.assertIn("https://github.com/DrKLO/Telegram.git", script)
+        self.assertIn("https://github.com/TelegramMessenger/Telegram-Android.git", script)
         self.assertIn("verify_telegram_imports.py", script)
 
     def test_portable_gradle_launcher_has_no_termux_dependency(self):

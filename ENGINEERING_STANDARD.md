@@ -36,7 +36,7 @@ Remove only files proven obsolete within the touched scope. When a legacy class,
 ## 2. Telegram Porting Rules (R1–R10)
 
 ### R1 — SOURCE
-The only truth is the official Telegram source zip (https://github.com/DrKLO/Telegram). Never write Telegram UI from memory. If the zip cannot be listed with `unzip -l`, STOP and report BLOCKED.
+The only truth is the official Telegram source zip (https://github.com/TelegramMessenger/Telegram-Android). Never write Telegram UI from memory. If the zip cannot be listed with `unzip -l`, STOP and report BLOCKED. Source path: `~/tg-src/Telegram-Android-master`.
 
 ### R2 — COPY, DON'T REWRITE
 Telegram classes are copied byte-for-byte from the zip into `app/src/main/java/org/telegram/<same path>`, same name, same package, staying Java (no Kotlin conversion). Same for res (layouts, drawables, animations, Lottie, strings, styles): copy the real files.
@@ -44,8 +44,8 @@ Telegram classes are copied byte-for-byte from the zip into `app/src/main/java/o
 ### R3 — ALLOWED EDITS
 Allowed edits to a copied file: only (a) cutting account/chat/network/DB dependencies via a small interface, (b) resource/id wiring. Mark each `// EVE-PATCH: <reason>`. Constants, durations, interpolators, thresholds and matrices stay exactly as in the source.
 
-### R4 — MISSING FRAMEWORK CLASS
-When a framework class is missing (AndroidUtilities, Theme, LocaleController, ActionBar, Components…): copy the real class from the zip. If it drags in account/chat code, make the smallest `// EVE-SHIM` with the SAME method signatures and real behavior for what the screen uses. Never re-implement behavior from memory.
+### R4 — FRAMEWORK CLASSES
+Copy the REAL file from the zip, then CUT only what the screen's closure never calls. Every remaining line is an unmodified upstream line or a line marked // EVE-PATCH. Never write a new class with a Telegram name. Theme: keep the real key constants, the real default palettes (light and dark) and the real getColor logic; cut only theme-loading, wallpaper, TLRPC and file parts. A visual class (ActionBar*, ActionBarMenu*, EditTextBoldCursor, Cells, Components) keeping under 50% of upstream lines needs a written reason per removed method.
 
 ### R5 — EVE LOGIC BOUNDARY
 EVE logic (data, auth, admin, API, navigation) lives only in `com.eve.app` adapter classes, never inside `org/telegram`.
@@ -63,7 +63,7 @@ No wrapper subclass forwarding to another class, no typealias, no empty/no-op st
 After the swap, delete old Eve files of this screen with zero callers (show grep proof). Remove duplicate copies of the same Telegram class (keep the `org/telegram` one).
 
 ### R10 — TERMUX
-No Gradle/NDK/emulator builds on the phone; GitHub Actions only. Extract the Telegram zip to `~/tg-src` (outside the repo, never commit it). After every step S0–S6 write done/next/commit SHA into `~/eve-handoff.txt` so a stopped session can resume.
+No Gradle/NDK/emulator builds on the phone; GitHub Actions only. Extract the Telegram zip to `~/tg-src/Telegram-Android-master` (outside the repo, never commit it). After every step S0–S6 write done/next/commit SHA into `~/eve-handoff.txt` so a stopped session can resume.
 
 ## 2b. Porting Workflow Steps (S0–S6)
 

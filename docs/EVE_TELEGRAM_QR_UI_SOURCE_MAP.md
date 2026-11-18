@@ -1,6 +1,6 @@
 # EVE QR Phase C UI source map
 
-Official reference: DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15.
+Official reference: DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335.
 Archive SHA-256: 4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10.
 
 | Telegram source | EVE implementation | Classification |
@@ -28,7 +28,7 @@ Source-based motion and visual behavior are not proven pixel/frame-identical. Re
 ## QR scan overlay button shape (2026-11-02)
 
 `QrScanOverlay.java:99-112,168-195,370-479,517-546,561-568,601-623`
-at official source SHA `3de37c8cfb039452be7398909461da6288babf15`
+at official source SHA `21f7d109da6ab3506c9e9577f98c6a38771ab335`
 maps to `QrScanMorph.java` (original Java source geometry/curves),
 `QrScanMorphLayout.kt` (ADAPTED EVE full-screen clip/snapshot host),
 `UsernameCardActivity.kt` (actual button screen-origin),

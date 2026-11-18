@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Telegram original Java selection overlay, ADAPTED for EVE-owned Drawables,
  * package/units, public adapter access and reduced-motion settlement.
- * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15.
+ * DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335.
  * Original drawing, spring, selection and item-reordering algorithms retained.
  * Telegram contributors; GPL release obligations in THIRD_PARTY_NOTICES.
  *

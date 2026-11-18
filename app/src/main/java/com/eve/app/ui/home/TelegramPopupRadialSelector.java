@@ -2,7 +2,7 @@
  * Based on the specified UI-only sections of the official Telegram Android source.
  * Copyright Nikolai Kudashov, 2013-2018. GNU GPL version 2 or later.
  *
- * Reference: DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15
+ * Reference: DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335
  * Theme.java:5296-5357 (RippleRadMaskDrawable), :5387-5395 (selector factory);
  * BaseCell.java:150-165 (RippleDrawableSafe).
  *

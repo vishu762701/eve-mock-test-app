@@ -1,6 +1,6 @@
 /*
  * Derived from Telegram Android ImageUpdater.java and BottomSheet.java,
- * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15
+ * DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335
  * Copyright Nikolai Kudashov, 2013-2018. GNU GPL v2 or later.
  * See THIRD_PARTY_NOTICES.md and docs/PROFILE_PHOTO_MENU_AUDIT.md.
  */

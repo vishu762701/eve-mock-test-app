@@ -625,7 +625,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/jni/lottie.cpp",
       "eve_path": "app/src/main/cpp/telegram_lottie.cpp",
       "upstream_sha256": "22f89b2a46cfb20e238a7ef63bc7a0fbbe509c456bef569a1d06b3b2b993d81f",
@@ -634,7 +634,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/messenger/TelegramQRCodeWriter.java",
       "eve_path": "app/src/main/java/com/eve/app/telegram/qr/TelegramQRCodeWriter.java",
       "upstream_sha256": "36642571ec6b5e7ad6f68b98a56116c127dd69fdc0ee4ee3e1e55c6f5dca3803",
@@ -643,7 +643,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/Components/PagerSlidingTabStrip.java",
       "eve_path": "app/src/main/java/com/eve/app/telegram/components/PagerSlidingTabStrip.java",
       "upstream_sha256": "d974ed31efd85e56bdfba9d9fd97804108c487afbfb8d08535c3ac61ba7cd399",
@@ -652,7 +652,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/Components/AnimatedFloat.java",
       "eve_path": "app/src/main/java/com/eve/app/telegram/components/AnimatedFloat.java",
       "upstream_sha256": "6e744c109b675b42b53faada749f3ffb38cc5ea3f25347ce8f2b39e10d306bb9",
@@ -661,7 +661,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/Components/ScaleStateListAnimator.java",
       "eve_path": "app/src/main/java/com/eve/app/telegram/components/ScaleStateListAnimator.java",
       "upstream_sha256": "85f2574068783bae3c920b9f94141e93c873b69e36b88b2a28fa0c1c4077b9ce",
@@ -670,7 +670,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/Components/RLottieNative.java",
       "eve_path": "app/src/main/java/org/telegram/ui/Components/RLottieNative.java",
       "upstream_sha256": "08c05cc0be95b2c079248211b0d2dfed9b5e2a383972780aeebc080b33823a89",
@@ -679,7 +679,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrRender.java",
       "upstream_blob": "f9d47be54503024733f7868a6add2d32b936f89a",
       "upstream_lines": "1-192",
@@ -692,7 +692,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrGlass.java",
       "eve_path": "app/src/main/java/com/eve/app/telegram/qr/QrGlass.java",
       "upstream_sha256": "b2f77e4fd14ede12dbd17d2d9b51239caefe96e25167e933e3464e60c50ce5a5",
@@ -701,7 +701,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/RimTune.java",
       "eve_path": "app/src/main/java/com/eve/app/telegram/qr/RimTune.java",
       "upstream_sha256": "78d1aa25e70d782e428947a8090ef91fc89a59f57bddfe6a6e69cfeffaa409d8",
@@ -710,7 +710,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/RimPainter.java",
       "eve_path": "app/src/main/java/com/eve/app/telegram/qr/RimPainter.java",
       "upstream_sha256": "fe3061b1e90411d2978ce0d9e45b44d0a52103aa099ea43badb40099f35fcafe",
@@ -719,7 +719,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/Backdrops.java",
       "eve_path": "app/src/main/java/com/eve/app/telegram/qr/Backdrops.java",
       "upstream_sha256": "7cbe0f7455b00b575e9dca89611798be68667e354ccb81ffabf1db417b427dea",
@@ -728,7 +728,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrEmojiPanel.java",
       "upstream_blob": "809c5dbbe58749c1427af9cb4415ce832ea955a7",
       "upstream_lines": "517-630",
@@ -741,7 +741,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/EmojiPickOverlay.java",
       "upstream_blob": "ca935677c164fc16b25798a5747dd71316e38026",
       "upstream_lines": "1-572",
@@ -754,7 +754,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrEmojiPanel.java",
       "upstream_blob": "809c5dbbe58749c1427af9cb4415ce832ea955a7",
       "upstream_lines": "493-515",
@@ -766,7 +766,7 @@
       "source_map": "docs/QR_EMOJI_PICKER_SOURCE_MAP.md",
       "additional_upstream": {
         "path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareActivity.java",
-        "revision": "3de37c8cfb039452be7398909461da6288babf15",
+        "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
         "sha256": "3e63371d627c670512c9363cf969816083abc126ea47e5af80762cfe53f78798",
         "lines": "506-518,593-609,659-669"
       },
@@ -778,7 +778,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/Components/CubicBezierInterpolator.java",
       "eve_path": "app/src/main/java/org/telegram/ui/Components/CubicBezierInterpolator.java",
       "upstream_sha256": "747f7b8f511249f14bc1b567088d7e0da3639729263a6f56243eb61c2ba19387",
@@ -787,7 +787,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/jni/image.cpp",
       "upstream_blob": "b0b8b3e6a2d654b048ab938d8b1b0490f65ec4a0",
       "upstream_lines": "1211-1377",
@@ -800,7 +800,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/messenger/Utilities.java",
       "upstream_blob": "9f2eb09b266b4652f0b2bffec46083c9cb8be60f",
       "upstream_lines": "86",
@@ -813,7 +813,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareView.java",
       "upstream_blob": "c2a57a19bd96d6b71da270c1e80dd9519d4ca26d",
       "upstream_lines": "124-134,685-724,1534-1575,2140-2175,2260-2426,3573-3588",
@@ -831,7 +831,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareView.java",
       "upstream_blob": "c2a57a19bd96d6b71da270c1e80dd9519d4ca26d",
       "upstream_lines": "3690-3806",
@@ -844,7 +844,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareView.java",
       "upstream_blob": "c2a57a19bd96d6b71da270c1e80dd9519d4ca26d",
       "upstream_lines": "3591-3686",
@@ -856,14 +856,14 @@
       "source_map": "docs/QR_SCENE_NATIVE_SOURCE_MAP.md",
       "additional_upstream": {
         "path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareActivity.java",
-        "revision": "3de37c8cfb039452be7398909461da6288babf15",
+        "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
         "sha256": "3e63371d627c670512c9363cf969816083abc126ea47e5af80762cfe53f78798",
         "lines": "819-848"
       }
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareView.java",
       "upstream_blob": "c2a57a19bd96d6b71da270c1e80dd9519d4ca26d",
       "upstream_lines": "4533-4583",
@@ -876,7 +876,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareView.java",
       "upstream_blob": "c2a57a19bd96d6b71da270c1e80dd9519d4ca26d",
       "upstream_lines": "1043,1534-1542,1578-1596,3668-3687",
@@ -889,7 +889,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareView.java",
       "upstream_blob": "c2a57a19bd96d6b71da270c1e80dd9519d4ca26d",
       "upstream_lines": "2095-2121,2140-2175,3573-3806",
@@ -910,7 +910,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareActivity.java",
       "upstream_blob": "0ff0e9f1889b184d1130497b951caaaae3a8d3b5",
       "upstream_lines": "819-848",
@@ -929,7 +929,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareView.java",
       "upstream_blob": "c2a57a19bd96d6b71da270c1e80dd9519d4ca26d",
       "upstream_lines": "2785-2787,3631-3665",
@@ -942,7 +942,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/messenger/camera/CameraView.java",
       "upstream_blob": "07e769e5b9ae9a0a8af68bb7db0766c8517e31fd",
       "upstream_lines": "1012-1035,1096-1106",
@@ -954,7 +954,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrScanOverlay.java",
       "upstream_blob": "504a8503ead35f6e88e3d12fee7cd3af98946c0e",
       "upstream_lines": "108-112,804-879",
@@ -967,7 +967,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrScanOverlay.java",
       "upstream_lines": "370-425,490-546,994-1063",
       "eve_path": "app/src/main/java/com/eve/app/ui/profile/EveQrLiveScannerActivity.kt",
@@ -979,7 +979,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrScanOverlay.java",
       "upstream_lines": "429-479,517-546,601-623",
       "eve_path": "app/src/main/java/com/eve/app/ui/profile/QrScanMorphLayout.kt",
@@ -991,7 +991,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareView.java",
       "upstream_lines": "1015-1016,3171-3180,3187-3192,3245-3250,3281-3304",
       "eve_path": "app/src/main/java/com/eve/app/telegram/qr/QrEmojiAppearance.java",
@@ -1002,7 +1002,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareView.java",
       "upstream_lines": "3314-3334",
       "eve_path": "app/src/main/java/com/eve/app/telegram/animation/NativeQrDrawable.kt",
@@ -1013,7 +1013,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareView.java",
       "upstream_blob": "c2a57a19bd96d6b71da270c1e80dd9519d4ca26d",
       "upstream_lines": "1879-1881,2046-2061,3808-3819",
@@ -1026,7 +1026,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareView.java",
       "upstream_blob": "c2a57a19bd96d6b71da270c1e80dd9519d4ca26d",
       "upstream_lines": "3858-3892,4060-4109",
@@ -1040,14 +1040,14 @@
         {
           "path": "TMessagesProj/src/main/java/org/telegram/ui/Cells/SettingsSearchCell.java",
           "lines": "40-79",
-          "revision": "3de37c8cfb039452be7398909461da6288babf15",
+          "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
           "sha256": "cd7a94d5f840ece76ba0619f74afc6141a9408399737672b3fe81c0f59e7346c",
           "disposition": "ADAPTED minimum Java caption branches; see source map"
         },
         {
           "path": "TMessagesProj/src/main/java/org/telegram/ui/Components/StaticLayoutEx.java",
           "lines": "56-145",
-          "revision": "3de37c8cfb039452be7398909461da6288babf15",
+          "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
           "sha256": "9ec3376f74a2e5f35110ca7f954922f4ddbd219a2fe54b5f7c7932bb17d2b258",
           "disposition": "ADAPTED minimum Java caption branches; see source map"
         }
@@ -1055,7 +1055,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/res/drawable-mdpi/qr_at_large.webp",
       "upstream_blob": "e01dec7e772f07d17fd3d9bf056d437d60e5c41e",
       "upstream_lines": "binary",
@@ -1068,7 +1068,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/res/drawable-mdpi/qr_at_medium.webp",
       "upstream_blob": "fb225356c522cec025f8688268c507b262db2e3e",
       "upstream_lines": "binary",
@@ -1081,7 +1081,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/res/drawable-mdpi/qr_at_small.webp",
       "upstream_blob": "c2dad3e08ddc8ae849062b88f20b1b5721f39e6c",
       "upstream_lines": "binary",
@@ -1094,7 +1094,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/res/drawable-hdpi/qr_at_large.webp",
       "upstream_blob": "f1fb763594073deef7806e111778a2cb56d096dd",
       "upstream_lines": "binary",
@@ -1107,7 +1107,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/res/drawable-hdpi/qr_at_medium.webp",
       "upstream_blob": "c76a89f4e3b9e5614267c5c164d9a0a37bbcdc41",
       "upstream_lines": "binary",
@@ -1120,7 +1120,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/res/drawable-hdpi/qr_at_small.webp",
       "upstream_blob": "83241142aa0fb56de2bc6c5db882554eceb8fdf8",
       "upstream_lines": "binary",
@@ -1133,7 +1133,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/res/drawable-xhdpi/qr_at_large.webp",
       "upstream_blob": "1e2b2d2ba0689fc04ff889accd9dde278c6669be",
       "upstream_lines": "binary",
@@ -1146,7 +1146,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/res/drawable-xhdpi/qr_at_medium.webp",
       "upstream_blob": "ad079a5d95bc1cb5eb117e2ef708a5a2a7609970",
       "upstream_lines": "binary",
@@ -1159,7 +1159,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/res/drawable-xhdpi/qr_at_small.webp",
       "upstream_blob": "a959448e13a770a69208c4d66f99245215247736",
       "upstream_lines": "binary",
@@ -1172,7 +1172,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/res/drawable-xxhdpi/qr_at_large.webp",
       "upstream_blob": "b2b7afe619d62d3f475aed1994f2ab010ccc92ff",
       "upstream_lines": "binary",
@@ -1185,7 +1185,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/res/drawable-xxhdpi/qr_at_medium.webp",
       "upstream_blob": "44e409b93223cba9530e478655fe6f2acb8eb344",
       "upstream_lines": "binary",
@@ -1198,7 +1198,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/res/drawable-xxhdpi/qr_at_small.webp",
       "upstream_blob": "d07847e78366c639ab43dbc20cdb99b4187e46a0",
       "upstream_lines": "binary",
@@ -1211,7 +1211,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/assets/fonts/rcondensedbold.ttf",
       "upstream_blob": "ca4a1221f15af53adacb6419dd629b844b347aae",
       "upstream_lines": "binary",
@@ -1224,7 +1224,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrScanOverlay.java",
       "upstream_blob": "504a8503ead35f6e88e3d12fee7cd3af98946c0e",
       "upstream_lines": "579-599",
@@ -1237,7 +1237,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrScanOverlay.java",
       "upstream_blob": "504a8503ead35f6e88e3d12fee7cd3af98946c0e",
       "upstream_lines": "689-701,770-802,867-920",
@@ -1250,7 +1250,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/BackDrawable.java",
       "upstream_blob": "dc1165e78c4b709b0227c1527d52eb631564996d",
       "upstream_lines": "1-171",
@@ -1263,7 +1263,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/res/drawable-mdpi/qr_flashlight.webp",
       "upstream_blob": "104e066e88d7375f50a6fdba2871e27070aef2ce",
       "upstream_lines": "binary",
@@ -1276,7 +1276,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/res/drawable-mdpi/qr_gallery.webp",
       "upstream_blob": "7f4551fd204ecf92e54032ef11a4e1ee47d1152a",
       "upstream_lines": "binary",
@@ -1289,7 +1289,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/res/drawable-hdpi/qr_flashlight.webp",
       "upstream_blob": "6cac15e2de1e11260f185e4fd9c08fe31ea8a52e",
       "upstream_lines": "binary",
@@ -1302,7 +1302,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/res/drawable-hdpi/qr_gallery.webp",
       "upstream_blob": "2e6014bbc66bde901a5351db71ecbe4ef87344d0",
       "upstream_lines": "binary",
@@ -1315,7 +1315,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/res/drawable-xhdpi/qr_flashlight.webp",
       "upstream_blob": "db7a173c1610b9be421f4dc0df89652dc071f4c9",
       "upstream_lines": "binary",
@@ -1328,7 +1328,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/res/drawable-xhdpi/qr_gallery.webp",
       "upstream_blob": "3202fc1e5bff336fcfaad1f9b0a00275bfc363f1",
       "upstream_lines": "binary",
@@ -1341,7 +1341,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/res/drawable-xxhdpi/qr_flashlight.webp",
       "upstream_blob": "bb3bc9551da19f5b6a6df3c2d2e85eab0b644e32",
       "upstream_lines": "binary",
@@ -1354,7 +1354,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/res/drawable-xxhdpi/qr_gallery.webp",
       "upstream_blob": "da2adc857d1da61a57981f9e1ccdad2bc530bec2",
       "upstream_lines": "binary",
@@ -1367,7 +1367,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/assets/fonts/rmedium.ttf",
       "upstream_blob": "aba251d159c783048b352d17f6581d406f2a6ddb",
       "upstream_lines": "binary",
@@ -1380,7 +1380,7 @@
     },
     {
       "upstream_repository": "https://github.com/DrKLO/Telegram",
-      "revision": "3de37c8cfb039452be7398909461da6288babf15",
+      "revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
       "upstream_path": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrScanOverlay.java",
       "upstream_lines": "579-599,659-742",
       "eve_path": "app/src/main/java/com/eve/app/ui/profile/QrScannerFrameOverlay.kt",

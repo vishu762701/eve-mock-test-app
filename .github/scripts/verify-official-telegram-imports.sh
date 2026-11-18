@@ -14,8 +14,8 @@ PY
 DEST="$(mktemp -d "${RUNNER_TEMP:-/tmp}/eve-telegram-pinned.XXXXXXXX")"
 trap 'rm -rf -- "$DEST"' EXIT
 git -C "$DEST" init -q
-git -C "$DEST" remote add origin https://github.com/DrKLO/Telegram.git
-test "$(git -C "$DEST" remote get-url origin)" = "https://github.com/DrKLO/Telegram.git"
+git -C "$DEST" remote add origin https://github.com/TelegramMessenger/Telegram-Android.git
+test "$(git -C "$DEST" remote get-url origin)" = "https://github.com/TelegramMessenger/Telegram-Android.git"
 # Partial blobless fetch downloads the pinned commit/tree; git show lazily fetches only manifest files.
 git -C "$DEST" -c protocol.version=2 fetch --depth=1 --filter=blob:none --no-tags origin "$REVISION"
 git -C "$DEST" update-ref refs/heads/source "$REVISION"

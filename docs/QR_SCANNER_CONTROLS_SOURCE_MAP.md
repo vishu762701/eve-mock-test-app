@@ -2,7 +2,7 @@
 
 Status: ADAPTED; complete scanner runtime/source acceptance remains OPEN.
 Official HTTPS origin https://github.com/DrKLO/Telegram at
-3de37c8cfb039452be7398909461da6288babf15, independently re-fetched during this
+21f7d109da6ab3506c9e9577f98c6a38771ab335, independently re-fetched during this
 continuation. Paths below start at TMessagesProj/src/main/. Asset and source
 Git identities/SHA-256 are in qr-native-upstream-manifest.json.
 

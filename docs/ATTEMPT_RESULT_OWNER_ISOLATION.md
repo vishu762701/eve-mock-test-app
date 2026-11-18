@@ -39,7 +39,7 @@ Source wiring tests now require the scoped signatures rather than unowned calls.
 | Upstream path:lines@SHA | EVE path:lines | Classification / reason |
 |---|---|---|
 | EVE-owned Firebase/Worker attempt contract; no Telegram account subsystem imported | app/src/main/java/com/eve/app/ui/home/HomeViewModel.kt:138; app/src/main/java/com/eve/app/ui/home/ExamLaunchHelper.kt:31; app/src/main/java/com/eve/app/ui/result/ResultDataHolder.kt:7 | ADAPTED EVE integration; new local ownership checks are EVE-authored, no EXACT claim |
-| Existing AlertDialog.java:1161-1173,1526-1528@3de37c8cfb039452be7398909461da6288babf15 | app/src/main/java/com/eve/app/ui/common/CompletedExamBottomSheet.kt:85; app/src/main/java/com/eve/app/ui/result/ResultActivity.kt reattempt callbacks | ADAPTED existing native dialog integration, source renderer unchanged; callbacks check their origin UID |
+| Existing AlertDialog.java:1161-1173,1526-1528@21f7d109da6ab3506c9e9577f98c6a38771ab335 | app/src/main/java/com/eve/app/ui/common/CompletedExamBottomSheet.kt:85; app/src/main/java/com/eve/app/ui/result/ResultActivity.kt reattempt callbacks | ADAPTED existing native dialog integration, source renderer unchanged; callbacks check their origin UID |
 | Existing EVE result/history/test navigation | app/src/main/java/com/eve/app/ui/history/HistoryActivity.kt:131; app/src/main/java/com/eve/app/ui/test/TestActivity.kt result producers; app/src/main/java/com/eve/app/ui/result/ResultActivity.kt:86; ResultDetailActivity.kt:30 | UID/exam-tagged internal handoff, not Telegram service or UI equivalence |
 
 Eighteen scoped ownership tests cover cache/flags, actual offline fallback, result

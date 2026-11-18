@@ -22,7 +22,7 @@ import org.junit.runner.RunWith
  * this test source without launching emulators.
  *
  * Original source: AlertDialog.java:302-318,680-693, DarkAlertDialog.java:11-19
- * at DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15.
+ * at DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335.
  */
 @RunWith(AndroidJUnit4::class)
 class HomeTelegramDialogNativeTest {

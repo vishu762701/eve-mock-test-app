@@ -15,7 +15,7 @@ class TelegramBottomSheetSourceScrimTest {
         assertTrue(source.contains("boundsWithInsets.left += maxOf(0, insets.left)"))
         assertTrue(source.contains("canvas.drawRect(boundsWithInsets, bgPaint)"))
         assertTrue(source.contains("override fun getAlpha(): Int = bgPaint.alpha"))
-        assertTrue(source.contains("3de37c8cfb039452be7398909461da6288babf15"))
+        assertTrue(source.contains("21f7d109da6ab3506c9e9577f98c6a38771ab335"))
     }
 
     @Test fun bothTargetAndCompletedSheetsKeepTheOriginalOneSourceScrim() {

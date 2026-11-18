@@ -2,7 +2,7 @@
  * Telegram: TMessagesProj/src/main/java/org/telegram/ui/Components/TimerDrawable.java:25-150 @ 3de37c8cfb03
  * Telegram: TMessagesProj/src/main/java/org/telegram/ui/Components/RadialProgressView.java:30-180 @ 3de37c8cfb03
  * Derived from Telegram Android PasscodeView.java and SlideView.java
- * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15
+ * DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335
  * Copyright Nikolai Kudashov, 2013-2018; GNU GPL v2 or later. See THIRD_PARTY_NOTICES.md.
  */
 

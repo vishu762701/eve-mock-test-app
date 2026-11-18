@@ -16,5 +16,5 @@ jobs:
         with:
           persist-credentials: false
           filter: blob:none
-      - name: Verify immutable source bytes from official DrKLO/Telegram
+      - name: Verify immutable source bytes from official TelegramMessenger/Telegram-Android
         run: bash .github/scripts/verify-official-telegram-imports.sh

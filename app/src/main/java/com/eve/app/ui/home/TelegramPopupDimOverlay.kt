@@ -14,7 +14,7 @@ import android.view.ViewTreeObserver
  * Authentic Telegram 13.1.1 ItemOptions.DimView overlay.
  *
  * Source: ItemOptions.java:1310-1350, 1768-1806, 1965-2200.
- * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15
+ * DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335
  *
  * Replaces WindowManager.FLAG_DIM_BEHIND with the genuine host overlay:
  * - dimAlpha: 0x08 (~3% window dim per DialogsActivity.java:13678 io.setDimAlpha(0x08))

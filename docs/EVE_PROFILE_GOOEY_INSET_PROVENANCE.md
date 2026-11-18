@@ -2,7 +2,7 @@
 
 Scope: Profile avatar-to-cutout numeric behavior. This update does **not** establish real device camera transition parity.
 
-Source identity: `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`, verified uploaded `Telegrammaster(5).zip` SHA-256 `4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10`; upstream `TMessagesProj/src/main/java/org/telegram/ui/Components/ProfileGooeyView.java` and `AndroidUtilities.java`. `EVE_MANIFEST.sha256` ABSENT; GPL notices in `THIRD_PARTY_NOTICES.md`.
+Source identity: `DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335`, verified uploaded `Telegrammaster(5).zip` SHA-256 `4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10`; upstream `TMessagesProj/src/main/java/org/telegram/ui/Components/ProfileGooeyView.java` and `AndroidUtilities.java`. `EVE_MANIFEST.sha256` ABSENT; GPL notices in `THIRD_PARTY_NOTICES.md`.
 
 | Property | Telegram source | EVE source | Classification |
 |---|---|---|---|
@@ -21,7 +21,7 @@ Source and AndroidTest contracts:
 ## Fully-collapsed Gooey visibility endpoint (2026-11-01)
 
 Original Telegram `ProfileActivity.java:6039-6054` at the pinned source SHA
-`3de37c8cfb039452be7398909461da6288babf15` changes the
+`21f7d109da6ab3506c9e9577f98c6a38771ab335` changes the
 `avatarGooey` visibility to `GONE` whenever `pullUpProgress >= 1`, restoring
 `VISIBLE` before full collapse. EVE previously disabled Gooey animation at
 that endpoint without changing visibility. `ProfileScrollState.applyGooeyVisibility`

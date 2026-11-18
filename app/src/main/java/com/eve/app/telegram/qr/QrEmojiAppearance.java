@@ -5,7 +5,7 @@ import java.util.Arrays;
 /**
  * ADAPTED original Java ready-item appearance from Telegram QrShareView.java:
  * 1015-1016,3171-3180,3245-3250,3281-3304 at
- * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15.
+ * DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335.
  * Copyright Telegram contributors; root GPLv2 and EVE release gate apply.
  * EVE injects the monotonic clock, one per-screen salt and frame readiness;
  * each current/outgoing pattern owns its original bounded timestamp array.

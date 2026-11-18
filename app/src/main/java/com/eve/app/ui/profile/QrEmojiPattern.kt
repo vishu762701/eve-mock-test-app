@@ -4,7 +4,7 @@ import kotlin.math.floor
 
 /**
  * EVE identity and emoji assets; upstream QR selection and placement properties.
- * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15
+ * DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335
  * QrShareView.java:175,972-992,3171-3202,3206-3233,3369-3407.
  * ADAPTED: the original Telegram document and account identifiers are excluded.
  */

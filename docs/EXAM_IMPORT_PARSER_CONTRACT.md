@@ -24,7 +24,7 @@ are NOT repaired by this parser change and remain independently actionable.
 | Upstream property | EVE path:lines | Classification / reason |
 |---|---|---|
 | EVE CSV/XLSX exam-import contract; no Telegram business subsystem imported | app/src/main/java/com/eve/app/util/QuestionImportHelper.kt:12 | EVE-authored parser repair; no EXACT/source-parity claim |
-| AlertDialog.java:1526-1528@3de37c8cfb039452be7398909461da6288babf15 | app/src/main/java/com/eve/app/designsystem/TelegramNativeAlertDialog.kt:66 -> existing editor/ManageQuestions preview | ADAPTED existing source-derived dialog, unchanged renderer; localized fatal reason only |
+| AlertDialog.java:1526-1528@21f7d109da6ab3506c9e9577f98c6a38771ab335 | app/src/main/java/com/eve/app/designsystem/TelegramNativeAlertDialog.kt:66 -> existing editor/ManageQuestions preview | ADAPTED existing source-derived dialog, unchanged renderer; localized fatal reason only |
 
 Authenticated official origin was rechecked at the same full SHA. No upstream file,
 asset or new dependency imported. Existing notices and fail-closed GPL release gate

@@ -66,7 +66,7 @@ class HomeMenuAccessibilityContractTest {
         assertTrue(selector.contains("new Paint(Paint.ANTI_ALIAS_FLAG)"))
         assertTrue(selector.contains("final int save = canvas.save()"))
         assertTrue(selector.contains("canvas.restoreToCount(save)"))
-        assertTrue(selector.contains("3de37c8cfb039452be7398909461da6288babf15"))
+        assertTrue(selector.contains("21f7d109da6ab3506c9e9577f98c6a38771ab335"))
         assertTrue(!selector.contains("org.telegram.messenger"))
     }
 

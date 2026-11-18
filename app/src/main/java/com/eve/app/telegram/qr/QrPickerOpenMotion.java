@@ -2,7 +2,7 @@ package com.eve.app.telegram.qr;
 
 /**
  * ADAPTED original Java QR emoji-sheet grid opening equations.
- * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15
+ * DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335
  * QrShareActivity.java:538-569; QrShareView.java:1904-1918.
  * EVE hosts this transform on an AndroidX grid inside its existing sheet.
  * Telegram contributors; applicable GPL/release review in THIRD_PARTY_NOTICES.

@@ -2,7 +2,7 @@
 
 **Scope:** Source-backed GPU liquid-mask and blur compositing in the EVE profile avatar-to-camera transition, **NOT full-screen Telegram fidelity**.
 
-**Original source:** Official `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`:
+**Original source:** Official `DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335`:
 `TMessagesProj/src/main/java/org/telegram/ui/Components/ProfileGooeyView.java` and `org/telegram/messenger/AndroidUtilities.java`. Uploaded `Telegrammaster(5).zip` SHA-256 `4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10` verified locally; `EVE_MANIFEST.sha256` ABSENT; provenance/license in `THIRD_PARTY_NOTICES.md`.
 
 | Property | Original source lines | EVE location | Classification |

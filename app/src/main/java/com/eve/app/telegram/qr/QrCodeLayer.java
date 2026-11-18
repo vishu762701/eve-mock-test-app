@@ -1,6 +1,6 @@
 /*
  * Adapted original Telegram QR particle renderer.
- * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15
+ * DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335
  * TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrCodeLayer.java
  * Retains the upstream algorithms, subject to Telegram source license.
  * Package/unit helpers, EVE public host API and performance gate are ADAPTED.

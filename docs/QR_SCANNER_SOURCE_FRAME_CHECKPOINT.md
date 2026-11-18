@@ -3,7 +3,7 @@
 R1 (QR full Telegram fidelity): NOT MET. This batch integrates selected source geometry and camera ordering only.
 R2 (admin, Profile, Home, Quiz): pending in the same mission; no changes in this batch.
 
-Upstream inspected: `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`,
+Upstream inspected: `DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335`,
 `TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrScanOverlay.java:95-120,430-510,579-599,659-708`.
 
 | Source property | EVE path | Classification |
@@ -23,7 +23,7 @@ Verification: `QrScannerFrameGeometryTest.kt`, existing QR contract test, exact-
 ## Source Java button-to-full-screen morph and bounded close snapshot (2026-11-02)
 
 **ADAPTED; full scanner source parity NOT MET.** Official
-`DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`
+`DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335`
 `QrScanOverlay.java:99-112,168-195,370-479,517-546,561-568,601-623`
 was opened. Upstream source stretch (390ms, Bezier 0.05,0.7,0.1,1),
 shrink (330ms, Bezier 0.3,0,0.1,1), screen-space button origin,
@@ -63,7 +63,7 @@ real hardware denial, settings-return and rotation remain UNKNOWN.
 ## R5 CameraX torch result ownership (2026-11-02)
 
 ADAPTED original session-aware flashlight behavior from
-DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15,
+DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335,
 QrScanOverlay.java:783-787,914-922. EVE retains its CameraX owner.
 The real scanner button now calls CameraX enableTorch and updates
 selected/accessibility status only upon successful future completion.
@@ -78,7 +78,7 @@ and release review remain OPEN.
 ## R5 authentic scan-found outline with CameraX display mapping (2026-11-02)
 
 The official pinned Telegram Java QrScanOverlay.java at
-DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15 was
+DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335 was
 inspected at 108-112, 346-355, 700-782, 994-1011 and 1040-1063.
 The source uses four genuine QR points (no synthetic finder corners),
 color #FFFFDE07, 6dp round-capped strokes, 18% neighbor arms,
@@ -163,7 +163,7 @@ backend and Firebase). Docs 41392841837 and source-import 41392841829 SUCCESS.
 Native UI navigation/publication are skipped; there is no verified published APK.
 
 Actual upstream caller opened: official
-DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15,
+DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335,
 QrShareActivity.java:1070-1077 destroys the scanner on pause, and
 QrScanOverlay.java:370-425,490-546 stops recognition/releases camera/cancels callbacks.
 The EVE Activity had only destruction/close checks, so a queued frame or delayed
@@ -187,8 +187,8 @@ Gallery image bounds and reverse snapshot-before-release ordering remain intact.
 
 | Telegram property:lines@SHA | EVE production paths | Classification | Verification |
 |---|---|---|---|
-| QrShareActivity:1070-1077@3de37c8cfb039452be7398909461da6288babf15 | EveQrLiveScannerActivity.onPause/onResume/releaseCamera; QrCameraSessionGate | ADAPTED EVE lifetime contract; EVE retains its Activity for native Gallery/Settings return instead of destroying Telegram's fragment overlay | five session-ticket JVM cases; actual Activity pause/found callback regression |
-| QrScanOverlay:386-425,490-546@3de37c8cfb039452be7398909461da6288babf15 | closeScanner/cancelFoundNavigation/analysis callback | ADAPTED CameraX and EVE routing; snapshot before release preserved | actual found-delay cancellation/fresh resumed one-shot navigation; source release-order contract |
+| QrShareActivity:1070-1077@21f7d109da6ab3506c9e9577f98c6a38771ab335 | EveQrLiveScannerActivity.onPause/onResume/releaseCamera; QrCameraSessionGate | ADAPTED EVE lifetime contract; EVE retains its Activity for native Gallery/Settings return instead of destroying Telegram's fragment overlay | five session-ticket JVM cases; actual Activity pause/found callback regression |
+| QrScanOverlay:386-425,490-546@21f7d109da6ab3506c9e9577f98c6a38771ab335 | closeScanner/cancelFoundNavigation/analysis callback | ADAPTED CameraX and EVE routing; snapshot before release preserved | actual found-delay cancellation/fresh resumed one-shot navigation; source release-order contract |
 | EVE ActivityResult/Android lifecycle contract | deliverGallery/launchGallery | ADAPTED EVE integration, no Telegram service/import analogue claimed | compile and source contract; actual system picker/hardware matrix pending |
 
 QrScannerPausedResultTest drives the actual scanner Activity, schedules its real

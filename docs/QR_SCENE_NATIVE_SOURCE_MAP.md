@@ -4,7 +4,7 @@ Status: ADAPTED backdrop/card/reveal subsystem integrated. Full personal-qr
 acceptance remains OPEN; this is not complete A1, A2 or screen parity.
 
 Official origin is the HTTPS Git checkout of DrKLO/Telegram. Fetched master and
-pinned HEAD both resolve to `3de37c8cfb039452be7398909461da6288babf15`, tree
+pinned HEAD both resolve to `21f7d109da6ab3506c9e9577f98c6a38771ab335`, tree
 `cc3c6ccf48e4167fdec764dfd04e765043f55093`. Required bytes were read from
 immutable Git blobs, not an unverified archive. Relevant blobs:
 `image.cpp` `b0b8b3e6a2d654b048ab938d8b1b0490f65ec4a0`;
@@ -28,16 +28,16 @@ Each row is pinned independently to the full revision below; revisions are not m
 
 | Telegram upstream file:lines@SHA | EVE file:line | Classification | Tests | Runtime evidence |
 |---|---|---|---|---|
-| jni/image.cpp:1211-1366@3de37c8cfb039452be7398909461da6288babf15 | app/src/main/cpp/telegram_qr_backdrop.cpp:14 | ADAPTED extraction; minimal includes/JNI name and null-allocation cleanup; original helpers and complete pixel loop byte-identical | QrBackdropSceneTest tests actual production C++ pixels, radial/linear stops, wave AA and premultiplied ring | host JNI execution; packaged Android JNI test compiled, device execution pending |
-| messenger/Utilities.java:86@3de37c8cfb039452be7398909461da6288babf15 | app/src/main/java/com/eve/app/telegram/qr/QrBackdropNative.java:6 | ADAPTED EVE library binding and bounded argument validation | malformed arrays/nonfinite inputs reject before mutation | Robolectric native bitmap bridge |
-| ui/QrShare/QrShareView.java:124-134,685-724,1534-1575,2140-2175,2260-2426,3573-3588@3de37c8cfb039452be7398909461da6288babf15 | app/src/main/java/com/eve/app/telegram/qr/QrBackdropScene.java:26 | ADAPTED original Java scene/wave/ink/cache/blur; EVE clock/card geometry and separate control consumers | source interruption base, export cache isolation, motion-disabled settlement, cleanup, actual native raster | software/native host pixels; GPU blur/display-list parity pending |
-| ui/QrShare/QrShareView.java:3690-3806@3de37c8cfb039452be7398909461da6288babf15 | app/src/main/java/com/eve/app/telegram/qr/QrCardShadow.java:18 | ADAPTED original Java mask, tint/drop and nine-slice; EVE executor/handler ownership and export preparation | real soft colored shadow pixels, cleanup/recreation | Robolectric native Canvas; device prewarm/frame timing pending |
-| ui/QrShare/QrShareView.java:1043,1534-1542,1578-1596,3668-3687@3de37c8cfb039452be7398909461da6288babf15 | app/src/main/java/com/eve/app/telegram/qr/QrCardMotion.java:11 | ADAPTED original Java bounce/pulse; injected monotonic time and reduced motion | source peak, undershoot, interruption, pulse and settlement endpoints | JVM equations; device motion comparison pending |
-| ui/QrShare/QrShareView.java:3591-3686; QrShareActivity.java:819-848@3de37c8cfb039452be7398909461da6288babf15 | app/src/main/java/com/eve/app/telegram/qr/QrSceneReveal.java:19 | ADAPTED original Java spring, close curve, shared root/scrim/control/card motion; EVE Activity/lifecycle and interrupted-close continuity | attached parent/layer properties, interrupted opening, duplicate close, cancellation, no-motion endpoints | Robolectric views; physical frame/gesture evidence absent |
-| ui/QrShare/QrRender.java:1-192@3de37c8cfb039452be7398909461da6288babf15 | app/src/main/java/com/eve/app/telegram/qr/QrRender.java:99 | ADAPTED existing helper; guarded display-list disposal | Java/resource and AndroidTest compilation | API29/31 device paths unexecuted locally |
-| ui/QrShare/QrShareView.java:4533-4583@3de37c8cfb039452be7398909461da6288babf15 | app/src/main/java/com/eve/app/telegram/qr/QrControlBackground.java:14 | ADAPTED EVE Drawable, source scene sampling plus existing QrGlass fill/sheen/rim | exact offset control-to-scene native bitmap samples; cleanup and QR raster scan | CPU stand-in and cross-view screen coordinates tested; actual blurred controls need device comparison |
-| ui/QrShare/QrShareView.java:2095-2121@3de37c8cfb039452be7398909461da6288babf15 | app/src/main/java/com/eve/app/ui/profile/TelegramQrSceneView.kt:486 | ADAPTED EVE export/username/E mark; source height/crop policy with EVE insets/card bounds | 160 palette/size decodes, rotation-before-draw and actual PNG round trip | native Canvas/ZXing host output; platform share/save matrix pending |
-| ui/QrShare/QrShareActivity.java:819-848@3de37c8cfb039452be7398909461da6288babf15 | app/src/main/java/com/eve/app/ui/profile/UsernameCardActivity.kt:145 | ADAPTED complete EVE root/controls binding and QR-only translucent window theme | compile and source integration review | underlying-screen, Back/navigation-mode device verification pending |
+| jni/image.cpp:1211-1366@21f7d109da6ab3506c9e9577f98c6a38771ab335 | app/src/main/cpp/telegram_qr_backdrop.cpp:14 | ADAPTED extraction; minimal includes/JNI name and null-allocation cleanup; original helpers and complete pixel loop byte-identical | QrBackdropSceneTest tests actual production C++ pixels, radial/linear stops, wave AA and premultiplied ring | host JNI execution; packaged Android JNI test compiled, device execution pending |
+| messenger/Utilities.java:86@21f7d109da6ab3506c9e9577f98c6a38771ab335 | app/src/main/java/com/eve/app/telegram/qr/QrBackdropNative.java:6 | ADAPTED EVE library binding and bounded argument validation | malformed arrays/nonfinite inputs reject before mutation | Robolectric native bitmap bridge |
+| ui/QrShare/QrShareView.java:124-134,685-724,1534-1575,2140-2175,2260-2426,3573-3588@21f7d109da6ab3506c9e9577f98c6a38771ab335 | app/src/main/java/com/eve/app/telegram/qr/QrBackdropScene.java:26 | ADAPTED original Java scene/wave/ink/cache/blur; EVE clock/card geometry and separate control consumers | source interruption base, export cache isolation, motion-disabled settlement, cleanup, actual native raster | software/native host pixels; GPU blur/display-list parity pending |
+| ui/QrShare/QrShareView.java:3690-3806@21f7d109da6ab3506c9e9577f98c6a38771ab335 | app/src/main/java/com/eve/app/telegram/qr/QrCardShadow.java:18 | ADAPTED original Java mask, tint/drop and nine-slice; EVE executor/handler ownership and export preparation | real soft colored shadow pixels, cleanup/recreation | Robolectric native Canvas; device prewarm/frame timing pending |
+| ui/QrShare/QrShareView.java:1043,1534-1542,1578-1596,3668-3687@21f7d109da6ab3506c9e9577f98c6a38771ab335 | app/src/main/java/com/eve/app/telegram/qr/QrCardMotion.java:11 | ADAPTED original Java bounce/pulse; injected monotonic time and reduced motion | source peak, undershoot, interruption, pulse and settlement endpoints | JVM equations; device motion comparison pending |
+| ui/QrShare/QrShareView.java:3591-3686; QrShareActivity.java:819-848@21f7d109da6ab3506c9e9577f98c6a38771ab335 | app/src/main/java/com/eve/app/telegram/qr/QrSceneReveal.java:19 | ADAPTED original Java spring, close curve, shared root/scrim/control/card motion; EVE Activity/lifecycle and interrupted-close continuity | attached parent/layer properties, interrupted opening, duplicate close, cancellation, no-motion endpoints | Robolectric views; physical frame/gesture evidence absent |
+| ui/QrShare/QrRender.java:1-192@21f7d109da6ab3506c9e9577f98c6a38771ab335 | app/src/main/java/com/eve/app/telegram/qr/QrRender.java:99 | ADAPTED existing helper; guarded display-list disposal | Java/resource and AndroidTest compilation | API29/31 device paths unexecuted locally |
+| ui/QrShare/QrShareView.java:4533-4583@21f7d109da6ab3506c9e9577f98c6a38771ab335 | app/src/main/java/com/eve/app/telegram/qr/QrControlBackground.java:14 | ADAPTED EVE Drawable, source scene sampling plus existing QrGlass fill/sheen/rim | exact offset control-to-scene native bitmap samples; cleanup and QR raster scan | CPU stand-in and cross-view screen coordinates tested; actual blurred controls need device comparison |
+| ui/QrShare/QrShareView.java:2095-2121@21f7d109da6ab3506c9e9577f98c6a38771ab335 | app/src/main/java/com/eve/app/ui/profile/TelegramQrSceneView.kt:486 | ADAPTED EVE export/username/E mark; source height/crop policy with EVE insets/card bounds | 160 palette/size decodes, rotation-before-draw and actual PNG round trip | native Canvas/ZXing host output; platform share/save matrix pending |
+| ui/QrShare/QrShareActivity.java:819-848@21f7d109da6ab3506c9e9577f98c6a38771ab335 | app/src/main/java/com/eve/app/ui/profile/UsernameCardActivity.kt:145 | ADAPTED complete EVE root/controls binding and QR-only translucent window theme | compile and source integration review | underlying-screen, Back/navigation-mode device verification pending |
 
 ## Dependency and lifecycle boundary
 
@@ -120,7 +120,7 @@ hash; no source rendering math changes. The full local command passes again with
 ## R2/A1 pattern Java placement / wave / gesture increment (2026-11-02)
 
 Status: **ADAPTED, NOT MET for full R2/A1 and personal-qr**.
-Upstream official `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`
+Upstream official `DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335`
 opened: `QrShareView.java:135-166,208-229,1264-1305,2565-2787,
 3210-3218,3369-3407,6637-6768`. Exact source-backed algorithms:
 `NodeSprings` bounded array and 220/0.62 dynamics; node key/wave impulse,
@@ -146,7 +146,7 @@ pipeline is not imported. GPL combined-release review remains OPEN.
 ## R2/A1 source Java old/new emoji slot compositor (2026-11-02)
 
 Official source `QrShareView.java:198-211,1218-1260,2837-2872,
-3187-3212,3369-3411@3de37c8cfb039452be7398909461da6288babf15` opened against the pinned Git
+3187-3212,3369-3411@21f7d109da6ab3506c9e9577f98c6a38771ab335` opened against the pinned Git
 revision. Original `slotScale` and `backOut` equations, 0.18s shrink,
 0.135s incoming start, 0.315s growth and 0.3s per-cell delay are in Java
 `app/src/main/java/com/eve/app/telegram/qr/QrPatternSwap.java`.
@@ -158,9 +158,9 @@ Export draws the target only and does not advance the live pattern clock.
 
 | Upstream path:lines@SHA | EVE file | Classification |
 |---|---|---|
-| QrShareView.java:3187-3212@3de37c8cfb039452be7398909461da6288babf15 | QrPatternSwap.java:17-40 | EXACT source equation bodies, ADAPTED public helper and class |
-| QrShareView.java:3369-3411@3de37c8cfb039452be7398909461da6288babf15 | TelegramQrSceneView.kt:drawPattern/drawEmojiSlot | ADAPTED EVE animation cache and local-only scene hosting |
-| QrShareView.java:1218-1260,2837-2872@3de37c8cfb039452be7398909461da6288babf15 | TelegramQrSceneView.kt:setEmojiChoices/loadSelectedAnimations | ADAPTED lifecycle and replacement/retention boundary; no Telegram account or gift loading |
+| QrShareView.java:3187-3212@21f7d109da6ab3506c9e9577f98c6a38771ab335 | QrPatternSwap.java:17-40 | EXACT source equation bodies, ADAPTED public helper and class |
+| QrShareView.java:3369-3411@21f7d109da6ab3506c9e9577f98c6a38771ab335 | TelegramQrSceneView.kt:drawPattern/drawEmojiSlot | ADAPTED EVE animation cache and local-only scene hosting |
+| QrShareView.java:1218-1260,2837-2872@21f7d109da6ab3506c9e9577f98c6a38771ab335 | TelegramQrSceneView.kt:setEmojiChoices/loadSelectedAnimations | ADAPTED lifecycle and replacement/retention boundary; no Telegram account or gift loading |
 
 `QrPatternSwapTest.java` tests source curve/delay, no-old pattern
 pop, negative odd lattice rows, and transition expiry. Exact-SHA
@@ -172,7 +172,7 @@ release obligations remain unchanged.
 ## R2/A1 original Java background shimmer raster (2026-11-02)
 
 Current status: ADAPTED; full pattern/scene fidelity remains NOT MET.
-Pinned official Telegram revision: `3de37c8cfb039452be7398909461da6288babf15`.
+Pinned official Telegram revision: `21f7d109da6ab3506c9e9577f98c6a38771ab335`.
 Opened `QrShareView.java:2488-2559,2561-2562,2805-2838,3111-3160` and
 current `RimTune.java`, `QrBackdropScene.java`, `TelegramQrSceneView.kt`.
 
@@ -192,7 +192,7 @@ and gallery export remain EVE-owned. Source GPL/release disposition OPEN.
 ## A2 independent source Java sheet RenderNode blur and color lift (2026-11-02)
 
 **ADAPTED, not full Telegram sheet parity.** Inspected official
-`DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`
+`DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335`
 `QrShareView.java:4730-4767,4793-4828`. Original `LIFT_DS=8`
 records the QR scene backdrop into a separate RenderNode, applies
 stronger blur ramp `BLUR→SH_BLUR` plus luminance-aware

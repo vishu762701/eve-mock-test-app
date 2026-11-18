@@ -1,6 +1,6 @@
 # Telegram Java QrCodeLayer integration checkpoint
 
-Pinned official source: `DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`.
+Pinned official source: `DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335`.
 Upstream: `TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrCodeLayer.java:1-926`.
 Git blob SHA-1: `b9b5fcb69f538dfbc7dd87f628fe261ce1e69923`.
 

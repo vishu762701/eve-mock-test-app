@@ -1,5 +1,5 @@
 -- Existing bundled resources become server-addressable placement items.
--- Official Telegram revision: 3de37c8cfb039452be7398909461da6288babf15
+-- Official Telegram revision: 21f7d109da6ab3506c9e9577f98c6a38771ab335
 -- Assets/triggers are unchanged. Stage only; migration requires manual release.
 INSERT OR IGNORE INTO emoji_items
 (id,pack_id,alt_emoji,kind,storage_key,byte_size,sha256,enabled,premium_origin,source,pack_name,created_at)

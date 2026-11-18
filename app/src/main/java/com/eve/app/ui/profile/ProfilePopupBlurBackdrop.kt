@@ -24,7 +24,7 @@ import kotlin.math.max
 /**
  * Source-backed EVE adapter for Telegram's profile menu blur scene.
  *
- * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15
+ * DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335
  * ProfileActivity.java:4073-4090,16979-16996
  * ScrimOptions.java:349-368; AndroidUtilities.java:6032-6094
  * BlurredBackgroundProviderImpl.java:97-110

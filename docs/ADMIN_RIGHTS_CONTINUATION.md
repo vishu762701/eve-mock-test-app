@@ -72,7 +72,7 @@ Telegram has no EVE exam-admin or Firebase/Worker permission service equivalent:
 that business/auth subsystem is NOT FOUND upstream, implemented as an **ADAPTED
 EVE integration**, with no false EXACT claim. The unchanged source UI remains
 Components/PagerSlidingTabStrip.java:249-250 at official
-DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15 ->
+DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335 ->
 app/src/main/java/com/eve/app/telegram/components/PagerSlidingTabStrip.java:249 and
 ui/admin/AdminDashboardPager.kt:32,84 (ADAPTED package/theme/EVE section host).
 Original 350ms quint indicator and actual bound row callbacks remain unchanged.

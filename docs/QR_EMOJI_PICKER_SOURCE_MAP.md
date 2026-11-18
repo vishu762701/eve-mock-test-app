@@ -4,7 +4,7 @@ Status: ADAPTED picker subsystem implemented; full QR fidelity remains OPEN.
 This is not acceptance of the complete A2 experience or QR screen.
 
 Official source is the HTTPS Git checkout `DrKLO/Telegram` at
-`3de37c8cfb039452be7398909461da6288babf15`. Before copying, opened
+`21f7d109da6ab3506c9e9577f98c6a38771ab335`. Before copying, opened
 `QrShare/QrEmojiPanel.java:1-315,490-638`, `EmojiPickOverlay.java` (whole file),
 `QrShareActivity.java:480-755`, `QrShareView.java:711-715,862,940-1025,1868-1880`.
 Root license is GPLv2; no absent per-file later-version grant is invented. Existing
@@ -25,12 +25,12 @@ QrShareView sheet/blur compositor are excluded, with no fake data substitute.
 
 | Telegram upstream file:lines@SHA | EVE file:line | Classification | Tests | Runtime evidence |
 |---|---|---|---|---|
-| QrEmojiPanel.java:517-630@3de37c8cfb039452be7398909461da6288babf15 | app/src/main/java/com/eve/app/telegram/qr/QrEmojiCell.java:18 | ADAPTED original Java draw/press/measure; EVE Drawable ownership, labels, visibility and motion inputs | QrEmojiPickerGridTest lifecycle/selection tests | host controlled-window test; actual platform test compiled, not executed locally |
-| EmojiPickOverlay.java:1-572@3de37c8cfb039452be7398909461da6288babf15 | app/src/main/java/com/eve/app/telegram/qr/EmojiPickOverlay.java:34 | ADAPTED package/units/public API/cell type/native Drawable; reduced-motion endpoints and delayed scrollbar teardown | actual overlay paint/selection and six-key integration | Robolectric attached views; native reference comparison absent |
-| QrEmojiPanel.java:493-515; QrShareActivity.java:506-518,593-609,659-669@3de37c8cfb039452be7398909461da6288babf15 | app/src/main/java/com/eve/app/telegram/qr/QrEmojiGrid.java:24 | ADAPTED original Java grid layer, smoothstep bottom mask and picked-island cut; AndroidX host | actual attached grid paint and restoration tests | host only; device and full scene blur pending |
-| QrEmojiPanel.java:134-194,222-233@3de37c8cfb039452be7398909461da6288babf15 | app/src/main/java/com/eve/app/ui/profile/QrEmojiPickerGrid.kt:19 | ADAPTED EVE catalogue/lifecycle/ownership adapter; >=48dp cells vs original nominal 46dp | six selections, recycling, late asset completion after dismiss, empty-layout scroll restoration | four Robolectric cases; both-navigation AndroidTest compiled only |
-| QrShareView.java:972-992@3de37c8cfb039452be7398909461da6288babf15 | app/src/main/java/com/eve/app/ui/profile/QrEmojiPattern.kt:35 | existing ADAPTED six-key toggle/drop-oldest logic retained | existing 3 pattern tests + actual picker integration | host only |
-| QrShareView.java:711-715@3de37c8cfb039452be7398909461da6288babf15 | app/src/main/java/com/eve/app/telegram/qr/QrPalettes.java:23 | ADAPTED extraction of original Java shadeFor algorithm; palette index host | compiled Java and picker paint paths | host only; no screen parity claim |
+| QrEmojiPanel.java:517-630@21f7d109da6ab3506c9e9577f98c6a38771ab335 | app/src/main/java/com/eve/app/telegram/qr/QrEmojiCell.java:18 | ADAPTED original Java draw/press/measure; EVE Drawable ownership, labels, visibility and motion inputs | QrEmojiPickerGridTest lifecycle/selection tests | host controlled-window test; actual platform test compiled, not executed locally |
+| EmojiPickOverlay.java:1-572@21f7d109da6ab3506c9e9577f98c6a38771ab335 | app/src/main/java/com/eve/app/telegram/qr/EmojiPickOverlay.java:34 | ADAPTED package/units/public API/cell type/native Drawable; reduced-motion endpoints and delayed scrollbar teardown | actual overlay paint/selection and six-key integration | Robolectric attached views; native reference comparison absent |
+| QrEmojiPanel.java:493-515; QrShareActivity.java:506-518,593-609,659-669@21f7d109da6ab3506c9e9577f98c6a38771ab335 | app/src/main/java/com/eve/app/telegram/qr/QrEmojiGrid.java:24 | ADAPTED original Java grid layer, smoothstep bottom mask and picked-island cut; AndroidX host | actual attached grid paint and restoration tests | host only; device and full scene blur pending |
+| QrEmojiPanel.java:134-194,222-233@21f7d109da6ab3506c9e9577f98c6a38771ab335 | app/src/main/java/com/eve/app/ui/profile/QrEmojiPickerGrid.kt:19 | ADAPTED EVE catalogue/lifecycle/ownership adapter; >=48dp cells vs original nominal 46dp | six selections, recycling, late asset completion after dismiss, empty-layout scroll restoration | four Robolectric cases; both-navigation AndroidTest compiled only |
+| QrShareView.java:972-992@21f7d109da6ab3506c9e9577f98c6a38771ab335 | app/src/main/java/com/eve/app/ui/profile/QrEmojiPattern.kt:35 | existing ADAPTED six-key toggle/drop-oldest logic retained | existing 3 pattern tests + actual picker integration | host only |
+| QrShareView.java:711-715@21f7d109da6ab3506c9e9577f98c6a38771ab335 | app/src/main/java/com/eve/app/telegram/qr/QrPalettes.java:23 | ADAPTED extraction of original Java shadeFor algorithm; palette index host | compiled Java and picker paint paths | host only; no screen parity claim |
 
 Remaining differences: Material sheet container, source packs/recent/premium
 services unavailable in EVE, original blur/scene morph and matched device evidence.
@@ -123,7 +123,7 @@ unresolved. No FULL/native-device acceptance or published APK is inferred.
 ## A2 source Java picker grid opening transform — 2026-11-02
 
 Status **ADAPTED, not complete sheet-morph parity**. Opened pinned
-`DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`
+`DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335`
 `QrShareActivity.java:532-569,613-663,685-758` and
 `QrShareView.java:1904-1918`.
 
@@ -143,7 +143,7 @@ unchanged.
 
 ## A2 native grid opening island-cut coordinate correction — 2026-11-02
 
-Source opened `QrShareActivity.java:663-676@3de37c8cfb039452be7398909461da6288babf15`.
+Source opened `QrShareActivity.java:663-676@21f7d109da6ab3506c9e9577f98c6a38771ab335`.
 The picker overlay remains in unscaled parent coordinates while the source
 grid opens 0.75→1, so directly cutting its `islandRect` in the scaled
 RecyclerView's Canvas was incorrect. `QrEmojiGrid.mapIslandCut()` now uses
@@ -161,7 +161,7 @@ the combined Telegram license review OPEN.
 ## A2 native QR sheet island geometry and opening clip (2026-11-02)
 
 **ADAPTED / full source sheet parity NOT MET.** Official Telegram Android
-`DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`, `QrShareView.java:5317-5433`:
+`DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335`, `QrShareView.java:5317-5433`:
 `SHEET_EASE = cubic-bezier(0.16,1,0.3,1)`, opening 420ms, closing
 360ms, 144x40dp original island, 10dp sheet insets, 28.17dp
 target radius, and source opening `contentA = clamp(sheet / 0.8)`.
@@ -191,7 +191,7 @@ using local Robolectric SDK 35 graphics. Physical device/GPU fidelity OPEN.
 ## A2 QR picker original close and cell cascade (2026-11-02)
 
 Status: **ADAPTED**, full picker parity **NOT MET**. Official upstream:
-`DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15`.
+`DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335`.
 `QrShareView.java:5317-5352` closes sheet over 360ms with source
 cubic-bezier, fading content over 170ms with exponent 1.7.
 `QrShareActivity.java:609-632` closes visible emoji rows top-first

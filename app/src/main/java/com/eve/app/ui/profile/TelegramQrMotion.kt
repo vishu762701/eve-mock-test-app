@@ -4,7 +4,7 @@ import kotlin.math.exp
 import kotlin.math.tanh
 
 /** Source-traced motion parameters from Telegram 13.1.1 QR; EVE rendering is ADAPTED.
- * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15
+ * DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335
  * QrShareActivity.java:819-832; QrShareView.java:208-212,2785-2787,3631-3665.
  */
 internal object TelegramQrMotion {

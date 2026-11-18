@@ -10,7 +10,7 @@ import android.view.animation.LinearInterpolator;
 /**
  * ADAPTED original Java reveal equations / whole-layer properties from
  * QrShareView.java:3591-3686 and QrShareActivity.java:819-848,
- * DrKLO/Telegram@3de37c8cfb039452be7398909461da6288babf15.
+ * DrKLO/Telegram@21f7d109da6ab3506c9e9577f98c6a38771ab335.
  * EVE Activity/view/cancellation wiring replaces Telegram fragment transition locks.
  * Original open spring, close curve, durations and control/card scale endpoints
  * retained; interruption continues from the currently displayed state.
