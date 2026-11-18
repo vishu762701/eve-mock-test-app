@@ -1009,9 +1009,6 @@ public class Theme {
                 themeAccent.patternIntensity = accent.patternIntensity;
                 themeAccent.patternMotion = accent.patternMotion;
                 themeAccent.parentTheme = this;
-                if (overrideWallpaper != null) {
-                    themeAccent.overrideWallpaper = new OverrideWallpaperInfo(overrideWallpaper, this, themeAccent);
-                }
                 prevAccentId = currentAccentId;
                 currentAccentId = themeAccent.id = id;
                 // no-op // EVE-PATCH: skip overrideWallpaper in getAccent
@@ -4045,13 +4042,6 @@ public class Theme {
         });
     }
 
-    public static void applyThemeTemporary(ThemeInfo themeInfo, boolean accent) {
-        previousTheme = getCurrentTheme();
-        hasPreviousTheme = true;
-        isApplyingAccent = accent;
-        applyTheme(themeInfo, false, false, false);
-    }
-
     public static ThemeInfo getTheme(String key) {
         return themesDict.get(key);
     }
@@ -4398,14 +4388,6 @@ public class Theme {
     }
 
     private static final float MAXIMUM_LUX_BREAKPOINT = 500.0f;
-
-    public static void setCurrentNightTheme(ThemeInfo theme) {
-        boolean apply = currentTheme == currentNightTheme;
-        currentNightTheme = theme;
-        if (apply) {
-            applyDayNightThemeMaybe(true);
-        }
-    }
 
     public static File getAssetFile(String assetName) {
         File file = new File(ApplicationLoader.getFilesDirFixed(), assetName);

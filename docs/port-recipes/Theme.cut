@@ -14,6 +14,7 @@ remove-method saveAutoNightThemeConfig all
 remove-method fillThemeValues all
 remove-method applyThemeFile all
 remove-method applyTheme all
+remove-method applyThemeTemporary all
 remove-method applyThemeInBackground all
 remove-method refreshThemeColors all
 remove-method deleteThemeAccent all
@@ -117,6 +118,7 @@ remove-method applyDayNightThemeMaybe all
 remove-method deleteTheme all
 remove-method isThemeInstalled all
 remove-method applyDialogsTheme all
+remove-method setCurrentNightTheme all
 
 # Remove unported inner classes
 remove-statement "public static class PatternsLoader implements NotificationCenter.NotificationCenterDelegate {"
@@ -183,6 +185,7 @@ remove-statement "private static Runnable switchNightBrightnessRunnable = new Ru
 remove-statement "if (\"Blue\".equals(name)) {"
 remove-statement "if (info != null && info.emoticon != null && !isDarkTheme) {"
 remove-statement "if (info != null) {"
+remove-statement "if (overrideWallpaper != null) {"
 
 # Patches for Eve environment
 patch-line "                overrideWallpaper = themeAccent.overrideWallpaper;" "                // no-op" "skip overrideWallpaper in getAccent"
