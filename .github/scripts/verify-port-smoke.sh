@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-guest_crash_pid=""
-guest_crash_log="ui-renderings/guest-crash-stream.log"
+full_logcat_pid=""
+full_logcat_log="ui-renderings/full-logcat.log"
 mkdir -p ui-renderings
 
 cleanup() {
   local exit_code=$?
-  if [[ -n "$guest_crash_pid" ]]; then
-    kill -9 "$guest_crash_pid" 2>/dev/null || true
-    wait "$guest_crash_pid" 2>/dev/null || true
+  if [[ -n "$full_logcat_pid" ]]; then
+    kill -9 "$full_logcat_pid" 2>/dev/null || true
+    wait "$full_logcat_pid" 2>/dev/null || true
   fi
   # Pull evidence if emulator is still accessible
   if [[ "$(timeout 5s adb get-state 2>/dev/null || true)" == "device" ]]; then
     timeout 12s adb pull /sdcard/Pictures/eve-approved-ui/. ui-renderings/ 2>/dev/null || true
+    timeout 12s adb pull /sdcard/Pictures/. ui-renderings/ 2>/dev/null || true
     timeout 12s adb pull /sdcard/ui-renderings/. ui-renderings/ 2>/dev/null || true
   fi
   if [[ "$exit_code" -ne 0 ]]; then
@@ -21,9 +22,9 @@ cleanup() {
       echo "=== INSTRUMENTATION LOG TAIL ==="
       tail -n 100 "$instrumentation_log" || true
     fi
-    if [[ -f "${guest_crash_log:-}" ]]; then
-      echo "=== GUEST CRASH LOG TAIL ==="
-      tail -n 100 "$guest_crash_log" || true
+    if [[ -f "${full_logcat_log:-}" ]]; then
+      echo "=== FULL LOGCAT TAIL ==="
+      tail -n 150 "$full_logcat_log" || true
     fi
   fi
   exit "$exit_code"
@@ -96,10 +97,10 @@ if [[ -f docs/port-manifest.json ]]; then
   adb push docs/port-manifest.json /sdcard/port-manifest.json 2>/dev/null || true
 fi
 
-# 6. Clear logcat and start crash monitor
+# 6. Clear logcat and start logcat monitor
 adb logcat -c || true
-timeout 1200s adb logcat -b crash -b events -v threadtime > "$guest_crash_log" 2>&1 &
-guest_crash_pid=$!
+timeout 1200s adb logcat -v threadtime > "$full_logcat_log" 2>&1 &
+full_logcat_pid=$!
 
 # 7. Run PortedScreensSmokeTest instrumentation
 echo "Running PortedScreensSmokeTest..."
@@ -137,9 +138,9 @@ if ! grep -qE "OK \([0-9]+ test" "$instrumentation_log" && ! grep -q "INSTRUMENT
 fi
 
 # Check logcat crash buffer for FATAL EXCEPTION or ANR
-if grep -qE "FATAL EXCEPTION|ANR in " "$guest_crash_log"; then
+if grep -qE "FATAL EXCEPTION|ANR in " "$full_logcat_log"; then
   echo "PORT SMOKE FAILURE: FATAL EXCEPTION or ANR detected in crash buffer:" >&2
-  grep -E -C 3 "FATAL EXCEPTION|ANR in " "$guest_crash_log" | head -n 40 >&2
+  grep -E -C 3 "FATAL EXCEPTION|ANR in " "$full_logcat_log" | head -n 40 >&2
   exit 1
 fi
 

@@ -35,7 +35,7 @@ object ProfileEditorAccountGuard {
             Bundle().apply { putString("uid", ownerUid) }
         }
         val listener = FirebaseAuth.AuthStateListener {
-            val liveUid = testOverrideUid ?: it.currentUser?.uid
+            val liveUid = testOverrideUid ?: (if (isTestIntent) intentUid else null) ?: it.currentUser?.uid
             if (liveUid != ownerUid) activity.finish()
         }
         auth.addAuthStateListener(listener)
