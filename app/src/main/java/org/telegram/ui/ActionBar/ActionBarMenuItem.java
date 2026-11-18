@@ -15,6 +15,15 @@ public class ActionBarMenuItem extends FrameLayout {
         iconView = new ImageView(context);
         iconView.setScaleType(ImageView.ScaleType.CENTER);
         addView(iconView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
+        if (iconColor != 0) {
+            iconView.setColorFilter(iconColor);
+        }
+    }
+
+    public void setIconColor(int color) {
+        if (iconView != null && color != 0) {
+            iconView.setColorFilter(color);
+        }
     }
 
     public void setItemId(int id) {

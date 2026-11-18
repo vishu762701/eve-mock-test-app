@@ -2,6 +2,7 @@
 package org.telegram.messenger;
 
 import android.content.Context;
+import android.graphics.Point;
 import android.graphics.Typeface;
 import android.os.Handler;
 import android.os.Looper;
@@ -11,12 +12,15 @@ import java.util.HashMap;
 
 public class AndroidUtilities {
     public static float density = 1.0f;
+    public static Point displaySize = new Point();
     private static final Handler mHandler = new Handler(Looper.getMainLooper());
     private static final HashMap<String, Typeface> typefaces = new HashMap<>();
 
     static {
         try {
             density = android.content.res.Resources.getSystem().getDisplayMetrics().density;
+            displaySize.x = android.content.res.Resources.getSystem().getDisplayMetrics().widthPixels;
+            displaySize.y = android.content.res.Resources.getSystem().getDisplayMetrics().heightPixels;
         } catch (Exception ignored) {
             density = 1.0f;
         }

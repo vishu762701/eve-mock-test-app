@@ -31,7 +31,8 @@ public class ActionBarMenu extends LinearLayout {
     }
 
     public ActionBarMenuItem addItemWithWidth(int id, int icon, int width, CharSequence title) {
-        ActionBarMenuItem item = new ActionBarMenuItem(getContext(), this, 0, 0);
+        int iconColor = parentActionBar != null ? parentActionBar.getItemsColor() : 0;
+        ActionBarMenuItem item = new ActionBarMenuItem(getContext(), this, 0, iconColor);
         item.setItemId(id);
         item.setIcon(icon);
         item.setContentDescription(title);

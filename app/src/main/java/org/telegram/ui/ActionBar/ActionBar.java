@@ -64,9 +64,30 @@ public class ActionBar extends FrameLayout {
         }
     }
 
+    public int getItemsColor() {
+        return itemsColor;
+    }
+
+    public void setTitleColor(int color) {
+        if (titleTextView != null) {
+            titleTextView.setTextColor(color);
+        }
+    }
+
+    public static int getCurrentActionBarHeight() {
+        if (AndroidUtilities.displaySize.x > AndroidUtilities.displaySize.y) {
+            return AndroidUtilities.dp(48);
+        } else {
+            return AndroidUtilities.dp(56);
+        }
+    }
+
     public void setBackButtonImage(int resId) {
         if (backButtonImageView != null) {
             backButtonImageView.setImageResource(resId);
+            if (itemsColor != 0) {
+                backButtonImageView.setColorFilter(itemsColor);
+            }
         }
     }
 

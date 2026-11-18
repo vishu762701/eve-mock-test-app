@@ -3,7 +3,7 @@ package com.eve.app.ui.profile
 import android.app.Activity
 import android.os.Bundle
 import android.view.ViewGroup
-import android.widget.FrameLayout
+import android.widget.LinearLayout
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.ProfileRequestOwner
@@ -15,7 +15,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import org.telegram.ui.ActionBar.ActionBar
 import org.telegram.ui.ActionBar.INavigationLayout
+import org.telegram.ui.ActionBar.Theme
 import org.telegram.ui.ChangeNameActivity as TelegramChangeNameActivity
 
 class ChangeNameActivity : EveBaseActivity(), INavigationLayout, TelegramChangeNameActivity.ChangeNameDelegate {
@@ -23,29 +25,45 @@ class ChangeNameActivity : EveBaseActivity(), INavigationLayout, TelegramChangeN
     private var saveInFlight = false
 
     private lateinit var fragment: TelegramChangeNameActivity
-    private lateinit var container: FrameLayout
+    private lateinit var container: LinearLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         editorOwnerUid = ProfileEditorAccountGuard.bind(this, savedInstanceState) ?: return
 
-        fragment = TelegramChangeNameActivity(null)
-        fragment.setParentLayout(this)
-        fragment.setEveDelegate(this)
-        fragment.onFragmentCreate()
-
-        container = FrameLayout(this).apply {
+        container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
         }
 
+        fragment = TelegramChangeNameActivity(null)
+        fragment.setParentLayout(this)
+        fragment.setEveDelegate(this)
+        fragment.onFragmentCreate()
+
         val fragmentView = fragment.createView(this)
         val actionBar = fragment.actionBar
 
-        container.addView(fragmentView)
-        container.addView(actionBar)
+        if (actionBar != null) {
+            (actionBar.parent as? ViewGroup)?.removeView(actionBar)
+            val actionBarHeight = ActionBar.getCurrentActionBarHeight()
+            container.addView(actionBar, LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                actionBarHeight
+            ))
+        }
+
+        if (fragmentView != null) {
+            (fragmentView.parent as? ViewGroup)?.removeView(fragmentView)
+            container.addView(fragmentView, LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
+            ))
+        }
 
         setContentView(container)
 
@@ -78,7 +96,7 @@ class ChangeNameActivity : EveBaseActivity(), INavigationLayout, TelegramChangeN
         finish()
     }
 
-    override fun getView(): ViewGroup = container
+    override fun getView(): ViewGroup = if (::container.isInitialized) container else findViewById(android.R.id.content)
     override fun getParentActivity(): Activity = this
 
     // --- ChangeNameDelegate implementation (Eve save flow & account guard) ---

@@ -16,8 +16,22 @@ public abstract class BaseFragment {
     public void setParentLayout(INavigationLayout layout) {
         if (parentLayout != layout) {
             parentLayout = layout;
-            if (parentLayout != null && parentLayout.getView() != null && actionBar == null) {
-                actionBar = createActionBar(parentLayout.getView().getContext());
+            if (parentLayout != null && actionBar == null) {
+                Context context = null;
+                if (parentLayout.getParentActivity() != null) {
+                    context = parentLayout.getParentActivity();
+                } else {
+                    try {
+                        View pv = parentLayout.getView();
+                        if (pv != null) {
+                            context = pv.getContext();
+                        }
+                    } catch (Exception ignored) {
+                    }
+                }
+                if (context != null) {
+                    actionBar = createActionBar(context);
+                }
             }
         }
     }
