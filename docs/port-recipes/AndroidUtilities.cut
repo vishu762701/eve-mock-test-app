@@ -1,6 +1,8 @@
 upstream org/telegram/messenger/AndroidUtilities.java
 to app/src/main/java/org/telegram/messenger/AndroidUtilities.java
 
+remove-import androidx.exifinterface.media.ExifInterface
+
 # Remove coupled methods touching TLRPC, MessagesController, UserConfig, ConnectionsManager
 remove-method googleVoiceClientService_performAction
 remove-method loadVCardFromStream all
@@ -17,6 +19,9 @@ remove-method findDocument all
 # Remove telephony and SMS retriever
 remove-method endIncomingCall
 remove-method setWaitingForSms
+remove-statement "private static CallReceiver callReceiver;"
+remove-method isWaitingForCall
+remove-method setWaitingForCall
 
 # Remove custom camera / video / proxy
 remove-method handleProxyIntent
@@ -31,7 +36,7 @@ remove-method needShowPasscode all
 remove-method isMapsInstalled all
 remove-method updateViewShow all
 
-# Remove unported spans / UI components
+# Remove unported spans / UI components / unused helpers
 remove-method highlightText all
 remove-method replaceArrows all
 remove-method replaceLinks all
@@ -48,11 +53,29 @@ remove-method makeGlobalBlurBitmap all
 remove-method makeBlurBitmap all
 remove-method allGlobalViews all
 remove-method getRootView all
+remove-method getImageOrientation all
+remove-statement "private static int[] documentIcons = {"
+remove-statement "private static int[] documentMediaIcons = {"
+remove-method getThumbForNameOrMime
+remove-method getLogsDir
+remove-method createEmptyFile
+remove-statement "private static class VcardData {"
+remove-statement "public static class VcardItem {"
+remove-method obtainLoginPhoneCall
+remove-method allowScreenCapture
+remove-method shakeView
+remove-method shakeViewSpring all
+remove-method formatSpannable all
+remove-method formatSpannableSimple
+remove-statement "if (!TextUtils.isEmpty(SharedConfig.storageCacheDir)) {"
 
 # Patches
 patch-line "        if (activity == null || activity.isFinishing()) activity = LaunchActivity.instance;" "        if (activity == null || activity.isFinishing()) activity = findActivity(ApplicationLoader.applicationContext);" "fallback to applicationContext activity lookup"
-patch-line "                    return PhoneFormat.getInstance().format(result.toString());" "                    return result.toString();" "bypass PhoneFormat in VcardItem"
 patch-line "            return BitwiseUtils.hasFlag(flags, View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);" "            return (flags & View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR) != 0;" "use standard bitwise check"
 patch-line "        final int newFlags = BitwiseUtils.setFlag(oldFlags, flag, enable);" "        final int newFlags = enable ? (oldFlags | flag) : (oldFlags & ~flag);" "use standard bitwise check"
+patch-line "            if (SharedConfig.useSystemBoldFont && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {" "            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {" "decouple SharedConfig"
+patch-line "        return ApplicationLoader.applicationContext != null && ApplicationLoader.applicationContext.getResources().getBoolean(R.bool.isTablet);" "        return false;" "phone default for tablet"
+patch-line "        SharedConfig.updateTabletConfig();" "        // no-op" "decouple SharedConfig"
+patch-line "        return isTabletInternal() && !SharedConfig.forceDisableTabletMode;" "        return isTabletInternal();" "decouple SharedConfig"
 
 prune-imports

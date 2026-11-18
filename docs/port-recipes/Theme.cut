@@ -57,6 +57,13 @@ remove-method isCustomTheme all
 remove-method isThemeWallpaperPublic all
 remove-method setRippleDrawableForceSoftware all
 remove-method of all
+remove-method getWallpaperUrl all
+remove-method reloadAllResources all
+remove-method hasCustomWallpaper all
+remove-method isCustomWallpaperColor all
+remove-method resetCustomWallpaper all
+remove-method getSelectedBackgroundSlug all
+remove-method isWallpaperMotion all
 
 # Remove inner classes or methods in ThemeInfo / ThemeAccent touching TLRPC
 remove-method didReceivedNotification all
@@ -129,8 +136,21 @@ remove-statement "public TLRPC.InputFile uploadedThumb;" all
 remove-statement "public TLRPC.InputFile uploadedFile;" all
 remove-statement "if (!TextUtils.isEmpty(accents)) {"
 remove-statement "if (drawable instanceof StatusDrawable) {"
+remove-statement "if (preferences.contains(\"overrideThemeWallpaper\") || preferences.contains(\"selectedBackground2\")) {"
+remove-statement "if (themeInfo.overrideWallpaper != null) {"
+remove-statement "if (overrideWallpaper != null) {"
+remove-statement "public OverrideWallpaperInfo overrideWallpaper;" all
+remove-statement "public static MessageDrawable chat_msgInDrawable;"
+remove-statement "public static MessageDrawable chat_msgInSelectedDrawable;"
+remove-statement "public static MessageDrawable chat_msgOutDrawable;"
+remove-statement "public static MessageDrawable chat_msgOutSelectedDrawable;"
+remove-statement "public static MessageDrawable chat_msgInMediaDrawable;"
+remove-statement "public static MessageDrawable chat_msgInMediaSelectedDrawable;"
+remove-statement "public static MessageDrawable chat_msgOutMediaDrawable;"
+remove-statement "public static MessageDrawable chat_msgOutMediaSelectedDrawable;"
 
 # Patches for Eve environment
+patch-line "                overrideWallpaper = themeAccent.overrideWallpaper;" "                // no-op" "skip overrideWallpaper in getAccent"
 patch-line "        SharedPreferences preferences = MessagesController.getGlobalMainSettings();" "        SharedPreferences preferences = ApplicationLoader.applicationContext != null ? ApplicationLoader.applicationContext.getSharedPreferences(\"mainconfig\", Context.MODE_PRIVATE) : null;" "use app shared preferences"
 patch-line "    private static boolean[] loadingRemoteThemes = new boolean[UserConfig.MAX_ACCOUNT_COUNT];" "    private static boolean[] loadingRemoteThemes = new boolean[4];" "use fixed account count"
 patch-line "        for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {" "        for (int a = 0; a < 4; a++) {" "use fixed account count in static loop"

@@ -1,7 +1,17 @@
 upstream org/telegram/messenger/BuildVars.java
 remove-import com.android.billingclient.api.ProductDetails
+
+remove-method useInvoiceBilling
+remove-method hasDirectCurrency
+remove-method isBetaApp
+remove-method isHuaweiStoreApp
+remove-method getSmsHash
+remove-statement "private static Boolean betaApp;"
+
 patch-line "    public static boolean DEBUG_VERSION = BuildConfig.DEBUG_VERSION;" "    public static boolean DEBUG_VERSION = com.eve.app.BuildConfig.DEBUG;" "wire to Eve BuildConfig"
 patch-line "    public static boolean LOGS_ENABLED = BuildConfig.DEBUG_VERSION;" "    public static boolean LOGS_ENABLED = com.eve.app.BuildConfig.DEBUG;" "wire to Eve BuildConfig"
 patch-line "    public static boolean DEBUG_PRIVATE_VERSION = BuildConfig.DEBUG_PRIVATE_VERSION;" "    public static boolean DEBUG_PRIVATE_VERSION = false;" "wire to false"
 patch-line "    public static String BUILD_VERSION_STRING = BuildConfig.BUILD_VERSION_STRING;" "    public static String BUILD_VERSION_STRING = com.eve.app.BuildConfig.VERSION_NAME;" "wire to Eve BuildConfig"
+patch-line "                    FileLog.fatal(exception, false);" "                    FileLog.fatal(exception);" "use single-argument fatal"
+
 prune-imports

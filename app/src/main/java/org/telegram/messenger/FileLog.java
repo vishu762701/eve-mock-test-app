@@ -8,17 +8,11 @@
 
 package org.telegram.messenger;
 
-import android.content.Context;
-import android.content.res.ColorStateList;
 import android.util.Log;
 
 
 
-import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.lang.reflect.Field;
-import java.lang.reflect.Type;
-import java.util.HashSet;
 
 public class FileLog {
     private OutputStreamWriter streamWriter = null;
@@ -49,80 +43,6 @@ public class FileLog {
 
     }
 
-
-    private static volatile boolean gsonDisabled;
-
-    private static HashSet<String> privateFields;
-
-    public static class ByteArrayHexAdapter extends TypeAdapter<byte[]> {
-
-        @Override
-        public void write(JsonWriter out, byte[] value) throws IOException {
-            if (value == null) {
-                out.nullValue();
-                return;
-            }
-
-            StringBuilder hex = new StringBuilder(2 + value.length * 2);
-            hex.append("0x");
-            for (byte b : value) {
-                hex.append(String.format("%02x", b & 0xFF));
-            }
-            out.value(hex.toString());
-        }
-
-        @Override
-        public byte[] read(JsonReader in) throws IOException {
-            String hex = in.nextString();
-            int len = hex.length();
-            byte[] result = new byte[len / 2];
-            for (int i = 0; i < len; i += 2) {
-                result[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)
-                    + Character.digit(hex.charAt(i+1), 16));
-            }
-            return result;
-        }
-    }
-
-    private static class TLObjectDeserializer implements JsonSerializer<TLObject> {
-        @Override
-        public JsonElement serialize(TLObject src, Type typeOfSrc, JsonSerializationContext context) {
-            JsonObject jsonObj = new JsonObject();
-            String className = src.getClass().getName();
-            final String usualPrefix = "org.telegram.tgnet.";
-            if (className.startsWith(usualPrefix)) {
-                className = className.substring(usualPrefix.length());
-            }
-            jsonObj.addProperty("_", className);
-            try {
-                Field[] fields = src.getClass().getFields();
-                for (Field field : fields) {
-                    if (privateFields != null && privateFields.contains(field.getName())) continue;
-                    field.setAccessible(true);
-                    try {
-                        Object value = field.get(src);
-                        // Native buffers can already have been returned to their pool.
-                        if (value instanceof NativeByteBuffer) {
-                            continue;
-                        }
-                        if (value != null) {
-                            Class clazz = value.getClass();
-                            if (clazz.isInstance(DispatchQueue.class) || clazz.isInstance(AnimatedFileDrawable.class) || clazz.isInstance(ColorStateList.class) || clazz.isInstance(Context.class)) {
-                                continue;
-                            }
-                        }
-                        JsonElement jsonElement = context.serialize(value);
-                        jsonObj.add(field.getName(), jsonElement);
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return jsonObj;
-        }
-    }
 
 
     public static void ensureInitied() {
@@ -171,11 +91,11 @@ public class FileLog {
     }
 
     public static void e(final Throwable e) {
-        e(e, true);
+        e.printStackTrace(); // EVE-PATCH: log throwable locally
     }
 
     public static void fatal(final Throwable e) {
-        fatal(e, true);
+        e.printStackTrace(); // EVE-PATCH: log fatal throwable locally
     }
 
     private static long dumpedHeap;

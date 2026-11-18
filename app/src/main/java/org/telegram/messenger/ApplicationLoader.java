@@ -12,7 +12,6 @@ import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
-import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -39,8 +38,6 @@ public class ApplicationLoader extends Application {
     private static ConnectivityManager connectivityManager;
     private static volatile boolean applicationInited = false;
     private static volatile  ConnectivityManager.NetworkCallback networkCallback;
-    private static long lastNetworkCheckTypeTime;
-    private static int lastKnownNetworkType = -1;
 
     public static long startTime;
 
@@ -130,23 +127,6 @@ public class ApplicationLoader extends Application {
 
     public ApplicationLoader() {
         super();
-    }
-
-    private final Runnable debugEverySecondChecks = () -> AndroidUtilities.runOnUIThread(() -> {
-        NotificationCenter.sanitize();
-    });
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        try {
-            LocaleController.getInstance().onDeviceConfigurationChange(newConfig);
-            AndroidUtilities.checkDisplaySize(applicationContext, newConfig);
-            VideoCapturerDevice.checkScreenCapturerSize();
-            AndroidUtilities.resetTabletFlag();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     private static long lastNetworkCheck = -1;
@@ -239,43 +219,6 @@ public class ApplicationLoader extends Application {
 
         }
         return false;
-    }
-
-    public static int getAutodownloadNetworkType() {
-        try {
-            ensureCurrentNetworkGet(false);
-            if (currentNetworkInfo == null) {
-                return StatsController.TYPE_MOBILE;
-            }
-            if (currentNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI || currentNetworkInfo.getType() == ConnectivityManager.TYPE_ETHERNET) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && (lastKnownNetworkType == StatsController.TYPE_MOBILE || lastKnownNetworkType == StatsController.TYPE_WIFI) && System.currentTimeMillis() - lastNetworkCheckTypeTime < 5000) {
-                    return lastKnownNetworkType;
-                }
-                if (connectivityManager.isActiveNetworkMetered()) {
-                    lastKnownNetworkType = StatsController.TYPE_MOBILE;
-                } else {
-                    lastKnownNetworkType = StatsController.TYPE_WIFI;
-                }
-                lastNetworkCheckTypeTime = System.currentTimeMillis();
-                return lastKnownNetworkType;
-            }
-            if (currentNetworkInfo.isRoaming()) {
-                return StatsController.TYPE_ROAMING;
-            }
-        } catch (Exception e) {
-            FileLog.e(e);
-        }
-        return StatsController.TYPE_MOBILE;
-    }
-
-    public static int getCurrentNetworkType() {
-        if (isConnectedOrConnectingToWiFi()) {
-            return StatsController.TYPE_WIFI;
-        } else if (isRoaming()) {
-            return StatsController.TYPE_ROAMING;
-        } else {
-            return StatsController.TYPE_MOBILE;
-        }
     }
 
     public static boolean isNetworkOnlineFast() {

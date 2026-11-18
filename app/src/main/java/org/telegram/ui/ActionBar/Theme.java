@@ -146,7 +146,6 @@ public class Theme {
         public String uploadingThumb;
         public String uploadingFile;
 
-        public OverrideWallpaperInfo overrideWallpaper;
         public boolean isDefault;
 
         ThemeAccent() {
@@ -803,7 +802,6 @@ public class Theme {
         private String loadingThemeWallpaperName;
         private String newPathToWallpaper;
 
-        public OverrideWallpaperInfo overrideWallpaper;
         private int isDark = UNKNOWN;
 
         private final static int DARK= 1;
@@ -1121,12 +1119,9 @@ public class Theme {
                 themeAccent.patternIntensity = accent.patternIntensity;
                 themeAccent.patternMotion = accent.patternMotion;
                 themeAccent.parentTheme = this;
-                if (overrideWallpaper != null) {
-                    themeAccent.overrideWallpaper = new OverrideWallpaperInfo(overrideWallpaper, this, themeAccent);
-                }
                 prevAccentId = currentAccentId;
                 currentAccentId = themeAccent.id = id;
-                overrideWallpaper = themeAccent.overrideWallpaper;
+                // no-op // EVE-PATCH: skip overrideWallpaper in getAccent
                 themeAccentsMap.put(id, themeAccent);
                 themeAccents.add(0, themeAccent);
                 sortAccents(this);
@@ -1442,14 +1437,6 @@ public class Theme {
     public static Drawable chat_composeShadowRoundDrawable;
     public static Drawable chat_roundVideoShadow;
     public static Drawable chat_livePhoto;
-    public static MessageDrawable chat_msgInDrawable;
-    public static MessageDrawable chat_msgInSelectedDrawable;
-    public static MessageDrawable chat_msgOutDrawable;
-    public static MessageDrawable chat_msgOutSelectedDrawable;
-    public static MessageDrawable chat_msgInMediaDrawable;
-    public static MessageDrawable chat_msgInMediaSelectedDrawable;
-    public static MessageDrawable chat_msgOutMediaDrawable;
-    public static MessageDrawable chat_msgOutMediaSelectedDrawable;
     public static PorterDuffColorFilter chat_animatedEmojiTextColorFilter;
     public static PorterDuffColorFilter chat_outAnimatedEmojiTextColorFilter;
 
@@ -3213,36 +3200,6 @@ public class Theme {
             currentDayTheme = applyingTheme;
         }
 
-        if (preferences.contains("overrideThemeWallpaper") || preferences.contains("selectedBackground2")) {
-            boolean override = preferences.getBoolean("overrideThemeWallpaper", false);
-            long id = preferences.getLong("selectedBackground2", 1000001);
-            if (id == -1 || override && id != -2 && id != 1000001) {
-                OverrideWallpaperInfo overrideWallpaper = new OverrideWallpaperInfo();
-                overrideWallpaper.color = preferences.getInt("selectedColor", 0);
-                overrideWallpaper.slug = preferences.getString("selectedBackgroundSlug", "");
-                if (id >= -100 && id <= -1 && overrideWallpaper.color != 0) {
-                    overrideWallpaper.slug = COLOR_BACKGROUND_SLUG;
-                    overrideWallpaper.fileName = "";
-                    overrideWallpaper.originalFileName = "";
-                } else {
-                    overrideWallpaper.fileName = "wallpaper.jpg";
-                    overrideWallpaper.originalFileName = "wallpaper_original.jpg";
-                }
-                overrideWallpaper.gradientColor1 = preferences.getInt("selectedGradientColor", 0);
-                overrideWallpaper.gradientColor2 = preferences.getInt("selectedGradientColor2", 0);
-                overrideWallpaper.gradientColor3 = preferences.getInt("selectedGradientColor3", 0);
-                overrideWallpaper.rotation = preferences.getInt("selectedGradientRotation", 45);
-                overrideWallpaper.isBlurred = preferences.getBoolean("selectedBackgroundBlurred", false);
-                overrideWallpaper.isMotion = preferences.getBoolean("selectedBackgroundMotion", false);
-                overrideWallpaper.intensity = preferences.getFloat("selectedIntensity", 0.5f);
-                currentDayTheme.setOverrideWallpaper(overrideWallpaper);
-                if (selectedAutoNightType != AUTO_NIGHT_TYPE_NONE) {
-                    currentNightTheme.setOverrideWallpaper(overrideWallpaper);
-                }
-            }
-            preferences.edit().remove("overrideThemeWallpaper").remove("selectedBackground2").commit();
-        }
-
         int switchToTheme = needSwitchToTheme();
         if (switchToTheme == 2) {
             applyingTheme = currentNightTheme;
@@ -4362,23 +4319,6 @@ public class Theme {
         applyTheme(themeInfo, false, false, false);
     }
 
-    public static boolean hasCustomWallpaper() {
-        return isApplyingAccent && currentTheme.overrideWallpaper != null;
-    }
-
-    public static boolean isCustomWallpaperColor() {
-        return hasCustomWallpaper() && currentTheme.overrideWallpaper.color != 0;
-    }
-
-    public static void resetCustomWallpaper(boolean temporary) {
-        if (temporary) {
-            isApplyingAccent = false;
-            reloadWallpaper(true);
-        } else {
-            currentTheme.setOverrideWallpaper(null);
-        }
-    }
-
     public static ThemeInfo getTheme(String key) {
         return themesDict.get(key);
     }
@@ -4789,54 +4729,11 @@ public class Theme {
         themeInfo.removeObservers();
         otherThemes.remove(themeInfo);
         themesDict.remove(themeInfo.name);
-        if (themeInfo.overrideWallpaper != null) {
-            themeInfo.overrideWallpaper.delete();
-        }
         themes.remove(themeInfo);
         File file = new File(themeInfo.pathToFile);
         file.delete();
         saveOtherThemes(true);
         return currentThemeDeleted;
-    }
-
-    private static String getWallpaperUrl(OverrideWallpaperInfo wallpaperInfo) {
-        if (wallpaperInfo == null || TextUtils.isEmpty(wallpaperInfo.slug) || wallpaperInfo.slug.equals(DEFAULT_BACKGROUND_SLUG)) {
-            return null;
-        }
-        StringBuilder modes = new StringBuilder();
-        if (wallpaperInfo.isBlurred) {
-            modes.append("blur");
-        }
-        if (wallpaperInfo.isMotion) {
-            if (modes.length() > 0) {
-                modes.append("+");
-            }
-            modes.append("motion");
-        }
-        String wallpaperLink;
-        if (wallpaperInfo.color == 0) {
-            wallpaperLink = "https://attheme.org?slug=" + wallpaperInfo.slug;
-        } else {
-            String color = String.format("%02x%02x%02x", (byte) (wallpaperInfo.color >> 16) & 0xff, (byte) (wallpaperInfo.color >> 8) & 0xff, (byte) (wallpaperInfo.color & 0xff)).toLowerCase();
-            String color2 = wallpaperInfo.gradientColor1 != 0 ? String.format("%02x%02x%02x", (byte) (wallpaperInfo.gradientColor1 >> 16) & 0xff, (byte) (wallpaperInfo.gradientColor1 >> 8) & 0xff, (byte) (wallpaperInfo.gradientColor1 & 0xff)).toLowerCase() : null;
-            String color3 = wallpaperInfo.gradientColor2 != 0 ? String.format("%02x%02x%02x", (byte) (wallpaperInfo.gradientColor2 >> 16) & 0xff, (byte) (wallpaperInfo.gradientColor2 >> 8) & 0xff, (byte) (wallpaperInfo.gradientColor2 & 0xff)).toLowerCase() : null;
-            String color4 = wallpaperInfo.gradientColor3 != 0 ? String.format("%02x%02x%02x", (byte) (wallpaperInfo.gradientColor3 >> 16) & 0xff, (byte) (wallpaperInfo.gradientColor3 >> 8) & 0xff, (byte) (wallpaperInfo.gradientColor3 & 0xff)).toLowerCase() : null;
-            if (color2 != null && color3 != null) {
-                if (color4 != null) {
-                    color += "~" + color2 + "~" + color3 + "~" + color4;
-                } else {
-                    color += "~" + color2 + "~" + color3;
-                }
-            } else if (color2 != null) {
-                color += "-" + color2;
-                color += "&rotation=" + wallpaperInfo.rotation;
-            }
-            wallpaperLink = "https://attheme.org?slug=" + wallpaperInfo.slug + "&intensity=" + (int) (wallpaperInfo.intensity * 100) + "&bg_color=" + color;
-        }
-        if (modes.length() > 0) {
-            wallpaperLink += "&mode=" + modes.toString();
-        }
-        return wallpaperLink;
     }
 
     public static boolean isThemeInstalled(ThemeInfo themeInfo) {
@@ -5048,23 +4945,6 @@ public class Theme {
 
     public static void destroyResources() {
 
-    }
-
-    public static void reloadAllResources(Context context) {
-        destroyResources();
-        if (chat_msgInDrawable != null) {
-            chat_msgInDrawable = null;
-            currentColor = 0;
-            createChatResources(context, false);
-        }
-        if (dialogs_namePaint != null) {
-            dialogs_namePaint = null;
-            createDialogsResources(context);
-        }
-        if (profile_verifiedDrawable != null) {
-            profile_verifiedDrawable = null;
-            createProfileResources(context);
-        }
     }
 
     public static boolean hasGradientService() {
@@ -5472,20 +5352,6 @@ public class Theme {
         return changed;
     }
 
-
-    public static String getSelectedBackgroundSlug() {
-        if (currentTheme.overrideWallpaper != null) {
-            return currentTheme.overrideWallpaper.slug;
-        }
-        if (hasWallpaperFromTheme()) {
-            return THEME_BACKGROUND_SLUG;
-        }
-        return DEFAULT_BACKGROUND_SLUG;
-    }
-
-    public static boolean isWallpaperMotion() {
-        return isWallpaperMotion;
-    }
 
     public static boolean isPatternWallpaper() {
         String selectedBgSlug = getSelectedBackgroundSlug();

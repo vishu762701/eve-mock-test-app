@@ -24,7 +24,6 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
@@ -50,13 +49,11 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Environment;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.os.Vibrator;
 import android.provider.CalendarContract;
-import android.provider.CallLog;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.Settings;
@@ -78,7 +75,6 @@ import android.text.style.CharacterStyle;
 import android.text.style.ClickableSpan;
 import android.text.util.Linkify;
 import android.util.DisplayMetrics;
-import android.util.Pair;
 import android.util.StateSet;
 import android.view.Display;
 import android.view.HapticFeedbackConstants;
@@ -122,10 +118,6 @@ import androidx.core.math.MathUtils;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.NestedScrollView;
-import androidx.dynamicanimation.animation.DynamicAnimation;
-import androidx.dynamicanimation.animation.SpringAnimation;
-import androidx.dynamicanimation.animation.SpringForce;
-import androidx.exifinterface.media.ExifInterface;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
@@ -143,7 +135,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -196,7 +187,7 @@ public class AndroidUtilities {
 
     public static Typeface bold() {
         if (mediumTypeface == null) {
-            if (SharedConfig.useSystemBoldFont && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) { // EVE-PATCH: decouple SharedConfig
                 mediumTypeface = Typeface.create(null, 500, false);
             } else {
                 mediumTypeface = getTypeface(TYPEFACE_ROBOTO_MEDIUM);
@@ -332,20 +323,6 @@ public class AndroidUtilities {
         leftBaseline = isTablet() ? 80 : 72;
         checkDisplaySize(ApplicationLoader.applicationContext, null);
     }
-
-    private static int[] documentIcons = {
-            R.drawable.media_doc_blue,
-            R.drawable.media_doc_green,
-            R.drawable.media_doc_red,
-            R.drawable.media_doc_yellow
-    };
-
-    private static int[] documentMediaIcons = {
-            R.drawable.media_doc_blue_b,
-            R.drawable.media_doc_green_b,
-            R.drawable.media_doc_red_b,
-            R.drawable.media_doc_yellow_b
-    };
 
     public static final String STICKERS_PLACEHOLDER_PACK_NAME = "tg_placeholders_android";
     public static final String STICKERS_PLACEHOLDER_PACK_NAME_2 = "tg_superplaceholders_android_2";
@@ -790,35 +767,6 @@ public class AndroidUtilities {
         return e instanceof FileNotFoundException || e instanceof EOFException;
     }
 
-    public static File getLogsDir() {
-        try {
-            if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-                File path = ApplicationLoader.applicationContext.getExternalFilesDir(null);
-                File dir = new File(path.getAbsolutePath() + "/logs");
-                dir.mkdirs();
-                return dir;
-            }
-        } catch (Exception e) {
-
-        }
-        try {
-            File dir = new File(ApplicationLoader.applicationContext.getCacheDir() + "/logs");
-            dir.mkdirs();
-            return dir;
-        } catch (Exception e) {
-
-        }
-        try {
-            File dir = new File(ApplicationLoader.applicationContext.getFilesDir() + "/logs");
-            dir.mkdirs();
-            return dir;
-        } catch (Exception e) {
-
-        }
-        ApplicationLoader.appCenterLog(new RuntimeException("can't create logs directory"));
-        return null;
-    }
-
     public static String formatVideoDurationFast(int minutes, int seconds) {
         StringBuilder stringBuilder = new StringBuilder();
         if (minutes >= 60) {
@@ -1163,32 +1111,6 @@ public class AndroidUtilities {
         return resourceId > 0 ? context.getResources().getDimensionPixelSize(resourceId) : 0;
     }
 
-    public static int getThumbForNameOrMime(String name, String mime, boolean media) {
-        if (name != null && name.length() != 0) {
-            int color = -1;
-            if (name.contains(".doc") || name.contains(".txt") || name.contains(".psd")) {
-                color = 0;
-            } else if (name.contains(".xls") || name.contains(".csv")) {
-                color = 1;
-            } else if (name.contains(".pdf") || name.contains(".ppt") || name.contains(".key")) {
-                color = 2;
-            } else if (name.contains(".zip") || name.contains(".rar") || name.contains(".ai") || name.contains(".mp3") || name.contains(".mov") || name.contains(".avi")) {
-                color = 3;
-            }
-            if (color == -1) {
-                int idx;
-                String ext = (idx = name.lastIndexOf('.')) == -1 ? "" : name.substring(idx + 1);
-                if (ext.length() != 0) {
-                    color = ext.charAt(0) % documentIcons.length;
-                } else {
-                    color = name.charAt(0) % documentIcons.length;
-                }
-            }
-            return media ? documentMediaIcons[color] : documentIcons[color];
-        }
-        return media ? documentMediaIcons[0] : documentIcons[0];
-    }
-
     public static int calcBitmapColor(Bitmap bitmap) {
         if (bitmap == null) {
             return 0;
@@ -1441,19 +1363,6 @@ public class AndroidUtilities {
         }
     }
 
-    public static void createEmptyFile(File f) {
-        try {
-            if (f.exists()) {
-                return;
-            }
-            FileWriter writer = new FileWriter(f);
-            writer.flush();
-            writer.close();
-        } catch (Throwable e) {
-            FileLog.e(e, false);
-        }
-    }
-
     public static int[] toIntArray(List<Integer> integers) {
         int[] ret = new int[integers.size()];
         for (int i = 0; i < ret.length; i++) {
@@ -1659,222 +1568,6 @@ public class AndroidUtilities {
         }
     }
 
-    private static class VcardData {
-        String name;
-        ArrayList<String> phones = new ArrayList<>();
-        StringBuilder vcard = new StringBuilder();
-    }
-
-    public static class VcardItem {
-        public ArrayList<String> vcardData = new ArrayList<>();
-        public String fullData = "";
-        public int type;
-        public boolean checked = true;
-
-        public String[] getRawValue() {
-            int idx = fullData.indexOf(':');
-            if (idx < 0) {
-                return new String[0];
-            }
-
-            String valueType = fullData.substring(0, idx);
-            String value = fullData.substring(idx + 1);
-
-            String nameEncoding = null;
-            String nameCharset = "UTF-8";
-            String[] params = valueType.split(";");
-            for (int a = 0; a < params.length; a++) {
-                String[] args2 = params[a].split("=");
-                if (args2.length != 2) {
-                    continue;
-                }
-                if (args2[0].equals("CHARSET")) {
-                    nameCharset = args2[1];
-                } else if (args2[0].equals("ENCODING")) {
-                    nameEncoding = args2[1];
-                }
-            }
-            String[] args = value.split(";");
-            boolean added = false;
-            for (int a = 0; a < args.length; a++) {
-                if (TextUtils.isEmpty(args[a])) {
-                    continue;
-                }
-                if (nameEncoding != null && nameEncoding.equalsIgnoreCase("QUOTED-PRINTABLE")) {
-                    byte[] bytes = decodeQuotedPrintable(getStringBytes(args[a]));
-                    if (bytes != null && bytes.length != 0) {
-                        try {
-                            args[a] = new String(bytes, nameCharset);
-                        } catch (Exception ignore) {
-
-                        }
-                    }
-                }
-            }
-            return args;
-        }
-
-        public String getValue(boolean format) {
-            StringBuilder result = new StringBuilder();
-
-            int idx = fullData.indexOf(':');
-            if (idx < 0) {
-                return "";
-            }
-
-            if (result.length() > 0) {
-                result.append(", ");
-            }
-
-            String valueType = fullData.substring(0, idx);
-            String value = fullData.substring(idx + 1);
-
-            String nameEncoding = null;
-            String nameCharset = "UTF-8";
-            String[] params = valueType.split(";");
-            for (int a = 0; a < params.length; a++) {
-                String[] args2 = params[a].split("=");
-                if (args2.length != 2) {
-                    continue;
-                }
-                if (args2[0].equals("CHARSET")) {
-                    nameCharset = args2[1];
-                } else if (args2[0].equals("ENCODING")) {
-                    nameEncoding = args2[1];
-                }
-            }
-            String[] args = value.split(";");
-            boolean added = false;
-            for (int a = 0; a < args.length; a++) {
-                if (TextUtils.isEmpty(args[a])) {
-                    continue;
-                }
-                if (nameEncoding != null && nameEncoding.equalsIgnoreCase("QUOTED-PRINTABLE")) {
-                    byte[] bytes = decodeQuotedPrintable(getStringBytes(args[a]));
-                    if (bytes != null && bytes.length != 0) {
-                        try {
-                            args[a] = new String(bytes, nameCharset);
-                        } catch (Exception ignore) {
-
-                        }
-                    }
-                }
-                if (added && result.length() > 0) {
-                    result.append(" ");
-                }
-                result.append(args[a]);
-                if (!added) {
-                    added = args[a].length() > 0;
-                }
-            }
-
-            if (format) {
-                if (type == 0) {
-                    return result.toString(); // EVE-PATCH: bypass PhoneFormat in VcardItem
-                } else if (type == 5) {
-                    String[] date = result.toString().split("T");
-                    if (date.length > 0) {
-                        date = date[0].split("-");
-                        if (date.length == 3) {
-                            Calendar calendar = Calendar.getInstance();
-                            calendar.set(Calendar.YEAR, Utilities.parseInt(date[0]));
-                            calendar.set(Calendar.MONTH, Utilities.parseInt(date[1]) - 1);
-                            calendar.set(Calendar.DAY_OF_MONTH, Utilities.parseInt(date[2]));
-                            return LocaleController.getInstance().getFormatterYearMax().format(calendar.getTime());
-                        }
-                    }
-                }
-            }
-            return result.toString();
-        }
-
-        public String getRawType(boolean first) {
-            int idx = fullData.indexOf(':');
-            if (idx < 0) {
-                return "";
-            }
-            String value = fullData.substring(0, idx);
-            if (type == 20) {
-                value = value.substring(2);
-                String[] args = value.split(";");
-                if (first) {
-                    value = args[0];
-                } else if (args.length > 1) {
-                    value = args[args.length - 1];
-                } else {
-                    value = "";
-                }
-            } else {
-                String[] args = value.split(";");
-                for (int a = 0; a < args.length; a++) {
-                    if (args[a].indexOf('=') >= 0) {
-                        continue;
-                    }
-                    value = args[a];
-                }
-                return value;
-            }
-            return value;
-        }
-
-        public String getType() {
-            if (type == 4) {
-                return getString(R.string.ContactNote);
-            } else if (type == 3) {
-                return getString(R.string.ContactUrl);
-            } else if (type == 5) {
-                return getString(R.string.ContactBirthday);
-            } else if (type == 6) {
-                if ("ORG".equalsIgnoreCase(getRawType(true))) {
-                    return getString(R.string.ContactJob);
-                } else {
-                    return getString(R.string.ContactJobTitle);
-                }
-            }
-            int idx = fullData.indexOf(':');
-            if (idx < 0) {
-                return "";
-            }
-            String value = fullData.substring(0, idx);
-            if (type == 20) {
-                value = value.substring(2);
-                String[] args = value.split(";");
-                value = args[0];
-            } else {
-                String[] args = value.split(";");
-                for (int a = 0; a < args.length; a++) {
-                    if (args[a].indexOf('=') >= 0) {
-                        continue;
-                    }
-                    value = args[a];
-                }
-                if (value.startsWith("X-")) {
-                    value = value.substring(2);
-                }
-                switch (value) {
-                    case "PREF":
-                        value = getString(R.string.PhoneMain);
-                        break;
-                    case "HOME":
-                        value = getString(R.string.PhoneHome);
-                        break;
-                    case "MOBILE":
-                    case "CELL":
-                        value = getString(R.string.PhoneMobile);
-                        break;
-                    case "OTHER":
-                        value = getString(R.string.PhoneOther);
-                        break;
-                    case "WORK":
-                        value = getString(R.string.PhoneWork);
-                        break;
-                }
-            }
-            value = value.substring(0, 1).toUpperCase() + value.substring(1).toLowerCase();
-            return value;
-        }
-    }
-
     public static byte[] getStringBytes(String src) {
         try {
             return src.getBytes("UTF-8");
@@ -1931,41 +1624,6 @@ public class AndroidUtilities {
             return 2;
         } else {
             return 1;
-        }
-    }
-
-    public static boolean isWaitingForCall() {
-        boolean value;
-        synchronized (callLock) {
-            value = waitingForCall;
-        }
-        return value;
-    }
-
-    private static CallReceiver callReceiver;
-
-    public static void setWaitingForCall(boolean value) {
-        synchronized (callLock) {
-            try {
-                if (value) {
-                    if (callReceiver == null) {
-                        final IntentFilter filter = new IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
-                        if (Build.VERSION.SDK_INT >= 33) {
-                            ApplicationLoader.applicationContext.registerReceiver(callReceiver = new CallReceiver(), filter, Context.RECEIVER_NOT_EXPORTED);
-                        } else {
-                            ApplicationLoader.applicationContext.registerReceiver(callReceiver = new CallReceiver(), filter);
-                        }
-                    }
-                } else {
-                    if (callReceiver != null) {
-                        ApplicationLoader.applicationContext.unregisterReceiver(callReceiver);
-                        callReceiver = null;
-                    }
-                }
-            } catch (Exception ignore) {
-
-            }
-            waitingForCall = value;
         }
     }
 
@@ -2123,14 +1781,6 @@ public class AndroidUtilities {
 
                 File[] dirs = ApplicationLoader.applicationContext.getExternalCacheDirs();
                 file = dirs[0];
-                if (!TextUtils.isEmpty(SharedConfig.storageCacheDir)) {
-                    for (int a = 0; a < dirs.length; a++) {
-                        if (dirs[a] != null && dirs[a].getAbsolutePath().startsWith(SharedConfig.storageCacheDir)) {
-                            file = dirs[a];
-                            break;
-                        }
-                    }
-                }
 
                 FileLog.d("check dir " + (file == null ? null : file.getPath()) + " ");
                 if (file != null && (file.exists() || file.mkdirs()) && file.canWrite()) {
@@ -2381,7 +2031,7 @@ public class AndroidUtilities {
     }
 
     public static boolean isTabletForce() {
-        return ApplicationLoader.applicationContext != null && ApplicationLoader.applicationContext.getResources().getBoolean(R.bool.isTablet);
+        return false; // EVE-PATCH: phone default for tablet
     }
 
     public static boolean isTabletInternal() {
@@ -2396,7 +2046,7 @@ public class AndroidUtilities {
             wasTablet = isTabletInternal();
         }
         isTablet = null;
-        SharedConfig.updateTabletConfig();
+        // no-op // EVE-PATCH: decouple SharedConfig
     }
 
     public static void resetWasTabletFlag() {
@@ -2408,7 +2058,7 @@ public class AndroidUtilities {
     }
 
     public static boolean isTablet() {
-        return isTabletInternal() && !SharedConfig.forceDisableTabletMode;
+        return isTabletInternal(); // EVE-PATCH: decouple SharedConfig
     }
 
     public static boolean isFold() {
@@ -2479,40 +2129,6 @@ public class AndroidUtilities {
     }*/
 
     private static Runnable unregisterRunnable;
-
-    public static String obtainLoginPhoneCall(String pattern) {
-        String order;
-        Bundle selectionArgs;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            order = "date DESC";
-        } else {
-            order = "date DESC LIMIT 5";
-        }
-        try (Cursor cursor = ApplicationLoader.applicationContext.getContentResolver().query(
-                CallLog.Calls.CONTENT_URI,
-                new String[]{CallLog.Calls.NUMBER, CallLog.Calls.DATE},
-                CallLog.Calls.TYPE + " IN (" + CallLog.Calls.MISSED_TYPE + "," + CallLog.Calls.INCOMING_TYPE + "," + CallLog.Calls.REJECTED_TYPE + ")",
-                null,
-                order
-        )) {
-            while (cursor.moveToNext()) {
-                String number = cursor.getString(0);
-                long date = cursor.getLong(1);
-                if (BuildVars.LOGS_ENABLED) {
-                    FileLog.e("number = " + number);
-                }
-                if (Math.abs(System.currentTimeMillis() - date) >= 60 * 60 * 1000) {
-                    continue;
-                }
-                if (checkPhonePattern(pattern, number)) {
-                    return number;
-                }
-            }
-        } catch (Exception e) {
-            FileLog.e(e);
-        }
-        return null;
-    }
 
     public static int getViewInset(View view) {
         if (view == null || view.getHeight() == AndroidUtilities.displaySize.y || view.getHeight() == AndroidUtilities.displaySize.y - statusBarHeight) {
@@ -2792,72 +2408,6 @@ public class AndroidUtilities {
             }
             return false;
         }
-    }
-
-    public static void shakeView(final View view) {
-        if (view == null) {
-            return;
-        }
-        final float N = 4;
-        Object animator = view.getTag(R.id.shake_animation);
-        if (animator instanceof ValueAnimator) {
-            ((ValueAnimator) animator).cancel();
-        }
-        ValueAnimator va = ValueAnimator.ofFloat(0, 1);
-        va.addUpdateListener(anm -> {
-            float x = (float) anm.getAnimatedValue();
-            view.setTranslationX((float) ((4 * x * (1 - x)) * Math.sin(N * (x * Math.PI)) * dp(N)));
-        });
-        va.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                view.setTranslationX(0);
-            }
-        });
-        va.setDuration(300);
-        va.start();
-        view.setTag(R.id.shake_animation, va);
-    }
-
-    public static void shakeViewSpring(View view) {
-        shakeViewSpring(view, 10, null);
-    }
-
-    public static void shakeViewSpring(View view, float shiftDp) {
-        shakeViewSpring(view, shiftDp, null);
-    }
-
-    public static void shakeViewSpring(View view, Runnable endCallback) {
-        shakeViewSpring(view, 10, endCallback);
-    }
-
-    public static void shakeViewSpring(View view, float shiftDp, Runnable endCallback) {
-        if (view == null) {
-            return;
-        }
-        int shift = dp(shiftDp);
-        if (view.getTag(R.id.spring_tag) != null) {
-            ((SpringAnimation) view.getTag(R.id.spring_tag)).cancel();
-        }
-        Float wasX = (Float) view.getTag(R.id.spring_was_translation_x_tag);
-        if (wasX != null) {
-            view.setTranslationX(wasX);
-        }
-        view.setTag(R.id.spring_was_translation_x_tag, view.getTranslationX());
-
-        float translationX = view.getTranslationX();
-        SpringAnimation springAnimation = new SpringAnimation(view, DynamicAnimation.TRANSLATION_X, translationX)
-                .setSpring(new SpringForce(translationX).setStiffness(600f))
-                .setStartVelocity(-shift * 100)
-                .addEndListener((animation, canceled, value, velocity) -> {
-                    if (endCallback != null) endCallback.run();
-
-                    view.setTranslationX(translationX);
-                    view.setTag(R.id.spring_tag, null);
-                    view.setTag(R.id.spring_was_translation_x_tag, null);
-                });
-        view.setTag(R.id.spring_tag, springAnimation);
-        springAnimation.start();
     }
 
     /*public static String ellipsize(String text, int maxLines, int maxWidth, TextPaint paint) {
@@ -3412,30 +2962,6 @@ public class AndroidUtilities {
         byte[] key_hash = new byte[16];
         System.arraycopy(sha1, 0, key_hash, 0, 16);
         return key_hash;
-    }
-
-    public static SpannableStringBuilder formatSpannableSimple(CharSequence format, CharSequence... cs) {
-        return formatSpannable(format, i -> "%s", cs);
-    }
-
-    public static SpannableStringBuilder formatSpannable(CharSequence format, CharSequence... cs) {
-        if (format.toString().contains("%s"))
-            return formatSpannableSimple(format, cs);
-        return formatSpannable(format, i -> "%" + (i + 1) + "$s", cs);
-    }
-
-    public static SpannableStringBuilder formatSpannable(CharSequence format, GenericProvider<Integer, String> keysProvider, CharSequence... cs) {
-        String str = format.toString();
-        SpannableStringBuilder stringBuilder = SpannableStringBuilder.valueOf(format);
-        for (int i = 0; i < cs.length; i++) {
-            String key = keysProvider.provide(i);
-            int j = str.indexOf(key);
-            if (j != -1) {
-                stringBuilder.replace(j, j + key.length(), cs[i]);
-                str = str.substring(0, j) + cs[i].toString() + str.substring(j + key.length());
-            }
-        }
-        return stringBuilder;
     }
 
     public static CharSequence replaceTwoNewLinesToOne(CharSequence original) {
@@ -4064,10 +3590,6 @@ public class AndroidUtilities {
 
     public static float computeDampingRatio(float tension /* stiffness */, float friction /* damping */, float mass) {
         return friction / (2f * (float) Math.sqrt(mass * tension));
-    }
-
-    public static boolean allowScreenCapture() {
-        return SharedConfig.passcodeHash.length() == 0 || SharedConfig.allowScreenCapture;
     }
 
     public static File getSharingDirectory() {
@@ -4738,67 +4260,6 @@ public class AndroidUtilities {
         Activity activity = findActivity(context);
         if (activity == null) return true;
         return isActivityRunning(activity);
-    }
-
-    public static Pair<Integer, Integer> getImageOrientation(InputStream is) {
-        try {
-            return getImageOrientation(new ExifInterface(is));
-        } catch (Exception e) {
-            FileLog.e(e);
-        }
-        return new Pair<>(0, 0);
-    }
-    public static Pair<Integer, Integer> getImageOrientation(File file) {
-        try {
-            return getImageOrientation(new ExifInterface(file));
-        } catch (Exception e) {
-            FileLog.e(e);
-        }
-        return new Pair<>(0, 0);
-    }
-    public static Pair<Integer, Integer> getImageOrientation(String path) {
-        try {
-            return getImageOrientation(new ExifInterface(path));
-        } catch (Exception ignore) {}
-        return new Pair<>(0, 0);
-    }
-
-    public static Pair<Integer, Integer> getImageOrientation(ExifInterface exif) {
-        try {
-            int orientation = 0, invert = 0;
-            final int exifvalue = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-            switch (exifvalue) {
-                case ExifInterface.ORIENTATION_NORMAL:
-                    break;
-                case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
-                    invert = 1;
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_180:
-                    orientation = 180;
-                    break;
-                case ExifInterface.ORIENTATION_FLIP_VERTICAL:
-                    invert = 2;
-                    break;
-                case ExifInterface.ORIENTATION_TRANSPOSE:
-                    invert = 2;
-                    orientation = 270;
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_90:
-                    orientation = 90;
-                    break;
-                case ExifInterface.ORIENTATION_TRANSVERSE:
-                    invert = 1;
-                    orientation = 270;
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_270:
-                    orientation = 270;
-                    break;
-            }
-            return new Pair<>(orientation, invert);
-        } catch (Exception e) {
-            FileLog.e(e);
-        }
-        return new Pair<>(0, 0);
     }
 
     public static void forEachViews(View view, Utilities.Callback<View> consumer) {

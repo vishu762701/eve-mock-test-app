@@ -32,6 +32,10 @@ remove-statement "private static Gson gson;"
 remove-statement "private static ExclusionStrategy exclusionStrategy;"
 remove-statement "private static final int MAX_PENDING_PROTOCOL_DUMPS = 8;"
 remove-statement "private static final AtomicInteger pendingProtocolDumps = new AtomicInteger();"
+remove-statement "private static volatile boolean gsonDisabled;"
+remove-statement "private static HashSet<String> privateFields;"
+remove-statement "public static class ByteArrayHexAdapter extends TypeAdapter<byte[]> {"
+remove-statement "private static class TLObjectDeserializer implements JsonSerializer<TLObject> {"
 
 remove-method postProtocolDump
 remove-method dumpResponseAndRequest
@@ -49,6 +53,8 @@ remove-method needSent
 
 patch-line "                        localInstance.init();" "                        // no-op init" "wire to no-op"
 patch-line "        getInstance().init();" "        // no-op init" "wire to no-op"
+patch-line "        e(e, true);" "        e.printStackTrace();" "log throwable locally"
+patch-line "        fatal(e, true);" "        e.printStackTrace();" "log fatal throwable locally"
 remove-method init
 
 prune-imports
