@@ -20,6 +20,10 @@ import org.telegram.ui.ActionBar.INavigationLayout
 import org.telegram.ui.ActionBar.Theme
 import org.telegram.ui.ChangeNameActivity as TelegramChangeNameActivity
 
+/**
+ * Host Activity for Telegram ChangeNameActivity port.
+ * Implements INavigationLayout and TelegramChangeNameActivity.ChangeNameDelegate.
+ */
 class ChangeNameActivity : EveBaseActivity(), INavigationLayout, TelegramChangeNameActivity.ChangeNameDelegate {
     private var editorOwnerUid: String? = null
     private var saveInFlight = false
