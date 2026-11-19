@@ -2808,7 +2808,7 @@ public class Theme {
         currentColorsNoAccent = new SparseIntArray();
         currentColors = new SparseIntArray();
 
-        if (ApplicationLoader.applicationContext == null) { try { ApplicationLoader.applicationContext = (Context) Class.forName("android.app.ActivityThread").getMethod("currentApplication").invoke(null); } catch (Throwable ignored) {} } SharedPreferences themeConfig = ApplicationLoader.applicationContext != null ? ApplicationLoader.applicationContext.getSharedPreferences("themeconfig", Activity.MODE_PRIVATE) : null; // EVE-PATCH: initialize app context safely in static init
+        SharedPreferences themeConfig = ApplicationLoader.applicationContext.getSharedPreferences("themeconfig", Activity.MODE_PRIVATE);
 
         ThemeInfo themeInfo = new ThemeInfo();
         themeInfo.name = "Blue";

@@ -19,8 +19,14 @@ import org.robolectric.annotation.Config
 
 /** Real editor Activity lifecycle/view-state; only Firebase SDK identity boundary is replaced. */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk=[35],application=Application::class,shadows=[ProfileEditorAuthFixture.ShadowAuth::class])
+@Config(sdk=[35],application=ProfileEditorRestorationTest.ProfileEditorTestApp::class,shadows=[ProfileEditorAuthFixture.ShadowAuth::class])
 class ProfileEditorRestorationTest {
+    class ProfileEditorTestApp : Application() {
+        override fun onCreate() {
+            super.onCreate()
+            org.telegram.messenger.ApplicationLoader.applicationContext = this
+        }
+    }
     private data class Editor(val type: Class<out EveBaseActivity>, val field: Int, val extra: String, val initial: String)
     private val editors = listOf(
         Editor(ChangeNameActivity::class.java,R.id.etName,"current_name","Owner"),
@@ -28,7 +34,11 @@ class ProfileEditorRestorationTest {
         Editor(ChangeUsernameActivity::class.java,R.id.etUsername,"current_username","ownername"),
         Editor(ChangeBioActivity::class.java,R.id.etBio,"current_bio","Retained compatibility data")
     )
-    @Before fun before() { ProfileEditorAuthFixture.reset(); ProfileEditorAuthFixture.setOwner("owner-a") }
+    @Before fun before() {
+        org.telegram.messenger.ApplicationLoader.applicationContext = RuntimeEnvironment.getApplication()
+        ProfileEditorAuthFixture.reset()
+        ProfileEditorAuthFixture.setOwner("owner-a")
+    }
     @After fun after() { ProfileEditorAuthFixture.reset() }
     private fun open(editor: Editor, state: Bundle? = null): ActivityController<out EveBaseActivity> {
         val intent = Intent(RuntimeEnvironment.getApplication(),editor.type)

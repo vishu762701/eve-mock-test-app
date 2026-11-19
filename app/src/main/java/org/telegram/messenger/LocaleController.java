@@ -699,17 +699,17 @@ public class LocaleController {
                 stringBuilder.insert(a, symbol);
             }
 
-            String value = getString(key); // EVE-PATCH: resolve plural from resources
+            String value = getInstance().getStringInternal(param, key + "_other", 0); // EVE-PATCH: resolve plural with fallback from resources
             if (value == null) {
-                value = getString(key); // EVE-PATCH: resolve plural from resources
+                // no-op // EVE-PATCH: skip cloud strings fallback
             }
             if (value == null) {
                 try {
-                    value = null; // EVE-PATCH: skip localized string lookup
+                    // no-op // EVE-PATCH: skip internal localization lookup
                 } catch (Exception e2) {}
             }
             if (value == null) {
-                value = getString(key); // EVE-PATCH: fallback plural from resources
+                // no-op // EVE-PATCH: skip internal localization lookup
             }
             value = value.replace("%d", "%1$s");
             value = value.replace("%1$d", "%1$s");
