@@ -13,6 +13,7 @@ remove-statement "if (blurredCircleDrawable != null || blurredTagDrawable != nul
 remove-method captureChildren
 remove-method captureCalculateHash all
 remove-method capture all
+remove-method captureSectionsBackgrounds
 remove-method notifyDataSetChanged
 remove-statement "if ((child instanceof ChatMessageCell || child instanceof ChatActionCell) && child.getVisibility() == View.INVISIBLE) continue;"
 remove-statement "ThemeBind.listGlowColor(this, Theme.key_actionBarDefault, resourcesProvider);"

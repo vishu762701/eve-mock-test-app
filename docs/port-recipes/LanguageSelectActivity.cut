@@ -1,6 +1,8 @@
 upstream org/telegram/ui/LanguageSelectActivity.java
 to app/src/main/java/org/telegram/ui/LanguageSelectActivity.java
 
+patch-line "import org.telegram.ui.ActionBar.SimpleActionBarMenu;" "import org.telegram.ui.ActionBar.ActionBarMenu;" "import ActionBarMenu instead of SimpleActionBarMenu"
+
 patch-line "public class LanguageSelectActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {" "public class LanguageSelectActivity extends BaseFragment { private com.eve.app.ui.settings.TelegramLanguageDelegate eveDelegate; public void setEveDelegate(com.eve.app.ui.settings.TelegramLanguageDelegate delegate) { this.eveDelegate = delegate; }" "wire Eve TelegramLanguageDelegate CUT-INTERFACE and cut NotificationCenter"
 
 # Use standard ActionBar / ActionBarMenu (simpleActionBar cut in F3a)
@@ -49,5 +51,11 @@ remove-statement "case VIEW_TYPE_INFO: {"
 patch-line "ArrayList<LocaleController.LocaleInfo> arrayList = LocaleController.getInstance().languages;" "ArrayList<LocaleController.LocaleInfo> arrayList = eveDelegate != null ? eveDelegate.getLanguages() : new ArrayList<>();" "load Eve languages via delegate"
 patch-line "boolean sameLang = prevLocale == localeInfo;" "boolean sameLang = eveDelegate != null && TextUtils.equals(eveDelegate.getCurrentLanguageTag(), localeInfo.shortName); if (eveDelegate != null) { eveDelegate.onLanguageSelected(localeInfo); if (listAdapter != null) listAdapter.notifyDataSetChanged(); return; }" "apply selected language via Eve delegate"
 patch-line "textSettingsCell.setChecked(localeInfo == LocaleController.getInstance().getCurrentLocaleInfo());" "textSettingsCell.setChecked(eveDelegate != null ? (localeInfo != null && TextUtils.equals(eveDelegate.getCurrentLanguageTag(), localeInfo.shortName)) : localeInfo == LocaleController.getInstance().getCurrentLocaleInfo());" "highlight active Eve language"
+
+remove-statement "        DefaultItemAnimator itemAnimator = new DefaultItemAnimator() {"
+remove-statement "        itemAnimator.setDurations(400);"
+remove-statement "        itemAnimator.setDelayAnimations(false);"
+remove-statement "        itemAnimator.setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT);"
+patch-line "        listView.setItemAnimator(itemAnimator);" "        DefaultItemAnimator itemAnimator = new DefaultItemAnimator(); itemAnimator.setSupportsChangeAnimations(false); listView.setItemAnimator(itemAnimator);" "use standard AndroidX DefaultItemAnimator"
 
 prune-imports

@@ -3,5 +3,12 @@ to app/src/main/java/org/telegram/ui/Components/BitmapSectionsItemDecoration.jav
 
 remove-import org.telegram.ui.Components.blur3.capture.IBlur3Capture
 patch-line "public class BitmapSectionsItemDecoration extends RecyclerView.ItemDecoration implements IBlur3Capture {" "public class BitmapSectionsItemDecoration extends RecyclerView.ItemDecoration {" "cut IBlur3Capture interface"
+remove-method capture all
+
+patch-line "                    (parent.isAnimating() && holder != null && holder.isRemoved() && child.getAlpha() < 1.0f) ||" "" "cut isRemoved check"
+remove-statement "            if (child instanceof JoinToSendSettingsView) to -= ((JoinToSendSettingsView) child).getBottomInfoMargin();"
+remove-statement "        if (to instanceof JoinToSendSettingsView) bottomMargin = ((JoinToSendSettingsView) to).getBottomInfoMargin();"
+remove-statement "            if (holder != null && holder.isRemoved() && child.getAlpha() < 1.0f) {"
+patch-line "                    position == RecyclerView.NO_POSITION || (holder != null && holder.isRemoved()) ||" "                    position == RecyclerView.NO_POSITION ||" "cut isRemoved check in corners"
 
 prune-imports

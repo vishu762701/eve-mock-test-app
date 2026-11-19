@@ -532,6 +532,36 @@ public class TextCell extends FrameLayout implements Theme.Colorable {
         }
     }
 
+    public void setTextAndValueAndIcon(CharSequence text, CharSequence value, int resId, boolean divider) {
+        setTextAndValueAndIcon(text, value, false, resId, divider);
+    }
+
+    public void setTextAndValueAndIcon(CharSequence text, CharSequence value, boolean animated, int resId, boolean divider) {
+        imageLeft = getDefaultImageLeft();
+        offsetFromImage = getOffsetFromImage(false);
+        textView.setText(text);
+        textView.setRightDrawable(null);
+        imageView.setVisibility(VISIBLE);
+        if (value != null) {
+            int availableWidth = (int) Math.max(1, AndroidUtilities.displaySize.x - (dp(offsetFromImage) + (int) Math.ceil(textView.getTextPaint().measureText(text.toString())) + dp(16))); // EVE-PATCH: measure text without HintView2
+            valueTextView.setText(value == null ? "" : TextUtils.ellipsize(valueText = value, valueTextView.getPaint(), availableWidth, TextUtils.TruncateAt.END), animated);
+        } else {
+            valueTextView.setText("", animated);
+        }
+        valueTextView.setVisibility(VISIBLE);
+        valueSpoilersTextView.setVisibility(GONE);
+        valueImageView.setVisibility(GONE);
+        imageView.setTranslationX(0);
+        imageView.setTranslationY(0);
+        imageView.setPadding(0, dp(7), 0, 0);
+        imageView.setImageResource(resId);
+        needDivider = divider;
+        setWillNotDraw(!needDivider);
+        if (checkBox != null) {
+            checkBox.setVisibility(GONE);
+        }
+    }
+
     public void setColorfulIcon(int color, int resId) {
         setColorfulIcon(color, color, resId);
     }

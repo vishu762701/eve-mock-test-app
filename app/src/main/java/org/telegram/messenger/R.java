@@ -202,6 +202,10 @@ public class R {
         public static final int profile_leave = 0x7f110003;
         public static final int profile_voicechat = 0x7f110004;
     }
+    public static final class anim {
+        public static final int alpha_in = com.eve.app.R.anim.alpha_in;
+        public static final int alpha_out = com.eve.app.R.anim.alpha_out;
+    }
     public static final class style {
         public static final int PopupAnimation = com.eve.app.R.style.PopupAnimation;
         public static final int DialogNoAnimation = com.eve.app.R.style.DialogNoAnimation;

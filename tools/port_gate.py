@@ -1553,6 +1553,11 @@ SCREEN_SPECS = [
                 "mode": "CUT",
                 "recipe": "docs/port-recipes/UniversalRecyclerView.cut",
                 "removed_methods_reason": "Remove RichEditor.DraggingDrawable hook"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/HideViewAfterAnimation.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/HideViewAfterAnimation.java",
+                "mode": "FULL"
             }
         ]
     }

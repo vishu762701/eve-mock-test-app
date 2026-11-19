@@ -30,6 +30,7 @@ import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.R;
 import org.telegram.messenger.Utilities;
 import org.telegram.ui.ActionBar.ActionBar;
+import org.telegram.ui.ActionBar.ActionBarMenu; // EVE-PATCH: import ActionBarMenu instead of SimpleActionBarMenu
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
 import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.BaseFragment;
@@ -181,17 +182,7 @@ public class LanguageSelectActivity extends BaseFragment { private com.eve.app.u
         listView.setSectionsDrawBackground(true);
         listView.setVerticalScrollBarEnabled(false);
         listView.setAdapter(listAdapter);
-        DefaultItemAnimator itemAnimator = new DefaultItemAnimator() {
-            @Override
-            protected void onMoveAnimationUpdate(RecyclerView.ViewHolder holder) {
-                listView.invalidate();
-                listView.updateSelector();
-            }
-        };
-        itemAnimator.setDurations(400);
-        itemAnimator.setDelayAnimations(false);
-        itemAnimator.setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT);
-        listView.setItemAnimator(itemAnimator);
+        DefaultItemAnimator itemAnimator = new DefaultItemAnimator(); itemAnimator.setSupportsChangeAnimations(false); listView.setItemAnimator(itemAnimator); // EVE-PATCH: use standard AndroidX DefaultItemAnimator
         frameLayout.addView(listView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
         frameLayout.addView(emptyView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
 

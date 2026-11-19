@@ -26,7 +26,8 @@ remove-statement "setHasOwnBackground(true);"
 patch-line "simpleActionBar.setTitle(LocaleController.getString(R.string.Passcode));" "actionBar.setTitle(LocaleController.getString(R.string.Passcode)); actionBar.setBackButtonImage(R.drawable.ic_ab_back); actionBar.setActionBarMenuOnItemClick(onItemClick);" "configure BaseFragment actionBar for settings mode"
 
 # Replace SizeNotifierFrameLayout with FrameLayout (measureKeyboardHeight -> 0)
-patch-line "SizeNotifierFrameLayout contentView = new SizeNotifierFrameLayout(context) {" "FrameLayout contentView = new FrameLayout(context) { private int measureKeyboardHeight() { return 0; } public void notifyHeightChanged() {} public void setDelegate(Object d) {}" "use FrameLayout without SizeNotifierFrameLayout"
+patch-line "SizeNotifierFrameLayout contentView = new SizeNotifierFrameLayout(context) {" "FrameLayout contentView = new FrameLayout(context) { private int measureKeyboardHeight() { return 0; } public void notifyHeightChanged() {}" "use FrameLayout without SizeNotifierFrameLayout"
+remove-statement "        contentView.setDelegate((keyboardHeight, isWidthGreater) -> {"
 
 # Replace RLottieImageView with ImageView using msg_pin_code
 patch-line "private RLottieImageView lockImageView;" "private ImageView lockImageView;" "use ImageView without RLottieImageView"

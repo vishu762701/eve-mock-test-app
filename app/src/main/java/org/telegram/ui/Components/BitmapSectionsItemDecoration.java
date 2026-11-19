@@ -184,19 +184,6 @@ public class BitmapSectionsItemDecoration extends RecyclerView.ItemDecoration { 
         }
     }
 
-    @Override
-    public void capture(Canvas canvas, RectF position) {
-        canvas.save();
-        try {
-            canvas.clipRect(position);
-            capturingSections = true;
-            drawSectionsBackgrounds(canvas);
-        } finally {
-            capturingSections = false;
-            canvas.restore();
-        }
-    }
-
     private void drawOpaqueBackground(Canvas canvas, float overlap) {
         final float width = parent.getWidth();
         final float height = parent.getHeight();
@@ -269,11 +256,10 @@ public class BitmapSectionsItemDecoration extends RecyclerView.ItemDecoration { 
             final RecyclerView.ViewHolder holder = parent.getChildViewHolder(child);
             if (child == parent.getEmptyView() || child.getVisibility() != View.VISIBLE ||
                     child.getAlpha() <= 0.0f ||
-                    (parent.isAnimating() && holder != null && holder.isRemoved() && child.getAlpha() < 1.0f) ||
+                     // EVE-PATCH: cut isRemoved check
                     !isSectionItem(child) || parent.isInsideForcedSection(position)) continue;
             float from = RecyclerListView.top(child);
             float to = RecyclerListView.bottom(child);
-            if (child instanceof JoinToSendSettingsView) to -= ((JoinToSendSettingsView) child).getBottomInfoMargin();
             if (parent.applyPaddingToSections) {
                 from = Math.max(parent.getPaddingTop(), from);
                 to = Math.min(height - parent.getPaddingBottom(), to);
@@ -368,22 +354,6 @@ public class BitmapSectionsItemDecoration extends RecyclerView.ItemDecoration { 
             float from = RecyclerListView.top(child);
             float to = RecyclerListView.bottom(child);
             final RecyclerView.ViewHolder holder = parent.getChildViewHolder(child);
-            if (holder != null && holder.isRemoved() && child.getAlpha() < 1.0f) {
-                if (holder.mOldCompoundPosition >= 0) {
-                    final int nextPosition = (int) Math.ceil(holder.mOldCompoundPosition / 1000.0) + 1;
-                    final View next = parent.findViewByPosition(nextPosition);
-                    if (next != null && to > next.getY() && isSectionItem(next)) {
-                        final RecyclerView.ViewHolder nextHolder = parent.getChildViewHolder(next);
-                        if (nextHolder != null && !nextHolder.isRemoved()) {
-                            from--;
-                            to = next.getY();
-                            if (to < from) continue;
-                        }
-                    }
-                }
-            } else if (parent.isInsideForcedSection(parent.getChildAdapterPosition(child))) {
-                continue;
-            }
             addAnimatedSection(from, to, child.getAlpha());
         }
         sortAnimatedSections();
@@ -525,7 +495,6 @@ public class BitmapSectionsItemDecoration extends RecyclerView.ItemDecoration { 
     private void drawSectionBackground(Canvas canvas, View from, View to, boolean hasAbove, boolean hasBelow) {
         if (from == null || to == null) return;
         float bottomMargin = 0.0f;
-        if (to instanceof JoinToSendSettingsView) bottomMargin = ((JoinToSendSettingsView) to).getBottomInfoMargin();
         backgroundRect.set(
                 from.getLeft(),
                 Math.max(parent.applyPaddingToSections ? parent.getPaddingTop() : -radius - parent.getSectionsOverscanTop(), RecyclerListView.top(from) - (hasAbove ? radius : 0.0f)),
@@ -682,7 +651,7 @@ public class BitmapSectionsItemDecoration extends RecyclerView.ItemDecoration { 
             final RecyclerView.ViewHolder holder = parent.getChildViewHolder(child);
             final int position = parent.getChildAdapterPosition(child);
             if (child == parent.getEmptyView() || child.getVisibility() != View.VISIBLE || child.getAlpha() <= 0.0f ||
-                    position == RecyclerView.NO_POSITION || (holder != null && holder.isRemoved()) ||
+                    position == RecyclerView.NO_POSITION || // EVE-PATCH: cut isRemoved check in corners
                     !isSectionItem(child) || parent.isInsideForcedSection(position)) continue;
             final float left = child.getX();
             final float right = left + child.getWidth();

@@ -16,8 +16,7 @@ remove-method setLockLevel
 remove-statement "if (drawable instanceof RLottieDrawable) {" all
 patch-line "public void setTextAndIcon(CharSequence text, Drawable drawable, boolean divider) {" "public void setTextAndIcon(CharSequence text, Drawable drawable, boolean divider) { imageView.setImageDrawable(drawable);" "set drawable directly on ImageView"
 patch-line "public void setTextAndValueAndIcon(CharSequence text, CharSequence value, Drawable drawable, boolean divider) {" "public void setTextAndValueAndIcon(CharSequence text, CharSequence value, Drawable drawable, boolean divider) { imageView.setImageDrawable(drawable);" "set drawable directly on ImageView"
-remove-method setTextAndValueAndIcon ptypes=CharSequence,CharSequence,int,boolean
-remove-method setTextAndValueAndIcon ptypes=CharSequence,CharSequence,boolean,int,boolean
+patch-line "            int availableWidth = (int) Math.max(1, AndroidUtilities.displaySize.x - (dp(offsetFromImage) + HintView2.measureCorrectly(text, textView.getTextPaint()) + dp(16)));" "            int availableWidth = (int) Math.max(1, AndroidUtilities.displaySize.x - (dp(offsetFromImage) + (int) Math.ceil(textView.getTextPaint().measureText(text.toString())) + dp(16)));" "measure text without HintView2"
 remove-method applyNewSpanTimed
 remove-method applyNewSpan all
 remove-method setTextAndSticker all

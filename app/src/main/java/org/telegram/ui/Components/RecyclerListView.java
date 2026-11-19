@@ -3160,15 +3160,6 @@ public class RecyclerListView extends RecyclerView { // EVE-PATCH: cut IBlur3Cap
         return sectionsOverscanTop;
     }
 
-    /** Draws the backgrounds of the sections for a glass capture, whichever decoration draws them. */
-    public void captureSectionsBackgrounds(Canvas canvas, RectF position) {
-        if (bitmapSectionsItemDecoration != null) {
-            bitmapSectionsItemDecoration.capture(canvas, position);
-        } else if (sectionsItemDecoration != null) {
-            sectionsItemDecoration.capture(canvas, position);
-        }
-    }
-
     /** Rows laid out above the list's top (drawn into a glass capture there): their sections reach so far up too. */
     public void setSectionsOverscanTop(int overscanTop) {
         sectionsOverscanTop = overscanTop;

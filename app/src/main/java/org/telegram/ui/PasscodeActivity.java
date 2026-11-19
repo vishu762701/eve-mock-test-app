@@ -204,7 +204,7 @@ public class PasscodeActivity extends BaseFragment { public interface EvePasscod
             scrollView.setFillViewport(true);
             fragmentContentView = scrollView;
         }
-        FrameLayout contentView = new FrameLayout(context) { private int measureKeyboardHeight() { return 0; } public void notifyHeightChanged() {} public void setDelegate(Object d) {} // EVE-PATCH: use FrameLayout without SizeNotifierFrameLayout
+        FrameLayout contentView = new FrameLayout(context) { private int measureKeyboardHeight() { return 0; } public void notifyHeightChanged() {} // EVE-PATCH: use FrameLayout without SizeNotifierFrameLayout
             @Override
             protected void onLayout(boolean changed, int l, int t, int r, int b) {
                 int frameBottom;
@@ -245,12 +245,6 @@ public class PasscodeActivity extends BaseFragment { public interface EvePasscod
                 }
             }
         };
-        contentView.setDelegate((keyboardHeight, isWidthGreater) -> {
-            if (keyboardHeight >= dp(20) && onShowKeyboardCallback != null) {
-                onShowKeyboardCallback.run();
-                onShowKeyboardCallback = null;
-            }
-        });
         fragmentView = contentView;
         contentView.addView(fragmentContentView, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 0, 1f));
 
