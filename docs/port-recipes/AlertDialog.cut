@@ -1,0 +1,53 @@
+upstream org/telegram/ui/ActionBar/AlertDialog.java
+to app/src/main/java/org/telegram/ui/ActionBar/AlertDialog.java
+
+patch-line "public class AlertDialog extends Dialog implements Drawable.Callback, NotificationCenter.NotificationCenterDelegate {" "public class AlertDialog extends Dialog implements Drawable.Callback {" "cut NotificationCenter delegate"
+patch-line "private SpoilersTextView titleTextView;" "private TextView titleTextView;" "use standard TextView without SpoilersTextView"
+patch-line "private RLottieImageView topImageView;" "private ImageView topImageView;" "use standard ImageView without RLottie"
+patch-line "blurredBackground = (blurredNativeBackground || !supportsNativeBlur() && SharedConfig.getDevicePerformanceClass() >= SharedConfig.PERFORMANCE_CLASS_HIGH && LiteMode.isEnabled(LiteMode.FLAG_CHAT_BLUR)) && isDark;" "blurredBackground = false;" "disable chat blur without SharedConfig/LiteMode"
+
+# Cut Telegram Stars balance cloud
+remove-method getStarsBalanceCloud
+remove-statement "private BalanceCloud starsBalanceCloud;"
+remove-statement "if (starsBalanceCloud == null) {"
+remove-statement "AndroidUtilities.removeFromParent(starsBalanceCloud);"
+remove-statement "fullscreenContainerView.addView(starsBalanceCloud, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 48, 0, 0));"
+
+# Cut RLottie & AttachableDrawable top animations
+remove-method updateTopAnimationLayerColors
+remove-statement "updateTopAnimationLayerColors();"
+patch-line "topImageView = new RLottieImageView(getContext());" "topImageView = new ImageView(getContext());" "use standard ImageView"
+remove-statement "if (topDrawable instanceof AttachableDrawable) {"
+remove-statement "topImageView.setAutoRepeat(topAnimationAutoRepeat);"
+remove-statement "topImageView.setAnimation(topAnimationId, topAnimationSize, topAnimationSize);"
+remove-statement "if (topAnimationLayerColors != null) {"
+remove-statement "topImageView.playAnimation();"
+
+# Replace SpoilersTextView / EffectsTextView with TextView & cut NotificationCenter emoji hooks
+patch-line "titleTextView = new SpoilersTextView(getContext(), false);" "titleTextView = new TextView(getContext());" "use standard TextView"
+remove-statement "NotificationCenter.listenEmojiLoading(titleTextView);"
+remove-statement "titleTextView.cacheType = AnimatedEmojiDrawable.CACHE_TYPE_ALERT_PREVIEW;"
+patch-line "messageTextView = new EffectsTextView(getContext());" "messageTextView = new TextView(getContext());" "use standard TextView"
+remove-statement "NotificationCenter.listenEmojiLoading(messageTextView);"
+remove-statement "NotificationCenter.getGlobalInstance().addWeakObserver(this, NotificationCenter.emojiLoaded);"
+remove-statement "NotificationCenter.getGlobalInstance().removeObserver(this, NotificationCenter.emojiLoaded);"
+remove-method didReceivedNotification
+
+# Cut Browser.Progress button loading & LaunchActivity fallback
+remove-method makeButtonLoading all
+remove-statement "context = AndroidUtilities.findActivity(LaunchActivity.instance);"
+
+# Direct Theme color resolution without ThemeBind (matching F2c/F2d/F3a)
+remove-statement "ThemeBind.textColor(button, Theme.key_text_RedBold, themedColors);" all
+patch-line "ThemeBind.selectorBackground(this, Theme.createSelectorDrawable(getThemedColor(Theme.key_dialogButtonSelector), 2), null, ThemeBind.of(Theme.key_dialogButtonSelector), resourcesProvider);" "setBackground(Theme.createSelectorDrawable(getThemedColor(Theme.key_dialogButtonSelector), 2));" "direct selector background without ThemeBind"
+patch-line "ThemeBind.colorFilter(imageView, Theme.key_dialogIcon, resourcesProvider, PorterDuff.Mode.MULTIPLY);" "imageView.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_dialogIcon), PorterDuff.Mode.MULTIPLY));" "direct icon color filter without ThemeBind"
+patch-line "ThemeBind.textColor(textView, Theme.key_dialogTextBlack, resourcesProvider);" "textView.setTextColor(getThemedColor(Theme.key_dialogTextBlack));" "direct text color without ThemeBind"
+patch-line "ThemeBind.fillBackground(topImageView, Theme.createRoundRectDrawable(dp(10), 0, topBackgroundColor), ThemeBind.of(topBackgroundColorKey), topBackgroundResourcesProvider);" "topImageView.setBackground(Theme.createRoundRectDrawable(dp(10), 0, topBackgroundColor));" "direct topImageView background without ThemeBind"
+patch-line "ThemeBind.textColor(secondTitleTextView, Theme.key_dialogTextGray3, themedColors);" "secondTitleTextView.setTextColor(getThemedColor(Theme.key_dialogTextGray3));" "direct text color without ThemeBind"
+patch-line "ThemeBind.textColor(subtitleTextView, Theme.key_dialogIcon, themedColors);" "subtitleTextView.setTextColor(getThemedColor(Theme.key_dialogIcon));" "direct text color without ThemeBind"
+patch-line "ThemeBind.linkTextColor(messageTextView, Theme.key_dialogTextLink, themedColors);" "messageTextView.setLinkTextColor(getThemedColor(Theme.key_dialogTextLink));" "direct link color without ThemeBind"
+patch-line "ThemeBind.textColor(lineProgressViewPercent, Theme.key_dialogTextGray2, themedColors);" "lineProgressViewPercent.setTextColor(getThemedColor(Theme.key_dialogTextGray2));" "direct text color without ThemeBind"
+remove-statement "ThemeBind.textColor(textView, dialogButtonColorKey, themedColors);" all
+patch-line "ThemeBind.textColor(button, Theme.key_text_RedBold, alertDialog.themedColors);" "((TextView) button).setTextColor(alertDialog.getThemedColor(Theme.key_text_RedBold));" "direct red button text color without ThemeBind"
+
+prune-imports

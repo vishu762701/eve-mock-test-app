@@ -1,0 +1,50 @@
+upstream org/telegram/ui/ActionBar/BottomSheet.java
+to app/src/main/java/org/telegram/ui/ActionBar/BottomSheet.java
+
+patch-line "protected int currentAccount = UserConfig.selectedAccount;" "protected int currentAccount = 0;" "single-account Eve app without UserConfig"
+remove-statement "private AnimationNotificationsLocker notificationsLocker = new AnimationNotificationsLocker();"
+remove-statement "notificationsLocker.lock();"
+remove-statement "notificationsLocker.unlock();"
+remove-statement "NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.startAllHeavyOperations, 512);" all
+remove-statement "NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.stopAllHeavyOperations, 512);" all
+remove-statement "NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.stopAllHeavyOperations, openedLayerNum);"
+remove-statement "NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.startAllHeavyOperations, openedLayerNum);"
+remove-statement "if (child instanceof ItemOptions.DimView) {"
+patch-line "keyboardContentAnimator.setDuration(AdjustPanLayoutHelper.keyboardDuration).setInterpolator(AdjustPanLayoutHelper.keyboardInterpolator);" "keyboardContentAnimator.setDuration(250).setInterpolator(org.telegram.ui.Components.CubicBezierInterpolator.DEFAULT);" "inline AdjustPanLayoutHelper keyboard duration/interpolator"
+remove-statement "if (child instanceof CameraView) {"
+
+# Cut glass overlay menu & simpleMenuOverlay
+remove-statement "protected final GlassEngine glassEngine = new GlassEngine();"
+remove-statement "private SimpleActionBarMenuOverlay simpleMenuOverlay;"
+remove-statement "private BaseFragmentSimpleGlass simpleMenuGlass;"
+remove-statement "private SimpleButtonMenuHost simpleButtonMenuHost;"
+remove-method getSimpleMenuOverlay
+remove-method getSimpleMenuGlass
+remove-method showSimpleMenu
+patch-line "return simpleMenuOverlay != null && simpleMenuOverlay.getVisibility() == View.VISIBLE;" "return false;" "cut simpleMenuOverlay"
+remove-statement "if (simpleMenuOverlay != null) {"
+remove-statement "if (simpleMenuOverlay != null && simpleMenuOverlay.isOpened()) {"
+
+# Standard TextView instead of AnimatedEmojiSpan.TextViewEmojis & direct Theme colors without ThemeBind
+patch-line "private AnimatedEmojiSpan.TextViewEmojis textView;" "private TextView textView;" "use standard TextView without AnimatedEmojiSpan"
+patch-line "textView = new AnimatedEmojiSpan.TextViewEmojis(context);" "textView = new TextView(context); textView.setTextColor(getThemedColor(Theme.key_dialogTextBlack));" "use standard TextView with direct text color"
+patch-line "public AnimatedEmojiSpan.TextViewEmojis getTextView() {" "public TextView getTextView() {" "use standard TextView"
+patch-line "ThemeBind.colorFilter(imageView, Theme.key_dialogIcon, resourcesProvider, PorterDuff.Mode.MULTIPLY);" "imageView.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_dialogIcon), PorterDuff.Mode.MULTIPLY));" "direct icon color filter without ThemeBind"
+patch-line "ThemeBind.colorFilter(imageView2, Theme.key_radioBackgroundChecked, resourcesProvider, PorterDuff.Mode.SRC_IN);" "imageView2.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_radioBackgroundChecked), PorterDuff.Mode.SRC_IN));" "direct icon2 color filter without ThemeBind"
+remove-statement "ThemeBind.textColor(textView, Theme.key_dialogTextBlack, resourcesProvider);" all
+patch-line "ThemeBind.textColor(textView, Theme.key_featuredStickers_buttonText, resourcesProvider);" "textView.setTextColor(getThemedColor(Theme.key_featuredStickers_buttonText));" "direct button text color without ThemeBind"
+patch-line "ThemeBind.textColor(titleView, Theme.key_dialogTextBlack, resourcesProvider);" "titleView.setTextColor(getThemedColor(Theme.key_dialogTextBlack));" "direct title color without ThemeBind"
+patch-line "ThemeBind.textColor(titleView, Theme.key_dialogTextGray2, resourcesProvider);" "titleView.setTextColor(getThemedColor(Theme.key_dialogTextGray2));" "direct title color without ThemeBind"
+
+# Cut LeakDetector, Bulletin, LaunchActivity, WindowVisibilityManager
+remove-statement "if (BuildConfig.DEBUG_PRIVATE_VERSION) {"
+remove-statement "Bulletin.addDelegate(this, new Bulletin.Delegate() {"
+remove-statement "Bulletin.removeDelegate(this);"
+remove-statement "Bulletin bulletin = Bulletin.getVisibleBulletin();"
+remove-statement "if (bulletin != null && bulletin.isShowing() && bulletin.hideAfterBottomSheet) {"
+remove-statement "LaunchActivity.instance.checkSystemBarColors(true, true, true);" all
+remove-statement "private WindowVisibilityManager windowVisibilityManager;"
+remove-method obtainWindowVisibilityController
+remove-method getBulletinFactory
+
+prune-imports

@@ -1,0 +1,8 @@
+upstream org/telegram/ui/Components/AnimationProperties.java
+to app/src/main/java/org/telegram/ui/Components/AnimationProperties.java
+
+remove-statement "public static final Property<ImageReceiver, Float> IMAGE_RECEIVER_ALPHA = new FloatProperty<ImageReceiver>(\"currentAlpha\") {"
+remove-statement "public static final Property<PhotoViewer, Float> PHOTO_VIEWER_ANIMATION_VALUE = new FloatProperty<PhotoViewer>(\"animationValue\") {"
+remove-statement "public static final Property<DialogCell, Float> CLIP_DIALOG_CELL_PROGRESS = new FloatProperty<DialogCell>(\"clipProgress\") {"
+
+prune-imports

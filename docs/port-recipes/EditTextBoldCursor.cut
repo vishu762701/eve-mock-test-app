@@ -1,0 +1,23 @@
+upstream org/telegram/ui/Components/EditTextBoldCursor.java
+to app/src/main/java/org/telegram/ui/Components/EditTextBoldCursor.java
+
+patch-line "public class EditTextBoldCursor extends EditTextEffects {" "@android.annotation.SuppressLint({\"SoonBlockedPrivateApi\", \"PrivateApi\", \"DiscouragedPrivateApi\"}) public class EditTextBoldCursor extends android.widget.EditText {" "extend standard EditText without spoiler EditTextEffects and suppress reflection lint on compileSdk 36"
+
+# Cut Choreographer60FpsContent, FloatingToolbar/FloatingActionMode, Blur3, and QuoteSpan
+remove-statement "private final Choreographer60FpsContent.FrameCallback invalidateCallback = d -> invalidate();"
+remove-statement "private FloatingToolbar floatingToolbar;"
+remove-statement "public FloatingActionMode floatingActionMode;"
+remove-statement "private ViewTreeObserver.OnPreDrawListener floatingToolbarPreDrawListener;"
+remove-statement "private class ActionModeCallback2Wrapper extends ActionMode.Callback2 {"
+remove-method cleanupFloatingActionModeViews
+remove-statement "if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {" all
+remove-statement "if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q"
+remove-statement "if (Looper.myLooper() == Looper.getMainLooper()) {"
+remove-statement "BlurredBackgroundDrawableViewFactory blurredBackgroundDrawableViewFactory;"
+remove-method setBlurredBackgroundDrawableViewFactory
+remove-method startActionMode all
+remove-method shouldShowQuoteButton
+remove-method getActionModeStyle
+patch-line "cleanupFloatingActionModeViews();" "// floating toolbar cut" "no-op hideActionMode without FloatingToolbar"
+
+prune-imports

@@ -1,0 +1,14 @@
+upstream org/telegram/ui/ActionBar/INavigationLayout.java
+to app/src/main/java/org/telegram/ui/ActionBar/INavigationLayout.java
+
+remove-statement "DrawerLayoutContainer getDrawerLayoutContainer();"
+remove-statement "void setDrawerLayoutContainer(DrawerLayoutContainer drawerLayoutContainer);"
+remove-statement "MessageDrawable getMessageDrawableOutStart();"
+remove-statement "MessageDrawable getMessageDrawableOutMediaStart();"
+remove-statement "List<BackButtonMenu.PulledDialog> getPulledDialogs();"
+remove-statement "void setPulledDialogs(List<BackButtonMenu.PulledDialog> pulledDialogs);"
+remove-method newLayout all
+remove-method getBottomSheet
+remove-method getBottomSheetTabs
+
+prune-imports

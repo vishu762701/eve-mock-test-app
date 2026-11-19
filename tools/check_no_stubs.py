@@ -32,6 +32,39 @@ def strip_comments(text: str) -> str:
     text = re.sub(r'//.*$', '', text, flags=re.M)
     return text
 
+def is_telegram_host_adapter(stripped_code: str) -> bool:
+    """Detects whether the class extends TelegramHostActivity."""
+    return bool(re.search(r'class\s+[A-Za-z0-9_]+[^{:]*:\s*TelegramHostActivity\b', stripped_code))
+
+def check_host_adapter(path: Path, stripped_code: str, non_comment_lines: list) -> list:
+    """Verifies that a TelegramHostActivity subclass is genuine and complete, not a stub or fake."""
+    errors = []
+    # 1. Minimum lines for an adapter (must have real setup/dispatch logic, minimum 15 lines)
+    if len(non_comment_lines) < 15:
+        errors.append(
+            f"{path}: Incomplete Telegram host adapter: Only {len(non_comment_lines)} code lines (minimum 15 required for adapters)"
+        )
+        return errors
+
+    # 2. Must override createFragment or createTelegramFragment
+    has_create_fragment = bool(re.search(r'override\s+fun\s+(createFragment|createTelegramFragment)\b', stripped_code))
+    if not has_create_fragment:
+        errors.append(
+            f"{path}: Incomplete Telegram host adapter: Missing override of createFragment() or createTelegramFragment()"
+        )
+
+    # 3. Must instantiate or reference a Telegram UI component / fragment
+    has_tg_fragment_ref = bool(re.search(
+        r'(org\.telegram\.ui\.|ActionIntroActivity|BaseFragment|TelegramChange|TelegramLanguage|TelegramProfile)',
+        stripped_code
+    ))
+    if not has_tg_fragment_ref:
+        errors.append(
+            f"{path}: Fake Telegram host adapter: Does not instantiate or reference any Telegram UI fragment"
+        )
+
+    return errors
+
 def check_file(path: Path) -> list:
     errors = []
     content = path.read_text(encoding="utf-8", errors="replace")
@@ -43,7 +76,7 @@ def check_file(path: Path) -> list:
 
     # 1. Check for empty subclass or typealias
     empty_subclass_pattern = re.search(
-        r'class\s+([A-Za-z0-9_]+)\s*(?:\([^)]*\))?\s*:\s*([A-Za-z0-9_]+)\s*(?:\([^)]*\))?\s*(?:\{\s*\})?$',
+        r'class\s+([A-Za-z0-9_]+)\s*(?:<[^>]*>)?\s*(?:\([^)]*\))?\s*:\s*([A-Za-z0-9_]+)(?:<[^>]*>)?\s*(?:\([^)]*\))?\s*(?:\{\s*\})?$',
         content.strip()
     )
     if empty_subclass_pattern and has_telegram_header:
@@ -54,16 +87,22 @@ def check_file(path: Path) -> list:
     if typealias_pattern and has_telegram_header and not has_class_def:
         errors.append(f"{path}: Typealias stub claiming to be derived from Telegram")
 
-    # 2. Check for fewer than 40 non-comment lines
+    # 2. Check line counts: Telegram ports vs Host Adapters
     if has_telegram_header:
         non_comment_lines = [
             line.strip() for line in stripped_code.splitlines()
             if line.strip() and not line.strip().startswith("package ") and not line.strip().startswith("import ")
         ]
-        if len(non_comment_lines) < 40:
-            errors.append(
-                f"{path}: Only {len(non_comment_lines)} non-comment code lines (minimum 40 required for Telegram ports)"
-            )
+
+        if is_telegram_host_adapter(stripped_code):
+            # Narrowly scoped, verifiable host-adapter validation
+            adapter_errors = check_host_adapter(path, stripped_code, non_comment_lines)
+            errors.extend(adapter_errors)
+        else:
+            if len(non_comment_lines) < 40:
+                errors.append(
+                    f"{path}: Only {len(non_comment_lines)} non-comment code lines (minimum 40 required for Telegram ports)"
+                )
 
     # 3. Check for false feature claims in comments (Telegram ports only)
     if has_telegram_header:

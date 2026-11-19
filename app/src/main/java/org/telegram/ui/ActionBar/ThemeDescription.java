@@ -1,20 +1,621 @@
-// EVE-SHIM: minimal ThemeDescription for Telegram theme descriptors
+/*
+ * This is the source code of Telegram for Android v. 5.x.x.
+ * It is licensed under GNU GPL v. 2 or later.
+ * You should have received a copy of the license in this archive (see LICENSE).
+ *
+ * Copyright Nikolai Kudashov, 2013-2018.
+ */
+
 package org.telegram.ui.ActionBar;
 
+import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.RippleDrawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.StateListDrawable;
+import android.os.Build;
+import android.text.SpannedString;
+import android.text.TextPaint;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ScrollView;
+import android.widget.TextView;
+
+import androidx.viewpager.widget.ViewPager;
+
+import org.telegram.messenger.AndroidUtilities;
+import org.telegram.messenger.FileLog;
+import org.telegram.ui.Components.CombinedDrawable;
+import org.telegram.ui.Components.EditTextBoldCursor;
+import org.telegram.ui.Components.TypefaceSpan;
+
+import java.lang.reflect.Field;
+import java.util.HashMap;
 
 public class ThemeDescription {
-    public static final int FLAG_BACKGROUND = 1;
-    public static final int FLAG_AB_ITEMSCOLOR = 2;
-    public static final int FLAG_AB_TITLECOLOR = 4;
-    public static final int FLAG_AB_SELECTORCOLOR = 8;
-    public static final int FLAG_TEXTCOLOR = 16;
-    public static final int FLAG_HINTTEXTCOLOR = 32;
-    public static final int FLAG_BACKGROUNDFILTER = 64;
-    public static final int FLAG_DRAWABLESELECTEDSTATE = 128;
 
-    public ThemeDescription(View view, int changeFlags, Class[] listClasses, Paint[] paint, Drawable[] drawables, Object delegate, int key) {
+    public static int FLAG_BACKGROUND                   = 0x00000001;
+    public static int FLAG_LINKCOLOR                    = 0x00000002;
+    public static int FLAG_TEXTCOLOR                    = 0x00000004;
+    public static int FLAG_IMAGECOLOR                   = 0x00000008;
+    public static int FLAG_CELLBACKGROUNDCOLOR          = 0x00000010;
+    public static int FLAG_BACKGROUNDFILTER             = 0x00000020;
+    public static int FLAG_AB_ITEMSCOLOR                = 0x00000040;
+    public static int FLAG_AB_TITLECOLOR                = 0x00000080;
+    public static int FLAG_AB_SELECTORCOLOR             = 0x00000100;
+    public static int FLAG_AB_AM_ITEMSCOLOR             = 0x00000200;
+    public static int FLAG_AB_SUBTITLECOLOR             = 0x00000400;
+    public static int FLAG_PROGRESSBAR                  = 0x00000800;
+    public static int FLAG_SELECTOR                     = 0x00001000;
+    public static int FLAG_CHECKBOX                     = 0x00002000;
+    public static int FLAG_CHECKBOXCHECK                = 0x00004000;
+    public static int FLAG_LISTGLOWCOLOR                = 0x00008000;
+    public static int FLAG_DRAWABLESELECTEDSTATE        = 0x00010000;
+    public static int FLAG_USEBACKGROUNDDRAWABLE        = 0x00020000;
+    public static int FLAG_CHECKTAG                     = 0x00040000;
+    public static int FLAG_SECTIONS                     = 0x00080000;
+    public static int FLAG_AB_AM_BACKGROUND             = 0x00100000;
+    public static int FLAG_AB_AM_TOPBACKGROUND          = 0x00200000;
+    public static int FLAG_AB_AM_SELECTORCOLOR          = 0x00400000;
+    public static int FLAG_HINTTEXTCOLOR                = 0x00800000;
+    public static int FLAG_CURSORCOLOR                  = 0x01000000;
+    public static int FLAG_FASTSCROLL                   = 0x02000000;
+    public static int FLAG_AB_SEARCHPLACEHOLDER         = 0x04000000;
+    public static int FLAG_AB_SEARCH                    = 0x08000000;
+    public static int FLAG_SELECTORWHITE                = 0x10000000;
+    public static int FLAG_SERVICEBACKGROUND            = 0x20000000;
+    public static int FLAG_AB_SUBMENUITEM               = 0x40000000;
+    public static int FLAG_AB_SUBMENUBACKGROUND         = 0x80000000;
+
+    private View viewToInvalidate;
+    private int alphaOverride = -1;
+    private Paint[] paintToUpdate;
+    private Drawable[] drawablesToUpdate;
+    private Class[] listClasses;
+    private int currentKey;
+    private String lottieLayerName;
+    private ThemeDescriptionDelegate delegate;
+    private int previousColor;
+    private boolean[] previousIsDefault = new boolean[1];
+    private int defaultColor;
+    private int currentColor;
+    private int changeFlags;
+    private String[] listClassesFieldName;
+
+    private HashMap<String, Field> cachedFields;
+    private HashMap<String, Boolean> notFoundCachedFields;
+    public Theme.ResourcesProvider resourcesProvider;
+
+    public interface ThemeDescriptionDelegate {
+        void didSetColor();
+        default void onAnimationProgress(float progress) {}
+    }
+
+    public ThemeDescription(View view, int flags, Class[] classes, Paint[] paint, Drawable[] drawables, ThemeDescriptionDelegate themeDescriptionDelegate, int key, Object unused) {
+        currentKey = key;
+        paintToUpdate = paint;
+        drawablesToUpdate = drawables;
+        viewToInvalidate = view;
+        changeFlags = flags;
+        listClasses = classes;
+        delegate = themeDescriptionDelegate;
+    }
+
+    public ThemeDescription(View view, int flags, Class[] classes, Paint paint, Drawable[] drawables, ThemeDescriptionDelegate themeDescriptionDelegate, int key) {
+        currentKey = key;
+        if (paint != null) {
+            paintToUpdate = new Paint[]{paint};
+        }
+        drawablesToUpdate = drawables;
+        viewToInvalidate = view;
+        changeFlags = flags;
+        listClasses = classes;
+        delegate = themeDescriptionDelegate;
+    }
+
+    public ThemeDescription(View view, int flags, Class[] classes, String[] classesFields, Paint[] paint, Drawable[] drawables, ThemeDescriptionDelegate themeDescriptionDelegate, int key) {
+        this(view, flags, classes, classesFields, paint, drawables, -1, themeDescriptionDelegate, key);
+    }
+
+    public ThemeDescription(View view, int flags, Class[] classes, String[] classesFields, Paint[] paint, Drawable[] drawables, int alpha, ThemeDescriptionDelegate themeDescriptionDelegate, int key) {
+        currentKey = key;
+        paintToUpdate = paint;
+        drawablesToUpdate = drawables;
+        viewToInvalidate = view;
+        changeFlags = flags;
+        listClasses = classes;
+        listClassesFieldName = classesFields;
+        alphaOverride = alpha;
+        delegate = themeDescriptionDelegate;
+        cachedFields = new HashMap<>();
+        notFoundCachedFields = new HashMap<>();
+    }
+
+    public ThemeDescription(View view, int flags, Class[] classes, String[] classesFields, String layerName, int key) {
+        currentKey = key;
+        lottieLayerName = layerName;
+        viewToInvalidate = view;
+        changeFlags = flags;
+        listClasses = classes;
+        listClassesFieldName = classesFields;
+        cachedFields = new HashMap<>();
+        notFoundCachedFields = new HashMap<>();
+    }
+
+    public ThemeDescriptionDelegate setDelegateDisabled() {
+        ThemeDescriptionDelegate oldDelegate = delegate;
+        delegate = null;
+        return oldDelegate;
+    }
+
+    public void setColor(int color, boolean useDefault) {
+        setColor(color, useDefault, true);
+    }
+
+    private boolean checkTag(int key, View view) {
+        if (key < 0 || view == null) {
+            return false;
+        }
+        Object viewTag = view.getTag();
+        if (viewTag instanceof Integer) {
+            return ((Integer) viewTag) == key;
+        }
+        return false;
+    }
+
+    public void setColor(int color, boolean useDefault, boolean save) {
+        if (save) {
+            Theme.setColor(currentKey, color, useDefault);
+        }
+        currentColor = color;
+        if (alphaOverride > 0) {
+            color = Color.argb(alphaOverride, Color.red(color), Color.green(color), Color.blue(color));
+        }
+        if (paintToUpdate != null) {
+            for (int a = 0; a < paintToUpdate.length; a++) {
+                if ((changeFlags & FLAG_LINKCOLOR) != 0 && paintToUpdate[a] instanceof TextPaint) {
+                    ((TextPaint) paintToUpdate[a]).linkColor = color;
+                } else {
+                    paintToUpdate[a].setColor(color);
+                }
+            }
+        }
+        if (drawablesToUpdate != null) {
+            for (int a = 0; a < drawablesToUpdate.length; a++) {
+                if (drawablesToUpdate[a] == null) {
+                    continue;
+                }
+                if (drawablesToUpdate[a] instanceof BackDrawable) {
+                    ((BackDrawable) drawablesToUpdate[a]).setColor(color);
+                } else if (false) { // EVE-PATCH: cut unported ScamDrawable
+                } else if (false) { // EVE-PATCH: cut unported RLottieDrawable
+                } else if (drawablesToUpdate[a] instanceof CombinedDrawable) {
+                    if ((changeFlags & FLAG_BACKGROUNDFILTER) != 0) {
+                        ((CombinedDrawable) drawablesToUpdate[a]).getBackground().setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
+                    } else {
+                        ((CombinedDrawable) drawablesToUpdate[a]).getIcon().setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
+                    }
+                } else if (false) { // EVE-PATCH: cut unported AvatarDrawable
+                } else if (false) { // EVE-PATCH: cut unported AnimatedArrowDrawable
+                } else {
+                    drawablesToUpdate[a].setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
+                }
+            }
+        }
+        if (viewToInvalidate != null && listClasses == null && listClassesFieldName == null) {
+            if ((changeFlags & FLAG_CHECKTAG) == 0 || checkTag(currentKey, viewToInvalidate)) {
+                if ((changeFlags & FLAG_BACKGROUND) != 0) {
+                    viewToInvalidate.setBackgroundColor(color); // EVE-PATCH: preserve background color without MessageBackgroundDrawable
+                }
+                if ((changeFlags & FLAG_BACKGROUNDFILTER) != 0) {
+                    if ((changeFlags & FLAG_PROGRESSBAR) != 0) {
+                        if (viewToInvalidate instanceof EditTextBoldCursor) {
+                        }
+                    } else {
+                        Drawable drawable = viewToInvalidate.getBackground();
+                        if (drawable instanceof CombinedDrawable) {
+                            if ((changeFlags & FLAG_DRAWABLESELECTEDSTATE) != 0) {
+                                drawable = ((CombinedDrawable) drawable).getBackground();
+                            } else {
+                                drawable = ((CombinedDrawable) drawable).getIcon();
+                            }
+                        }
+                        if (drawable != null) {
+                            if (drawable instanceof StateListDrawable || Build.VERSION.SDK_INT >= 21 && drawable instanceof RippleDrawable) {
+                                Theme.setSelectorDrawableColor(drawable, color, (changeFlags & FLAG_DRAWABLESELECTEDSTATE) != 0);
+                            } else if (drawable instanceof ShapeDrawable) {
+                                ((ShapeDrawable) drawable).getPaint().setColor(color);
+                            } else {
+                                drawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (viewToInvalidate instanceof ActionBar) {
+            if ((changeFlags & FLAG_AB_ITEMSCOLOR) != 0) {
+                ((ActionBar) viewToInvalidate).setItemsColor(color, false);
+            }
+            if ((changeFlags & FLAG_AB_TITLECOLOR) != 0) {
+                ((ActionBar) viewToInvalidate).setTitleColor(color);
+            }
+            if ((changeFlags & FLAG_AB_SELECTORCOLOR) != 0) {
+                ((ActionBar) viewToInvalidate).setItemsBackgroundColor(color, false);
+            }
+            if ((changeFlags & FLAG_AB_AM_SELECTORCOLOR) != 0) {
+                ((ActionBar) viewToInvalidate).setItemsBackgroundColor(color, true);
+            }
+            if ((changeFlags & FLAG_AB_AM_ITEMSCOLOR) != 0) {
+                ((ActionBar) viewToInvalidate).setItemsColor(color, true);
+            }
+            if ((changeFlags & FLAG_AB_SUBTITLECOLOR) != 0) {
+                ((ActionBar) viewToInvalidate).setSubtitleColor(color);
+            }
+            if ((changeFlags & FLAG_AB_AM_BACKGROUND) != 0) {
+                ((ActionBar) viewToInvalidate).setActionModeColor(color);
+            }
+            if ((changeFlags & FLAG_AB_AM_TOPBACKGROUND) != 0) {
+                ((ActionBar) viewToInvalidate).setActionModeTopColor(color);
+            }
+            if ((changeFlags & FLAG_AB_SEARCHPLACEHOLDER) != 0) {
+                ((ActionBar) viewToInvalidate).setSearchTextColor(color, true);
+            }
+            if ((changeFlags & FLAG_AB_SEARCH) != 0) {
+                ((ActionBar) viewToInvalidate).setSearchTextColor(color, false);
+            }
+            if ((changeFlags & FLAG_AB_SUBMENUITEM) != 0) {
+                ((ActionBar) viewToInvalidate).setPopupItemsColor(color, (changeFlags & FLAG_IMAGECOLOR) != 0, false);
+            }
+            if ((changeFlags & FLAG_AB_SUBMENUBACKGROUND) != 0) {
+                ((ActionBar) viewToInvalidate).setPopupBackgroundColor(color, false);
+            }
+        }
+        if ((changeFlags & FLAG_TEXTCOLOR) != 0) {
+            if ((changeFlags & FLAG_CHECKTAG) == 0 || checkTag(currentKey, viewToInvalidate)) {
+                if (viewToInvalidate instanceof TextView) {
+                    ((TextView) viewToInvalidate).setTextColor(color);
+                } else if (false) { // EVE-PATCH: cut unported NumberTextView
+                } else if (viewToInvalidate instanceof SimpleTextView) {
+                    ((SimpleTextView) viewToInvalidate).setTextColor(color);
+                } else if (false) { // EVE-PATCH: cut unported ChatBigEmptyView
+                }
+            }
+        }
+        if ((changeFlags & FLAG_CURSORCOLOR) != 0) {
+            if (viewToInvalidate instanceof EditTextBoldCursor) {
+                ((EditTextBoldCursor) viewToInvalidate).setCursorColor(color);
+            }
+        }
+        if ((changeFlags & FLAG_HINTTEXTCOLOR) != 0) {
+            if (viewToInvalidate instanceof EditTextBoldCursor) {
+                if ((changeFlags & FLAG_PROGRESSBAR) != 0) {
+                } else {
+                    ((EditTextBoldCursor) viewToInvalidate).setHintTextColor(color); // EVE-PATCH: use standard setHintTextColor until F4 ports real EditTextBoldCursor
+                }
+            } else if (viewToInvalidate instanceof EditText) {
+                ((EditText) viewToInvalidate).setHintTextColor(color);
+            }
+        }
+        if (viewToInvalidate != null && (changeFlags & FLAG_SERVICEBACKGROUND) != 0) {
+
+        }
+        if ((changeFlags & FLAG_IMAGECOLOR) != 0) {
+            if ((changeFlags & FLAG_CHECKTAG) == 0 || checkTag(currentKey, viewToInvalidate)) {
+                if (viewToInvalidate instanceof ImageView) {
+                    if ((changeFlags & FLAG_USEBACKGROUNDDRAWABLE) != 0) {
+                        Drawable drawable = ((ImageView) viewToInvalidate).getDrawable();
+                        if (drawable instanceof StateListDrawable || Build.VERSION.SDK_INT >= 21 && drawable instanceof RippleDrawable) {
+                            Theme.setSelectorDrawableColor(drawable, color, (changeFlags & FLAG_DRAWABLESELECTEDSTATE) != 0);
+                        }
+                    } else {
+                        ((ImageView) viewToInvalidate).setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
+                    }
+                } else if (false) { // EVE-PATCH: cut unported BackupImageView
+                    //((BackupImageView) viewToInvalidate).setResourceImageColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
+                } else if (viewToInvalidate instanceof SimpleTextView) {
+                    SimpleTextView textView = (SimpleTextView) viewToInvalidate;
+                    textView.setSideDrawablesColor(color);
+                } else if (viewToInvalidate instanceof TextView) {
+                    Drawable[] drawables = ((TextView) viewToInvalidate).getCompoundDrawables();
+                    if (drawables != null) {
+                        for (int a = 0; a < drawables.length; a++) {
+                            if (drawables[a] != null) {
+                                drawables[a].setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (viewToInvalidate instanceof ScrollView) {
+            if ((changeFlags & FLAG_LISTGLOWCOLOR) != 0) {
+                AndroidUtilities.setScrollViewEdgeEffectColor((ScrollView) viewToInvalidate, color);
+            }
+        }
+        if (viewToInvalidate instanceof ViewPager) {
+            if ((changeFlags & FLAG_LISTGLOWCOLOR) != 0) {
+                AndroidUtilities.setViewPagerEdgeEffectColor((ViewPager) viewToInvalidate, color);
+            }
+        }
+        if (listClasses != null) {
+            if (viewToInvalidate instanceof ViewGroup) {
+                ViewGroup viewGroup = (ViewGroup) viewToInvalidate;
+                int count = viewGroup.getChildCount();
+                for (int a = 0; a < count; a++) {
+                    processViewColor(viewGroup.getChildAt(a), color);
+                }
+            }
+            processViewColor(viewToInvalidate, color);
+        }
+        if (delegate != null) {
+            delegate.didSetColor();
+        }
+        if (viewToInvalidate != null) {
+            viewToInvalidate.invalidate();
+        }
+    }
+
+    private void processViewColor(View child, int color) {
+        if (child == null || listClasses == null) {
+            return;
+        }
+        for (int b = 0; b < listClasses.length; b++) {
+            Class<?> listClass = listClasses[b];
+            if (listClass == null) {
+                continue;
+            }
+            if (listClass.isInstance(child)) {
+                child.invalidate();
+                boolean passedCheck;
+                if ((changeFlags & FLAG_CHECKTAG) == 0 || checkTag(currentKey, child)) {
+                    passedCheck = true;
+                    child.invalidate();
+                    applyDirectViewColor(child, color);
+                } else {
+                    passedCheck = false;
+                }
+                if (listClassesFieldName != null) {
+                    applyReflectedFieldColor(child, listClass, b, color, passedCheck);
+                } else if (false) { // EVE-PATCH: cut unported GroupCreateSpan
+                }
+            }
+        }
+    }
+
+    private void applyDirectViewColor(View child, int color) {
+        if (listClassesFieldName == null && (changeFlags & FLAG_BACKGROUNDFILTER) != 0) {
+            Drawable drawable = child.getBackground();
+            if (drawable != null) {
+                if ((changeFlags & FLAG_CELLBACKGROUNDCOLOR) != 0) {
+                    if (drawable instanceof CombinedDrawable) {
+                        Drawable back = ((CombinedDrawable) drawable).getBackground();
+                        if (back instanceof ColorDrawable) {
+                            ((ColorDrawable) back).setColor(color);
+                        }
+                    }
+                } else {
+                    if (drawable instanceof CombinedDrawable) {
+                        drawable = ((CombinedDrawable) drawable).getIcon();
+                    } else if (drawable instanceof StateListDrawable || drawable instanceof RippleDrawable) {
+                        Theme.setSelectorDrawableColor(drawable, color, (changeFlags & FLAG_DRAWABLESELECTEDSTATE) != 0);
+                    }
+                    if (drawable != null) {
+                        drawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
+                    }
+                }
+            }
+        } else if ((changeFlags & FLAG_CELLBACKGROUNDCOLOR) != 0) {
+            child.setBackgroundColor(color);
+        } else if ((changeFlags & FLAG_TEXTCOLOR) != 0) {
+            if (child instanceof TextView) {
+                ((TextView) child).setTextColor(color);
+            } else if (false) { // EVE-PATCH: cut unported AudioPlayerAlert
+                for (int i = 0; i < 2; i++) {
+                }
+            }
+        } else if ((changeFlags & FLAG_SERVICEBACKGROUND) != 0) {
+
+        } else if ((changeFlags & FLAG_SELECTOR) != 0) {
+            child.setBackgroundDrawable(Theme.getSelectorDrawable(false));
+        } else if ((changeFlags & FLAG_SELECTORWHITE) != 0) {
+            child.setBackgroundDrawable(Theme.getSelectorDrawable(true));
+        }
+    }
+
+    private void applyReflectedObjectColor(Object object, View child, int color) {
+        if (object instanceof View) {
+            ((View) object).invalidate();
+        }
+        if ((changeFlags & FLAG_USEBACKGROUNDDRAWABLE) != 0 && object instanceof View) {
+            object = ((View) object).getBackground();
+        }
+        if ((changeFlags & FLAG_BACKGROUND) != 0 && object instanceof View) {
+            View view = (View) object;
+            view.setBackgroundColor(color); // EVE-PATCH: preserve background color without MessageBackgroundDrawable
+        } else if (false) { // EVE-PATCH: cut unported EditTextCaption
+            if ((changeFlags & FLAG_HINTTEXTCOLOR) != 0) {
+            } else if ((changeFlags & FLAG_CURSORCOLOR) != 0) {
+            } else {
+            }
+        } else if (object instanceof SimpleTextView) {
+            if ((changeFlags & FLAG_LINKCOLOR) != 0) {
+                ((SimpleTextView) object).setLinkTextColor(color);
+            } else {
+                ((SimpleTextView) object).setTextColor(color);
+            }
+        } else if (object instanceof TextView) {
+            applyTextViewColor(object, color);
+        } else if (object instanceof ImageView) {
+            ImageView imageView = (ImageView) object;
+            Drawable drawable = imageView.getDrawable();
+            if (drawable instanceof CombinedDrawable) {
+                Drawable part = (changeFlags & FLAG_BACKGROUNDFILTER) != 0
+                        ? ((CombinedDrawable) drawable).getBackground()
+                        : ((CombinedDrawable) drawable).getIcon();
+                if (part != null) {
+                    part.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
+                }
+            } else {
+                imageView.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
+            }
+        } else if (false) { // EVE-PATCH: cut unported BackupImageView
+            if (drawable instanceof CombinedDrawable) {
+                Drawable part = (changeFlags & FLAG_BACKGROUNDFILTER) != 0
+                        ? ((CombinedDrawable) drawable).getBackground()
+                        : ((CombinedDrawable) drawable).getIcon();
+                if (part != null) {
+                    part.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
+                }
+            } else if (drawable != null) {
+                drawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
+            }
+        } else if (object instanceof Drawable) {
+            applyDrawableColor(object, color);
+        } else if (false) { // EVE-PATCH: cut unported CheckBox
+            if ((changeFlags & FLAG_CHECKBOX) != 0) {
+            } else if ((changeFlags & FLAG_CHECKBOXCHECK) != 0) {
+            }
+        } else if (false) { // EVE-PATCH: cut unported GroupCreateCheckBox
+        } else if (false) { // EVE-PATCH: cut unported RadioButton
+            if ((changeFlags & FLAG_CHECKBOX) != 0) {
+            } else if ((changeFlags & FLAG_CHECKBOXCHECK) != 0) {
+            }
+        } else if (object instanceof TextPaint) {
+            if ((changeFlags & FLAG_LINKCOLOR) != 0) {
+                ((TextPaint) object).linkColor = color;
+            } else {
+                ((TextPaint) object).setColor(color);
+            }
+        } else if (false) { // EVE-PATCH: cut unported LineProgressView
+            if ((changeFlags & FLAG_PROGRESSBAR) != 0) {
+            } else {
+            }
+        } else if (false) { // EVE-PATCH: cut unported RadialProgressView
+        } else if (object instanceof Paint) {
+            ((Paint) object).setColor(color);
+            child.invalidate();
+        } else if (false) { // EVE-PATCH: cut unported SeekBarView
+            if ((changeFlags & FLAG_PROGRESSBAR) != 0) {
+            } else {
+            }
+        } else if (false) { // EVE-PATCH: cut unported AudioPlayerAlert
+        }
+    }
+
+    private void applyReflectedFieldColor(View child, Class<?> listClass, int b, int color, boolean passedCheck) {
+        if (b >= listClassesFieldName.length || listClassesFieldName[b] == null) {
+            return;
+        }
+        String fieldName = listClassesFieldName[b];
+        String key = listClass + "_" + fieldName;
+        if (notFoundCachedFields != null && notFoundCachedFields.containsKey(key)) {
+            return;
+        }
+        try {
+            Field field = cachedFields != null ? cachedFields.get(key) : null;
+            if (field == null) {
+                field = listClass.getDeclaredField(fieldName);
+                if (field != null) {
+                    field.setAccessible(true);
+                    if (cachedFields != null) {
+                        cachedFields.put(key, field);
+                    }
+                }
+            }
+            if (field != null) {
+                Object object = field.get(child);
+                if (object != null) {
+                    if (!passedCheck && object instanceof View && !checkTag(currentKey, (View) object)) {
+                        return;
+                    }
+                    if (object instanceof Integer) {
+                        field.set(child, color);
+                    } else {
+                        applyReflectedObjectColor(object, child, color);
+                    }
+                }
+            }
+        } catch (Throwable e) {
+            FileLog.e(e);
+            if (notFoundCachedFields != null) {
+                notFoundCachedFields.put(key, true);
+            }
+        }
+    }
+
+    private void applyTextViewColor(Object object, int color) {
+        TextView textView = (TextView) object;
+        if ((changeFlags & FLAG_IMAGECOLOR) != 0) {
+            Drawable[] drawables = textView.getCompoundDrawables();
+            if (drawables != null) {
+                for (int a = 0; a < drawables.length; a++) {
+                    if (drawables[a] != null) {
+                        drawables[a].setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
+                    }
+                }
+            }
+        } else if ((changeFlags & FLAG_LINKCOLOR) != 0) {
+            textView.getPaint().linkColor = color;
+            textView.invalidate();
+        } else if ((changeFlags & FLAG_FASTSCROLL) != 0) {
+            CharSequence text = textView.getText();
+            if (text instanceof SpannedString) {
+                TypefaceSpan[] spans = ((SpannedString) text).getSpans(0, text.length(), TypefaceSpan.class);
+                if (spans != null && spans.length > 0) {
+                    for (int i = 0; i < spans.length; i++) {
+                        spans[i].setColor(color);
+                    }
+                }
+            }
+        } else {
+            textView.setTextColor(color);
+        }
+    }
+
+    private void applyDrawableColor(Object object, int color) {
+    }
+
+    public int getCurrentKey() {
+        return currentKey;
+    }
+
+    public void startEditing() {
+        currentColor = previousColor = Theme.getColor(currentKey, previousIsDefault);
+    }
+
+    public int getCurrentColor() {
+        return currentColor;
+    }
+
+    public int getSetColor() {
+        Integer color = resourcesProvider != null ? resourcesProvider.getColor(currentKey) : null;
+        return color != null ? color : Theme.getColor(currentKey);
+    }
+
+    public void setAnimatedColor(int color) {
+        if (resourcesProvider != null) {
+            resourcesProvider.setAnimatedColor(getCurrentKey(), color);
+        } else {
+            Theme.setAnimatedColor(getCurrentKey(), color);
+        }
+    }
+
+    public void setDefaultColor() {
+        setColor(Theme.getDefaultColor(currentKey), true);
+    }
+
+    public void setPreviousColor() {
+        setColor(previousColor, previousIsDefault[0]);
+    }
+
+    public String getTitle() {
+        return ThemeColors.getStringName(currentKey);
     }
 }

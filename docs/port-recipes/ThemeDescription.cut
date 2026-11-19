@@ -1,0 +1,73 @@
+upstream org/telegram/ui/ActionBar/ThemeDescription.java
+to app/src/main/java/org/telegram/ui/ActionBar/ThemeDescription.java
+
+# Cut unported component instanceof branches; keep all real ThemeDescription flags, ActionBar/TextView/SimpleTextView/ImageView/CombinedDrawable/View/Paint logic
+remove-statement "if (viewToInvalidate instanceof EditTextEmoji) {" all
+remove-method ThemeDescription ptypes=View,int,Class[],RLottieDrawable[],String,int
+remove-method applyClippingSwitcherColor
+
+patch-line "} else if (drawablesToUpdate[a] instanceof ScamDrawable) {" "} else if (false) {" "cut unported ScamDrawable"
+remove-statement "((ScamDrawable) drawablesToUpdate[a]).setColor(color);"
+patch-line "} else if (drawablesToUpdate[a] instanceof RLottieDrawable) {" "} else if (false) {" "cut unported RLottieDrawable"
+remove-statement "if (lottieLayerName != null) {"
+patch-line "} else if (drawablesToUpdate[a] instanceof AvatarDrawable) {" "} else if (false) {" "cut unported AvatarDrawable"
+remove-statement "((AvatarDrawable) drawablesToUpdate[a]).setColor(color);"
+patch-line "} else if (drawablesToUpdate[a] instanceof AnimatedArrowDrawable) {" "} else if (false) {" "cut unported AnimatedArrowDrawable"
+remove-statement "((AnimatedArrowDrawable) drawablesToUpdate[a]).setColor(color);"
+
+remove-statement "if (background instanceof MessageBackgroundDrawable) {" all
+patch-line "Drawable background = viewToInvalidate.getBackground();" "viewToInvalidate.setBackgroundColor(color);" "preserve background color without MessageBackgroundDrawable"
+patch-line "Drawable background = view.getBackground();" "view.setBackgroundColor(color);" "preserve background color without MessageBackgroundDrawable"
+
+# Pilot EditTextBoldCursor doesn't yet have setErrorLineColor/setHeaderHintColor/setHintColor (restored in F4)
+remove-statement "((EditTextBoldCursor) viewToInvalidate).setErrorLineColor(color);"
+remove-statement "((EditTextBoldCursor) viewToInvalidate).setHeaderHintColor(color);"
+patch-line "((EditTextBoldCursor) viewToInvalidate).setHintColor(color);" "((EditTextBoldCursor) viewToInvalidate).setHintTextColor(color);" "use standard setHintTextColor until F4 ports real EditTextBoldCursor"
+
+remove-statement "if (viewToInvalidate instanceof EmptyTextProgressView) {"
+remove-statement "if (viewToInvalidate instanceof RadialProgressView) {"
+
+patch-line "} else if (viewToInvalidate instanceof NumberTextView) {" "} else if (false) {" "cut unported NumberTextView"
+remove-statement "((NumberTextView) viewToInvalidate).setTextColor(color);"
+patch-line "} else if (viewToInvalidate instanceof ChatBigEmptyView) {" "} else if (false) {" "cut unported ChatBigEmptyView"
+remove-statement "((ChatBigEmptyView) viewToInvalidate).setTextColor(color);"
+patch-line "} else if (viewToInvalidate instanceof BackupImageView) {" "} else if (false) {" "cut unported BackupImageView"
+
+remove-statement "if (viewToInvalidate instanceof RecyclerListView) {" all
+patch-line "} else if (child instanceof GroupCreateSpan) {" "} else if (false) {" "cut unported GroupCreateSpan"
+remove-statement "((GroupCreateSpan) child).updateColors();"
+patch-line "} else if (child instanceof AudioPlayerAlert.ClippingTextViewSwitcher) {" "} else if (false) {" "cut unported AudioPlayerAlert"
+remove-statement "TextView textView = i == 0 ? ((AudioPlayerAlert.ClippingTextViewSwitcher) child).getTextView() : ((AudioPlayerAlert.ClippingTextViewSwitcher) child).getNextTextView();"
+remove-statement "if (textView != null) {"
+
+remove-statement "if (lottieLayerName != null && object instanceof RLottieImageView) {"
+patch-line "} else if (object instanceof EditTextCaption) {" "} else if (false) {" "cut unported EditTextCaption"
+remove-statement "((EditTextCaption) object).setHintColor(color);"
+remove-statement "((EditTextCaption) object).setHintTextColor(color);"
+remove-statement "((EditTextCaption) object).setCursorColor(color);"
+remove-statement "((EditTextCaption) object).setTextColor(color);"
+patch-line "} else if (object instanceof BackupImageView) {" "} else if (false) {" "cut unported BackupImageView"
+remove-statement "BackupImageView imageView = (BackupImageView) object;"
+remove-statement "Drawable drawable = imageView.getImageReceiver() != null"
+patch-line "} else if (object instanceof CheckBox) {" "} else if (false) {" "cut unported CheckBox"
+remove-statement "((CheckBox) object).setBackgroundColor(color);"
+remove-statement "((CheckBox) object).setCheckColor(color);"
+patch-line "} else if (object instanceof GroupCreateCheckBox) {" "} else if (false) {" "cut unported GroupCreateCheckBox"
+remove-statement "((GroupCreateCheckBox) object).updateColors();"
+patch-line "} else if (object instanceof RadioButton) {" "} else if (false) {" "cut unported RadioButton"
+remove-statement "((RadioButton) object).setBackgroundColor(color);"
+remove-statement "((RadioButton) object).invalidate();" all
+remove-statement "((RadioButton) object).setCheckedColor(color);"
+patch-line "} else if (object instanceof LineProgressView) {" "} else if (false) {" "cut unported LineProgressView"
+remove-statement "((LineProgressView) object).setProgressColor(color);"
+remove-statement "((LineProgressView) object).setBackColor(color);"
+patch-line "} else if (object instanceof RadialProgressView) {" "} else if (false) {" "cut unported RadialProgressView"
+remove-statement "((RadialProgressView) object).setProgressColor(color);"
+patch-line "} else if (object instanceof SeekBarView) {" "} else if (false) {" "cut unported SeekBarView"
+remove-statement "((SeekBarView) object).setOuterColor(color);"
+remove-statement "((SeekBarView) object).setInnerColor(color);"
+patch-line "} else if (object instanceof AudioPlayerAlert.ClippingTextViewSwitcher) {" "} else if (false) {" "cut unported AudioPlayerAlert"
+remove-statement "applyClippingSwitcherColor(object, color);"
+remove-statement "if (object instanceof LetterDrawable) {"
+
+prune-imports

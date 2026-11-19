@@ -1,0 +1,9 @@
+upstream org/telegram/ui/ActionBar/ActionBarMenu.java
+to app/src/main/java/org/telegram/ui/ActionBar/ActionBarMenu.java
+
+remove-statement "if (drawable instanceof RLottieDrawable) {"
+patch-line "if (drawable != null) {" "if (drawable != null) { menuItem.iconView.setImageDrawable(drawable);" "use standard ImageView without RLottieDrawable"
+remove-method setFilter
+remove-method clearSearchFilters
+
+prune-imports

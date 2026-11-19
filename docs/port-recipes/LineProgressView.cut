@@ -1,0 +1,7 @@
+upstream org/telegram/ui/Components/LineProgressView.java
+to app/src/main/java/org/telegram/ui/Components/LineProgressView.java
+
+remove-statement "CellFlickerDrawable cellFlickerDrawable;"
+remove-statement "if (animatedAlphaValue > 0) {"
+
+prune-imports

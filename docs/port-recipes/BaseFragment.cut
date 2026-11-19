@@ -1,0 +1,77 @@
+upstream org/telegram/ui/ActionBar/BaseFragment.java
+to app/src/main/java/org/telegram/ui/ActionBar/BaseFragment.java
+
+patch-line "protected int currentAccount = UserConfig.selectedAccount;" "protected int currentAccount = 0;" "single-account Eve app without UserConfig"
+remove-statement "protected SimpleActionBar simpleActionBar;"
+remove-statement "protected final GlassEngine glassEngine = new GlassEngine();"
+remove-statement "private @Nullable BaseFragmentSimpleGlass simpleGlass;"
+remove-statement "private Bulletin.Delegate bulletinDelegate;"
+
+remove-method getBulletinFactory all
+remove-method getLastStoryViewer
+remove-method hasStoryViewer
+remove-method hasSheets
+remove-method hasFullyVisibleSheets
+patch-line "classGuid = ConnectionsManager.generateClassGuid();" "classGuid = System.identityHashCode(this);" "local unique guid without ConnectionsManager"
+remove-statement "if (BuildConfig.DEBUG_PRIVATE_VERSION) {"
+remove-statement "Bulletin.addDelegate(this, new Bulletin.Delegate() {"
+remove-method performCreateView
+remove-method performCreateViewImpl
+remove-method createSimpleActionBar
+remove-method getSimpleActionBar
+remove-method getSimpleMenuOverlay
+remove-statement "if (simpleActionBar != null) {" all
+
+# Direct Theme color resolution in createActionBar without ThemeBind (matching F2c)
+patch-line "ThemeBind.backgroundColor(actionBar, Theme.key_actionBarDefault, themedColors);" "actionBar.setBackgroundColor(getThemedColor(Theme.key_actionBarDefault));" "direct background color without ThemeBind"
+patch-line "ThemeBind.actionBarItemsBackgroundColor(actionBar, Theme.key_actionBarDefaultSelector, themedColors, false);" "actionBar.setItemsBackgroundColor(getThemedColor(Theme.key_actionBarDefaultSelector), false);" "direct selector color without ThemeBind"
+patch-line "ThemeBind.actionBarItemsBackgroundColor(actionBar, Theme.key_actionBarActionModeDefaultSelector, themedColors, true);" "actionBar.setItemsBackgroundColor(getThemedColor(Theme.key_actionBarActionModeDefaultSelector), true);" "direct actionMode selector color without ThemeBind"
+patch-line "ThemeBind.actionBarItemsColor(actionBar, Theme.key_actionBarDefaultIcon, themedColors, false);" "actionBar.setItemsColor(getThemedColor(Theme.key_actionBarDefaultIcon), false);" "direct items color without ThemeBind"
+patch-line "ThemeBind.actionBarItemsColor(actionBar, Theme.key_actionBarActionModeDefaultIcon, themedColors, true);" "actionBar.setItemsColor(getThemedColor(Theme.key_actionBarActionModeDefaultIcon), true);" "direct actionMode items color without ThemeBind"
+
+remove-method checkSystemBarColors
+remove-method getAccountInstance
+remove-method getMessagesController
+remove-method getGiftAuctionsController
+remove-method getContactsController
+remove-method getMediaDataController
+remove-method getConnectionsManager
+remove-method getLocationController
+remove-method getNotificationsController
+remove-method getMessagesStorage
+remove-method getSendMessagesHelper
+remove-method getFileLoader
+remove-method getSecretChatHelper
+remove-method getDownloadController
+remove-method getNotificationCenter
+remove-method getMediaController
+remove-method getUserConfig
+remove-method showAsSheet all
+remove-method setNavigationBarColor
+remove-method attachSheets
+remove-method isStoryViewer
+remove-method isBotView
+remove-method getOrCreateStoryViewer all
+remove-method getBaseSimpleGlass
+remove-method getListViewForSimpleGlass
+remove-method getScrollViewForSimpleGlass
+remove-method addSheet
+remove-method createOverlayStoryViewer
+remove-method getArticleViewer
+remove-method createArticleViewer
+remove-method getEdgeToEdgeSupportMode
+remove-method onInsetsInternal
+remove-method setBulletinDelegate
+remove-method getBulletinDelegate
+
+remove-statement "glassEngine.setRoot(view);"
+remove-statement "if (simpleActionBar != null && parentLayout != null && parentLayout.getView().getContext() != simpleActionBar.getContext()) {"
+remove-statement "if (simpleActionBar == null) {"
+remove-statement "private SimpleActionBarMenuOverlay simpleMenuOverlay;"
+patch-line "if (actionBar != null || simpleActionBar != null) {" "if (actionBar != null) {" "cut simpleActionBar check"
+patch-line "String title = actionBar != null ? actionBar.getTitle() : simpleActionBar.getTitle();" "String title = actionBar.getTitle();" "cut simpleActionBar title"
+remove-statement "checkSystemBarColors();"
+remove-statement "} else if (simpleActionBar != null) {"
+remove-statement "if (simpleGlass != null) {"
+
+prune-imports

@@ -1,0 +1,99 @@
+upstream org/telegram/ui/ActionBar/ActionBar.java
+to app/src/main/java/org/telegram/ui/ActionBar/ActionBar.java
+
+# Remove MenuOverlayHost interface and glass/overlay/chat-avatar/blur3/holiday/proxy-only parts
+patch-line "public class ActionBar extends FrameLayout implements FactorAnimator.Target, Theme.Colorable, MenuOverlayHost {" "public class ActionBar extends FrameLayout implements FactorAnimator.Target, Theme.Colorable {" "cut MenuOverlayHost interface"
+
+remove-statement "private BlurredBackgroundDrawable glassDrawable;"
+remove-statement "private BlurredBackgroundDrawable glassDrawableBack;"
+remove-statement "private BlurredBackgroundDrawable glassDrawableMenu;"
+patch-line "private BackupImageView avatarSearchImageView;" "private View avatarSearchImageView;" "keep null field for layout/measure without BackupImageView"
+remove-statement "private SnowflakesEffect snowflakesEffect;"
+remove-statement "private FireworksEffect fireworksEffect;"
+remove-statement "SizeNotifierFrameLayout contentView;"
+remove-statement "EllipsizeSpanAnimator ellipsizeSpanAnimator = new EllipsizeSpanAnimator(this);"
+remove-statement "private ChatAvatarContainer chatAvatarContainer;"
+remove-statement "private BlurredBackgroundDrawableViewFactory glassFactory;"
+remove-statement "private BlurredBackgroundColorProvider glassColorProvider;"
+remove-statement "private BlurredBackgroundDrawableViewFactory menuGlassFactory;"
+remove-statement "private GlassSourceCrossfade menuGlassSource;"
+remove-statement "private SimpleActionBarMenuOverlay openMenuOverlay;"
+remove-statement "private ActionBarMenuItem openMenuItem;"
+patch-line "private ActionBarAnimatedSubtitleOverlayContainer additionalSubTitleOverlayContainer;" "private View additionalSubTitleOverlayContainer;" "keep null field for layout/measure without overlay container"
+
+remove-method setChatAvatarContainer
+remove-method setupGlass all
+remove-method setMenuGlass
+remove-method getMenuRise
+remove-method createMenuGlass
+remove-method getMenuGlassColorProvider
+remove-method getButtonsGlassBackgroundColor
+remove-method getButtonsGlassColorProvider
+remove-method hasMenuGlassStroke
+remove-method setMenuGlassFrostedProgress
+remove-method getMenuItemGlassRect
+remove-method getMenuView
+remove-method setMenuOverlay
+remove-method getOpenMenuOverlay
+remove-method getMenuResourcesProvider
+remove-method isMenuPillInOverlay
+remove-method isMenuOverlayOpened
+remove-method closeMenuOverlay
+remove-method getSearchAvatarImageView
+remove-method setSearchAvatarImageView
+remove-method setSearchFilter
+remove-method setDrawBlurBackground
+remove-method createAdditionalSubTitleOverlayContainer
+remove-method getAdditionalSubTitleOverlayContainer
+remove-method setAdaptiveBackground ptypes=SectionsScrollView
+remove-method setAdaptiveBackground ptypes=SectionsScrollView,int,int
+
+# Cut holiday effects, crossfade check (pilot INavigationLayout), blur, and overlay refs
+remove-statement "if (supportsHolidayImage && !titleOverlayShown && !LocaleController.isRTL && ev.getAction() == MotionEvent.ACTION_DOWN) {"
+remove-statement "if (parentFragment != null && parentFragment.getParentLayout() != null && parentFragment.getParentLayout().isActionBarInCrossfade()) {"
+remove-statement "if (child == menu && openMenuItem != null && isMenuPillInOverlay()) {"
+remove-statement "if (supportsHolidayImage && !titleOverlayShown && !LocaleController.isRTL && (child == titleTextView[0] || child == titleTextView[1] || child == titlesContainer && useContainerForTitles)) {"
+remove-statement "if (attached && lastRightDrawable instanceof AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable) {" all
+remove-statement "if (lastRightDrawable instanceof AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable) {" all
+remove-statement "if (rightDrawableToSet instanceof AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable) {" all
+remove-statement "NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.needCheckSystemBarColors);" all
+remove-statement "if (contentView != null) {" all
+remove-statement "if (glassDrawable != null && glassModeIsForum) {"
+remove-statement "if (additionalSubTitleOverlayContainer != null) {" all
+remove-statement "ellipsizeSpanAnimator.wrap(spannableString, index);"
+remove-statement "ellipsizeSpanAnimator.addView(titleTextView[0]);"
+remove-statement "ellipsizeSpanAnimator.removeView(titleTextView[0]);"
+remove-statement "ellipsizeSpanAnimator.addView(titleTextView[1]);"
+remove-statement "ellipsizeSpanAnimator.removeView(titleTextView[1]);"
+remove-statement "ellipsizeSpanAnimator.onAttachedToWindow();"
+remove-statement "ellipsizeSpanAnimator.onDetachedFromWindow();"
+remove-statement "if (chatAvatarContainer != null && glassMode) {"
+remove-statement "if (chatAvatarContainer == null) {"
+remove-statement "if (glassDrawable != null && !glassOnlyBack && drawGlassTitle) {"
+remove-statement "if (glassDrawableBack != null && hasBackButton) {"
+remove-statement "if (glassDrawableMenu != null && menuWidth > 0 && !glassOnlyBack && !doNotDrawGlassMenu && !isMenuPillInOverlay()) {"
+remove-statement "if (glassDrawable != null && glassDrawable.getAlpha() != alpha) {"
+remove-statement "if (glassDrawable != null) {"
+remove-statement "if (glassDrawableMenu != null) {"
+remove-statement "if (glassDrawableBack != null) {"
+
+# Direct Theme color resolution without ThemeBind (matching F2c)
+patch-line "ThemeBind.textColor(subtitleTextView, Theme.key_actionBarDefaultSubtitle, resourcesProvider);" "subtitleTextView.setTextColor(getThemedColor(Theme.key_actionBarDefaultSubtitle));" "direct text color without ThemeBind"
+patch-line "ThemeBind.textColor(additionalSubtitleTextView, Theme.key_actionBarDefaultSubtitle, resourcesProvider);" "additionalSubtitleTextView.setTextColor(getThemedColor(Theme.key_actionBarDefaultSubtitle));" "direct text color without ThemeBind"
+patch-line "ThemeBind.textColor(titleTextView[i], Theme.key_actionBarDefaultTitle, resourcesProvider);" "titleTextView[i].setTextColor(getThemedColor(Theme.key_actionBarDefaultTitle));" "direct text color without ThemeBind"
+remove-statement "ThemeBind.clear(titleTextView[0]);"
+remove-statement "ThemeBind.clear(titleTextView[1]);"
+remove-statement "ThemeBind.clear(subtitleTextView);"
+patch-line "ThemeBind.backgroundColor(actionMode, Theme.key_actionBarActionModeDefault, resourcesProvider);" "actionMode.setBackgroundColor(getThemedColor(Theme.key_actionBarActionModeDefault));" "direct background color without ThemeBind"
+patch-line "ThemeBind.backgroundColor(actionModeTop, Theme.key_actionBarActionModeDefaultTop, resourcesProvider);" "actionModeTop.setBackgroundColor(getThemedColor(Theme.key_actionBarActionModeDefaultTop));" "direct background color without ThemeBind"
+remove-statement "ThemeBind.clear(actionModeTop);"
+remove-statement "ThemeBind.clear(actionMode);"
+
+remove-statement "if (blurredBackground && drawBlur && actionModeColor != 0) {"
+remove-statement "if (blurredBackground && actionBarColor != Color.TRANSPARENT) {"
+remove-method checkAvatarContainerWidth
+remove-method clearSearchFilters
+
+remove-statement "checkAvatarContainerWidth(animatorAvatarContainerWidth.isAnimating());"
+
+prune-imports

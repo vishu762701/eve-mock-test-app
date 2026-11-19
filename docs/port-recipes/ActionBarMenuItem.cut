@@ -1,0 +1,84 @@
+upstream org/telegram/ui/ActionBar/ActionBarMenuItem.java
+to app/src/main/java/org/telegram/ui/ActionBar/ActionBarMenuItem.java
+
+# Cut chat search filter views and TLRPC/Reactions/Emoji/BackupImageView dependencies
+remove-method onSearchFilterCleared
+remove-method removeSearchFilter
+remove-method addSearchFilter
+remove-method clearSearchFilters
+remove-method onFiltersChanged
+remove-method hasRemovableFilters
+remove-method collapseSearchFilters
+remove-statement "private ArrayList<SearchFilterView> searchFilterViews = new ArrayList<>();"
+remove-statement "private ArrayList<FiltersView.MediaFilterData> currentSearchFilters = new ArrayList<>();"
+remove-statement "private final AnimationNotificationsLocker notificationsLocker = new AnimationNotificationsLocker();"
+remove-statement "public static class ReactionFilterView extends SearchFilterView {"
+remove-statement "public static class SearchFilterView extends FrameLayout implements FactorAnimator.Target, Theme.Colorable {"
+remove-statement "if (searchFilterLayout != null) {" all
+remove-statement "clearSearchFilters();" all
+patch-line "if (keyCode == KeyEvent.KEYCODE_DEL && searchField.length() == 0 && ((searchFieldCaption.getVisibility() == VISIBLE && searchFieldCaption.length() > 0) || hasRemovableFilters())) {" "if (keyCode == KeyEvent.KEYCODE_DEL && searchField.length() == 0 && searchFieldCaption.getVisibility() == VISIBLE && searchFieldCaption.length() > 0) {" "cut search filters"
+remove-statement "if (hasRemovableFilters()) {"
+patch-line "} else if (hasRemovableFilters()) {" "} else if (false) {" "cut search filters in clearButton click"
+remove-statement "searchField.hideActionMode();"
+remove-statement "for (int i = 0; i < currentSearchFilters.size(); i++) {" all
+
+# Replace RLottieImageView with ImageView (matching ActionBarMenuSubItem.cut)
+patch-line "protected RLottieImageView iconView;" "protected ImageView iconView;" "use standard ImageView without RLottie"
+patch-line "iconView = new RLottieImageView(context);" "iconView = new ImageView(context);" "use standard ImageView without RLottie"
+patch-line "public RLottieImageView getIconView() {" "public ImageView getIconView() {" "use standard ImageView without RLottie"
+remove-statement "if (drawable instanceof RLottieDrawable) {"
+patch-line "iconViewResId = 0;" "iconView.setImageDrawable(drawable); iconViewResId = 0;" "set drawable directly on ImageView without RLottieDrawable"
+
+# Cut glass blur3 and overlay menu dependencies
+remove-statement "private BlurredBackgroundDrawableViewFactory subMenuFactory;"
+remove-statement "private BlurredBackgroundProvider subMenuProvider;"
+remove-method setBlurredBackgroundFactory
+remove-statement "if (subMenuFactory != null) {" all
+remove-statement "private Utilities.Callback0Return<SimpleActionBarMenuOverlay> subMenuOverlayProvider;"
+remove-method setSubMenuOverlayProvider
+remove-method getSubMenuOverlay
+remove-method getSubMenuOverlayHost
+remove-method toggleSubMenuInOverlay
+remove-method getShownSubMenuOverlay
+remove-statement "final SimpleActionBarMenuOverlay overlay = getShownSubMenuOverlay();" all
+remove-statement "final boolean overlayShown = overlay != null && overlay.isOpened();"
+remove-statement "final boolean overlayMenu = getSubMenuOverlayHost() != null;"
+remove-statement "if (overlay != null) {" all
+patch-line "if ((longClickEnabled || overlayMenu) && hasSubMenu() && !popupShown && !overlayShown) {" "if (longClickEnabled && hasSubMenu() && !popupShown) {" "cut overlayMenu check"
+remove-statement "if (overlayMenu) {"
+patch-line "AndroidUtilities.runOnUIThread(showMenuRunnable, overlayMenu ? ViewConfiguration.getLongPressTimeout() : 200);" "AndroidUtilities.runOnUIThread(showMenuRunnable, 200);" "cut overlayMenu timeout branch"
+patch-line "if (showSubmenuByMove && !overlayMenu && hasSubMenu() && !popupShown) {" "if (showSubmenuByMove && hasSubMenu() && !popupShown) {" "cut overlayMenu check"
+patch-line "} else if ((showSubmenuByMove || subMenuOpenedByGesture) && (popupShown || overlayShown)) {" "} else if ((showSubmenuByMove || subMenuOpenedByGesture) && popupShown) {" "cut overlayShown check"
+patch-line "} else if (event.getActionMasked() == MotionEvent.ACTION_UP && (popupShown || overlayShown)) {" "} else if (event.getActionMasked() == MotionEvent.ACTION_UP && popupShown) {" "cut overlayShown check"
+remove-statement "if (overlayShown) {"
+patch-line "} else if (showSubmenuByMove && !overlayShown) {" "} else if (showSubmenuByMove) {" "cut overlayShown check"
+remove-statement "if (topView == null && toggleSubMenuInOverlay()) {"
+
+# Cut swipe-back popup items (ActionBarPopupWindow.cut already removed swipeBack)
+remove-method addSwipeBackItem
+remove-statement "if (popupLayout.getSwipeBack() != null) {" all
+remove-statement "if (setMinWidth != null && setMinWidth.getLayoutParams() != null && popupLayout.getSwipeBack() != null) {"
+remove-statement "int swipeBackIndex = parent.popupLayout.addViewToSwipeBack(viewToSwipeBack);"
+remove-statement "cell.openSwipeBackLayout = () -> {"
+remove-statement "parent.popupLayout.swipeBackGravityRight = true;"
+patch-line "if (topView instanceof ActionBarMenuSubItem || topView instanceof LinearLayout) {" "if (topView instanceof ActionBarMenuSubItem || topView instanceof LinearLayout) { Drawable drawable = ContextCompat.getDrawable(getContext(), R.drawable.popup_fixed_alert2).mutate(); drawable.setColorFilter(new PorterDuffColorFilter(popupLayout.getBackgroundColor(), PorterDuff.Mode.MULTIPLY)); frameLayout.setBackground(drawable);" "preserve non-blur topView background after subMenuFactory cut"
+
+# Direct Theme color resolution without ThemeBind (matching F2c)
+patch-line "ThemeBind.textColor(textView, Theme.key_dialogTextBlack, resourcesProvider);" "textView.setTextColor(Theme.getColor(Theme.key_dialogTextBlack, resourcesProvider));" "direct text color without ThemeBind"
+patch-line "ThemeBind.textColor(textView, Theme.key_actionBarDefaultSubmenuItem, resourcesProvider);" "textView.setTextColor(Theme.getColor(Theme.key_actionBarDefaultSubmenuItem, resourcesProvider));" "direct text color without ThemeBind"
+patch-line "ThemeBind.textColor(searchFieldCaption, Theme.key_actionBarDefaultSearch, resourcesProvider);" "searchFieldCaption.setTextColor(getThemedColor(Theme.key_actionBarDefaultSearch));" "direct text color without ThemeBind"
+remove-statement "ThemeBind.cursorColor(searchField, Theme.key_actionBarDefaultSearch, resourcesProvider);" all
+remove-statement "ThemeBind.hintTextColor(searchField, Theme.key_actionBarDefaultSearchPlaceholder, resourcesProvider);" all
+remove-statement "ThemeBind.textColor(searchField, Theme.key_actionBarDefaultSearch, resourcesProvider);" all
+remove-statement "ThemeBind.highlightColor(searchField, Theme.key_chat_inTextSelectionHighlight, resourcesProvider);" all
+remove-statement "ThemeBind.editHandlesColor(searchField, Theme.key_chat_TextSelectionCursor, resourcesProvider);" all
+patch-line "searchField.setCursorWidth(1.5f);" "searchField.setCursorWidth(1.5f); searchField.setCursorColor(getThemedColor(Theme.key_actionBarDefaultSearch)); searchField.setHintTextColor(getThemedColor(Theme.key_actionBarDefaultSearchPlaceholder)); searchField.setTextColor(getThemedColor(Theme.key_actionBarDefaultSearch)); searchField.setHighlightColor(getThemedColor(Theme.key_chat_inTextSelectionHighlight));" "direct searchField colors without ThemeBind"
+patch-line "if (searchField != null) {" "if (searchField != null) { searchField.setCursorColor(getThemedColor(Theme.key_actionBarDefaultSearch)); searchField.setHintTextColor(getThemedColor(Theme.key_actionBarDefaultSearchPlaceholder)); searchField.setTextColor(getThemedColor(Theme.key_actionBarDefaultSearch)); searchField.setHighlightColor(getThemedColor(Theme.key_chat_inTextSelectionHighlight));" "direct searchField color updates without ThemeBind"
+patch-line "LinkSpanDrawable.LinksTextView textView = new LinkSpanDrawable.LinksTextView(parent.getContext());" "TextView textView = new TextView(parent.getContext());" "use standard TextView without LinkSpanDrawable"
+patch-line "ThemeBind.textColor(textView, Theme.key_actionBarDefaultSubmenuItem);" "textView.setTextColor(Theme.getColor(Theme.key_actionBarDefaultSubmenuItem));" "direct text color without ThemeBind"
+patch-line "ThemeBind.linkTextColor(textView, Theme.key_windowBackgroundWhiteLinkText);" "textView.setLinkTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteLinkText));" "direct link color without ThemeBind"
+
+remove-statement "if (!currentSearchFilters.isEmpty()) {" all
+patch-line "if (!hasRemovableFilters() && TextUtils.isEmpty(searchField.getText()) &&" "if (TextUtils.isEmpty(searchField.getText()) &&" "cut hasRemovableFilters check"
+
+prune-imports
