@@ -17,7 +17,6 @@ import android.view.View;
 public class URLSpanNoUnderline extends URLSpan {
 
     private boolean forceNoUnderline = false;
-    private TextStyleSpan.TextStyleRun style;
 
     // Used to label video timestamps
     public String label;
@@ -31,9 +30,8 @@ public class URLSpanNoUnderline extends URLSpan {
         this.forceNoUnderline = forceNoUnderline;
     }
 
-    public URLSpanNoUnderline(String url, TextStyleSpan.TextStyleRun run) {
+    public URLSpanNoUnderline(String url, Object run) { // EVE-PATCH: use Object instead of TextStyleSpan
         super(url != null ? url.replace('\u202E', ' ') : url);
-        style = run;
     }
 
     @Override
@@ -52,9 +50,6 @@ public class URLSpanNoUnderline extends URLSpan {
         int l = p.linkColor;
         int c = p.getColor();
         super.updateDrawState(p);
-        if (style != null) {
-            style.applyStyle(p);
-        }
         p.setUnderlineText(l == c && !forceNoUnderline);
     }
 

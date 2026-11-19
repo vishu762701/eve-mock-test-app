@@ -64,7 +64,6 @@ remove-statement "public static class VcardItem {"
 remove-method obtainLoginPhoneCall
 remove-method allowScreenCapture
 remove-method shakeView
-remove-method shakeViewSpring all
 remove-method formatSpannable all
 remove-method formatSpannableSimple
 remove-method appCenterLog all
@@ -72,7 +71,6 @@ remove-method shouldShowClipboardToast all
 remove-method getAlbumDir all
 remove-method forEachViews all
 remove-method translitSafe all
-remove-method replaceTags all
 remove-method replaceSingleTag all
 remove-method premiumText all
 remove-method getBuildVersionInfo all

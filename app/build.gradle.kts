@@ -133,6 +133,7 @@ dependencies {
     implementation("androidx.dynamicanimation:dynamicanimation:1.0.0")
     implementation("androidx.viewpager2:viewpager2:1.1.0")
     implementation("androidx.activity:activity-ktx:1.9.1")
+    implementation("androidx.biometric:biometric:1.2.0-alpha05")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
     // MVVM + Coroutines/Flow

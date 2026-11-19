@@ -342,11 +342,6 @@ public class RecyclerListView extends RecyclerView { // EVE-PATCH: cut IBlur3Cap
         }
 
         @Override
-        public void notifyDataSetChanged() {
-            update(false);
-        }
-
-        @Override
         public boolean isEnabled(ViewHolder holder) {
             int position = holder.getAdapterPosition();
             return isEnabled(holder, getSectionForPosition(position), getPositionInSectionForPosition(position));
@@ -1445,7 +1440,6 @@ public class RecyclerListView extends RecyclerView { // EVE-PATCH: cut IBlur3Cap
         this.edgeEffectTrackerFactory = new EdgeEffectTrackerFactory();
 
         setEdgeEffectFactory(edgeEffectTrackerFactory);
-        setGlowColor(getThemedColor(Theme.key_actionBarDefault)); // EVE-PATCH: direct glow color without ThemeBind
 
         try {
             if (!gotAttributes) {
@@ -3171,7 +3165,6 @@ public class RecyclerListView extends RecyclerView { // EVE-PATCH: cut IBlur3Cap
         if (bitmapSectionsItemDecoration != null) {
             bitmapSectionsItemDecoration.capture(canvas, position);
         } else if (sectionsItemDecoration != null) {
-            sectionsItemDecoration.capture(canvas, position);
         }
     }
 
@@ -3192,7 +3185,6 @@ public class RecyclerListView extends RecyclerView { // EVE-PATCH: cut IBlur3Cap
         return neighbour != null && isVisualSectionItem(neighbour);
     }
 
-    private BitmapSectionsItemDecoration bitmapSectionsItemDecoration;
     /** The redesigned simple screens are the only ones without it, see {@link #setCaptureSectionsDecoratorAllowed}, {@link #setSectionsDrawBackground}. */
     private boolean legacySections = true;
     private boolean bitmapSectionsDrawBackground;
@@ -3294,17 +3286,6 @@ public class RecyclerListView extends RecyclerView { // EVE-PATCH: cut IBlur3Cap
             return;
         }
         if (!legacySections) {
-            bitmapSectionsItemDecoration = new BitmapSectionsItemDecoration(
-                    this,
-                    isSectionView,
-                    isViewTypeSection,
-                    sectionPadding,
-                    sectionRadius,
-                    drawSectionBackground,
-                    sectionTopPadding,
-                    bitmapSectionsDrawBackground,
-                    bitmapSectionsDrawingMode
-            );
             addItemDecoration(bitmapSectionsItemDecoration);
         } else {
             sectionsItemDecoration = new ListSectionsDecoration(this, isSectionView, sectionPadding, sectionTopPadding);
@@ -3474,7 +3455,7 @@ public class RecyclerListView extends RecyclerView { // EVE-PATCH: cut IBlur3Cap
         if (from == null || to == null) return;
 
         float bottomMargin = 0;
-        if (to instanceof JoinToSendSettingsView) {
+        if (false) { // EVE-PATCH: cut unported JoinToSendSettingsView
             bottomMargin = ((JoinToSendSettingsView) to).getBottomInfoMargin();
         }
 
@@ -3541,7 +3522,7 @@ public class RecyclerListView extends RecyclerView { // EVE-PATCH: cut IBlur3Cap
                 float from = top(child);
                 float to = bottom(child);
                 final ViewHolder viewHolder = getChildViewHolder(child);
-                if (viewHolder.isRemoved() && child.getAlpha() < 1) {
+                if (false) { // EVE-PATCH: cut ViewHolder isRemoved and mOldCompoundPosition animation
                     View nextStableChild = null;
                     if (viewHolder != null && viewHolder.isRemoved() && viewHolder.mOldCompoundPosition >= 0) {
                         final int nextStablePosition = (int) Math.ceil(viewHolder.mOldCompoundPosition / 1000.0) + 1;

@@ -495,7 +495,6 @@ public class LinkSpanDrawable<S extends CharacterStyle> {
         private void invalidate(Object obj, boolean tryParent) {
             if (obj instanceof View) {
                 ((View) obj).invalidate();
-                text.invalidateParent();
             } else if (tryParent && mParent != null) {
                 mParent.invalidate();
             }

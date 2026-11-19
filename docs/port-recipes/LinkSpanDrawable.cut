@@ -3,6 +3,7 @@ to app/src/main/java/org/telegram/ui/Components/LinkSpanDrawable.java
 
 patch-line "private final boolean isLite = !LiteMode.isEnabled(LiteMode.FLAGS_CHAT);" "private final boolean isLite = false;" "remove LiteMode dependency"
 remove-statement "} else if (obj instanceof ArticleViewer.DrawingText) {"
+remove-statement "text.invalidateParent();"
 remove-statement "AnimatedEmojiSpan.EmojiGroupedSpans stack;"
 remove-statement "stack = AnimatedEmojiSpan.update(emojiCacheType(), this, stack, getLayout());" all
 remove-statement "AnimatedEmojiSpan.drawAnimatedEmojis(canvas, layout, stack, 0, null, 0, 0, 0, 1f, emojiColorFilter);"

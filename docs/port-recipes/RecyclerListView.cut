@@ -13,8 +13,9 @@ remove-statement "if (blurredCircleDrawable != null || blurredTagDrawable != nul
 remove-method captureChildren
 remove-method captureCalculateHash all
 remove-method capture all
+remove-method notifyDataSetChanged
 remove-statement "if ((child instanceof ChatMessageCell || child instanceof ChatActionCell) && child.getVisibility() == View.INVISIBLE) continue;"
-patch-line "ThemeBind.listGlowColor(this, Theme.key_actionBarDefault, resourcesProvider);" "setGlowColor(getThemedColor(Theme.key_actionBarDefault));" "direct glow color without ThemeBind"
+remove-statement "ThemeBind.listGlowColor(this, Theme.key_actionBarDefault, resourcesProvider);"
 remove-statement "ThemeBind.listSelectorColor(this, Theme.key_listSelector, resourcesProvider);" all
 patch-line "ThemeBind.listSelectorColor(this, Theme.key_settings_listSelector, resourcesProvider);" "setSelectorDrawableColor(getThemedColor(Theme.key_settings_listSelector));" "direct selector color without ThemeBind"
 remove-statement "NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.startAllHeavyOperations, 512);" all
@@ -22,5 +23,10 @@ remove-statement "NotificationCenter.getGlobalInstance().postNotificationName(No
 patch-line "if (!animateEmptyView || !SharedConfig.animationsEnabled()) {" "if (!animateEmptyView) {" "cut SharedConfig.animationsEnabled check"
 patch-line "view instanceof FiltersSetupActivity.HintInnerCell || view instanceof GraySectionCell ||" "false ||" "cut unported section cells"
 patch-line "view instanceof CollapseTextCell) && !Objects.equals(view.getTag(), TAG_NOT_SECTION);" "false) && !Objects.equals(view.getTag(), TAG_NOT_SECTION);" "cut unported CollapseTextCell"
+remove-statement "private BitmapSectionsItemDecoration bitmapSectionsItemDecoration;"
+remove-statement "bitmapSectionsItemDecoration = new BitmapSectionsItemDecoration(" all
+remove-statement "sectionsItemDecoration.capture(canvas, position);"
+patch-line "        if (to instanceof JoinToSendSettingsView) {" "        if (false) {" "cut unported JoinToSendSettingsView"
+patch-line "                if (viewHolder.isRemoved() && child.getAlpha() < 1) {" "                if (false) {" "cut ViewHolder isRemoved and mOldCompoundPosition animation"
 
 prune-imports

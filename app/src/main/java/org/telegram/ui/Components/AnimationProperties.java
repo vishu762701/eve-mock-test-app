@@ -89,16 +89,4 @@ public class AnimationProperties {
         }
     };
 
-    public static final Property<ClippingImageView, Float> CLIPPING_IMAGE_VIEW_PROGRESS = new FloatProperty<ClippingImageView>("animationProgress") {
-        @Override
-        public void setValue(ClippingImageView object, float value) {
-            object.setAnimationProgress(value);
-        }
-
-        @Override
-        public Float get(ClippingImageView object) {
-            return object.getAnimationProgress();
-        }
-    };
-
 }

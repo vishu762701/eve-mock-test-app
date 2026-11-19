@@ -82,7 +82,6 @@ import java.util.List;
     private Object editor;
 
     private GradientDrawable gradientDrawable;
-    private SubstringLayoutAnimator hintAnimator;
     float rightHintOffset;
 
     private Paint linePaint;
@@ -634,14 +633,7 @@ import java.util.List;
                 animated = false;
             }
             if (animated) {
-                if (hintAnimator == null) {
-                    hintAnimator = new SubstringLayoutAnimator(this);
-                }
-                hintAnimator.create(hintLayout, hint, text, paint);
             } else {
-                if (hintAnimator != null) {
-                    hintAnimator.cancel();
-                }
             }
             hint = text;
             if (getMeasuredWidth() != 0) {
@@ -839,18 +831,6 @@ import java.util.List;
             } else {
                 getPaint().setColor(hintColor);
                 getPaint().setAlpha((int) (255 * hintAlpha * (Color.alpha(hintColor) / 255.0f)));
-            }
-            if (hintAnimator != null && hintAnimator.animateTextChange) {
-                canvas.save();
-                canvas.clipRect(0, 0, getMeasuredWidth(), getMeasuredHeight());
-                hintAnimator.draw(canvas, getPaint());
-                canvas.restore();
-            } else {
-                if (drawHint != null) {
-                    drawHint.run(canvas, () -> hintLayout.draw(canvas));
-                } else {
-                    hintLayout.draw(canvas);
-                }
             }
             getPaint().setColor(oldColor);
             canvas.restore();

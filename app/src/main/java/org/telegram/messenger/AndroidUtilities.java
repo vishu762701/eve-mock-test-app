@@ -115,12 +115,16 @@ import androidx.core.math.MathUtils;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.NestedScrollView;
+import androidx.dynamicanimation.animation.DynamicAnimation;
+import androidx.dynamicanimation.animation.SpringAnimation;
+import androidx.dynamicanimation.animation.SpringForce;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
 
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.CubicBezierInterpolator;
+import org.telegram.ui.Components.TypefaceSpan;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -2228,6 +2232,100 @@ public class AndroidUtilities {
     public static final int FLAG_TAG_URL = 8;
     public static final int FLAG_TAG_ALL = FLAG_TAG_BR | FLAG_TAG_BOLD | FLAG_TAG_URL;
 
+    public static SpannableStringBuilder replaceTags(String str) {
+        return replaceTags(str, FLAG_TAG_ALL);
+    }
+
+    public static SpannableStringBuilder replaceTags(String str, int flag, Object... args) {
+        try {
+            int start;
+            int end;
+            StringBuilder stringBuilder = new StringBuilder(str);
+            if ((flag & FLAG_TAG_BR) != 0) {
+                while ((start = stringBuilder.indexOf("<br>")) != -1) {
+                    stringBuilder.replace(start, start + 4, "\n");
+                }
+                while ((start = stringBuilder.indexOf("<br/>")) != -1) {
+                    stringBuilder.replace(start, start + 5, "\n");
+                }
+            }
+            ArrayList<Integer> bolds = new ArrayList<>();
+            if ((flag & FLAG_TAG_BOLD) != 0) {
+                while ((start = stringBuilder.indexOf("<b>")) != -1) {
+                    stringBuilder.replace(start, start + 3, "");
+                    end = stringBuilder.indexOf("</b>");
+                    if (end == -1) {
+                        end = stringBuilder.indexOf("<b>");
+                    }
+                    stringBuilder.replace(end, end + 4, "");
+                    bolds.add(start);
+                    bolds.add(end);
+                }
+                while ((start = stringBuilder.indexOf("**")) != -1) {
+                    stringBuilder.replace(start, start + 2, "");
+                    end = stringBuilder.indexOf("**");
+                    if (end >= 0) {
+                        stringBuilder.replace(end, end + 2, "");
+                        bolds.add(start);
+                        bolds.add(end);
+                    }
+                }
+            }
+            if ((flag & FLAG_TAG_URL) != 0) {
+                while ((start = stringBuilder.indexOf("**")) != -1) {
+                    stringBuilder.replace(start, start + 2, "");
+                    end = stringBuilder.indexOf("**");
+                    if (end >= 0) {
+                        stringBuilder.replace(end, end + 2, "");
+                        bolds.add(start);
+                        bolds.add(end);
+                    }
+                }
+            }
+            SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(stringBuilder);
+            for (int a = 0; a < bolds.size() / 2; a++) {
+                spannableStringBuilder.setSpan(new TypefaceSpan(AndroidUtilities.bold()), bolds.get(a * 2), bolds.get(a * 2 + 1), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+            return spannableStringBuilder;
+        } catch (Exception e) {
+            FileLog.e(e);
+        }
+        return new SpannableStringBuilder(str);
+    }
+
+    public static CharSequence replaceTags(CharSequence cs) {
+        if (cs instanceof SpannableStringBuilder) {
+            return replaceTags((SpannableStringBuilder) cs);
+        } else {
+            return replaceTags(new SpannableStringBuilder(cs));
+        }
+    }
+
+    public static SpannableStringBuilder replaceTags(SpannableStringBuilder stringBuilder) {
+        try {
+            int start;
+            int end;
+            ArrayList<Integer> bolds = new ArrayList<>();
+            while ((start = AndroidUtilities.charSequenceIndexOf(stringBuilder, "**")) != -1) {
+                stringBuilder.replace(start, start + 2, "");
+                end = AndroidUtilities.charSequenceIndexOf(stringBuilder, "**");
+                if (end >= 0) {
+                    stringBuilder.replace(end, end + 2, "");
+                    bolds.add(start);
+                    bolds.add(end);
+                }
+            }
+            SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(stringBuilder);
+            for (int a = 0; a < bolds.size() / 2; a++) {
+                spannableStringBuilder.setSpan(new TypefaceSpan(AndroidUtilities.bold()), bolds.get(a * 2), bolds.get(a * 2 + 1), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+            return spannableStringBuilder;
+        } catch (Exception e) {
+            FileLog.e(e);
+        }
+        return stringBuilder;
+    }
+
     private static Pattern linksPattern;
 
     public static class LinkMovementMethodMy extends LinkMovementMethod {
@@ -2244,6 +2342,47 @@ public class AndroidUtilities {
             }
             return false;
         }
+    }
+
+    public static void shakeViewSpring(View view) {
+        shakeViewSpring(view, 10, null);
+    }
+
+    public static void shakeViewSpring(View view, float shiftDp) {
+        shakeViewSpring(view, shiftDp, null);
+    }
+
+    public static void shakeViewSpring(View view, Runnable endCallback) {
+        shakeViewSpring(view, 10, endCallback);
+    }
+
+    public static void shakeViewSpring(View view, float shiftDp, Runnable endCallback) {
+        if (view == null) {
+            return;
+        }
+        int shift = dp(shiftDp);
+        if (view.getTag(R.id.spring_tag) != null) {
+            ((SpringAnimation) view.getTag(R.id.spring_tag)).cancel();
+        }
+        Float wasX = (Float) view.getTag(R.id.spring_was_translation_x_tag);
+        if (wasX != null) {
+            view.setTranslationX(wasX);
+        }
+        view.setTag(R.id.spring_was_translation_x_tag, view.getTranslationX());
+
+        float translationX = view.getTranslationX();
+        SpringAnimation springAnimation = new SpringAnimation(view, DynamicAnimation.TRANSLATION_X, translationX)
+                .setSpring(new SpringForce(translationX).setStiffness(600f))
+                .setStartVelocity(-shift * 100)
+                .addEndListener((animation, canceled, value, velocity) -> {
+                    if (endCallback != null) endCallback.run();
+
+                    view.setTranslationX(translationX);
+                    view.setTag(R.id.spring_tag, null);
+                    view.setTag(R.id.spring_was_translation_x_tag, null);
+                });
+        view.setTag(R.id.spring_tag, springAnimation);
+        springAnimation.start();
     }
 
     /*public static String ellipsize(String text, int maxLines, int maxWidth, TextPaint paint) {

@@ -887,7 +887,6 @@ public class UniversalAdapter extends AdapterWithDiffUtils {
                 switchCell.getCheckBox().setColors(item.intValue == 0 ? Theme.key_switchTrack : Theme.key_fill_RedNormal,
                     Theme.key_switchTrackChecked, Theme.key_windowBackgroundWhite, Theme.key_windowBackgroundWhite);
                 switchCell.id = item.id;
-                switchCell.setIcon(item.locked ? R.drawable.permission_locked : 0);
                 if (viewType == VIEW_TYPE_EXPANDABLE_SWITCH) {
                     if (TextUtils.isEmpty(item.animatedText)) {
                         switchCell.hideCollapseArrow();

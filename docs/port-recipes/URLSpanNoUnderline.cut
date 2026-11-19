@@ -2,6 +2,10 @@ upstream org/telegram/ui/Components/URLSpanNoUnderline.java
 to app/src/main/java/org/telegram/ui/Components/URLSpanNoUnderline.java
 
 remove-statement "private TLObject object;"
+remove-statement "private TextStyleSpan.TextStyleRun style;"
+patch-line "public URLSpanNoUnderline(String url, TextStyleSpan.TextStyleRun run) {" "public URLSpanNoUnderline(String url, Object run) {" "use Object instead of TextStyleSpan"
+remove-statement "style = run;"
+remove-statement "if (style != null) {"
 patch-line "Browser.openUrl(widget.getContext(), uri);" "widget.getContext().startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW, uri));" "open URL with standard Android Intent without Browser"
 patch-line "Browser.openUrl(widget.getContext(), url);" "widget.getContext().startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW, Uri.parse(url)));" "open URL with standard Android Intent without Browser"
 remove-method setObject

@@ -12,7 +12,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
 import android.graphics.drawable.ShapeDrawable;
@@ -171,7 +170,6 @@ public class ThemeDescription {
 
     public void setColor(int color, boolean useDefault, boolean save) {
         if (save) {
-            Theme.setColor(currentKey, color, useDefault);
         }
         currentColor = color;
         if (alphaOverride > 0) {
@@ -219,13 +217,6 @@ public class ThemeDescription {
                         }
                     } else {
                         Drawable drawable = viewToInvalidate.getBackground();
-                        if (drawable instanceof CombinedDrawable) {
-                            if ((changeFlags & FLAG_DRAWABLESELECTEDSTATE) != 0) {
-                                drawable = ((CombinedDrawable) drawable).getBackground();
-                            } else {
-                                drawable = ((CombinedDrawable) drawable).getIcon();
-                            }
-                        }
                         if (drawable != null) {
                             if (drawable instanceof StateListDrawable || Build.VERSION.SDK_INT >= 21 && drawable instanceof RippleDrawable) {
                                 Theme.setSelectorDrawableColor(drawable, color, (changeFlags & FLAG_DRAWABLESELECTEDSTATE) != 0);
@@ -394,18 +385,7 @@ public class ThemeDescription {
             Drawable drawable = child.getBackground();
             if (drawable != null) {
                 if ((changeFlags & FLAG_CELLBACKGROUNDCOLOR) != 0) {
-                    if (drawable instanceof CombinedDrawable) {
-                        Drawable back = ((CombinedDrawable) drawable).getBackground();
-                        if (back instanceof ColorDrawable) {
-                            ((ColorDrawable) back).setColor(color);
-                        }
-                    }
                 } else {
-                    if (drawable instanceof CombinedDrawable) {
-                        drawable = ((CombinedDrawable) drawable).getIcon();
-                    } else if (drawable instanceof StateListDrawable || drawable instanceof RippleDrawable) {
-                        Theme.setSelectorDrawableColor(drawable, color, (changeFlags & FLAG_DRAWABLESELECTEDSTATE) != 0);
-                    }
                     if (drawable != null) {
                         drawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
                     }
@@ -455,27 +435,7 @@ public class ThemeDescription {
         } else if (object instanceof ImageView) {
             ImageView imageView = (ImageView) object;
             Drawable drawable = imageView.getDrawable();
-            if (drawable instanceof CombinedDrawable) {
-                Drawable part = (changeFlags & FLAG_BACKGROUNDFILTER) != 0
-                        ? ((CombinedDrawable) drawable).getBackground()
-                        : ((CombinedDrawable) drawable).getIcon();
-                if (part != null) {
-                    part.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
-                }
-            } else {
-                imageView.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
-            }
         } else if (false) { // EVE-PATCH: cut unported BackupImageView
-            if (drawable instanceof CombinedDrawable) {
-                Drawable part = (changeFlags & FLAG_BACKGROUNDFILTER) != 0
-                        ? ((CombinedDrawable) drawable).getBackground()
-                        : ((CombinedDrawable) drawable).getIcon();
-                if (part != null) {
-                    part.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
-                }
-            } else if (drawable != null) {
-                drawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
-            }
         } else if (object instanceof Drawable) {
             applyDrawableColor(object, color);
         } else if (false) { // EVE-PATCH: cut unported CheckBox

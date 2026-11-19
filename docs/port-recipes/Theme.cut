@@ -211,5 +211,6 @@ patch-line "            return info != null ? info.title : name;" "            r
 patch-line "            if (accentColor != parentTheme.accentBaseColor || myMessagesAccentColor != 0 || info != null && info.emoticon != null) {" "            if (accentColor != parentTheme.accentBaseColor || myMessagesAccentColor != 0) {" "decouple info from accent bubble check"
 patch-line "        String selectedBgSlug = getSelectedBackgroundSlug();" "        String selectedBgSlug = \"\";" "decouple getSelectedBackgroundSlug"
 patch-line "        return themeGenerationId + ThemeBind.generation();" "        return themeGenerationId;" "decouple ThemeBind"
+patch-line "    public static Paint fillingPaint(int color) {" "    public static void createCommonResources(Context context) { if (dividerPaint == null) { dividerPaint = new Paint(); dividerPaint.setStrokeWidth(1); } }\n\n    public static Paint fillingPaint(int color) {" "provide lightweight createCommonResources for cells"
 
 prune-imports

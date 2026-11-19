@@ -9,4 +9,6 @@
     <item name="dragging" type="id" />
     <item name="theme_generation" type="id" />
     <item name="etPhone" type="id" />
+    <item name="spring_tag" type="id" />
+    <item name="spring_was_translation_x_tag" type="id" />
 </resources>

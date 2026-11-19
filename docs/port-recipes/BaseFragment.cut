@@ -47,6 +47,8 @@ remove-method getDownloadController
 remove-method getNotificationCenter
 remove-method getMediaController
 remove-method getUserConfig
+remove-method getNotificationsSettings
+remove-method dumpCanvas
 remove-method showAsSheet all
 remove-method setNavigationBarColor
 remove-method attachSheets
@@ -64,6 +66,12 @@ remove-method getEdgeToEdgeSupportMode
 remove-method onInsetsInternal
 remove-method setBulletinDelegate
 remove-method getBulletinDelegate
+
+remove-statement "getConnectionsManager().cancelRequestsForGuid(classGuid);"
+remove-statement "getMessagesStorage().cancelTasksForGuid(classGuid);"
+remove-statement "if (getLastStoryViewer() != null) {" all
+remove-statement "if (getLastStoryViewer() != null && getLastStoryViewer().isShown()) {"
+remove-statement "if (simpleMenuOverlay != null) {"
 
 remove-statement "glassEngine.setRoot(view);"
 remove-statement "if (simpleActionBar != null && parentLayout != null && parentLayout.getView().getContext() != simpleActionBar.getContext()) {"

@@ -5,6 +5,11 @@ patch-line "public class EditTextBoldCursor extends EditTextEffects {" "@android
 
 # Cut Choreographer60FpsContent, FloatingToolbar/FloatingActionMode, Blur3, and QuoteSpan
 remove-statement "private final Choreographer60FpsContent.FrameCallback invalidateCallback = d -> invalidate();"
+remove-statement "private SubstringLayoutAnimator hintAnimator;"
+remove-statement "if (hintAnimator == null) {"
+remove-statement "hintAnimator.create(hintLayout, hint, text, paint);"
+remove-statement "if (hintAnimator != null) {" all
+remove-statement "if (hintAnimator != null && hintAnimator.animateTextChange) {"
 remove-statement "private FloatingToolbar floatingToolbar;"
 remove-statement "public FloatingActionMode floatingActionMode;"
 remove-statement "private ViewTreeObserver.OnPreDrawListener floatingToolbarPreDrawListener;"

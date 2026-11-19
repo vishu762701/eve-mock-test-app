@@ -41,6 +41,7 @@ remove-statement "TextView textView = i == 0 ? ((AudioPlayerAlert.ClippingTextVi
 remove-statement "if (textView != null) {"
 
 remove-statement "if (lottieLayerName != null && object instanceof RLottieImageView) {"
+remove-statement "Theme.setColor(currentKey, color, useDefault);"
 patch-line "} else if (object instanceof EditTextCaption) {" "} else if (false) {" "cut unported EditTextCaption"
 remove-statement "((EditTextCaption) object).setHintColor(color);"
 remove-statement "((EditTextCaption) object).setHintTextColor(color);"
@@ -49,6 +50,7 @@ remove-statement "((EditTextCaption) object).setTextColor(color);"
 patch-line "} else if (object instanceof BackupImageView) {" "} else if (false) {" "cut unported BackupImageView"
 remove-statement "BackupImageView imageView = (BackupImageView) object;"
 remove-statement "Drawable drawable = imageView.getImageReceiver() != null"
+remove-statement "if (drawable instanceof CombinedDrawable) {" all
 patch-line "} else if (object instanceof CheckBox) {" "} else if (false) {" "cut unported CheckBox"
 remove-statement "((CheckBox) object).setBackgroundColor(color);"
 remove-statement "((CheckBox) object).setCheckColor(color);"

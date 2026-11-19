@@ -18,8 +18,6 @@ import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.HapticFeedbackConstants;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.FrameLayout;
@@ -61,14 +59,6 @@ public class TextDetailCell extends FrameLayout implements Theme.Colorable {
         this.multiline = textMultiline || valueMultiline;
 
         textView = new TextView(context); // EVE-PATCH: use standard TextView
-        textView.setOnLinkLongPressListener(span -> {
-            if (span != null) {
-                try {
-                    performHapticFeedback(HapticFeedbackConstants.LONG_PRESS, HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING);
-                } catch (Exception ignore) {};
-                span.onClick(textView);
-            }
-        });
         textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
         textView.setGravity(LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT);
         if (textMultiline) {
@@ -81,26 +71,8 @@ public class TextDetailCell extends FrameLayout implements Theme.Colorable {
         textView.setEllipsize(TextUtils.TruncateAt.END);
         textView.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
         textView.setPadding(dp(6), dp(2), dp(6), dp(5));
-        addView(textView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT, horizPadding - 6, 8 - 2, horizPadding - 6, textMultiline ? 27 : 0));
+        addView(textView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT, horizPadding - 6, 8 - 2, horizPadding - 6, textMultiline ? 27 : 0)); valueTextView = new TextView(context); rightValueTextView = new TextView(context); // EVE-PATCH: instantiate standard TextViews
 
-        valueTextView = new TextView(context) { // EVE-PATCH: use standard TextView
-            @Override
-            protected int processColor(int color) {
-                return TextDetailCell.this.processColor(color);
-            }
-            @Override
-            public int overrideColor() {
-                return processColor(super.overrideColor());
-            }
-        };
-        valueTextView.setOnLinkLongPressListener(span -> {
-            if (span != null) {
-                try {
-                    performHapticFeedback(HapticFeedbackConstants.LONG_PRESS, HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING);
-                } catch (Exception ignore) {};
-                span.onClick(valueTextView);
-            }
-        });
         if (valueMultiline) {
             setMinimumHeight(dp(60));
         } else {
@@ -118,24 +90,6 @@ public class TextDetailCell extends FrameLayout implements Theme.Colorable {
             addView(valueTextView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT, horizPadding, 33 - 1, horizPadding, 10 - 6));
         }
 
-        rightValueTextView = new TextView(context) { // EVE-PATCH: use standard TextView
-            @Override
-            protected int processColor(int color) {
-                return TextDetailCell.this.processColor(color);
-            }
-            @Override
-            public int overrideColor() {
-                return processColor(super.overrideColor());
-            }
-        };
-        rightValueTextView.setOnLinkLongPressListener(span -> {
-            if (span != null) {
-                try {
-                    performHapticFeedback(HapticFeedbackConstants.LONG_PRESS, HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING);
-                } catch (Exception ignore) {};
-                span.onClick(valueTextView);
-            }
-        });
         if (this.multiline = multiline) {
             setMinimumHeight(dp(60));
         } else {
@@ -163,18 +117,6 @@ public class TextDetailCell extends FrameLayout implements Theme.Colorable {
 
     protected int processColor(int color) {
         return color;
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        boolean hit = valueTextView.hit((int) ev.getX() - valueTextView.getLeft(), (int) ev.getY() - valueTextView.getTop()) != null;
-        if (!hit) {
-            hit = textView.hit((int) ev.getX() - textView.getLeft(), (int) ev.getY() - textView.getTop()) != null;
-        }
-        if (hit) {
-            return true;
-        }
-        return super.onTouchEvent(ev);
     }
 
     @Override

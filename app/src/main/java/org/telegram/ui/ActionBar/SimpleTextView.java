@@ -12,9 +12,11 @@ import static org.telegram.messenger.AndroidUtilities.dp;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.ColorFilter;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Shader;
 import android.graphics.Typeface;
@@ -109,9 +111,14 @@ public class SimpleTextView extends View implements Drawable.Callback {
     private boolean maybeClick;
     private float touchDownX, touchDownY;
 
+    private ColorFilter emojiStackColorFilter;
     private boolean attachedToWindow;
 
     private Layout.Alignment mAlignment = Layout.Alignment.ALIGN_NORMAL;
+
+    public void setEmojiColor(int color) {
+        emojiStackColorFilter = new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN);
+    }
 
     public SimpleTextView(Context context) {
         super(context);

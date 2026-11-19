@@ -15,7 +15,6 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
@@ -439,8 +438,6 @@ public abstract class BaseFragment {
 
     @CallSuper
     public void onFragmentDestroy() {
-        getConnectionsManager().cancelRequestsForGuid(classGuid);
-        getMessagesStorage().cancelTasksForGuid(classGuid);
         isFinished = true;
         if (actionBar != null) {
             actionBar.setEnabled(false);
@@ -478,19 +475,12 @@ public abstract class BaseFragment {
         if (actionBar != null) {
             actionBar.onResume();
         }
-        if (getLastStoryViewer() != null) {
-            getLastStoryViewer().onResume();
-            getLastStoryViewer().updatePlayingMode();
-        }
     }
 
     @CallSuper
     public void onPause() {
         if (actionBar != null) {
             actionBar.onPause();
-        }
-        if (simpleMenuOverlay != null) {
-            simpleMenuOverlay.close(false);
         }
         isPaused = true;
         try {
@@ -500,10 +490,6 @@ public abstract class BaseFragment {
             }
         } catch (Exception e) {
             FileLog.e(e);
-        }
-        if (getLastStoryViewer() != null) {
-            getLastStoryViewer().onPause();
-            getLastStoryViewer().updatePlayingMode();
         }
     }
 
@@ -835,10 +821,6 @@ public abstract class BaseFragment {
         return new ArrayList<>();
     }
 
-    protected SharedPreferences getNotificationsSettings() {
-        return getAccountInstance().getNotificationsSettings();
-    }
-
     public void setFragmentPanTranslationOffset(int offset) {
         if (parentLayout != null) {
             parentLayout.setFragmentPanTranslationOffset(offset);
@@ -932,9 +914,6 @@ public abstract class BaseFragment {
     }
 
     public boolean isLightStatusBar() {
-        if (getLastStoryViewer() != null && getLastStoryViewer().isShown()) {
-            return false;
-        }
         if (hasForceLightStatusBar() && !Theme.getCurrentTheme().isDark()) {
             return true;
         }
@@ -1074,7 +1053,4 @@ public abstract class BaseFragment {
 
 
 
-    protected void dumpCanvas() {
-        AndroidUtilities.dumpCanvas(fragmentView);
-    }
 }

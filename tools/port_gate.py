@@ -694,6 +694,21 @@ SCREEN_SPECS = [
                 "removed_methods_reason": "Cut Blur3 capture/drawables, NotificationCenter heavy-ops, and chat-specific cell checks; preserved full RecyclerListView fast scroll, sections, selectors, animations, and touch physics"
             },
             {
+                "eve": "app/src/main/java/org/telegram/ui/Components/GestureDetectorFixDoubleTap.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/GestureDetectorFixDoubleTap.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/RecyclerItemsEnterAnimator.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/RecyclerItemsEnterAnimator.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/EdgeEffectTrackerFactory.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/EdgeEffectTrackerFactory.java",
+                "mode": "VERBATIM"
+            },
+            {
                 "eve": "app/src/main/java/org/telegram/ui/PhotoCropActivity.java",
                 "upstream": "TMessagesProj/src/main/java/org/telegram/ui/PhotoCropActivity.java",
                 "mode": "CUT",
