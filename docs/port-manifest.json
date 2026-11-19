@@ -402,6 +402,36 @@
           "known_debt": false
         },
         {
+          "eve": "app/src/main/java/org/telegram/ui/ActionBar/BackDrawable.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/BackDrawable.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "c8aae99ed4b7e34296dc1e75db32d1e15ef6db6d34ec323444ee7ca930277d88",
+          "eve_sha256": "c8aae99ed4b7e34296dc1e75db32d1e15ef6db6d34ec323444ee7ca930277d88",
+          "upstream_sha256": "c8aae99ed4b7e34296dc1e75db32d1e15ef6db6d34ec323444ee7ca930277d88",
+          "upstream_lines": 171,
+          "kept_lines": 171,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/ActionBar/MenuDrawable.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/MenuDrawable.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/MenuDrawable.cut",
+          "recipe_sha256": "c0817bb7a00a8115c291d3d5def1767b05250b87c3fe4f2107ee2d5b4bf4893a",
+          "result_sha256": "ce5318b77b68b17d6c5514f26da235af37541412536255bf5a77b4a5d48d0b12",
+          "eve_sha256": "ce5318b77b68b17d6c5514f26da235af37541412536255bf5a77b4a5d48d0b12",
+          "upstream_sha256": "eeb00d618d6d7a54b3408da2c2c1cc8ddaeb6e812fedc44ad1708dd94a5e5cc2",
+          "upstream_lines": 333,
+          "kept_lines": 290,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut unused chat download progress indicator (setUpdateDownloadProgress); preserved full hamburger to back rotation physics",
+          "known_debt": false
+        },
+        {
           "eve": "app/src/main/java/org/telegram/messenger/Utilities.java",
           "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/Utilities.java",
           "mode": "CUT",

@@ -1,0 +1,7 @@
+upstream org/telegram/ui/ActionBar/MenuDrawable.java
+to app/src/main/java/org/telegram/ui/ActionBar/MenuDrawable.java
+
+remove-method setUpdateDownloadProgress
+remove-statement "if (type == TYPE_UDPATE_DOWNLOADING || previousType == TYPE_UDPATE_DOWNLOADING) {"
+
+prune-imports

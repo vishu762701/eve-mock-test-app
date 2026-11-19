@@ -236,6 +236,17 @@ SCREEN_SPECS = [
                 "mode": "CUT"
             },
             {
+                "eve": "app/src/main/java/org/telegram/ui/ActionBar/BackDrawable.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/BackDrawable.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/ActionBar/MenuDrawable.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/MenuDrawable.java",
+                "mode": "CUT",
+                "removed_methods_reason": "Cut unused chat download progress indicator (setUpdateDownloadProgress); preserved full hamburger to back rotation physics"
+            },
+            {
                 "eve": "app/src/main/java/org/telegram/messenger/Utilities.java",
                 "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/Utilities.java",
                 "mode": "CUT"

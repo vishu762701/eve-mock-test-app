@@ -1,6 +1,6 @@
 package com.eve.app.telegram.qr;
 
-import com.eve.app.designsystem.BackDrawable;
+import org.telegram.ui.ActionBar.BackDrawable;
 
 import android.content.Context;
 import android.graphics.Canvas;
