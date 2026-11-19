@@ -12,6 +12,7 @@ remove-method monochrome
 remove-method createThresholdMatrix
 remove-method toPointF
 remove-method tryReadQr
+remove-method showAsSheet all
 
 # Replace CameraView field with generic View + wire EveCameraHost CUT-INTERFACE
 patch-line "private CameraView cameraView;" "private View cameraView; public interface EveCameraHost { View createPreviewView(Context context); void setTorchEnabled(boolean enabled); void openGallery(); void destroyCamera(); } private EveCameraHost eveCameraHost; public void setEveCameraHost(EveCameraHost host) { this.eveCameraHost = host; } public void onEveQrDetected(String text, RectF bounds) { if (recognized || text == null) return; recognized = true; recognizedStart = SystemClock.elapsedRealtime(); if (bounds != null) { updateRecognizedBounds(bounds, null); } if (delegate != null) { delegate.didFindQr(text); } }" "replace CameraView with EveCameraHost CUT-INTERFACE for CameraX/ZXing"

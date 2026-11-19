@@ -9,5 +9,6 @@ remove-statement "if (iBlur3Background != null) {" all
 
 patch-line "public final RLottieImageView imageView;" "public final ImageView imageView;" "use ImageView without RLottieImageView"
 patch-line "imageView = new RLottieImageView(context);" "imageView = new ImageView(context);" "instantiate ImageView without RLottie"
+remove-method setAnimation all
 
 prune-imports

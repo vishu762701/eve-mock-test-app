@@ -20,10 +20,8 @@ import android.graphics.Rect;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
-import android.text.TextUtils;
 
 import androidx.core.graphics.ColorUtils;
 
@@ -335,7 +333,7 @@ public class AvatarDrawable extends Drawable {
     }
 
     public void setInfo(long id, String firstName, String lastName) {
-        setInfo(id, firstName, lastName, null, null, null);
+        setInfo(id, firstName, lastName, null, null, null, false); // EVE-PATCH: call 7-arg setInfo directly
     }
 
     public int getColor() {
@@ -380,6 +378,7 @@ public class AvatarDrawable extends Drawable {
 
         if (false) { // EVE-PATCH: disable PeerColor branch without MessagesController
             if (advancedGradient) {
+                int[] gradient = advancedGradients[0]; // EVE-PATCH: use dummy gradient in dead branch
                 this.advancedGradient.setColors(gradient[0], gradient[1], gradient[2], gradient[3]);
             } else {
             }
@@ -522,146 +521,6 @@ public class AvatarDrawable extends Drawable {
             }
         }
 
-        if (avatarType == AVATAR_TYPE_ARCHIVED) {
-            if (archivedAvatarProgress != 0) {
-                backgroundPaint.setColor(ColorUtils.setAlphaComponent(getThemedColor(Theme.key_avatar_backgroundArchived), alpha));
-                canvas.drawCircle(size / 2.0f, size / 2.0f, size / 2.0f * archivedAvatarProgress, backgroundPaint);
-                if (Theme.dialogs_archiveAvatarDrawableRecolored) {
-                    Theme.dialogs_archiveAvatarDrawable.beginApplyLayerColors();
-                    Theme.dialogs_archiveAvatarDrawable.setLayerColor("Arrow1", Theme.getNonAnimatedColor(Theme.key_avatar_backgroundArchived));
-                    Theme.dialogs_archiveAvatarDrawable.setLayerColor("Arrow2", Theme.getNonAnimatedColor(Theme.key_avatar_backgroundArchived));
-                    Theme.dialogs_archiveAvatarDrawable.commitApplyLayerColors();
-                    Theme.dialogs_archiveAvatarDrawableRecolored = false;
-                }
-            } else {
-                if (!Theme.dialogs_archiveAvatarDrawableRecolored) {
-                    Theme.dialogs_archiveAvatarDrawable.beginApplyLayerColors();
-                    Theme.dialogs_archiveAvatarDrawable.setLayerColor("Arrow1", color);
-                    Theme.dialogs_archiveAvatarDrawable.setLayerColor("Arrow2", color);
-                    Theme.dialogs_archiveAvatarDrawable.commitApplyLayerColors();
-                    Theme.dialogs_archiveAvatarDrawableRecolored = true;
-                }
-            }
-            int w = Theme.dialogs_archiveAvatarDrawable.getIntrinsicWidth();
-            int h = Theme.dialogs_archiveAvatarDrawable.getIntrinsicHeight();
-            int x = (size - w) / 2;
-            int y = (size - h) / 2;
-            canvas.save();
-            Theme.dialogs_archiveAvatarDrawable.setBounds(x, y, x + w, y + h);
-            Theme.dialogs_archiveAvatarDrawable.draw(canvas);
-            canvas.restore();
-        } else if (avatarType != 0 || customIconDrawable != null) {
-            Drawable drawable;
-
-            if (customIconDrawable != null) {
-                drawable = customIconDrawable;
-            } else if (avatarType == AVATAR_TYPE_SAVED) {
-                drawable = Theme.avatarDrawables[0];
-            } else if (avatarType == AVATAR_TYPE_FILTER_CONTACTS) {
-                drawable = Theme.avatarDrawables[2];
-            } else if (avatarType == AVATAR_TYPE_FILTER_NON_CONTACTS) {
-                drawable = Theme.avatarDrawables[3];
-            } else if (avatarType == AVATAR_TYPE_FILTER_GROUPS) {
-                drawable = Theme.avatarDrawables[4];
-            } else if (avatarType == AVATAR_TYPE_FILTER_CHANNELS) {
-                drawable = Theme.avatarDrawables[5];
-            } else if (avatarType == AVATAR_TYPE_FILTER_BOTS) {
-                drawable = Theme.avatarDrawables[6];
-            } else if (avatarType == AVATAR_TYPE_FILTER_MUTED) {
-                drawable = Theme.avatarDrawables[7];
-            } else if (avatarType == AVATAR_TYPE_FILTER_READ) {
-                drawable = Theme.avatarDrawables[8];
-            } else if (avatarType == AVATAR_TYPE_SHARES) {
-                drawable = Theme.avatarDrawables[10];
-            } else if (avatarType == AVATAR_TYPE_REPLIES) {
-                drawable = Theme.avatarDrawables[11];
-            } else if (avatarType == AVATAR_TYPE_OTHER_CHATS) {
-                drawable = Theme.avatarDrawables[12];
-            } else if (avatarType == AVATAR_TYPE_CLOSE_FRIENDS) {
-                drawable = Theme.avatarDrawables[13];
-            } else if (avatarType == AVATAR_TYPE_GIFT) {
-                drawable = Theme.avatarDrawables[14];
-            } else if (avatarType == AVATAR_TYPE_TO_BE_DISTRIBUTED) {
-                drawable = Theme.avatarDrawables[15];
-            } else if (avatarType == AVATAR_TYPE_UNCLAIMED) {
-                drawable = Theme.avatarDrawables[16];
-            } else if (avatarType == AVATAR_TYPE_STORY) {
-                drawable = Theme.avatarDrawables[17];
-            } else if (avatarType == AVATAR_TYPE_ANONYMOUS) {
-                drawable = Theme.avatarDrawables[18];
-            } else if (avatarType == AVATAR_TYPE_MY_NOTES) {
-                drawable = Theme.avatarDrawables[19];
-            } else if (avatarType == AVATAR_TYPE_EXISTING_CHATS) {
-                drawable = Theme.avatarDrawables[21];
-            } else if (avatarType == AVATAR_TYPE_NEW_CHATS) {
-                drawable = Theme.avatarDrawables[20];
-            } else if (avatarType == AVATAR_TYPE_PREMIUM) {
-                drawable = Theme.avatarDrawables[22];
-            } else if (avatarType == AVATAR_TYPE_STARS) {
-                drawable = Theme.avatarDrawables[23];
-            } else if (avatarType == AVATAR_TYPE_SUGGESTION) {
-                drawable = Theme.avatarDrawables[24];
-            } else {
-                drawable = Theme.avatarDrawables[9];
-            }
-            if (drawable != null) {
-                final int w = (int) (drawable.getIntrinsicWidth() * scaleSize);
-                final int h = (int) (drawable.getIntrinsicHeight() * scaleSize);
-                final int x = (size - w) / 2 + iconTx;
-                final int y = (size - h) / 2 + iconTy;
-                drawable.setBounds(x, y, x + w, y + h);
-                if (alpha != 255) {
-                    drawable.setAlpha(alpha);
-                    drawable.draw(canvas);
-                    drawable.setAlpha(255);
-                } else {
-                    drawable.draw(canvas);
-                }
-            }
-        } else if (drawDeleted && Theme.avatarDrawables[1] != null) {
-            int w = Theme.avatarDrawables[1].getIntrinsicWidth();
-            int h = Theme.avatarDrawables[1].getIntrinsicHeight();
-            if (isProfile) {
-                w *= scaleSize;
-                h *= scaleSize;
-            } else if (w > size - dp(6) || h > size - dp(6)) {
-                float scale = size / (float) dp(50);
-                w *= scale;
-                h *= scale;
-            }
-            int x = (size - w) / 2;
-            int y = (size - h) / 2;
-            Theme.avatarDrawables[1].setBounds(x, y, x + w, y + h);
-            Theme.avatarDrawables[1].draw(canvas);
-        } else {
-            if (invalidateTextLayout) {
-                invalidateTextLayout = false;
-                if (stringBuilder.length() > 0) {
-                    CharSequence text = stringBuilder.toString().toUpperCase();
-                    if (textLayout == null || !TextUtils.equals(text, textLayout.getText())) {
-                        try {
-                            textLayout = new StaticLayout(text, namePaint, dp(100), Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
-                            if (textLayout.getLineCount() > 0) {
-                                textLeft = textLayout.getLineLeft(0);
-                                textWidth = textLayout.getLineWidth(0);
-                                textHeight = textLayout.getLineBottom(0);
-                            }
-                        } catch (Exception e) {
-                            FileLog.e(e);
-                        }
-                    }
-                } else {
-                    textLayout = null;
-                }
-            }
-            if (textLayout != null) {
-                float scale = size / (float) dp(50);
-                canvas.scale(scale, scale, size / 2f, size / 2f) ;
-                canvas.translate((size - textWidth) / 2 - textLeft, (size - textHeight) / 2);
-
-                textLayout.draw(canvas);
-            }
-        }
         canvas.restore();
     }
 

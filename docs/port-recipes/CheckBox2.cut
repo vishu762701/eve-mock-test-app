@@ -1,6 +1,6 @@
 upstream org/telegram/ui/Components/CheckBox2.java
 to app/src/main/java/org/telegram/ui/Components/CheckBox2.java
 
-patch-line "ThemeBind.drawableColorFilter(this, iconDrawable, Theme.key_switch2Track, PorterDuff.Mode.MULTIPLY);" "iconDrawable.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_switch2Track, resourcesProvider), PorterDuff.Mode.MULTIPLY));" "direct drawable color filter without ThemeBind"
+patch-line "ThemeBind.drawableColorFilter(this, iconDrawable, Theme.key_switch2Track, PorterDuff.Mode.MULTIPLY);" "iconDrawable.setColorFilter(new android.graphics.PorterDuffColorFilter(Theme.getColor(Theme.key_switch2Track), PorterDuff.Mode.MULTIPLY));" "direct drawable color filter without ThemeBind"
 
 prune-imports

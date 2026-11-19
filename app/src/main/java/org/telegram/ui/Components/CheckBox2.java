@@ -141,7 +141,7 @@ public class CheckBox2 extends View {
                 iconDrawable = null;
             } else {
                 iconDrawable = ContextCompat.getDrawable(getContext(), icon).mutate();
-                iconDrawable.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_switch2Track, resourcesProvider), PorterDuff.Mode.MULTIPLY)); // EVE-PATCH: direct drawable color filter without ThemeBind
+                iconDrawable.setColorFilter(new android.graphics.PorterDuffColorFilter(Theme.getColor(Theme.key_switch2Track), PorterDuff.Mode.MULTIPLY)); // EVE-PATCH: direct drawable color filter without ThemeBind
             }
         }
     }

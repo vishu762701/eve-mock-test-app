@@ -16,12 +16,20 @@ remove-method setLockLevel
 remove-statement "if (drawable instanceof RLottieDrawable) {" all
 patch-line "public void setTextAndIcon(CharSequence text, Drawable drawable, boolean divider) {" "public void setTextAndIcon(CharSequence text, Drawable drawable, boolean divider) { imageView.setImageDrawable(drawable);" "set drawable directly on ImageView"
 patch-line "public void setTextAndValueAndIcon(CharSequence text, CharSequence value, Drawable drawable, boolean divider) {" "public void setTextAndValueAndIcon(CharSequence text, CharSequence value, Drawable drawable, boolean divider) { imageView.setImageDrawable(drawable);" "set drawable directly on ImageView"
+remove-method setTextAndValueAndIcon ptypes=CharSequence,CharSequence,int,boolean
 remove-method setTextAndValueAndIcon ptypes=CharSequence,CharSequence,boolean,int,boolean
+remove-method setTextAndColorfulIcon all
+remove-method setTextAndValueAndColorfulIcon all
+remove-method setTextAndCheckAndColorfulIcon all
+remove-method setTextAndSpoilersValueAndColorfulIcon all
+remove-method setColorfulIcon all
 remove-method applyNewSpanTimed
 remove-method applyNewSpan all
-remove-method setColorfulIcon all
 remove-method setTextAndSticker all
 remove-method setValueSticker all
+remove-method updateEmojiBounds
 remove-statement "if (emojiDrawable != null) {" all
+patch-line "        valueTextView.setAlpha((1f - drawLoadingProgress) * (emojiDrawable == null ? 1f : 1f - emojiDrawable.isNotEmpty()) * (isEnabled() ? 1.0f : 0.5f));" "        valueTextView.setAlpha((1f - drawLoadingProgress) * (isEnabled() ? 1.0f : 0.5f));" "cut emojiDrawable from valueTextView alpha"
+patch-line "        valueSpoilersTextView.setAlpha((1f - drawLoadingProgress) * (emojiDrawable == null ? 1f : 1f - emojiDrawable.isNotEmpty()) * (isEnabled() ? 1.0f : 0.5f));" "        valueSpoilersTextView.setAlpha((1f - drawLoadingProgress) * (isEnabled() ? 1.0f : 0.5f));" "cut emojiDrawable from valueSpoilersTextView alpha"
 
 prune-imports

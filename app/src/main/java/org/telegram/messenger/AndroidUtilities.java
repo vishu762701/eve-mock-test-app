@@ -124,6 +124,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.CubicBezierInterpolator;
+import org.telegram.ui.Components.HideViewAfterAnimation;
 import org.telegram.ui.Components.TypefaceSpan;
 
 import java.io.BufferedInputStream;
@@ -2344,6 +2345,31 @@ public class AndroidUtilities {
         }
     }
 
+    public static void shakeView(final View view) {
+        if (view == null) {
+            return;
+        }
+        final float N = 4;
+        Object animator = view.getTag(R.id.shake_animation);
+        if (animator instanceof ValueAnimator) {
+            ((ValueAnimator) animator).cancel();
+        }
+        ValueAnimator va = ValueAnimator.ofFloat(0, 1);
+        va.addUpdateListener(anm -> {
+            float x = (float) anm.getAnimatedValue();
+            view.setTranslationX((float) ((4 * x * (1 - x)) * Math.sin(N * (x * Math.PI)) * dp(N)));
+        });
+        va.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                view.setTranslationX(0);
+            }
+        });
+        va.setDuration(300);
+        va.start();
+        view.setTag(R.id.shake_animation, va);
+    }
+
     public static void shakeViewSpring(View view) {
         shakeViewSpring(view, 10, null);
     }
@@ -3795,6 +3821,50 @@ public class AndroidUtilities {
             }
         });
         animator.start();
+    }
+
+    public static void updateViewVisibilityAnimated(View view, boolean show) {
+        updateViewVisibilityAnimated(view, show, 1f, true, true);
+    }
+
+    public static void updateViewVisibilityAnimated(View view, boolean show, float scaleFactor, boolean animated) {
+        updateViewVisibilityAnimated(view, show, scaleFactor, true, animated);
+    }
+
+    public static void updateViewVisibilityAnimated(View view, boolean show, float scaleFactor, boolean goneOnHide, boolean animated) {
+        updateViewVisibilityAnimated(view, show, scaleFactor, goneOnHide, 1f, animated, null);
+    }
+
+    public static void updateViewVisibilityAnimated(View view, boolean show, float scaleFactor, boolean goneOnHide, float maxAlpha, boolean animated, ValueAnimator.AnimatorUpdateListener onUpdate) {
+        if (view == null) {
+            return;
+        }
+        if (view.getParent() == null) {
+            animated = false;
+        }
+
+        if (!animated) {
+            view.animate().setListener(null).cancel();
+            view.setVisibility(show ? View.VISIBLE : (goneOnHide ? View.GONE : View.INVISIBLE));
+            view.setTag(show ? 1 : null);
+            view.setAlpha(maxAlpha);
+            view.setScaleX(1f);
+            view.setScaleY(1f);
+        } else if (show && view.getTag() == null) {
+            view.animate().setListener(null).cancel();
+            if (view.getVisibility() != View.VISIBLE) {
+                view.setVisibility(View.VISIBLE);
+                view.setAlpha(0f);
+                view.setScaleX(scaleFactor);
+                view.setScaleY(scaleFactor);
+            }
+            view.animate().alpha(maxAlpha).scaleY(1f).scaleX(1f).setDuration(150).setUpdateListener(onUpdate).start();
+            view.setTag(1);
+        } else if (!show && view.getTag() != null) {
+            view.animate().setListener(null).cancel();
+            view.animate().alpha(0).scaleY(scaleFactor).scaleX(scaleFactor).setListener(new HideViewAfterAnimation(view, goneOnHide)).setDuration(150).setUpdateListener(onUpdate).start();
+            view.setTag(null);
+        }
     }
 
     public static long getPrefIntOrLong(SharedPreferences preferences, String key, long defaultValue) {

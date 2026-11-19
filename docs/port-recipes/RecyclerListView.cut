@@ -23,10 +23,7 @@ remove-statement "NotificationCenter.getGlobalInstance().postNotificationName(No
 patch-line "if (!animateEmptyView || !SharedConfig.animationsEnabled()) {" "if (!animateEmptyView) {" "cut SharedConfig.animationsEnabled check"
 patch-line "view instanceof FiltersSetupActivity.HintInnerCell || view instanceof GraySectionCell ||" "false ||" "cut unported section cells"
 patch-line "view instanceof CollapseTextCell) && !Objects.equals(view.getTag(), TAG_NOT_SECTION);" "false) && !Objects.equals(view.getTag(), TAG_NOT_SECTION);" "cut unported CollapseTextCell"
-remove-statement "private BitmapSectionsItemDecoration bitmapSectionsItemDecoration;"
-remove-statement "bitmapSectionsItemDecoration = new BitmapSectionsItemDecoration(" all
-remove-statement "sectionsItemDecoration.capture(canvas, position);"
-patch-line "        if (to instanceof JoinToSendSettingsView) {" "        if (false) {" "cut unported JoinToSendSettingsView"
-patch-line "                if (viewHolder.isRemoved() && child.getAlpha() < 1) {" "                if (false) {" "cut ViewHolder isRemoved and mOldCompoundPosition animation"
+remove-statement "if (to instanceof JoinToSendSettingsView) {"
+remove-statement "if (viewHolder.isRemoved() && child.getAlpha() < 1) {"
 
 prune-imports

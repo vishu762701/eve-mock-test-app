@@ -11,4 +11,5 @@
     <item name="etPhone" type="id" />
     <item name="spring_tag" type="id" />
     <item name="spring_was_translation_x_tag" type="id" />
+    <item name="shake_animation" type="id" />
 </resources>

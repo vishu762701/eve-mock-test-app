@@ -1,0 +1,6 @@
+upstream org/telegram/ui/Components/RecyclerItemsEnterAnimator.java
+to app/src/main/java/org/telegram/ui/Components/RecyclerItemsEnterAnimator.java
+
+patch-line "            if (listView.getChildAdapterPosition(child) >= 0 && child instanceof FlickerLoadingView) {" "            if (false) {" "cut unported FlickerLoadingView"
+
+prune-imports

@@ -37,6 +37,7 @@ patch-line "ThemeBind.textColor(titleView, Theme.key_dialogTextBlack, resourcesP
 patch-line "ThemeBind.textColor(titleView, Theme.key_dialogTextGray2, resourcesProvider);" "titleView.setTextColor(getThemedColor(Theme.key_dialogTextGray2));" "direct title color without ThemeBind"
 
 # Cut LeakDetector, Bulletin, LaunchActivity, WindowVisibilityManager
+remove-statement "attachedFragment.addSheet(this);"
 remove-statement "if (BuildConfig.DEBUG_PRIVATE_VERSION) {"
 remove-statement "Bulletin.addDelegate(this, new Bulletin.Delegate() {"
 remove-statement "Bulletin.removeDelegate(this);"

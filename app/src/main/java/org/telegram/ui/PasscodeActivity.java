@@ -204,7 +204,7 @@ public class PasscodeActivity extends BaseFragment { public interface EvePasscod
             scrollView.setFillViewport(true);
             fragmentContentView = scrollView;
         }
-        FrameLayout contentView = new FrameLayout(context) { private int measureKeyboardHeight() { return 0; } // EVE-PATCH: use FrameLayout without SizeNotifierFrameLayout
+        FrameLayout contentView = new FrameLayout(context) { private int measureKeyboardHeight() { return 0; } public void notifyHeightChanged() {} public void setDelegate(Object d) {} // EVE-PATCH: use FrameLayout without SizeNotifierFrameLayout
             @Override
             protected void onLayout(boolean changed, int l, int t, int r, int b) {
                 int frameBottom;
@@ -363,13 +363,8 @@ public class PasscodeActivity extends BaseFragment { public interface EvePasscod
                         if (!SharedConfig.allowScreenCapture) {
                             new AlertDialog.Builder(getParentActivity()).setMessage(LocaleController.getString(R.string.ScreenCaptureAlert)).setPositiveButton(LocaleController.getString(R.string.OK), null).show(); // EVE-PATCH: show simple alert without AlertsCreator
                         }
-                        wallet.setNeedsPasscode(!wallet.needsPasscode());
-                        ((TextCheckCell) view).setChecked(wallet.needsPasscode());
-                        final boolean isLocked = wallet.needsFingerprint();
-                        wallet.setNeedsFingerprint(!isLocked, success -> {
-                            if (!success) return;
-                            ((TextCheckCell) view).setChecked(!isLocked);
-                        });
+                    } else if (position == walletPasscodeRow) {
+                    } else if (position == walletFingerprintRow) {
                     }
                 });
                 break;
@@ -1134,6 +1129,8 @@ public class PasscodeActivity extends BaseFragment { public interface EvePasscod
                         textCell.setTextAndCheck(LocaleController.getString(R.string.UnlockFingerprint), SharedConfig.useFingerprintLock, false);
                     } else if (position == captureRow) {
                         textCell.setTextAndCheck(LocaleController.getString(R.string.ScreenCaptureShowContent), SharedConfig.allowScreenCapture, false);
+                    } else if (position == walletFingerprintRow) {
+                    } else if (position == walletPasscodeRow) {
                     }
                     break;
                 }

@@ -136,37 +136,7 @@ public class UniversalRecyclerView extends RecyclerListView {
             });
         }
 
-        DefaultItemAnimator itemAnimator = new DefaultItemAnimator() {
-            @Override
-            protected void onMoveAnimationUpdate(ViewHolder holder) {
-                super.onMoveAnimationUpdate(holder);
-                invalidate();
-                onLayoutUpdate();
-            }
-            @Override
-            protected void onRemoveAnimationUpdate(ViewHolder holder) {
-                super.onRemoveAnimationUpdate(holder);
-                if (hasSections()) invalidate();
-                onLayoutUpdate();
-            }
-            @Override
-            protected void onAddAnimationUpdate(ViewHolder holder) {
-                super.onAddAnimationUpdate(holder);
-                if (hasSections()) invalidate();
-                onLayoutUpdate();
-            }
-            @Override
-            protected void onChangeAnimationUpdate(ViewHolder holder) {
-                super.onChangeAnimationUpdate(holder);
-                if (hasSections()) invalidate();
-                onLayoutUpdate();
-            }
-        };
-        itemAnimator.setSupportsChangeAnimations(false);
-        itemAnimator.setDelayAnimations(false);
-        itemAnimator.setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT);
-        itemAnimator.setDurations(350);
-        setItemAnimator(itemAnimator);
+        DefaultItemAnimator itemAnimator = new DefaultItemAnimator(); itemAnimator.setSupportsChangeAnimations(false); setItemAnimator(itemAnimator); // EVE-PATCH: use standard DefaultItemAnimator
     }
 
     protected void onLayoutUpdate() {
@@ -255,10 +225,7 @@ public class UniversalRecyclerView extends RecyclerListView {
 
     public void allowReorder(boolean allow) {
         if (reorderingAllowed == allow) return;
-        adapter.updateReorder(reorderingAllowed = allow);
-        AndroidUtilities.forEachViews(this, view -> {
-            adapter.updateReorder(getChildViewHolder(view), reorderingAllowed);
-        });
+        adapter.updateReorder(reorderingAllowed = allow); for (int i = 0; i < getChildCount(); i++) { View view = getChildAt(i); adapter.updateReorder(getChildViewHolder(view), reorderingAllowed); } // EVE-PATCH: iterate views directly without forEachViews
     }
 
     @Override

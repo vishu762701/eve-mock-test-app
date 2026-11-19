@@ -178,7 +178,7 @@ public class ChangeBioActivity extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Context.MODE_PRIVATE); // EVE-PATCH: read animations preference without MessagesController
+        SharedPreferences preferences = org.telegram.messenger.ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Context.MODE_PRIVATE); // EVE-PATCH: read animations preference without MessagesController
         boolean animations = preferences.getBoolean("view_animations", true);
         if (!animations) {
             firstNameField.requestFocus();

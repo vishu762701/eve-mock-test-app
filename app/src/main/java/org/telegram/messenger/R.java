@@ -189,10 +189,18 @@ public class R {
         public static final int etUsername = com.eve.app.R.id.etUsername;
         public static final int fit_width_tag = com.eve.app.R.id.fit_width_tag;
         public static final int object_tag = com.eve.app.R.id.object_tag;
+        public static final int shake_animation = com.eve.app.R.id.shake_animation;
         public static final int spring_tag = com.eve.app.R.id.spring_tag;
         public static final int spring_was_translation_x_tag = com.eve.app.R.id.spring_was_translation_x_tag;
+        public static final int theme_generation = com.eve.app.R.id.theme_generation;
         public static final int tvStatus = com.eve.app.R.id.tvStatus;
         public static final int width_tag = com.eve.app.R.id.width_tag;
+    }
+    public static final class raw {
+        public static final int profile_unmuting = 0x7f110001;
+        public static final int profile_muting = 0x7f110002;
+        public static final int profile_leave = 0x7f110003;
+        public static final int profile_voicechat = 0x7f110004;
     }
     public static final class style {
         public static final int PopupAnimation = com.eve.app.R.style.PopupAnimation;

@@ -1411,7 +1411,6 @@ public class BottomSheet extends Dialog implements BaseFragment.AttachedSheet {
 
         Window window = null;
         if (attachedFragment != null) {
-            attachedFragment.addSheet(this);
             if (attachedFragment.getLayoutContainer() == null) return;
 
             InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);

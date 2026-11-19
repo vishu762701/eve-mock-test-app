@@ -7,6 +7,7 @@ patch-line "textView = new LinkSpanDrawable.LinksTextView(context, links = new L
 remove-method overrideColor
 patch-line "ThemeBind.textColor(textView, Theme.key_windowBackgroundWhiteGrayText4, resourcesProvider);" "textView.setTextColor(getThemedColor(Theme.key_windowBackgroundWhiteGrayText4)); textView.setLinkTextColor(getThemedColor(linkTextColorKey));" "direct text and link colors without ThemeBind"
 remove-statement "textView.setEmojiColor(emojiColor = getThemedColor(Theme.key_windowBackgroundWhiteGrayText4));"
+remove-statement "textView.setEmojiColor(color);"
 remove-statement "ThemeBind.linkTextColor(textView, linkTextColorKey, resourcesProvider);" all
 remove-statement "if (links != null) {"
 patch-line "ThemeBind.clear(textView);" "textView.setLinkTextColor(getThemedColor(linkTextColorKey));" "direct link color update without ThemeBind"

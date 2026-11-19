@@ -223,7 +223,6 @@ public class TextInfoPrivacyCell extends FrameLayout implements Theme.Colorable 
             final int color = getThemedColor(Theme.key_windowBackgroundWhiteGrayText4);
             if (textView != null && color != emojiColor) {
                 emojiColor = color;
-                textView.setEmojiColor(color);
             }
         } catch (Exception e) {
             FileLog.e(e);

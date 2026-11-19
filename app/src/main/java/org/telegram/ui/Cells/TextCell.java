@@ -221,16 +221,6 @@ public class TextCell extends FrameLayout implements Theme.Colorable {
         }
     }
 
-    public void updateEmojiBounds() {
-        if (emojiDrawable == null) return;
-        emojiDrawable.setBounds(
-            getWidth() - emojiDrawable.getIntrinsicWidth() - AndroidUtilities.dp(18),
-            (getHeight() - emojiDrawable.getIntrinsicHeight()) / 2,
-            getWidth() - AndroidUtilities.dp(18),
-            (getHeight() + emojiDrawable.getIntrinsicHeight()) / 2
-        );
-    }
-
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         int height = bottom - top;
@@ -387,19 +377,6 @@ public class TextCell extends FrameLayout implements Theme.Colorable {
         setWillNotDraw(!needDivider);
     }
 
-    public void setTextAndColorfulIcon(CharSequence text, int resId, int color, boolean divider) {
-        imageLeft = getDefaultImageLeft();
-        offsetFromImage = getOffsetFromImage(false);
-        textView.setText(text);
-        textView.setRightDrawable(null);
-        valueTextView.setText(valueText = null, false);
-        setColorfulIcon(color, resId);
-        valueTextView.setVisibility(GONE);
-        valueImageView.setVisibility(GONE);
-        needDivider = divider;
-        setWillNotDraw(!needDivider);
-    }
-
     public void setTextAndIcon(CharSequence text, Drawable drawable, boolean divider) { imageView.setImageDrawable(drawable); // EVE-PATCH: set drawable directly on ImageView
         offsetFromImage = getOffsetFromImage(false);
         imageLeft = 18;
@@ -464,45 +441,6 @@ public class TextCell extends FrameLayout implements Theme.Colorable {
         valueTextView.setText(value == null ? "" : TextUtils.ellipsize(valueText = value, valueTextView.getPaint(), AndroidUtilities.displaySize.x / 2.5f, TextUtils.TruncateAt.END), animated);
     }
 
-    public void setTextAndValueAndColorfulIcon(String text, CharSequence value, boolean animated, int resId, int colorTop, int colorBottom, boolean divider) {
-        imageLeft = getDefaultImageLeft();
-        offsetFromImage = getOffsetFromImage(false);
-        textView.setText(text);
-        textView.setRightDrawable(null);
-        valueTextView.setText(value == null ? "" : TextUtils.ellipsize(valueText = value, valueTextView.getPaint(), AndroidUtilities.displaySize.x / 2.5f, TextUtils.TruncateAt.END), animated);
-        valueTextView.setVisibility(VISIBLE);
-        valueSpoilersTextView.setVisibility(GONE);
-        setColorfulIcon(colorTop, colorBottom, resId);
-        valueImageView.setVisibility(GONE);
-        needDivider = divider;
-        setWillNotDraw(!needDivider);
-        if (checkBox != null) {
-            checkBox.setVisibility(GONE);
-        }
-    }
-
-    public void setTextAndCheckAndColorfulIcon(CharSequence text, boolean checked, int resId, int color, boolean divider) {
-        imageLeft = getDefaultImageLeft();
-        offsetFromImage = getOffsetFromImage(false);
-        textView.setText(text);
-        textView.setRightDrawable(null);
-        valueTextView.setVisibility(GONE);
-        valueSpoilersTextView.setVisibility(GONE);
-        valueImageView.setVisibility(GONE);
-        setColorfulIcon(color, resId);
-        if (checkBox == null) {
-            checkBox = new Switch(getContext(), resourcesProvider);
-            checkBox.setColors(Theme.key_switchTrack, Theme.key_switchTrackChecked, Theme.key_windowBackgroundWhite, Theme.key_windowBackgroundWhite);
-            addView(checkBox, LayoutHelper.createFrame(37, 20, (LocaleController.isRTL ? Gravity.LEFT : Gravity.RIGHT) | Gravity.CENTER_VERTICAL, 22, 0, 22, 0));
-        }
-        if (checkBox != null) {
-            checkBox.setVisibility(VISIBLE);
-            checkBox.setChecked(checked, false);
-        }
-        needDivider = divider;
-        setWillNotDraw(!needDivider);
-    }
-
     public void setTextAndSpoilersValueAndIcon(String text, CharSequence value, int resId, boolean divider) {
         imageLeft = getDefaultImageLeft();
         offsetFromImage = getOffsetFromImage(false);
@@ -522,27 +460,6 @@ public class TextCell extends FrameLayout implements Theme.Colorable {
         if (checkBox != null) {
             checkBox.setVisibility(GONE);
         }
-    }
-
-    public void setTextAndSpoilersValueAndColorfulIcon(String text, CharSequence value, int resId, int color, boolean divider) {
-        imageLeft = getDefaultImageLeft();
-        offsetFromImage = getOffsetFromImage(false);
-        textView.setText(text);
-        textView.setRightDrawable(null);
-        valueSpoilersTextView.setVisibility(VISIBLE);
-        valueSpoilersTextView.setText(value);
-        valueTextView.setVisibility(GONE);
-        setColorfulIcon(color, resId);
-        valueImageView.setVisibility(GONE);
-        needDivider = divider;
-        setWillNotDraw(!needDivider);
-        if (checkBox != null) {
-            checkBox.setVisibility(GONE);
-        }
-    }
-
-    public void setTextAndValueAndIcon(CharSequence text, CharSequence value, int resId, boolean divider) {
-        setTextAndValueAndIcon(text, value, false, resId, divider);
     }
 
     public void setTextAndCheck(CharSequence text, boolean checked, boolean divider) {
@@ -767,8 +684,8 @@ public class TextCell extends FrameLayout implements Theme.Colorable {
             canvas.drawRoundRect(AndroidUtilities.rectTmp, dp(3), dp(3), paint);
             invalidate();
         }
-        valueTextView.setAlpha((1f - drawLoadingProgress) * (emojiDrawable == null ? 1f : 1f - emojiDrawable.isNotEmpty()) * (isEnabled() ? 1.0f : 0.5f));
-        valueSpoilersTextView.setAlpha((1f - drawLoadingProgress) * (emojiDrawable == null ? 1f : 1f - emojiDrawable.isNotEmpty()) * (isEnabled() ? 1.0f : 0.5f));
+        valueTextView.setAlpha((1f - drawLoadingProgress) * (isEnabled() ? 1.0f : 0.5f)); // EVE-PATCH: cut emojiDrawable from valueTextView alpha
+        valueSpoilersTextView.setAlpha((1f - drawLoadingProgress) * (isEnabled() ? 1.0f : 0.5f)); // EVE-PATCH: cut emojiDrawable from valueSpoilersTextView alpha
         super.dispatchDraw(canvas);
     }
 

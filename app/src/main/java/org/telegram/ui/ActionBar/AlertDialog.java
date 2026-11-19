@@ -26,12 +26,10 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
-import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.RoundRectShape;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextPaint;
@@ -1365,40 +1363,6 @@ public class AlertDialog extends Dialog implements Drawable.Callback { // EVE-PA
         }
         if (Build.VERSION.SDK_INT >= 28) {
             params.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT;
-        }
-
-        if (blurredBackground) {
-            if (supportsNativeBlur()) {
-                if (progressViewStyle == ALERT_TYPE_MESSAGE) {
-                    blurredNativeBackground = true;
-                    window.setBackgroundBlurRadius(50);
-                    float rad = dp(12);
-                    ShapeDrawable shapeDrawable = new ShapeDrawable(new RoundRectShape(new float[]{rad, rad, rad, rad, rad, rad, rad, rad}, null, null));
-                    shapeDrawable.getPaint().setColor(ColorUtils.setAlphaComponent(backgroundColor, (int) (blurAlpha * 255)));
-                    window.setBackgroundDrawable(shapeDrawable);
-                    if (blurBehind) {
-                        params.flags |= WindowManager.LayoutParams.FLAG_BLUR_BEHIND;
-                        params.setBlurBehindRadius(20);
-                    }
-                }
-            } else {
-                AndroidUtilities.makeGlobalBlurBitmap(bitmap -> {
-                    if (bitmap == null) {
-                        return;
-                    }
-                    if (blurPaint == null) {
-                        blurPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-                    }
-                    blurBitmap = bitmap;
-                    blurShader = new BitmapShader(blurBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
-                    blurPaint.setShader(blurShader);
-                    blurMatrix = new Matrix();
-                    blurMatrix.postScale(8f, 8f);
-                    blurMatrix.postTranslate(-containerViewLocation[0], -containerViewLocation[1]);
-                    blurShader.setLocalMatrix(blurMatrix);
-                    containerView.invalidate();
-                }, 8);
-            }
         }
 
         window.setAttributes(params);

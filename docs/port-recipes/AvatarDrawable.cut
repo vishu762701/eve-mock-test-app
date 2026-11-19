@@ -20,8 +20,9 @@ remove-method setPeerColor
 # Simplify core setInfo(long, String, String, String, Integer, PeerColor, boolean) to Object profileColor
 patch-line "public void setInfo(long id, String firstName, String lastName, String custom, Integer customColor, MessagesController.PeerColor profileColor, boolean advancedGradient) {" "public void setInfo(long id, String firstName, String lastName, String custom, Integer customColor, Object profileColor, boolean advancedGradient) {" "remove MessagesController.PeerColor parameter"
 patch-line "setInfo(id, firstName, lastName, custom, null, null);" "setInfo(id, firstName, lastName, custom, null, null, false);" "call 7-arg setInfo directly"
+patch-line "setInfo(id, firstName, lastName, null, null, null);" "setInfo(id, firstName, lastName, null, null, null, false);" "call 7-arg setInfo directly"
 patch-line "if (profileColor != null) {" "if (false) {" "disable PeerColor branch without MessagesController"
-remove-statement "int[] gradient = advancedGradients[getPeerColorIndex(profileColor.getAvatarColor1())];"
+patch-line "int[] gradient = advancedGradients[getPeerColorIndex(profileColor.getAvatarColor1())];" "int[] gradient = advancedGradients[0];" "use dummy gradient in dead branch"
 remove-statement "color = profileColor.getAvatarColor1();"
 remove-statement "color2 = profileColor.getAvatarColor2();"
 patch-line "} else if (customColor != null) {" "} else if (false) {" "disable customColor PeerColor branch"
@@ -35,5 +36,6 @@ remove-statement "avatarTypeColorsGeneration = ThemeBind.generation();" all
 remove-statement "idColorsGeneration = ThemeBind.generation();" all
 patch-line "if (avatarTypeColorsThemed && avatarTypeColorsGeneration != ThemeBind.generation()) {" "if (false) {" "remove ThemeBind generation recheck"
 patch-line "if (idColorsThemed && idColorsGeneration != ThemeBind.generation()) {" "if (false) {" "remove ThemeBind generation recheck"
+remove-statement "if (avatarType == AVATAR_TYPE_ARCHIVED) {"
 
 prune-imports

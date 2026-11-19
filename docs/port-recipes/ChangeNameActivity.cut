@@ -18,7 +18,7 @@ patch-line "ThemeBind.cursorColor(lastNameField, Theme.key_windowBackgroundWhite
 patch-line "if (user != null) {" "if (eveDelegate != null) {" "load initial name from Eve delegate"
 patch-line "firstNameField.setText(user.first_name);" "firstNameField.setText(eveDelegate.getInitialFirstName());" "load initial first name from Eve delegate"
 patch-line "lastNameField.setText(user.last_name);" "lastNameField.setText(eveDelegate.getInitialLastName());" "load initial last name from Eve delegate"
-patch-line "SharedPreferences preferences = MessagesController.getGlobalMainSettings();" "SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences(\"mainconfig\", Context.MODE_PRIVATE);" "read animations preference without MessagesController"
+patch-line "SharedPreferences preferences = MessagesController.getGlobalMainSettings();" "SharedPreferences preferences = org.telegram.messenger.ApplicationLoader.applicationContext.getSharedPreferences(\"mainconfig\", Context.MODE_PRIVATE);" "read animations preference without MessagesController"
 patch-line "saveName();" "if (eveDelegate != null) { eveDelegate.saveName(firstNameField.getText().toString(), lastNameField.getText().toString()); }" "delegate saveName to Eve adapter"
 
 prune-imports

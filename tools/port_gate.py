@@ -699,9 +699,18 @@ SCREEN_SPECS = [
                 "mode": "VERBATIM"
             },
             {
+                "eve": "app/src/main/java/org/telegram/ui/Components/BitmapSectionsItemDecoration.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/BitmapSectionsItemDecoration.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/BitmapSectionsItemDecoration.cut",
+                "removed_methods_reason": "Cut IBlur3Capture interface; preserved full section background drawing and decorations"
+            },
+            {
                 "eve": "app/src/main/java/org/telegram/ui/Components/RecyclerItemsEnterAnimator.java",
                 "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/RecyclerItemsEnterAnimator.java",
-                "mode": "VERBATIM"
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/RecyclerItemsEnterAnimator.cut",
+                "removed_methods_reason": "Cut unported FlickerLoadingView check; preserved items enter animation"
             },
             {
                 "eve": "app/src/main/java/org/telegram/ui/Components/EdgeEffectTrackerFactory.java",

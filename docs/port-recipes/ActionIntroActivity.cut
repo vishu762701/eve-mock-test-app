@@ -13,8 +13,10 @@ remove-statement "imageView.setAnimation(R.raw.channel_create, 200, 200);"
 remove-statement "imageView.setAnimation(R.raw.utyan_passcode, 200, 200);"
 remove-statement "imageView.setAnimation(R.raw.qr_login, 334, 334, colors);"
 remove-statement "imageView.setAnimation(R.raw.utyan_change_number, 200, 200);"
+remove-statement "imageView.replaceColors(colors);"
 remove-statement "imageView.playAnimation();" all
 remove-statement "imageView.setOnClickListener(v -> {" all
+remove-statement "CameraScanActivity.showAsSheet(this, false, CameraScanActivity.TYPE_QR, new CameraScanActivity.CameraScanActivityDelegate() {"
 
 # Cut CellFlickerDrawable from buttonTextView
 patch-line "private final CellFlickerDrawable cellFlickerDrawable = new CellFlickerDrawable(); {" "{" "remove CellFlickerDrawable field"

@@ -16,7 +16,6 @@ import android.widget.ImageView;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RawRes;
 
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.utils.ViewOutlineProviderImpl;
@@ -105,10 +104,6 @@ public class FragmentFloatingButton extends FrameLayout implements FactorAnimato
                 }
             }
         }
-    }
-
-    public void setAnimation(@RawRes int animation, int size) {
-        imageView.setAnimation(animation, size, size);
     }
 
     public void setImageResource(@DrawableRes int drawable) {

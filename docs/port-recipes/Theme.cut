@@ -56,7 +56,6 @@ remove-method applyChatMessageSelectedBackgroundColor all
 remove-method createDialogsResources all
 remove-method reloadWallpaper all
 remove-method calcBackgroundColor all
-remove-method getServiceMessageColor all
 remove-method hasWallpaperFromTheme all
 remove-method isCustomTheme all
 remove-method isThemeWallpaperPublic all

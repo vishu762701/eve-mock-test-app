@@ -631,7 +631,6 @@ public class ActionIntroActivity extends BaseFragment { private Runnable onPrima
 
         colors[6] = 0x212020;
         colors[7] = Theme.getColor(Theme.key_windowBackgroundWhite);
-        imageView.replaceColors(colors);
     }
 
     public void setGroupCreateAddress(String address, String displayAddress, Location location) {
@@ -674,13 +673,6 @@ public class ActionIntroActivity extends BaseFragment { private Runnable onPrima
     }
 
     private void processOpenQrReader() {
-        CameraScanActivity.showAsSheet(this, false, CameraScanActivity.TYPE_QR, new CameraScanActivity.CameraScanActivityDelegate() {
-            @Override
-            public void didFindQr(String text) {
-                finishFragment(false);
-                qrLoginDelegate.didFindQRCode(text);
-            }
-        });
     }
 
     public int getType() {

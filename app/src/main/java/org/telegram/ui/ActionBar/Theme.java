@@ -4934,6 +4934,15 @@ public class Theme {
         return changed;
     }
 
+    public static int getServiceMessageColor() {
+        int index = currentColors.indexOfKey(key_chat_serviceBackground);
+        if (index >= 0) {
+            return currentColors.valueAt(index);
+        } else {
+            return serviceMessageColor;
+        }
+    }
+
 
     public static boolean isPatternWallpaper() {
         String selectedBgSlug = ""; // EVE-PATCH: decouple getSelectedBackgroundSlug

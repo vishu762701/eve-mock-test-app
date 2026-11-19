@@ -139,7 +139,7 @@ public class RecyclerItemsEnterAnimator {
         int n = listView.getChildCount();
         for (int i = 0; i < n; i++) {
             View child = listView.getChildAt(i);
-            if (listView.getChildAdapterPosition(child) >= 0 && child instanceof FlickerLoadingView) {
+            if (false) { // EVE-PATCH: cut unported FlickerLoadingView
                 progressView = child;
             }
         }

@@ -26,7 +26,7 @@ remove-statement "setHasOwnBackground(true);"
 patch-line "simpleActionBar.setTitle(LocaleController.getString(R.string.Passcode));" "actionBar.setTitle(LocaleController.getString(R.string.Passcode)); actionBar.setBackButtonImage(R.drawable.ic_ab_back); actionBar.setActionBarMenuOnItemClick(onItemClick);" "configure BaseFragment actionBar for settings mode"
 
 # Replace SizeNotifierFrameLayout with FrameLayout (measureKeyboardHeight -> 0)
-patch-line "SizeNotifierFrameLayout contentView = new SizeNotifierFrameLayout(context) {" "FrameLayout contentView = new FrameLayout(context) { private int measureKeyboardHeight() { return 0; }" "use FrameLayout without SizeNotifierFrameLayout"
+patch-line "SizeNotifierFrameLayout contentView = new SizeNotifierFrameLayout(context) {" "FrameLayout contentView = new FrameLayout(context) { private int measureKeyboardHeight() { return 0; } public void notifyHeightChanged() {} public void setDelegate(Object d) {}" "use FrameLayout without SizeNotifierFrameLayout"
 
 # Replace RLottieImageView with ImageView using msg_pin_code
 patch-line "private RLottieImageView lockImageView;" "private ImageView lockImageView;" "use ImageView without RLottieImageView"
@@ -42,8 +42,13 @@ remove-statement "holderView.imageView.playAnimation();"
 
 # Cut GramWallet rows (Telegram-only feature)
 remove-statement "if (getMessagesController().config.walletAvailable.get()) {"
-remove-statement "} else if (position == walletPasscodeRow) {" all
-remove-statement "} else if (position == walletFingerprintRow) {" all
+remove-statement "final GramWallet wallet = GramWallet.getInstance(currentAccount);" all
+remove-statement "wallet.setNeedsPasscode(!wallet.needsPasscode());"
+remove-statement "((TextCheckCell) view).setChecked(wallet.needsPasscode());"
+remove-statement "final boolean isLocked = wallet.needsFingerprint();"
+remove-statement "wallet.setNeedsFingerprint(!isLocked, success -> {"
+remove-statement "textCell.setTextAndCheck(LocaleController.getString(R.string.WalletConfirmWithFingerprint), GramWallet.getInstance(currentAccount).canSend() && GramWallet.getInstance(currentAccount).needsFingerprint(), false);"
+remove-statement "textCell.setTextAndCheck(LocaleController.getString(R.string.WalletConfirmWithPasscode), GramWallet.getInstance(currentAccount).needsPasscode(), false);"
 
 # Persist settings via Eve SharedConfig bridge instead of UserConfig.saveConfig
 remove-statement "UserConfig.getInstance(currentAccount).saveConfig(false);" all

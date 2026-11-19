@@ -143,7 +143,7 @@ public class EmptyTextProgressView extends FrameLayout {
 
             int x = (width - child.getMeasuredWidth()) / 2;
             int y;
-            if (child == progressView && progressView instanceof FlickerLoadingView) {
+            if (false) { // EVE-PATCH: cut unported FlickerLoadingView
                 y = (height - child.getMeasuredHeight()) / 2 + getPaddingTop();
             } else {
                 if (showAtPos == 2) {

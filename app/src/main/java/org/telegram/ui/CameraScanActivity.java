@@ -30,7 +30,6 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -45,8 +44,6 @@ import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.R;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.BaseFragment;
-import org.telegram.ui.ActionBar.BottomSheet;
-import org.telegram.ui.ActionBar.INavigationLayout;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.ActionBar.ThemeDescription;
 import org.telegram.ui.Components.AnimationProperties;
@@ -133,76 +130,6 @@ public class CameraScanActivity extends BaseFragment {
         }
 
         default void onDismiss() {}
-    }
-
-    public static BottomSheet showAsSheet(BaseFragment parentFragment, boolean gallery, int type, CameraScanActivityDelegate cameraDelegate) {
-        return showAsSheet(parentFragment.getParentActivity(), gallery, type, cameraDelegate);
-    }
-
-    public static BottomSheet showAsSheet(Activity parentActivity, boolean gallery, int type, CameraScanActivityDelegate cameraDelegate) {
-        if (parentActivity == null) {
-            return null;
-        }
-        INavigationLayout[] actionBarLayout = new INavigationLayout[]{INavigationLayout.newLayout(parentActivity, false)};
-        BottomSheet bottomSheet = new BottomSheet(parentActivity, false) {
-            CameraScanActivity fragment;
-            {
-                actionBarLayout[0].setFragmentStack(new ArrayList<>());
-                fragment = new CameraScanActivity(type) {
-                    @Override
-                    public void finishFragment() {
-                        setFinishing(true);
-                        dismiss();
-                    }
-
-                    @Override
-                    public void removeSelfFromStack() {
-                        dismiss();
-                    }
-                };
-                fragment.shownAsBottomSheet = true;
-                fragment.needGalleryButton = gallery;
-                actionBarLayout[0].addFragmentToStack(fragment);
-                actionBarLayout[0].showLastFragment();
-                actionBarLayout[0].getView().setPadding(backgroundPaddingLeft, 0, backgroundPaddingLeft, 0);
-                fragment.setDelegate(cameraDelegate);
-                if (cameraDelegate.getSubtitleText() != null) {
-                    fragment.descriptionText.setText(cameraDelegate.getSubtitleText());
-                }
-                containerView = actionBarLayout[0].getView();
-                setApplyBottomPadding(false);
-                setApplyBottomPadding(false);
-                setOnDismissListener(dialog -> fragment.onFragmentDestroy());
-            }
-
-            @Override
-            protected boolean canDismissWithSwipe() {
-                return false;
-            }
-
-            @Override
-            public void onBackPressed() {
-                if (actionBarLayout[0] == null || actionBarLayout[0].getFragmentStack().size() <= 1) {
-                    super.onBackPressed();
-                } else {
-                    actionBarLayout[0].onBackPressed();
-                }
-            }
-
-            @Override
-            public void dismiss() {
-                super.dismiss();
-                actionBarLayout[0] = null;
-                cameraDelegate.onDismiss();
-            }
-        };
-        bottomSheet.setUseLightStatusBar(false);
-        AndroidUtilities.setLightNavigationBar(bottomSheet, false);
-        AndroidUtilities.setNavigationBarColor(bottomSheet, 0xff000000, false);
-        bottomSheet.setUseLightStatusBar(false);
-        bottomSheet.getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-        bottomSheet.show();
-        return bottomSheet;
     }
 
     public CameraScanActivity(int type) {

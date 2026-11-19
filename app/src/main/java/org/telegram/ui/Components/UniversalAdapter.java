@@ -516,7 +516,6 @@ public class UniversalAdapter extends AdapterWithDiffUtils {
             case VIEW_TYPE_SEARCH_MESSAGE:
                 break;
             case VIEW_TYPE_FLICKER:
-                flickerLoadingView.setIsSingleCell(true);
                 break;
             default:
             case VIEW_TYPE_SHADOW:
@@ -600,7 +599,6 @@ public class UniversalAdapter extends AdapterWithDiffUtils {
                 break;
             case VIEW_TYPE_TEXT_SETTINGS:
                 final TextSettingsCell settingsCell = (TextSettingsCell) holder.itemView;
-                settingsCell.getValueBackupImageView().setImageDrawable(null);
                 if (item.text != null) {
                     if (item.subtext != null) {
                         settingsCell.setTextAndValue(item.text, item.subtext, divider);
@@ -627,7 +625,7 @@ public class UniversalAdapter extends AdapterWithDiffUtils {
                 TextCell cell = (TextCell) holder.itemView;
                 if (false) { // EVE-PATCH: disable TLRPC.Document sticker branch
                 } else if (item.object instanceof String) {
-                    cell.setTextAndSticker(item.text, (String) item.object, divider);
+                    cell.setText(item.text, divider); // EVE-PATCH: fallback to setText without sticker
                 } else if (TextUtils.isEmpty(item.textValue)) {
                     if (item.object instanceof Drawable) {
                         cell.setTextAndIcon(item.text, (Drawable) item.object, divider);

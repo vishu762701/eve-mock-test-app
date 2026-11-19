@@ -14,7 +14,7 @@ patch-line "checkTextView.setNumber(getMessagesController().getAboutLimit() - Ch
 remove-statement "TLRPC.UserFull userFull = MessagesController.getInstance(currentAccount).getUserFull(UserConfig.getInstance(currentAccount).getClientUserId());"
 patch-line "if (userFull != null && userFull.about != null) {" "String initialBio = eveDelegate != null ? eveDelegate.getInitialBio() : null; if (initialBio != null) {" "load initial bio from Eve delegate"
 patch-line "firstNameField.setText(userFull.about);" "firstNameField.setText(initialBio);" "set initial bio from Eve delegate"
-patch-line "SharedPreferences preferences = MessagesController.getGlobalMainSettings();" "SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences(\"mainconfig\", Context.MODE_PRIVATE);" "read animations preference without MessagesController"
+patch-line "SharedPreferences preferences = MessagesController.getGlobalMainSettings();" "SharedPreferences preferences = org.telegram.messenger.ApplicationLoader.applicationContext.getSharedPreferences(\"mainconfig\", Context.MODE_PRIVATE);" "read animations preference without MessagesController"
 patch-line "saveName();" "if (eveDelegate != null) { eveDelegate.saveBio(firstNameField.getText().toString()); }" "delegate saveBio to Eve adapter"
 
 patch-line "int number = getMessagesController().getAboutLimit() - Character.codePointCount(s, 0, s.length());" "int number = (eveDelegate != null ? eveDelegate.getBioMaxLength() : 160) - Character.codePointCount(s, 0, s.length());" "use Eve bio max length via delegate"

@@ -2,5 +2,13 @@ upstream org/telegram/ui/Components/UniversalRecyclerView.java
 to app/src/main/java/org/telegram/ui/Components/UniversalRecyclerView.java
 
 remove-statement "if (viewHolder.itemView.getBackground() instanceof RichEditor.DraggingDrawable) {" all
+remove-statement "DefaultItemAnimator itemAnimator = new DefaultItemAnimator() {"
+remove-statement "itemAnimator.setSupportsChangeAnimations(false);"
+remove-statement "itemAnimator.setDelayAnimations(false);"
+remove-statement "itemAnimator.setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT);"
+remove-statement "itemAnimator.setDurations(350);"
+patch-line "setItemAnimator(itemAnimator);" "DefaultItemAnimator itemAnimator = new DefaultItemAnimator(); itemAnimator.setSupportsChangeAnimations(false); setItemAnimator(itemAnimator);" "use standard DefaultItemAnimator"
+remove-statement "AndroidUtilities.forEachViews(this, view -> {"
+patch-line "adapter.updateReorder(reorderingAllowed = allow);" "adapter.updateReorder(reorderingAllowed = allow); for (int i = 0; i < getChildCount(); i++) { View view = getChildAt(i); adapter.updateReorder(getChildViewHolder(view), reorderingAllowed); }" "iterate views directly without forEachViews"
 
 prune-imports

@@ -38,6 +38,7 @@ remove-method makeButtonLoading all
 remove-statement "context = AndroidUtilities.findActivity(LaunchActivity.instance);"
 
 # Direct Theme color resolution without ThemeBind (matching F2c/F2d/F3a)
+remove-statement "if (blurredBackground) {"
 remove-statement "ThemeBind.textColor(button, Theme.key_text_RedBold, themedColors);" all
 patch-line "ThemeBind.selectorBackground(this, Theme.createSelectorDrawable(getThemedColor(Theme.key_dialogButtonSelector), 2), null, ThemeBind.of(Theme.key_dialogButtonSelector), resourcesProvider);" "setBackground(Theme.createSelectorDrawable(getThemedColor(Theme.key_dialogButtonSelector), 2));" "direct selector background without ThemeBind"
 patch-line "ThemeBind.colorFilter(imageView, Theme.key_dialogIcon, resourcesProvider, PorterDuff.Mode.MULTIPLY);" "imageView.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_dialogIcon), PorterDuff.Mode.MULTIPLY));" "direct icon color filter without ThemeBind"
