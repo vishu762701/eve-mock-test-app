@@ -175,7 +175,7 @@
     <string name="UsernameInvalid">Sorry, this username is invalid.</string>
     <string name="UsernameInvalidShort">A username must have at least 5 characters.</string>
     <string name="UsernameInvalidLong">The username must not exceed 32 characters.</string>
-    <string name="UsernameInvalidStartNumber">Sorry, a username can't start with a number.</string>
+    <string name="UsernameInvalidStartNumber">Sorry, a username can\'t start with a number.</string>
 
     <!-- Telegram C6 PasscodeActivity -->
     <string name="AutoLock">Auto-Lock</string>
