@@ -29,7 +29,7 @@ abstract class TelegramHostActivity<F : BaseFragment> : EveBaseActivity(), INavi
     private var sheetMode = false
     private var hostWindow: Window? = null
 
-    override fun getWindow(): Window = hostWindow ?: super.getWindow()
+    override fun getWindow(): Window = hostWindow ?: super<EveBaseActivity>.getWindow()
 
     protected open fun createTelegramFragment(savedInstanceState: Bundle?): F? = createFragment()
 
