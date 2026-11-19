@@ -16,9 +16,13 @@ remove-statement "if (contentView instanceof ActionBarPopupWindowLayout && ((Act
 remove-statement "if (content.getSwipeBack() != null) {" all
 
 remove-statement "private PopupSwipeBackLayout swipeBackLayout;"
+remove-statement "public boolean swipeBackGravityRight;"
+remove-statement "public boolean swipeBackGravityBottom;"
 remove-statement "if ((flags & FLAG_USE_SWIPEBACK) > 0) {"
 remove-statement "if (swipeBackLayout != null) {" all
 remove-statement "} else if (swipeBackLayout != null) {"
 remove-statement "if (swipeBackLayout != null && swipeBackLayout.stickToRight) {" all
+remove-statement "if (swipeBackGravityRight) {"
+remove-statement "if (swipeBackGravityBottom) {"
 
 prune-imports

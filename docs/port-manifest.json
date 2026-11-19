@@ -257,11 +257,11 @@
           "mode": "CUT",
           "recipe_path": "",
           "recipe_sha256": "",
-          "result_sha256": "b0ac8d73fce64fe66e5ff6bd65b48d8e88717ccbe40d58059684197bf466f82d",
-          "eve_sha256": "b0ac8d73fce64fe66e5ff6bd65b48d8e88717ccbe40d58059684197bf466f82d",
+          "result_sha256": "62f66f601e03cfa946857582c3c5cb7069de1e6ac3c84c18f7d91e20499187b9",
+          "eve_sha256": "62f66f601e03cfa946857582c3c5cb7069de1e6ac3c84c18f7d91e20499187b9",
           "upstream_sha256": "",
           "upstream_lines": 0,
-          "kept_lines": 21,
+          "kept_lines": 22,
           "originality_pct": 0.0,
           "removed_methods_reason": "",
           "known_debt": true
@@ -481,12 +481,12 @@
           "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarPopupWindow.java",
           "mode": "CUT",
           "recipe_path": "docs/port-recipes/ActionBarPopupWindow.cut",
-          "recipe_sha256": "38c1b9f89dab6f39588404d2029d9387a625e89da7e35ac109cbca4dee4e1dbf",
-          "result_sha256": "e62460b1818aceb9f983cfb61c4e585b14b7eb9cff64622a734983a00d38e2de",
-          "eve_sha256": "e62460b1818aceb9f983cfb61c4e585b14b7eb9cff64622a734983a00d38e2de",
+          "recipe_sha256": "1007e47beb837cc953b1004afbc73ffe9a397ad5a9229ff02551dc1e1a41d8cb",
+          "result_sha256": "911640577f8d78b0a355e63daf2ae18e0838012dc3c0818816b6882911f7f86f",
+          "eve_sha256": "911640577f8d78b0a355e63daf2ae18e0838012dc3c0818816b6882911f7f86f",
           "upstream_sha256": "8bb24d8cbd230c71617e4754cf14a6bdfb1dbbf8797603f33518d7e12eebdb65",
           "upstream_lines": 1143,
-          "kept_lines": 1060,
+          "kept_lines": 1044,
           "originality_pct": 100.0,
           "removed_methods_reason": "Cut swipe-back submenus and notification locker during popup animation; preserved full popup layout, animations, clipping, and shadows",
           "known_debt": false
@@ -602,6 +602,26 @@
           "path": "app/src/main/res/drawable-xxhdpi/popup_fixed_alert2.9.png",
           "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/popup_fixed_alert2.9.png",
           "sha256": "c0cf9ea52108442f76d39cc736f991e0c8a1ffd7615cf80d5f03db38d6453811"
+        },
+        {
+          "path": "app/src/main/res/drawable-mdpi/greydivider.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-mdpi/greydivider.9.png",
+          "sha256": "08fcaed4891c9dec8cd9774df438d5e367419886bb0a9b867f0c7eb8ff89df8b"
+        },
+        {
+          "path": "app/src/main/res/drawable-hdpi/greydivider.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-hdpi/greydivider.9.png",
+          "sha256": "84f8905c4e97c8eefb64d6c5d88b9d8790e9ea4e254202cd06d8ac5eb6cfbb15"
+        },
+        {
+          "path": "app/src/main/res/drawable-xhdpi/greydivider.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/greydivider.9.png",
+          "sha256": "daf5731b3290361fa2bfa4fc7fe934dace0d8018cc270bf9e32b36d153978d58"
+        },
+        {
+          "path": "app/src/main/res/drawable-xxhdpi/greydivider.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/greydivider.9.png",
+          "sha256": "bcb4e022907ef3a3a23235a26a1ea230db37ce438966961282868de88a3300e2"
         }
       ]
     }

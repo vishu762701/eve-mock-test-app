@@ -121,6 +121,22 @@ SCREEN_SPECS = [
             {
                 "path": "app/src/main/res/drawable-xxhdpi/popup_fixed_alert2.9.png",
                 "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/popup_fixed_alert2.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-mdpi/greydivider.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/greydivider.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/greydivider.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/greydivider.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/greydivider.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/greydivider.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/greydivider.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/greydivider.9.png"
             }
         ],
         "files": [

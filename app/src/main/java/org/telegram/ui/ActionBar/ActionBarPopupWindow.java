@@ -92,8 +92,6 @@ public class ActionBarPopupWindow extends PopupWindow {
         public final static int FLAG_DONT_USE_SCROLLVIEW = 4;
         public boolean updateAnimation;
         public boolean clipChildren;
-        public boolean swipeBackGravityRight;
-        public boolean swipeBackGravityBottom;
 
         private OnDispatchKeyEventListener mOnDispatchKeyEventListener;
         private float backScaleX = 1;
@@ -415,20 +413,6 @@ public class ActionBarPopupWindow extends PopupWindow {
 
         @Override
         protected void dispatchDraw(Canvas canvas) {
-            if (swipeBackGravityRight) {
-                setTranslationX(getMeasuredWidth() * (1f - backScaleX));
-                if (topView != null) {
-                    topView.setTranslationX(getMeasuredWidth() * (1f - backScaleX));
-                    topView.setAlpha(1f - swipeBackLayout.transitionProgress);
-                    float h = topView.getMeasuredHeight() - dp(16);
-                    float yOffset = -h * swipeBackLayout.transitionProgress;
-                    topView.setTranslationY(yOffset);
-                    setTranslationY(yOffset);
-                }
-            }
-            if (swipeBackGravityBottom) {
-                setTranslationY(getMeasuredHeight() * (1f - backScaleY));
-            }
             if (backgroundDrawable != null) {
                 int start = gapStartY - (scrollView == null ? 0 : scrollView.getScrollY());
                 int end = gapEndY - (scrollView == null ? 0 : scrollView.getScrollY());

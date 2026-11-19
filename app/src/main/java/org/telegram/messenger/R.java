@@ -12,6 +12,7 @@ public class R {
         public static final int ic_ab_back = com.eve.app.R.drawable.ic_ab_back;
         public static final int ic_ab_done = com.eve.app.R.drawable.ic_ab_done;
         public static final int popup_fixed_alert2 = com.eve.app.R.drawable.popup_fixed_alert2;
+        public static final int greydivider = com.eve.app.R.drawable.greydivider;
     }
     public static final class id {
         public static final int width_tag = com.eve.app.R.id.width_tag;
