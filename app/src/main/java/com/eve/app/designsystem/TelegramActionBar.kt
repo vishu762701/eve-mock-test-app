@@ -28,6 +28,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcherOwner
 import com.eve.app.R
 import com.eve.app.theme.TelegramThemeEngine
+import org.telegram.ui.ActionBar.BackDrawable
 
 /**
  * Reusable Telegram ActionBar.
@@ -49,7 +50,7 @@ open class TelegramActionBar @JvmOverloads constructor(
     private fun dp(v: Float): Int = (v * density + 0.5f).toInt()
 
     val backButton: ImageButton = ImageButton(context)
-    val backDrawable: BackDrawable = BackDrawable()
+    val backDrawable: BackDrawable = BackDrawable(false)
     private val titlesContainer: LinearLayout = LinearLayout(context)
     val titleTextView: TextView = TextView(context)
     val subtitleTextView: TextView = TextView(context)
