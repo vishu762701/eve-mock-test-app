@@ -18,11 +18,6 @@ patch-line "public void setTextAndIcon(CharSequence text, Drawable drawable, boo
 patch-line "public void setTextAndValueAndIcon(CharSequence text, CharSequence value, Drawable drawable, boolean divider) {" "public void setTextAndValueAndIcon(CharSequence text, CharSequence value, Drawable drawable, boolean divider) { imageView.setImageDrawable(drawable);" "set drawable directly on ImageView"
 remove-method setTextAndValueAndIcon ptypes=CharSequence,CharSequence,int,boolean
 remove-method setTextAndValueAndIcon ptypes=CharSequence,CharSequence,boolean,int,boolean
-remove-method setTextAndColorfulIcon all
-remove-method setTextAndValueAndColorfulIcon all
-remove-method setTextAndCheckAndColorfulIcon all
-remove-method setTextAndSpoilersValueAndColorfulIcon all
-remove-method setColorfulIcon all
 remove-method applyNewSpanTimed
 remove-method applyNewSpan all
 remove-method setTextAndSticker all
@@ -31,5 +26,9 @@ remove-method updateEmojiBounds
 remove-statement "if (emojiDrawable != null) {" all
 patch-line "        valueTextView.setAlpha((1f - drawLoadingProgress) * (emojiDrawable == null ? 1f : 1f - emojiDrawable.isNotEmpty()) * (isEnabled() ? 1.0f : 0.5f));" "        valueTextView.setAlpha((1f - drawLoadingProgress) * (isEnabled() ? 1.0f : 0.5f));" "cut emojiDrawable from valueTextView alpha"
 patch-line "        valueSpoilersTextView.setAlpha((1f - drawLoadingProgress) * (emojiDrawable == null ? 1f : 1f - emojiDrawable.isNotEmpty()) * (isEnabled() ? 1.0f : 0.5f));" "        valueSpoilersTextView.setAlpha((1f - drawLoadingProgress) * (isEnabled() ? 1.0f : 0.5f));" "cut emojiDrawable from valueSpoilersTextView alpha"
+
+patch-line "        SettingsActivity.SettingCell.Background drawable = new SettingsActivity.SettingCell.Background();" "        android.graphics.drawable.GradientDrawable drawable = new android.graphics.drawable.GradientDrawable(android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM, new int[]{colorTop, colorBottom}); drawable.setCornerRadius(dp(9));" "use GradientDrawable for colorful icon background"
+remove-statement "drawable.setColor(colorTop, colorBottom);"
+remove-statement "drawable.setDrawBorder(border);"
 
 prune-imports

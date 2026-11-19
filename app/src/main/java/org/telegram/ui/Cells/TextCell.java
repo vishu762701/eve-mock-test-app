@@ -12,6 +12,7 @@ import static org.telegram.messenger.AndroidUtilities.dp;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
@@ -377,6 +378,19 @@ public class TextCell extends FrameLayout implements Theme.Colorable {
         setWillNotDraw(!needDivider);
     }
 
+    public void setTextAndColorfulIcon(CharSequence text, int resId, int color, boolean divider) {
+        imageLeft = getDefaultImageLeft();
+        offsetFromImage = getOffsetFromImage(false);
+        textView.setText(text);
+        textView.setRightDrawable(null);
+        valueTextView.setText(valueText = null, false);
+        setColorfulIcon(color, resId);
+        valueTextView.setVisibility(GONE);
+        valueImageView.setVisibility(GONE);
+        needDivider = divider;
+        setWillNotDraw(!needDivider);
+    }
+
     public void setTextAndIcon(CharSequence text, Drawable drawable, boolean divider) { imageView.setImageDrawable(drawable); // EVE-PATCH: set drawable directly on ImageView
         offsetFromImage = getOffsetFromImage(false);
         imageLeft = 18;
@@ -441,6 +455,45 @@ public class TextCell extends FrameLayout implements Theme.Colorable {
         valueTextView.setText(value == null ? "" : TextUtils.ellipsize(valueText = value, valueTextView.getPaint(), AndroidUtilities.displaySize.x / 2.5f, TextUtils.TruncateAt.END), animated);
     }
 
+    public void setTextAndValueAndColorfulIcon(String text, CharSequence value, boolean animated, int resId, int colorTop, int colorBottom, boolean divider) {
+        imageLeft = getDefaultImageLeft();
+        offsetFromImage = getOffsetFromImage(false);
+        textView.setText(text);
+        textView.setRightDrawable(null);
+        valueTextView.setText(value == null ? "" : TextUtils.ellipsize(valueText = value, valueTextView.getPaint(), AndroidUtilities.displaySize.x / 2.5f, TextUtils.TruncateAt.END), animated);
+        valueTextView.setVisibility(VISIBLE);
+        valueSpoilersTextView.setVisibility(GONE);
+        setColorfulIcon(colorTop, colorBottom, resId);
+        valueImageView.setVisibility(GONE);
+        needDivider = divider;
+        setWillNotDraw(!needDivider);
+        if (checkBox != null) {
+            checkBox.setVisibility(GONE);
+        }
+    }
+
+    public void setTextAndCheckAndColorfulIcon(CharSequence text, boolean checked, int resId, int color, boolean divider) {
+        imageLeft = getDefaultImageLeft();
+        offsetFromImage = getOffsetFromImage(false);
+        textView.setText(text);
+        textView.setRightDrawable(null);
+        valueTextView.setVisibility(GONE);
+        valueSpoilersTextView.setVisibility(GONE);
+        valueImageView.setVisibility(GONE);
+        setColorfulIcon(color, resId);
+        if (checkBox == null) {
+            checkBox = new Switch(getContext(), resourcesProvider);
+            checkBox.setColors(Theme.key_switchTrack, Theme.key_switchTrackChecked, Theme.key_windowBackgroundWhite, Theme.key_windowBackgroundWhite);
+            addView(checkBox, LayoutHelper.createFrame(37, 20, (LocaleController.isRTL ? Gravity.LEFT : Gravity.RIGHT) | Gravity.CENTER_VERTICAL, 22, 0, 22, 0));
+        }
+        if (checkBox != null) {
+            checkBox.setVisibility(VISIBLE);
+            checkBox.setChecked(checked, false);
+        }
+        needDivider = divider;
+        setWillNotDraw(!needDivider);
+    }
+
     public void setTextAndSpoilersValueAndIcon(String text, CharSequence value, int resId, boolean divider) {
         imageLeft = getDefaultImageLeft();
         offsetFromImage = getOffsetFromImage(false);
@@ -460,6 +513,41 @@ public class TextCell extends FrameLayout implements Theme.Colorable {
         if (checkBox != null) {
             checkBox.setVisibility(GONE);
         }
+    }
+
+    public void setTextAndSpoilersValueAndColorfulIcon(String text, CharSequence value, int resId, int color, boolean divider) {
+        imageLeft = getDefaultImageLeft();
+        offsetFromImage = getOffsetFromImage(false);
+        textView.setText(text);
+        textView.setRightDrawable(null);
+        valueSpoilersTextView.setVisibility(VISIBLE);
+        valueSpoilersTextView.setText(value);
+        valueTextView.setVisibility(GONE);
+        setColorfulIcon(color, resId);
+        valueImageView.setVisibility(GONE);
+        needDivider = divider;
+        setWillNotDraw(!needDivider);
+        if (checkBox != null) {
+            checkBox.setVisibility(GONE);
+        }
+    }
+
+    public void setColorfulIcon(int color, int resId) {
+        setColorfulIcon(color, color, resId);
+    }
+
+    public void setColorfulIcon(int colorTop, int colorBottom, int resId) {
+        offsetFromImage = getOffsetFromImage(true);
+        imageView.setVisibility(VISIBLE);
+        imageView.setPadding(dp(2), dp(2), dp(2), dp(2));
+        imageView.setTranslationX(dp(LocaleController.isRTL ? 0 : -3));
+        imageView.setImageResource(resId);
+        iconKeyColors = false;
+        imageView.setColorFilter(new PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN));
+
+        final boolean border = resourcesProvider != null ? resourcesProvider.isDark() : Theme.isCurrentThemeDark();
+        android.graphics.drawable.GradientDrawable drawable = new android.graphics.drawable.GradientDrawable(android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM, new int[]{colorTop, colorBottom}); drawable.setCornerRadius(dp(9)); // EVE-PATCH: use GradientDrawable for colorful icon background
+        imageView.setBackground(drawable);
     }
 
     public void setTextAndCheck(CharSequence text, boolean checked, boolean divider) {
