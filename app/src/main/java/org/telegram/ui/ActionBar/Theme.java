@@ -4692,7 +4692,7 @@ public class Theme {
         return currentColors.get(key);
     }
 
-    public static int getColor(int key) {
+    public static void syncFromEvePalette(android.content.Context context) { if (context == null) return; try { com.eve.app.theme.TelegramThemeEngine.ResolvedPalette palette = com.eve.app.theme.TelegramThemeEngine.INSTANCE.resolveCurrentPalette(context); if (palette != null) { currentColors.put(key_windowBackgroundGray, palette.getWindowBackground()); currentColors.put(key_windowBackgroundWhite, palette.getSurface()); currentColors.put(key_windowBackgroundWhiteBlackText, palette.getTextPrimary()); currentColors.put(key_windowBackgroundWhiteGrayText, palette.getTextSecondary()); currentColors.put(key_actionBarDefault, palette.getSurface()); currentColors.put(key_actionBarDefaultTitle, palette.getTextPrimary()); currentColors.put(key_actionBarDefaultIcon, palette.getTextPrimary()); currentColors.put(key_actionBarDefaultSelector, palette.getActionSelector()); currentColors.put(key_divider, palette.getHairline()); } } catch (Throwable ignored) {} } public static int getColor(int key) { // EVE-PATCH: sync Telegram theme colors from Eve palette
         return getColor(key, null, false);
     }
 
@@ -5080,7 +5080,7 @@ public class Theme {
         PAINT_CLEAR.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
     }
 
-    public static void createCommonResources(Context context) { if (dividerPaint == null) { dividerPaint = new Paint(); dividerPaint.setStrokeWidth(1); } }\n\n    public static Paint fillingPaint(int color) { // EVE-PATCH: provide lightweight createCommonResources for cells
+    public static void createCommonResources(Context context) { if (dividerPaint == null) { dividerPaint = new Paint(); dividerPaint.setStrokeWidth(1); } } public static Paint fillingPaint(int color) { // EVE-PATCH: provide lightweight createCommonResources for cells
         if (PAINT_FILLING.getColor() != color) {
             PAINT_FILLING.setColor(color);
         }
