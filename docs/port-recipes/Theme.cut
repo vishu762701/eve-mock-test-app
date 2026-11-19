@@ -158,7 +158,11 @@ remove-statement "public TLRPC.TL_wallPaper pattern;"
 remove-statement "public TLRPC.InputFile uploadedThumb;" all
 remove-statement "public TLRPC.InputFile uploadedFile;" all
 remove-statement "if (!TextUtils.isEmpty(accents)) {"
-remove-statement "if (drawable instanceof StatusDrawable) {"
+patch-line "        if (drawable instanceof StatusDrawable) {" "        if (drawable instanceof ShapeDrawable) {" "keep ShapeDrawable branch, remove unported drawables"
+patch-line "            ((StatusDrawable) drawable).setColor(color);" "            ((ShapeDrawable) drawable).getPaint().setColor(color);" "use ShapeDrawable paint"
+remove-statement "        } else if (drawable instanceof MsgClockDrawable) {"
+remove-statement "        } else if (drawable instanceof ShapeDrawable) {"
+remove-statement "        } else if (drawable instanceof ScamDrawable) {"
 remove-statement "if (preferences.contains(\"overrideThemeWallpaper\") || preferences.contains(\"selectedBackground2\")) {"
 
 remove-statement "public OverrideWallpaperInfo overrideWallpaper;" all
@@ -191,20 +195,20 @@ remove-statement "if (info != null && info.emoticon != null && !isDarkTheme) {"
 remove-statement "if (info != null) {"
 remove-statement "if (overrideWallpaper != null) {"
 
+remove-statement "overrideWallpaper = themeAccent.overrideWallpaper;"
+remove-statement "overrideWallpaper = accent.overrideWallpaper;"
+remove-statement "info.loadWallpapers(themeConfig);"
+remove-statement "info.overrideWallpaper = accent.overrideWallpaper;"
+remove-statement "applyServiceShaderMatrixForView(view, containerView);"
+
 # Patches for Eve environment
-patch-line "                overrideWallpaper = themeAccent.overrideWallpaper;" "                // no-op" "skip overrideWallpaper in getAccent"
-patch-line "                overrideWallpaper = accent.overrideWallpaper;" "                // no-op" "skip overrideWallpaper in setCurrentAccentId"
-patch-line "        SharedPreferences preferences = MessagesController.getGlobalMainSettings();" "        SharedPreferences preferences = ApplicationLoader.applicationContext != null ? ApplicationLoader.applicationContext.getSharedPreferences(\"mainconfig\", Context.MODE_PRIVATE) : null;" "use app shared preferences"
+patch-line "        SharedPreferences preferences = MessagesController.getGlobalMainSettings();" "        SharedPreferences preferences = com.eve.app.bridge.TelegramBridge.getMainSettings(ApplicationLoader.applicationContext);" "use app shared preferences via Eve bridge"
 patch-line "public static class ThemeInfo implements NotificationCenter.NotificationCenterDelegate {" "public static class ThemeInfo {" "decouple NotificationCenter from ThemeInfo"
 patch-line "            return SharedConfig.compactMode;" "            return false;" "decouple SharedConfig from isCompactMode"
 patch-line "        return resourcesProvider != null ? resourcesProvider.isCompactMode() : SharedConfig.compactMode;" "        return resourcesProvider != null && resourcesProvider.isCompactMode();" "decouple SharedConfig"
 patch-line "        if (SharedConfig.compactMode) {" "        if (false) {" "decouple SharedConfig from getColor"
-patch-line "        if (drawable == null) {" "        if (drawable != null) { drawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY)); } if (drawable == null) {" "apply color filter to drawable"
 patch-line "            return info != null ? info.title : name;" "            return name != null ? name : \"\";" "decouple info from getName"
 patch-line "            if (accentColor != parentTheme.accentBaseColor || myMessagesAccentColor != 0 || info != null && info.emoticon != null) {" "            if (accentColor != parentTheme.accentBaseColor || myMessagesAccentColor != 0) {" "decouple info from accent bubble check"
-patch-line "                    info.loadWallpapers(themeConfig);" "                    // no-op" "skip loadWallpapers in static init"
-patch-line "                        info.overrideWallpaper = accent.overrideWallpaper;" "                        // no-op" "skip overrideWallpaper in static init"
-patch-line "                applyServiceShaderMatrixForView(view, containerView);" "                // no-op" "decouple service shader matrix"
 patch-line "        String selectedBgSlug = getSelectedBackgroundSlug();" "        String selectedBgSlug = \"\";" "decouple getSelectedBackgroundSlug"
 patch-line "        return themeGenerationId + ThemeBind.generation();" "        return themeGenerationId;" "decouple ThemeBind"
 

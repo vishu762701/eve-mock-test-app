@@ -1808,7 +1808,6 @@ public class AndroidUtilities {
             density = context.getResources().getDisplayMetrics().density;
             float newDensity = density;
             if (firstConfigurationWas && Math.abs(oldDensity - newDensity) > 0.001) {
-                // no-op // EVE-PATCH: decouple reloadAllResources
             }
             firstConfigurationWas = true;
             Configuration configuration = newConfiguration;
@@ -1978,7 +1977,6 @@ public class AndroidUtilities {
             wasTablet = isTabletInternal();
         }
         isTablet = null;
-        // no-op // EVE-PATCH: decouple SharedConfig
     }
 
     public static void resetWasTabletFlag() {

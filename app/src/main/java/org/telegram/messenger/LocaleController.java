@@ -45,7 +45,7 @@ public class LocaleController {
     static final int QUANTITY_FEW = 0x0008;
     static final int QUANTITY_MANY = 0x0010;
 
-    public static boolean isRTL = androidx.core.text.TextUtilsCompat.getLayoutDirectionFromLocale(java.util.Locale.getDefault()) == androidx.core.view.ViewCompat.LAYOUT_DIRECTION_RTL; // EVE-PATCH: initialize RTL from system locale
+    public static boolean isRTL = com.eve.app.bridge.TelegramBridge.isRTL(); // EVE-PATCH: initialize RTL via Eve bridge
     public static int nameDisplayOrder = 1;
     public static boolean is24HourFormat = false;
 
@@ -310,8 +310,6 @@ public class LocaleController {
         languages.add(localeInfo);
         languagesDict.put(localeInfo.shortName, localeInfo);
 
-        // no-op // EVE-PATCH: skip other languages loading
-
         for (int a = 0; a < otherLanguages.size(); a++) {
             LocaleInfo locale = otherLanguages.get(a);
             languages.add(locale);
@@ -353,7 +351,7 @@ public class LocaleController {
         boolean override = false;
 
         try {
-            SharedPreferences preferences = ApplicationLoader.applicationContext != null ? ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Context.MODE_PRIVATE) : null; // EVE-PATCH: use app shared preferences
+            SharedPreferences preferences = com.eve.app.bridge.TelegramBridge.getMainSettings(ApplicationLoader.applicationContext); // EVE-PATCH: use app shared preferences via Eve bridge
             String lang = preferences.getString("language", null);
             if (lang != null) {
                 currentInfo = getLanguageFromDict(lang);
@@ -1573,13 +1571,8 @@ public class LocaleController {
         final Context context = ApplicationLoader.applicationContext;
         String value;
 
-        if (key != null && context != null) { int id = context.getResources().getIdentifier(key, "string", context.getPackageName()); if (id != 0) return context.getString(id); } if (stringRes != 0 && context != null) { try { return context.getString(stringRes); } catch (Exception ignored) {} } // EVE-PATCH: fallback identifier resolution
-        value = null; // EVE-PATCH: bypass localizationInternal
-        if (value != null) {
-            return value;
-        }
+        return com.eve.app.bridge.TelegramBridge.resolveString(context, key, stringRes, fallback); // EVE-PATCH: resolve strings via Eve bridge without reflection
 
-        return fallback != null && context != null ? context.getString(context.getResources().getIdentifier(fallback, "string", context.getPackageName())) : null; // EVE-PATCH: fallback string resolution
     }
 
 

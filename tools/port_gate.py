@@ -57,6 +57,56 @@ SCREEN_SPECS = [
         "dead_layout_files": [
             "app/src/main/res/layout/activity_change_name.xml"
         ],
+        "resources": [
+            {
+                "path": "app/src/main/res/drawable-mdpi/ic_ab_back.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/ic_ab_back.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-mdpi/ic_ab_done.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/ic_ab_done.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-mdpi/ic_ab_other.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/ic_ab_other.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/ic_ab_back.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/ic_ab_back.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/ic_ab_done.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/ic_ab_done.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/ic_ab_other.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/ic_ab_other.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/ic_ab_back.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/ic_ab_back.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/ic_ab_done.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/ic_ab_done.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/ic_ab_other.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/ic_ab_other.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/ic_ab_back.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/ic_ab_back.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/ic_ab_done.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/ic_ab_done.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/ic_ab_other.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/ic_ab_other.webp"
+            }
+        ],
         "files": [
             {
                 "eve": "app/src/main/java/org/telegram/ui/ChangeNameActivity.java",
@@ -143,6 +193,51 @@ SCREEN_SPECS = [
             {
                 "eve": "app/src/main/java/org/telegram/messenger/ApplicationLoader.java",
                 "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/ApplicationLoader.java",
+                "mode": "CUT"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/ActionBar/ThemeColors.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ThemeColors.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/CombinedDrawable.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/CombinedDrawable.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Cells/BaseCell.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/BaseCell.java",
+                "mode": "CUT"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/TypefaceSpan.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/TypefaceSpan.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/messenger/BuildVars.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java",
+                "mode": "CUT"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/messenger/DispatchQueue.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/DispatchQueue.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/messenger/DispatchQueue2.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/DispatchQueue2.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/messenger/FileLog.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/FileLog.java",
+                "mode": "CUT"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/messenger/Utilities.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/Utilities.java",
                 "mode": "CUT"
             }
         ]
@@ -299,6 +394,30 @@ def record_manifest(upstream_root: Path, output_path: Path, allow_known_debt: bo
                 "known_debt": is_known if mode == "CUT" else False
             }
             screen_entry["files"].append(file_entry)
+
+        screen_entry["resources"] = []
+        for rspec in spec.get("resources", []):
+            r_path = rspec["path"]
+            r_up = rspec["upstream"]
+            local_res = REPO_ROOT / r_path
+            if not local_res.is_file():
+                failed_files.append((r_path, 0.0, "Resource file missing on disk"))
+                continue
+            r_hash = sha256_file(local_res)
+            if upstream_root:
+                up_res = upstream_root / r_up
+                if not up_res.is_file():
+                    failed_files.append((r_path, 0.0, f"Upstream resource missing: {r_up}"))
+                    continue
+                up_hash = sha256_file(up_res)
+                if r_hash != up_hash:
+                    failed_files.append((r_path, 0.0, f"Resource byte mismatch with upstream: {r_path}"))
+                    continue
+            screen_entry["resources"].append({
+                "path": r_path,
+                "upstream": r_up,
+                "sha256": r_hash
+            })
 
         manifest_screens.append(screen_entry)
 
@@ -499,6 +618,30 @@ def check_manifest(manifest_path: Path, upstream_path: Path | None = None) -> in
                                     continue
                                 if sha256_file(built_file) != sha256_file(REPO_ROOT / f["eve"]):
                                     errors.append(f"tgcut rebuild byte mismatch for {f['eve']}")
+
+        # Check resources
+        for r in screen.get("resources", []):
+            r_path = r.get("path", "")
+            r_up = r.get("upstream", "")
+            r_expected_hash = r.get("sha256", "")
+
+            local_res = REPO_ROOT / r_path
+            if not local_res.is_file():
+                errors.append(f"Screen {screen_name}: Manifest resource missing on disk: {r_path}")
+                continue
+
+            current_r_hash = sha256_file(local_res)
+            if current_r_hash != r_expected_hash:
+                errors.append(f"Screen {screen_name}: Stale resource hash for {r_path}: manifest={r_expected_hash[:8]} vs disk={current_r_hash[:8]}")
+
+            if upstream_path:
+                up_res = upstream_path / r_up
+                if not up_res.is_file():
+                    errors.append(f"Screen {screen_name}: Upstream resource missing: {r_up}")
+                else:
+                    up_r_hash = sha256_file(up_res)
+                    if current_r_hash != up_r_hash:
+                        errors.append(f"Screen {screen_name}: Resource differs from upstream sha: {r_path}")
 
     # Check for unmanifested files
     unregistered = disk_files - manifest_files

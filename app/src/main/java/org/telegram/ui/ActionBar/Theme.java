@@ -770,7 +770,6 @@ public class Theme {
             currentAccentId = id;
             ThemeAccent accent = getAccent(false);
             if (accent != null) {
-                // no-op // EVE-PATCH: skip overrideWallpaper in setCurrentAccentId
             }
         }
 
@@ -1011,7 +1010,6 @@ public class Theme {
                 themeAccent.parentTheme = this;
                 prevAccentId = currentAccentId;
                 currentAccentId = themeAccent.id = id;
-                // no-op // EVE-PATCH: skip overrideWallpaper in getAccent
                 themeAccentsMap.put(id, themeAccent);
                 themeAccents.add(0, themeAccent);
                 sortAccents(this);
@@ -2935,7 +2933,7 @@ public class Theme {
         sortThemes();
 
         ThemeInfo applyingTheme = null;
-        SharedPreferences preferences = ApplicationLoader.applicationContext != null ? ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Context.MODE_PRIVATE) : null; // EVE-PATCH: use app shared preferences
+        SharedPreferences preferences = com.eve.app.bridge.TelegramBridge.getMainSettings(ApplicationLoader.applicationContext); // EVE-PATCH: use app shared preferences via Eve bridge
         try {
             final ThemeInfo themeDarkBlue = themesDict.get("Dark Blue");
 
@@ -2989,10 +2987,8 @@ public class Theme {
                     if (info.themeAccentsMap != null && info.themeAccentsMap.get(info.currentAccentId) == null) {
                         info.currentAccentId = info.firstAccentIsDefault ? DEFALT_THEME_ACCENT_ID : 0;
                     }
-                    // no-op // EVE-PATCH: skip loadWallpapers in static init
                     ThemeAccent accent = info.getAccent(false);
                     if (accent != null) {
-                        // no-op // EVE-PATCH: skip overrideWallpaper in static init
                     }
                 }
             }
@@ -3340,7 +3336,6 @@ public class Theme {
             public void draw(@NonNull Canvas canvas) {
                 Rect bounds = getBounds();
                 rect.set(bounds.left, bounds.top, bounds.right, bounds.bottom);
-                // no-op // EVE-PATCH: decouple service shader matrix
                 canvas.drawRoundRect(rect, rad, rad, backgroundPaint != null ? backgroundPaint : Theme.getThemePaint(Theme.key_paint_chatActionBackground, resourcesProvider));
                 if (resourcesProvider != null ? resourcesProvider.hasGradientService() : hasGradientService()) {
                     canvas.drawRoundRect(rect, rad, rad, Theme.getThemePaint(Theme.key_paint_chatActionBackgroundDarken, resourcesProvider));
@@ -4794,8 +4789,13 @@ public class Theme {
     }
 
     public static void setDrawableColor(Drawable drawable, int color) {
-        if (drawable != null) { drawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY)); } if (drawable == null) { // EVE-PATCH: apply color filter to drawable
+        if (drawable == null) {
             return;
+        }
+        if (drawable instanceof ShapeDrawable) { // EVE-PATCH: keep ShapeDrawable branch, remove unported drawables
+            ((ShapeDrawable) drawable).getPaint().setColor(color); // EVE-PATCH: use ShapeDrawable paint
+        } else {
+            drawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
         }
     }
 

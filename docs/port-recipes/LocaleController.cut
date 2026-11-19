@@ -158,19 +158,21 @@ remove-statement "IntentFilter timezoneFilter = new IntentFilter(Intent.ACTION_T
 remove-statement "if (Build.VERSION.SDK_INT >= 33) {"
 remove-statement "if (BuildVars.USE_CLOUD_STRINGS) {"
 
+remove-statement "loadOtherLanguages();"
+
 # Patches for Eve environment
-patch-line "    public static boolean isRTL = false;" "    public static boolean isRTL = androidx.core.text.TextUtilsCompat.getLayoutDirectionFromLocale(java.util.Locale.getDefault()) == androidx.core.view.ViewCompat.LAYOUT_DIRECTION_RTL;" "initialize RTL from system locale"
-patch-line "        loadOtherLanguages();" "        // no-op" "skip other languages loading"
-patch-line "            SharedPreferences preferences = MessagesController.getGlobalMainSettings();" "            SharedPreferences preferences = ApplicationLoader.applicationContext != null ? ApplicationLoader.applicationContext.getSharedPreferences(\"mainconfig\", Context.MODE_PRIVATE) : null;" "use app shared preferences"
+patch-line "    public static boolean isRTL = false;" "    public static boolean isRTL = com.eve.app.bridge.TelegramBridge.isRTL();" "initialize RTL via Eve bridge"
+patch-line "            SharedPreferences preferences = MessagesController.getGlobalMainSettings();" "            SharedPreferences preferences = com.eve.app.bridge.TelegramBridge.getMainSettings(ApplicationLoader.applicationContext);" "use app shared preferences via Eve bridge"
 patch-line "            applyLanguage(currentInfo, override, true, UserConfig.selectedAccount);" "            currentLocale = currentInfo != null && currentInfo.shortName != null ? new java.util.Locale(currentInfo.shortName) : systemDefaultLocale;" "set local currentLocale without MTProto sync"
 patch-line "        return localeInfo == null || TextUtils.isEmpty(localeInfo.name) ? getString(\"LanguageName\", R.string.LanguageName) : localeInfo.name;" "        return localeInfo == null || TextUtils.isEmpty(localeInfo.name) ? \"English\" : localeInfo.name;" "use default language name"
 patch-line "            String value = BuildVars.USE_CLOUD_STRINGS ? getInstance().localizationExternal.getByResName(param) : null;" "            String value = getInstance().getStringInternal(param, key + \"_other\", 0);" "resolve plural with fallback from resources"
 patch-line "                value = BuildVars.USE_CLOUD_STRINGS ? getInstance().localizationExternal.getByResName(key + \"_other\") : null;" "                // no-op" "skip cloud strings fallback"
 patch-line "                    value = getInstance().getLocalizedString(param);" "                    // no-op" "skip internal localization lookup"
 patch-line "                value = getInstance().getLocalizedString(key + \"_other\");" "                // no-op" "skip internal localization lookup"
-patch-line "        checkLocalizationInternal();" "        if (key != null && context != null) { int id = context.getResources().getIdentifier(key, \"string\", context.getPackageName()); if (id != 0) return context.getString(id); } if (stringRes != 0 && context != null) { try { return context.getString(stringRes); } catch (Exception ignored) {} }" "fallback identifier resolution"
-patch-line "        value = localizationInternal.getByResNameOrResId(context, key, stringRes);" "        value = null;" "bypass localizationInternal"
-patch-line "        return localizationInternal.getByResName(fallback);" "        return fallback != null && context != null ? context.getString(context.getResources().getIdentifier(fallback, \"string\", context.getPackageName())) : null;" "fallback string resolution"
+patch-line "        checkLocalizationInternal();" "        return com.eve.app.bridge.TelegramBridge.resolveString(context, key, stringRes, fallback);" "resolve strings via Eve bridge without reflection"
+remove-statement "value = localizationInternal.getByResNameOrResId(context, key, stringRes);"
+remove-statement "if (value != null) {"
+remove-statement "return localizationInternal.getByResName(fallback);"
 patch-line "            case StarsController.currency:" "            case \"XTR\":" "replace StarsController constant"
 
 prune-imports
