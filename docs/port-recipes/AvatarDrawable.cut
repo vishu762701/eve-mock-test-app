@@ -1,0 +1,39 @@
+upstream org/telegram/ui/Components/AvatarDrawable.java
+to app/src/main/java/org/telegram/ui/Components/AvatarDrawable.java
+
+# Cut TLRPC / Chat / User / PeerColor overloads (preserve core setInfo(long, String, String) + colors + draw)
+remove-method AvatarDrawable ptypes=TLRPC.User
+remove-method AvatarDrawable ptypes=TLRPC.Chat
+remove-method AvatarDrawable ptypes=TLRPC.User,boolean
+remove-method AvatarDrawable ptypes=TLRPC.Chat,boolean
+remove-method setInfo ptypes=TLRPC.User
+remove-method setInfo ptypes=int,TLRPC.User
+remove-method setInfo ptypes=TLObject
+remove-method setInfo ptypes=int,TLObject
+remove-method setInfo ptypes=TLRPC.Chat
+remove-method setInfo ptypes=int,TLRPC.Chat
+remove-method setInfo ptypes=TLRPC.ChatInvite
+remove-method setInfo ptypes=int,TLRPC.ChatInvite
+remove-method setInfo ptypes=long,String,String,String,Integer,MessagesController.PeerColor
+remove-method setPeerColor
+
+# Simplify core setInfo(long, String, String, String, Integer, PeerColor, boolean) to Object profileColor
+patch-line "public void setInfo(long id, String firstName, String lastName, String custom, Integer customColor, MessagesController.PeerColor profileColor, boolean advancedGradient) {" "public void setInfo(long id, String firstName, String lastName, String custom, Integer customColor, Object profileColor, boolean advancedGradient) {" "remove MessagesController.PeerColor parameter"
+patch-line "setInfo(id, firstName, lastName, custom, null, null);" "setInfo(id, firstName, lastName, custom, null, null, false);" "call 7-arg setInfo directly"
+patch-line "if (profileColor != null) {" "if (false) {" "disable PeerColor branch without MessagesController"
+remove-statement "int[] gradient = advancedGradients[getPeerColorIndex(profileColor.getAvatarColor1())];"
+remove-statement "color = profileColor.getAvatarColor1();"
+remove-statement "color2 = profileColor.getAvatarColor2();"
+patch-line "} else if (customColor != null) {" "} else if (false) {" "disable customColor PeerColor branch"
+remove-statement "setPeerColor(customColor);"
+
+# Cut Emoji & ThemeBind generation checks
+remove-statement "ArrayList<Emoji.EmojiSpanRange> ranges = Emoji.parseEmojis(text);"
+remove-statement "if (ranges != null && !ranges.isEmpty() && ranges.get(0).start == 0) {"
+remove-statement "text = Emoji.replaceEmoji(text, namePaint.getFontMetricsInt(), true);"
+remove-statement "avatarTypeColorsGeneration = ThemeBind.generation();" all
+remove-statement "idColorsGeneration = ThemeBind.generation();" all
+patch-line "if (avatarTypeColorsThemed && avatarTypeColorsGeneration != ThemeBind.generation()) {" "if (false) {" "remove ThemeBind generation recheck"
+patch-line "if (idColorsThemed && idColorsGeneration != ThemeBind.generation()) {" "if (false) {" "remove ThemeBind generation recheck"
+
+prune-imports

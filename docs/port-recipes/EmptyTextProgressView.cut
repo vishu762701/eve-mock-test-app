@@ -1,0 +1,15 @@
+upstream org/telegram/ui/Components/EmptyTextProgressView.java
+to app/src/main/java/org/telegram/ui/Components/EmptyTextProgressView.java
+
+remove-statement "private RLottieImageView lottieImageView;"
+remove-statement "lottieImageView = new RLottieImageView(context);"
+remove-statement "lottieImageView.setScaleType(ImageView.ScaleType.FIT_XY);"
+remove-statement "lottieImageView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);"
+remove-statement "lottieImageView.setVisibility(GONE);"
+remove-statement "textViewLayout.addView(lottieImageView, LayoutHelper.createLinear(150, 150, Gravity.CENTER, 0, 0, 0, 20));"
+remove-method setLottie
+patch-line "ThemeBind.textColor(textView, Theme.key_emptyListPlaceholder, resourcesProvider);" "textView.setTextColor(getThemedColor(Theme.key_emptyListPlaceholder));" "direct text color without ThemeBind"
+remove-statement "ThemeBind.clear(textView); // custom color from the caller: no longer follows the theme key"
+patch-line "ThemeBind.drawableColorFilter(this, drawable, Theme.key_emptyListPlaceholder, resourcesProvider, PorterDuff.Mode.MULTIPLY);" "drawable.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_emptyListPlaceholder), PorterDuff.Mode.MULTIPLY));" "direct drawable color filter without ThemeBind"
+
+prune-imports

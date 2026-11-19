@@ -1,0 +1,12 @@
+upstream org/telegram/ui/Cells/GraySectionCell.java
+to app/src/main/java/org/telegram/ui/Cells/GraySectionCell.java
+
+patch-line "private AnimatedEmojiSpan.TextViewEmojis textView;" "private TextView textView;" "use TextView without AnimatedEmojiSpan.TextViewEmojis"
+patch-line "textView = new AnimatedEmojiSpan.TextViewEmojis(getContext());" "textView = new TextView(getContext());" "instantiate TextView without AnimatedEmojiSpan"
+patch-line "ThemeBind.backgroundColor(this, Theme.key_graySection, resourcesProvider);" "setBackgroundColor(Theme.getColor(Theme.key_graySection, resourcesProvider));" "direct background color without ThemeBind"
+patch-line "ThemeBind.textColor(textView, Theme.key_graySectionText, resourcesProvider);" "textView.setTextColor(Theme.getColor(Theme.key_graySectionText, resourcesProvider));" "direct text color without ThemeBind"
+patch-line "ThemeBind.textColor(rightTextView, Theme.key_graySectionText, resourcesProvider);" "rightTextView.setTextColor(Theme.getColor(Theme.key_graySectionText, resourcesProvider));" "direct rightText color without ThemeBind"
+patch-line "ThemeBind.textColor(textView, key, resourcesProvider);" "textView.setTextColor(Theme.getColor(key, resourcesProvider));" "direct key text color without ThemeBind"
+patch-line "ThemeBind.textColor(rightTextView, key, resourcesProvider);" "rightTextView.setTextColor(Theme.getColor(key, resourcesProvider));" "direct key rightText color without ThemeBind"
+
+prune-imports

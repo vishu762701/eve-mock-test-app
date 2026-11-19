@@ -84,18 +84,13 @@ class ProfilePhotoInputContractTest {
         assertEquals("", combined.filter(extra, 0, extra.length, SpannedString(eightyEmoji), 160, 160))
         assertEquals(2, BioLengthInputFilter.remaining("😀".repeat(79)))
 
-        val editor = java.io.File("src/main/java/com/eve/app/ui/profile/ChangeBioActivity.kt").readText()
-        assertTrue(editor.contains("source.indexOf('\\n') == source.length - 1"))
-        assertTrue(editor.contains("TelegramShake.shakeView(binding.tvCount)"))
-        assertTrue(editor.contains("VibrationHelper.vibrateOneShot(this, 200)"))
-        assertTrue(editor.contains("EditorInfo.IME_ACTION_DONE"))
-        assertTrue(editor.contains("binding.etBio.isEnabled = false"))
-
-        // ChangeBioActivity.java:104,135: max four lines and 36dp minimum,
-        // without the old three-line minimum.
-        val layout = java.io.File("src/main/res/layout/activity_change_bio.xml").readText()
-        assertTrue(layout.contains("android:minHeight=\"36dp\""))
-        assertTrue(layout.contains("android:maxLines=\"4\""))
-        assertFalse(layout.contains("android:minLines"))
+        val ported = java.io.File("src/main/java/org/telegram/ui/ChangeBioActivity.java").readText()
+        assertTrue(ported.contains("CodepointsLengthInputFilter"))
+        assertTrue(ported.contains("firstNameField.setMaxLines(4)"))
+        assertTrue(ported.contains("EditorInfo.IME_ACTION_DONE"))
+        val host = java.io.File("src/main/java/com/eve/app/ui/profile/ChangeBioActivity.kt").readText()
+        assertTrue(host.contains("TelegramHostActivity"))
+        assertTrue(host.contains("fragment.bioField?.isEnabled = false"))
+        assertFalse(java.io.File("src/main/res/layout/activity_change_bio.xml").exists())
     }
 }

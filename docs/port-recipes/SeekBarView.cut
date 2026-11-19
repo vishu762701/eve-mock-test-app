@@ -1,0 +1,14 @@
+upstream org/telegram/ui/Components/SeekBarView.java
+to app/src/main/java/org/telegram/ui/Components/SeekBarView.java
+
+remove-method updateTimestamps
+remove-statement "private final AudioPlayerAlert.ClippingTextViewSwitcher textViewSwitcher;"
+remove-statement "textViewSwitcher = new AudioPlayerAlert.ClippingTextViewSwitcher(context) {"
+remove-statement "textViewSwitcher.setIsCenter();"
+remove-statement "addView(textViewSwitcher, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));"
+remove-statement "textViewSwitcher.measure(MeasureSpec.makeMeasureSpec(lastTimestampLabelWidth, MeasureSpec.EXACTLY), 0);"
+remove-statement "int b = getMeasuredHeight() / 2 + AndroidUtilities.dp(14) + textViewSwitcher.getMeasuredHeight() / 2;"
+remove-statement "textViewSwitcher.layout(l, b - textViewSwitcher.getMeasuredHeight(), l + textViewSwitcher.getMeasuredWidth(), b);"
+remove-statement "textViewSwitcher.setText(label);"
+
+prune-imports

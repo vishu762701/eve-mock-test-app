@@ -1,0 +1,24 @@
+upstream org/telegram/ui/ChangeNameActivity.java
+to app/src/main/java/org/telegram/ui/ChangeNameActivity.java
+
+remove-method saveName
+patch-line "private Theme.ResourcesProvider resourcesProvider;" "private Theme.ResourcesProvider resourcesProvider; private com.eve.app.ui.profile.TelegramProfileDelegates.ChangeNameDelegate eveDelegate; public void setEveDelegate(com.eve.app.ui.profile.TelegramProfileDelegates.ChangeNameDelegate delegate) { this.eveDelegate = delegate; }" "wire Eve CUT-INTERFACE delegate"
+patch-line "ThemeBind.actionBarItemsBackgroundColor(actionBar, Theme.key_avatar_actionBarSelectorBlue, resourcesProvider, false);" "actionBar.setItemsBackgroundColor(Theme.getColor(Theme.key_avatar_actionBarSelectorBlue, resourcesProvider), false);" "direct actionBar selector color without ThemeBind"
+patch-line "ThemeBind.actionBarItemsColor(actionBar, Theme.key_actionBarDefaultIcon, resourcesProvider, false);" "actionBar.setItemsColor(Theme.getColor(Theme.key_actionBarDefaultIcon, resourcesProvider), false);" "direct actionBar items color without ThemeBind"
+remove-statement "TLRPC.User user = MessagesController.getInstance(currentAccount).getUser(UserConfig.getInstance(currentAccount).getClientUserId());"
+remove-statement "if (user == null) {"
+patch-line "ThemeBind.hintTextColor(firstNameField, Theme.key_windowBackgroundWhiteHintText, resourcesProvider);" "firstNameField.setHintTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteHintText, resourcesProvider));" "direct hint color without ThemeBind"
+patch-line "ThemeBind.textColor(firstNameField, Theme.key_windowBackgroundWhiteBlackText, resourcesProvider);" "firstNameField.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText, resourcesProvider));" "direct text color without ThemeBind"
+patch-line "ThemeBind.lineColors(firstNameField, Theme.key_windowBackgroundWhiteInputField, Theme.key_windowBackgroundWhiteInputFieldActivated, Theme.key_text_RedRegular, getResourceProvider());" "firstNameField.setLineColors(Theme.getColor(Theme.key_windowBackgroundWhiteInputField, resourcesProvider), Theme.getColor(Theme.key_windowBackgroundWhiteInputFieldActivated, resourcesProvider), Theme.getColor(Theme.key_text_RedRegular, resourcesProvider));" "direct line colors without ThemeBind"
+patch-line "ThemeBind.cursorColor(firstNameField, Theme.key_windowBackgroundWhiteBlackText, resourcesProvider);" "firstNameField.setCursorColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText, resourcesProvider));" "direct cursor color without ThemeBind"
+patch-line "ThemeBind.hintTextColor(lastNameField, Theme.key_windowBackgroundWhiteHintText, resourcesProvider);" "lastNameField.setHintTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteHintText, resourcesProvider));" "direct hint color without ThemeBind"
+patch-line "ThemeBind.textColor(lastNameField, Theme.key_windowBackgroundWhiteBlackText, resourcesProvider);" "lastNameField.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText, resourcesProvider));" "direct text color without ThemeBind"
+patch-line "ThemeBind.lineColors(lastNameField, Theme.key_windowBackgroundWhiteInputField, Theme.key_windowBackgroundWhiteInputFieldActivated, Theme.key_text_RedRegular, getResourceProvider());" "lastNameField.setLineColors(Theme.getColor(Theme.key_windowBackgroundWhiteInputField, resourcesProvider), Theme.getColor(Theme.key_windowBackgroundWhiteInputFieldActivated, resourcesProvider), Theme.getColor(Theme.key_text_RedRegular, resourcesProvider));" "direct line colors without ThemeBind"
+patch-line "ThemeBind.cursorColor(lastNameField, Theme.key_windowBackgroundWhiteBlackText, resourcesProvider);" "lastNameField.setCursorColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText, resourcesProvider));" "direct cursor color without ThemeBind"
+patch-line "if (user != null) {" "if (eveDelegate != null) {" "load initial name from Eve delegate"
+patch-line "firstNameField.setText(user.first_name);" "firstNameField.setText(eveDelegate.getInitialFirstName());" "load initial first name from Eve delegate"
+patch-line "lastNameField.setText(user.last_name);" "lastNameField.setText(eveDelegate.getInitialLastName());" "load initial last name from Eve delegate"
+patch-line "SharedPreferences preferences = MessagesController.getGlobalMainSettings();" "SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences(\"mainconfig\", Context.MODE_PRIVATE);" "read animations preference without MessagesController"
+patch-line "saveName();" "if (eveDelegate != null) { eveDelegate.saveName(firstNameField.getText().toString(), lastNameField.getText().toString()); }" "delegate saveName to Eve adapter"
+
+prune-imports

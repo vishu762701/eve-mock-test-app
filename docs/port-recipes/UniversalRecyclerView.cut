@@ -1,0 +1,6 @@
+upstream org/telegram/ui/Components/UniversalRecyclerView.java
+to app/src/main/java/org/telegram/ui/Components/UniversalRecyclerView.java
+
+remove-statement "if (viewHolder.itemView.getBackground() instanceof RichEditor.DraggingDrawable) {" all
+
+prune-imports

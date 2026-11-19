@@ -1,0 +1,7 @@
+upstream org/telegram/ui/Cells/BrightnessControlCell.java
+to app/src/main/java/org/telegram/ui/Cells/BrightnessControlCell.java
+
+patch-line "ThemeBind.colorFilter(leftImageView, Theme.key_windowBackgroundWhiteGrayIcon, resourcesProvider, PorterDuff.Mode.MULTIPLY);" "leftImageView.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteGrayIcon, resourcesProvider), PorterDuff.Mode.MULTIPLY));" "direct left icon tint without ThemeBind"
+patch-line "ThemeBind.colorFilter(rightImageView, Theme.key_windowBackgroundWhiteGrayIcon, resourcesProvider, PorterDuff.Mode.MULTIPLY);" "rightImageView.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteGrayIcon, resourcesProvider), PorterDuff.Mode.MULTIPLY));" "direct right icon tint without ThemeBind"
+
+prune-imports

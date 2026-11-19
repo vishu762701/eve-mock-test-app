@@ -5,36 +5,72 @@
 
 package com.eve.app.ui.settings
 
-import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
+import android.widget.FrameLayout
+import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.widget.AppCompatButton
-import androidx.core.content.ContextCompat
 import com.eve.app.R
-import com.eve.app.databinding.ActivityAppearanceBinding
 import com.eve.app.designsystem.DesignCardView
 import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AppBulletin
+import org.telegram.ui.ActionBar.ActionBar
+import org.telegram.ui.ActionBar.AlertDialog
+import org.telegram.ui.ActionBar.Theme
+import org.telegram.ui.Cells.HeaderCell
+import org.telegram.ui.Cells.ShadowSectionCell
+import org.telegram.ui.Cells.SlideIntChooseView
+import org.telegram.ui.Cells.TextCell
+import org.telegram.ui.Cells.TextInfoPrivacyCell
+import org.telegram.ui.Components.CheckBox2
+import org.telegram.ui.Components.LayoutHelper
+import org.telegram.ui.Components.SlideChooseView
+import org.telegram.ui.Stories.recorder.ButtonWithCounterView
 
 /**
- * Settings > Appearance: Full Telegram-style theme and accent color customizer.
- * Supports Day/Night/System modes, House default presets, Arctic, Dark Blue, Blue Bubbles,
- * real EVE question preview card, transactional apply/cancel/reset, and bounded .attheme imports.
+ * Settings > Appearance: Powered by real ported Telegram ActionBar, SlideChooseView,
+ * SlideIntChooseView, HeaderCell, TextCell, CheckBox2, AlertDialog, and ButtonWithCounterView.
+ * Preserves Day/Night/System modes, House presets, accent colors, live EVE question preview,
+ * Auto-Night schedule, transactional apply/cancel/reset, and bounded .attheme imports.
  */
 open class ThemeActivity : EveBaseActivity() {
 
-    private lateinit var binding: ActivityAppearanceBinding
+    private fun dp(value: Float): Int = (value * resources.displayMetrics.density + 0.5f).toInt()
+
     private var isApplied = false
     private var currentFontSize: Int = 16
     private var currentBubbleRadius: Int = 10
+
+    private lateinit var rootContainer: FrameLayout
+    private lateinit var actionBar: ActionBar
+    private lateinit var cardPreview: DesignCardView
+    private lateinit var layoutPreviewContent: LinearLayout
+    private lateinit var tvPreviewTag: TextView
+    private lateinit var tvPreviewTitle: TextView
+    private lateinit var tvPreviewSubtitle: TextView
+    private lateinit var btnPreviewAction: TextView
+
+    private lateinit var modeSlider: SlideChooseView
+    private lateinit var layoutThemesContainer: LinearLayout
+    private lateinit var layoutAccentsContainer: LinearLayout
+    private lateinit var textSizeSlider: SlideIntChooseView
+    private lateinit var cornerRadiusSlider: SlideIntChooseView
+    private lateinit var cellAutoNight: TextCell
+    private lateinit var cellImportTheme: TextCell
+    private lateinit var cellResetDefault: TextCell
+    private lateinit var btnApply: ButtonWithCounterView
+
+    private val sectionCards = mutableListOf<View>()
 
     private val importThemeLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -45,8 +81,6 @@ open class ThemeActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityAppearanceBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
         TelegramThemeEngine.init(this)
         currentFontSize = TelegramThemeEngine.getFontSize(this)
@@ -58,7 +92,11 @@ open class ThemeActivity : EveBaseActivity() {
             val nightTheme = savedInstanceState.getString("preview_night_theme", "night")
             val nightAccent = savedInstanceState.getInt("preview_night_accent", 0)
             val modeStr = savedInstanceState.getString("preview_mode", TelegramThemeEngine.ThemeMode.SYSTEM.name)
-            val mode = try { TelegramThemeEngine.ThemeMode.valueOf(modeStr) } catch (_: Exception) { TelegramThemeEngine.ThemeMode.SYSTEM }
+            val mode = try {
+                TelegramThemeEngine.ThemeMode.valueOf(modeStr)
+            } catch (_: Exception) {
+                TelegramThemeEngine.ThemeMode.SYSTEM
+            }
             TelegramThemeEngine.restorePreviewState(dayTheme, dayAccent, nightTheme, nightAccent, mode, this)
             currentFontSize = savedInstanceState.getInt("preview_font_size", currentFontSize)
             currentBubbleRadius = savedInstanceState.getInt("preview_bubble_radius", currentBubbleRadius)
@@ -66,24 +104,295 @@ open class ThemeActivity : EveBaseActivity() {
             TelegramThemeEngine.beginPreview()
         }
 
-        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) {
-            TelegramThemeEngine.cancelPreview(this)
-            finish()
-        }
-        listOf(
-            binding.btnApply, binding.btnResetDefault, binding.btnImportTheme,
-            binding.btnModeDay, binding.btnModeNight, binding.btnModeSystem,
-            binding.rowAutoNight
-        ).forEach { com.eve.app.designsystem.DesignPress.bind(it) }
+        Theme.syncFromEvePalette(this)
+        val palette = TelegramThemeEngine.resolveCurrentPalette(this)
 
-        binding.btnApply.setOnClickListener {
-            isApplied = true
-            TelegramThemeEngine.setFontSize(this, currentFontSize)
-            TelegramThemeEngine.setBubbleRadius(this, currentBubbleRadius)
-            TelegramThemeEngine.applyChanges(this)
-            AppBulletin.show(this, "Theme applied")
-            finish()
+        rootContainer = FrameLayout(this).apply {
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundGray))
         }
+        setContentView(rootContainer)
+
+        val mainLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            )
+        }
+        rootContainer.addView(mainLayout)
+
+        // 1. Real Telegram ActionBar
+        actionBar = ActionBar(this).apply {
+            setBackgroundColor(Theme.getColor(Theme.key_actionBarDefault))
+            setItemsBackgroundColor(Theme.getColor(Theme.key_actionBarDefaultSelector), false)
+            setItemsColor(Theme.getColor(Theme.key_actionBarDefaultIcon), false)
+            setTitleColor(Theme.getColor(Theme.key_actionBarDefaultTitle))
+            setBackButtonImage(R.drawable.ic_ab_back)
+            setTitle("Appearance")
+            setAllowOverlayTitle(true)
+            setActionBarMenuOnItemClick(object : ActionBar.ActionBarMenuOnItemClick() {
+                override fun onItemClick(id: Int) {
+                    if (id == -1) {
+                        TelegramThemeEngine.cancelPreview(this@ThemeActivity)
+                        finish()
+                    }
+                }
+            })
+        }
+        mainLayout.addView(actionBar, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT))
+
+        // 2. Scrollable Content
+        val scrollView = ScrollView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                1f
+            )
+            isFillViewport = true
+        }
+        val contentLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+        }
+        scrollView.addView(contentLayout)
+        mainLayout.addView(scrollView)
+
+        val cardBg = Theme.getColor(Theme.key_windowBackgroundWhite)
+
+        // Live Question Preview Card
+        val previewWrapper = FrameLayout(this).apply {
+            setPadding(dp(16f), dp(16f), dp(16f), dp(16f))
+        }
+        cardPreview = DesignCardView(this).apply {
+            cardElevation = dp(2f).toFloat()
+            radius = dp(currentBubbleRadius.toFloat()).toFloat()
+        }
+        layoutPreviewContent = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(16f), dp(14f), dp(16f), dp(14f))
+        }
+        tvPreviewTag = TextView(this).apply {
+            text = "LIVE QUESTION PREVIEW • MOCK TEST"
+            textSize = 11f
+            typeface = Typeface.DEFAULT_BOLD
+        }
+        tvPreviewTitle = TextView(this).apply {
+            text = "Which article of the Indian Constitution deals with Fundamental Rights?"
+            typeface = Typeface.DEFAULT_BOLD
+            setPadding(0, dp(6f), 0, dp(4f))
+        }
+        tvPreviewSubtitle = TextView(this).apply {
+            text = "A) Articles 12–35   •   B) Articles 36–51"
+            setPadding(0, 0, 0, dp(10f))
+        }
+        btnPreviewAction = TextView(this).apply {
+            text = "Save & Next"
+            textSize = 13f
+            typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.CENTER
+            setPadding(dp(16f), dp(8f), dp(16f), dp(8f))
+        }
+        layoutPreviewContent.addView(tvPreviewTag)
+        layoutPreviewContent.addView(tvPreviewTitle)
+        layoutPreviewContent.addView(tvPreviewSubtitle)
+        layoutPreviewContent.addView(
+            btnPreviewAction,
+            LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        )
+        cardPreview.addView(layoutPreviewContent)
+        previewWrapper.addView(
+            cardPreview,
+            FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT)
+        )
+        contentLayout.addView(previewWrapper)
+
+        // Section 1: Theme Mode (Real Telegram SlideChooseView)
+        val headerMode = HeaderCell(this).apply {
+            setBackgroundColor(cardBg)
+            setText("Theme Mode")
+        }
+        sectionCards.add(headerMode)
+        contentLayout.addView(headerMode)
+
+        val initialModeIdx = when (TelegramThemeEngine.getThemeMode()) {
+            TelegramThemeEngine.ThemeMode.DAY -> 0
+            TelegramThemeEngine.ThemeMode.NIGHT -> 1
+            TelegramThemeEngine.ThemeMode.SYSTEM -> 2
+        }
+        modeSlider = SlideChooseView(this).apply {
+            setBackgroundColor(cardBg)
+            setOptions(initialModeIdx, "Day", "Night", "System")
+            setCallback { idx ->
+                val nextMode = when (idx) {
+                    0 -> TelegramThemeEngine.ThemeMode.DAY
+                    1 -> TelegramThemeEngine.ThemeMode.NIGHT
+                    else -> TelegramThemeEngine.ThemeMode.SYSTEM
+                }
+                TelegramThemeEngine.setPreviewMode(nextMode, this@ThemeActivity)
+                refreshAllPreviewViews()
+            }
+        }
+        sectionCards.add(modeSlider)
+        contentLayout.addView(modeSlider, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 50))
+        contentLayout.addView(ShadowSectionCell(this))
+
+        // Section 2: Color Theme Presets & Accent Colors
+        val headerThemes = HeaderCell(this).apply {
+            setBackgroundColor(cardBg)
+            setText("Color Theme")
+        }
+        sectionCards.add(headerThemes)
+        contentLayout.addView(headerThemes)
+
+        val themesScroll = HorizontalScrollView(this).apply {
+            isHorizontalScrollBarEnabled = false
+            setBackgroundColor(cardBg)
+            setPadding(dp(16f), dp(6f), dp(16f), dp(12f))
+            clipToPadding = false
+        }
+        sectionCards.add(themesScroll)
+        layoutThemesContainer = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+        }
+        themesScroll.addView(layoutThemesContainer)
+        contentLayout.addView(themesScroll)
+
+        val accentsScroll = HorizontalScrollView(this).apply {
+            isHorizontalScrollBarEnabled = false
+            setBackgroundColor(cardBg)
+            setPadding(dp(16f), dp(2f), dp(16f), dp(14f))
+            clipToPadding = false
+        }
+        sectionCards.add(accentsScroll)
+        layoutAccentsContainer = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+        }
+        accentsScroll.addView(layoutAccentsContainer)
+        contentLayout.addView(accentsScroll)
+        contentLayout.addView(ShadowSectionCell(this))
+
+        // Section 3: Text Size (Real Telegram SlideIntChooseView)
+        val headerTextSize = HeaderCell(this).apply {
+            setBackgroundColor(cardBg)
+            setText("Message & Question Text Size")
+        }
+        sectionCards.add(headerTextSize)
+        contentLayout.addView(headerTextSize)
+
+        textSizeSlider = SlideIntChooseView(this, null).apply {
+            setBackgroundColor(cardBg)
+            set(
+                currentFontSize.coerceIn(12, 30),
+                SlideIntChooseView.Options.make(0, 12, 30) { v -> "${v}sp" }
+            ) { newSize ->
+                currentFontSize = newSize
+                updatePreviewCard()
+            }
+        }
+        sectionCards.add(textSizeSlider)
+        contentLayout.addView(textSizeSlider, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT))
+        contentLayout.addView(ShadowSectionCell(this))
+
+        // Section 4: Card Corner Radius (Real Telegram SlideIntChooseView)
+        val headerRadius = HeaderCell(this).apply {
+            setBackgroundColor(cardBg)
+            setText("Card Corner Radius")
+        }
+        sectionCards.add(headerRadius)
+        contentLayout.addView(headerRadius)
+
+        cornerRadiusSlider = SlideIntChooseView(this, null).apply {
+            setBackgroundColor(cardBg)
+            set(
+                currentBubbleRadius.coerceIn(0, 17),
+                SlideIntChooseView.Options.make(0, 0, 17) { v -> "${v}dp" }
+            ) { newRadius ->
+                currentBubbleRadius = newRadius
+                updatePreviewCard()
+            }
+        }
+        sectionCards.add(cornerRadiusSlider)
+        contentLayout.addView(cornerRadiusSlider, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT))
+        contentLayout.addView(ShadowSectionCell(this))
+
+        // Section 5: Auto-Night, Import .attheme, Reset
+        val headerMore = HeaderCell(this).apply {
+            setBackgroundColor(cardBg)
+            setText("Theme Options")
+        }
+        sectionCards.add(headerMore)
+        contentLayout.addView(headerMore)
+
+        cellAutoNight = TextCell(this).apply {
+            setBackgroundColor(cardBg)
+            setOnClickListener { showAutoNightDialog() }
+        }
+        sectionCards.add(cellAutoNight)
+        contentLayout.addView(cellAutoNight)
+
+        cellImportTheme = TextCell(this).apply {
+            setBackgroundColor(cardBg)
+            setText("Import .attheme File", true)
+            setOnClickListener {
+                try {
+                    importThemeLauncher.launch("*/*")
+                } catch (e: Exception) {
+                    AppBulletin.showError(this@ThemeActivity, "Cannot open file picker: ${e.message}")
+                }
+            }
+        }
+        sectionCards.add(cellImportTheme)
+        contentLayout.addView(cellImportTheme)
+
+        cellResetDefault = TextCell(this).apply {
+            setBackgroundColor(cardBg)
+            setText("Reset to House Default", false)
+            setOnClickListener {
+                TelegramThemeEngine.resetPreviewToDefaults(this@ThemeActivity)
+                currentFontSize = 16
+                currentBubbleRadius = 10
+                textSizeSlider.set(currentFontSize, SlideIntChooseView.Options.make(0, 12, 30) { v -> "${v}sp" }) { newSize ->
+                    currentFontSize = newSize
+                    updatePreviewCard()
+                }
+                cornerRadiusSlider.set(currentBubbleRadius, SlideIntChooseView.Options.make(0, 0, 17) { v -> "${v}dp" }) { newRadius ->
+                    currentBubbleRadius = newRadius
+                    updatePreviewCard()
+                }
+                modeSlider.setOptions(2, "Day", "Night", "System")
+                refreshAllPreviewViews()
+                AppBulletin.show(this@ThemeActivity, "Reset preview to House theme default (tap Apply to save)")
+            }
+        }
+        sectionCards.add(cellResetDefault)
+        contentLayout.addView(cellResetDefault)
+
+        val infoFooter = TextInfoPrivacyCell(this).apply {
+            setText("Preview changes live above. Tap Apply Theme to save across EVE.")
+        }
+        contentLayout.addView(infoFooter)
+
+        // Bottom Apply CTA (Real Telegram ButtonWithCounterView)
+        val applyContainer = FrameLayout(this).apply {
+            setBackgroundColor(cardBg)
+            setPadding(dp(16f), dp(12f), dp(16f), dp(16f))
+        }
+        sectionCards.add(applyContainer)
+        btnApply = ButtonWithCounterView(this, null).apply {
+            setText("Apply Theme", false)
+            setOnClickListener {
+                isApplied = true
+                TelegramThemeEngine.setFontSize(this@ThemeActivity, currentFontSize)
+                TelegramThemeEngine.setBubbleRadius(this@ThemeActivity, currentBubbleRadius)
+                TelegramThemeEngine.applyChanges(this@ThemeActivity)
+                AppBulletin.show(this@ThemeActivity, "Theme applied")
+                finish()
+            }
+        }
+        applyContainer.addView(
+            btnApply,
+            FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, dp(48f))
+        )
+        mainLayout.addView(applyContainer, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT))
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -92,70 +401,42 @@ open class ThemeActivity : EveBaseActivity() {
             }
         })
 
-        binding.btnResetDefault.setOnClickListener {
-            TelegramThemeEngine.resetPreviewToDefaults(this)
-            currentFontSize = 16
-            currentBubbleRadius = 10
-            binding.seekTextSize.currentValue = currentFontSize
-            binding.seekCornerRadius.currentValue = currentBubbleRadius
-            updateModeButtons()
-            rebuildThemesList()
-            rebuildAccentsList()
-            updatePreviewCard()
-            AppBulletin.show(this, "Reset preview to House theme default (tap Apply to save)")
-        }
-
-        binding.btnImportTheme.setOnClickListener {
-            try {
-                importThemeLauncher.launch("*/*")
-            } catch (e: Exception) {
-                AppBulletin.showError(this, "Cannot open file picker: ${e.message}")
-            }
-        }
-
-        // Text Size Slider
-        binding.seekTextSize.minValue = 12
-        binding.seekTextSize.maxValue = 30
-        binding.seekTextSize.currentValue = currentFontSize
-        binding.seekTextSize.onValueChanged = { newSize ->
-            currentFontSize = newSize
-            updatePreviewCard()
-        }
-
-        // Corner Radius Slider
-        binding.seekCornerRadius.minValue = 0
-        binding.seekCornerRadius.maxValue = 17
-        binding.seekCornerRadius.currentValue = currentBubbleRadius
-        binding.seekCornerRadius.onValueChanged = { newRadius ->
-            currentBubbleRadius = newRadius
-            updatePreviewCard()
-        }
-
-        // Auto-Night Schedule
         updateAutoNightLabel()
-        binding.rowAutoNight.setOnClickListener {
-            val options = arrayOf("Disabled", "Scheduled (22:00 – 07:00)")
-            val current = TelegramThemeEngine.getAutoNightSchedule(this)
-            com.eve.app.designsystem.TelegramNativeAlertDialog.Builder(this)
-                .setTitle("Auto-Night Mode")
-                .setSingleChoiceItems(options, current) { dialog, which ->
-                    TelegramThemeEngine.setAutoNightSchedule(this, which)
-                    updateAutoNightLabel()
-                    dialog.dismiss()
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
-        }
+        refreshAllPreviewViews()
+    }
 
-        setupModeButtons()
+    private fun refreshAllPreviewViews() {
+        Theme.syncFromEvePalette(this)
+        val palette = TelegramThemeEngine.resolveCurrentPalette(this)
+        rootContainer.setBackgroundColor(palette.windowBackground)
+        for (v in sectionCards) {
+            v.setBackgroundColor(palette.surface)
+        }
+        actionBar.setBackgroundColor(Theme.getColor(Theme.key_actionBarDefault))
+        actionBar.setTitleColor(Theme.getColor(Theme.key_actionBarDefaultTitle))
+        actionBar.setItemsColor(Theme.getColor(Theme.key_actionBarDefaultIcon), false)
         rebuildThemesList()
         rebuildAccentsList()
         updatePreviewCard()
     }
 
+    private fun showAutoNightDialog() {
+        val options = arrayOf("Disabled", "Scheduled (22:00 – 07:00)")
+        val current = TelegramThemeEngine.getAutoNightSchedule(this)
+        AlertDialog.Builder(this)
+            .setTitle("Auto-Night Mode")
+            .setItems(options) { dialog, which ->
+                TelegramThemeEngine.setAutoNightSchedule(this, which)
+                updateAutoNightLabel()
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
     private fun updateAutoNightLabel() {
         val schedule = TelegramThemeEngine.getAutoNightSchedule(this)
-        binding.tvAutoNightValue.text = if (schedule == 1) "Scheduled" else "Disabled"
+        cellAutoNight.setTextAndValue("Auto-Night Mode", if (schedule == 1) "Scheduled" else "Disabled", true)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -178,66 +459,17 @@ open class ThemeActivity : EveBaseActivity() {
 
     override fun onApplyThemePalette(palette: TelegramThemeEngine.ResolvedPalette) {
         super.onApplyThemePalette(palette)
-        binding.root.setBackgroundColor(palette.windowBackground)
-        binding.btnApply.backgroundTintList = ColorStateList.valueOf(palette.accent)
-        binding.btnApply.setTextColor(palette.onAccent)
-        updatePreviewCard()
-        updateModeButtons()
-    }
-
-    private fun setupModeButtons() {
-        binding.btnModeDay.setOnClickListener {
-            TelegramThemeEngine.setPreviewMode(TelegramThemeEngine.ThemeMode.DAY, this)
-            updateModeButtons()
-            rebuildThemesList()
-            rebuildAccentsList()
-            updatePreviewCard()
+        if (::rootContainer.isInitialized) {
+            refreshAllPreviewViews()
         }
-        binding.btnModeNight.setOnClickListener {
-            TelegramThemeEngine.setPreviewMode(TelegramThemeEngine.ThemeMode.NIGHT, this)
-            updateModeButtons()
-            rebuildThemesList()
-            rebuildAccentsList()
-            updatePreviewCard()
-        }
-        binding.btnModeSystem.setOnClickListener {
-            TelegramThemeEngine.setPreviewMode(TelegramThemeEngine.ThemeMode.SYSTEM, this)
-            updateModeButtons()
-            rebuildThemesList()
-            rebuildAccentsList()
-            updatePreviewCard()
-        }
-        updateModeButtons()
-    }
-
-    private fun updateModeButtons() {
-        val currentMode = TelegramThemeEngine.getThemeMode()
-        val palette = TelegramThemeEngine.resolveCurrentPalette(this)
-        val selectedBg = palette.accent
-        val selectedFg = palette.onAccent
-        val defaultBg = palette.surfaceInset
-        val defaultFg = palette.textPrimary
-
-        fun highlight(btn: AppCompatButton, active: Boolean) {
-            val bg = if (active) selectedBg else defaultBg
-            val fg = if (active) selectedFg else defaultFg
-            btn.backgroundTintList = ColorStateList.valueOf(bg)
-            btn.setTextColor(fg)
-        }
-
-        highlight(binding.btnModeDay, currentMode == TelegramThemeEngine.ThemeMode.DAY)
-        highlight(binding.btnModeNight, currentMode == TelegramThemeEngine.ThemeMode.NIGHT)
-        highlight(binding.btnModeSystem, currentMode == TelegramThemeEngine.ThemeMode.SYSTEM)
     }
 
     private fun rebuildThemesList() {
         val palette = TelegramThemeEngine.resolveCurrentPalette(this)
-        binding.layoutThemesContainer.removeAllViews()
+        layoutThemesContainer.removeAllViews()
         val isDark = TelegramThemeEngine.isDarkActive(this)
         val activeThemeId = if (isDark) TelegramThemeEngine.getNightThemeId() else TelegramThemeEngine.getDayThemeId()
-
-        val allThemes = TelegramThemeEngine.getAllThemes()
-        val filteredThemes = allThemes.filter { it.isDark == isDark }
+        val filteredThemes = TelegramThemeEngine.getAllThemes().filter { it.isDark == isDark }
 
         val density = resources.displayMetrics.density
         for (theme in filteredThemes) {
@@ -247,26 +479,24 @@ open class ThemeActivity : EveBaseActivity() {
                 strokeWidth = if (isSelected) (2 * density).toInt() else 0
                 strokeColor = if (isSelected) theme.baseAccentColor else Color.TRANSPARENT
                 setCardBackgroundColor(palette.surface)
-                cardElevation = 4 * density
+                cardElevation = 3 * density
 
-                val lp = LinearLayout.LayoutParams((100 * density).toInt(), (110 * density).toInt()).apply {
-                    marginEnd = (12 * density).toInt()
+                layoutParams = LinearLayout.LayoutParams((96 * density).toInt(), (104 * density).toInt()).apply {
+                    marginEnd = (10 * density).toInt()
                 }
-                layoutParams = lp
 
                 val content = LinearLayout(this@ThemeActivity).apply {
                     orientation = LinearLayout.VERTICAL
                     gravity = Gravity.CENTER
                     setPadding((8 * density).toInt(), (8 * density).toInt(), (8 * density).toInt(), (8 * density).toInt())
 
-                    // Swatch circle
                     val circle = View(this@ThemeActivity).apply {
                         val size = (36 * density).toInt()
                         layoutParams = LinearLayout.LayoutParams(size, size).apply {
                             bottomMargin = (8 * density).toInt()
                         }
-                        background = android.graphics.drawable.GradientDrawable().apply {
-                            shape = android.graphics.drawable.GradientDrawable.OVAL
+                        background = GradientDrawable().apply {
+                            shape = GradientDrawable.OVAL
                             setColor(theme.baseAccentColor)
                         }
                     }
@@ -277,7 +507,7 @@ open class ThemeActivity : EveBaseActivity() {
                         gravity = Gravity.CENTER
                         setTextColor(palette.textPrimary)
                         textSize = 12f
-                        typeface = if (isSelected) android.graphics.Typeface.DEFAULT_BOLD else android.graphics.Typeface.DEFAULT
+                        typeface = if (isSelected) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
                     }
                     addView(label)
                 }
@@ -289,18 +519,16 @@ open class ThemeActivity : EveBaseActivity() {
                     } else {
                         TelegramThemeEngine.setPreviewDayTheme(theme.id, theme.defaultAccentId, this@ThemeActivity)
                     }
-                    rebuildThemesList()
-                    rebuildAccentsList()
-                    updatePreviewCard()
+                    refreshAllPreviewViews()
                 }
             }
-            binding.layoutThemesContainer.addView(card)
+            layoutThemesContainer.addView(card)
         }
     }
 
     private fun rebuildAccentsList() {
         val palette = TelegramThemeEngine.resolveCurrentPalette(this)
-        binding.layoutAccentsContainer.removeAllViews()
+        layoutAccentsContainer.removeAllViews()
         val isDark = TelegramThemeEngine.isDarkActive(this)
         val activeThemeId = if (isDark) TelegramThemeEngine.getNightThemeId() else TelegramThemeEngine.getDayThemeId()
         val activeAccentId = if (isDark) TelegramThemeEngine.getNightAccentId() else TelegramThemeEngine.getDayAccentId()
@@ -312,7 +540,7 @@ open class ThemeActivity : EveBaseActivity() {
             val touchSize = (48 * density).toInt()
             val visualSize = (40 * density).toInt()
 
-            val touchContainer = android.widget.FrameLayout(this).apply {
+            val touchContainer = FrameLayout(this).apply {
                 layoutParams = LinearLayout.LayoutParams(touchSize, touchSize).apply {
                     marginEnd = (4 * density).toInt()
                     topMargin = (2 * density).toInt()
@@ -325,15 +553,14 @@ open class ThemeActivity : EveBaseActivity() {
                     } else {
                         TelegramThemeEngine.setPreviewDayTheme(theme.id, accent.id, this@ThemeActivity)
                     }
-                    rebuildAccentsList()
-                    updatePreviewCard()
+                    refreshAllPreviewViews()
                 }
             }
 
             val swatch = View(this).apply {
-                layoutParams = android.widget.FrameLayout.LayoutParams(visualSize, visualSize, Gravity.CENTER)
-                background = android.graphics.drawable.GradientDrawable().apply {
-                    shape = android.graphics.drawable.GradientDrawable.OVAL
+                layoutParams = FrameLayout.LayoutParams(visualSize, visualSize, Gravity.CENTER)
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.OVAL
                     setColor(accent.color)
                     if (isSelected) {
                         setStroke((2 * density).toInt(), palette.textPrimary)
@@ -343,42 +570,43 @@ open class ThemeActivity : EveBaseActivity() {
             }
             touchContainer.addView(swatch)
             if (isSelected) {
-                val check = com.eve.app.ui.common.TelegramCheckBox2(this).apply {
-                    layoutParams = android.widget.FrameLayout.LayoutParams(
+                val check = CheckBox2(this, 22).apply {
+                    layoutParams = FrameLayout.LayoutParams(
                         (22 * density).toInt(),
                         (22 * density).toInt(),
                         Gravity.CENTER
                     )
-                    setColors(Color.TRANSPARENT, Color.TRANSPARENT, Color.WHITE)
                     setChecked(true, false)
                     isClickable = false
                     isFocusable = false
                 }
                 touchContainer.addView(check)
             }
-            binding.layoutAccentsContainer.addView(touchContainer)
+            layoutAccentsContainer.addView(touchContainer)
         }
     }
 
     private fun updatePreviewCard() {
         val palette = TelegramThemeEngine.resolveCurrentPalette(this)
         val density = resources.displayMetrics.density
-        binding.cardPreview.setCardBackgroundColor(palette.surface)
-        binding.cardPreview.radius = currentBubbleRadius * density
-        binding.layoutPreviewContent.setBackgroundColor(palette.surface)
-        binding.tvPreviewTitle.setTextColor(palette.textPrimary)
-        binding.tvPreviewTitle.textSize = currentFontSize.toFloat()
-        binding.tvPreviewSubtitle.setTextColor(palette.textSecondary)
-        binding.tvPreviewSubtitle.textSize = (currentFontSize - 2).coerceAtLeast(12).toFloat()
-        binding.tvPreviewTag.setTextColor(palette.textSecondary)
-        binding.btnPreviewAction.backgroundTintList = ColorStateList.valueOf(palette.accent)
-        binding.btnPreviewAction.setTextColor(palette.onAccent)
+        cardPreview.setCardBackgroundColor(palette.surface)
+        cardPreview.radius = currentBubbleRadius * density
+        layoutPreviewContent.setBackgroundColor(palette.surface)
+        tvPreviewTitle.setTextColor(palette.textPrimary)
+        tvPreviewTitle.textSize = currentFontSize.toFloat()
+        tvPreviewSubtitle.setTextColor(palette.textSecondary)
+        tvPreviewSubtitle.textSize = (currentFontSize - 2).coerceAtLeast(12).toFloat()
+        tvPreviewTag.setTextColor(palette.textSecondary)
+        btnPreviewAction.setTextColor(palette.onAccent)
+        btnPreviewAction.background = GradientDrawable().apply {
+            cornerRadius = (8 * density)
+            setColor(palette.accent)
+        }
     }
 
     private fun handleThemeImport(uri: Uri) {
         try {
             contentResolver.openInputStream(uri)?.use { stream ->
-                // Enforce the size limit while reading, not after an unbounded readBytes().
                 val output = java.io.ByteArrayOutputStream()
                 val chunk = ByteArray(8192)
                 while (true) {
@@ -415,9 +643,7 @@ open class ThemeActivity : EveBaseActivity() {
                     TelegramThemeEngine.setPreviewDayTheme(customDef.id, 0, this)
                 }
 
-                rebuildThemesList()
-                rebuildAccentsList()
-                updatePreviewCard()
+                refreshAllPreviewViews()
                 AppBulletin.show(this, "Theme imported successfully")
             }
         } catch (e: Exception) {

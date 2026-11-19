@@ -9,6 +9,7 @@
 package org.telegram.ui;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.text.InputType;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -29,6 +30,7 @@ import org.telegram.ui.Components.EditTextBoldCursor;
 import org.telegram.ui.Components.LayoutHelper;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class ChangeNameActivity extends BaseFragment {
 
@@ -37,26 +39,9 @@ public class ChangeNameActivity extends BaseFragment {
     private View headerLabelView;
     private View doneButton;
 
-    private Theme.ResourcesProvider resourcesProvider;
+    private Theme.ResourcesProvider resourcesProvider; private com.eve.app.ui.profile.TelegramProfileDelegates.ChangeNameDelegate eveDelegate; public void setEveDelegate(com.eve.app.ui.profile.TelegramProfileDelegates.ChangeNameDelegate delegate) { this.eveDelegate = delegate; } // EVE-PATCH: wire Eve CUT-INTERFACE delegate
 
     private final static int done_button = 1;
-
-    // EVE-PATCH: BEGIN delegate save flow and user data to Eve adapter per R3 & R5
-    public interface ChangeNameDelegate {
-        String getInitialFirstName();
-        String getInitialLastName();
-        void saveName(String firstName, String lastName);
-    }
-    private ChangeNameDelegate eveDelegate;
-
-    public void setEveDelegate(ChangeNameDelegate delegate) {
-        this.eveDelegate = delegate;
-    }
-    // EVE-PATCH: END
-
-    public ChangeNameActivity() {
-        this(null);
-    }
 
     public ChangeNameActivity(Theme.ResourcesProvider resourcesProvider) {
         this.resourcesProvider = resourcesProvider;
@@ -64,8 +49,8 @@ public class ChangeNameActivity extends BaseFragment {
 
     @Override
     public View createView(Context context) {
-        actionBar.setItemsBackgroundColor(Theme.getColor(Theme.key_avatar_actionBarSelectorBlue, resourcesProvider), false);
-        actionBar.setItemsColor(Theme.getColor(Theme.key_actionBarDefaultIcon, resourcesProvider), false);
+        actionBar.setItemsBackgroundColor(Theme.getColor(Theme.key_avatar_actionBarSelectorBlue, resourcesProvider), false); // EVE-PATCH: direct actionBar selector color without ThemeBind
+        actionBar.setItemsColor(Theme.getColor(Theme.key_actionBarDefaultIcon, resourcesProvider), false); // EVE-PATCH: direct actionBar items color without ThemeBind
         actionBar.setBackButtonImage(R.drawable.ic_ab_back);
         actionBar.setAllowOverlayTitle(true);
         actionBar.setTitle(LocaleController.getString(R.string.EditName));
@@ -76,12 +61,8 @@ public class ChangeNameActivity extends BaseFragment {
                     finishFragment();
                 } else if (id == done_button) {
                     if (firstNameField.getText().length() != 0) {
-                        saveName();
-                        // EVE-PATCH: BEGIN Eve save flow is asynchronous; finish is handled by delegate on verified success per R3 & R5
-                        if (eveDelegate == null) {
-                            finishFragment();
-                        }
-                        // EVE-PATCH: END
+                        if (eveDelegate != null) { eveDelegate.saveName(firstNameField.getText().toString(), lastNameField.getText().toString()); } // EVE-PATCH: delegate saveName to Eve adapter
+                        finishFragment();
                     }
                 }
             }
@@ -89,11 +70,6 @@ public class ChangeNameActivity extends BaseFragment {
 
         ActionBarMenu menu = actionBar.createMenu();
         doneButton = menu.addItemWithWidth(done_button, R.drawable.ic_ab_done, AndroidUtilities.dp(56), LocaleController.getString(R.string.Done));
-
-        // EVE-PATCH: BEGIN read initial user name from Eve adapter per R3 & R5
-        String initialFirst = eveDelegate != null ? eveDelegate.getInitialFirstName() : "";
-        String initialLast = eveDelegate != null ? eveDelegate.getInitialLastName() : "";
-        // EVE-PATCH: END
 
         LinearLayout linearLayout = new LinearLayout(context);
         fragmentView = linearLayout;
@@ -107,15 +83,11 @@ public class ChangeNameActivity extends BaseFragment {
                 return resourcesProvider;
             }
         };
-        // EVE-PATCH: BEGIN id and state preservation wiring per R3 (b)
-        firstNameField.setId(com.eve.app.R.id.etName);
-        firstNameField.setSaveEnabled(true);
         firstNameField.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
-        firstNameField.setHintTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteHintText, resourcesProvider));
-        firstNameField.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText, resourcesProvider));
+        firstNameField.setHintTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteHintText, resourcesProvider)); // EVE-PATCH: direct hint color without ThemeBind
+        firstNameField.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText, resourcesProvider)); // EVE-PATCH: direct text color without ThemeBind
         firstNameField.setBackgroundDrawable(null);
-        firstNameField.setLineColors(getThemedColor(Theme.key_windowBackgroundWhiteInputField), getThemedColor(Theme.key_windowBackgroundWhiteInputFieldActivated), getThemedColor(Theme.key_text_RedRegular));
-        // EVE-PATCH: END
+        firstNameField.setLineColors(Theme.getColor(Theme.key_windowBackgroundWhiteInputField, resourcesProvider), Theme.getColor(Theme.key_windowBackgroundWhiteInputFieldActivated, resourcesProvider), Theme.getColor(Theme.key_text_RedRegular, resourcesProvider)); // EVE-PATCH: direct line colors without ThemeBind
         firstNameField.setMaxLines(1);
         firstNameField.setLines(1);
         firstNameField.setSingleLine(true);
@@ -123,7 +95,7 @@ public class ChangeNameActivity extends BaseFragment {
         firstNameField.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
         firstNameField.setImeOptions(EditorInfo.IME_ACTION_NEXT);
         firstNameField.setHint(LocaleController.getString(R.string.FirstName));
-        firstNameField.setCursorColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText, resourcesProvider));
+        firstNameField.setCursorColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText, resourcesProvider)); // EVE-PATCH: direct cursor color without ThemeBind
         firstNameField.setCursorSize(AndroidUtilities.dp(20));
         firstNameField.setCursorWidth(1.5f);
         linearLayout.addView(firstNameField, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 36, 24, 24, 24, 0));
@@ -142,13 +114,11 @@ public class ChangeNameActivity extends BaseFragment {
                 return resourcesProvider;
             }
         };
-        // EVE-PATCH: BEGIN styling wiring per R3
         lastNameField.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
-        lastNameField.setHintTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteHintText, resourcesProvider));
-        lastNameField.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText, resourcesProvider));
+        lastNameField.setHintTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteHintText, resourcesProvider)); // EVE-PATCH: direct hint color without ThemeBind
+        lastNameField.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText, resourcesProvider)); // EVE-PATCH: direct text color without ThemeBind
         lastNameField.setBackgroundDrawable(null);
-        lastNameField.setLineColors(getThemedColor(Theme.key_windowBackgroundWhiteInputField), getThemedColor(Theme.key_windowBackgroundWhiteInputFieldActivated), getThemedColor(Theme.key_text_RedRegular));
-        // EVE-PATCH: END
+        lastNameField.setLineColors(Theme.getColor(Theme.key_windowBackgroundWhiteInputField, resourcesProvider), Theme.getColor(Theme.key_windowBackgroundWhiteInputFieldActivated, resourcesProvider), Theme.getColor(Theme.key_text_RedRegular, resourcesProvider)); // EVE-PATCH: direct line colors without ThemeBind
         lastNameField.setMaxLines(1);
         lastNameField.setLines(1);
         lastNameField.setSingleLine(true);
@@ -156,7 +126,7 @@ public class ChangeNameActivity extends BaseFragment {
         lastNameField.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
         lastNameField.setImeOptions(EditorInfo.IME_ACTION_DONE);
         lastNameField.setHint(LocaleController.getString(R.string.LastName));
-        lastNameField.setCursorColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText, resourcesProvider));
+        lastNameField.setCursorColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText, resourcesProvider)); // EVE-PATCH: direct cursor color without ThemeBind
         lastNameField.setCursorSize(AndroidUtilities.dp(20));
         lastNameField.setCursorWidth(1.5f);
         linearLayout.addView(lastNameField, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 36, 24, 16, 24, 0));
@@ -168,15 +138,11 @@ public class ChangeNameActivity extends BaseFragment {
             return false;
         });
 
-        // EVE-PATCH: BEGIN initial text population
-        if (initialFirst != null) {
-            firstNameField.setText(initialFirst);
+        if (eveDelegate != null) { // EVE-PATCH: load initial name from Eve delegate
+            firstNameField.setText(eveDelegate.getInitialFirstName()); // EVE-PATCH: load initial first name from Eve delegate
             firstNameField.setSelection(firstNameField.length());
+            lastNameField.setText(eveDelegate.getInitialLastName()); // EVE-PATCH: load initial last name from Eve delegate
         }
-        if (initialLast != null) {
-            lastNameField.setText(initialLast);
-        }
-        // EVE-PATCH: END
 
         return fragmentView;
     }
@@ -184,24 +150,13 @@ public class ChangeNameActivity extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        // EVE-PATCH: BEGIN default view_animations to true without MTProto MessagesController
-        boolean animations = true;
-        // EVE-PATCH: END
+        SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Context.MODE_PRIVATE); // EVE-PATCH: read animations preference without MessagesController
+        boolean animations = preferences.getBoolean("view_animations", true);
         if (!animations) {
             firstNameField.requestFocus();
             AndroidUtilities.showKeyboard(firstNameField);
         }
     }
-
-    // EVE-PATCH: BEGIN cut Telegram MTProto RPC updateProfile and forward to Eve adapter per R3 & R5
-    private void saveName() {
-        if (eveDelegate != null) {
-            String newFirst = firstNameField.getText() != null ? firstNameField.getText().toString() : "";
-            String newLast = lastNameField.getText() != null ? lastNameField.getText().toString() : "";
-            eveDelegate.saveName(newFirst, newLast);
-        }
-    }
-    // EVE-PATCH: END
 
     @Override
     public Theme.ResourcesProvider getResourceProvider() {
@@ -224,11 +179,23 @@ public class ChangeNameActivity extends BaseFragment {
     public ArrayList<ThemeDescription> getThemeDescriptions() {
         ArrayList<ThemeDescription> themeDescriptions = new ArrayList<>();
 
+
+
         themeDescriptions.add(new ThemeDescription(firstNameField, ThemeDescription.FLAG_BACKGROUNDFILTER, null, null, null, null, Theme.key_windowBackgroundWhiteInputField));
         themeDescriptions.add(new ThemeDescription(firstNameField, ThemeDescription.FLAG_BACKGROUNDFILTER | ThemeDescription.FLAG_DRAWABLESELECTEDSTATE, null, null, null, null, Theme.key_windowBackgroundWhiteInputFieldActivated));
         themeDescriptions.add(new ThemeDescription(lastNameField, ThemeDescription.FLAG_BACKGROUNDFILTER, null, null, null, null, Theme.key_windowBackgroundWhiteInputField));
         themeDescriptions.add(new ThemeDescription(lastNameField, ThemeDescription.FLAG_BACKGROUNDFILTER | ThemeDescription.FLAG_DRAWABLESELECTEDSTATE, null, null, null, null, Theme.key_windowBackgroundWhiteInputFieldActivated));
 
         return themeDescriptions;
+    }
+
+    /** theme editor: colors this page shows (former ThemeDescription keys) */
+    @Override
+    public void addThemeColorKeys(HashSet<Integer> keys) {
+        super.addThemeColorKeys(keys);
+        keys.add(Theme.key_actionBarDefaultSelector);
+        keys.add(Theme.key_actionBarDefaultTitle);
+        keys.add(Theme.key_actionBarDefault);
+        keys.add(Theme.key_windowBackgroundWhite);
     }
 }

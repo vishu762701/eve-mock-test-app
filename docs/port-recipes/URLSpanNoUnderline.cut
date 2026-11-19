@@ -1,0 +1,10 @@
+upstream org/telegram/ui/Components/URLSpanNoUnderline.java
+to app/src/main/java/org/telegram/ui/Components/URLSpanNoUnderline.java
+
+remove-statement "private TLObject object;"
+patch-line "Browser.openUrl(widget.getContext(), uri);" "widget.getContext().startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW, uri));" "open URL with standard Android Intent without Browser"
+patch-line "Browser.openUrl(widget.getContext(), url);" "widget.getContext().startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW, Uri.parse(url)));" "open URL with standard Android Intent without Browser"
+remove-method setObject
+remove-method getObject
+
+prune-imports

@@ -1,0 +1,9 @@
+upstream org/telegram/ui/Cells/TextCheckCell2.java
+to app/src/main/java/org/telegram/ui/Cells/TextCheckCell2.java
+
+patch-line "ThemeBind.textColor(animatedTextView, Theme.key_windowBackgroundWhiteBlackText);" "animatedTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));" "direct animated text color without ThemeBind"
+patch-line "ThemeBind.drawableColorFilter(this, drawable, Theme.key_windowBackgroundWhiteBlackText, PorterDuff.Mode.MULTIPLY);" "drawable.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText), PorterDuff.Mode.MULTIPLY));" "direct arrow tint without ThemeBind"
+patch-line "ThemeBind.textColor(textView, Theme.key_windowBackgroundWhiteBlackText, resourcesProvider);" "textView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText, resourcesProvider));" "direct text color without ThemeBind"
+patch-line "ThemeBind.textColor(valueTextView, Theme.key_windowBackgroundWhiteGrayText2, resourcesProvider);" "valueTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText2, resourcesProvider));" "direct value color without ThemeBind"
+
+prune-imports

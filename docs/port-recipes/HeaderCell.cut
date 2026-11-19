@@ -1,0 +1,21 @@
+upstream org/telegram/ui/Cells/HeaderCell.java
+to app/src/main/java/org/telegram/ui/Cells/HeaderCell.java
+
+remove-statement "private AnimatedTextView animatedTextView;"
+patch-line "this.animated = animated;" "this.animated = false;" "disable AnimatedTextView mode"
+remove-statement "animatedTextView = new AnimatedTextView(getContext());"
+remove-statement "animatedTextView.setTextSize(AndroidUtilities.dp(14));"
+remove-statement "animatedTextView.setTypeface(AndroidUtilities.bold());"
+remove-statement "animatedTextView.setGravity((LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT) | Gravity.CENTER_VERTICAL);" all
+remove-statement "ThemeBind.textColor(animatedTextView, textColorKey, resourcesProvider);"
+remove-statement "animatedTextView.setTag(textColorKey);"
+remove-statement "animatedTextView.getDrawable().setHacks(true, true, false);"
+remove-statement "addView(animatedTextView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, height - topMargin, (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT) | Gravity.TOP, padding, topMargin, padding, text2 ? 0 : bottomMargin));"
+patch-line "ThemeBind.textColor(textView, textColorKey, resourcesProvider);" "textView.setTextColor(getThemedColor(textColorKey));" "direct text color without ThemeBind"
+remove-statement "animatedTextView.setOnWidthUpdatedListener(listener);"
+patch-line "return animatedTextView.getDrawable().getCurrentWidth();" "return 0f;" "cut AnimatedTextView width"
+remove-statement "animatedTextView.setTextSize(AndroidUtilities.dp(dip));"
+remove-statement "if (animatedTextView != null) {" all
+remove-statement "animatedTextView.setText(text, animate);"
+
+prune-imports

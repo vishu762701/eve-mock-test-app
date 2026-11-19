@@ -284,4 +284,25 @@ object ProfilePhotoManager {
             }
         }
     }
+
+    @JvmStatic
+    fun decodeBitmapForCrop(context: android.content.Context?, photoPath: String?, photoUri: android.net.Uri?, maxSize: Int): android.graphics.Bitmap? {
+        return try {
+            val opts = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            if (photoPath != null) {
+                android.graphics.BitmapFactory.decodeFile(photoPath, opts)
+            } else if (photoUri != null && context != null) {
+                context.contentResolver.openInputStream(photoUri)?.use { android.graphics.BitmapFactory.decodeStream(it, null, opts) }
+            }
+            var scale = 1
+            val target = maxOf(1, maxSize)
+            while (opts.outWidth / scale > target || opts.outHeight / scale > target) { scale *= 2 }
+            val decodeOpts = android.graphics.BitmapFactory.Options().apply { inSampleSize = scale }
+            if (photoPath != null) {
+                android.graphics.BitmapFactory.decodeFile(photoPath, decodeOpts)
+            } else if (photoUri != null && context != null) {
+                context.contentResolver.openInputStream(photoUri)?.use { android.graphics.BitmapFactory.decodeStream(it, null, decodeOpts) }
+            } else null
+        } catch (_: Exception) { null }
+    }
 }

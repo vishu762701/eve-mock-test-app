@@ -59,6 +59,202 @@ SCREEN_SPECS = [
         ],
         "resources": [
             {
+                "path": "app/src/main/res/drawable-mdpi/calendar_date.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/calendar_date.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/calendar_date.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/calendar_date.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/calendar_date.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/calendar_date.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/calendar_date.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/calendar_date.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-mdpi/fast_scroll_shadow.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/fast_scroll_shadow.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/fast_scroll_shadow.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/fast_scroll_shadow.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/fast_scroll_shadow.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/fast_scroll_shadow.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/fast_scroll_shadow.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/fast_scroll_shadow.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable/transparent.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/transparent.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable-mdpi/greydivider_bottom.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/greydivider_bottom.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/greydivider_bottom.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/greydivider_bottom.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/greydivider_bottom.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/greydivider_bottom.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/greydivider_bottom.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/greydivider_bottom.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-mdpi/greydivider_top.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/greydivider_top.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/greydivider_top.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/greydivider_top.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/greydivider_top.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/greydivider_top.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/greydivider_top.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/greydivider_top.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable/field_carret_empty.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/field_carret_empty.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable-mdpi/search_dark.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/search_dark.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/search_dark.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/search_dark.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/search_dark.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/search_dark.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/search_dark.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/search_dark.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-mdpi/checkbig.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/checkbig.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/checkbig.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/checkbig.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/checkbig.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/checkbig.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/checkbig.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/checkbig.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-mdpi/sheet_shadow_round.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/sheet_shadow_round.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/sheet_shadow_round.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/sheet_shadow_round.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/sheet_shadow_round.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/sheet_shadow_round.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/sheet_shadow_round.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/sheet_shadow_round.9.png"
+            },
+            {
+                "path": "app/src/main/res/anim/no_animation.xml",
+                "upstream": "TMessagesProj/src/main/res/anim/no_animation.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable-mdpi/header_shadow.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/header_shadow.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/header_shadow.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/header_shadow.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/header_shadow.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/header_shadow.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/header_shadow.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/header_shadow.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-mdpi/header_shadow_reverse.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/header_shadow_reverse.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/header_shadow_reverse.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/header_shadow_reverse.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/header_shadow_reverse.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/header_shadow_reverse.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/header_shadow_reverse.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/header_shadow_reverse.webp"
+            },
+            {
+                "path": "app/src/main/res/anim/popup_in.xml",
+                "upstream": "TMessagesProj/src/main/res/anim/popup_in.xml"
+            },
+            {
+                "path": "app/src/main/res/anim/popup_out.xml",
+                "upstream": "TMessagesProj/src/main/res/anim/popup_out.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable-mdpi/popup_fixed_alert4.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/popup_fixed_alert4.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/popup_fixed_alert4.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/popup_fixed_alert4.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/popup_fixed_alert4.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/popup_fixed_alert4.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/popup_fixed_alert4.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/popup_fixed_alert4.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-mdpi/msg_arrowright.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_arrowright.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/msg_arrowright.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_arrowright.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/msg_arrowright.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_arrowright.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/msg_arrowright.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_arrowright.webp"
+            },
+            {
                 "path": "app/src/main/res/drawable-mdpi/ic_ab_back.webp",
                 "upstream": "TMessagesProj/src/main/res/drawable-mdpi/ic_ab_back.webp"
             },
@@ -143,7 +339,9 @@ SCREEN_SPECS = [
             {
                 "eve": "app/src/main/java/org/telegram/ui/ChangeNameActivity.java",
                 "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ChangeNameActivity.java",
-                "mode": "CUT"
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/ChangeNameActivity.cut",
+                "removed_methods_reason": "Cut TLRPC/MessagesController/UserConfig saveName in favor of com.eve.app ChangeNameDelegate CUT-INTERFACE; preserved full Telegram ChangeNameActivity layout, ActionBar, EditTextBoldCursor fields, and animations"
             },
             {
                 "eve": "app/src/main/java/org/telegram/ui/Components/LayoutHelper.java",
@@ -170,7 +368,9 @@ SCREEN_SPECS = [
             {
                 "eve": "app/src/main/java/org/telegram/ui/Components/EditTextBoldCursor.java",
                 "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/EditTextBoldCursor.java",
-                "mode": "CUT"
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/EditTextBoldCursor.cut",
+                "removed_methods_reason": "Cut EditTextEffects spoiler base, Choreographer60FpsContent, FloatingToolbar/FloatingActionMode, Blur3, and QuoteSpan; preserved full bold cursor, hint/header-hint/error animations, underline physics, and handle coloring"
             },
             {
                 "eve": "app/src/main/java/org/telegram/ui/ActionBar/Theme.java",
@@ -180,32 +380,44 @@ SCREEN_SPECS = [
             {
                 "eve": "app/src/main/java/org/telegram/ui/ActionBar/ThemeDescription.java",
                 "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ThemeDescription.java",
-                "mode": "CUT"
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/ThemeDescription.cut",
+                "removed_methods_reason": "Cut unported component instanceof branches (RecyclerListView, RadioButton, BackupImageView, etc.); preserved full ThemeDescription flags, ActionBar/TextView/SimpleTextView/ImageView/CombinedDrawable/View/Paint theming"
             },
             {
                 "eve": "app/src/main/java/org/telegram/ui/ActionBar/INavigationLayout.java",
                 "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/INavigationLayout.java",
-                "mode": "CUT"
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/INavigationLayout.cut",
+                "removed_methods_reason": "Cut DrawerLayoutContainer, MessageDrawable, BackButtonMenu, ActionBarLayout factory, and BottomSheetTabs getters; preserved full INavigationLayout contract"
             },
             {
                 "eve": "app/src/main/java/org/telegram/ui/ActionBar/BaseFragment.java",
                 "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/BaseFragment.java",
-                "mode": "CUT"
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/BaseFragment.cut",
+                "removed_methods_reason": "Cut Telegram account/chat controller getters, StoryViewer, ArticleViewer, BotWebViewAttachedSheet, glass engine, and LaunchActivity refs; preserved full BaseFragment lifecycle, actionBar creation, theming, and dialog management"
             },
             {
                 "eve": "app/src/main/java/org/telegram/ui/ActionBar/ActionBar.java",
                 "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBar.java",
-                "mode": "CUT"
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/ActionBar.cut",
+                "removed_methods_reason": "Cut glass/blur3 overlay host, holiday effects, chat avatar container, and animated emoji spans; preserved full ActionBar layout, title/subtitle, action mode, search transitions, and back/menu animations"
             },
             {
                 "eve": "app/src/main/java/org/telegram/ui/ActionBar/ActionBarMenu.java",
                 "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarMenu.java",
-                "mode": "CUT"
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/ActionBarMenu.cut",
+                "removed_methods_reason": "Cut chat search filters and RLottieDrawable branch; preserved full menu item creation, lazy items, search field orchestration, and layout"
             },
             {
                 "eve": "app/src/main/java/org/telegram/ui/ActionBar/ActionBarMenuItem.java",
                 "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarMenuItem.java",
-                "mode": "CUT"
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/ActionBarMenuItem.cut",
+                "removed_methods_reason": "Cut chat search filters, glass blur3, overlay menu host, swipe-back submenus, and RLottie; preserved full menu item, popup submenu, search field, and touch/animation physics"
             },
             {
                 "eve": "app/src/main/java/org/telegram/messenger/AndroidUtilities.java",
@@ -311,9 +523,1012 @@ SCREEN_SPECS = [
                 "removed_methods_reason": "Cut animated lottie icons, network avatar image, and checkView; preserved full item titles, subtitles, normal icons, colors, selectors, RTL, and accessibility"
             },
             {
+                "eve": "app/src/main/java/org/telegram/ui/Components/CloseProgressDrawable2.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/CloseProgressDrawable2.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/messenger/utils/ViewOutlineProviderImpl.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/utils/ViewOutlineProviderImpl.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/AnimatedFloat.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/AnimatedFloat.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/ScaleStateListAnimator.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/ScaleStateListAnimator.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/RadialProgressView.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/RadialProgressView.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/CircularProgressDrawable.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/CircularProgressDrawable.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/ActionBar/TextViewWithLoading.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/TextViewWithLoading.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/LineProgressView.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/LineProgressView.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/LineProgressView.cut",
+                "removed_methods_reason": "Cut CellFlickerDrawable shimmer overlay; preserved full progress bar animation and drawing"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/ActionBar/AlertDialog.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/AlertDialog.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/AlertDialog.cut",
+                "removed_methods_reason": "Cut Stars balance cloud, RLottie top animations, NotificationCenter emoji hooks, Browser.Progress, and chat blur; preserved full AlertDialog layout, buttons, loading/spinner styles, scrolling, shadows, and Builder"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/AnimationProperties.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/AnimationProperties.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/AnimationProperties.cut",
+                "removed_methods_reason": "Cut ImageReceiver, PhotoViewer, and DialogCell properties; preserved all standard View/Drawable/Paint animation properties"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/ActionBar/BottomSheet.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/BottomSheet.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/BottomSheet.cut",
+                "removed_methods_reason": "Cut glass overlay menu, NotificationCenter heavy-ops, CameraView/ItemOptions, Bulletin hooks, WindowVisibilityManager, and LaunchActivity refs; preserved full BottomSheet nested scroll, drag-to-dismiss physics, keyboard insets, cells, and Builder"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/messenger/XiaomiUtilities.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/XiaomiUtilities.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/messenger/GenericProvider.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/GenericProvider.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/ButtonBounce.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/ButtonBounce.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/Switch.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/Switch.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/RadioButton.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/RadioButton.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Cells/DividerCell.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/DividerCell.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Cells/ShadowSectionCell.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/ShadowSectionCell.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/CheckBoxBase.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/CheckBoxBase.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/CheckBoxBase.cut",
+                "removed_methods_reason": "Cut chat MessageDrawable gradient shader; preserved full checkbox drawing and animations"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/CheckBox2.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/CheckBox2.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/CheckBox2.cut",
+                "removed_methods_reason": "Direct drawable color filter without ThemeBind"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Cells/HeaderCell.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/HeaderCell.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/HeaderCell.cut",
+                "removed_methods_reason": "Cut AnimatedTextView mode and ThemeBind; preserved full HeaderCell TextView, secondary text, RTL, and accessibility"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Cells/TextInfoPrivacyCell.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/TextInfoPrivacyCell.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/TextInfoPrivacyCell.cut",
+                "removed_methods_reason": "Use standard TextView without LinkSpanDrawable and ThemeBind; preserved full privacy footer layout, padding, links, and RTL"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Cells/TextCheckCell.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/TextCheckCell.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/TextCheckCell.cut",
+                "removed_methods_reason": "Cut AvatarSpan and RLottieImageView; preserved full Switch check cell layout, animations, divider, and RTL"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Cells/TextDetailCell.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/TextDetailCell.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/TextDetailCell.cut",
+                "removed_methods_reason": "Use standard TextView without SpoilersTextView/LinkSpanDrawable and cut UItem Factory; preserved full TextDetailCell layout, subtitles, divider, and RTL"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/CodepointsLengthInputFilter.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/CodepointsLengthInputFilter.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/NumberTextView.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/NumberTextView.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/AnimatedTextView.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/AnimatedTextView.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/AnimatedTextView.cut",
+                "removed_methods_reason": "Cut AnimatedEmojiSpan and AnimatedEmojiDrawable cache constant (5 lines); preserved 99%+ of upstream AnimatedTextView morphing text engine"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Cells/TextCell.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/TextCell.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/TextCell.cut",
+                "removed_methods_reason": "Cut RLottie, AnimatedEmojiDrawable stickers, PeerColor lock, and FilterCreate NewSpan; preserved full TextCell layout, AnimatedTextView value, subtitle, switch/checkbox, and RTL"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/RecyclerListView.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/RecyclerListView.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/RecyclerListView.cut",
+                "removed_methods_reason": "Cut Blur3 capture/drawables, NotificationCenter heavy-ops, and chat-specific cell checks; preserved full RecyclerListView fast scroll, sections, selectors, animations, and touch physics"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/PhotoCropActivity.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/PhotoCropActivity.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/PhotoCropActivity.cut",
+                "removed_methods_reason": "Decode bitmap via Eve ProfilePhotoManager CUT-INTERFACE without ImageLoader; preserved 98.8% of upstream PhotoCropActivity crop square, gesture physics, and ActionBar"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/ForegroundColorSpanThemable.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/ForegroundColorSpanThemable.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Cells/TextRadioCell.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/TextRadioCell.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/TextRadioCell.cut",
+                "removed_methods_reason": "Direct Theme color resolution without ThemeBind; preserved 98.1% of upstream TextRadioCell"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Cells/LanguageCell.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/LanguageCell.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/LanguageCell.cut",
+                "removed_methods_reason": "Direct Theme color resolution without ThemeBind; preserved 93.5% of upstream LanguageCell"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/EmptyTextProgressView.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/EmptyTextProgressView.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/EmptyTextProgressView.cut",
+                "removed_methods_reason": "Direct Theme color resolution without ThemeBind; preserved 97.4% of upstream EmptyTextProgressView"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/URLSpanNoUnderline.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/URLSpanNoUnderline.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/URLSpanNoUnderline.cut",
+                "removed_methods_reason": "Cut TLObject and Telegram Browser helper in favor of standard Android ACTION_VIEW Intent"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Cells/TextSettingsCell.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/TextSettingsCell.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/TextSettingsCell.cut",
+                "removed_methods_reason": "Cut BackupImageView/AnimatedEmojiDrawable and RLottieImageView; preserved 92.6% of upstream TextSettingsCell"
+            },
+            {
                 "eve": "app/src/main/java/org/telegram/messenger/Utilities.java",
                 "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/Utilities.java",
                 "mode": "CUT"
+            }
+        ]
+    },
+    {
+        "screen": "ChangeBioActivity",
+        "eve_host": "com.eve.app.ui.profile.ChangeBioActivity",
+        "telegram_entry": "org.telegram.ui.ChangeBioActivity",
+        "dead_layout_files": [
+            "app/src/main/res/layout/activity_change_bio.xml"
+        ],
+        "resources": [],
+        "files": [
+            {
+                "eve": "app/src/main/java/org/telegram/ui/ChangeBioActivity.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ChangeBioActivity.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/ChangeBioActivity.cut",
+                "removed_methods_reason": "Cut TLRPC/MessagesController/UserConfig saveName in favor of com.eve.app ChangeBioDelegate CUT-INTERFACE; preserved full Telegram ChangeBioActivity layout, CodepointsLengthInputFilter, NumberTextView counter, shake/vibration physics, and ActionBar"
+            }
+        ]
+    },
+    {
+        "screen": "LanguageSelectActivity",
+        "eve_host": "com.eve.app.ui.settings.LanguageSelectActivity",
+        "telegram_entry": "org.telegram.ui.LanguageSelectActivity",
+        "dead_layout_files": [],
+        "resources": [
+            {
+                "path": "app/src/main/res/drawable/outline_header_search.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/outline_header_search.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/ic_ab_close.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/ic_ab_close.xml"
+            }
+        ],
+        "files": [
+            {
+                "eve": "app/src/main/java/org/telegram/ui/LanguageSelectActivity.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/LanguageSelectActivity.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/LanguageSelectActivity.cut",
+                "removed_methods_reason": "Cut chat translation/premium rows (CUT-HIDDEN per 6c) and remote langpack sync; wired to com.eve.app TelegramLanguageDelegate while preserving real RecyclerListView, LanguageCell, ActionBar search, and EmptyTextProgressView"
+            }
+        ]
+    },
+    {
+        "screen": "ChangeUsernameActivity",
+        "eve_host": "com.eve.app.ui.profile.ChangeUsernameActivity",
+        "telegram_entry": "org.telegram.ui.ChangeUsernameActivity",
+        "dead_layout_files": [
+            "app/src/main/res/layout/activity_change_username.xml"
+        ],
+        "resources": [],
+        "files": [
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/CornerPath.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/CornerPath.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/LoadingDrawable.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/LoadingDrawable.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/LinkPath.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/LinkPath.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/LinkPath.cut",
+                "removed_methods_reason": "Pruned unused LiteMode import"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/LinkSpanDrawable.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/LinkSpanDrawable.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/LinkSpanDrawable.cut",
+                "removed_methods_reason": "Cut LiteMode, ArticleViewer, and AnimatedEmojiSpan hooks"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/ChangeUsernameActivity.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ChangeUsernameActivity.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/ChangeUsernameActivity.cut",
+                "removed_methods_reason": "Cut Fragment collectible usernames (CUT-HIDDEN) and TLRPC account calls; wired availability check & save to Eve Worker API via TelegramUsernameDelegate"
+            }
+        ]
+    },
+    {
+        "screen": "PasscodeActivity",
+        "eve_host": "com.eve.app.ui.settings.PasscodeActivity",
+        "telegram_entry": "org.telegram.ui.PasscodeActivity",
+        "dead_layout_files": [],
+        "resources": [
+            {
+                "path": "app/src/main/res/anim/alpha_in.xml",
+                "upstream": "TMessagesProj/src/main/res/anim/alpha_in.xml"
+            },
+            {
+                "path": "app/src/main/res/anim/alpha_out.xml",
+                "upstream": "TMessagesProj/src/main/res/anim/alpha_out.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable-mdpi/msg_clear_input.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_clear_input.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/msg_clear_input.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_clear_input.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/msg_clear_input.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_clear_input.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/msg_clear_input.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_clear_input.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-mdpi/msg_pin_code.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_pin_code.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/msg_pin_code.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_pin_code.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/msg_pin_code.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_pin_code.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/msg_pin_code.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_pin_code.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-mdpi/ic_ab_other.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/ic_ab_other.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/ic_ab_other.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/ic_ab_other.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/ic_ab_other.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/ic_ab_other.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/ic_ab_other.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/ic_ab_other.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-mdpi/msg_message.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_message.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/msg_message.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_message.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/msg_message.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_message.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/msg_message.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_message.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-mdpi/msg_permissions.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_permissions.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/msg_permissions.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_permissions.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/msg_permissions.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_permissions.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/msg_permissions.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_permissions.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-mdpi/qr_flashlight.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/qr_flashlight.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/qr_flashlight.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/qr_flashlight.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/qr_flashlight.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/qr_flashlight.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/qr_flashlight.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/qr_flashlight.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-mdpi/qr_gallery.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/qr_gallery.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/qr_gallery.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/qr_gallery.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/qr_gallery.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/qr_gallery.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/qr_gallery.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/qr_gallery.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-mdpi/arrow_more.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/arrow_more.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/arrow_more.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/arrow_more.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/arrow_more.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/arrow_more.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/arrow_more.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/arrow_more.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-mdpi/sticker_added.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/sticker_added.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/sticker_added.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/sticker_added.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/sticker_added.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/sticker_added.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/sticker_added.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/sticker_added.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-mdpi/msg_brightness_low.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_brightness_low.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/msg_brightness_low.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_brightness_low.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/msg_brightness_low.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_brightness_low.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/msg_brightness_low.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_brightness_low.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-mdpi/msg_brightness_high.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_brightness_high.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/msg_brightness_high.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_brightness_high.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/msg_brightness_high.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_brightness_high.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/msg_brightness_high.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_brightness_high.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable/action_share.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/action_share.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/filled_profile_call_24.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/filled_profile_call_24.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/filled_profile_edit_24.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/filled_profile_edit_24.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/filled_profile_member_24.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/filled_profile_member_24.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/filled_profile_message_24.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/filled_profile_message_24.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/filled_profile_mute_24.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/filled_profile_mute_24.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/filled_profile_photo.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/filled_profile_photo.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/filled_profile_settings.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/filled_profile_settings.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/filled_profile_stop_24.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/filled_profile_stop_24.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/filled_profile_story.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/filled_profile_story.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/filled_profile_unmute_24.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/filled_profile_unmute_24.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/filled_profile_video_24.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/filled_profile_video_24.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/gift.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/gift.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/input_gift_s.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/input_gift_s.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/leave.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/leave.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/live_stream.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/live_stream.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/outline_profile_call_24.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/outline_profile_call_24.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/outline_profile_edit_24.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/outline_profile_edit_24.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/outline_profile_member_24.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/outline_profile_member_24.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/outline_profile_message_24.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/outline_profile_message_24.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/outline_profile_mute_24.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/outline_profile_mute_24.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/outline_profile_photo.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/outline_profile_photo.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/outline_profile_settings.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/outline_profile_settings.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/outline_profile_stop_24.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/outline_profile_stop_24.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/outline_profile_story.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/outline_profile_story.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/outline_profile_unmute_24.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/outline_profile_unmute_24.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/outline_profile_video_24.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/outline_profile_video_24.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable/report.xml",
+                "upstream": "TMessagesProj/src/main/res/drawable/report.xml"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/mini_boost_button.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/mini_boost_button.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-mdpi/mini_boost_button.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/mini_boost_button.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/mini_boost_button.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/mini_boost_button.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/mini_boost_button.webp",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/mini_boost_button.webp"
+            }
+        ],
+        "files": [
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/SimpleFloatPropertyCompat.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/SimpleFloatPropertyCompat.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/TextViewSwitcher.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/TextViewSwitcher.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/VerticalPositionAutoAnimator.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/VerticalPositionAutoAnimator.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/OutlineTextContainerView.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/OutlineTextContainerView.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/TransformableLoginButtonView.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/TransformableLoginButtonView.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/CodeNumberField.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/CodeNumberField.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/CodeNumberField.cut",
+                "removed_methods_reason": "Direct Theme.getColor without ThemeBind"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/CodeFieldContainer.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/CodeFieldContainer.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/CodeFieldContainer.cut",
+                "removed_methods_reason": "Cut LoginActivity missed-call branch and PhoneFormat dependency"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/Scroller.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/Scroller.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/SeekBarAccessibilityDelegate.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/SeekBarAccessibilityDelegate.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/NumberPicker.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/NumberPicker.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/NumberPicker.cut",
+                "removed_methods_reason": "Direct Theme.getColor without ThemeBind"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/CustomPhoneKeyboardView.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/CustomPhoneKeyboardView.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/CustomPhoneKeyboardView.cut",
+                "removed_methods_reason": "Direct Theme colors without ThemeBind"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/FragmentFloatingButton.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/FragmentFloatingButton.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/FragmentFloatingButton.cut",
+                "removed_methods_reason": "Cut blur3/glass sub-button decoration"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/PasscodeActivity.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/PasscodeActivity.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/PasscodeActivity.cut",
+                "removed_methods_reason": "Cut GramWallet rows (CUT-HIDDEN), NotificationCenter, RLottie, and glass ActionBar; bridged SharedConfig state to Eve PasscodeManager"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/CameraScanActivity.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/CameraScanActivity.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/CameraScanActivity.cut",
+                "removed_methods_reason": "Cut legacy CameraView/GMS Vision/ZXing/MRZ backend in favor of EveCameraHost CUT-INTERFACE so CameraX/ZXing stay Eve-side; preserved full Telegram BottomSheet scanner overlay, animated corner bounds, torch, and gallery chrome"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/ActionIntroActivity.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionIntroActivity.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/ActionIntroActivity.cut",
+                "removed_methods_reason": "Cut LocationController, RLottie, CellFlickerDrawable, and TLRPC phone lookup; wired primary action callback for Eve intro flows"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/IntSeekBarAccessibilityDelegate.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/IntSeekBarAccessibilityDelegate.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/SlideChooseView.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/SlideChooseView.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Cells/RadioButtonCell.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/RadioButtonCell.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/RadioButtonCell.cut",
+                "removed_methods_reason": "Direct Theme.getColor without ThemeBind"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Cells/RadioColorCell.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/RadioColorCell.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/RadioColorCell.cut",
+                "removed_methods_reason": "Direct Theme.getColor without ThemeBind"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Cells/TextDetailSettingsCell.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/TextDetailSettingsCell.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/TextDetailSettingsCell.cut",
+                "removed_methods_reason": "Direct Theme.getColor without ThemeBind and plain text without Emoji"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Cells/TextCheckCell2.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/TextCheckCell2.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/TextCheckCell2.cut",
+                "removed_methods_reason": "Direct Theme.getColor without ThemeBind"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Cells/TextCheckbox2Cell.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/TextCheckbox2Cell.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/TextCheckbox2Cell.cut",
+                "removed_methods_reason": "Direct Theme.getColor without ThemeBind"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/QrShare/QrGlass.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrGlass.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/QrShare/QrRender.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrRender.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/QrShare/QrStarDrawable.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrStarDrawable.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/QrShare/RimPainter.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/RimPainter.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/QrShare/RimTune.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/RimTune.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/FloatSeekBarAccessibilityDelegate.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/FloatSeekBarAccessibilityDelegate.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Cells/TextColorCell.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/TextColorCell.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/TextColorCell.cut",
+                "removed_methods_reason": "Direct Theme.getColor without ThemeBind"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Cells/ThemeTypeCell.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/ThemeTypeCell.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/ThemeTypeCell.cut",
+                "removed_methods_reason": "Direct Theme.getColor without ThemeBind"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/SeekBarView.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/SeekBarView.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/SeekBarView.cut",
+                "removed_methods_reason": "Cut AudioPlayerAlert timestamp switcher and MessageObject chapter parser; preserved full interactive Telegram SeekBarView"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Cells/BrightnessControlCell.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/BrightnessControlCell.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/BrightnessControlCell.cut",
+                "removed_methods_reason": "Direct Theme.getColor without ThemeBind"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/messenger/TelegramQRCodeWriter.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/TelegramQRCodeWriter.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/TelegramQRCodeWriter.cut",
+                "removed_methods_reason": "Remove SvgHelper/R.raw.qr_logo fallback plane icon when centerDrawable is null"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/messenger/NotchInfoUtils.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/NotchInfoUtils.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/IconBackgroundColors.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/IconBackgroundColors.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/CheckBoxSquare.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/CheckBoxSquare.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/QrShare/QrCodeLayer.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrCodeLayer.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/QrCodeLayer.cut",
+                "removed_methods_reason": "Remove SharedConfig performance class guard while keeping full QrRender vertices support"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/ProfileGooeyView.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/ProfileGooeyView.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/ProfileGooeyView.cut",
+                "removed_methods_reason": "Remove SharedConfig performance class guard while keeping Android 12+ GPUImpl gooey physics"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/TextHelper.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/TextHelper.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/TextHelper.cut",
+                "removed_methods_reason": "Direct Theme.getColor without ThemeBind"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/ListView/AdapterWithDiffUtils.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/ListView/AdapterWithDiffUtils.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/GradientTools.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/GradientTools.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/AvatarDrawable.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/AvatarDrawable.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/AvatarDrawable.cut",
+                "removed_methods_reason": "Cut TLRPC/Chat/User/PeerColor overloads and Emoji/ThemeBind generation checks while preserving core setInfo(long, firstName, lastName), gradient colors, and Canvas drawing"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/Text.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/Text.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/Text.cut",
+                "removed_methods_reason": "Remove AnimatedEmojiSpan/AnimatedEmojiDrawable hooks"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/ProfileActionsView.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/ProfileActionsView.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/ProfileActionsView.cut",
+                "removed_methods_reason": "Cut blur3 glassFactory (falls back cleanly to Telegram built-in action button color fill)"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/SimpleThemeDescription.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/SimpleThemeDescription.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/Loadable.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/Loadable.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Stories/recorder/ButtonWithCounterView.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Stories/recorder/ButtonWithCounterView.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/ButtonWithCounterView.cut",
+                "removed_methods_reason": "Direct setBackground without ThemeBind"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Cells/SlideIntChooseView.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/SlideIntChooseView.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/SlideIntChooseView.cut",
+                "removed_methods_reason": "Direct Theme.getColor without ThemeBind and remove AnimatedEmojiDrawable cache type"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Cells/NotificationsCheckCell.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/NotificationsCheckCell.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/NotificationsCheckCell.cut",
+                "removed_methods_reason": "Direct Theme.getColor without ThemeBind"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/CrossfadeDrawable.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/CrossfadeDrawable.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/ProgressButton.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/ProgressButton.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Cells/DialogRadioCell.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/DialogRadioCell.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/DialogRadioCell.cut",
+                "removed_methods_reason": "Direct Theme.getColor without ThemeBind"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Cells/TextRightIconCell.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/TextRightIconCell.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/TextRightIconCell.cut",
+                "removed_methods_reason": "Direct Theme.getColor without ThemeBind"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Cells/CollapseTextCell.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/CollapseTextCell.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/CollapseTextCell.cut",
+                "removed_methods_reason": "Direct Theme.getColor without ThemeBind"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Cells/GraySectionCell.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/GraySectionCell.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/GraySectionCell.cut",
+                "removed_methods_reason": "Use TextView without AnimatedEmojiSpan and direct Theme.getColor without ThemeBind"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/UItem.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/UItem.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/UItem.cut",
+                "removed_methods_reason": "Cut TLRPC/Business/Stats/Monetization factory overloads while preserving all core UItem list factories (asHeader, asShadow, asButton, asCheck, asRadio, asCustom, asSlideView, asIntSlideView)"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/ViewHelper.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/ViewHelper.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/RecyclerViewportFrameLayout.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/RecyclerViewportFrameLayout.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/Size.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/Size.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/ExtendedGridLayoutManager.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/ExtendedGridLayoutManager.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/UniversalAdapter.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/UniversalAdapter.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/UniversalAdapter.cut",
+                "removed_methods_reason": "Cut Telegram-only Business/QuickReply/Charts/Monetization/DialogCell/UserCell cases and ThemeBind while preserving all core Settings/Profile UniversalAdapter view types"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/UniversalRecyclerView.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/UniversalRecyclerView.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/UniversalRecyclerView.cut",
+                "removed_methods_reason": "Remove RichEditor.DraggingDrawable hook"
             }
         ]
     }

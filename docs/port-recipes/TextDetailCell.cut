@@ -1,0 +1,14 @@
+upstream org/telegram/ui/Cells/TextDetailCell.java
+to app/src/main/java/org/telegram/ui/Cells/TextDetailCell.java
+
+patch-line "public final SpoilersTextView textView;" "public final TextView textView;" "use standard TextView without SpoilersTextView"
+patch-line "public final LinkSpanDrawable.LinksTextView valueTextView;" "public final TextView valueTextView;" "use standard TextView without LinkSpanDrawable"
+patch-line "public final LinkSpanDrawable.LinksTextView rightValueTextView;" "public final TextView rightValueTextView;" "use standard TextView without LinkSpanDrawable"
+patch-line "textView = new SpoilersTextView(context, resourcesProvider);" "textView = new TextView(context);" "use standard TextView"
+patch-line "valueTextView = new LinkSpanDrawable.LinksTextView(context, resourcesProvider) {" "valueTextView = new TextView(context) {" "use standard TextView"
+patch-line "rightValueTextView = new LinkSpanDrawable.LinksTextView(context, resourcesProvider) {" "rightValueTextView = new TextView(context) {" "use standard TextView"
+patch-line "ThemeBind.selectorBackground(imageView, Theme.createSimpleSelectorCircleDrawable(dp(48), Color.TRANSPARENT, Theme.getColor(Theme.key_listSelector, resourcesProvider)), null, ThemeBind.of(Theme.key_listSelector), resourcesProvider);" "imageView.setBackground(Theme.createSimpleSelectorCircleDrawable(dp(48), Color.TRANSPARENT, Theme.getColor(Theme.key_listSelector, resourcesProvider)));" "direct selector background without ThemeBind"
+patch-line "textView.setText(Emoji.replaceEmoji(text, textView.getPaint().getFontMetricsInt(), false));" "textView.setText(text);" "set text directly without Emoji helper"
+remove-statement "public static final class Factory extends UItem.UItemFactory<TextDetailCell> {"
+
+prune-imports

@@ -1,0 +1,16 @@
+upstream org/telegram/ui/Cells/TextSettingsCell.java
+to app/src/main/java/org/telegram/ui/Cells/TextSettingsCell.java
+
+remove-statement "private BackupImageView valueBackupImageView;"
+patch-line "ThemeBind.textColor(textView, Theme.key_windowBackgroundWhiteBlackText, resourcesProvider);" "textView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText, resourcesProvider));" "direct text color without ThemeBind"
+patch-line "ThemeBind.textColor(valueTextView, Theme.key_windowBackgroundWhiteValueText, resourcesProvider);" "valueTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteValueText, resourcesProvider));" "direct value color without ThemeBind"
+patch-line "imageView = new RLottieImageView(context);" "imageView = new ImageView(context);" "use standard ImageView without RLottie"
+remove-statement "ThemeBind.colorFilter(imageView, Theme.key_windowBackgroundWhiteGrayIcon, resourcesProvider, PorterDuff.Mode.MULTIPLY);" all
+patch-line "ThemeBind.colorFilter(valueImageView, Theme.key_windowBackgroundWhiteGrayIcon, resourcesProvider, PorterDuff.Mode.MULTIPLY);" "valueImageView.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteGrayIcon, resourcesProvider), PorterDuff.Mode.MULTIPLY));" "direct value icon color filter without ThemeBind"
+remove-statement "if (valueBackupImageView != null) {"
+remove-statement "ThemeBind.clear(textView); // custom color from the caller: no longer follows the theme key"
+remove-statement "ThemeBind.clear(valueTextView); // custom color from the caller: no longer follows the theme key"
+remove-method getValueBackupImageView
+remove-statement "if (valueBackupImageView != null && valueBackupImageView.getImageReceiver() != null && valueBackupImageView.getImageReceiver().getDrawable() instanceof AnimatedEmojiDrawable) {"
+
+prune-imports

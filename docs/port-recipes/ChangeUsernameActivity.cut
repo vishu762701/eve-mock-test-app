@@ -1,0 +1,121 @@
+upstream org/telegram/ui/ChangeUsernameActivity.java
+to app/src/main/java/org/telegram/ui/ChangeUsernameActivity.java
+
+# Cut collectible usernames & Telegram account/TLRPC methods
+remove-method getUserId
+remove-method getUser
+remove-method useSimpleActionBar
+remove-method toggleUsername all
+remove-method swapElements
+remove-method moveElement
+remove-method sendReorder
+remove-method updateUser
+remove-method getListViewForSimpleGlass
+remove-method addThemeColorKeys
+
+# Cut collectible username fields and UsernameCell / TouchHelperCallback inner classes
+remove-statement "private ItemTouchHelper itemTouchHelper;"
+remove-statement "private boolean needReorder;"
+remove-statement "private int checkReqId;"
+remove-statement "private ArrayList<TLRPC.TL_username> notEditableUsernames = new ArrayList<>();"
+remove-statement "private ArrayList<TLRPC.TL_username> usernames = new ArrayList<>();"
+remove-statement "private ArrayList<String> loadingUsernames = new ArrayList<>();"
+remove-statement "private long botId;" all
+remove-statement "private UsernameCell editableUsernameCell;"
+remove-statement "private static Paint linkBackgroundActive = new Paint(Paint.ANTI_ALIAS_FLAG);"
+remove-statement "private static Paint linkBackgroundInactive = new Paint(Paint.ANTI_ALIAS_FLAG);"
+remove-statement "private static Paint dragPaint = new Paint(Paint.ANTI_ALIAS_FLAG);"
+remove-statement "public static class UsernameCell extends FrameLayout implements Theme.Colorable {"
+remove-statement "public class TouchHelperCallback extends ItemTouchHelper.Callback {"
+
+# Wire CUT-INTERFACE delegate and host accessors
+patch-line "private SimpleActionBarDoneButton doneButton;" "private View doneButton; private com.eve.app.ui.profile.TelegramUsernameDelegate eveDelegate; public void setEveDelegate(com.eve.app.ui.profile.TelegramUsernameDelegate delegate) { this.eveDelegate = delegate; } public EditTextBoldCursor getUsernameField() { return inputCell != null ? inputCell.field : null; } public TextView getStatusTextView() { return statusTextView; } public View getDoneButton() { return doneButton; } public boolean isLastNameAvailable() { return lastNameAvailable; } public void recheckUsername() { checkUserName(username, false); }" "wire Eve CUT-INTERFACE delegate and host accessors"
+
+# Cut BulletinFactory in LinkSpan
+patch-line "if (BulletinFactory.canShowBulletin(ChangeUsernameActivity.this)) {" "if (eveDelegate != null) { eveDelegate.onLinkCopied(url); } if (false) {" "route link copy toast through Eve delegate"
+remove-statement "BulletinFactory.createCopyLinkBulletin(ChangeUsernameActivity.this).show();"
+
+# Cut botId arg in constructor
+remove-statement "if (args != null) {"
+
+# Wire standard BaseFragment ActionBar instead of simpleActionBar
+remove-statement "setHasOwnBackground(true);"
+patch-line "simpleActionBar.setBackButtonImage(R.drawable.ic_ab_back);" "actionBar.setBackButtonImage(R.drawable.ic_ab_back); actionBar.setAllowOverlayTitle(true);" "use BaseFragment actionBar"
+patch-line "simpleActionBar.setTitle(LocaleController.getString(R.string.Username));" "actionBar.setTitle(LocaleController.getString(R.string.Username));" "use BaseFragment actionBar title"
+patch-line "simpleActionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {" "actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {" "use BaseFragment actionBar item click"
+remove-statement "sendReorder();"
+patch-line "doneButton = simpleActionBar.createDoneButton(done_button, LocaleController.getString(R.string.Save));" "doneButton = actionBar.createMenu().addItemWithWidth(done_button, R.drawable.ic_ab_done, dp(56), LocaleController.getString(R.string.Done));" "use BaseFragment ActionBar done menu item"
+
+# Load initial username from Eve delegate instead of MessagesController/TLRPC
+remove-statement "TLRPC.User user = MessagesController.getInstance(currentAccount).getUser(getUserId());" all
+remove-statement "if (user == null) {"
+remove-statement "if (user != null) {"
+patch-line "fragmentView = new FrameLayout(context);" "if (eveDelegate != null) { username = eveDelegate.getCurrentUsername(); if (username == null) username = \"\"; } fragmentView = new FrameLayout(context);" "load initial username from Eve delegate"
+
+# Remove collectible username list setup and click listener
+patch-line "ThemeBind.listSelectorColor(listView, Theme.key_listSelector, getResourceProvider());" "listView.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundGray));" "direct background color without ThemeBind"
+remove-statement "itemTouchHelper = new ItemTouchHelper(new TouchHelperCallback());"
+remove-statement "itemTouchHelper.attachToRecyclerView(listView);"
+remove-statement "listView.setOnItemClickListener(new RecyclerListView.OnItemClickListener() {"
+
+# Simplify Adapter to 3 items (Header, Input, Help) without collectible UsernameCell
+patch-line "focusUsernameField(usernames.size() <= 0);" "focusUsernameField(true);" "always show keyboard on username field"
+remove-statement "case VIEW_TYPE_USERNAME:" all
+remove-statement "UsernameCell cell = (UsernameCell) holder.itemView;"
+remove-statement "if (username.editable) {"
+remove-statement "cell.set(username, position < getItemCount() - 2, false, botId);"
+patch-line "((HeaderCell) holder.itemView).setText(position == 0 ? LocaleController.getString(botId != 0 ? R.string.BotSetPublicLinkHeader : R.string.SetUsernameHeader) : LocaleController.getString(R.string.UsernamesProfileHeader));" "((HeaderCell) holder.itemView).setText(LocaleController.getString(R.string.SetUsernameHeader));" "single header row for Eve username"
+patch-line "((TextInfoPrivacyCell) holder.itemView).setText(LocaleController.getString(botId != 0 ? R.string.BotUsernamesHelp : R.string.UsernamesProfileHelp));" "((TextInfoPrivacyCell) holder.itemView).setText(LocaleController.getString(R.string.UsernameHelp));" "use Eve username help string"
+remove-statement "if (usernames.size() > 0) {"
+patch-line "return 3 + (usernames.size() > 0 ? 1 + usernames.size() + 1 : 0);" "return 3;" "Eve username screen has 3 sections (header, input, help)"
+patch-line "return holder.getItemViewType() == VIEW_TYPE_USERNAME;" "return false;" "no clickable collectible username rows"
+
+# Direct Theme colors in UsernameHelpCell (no ThemeBind / Browser / botId)
+patch-line "ThemeBind.textColor(text1View, Theme.key_windowBackgroundWhiteGrayText8);" "text1View.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText8));" "direct text1 color without ThemeBind"
+patch-line "ThemeBind.linkTextColor(text1View, Theme.key_windowBackgroundWhiteLinkText);" "text1View.setLinkTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteLinkText));" "direct link color without ThemeBind"
+patch-line "ThemeBind.highlightColor(text1View, Theme.key_windowBackgroundWhiteLinkSelection);" "text1View.setHighlightColor(Theme.getColor(Theme.key_windowBackgroundWhiteLinkSelection));" "direct highlight color without ThemeBind"
+remove-statement "Browser.openUrl(getContext(), \"https://fragment.com/username/\" + username);"
+patch-line "text2View = statusTextView = new LinkSpanDrawable.LinksTextView(context) {" "text2View = statusTextView = new LinkSpanDrawable.LinksTextView(context) { @Override public void setTag(Object tag) { super.setTag(tag); if (tag instanceof Integer) { int k = (Integer) tag; setTextColor(Theme.getColor(k)); if (eveDelegate != null) { eveDelegate.onStatusRoleChanged(k == Theme.key_windowBackgroundWhiteGreenText ? com.eve.app.ui.profile.TelegramUsernameDelegate.ROLE_AVAILABLE : (k == Theme.key_text_RedRegular ? com.eve.app.ui.profile.TelegramUsernameDelegate.ROLE_INVALID : com.eve.app.ui.profile.TelegramUsernameDelegate.ROLE_CHECKING)); } } }" "sync status color and Eve delegate role on setTag"
+patch-line "ThemeBind.textColor(text2View, Theme.key_windowBackgroundWhiteGrayText8);" "text2View.setId(com.eve.app.R.id.tvStatus); text2View.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE); text2View.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText8));" "set tvStatus id, live region, and direct color"
+patch-line "ThemeBind.linkTextColor(text2View, Theme.key_windowBackgroundWhiteLinkText);" "text2View.setLinkTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteLinkText));" "direct status link color without ThemeBind"
+patch-line "ThemeBind.highlightColor(text2View, Theme.key_windowBackgroundWhiteLinkSelection);" "text2View.setHighlightColor(Theme.getColor(Theme.key_windowBackgroundWhiteLinkSelection));" "direct status highlight color without ThemeBind"
+remove-statement "if (botId != 0) {" all
+patch-line "addView(text2View, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP));" "addView(text2View, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP)); text1View.setText(AndroidUtilities.replaceTags(LocaleController.getString(R.string.UsernameHelp))); if (!TextUtils.isEmpty(username)) { checkUserName(username, false); }" "set Eve username help text"
+
+# Direct Theme colors and R.id.etUsername in InputCell
+patch-line "field = new EditTextBoldCursor(getContext());" "field = new EditTextBoldCursor(getContext()); field.setId(com.eve.app.R.id.etUsername);" "assign R.id.etUsername for host and tests"
+patch-line "ThemeBind.hintTextColor(field, Theme.key_windowBackgroundWhiteHintText);" "field.setHintTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteHintText));" "direct hint color without ThemeBind"
+patch-line "ThemeBind.textColor(field, Theme.key_windowBackgroundWhiteBlackText);" "field.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));" "direct field text color without ThemeBind"
+patch-line "ThemeBind.cursorColor(field, Theme.key_windowBackgroundWhiteBlackText);" "field.setCursorColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));" "direct cursor color without ThemeBind"
+patch-line "String url = \"https://\" + MessagesController.getInstance(currentAccount).linkPrefix + \"/\" + username;" "String url = (eveDelegate != null ? eveDelegate.getLinkPrefix() : \"@\") + username;" "use Eve link prefix via delegate"
+remove-statement "if (editableUsernameCell != null && was != null) {"
+patch-line "tme.setText(getMessagesController().linkPrefix + \"/\");" "tme.setText(eveDelegate != null ? eveDelegate.getLinkPrefix() : \"@\");" "use Eve username prefix via delegate"
+patch-line "ThemeBind.textColor(tme, Theme.key_windowBackgroundWhiteBlackText);" "tme.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));" "direct prefix text color without ThemeBind"
+
+# Replace MessagesController.getGlobalMainSettings() in onResume
+patch-line "SharedPreferences preferences = MessagesController.getGlobalMainSettings();" "SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences(\"mainconfig\", Context.MODE_PRIVATE);" "read animations preference without MessagesController"
+
+# Wire checkUserName to Eve Worker API via TelegramUsernameDelegate
+remove-statement "if (checkReqId != 0) {"
+patch-line "lastCheckName = null;" "lastCheckName = null; if (eveDelegate != null) { eveDelegate.cancelCheck(); }" "cancel pending check via Eve delegate"
+remove-statement "ThemeBind.textColor(statusTextView, Theme.key_text_RedRegular);" all
+remove-statement "AlertsCreator.showSimpleAlert(this, LocaleController.getString(R.string.UsernameInvalidStartNumber));"
+remove-statement "AlertsCreator.showSimpleAlert(this, LocaleController.getString(R.string.UsernameInvalid));"
+patch-line "if (name == null || name.length() < 4) {" "int minLen = eveDelegate != null ? eveDelegate.getMinimumLength() : 5; if (name == null || name.length() < minLen) {" "enforce Eve 5-char minimum username length"
+remove-statement "AlertsCreator.showSimpleAlert(this, LocaleController.getString(R.string.UsernameInvalidShort));"
+remove-statement "AlertsCreator.showSimpleAlert(this, LocaleController.getString(R.string.UsernameInvalidLong));"
+patch-line "String currentName = getUser().username;" "String currentName = eveDelegate != null ? eveDelegate.getCurrentUsername() : \"\";" "get current username from Eve delegate"
+patch-line "if (name.equals(currentName)) {" "if (name.equalsIgnoreCase(currentName)) {" "case-insensitive current username match"
+remove-statement "ThemeBind.textColor(statusTextView, Theme.key_windowBackgroundWhiteGreenText);" all
+remove-statement "ThemeBind.textColor(statusTextView, Theme.key_windowBackgroundWhiteGrayText8);" all
+remove-statement "TL_account.checkUsername req = new TL_account.checkUsername();"
+remove-statement "req.username = nameFinal;"
+remove-statement "checkReqId = ConnectionsManager.getInstance(currentAccount).sendRequest(req, (response, error) -> AndroidUtilities.runOnUIThread(() -> {"
+patch-line "checkRunnable = () -> {" "checkRunnable = () -> { if (eveDelegate != null) { eveDelegate.checkUsername(nameFinal, (available, errMsg) -> AndroidUtilities.runOnUIThread(() -> { if (lastCheckName != null && lastCheckName.equals(nameFinal)) { if (available) { if (statusTextView != null) { statusTextView.setText(LocaleController.formatString(\"UsernameAvailable\", R.string.UsernameAvailable, nameFinal)); statusTextView.setTag(Theme.key_windowBackgroundWhiteGreenText); statusTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGreenText)); eveDelegate.onStatusRoleChanged(com.eve.app.ui.profile.TelegramUsernameDelegate.ROLE_AVAILABLE); if (helpCell != null) { helpCell.update(); } } lastNameAvailable = true; } else { if (statusTextView != null) { statusTextView.setText(errMsg != null ? errMsg : LocaleController.getString(R.string.UsernameInUse)); statusTextView.setTag(Theme.key_text_RedRegular); statusTextView.setTextColor(Theme.getColor(Theme.key_text_RedRegular)); eveDelegate.onStatusRoleChanged(com.eve.app.ui.profile.TelegramUsernameDelegate.ROLE_INVALID); if (helpCell != null) { helpCell.update(); } } lastNameAvailable = false; } } })); }" "wire debounced checkUsername to Eve Worker API delegate"
+
+# Wire saveName and error vibration to Eve delegate
+remove-method saveName
+patch-line "saveName();" "if (eveDelegate != null) { eveDelegate.saveUsername(username); }" "delegate saveUsername to Eve adapter"
+patch-line "BotWebViewVibrationEffect.APP_ERROR.vibrate();" "if (eveDelegate != null) { eveDelegate.onErrorVibration(); }" "route error vibration through Eve delegate"
+
+prune-imports

@@ -1,0 +1,62 @@
+upstream org/telegram/ui/CameraScanActivity.java
+to app/src/main/java/org/telegram/ui/CameraScanActivity.java
+
+# Cut legacy CameraView / CameraController / GMS Vision / ZXing / MRZ methods (CameraX + ZXing stay Eve-side as the CUT)
+remove-method didFindMrzInfo
+remove-method initCameraView
+remove-method onActivityResultFragment
+remove-method startRecognizing
+remove-method processShot
+remove-method invert
+remove-method monochrome
+remove-method createThresholdMatrix
+remove-method toPointF
+remove-method tryReadQr
+
+# Replace CameraView field with generic View + wire EveCameraHost CUT-INTERFACE
+patch-line "private CameraView cameraView;" "private View cameraView; public interface EveCameraHost { View createPreviewView(Context context); void setTorchEnabled(boolean enabled); void openGallery(); void destroyCamera(); } private EveCameraHost eveCameraHost; public void setEveCameraHost(EveCameraHost host) { this.eveCameraHost = host; } public void onEveQrDetected(String text, RectF bounds) { if (recognized || text == null) return; recognized = true; recognizedStart = SystemClock.elapsedRealtime(); if (bounds != null) { updateRecognizedBounds(bounds, null); } if (delegate != null) { delegate.didFindQr(text); } }" "replace CameraView with EveCameraHost CUT-INTERFACE for CameraX/ZXing"
+remove-statement "private QRCodeReader qrReader = null;"
+remove-statement "private BarcodeDetector visionQrReader = null;"
+remove-statement "private final Runnable requestShot = new Runnable() {"
+
+# Remove GMS Vision / ZXing / SharedConfig constructor init
+remove-statement "Utilities.globalQueue.postRunnable(() -> {"
+remove-statement "switch (SharedConfig.getDevicePerformanceClass()) {"
+remove-statement "if (visionQrReader != null) {"
+
+# Wire initCameraView to EveCameraHost preview attachment
+patch-line "fragmentView.postDelayed(this::initCameraView, 450);" "if (eveCameraHost != null && fragmentView instanceof ViewGroup) { cameraView = eveCameraHost.createPreviewView(fragmentView.getContext()); if (cameraView != null) { ((ViewGroup) fragmentView).addView(cameraView, 0, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT)); } }" "attach Eve CameraX preview view"
+remove-statement "initCameraView();"
+
+# Cut PhotoAlbumPickerActivity + BasePermissionsActivity in galleryButton click and route to EveCameraHost
+remove-statement "if (Build.VERSION.SDK_INT >= 33) {"
+remove-statement "PhotoAlbumPickerActivity fragment = new PhotoAlbumPickerActivity(PhotoAlbumPickerActivity.SELECT_TYPE_QR, false, false, null);"
+remove-statement "fragment.setMaxSelectedPhotos(1, false);"
+remove-statement "fragment.setAllowSearchImages(false);"
+remove-statement "fragment.setDelegate(new PhotoAlbumPickerActivity.PhotoAlbumPickerActivityDelegate() {"
+patch-line "presentFragment(fragment);" "if (eveCameraHost != null) { eveCameraHost.openGallery(); }" "route gallery pick to EveCameraHost"
+
+# Route flashButton torch toggle through EveCameraHost instead of CameraSessionWrapper
+remove-statement "CameraSessionWrapper session = cameraView.getCameraSession();"
+patch-line "if (session != null) {" "if (eveCameraHost != null) {" "toggle torch through EveCameraHost"
+patch-line "session.setCurrentFlashMode(Camera.Parameters.FLASH_MODE_TORCH);" "eveCameraHost.setTorchEnabled(true);" "enable torch via EveCameraHost"
+patch-line "session.setCurrentFlashMode(Camera.Parameters.FLASH_MODE_OFF);" "eveCameraHost.setTorchEnabled(false);" "disable torch via EveCameraHost"
+
+# Route destroy() through EveCameraHost
+patch-line "cameraView.destroy(async, beforeDestroyRunnable);" "if (eveCameraHost != null) { eveCameraHost.destroyCamera(); }" "destroy camera via EveCameraHost"
+
+# Direct Theme colors without ThemeBind
+patch-line "ThemeBind.actionBarItemsColor(actionBar, Theme.key_windowBackgroundWhiteGrayText2, false);" "actionBar.setItemsColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText2), false);" "direct actionBar items color without ThemeBind"
+patch-line "ThemeBind.actionBarItemsBackgroundColor(actionBar, Theme.key_actionBarWhiteSelector, false);" "actionBar.setItemsBackgroundColor(Theme.getColor(Theme.key_actionBarWhiteSelector), false);" "direct actionBar selector without ThemeBind"
+patch-line "ThemeBind.actionBarTitleColor(actionBar, Theme.key_actionBarDefaultTitle);" "actionBar.setTitleColor(Theme.getColor(Theme.key_actionBarDefaultTitle));" "direct actionBar title color without ThemeBind"
+patch-line "ThemeBind.backgroundColor(actionBar, Theme.key_windowBackgroundWhite);" "actionBar.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));" "direct actionBar background without ThemeBind"
+patch-line "ThemeBind.backgroundColor(fragmentView, Theme.key_windowBackgroundWhite);" "fragmentView.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));" "direct fragment background without ThemeBind"
+patch-line "ThemeBind.textColor(descriptionText, Theme.key_windowBackgroundWhiteGrayText6);" "descriptionText.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText6));" "direct description color without ThemeBind"
+patch-line "ThemeBind.textColor(titleTextView, Theme.key_windowBackgroundWhiteBlackText);" "titleTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));" "direct title color without ThemeBind"
+
+remove-statement "private @Nullable OrientationController.Request portraitRequest;"
+remove-statement "final OrientationController orientation = OrientationController.of(getParentActivity());"
+remove-statement "if (orientation != null && portraitRequest == null) {"
+remove-statement "if (portraitRequest != null) {"
+
+prune-imports

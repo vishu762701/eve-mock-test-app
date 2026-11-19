@@ -1,0 +1,16 @@
+upstream org/telegram/ui/Components/UItem.java
+to app/src/main/java/org/telegram/ui/Components/UItem.java
+
+remove-method asStickerButton ptypes=int,CharSequence,TLRPC.Document
+remove-method asProceedOverview
+remove-method asQuickReply
+remove-method asLargeQuickReply
+remove-method asBusinessChatLink
+remove-method asChart
+remove-method asTransaction
+remove-method asUserCheckbox
+remove-method asProfileCell
+remove-method withOpenButton
+remove-method asSearchMessage all
+
+prune-imports

@@ -5,27 +5,14 @@
 
 package com.eve.app.ui.settings
 
-import android.content.Context
 import android.os.Bundle
-import android.view.Gravity
-import android.view.View
-import android.view.ViewGroup
-import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ScrollView
-import android.widget.TextView
-import androidx.appcompat.widget.AppCompatButton
+import org.telegram.ui.Stories.recorder.ButtonWithCounterView
 import androidx.lifecycle.lifecycleScope
-import com.eve.app.designsystem.HeaderCell
-import com.eve.app.designsystem.ShadowSectionCell
+import com.eve.app.R
 import com.eve.app.designsystem.StorageUsageView
-import com.eve.app.designsystem.TelegramActionBar
-import com.eve.app.designsystem.TelegramBottomSheet
-import com.eve.app.designsystem.TelegramNativeAlertDialog
-import com.eve.app.designsystem.TextCell
-import com.eve.app.designsystem.TextCheckCell
-import com.eve.app.designsystem.TextInfoPrivacyCell
 import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AppBulletin
@@ -34,27 +21,38 @@ import com.eve.app.util.VibrationHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.telegram.ui.ActionBar.ActionBar
+import org.telegram.ui.ActionBar.AlertDialog
+import org.telegram.ui.ActionBar.BottomSheet
+import org.telegram.ui.ActionBar.Theme
+import org.telegram.ui.Cells.HeaderCell
+import org.telegram.ui.Cells.ShadowSectionCell
+import org.telegram.ui.Cells.TextCell
+import org.telegram.ui.Cells.TextCheckCell
+import org.telegram.ui.Cells.TextInfoPrivacyCell
+import org.telegram.ui.Components.LayoutHelper
+import org.telegram.ui.Components.SlideChooseView
 
 /**
- * Exact Telegram Storage & Cache Control Screen.
- * Upstream: CacheControlActivity.java
+ * Storage & Cache Control Screen powered by ported Telegram ActionBar,
+ * Cells, SlideChooseView sliders, AlertDialog, and BottomSheet.
  */
 class CacheControlActivity : EveBaseActivity() {
 
     private fun dp(value: Float): Int = (value * resources.displayMetrics.density + 0.5f).toInt()
 
     private lateinit var rootContainer: FrameLayout
-    private lateinit var actionBar: TelegramActionBar
+    private lateinit var actionBar: ActionBar
     private lateinit var storageUsageView: StorageUsageView
-    private lateinit var cellKeepMedia: TextCell
-    private lateinit var cellMaxCache: TextCell
+    private lateinit var keepMediaSlider: SlideChooseView
+    private lateinit var maxCacheSlider: SlideChooseView
 
     private lateinit var cellDocuments: TextCell
     private lateinit var cellPhotos: TextCell
     private lateinit var cellDatabase: TextCell
     private lateinit var cellTemp: TextCell
 
-    private lateinit var btnClearCache: AppCompatButton
+    private lateinit var btnClearCache: ButtonWithCounterView
 
     private var documentsSize: Long = 0L
     private var photosSize: Long = 0L
@@ -65,9 +63,10 @@ class CacheControlActivity : EveBaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val palette = TelegramThemeEngine.resolveCurrentPalette(this)
+        Theme.syncFromEvePalette(this)
 
         rootContainer = FrameLayout(this).apply {
-            setBackgroundColor(palette.windowBackground)
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundGray))
         }
         setContentView(rootContainer)
 
@@ -80,13 +79,24 @@ class CacheControlActivity : EveBaseActivity() {
         }
         rootContainer.addView(mainLayout)
 
-        // 1. Telegram ActionBar (56dp)
-        actionBar = TelegramActionBar(this).apply {
+        // 1. Real Telegram ActionBar
+        actionBar = ActionBar(this).apply {
+            setBackgroundColor(Theme.getColor(Theme.key_actionBarDefault))
+            setItemsBackgroundColor(Theme.getColor(Theme.key_actionBarDefaultSelector), false)
+            setItemsColor(Theme.getColor(Theme.key_actionBarDefaultIcon), false)
+            setTitleColor(Theme.getColor(Theme.key_actionBarDefaultTitle))
+            setBackButtonImage(R.drawable.ic_ab_back)
             setTitle("Storage Usage")
-            setBackButtonVisible(true)
-            onBackPressed = { finish() }
+            setAllowOverlayTitle(true)
+            setActionBarMenuOnItemClick(object : ActionBar.ActionBarMenuOnItemClick() {
+                override fun onItemClick(id: Int) {
+                    if (id == -1) {
+                        finish()
+                    }
+                }
+            })
         }
-        mainLayout.addView(actionBar)
+        mainLayout.addView(actionBar, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT))
 
         // 2. Scrollable Content
         val scrollView = ScrollView(this).apply {
@@ -103,72 +113,85 @@ class CacheControlActivity : EveBaseActivity() {
         scrollView.addView(contentLayout)
         mainLayout.addView(scrollView)
 
-        // Storage Usage Diagram Header
-        storageUsageView = StorageUsageView(this)
-        contentLayout.addView(storageUsageView)
+        val cardBg = Theme.getColor(Theme.key_windowBackgroundWhite)
 
+        // Storage Usage Diagram Header
+        storageUsageView = StorageUsageView(this).apply {
+            setBackgroundColor(cardBg)
+        }
+        contentLayout.addView(storageUsageView)
         contentLayout.addView(ShadowSectionCell(this))
 
-        // Section 1: Keep Media
+        // Section 1: Keep Media (Real Telegram SlideChooseView)
         val headerKeepMedia = HeaderCell(this).apply {
-            setText("KEEP MEDIA")
+            setBackgroundColor(cardBg)
+            setText("Keep Media")
         }
         contentLayout.addView(headerKeepMedia)
 
-        cellKeepMedia = TextCell(this).apply {
-            setTextAndValue("Keep Media", getKeepMediaLabel(), needDivider = false)
-            setOnClickListener {
-                showKeepMediaDialog()
+        keepMediaSlider = SlideChooseView(this).apply {
+            setBackgroundColor(cardBg)
+            setOptions(
+                CacheManager.getKeepMediaPreference(this@CacheControlActivity).coerceIn(0, 3),
+                "3 Days", "1 Week", "1 Month", "Forever"
+            )
+            setCallback { index ->
+                CacheManager.setKeepMediaPreference(this@CacheControlActivity, index)
             }
         }
-        contentLayout.addView(cellKeepMedia)
+        contentLayout.addView(keepMediaSlider, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 50))
 
         val infoKeepMedia = TextInfoPrivacyCell(this).apply {
             setText("Photos, documents and other files that you have not accessed during this period will be removed from this device to save disk space.")
         }
         contentLayout.addView(infoKeepMedia)
 
-        contentLayout.addView(ShadowSectionCell(this))
-
-        // Section 2: Maximum Cache Size
+        // Section 2: Maximum Cache Size (Real Telegram SlideChooseView)
         val headerMaxCache = HeaderCell(this).apply {
-            setText("MAXIMUM CACHE SIZE")
+            setBackgroundColor(cardBg)
+            setText("Maximum Cache Size")
         }
         contentLayout.addView(headerMaxCache)
 
-        cellMaxCache = TextCell(this).apply {
-            setTextAndValue("Maximum Cache Size", getMaxCacheLabel(), needDivider = false)
-            setOnClickListener {
-                showMaxCacheDialog()
+        maxCacheSlider = SlideChooseView(this).apply {
+            setBackgroundColor(cardBg)
+            setOptions(
+                CacheManager.getMaxCacheSizePreference(this@CacheControlActivity).coerceIn(0, 3),
+                "5 GB", "16 GB", "32 GB", "No limit"
+            )
+            setCallback { index ->
+                CacheManager.setMaxCacheSizePreference(this@CacheControlActivity, index)
             }
         }
-        contentLayout.addView(cellMaxCache)
+        contentLayout.addView(maxCacheSlider, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 50))
 
         val infoMaxCache = TextInfoPrivacyCell(this).apply {
             setText("If your cache size exceeds this limit, the oldest unused files will be deleted from this device.")
         }
         contentLayout.addView(infoMaxCache)
 
-        contentLayout.addView(ShadowSectionCell(this))
-
-        // Section 3: Storage Breakdown
+        // Section 3: Storage Breakdown (Real Telegram TextCell)
         val headerBreakdown = HeaderCell(this).apply {
-            setText("STORAGE BREAKDOWN")
+            setBackgroundColor(cardBg)
+            setText("Storage Breakdown")
         }
         contentLayout.addView(headerBreakdown)
 
         cellDocuments = TextCell(this).apply {
-            setTextAndValue("Documents & Syllabi", "Calculating…", needDivider = true)
+            setBackgroundColor(cardBg)
+            setTextAndValue("Documents & Syllabi", "Calculating…", true)
         }
         contentLayout.addView(cellDocuments)
 
         cellPhotos = TextCell(this).apply {
-            setTextAndValue("Profile Photos & Media", "Calculating…", needDivider = true)
+            setBackgroundColor(cardBg)
+            setTextAndValue("Profile Photos & Media", "Calculating…", true)
         }
         contentLayout.addView(cellPhotos)
 
         cellDatabase = TextCell(this).apply {
-            setTextAndValue("Local Database", "Calculating…", needDivider = true)
+            setBackgroundColor(cardBg)
+            setTextAndValue("Local Database", "Calculating…", true)
             setOnClickListener {
                 showClearDatabasePrompt()
             }
@@ -176,7 +199,8 @@ class CacheControlActivity : EveBaseActivity() {
         contentLayout.addView(cellDatabase)
 
         cellTemp = TextCell(this).apply {
-            setTextAndValue("Temporary Files", "Calculating…", needDivider = false)
+            setBackgroundColor(cardBg)
+            setTextAndValue("Temporary Files", "Calculating…", false)
         }
         contentLayout.addView(cellTemp)
 
@@ -185,44 +209,19 @@ class CacheControlActivity : EveBaseActivity() {
             setPadding(dp(16f), dp(24f), dp(16f), dp(32f))
         }
 
-        btnClearCache = AppCompatButton(this).apply {
-            text = "Clear Cache"
-            textSize = 15f
-            setTextColor(0xFFFFFFFF.toInt())
-            background = android.graphics.drawable.GradientDrawable().apply {
-                cornerRadius = dp(10f).toFloat()
-                setColor(palette.accent)
-            }
-            isAllCaps = false
+        btnClearCache = ButtonWithCounterView(this, null).apply {
+            setText("Clear Cache", false)
             setOnClickListener {
                 showClearCacheSheet()
             }
         }
-        buttonContainer.addView(btnClearCache, FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.MATCH_PARENT,
-            dp(48f)
-        ))
+        buttonContainer.addView(
+            btnClearCache,
+            FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, dp(48f))
+        )
         contentLayout.addView(buttonContainer)
 
         loadStorageData()
-    }
-
-    private fun getKeepMediaLabel(): String {
-        return when (CacheManager.getKeepMediaPreference(this)) {
-            CacheManager.KEEP_MEDIA_3_DAYS -> "3 Days"
-            CacheManager.KEEP_MEDIA_1_WEEK -> "1 Week"
-            CacheManager.KEEP_MEDIA_1_MONTH -> "1 Month"
-            else -> "Forever"
-        }
-    }
-
-    private fun getMaxCacheLabel(): String {
-        return when (CacheManager.getMaxCacheSizePreference(this)) {
-            CacheManager.MAX_CACHE_5_GB -> "5 GB"
-            CacheManager.MAX_CACHE_16_GB -> "16 GB"
-            CacheManager.MAX_CACHE_32_GB -> "32 GB"
-            else -> "No limit"
-        }
     }
 
     private fun loadStorageData() {
@@ -244,47 +243,20 @@ class CacheControlActivity : EveBaseActivity() {
                 cellDatabase.setTextAndValue("Local Database", CacheManager.formatFileSize(databaseSize), true)
                 cellTemp.setTextAndValue("Temporary Files", CacheManager.formatFileSize(tempSize), false)
 
-                btnClearCache.text = if (totalCacheSize > 0) {
-                    "Clear Entire Cache (${CacheManager.formatFileSize(totalCacheSize)})"
-                } else {
-                    "Clear Entire Cache (0 B)"
-                }
+                btnClearCache.setText(
+                    if (totalCacheSize > 0) {
+                        "Clear Entire Cache (${CacheManager.formatFileSize(totalCacheSize)})"
+                    } else {
+                        "Clear Entire Cache (0 B)"
+                    },
+                    true
+                )
             }
         }
     }
 
-    private fun showKeepMediaDialog() {
-        val options = arrayOf("3 Days", "1 Week", "1 Month", "Forever")
-        val current = CacheManager.getKeepMediaPreference(this)
-
-        TelegramNativeAlertDialog.Builder(this)
-            .setTitle("Keep Media")
-            .setSingleChoiceItems(options, current) { dialog, which ->
-                CacheManager.setKeepMediaPreference(this, which)
-                cellKeepMedia.setTextAndValue("Keep Media", getKeepMediaLabel(), needDivider = false)
-                dialog.dismiss()
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private fun showMaxCacheDialog() {
-        val options = arrayOf("5 GB", "16 GB", "32 GB", "No limit")
-        val current = CacheManager.getMaxCacheSizePreference(this)
-
-        TelegramNativeAlertDialog.Builder(this)
-            .setTitle("Maximum Cache Size")
-            .setSingleChoiceItems(options, current) { dialog, which ->
-                CacheManager.setMaxCacheSizePreference(this, which)
-                cellMaxCache.setTextAndValue("Maximum Cache Size", getMaxCacheLabel(), needDivider = false)
-                dialog.dismiss()
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
     private fun showClearDatabasePrompt() {
-        TelegramNativeAlertDialog.Builder(this)
+        AlertDialog.Builder(this)
             .setTitle("Clear Database")
             .setMessage("Are you sure you want to optimize and clear local cached database entries? This will not delete your account or test results.")
             .setPositiveButton("Clear") { _, _ ->
@@ -323,8 +295,9 @@ class CacheControlActivity : EveBaseActivity() {
             setTextAndValueAndCheck(
                 "Documents & Syllabi",
                 CacheManager.formatFileSize(documentsSize),
-                checked = true,
-                divider = true
+                true,
+                false,
+                true
             )
             setOnClickListener {
                 checkDocs = !isChecked
@@ -337,8 +310,9 @@ class CacheControlActivity : EveBaseActivity() {
             setTextAndValueAndCheck(
                 "Profile Photos & Media",
                 CacheManager.formatFileSize(photosSize),
-                checked = true,
-                divider = true
+                true,
+                false,
+                true
             )
             setOnClickListener {
                 checkPhotos = !isChecked
@@ -351,8 +325,9 @@ class CacheControlActivity : EveBaseActivity() {
             setTextAndValueAndCheck(
                 "Temporary Files",
                 CacheManager.formatFileSize(tempSize),
-                checked = true,
-                divider = false
+                true,
+                false,
+                false
             )
             setOnClickListener {
                 checkTemp = !isChecked
@@ -365,17 +340,10 @@ class CacheControlActivity : EveBaseActivity() {
             setPadding(dp(16f), dp(16f), dp(16f), 0)
         }
 
-        var sheet: TelegramBottomSheet? = null
+        var sheet: BottomSheet? = null
 
-        val btnConfirm = AppCompatButton(this).apply {
-            text = "Clear Selected"
-            textSize = 15f
-            setTextColor(0xFFFFFFFF.toInt())
-            background = android.graphics.drawable.GradientDrawable().apply {
-                cornerRadius = dp(10f).toFloat()
-                setColor(palette.accent)
-            }
-            isAllCaps = false
+        val btnConfirm = ButtonWithCounterView(this, null).apply {
+            setText("Clear Selected", false)
             setOnClickListener {
                 sheet?.dismiss()
                 lifecycleScope.launch(Dispatchers.IO) {
@@ -394,14 +362,14 @@ class CacheControlActivity : EveBaseActivity() {
                 }
             }
         }
-        buttonContainer.addView(btnConfirm, FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.MATCH_PARENT,
-            dp(48f)
-        ))
+        buttonContainer.addView(
+            btnConfirm,
+            FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, dp(48f))
+        )
         customView.addView(buttonContainer)
 
-        sheet = TelegramBottomSheet.Builder(this)
-            .setTitle("Clear Cache")
+        sheet = BottomSheet.Builder(this)
+            .setTitle("Clear Cache", true)
             .setCustomView(customView)
             .create()
 

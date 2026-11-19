@@ -1,0 +1,27 @@
+upstream org/telegram/ui/Cells/TextCell.java
+to app/src/main/java/org/telegram/ui/Cells/TextCell.java
+
+patch-line "public final RLottieImageView imageView;" "public final ImageView imageView;" "use standard ImageView without RLottie"
+patch-line "imageView = new RLottieImageView(context);" "imageView = new ImageView(context);" "use standard ImageView"
+patch-line "public RLottieImageView getImageView() {" "public ImageView getImageView() {" "return standard ImageView"
+remove-statement "private AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable emojiDrawable;"
+
+patch-line "ThemeBind.textColor(textView, dialog ? Theme.key_dialogTextBlack : Theme.key_windowBackgroundWhiteBlackText, resourcesProvider);" "textView.setTextColor(Theme.getColor(dialog ? Theme.key_dialogTextBlack : Theme.key_windowBackgroundWhiteBlackText, resourcesProvider));" "direct text color without ThemeBind"
+patch-line "ThemeBind.textColor(subtitleView, dialog ? Theme.key_dialogTextGray : Theme.key_windowBackgroundWhiteGrayText, resourcesProvider);" "subtitleView.setTextColor(Theme.getColor(dialog ? Theme.key_dialogTextGray : Theme.key_windowBackgroundWhiteGrayText, resourcesProvider));" "direct subtitle color without ThemeBind"
+patch-line "ThemeBind.textColor(valueTextView, dialog ? Theme.key_dialogTextBlue2 : Theme.key_windowBackgroundWhiteValueText, resourcesProvider);" "valueTextView.setTextColor(Theme.getColor(dialog ? Theme.key_dialogTextBlue2 : Theme.key_windowBackgroundWhiteValueText, resourcesProvider));" "direct value color without ThemeBind"
+patch-line "ThemeBind.textColor(valueSpoilersTextView, dialog ? Theme.key_dialogTextBlue2 : Theme.key_windowBackgroundWhiteValueText, resourcesProvider);" "valueSpoilersTextView.setTextColor(Theme.getColor(dialog ? Theme.key_dialogTextBlue2 : Theme.key_windowBackgroundWhiteValueText, resourcesProvider));" "direct value color without ThemeBind"
+patch-line "ThemeBind.colorFilter(imageView, dialog ? Theme.key_dialogIcon : Theme.key_windowBackgroundWhiteGrayIcon, resourcesProvider, PorterDuff.Mode.SRC_IN);" "imageView.setColorFilter(new PorterDuffColorFilter(Theme.getColor(dialog ? Theme.key_dialogIcon : Theme.key_windowBackgroundWhiteGrayIcon, resourcesProvider), PorterDuff.Mode.SRC_IN));" "direct icon color filter without ThemeBind"
+
+remove-method setLockLevel
+remove-statement "if (drawable instanceof RLottieDrawable) {" all
+patch-line "public void setTextAndIcon(CharSequence text, Drawable drawable, boolean divider) {" "public void setTextAndIcon(CharSequence text, Drawable drawable, boolean divider) { imageView.setImageDrawable(drawable);" "set drawable directly on ImageView"
+patch-line "public void setTextAndValueAndIcon(CharSequence text, CharSequence value, Drawable drawable, boolean divider) {" "public void setTextAndValueAndIcon(CharSequence text, CharSequence value, Drawable drawable, boolean divider) { imageView.setImageDrawable(drawable);" "set drawable directly on ImageView"
+remove-method setTextAndValueAndIcon ptypes=CharSequence,CharSequence,boolean,int,boolean
+remove-method applyNewSpanTimed
+remove-method applyNewSpan all
+remove-method setColorfulIcon all
+remove-method setTextAndSticker all
+remove-method setValueSticker all
+remove-statement "if (emojiDrawable != null) {" all
+
+prune-imports

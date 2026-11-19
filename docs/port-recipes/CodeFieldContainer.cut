@@ -1,0 +1,7 @@
+upstream org/telegram/ui/CodeFieldContainer.java
+to app/src/main/java/org/telegram/ui/CodeFieldContainer.java
+
+patch-line "} else if (currentType == LoginActivity.AUTH_TYPE_MISSED_CALL) {" "} else if (false) {" "remove LoginActivity missed-call auth branch"
+patch-line "codeBuilder.append(PhoneFormat.stripExceptNumbers(codeField[a].getText().toString()));" "codeBuilder.append(codeField[a].getText().toString().replaceAll(\"[^0-9]\", \"\"));" "strip non-digits without PhoneFormat"
+
+prune-imports

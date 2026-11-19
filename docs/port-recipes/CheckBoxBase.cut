@@ -1,0 +1,9 @@
+upstream org/telegram/ui/Components/CheckBoxBase.java
+to app/src/main/java/org/telegram/ui/Components/CheckBoxBase.java
+
+remove-statement "private MessageDrawable messageDrawable;"
+remove-method setBackgroundDrawable
+remove-statement "if (messageDrawable != null && messageDrawable.hasGradient()) {"
+patch-line "backgroundPaint.setStyle(Paint.Style.FILL);" "backgroundPaint.setStyle(Paint.Style.FILL); backgroundPaint.setShader(null);" "preserve null shader without MessageDrawable"
+
+prune-imports

@@ -140,4 +140,131 @@
     <string name="LastName">अंतिम नाम (वैकल्पिक)</string>
     <string name="EditName">नाम बदलें</string>
     <string name="Done">हो गया</string>
+    <!-- Telegram ActionBar strings -->
+    <string name="ClearButton">साफ़ करें</string>
+    <string name="AccDescrGoBack">वापस जाएं</string>
+    <!-- Telegram AlertDialog strings -->
+    <string name="Stop">रोकें</string>
+    <string name="StopLoading">क्या आप लोडिंग रद्द करना चाहते हैं?</string>
+    <string name="StopLoadingTitle">लोडिंग रोकें?</string>
+    <string name="WaitMore">और प्रतीक्षा करें</string>
+    <!-- Telegram Switch strings -->
+    <string name="NotificationsOn">चालू</string>
+    <string name="NotificationsOff">बंद</string>
+    <!-- Telegram ChangeBioActivity strings -->
+    <string name="UserBio">बायो</string>
+    <string name="UserBioInfo">आप अपने बारे में कुछ पंक्तियाँ जोड़ सकते हैं। जो कोई भी आपकी प्रोफ़ाइल खोलेगा उसे यह टेक्स्ट दिखाई देगा।</string>
+    <!-- Telegram PhotoCropActivity strings -->
+    <string name="CropImage">छवि काटें</string>
+    <!-- Telegram LanguageSelectActivity & EmptyTextProgressView strings -->
+    <string name="NoResult">कोई परिणाम नहीं</string>
+    <string name="Language">भाषा</string>
+    <string name="LanguageCustom">कस्टम</string>
+    <string name="Search">खोजें</string>
+    <string name="Cancel">रद्द करें</string>
+    <string name="Delete">हटाएं</string>
+
+    <!-- Telegram C5 ChangeUsernameActivity -->
+    <string name="Username">यूज़रनेम</string>
+    <string name="SetUsernameHeader">यूज़रनेम सेट करें</string>
+    <string name="UsernameLinkPlaceholder">यूज़रनेम</string>
+    <string name="UsernameHelp">आप EVE पर एक यूज़रनेम चुन सकते हैं। दूसरे लोग इस यूज़रनेम से आपको खोज सकते हैं।\n\nआप a–z, 0–9 और अंडरस्कोर का उपयोग कर सकते हैं। कम से कम 5 अक्षर ज़रूरी हैं।</string>
+    <string name="UsernameHelpLink">यह लिंक आपकी EVE प्रोफ़ाइल खोलता है: %1$s</string>
+    <string name="UsernameAvailable">%1$s उपलब्ध है।</string>
+    <string name="UsernameChecking">यूज़रनेम की जाँच हो रही है…</string>
+    <string name="UsernameInUse">यह यूज़रनेम पहले से लिया जा चुका है।</string>
+    <string name="UsernameInvalid">यह यूज़रनेम मान्य नहीं है।</string>
+    <string name="UsernameInvalidShort">यूज़रनेम में कम से कम 5 अक्षर होने चाहिए।</string>
+    <string name="UsernameInvalidLong">यूज़रनेम में 32 से अधिक अक्षर नहीं होने चाहिए।</string>
+    <string name="UsernameInvalidStartNumber">यूज़रनेम किसी अंक से शुरू नहीं हो सकता।</string>
+
+    <!-- Telegram C6 PasscodeActivity -->
+    <string name="AutoLock">ऑटो-लॉक</string>
+    <string name="AutoLockDisabled">बंद</string>
+    <string name="AutoLockInTime">%1$s में</string>
+    <string name="AutoLockInfo">कुछ समय तक निष्क्रिय रहने पर पासकोड मांगें।</string>
+    <string name="ChangePasscode">पासकोड बदलें</string>
+    <string name="ConfirmCreatePasscode">अपना पासकोड फिर से दर्ज करें</string>
+    <string name="CreatePasscode">पासकोड बनाएं</string>
+    <string name="CreatePasscodeInfoPIN">EVE को अनलॉक करने के लिए कोई भी 4 अंक दर्ज करें।</string>
+    <string name="CreatePasscodeInfoPassword">EVE को अनलॉक करने के लिए कोई भी पासवर्ड दर्ज करें।</string>
+    <string name="DisablePasscode">पासकोड बंद करें</string>
+    <string name="DisablePasscodeConfirmMessage">क्या आप वाकई पासकोड लॉक बंद करना चाहते हैं?</string>
+    <string name="DisablePasscodeTurnOff">बंद करें</string>
+    <string name="EnterNewPasscode">नया पासकोड दर्ज करें</string>
+    <string name="EnterPassword">पासवर्ड</string>
+    <string name="EnterYourPasscode">अपना पासकोड दर्ज करें</string>
+    <string name="EnterYourPasscodeInfo">पासकोड सेटिंग्स बदलने के लिए अपना वर्तमान पासकोड दर्ज करें।</string>
+    <string name="ForgotPasscode">पासकोड भूल गए?</string>
+    <string name="Next">आगे</string>
+    <string name="OK">ठीक है</string>
+    <string name="Passcode">पासकोड लॉक</string>
+    <string name="PasscodeReinstallNotice">यदि आप अपना पासकोड भूल जाते हैं, तो आपको EVE को फिर से इंस्टॉल करके साइन इन करना होगा।</string>
+    <string name="PasscodeScreenHint">पासकोड सेट होने पर होम स्क्रीन पर लॉक आइकन दिखता है। ऐप लॉक करने के लिए उस पर टैप करें।</string>
+    <string name="PasscodeSwitchToPIN">4-अंकीय पिन पर स्विच करें</string>
+    <string name="PasscodeSwitchToPassword">पासवर्ड पर स्विच करें</string>
+    <string name="PasscodesDoNotMatchTryAgain">पासकोड मेल नहीं खाते। फिर से प्रयास करें।</string>
+    <string name="ScreenCaptureAlert">इस बदलाव के लिए ऐप को दोबारा शुरू करें।</string>
+    <string name="ScreenCaptureHeader">ऐप सामग्री</string>
+    <string name="ScreenCaptureInfo">स्क्रीनशॉट की अनुमति दें और टास्क स्विचर में ऐप सामग्री दिखाएं।</string>
+    <string name="ScreenCaptureShowContent">टास्क स्विचर में ऐप सामग्री दिखाएं</string>
+    <string name="TooManyTries">बहुत अधिक प्रयास। %1$s में फिर से प्रयास करें।</string>
+    <string name="UnlockFingerprint">फ़िंगरप्रिंट से अनलॉक करें</string>
+    <string name="WalletAuthorizeTransactionPasscode">पुष्टि के लिए पासकोड दर्ज करें</string>
+    <string name="WalletLock">लॉक</string>
+    <string name="WalletLockInfo">कार्रवाई की पुष्टि के लिए पासकोड आवश्यक करें।</string>
+
+    <!-- Telegram C9 CameraScanActivity & C10 ActionIntroActivity -->
+    <string name="AuthAnotherClient">क्यूआर कोड स्कैन करें</string>
+    <string name="AuthAnotherClientDownloadClientUrl">eve.app</string>
+    <string name="AuthAnotherClientInfo1">दूसरे डिवाइस पर EVE खोलें</string>
+    <string name="AuthAnotherClientInfo2">सेटिंग्स > डिवाइस > लिंक डिवाइस पर जाएं</string>
+    <string name="AuthAnotherClientInfo3">पुष्टि करने के लिए अपने फ़ोन को इस स्क्रीन की ओर रखें</string>
+    <string name="AuthAnotherClientInfo5">स्कैन करने के लिए कैमरा क्यूआर कोड की ओर रखें</string>
+    <string name="AuthAnotherClientNotFound">कोई क्यूआर कोड नहीं मिला</string>
+    <string name="AuthAnotherClientScan">क्यूआर कोड स्कैन करें</string>
+    <string name="AuthAnotherWebClientUrl">web.eve.app</string>
+    <string name="Change">बदलें</string>
+    <string name="ChangePasscodeInfoShort">अपने EVE ऐप को पिन या पासवर्ड से सुरक्षित रखने के लिए पासकोड सेट करें।</string>
+    <string name="ChannelAlertCreate2">बनाएं</string>
+    <string name="ChannelAlertText">अपने दर्शकों को अपडेट भेजें।</string>
+    <string name="ChannelAlertTitle">चैनल क्या है?</string>
+    <string name="ContactsPermissionAlertNotNow">अभी नहीं</string>
+    <string name="EnablePasscode">पासकोड चालू करें</string>
+    <string name="PassportScanPassport">दस्तावेज़ स्कैन करें</string>
+    <string name="PassportScanPassportInfo">दस्तावेज़ को फ़्रेम के अंदर रखें।</string>
+    <string name="PermissionOpenSettings">सेटिंग्स</string>
+    <string name="PhoneNumberAlert">क्या आप वाकई अपना फ़ोन नंबर बदलना चाहते हैं?</string>
+    <string name="PhoneNumberChange2">नंबर बदलें</string>
+    <string name="PhoneNumberChangeTitle">नंबर बदलें</string>
+    <string name="PhoneNumberHelp">आप यहाँ अपना EVE फ़ोन नंबर बदल सकते हैं। आपका खाता और टेस्ट इतिहास सुरक्षित रहेगा।</string>
+    <string name="QRCodePermissionNoCameraWithHint">क्यूआर कोड स्कैन करने के लिए EVE को कैमरे की अनुमति चाहिए। सेटिंग्स में कैमरा अनुमति चालू करें।</string>
+
+    <!-- Telegram Batch 9 AvatarDrawable & ProfileActionsView -->
+    <string name="ColorRed">लाल</string>
+    <string name="ColorOrange">नारंगी</string>
+    <string name="ColorViolet">बैंगनी</string>
+    <string name="ColorGreen">हरा</string>
+    <string name="ColorCyan">सियान</string>
+    <string name="ColorBlue">नीला</string>
+    <string name="ColorPink">गुलाबी</string>
+    <string name="ProfileActionsMessage">संदेश</string>
+    <string name="ProfileButtonMute">म्यूट</string>
+    <string name="ProfileButtonUnmute">अनम्यूट</string>
+    <string name="ProfileActionsDiscuss">चर्चा</string>
+    <string name="ProfileActionsGift">उपहार</string>
+    <string name="ProfileActionsShare">शेयर करें</string>
+    <string name="ProfileActionsCall">कॉल</string>
+    <string name="ProfileActionsVideo">वीडियो</string>
+    <string name="ProfileActionsJoin">जुड़ें</string>
+    <string name="ProfileActionsReport">रिपोर्ट</string>
+    <string name="ProfileActionsLeave">छोड़ें</string>
+    <string name="ProfileActionsVoiceChat">वॉइस चैट</string>
+    <string name="ProfileActionsLiveStream">लाइव स्ट्रीम</string>
+    <string name="ProfileActionsAddStory">स्टोरी जोड़ें</string>
+    <string name="ProfileActionsStop">रोकें</string>
+    <string name="ProfileActionsEditPhoto2">फ़ोटो बदलें</string>
+    <string name="ProfileActionsEditUsername">यूज़रनेम</string>
+    <string name="ProfileActionsEditInfo">जानकारी बदलें</string>
+    <string name="Settings">सेटिंग्स</string>
 </resources>

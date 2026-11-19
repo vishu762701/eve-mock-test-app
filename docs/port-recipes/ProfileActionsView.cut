@@ -1,0 +1,26 @@
+upstream org/telegram/ui/Components/ProfileActionsView.java
+to app/src/main/java/org/telegram/ui/Components/ProfileActionsView.java
+
+# Cut blur3/glass factory (falls back cleanly to Telegram's built-in color fill)
+remove-method setGlassFactory
+remove-method drawGlass
+remove-method hideUnusedGlass
+remove-statement "private BlurredBackgroundDrawableViewFactory glassFactory;"
+remove-statement "private final ArrayList<BlurredBackgroundDrawable> glass = new ArrayList<>();"
+remove-statement "private int glassUsed;"
+remove-statement "glassUsed = 0;"
+remove-statement "hideUnusedGlass();" all
+patch-line "if (glassFactory != null) {" "if (false) {" "use built-in color fill without blur3 glassFactory"
+remove-statement "drawGlass(canvas, AndroidUtilities.rectTmp, r, action.getAlpha() * alphaFraction1);"
+
+# Cut RLottieDrawable animated icon path (uses static filled/outline vector drawables cleanly)
+remove-statement "private RLottieDrawable drawableAnimated;"
+remove-statement "if (drawableAnimated != null) {"
+remove-statement "if (a.drawableAnimated != null) {"
+remove-statement "if (camera != null && camera.drawableAnimated != null) {"
+patch-line "if (action.drawableAnimated != null) {" "if (false) {" "use static filled/outline action drawables without RLottie"
+remove-statement "drawActionDrawable(canvas, action.drawableAnimated, filledAlpha);"
+remove-statement "drawActionDrawable(canvas, action.drawableAnimated, alpha);"
+remove-statement "if (animatedRes != 0) {"
+
+prune-imports

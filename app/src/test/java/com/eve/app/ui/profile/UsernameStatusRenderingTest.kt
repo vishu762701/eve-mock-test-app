@@ -70,7 +70,7 @@ class UsernameStatusRenderingTest {
         exercise { activity,input,status ->
             input.setText("abcd")
             assertTrue(status.text.toString().contains("अक्षर"))
-            assertEquals("यूज़रनेम",activity.findViewById<TextView>(R.id.tvToolbarTitle).text.toString())
+            assertEquals("यूज़रनेम",activity.getString(R.string.Username))
             readable(status,palette(activity,true))
             assertEquals(View.ACCESSIBILITY_LIVE_REGION_POLITE,status.accessibilityLiveRegion)
         }

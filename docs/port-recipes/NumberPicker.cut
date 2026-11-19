@@ -1,0 +1,7 @@
+upstream org/telegram/ui/Components/NumberPicker.java
+to app/src/main/java/org/telegram/ui/Components/NumberPicker.java
+
+patch-line "ThemeBind.textColor(mInputText, Theme.key_dialogTextBlack, resourcesProvider);" "mInputText.setTextColor(getThemedColor(Theme.key_dialogTextBlack));" "direct input text color without ThemeBind"
+remove-statement "ThemeBind.clear(mInputText);"
+
+prune-imports

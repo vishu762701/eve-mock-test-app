@@ -1,0 +1,11 @@
+upstream org/telegram/ui/Cells/RadioButtonCell.java
+to app/src/main/java/org/telegram/ui/Cells/RadioButtonCell.java
+
+patch-line "ThemeBind.radioColors(radioButton, Theme.key_dialogRadioBackground, Theme.key_dialogRadioBackgroundChecked);" "radioButton.setColor(Theme.getColor(Theme.key_dialogRadioBackground), Theme.getColor(Theme.key_dialogRadioBackgroundChecked));" "direct dialog radio colors without ThemeBind"
+patch-line "ThemeBind.radioColors(radioButton, Theme.key_radioBackground, Theme.key_radioBackgroundChecked);" "radioButton.setColor(Theme.getColor(Theme.key_radioBackground), Theme.getColor(Theme.key_radioBackgroundChecked));" "direct radio colors without ThemeBind"
+patch-line "ThemeBind.textColor(textView, Theme.key_dialogTextBlack);" "textView.setTextColor(Theme.getColor(Theme.key_dialogTextBlack));" "direct dialog text color without ThemeBind"
+patch-line "ThemeBind.textColor(textView, Theme.key_windowBackgroundWhiteBlackText);" "textView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));" "direct text color without ThemeBind"
+patch-line "ThemeBind.textColor(valueTextView, Theme.key_dialogTextGray2);" "valueTextView.setTextColor(Theme.getColor(Theme.key_dialogTextGray2));" "direct dialog value color without ThemeBind"
+patch-line "ThemeBind.textColor(valueTextView, Theme.key_windowBackgroundWhiteGrayText2);" "valueTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText2));" "direct value color without ThemeBind"
+
+prune-imports

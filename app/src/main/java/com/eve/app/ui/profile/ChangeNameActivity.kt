@@ -2,12 +2,10 @@ package com.eve.app.ui.profile
 
 import android.app.Activity
 import android.os.Bundle
-import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.ProfileRequestOwner
-import com.eve.app.ui.common.EveBaseActivity
+import com.eve.app.ui.common.TelegramHostActivity
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.TelegramShake
 import com.eve.app.util.VibrationHelper
@@ -15,95 +13,26 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import org.telegram.ui.ActionBar.ActionBar
-import org.telegram.ui.ActionBar.INavigationLayout
-import org.telegram.ui.ActionBar.Theme
 import org.telegram.ui.ChangeNameActivity as TelegramChangeNameActivity
 
 /**
  * Host Activity for Telegram ChangeNameActivity port.
- * Implements INavigationLayout and TelegramChangeNameActivity.ChangeNameDelegate.
+ * Extends TelegramHostActivity (INavigationLayout) and implements TelegramProfileDelegates.ChangeNameDelegate.
  */
-class ChangeNameActivity : EveBaseActivity(), INavigationLayout, TelegramChangeNameActivity.ChangeNameDelegate {
+class ChangeNameActivity : TelegramHostActivity<TelegramChangeNameActivity>(), TelegramProfileDelegates.ChangeNameDelegate {
     private var editorOwnerUid: String? = null
     private var saveInFlight = false
 
-    private lateinit var fragment: TelegramChangeNameActivity
-    private lateinit var container: LinearLayout
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        editorOwnerUid = ProfileEditorAccountGuard.bind(this, savedInstanceState) ?: return
-
-        org.telegram.messenger.AndroidUtilities.checkDisplaySize(this, resources.configuration)
-
-        container = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-        }
-
-        fragment = TelegramChangeNameActivity(null)
-        fragment.setParentLayout(this)
-        fragment.setEveDelegate(this)
-        fragment.onFragmentCreate()
-
-        val fragmentView = fragment.createView(this)
-        val actionBar = fragment.actionBar
-
-        if (actionBar != null) {
-            (actionBar.parent as? ViewGroup)?.removeView(actionBar)
-            val actionBarHeight = ActionBar.getCurrentActionBarHeight()
-            container.addView(actionBar, LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                actionBarHeight
-            ))
-        }
-
-        if (fragmentView != null) {
-            (fragmentView.parent as? ViewGroup)?.removeView(fragmentView)
-            container.addView(fragmentView, LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT
-            ))
-        }
-
-        setContentView(container)
-
-        fragment.onTransitionAnimationEnd(true, false)
+    override fun onBeforeCreateFragment(savedInstanceState: Bundle?): Boolean {
+        editorOwnerUid = ProfileEditorAccountGuard.bind(this, savedInstanceState) ?: return false
+        return true
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (::fragment.isInitialized) {
-            fragment.onResume()
+    override fun createTelegramFragment(savedInstanceState: Bundle?): TelegramChangeNameActivity {
+        return TelegramChangeNameActivity(null).apply {
+            setEveDelegate(this@ChangeNameActivity)
         }
     }
-
-    override fun onPause() {
-        super.onPause()
-        if (::fragment.isInitialized) {
-            fragment.onPause()
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        if (::fragment.isInitialized) {
-            fragment.onFragmentDestroy()
-        }
-    }
-
-    // --- INavigationLayout implementation ---
-    override fun closeLastFragment(animated: Boolean) {
-        finish()
-    }
-
-    override fun getView(): ViewGroup = if (::container.isInitialized) container else findViewById(android.R.id.content)
-    override fun getParentActivity(): Activity = this
 
     // --- ChangeNameDelegate implementation (Eve save flow & account guard) ---
     override fun getInitialFirstName(): String {

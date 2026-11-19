@@ -1,0 +1,7 @@
+upstream org/telegram/ui/Stories/recorder/ButtonWithCounterView.java
+to app/src/main/java/org/telegram/ui/Stories/recorder/ButtonWithCounterView.java
+
+patch-line "ThemeBind.fillBackground(this, Theme.createRoundRectDrawable(dp(8), backgroundColor = Theme.getColor(Theme.key_featuredStickers_addButton, resourcesProvider)), ThemeBind.of(Theme.key_featuredStickers_addButton), resourcesProvider);" "setBackground(Theme.createRoundRectDrawable(dp(8), backgroundColor = Theme.getColor(Theme.key_featuredStickers_addButton, resourcesProvider)));" "direct fill background without ThemeBind"
+patch-line "ThemeBind.fillBackground(this, drawable, ThemeBind.of(neutral ? Theme.key_buttonNeutral : Theme.key_featuredStickers_addButton), resourcesProvider);" "setBackground(drawable);" "direct background without ThemeBind"
+
+prune-imports

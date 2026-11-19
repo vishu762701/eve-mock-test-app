@@ -1,0 +1,8 @@
+upstream org/telegram/ui/Cells/TextCheckbox2Cell.java
+to app/src/main/java/org/telegram/ui/Cells/TextCheckbox2Cell.java
+
+patch-line "ThemeBind.textColor(textView, dialog ? Theme.key_dialogTextBlack : Theme.key_windowBackgroundWhiteBlackText);" "textView.setTextColor(Theme.getColor(dialog ? Theme.key_dialogTextBlack : Theme.key_windowBackgroundWhiteBlackText));" "direct text color without ThemeBind"
+patch-line "ThemeBind.textColor(valueTextView, dialog ? Theme.key_dialogIcon : Theme.key_windowBackgroundWhiteGrayText2);" "valueTextView.setTextColor(Theme.getColor(dialog ? Theme.key_dialogIcon : Theme.key_windowBackgroundWhiteGrayText2));" "direct value color without ThemeBind"
+patch-line "ThemeBind.textColor(textView, key);" "textView.setTextColor(Theme.getColor(key));" "direct key text color without ThemeBind"
+
+prune-imports

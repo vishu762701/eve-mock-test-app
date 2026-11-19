@@ -1,0 +1,10 @@
+upstream org/telegram/ui/Cells/TextCheckCell.java
+to app/src/main/java/org/telegram/ui/Cells/TextCheckCell.java
+
+patch-line "ThemeBind.textColor(textView, dialog ? Theme.key_dialogTextBlack : Theme.key_windowBackgroundWhiteBlackText, resourcesProvider);" "textView.setTextColor(Theme.getColor(dialog ? Theme.key_dialogTextBlack : Theme.key_windowBackgroundWhiteBlackText, resourcesProvider));" "direct text color without ThemeBind"
+patch-line "ThemeBind.textColor(valueTextView, dialog ? Theme.key_dialogIcon : Theme.key_windowBackgroundWhiteGrayText2, resourcesProvider);" "valueTextView.setTextColor(Theme.getColor(dialog ? Theme.key_dialogIcon : Theme.key_windowBackgroundWhiteGrayText2, resourcesProvider));" "direct value text color without ThemeBind"
+remove-statement "AvatarSpan.checkSpansParent(text, this);" all
+patch-line "ThemeBind.textColor(textView, key, resourcesProvider);" "textView.setTextColor(Theme.getColor(key, resourcesProvider));" "direct text color without ThemeBind"
+patch-line "imageView = new RLottieImageView(getContext());" "imageView = new ImageView(getContext());" "use standard ImageView without RLottie"
+
+prune-imports

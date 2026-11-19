@@ -10,16 +10,15 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import com.eve.app.designsystem.TelegramRadialProgressView
+import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import com.eve.app.util.AppBulletin
-import com.eve.app.util.EveNavigationHelper
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.R
 import com.eve.app.data.remote.ApiClient
-import com.eve.app.databinding.ActivitySettingsBinding
 import com.eve.app.ui.about.AboutActivity
 import com.eve.app.ui.login.LoginActivity
 import com.eve.app.util.ProfilePhotoManager
@@ -40,14 +39,23 @@ import com.eve.app.util.StreakHelper
 import com.eve.app.util.SubmissionRetryPolicy
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import org.telegram.messenger.AndroidUtilities
+import org.telegram.ui.ActionBar.ActionBar
+import org.telegram.ui.ActionBar.Theme
+import org.telegram.ui.Cells.HeaderCell
+import org.telegram.ui.Cells.ShadowSectionCell
+import org.telegram.ui.Cells.TextCell
+import org.telegram.ui.Cells.TextCheckCell
+import org.telegram.ui.Cells.TextInfoPrivacyCell
+import org.telegram.ui.Components.IconBackgroundColors
 
 /**
- * Telegram Android SettingsActivity.java:1169-1250 (SettingCell), 719-727 (rows and icon chip colors),
- * IconBackgroundColors.java:3-23.
+ * Main Settings Hub powered by real ported Telegram UI components:
+ * ActionBar (with QR menu item), HeaderCell, TextCell with IconBackgroundColors chips,
+ * TextCheckCell, ShadowSectionCell, and TextInfoPrivacyCell.
  */
 class SettingsActivity : EveBaseActivity() {
 
-    private lateinit var binding: ActivitySettingsBinding
     private var progressDialog: TelegramNativeAlertDialog? = null
     private var passwordReauthenticationDialog: TelegramNativeAlertDialog? = null
     private var deleteConfirmationDialog: TelegramNativeAlertDialog? = null
@@ -59,6 +67,20 @@ class SettingsActivity : EveBaseActivity() {
     private var logoutJob: Job? = null
     private var accountDeletionJob: Job? = null
     private var deletingFirebaseCredential = false
+    private var uiInitialized = false
+
+    private lateinit var actionBar: ActionBar
+    private lateinit var rowReminder: TextCheckCell
+    private lateinit var rowDailyGoal: TextCell
+    private lateinit var rowTargetExams: TextCell
+    private lateinit var rowAppearance: TextCell
+    private lateinit var rowPasscode: TextCell
+    private lateinit var rowStorage: TextCell
+    private lateinit var rowLanguage: TextCell
+    private lateinit var rowLanguageScreen: TextCell
+    private lateinit var rowAbout: TextCell
+    private lateinit var rowLogout: TextCell
+    private lateinit var rowDeleteAccount: TextCell
 
     private fun hasSettingsOwner(): Boolean =
         SubmissionRetryPolicy.ownsSubmission(settingsOwnerUid, settingsAuth.currentUser?.uid)
@@ -109,42 +131,153 @@ class SettingsActivity : EveBaseActivity() {
             savedInstanceState.getString("settings_owner_uid")
         } else settingsAuth.currentUser?.uid
         if (!hasSettingsOwner()) { finish(); return }
-        binding = ActivitySettingsBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
-        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
-        binding.btnQr.setOnClickListener {
-            val user = FirebaseAuth.getInstance().currentUser
-            val uid = user?.uid ?: "student"
-            val username = (user?.displayName ?: "").replace(" ", "_").lowercase()
-            val normalized = com.eve.app.ui.profile.ProfileQrPayload.normalize(username)
-            val payload = if (normalized != null) {
-                com.eve.app.ui.profile.ProfileQrPayload.encode(normalized)
-            } else {
-                "eve-mock-test://user/$uid"
-            }
-            startActivity(Intent(this, com.eve.app.ui.profile.QrShareActivity::class.java).setData(android.net.Uri.parse(payload)))
+        Theme.syncFromEvePalette(this)
+
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundGray))
         }
-        listOf(
-            binding.rowAppearance, binding.rowAbout, binding.rowLogout,
-            binding.rowDailyGoal, binding.rowTargetExams, binding.rowLanguage,
-            binding.rowReminder, binding.rowDeleteAccount, binding.rowPasscode,
-            binding.rowStorage
-        ).forEach { com.eve.app.designsystem.DesignPress.bind(it) }
+        setContentView(root)
 
-        binding.rowAppearance.setOnClickListener {
+        // 1. Real Telegram ActionBar with QR button
+        actionBar = ActionBar(this).apply {
+            setBackgroundColor(Theme.getColor(Theme.key_actionBarDefault))
+            setItemsBackgroundColor(Theme.getColor(Theme.key_actionBarDefaultSelector), false)
+            setItemsColor(Theme.getColor(Theme.key_actionBarDefaultIcon), false)
+            setTitleColor(Theme.getColor(Theme.key_actionBarDefaultTitle))
+            setBackButtonImage(R.drawable.ic_ab_back)
+            setTitle("Settings")
+            val menu = createMenu()
+            menu.addItem(MENU_QR, R.drawable.msg_qrcode)
+            setActionBarMenuOnItemClick(object : ActionBar.ActionBarMenuOnItemClick() {
+                override fun onItemClick(id: Int) {
+                    when (id) {
+                        -1 -> finish()
+                        MENU_QR -> openQrShare()
+                    }
+                }
+            })
+        }
+        root.addView(actionBar, matchWrap())
+
+        val scrollView = ScrollView(this).apply {
+            isFillViewport = true
+        }
+        val list = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(0, 0, 0, AndroidUtilities.dp(24f))
+        }
+        scrollView.addView(list, matchWrap())
+        root.addView(scrollView, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
+
+        // Section 1: Study Preferences
+        list.addView(sectionHeader("Study Preferences"), matchWrap())
+        rowReminder = TextCheckCell(this).apply {
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+            foreground = Theme.getSelectorDrawable(false)
+        }
+        list.addView(rowReminder, matchWrap())
+
+        rowDailyGoal = settingsCell()
+        list.addView(rowDailyGoal, matchWrap())
+
+        rowTargetExams = settingsCell().apply {
+            setTextAndColorfulIcon(
+                "Target Exams",
+                R.drawable.msg_settings,
+                IconBackgroundColors.BLUE_DEEP.bottom,
+                false
+            )
+        }
+        list.addView(rowTargetExams, matchWrap())
+        list.addView(ShadowSectionCell(this), matchWrap())
+
+        // Section 2: App Settings
+        list.addView(sectionHeader("App Settings"), matchWrap())
+
+        rowAppearance = settingsCell().apply {
+            setTextAndColorfulIcon(
+                "Appearance",
+                R.drawable.msg_theme,
+                IconBackgroundColors.CYAN.bottom,
+                true
+            )
+        }
+        list.addView(rowAppearance, matchWrap())
+
+        rowPasscode = settingsCell()
+        list.addView(rowPasscode, matchWrap())
+
+        rowStorage = settingsCell()
+        list.addView(rowStorage, matchWrap())
+
+        rowLanguage = settingsCell()
+        list.addView(rowLanguage, matchWrap())
+
+        rowLanguageScreen = settingsCell().apply {
+            setTextAndColorfulIcon(
+                "Language Picker",
+                R.drawable.msg_language,
+                IconBackgroundColors.PURPLE.bottom,
+                false
+            )
+        }
+        list.addView(rowLanguageScreen, matchWrap())
+        list.addView(ShadowSectionCell(this), matchWrap())
+
+        // Section 3: Support & Info
+        list.addView(sectionHeader("Information"), matchWrap())
+        rowAbout = settingsCell().apply {
+            setTextAndColorfulIcon(
+                "About Eve",
+                R.drawable.msg_info,
+                IconBackgroundColors.GRAY.bottom,
+                false
+            )
+        }
+        list.addView(rowAbout, matchWrap())
+        list.addView(ShadowSectionCell(this), matchWrap())
+
+        // Section 4: Account
+        list.addView(sectionHeader("Account"), matchWrap())
+        rowLogout = settingsCell().apply {
+            setText("Log Out", true)
+            setTextColor(Theme.getColor(Theme.key_text_RedRegular))
+        }
+        list.addView(rowLogout, matchWrap())
+
+        rowDeleteAccount = settingsCell().apply {
+            setTextAndColorfulIcon(
+                "Delete Account",
+                R.drawable.msg_block,
+                IconBackgroundColors.RED.bottom,
+                false
+            )
+            setTextColor(Theme.getColor(Theme.key_text_RedRegular))
+        }
+        list.addView(rowDeleteAccount, matchWrap())
+
+        val footer = TextInfoPrivacyCell(this).apply {
+            setText("Manage your study reminders, appearance, passcode lock, storage cache, and account preferences.")
+        }
+        list.addView(footer, matchWrap())
+
+        uiInitialized = true
+
+        rowAppearance.setOnClickListener {
             startActivity(Intent(this, ThemeActivity::class.java))
         }
-
-        binding.rowPasscode.setOnClickListener {
+        rowPasscode.setOnClickListener {
             startActivity(Intent(this, PasscodeActivity::class.java))
         }
-
-        binding.rowStorage.setOnClickListener {
+        rowStorage.setOnClickListener {
             startActivity(Intent(this, CacheControlActivity::class.java))
         }
-
-        binding.rowAbout.setOnClickListener {
+        rowLanguageScreen.setOnClickListener {
+            startActivity(Intent(this, LanguageSelectActivity::class.java))
+        }
+        rowAbout.setOnClickListener {
             startActivity(Intent(this, AboutActivity::class.java))
         }
 
@@ -154,6 +287,44 @@ class SettingsActivity : EveBaseActivity() {
         setupLanguageSetting()
         setupLogoutSetting()
         setupDeleteAccountSetting()
+        refreshDynamicValues()
+    }
+
+    private fun openQrShare() {
+        val user = FirebaseAuth.getInstance().currentUser
+        val uid = user?.uid ?: "student"
+        val username = (user?.displayName ?: "").replace(" ", "_").lowercase()
+        val normalized = com.eve.app.ui.profile.ProfileQrPayload.normalize(username)
+        val payload = if (normalized != null) {
+            com.eve.app.ui.profile.ProfileQrPayload.encode(normalized)
+        } else {
+            "eve-mock-test://user/$uid"
+        }
+        startActivity(Intent(this, com.eve.app.ui.profile.QrShareActivity::class.java).setData(android.net.Uri.parse(payload)))
+    }
+
+    private fun refreshDynamicValues() {
+        if (!uiInitialized) return
+        val passcodeVal = if (com.eve.app.util.PasscodeManager.isPasscodeEnabled(this)) "On" else "Off"
+        rowPasscode.setTextAndValueAndColorfulIcon(
+            "Passcode Lock",
+            passcodeVal,
+            false,
+            R.drawable.ic_lock_header,
+            IconBackgroundColors.GREEN.top,
+            IconBackgroundColors.GREEN.bottom,
+            true
+        )
+        val storageVal = com.eve.app.util.CacheManager.formatFileSize(com.eve.app.util.CacheManager.getTotalCacheSize(this))
+        rowStorage.setTextAndValueAndColorfulIcon(
+            "Data and Storage",
+            storageVal,
+            false,
+            R.drawable.msg_filled_storageusage,
+            IconBackgroundColors.BLUE.top,
+            IconBackgroundColors.BLUE.bottom,
+            true
+        )
     }
 
     override fun onStart() {
@@ -177,10 +348,9 @@ class SettingsActivity : EveBaseActivity() {
     override fun onResume() {
         super.onResume()
         if (!hasSettingsOwner() && !deletingFirebaseCredential) { finish(); return }
-        if (!::binding.isInitialized) return
+        if (!uiInitialized) return
         refreshLanguageText()
-        binding.tvPasscodeValue.text = if (com.eve.app.util.PasscodeManager.isPasscodeEnabled(this)) "On" else "Off"
-        binding.tvStorageValue.text = com.eve.app.util.CacheManager.formatFileSize(com.eve.app.util.CacheManager.getTotalCacheSize(this))
+        refreshDynamicValues()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -189,7 +359,7 @@ class SettingsActivity : EveBaseActivity() {
     }
 
     private fun setupLogoutSetting() {
-        binding.rowLogout.setOnClickListener {
+        rowLogout.setOnClickListener {
             if (isFinishing || isDestroyed) return@setOnClickListener
             com.eve.app.designsystem.TelegramNativeAlertDialog.Builder(this)
                 .setTitle("Log out")
@@ -204,8 +374,8 @@ class SettingsActivity : EveBaseActivity() {
 
     private fun executeLogout() {
         if (!hasSettingsOwner()) { finish(); return }
-        if (!binding.rowLogout.isEnabled || logoutJob?.isActive == true) return
-        binding.rowLogout.isEnabled = false
+        if (!rowLogout.isEnabled || logoutJob?.isActive == true) return
+        rowLogout.isEnabled = false
         logoutJob = lifecycleScope.launch {
             try {
                 if (!hasSettingsOwner()) { finish(); return@launch }
@@ -213,7 +383,7 @@ class SettingsActivity : EveBaseActivity() {
                 if (!hasSettingsOwner()) { finish(); return@launch }
                 performLocalLogout()
             } finally {
-                if (hasSettingsOwner() && ::binding.isInitialized) binding.rowLogout.isEnabled = true
+                if (hasSettingsOwner() && uiInitialized) rowLogout.isEnabled = true
             }
         }
     }
@@ -239,10 +409,18 @@ class SettingsActivity : EveBaseActivity() {
         val prefs = getSharedPreferences(StreakHelper.PREFS_NAME, MODE_PRIVATE)
         fun refreshText() {
             val goal = prefs.getInt(StreakHelper.KEY_DAILY_GOAL, StreakHelper.DEFAULT_DAILY_GOAL)
-            binding.tvDailyGoalValue.text = "$goal tests per day"
+            rowDailyGoal.setTextAndValueAndColorfulIcon(
+                "Daily Goal",
+                "$goal tests per day",
+                false,
+                R.drawable.msg_settings,
+                IconBackgroundColors.ORANGE.top,
+                IconBackgroundColors.ORANGE.bottom,
+                true
+            )
         }
         refreshText()
-        binding.rowDailyGoal.setOnClickListener {
+        rowDailyGoal.setOnClickListener {
             val currentGoal = prefs.getInt(StreakHelper.KEY_DAILY_GOAL, StreakHelper.DEFAULT_DAILY_GOAL)
             val density = resources.displayMetrics.density
 
@@ -317,7 +495,7 @@ class SettingsActivity : EveBaseActivity() {
     }
 
     private fun setupTargetExamsSetting() {
-        binding.rowTargetExams.setOnClickListener {
+        rowTargetExams.setOnClickListener {
             lifecycleScope.launch {
                 try {
                     val exams = com.eve.app.data.repository.ExamRepository().getExams()
@@ -336,20 +514,28 @@ class SettingsActivity : EveBaseActivity() {
     }
 
     private fun refreshLanguageText() {
-        if (!::binding.isInitialized) return
+        if (!uiInitialized) return
         val current = AppCompatDelegate.getApplicationLocales()
         val text = when {
             current.isEmpty -> "System default"
             current.toLanguageTags().startsWith("hi") -> "हिन्दी"
             else -> "English"
         }
-        binding.tvLanguageValue.text = text
+        rowLanguage.setTextAndValueAndColorfulIcon(
+            "Language",
+            text,
+            false,
+            R.drawable.msg_language,
+            IconBackgroundColors.PURPLE.top,
+            IconBackgroundColors.PURPLE.bottom,
+            true
+        )
     }
 
     private fun setupLanguageSetting() {
         refreshLanguageText()
 
-        binding.rowLanguage.setOnClickListener {
+        rowLanguage.setOnClickListener {
             val options = arrayOf("System default", "English", "हिन्दी")
             val current = androidx.appcompat.app.AppCompatDelegate.getApplicationLocales()
             val selectedIdx = when {
@@ -376,17 +562,17 @@ class SettingsActivity : EveBaseActivity() {
     }
 
     private fun setupReminderSetting() {
-        binding.switchReminder.isChecked = ReminderScheduler.isEnabled(this)
-        binding.switchReminder.setOnCheckedChangeListener { _, isChecked ->
-            ReminderScheduler.setEnabled(this, isChecked)
-        }
-        binding.rowReminder.setOnClickListener {
-            binding.switchReminder.toggle()
+        var enabled = ReminderScheduler.isEnabled(this)
+        rowReminder.setTextAndCheck("Daily Study Reminder", enabled, true)
+        rowReminder.setOnClickListener {
+            enabled = !enabled
+            ReminderScheduler.setEnabled(this, enabled)
+            rowReminder.setTextAndCheck("Daily Study Reminder", enabled, true)
         }
     }
 
     private fun setupDeleteAccountSetting() {
-        binding.rowDeleteAccount.setOnClickListener {
+        rowDeleteAccount.setOnClickListener {
             showDeleteAccountConfirmation()
         }
     }
@@ -639,24 +825,22 @@ class SettingsActivity : EveBaseActivity() {
         super.onDestroy()
     }
 
-    override fun onApplyThemePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
-        super.onApplyThemePalette(palette)
-        if (::binding.isInitialized) {
-            val rows = listOf(
-                binding.rowAppearance,
-                binding.rowReminder,
-                binding.rowDailyGoal,
-                binding.rowTargetExams,
-                binding.rowLanguage,
-                binding.rowAbout,
-                binding.rowLogout,
-                binding.rowDeleteAccount
-            )
-            rows.forEach { row ->
-                row.background = com.eve.app.designsystem.TelegramThemeSelectors.getSelectorDrawable(
-                    palette.actionSelector
-                )
-            }
-        }
+    private fun sectionHeader(title: String): HeaderCell = HeaderCell(this).apply {
+        setText(title)
+        setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+    }
+
+    private fun settingsCell(): TextCell = TextCell(this).apply {
+        setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+        foreground = Theme.getSelectorDrawable(false)
+    }
+
+    private fun matchWrap() = LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    )
+
+    companion object {
+        private const val MENU_QR = 1
     }
 }

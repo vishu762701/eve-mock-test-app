@@ -1,0 +1,16 @@
+upstream org/telegram/ui/Cells/TextInfoPrivacyCell.java
+to app/src/main/java/org/telegram/ui/Cells/TextInfoPrivacyCell.java
+
+patch-line "private LinkSpanDrawable.LinksTextView textView;" "private TextView textView;" "use standard TextView without LinkSpanDrawable"
+remove-statement "private LinkSpanDrawable.LinkCollector links;"
+patch-line "textView = new LinkSpanDrawable.LinksTextView(context, links = new LinkSpanDrawable.LinkCollector(this), resourcesProvider) {" "textView = new TextView(context) {" "use standard TextView without LinkSpanDrawable"
+remove-method overrideColor
+patch-line "ThemeBind.textColor(textView, Theme.key_windowBackgroundWhiteGrayText4, resourcesProvider);" "textView.setTextColor(getThemedColor(Theme.key_windowBackgroundWhiteGrayText4)); textView.setLinkTextColor(getThemedColor(linkTextColorKey));" "direct text and link colors without ThemeBind"
+remove-statement "textView.setEmojiColor(emojiColor = getThemedColor(Theme.key_windowBackgroundWhiteGrayText4));"
+remove-statement "ThemeBind.linkTextColor(textView, linkTextColorKey, resourcesProvider);" all
+remove-statement "if (links != null) {"
+patch-line "ThemeBind.clear(textView);" "textView.setLinkTextColor(getThemedColor(linkTextColorKey));" "direct link color update without ThemeBind"
+patch-line "ThemeBind.textColor(textView, key, resourcesProvider);" "textView.setTextColor(getThemedColor(key));" "direct text color without ThemeBind"
+patch-line "public LinkSpanDrawable.LinksTextView getTextView() {" "public TextView getTextView() {" "return standard TextView"
+
+prune-imports

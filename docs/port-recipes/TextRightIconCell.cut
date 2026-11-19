@@ -1,0 +1,7 @@
+upstream org/telegram/ui/Cells/TextRightIconCell.java
+to app/src/main/java/org/telegram/ui/Cells/TextRightIconCell.java
+
+patch-line "ThemeBind.textColor(textView, Theme.key_dialogTextBlack, resourcesProvider);" "textView.setTextColor(Theme.getColor(Theme.key_dialogTextBlack, resourcesProvider));" "direct text color without ThemeBind"
+patch-line "ThemeBind.colorFilter(ivIcon, Theme.key_windowBackgroundWhiteGrayText5, resourcesProvider, PorterDuff.Mode.SRC_IN);" "ivIcon.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText5, resourcesProvider), PorterDuff.Mode.SRC_IN));" "direct icon tint without ThemeBind"
+
+prune-imports

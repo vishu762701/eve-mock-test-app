@@ -1,0 +1,8 @@
+upstream org/telegram/ui/Cells/CollapseTextCell.java
+to app/src/main/java/org/telegram/ui/Cells/CollapseTextCell.java
+
+patch-line "ThemeBind.textColor(textView, Theme.key_windowBackgroundWhiteBlackText, resourcesProvider);" "textView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText, resourcesProvider));" "direct text color without ThemeBind"
+patch-line "ThemeBind.drawableColorFilter(this, drawable, Theme.key_windowBackgroundWhiteBlackText, resourcesProvider, PorterDuff.Mode.MULTIPLY);" "drawable.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText, resourcesProvider), PorterDuff.Mode.MULTIPLY));" "direct arrow tint without ThemeBind"
+patch-line "ThemeBind.textColor(textView, colorKey, resourcesProvider);" "textView.setTextColor(Theme.getColor(colorKey, resourcesProvider));" "direct key color without ThemeBind"
+
+prune-imports

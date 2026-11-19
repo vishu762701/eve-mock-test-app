@@ -3,31 +3,18 @@
  * Copyright Nikolai Kudashov, 2013-2023. GNU GPL v2 or later. See THIRD_PARTY_NOTICES.md.
  */
 
-/*
- * Derived from Telegram Android PhotoCropActivity
- * (`PhotoCropActivity.java:40-520`), Copyright Nikolai Kudashov.
- * GNU GPL v2 or later. See THIRD_PARTY_NOTICES.md.
- */
-
 package com.eve.app.ui.profile
 
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
-import android.view.View
 import androidx.core.content.FileProvider
 import androidx.core.content.IntentCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.R
-import com.eve.app.databinding.ActivityAvatarCropBinding
-import com.eve.app.ui.common.EveBaseActivity
+import com.eve.app.ui.common.TelegramHostActivity
 import com.eve.app.util.AppBulletin
-import com.eve.app.util.ProfilePhotoManager
-import com.eve.app.util.VibrationHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -35,110 +22,51 @@ import java.io.File
 import java.io.FileOutputStream
 
 /**
- * ADAPTED PhotoCropActivity host. Telegram shows a crop square over the picked
- * bitmap and returns the cropped bitmap to ImageUpdater. EVE writes the square
- * as an up-to-800px quality-80 JPEG (the source `bigPhoto` export) into its
- * cache and returns that URI to the profile preview.
+ * Hosts the ported [org.telegram.ui.PhotoCropActivity] and exports the cropped
+ * square avatar as an up-to-800px quality-80 JPEG via FileProvider.
  */
-open class PhotoCropActivity : EveBaseActivity() {
+open class PhotoCropActivity : TelegramHostActivity<org.telegram.ui.PhotoCropActivity>() {
 
-    private lateinit var binding: ActivityAvatarCropBinding
     private var sourceUri: Uri? = null
-    private var decoded: Bitmap? = null
     private var finishingCrop = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityAvatarCropBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
-            val bars = insets.getInsets(
-                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
-            )
-            view.setPadding(0, bars.top, 0, bars.bottom)
-            insets
-        }
-        WindowCompat.getInsetsController(window, binding.root).apply {
-            isAppearanceLightStatusBars = false
-            isAppearanceLightNavigationBars = false
-        }
-
         sourceUri = IntentCompat.getParcelableExtra(intent, EXTRA_SOURCE_URI, Uri::class.java)
         if (sourceUri == null) {
+            super.onCreate(savedInstanceState)
             finish()
             return
         }
-
-        com.eve.app.designsystem.DesignPress.bind(binding.btnCancel) { finish() }
-        com.eve.app.designsystem.DesignPress.bind(binding.btnDone) { completeCrop() }
-        com.eve.app.designsystem.DesignPress.bind(binding.btnRotate) {
-            if (binding.cropView.hasBitmap()) {
-                VibrationHelper.vibrateLightHaptic(this)
-                binding.cropView.rotate90()
-            }
-        }
-        binding.btnDone.isEnabled = false
-        loadPhoto()
+        super.onCreate(savedInstanceState)
     }
 
-    private fun loadPhoto() {
-        val uri = sourceUri ?: return
-        binding.progress.visibility = View.VISIBLE
-        binding.cropView.visibility = View.INVISIBLE
-        lifecycleScope.launch {
-            val bitmap = withContext(Dispatchers.IO) {
-                ProfilePhotoManager.decodeForCrop(
-                    this@PhotoCropActivity,
-                    uri,
-                    AvatarCropView.DECODE_MAX_DIMENSION
-                )
+    override fun createFragment(): org.telegram.ui.PhotoCropActivity {
+        val args = Bundle().apply {
+            sourceUri?.let { putParcelable("photoUri", it) }
+            putBoolean("freeform", false)
+        }
+        return org.telegram.ui.PhotoCropActivity(args).apply {
+            setDelegate { bitmap ->
+                handleCroppedBitmap(bitmap)
             }
-            if (isFinishing || isDestroyed) {
-                bitmap?.recycle()
-                return@launch
-            }
-            if (bitmap == null) {
-                binding.progress.visibility = View.GONE
-                AppBulletin.showError(
-                    this@PhotoCropActivity,
-                    getString(R.string.profile_crop_load_failed)
-                )
-                finish()
-                return@launch
-            }
-            decoded = bitmap
-            binding.cropView.setBitmap(bitmap)
-            binding.cropView.visibility = View.VISIBLE
-            binding.progress.visibility = View.GONE
-            binding.btnDone.isEnabled = true
         }
     }
 
-    private fun completeCrop() {
-        if (finishingCrop || !binding.cropView.hasBitmap()) return
-        val cropped = binding.cropView.cropBitmap()
-        if (cropped == null) {
+    private fun handleCroppedBitmap(bitmap: Bitmap?) {
+        if (finishingCrop) return
+        if (bitmap == null) {
             AppBulletin.showError(this, getString(R.string.profile_crop_save_failed))
             return
         }
         finishingCrop = true
-        binding.btnCancel.isEnabled = false
-        binding.btnDone.isEnabled = false
-        binding.progress.visibility = View.VISIBLE
-
         lifecycleScope.launch {
-            val output = withContext(Dispatchers.IO) { writeCrop(cropped) }
-            cropped.recycle()
+            val output = withContext(Dispatchers.IO) { writeCrop(bitmap) }
             if (isFinishing || isDestroyed) {
                 output?.delete()
                 return@launch
             }
             if (output == null) {
                 finishingCrop = false
-                binding.btnCancel.isEnabled = true
-                binding.btnDone.isEnabled = true
-                binding.progress.visibility = View.GONE
                 AppBulletin.showError(
                     this@PhotoCropActivity,
                     getString(R.string.profile_crop_save_failed)
@@ -157,9 +85,6 @@ open class PhotoCropActivity : EveBaseActivity() {
             if (uri == null) {
                 output.delete()
                 finishingCrop = false
-                binding.btnCancel.isEnabled = true
-                binding.btnDone.isEnabled = true
-                binding.progress.visibility = View.GONE
                 AppBulletin.showError(
                     this@PhotoCropActivity,
                     getString(R.string.profile_crop_save_failed)
@@ -180,12 +105,25 @@ open class PhotoCropActivity : EveBaseActivity() {
         val output = File(cacheDir, "avatar_crop_${System.currentTimeMillis()}.jpg")
         val temp = File(output.parentFile, output.name + ".tmp")
         return try {
+            val scaled = if (bitmap.width > MAX_EXPORT_PX || bitmap.height > MAX_EXPORT_PX) {
+                val scale = MAX_EXPORT_PX.toFloat() / maxOf(bitmap.width, bitmap.height).toFloat()
+                Bitmap.createScaledBitmap(
+                    bitmap,
+                    (bitmap.width * scale).toInt().coerceAtLeast(1),
+                    (bitmap.height * scale).toInt().coerceAtLeast(1),
+                    true
+                )
+            } else {
+                bitmap
+            }
             FileOutputStream(temp).use { out ->
-                if (!bitmap.compress(Bitmap.CompressFormat.JPEG, 80, out)) {
+                if (!scaled.compress(Bitmap.CompressFormat.JPEG, 80, out)) {
+                    if (scaled !== bitmap) scaled.recycle()
                     temp.delete()
                     return null
                 }
             }
+            if (scaled !== bitmap) scaled.recycle()
             if (!temp.renameTo(output)) {
                 temp.delete()
                 return null
@@ -197,16 +135,8 @@ open class PhotoCropActivity : EveBaseActivity() {
         }
     }
 
-    override fun onDestroy() {
-        if (::binding.isInitialized) {
-            binding.cropView.release()
-        }
-        decoded?.recycle()
-        decoded = null
-        super.onDestroy()
-    }
-
     companion object {
+        private const val MAX_EXPORT_PX = 800
         const val EXTRA_SOURCE_URI = "com.eve.app.extra.AVATAR_CROP_SOURCE"
         const val EXTRA_OUTPUT_URI = "com.eve.app.extra.AVATAR_CROP_OUTPUT"
         const val EXTRA_OUTPUT_PATH = "com.eve.app.extra.AVATAR_CROP_OUTPUT_PATH"

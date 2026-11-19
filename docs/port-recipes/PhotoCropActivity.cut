@@ -1,0 +1,7 @@
+upstream org/telegram/ui/PhotoCropActivity.java
+to app/src/main/java/org/telegram/ui/PhotoCropActivity.java
+
+patch-line "imageToCrop = ImageLoader.loadBitmap(photoPath, photoUri, size, size, true);" "imageToCrop = com.eve.app.util.ProfilePhotoManager.decodeBitmapForCrop(getParentActivity(), photoPath, photoUri, size);" "decode bitmap via Eve ProfilePhotoManager without ImageLoader"
+remove-statement "if (ImageLoader.getInstance().decrementUseCount(bitmapKey) && !ImageLoader.getInstance().isInMemCache(bitmapKey, false)) {"
+
+prune-imports

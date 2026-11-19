@@ -1,0 +1,8 @@
+upstream org/telegram/messenger/TelegramQRCodeWriter.java
+to app/src/main/java/org/telegram/messenger/TelegramQRCodeWriter.java
+
+remove-statement "Bitmap icon = SvgHelper.getBitmap(readRes(R.raw.qr_logo), imageSize, imageSize, false);"
+remove-statement "canvas.drawBitmap(icon, imageX, imageX, null);"
+remove-statement "icon.recycle();"
+
+prune-imports

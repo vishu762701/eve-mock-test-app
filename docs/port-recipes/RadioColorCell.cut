@@ -1,0 +1,8 @@
+upstream org/telegram/ui/Cells/RadioColorCell.java
+to app/src/main/java/org/telegram/ui/Cells/RadioColorCell.java
+
+patch-line "ThemeBind.radioColors(radioButton, Theme.key_dialogRadioBackground, Theme.key_dialogRadioBackgroundChecked, resourcesProvider);" "radioButton.setColor(getThemedColor(Theme.key_dialogRadioBackground), getThemedColor(Theme.key_dialogRadioBackgroundChecked));" "direct radio colors without ThemeBind"
+patch-line "ThemeBind.textColor(textView, Theme.key_dialogTextBlack, resourcesProvider);" "textView.setTextColor(getThemedColor(Theme.key_dialogTextBlack));" "direct text color without ThemeBind"
+patch-line "ThemeBind.textColor(text2View, Theme.key_windowBackgroundWhiteGrayText, resourcesProvider);" "text2View.setTextColor(getThemedColor(Theme.key_windowBackgroundWhiteGrayText));" "direct secondary text color without ThemeBind"
+
+prune-imports

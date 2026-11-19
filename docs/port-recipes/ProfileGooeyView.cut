@@ -1,0 +1,7 @@
+upstream org/telegram/ui/Components/ProfileGooeyView.java
+to app/src/main/java/org/telegram/ui/Components/ProfileGooeyView.java
+
+patch-line "if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && SharedConfig.getDevicePerformanceClass() >= SharedConfig.PERFORMANCE_CLASS_AVERAGE) {" "if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {" "enable GPUImpl on Android 12+ without SharedConfig performance class"
+patch-line "impl = new GPUImpl(SharedConfig.getDevicePerformanceClass() == SharedConfig.PERFORMANCE_CLASS_HIGH ? 1f : 1.5f);" "impl = new GPUImpl(1f);" "use standard scale factor without SharedConfig performance class"
+
+prune-imports

@@ -1,0 +1,10 @@
+upstream org/telegram/ui/Cells/SlideIntChooseView.java
+to app/src/main/java/org/telegram/ui/Cells/SlideIntChooseView.java
+
+patch-line "ThemeBind.textColor(minText, Theme.key_windowBackgroundWhiteGrayText, resourcesProvider);" "minText.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText, resourcesProvider));" "direct minText color without ThemeBind"
+remove-statement "minText.setEmojiCacheType(AnimatedEmojiDrawable.CACHE_TYPE_COLORABLE);"
+patch-line "ThemeBind.textColor(valueText, Theme.key_windowBackgroundWhiteValueText, resourcesProvider);" "valueText.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteValueText, resourcesProvider));" "direct valueText color without ThemeBind"
+remove-statement "valueText.setEmojiCacheType(AnimatedEmojiDrawable.CACHE_TYPE_COLORABLE);"
+remove-statement "maxText.setEmojiCacheType(AnimatedEmojiDrawable.CACHE_TYPE_COLORABLE);"
+
+prune-imports

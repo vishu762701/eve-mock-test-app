@@ -1,0 +1,22 @@
+upstream org/telegram/ui/ChangeBioActivity.java
+to app/src/main/java/org/telegram/ui/ChangeBioActivity.java
+
+remove-method saveName
+patch-line "private final static int done_button = 1;" "private final static int done_button = 1; private com.eve.app.ui.profile.TelegramProfileDelegates.ChangeBioDelegate eveDelegate; public void setEveDelegate(com.eve.app.ui.profile.TelegramProfileDelegates.ChangeBioDelegate delegate) { this.eveDelegate = delegate; } public EditTextBoldCursor getBioField() { return firstNameField; }" "wire Eve CUT-INTERFACE delegate and expose field for host"
+patch-line "ThemeBind.hintTextColor(firstNameField, Theme.key_windowBackgroundWhiteHintText);" "firstNameField.setHintTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteHintText));" "direct hint color without ThemeBind"
+patch-line "ThemeBind.textColor(firstNameField, Theme.key_windowBackgroundWhiteBlackText);" "firstNameField.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));" "direct text color without ThemeBind"
+patch-line "ThemeBind.lineColors(firstNameField, Theme.key_windowBackgroundWhiteInputField, Theme.key_windowBackgroundWhiteInputFieldActivated, Theme.key_text_RedRegular, getResourceProvider());" "firstNameField.setLineColors(Theme.getColor(Theme.key_windowBackgroundWhiteInputField), Theme.getColor(Theme.key_windowBackgroundWhiteInputFieldActivated), Theme.getColor(Theme.key_text_RedRegular));" "direct line colors without ThemeBind"
+patch-line "ThemeBind.cursorColor(firstNameField, Theme.key_windowBackgroundWhiteBlackText);" "firstNameField.setCursorColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));" "direct cursor color without ThemeBind"
+patch-line "ThemeBind.textColor(helpTextView, Theme.key_windowBackgroundWhiteGrayText8);" "helpTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText8));" "direct help text color without ThemeBind"
+patch-line "inputFilters[0] = new CodepointsLengthInputFilter(getMessagesController().getAboutLimit()) {" "inputFilters[0] = new CodepointsLengthInputFilter(eveDelegate != null ? eveDelegate.getBioMaxLength() : 160) {" "use Eve bio max length via delegate"
+patch-line "checkTextView.setNumber(getMessagesController().getAboutLimit(), false);" "checkTextView.setNumber(eveDelegate != null ? eveDelegate.getBioMaxLength() : 160, false);" "use Eve bio max length via delegate"
+patch-line "checkTextView.setNumber(getMessagesController().getAboutLimit() - Character.codePointCount(s, 0, s.length()), true);" "checkTextView.setNumber((eveDelegate != null ? eveDelegate.getBioMaxLength() : 160) - Character.codePointCount(s, 0, s.length()), true);" "use Eve bio max length via delegate"
+remove-statement "TLRPC.UserFull userFull = MessagesController.getInstance(currentAccount).getUserFull(UserConfig.getInstance(currentAccount).getClientUserId());"
+patch-line "if (userFull != null && userFull.about != null) {" "String initialBio = eveDelegate != null ? eveDelegate.getInitialBio() : null; if (initialBio != null) {" "load initial bio from Eve delegate"
+patch-line "firstNameField.setText(userFull.about);" "firstNameField.setText(initialBio);" "set initial bio from Eve delegate"
+patch-line "SharedPreferences preferences = MessagesController.getGlobalMainSettings();" "SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences(\"mainconfig\", Context.MODE_PRIVATE);" "read animations preference without MessagesController"
+patch-line "saveName();" "if (eveDelegate != null) { eveDelegate.saveBio(firstNameField.getText().toString()); }" "delegate saveBio to Eve adapter"
+
+patch-line "int number = getMessagesController().getAboutLimit() - Character.codePointCount(s, 0, s.length());" "int number = (eveDelegate != null ? eveDelegate.getBioMaxLength() : 160) - Character.codePointCount(s, 0, s.length());" "use Eve bio max length via delegate"
+
+prune-imports

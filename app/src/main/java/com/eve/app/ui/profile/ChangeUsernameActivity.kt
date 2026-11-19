@@ -6,290 +6,197 @@
 package com.eve.app.ui.profile
 
 import android.app.Activity
-import com.eve.app.R
-import com.eve.app.theme.TelegramThemeEngine
 import android.os.Bundle
-import com.google.firebase.auth.FirebaseAuth
-import android.text.Editable
-import android.text.TextWatcher
-import android.view.View
-import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
-import androidx.core.view.doOnLayout
 import androidx.lifecycle.lifecycleScope
+import com.eve.app.R
 import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.ProfileRequestOwner
-import com.eve.app.databinding.ActivityChangeUsernameBinding
-import org.telegram.ui.ActionBar.BackDrawable
-import com.eve.app.ui.common.EveBaseActivity
+import com.eve.app.theme.TelegramThemeEngine
+import com.eve.app.ui.common.TelegramHostActivity
 import com.eve.app.util.AppBulletin
-import com.eve.app.util.EveNavigationHelper
-import com.eve.app.util.TelegramShake
 import com.eve.app.util.VibrationHelper
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class ChangeUsernameActivity : EveBaseActivity() {
+class ChangeUsernameActivity : TelegramHostActivity<org.telegram.ui.ChangeUsernameActivity>() {
     private var editorOwnerUid: String? = null
-
-    private lateinit var binding: ActivityChangeUsernameBinding
-    private val backDrawable = BackDrawable(false)
     private var currentUsername: String = ""
     private var checkJob: Job? = null
-    private var isUsernameValid: Boolean = false
     private var saveInFlight = false
-
-    private enum class StatusRole { AVAILABLE, INVALID, CHECKING }
-    private var statusRole: StatusRole? = null
+    private var statusRole: Int = TelegramUsernameDelegate.ROLE_NONE
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         editorOwnerUid = ProfileEditorAccountGuard.bind(this, savedInstanceState) ?: return
-        binding = ActivityChangeUsernameBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        binding.btnBack.setImageDrawable(backDrawable)
-        binding.tvStatus.tag = "semantic_status"
-
-        currentUsername = intent.getStringExtra("current_username") ?: ""
-        if (currentUsername.startsWith("@")) {
-            currentUsername = currentUsername.substring(1)
-        }
-
-        binding.etUsername.setText(currentUsername)
-        binding.etUsername.setSelection(binding.etUsername.text.length)
-
-        binding.btnBack.setOnClickListener {
-            EveNavigationHelper.finishWithTransition(this)
-        }
-
-        binding.btnDone.setOnClickListener {
-            saveUsername()
-        }
-
-        binding.etUsername.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                saveUsername()
-                true
-            } else {
-                false
-            }
-        }
-        // ChangeUsernameActivity.java:790,795-800: the field declares IME Done
-        // and forwards it to the toolbar Done action.
-        binding.etUsername.imeOptions = EditorInfo.IME_ACTION_DONE
-
-        // ChangeUsernameActivity.java:441-450,1442-1448 focuses the editable
-        // handle when the editor opens.
-        if (savedInstanceState == null) {
-            binding.etUsername.doOnLayout {
-                if (isFinishing || isDestroyed) return@doOnLayout
-                binding.etUsername.requestFocus()
-                binding.etUsername.setSelection(binding.etUsername.text.length)
-                (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager)
-                    .showSoftInput(binding.etUsername, InputMethodManager.SHOW_IMPLICIT)
-            }
-        }
-
-        binding.etUsername.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val input = (s?.toString() ?: "").trim().removePrefix("@")
-                checkUsernameLocallyAndRemotely(input)
-            }
-            override fun afterTextChanged(s: Editable?) {}
-        })
-
+        currentUsername = (intent.getStringExtra("current_username") ?: "").removePrefix("@")
+        super.onCreate(savedInstanceState)
         if (currentUsername.isNotEmpty()) {
-            checkUsernameLocallyAndRemotely(currentUsername)
-        }
-    }
-
-    private fun checkUsernameLocallyAndRemotely(name: String) {
-        checkJob?.cancel()
-        if (name.isEmpty()) {
-            binding.tvStatus.visibility = View.GONE
-            statusRole = null
-            applyStatusPalette(TelegramThemeEngine.resolveCurrentPalette(this))
-            isUsernameValid = false
-            return
-        }
-
-        binding.tvStatus.visibility = View.VISIBLE
-
-        // ADAPTED ChangeUsernameActivity.java:1205-1280: EVE retains its server minimum of 5, not Telegram service-specific 4.
-        if (name.startsWith("_") || name.endsWith("_")) {
-            setStatus(getString(R.string.username_invalid), StatusRole.INVALID)
-            isUsernameValid = false
-            return
-        }
-
-        val firstChar = name[0]
-        if (firstChar in '0'..'9') {
-            setStatus(getString(R.string.username_invalid_number), StatusRole.INVALID)
-            isUsernameValid = false
-            return
-        }
-
-        for (ch in name) {
-            val validChar = (ch in '0'..'9') || (ch in 'a'..'z') || (ch in 'A'..'Z') || ch == '_'
-            if (!validChar) {
-                setStatus(getString(R.string.username_invalid), StatusRole.INVALID)
-                isUsernameValid = false
-                return
-            }
-        }
-
-        if (name.length < 5) {
-            setStatus(getString(R.string.username_too_short), StatusRole.INVALID)
-            isUsernameValid = false
-            return
-        }
-
-        if (name.length > 32) {
-            setStatus(getString(R.string.username_too_long), StatusRole.INVALID)
-            isUsernameValid = false
-            return
-        }
-
-        // Current username check
-        if (name.equals(currentUsername, ignoreCase = true)) {
-            setStatus(getString(R.string.username_available, name), StatusRole.AVAILABLE)
-            isUsernameValid = true
-            return
-        }
-
-        setStatus(getString(R.string.username_checking), StatusRole.CHECKING)
-        isUsernameValid = false
-
-        checkJob = lifecycleScope.launch {
-            delay(300) // Telegram debounce 300ms
-            try {
-                val res = ApiClient.apiService.checkUsername(name)
-                // A cancelled or delayed availability response must never validate newer input.
-                if (binding.etUsername.text.toString().trim().removePrefix("@") != name) return@launch
-                if (res.success && res.data != null) {
-                    val data = res.data
-                    if (data.available) {
-                        setStatus(getString(R.string.username_available, name), StatusRole.AVAILABLE)
-                        isUsernameValid = true
-                    } else {
-                        val errMsg = data.error ?: getString(R.string.username_taken)
-                        setStatus(errMsg, StatusRole.INVALID)
-                        isUsernameValid = false
-                    }
-                } else {
-                    setStatus(res.error ?: getString(R.string.username_taken), StatusRole.INVALID)
-                    isUsernameValid = false
+            fragment.fragmentView?.post {
+                if (!isFinishing && !isDestroyed) {
+                    fragment.recheckUsername()
                 }
-            } catch (cancel: kotlinx.coroutines.CancellationException) {
-                throw cancel
-            } catch (e: Exception) {
-                setStatus(getString(R.string.username_check_error, e.localizedMessage ?: getString(R.string.username_network_error)), StatusRole.INVALID)
-                isUsernameValid = false
             }
         }
     }
 
-    // ChangeUsernameActivity.java:665-680: status and explanatory footer follow 15sp typography
-    private fun setStatus(text: String, role: StatusRole) {
-        binding.tvStatus.text = text
-        statusRole = role
-        applyStatusPalette(TelegramThemeEngine.resolveCurrentPalette(this))
+    override fun createFragment(): org.telegram.ui.ChangeUsernameActivity {
+        return org.telegram.ui.ChangeUsernameActivity().apply {
+            setEveDelegate(object : TelegramUsernameDelegate {
+                override fun getCurrentUsername(): String = currentUsername
+
+                override fun getLinkPrefix(): String = "@"
+
+                override fun getMinimumLength(): Int = 5
+
+                override fun checkUsername(name: String, callback: TelegramUsernameDelegate.CheckCallback) {
+                    checkJob?.cancel()
+                    checkJob = lifecycleScope.launch {
+                        try {
+                            val res = ApiClient.apiService.checkUsername(name)
+                            val field = fragment.getUsernameField()
+                            if (field != null && field.text.toString().trim().removePrefix("@") != name) {
+                                return@launch
+                            }
+                            if (res.success && res.data != null) {
+                                val data = res.data
+                                if (data.available) {
+                                    callback.onResult(true, null)
+                                } else {
+                                    callback.onResult(false, data.error ?: getString(R.string.username_taken))
+                                }
+                            } else {
+                                callback.onResult(false, res.error ?: getString(R.string.username_taken))
+                            }
+                        } catch (cancel: CancellationException) {
+                            throw cancel
+                        } catch (e: Exception) {
+                            callback.onResult(
+                                false,
+                                getString(
+                                    R.string.username_check_error,
+                                    e.localizedMessage ?: getString(R.string.username_network_error)
+                                )
+                            )
+                        }
+                    }
+                }
+
+                override fun cancelCheck() {
+                    checkJob?.cancel()
+                }
+
+                override fun saveUsername(name: String) {
+                    performSaveUsername(name)
+                }
+
+                override fun onLinkCopied(url: String) {
+                    AppBulletin.showSuccess(this@ChangeUsernameActivity, getString(R.string.username_copied))
+                }
+
+                override fun onErrorVibration() {
+                    VibrationHelper.vibrateAppError(this@ChangeUsernameActivity)
+                }
+
+                override fun onStatusRoleChanged(role: Int) {
+                    statusRole = role
+                    applyStatusPalette(TelegramThemeEngine.resolveCurrentPalette(this@ChangeUsernameActivity))
+                }
+            })
+        }
     }
 
     override fun onApplyThemePalette(palette: TelegramThemeEngine.ResolvedPalette) {
         super.onApplyThemePalette(palette)
-        if (::binding.isInitialized) applyStatusPalette(palette)
+        applyStatusPalette(palette)
     }
 
     private fun applyStatusPalette(palette: TelegramThemeEngine.ResolvedPalette) {
-        backDrawable.setColor(palette.textPrimary)
-        backDrawable.setRotatedColor(palette.textPrimary)
+        val statusView = runCatching { fragment.getStatusTextView() }.getOrNull() ?: return
         val ink = when (statusRole) {
-            StatusRole.AVAILABLE -> palette.statusSuccess
-            StatusRole.INVALID -> palette.statusError
-            StatusRole.CHECKING, null -> palette.statusPending
+            TelegramUsernameDelegate.ROLE_AVAILABLE -> palette.statusSuccess
+            TelegramUsernameDelegate.ROLE_INVALID -> palette.statusError
+            else -> palette.statusPending
         }
-        binding.tvStatus.setTextColor(ink)
-        binding.lineUsername.setBackgroundColor(if (statusRole == StatusRole.INVALID) ink else palette.accent)
+        statusView.setTextColor(ink)
     }
 
-    private fun saveUsername() {
+    private fun performSaveUsername(rawName: String) {
         val ownerUid = editorOwnerUid ?: return
-        if (FirebaseAuth.getInstance().currentUser?.uid != ownerUid) { finish(); return }
+        if (FirebaseAuth.getInstance().currentUser?.uid != ownerUid) {
+            finish()
+            return
+        }
         if (saveInFlight) return
-        val target = binding.etUsername.text.toString().trim().removePrefix("@")
-        // ChangeUsernameActivity.java:1374-1382: an unchanged handle closes the
-        // editor directly; no network write is issued.
+        val target = rawName.trim().removePrefix("@")
         if (target.equals(currentUsername, ignoreCase = true)) {
             finish()
             return
         }
-        if (target.isEmpty()) {
-            // EVE's Worker username contract rejects an empty handle
-            // (validateUsername, auth.ts:16-21); source clearing is BLOCKED by
-            // that existing contract, so explain instead of silently returning.
-            setStatus(getString(R.string.username_too_short), StatusRole.INVALID)
-            rejectUsername()
-            return
-        }
-        if (!isUsernameValid) {
-            rejectUsername()
+        if (target.isEmpty() || target.length < 5 || (!fragment.isLastNameAvailable() && !target.equals(currentUsername, ignoreCase = true))) {
+            fragment.shakeIfOff()
             return
         }
 
         checkJob?.cancel()
         val normalizedTarget = target.lowercase(java.util.Locale.ROOT)
         saveInFlight = true
-        binding.btnDone.isEnabled = false
-        binding.etUsername.isEnabled = false
+        val field = fragment.getUsernameField()
+        val done = fragment.getDoneButton()
+        done?.isEnabled = false
+        field?.isEnabled = false
+
         lifecycleScope.launch {
             try {
-                val res = ApiClient.apiService.updateProfile(mapOf("username" to normalizedTarget), ProfileRequestOwner(ownerUid))
+                val res = ApiClient.apiService.updateProfile(
+                    mapOf("username" to normalizedTarget),
+                    ProfileRequestOwner(ownerUid)
+                )
                 if (res.success) {
-                    // Only finish after the same authenticated profile can read the saved handle.
                     val confirmed = ApiClient.apiService.getProfile(ProfileRequestOwner(ownerUid))
                     val savedHandle = confirmed.data?.username?.removePrefix("@")
-                    if (confirmed.success && savedHandle?.equals(normalizedTarget, ignoreCase = true) == true && confirmed.data?.id == ownerUid &&
-                        FirebaseAuth.getInstance().currentUser?.uid == ownerUid) {
+                    if (confirmed.success && savedHandle?.equals(normalizedTarget, ignoreCase = true) == true &&
+                        confirmed.data?.id == ownerUid &&
+                        FirebaseAuth.getInstance().currentUser?.uid == ownerUid
+                    ) {
                         setResult(Activity.RESULT_OK)
                         finish()
                     } else {
-                        binding.btnDone.isEnabled = true
-                        binding.etUsername.isEnabled = true
-                        AppBulletin.showError(this@ChangeUsernameActivity,
-                            getString(R.string.username_save_unverified))
-                        rejectUsername()
+                        done?.isEnabled = true
+                        field?.isEnabled = true
+                        AppBulletin.showError(
+                            this@ChangeUsernameActivity,
+                            getString(R.string.username_save_unverified)
+                        )
+                        fragment.shakeIfOff()
                     }
                 } else {
-                    binding.btnDone.isEnabled = true
-                    binding.etUsername.isEnabled = true
-                    AppBulletin.showError(this@ChangeUsernameActivity, res.error ?: getString(R.string.username_save_failed))
-                    rejectUsername()
+                    done?.isEnabled = true
+                    field?.isEnabled = true
+                    AppBulletin.showError(
+                        this@ChangeUsernameActivity,
+                        res.error ?: getString(R.string.username_save_failed)
+                    )
+                    fragment.shakeIfOff()
                 }
-            } catch (cancel: kotlinx.coroutines.CancellationException) {
+            } catch (cancel: CancellationException) {
                 throw cancel
             } catch (e: Exception) {
-                binding.btnDone.isEnabled = true
-                binding.etUsername.isEnabled = true
-                AppBulletin.showError(this@ChangeUsernameActivity, e.localizedMessage ?: getString(R.string.username_save_failed))
-                rejectUsername()
+                done?.isEnabled = true
+                field?.isEnabled = true
+                AppBulletin.showError(
+                    this@ChangeUsernameActivity,
+                    e.localizedMessage ?: getString(R.string.username_save_failed)
+                )
+                fragment.shakeIfOff()
             } finally {
                 saveInFlight = false
             }
         }
     }
 
-    /**
-     * ChangeUsernameActivity.java:1400-1412 shakeIfOff(): spring-shake the
-     * editable handle/status and emit the original APP_ERROR vibration.
-     */
-    private fun rejectUsername() {
-        TelegramShake.shakeViewSpring(binding.etUsername, 10f)
-        if (binding.tvStatus.visibility == View.VISIBLE) {
-            TelegramShake.shakeViewSpring(binding.tvStatus, 10f)
-        }
-        VibrationHelper.vibrateAppError(this)
+    override fun onDestroy() {
+        checkJob?.cancel()
+        super.onDestroy()
     }
 }

@@ -1,0 +1,26 @@
+upstream org/telegram/ui/Components/RecyclerListView.java
+to app/src/main/java/org/telegram/ui/Components/RecyclerListView.java
+
+patch-line "public class RecyclerListView extends RecyclerView implements IBlur3Capture {" "public class RecyclerListView extends RecyclerView {" "cut IBlur3Capture interface"
+patch-line "public static class ListSectionsDecoration extends RecyclerView.ItemDecoration implements IBlur3Capture {" "public static class ListSectionsDecoration extends RecyclerView.ItemDecoration {" "cut IBlur3Capture on ListSectionsDecoration"
+remove-statement "BlurredBackgroundDrawable blurredCircleDrawable;"
+remove-statement "BlurredBackgroundDrawable blurredTagDrawable;"
+remove-statement "if (blurredCircleDrawable != null) {"
+remove-statement "if (blurredTagDrawable != null) {"
+remove-statement "} else if (blurredTagDrawable != null) {"
+remove-method applyBlurDrawables
+remove-statement "if (blurredCircleDrawable != null || blurredTagDrawable != null)  {"
+remove-method captureChildren
+remove-method captureCalculateHash all
+remove-method capture all
+remove-statement "if ((child instanceof ChatMessageCell || child instanceof ChatActionCell) && child.getVisibility() == View.INVISIBLE) continue;"
+patch-line "ThemeBind.listGlowColor(this, Theme.key_actionBarDefault, resourcesProvider);" "setGlowColor(getThemedColor(Theme.key_actionBarDefault));" "direct glow color without ThemeBind"
+remove-statement "ThemeBind.listSelectorColor(this, Theme.key_listSelector, resourcesProvider);" all
+patch-line "ThemeBind.listSelectorColor(this, Theme.key_settings_listSelector, resourcesProvider);" "setSelectorDrawableColor(getThemedColor(Theme.key_settings_listSelector));" "direct selector color without ThemeBind"
+remove-statement "NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.startAllHeavyOperations, 512);" all
+remove-statement "NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.stopAllHeavyOperations, 512);" all
+patch-line "if (!animateEmptyView || !SharedConfig.animationsEnabled()) {" "if (!animateEmptyView) {" "cut SharedConfig.animationsEnabled check"
+patch-line "view instanceof FiltersSetupActivity.HintInnerCell || view instanceof GraySectionCell ||" "false ||" "cut unported section cells"
+patch-line "view instanceof CollapseTextCell) && !Objects.equals(view.getTag(), TAG_NOT_SECTION);" "false) && !Objects.equals(view.getTag(), TAG_NOT_SECTION);" "cut unported CollapseTextCell"
+
+prune-imports

@@ -30,15 +30,15 @@
           "eve": "app/src/main/java/org/telegram/ui/ChangeNameActivity.java",
           "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ChangeNameActivity.java",
           "mode": "CUT",
-          "recipe_path": "",
-          "recipe_sha256": "",
-          "result_sha256": "f148f35b8e548ef8720a2dab6b840e95cbcbf3e9d17bc40e1938ba223c43c2f0",
-          "eve_sha256": "f148f35b8e548ef8720a2dab6b840e95cbcbf3e9d17bc40e1938ba223c43c2f0",
+          "recipe_path": "docs/port-recipes/ChangeNameActivity.cut",
+          "recipe_sha256": "a5a2b0d0dcabfedeb795a41c22f2aa2995cdf8b35de0996b3d411eded955cab0",
+          "result_sha256": "7a7cc72c296cb0374ffd1a6bd1edb9bd207cd7584a295193b8c85c5348d4ad0e",
+          "eve_sha256": "7a7cc72c296cb0374ffd1a6bd1edb9bd207cd7584a295193b8c85c5348d4ad0e",
           "upstream_sha256": "f31c3e4be5a303d1e7f7d19618bc0529f08833cf657508bfb18fcb085ba79b2a",
           "upstream_lines": 240,
-          "kept_lines": 234,
-          "originality_pct": 95.8,
-          "removed_methods_reason": "",
+          "kept_lines": 201,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut TLRPC/MessagesController/UserConfig saveName in favor of com.eve.app ChangeNameDelegate CUT-INTERFACE; preserved full Telegram ChangeNameActivity layout, ActionBar, EditTextBoldCursor fields, and animations",
           "known_debt": true
         },
         {
@@ -105,15 +105,15 @@
           "eve": "app/src/main/java/org/telegram/ui/Components/EditTextBoldCursor.java",
           "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/EditTextBoldCursor.java",
           "mode": "CUT",
-          "recipe_path": "",
-          "recipe_sha256": "",
-          "result_sha256": "fdfd7bdb07f8d234ef7f880b7b8ec512e8046c7665785a7bd23ac7c9d3a346a9",
-          "eve_sha256": "fdfd7bdb07f8d234ef7f880b7b8ec512e8046c7665785a7bd23ac7c9d3a346a9",
+          "recipe_path": "docs/port-recipes/EditTextBoldCursor.cut",
+          "recipe_sha256": "a99aabcd10989a726f7f714095fe8bd87ceae2082749043a9479b41076046382",
+          "result_sha256": "6b647698dfcac4d4a85f9c23d522e6cf6a30f4b0c697e7f449616db2518e5593",
+          "eve_sha256": "6b647698dfcac4d4a85f9c23d522e6cf6a30f4b0c697e7f449616db2518e5593",
           "upstream_sha256": "00f6fdc6b45d025b84ada460d92aa863e054d00144e42bf93a02db6ebfe09f67",
           "upstream_lines": 1430,
-          "kept_lines": 166,
-          "originality_pct": 52.11,
-          "removed_methods_reason": "",
+          "kept_lines": 1295,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut EditTextEffects spoiler base, Choreographer60FpsContent, FloatingToolbar/FloatingActionMode, Blur3, and QuoteSpan; preserved full bold cursor, hint/header-hint/error animations, underline physics, and handle coloring",
           "known_debt": true
         },
         {
@@ -135,90 +135,90 @@
           "eve": "app/src/main/java/org/telegram/ui/ActionBar/ThemeDescription.java",
           "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ThemeDescription.java",
           "mode": "CUT",
-          "recipe_path": "",
-          "recipe_sha256": "",
-          "result_sha256": "5dc4250b5c30bfafa5c2edb0622bbade328472db3a69c77f78bfa1d7901c4cea",
-          "eve_sha256": "5dc4250b5c30bfafa5c2edb0622bbade328472db3a69c77f78bfa1d7901c4cea",
+          "recipe_path": "docs/port-recipes/ThemeDescription.cut",
+          "recipe_sha256": "ebd8cfe41b9358e65015b2aa9069474e1a63ff21c2194a27b90b36e1b7a20760",
+          "result_sha256": "5d32710994d44aa8eca4e3c4590f90db317c4f3c1f188436a8b52a8d03991281",
+          "eve_sha256": "5d32710994d44aa8eca4e3c4590f90db317c4f3c1f188436a8b52a8d03991281",
           "upstream_sha256": "b369eef1af112be82eb682da53c7c8f6eb77c64a563aa82870340d76167b51cf",
           "upstream_lines": 851,
-          "kept_lines": 20,
-          "originality_pct": 43.75,
-          "removed_methods_reason": "",
+          "kept_lines": 621,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut unported component instanceof branches (RecyclerListView, RadioButton, BackupImageView, etc.); preserved full ThemeDescription flags, ActionBar/TextView/SimpleTextView/ImageView/CombinedDrawable/View/Paint theming",
           "known_debt": true
         },
         {
           "eve": "app/src/main/java/org/telegram/ui/ActionBar/INavigationLayout.java",
           "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/INavigationLayout.java",
           "mode": "CUT",
-          "recipe_path": "",
-          "recipe_sha256": "",
-          "result_sha256": "0708fd8e578d64a5d4175b76a79d15dafb4c5e1c725a6816e0924e3eb4a76e2a",
-          "eve_sha256": "0708fd8e578d64a5d4175b76a79d15dafb4c5e1c725a6816e0924e3eb4a76e2a",
+          "recipe_path": "docs/port-recipes/INavigationLayout.cut",
+          "recipe_sha256": "fa7354fa1269e04caef3e4b72d6109108b0c46833b80a433762125de3a877087",
+          "result_sha256": "3335bca681e800bbfc26ef5d004dd1540b7edf28ad7ecafbf03aec3ca78bba9b",
+          "eve_sha256": "3335bca681e800bbfc26ef5d004dd1540b7edf28ad7ecafbf03aec3ca78bba9b",
           "upstream_sha256": "ba37de521afcdedabf349ce969b0f748b9639fdfcf10660fcde76e526149212f",
           "upstream_lines": 467,
-          "kept_lines": 14,
-          "originality_pct": 45.45,
-          "removed_methods_reason": "",
+          "kept_lines": 435,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut DrawerLayoutContainer, MessageDrawable, BackButtonMenu, ActionBarLayout factory, and BottomSheetTabs getters; preserved full INavigationLayout contract",
           "known_debt": true
         },
         {
           "eve": "app/src/main/java/org/telegram/ui/ActionBar/BaseFragment.java",
           "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/BaseFragment.java",
           "mode": "CUT",
-          "recipe_path": "",
-          "recipe_sha256": "",
-          "result_sha256": "779cbfc4830e71a4f64ff3f8401a9b1c9490704de5d6945cebbe180ce69692e4",
-          "eve_sha256": "779cbfc4830e71a4f64ff3f8401a9b1c9490704de5d6945cebbe180ce69692e4",
+          "recipe_path": "docs/port-recipes/BaseFragment.cut",
+          "recipe_sha256": "141235df8d83e157a82a19375340f625f5b8678655001dfad8e018fec98a1eba",
+          "result_sha256": "b4bff89f26d175d86e09aff1ea0c566537795a8f7770f66fae7ee310c8f9fb92",
+          "eve_sha256": "b4bff89f26d175d86e09aff1ea0c566537795a8f7770f66fae7ee310c8f9fb92",
           "upstream_sha256": "08447c8843184709b51ada62f286fdb43850f95de6e7a7f227c5562b0c9c2264",
           "upstream_lines": 1693,
-          "kept_lines": 104,
-          "originality_pct": 76.47,
-          "removed_methods_reason": "",
+          "kept_lines": 1080,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut Telegram account/chat controller getters, StoryViewer, ArticleViewer, BotWebViewAttachedSheet, glass engine, and LaunchActivity refs; preserved full BaseFragment lifecycle, actionBar creation, theming, and dialog management",
           "known_debt": true
         },
         {
           "eve": "app/src/main/java/org/telegram/ui/ActionBar/ActionBar.java",
           "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBar.java",
           "mode": "CUT",
-          "recipe_path": "",
-          "recipe_sha256": "",
-          "result_sha256": "f798d351272928934c240e8700ecfd6f6e7c0634b60191e9c398218701257882",
-          "eve_sha256": "f798d351272928934c240e8700ecfd6f6e7c0634b60191e9c398218701257882",
+          "recipe_path": "docs/port-recipes/ActionBar.cut",
+          "recipe_sha256": "f0b065b320ff44c3f18746f6607ab024ab31c390ca8c5944c9a22d2af3ff934d",
+          "result_sha256": "b42861a0b11d1de6ac3e2af7e7e849ddd6564587013c9a9f30ca623702a1282a",
+          "eve_sha256": "b42861a0b11d1de6ac3e2af7e7e849ddd6564587013c9a9f30ca623702a1282a",
           "upstream_sha256": "490b23f1da59751ebd3355934ad7a08a29758ba34faf8f092b8d64832e3e499a",
           "upstream_lines": 2761,
-          "kept_lines": 123,
-          "originality_pct": 66.35,
-          "removed_methods_reason": "",
+          "kept_lines": 2229,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut glass/blur3 overlay host, holiday effects, chat avatar container, and animated emoji spans; preserved full ActionBar layout, title/subtitle, action mode, search transitions, and back/menu animations",
           "known_debt": true
         },
         {
           "eve": "app/src/main/java/org/telegram/ui/ActionBar/ActionBarMenu.java",
           "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarMenu.java",
           "mode": "CUT",
-          "recipe_path": "",
-          "recipe_sha256": "",
-          "result_sha256": "cb7ecd523c1ede0a6700346ba97db15acd0eec6491b6361a4de1ef228646678e",
-          "eve_sha256": "cb7ecd523c1ede0a6700346ba97db15acd0eec6491b6361a4de1ef228646678e",
+          "recipe_path": "docs/port-recipes/ActionBarMenu.cut",
+          "recipe_sha256": "8233473dffaa00a20416a0d37afb1f4e5fbb95e66673a40b0c762697011ad6d4",
+          "result_sha256": "036db0e052ddb09f29b2eb704fb91b9b62a6a6513b26d091a68818ac98a47964",
+          "eve_sha256": "036db0e052ddb09f29b2eb704fb91b9b62a6a6513b26d091a68818ac98a47964",
           "upstream_sha256": "9456689e477766acb34c260271bb26b6565276ca3f9b74842eb33d5066bcb075",
           "upstream_lines": 719,
-          "kept_lines": 47,
-          "originality_pct": 43.9,
-          "removed_methods_reason": "",
+          "kept_lines": 678,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut chat search filters and RLottieDrawable branch; preserved full menu item creation, lazy items, search field orchestration, and layout",
           "known_debt": true
         },
         {
           "eve": "app/src/main/java/org/telegram/ui/ActionBar/ActionBarMenuItem.java",
           "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarMenuItem.java",
           "mode": "CUT",
-          "recipe_path": "",
-          "recipe_sha256": "",
-          "result_sha256": "3089cde2c9eae629510b531c265c8de5034a40d72db7e5d747465845979024a9",
-          "eve_sha256": "3089cde2c9eae629510b531c265c8de5034a40d72db7e5d747465845979024a9",
+          "recipe_path": "docs/port-recipes/ActionBarMenuItem.cut",
+          "recipe_sha256": "302b316f797a99c904f826bd90ad7a087a3ae93e3d239d720dd9684735b7edea",
+          "result_sha256": "a768e210f9a1730ea07d68664cbc3d7eeed738cab7bd13aecb99aa67b2b3c9f1",
+          "eve_sha256": "a768e210f9a1730ea07d68664cbc3d7eeed738cab7bd13aecb99aa67b2b3c9f1",
           "upstream_sha256": "2d6e0b6b22595513a60f4599a441bed868bb8668ce8fcccd9201ab5e0a88713e",
           "upstream_lines": 2902,
-          "kept_lines": 46,
-          "originality_pct": 67.57,
-          "removed_methods_reason": "",
+          "kept_lines": 2169,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut chat search filters, glass blur3, overlay menu host, swipe-back submenus, and RLottie; preserved full menu item, popup submenu, search field, and touch/animation physics",
           "known_debt": true
         },
         {
@@ -257,11 +257,11 @@
           "mode": "CUT",
           "recipe_path": "",
           "recipe_sha256": "",
-          "result_sha256": "62f66f601e03cfa946857582c3c5cb7069de1e6ac3c84c18f7d91e20499187b9",
-          "eve_sha256": "62f66f601e03cfa946857582c3c5cb7069de1e6ac3c84c18f7d91e20499187b9",
+          "result_sha256": "22443a26fa877d0e0c88e78fa705b3bbcad0d17c9a47d457f844044479ab81d9",
+          "eve_sha256": "22443a26fa877d0e0c88e78fa705b3bbcad0d17c9a47d457f844044479ab81d9",
           "upstream_sha256": "",
           "upstream_lines": 0,
-          "kept_lines": 22,
+          "kept_lines": 60,
           "originality_pct": 0.0,
           "removed_methods_reason": "",
           "known_debt": true
@@ -507,6 +507,546 @@
           "known_debt": false
         },
         {
+          "eve": "app/src/main/java/org/telegram/ui/Components/CloseProgressDrawable2.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/CloseProgressDrawable2.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "ae82fe915794372fa4b309689c742f3286bc7f853c2456001bc783f211fbc235",
+          "eve_sha256": "ae82fe915794372fa4b309689c742f3286bc7f853c2456001bc783f211fbc235",
+          "upstream_sha256": "ae82fe915794372fa4b309689c742f3286bc7f853c2456001bc783f211fbc235",
+          "upstream_lines": 178,
+          "kept_lines": 178,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/messenger/utils/ViewOutlineProviderImpl.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/utils/ViewOutlineProviderImpl.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "d2d8c3861f254ed0336ab0bf37126b204670c90aa35a075eb2464ed7f8ecce35",
+          "eve_sha256": "d2d8c3861f254ed0336ab0bf37126b204670c90aa35a075eb2464ed7f8ecce35",
+          "upstream_sha256": "d2d8c3861f254ed0336ab0bf37126b204670c90aa35a075eb2464ed7f8ecce35",
+          "upstream_lines": 196,
+          "kept_lines": 196,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/AnimatedFloat.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/AnimatedFloat.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "6e744c109b675b42b53faada749f3ffb38cc5ea3f25347ce8f2b39e10d306bb9",
+          "eve_sha256": "6e744c109b675b42b53faada749f3ffb38cc5ea3f25347ce8f2b39e10d306bb9",
+          "upstream_sha256": "6e744c109b675b42b53faada749f3ffb38cc5ea3f25347ce8f2b39e10d306bb9",
+          "upstream_lines": 232,
+          "kept_lines": 232,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/ScaleStateListAnimator.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/ScaleStateListAnimator.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "85f2574068783bae3c920b9f94141e93c873b69e36b88b2a28fa0c1c4077b9ce",
+          "eve_sha256": "85f2574068783bae3c920b9f94141e93c873b69e36b88b2a28fa0c1c4077b9ce",
+          "upstream_sha256": "85f2574068783bae3c920b9f94141e93c873b69e36b88b2a28fa0c1c4077b9ce",
+          "upstream_lines": 47,
+          "kept_lines": 47,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/RadialProgressView.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/RadialProgressView.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "9741dd1a835e45854a2f8a6b0ad08202b21de93b19812be0e3775f4b5a10b9c3",
+          "eve_sha256": "9741dd1a835e45854a2f8a6b0ad08202b21de93b19812be0e3775f4b5a10b9c3",
+          "upstream_sha256": "9741dd1a835e45854a2f8a6b0ad08202b21de93b19812be0e3775f4b5a10b9c3",
+          "upstream_lines": 290,
+          "kept_lines": 290,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/CircularProgressDrawable.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/CircularProgressDrawable.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "131b8b93dd79feefae514f2ce2e62c748135879aafc823aa993a63dcd56a6e19",
+          "eve_sha256": "131b8b93dd79feefae514f2ce2e62c748135879aafc823aa993a63dcd56a6e19",
+          "upstream_sha256": "131b8b93dd79feefae514f2ce2e62c748135879aafc823aa993a63dcd56a6e19",
+          "upstream_lines": 124,
+          "kept_lines": 124,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/ActionBar/TextViewWithLoading.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/TextViewWithLoading.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "539f59a01f7866f18b5e8e56330af68ced09fbb952638a39fc5443098c9b6805",
+          "eve_sha256": "539f59a01f7866f18b5e8e56330af68ced09fbb952638a39fc5443098c9b6805",
+          "upstream_sha256": "539f59a01f7866f18b5e8e56330af68ced09fbb952638a39fc5443098c9b6805",
+          "upstream_lines": 75,
+          "kept_lines": 75,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/LineProgressView.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/LineProgressView.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/LineProgressView.cut",
+          "recipe_sha256": "a448cc74a434c2ae692d345ed976f0f04c6ae805e05313226ca28a507adafa71",
+          "result_sha256": "43a5b8709d3e04729b7315b75eb9086f32a90256cc52d29a148855b12c3dd1a1",
+          "eve_sha256": "43a5b8709d3e04729b7315b75eb9086f32a90256cc52d29a148855b12c3dd1a1",
+          "upstream_sha256": "dbf30036e342f15950377d8ea7cb1a22d620a106e870ec05c1c0384bc00443a8",
+          "upstream_lines": 137,
+          "kept_lines": 121,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut CellFlickerDrawable shimmer overlay; preserved full progress bar animation and drawing",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/ActionBar/AlertDialog.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/AlertDialog.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/AlertDialog.cut",
+          "recipe_sha256": "c898a5561368f1d0fe812ef60b14074563316c29412143c33648b35c9ae2db8c",
+          "result_sha256": "cea4e6f3f7f0d37f2829439f7b82d145698305fc74f74bb0b5351d42bffb2f57",
+          "eve_sha256": "cea4e6f3f7f0d37f2829439f7b82d145698305fc74f74bb0b5351d42bffb2f57",
+          "upstream_sha256": "2c61870cab96f0a5706ee7b0c1fe7040854e5d7f9cd52925b29e3fa47691f827",
+          "upstream_lines": 2206,
+          "kept_lines": 2088,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut Stars balance cloud, RLottie top animations, NotificationCenter emoji hooks, Browser.Progress, and chat blur; preserved full AlertDialog layout, buttons, loading/spinner styles, scrolling, shadows, and Builder",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/AnimationProperties.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/AnimationProperties.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/AnimationProperties.cut",
+          "recipe_sha256": "98938a633f5a60458ddfc133e38c60ef64043ba9350ca3f1edee36f1be2261b2",
+          "result_sha256": "fe135cdc62d1d3a4334904c4c6c86b73c23666bc138d0a93656bd449ddcb2f10",
+          "eve_sha256": "fe135cdc62d1d3a4334904c4c6c86b73c23666bc138d0a93656bd449ddcb2f10",
+          "upstream_sha256": "22e2ceaad8385cdaaf20b3649f434c4b90562a9b445092e500cc3ab359d0fb06",
+          "upstream_lines": 143,
+          "kept_lines": 104,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut ImageReceiver, PhotoViewer, and DialogCell properties; preserved all standard View/Drawable/Paint animation properties",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/ActionBar/BottomSheet.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/BottomSheet.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/BottomSheet.cut",
+          "recipe_sha256": "720033cc514c904f2fa6e3fa136d8d517d24e66c165f0b60548a05ed9a4c06bc",
+          "result_sha256": "7e000ee0b6231e2e7276ddbc86cfbb4cc8ae40109125d495fdf2e9e18e770c8b",
+          "eve_sha256": "7e000ee0b6231e2e7276ddbc86cfbb4cc8ae40109125d495fdf2e9e18e770c8b",
+          "upstream_sha256": "8579eae884d0a4c85889f8b153ff1153af0c49fa893f3cad2f6e0f613bab6bea",
+          "upstream_lines": 2719,
+          "kept_lines": 2576,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut glass overlay menu, NotificationCenter heavy-ops, CameraView/ItemOptions, Bulletin hooks, WindowVisibilityManager, and LaunchActivity refs; preserved full BottomSheet nested scroll, drag-to-dismiss physics, keyboard insets, cells, and Builder",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/messenger/XiaomiUtilities.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/XiaomiUtilities.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "8fc81eccd6c49cf6ecba36b7375133dff34ea72e9248befa62db434069ec8539",
+          "eve_sha256": "8fc81eccd6c49cf6ecba36b7375133dff34ea72e9248befa62db434069ec8539",
+          "upstream_sha256": "8fc81eccd6c49cf6ecba36b7375133dff34ea72e9248befa62db434069ec8539",
+          "upstream_lines": 73,
+          "kept_lines": 73,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/messenger/GenericProvider.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/GenericProvider.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "1068ef0c9dacadacaa27f9606ace3e03f96b5b12b9122d1c8f286e04de96944f",
+          "eve_sha256": "1068ef0c9dacadacaa27f9606ace3e03f96b5b12b9122d1c8f286e04de96944f",
+          "upstream_sha256": "1068ef0c9dacadacaa27f9606ace3e03f96b5b12b9122d1c8f286e04de96944f",
+          "upstream_lines": 5,
+          "kept_lines": 5,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/ButtonBounce.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/ButtonBounce.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "f7b5188cb84ce4f392d138ef9dd764911c19d227cf03e2a5c573eb6e7943acc6",
+          "eve_sha256": "f7b5188cb84ce4f392d138ef9dd764911c19d227cf03e2a5c573eb6e7943acc6",
+          "upstream_sha256": "f7b5188cb84ce4f392d138ef9dd764911c19d227cf03e2a5c573eb6e7943acc6",
+          "upstream_lines": 141,
+          "kept_lines": 141,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/Switch.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/Switch.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "ef6dcee2aab5c56a7dfdafa58b23b6851f755f8d0c07b70cf7f2143aa1f8cd5a",
+          "eve_sha256": "ef6dcee2aab5c56a7dfdafa58b23b6851f755f8d0c07b70cf7f2143aa1f8cd5a",
+          "upstream_sha256": "ef6dcee2aab5c56a7dfdafa58b23b6851f755f8d0c07b70cf7f2143aa1f8cd5a",
+          "upstream_lines": 569,
+          "kept_lines": 569,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/RadioButton.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/RadioButton.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "b18ccbe67c3cdc865fbf3b1be0c1549ad0c18c8495be3eabae21f3970f3876ac",
+          "eve_sha256": "b18ccbe67c3cdc865fbf3b1be0c1549ad0c18c8495be3eabae21f3970f3876ac",
+          "upstream_sha256": "b18ccbe67c3cdc865fbf3b1be0c1549ad0c18c8495be3eabae21f3970f3876ac",
+          "upstream_lines": 207,
+          "kept_lines": 207,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Cells/DividerCell.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/DividerCell.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "fedb655b84627bc4839d0f98547fa000bdf7d5d26e13760f045484b824ea8548",
+          "eve_sha256": "fedb655b84627bc4839d0f98547fa000bdf7d5d26e13760f045484b824ea8548",
+          "upstream_sha256": "fedb655b84627bc4839d0f98547fa000bdf7d5d26e13760f045484b824ea8548",
+          "upstream_lines": 57,
+          "kept_lines": 57,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Cells/ShadowSectionCell.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/ShadowSectionCell.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "f2ca179b4c99d56d3dcca8565c8003555ddc65c70c9e0a7266d673b1d9a948f7",
+          "eve_sha256": "f2ca179b4c99d56d3dcca8565c8003555ddc65c70c9e0a7266d673b1d9a948f7",
+          "upstream_sha256": "f2ca179b4c99d56d3dcca8565c8003555ddc65c70c9e0a7266d673b1d9a948f7",
+          "upstream_lines": 110,
+          "kept_lines": 110,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/CheckBoxBase.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/CheckBoxBase.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/CheckBoxBase.cut",
+          "recipe_sha256": "3422c81f1cc52fa751a796627b650abed439c0fbd4ab04eb9d4e38eb1c4c45c8",
+          "result_sha256": "3f9d308b612c528e9b74b309c031a5f81b00fee166232e335c9e61ed078440dc",
+          "eve_sha256": "3f9d308b612c528e9b74b309c031a5f81b00fee166232e335c9e61ed078440dc",
+          "upstream_sha256": "ad07ed5e2ea0f975a8126d66ca271e710b7da786e132424b29a91b4bcf98fbe6",
+          "upstream_lines": 669,
+          "kept_lines": 646,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut chat MessageDrawable gradient shader; preserved full checkbox drawing and animations",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/CheckBox2.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/CheckBox2.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/CheckBox2.cut",
+          "recipe_sha256": "d9b01fddcb4b1779d826c2ddce6ee2d14cbfb0b6d2f61bae18ce44857f90701f",
+          "result_sha256": "ae431f56bc8a46f806b39645d7a1e55e7e56a1edfd12950c752dbf4849ba27d7",
+          "eve_sha256": "ae431f56bc8a46f806b39645d7a1e55e7e56a1edfd12950c752dbf4849ba27d7",
+          "upstream_sha256": "2cf5064f6b4d611434364247e272ddb489c27466d3e02189629bbc197168fc19",
+          "upstream_lines": 154,
+          "kept_lines": 152,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Direct drawable color filter without ThemeBind",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Cells/HeaderCell.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/HeaderCell.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/HeaderCell.cut",
+          "recipe_sha256": "338f5a84dcd3da7970f1698f69b70b20f11ea4b2dec56e9cb0bedfa25ac8fe43",
+          "result_sha256": "09933a456123d15966dc57365f4590f4df7b67c972a8356a7d2fff40b08dc771",
+          "eve_sha256": "09933a456123d15966dc57365f4590f4df7b67c972a8356a7d2fff40b08dc771",
+          "upstream_sha256": "cc42e3338ea1c0605ca0faf76f70d936827974b407a318f39da3cb6f84996e3c",
+          "upstream_lines": 228,
+          "kept_lines": 210,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut AnimatedTextView mode and ThemeBind; preserved full HeaderCell TextView, secondary text, RTL, and accessibility",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Cells/TextInfoPrivacyCell.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/TextInfoPrivacyCell.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/TextInfoPrivacyCell.cut",
+          "recipe_sha256": "4eb835dab90f55d3be0f09a06c456e9c413dda32492bcd645bc03b92afa97556",
+          "result_sha256": "09879e7dae2544234c177950ecae3174e117a3e306e75a329baad614f4e33fb3",
+          "eve_sha256": "09879e7dae2544234c177950ecae3174e117a3e306e75a329baad614f4e33fb3",
+          "upstream_sha256": "1f269ae653c018f5cd7961efefafbd5d5c9491a3a94c5c3dd9903456ab6b3d06",
+          "upstream_lines": 253,
+          "kept_lines": 232,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Use standard TextView without LinkSpanDrawable and ThemeBind; preserved full privacy footer layout, padding, links, and RTL",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Cells/TextCheckCell.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/TextCheckCell.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/TextCheckCell.cut",
+          "recipe_sha256": "935c44626bf99d17570824200d666fcc7a5c50837dce2c1c4b986671bbe55c8f",
+          "result_sha256": "fda09c10d4e884ee55b1e6fcf4fe9a33fe7d710303e33b065ed861aa4f31bc52",
+          "eve_sha256": "fda09c10d4e884ee55b1e6fcf4fe9a33fe7d710303e33b065ed861aa4f31bc52",
+          "upstream_sha256": "d3ac89de04397f42cb14a888d65b1d65aeb57b73b773f0807d324f38ec950447",
+          "upstream_lines": 456,
+          "kept_lines": 449,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut AvatarSpan and RLottieImageView; preserved full Switch check cell layout, animations, divider, and RTL",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Cells/TextDetailCell.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/TextDetailCell.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/TextDetailCell.cut",
+          "recipe_sha256": "fe54fb50d08b5de5d88b1a3912f4375567bfe4c213db9f0c9228d040febe46f6",
+          "result_sha256": "ff1d8f358586d58e062a156ae78fd24d65904589e3e38741e8e2f1e5cb0dce0a",
+          "eve_sha256": "ff1d8f358586d58e062a156ae78fd24d65904589e3e38741e8e2f1e5cb0dce0a",
+          "upstream_sha256": "ff63ba426d74188c06f40820aa9bcb6bae352b08c6ddea8e671ef49c190df49e",
+          "upstream_lines": 328,
+          "kept_lines": 298,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Use standard TextView without SpoilersTextView/LinkSpanDrawable and cut UItem Factory; preserved full TextDetailCell layout, subtitles, divider, and RTL",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/CodepointsLengthInputFilter.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/CodepointsLengthInputFilter.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "5527208f01566f71f9ce07e388434e499482c0ddb57d5326876e74310a7b619f",
+          "eve_sha256": "5527208f01566f71f9ce07e388434e499482c0ddb57d5326876e74310a7b619f",
+          "upstream_sha256": "5527208f01566f71f9ce07e388434e499482c0ddb57d5326876e74310a7b619f",
+          "upstream_lines": 36,
+          "kept_lines": 36,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/NumberTextView.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/NumberTextView.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "ce91b689202bca385cec26ea2dca759612dd2659bd2d10916897ca7a84a6606c",
+          "eve_sha256": "ce91b689202bca385cec26ea2dca759612dd2659bd2d10916897ca7a84a6606c",
+          "upstream_sha256": "ce91b689202bca385cec26ea2dca759612dd2659bd2d10916897ca7a84a6606c",
+          "upstream_lines": 246,
+          "kept_lines": 246,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/AnimatedTextView.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/AnimatedTextView.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/AnimatedTextView.cut",
+          "recipe_sha256": "02254a02d0177ae9bf82d34f259d22ead15cd9a20269817aae29b2e9c13e64a5",
+          "result_sha256": "2ea57bb6e24819de2ed1b0f916d76cf5b81b404251b7a0eb187d3261809f163f",
+          "eve_sha256": "2ea57bb6e24819de2ed1b0f916d76cf5b81b404251b7a0eb187d3261809f163f",
+          "upstream_sha256": "1da5774411e8dbefe7917d0e430daeb157082cc2ffab5f93f7b9daa9b1d925d1",
+          "upstream_lines": 1485,
+          "kept_lines": 1476,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut AnimatedEmojiSpan and AnimatedEmojiDrawable cache constant (5 lines); preserved 99%+ of upstream AnimatedTextView morphing text engine",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Cells/TextCell.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/TextCell.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/TextCell.cut",
+          "recipe_sha256": "13a7a0f4da0994c0370ae4f4ea9eaf3116dd7dd9d898a6ee2ec85c4095655542",
+          "result_sha256": "689684b8299ff5a107d395c0a4ff13a66880e54c025332210205b0f719cde2b5",
+          "eve_sha256": "689684b8299ff5a107d395c0a4ff13a66880e54c025332210205b0f719cde2b5",
+          "upstream_sha256": "acee960ec8d996668bd55349777fafc6fdc2a733e5d61162b2535e65abdd7775",
+          "upstream_lines": 1047,
+          "kept_lines": 783,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut RLottie, AnimatedEmojiDrawable stickers, PeerColor lock, and FilterCreate NewSpan; preserved full TextCell layout, AnimatedTextView value, subtitle, switch/checkbox, and RTL",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/RecyclerListView.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/RecyclerListView.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/RecyclerListView.cut",
+          "recipe_sha256": "2ae88dccec15c24d8d000518709b452a4119136041fe2524c602eed829d876ba",
+          "result_sha256": "0de9cb0b3b584576bf0b5905bd3602692a048e70bf05f62d7a7ca3669073d9b9",
+          "eve_sha256": "0de9cb0b3b584576bf0b5905bd3602692a048e70bf05f62d7a7ca3669073d9b9",
+          "upstream_sha256": "0f8cbba4e2b749242ae61ef296f9ca4474b45b3f32f00c05fc291dced3ce5328",
+          "upstream_lines": 4138,
+          "kept_lines": 3963,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut Blur3 capture/drawables, NotificationCenter heavy-ops, and chat-specific cell checks; preserved full RecyclerListView fast scroll, sections, selectors, animations, and touch physics",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/PhotoCropActivity.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/PhotoCropActivity.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/PhotoCropActivity.cut",
+          "recipe_sha256": "133a971468dedcfff864944bce38cdc6b37b8fd499da603df168ebe025b8ff2a",
+          "result_sha256": "ce3ab93ee503bc0f0bd501b4add14a832de71220ac970e33d2f1e25b89228053",
+          "eve_sha256": "ce3ab93ee503bc0f0bd501b4add14a832de71220ac970e33d2f1e25b89228053",
+          "upstream_sha256": "c23cc12e0264bd090dc130523cbb1fd521195066a2378072c8fcb2ab341a9ac4",
+          "upstream_lines": 460,
+          "kept_lines": 456,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Decode bitmap via Eve ProfilePhotoManager CUT-INTERFACE without ImageLoader; preserved 98.8% of upstream PhotoCropActivity crop square, gesture physics, and ActionBar",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/ForegroundColorSpanThemable.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/ForegroundColorSpanThemable.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "e63955e98fa955b339eb7f00749cdd37e16c87c66be4526d55afc405880613e1",
+          "eve_sha256": "e63955e98fa955b339eb7f00749cdd37e16c87c66be4526d55afc405880613e1",
+          "upstream_sha256": "e63955e98fa955b339eb7f00749cdd37e16c87c66be4526d55afc405880613e1",
+          "upstream_lines": 42,
+          "kept_lines": 42,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Cells/TextRadioCell.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/TextRadioCell.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/TextRadioCell.cut",
+          "recipe_sha256": "206bbbbd591a8d1ad7068592af35b088a86fda39335e20623caf3063f8c5c49e",
+          "result_sha256": "3baf6d2b6486c899d17abd37d8975bbd08a9b9e41ad83c23b586fbc289ae58f0",
+          "eve_sha256": "3baf6d2b6486c899d17abd37d8975bbd08a9b9e41ad83c23b586fbc289ae58f0",
+          "upstream_sha256": "37afc5ce8536f93385194c95f4c5b28bc5fb90e7e5eb913724aeaef0ec55a56a",
+          "upstream_lines": 307,
+          "kept_lines": 306,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Direct Theme color resolution without ThemeBind; preserved 98.1% of upstream TextRadioCell",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Cells/LanguageCell.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/LanguageCell.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/LanguageCell.cut",
+          "recipe_sha256": "5d37eb14a2f68274b1539b20f8d0ec750ce8cfeeb710fa75a3bad532b57725f7",
+          "result_sha256": "08209fa3d60526dfe63b7df44692257a5fdd381bc57d90b079bdf934bd805c1b",
+          "eve_sha256": "08209fa3d60526dfe63b7df44692257a5fdd381bc57d90b079bdf934bd805c1b",
+          "upstream_sha256": "15d07513d4ffe02e38fceb613229d6aaa1eb8e9f5f637e1e9d6e67637a297229",
+          "upstream_lines": 101,
+          "kept_lines": 99,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Direct Theme color resolution without ThemeBind; preserved 93.5% of upstream LanguageCell",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/EmptyTextProgressView.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/EmptyTextProgressView.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/EmptyTextProgressView.cut",
+          "recipe_sha256": "81ab611b4b4d7277659b2914c93f5a6150b8e7cac9037e834b6558a4dcab29a0",
+          "result_sha256": "643d46bed8c65af194fb05597f3f523cff9154224a9bd64ed893f7751927de31",
+          "eve_sha256": "643d46bed8c65af194fb05597f3f523cff9154224a9bd64ed893f7751927de31",
+          "upstream_sha256": "605b1b138db567931d5bba5f3c7ac0bb91f851ffca7f56ad6667b765d8d03841",
+          "upstream_lines": 201,
+          "kept_lines": 177,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Direct Theme color resolution without ThemeBind; preserved 97.4% of upstream EmptyTextProgressView",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/URLSpanNoUnderline.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/URLSpanNoUnderline.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/URLSpanNoUnderline.cut",
+          "recipe_sha256": "bbaf0c2e64500d46544e0c348422ea31cfd85d3eabea231facf928f2a9356040",
+          "result_sha256": "badd25d46750741b109731aef7045531c88eee85303256ac0bb118d2c9ed2c64",
+          "eve_sha256": "badd25d46750741b109731aef7045531c88eee85303256ac0bb118d2c9ed2c64",
+          "upstream_sha256": "ef0dcdc01a5b1b0a134635f65f7ceeedfab63c38f34aa0aa71540261d93f5d6c",
+          "upstream_lines": 71,
+          "kept_lines": 61,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut TLObject and Telegram Browser helper in favor of standard Android ACTION_VIEW Intent",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Cells/TextSettingsCell.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/TextSettingsCell.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/TextSettingsCell.cut",
+          "recipe_sha256": "ccadf0b41d5f8df0b258f6c251c29428739d227b86f17d8b4464648e66a3a24b",
+          "result_sha256": "0b31ab5009cbd37de546dd4743b5ec3a129176d6ae247198e6ba8ec30c8da5fd",
+          "eve_sha256": "0b31ab5009cbd37de546dd4743b5ec3a129176d6ae247198e6ba8ec30c8da5fd",
+          "upstream_sha256": "bc4fb2e905cfcc48e6df6533504f3aa373cadaceb6cc0e896b2c07cc1788d9fd",
+          "upstream_lines": 426,
+          "kept_lines": 402,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut BackupImageView/AnimatedEmojiDrawable and RLottieImageView; preserved 92.6% of upstream TextSettingsCell",
+          "known_debt": false
+        },
+        {
           "eve": "app/src/main/java/org/telegram/messenger/Utilities.java",
           "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/Utilities.java",
           "mode": "CUT",
@@ -523,6 +1063,251 @@
         }
       ],
       "resources": [
+        {
+          "path": "app/src/main/res/drawable-mdpi/calendar_date.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-mdpi/calendar_date.9.png",
+          "sha256": "272aa557e5c5368e1667e80781295b5f9e1aad1371536d618aee1a192ded20c7"
+        },
+        {
+          "path": "app/src/main/res/drawable-hdpi/calendar_date.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-hdpi/calendar_date.9.png",
+          "sha256": "d030aa67b7413601e0f3abda0c7381f1b11932ba190049ba232afe9625f1eb48"
+        },
+        {
+          "path": "app/src/main/res/drawable-xhdpi/calendar_date.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/calendar_date.9.png",
+          "sha256": "9b2e901539748a397fb151fb639afbcace06315db5530e2c44afd5b07faef93f"
+        },
+        {
+          "path": "app/src/main/res/drawable-xxhdpi/calendar_date.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/calendar_date.9.png",
+          "sha256": "54cc76dd5338ead9d549965fc85462e32b7b238f0b93c2467c60c5ede397e804"
+        },
+        {
+          "path": "app/src/main/res/drawable-mdpi/fast_scroll_shadow.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-mdpi/fast_scroll_shadow.webp",
+          "sha256": "f93999ad1b2ee6b97fe95a20d36a340cdc5c5c595b606a70628ed914d4ee4be7"
+        },
+        {
+          "path": "app/src/main/res/drawable-hdpi/fast_scroll_shadow.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-hdpi/fast_scroll_shadow.webp",
+          "sha256": "697a16e99830e60c5306bf61d4a159c2adc73601fa94bdc672e762723bd3f89f"
+        },
+        {
+          "path": "app/src/main/res/drawable-xhdpi/fast_scroll_shadow.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/fast_scroll_shadow.webp",
+          "sha256": "c1524906d45a35715acbfa5b907f46029e0b052e0ec2e9c6a5b72bd9ff9e5c86"
+        },
+        {
+          "path": "app/src/main/res/drawable-xxhdpi/fast_scroll_shadow.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/fast_scroll_shadow.webp",
+          "sha256": "633bb2ae9b4772c4f6cdb80857f389395409388528fdcfac217b039e877a5056"
+        },
+        {
+          "path": "app/src/main/res/drawable/transparent.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/transparent.xml",
+          "sha256": "ad97b41503014aaed50e58fbc3eaa6fac8c501b0304bd7ddc24c477fa45a6d20"
+        },
+        {
+          "path": "app/src/main/res/drawable-mdpi/greydivider_bottom.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-mdpi/greydivider_bottom.9.png",
+          "sha256": "76a380f185c6869856e6e6ffc4c57c91d4598e53e8323f777f1a986a21f531d5"
+        },
+        {
+          "path": "app/src/main/res/drawable-hdpi/greydivider_bottom.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-hdpi/greydivider_bottom.9.png",
+          "sha256": "4eac1510cd03f53bad1d5b75840cb04091b038f68b6051cddba1fc70c9037915"
+        },
+        {
+          "path": "app/src/main/res/drawable-xhdpi/greydivider_bottom.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/greydivider_bottom.9.png",
+          "sha256": "95eb36844dad4db2b7ad2c358ba86fc987b60ef310c38953ff249df2f23fb68c"
+        },
+        {
+          "path": "app/src/main/res/drawable-xxhdpi/greydivider_bottom.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/greydivider_bottom.9.png",
+          "sha256": "a0ce0bc438bafd59d82e0b9583accd241257746aff4a451cadccd9b6dc4d579f"
+        },
+        {
+          "path": "app/src/main/res/drawable-mdpi/greydivider_top.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-mdpi/greydivider_top.9.png",
+          "sha256": "7d2315ddf97e41fe5037c89572e80b2846fc904a75811a0e70d6d861b6b6efde"
+        },
+        {
+          "path": "app/src/main/res/drawable-hdpi/greydivider_top.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-hdpi/greydivider_top.9.png",
+          "sha256": "3e16c8f93ca5ae30b058fa64ebe29a9a0fc5b7536e2ff0755e5bac33786e2ea3"
+        },
+        {
+          "path": "app/src/main/res/drawable-xhdpi/greydivider_top.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/greydivider_top.9.png",
+          "sha256": "c7960e4c0cfb40124ed109e00699e602967d7bd42106c1da87be01b8173bacda"
+        },
+        {
+          "path": "app/src/main/res/drawable-xxhdpi/greydivider_top.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/greydivider_top.9.png",
+          "sha256": "5953542957cf7c2a0e473130fd9c05d5351fd9e32102cbb045d5100137f8f2bf"
+        },
+        {
+          "path": "app/src/main/res/drawable/field_carret_empty.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/field_carret_empty.xml",
+          "sha256": "78b2dce4d3fe0269baa6454608868e47720946ec4a6860d84115323c16df00aa"
+        },
+        {
+          "path": "app/src/main/res/drawable-mdpi/search_dark.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-mdpi/search_dark.9.png",
+          "sha256": "e78092580e55f191349b9f7057667cdad2986f77f67db6f5e5a124530bc4725a"
+        },
+        {
+          "path": "app/src/main/res/drawable-hdpi/search_dark.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-hdpi/search_dark.9.png",
+          "sha256": "b6403c7652b89aee89604f5f6060a4ed57250f57a32520512309e0a83fd5de58"
+        },
+        {
+          "path": "app/src/main/res/drawable-xhdpi/search_dark.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/search_dark.9.png",
+          "sha256": "10f5c3e5eb95761411761486f4b63d0e0613be5bf16e5cba92cd132370729863"
+        },
+        {
+          "path": "app/src/main/res/drawable-xxhdpi/search_dark.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/search_dark.9.png",
+          "sha256": "a74358f08228bb2610b1b4d4411e7b0d93a9b2682f8b4e89c1531c30693543fd"
+        },
+        {
+          "path": "app/src/main/res/drawable-mdpi/checkbig.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-mdpi/checkbig.webp",
+          "sha256": "146513e852e9a593bd4a5124584ba69da3fe1d6eb370c46adacd3317a01050cb"
+        },
+        {
+          "path": "app/src/main/res/drawable-hdpi/checkbig.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-hdpi/checkbig.webp",
+          "sha256": "d0d1fa14acd99fdcd2fe905077dfeb122e52afe02f8039ecad9825f3e6434a62"
+        },
+        {
+          "path": "app/src/main/res/drawable-xhdpi/checkbig.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/checkbig.webp",
+          "sha256": "e347c1ae6e9059848023b36cf968f016206ec942750426d94e6f7e3213b65dd3"
+        },
+        {
+          "path": "app/src/main/res/drawable-xxhdpi/checkbig.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/checkbig.webp",
+          "sha256": "ad231657266b9ef0c970af3b9f032120a27be0d3764e620e26cd623311d74d59"
+        },
+        {
+          "path": "app/src/main/res/drawable-mdpi/sheet_shadow_round.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-mdpi/sheet_shadow_round.9.png",
+          "sha256": "41551b1471c6902a876443a1d84b931ddc8d0efcf288a7358d9b989f60bdff77"
+        },
+        {
+          "path": "app/src/main/res/drawable-hdpi/sheet_shadow_round.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-hdpi/sheet_shadow_round.9.png",
+          "sha256": "9b07bb6fbfbf58e874c0394bc2e75e71b6e1404193b2aafe7061b6ec658312c0"
+        },
+        {
+          "path": "app/src/main/res/drawable-xhdpi/sheet_shadow_round.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/sheet_shadow_round.9.png",
+          "sha256": "163ebea76ae472408be1c3f6254206cf472227641a64af6483798ca895b420e0"
+        },
+        {
+          "path": "app/src/main/res/drawable-xxhdpi/sheet_shadow_round.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/sheet_shadow_round.9.png",
+          "sha256": "ea79ff700936b4797c49c186463a0e558da9ee9a8c998dfe074b41479676f02b"
+        },
+        {
+          "path": "app/src/main/res/anim/no_animation.xml",
+          "upstream": "TMessagesProj/src/main/res/anim/no_animation.xml",
+          "sha256": "7b11c210407c9f2b04d5ff2d904b208709404f8bff58c35db88b5c058f23010f"
+        },
+        {
+          "path": "app/src/main/res/drawable-mdpi/header_shadow.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-mdpi/header_shadow.webp",
+          "sha256": "50ec7ef47fca10060d74b8a191d5908ea8d85631836137fc13bfc8f61d028697"
+        },
+        {
+          "path": "app/src/main/res/drawable-hdpi/header_shadow.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-hdpi/header_shadow.webp",
+          "sha256": "e03fe891420dbb5b3f502cfca92300894e7e22dc135d1497c8f16403d58740e5"
+        },
+        {
+          "path": "app/src/main/res/drawable-xhdpi/header_shadow.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/header_shadow.webp",
+          "sha256": "171340b9e0ae407ccbbc7720d2f90edafc0074157604b2d7d86939ebe7ccede9"
+        },
+        {
+          "path": "app/src/main/res/drawable-xxhdpi/header_shadow.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/header_shadow.webp",
+          "sha256": "a86936db4d28e1b067baac29930c1f13a0cc9ce1686b4d06c856ceb35aa5e5a4"
+        },
+        {
+          "path": "app/src/main/res/drawable-mdpi/header_shadow_reverse.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-mdpi/header_shadow_reverse.webp",
+          "sha256": "897e60e9704039fd5362a07cc857ff2efbc116b0961e378c788d2b409345e1ae"
+        },
+        {
+          "path": "app/src/main/res/drawable-hdpi/header_shadow_reverse.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-hdpi/header_shadow_reverse.webp",
+          "sha256": "1f0e1976b89de255a1acea8b50eba2a6186091d6ef4c9d39c5e45040feec9e6a"
+        },
+        {
+          "path": "app/src/main/res/drawable-xhdpi/header_shadow_reverse.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/header_shadow_reverse.webp",
+          "sha256": "0a6b0b1cf3bf279d991432a1e43e528c97e2dd047da06b95e2a1fd80564d3534"
+        },
+        {
+          "path": "app/src/main/res/drawable-xxhdpi/header_shadow_reverse.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/header_shadow_reverse.webp",
+          "sha256": "ee81744a0a572b36aa35d4a604f1aee781ec106aeb5e001ec13fa240aba78de0"
+        },
+        {
+          "path": "app/src/main/res/anim/popup_in.xml",
+          "upstream": "TMessagesProj/src/main/res/anim/popup_in.xml",
+          "sha256": "2f79630602770769ff8eb25cef0df48f2b6424b8db18cbe95ad35bcf7edd0137"
+        },
+        {
+          "path": "app/src/main/res/anim/popup_out.xml",
+          "upstream": "TMessagesProj/src/main/res/anim/popup_out.xml",
+          "sha256": "76af910b0f08f9ab7a0688b900e3517b789137c6676a2ddae53017ef8cd73620"
+        },
+        {
+          "path": "app/src/main/res/drawable-mdpi/popup_fixed_alert4.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-mdpi/popup_fixed_alert4.9.png",
+          "sha256": "6557266c5b8caf3e2a293dfb3083494a2db77d00f7a829387356dbd261fef99f"
+        },
+        {
+          "path": "app/src/main/res/drawable-hdpi/popup_fixed_alert4.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-hdpi/popup_fixed_alert4.9.png",
+          "sha256": "947bab8642f394213ebd617bd27e0187ce2b9d81eda9199b1bcde2a0c68b6f4e"
+        },
+        {
+          "path": "app/src/main/res/drawable-xhdpi/popup_fixed_alert4.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/popup_fixed_alert4.9.png",
+          "sha256": "b17e6b374f698950f81507a409891aec5385e20c549922762516f18f883952f2"
+        },
+        {
+          "path": "app/src/main/res/drawable-xxhdpi/popup_fixed_alert4.9.png",
+          "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/popup_fixed_alert4.9.png",
+          "sha256": "9d78c7ec81e0938056a37177cef0899e338d817a23e7e4db4f820ec0d78a4505"
+        },
+        {
+          "path": "app/src/main/res/drawable-mdpi/msg_arrowright.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_arrowright.webp",
+          "sha256": "6d2b7477dc80eb6863827a023e15c6493270d6fd3417ed5f16cdc3256ad7d234"
+        },
+        {
+          "path": "app/src/main/res/drawable-hdpi/msg_arrowright.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_arrowright.webp",
+          "sha256": "6502f564b74f42a59d63c71b5c52d026656ed8534821346697d78bbfdf1203f5"
+        },
+        {
+          "path": "app/src/main/res/drawable-xhdpi/msg_arrowright.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_arrowright.webp",
+          "sha256": "fcdf18618b729ec6fcb9b8e0e2b5d361befeb2ab70856e3d2e0221102712b8c3"
+        },
+        {
+          "path": "app/src/main/res/drawable-xxhdpi/msg_arrowright.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_arrowright.webp",
+          "sha256": "4fb8db09614888ff6a2c747966afaf02fe2009dba9146b1f623c999d403b00c2"
+        },
         {
           "path": "app/src/main/res/drawable-mdpi/ic_ab_back.webp",
           "upstream": "TMessagesProj/src/main/res/drawable-mdpi/ic_ab_back.webp",
@@ -622,6 +1407,1483 @@
           "path": "app/src/main/res/drawable-xxhdpi/greydivider.9.png",
           "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/greydivider.9.png",
           "sha256": "bcb4e022907ef3a3a23235a26a1ea230db37ce438966961282868de88a3300e2"
+        }
+      ]
+    },
+    {
+      "screen": "ChangeBioActivity",
+      "eve_host": "com.eve.app.ui.profile.ChangeBioActivity",
+      "telegram_entry": "org.telegram.ui.ChangeBioActivity",
+      "dead_layout_files": [
+        "app/src/main/res/layout/activity_change_bio.xml"
+      ],
+      "files": [
+        {
+          "eve": "app/src/main/java/org/telegram/ui/ChangeBioActivity.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ChangeBioActivity.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/ChangeBioActivity.cut",
+          "recipe_sha256": "cc3c15656bf4b5d36bc01a6cddcad75caeef413c052cd16b55551b900e2e24d7",
+          "result_sha256": "064aa15aa19af6a1273ca3bc85028694d026d802fd0634762078b56d47746e6d",
+          "eve_sha256": "064aa15aa19af6a1273ca3bc85028694d026d802fd0634762078b56d47746e6d",
+          "upstream_sha256": "f9d707aeb2724075ad84282f3b8a7eab10b329490606ba0d61987a7b8a5f1269",
+          "upstream_lines": 296,
+          "kept_lines": 235,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut TLRPC/MessagesController/UserConfig saveName in favor of com.eve.app ChangeBioDelegate CUT-INTERFACE; preserved full Telegram ChangeBioActivity layout, CodepointsLengthInputFilter, NumberTextView counter, shake/vibration physics, and ActionBar",
+          "known_debt": false
+        }
+      ],
+      "resources": []
+    },
+    {
+      "screen": "LanguageSelectActivity",
+      "eve_host": "com.eve.app.ui.settings.LanguageSelectActivity",
+      "telegram_entry": "org.telegram.ui.LanguageSelectActivity",
+      "dead_layout_files": [],
+      "files": [
+        {
+          "eve": "app/src/main/java/org/telegram/ui/LanguageSelectActivity.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/LanguageSelectActivity.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/LanguageSelectActivity.cut",
+          "recipe_sha256": "298ca6a8c036e90f82b0c2dab58d2ac075a3e83d85b91704ead704ba07f1901b",
+          "result_sha256": "2d06281e52ad0fa566e5c76f89b697a16bc75cc01a52457c2499225add7cf0f7",
+          "eve_sha256": "2d06281e52ad0fa566e5c76f89b697a16bc75cc01a52457c2499225add7cf0f7",
+          "upstream_sha256": "d9380f51e5a57685518c701ac7e4aca4f005fe8a8d6d668f12b8f0d2f74acbe4",
+          "upstream_lines": 911,
+          "kept_lines": 580,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut chat translation/premium rows (CUT-HIDDEN per 6c) and remote langpack sync; wired to com.eve.app TelegramLanguageDelegate while preserving real RecyclerListView, LanguageCell, ActionBar search, and EmptyTextProgressView",
+          "known_debt": false
+        }
+      ],
+      "resources": [
+        {
+          "path": "app/src/main/res/drawable/outline_header_search.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/outline_header_search.xml",
+          "sha256": "441e825f1bdddb6c3a6ef7bd2f5da144a054bf9092f1960de9f496859b72b8c3"
+        },
+        {
+          "path": "app/src/main/res/drawable/ic_ab_close.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/ic_ab_close.xml",
+          "sha256": "95ed94fe99a8e3a7603648134c7a3e0c4cddeccc6544705390e499ca98b31cab"
+        }
+      ]
+    },
+    {
+      "screen": "ChangeUsernameActivity",
+      "eve_host": "com.eve.app.ui.profile.ChangeUsernameActivity",
+      "telegram_entry": "org.telegram.ui.ChangeUsernameActivity",
+      "dead_layout_files": [
+        "app/src/main/res/layout/activity_change_username.xml"
+      ],
+      "files": [
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/CornerPath.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/CornerPath.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "1da8810840d0441734dea851e481aed889e481fa8d63a23811ca4686fcbb2a91",
+          "eve_sha256": "1da8810840d0441734dea851e481aed889e481fa8d63a23811ca4686fcbb2a91",
+          "upstream_sha256": "1da8810840d0441734dea851e481aed889e481fa8d63a23811ca4686fcbb2a91",
+          "upstream_lines": 185,
+          "kept_lines": 185,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/LoadingDrawable.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/LoadingDrawable.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "b5a26f77cc5c8d9adb6e6c23976d9050092c4b59f1670955545f4c81467d7df3",
+          "eve_sha256": "b5a26f77cc5c8d9adb6e6c23976d9050092c4b59f1670955545f4c81467d7df3",
+          "upstream_sha256": "b5a26f77cc5c8d9adb6e6c23976d9050092c4b59f1670955545f4c81467d7df3",
+          "upstream_lines": 405,
+          "kept_lines": 405,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/LinkPath.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/LinkPath.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/LinkPath.cut",
+          "recipe_sha256": "19a08a279692bbd66c9d1d7ad62efd930210e85f32e498095c9dec15aa5fb99e",
+          "result_sha256": "4e11c99e56a0898134b9c26541f7d0f643d49e7f4bcea0462145a2ed412846cf",
+          "eve_sha256": "4e11c99e56a0898134b9c26541f7d0f643d49e7f4bcea0462145a2ed412846cf",
+          "upstream_sha256": "6c438298231d6fbfb9bd6f89cbb7400c6e80a71f5b124a176e058bc0f12db32b",
+          "upstream_lines": 191,
+          "kept_lines": 190,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Pruned unused LiteMode import",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/LinkSpanDrawable.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/LinkSpanDrawable.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/LinkSpanDrawable.cut",
+          "recipe_sha256": "c2242ed6e60f6bc4beada01592480a6a22344483f6255d582550303b48c2e44c",
+          "result_sha256": "dd545a6972b1c0db8718cdfa947a078e3b483b05b01eb2e3df172f1b86015a49",
+          "eve_sha256": "dd545a6972b1c0db8718cdfa947a078e3b483b05b01eb2e3df172f1b86015a49",
+          "upstream_sha256": "8da1e0da79bc80dfc36acab18079324df2577012b26dbd32492889ef584bbe8f",
+          "upstream_lines": 984,
+          "kept_lines": 969,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut LiteMode, ArticleViewer, and AnimatedEmojiSpan hooks",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/ChangeUsernameActivity.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ChangeUsernameActivity.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/ChangeUsernameActivity.cut",
+          "recipe_sha256": "5fb73eac5ad565d615f0c66fccb7f9d259bf3e2bcecc76e13a36fca9d11bceab",
+          "result_sha256": "0bad011a77b930dd9edf72cbc03fa99f010f462b10a934677ae6d85b5a018511",
+          "eve_sha256": "0bad011a77b930dd9edf72cbc03fa99f010f462b10a934677ae6d85b5a018511",
+          "upstream_sha256": "51d48f3a70df1279c726517fb07390fad55fd6d71d2e3efed553b9a2c42b28ad",
+          "upstream_lines": 1541,
+          "kept_lines": 661,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut Fragment collectible usernames (CUT-HIDDEN) and TLRPC account calls; wired availability check & save to Eve Worker API via TelegramUsernameDelegate",
+          "known_debt": false
+        }
+      ],
+      "resources": []
+    },
+    {
+      "screen": "PasscodeActivity",
+      "eve_host": "com.eve.app.ui.settings.PasscodeActivity",
+      "telegram_entry": "org.telegram.ui.PasscodeActivity",
+      "dead_layout_files": [],
+      "files": [
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/SimpleFloatPropertyCompat.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/SimpleFloatPropertyCompat.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "52edd0d3307ae3ad4a23418924cac2f2494febb747ee450a04384a5cc794b757",
+          "eve_sha256": "52edd0d3307ae3ad4a23418924cac2f2494febb747ee450a04384a5cc794b757",
+          "upstream_sha256": "52edd0d3307ae3ad4a23418924cac2f2494febb747ee450a04384a5cc794b757",
+          "upstream_lines": 42,
+          "kept_lines": 42,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/TextViewSwitcher.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/TextViewSwitcher.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "a60b540f2d5fc024fd150dff7307703312ab730d402bbe641bfd7dd1f88d27e2",
+          "eve_sha256": "a60b540f2d5fc024fd150dff7307703312ab730d402bbe641bfd7dd1f88d27e2",
+          "upstream_sha256": "a60b540f2d5fc024fd150dff7307703312ab730d402bbe641bfd7dd1f88d27e2",
+          "upstream_lines": 59,
+          "kept_lines": 59,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/VerticalPositionAutoAnimator.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/VerticalPositionAutoAnimator.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "6551e4404289e165e5f062704d0ac79ea0e48146c3359b646f4f5a166f72d4ba",
+          "eve_sha256": "6551e4404289e165e5f062704d0ac79ea0e48146c3359b646f4f5a166f72d4ba",
+          "upstream_sha256": "6551e4404289e165e5f062704d0ac79ea0e48146c3359b646f4f5a166f72d4ba",
+          "upstream_lines": 85,
+          "kept_lines": 85,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/OutlineTextContainerView.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/OutlineTextContainerView.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "9565d44249c9626fdcdb467496354f4208032f4e29dead9c05d70285bffdf7a3",
+          "eve_sha256": "9565d44249c9626fdcdb467496354f4208032f4e29dead9c05d70285bffdf7a3",
+          "upstream_sha256": "9565d44249c9626fdcdb467496354f4208032f4e29dead9c05d70285bffdf7a3",
+          "upstream_lines": 255,
+          "kept_lines": 255,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/TransformableLoginButtonView.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/TransformableLoginButtonView.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "f431bd47ccc9872e5887e2c40603314a4fba84c2b5cef428727eab003fe8801d",
+          "eve_sha256": "f431bd47ccc9872e5887e2c40603314a4fba84c2b5cef428727eab003fe8801d",
+          "upstream_sha256": "f431bd47ccc9872e5887e2c40603314a4fba84c2b5cef428727eab003fe8801d",
+          "upstream_lines": 204,
+          "kept_lines": 204,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/CodeNumberField.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/CodeNumberField.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/CodeNumberField.cut",
+          "recipe_sha256": "58450579aa2c17ebd53833d9eea86bc8b9c5837d89badeb1d99b6a75c5e58780",
+          "result_sha256": "e6196adcd3aeffd555aaee145ed14bb0648d7d9993369e513b89e9869b0d7ea4",
+          "eve_sha256": "e6196adcd3aeffd555aaee145ed14bb0648d7d9993369e513b89e9869b0d7ea4",
+          "upstream_sha256": "b525d26edf174630a96b93ec309461d5b6230e432c1bba47f2845b345412cf6b",
+          "upstream_lines": 349,
+          "kept_lines": 348,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Direct Theme.getColor without ThemeBind",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/CodeFieldContainer.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/CodeFieldContainer.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/CodeFieldContainer.cut",
+          "recipe_sha256": "f6106e60860359aa34aac9ebdbe5661636aa57c7de3bc118724b5061429a2b76",
+          "result_sha256": "a25f89de0058f97fe800c134434a7646e8c093d66ab6b8c2c0b4b62e6a9b3ee4",
+          "eve_sha256": "a25f89de0058f97fe800c134434a7646e8c093d66ab6b8c2c0b4b62e6a9b3ee4",
+          "upstream_sha256": "dbac09036dec74201ed02de001ca0edc99451acba9898dd6ef2c449764a789e6",
+          "upstream_lines": 301,
+          "kept_lines": 300,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut LoginActivity missed-call branch and PhoneFormat dependency",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/Scroller.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/Scroller.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "d6c20dc455108c0430c0e57cfd2e793e8e9ba4b8fe0672b08ac818723c484c1b",
+          "eve_sha256": "d6c20dc455108c0430c0e57cfd2e793e8e9ba4b8fe0672b08ac818723c484c1b",
+          "upstream_sha256": "d6c20dc455108c0430c0e57cfd2e793e8e9ba4b8fe0672b08ac818723c484c1b",
+          "upstream_lines": 501,
+          "kept_lines": 501,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/SeekBarAccessibilityDelegate.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/SeekBarAccessibilityDelegate.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "c6f6bc3792fe95a9644147fe39e03405b14b73fb9a9d839a7409ba3c2b9ca0c8",
+          "eve_sha256": "c6f6bc3792fe95a9644147fe39e03405b14b73fb9a9d839a7409ba3c2b9ca0c8",
+          "upstream_sha256": "c6f6bc3792fe95a9644147fe39e03405b14b73fb9a9d839a7409ba3c2b9ca0c8",
+          "upstream_lines": 107,
+          "kept_lines": 107,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/NumberPicker.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/NumberPicker.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/NumberPicker.cut",
+          "recipe_sha256": "d7092c044cae081f59d98941d9a9164120c213645e5e4543b3037d135c90d975",
+          "result_sha256": "8a4dc02b25858ad29cbd60b8d64fd8c2c8b7aaa8a5610cb7a153379a96abd801",
+          "eve_sha256": "8a4dc02b25858ad29cbd60b8d64fd8c2c8b7aaa8a5610cb7a153379a96abd801",
+          "upstream_sha256": "06d33a6bce502538fcca3239158efe7e0de2150fcde92ebb32e85e4b3bca26f4",
+          "upstream_lines": 1267,
+          "kept_lines": 1262,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Direct Theme.getColor without ThemeBind",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/CustomPhoneKeyboardView.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/CustomPhoneKeyboardView.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/CustomPhoneKeyboardView.cut",
+          "recipe_sha256": "9509d09d92ad30cd266d05cd18bfd74e129559c9c04bce7ac1f72532ccf1c57c",
+          "result_sha256": "2e0e87213d158822307f65126e2f05f44e5f1daca286742346be54b26e0745ba",
+          "eve_sha256": "2e0e87213d158822307f65126e2f05f44e5f1daca286742346be54b26e0745ba",
+          "upstream_sha256": "f18edb21cb9c61b2e4252c778114fea9f09625fe54debbd637be8c6a4bb056a5",
+          "upstream_lines": 351,
+          "kept_lines": 350,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Direct Theme colors without ThemeBind",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/FragmentFloatingButton.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/FragmentFloatingButton.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/FragmentFloatingButton.cut",
+          "recipe_sha256": "b51d5097a4de9f033a688026fe9952f6e2c46ec793d52ebdd13a250dab8dcb9a",
+          "result_sha256": "4c31529079c27034881bd8527daaa6ed242a0a1d0799efb2e5f1d8f4b165286b",
+          "eve_sha256": "4c31529079c27034881bd8527daaa6ed242a0a1d0799efb2e5f1d8f4b165286b",
+          "upstream_sha256": "ff0c3c0b29cfc5386502783a779a023accec4cf416e05e23f951e0396b23ac7d",
+          "upstream_lines": 305,
+          "kept_lines": 212,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut blur3/glass sub-button decoration",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/PasscodeActivity.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/PasscodeActivity.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/PasscodeActivity.cut",
+          "recipe_sha256": "32ec71cfe9cbc14af9b14e17e9f3a1fce880f1227a08e08384d3e60faecdbc10",
+          "result_sha256": "38748416ddc5bd23f2bb127abccaa573fce7e113655fd6fdca585abb835fad45",
+          "eve_sha256": "38748416ddc5bd23f2bb127abccaa573fce7e113655fd6fdca585abb835fad45",
+          "upstream_sha256": "b980e36fead3631da8abd30f7d70c86a512df3fa53c1ab36d1610ca24465061a",
+          "upstream_lines": 1377,
+          "kept_lines": 1268,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut GramWallet rows (CUT-HIDDEN), NotificationCenter, RLottie, and glass ActionBar; bridged SharedConfig state to Eve PasscodeManager",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/CameraScanActivity.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/CameraScanActivity.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/CameraScanActivity.cut",
+          "recipe_sha256": "cd597d16d29be8e61789a334b9dbb7de5d6b41b8d59756639c88f7f69db9dad9",
+          "result_sha256": "ccd210857fa799798e1da38761c9786d1b882b2797a6c68bee43b0595e6b800c",
+          "eve_sha256": "ccd210857fa799798e1da38761c9786d1b882b2797a6c68bee43b0595e6b800c",
+          "upstream_sha256": "b5651e6981c598829ff9f171217a69f7530e560c8e0ef5535267d046cac1f5d5",
+          "upstream_lines": 1442,
+          "kept_lines": 891,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut legacy CameraView/GMS Vision/ZXing/MRZ backend in favor of EveCameraHost CUT-INTERFACE so CameraX/ZXing stay Eve-side; preserved full Telegram BottomSheet scanner overlay, animated corner bounds, torch, and gallery chrome",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/ActionIntroActivity.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionIntroActivity.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/ActionIntroActivity.cut",
+          "recipe_sha256": "178cbd1bb63244f57ad375f289d9e2a27586e4bb3fe12bf4a19e7c9a8879772e",
+          "result_sha256": "25ed21a9893aca110ea0d3704ff6b8a7dc42acc6b02c4b4a8cd91b7b6effe09e",
+          "eve_sha256": "25ed21a9893aca110ea0d3704ff6b8a7dc42acc6b02c4b4a8cd91b7b6effe09e",
+          "upstream_sha256": "59e7a2fb47fff664e4e6f0927775775f6578e196ba2afabe5d89618df6cd3962",
+          "upstream_lines": 789,
+          "kept_lines": 727,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut LocationController, RLottie, CellFlickerDrawable, and TLRPC phone lookup; wired primary action callback for Eve intro flows",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/IntSeekBarAccessibilityDelegate.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/IntSeekBarAccessibilityDelegate.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "14f3575e38a9424e5c07997d7abfebd5e13edf85e0f9906d6923b9fa15664cef",
+          "eve_sha256": "14f3575e38a9424e5c07997d7abfebd5e13edf85e0f9906d6923b9fa15664cef",
+          "upstream_sha256": "14f3575e38a9424e5c07997d7abfebd5e13edf85e0f9906d6923b9fa15664cef",
+          "upstream_lines": 39,
+          "kept_lines": 39,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/SlideChooseView.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/SlideChooseView.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "6d75f0116275af11fb79724e6cb1212d0759fddcff11a99ef98a60927ababe8b",
+          "eve_sha256": "6d75f0116275af11fb79724e6cb1212d0759fddcff11a99ef98a60927ababe8b",
+          "upstream_sha256": "6d75f0116275af11fb79724e6cb1212d0759fddcff11a99ef98a60927ababe8b",
+          "upstream_lines": 322,
+          "kept_lines": 322,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Cells/RadioButtonCell.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/RadioButtonCell.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/RadioButtonCell.cut",
+          "recipe_sha256": "3521e9a42b3e395c4a03f94386fbad45421d8904e8a1611096372868cebb532e",
+          "result_sha256": "3c819a7c70841485f5ed329bb35a0d58dbc0c3313e7c73689e80326488747c41",
+          "eve_sha256": "3c819a7c70841485f5ed329bb35a0d58dbc0c3313e7c73689e80326488747c41",
+          "upstream_sha256": "4d99f4147ef4fcf603e8d9e0b1496a8584ef41f285918bb1b8e2680b70a7cb58",
+          "upstream_lines": 110,
+          "kept_lines": 109,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Direct Theme.getColor without ThemeBind",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Cells/RadioColorCell.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/RadioColorCell.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/RadioColorCell.cut",
+          "recipe_sha256": "0eb2234730e6016062a7e1a04dd7036fb142ff40d34cd84c9065f8b274e639c0",
+          "result_sha256": "5184c64dd323fac625992c52c77d2913c25e1127ed054d30009de9247188a65d",
+          "eve_sha256": "5184c64dd323fac625992c52c77d2913c25e1127ed054d30009de9247188a65d",
+          "upstream_sha256": "8e0b2105771f617169a379ef4dd5311677f268c25ec5a1beb39af3dd1c81b5bb",
+          "upstream_lines": 115,
+          "kept_lines": 114,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Direct Theme.getColor without ThemeBind",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Cells/TextDetailSettingsCell.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/TextDetailSettingsCell.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/TextDetailSettingsCell.cut",
+          "recipe_sha256": "db448f05d5a23c29bbdf1b151cb49138c37687b251a5cb577c8036d7f2a4f664",
+          "result_sha256": "f69068784cad2a2bb98277d9809b0ad95f4994e91cd33004ba4e7d886284e729",
+          "eve_sha256": "f69068784cad2a2bb98277d9809b0ad95f4994e91cd33004ba4e7d886284e729",
+          "upstream_sha256": "4e5b191ecc8ee1113492ee409f235b20e2e17574287b8c4864b8e2c3df07dd18",
+          "upstream_lines": 141,
+          "kept_lines": 139,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Direct Theme.getColor without ThemeBind and plain text without Emoji",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Cells/TextCheckCell2.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/TextCheckCell2.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/TextCheckCell2.cut",
+          "recipe_sha256": "7cb08ca08b4d0dd51a91cc66be61cdefb9b62e573e729daa7107c7183af3989f",
+          "result_sha256": "c7832f772a56192c5bbca2203e4147f664659f1602bd4fa9eb58d99951bd782e",
+          "eve_sha256": "c7832f772a56192c5bbca2203e4147f664659f1602bd4fa9eb58d99951bd782e",
+          "upstream_sha256": "1b4558f65ad000b25f54f822e4cacfb56a307887fae04d4c826e136a45e7fccf",
+          "upstream_lines": 277,
+          "kept_lines": 276,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Direct Theme.getColor without ThemeBind",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Cells/TextCheckbox2Cell.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/TextCheckbox2Cell.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/TextCheckbox2Cell.cut",
+          "recipe_sha256": "174b8a4a6fb0eba0ca1de073eefd2b89f19766e3f5901b0e87884ed66969fa65",
+          "result_sha256": "573ef3e0b63e5e16d72df78e64e3cc391b31265c618d63ba85e86d98e885ac0f",
+          "eve_sha256": "573ef3e0b63e5e16d72df78e64e3cc391b31265c618d63ba85e86d98e885ac0f",
+          "upstream_sha256": "8775dd1088998f74bf06dfe9ed75592b2f92be020d0eb9fcfca51875c1ba16ea",
+          "upstream_lines": 311,
+          "kept_lines": 308,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Direct Theme.getColor without ThemeBind",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/QrShare/QrGlass.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrGlass.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "b2f77e4fd14ede12dbd17d2d9b51239caefe96e25167e933e3464e60c50ce5a5",
+          "eve_sha256": "b2f77e4fd14ede12dbd17d2d9b51239caefe96e25167e933e3464e60c50ce5a5",
+          "upstream_sha256": "b2f77e4fd14ede12dbd17d2d9b51239caefe96e25167e933e3464e60c50ce5a5",
+          "upstream_lines": 227,
+          "kept_lines": 227,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/QrShare/QrRender.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrRender.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "86b505b2e828988e1bef52e255c1999bc393622cbe220e3da2c49d5ade7a1922",
+          "eve_sha256": "86b505b2e828988e1bef52e255c1999bc393622cbe220e3da2c49d5ade7a1922",
+          "upstream_sha256": "86b505b2e828988e1bef52e255c1999bc393622cbe220e3da2c49d5ade7a1922",
+          "upstream_lines": 192,
+          "kept_lines": 192,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/QrShare/QrStarDrawable.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrStarDrawable.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "498a4d5cbcc15d390bee4d8d0bece6bbb736e6667904996ebd46445030a2b48e",
+          "eve_sha256": "498a4d5cbcc15d390bee4d8d0bece6bbb736e6667904996ebd46445030a2b48e",
+          "upstream_sha256": "498a4d5cbcc15d390bee4d8d0bece6bbb736e6667904996ebd46445030a2b48e",
+          "upstream_lines": 85,
+          "kept_lines": 85,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/QrShare/RimPainter.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/RimPainter.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "fe3061b1e90411d2978ce0d9e45b44d0a52103aa099ea43badb40099f35fcafe",
+          "eve_sha256": "fe3061b1e90411d2978ce0d9e45b44d0a52103aa099ea43badb40099f35fcafe",
+          "upstream_sha256": "fe3061b1e90411d2978ce0d9e45b44d0a52103aa099ea43badb40099f35fcafe",
+          "upstream_lines": 116,
+          "kept_lines": 116,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/QrShare/RimTune.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/RimTune.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "78d1aa25e70d782e428947a8090ef91fc89a59f57bddfe6a6e69cfeffaa409d8",
+          "eve_sha256": "78d1aa25e70d782e428947a8090ef91fc89a59f57bddfe6a6e69cfeffaa409d8",
+          "upstream_sha256": "78d1aa25e70d782e428947a8090ef91fc89a59f57bddfe6a6e69cfeffaa409d8",
+          "upstream_lines": 40,
+          "kept_lines": 40,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/FloatSeekBarAccessibilityDelegate.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/FloatSeekBarAccessibilityDelegate.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "80204475cba6bed310fc111bb5ebf4b980471e33be9dd0ba01df3cc297e83182",
+          "eve_sha256": "80204475cba6bed310fc111bb5ebf4b980471e33be9dd0ba01df3cc297e83182",
+          "upstream_sha256": "80204475cba6bed310fc111bb5ebf4b980471e33be9dd0ba01df3cc297e83182",
+          "upstream_lines": 78,
+          "kept_lines": 78,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Cells/TextColorCell.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/TextColorCell.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/TextColorCell.cut",
+          "recipe_sha256": "4f6b3e20c36f0facb4bd1a73380446b8b20edea633aa5445277fec7cdb8c37e1",
+          "result_sha256": "a72a351749e9158fa7e5e2180707653dfde0b317f09eb54bb8985d814cc91479",
+          "eve_sha256": "a72a351749e9158fa7e5e2180707653dfde0b317f09eb54bb8985d814cc91479",
+          "upstream_sha256": "6cad2932870f4b86c2b56b9779d5ea24edfcbfeb8e041466412deb38ab56dafe",
+          "upstream_lines": 99,
+          "kept_lines": 97,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Direct Theme.getColor without ThemeBind",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Cells/ThemeTypeCell.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/ThemeTypeCell.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/ThemeTypeCell.cut",
+          "recipe_sha256": "ce98798a8a4fe414f79b1344319fccd2eab155a0883fba8133c3b00ef63a2f0a",
+          "result_sha256": "4a7ec58a5d668b7dfc84ca64aea4b2b8c158b72a1c8aa5ab1d1f9b51d910615c",
+          "eve_sha256": "4a7ec58a5d668b7dfc84ca64aea4b2b8c158b72a1c8aa5ab1d1f9b51d910615c",
+          "upstream_sha256": "a22c6b80ab73d43ad24a9749002d0e885d63fb1c78ce69c55dc3d0e818346a39",
+          "upstream_lines": 77,
+          "kept_lines": 76,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Direct Theme.getColor without ThemeBind",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/SeekBarView.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/SeekBarView.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/SeekBarView.cut",
+          "recipe_sha256": "d0504085c1552c37b121820e3457d31da8261bbb85c16315e86877dbc2dabbb3",
+          "result_sha256": "ec61a9c08b13164572e0a0ac0996a1d56244487bd4cb8098c01bfafda9bbe38d",
+          "eve_sha256": "ec61a9c08b13164572e0a0ac0996a1d56244487bd4cb8098c01bfafda9bbe38d",
+          "upstream_sha256": "97441f8fab8d59b34c403d7354960504f4e1d8995f583cadbc52dc70d1cb7258",
+          "upstream_lines": 919,
+          "kept_lines": 796,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut AudioPlayerAlert timestamp switcher and MessageObject chapter parser; preserved full interactive Telegram SeekBarView",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Cells/BrightnessControlCell.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/BrightnessControlCell.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/BrightnessControlCell.cut",
+          "recipe_sha256": "a60e088e80654f730ea50ef74d16f024d5036f4e39119db92f200cdd4d7f3cf2",
+          "result_sha256": "ae11316d6ec43ad41a394b35d5a7da257cbbc860999bcc0110bfd788e56e41a6",
+          "eve_sha256": "ae11316d6ec43ad41a394b35d5a7da257cbbc860999bcc0110bfd788e56e41a6",
+          "upstream_sha256": "0f8cbf858cca3ced24a4cc54d91ddc31169ad79335b5a6afe3e7ece3ef5b557f",
+          "upstream_lines": 122,
+          "kept_lines": 121,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Direct Theme.getColor without ThemeBind",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/messenger/TelegramQRCodeWriter.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/TelegramQRCodeWriter.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/TelegramQRCodeWriter.cut",
+          "recipe_sha256": "dad7aab2c6035ca6b3189a2ec98c8f0cadc73e1220ee157d2f47a5cbaca10d12",
+          "result_sha256": "0a5cba54eea4cf948a7aebe0120c5f49f4610820e446b02aad2df68a27d24f4b",
+          "eve_sha256": "0a5cba54eea4cf948a7aebe0120c5f49f4610820e446b02aad2df68a27d24f4b",
+          "upstream_sha256": "36642571ec6b5e7ad6f68b98a56116c127dd69fdc0ee4ee3e1e55c6f5dca3803",
+          "upstream_lines": 323,
+          "kept_lines": 319,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Remove SvgHelper/R.raw.qr_logo fallback plane icon when centerDrawable is null",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/messenger/NotchInfoUtils.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/NotchInfoUtils.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "fe186aa6b00ab0e86eb8374c2198a810d6c9ae8f76f168127b948628a56d8d28",
+          "eve_sha256": "fe186aa6b00ab0e86eb8374c2198a810d6c9ae8f76f168127b948628a56d8d28",
+          "upstream_sha256": "fe186aa6b00ab0e86eb8374c2198a810d6c9ae8f76f168127b948628a56d8d28",
+          "upstream_lines": 120,
+          "kept_lines": 120,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/IconBackgroundColors.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/IconBackgroundColors.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "0c27bbcd9eeff2ec6a5c9aff76d22a01258e6dd39563f272e147d67701b0160e",
+          "eve_sha256": "0c27bbcd9eeff2ec6a5c9aff76d22a01258e6dd39563f272e147d67701b0160e",
+          "upstream_sha256": "0c27bbcd9eeff2ec6a5c9aff76d22a01258e6dd39563f272e147d67701b0160e",
+          "upstream_lines": 25,
+          "kept_lines": 25,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/CheckBoxSquare.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/CheckBoxSquare.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "5810591c3aff2a1857850111f6f512e1edabc3fee27f90d9bdae0b07f201e467",
+          "eve_sha256": "5810591c3aff2a1857850111f6f512e1edabc3fee27f90d9bdae0b07f201e467",
+          "upstream_sha256": "5810591c3aff2a1857850111f6f512e1edabc3fee27f90d9bdae0b07f201e467",
+          "upstream_lines": 193,
+          "kept_lines": 193,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/QrShare/QrCodeLayer.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrCodeLayer.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/QrCodeLayer.cut",
+          "recipe_sha256": "a53194119b8104562c8bee55be8e03728e8e896b5a9c33d624e3c16ad662fb42",
+          "result_sha256": "a5ec284c8325b6ae30f1eca8c15828e9d6633993f691a44ea4b0e1f462ed84de",
+          "eve_sha256": "a5ec284c8325b6ae30f1eca8c15828e9d6633993f691a44ea4b0e1f462ed84de",
+          "upstream_sha256": "78491b93af81c44006729af7640e083261b33348eea400dc5cd9f0ed605e59ea",
+          "upstream_lines": 925,
+          "kept_lines": 924,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Remove SharedConfig performance class guard while keeping full QrRender vertices support",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/ProfileGooeyView.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/ProfileGooeyView.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/ProfileGooeyView.cut",
+          "recipe_sha256": "32c3e5c3167bbcc7e097ac4f993214f716cc6f44358506c586260ebe091b5079",
+          "result_sha256": "7e05985e37f8059c998e858a43a727052f168fa5fba679bfcaf7a043c23205da",
+          "eve_sha256": "7e05985e37f8059c998e858a43a727052f168fa5fba679bfcaf7a043c23205da",
+          "upstream_sha256": "ee2f8e2aad0c3e347de1dc45c91c4b1c4e12685dbd52c566b6db68c11c09245b",
+          "upstream_lines": 523,
+          "kept_lines": 522,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Remove SharedConfig performance class guard while keeping Android 12+ GPUImpl gooey physics",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/TextHelper.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/TextHelper.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/TextHelper.cut",
+          "recipe_sha256": "4ff4ead75cf245997afd799f4dd72ef21bea8c24284ce6867658a4e077e0469b",
+          "result_sha256": "d94006f3b3f8e254b8ee19723a597157ee81ace9b5c2888cbb037e055f8121d2",
+          "eve_sha256": "d94006f3b3f8e254b8ee19723a597157ee81ace9b5c2888cbb037e055f8121d2",
+          "upstream_sha256": "401f62b6624a310a44e2ab9764acfbb71e0d00a298c480e83e5ca4cd4b86e24e",
+          "upstream_lines": 46,
+          "kept_lines": 43,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Direct Theme.getColor without ThemeBind",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/ListView/AdapterWithDiffUtils.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/ListView/AdapterWithDiffUtils.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "fc34a9d77646585b7cd92bfd775212efe431a97b2f2a2bfc1a8ea6668774c488",
+          "eve_sha256": "fc34a9d77646585b7cd92bfd775212efe431a97b2f2a2bfc1a8ea6668774c488",
+          "upstream_sha256": "fc34a9d77646585b7cd92bfd775212efe431a97b2f2a2bfc1a8ea6668774c488",
+          "upstream_lines": 81,
+          "kept_lines": 81,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/GradientTools.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/GradientTools.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "43ccae257be1b475a189880926667b4a0913e4c2253eedd29e8a7f8aa0246726",
+          "eve_sha256": "43ccae257be1b475a189880926667b4a0913e4c2253eedd29e8a7f8aa0246726",
+          "upstream_sha256": "43ccae257be1b475a189880926667b4a0913e4c2253eedd29e8a7f8aa0246726",
+          "upstream_lines": 121,
+          "kept_lines": 121,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/AvatarDrawable.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/AvatarDrawable.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/AvatarDrawable.cut",
+          "recipe_sha256": "21c9aa94b56342b70ca664df2eba97d0dd077b64635a4e285488ba490f401d7d",
+          "result_sha256": "e33b5544422877a1aa186ac651a5af8fbf13b57efd530782a8588e4883a0caa9",
+          "eve_sha256": "e33b5544422877a1aa186ac651a5af8fbf13b57efd530782a8588e4883a0caa9",
+          "upstream_sha256": "7a9be245a6261f2b3608a2f1948d2c261f83a47859d77623b9220dae14eaee7e",
+          "upstream_lines": 837,
+          "kept_lines": 700,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut TLRPC/Chat/User/PeerColor overloads and Emoji/ThemeBind generation checks while preserving core setInfo(long, firstName, lastName), gradient colors, and Canvas drawing",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/Text.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/Text.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/Text.cut",
+          "recipe_sha256": "056c3f7678c3da47c4cefa573891ac30893a876df52e5459417f78d9e622a79c",
+          "result_sha256": "fd93149fd7af6b8e241031f91652ef66fa7f74c5ba2d6a641b2198182a53ee1b",
+          "eve_sha256": "fd93149fd7af6b8e241031f91652ef66fa7f74c5ba2d6a641b2198182a53ee1b",
+          "upstream_sha256": "8a2cf900e2670f8cfcc5418de28769b19a17df7e13e2cab74d640fce877a5fe8",
+          "upstream_lines": 333,
+          "kept_lines": 323,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Remove AnimatedEmojiSpan/AnimatedEmojiDrawable hooks",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/ProfileActionsView.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/ProfileActionsView.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/ProfileActionsView.cut",
+          "recipe_sha256": "1381575d03681072a0ca970e7cc8fe5642984dab4cdb35ec5f49d629f26be6ce",
+          "result_sha256": "0da1d75a4f69faa90e1fc88dc8bdafda85a51c3d7386b481496e396d64cb9a4c",
+          "eve_sha256": "0da1d75a4f69faa90e1fc88dc8bdafda85a51c3d7386b481496e396d64cb9a4c",
+          "upstream_sha256": "dd952f6141779b690f6c31325c40cf8fead037c1d4000ef26b1ae44cb35062d1",
+          "upstream_lines": 1315,
+          "kept_lines": 1245,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut blur3 glassFactory (falls back cleanly to Telegram built-in action button color fill)",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/SimpleThemeDescription.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/SimpleThemeDescription.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "d0038807fbe8cf25c40ffe403b0cc75db064a6367ee5c3da12752ed69dfea445",
+          "eve_sha256": "d0038807fbe8cf25c40ffe403b0cc75db064a6367ee5c3da12752ed69dfea445",
+          "upstream_sha256": "d0038807fbe8cf25c40ffe403b0cc75db064a6367ee5c3da12752ed69dfea445",
+          "upstream_lines": 25,
+          "kept_lines": 25,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/Loadable.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/Loadable.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "81fc7413da3548de3ad00b93404fac3eca82a3fb09ad9bf7abf2c41d582cc1af",
+          "eve_sha256": "81fc7413da3548de3ad00b93404fac3eca82a3fb09ad9bf7abf2c41d582cc1af",
+          "upstream_sha256": "81fc7413da3548de3ad00b93404fac3eca82a3fb09ad9bf7abf2c41d582cc1af",
+          "upstream_lines": 6,
+          "kept_lines": 6,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Stories/recorder/ButtonWithCounterView.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Stories/recorder/ButtonWithCounterView.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/ButtonWithCounterView.cut",
+          "recipe_sha256": "bd7c03ba7ff327a4e0b17bfbaac6ed3a8ad0a20c753fa4263ada69b580816d35",
+          "result_sha256": "9c9acb565ea8541e259e8cd4fb5d0d74bf2ee743909238c1605943d8d0c9c872",
+          "eve_sha256": "9c9acb565ea8541e259e8cd4fb5d0d74bf2ee743909238c1605943d8d0c9c872",
+          "upstream_sha256": "6d184ed93151880ae7a67174aa74e8e6ebe06126eedd0c51315a22aa3c586cd9",
+          "upstream_lines": 722,
+          "kept_lines": 721,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Direct setBackground without ThemeBind",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Cells/SlideIntChooseView.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/SlideIntChooseView.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/SlideIntChooseView.cut",
+          "recipe_sha256": "45268576b990f7a372f4fe607c5bc9f590da5bfd3d8deda98e9218be97ea918d",
+          "result_sha256": "1dda213be25a063b2781a7649c13051c541a15234b4adc8b643601aff2522a2b",
+          "eve_sha256": "1dda213be25a063b2781a7649c13051c541a15234b4adc8b643601aff2522a2b",
+          "upstream_sha256": "df05bcc4db8e069e5c2087c19d72772671040ea6499314830070c70b4cd23312",
+          "upstream_lines": 417,
+          "kept_lines": 403,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Direct Theme.getColor without ThemeBind and remove AnimatedEmojiDrawable cache type",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Cells/NotificationsCheckCell.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/NotificationsCheckCell.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/NotificationsCheckCell.cut",
+          "recipe_sha256": "4e2e7ed169a53a18394f6ad637843d66695e26dbb65f91d0dd5798aaa57e963b",
+          "result_sha256": "1a31540693fff21cd98d228a2cfa7c3b0e27a29d9aed7a991bbd9ba2116be71c",
+          "eve_sha256": "1a31540693fff21cd98d228a2cfa7c3b0e27a29d9aed7a991bbd9ba2116be71c",
+          "upstream_sha256": "f7b1c847e706092df13083446ece76e61a93729703317eed51e2763ab3b1d3a7",
+          "upstream_lines": 251,
+          "kept_lines": 247,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Direct Theme.getColor without ThemeBind",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/CrossfadeDrawable.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/CrossfadeDrawable.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "15f7afaf31c04edee565c3500e91e30a9c833325c08481cf43a2831f83845557",
+          "eve_sha256": "15f7afaf31c04edee565c3500e91e30a9c833325c08481cf43a2831f83845557",
+          "upstream_sha256": "15f7afaf31c04edee565c3500e91e30a9c833325c08481cf43a2831f83845557",
+          "upstream_lines": 140,
+          "kept_lines": 140,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/ProgressButton.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/ProgressButton.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "3fe36eee70bae1bad8c6b16e604f43f053f0599fe23344efbe78a236ecb6ccc9",
+          "eve_sha256": "3fe36eee70bae1bad8c6b16e604f43f053f0599fe23344efbe78a236ecb6ccc9",
+          "upstream_sha256": "3fe36eee70bae1bad8c6b16e604f43f053f0599fe23344efbe78a236ecb6ccc9",
+          "upstream_lines": 102,
+          "kept_lines": 102,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Cells/DialogRadioCell.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/DialogRadioCell.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/DialogRadioCell.cut",
+          "recipe_sha256": "236e2f5bfbad1af5d68a6f9bd694fb3a2782bd2a793b721c515533faad463f8a",
+          "result_sha256": "03467164c99bf4bd5792296ce8a711c5b1501a082bd47fdc638e9942eb23742b",
+          "eve_sha256": "03467164c99bf4bd5792296ce8a711c5b1501a082bd47fdc638e9942eb23742b",
+          "upstream_sha256": "3385cbb9c0179ae9b87686d05f1c6234d9960887853e72c657df5b98a2d3f487",
+          "upstream_lines": 189,
+          "kept_lines": 187,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Direct Theme.getColor without ThemeBind",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Cells/TextRightIconCell.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/TextRightIconCell.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/TextRightIconCell.cut",
+          "recipe_sha256": "d389209b126c630ec92e717c2913758fe1eaf75e32cc9c3eb9265aad9ce3311b",
+          "result_sha256": "4106ed6909e2173c1689eb993f372777d8bad11978a293f0e10527c591a09d5c",
+          "eve_sha256": "4106ed6909e2173c1689eb993f372777d8bad11978a293f0e10527c591a09d5c",
+          "upstream_sha256": "d4573097fd4fda17c560d5252761d0e54af038a550dde860099177f3dba7afb6",
+          "upstream_lines": 61,
+          "kept_lines": 60,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Direct Theme.getColor without ThemeBind",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Cells/CollapseTextCell.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/CollapseTextCell.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/CollapseTextCell.cut",
+          "recipe_sha256": "45724d3143c8f6cf8109a7ef4c430fc5ce33681b9b6d0c287c13c63ff0329c82",
+          "result_sha256": "2fde5f4aca84b06e0caec4bb9ad3103d3a48ee09a92bfaa1ec331a37da3f8de4",
+          "eve_sha256": "2fde5f4aca84b06e0caec4bb9ad3103d3a48ee09a92bfaa1ec331a37da3f8de4",
+          "upstream_sha256": "520d8a72f2e1183c54aad2ac4ddd405c11ab4ac08212a55c4c02cd8a44b4fe6f",
+          "upstream_lines": 77,
+          "kept_lines": 76,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Direct Theme.getColor without ThemeBind",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Cells/GraySectionCell.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Cells/GraySectionCell.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/GraySectionCell.cut",
+          "recipe_sha256": "f78b516e9050b8928b8ce988cc75d16de9c9d5f2dd2e0443d972a55a7368caaf",
+          "result_sha256": "aeb6952d8a5f3ae9731dd256b3828e88e60fbc4e84e4c735ca25b4d845c91c17",
+          "eve_sha256": "aeb6952d8a5f3ae9731dd256b3828e88e60fbc4e84e4c735ca25b4d845c91c17",
+          "upstream_sha256": "edfe05b1906b5e380746bf7a4e8ac92fc62bb846e4cd51fe15c91e8dbba2a279",
+          "upstream_lines": 164,
+          "kept_lines": 161,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Use TextView without AnimatedEmojiSpan and direct Theme.getColor without ThemeBind",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/UItem.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/UItem.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/UItem.cut",
+          "recipe_sha256": "893c8eeb991b17962b95ca4a5eb7d23adee8c6e08bd77dd0f6bc48fb362c5244",
+          "result_sha256": "7e0fb53ade4abb3bcc2b8ed2c2741bc175bbcca1f37f2b7f8768d8b2d59c0b04",
+          "eve_sha256": "7e0fb53ade4abb3bcc2b8ed2c2741bc175bbcca1f37f2b7f8768d8b2d59c0b04",
+          "upstream_sha256": "73990343d5470ad4f83a55a281c4f9721efac8aa5c98156573583b1f3c5c36e6",
+          "upstream_lines": 931,
+          "kept_lines": 847,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut TLRPC/Business/Stats/Monetization factory overloads while preserving all core UItem list factories (asHeader, asShadow, asButton, asCheck, asRadio, asCustom, asSlideView, asIntSlideView)",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/ViewHelper.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/ViewHelper.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "642b45cea4ae9f6ffb60a038c4c6f57ef07a9b11c7766d79f454a37c432ea138",
+          "eve_sha256": "642b45cea4ae9f6ffb60a038c4c6f57ef07a9b11c7766d79f454a37c432ea138",
+          "upstream_sha256": "642b45cea4ae9f6ffb60a038c4c6f57ef07a9b11c7766d79f454a37c432ea138",
+          "upstream_lines": 33,
+          "kept_lines": 33,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/RecyclerViewportFrameLayout.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/RecyclerViewportFrameLayout.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "427f4597d1a9a9cfd9c5ec90c37ed4c79821f9eb941b1e5ec5ac18c6350702fb",
+          "eve_sha256": "427f4597d1a9a9cfd9c5ec90c37ed4c79821f9eb941b1e5ec5ac18c6350702fb",
+          "upstream_sha256": "427f4597d1a9a9cfd9c5ec90c37ed4c79821f9eb941b1e5ec5ac18c6350702fb",
+          "upstream_lines": 57,
+          "kept_lines": 57,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/Size.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/Size.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "31f556427f63dc06e1e66f4c0c22da1e944baf9ffc0ee8134bbba21def6e87f2",
+          "eve_sha256": "31f556427f63dc06e1e66f4c0c22da1e944baf9ffc0ee8134bbba21def6e87f2",
+          "upstream_sha256": "31f556427f63dc06e1e66f4c0c22da1e944baf9ffc0ee8134bbba21def6e87f2",
+          "upstream_lines": 24,
+          "kept_lines": 24,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/ExtendedGridLayoutManager.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/ExtendedGridLayoutManager.java",
+          "mode": "VERBATIM",
+          "recipe_path": "",
+          "recipe_sha256": "",
+          "result_sha256": "e7fc8b4365a33afc6528dbaabf6e2c7059925b88c63e4e0ad3084baa64cb36c5",
+          "eve_sha256": "e7fc8b4365a33afc6528dbaabf6e2c7059925b88c63e4e0ad3084baa64cb36c5",
+          "upstream_sha256": "e7fc8b4365a33afc6528dbaabf6e2c7059925b88c63e4e0ad3084baa64cb36c5",
+          "upstream_lines": 206,
+          "kept_lines": 206,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/UniversalAdapter.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/UniversalAdapter.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/UniversalAdapter.cut",
+          "recipe_sha256": "0436890dbaeebb398d352e1379ca4bb2286a8c7d06e01b793093633ff2d95753",
+          "result_sha256": "f1a8569ad2539ad2adbf3ea05882efb24466fe61f1aa2b79aca1dcc1295b2d85",
+          "eve_sha256": "f1a8569ad2539ad2adbf3ea05882efb24466fe61f1aa2b79aca1dcc1295b2d85",
+          "upstream_sha256": "1be8316b445021507c68e9dc17b7ec88c9f61c2a2725cdb68c070555333f4e40",
+          "upstream_lines": 1330,
+          "kept_lines": 1140,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut Telegram-only Business/QuickReply/Charts/Monetization/DialogCell/UserCell cases and ThemeBind while preserving all core Settings/Profile UniversalAdapter view types",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/Components/UniversalRecyclerView.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/UniversalRecyclerView.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/UniversalRecyclerView.cut",
+          "recipe_sha256": "7dd1a3ff4787f1b9107dca71517d293e30a42b0fc0201fb0664999ed1c790765",
+          "result_sha256": "5cd86247e961e30b51a2f6d7879ec899b6e8945b59f47ee409ed1c14c155dd30",
+          "eve_sha256": "5cd86247e961e30b51a2f6d7879ec899b6e8945b59f47ee409ed1c14c155dd30",
+          "upstream_sha256": "30f455966bdfe92f5dc279ef6293314cccba300273116b8d70bc658d8f6bd9c0",
+          "upstream_lines": 442,
+          "kept_lines": 423,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Remove RichEditor.DraggingDrawable hook",
+          "known_debt": false
+        }
+      ],
+      "resources": [
+        {
+          "path": "app/src/main/res/anim/alpha_in.xml",
+          "upstream": "TMessagesProj/src/main/res/anim/alpha_in.xml",
+          "sha256": "7c21b3b183ea8007826c8801e1552e9e8f32dd961a24d41352ebca1e974fd876"
+        },
+        {
+          "path": "app/src/main/res/anim/alpha_out.xml",
+          "upstream": "TMessagesProj/src/main/res/anim/alpha_out.xml",
+          "sha256": "2662a730e8b684123c66f1b2802912041a289a5151fa9ae7338f29c066f39afa"
+        },
+        {
+          "path": "app/src/main/res/drawable-mdpi/msg_clear_input.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_clear_input.webp",
+          "sha256": "20f536752c08ead221f545c42c906d6ecf7c0b7eb1f7b101559b06b4d99fc412"
+        },
+        {
+          "path": "app/src/main/res/drawable-hdpi/msg_clear_input.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_clear_input.webp",
+          "sha256": "bd61bad790d346cff628e08bab8bb592cfc7dacc085e5a243bc7543f6b2166be"
+        },
+        {
+          "path": "app/src/main/res/drawable-xhdpi/msg_clear_input.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_clear_input.webp",
+          "sha256": "f65a3d8002e02b8181280cbb9f61f76f97cd1b63babaed3a8bcf0f531808d620"
+        },
+        {
+          "path": "app/src/main/res/drawable-xxhdpi/msg_clear_input.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_clear_input.webp",
+          "sha256": "1a389ebc571f9a944235bccb03c27417ac546207d37184704b6ad71dd11e76a7"
+        },
+        {
+          "path": "app/src/main/res/drawable-mdpi/msg_pin_code.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_pin_code.webp",
+          "sha256": "d044eb02255393fd6cbf73adac798da2fd58c92b2ba2ea187a140d4997083a45"
+        },
+        {
+          "path": "app/src/main/res/drawable-hdpi/msg_pin_code.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_pin_code.webp",
+          "sha256": "079915e987368501039df3e9b34f0ebf9acd7bf8f4cc047059d57f3c1be8af14"
+        },
+        {
+          "path": "app/src/main/res/drawable-xhdpi/msg_pin_code.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_pin_code.webp",
+          "sha256": "e51bc4d2fbe29f35716ebcdf161eecc7b87594dd8659b02bacd19068bbdb2609"
+        },
+        {
+          "path": "app/src/main/res/drawable-xxhdpi/msg_pin_code.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_pin_code.webp",
+          "sha256": "1cb4c4f2536c796376978cf753696b48b0bb51654d6a2212eb1894aa297f00e1"
+        },
+        {
+          "path": "app/src/main/res/drawable-mdpi/ic_ab_other.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-mdpi/ic_ab_other.webp",
+          "sha256": "1753372e5d4e9da59a39e0828271be283828cc2f09e319ed01e170c6e2b71ee3"
+        },
+        {
+          "path": "app/src/main/res/drawable-hdpi/ic_ab_other.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-hdpi/ic_ab_other.webp",
+          "sha256": "b6a2c9b85adaab7c63b9f4ab1b5e5e87c50aed1302ec0fc4b1faa0fd65d97780"
+        },
+        {
+          "path": "app/src/main/res/drawable-xhdpi/ic_ab_other.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/ic_ab_other.webp",
+          "sha256": "0e61b9b1b27198c178f407ee78590dbfa9e624bf4a59131394c5f25b9cbde9ec"
+        },
+        {
+          "path": "app/src/main/res/drawable-xxhdpi/ic_ab_other.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/ic_ab_other.webp",
+          "sha256": "0ec992659736897f869e2fa5baad353cb1c4d0f4b0f35ef3cf94de3c067cb499"
+        },
+        {
+          "path": "app/src/main/res/drawable-mdpi/msg_message.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_message.webp",
+          "sha256": "737715ef75c8bf2505e7a34a4c8fe0f743656767acb1449572b90415328551d5"
+        },
+        {
+          "path": "app/src/main/res/drawable-hdpi/msg_message.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_message.webp",
+          "sha256": "b5091f2b9dd179b34bf8f6f64a4c6778b79571b863aca4158b68ef1d5989d694"
+        },
+        {
+          "path": "app/src/main/res/drawable-xhdpi/msg_message.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_message.webp",
+          "sha256": "d9598e4a7e8f13bf347d441ef3e53bed0c108a510b760b6b4f5781ed4df7dcc6"
+        },
+        {
+          "path": "app/src/main/res/drawable-xxhdpi/msg_message.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_message.webp",
+          "sha256": "b605d2acfc65c904c044f1185e6e9e6839e22ed4a1043e1fe079c4f5c318074e"
+        },
+        {
+          "path": "app/src/main/res/drawable-mdpi/msg_permissions.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_permissions.webp",
+          "sha256": "8b2c8bb0259d6d4998ffc84e3a6590a4377309507a47b4b9a0afb1b73a6b3b18"
+        },
+        {
+          "path": "app/src/main/res/drawable-hdpi/msg_permissions.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_permissions.webp",
+          "sha256": "bfecc45692da99d176687ddf9a9ed8e868ac24841bc8943b040a570119838d63"
+        },
+        {
+          "path": "app/src/main/res/drawable-xhdpi/msg_permissions.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_permissions.webp",
+          "sha256": "58983e8752316947ab8833f17978d1456e67a3645b74ce38f97ae1c254adc65b"
+        },
+        {
+          "path": "app/src/main/res/drawable-xxhdpi/msg_permissions.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_permissions.webp",
+          "sha256": "78a4c2d1e682293187470ea2216d921924ae354403e564bb6260835685939060"
+        },
+        {
+          "path": "app/src/main/res/drawable-mdpi/qr_flashlight.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-mdpi/qr_flashlight.webp",
+          "sha256": "58936aed129971f825f73bc2a0c38a356fd323d174df21d2e07348b1af988314"
+        },
+        {
+          "path": "app/src/main/res/drawable-hdpi/qr_flashlight.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-hdpi/qr_flashlight.webp",
+          "sha256": "5ac49313028f5cb20aa9f8c24f2827070a9b75c10ed0afeadd71cc9f4f1eaa24"
+        },
+        {
+          "path": "app/src/main/res/drawable-xhdpi/qr_flashlight.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/qr_flashlight.webp",
+          "sha256": "65f9f232dec0955476ad8b75197e6cfd613570a30131f0db3931a6d6da84d8da"
+        },
+        {
+          "path": "app/src/main/res/drawable-xxhdpi/qr_flashlight.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/qr_flashlight.webp",
+          "sha256": "8849a3d20065553ec264ebea3a61e664df329625d37993f7b11ecacb1fa50708"
+        },
+        {
+          "path": "app/src/main/res/drawable-mdpi/qr_gallery.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-mdpi/qr_gallery.webp",
+          "sha256": "484b83078e040ca96d054cb1f2fc3924b93d029197da9afb2fb1ec8ab502351b"
+        },
+        {
+          "path": "app/src/main/res/drawable-hdpi/qr_gallery.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-hdpi/qr_gallery.webp",
+          "sha256": "aa19a6559f936abf0076d995c43d3fe747b5a7e41fc0e0997963dad8b5ce7124"
+        },
+        {
+          "path": "app/src/main/res/drawable-xhdpi/qr_gallery.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/qr_gallery.webp",
+          "sha256": "def9dcc4c02a22520dc9aaf9918f4ffa77aef466d9c1b85807b25fa8cd31fe02"
+        },
+        {
+          "path": "app/src/main/res/drawable-xxhdpi/qr_gallery.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/qr_gallery.webp",
+          "sha256": "5ca865848c13360438bac923748be04b3f5f5c1c22ea9139298b949c092f3362"
+        },
+        {
+          "path": "app/src/main/res/drawable-mdpi/arrow_more.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-mdpi/arrow_more.webp",
+          "sha256": "6648c4745d8a2ebef2e075701f642aee26d2275dd799218e52a5a36e7c567f58"
+        },
+        {
+          "path": "app/src/main/res/drawable-hdpi/arrow_more.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-hdpi/arrow_more.webp",
+          "sha256": "f19149416bf124f2c2ab42a75ed62649a5cbebb96a2a19f44b81301fccc8b4fb"
+        },
+        {
+          "path": "app/src/main/res/drawable-xhdpi/arrow_more.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/arrow_more.webp",
+          "sha256": "2296ee45e0a9d4277f3f265e626744a6c552373a87abd10a5e9f4551954d6c33"
+        },
+        {
+          "path": "app/src/main/res/drawable-xxhdpi/arrow_more.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/arrow_more.webp",
+          "sha256": "61621cbd03c323e3c269b94e45b975d2b3ee60dca9340d7543d95b5e6bee98c8"
+        },
+        {
+          "path": "app/src/main/res/drawable-mdpi/sticker_added.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-mdpi/sticker_added.webp",
+          "sha256": "cd8ce36552930911da968d362ff7b91f9931d2daa509ff8a7458f68e010759ec"
+        },
+        {
+          "path": "app/src/main/res/drawable-hdpi/sticker_added.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-hdpi/sticker_added.webp",
+          "sha256": "9fb936a90f7d2f587e1ca0812b0a3cba5e75bf434d22856b9b0b4c58bd03a627"
+        },
+        {
+          "path": "app/src/main/res/drawable-xhdpi/sticker_added.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/sticker_added.webp",
+          "sha256": "c04388e02b615e3e27bf24506ce1bee5769c080db66340440e1530ff2bf4c461"
+        },
+        {
+          "path": "app/src/main/res/drawable-xxhdpi/sticker_added.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/sticker_added.webp",
+          "sha256": "0f05ad064dc42019b090ae4b521ca05dd650600a04800df6031672c7ad2a201c"
+        },
+        {
+          "path": "app/src/main/res/drawable-mdpi/msg_brightness_low.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_brightness_low.webp",
+          "sha256": "3977fccf86bfe73a28c08b6cf3205ffe9e2238893d89d8ab4773a28bc5741545"
+        },
+        {
+          "path": "app/src/main/res/drawable-hdpi/msg_brightness_low.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_brightness_low.webp",
+          "sha256": "b65c9314352aad90ae5f88126b87c9e1e0b9cc8435802da3ee948230fb57ec2d"
+        },
+        {
+          "path": "app/src/main/res/drawable-xhdpi/msg_brightness_low.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_brightness_low.webp",
+          "sha256": "249726256b20ea7597ac70813031dd3147575a00c7bd79930e97616853b114af"
+        },
+        {
+          "path": "app/src/main/res/drawable-xxhdpi/msg_brightness_low.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_brightness_low.webp",
+          "sha256": "66e0c7b44380561f69a67a4eec2483a48083b7d0bd5e9933413d1ba941d0632f"
+        },
+        {
+          "path": "app/src/main/res/drawable-mdpi/msg_brightness_high.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-mdpi/msg_brightness_high.webp",
+          "sha256": "37d188da5604ea934ea9db2cc5be03226fc81d62d182287faa198fddb254dbd8"
+        },
+        {
+          "path": "app/src/main/res/drawable-hdpi/msg_brightness_high.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-hdpi/msg_brightness_high.webp",
+          "sha256": "dbaaeddb4d1b2f8e9bebeba4f50f6c89ea870b084a14beef0e9f174680d01091"
+        },
+        {
+          "path": "app/src/main/res/drawable-xhdpi/msg_brightness_high.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/msg_brightness_high.webp",
+          "sha256": "7c01f92403026865eef6594a8ba41bf4048600f395b19a4a327d5202cf2f99c3"
+        },
+        {
+          "path": "app/src/main/res/drawable-xxhdpi/msg_brightness_high.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/msg_brightness_high.webp",
+          "sha256": "f8805950ba92591beec9baeaaf85389a4c0961f660942af5af224a59ee38023a"
+        },
+        {
+          "path": "app/src/main/res/drawable/action_share.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/action_share.xml",
+          "sha256": "8256c3240bbfc447e8e5c0e2887390b2024dea8de8e1d8497391ca189da797b3"
+        },
+        {
+          "path": "app/src/main/res/drawable/filled_profile_call_24.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/filled_profile_call_24.xml",
+          "sha256": "7e078db48d8f6093bcb70bfae736477395dfc84c2c8921a4eee4f353ae2c1c13"
+        },
+        {
+          "path": "app/src/main/res/drawable/filled_profile_edit_24.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/filled_profile_edit_24.xml",
+          "sha256": "31a142ccdd2f7abca3fa54c7b173c14aeda16a0dd8d8979265d53c60a3c654ba"
+        },
+        {
+          "path": "app/src/main/res/drawable/filled_profile_member_24.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/filled_profile_member_24.xml",
+          "sha256": "de15eac2b6c3245e2b8f19d8a639dedeccff00bb764921c64768a421a083cdfa"
+        },
+        {
+          "path": "app/src/main/res/drawable/filled_profile_message_24.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/filled_profile_message_24.xml",
+          "sha256": "13b4245433a54c4114490100b73981378ba82bb50fdccd6d9c53722d80bbb988"
+        },
+        {
+          "path": "app/src/main/res/drawable/filled_profile_mute_24.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/filled_profile_mute_24.xml",
+          "sha256": "6870b2f4c11db0a957130f441d98a7af142ebc34c087b7f3000041306cc9bcf7"
+        },
+        {
+          "path": "app/src/main/res/drawable/filled_profile_photo.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/filled_profile_photo.xml",
+          "sha256": "25dd0210a22bd206b386a2777d62ba5e217a403e969e3acd12235cba9d5c9958"
+        },
+        {
+          "path": "app/src/main/res/drawable/filled_profile_settings.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/filled_profile_settings.xml",
+          "sha256": "56411bb903af5fa7df6d89e2b0fb97ef77fe7fd068240698175e1e668e78c3df"
+        },
+        {
+          "path": "app/src/main/res/drawable/filled_profile_stop_24.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/filled_profile_stop_24.xml",
+          "sha256": "5bdc5b793e479a268c5f0859723d2b785c06068e86ee1aba9763d3794cefb365"
+        },
+        {
+          "path": "app/src/main/res/drawable/filled_profile_story.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/filled_profile_story.xml",
+          "sha256": "b36dacc4f4664c8f6ad21cc1a0f769ada26f6bbe3bee51d8219950f16dfcdee0"
+        },
+        {
+          "path": "app/src/main/res/drawable/filled_profile_unmute_24.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/filled_profile_unmute_24.xml",
+          "sha256": "96d96cab3946ab73ea6a536843a5228d736acd26b1c34638b15e33fa9cf6af4a"
+        },
+        {
+          "path": "app/src/main/res/drawable/filled_profile_video_24.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/filled_profile_video_24.xml",
+          "sha256": "61feb9cb4db4b9aca088b66f713b27f98b97756aa8d4be9f5bfde1e155dad8b6"
+        },
+        {
+          "path": "app/src/main/res/drawable/gift.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/gift.xml",
+          "sha256": "78967d092ac00a9dfea3ed83f33f5e4a83012ee7377835155ada2a2e199a06f0"
+        },
+        {
+          "path": "app/src/main/res/drawable/input_gift_s.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/input_gift_s.xml",
+          "sha256": "2b38d1344d7c72681baba9c70675deaf5bb052584db01a4bb83dfa6f8901c45d"
+        },
+        {
+          "path": "app/src/main/res/drawable/leave.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/leave.xml",
+          "sha256": "900fec4c7d9f773626858489908417a440d2ad6ba097f7d293f851a771e564bf"
+        },
+        {
+          "path": "app/src/main/res/drawable/live_stream.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/live_stream.xml",
+          "sha256": "b35f39b14cfde1d3c111ea7ea99814a7c4eb0e16dfdb292d1e73a1570e42c37b"
+        },
+        {
+          "path": "app/src/main/res/drawable/outline_profile_call_24.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/outline_profile_call_24.xml",
+          "sha256": "1cdc07c548bc361a160013c6499350249425630547c5786b45efce50912909ca"
+        },
+        {
+          "path": "app/src/main/res/drawable/outline_profile_edit_24.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/outline_profile_edit_24.xml",
+          "sha256": "c094e0cfa21d04020dea6e457012978bc2d20b47a5491644fb8cf9eac44db9e6"
+        },
+        {
+          "path": "app/src/main/res/drawable/outline_profile_member_24.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/outline_profile_member_24.xml",
+          "sha256": "7167422d53da2295026b26ef6d782ca9b7e4a552328885e1e5dca00c3fb96881"
+        },
+        {
+          "path": "app/src/main/res/drawable/outline_profile_message_24.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/outline_profile_message_24.xml",
+          "sha256": "3597fd60060febe4121fad450b95b20b5178ecf5fccc215bfbea15cc2a78b257"
+        },
+        {
+          "path": "app/src/main/res/drawable/outline_profile_mute_24.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/outline_profile_mute_24.xml",
+          "sha256": "5d6cc2adcd7ae53206470a902a5a0c59d99a761ee98cb3d3dfc11e149086240b"
+        },
+        {
+          "path": "app/src/main/res/drawable/outline_profile_photo.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/outline_profile_photo.xml",
+          "sha256": "ee45ea29eea5709b788b70c7058eb2f1cccd285ef482fdf1eee534da867e56cc"
+        },
+        {
+          "path": "app/src/main/res/drawable/outline_profile_settings.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/outline_profile_settings.xml",
+          "sha256": "fccf34fe4e5d247b87d597fdf253ee943e0c26868e494cf767f7e6029f3d30ba"
+        },
+        {
+          "path": "app/src/main/res/drawable/outline_profile_stop_24.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/outline_profile_stop_24.xml",
+          "sha256": "3b1dd9905d2b521951dde7a3ae99abb0d20274aca0020ae51a1fc6433d458db6"
+        },
+        {
+          "path": "app/src/main/res/drawable/outline_profile_story.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/outline_profile_story.xml",
+          "sha256": "eadef68722b1e484b5093218fe68679ee0f9be2197cb0cd4ffdd7aaceb74cf86"
+        },
+        {
+          "path": "app/src/main/res/drawable/outline_profile_unmute_24.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/outline_profile_unmute_24.xml",
+          "sha256": "02a7b289b59466f7c35dfec7c4d6840357bf70dbde402a41d7e8cb9faa7b1b70"
+        },
+        {
+          "path": "app/src/main/res/drawable/outline_profile_video_24.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/outline_profile_video_24.xml",
+          "sha256": "df1f38163a807df38ee42cbef56738328f2906509af6700e2f72ec0663758034"
+        },
+        {
+          "path": "app/src/main/res/drawable/report.xml",
+          "upstream": "TMessagesProj/src/main/res/drawable/report.xml",
+          "sha256": "769294dabaeaad68950bfd72ba8cdac86a58b0724eaace5cf2668368c587ed93"
+        },
+        {
+          "path": "app/src/main/res/drawable-hdpi/mini_boost_button.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-hdpi/mini_boost_button.webp",
+          "sha256": "bb67dc63fe13de5e64233b90d128cdcb90715adbdd22ee76e4a6ae9f81803974"
+        },
+        {
+          "path": "app/src/main/res/drawable-mdpi/mini_boost_button.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-mdpi/mini_boost_button.webp",
+          "sha256": "1c7f151a2a6971f8dccbc8ec418b637eafeab17754f60061e75aa12b28d71c4b"
+        },
+        {
+          "path": "app/src/main/res/drawable-xhdpi/mini_boost_button.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/mini_boost_button.webp",
+          "sha256": "110dd1f6f2d4062e83f425e3e6b83f5f99b1b977772ed34d2c57b2e940824f18"
+        },
+        {
+          "path": "app/src/main/res/drawable-xxhdpi/mini_boost_button.webp",
+          "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/mini_boost_button.webp",
+          "sha256": "e34d72793fd0839c14c1bcc38ebda25920ce061672b87de773e3f2d9155c32c0"
         }
       ]
     }

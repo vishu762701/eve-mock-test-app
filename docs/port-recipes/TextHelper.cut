@@ -1,0 +1,9 @@
+upstream org/telegram/ui/Components/TextHelper.java
+to app/src/main/java/org/telegram/ui/Components/TextHelper.java
+
+remove-statement "ThemeBind.textColor(textView, colorKey, resourcesProvider);" all
+patch-line "final TextView textView = new TextView(context);" "final TextView textView = new TextView(context); textView.setTextColor(Theme.getColor(colorKey, resourcesProvider));" "direct text color without ThemeBind"
+patch-line "final LinkSpanDrawable.LinksTextView textView = new LinkSpanDrawable.LinksTextView(context);" "final LinkSpanDrawable.LinksTextView textView = new LinkSpanDrawable.LinksTextView(context); textView.setTextColor(Theme.getColor(colorKey, resourcesProvider));" "direct link textView color without ThemeBind"
+patch-line "ThemeBind.linkTextColor(textView, linkColorKey, resourcesProvider);" "textView.setLinkTextColor(Theme.getColor(linkColorKey, resourcesProvider));" "direct link color without ThemeBind"
+
+prune-imports

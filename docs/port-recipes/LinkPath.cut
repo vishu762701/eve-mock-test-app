@@ -1,0 +1,4 @@
+upstream org/telegram/ui/Components/LinkPath.java
+to app/src/main/java/org/telegram/ui/Components/LinkPath.java
+
+prune-imports

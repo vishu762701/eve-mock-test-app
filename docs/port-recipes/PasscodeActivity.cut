@@ -1,0 +1,84 @@
+upstream org/telegram/ui/PasscodeActivity.java
+to app/src/main/java/org/telegram/ui/PasscodeActivity.java
+
+# Route SharedConfig to Eve CUT-INTERFACE adapter backed by PasscodeManager
+patch-line "import org.telegram.messenger.SharedConfig;" "import com.eve.app.ui.settings.SharedConfig;" "bridge SharedConfig passcode state to Eve PasscodeManager"
+
+# Remove NotificationCenter, simpleActionBar, glass, and onThemeColorsChanged methods
+remove-method useSimpleActionBar
+remove-method didReceivedNotification
+remove-method onThemeColorsChanged
+remove-method getListViewForSimpleGlass
+remove-method addThemeColorKeys
+
+# Remove NotificationCenterDelegate and wire Eve navigator override for presentFragment
+patch-line "public class PasscodeActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {" "public class PasscodeActivity extends BaseFragment { public interface EvePasscodeNavigator { void openPasscodeMode(int mode); } private EvePasscodeNavigator eveNavigator; private View simpleActionBar; public void setEveNavigator(EvePasscodeNavigator nav) { this.eveNavigator = nav; } @Override public boolean presentFragment(BaseFragment fragment) { if (eveNavigator != null && fragment instanceof PasscodeActivity) { eveNavigator.openPasscodeMode(((PasscodeActivity) fragment).type); return true; } return super.presentFragment(fragment); } @Override public boolean presentFragment(BaseFragment fragment, boolean removeLast) { if (eveNavigator != null && fragment instanceof PasscodeActivity) { eveNavigator.openPasscodeMode(((PasscodeActivity) fragment).type); return true; } return super.presentFragment(fragment, removeLast); }" "remove NotificationCenterDelegate and route PasscodeActivity navigation through Eve host"
+remove-statement "NotificationCenter.getGlobalInstance().addWeakObserver(this, NotificationCenter.didSetPasscode);"
+remove-statement "NotificationCenter.getGlobalInstance().removeObserver(this, NotificationCenter.didSetPasscode);"
+remove-statement "NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.didSetPasscode);" all
+remove-statement "NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.didSetPasscode, false);"
+remove-statement "getMediaDataController().buildShortcuts();" all
+
+# Use standard BaseFragment ActionBar instead of simpleActionBar
+remove-statement "if (simpleActionBar != null) {"
+patch-line "View fragmentContentView;" "actionBar.setBackButtonImage(R.drawable.ic_ab_back); actionBar.setAllowOverlayTitle(false); actionBar.setActionBarMenuOnItemClick(onItemClick); View fragmentContentView;" "configure BaseFragment actionBar for all passcode modes"
+remove-statement "setHasOwnBackground(true);"
+patch-line "simpleActionBar.setTitle(LocaleController.getString(R.string.Passcode));" "actionBar.setTitle(LocaleController.getString(R.string.Passcode)); actionBar.setBackButtonImage(R.drawable.ic_ab_back); actionBar.setActionBarMenuOnItemClick(onItemClick);" "configure BaseFragment actionBar for settings mode"
+
+# Replace SizeNotifierFrameLayout with FrameLayout (measureKeyboardHeight -> 0)
+patch-line "SizeNotifierFrameLayout contentView = new SizeNotifierFrameLayout(context) {" "FrameLayout contentView = new FrameLayout(context) { private int measureKeyboardHeight() { return 0; }" "use FrameLayout without SizeNotifierFrameLayout"
+
+# Replace RLottieImageView with ImageView using msg_pin_code
+patch-line "private RLottieImageView lockImageView;" "private ImageView lockImageView;" "use ImageView without RLottieImageView"
+patch-line "lockImageView = new RLottieImageView(context);" "lockImageView = new ImageView(context); lockImageView.setImageResource(R.drawable.msg_pin_code); lockImageView.setColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteBlueText4), PorterDuff.Mode.SRC_IN);" "show lock icon without RLottie"
+remove-statement "lockImageView.setAnimation(R.raw.tsv_setup_intro, 120, 120);"
+remove-statement "lockImageView.setAutoRepeat(false);"
+remove-statement "lockImageView.playAnimation();"
+patch-line "private final RLottieImageView imageView;" "private final ImageView imageView;" "use ImageView in header holder without RLottie"
+patch-line "imageView = new RLottieImageView(context);" "imageView = new ImageView(context); imageView.setImageResource(R.drawable.msg_pin_code); imageView.setColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteBlueText4), PorterDuff.Mode.SRC_IN);" "show lock icon in settings header without RLottie"
+remove-statement "imageView.setOnClickListener(v -> {"
+remove-statement "holderView.imageView.setAnimation(R.raw.utyan_passcode, 100, 100);"
+remove-statement "holderView.imageView.playAnimation();"
+
+# Cut GramWallet rows (Telegram-only feature)
+remove-statement "if (getMessagesController().config.walletAvailable.get()) {"
+remove-statement "} else if (position == walletPasscodeRow) {" all
+remove-statement "} else if (position == walletFingerprintRow) {" all
+
+# Persist settings via Eve SharedConfig bridge instead of UserConfig.saveConfig
+remove-statement "UserConfig.getInstance(currentAccount).saveConfig(false);" all
+patch-line "SharedConfig.useFingerprintLock = !SharedConfig.useFingerprintLock;" "SharedConfig.useFingerprintLock = !SharedConfig.useFingerprintLock; SharedConfig.saveConfig();" "persist fingerprint toggle via Eve SharedConfig bridge"
+patch-line "SharedConfig.allowScreenCapture = !SharedConfig.allowScreenCapture;" "SharedConfig.allowScreenCapture = !SharedConfig.allowScreenCapture; SharedConfig.saveConfig();" "persist screen capture toggle via Eve SharedConfig bridge"
+patch-line "listAdapter.notifyItemChanged(position);" "SharedConfig.saveConfig(); listAdapter.notifyItemChanged(position);" "persist auto-lock timeout via Eve SharedConfig bridge"
+
+# Replace AlertsCreator with standard AlertDialog.Builder
+patch-line "AlertsCreator.showSimpleAlert(PasscodeActivity.this, LocaleController.getString(R.string.ScreenCaptureAlert));" "new AlertDialog.Builder(getParentActivity()).setMessage(LocaleController.getString(R.string.ScreenCaptureAlert)).setPositiveButton(LocaleController.getString(R.string.OK), null).show();" "show simple alert without AlertsCreator"
+patch-line "forgotPasswordButton.setOnClickListener(v -> AlertsCreator.createForgotPasscodeDialog(context).show());" "forgotPasswordButton.setOnClickListener(v -> new AlertDialog.Builder(context).setTitle(LocaleController.getString(R.string.ForgotPasscode)).setMessage(LocaleController.getString(R.string.PasscodeReinstallNotice)).setPositiveButton(LocaleController.getString(R.string.OK), null).show());" "show forgot passcode dialog without AlertsCreator"
+
+# Save plaintext passcode into Eve PasscodeManager bridge before SharedConfig.saveConfig()
+patch-line "SharedConfig.passcodeType = currentPasswordType;" "SharedConfig.passcodeType = currentPasswordType; SharedConfig.setPlainPasscodeForSave(firstPassword);" "pass plaintext PIN/password to Eve PasscodeManager bridge"
+
+# Direct Theme colors without ThemeBind
+remove-statement "ThemeBind.textColor(textCell.getTextView(), Theme.key_windowBackgroundWhiteGrayText7);" all
+remove-statement "ThemeBind.textColor(textCell.getTextView(), Theme.key_windowBackgroundWhiteBlackText);" all
+patch-line "textCell.setTag(Theme.key_windowBackgroundWhiteGrayText7);" "textCell.setTag(Theme.key_windowBackgroundWhiteGrayText7); textCell.getTextView().setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText7));" "direct gray text color without ThemeBind"
+patch-line "textCell.setTextAndValue(LocaleController.getString(R.string.AutoLock), val, true);" "textCell.setTextAndValue(LocaleController.getString(R.string.AutoLock), val, true); textCell.getTextView().setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));" "direct auto-lock text color without ThemeBind"
+patch-line "textCell.setText(LocaleController.getString(R.string.ChangePasscode), true);" "textCell.setText(LocaleController.getString(R.string.ChangePasscode), true); textCell.getTextView().setTextColor(Theme.getColor(SharedConfig.passcodeHash.isEmpty() ? Theme.key_windowBackgroundWhiteGrayText7 : Theme.key_windowBackgroundWhiteBlackText));" "direct change passcode text color without ThemeBind"
+patch-line "ThemeBind.textColor((TextView)alertDialog.getButton(Dialog.BUTTON_POSITIVE), Theme.key_text_RedBold);" "((TextView)alertDialog.getButton(Dialog.BUTTON_POSITIVE)).setTextColor(Theme.getColor(Theme.key_text_RedBold));" "direct dialog button color without ThemeBind"
+patch-line "ThemeBind.backgroundColor(actionBar, Theme.key_windowBackgroundWhite);" "actionBar.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));" "direct actionBar background without ThemeBind"
+patch-line "ThemeBind.actionBarItemsColor(actionBar, Theme.key_windowBackgroundWhiteBlackText, false);" "actionBar.setItemsColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText), false);" "direct actionBar items color without ThemeBind"
+patch-line "ThemeBind.actionBarItemsBackgroundColor(actionBar, Theme.key_actionBarWhiteSelector, false);" "actionBar.setItemsBackgroundColor(Theme.getColor(Theme.key_actionBarWhiteSelector), false);" "direct actionBar selector without ThemeBind"
+patch-line "ThemeBind.textColor(titleTextView, Theme.key_windowBackgroundWhiteBlackText);" "titleTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));" "direct title color without ThemeBind"
+patch-line "ThemeBind.textColor(tv, Theme.key_windowBackgroundWhiteGrayText6);" "tv.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText6));" "direct description color without ThemeBind"
+patch-line "ThemeBind.textColor(forgotPasswordButton, Theme.key_featuredStickers_addButton);" "forgotPasswordButton.setTextColor(Theme.getColor(Theme.key_featuredStickers_addButton));" "direct forgot button color without ThemeBind"
+patch-line "ThemeBind.textColor(passcodesDoNotMatchTextView, Theme.key_windowBackgroundWhiteGrayText6);" "passcodesDoNotMatchTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText6));" "direct mismatch text color without ThemeBind"
+patch-line "ThemeBind.textColor(passwordEditText, Theme.key_windowBackgroundWhiteBlackText);" "passwordEditText.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));" "direct password text color without ThemeBind"
+patch-line "ThemeBind.cursorColor(passwordEditText, Theme.key_windowBackgroundWhiteInputFieldActivated);" "passwordEditText.setCursorColor(Theme.getColor(Theme.key_windowBackgroundWhiteInputFieldActivated));" "direct cursor color without ThemeBind"
+patch-line "ThemeBind.colorFilter(passwordButton, Theme.key_windowBackgroundWhiteHintText, PorterDuff.Mode.SRC_ATOP);" "passwordButton.setColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteHintText), PorterDuff.Mode.SRC_ATOP);" "direct password toggle tint without ThemeBind"
+patch-line "ThemeBind.selectorBackground(passwordButton, Theme.createSelectorDrawable(getThemedColor(Theme.key_listSelector), 1), null, ThemeBind.of(Theme.key_listSelector), getResourceProvider());" "passwordButton.setBackground(Theme.createSelectorDrawable(getThemedColor(Theme.key_listSelector), 1));" "direct password toggle selector without ThemeBind"
+patch-line "ThemeBind.colorFilter(passwordButton, isPasswordShown.get() ? Theme.key_windowBackgroundWhiteInputFieldActivated : Theme.key_windowBackgroundWhiteHintText, PorterDuff.Mode.SRC_ATOP);" "passwordButton.setColorFilter(Theme.getColor(isPasswordShown.get() ? Theme.key_windowBackgroundWhiteInputFieldActivated : Theme.key_windowBackgroundWhiteHintText), PorterDuff.Mode.SRC_ATOP);" "direct password toggle active tint without ThemeBind"
+patch-line "ThemeBind.textColor(textCell.getTextView(), Theme.key_text_RedBold);" "textCell.getTextView().setTextColor(Theme.getColor(Theme.key_text_RedBold));" "direct disable passcode color without ThemeBind"
+
+patch-line "return new ActionIntroActivity(ActionIntroActivity.ACTION_TYPE_SET_PASSCODE);" "return new PasscodeActivity(TYPE_SETUP_CODE);" "open PasscodeActivity setup directly without ActionIntroActivity"
+
+prune-imports

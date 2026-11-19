@@ -1,0 +1,7 @@
+upstream org/telegram/ui/Components/CustomPhoneKeyboardView.java
+to app/src/main/java/org/telegram/ui/Components/CustomPhoneKeyboardView.java
+
+patch-line "ThemeBind.colorFilter(backButton, Theme.key_windowBackgroundWhiteBlackText, PorterDuff.Mode.SRC_ATOP);" "backButton.setColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText), PorterDuff.Mode.SRC_ATOP);" "direct backButton tint without ThemeBind"
+patch-line "ThemeBind.selectorBackground(v, getButtonDrawable(index), ThemeBind.of(Theme.key_listSelector), ThemeBind.alpha(Theme.key_listSelector, 30));" "v.setBackground(getButtonDrawable(index));" "direct button background without ThemeBind"
+
+prune-imports

@@ -1,0 +1,13 @@
+upstream org/telegram/ui/Components/FragmentFloatingButton.java
+to app/src/main/java/org/telegram/ui/Components/FragmentFloatingButton.java
+
+remove-statement "if (isSubButton) {" all
+remove-statement "private GlassSourceColor iBlur3SourceColor;"
+remove-statement "private BlurredBackgroundDrawable iBlur3Background;"
+remove-statement "private BlurredBackgroundColorProviderThemed iBlur3ColorProviderTabs;"
+remove-statement "if (iBlur3Background != null) {" all
+
+patch-line "public final RLottieImageView imageView;" "public final ImageView imageView;" "use ImageView without RLottieImageView"
+patch-line "imageView = new RLottieImageView(context);" "imageView = new ImageView(context);" "instantiate ImageView without RLottie"
+
+prune-imports

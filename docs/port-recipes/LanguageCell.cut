@@ -1,0 +1,8 @@
+upstream org/telegram/ui/Cells/LanguageCell.java
+to app/src/main/java/org/telegram/ui/Cells/LanguageCell.java
+
+patch-line "ThemeBind.radioColors(radioButton, Theme.key_dialogRadioBackground, Theme.key_dialogRadioBackgroundChecked);" "radioButton.setColor(Theme.getColor(Theme.key_dialogRadioBackground), Theme.getColor(Theme.key_dialogRadioBackgroundChecked));" "direct radio colors without ThemeBind"
+patch-line "ThemeBind.textColor(textView, Theme.key_dialogTextBlack);" "textView.setTextColor(Theme.getColor(Theme.key_dialogTextBlack));" "direct text color without ThemeBind"
+patch-line "ThemeBind.textColor(textView2, Theme.key_dialogTextGray3);" "textView2.setTextColor(Theme.getColor(Theme.key_dialogTextGray3));" "direct subtitle color without ThemeBind"
+
+prune-imports

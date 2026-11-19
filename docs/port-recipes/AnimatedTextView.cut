@@ -1,0 +1,10 @@
+upstream org/telegram/ui/Components/AnimatedTextView.java
+to app/src/main/java/org/telegram/ui/Components/AnimatedTextView.java
+
+remove-statement "AnimatedEmojiSpan.EmojiGroupedSpans emoji;"
+remove-statement "emoji = AnimatedEmojiSpan.update(emojiCacheType, view, emoji, layout);"
+remove-statement "AnimatedEmojiSpan.release(view, emoji);"
+remove-statement "AnimatedEmojiSpan.drawAnimatedEmojis(canvas, layout, emoji, 0, null, 0, 0, 0, 1f, emojiColorFilter);"
+patch-line "private int emojiCacheType = AnimatedEmojiDrawable.CACHE_TYPE_MESSAGES;" "private int emojiCacheType = 0;" "inline cache type without AnimatedEmojiDrawable"
+
+prune-imports
