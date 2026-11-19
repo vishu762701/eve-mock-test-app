@@ -207,6 +207,16 @@ public class ChangeUsernameActivity extends BaseFragment {
                     return new RecyclerListView.Holder(new TextInfoPrivacyCell(getContext()));
                 case VIEW_TYPE_INPUT:
                     return new RecyclerListView.Holder(new InputCell(getContext()));
+                case VIEW_TYPE_USERNAME:
+                    return new RecyclerListView.Holder(new UsernameCell(getContext(), getResourceProvider()) {
+                        {
+                            isProfile = true;
+                        }
+                        @Override
+                        protected String getUsernameEditable() {
+                            return username;
+                        }
+                    });
             }
             return null;
         }
@@ -222,6 +232,7 @@ public class ChangeUsernameActivity extends BaseFragment {
                 case VIEW_TYPE_HEADER:
                     ((HeaderCell) holder.itemView).setText(LocaleController.getString(R.string.SetUsernameHeader)); // EVE-PATCH: single header row for Eve username
                     break;
+                case VIEW_TYPE_USERNAME:
                     break;
                 case VIEW_TYPE_HELP1:
                     break;

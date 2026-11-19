@@ -60,7 +60,7 @@ remove-statement "listView.setOnItemClickListener(new RecyclerListView.OnItemCli
 
 # Simplify Adapter to 3 items (Header, Input, Help) without collectible UsernameCell
 patch-line "focusUsernameField(usernames.size() <= 0);" "focusUsernameField(true);" "always show keyboard on username field"
-remove-statement "case VIEW_TYPE_USERNAME:" all
+remove-statement "TLRPC.TL_username username = usernames.get(position - 4);"
 remove-statement "UsernameCell cell = (UsernameCell) holder.itemView;"
 remove-statement "if (username.editable) {"
 remove-statement "cell.set(username, position < getItemCount() - 2, false, botId);"
