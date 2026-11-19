@@ -105,6 +105,22 @@ SCREEN_SPECS = [
             {
                 "path": "app/src/main/res/drawable-xxhdpi/ic_ab_other.webp",
                 "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/ic_ab_other.webp"
+            },
+            {
+                "path": "app/src/main/res/drawable-mdpi/popup_fixed_alert2.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-mdpi/popup_fixed_alert2.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-hdpi/popup_fixed_alert2.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-hdpi/popup_fixed_alert2.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-xhdpi/popup_fixed_alert2.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-xhdpi/popup_fixed_alert2.9.png"
+            },
+            {
+                "path": "app/src/main/res/drawable-xxhdpi/popup_fixed_alert2.9.png",
+                "upstream": "TMessagesProj/src/main/res/drawable-xxhdpi/popup_fixed_alert2.9.png"
             }
         ],
         "files": [

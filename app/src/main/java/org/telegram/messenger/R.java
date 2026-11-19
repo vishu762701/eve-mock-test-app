@@ -11,5 +11,11 @@ public class R {
     public static final class drawable {
         public static final int ic_ab_back = com.eve.app.R.drawable.ic_ab_back;
         public static final int ic_ab_done = com.eve.app.R.drawable.ic_ab_done;
+        public static final int popup_fixed_alert2 = com.eve.app.R.drawable.popup_fixed_alert2;
+    }
+    public static final class id {
+        public static final int width_tag = com.eve.app.R.id.width_tag;
+        public static final int object_tag = com.eve.app.R.id.object_tag;
+        public static final int fit_width_tag = com.eve.app.R.id.fit_width_tag;
     }
 }

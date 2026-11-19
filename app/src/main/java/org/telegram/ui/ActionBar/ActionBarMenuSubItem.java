@@ -285,6 +285,9 @@ public class ActionBarMenuSubItem extends FrameLayout implements Theme.Colorable
         imageView.setImageDrawable(drawable);
     }
 
+    public void onItemShown() {
+    }
+
     public void setText(CharSequence text) {
         textView.setText(text);
     }

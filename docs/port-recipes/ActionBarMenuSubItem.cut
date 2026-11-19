@@ -8,8 +8,8 @@ patch-line "textView = new AnimatedEmojiSpan.TextViewEmojis(context);" "textView
 patch-line "public AnimatedEmojiSpan.TextViewEmojis getTextView() {" "public TextView getTextView() {" "use standard TextView"
 
 remove-method setAnimatedIcon
-remove-method onItemShown
 remove-method setEmojiCacheType
+remove-statement "if (imageView.getAnimatedDrawable() != null) {"
 
 remove-method setTextAndIcon params=5
 remove-method setIconColorImage
