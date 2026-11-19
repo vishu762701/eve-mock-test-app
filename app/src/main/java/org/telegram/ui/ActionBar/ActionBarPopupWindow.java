@@ -47,7 +47,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class ActionBarPopupWindow extends PopupWindow {
+@android.annotation.SuppressLint({"SoonBlockedPrivateApi", "PrivateApi", "DiscouragedPrivateApi"}) public class ActionBarPopupWindow extends PopupWindow { // EVE-PATCH: suppress private api reflection lint on compileSdk 36
 
     private static Method layoutInScreenMethod;
     private static final Field superListenerField;

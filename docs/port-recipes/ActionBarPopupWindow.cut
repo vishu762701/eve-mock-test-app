@@ -7,6 +7,7 @@ remove-statement "notificationsLocker.unlock();"
 remove-statement "notificationsLocker.lock();"
 
 patch-line "ThemeBind.backgroundColor(this, Theme.key_actionBarDefaultSubmenuBackground, resourcesProvider);" "setBackgroundColor(Theme.getColor(Theme.key_actionBarDefaultSubmenuBackground, resourcesProvider));" "direct background color resolution without ThemeBind"
+patch-line "public class ActionBarPopupWindow extends PopupWindow {" "@android.annotation.SuppressLint({\"SoonBlockedPrivateApi\", \"PrivateApi\", \"DiscouragedPrivateApi\"}) public class ActionBarPopupWindow extends PopupWindow {" "suppress private api reflection lint on compileSdk 36"
 
 remove-method getSwipeBack
 remove-method addViewToSwipeBack
