@@ -1,5 +1,6 @@
 upstream org/telegram/ui/Components/StaticLayoutEx.java
 to app/src/main/java/org/telegram/ui/Components/StaticLayoutEx.java
 
+patch-line "public class StaticLayoutEx {" "@android.annotation.SuppressLint(\"WrongConstant\") public class StaticLayoutEx {" "suppress wrong constant lint for compileSdk 36"
 patch-line ".setEllipsize(stringBuilder.getSpans(0, stringBuilder.length(), AnimatedEmojiSpan.class).length > 0 ? null : ellipsize)" ".setEllipsize(ellipsize)" "cut AnimatedEmojiSpan"
 prune-imports

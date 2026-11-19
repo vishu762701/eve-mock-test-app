@@ -18,7 +18,7 @@ import android.text.TextUtils;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.FileLog;
 
-public class StaticLayoutEx {
+@android.annotation.SuppressLint("WrongConstant") public class StaticLayoutEx { // EVE-PATCH: suppress wrong constant lint for compileSdk 36
 
     public static Layout.Alignment[] alignments = Layout.Alignment.values();
     public static Layout.Alignment ALIGN_RIGHT() {
