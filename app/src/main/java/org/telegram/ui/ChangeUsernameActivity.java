@@ -208,15 +208,6 @@ public class ChangeUsernameActivity extends BaseFragment {
                 case VIEW_TYPE_INPUT:
                     return new RecyclerListView.Holder(new InputCell(getContext()));
                 case VIEW_TYPE_USERNAME:
-                    return new RecyclerListView.Holder(new UsernameCell(getContext(), getResourceProvider()) {
-                        {
-                            isProfile = true;
-                        }
-                        @Override
-                        protected String getUsernameEditable() {
-                            return username;
-                        }
-                    });
             }
             return null;
         }
