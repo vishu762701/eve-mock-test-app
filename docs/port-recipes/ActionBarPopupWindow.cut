@@ -1,0 +1,24 @@
+upstream org/telegram/ui/ActionBar/ActionBarPopupWindow.java
+to app/src/main/java/org/telegram/ui/ActionBar/ActionBarPopupWindow.java
+
+remove-statement "private int currentAccount = UserConfig.selectedAccount;"
+remove-statement "private AnimationNotificationsLocker notificationsLocker = new AnimationNotificationsLocker();"
+remove-statement "notificationsLocker.unlock();"
+remove-statement "notificationsLocker.lock();"
+
+patch-line "ThemeBind.backgroundColor(this, Theme.key_actionBarDefaultSubmenuBackground, resourcesProvider);" "setBackgroundColor(Theme.getColor(Theme.key_actionBarDefaultSubmenuBackground, resourcesProvider));" "direct background color resolution without ThemeBind"
+
+remove-method getSwipeBack
+remove-method addViewToSwipeBack
+remove-method setSwipeBackForegroundColor
+
+remove-statement "if (contentView instanceof ActionBarPopupWindowLayout && ((ActionBarPopupWindowLayout) contentView).getSwipeBack() != null) {"
+remove-statement "if (content.getSwipeBack() != null) {" all
+
+remove-statement "private PopupSwipeBackLayout swipeBackLayout;"
+remove-statement "if ((flags & FLAG_USE_SWIPEBACK) > 0) {"
+remove-statement "if (swipeBackLayout != null) {" all
+remove-statement "} else if (swipeBackLayout != null) {"
+remove-statement "if (swipeBackLayout != null && swipeBackLayout.stickToRight) {" all
+
+prune-imports

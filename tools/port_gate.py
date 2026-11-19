@@ -265,6 +265,20 @@ SCREEN_SPECS = [
                 "removed_methods_reason": "Cut chat spoiler effects and custom animated emoji spans; preserved full text layout, drawing, scrolling, gradient fade, and side drawables"
             },
             {
+                "eve": "app/src/main/java/org/telegram/ui/ActionBar/ActionBarPopupWindow.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarPopupWindow.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/ActionBarPopupWindow.cut",
+                "removed_methods_reason": "Cut swipe-back submenus and notification locker during popup animation; preserved full popup layout, animations, clipping, and shadows"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/ActionBar/ActionBarMenuSubItem.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarMenuSubItem.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/ActionBarMenuSubItem.cut",
+                "removed_methods_reason": "Cut animated lottie icons, network avatar image, and checkView; preserved full item titles, subtitles, normal icons, colors, selectors, RTL, and accessibility"
+            },
+            {
                 "eve": "app/src/main/java/org/telegram/messenger/Utilities.java",
                 "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/Utilities.java",
                 "mode": "CUT"

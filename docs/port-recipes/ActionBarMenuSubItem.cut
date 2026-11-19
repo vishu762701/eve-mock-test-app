@@ -1,0 +1,34 @@
+upstream org/telegram/ui/ActionBar/ActionBarMenuSubItem.java
+to app/src/main/java/org/telegram/ui/ActionBar/ActionBarMenuSubItem.java
+
+patch-line "public AnimatedEmojiSpan.TextViewEmojis textView;" "public TextView textView;" "use standard TextView without AnimatedEmojiSpan"
+patch-line "public RLottieImageView imageView;" "public ImageView imageView;" "use standard ImageView without RLottie"
+patch-line "imageView = new RLottieImageView(context);" "imageView = new ImageView(context);" "use standard ImageView"
+patch-line "textView = new AnimatedEmojiSpan.TextViewEmojis(context);" "textView = new TextView(context);" "use standard TextView"
+patch-line "public AnimatedEmojiSpan.TextViewEmojis getTextView() {" "public TextView getTextView() {" "use standard TextView"
+
+remove-method setAnimatedIcon
+remove-method onItemShown
+remove-method setEmojiCacheType
+
+remove-method setTextAndIcon params=5
+remove-method setIconColorImage
+remove-method setImageSize
+remove-statement "private BackupImageView backupImageView;"
+
+remove-statement "public boolean checkViewLeft;"
+remove-statement "public CheckBox2 checkView;"
+remove-statement "checkViewLeft = LocaleController.isRTL;"
+remove-statement "makeCheckView(needCheck);"
+remove-method makeCheckView
+remove-method setChecked
+remove-method setCheckColor
+remove-method getCheckView
+remove-statement "if (checkView != null && checkView.isChecked()) {"
+patch-line "if (icon != 0 || iconDrawable != null || checkView != null) {" "if (icon != 0 || iconDrawable != null) {" "cut checkView dependency"
+patch-line "textView.setPadding(checkViewLeft ? (checkView != null ? dp(43) : 0) : dp(icon != 0 || iconDrawable != null ? 43 : 0), 0, checkViewLeft ? dp(icon != 0 || iconDrawable != null ? 43 : 0) : (checkView != null ? dp(43) : 0), 0);" "textView.setPadding(dp(icon != 0 || iconDrawable != null ? 43 : 0), 0, dp(icon != 0 || iconDrawable != null ? 43 : 0), 0);" "cut checkView padding"
+
+remove-statement "ThemeBind.clear(subtextView);"
+patch-line "ThemeBind.textColor(subtextView, Theme.key_groupcreate_sectionText, resourcesProvider);" "subtextView.setTextColor(getThemedColor(Theme.key_groupcreate_sectionText));" "direct text color without ThemeBind"
+
+prune-imports

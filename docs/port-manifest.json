@@ -477,6 +477,36 @@
           "known_debt": false
         },
         {
+          "eve": "app/src/main/java/org/telegram/ui/ActionBar/ActionBarPopupWindow.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarPopupWindow.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/ActionBarPopupWindow.cut",
+          "recipe_sha256": "38c1b9f89dab6f39588404d2029d9387a625e89da7e35ac109cbca4dee4e1dbf",
+          "result_sha256": "e62460b1818aceb9f983cfb61c4e585b14b7eb9cff64622a734983a00d38e2de",
+          "eve_sha256": "e62460b1818aceb9f983cfb61c4e585b14b7eb9cff64622a734983a00d38e2de",
+          "upstream_sha256": "8bb24d8cbd230c71617e4754cf14a6bdfb1dbbf8797603f33518d7e12eebdb65",
+          "upstream_lines": 1143,
+          "kept_lines": 1060,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut swipe-back submenus and notification locker during popup animation; preserved full popup layout, animations, clipping, and shadows",
+          "known_debt": false
+        },
+        {
+          "eve": "app/src/main/java/org/telegram/ui/ActionBar/ActionBarMenuSubItem.java",
+          "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarMenuSubItem.java",
+          "mode": "CUT",
+          "recipe_path": "docs/port-recipes/ActionBarMenuSubItem.cut",
+          "recipe_sha256": "7a2b1d7a38961169f2d8faddc646e25a221a019de6f91c67b46fe2b9eca7b901",
+          "result_sha256": "524c36906f07b220c437b6e1aabec58cdc69c023046d31018d42a60ef0a4e8b9",
+          "eve_sha256": "524c36906f07b220c437b6e1aabec58cdc69c023046d31018d42a60ef0a4e8b9",
+          "upstream_sha256": "e7e97a885a6ff5d0d7cdaca6728cf20491e8f2dc71176bb100d5c56f341f32bf",
+          "upstream_lines": 516,
+          "kept_lines": 428,
+          "originality_pct": 100.0,
+          "removed_methods_reason": "Cut animated lottie icons, network avatar image, and checkView; preserved full item titles, subtitles, normal icons, colors, selectors, RTL, and accessibility",
+          "known_debt": false
+        },
+        {
           "eve": "app/src/main/java/org/telegram/messenger/Utilities.java",
           "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/Utilities.java",
           "mode": "CUT",
