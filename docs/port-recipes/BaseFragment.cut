@@ -17,6 +17,7 @@ remove-statement "if (BuildConfig.DEBUG_PRIVATE_VERSION) {"
 remove-statement "Bulletin.addDelegate(this, new Bulletin.Delegate() {"
 remove-method performCreateView
 remove-method performCreateViewImpl
+patch-line "protected View createView(Context context) {" "public View createView(Context context) {" "public view creation for external host activities"
 remove-method createSimpleActionBar
 remove-method getSimpleActionBar
 remove-method getSimpleMenuOverlay

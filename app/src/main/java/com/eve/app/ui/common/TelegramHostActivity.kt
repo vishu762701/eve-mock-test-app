@@ -29,6 +29,8 @@ abstract class TelegramHostActivity<F : BaseFragment> : EveBaseActivity(), INavi
     private var sheetMode = false
     private var hostWindow: Window? = null
 
+    override fun getWindow(): Window = hostWindow ?: super.getWindow()
+
     protected open fun createTelegramFragment(savedInstanceState: Bundle?): F? = createFragment()
 
     protected open fun createFragment(): F? = null
@@ -125,7 +127,7 @@ abstract class TelegramHostActivity<F : BaseFragment> : EveBaseActivity(), INavi
 
     @Suppress("DEPRECATION")
     override fun onBackPressed() {
-        if (::fragment.isInitialized && !fragment.onBackPressed()) {
+        if (::fragment.isInitialized && !fragment.onBackPressed(true)) {
             return
         }
         super.onBackPressed()

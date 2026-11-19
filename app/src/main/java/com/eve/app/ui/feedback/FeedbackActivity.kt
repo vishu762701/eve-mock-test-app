@@ -14,6 +14,7 @@ import com.eve.app.data.repository.FeedbackRepository
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.SubmissionRetryPolicy
+import com.eve.app.util.TelegramShake
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import org.telegram.messenger.AndroidUtilities
@@ -158,12 +159,12 @@ class FeedbackActivity : EveBaseActivity() {
             if (!hasFeedbackOwner()) { finish(); return@setOnClickListener }
             val message = etMessage.text?.toString()?.trim().orEmpty()
             if (message.isEmpty()) {
-                AndroidUtilities.shakeViewSpring(etMessage)
+                TelegramShake.shakeViewSpring(etMessage)
                 AppBulletin.showError(this, "Please enter your message")
                 return@setOnClickListener
             }
             if (message.length > 1000) {
-                AndroidUtilities.shakeViewSpring(etMessage)
+                TelegramShake.shakeViewSpring(etMessage)
                 AppBulletin.showError(this, "Message cannot exceed 1000 characters")
                 return@setOnClickListener
             }

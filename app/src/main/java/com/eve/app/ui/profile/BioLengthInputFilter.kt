@@ -55,6 +55,7 @@ class BioLengthInputFilter(
     companion object {
         const val MAX_CODEPOINTS = 160
         const val MAX_UTF16_UNITS = 160
+        const val MAX_LENGTH = MAX_CODEPOINTS
 
         /** Counter value matching the stricter of the source and server limits. */
         fun remaining(text: CharSequence): Int {

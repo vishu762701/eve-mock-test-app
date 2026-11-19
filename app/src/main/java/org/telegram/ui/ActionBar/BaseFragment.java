@@ -193,7 +193,7 @@ public abstract class BaseFragment {
     protected void onViewCreated(View view) {
     }
 
-    protected View createView(Context context) {
+    public View createView(Context context) { // EVE-PATCH: public view creation for external host activities
         return null;
     }
 

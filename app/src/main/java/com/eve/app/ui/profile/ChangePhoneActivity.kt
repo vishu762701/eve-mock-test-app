@@ -27,6 +27,7 @@ import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.EveNavigationHelper
+import com.eve.app.util.TelegramShake
 import com.eve.app.util.VibrationHelper
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CancellationException
@@ -145,7 +146,7 @@ class ChangePhoneActivity : EveBaseActivity() {
         }
         inputCard.addView(
             etPhone,
-            LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 44, 21, 4, 21, 14)
+            LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 44, 21f, 4f, 21f, 14f)
         )
 
         tvStatus = TextView(this).apply {
@@ -219,7 +220,7 @@ class ChangePhoneActivity : EveBaseActivity() {
                 tvStatus.text = "Please enter a valid phone number (7-15 digits)"
                 tvStatus.visibility = View.VISIBLE
                 applyEditorPalette(TelegramThemeEngine.resolveCurrentPalette(this))
-                AndroidUtilities.shakeViewSpring(etPhone)
+                TelegramShake.shakeViewSpring(etPhone)
                 VibrationHelper.vibrateAppError(this)
                 return
             }

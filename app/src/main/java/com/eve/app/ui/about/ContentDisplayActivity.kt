@@ -114,7 +114,7 @@ class ContentDisplayActivity : EveBaseActivity() {
             orientation = LinearLayout.VERTICAL
         }
         scrollView.addView(contentLayout)
-        bodyFrame.addView(scrollView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        bodyFrame.addView(scrollView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
 
         val cardBg = Theme.getColor(Theme.key_windowBackgroundWhite)
 
