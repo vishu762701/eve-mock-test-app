@@ -247,6 +247,24 @@ SCREEN_SPECS = [
                 "removed_methods_reason": "Cut unused chat download progress indicator (setUpdateDownloadProgress); preserved full hamburger to back rotation physics"
             },
             {
+                "eve": "app/src/main/java/org/telegram/ui/Components/EmptyStubSpan.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/EmptyStubSpan.java",
+                "mode": "VERBATIM"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/Components/StaticLayoutEx.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/Components/StaticLayoutEx.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/StaticLayoutEx.cut"
+            },
+            {
+                "eve": "app/src/main/java/org/telegram/ui/ActionBar/SimpleTextView.java",
+                "upstream": "TMessagesProj/src/main/java/org/telegram/ui/ActionBar/SimpleTextView.java",
+                "mode": "CUT",
+                "recipe": "docs/port-recipes/SimpleTextView.cut",
+                "removed_methods_reason": "Cut chat spoiler effects and custom animated emoji spans; preserved full text layout, drawing, scrolling, gradient fade, and side drawables"
+            },
+            {
                 "eve": "app/src/main/java/org/telegram/messenger/Utilities.java",
                 "upstream": "TMessagesProj/src/main/java/org/telegram/messenger/Utilities.java",
                 "mode": "CUT"

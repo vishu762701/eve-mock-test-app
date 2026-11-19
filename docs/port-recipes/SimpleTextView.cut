@@ -1,0 +1,47 @@
+upstream org/telegram/ui/ActionBar/SimpleTextView.java
+to app/src/main/java/org/telegram/ui/ActionBar/SimpleTextView.java
+
+remove-method setEmojiColor
+remove-method setEmojiCacheType
+remove-method clipOutSpoilers
+remove-method drawSpoilers
+remove-method replaceTextWithDrawable
+
+remove-statement "private String replacedText;"
+remove-statement "private Drawable replacedDrawable;"
+remove-statement "private int replacingDrawableTextIndex;"
+remove-statement "private float replacingDrawableTextOffset;"
+remove-statement "private List<SpoilerEffect> spoilers = new ArrayList<>();"
+remove-statement "private Stack<SpoilerEffect> spoilersPool = new Stack<>();"
+remove-statement "private Path path = new Path();"
+remove-statement "private boolean usaAlphaForEmoji;"
+remove-statement "private AnimatedEmojiSpan.EmojiGroupedSpans emojiStack;"
+remove-statement "private int emojiCacheType = AnimatedEmojiDrawable.CACHE_TYPE_MESSAGES;"
+remove-statement "private ColorFilter emojiStackColorFilter;"
+
+remove-statement "emojiStack = AnimatedEmojiSpan.update(emojiCacheType, this, emojiStack, layout);" all
+remove-statement "AnimatedEmojiSpan.release(this, emojiStack);" all
+
+remove-statement "if (replacingDrawableTextIndex >= 0) {" all
+remove-statement "replacingDrawableTextIndex = -1;"
+remove-statement "if (replacedText != null && replacedDrawable != null) {" all
+remove-statement "spoilersPool.addAll(spoilers);"
+remove-statement "spoilers.clear();"
+remove-statement "if (layout != null && layout.getText() instanceof Spannable) {"
+remove-statement "if (attachedToWindow) {"
+
+remove-statement "if (replacedDrawable != null && replacingDrawableTextIndex < 0) {" all
+remove-statement "if (replacedDrawable != null && replacedText != null) {"
+remove-statement "} else if (who == replacedDrawable) {"
+remove-statement "Emoji.emojiDrawingUseAlpha = usaAlphaForEmoji;"
+remove-statement "Emoji.emojiDrawingUseAlpha = true;"
+
+patch-line "canvas.clipRect(textOffsetX, 0, getMaxTextWidth() - paddingRight - dp(rightDrawable != null && !(rightDrawable instanceof AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable) && rightDrawableOutside ? 2 : 0), getMeasuredHeight());" "canvas.clipRect(textOffsetX, 0, getMaxTextWidth() - paddingRight - dp(rightDrawable != null && rightDrawableOutside ? 2 : 0), getMeasuredHeight());" "cut AnimatedEmojiDrawable"
+patch-line "canvas.translate(getMaxTextWidth() - paddingRight - fadeEllpsizePaintWidth - dp(rightDrawable != null && !(rightDrawable instanceof AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable) && rightDrawableOutside ? +2 : 0), 0);" "canvas.translate(getMaxTextWidth() - paddingRight - fadeEllpsizePaintWidth - dp(rightDrawable != null && rightDrawableOutside ? +2 : 0), 0);" "cut AnimatedEmojiDrawable"
+
+remove-statement "clipOutSpoilers(canvas);" all
+remove-statement "if (emojiStack != null) {" all
+remove-statement "AnimatedEmojiSpan.drawAnimatedEmojis(canvas, layout, emojiStack, 0, null, 0, 0, 0, 1f, emojiStackColorFilter);" all
+remove-statement "drawSpoilers(canvas);" all
+
+prune-imports
