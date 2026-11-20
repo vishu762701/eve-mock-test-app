@@ -341,7 +341,7 @@ class ActivityLogActivity : EveBaseActivity() {
         // Theme_Eve_BottomSheetDialog
         fun validFilter(): Boolean =
             isCurrentOwner(ownerUid, ownerEmail) && filterDialog === dialog && dialog.isShowing
-        dialog.setOnDismissListener {
+        dialog.setOnDismissListener(android.content.DialogInterface.OnDismissListener {
             if (filterDialog === dialog) filterDialog = null
             filterAdminJob?.cancel()
             filterTypeJob?.cancel()
