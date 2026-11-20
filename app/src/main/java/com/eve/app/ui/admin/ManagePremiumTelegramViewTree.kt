@@ -163,18 +163,18 @@ class ManagePremiumTelegramViewTree(context: Context) {
         // Users tab content
         containerUsers.addView(btnGrantManual, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 44, 16f, 12f, 16f, 8f))
         val usersFrame = FrameLayout(context)
-        usersFrame.addView(rvPremiumUsers, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        usersFrame.addView(rvPremiumUsers, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
         usersFrame.addView(tvEmptyUsers, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, Gravity.CENTER))
         containerUsers.addView(usersFrame, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
 
         // Transactions tab content
-        containerTransactions.addView(rvTransactions, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        containerTransactions.addView(rvTransactions, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
         containerTransactions.addView(tvEmptyTransactions, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, Gravity.CENTER))
 
         val bodyHost = FrameLayout(context)
-        bodyHost.addView(containerSettings, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
-        bodyHost.addView(containerUsers, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
-        bodyHost.addView(containerTransactions, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        bodyHost.addView(containerSettings, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
+        bodyHost.addView(containerUsers, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
+        bodyHost.addView(containerTransactions, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
         bodyHost.addView(progressAdmin, LayoutHelper.createFrame(48, 48, Gravity.CENTER))
 
         root.addView(bodyHost, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))

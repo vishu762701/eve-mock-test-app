@@ -147,14 +147,14 @@ class ManageSyllabusTelegramViewTree(context: Context) {
         body.addView(tvSyllabusCount, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 16f, 0f, 16f, 6f))
 
         val listFrame = FrameLayout(context)
-        listFrame.addView(rvSyllabuses, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT))
+        listFrame.addView(rvSyllabuses, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT.toFloat()))
         listFrame.addView(progressBarCenter, LayoutHelper.createFrame(48, 48, Gravity.CENTER))
         layoutEmpty.addView(TextView(context).apply {
             text = "No syllabuses uploaded yet."
             setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14f)
             setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText))
         })
-        listFrame.addView(layoutEmpty, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT))
+        listFrame.addView(layoutEmpty, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT.toFloat()))
         body.addView(listFrame, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT))
 
         scrollSyllabus.addView(body, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT))
