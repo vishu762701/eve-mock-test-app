@@ -1,0 +1,56 @@
+name: Telegram source (fully populated)
+
+# Run manually: Actions tab -> "Telegram source (fully populated)" -> Run workflow.
+# Result: artifact "Telegram-Android-master-FULL" with ALL 21 submodules filled in.
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: "Telegram commit to pin"
+        default: "21f7d109da6ab3506c9e9577f98c6a38771ab335"
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone Telegram at pinned commit
+        run: |
+          git clone https://github.com/DrKLO/Telegram.git Telegram-Android-master
+          cd Telegram-Android-master
+          git checkout "${{ github.event.inputs.commit }}"
+
+      - name: Point libyuv to a GitHub mirror (chromium.googlesource.com is often blocked)
+        run: |
+          cd Telegram-Android-master
+          git config -f .gitmodules submodule.TMessagesProj/jni/third_party/libyuv.url https://github.com/lemenkov/libyuv.git
+          git submodule sync
+
+      - name: Populate all submodules
+        run: |
+          cd Telegram-Android-master
+          git submodule update --init --recursive --depth 1 --jobs 8 || \
+          git submodule update --init --recursive --jobs 8
+
+      - name: Verify no submodule is empty
+        run: |
+          cd Telegram-Android-master
+          bad=0
+          for p in $(git config -f .gitmodules --get-regexp path | awk '{print $2}'); do
+            n=$(find "$p" -type f -not -name .git | wc -l)
+            echo "$n files  $p"
+            [ "$n" -eq 0 ] && bad=1
+          done
+          exit $bad
+
+      - name: Pack (without .git)
+        run: |
+          find Telegram-Android-master -name .git -prune -exec rm -rf {} +
+          tar -cf - Telegram-Android-master | xz -6 -T0 > Telegram-Android-master-FULL.tar.xz
+          ls -lh Telegram-Android-master-FULL.tar.xz
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Telegram-Android-master-FULL
+          path: Telegram-Android-master-FULL.tar.xz
+          retention-days: 7
