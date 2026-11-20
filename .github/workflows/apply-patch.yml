@@ -1,0 +1,216 @@
+name: Apply Patch
+
+# Owner uploads a patch zip (eve-<job>-patch.zip in the repo root, or patches/*.zip) in the GitHub web UI.
+# This workflow validates it, applies it, judges the result with the PRE-PATCH guard scripts (a patch cannot weaken
+# the gate that judges it), commits to main and starts the FULL build. A bad patch is moved to patches/rejected with a log.
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'eve-*-patch.zip'
+      - 'patches/*.zip'
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: apply-patch
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Find patch zips
+        id: find
+        run: |
+          shopt -s nullglob
+          files=(eve-*-patch.zip patches/*.zip)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "none=true" >> "$GITHUB_OUTPUT"
+            echo "No patch zips found. Nothing to do."
+          else
+            echo "none=false" >> "$GITHUB_OUTPUT"
+            printf '%s\n' "${files[@]}" | sort > /tmp/patches.txt
+            cat /tmp/patches.txt
+          fi
+
+      - name: Build pre-patch guard copy
+        if: steps.find.outputs.none == 'false'
+        run: |
+          # The guard is a copy of the repo whose tools/ are the PRE-PATCH versions; every other top-level entry is a symlink to the
+          # workspace, so the guard judges the PATCHED files with the OLD rules.
+          rm -rf /tmp/guardrepo
+          mkdir -p /tmp/guardrepo
+          cp -r tools /tmp/guardrepo/tools
+          for e in $(ls -A | grep -v -E '^(tools|\.git)$'); do ln -s "$GITHUB_WORKSPACE/$e" "/tmp/guardrepo/$e"; done
+          ls /tmp/guardrepo | head -30
+
+      - name: Validate and apply patches
+        if: steps.find.outputs.none == 'false'
+        run: |
+          set -o pipefail
+          python3 - <<'PY' 2>&1 | tee /tmp/apply_report.txt
+          import os, sys, zipfile, shutil, stat
+
+          ALLOWED = ("app/src/main/java/", "app/src/main/res/", "app/src/main/AndroidManifest.xml", "app/src/test/",
+                     "app/src/androidTest/", "app/build.gradle.kts", "docs/port-recipes/", "docs/port-manifest.json",
+                     "docs/telegram-", "ops/", "tools/port_gate.py")
+          WARN = ("tools/port_gate.py", "app/build.gradle.kts", "app/src/main/AndroidManifest.xml")
+          MAX_BYTES = 150 * 1024 * 1024
+          MAX_FILES = 3000
+          bad = []
+          warns = []
+          applied = []
+
+          def safe(name):
+              if name.startswith("/") or "\\" in name or ":" in name.split("/")[0]:
+                  return False
+              parts = name.split("/")
+              if any(p in ("..", "") for p in parts[:-1]) or parts[-1] in ("..",):
+                  return False
+              return name.startswith(ALLOWED)
+
+          patches = [l.strip() for l in open("/tmp/patches.txt") if l.strip()]
+          for pz in patches:
+              print("== patch:", pz)
+              z = zipfile.ZipFile(pz)
+              infos = z.infolist()
+              total = sum(i.file_size for i in infos)
+              if total > MAX_BYTES or len(infos) > MAX_FILES:
+                  bad.append("%s: too large (%d bytes, %d files)" % (pz, total, len(infos)))
+                  continue
+              for i in infos:
+                  if i.is_dir():
+                      continue
+                  mode = (i.external_attr >> 16) & 0o170000
+                  if mode == stat.S_IFLNK:
+                      bad.append("%s: symlink not allowed: %s" % (pz, i.filename))
+                  elif not safe(i.filename):
+                      bad.append("%s: path not allowed: %s" % (pz, i.filename))
+                  elif i.filename in WARN:
+                      warns.append("%s changes %s (guard/build file: owner review needed)" % (pz, i.filename))
+              if any(b.startswith(pz) for b in bad):
+                  continue
+              deletes = []
+              if "ops/DELETE.txt" in z.namelist():
+                  deletes = [l.strip() for l in z.read("ops/DELETE.txt").decode().split("\n") if l.strip()]
+                  for d in deletes:
+                      if not safe(d):
+                          bad.append("%s: delete path not allowed: %s" % (pz, d))
+              if any(b.startswith(pz) for b in bad):
+                  continue
+              for i in infos:
+                  if i.is_dir() or i.filename == "ops/DELETE.txt":
+                      continue
+                  dest = i.filename
+                  os.makedirs(os.path.dirname(dest) or ".", exist_ok=True)
+                  with z.open(i) as src, open(dest, "wb") as out:
+                      shutil.copyfileobj(src, out)
+                  applied.append(dest)
+              for d in deletes:
+                  if os.path.exists(d):
+                      os.remove(d)
+                      applied.append("DELETED " + d)
+                      p = os.path.dirname(d)
+                      while p and os.path.isdir(p) and not os.listdir(p):
+                          os.rmdir(p)
+                          p = os.path.dirname(p)
+                  else:
+                      warns.append("%s: delete target not found: %s" % (pz, d))
+              z.close()
+              os.remove(pz)
+              print("   applied; patch zip removed")
+          print("applied entries:", len(applied))
+          for w in warns:
+              print("WARNING:", w)
+          if bad:
+              print("REJECTED:")
+              for b in bad:
+                  print("  -", b)
+              sys.exit(1)
+          PY
+
+      - name: Judge with pre-patch guards
+        if: steps.find.outputs.none == 'false'
+        run: |
+          set -o pipefail
+          {
+            echo "== check_no_shortcuts (pre-patch rules)"
+            python3 /tmp/guardrepo/tools/check_no_shortcuts.py
+            echo "== port_gate --check (pre-patch rules)"
+            python3 /tmp/guardrepo/tools/port_gate.py --check
+            echo "== verbatim registry (offline sha256 of every registered Telegram file)"
+            python3 - <<'PY'
+          import json, hashlib, sys
+          d = json.load(open("docs/telegram-verbatim-imports.json"))
+          bad = 0
+          for i in d["imports"]:
+              try:
+                  h = hashlib.sha256(open(i["eve"], "rb").read()).hexdigest()
+              except OSError:
+                  print("MISSING registered file:", i["eve"]); bad += 1; continue
+              if h != i["sha256"]:
+                  print("TAMPERED registered file:", i["eve"]); bad += 1
+          print("registry entries:", len(d["imports"]), "bad:", bad)
+          sys.exit(1 if bad else 0)
+          PY
+            if [ -f ops/static_precheck.py ]; then
+              echo "== static_precheck (compile proxy)"
+              python3 ops/static_precheck.py .
+            fi
+          } 2>&1 | tee /tmp/gates.log
+
+      - name: Commit applied patch and start FULL build
+        if: steps.find.outputs.none == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "eve-patch-bot"
+          git config user.email "eve-patch-bot@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then echo "nothing changed"; exit 0; fi
+          git commit -m "apply patch: $(tr '\n' ' ' < /tmp/patches.txt)"
+          git pull --rebase origin main
+          git push origin HEAD:main
+          gh workflow run build.yml --ref main
+          {
+            echo "### Patch applied"
+            echo '```'
+            tail -n 40 /tmp/apply_report.txt
+            echo '```'
+            echo "FULL build started on main. Open the Actions tab and wait for 'Build Eve APK'."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Reject bad patch (keep main clean, keep the log)
+        if: failure() && steps.find.outputs.none == 'false'
+        run: |
+          git reset --hard HEAD
+          git clean -fd
+          mkdir -p patches/rejected
+          stamp=$(date +%Y%m%d-%H%M%S)
+          while read -r f; do
+            [ -f "$f" ] && git mv "$f" "patches/rejected/${stamp}-$(basename "$f")"
+          done < /tmp/patches.txt
+          { echo "PATCH REJECTED $stamp"; echo; cat /tmp/apply_report.txt 2>/dev/null; echo; cat /tmp/gates.log 2>/dev/null; } > "patches/rejected/${stamp}-REPORT.txt"
+          git config user.name "eve-patch-bot"
+          git config user.email "eve-patch-bot@users.noreply.github.com"
+          git add -A
+          git commit -m "reject patch ${stamp} (see patches/rejected/${stamp}-REPORT.txt)" || true
+          git pull --rebase origin main || true
+          git push origin HEAD:main || true
+          {
+            echo "### Patch REJECTED"
+            echo '```'
+            tail -n 60 "patches/rejected/${stamp}-REPORT.txt"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
