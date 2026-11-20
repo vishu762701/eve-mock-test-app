@@ -345,7 +345,7 @@ class ActivityLogActivity : EveBaseActivity() {
             if (filterDialog === dialog) filterDialog = null
             filterAdminJob?.cancel()
             filterTypeJob?.cancel()
-        }
+        })
 
         val pillHandle = View(this).apply {
             layoutParams = LinearLayout.LayoutParams(dp(36f), dp(4f)).apply {
