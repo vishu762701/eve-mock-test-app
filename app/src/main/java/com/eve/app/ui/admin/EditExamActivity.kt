@@ -1,7 +1,7 @@
 package com.eve.app.ui.admin
 
 import org.telegram.ui.ActionBar.AlertDialog
-import com.eve.app.designsystem.TelegramNativeAlertDialog
+import android.app.Dialog
 import android.content.DialogInterface
 
 import com.eve.app.ui.common.EveBaseActivity
@@ -79,7 +79,7 @@ class EditExamActivity : EveBaseActivity() {
 
     private var canManageQuestions = false
     private var canManageContent = false
-    private var questionDialog: TelegramNativeAlertDialog? = null
+    private var questionDialog: Dialog? = null
     private data class ParsedImport(val uri: Uri, val fileName: String, val result: QuestionImportHelper.ImportResult)
     private var awaitingPickerResult = false
     private var pendingImportUri: Uri? = null
@@ -516,7 +516,7 @@ class EditExamActivity : EveBaseActivity() {
         return uri.lastPathSegment
     }
 
-    private fun showOwnedQuestionDialog(dialog: TelegramNativeAlertDialog, importUri: Uri? = null) {
+    private fun showOwnedQuestionDialog(dialog: Dialog, importUri: Uri? = null) {
         if (closingEditor || !questionActionsAllowed || questionDialog?.isShowing == true) return
         questionDialog = dialog
         dialog.setOnDismissListener {
