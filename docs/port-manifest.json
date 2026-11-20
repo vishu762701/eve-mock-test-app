@@ -1,7 +1,7 @@
 {
   "version": 1,
   "pinned_revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
-  "upstream_repo": "https://github.com/TelegramMessenger/Telegram-Android",
+  "upstream_repo": "https://github.com/DrKLO/Telegram",
   "known_debt_allowlist": [
     "app/src/main/java/org/telegram/messenger/AndroidUtilities.java",
     "app/src/main/java/org/telegram/messenger/ApplicationLoader.java",
