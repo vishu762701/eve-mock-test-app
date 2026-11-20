@@ -99,13 +99,13 @@ class ActivityLogTelegramViewTree(context: Context) {
         root.addView(tvActiveFilters, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT))
 
         val centerHost = FrameLayout(context)
-        centerHost.addView(rvAuditLogs, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        centerHost.addView(rvAuditLogs, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
         centerHost.addView(progressBar, LayoutHelper.createFrame(48, 48, Gravity.CENTER))
 
         emptyContainer.addView(lottieEmpty, LayoutHelper.createLinear(112, 112, Gravity.CENTER_HORIZONTAL))
         emptyContainer.addView(tvEmptyTitle, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0f, 12f, 0f, 4f))
         emptyContainer.addView(tvEmptySubtitle, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT))
-        centerHost.addView(emptyContainer, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        centerHost.addView(emptyContainer, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
 
         root.addView(centerHost, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
         applyTelegramTheme()

@@ -166,8 +166,8 @@ class SendNotificationTelegramViewTree(context: Context) {
         selectionTopBar.addView(btnSelectAll, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT))
         selectionTopBar.addView(btnDeleteSelected, LinearLayout.LayoutParams(dp(48f), dp(48f)))
 
-        topBarHost.addView(normalTopBar, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 56))
-        topBarHost.addView(selectionTopBar, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 56))
+        topBarHost.addView(normalTopBar, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 56f))
+        topBarHost.addView(selectionTopBar, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 56f))
         root.addView(topBarHost, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 56))
         root.addView(topDivider, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 1))
 

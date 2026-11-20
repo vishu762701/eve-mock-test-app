@@ -121,7 +121,7 @@ class FlaggedQuestionsTelegramViewTree(context: Context) {
         root.addView(scrollReportType, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT))
 
         val centerHost = FrameLayout(context)
-        centerHost.addView(rvFlaggedQuestions, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        centerHost.addView(rvFlaggedQuestions, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
         centerHost.addView(progressBar, LayoutHelper.createFrame(48, 48, Gravity.CENTER))
         centerHost.addView(tvEmpty, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, Gravity.CENTER))
 

@@ -175,13 +175,13 @@ class ManageUsersTelegramViewTree(context: Context) {
         root.addView(etSearchUser, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 14f, 10f, 14f, 8f))
 
         val centerHost = FrameLayout(context)
-        centerHost.addView(rvUsers, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        centerHost.addView(rvUsers, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
         centerHost.addView(progressBar, LayoutHelper.createFrame(48, 48, Gravity.CENTER))
 
         emptyGroup.addView(tvEmptyTitle)
         emptyGroup.addView(tvEmptyMessage, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0f, 6f, 0f, 14f))
         emptyGroup.addView(btnRetryUsers, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, 42, Gravity.CENTER_HORIZONTAL))
-        centerHost.addView(emptyGroup, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        centerHost.addView(emptyGroup, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
 
         swipeRefresh.addView(centerHost, ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
