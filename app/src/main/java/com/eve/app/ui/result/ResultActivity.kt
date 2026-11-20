@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.activity.viewModels
@@ -22,7 +23,12 @@ import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.data.repository.QuestionStatsRepository
-import com.eve.app.databinding.ActivityResultBinding
+import org.telegram.messenger.AndroidUtilities
+import org.telegram.ui.ActionBar.BottomSheet
+import org.telegram.ui.ActionBar.Theme
+import org.telegram.ui.Cells.HeaderCell
+import org.telegram.ui.Components.CheckBox2
+import org.telegram.ui.Components.LayoutHelper
 import com.eve.app.ui.common.PaletteItem
 import com.eve.app.ui.common.PaletteState
 import com.eve.app.ui.common.QuestionPaletteAdapter
@@ -45,10 +51,10 @@ class ResultActivity : EveBaseActivity() {
 
     private val viewModel: ResultViewModel by viewModels()
     private lateinit var allItems: List<AnswerItem>
-    private lateinit var binding: ActivityResultBinding
+    private lateinit var binding: ResultTelegramViewTree
     private var reattemptLimitDialog: AlertDialog? = null
     private var reattemptConfirmDialog: AlertDialog? = null
-    private var categoryBottomSheet: com.eve.app.designsystem.TelegramBottomSheet? = null
+    private var categoryBottomSheet: BottomSheet? = null
 
     private var currentExamName: String = ""
     private var currentExamId: String = ""
@@ -98,7 +104,7 @@ class ResultActivity : EveBaseActivity() {
         auth.addAuthStateListener(resultOwnerListener)
         if (isFinishing || auth.currentUser?.uid != resultOwnerUid) { finish(); return }
         SecurityHelper.applyScreenProtection(this)
-        binding = ActivityResultBinding.inflate(layoutInflater)
+        binding = ResultTelegramViewTree(this)
         setContentView(binding.root)
 
         onBackPressedDispatcher.addCallback(this) {
@@ -365,7 +371,7 @@ class ResultActivity : EveBaseActivity() {
         val attemptedPct = if (total > 0) (attempted * 100.0 / total) else 0.0
         binding.tvAnalysisAttempted.text = "${String.format(java.util.Locale.US, "%.1f", attemptedPct)}%"
         binding.tvAnalysisAccuracy.text = "${String.format(java.util.Locale.US, "%.1f", accuracy)}%"
-        binding.gaugeTopicAccuracy.setPercentage(accuracy.toFloat())
+        binding.gaugeTopicAccuracy.setProgress((accuracy.toFloat() / 100f).coerceIn(0f, 1f))
 
         val timedItems = allItems.filter { it.timeTakenSeconds > 0 }
         val avgSeconds = if (timedItems.isNotEmpty()) {
@@ -691,98 +697,72 @@ class ResultActivity : EveBaseActivity() {
     private fun showCategoryBottomSheet() {
         if (!resultIdentityCurrent) return
         categoryBottomSheet?.dismiss()
-        val sheetView = layoutInflater.inflate(R.layout.bottom_sheet_category_picker, null)
-        val dialog = com.eve.app.designsystem.TelegramBottomSheet.Builder(this)
-            .setCustomView(sheetView)
+
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(0, AndroidUtilities.dp(6f), 0, AndroidUtilities.dp(12f))
+        }
+        val header = HeaderCell(this).apply {
+            setText("Select Cutoff Category")
+        }
+        container.addView(header, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT))
+
+        val dialog = BottomSheet.Builder(this)
+            .setCustomView(container)
             .create()
         categoryBottomSheet = dialog
-        // Theme_Eve_BottomSheetDialog
-        com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, this)
         dialog.setOnDismissListener {
             if (categoryBottomSheet === dialog) categoryBottomSheet = null
         }
-        dialog.show()
 
-        data class CategoryRowItem(
-            val row: View,
-            val tvSub: TextView,
-            val ivCheck: ImageView,
-            val category: String
-        )
-
-        val rows = listOf(
-            CategoryRowItem(
-                sheetView.findViewById(R.id.rowSheetGeneral),
-                sheetView.findViewById(R.id.tvSheetSubGeneral),
-                sheetView.findViewById(R.id.ivSheetCheckGeneral),
-                "General"
-            ),
-            CategoryRowItem(
-                sheetView.findViewById(R.id.rowSheetObc),
-                sheetView.findViewById(R.id.tvSheetSubObc),
-                sheetView.findViewById(R.id.ivSheetCheckObc),
-                "OBC"
-            ),
-            CategoryRowItem(
-                sheetView.findViewById(R.id.rowSheetSc),
-                sheetView.findViewById(R.id.tvSheetSubSc),
-                sheetView.findViewById(R.id.ivSheetCheckSc),
-                "SC"
-            ),
-            CategoryRowItem(
-                sheetView.findViewById(R.id.rowSheetSt),
-                sheetView.findViewById(R.id.tvSheetSubSt),
-                sheetView.findViewById(R.id.ivSheetCheckSt),
-                "ST"
-            ),
-            CategoryRowItem(
-                sheetView.findViewById(R.id.rowSheetEws),
-                sheetView.findViewById(R.id.tvSheetSubEws),
-                sheetView.findViewById(R.id.ivSheetCheckEws),
-                "EWS"
-            )
-        )
-
-        val palette = com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(this)
-        val selectorColor = palette.actionSelector
-        val rowSelector = {
-            com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
-                8 * resources.displayMetrics.density,
-                selectorColor
-            )
-        }
-
-        for (item in rows) {
-            item.row.background = rowSelector()
-            val isSelected = selectedCutoffCategory.equals(item.category, ignoreCase = true)
-            if (item.ivCheck is com.eve.app.ui.common.TelegramCheckBox2) {
-                item.ivCheck.visibility = View.VISIBLE
-                item.ivCheck.setChecked(isSelected, animated = false)
-            } else {
-                item.ivCheck.visibility = if (isSelected) View.VISIBLE else View.INVISIBLE
-                item.ivCheck.imageTintList = android.content.res.ColorStateList.valueOf(palette.accent)
+        val categories = listOf("General", "OBC", "SC", "ST", "EWS")
+        for (cat in categories) {
+            val row = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                setPadding(AndroidUtilities.dp(20f), AndroidUtilities.dp(12f), AndroidUtilities.dp(20f), AndroidUtilities.dp(12f))
+                background = Theme.getSelectorDrawable(false)
+                isClickable = true
+                isFocusable = true
             }
-
-            val c = examCutoffs[item.category]
-            if (c != null && c > 0) {
-                val cStr = if (c % 1.0 == 0.0) c.toInt().toString() else c.toString()
-                val qualified = currentScore >= c
-                item.tvSub.text = if (qualified) "Cutoff: $cStr  •  Qualified ✓" else "Cutoff: $cStr  •  Not Qualified ✗"
-                item.tvSub.setTextColor(
-                    ContextCompat.getColor(
-                        this,
-                        if (qualified) R.color.system_green_text else R.color.system_red_text
+            val textCol = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+            val tvTitle = TextView(this).apply {
+                text = cat
+                setTextSize(android.util.TypedValue.COMPLEX_UNIT_DIP, 16f)
+                setTextColor(Theme.getColor(Theme.key_dialogTextBlack))
+            }
+            val tvSub = TextView(this).apply {
+                setTextSize(android.util.TypedValue.COMPLEX_UNIT_DIP, 13f)
+                val c = examCutoffs[cat]
+                if (c != null && c > 0) {
+                    val cStr = if (c % 1.0 == 0.0) c.toInt().toString() else c.toString()
+                    val qualified = currentScore >= c
+                    text = if (qualified) "Cutoff: $cStr  •  Qualified ✓" else "Cutoff: $cStr  •  Not Qualified ✗"
+                    setTextColor(
+                        if (qualified) Theme.getColor(Theme.key_windowBackgroundWhiteGreenText2)
+                        else Theme.getColor(Theme.key_text_RedRegular)
                     )
-                )
-            } else {
-                item.tvSub.text = "No cutoff configured"
-                item.tvSub.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
+                } else {
+                    text = "No cutoff configured"
+                    setTextColor(Theme.getColor(Theme.key_dialogTextGray2))
+                }
+            }
+            textCol.addView(tvTitle)
+            textCol.addView(tvSub, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0f, 2f, 0f, 0f))
+
+            val isSelected = selectedCutoffCategory.equals(cat, ignoreCase = true)
+            val check = CheckBox2(this, 21).apply {
+                setColor(Theme.key_radioBackgroundChecked, Theme.key_windowBackgroundWhite, Theme.key_checkboxCheck)
+                setChecked(isSelected, false)
             }
 
-            item.row.setOnClickListener {
-                if (resultIdentityCurrent) selectCutoffCategory(item.category)
+            row.addView(textCol, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+            row.addView(check, LayoutHelper.createLinear(24, 24))
+            row.setOnClickListener {
+                if (resultIdentityCurrent) selectCutoffCategory(cat)
                 dialog.dismiss()
             }
+            container.addView(row, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT))
         }
 
         dialog.show()
@@ -822,7 +802,7 @@ class ResultActivity : EveBaseActivity() {
             dialog.setOnShowListener {
                 val confirmBtn = dialog.getButton(DialogInterface.BUTTON_POSITIVE) as? android.widget.TextView ?: return@setOnShowListener
                 val cancelBtn = dialog.getButton(DialogInterface.BUTTON_NEGATIVE) as? android.widget.TextView ?: return@setOnShowListener
-                confirmBtn.setTextColor(ContextCompat.getColor(this@ResultActivity, R.color.system_red_text))
+                confirmBtn.setTextColor(Theme.getColor(Theme.key_text_RedRegular))
 
                 cancelBtn.setOnClickListener {
                     dialog.dismiss()
@@ -907,6 +887,11 @@ class ResultActivity : EveBaseActivity() {
         reattemptConfirmDialog?.dismiss()
         reattemptConfirmDialog = null
         super.onStop()
+    }
+
+    override fun onApplyThemePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+        super.onApplyThemePalette(palette)
+        if (::binding.isInitialized) binding.applyTelegramTheme()
     }
 
     override fun onDestroy() {

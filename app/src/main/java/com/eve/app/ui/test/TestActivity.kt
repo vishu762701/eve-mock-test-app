@@ -22,7 +22,6 @@ import com.eve.app.data.model.Question
 import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.QuestionStatsRepository
-import com.eve.app.databinding.ActivityTestBinding
 import com.eve.app.ui.common.PaletteItem
 import com.eve.app.ui.common.PaletteState
 import com.eve.app.ui.common.QuestionPaletteAdapter
@@ -42,7 +41,7 @@ import kotlinx.coroutines.launch
 
 class TestActivity : EveBaseActivity() {
 
-    private lateinit var binding: ActivityTestBinding
+    private lateinit var binding: TestTelegramViewTree
     private val viewModel: TestViewModel by viewModels()
 
     private lateinit var examId: String
@@ -116,7 +115,7 @@ class TestActivity : EveBaseActivity() {
         hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
         currentQuestionPosition = savedInstanceState?.getInt("saved_question_position", 0) ?: 0
         SecurityHelper.applyScreenProtection(this)
-        binding = ActivityTestBinding.inflate(layoutInflater)
+        binding = TestTelegramViewTree(this)
         setContentView(binding.root)
         // Android can restore the previous Activity after the Firebase user has
         // changed. Never adopt another account's existing question session.
