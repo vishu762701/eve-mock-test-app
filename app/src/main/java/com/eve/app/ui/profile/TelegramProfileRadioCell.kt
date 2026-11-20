@@ -71,6 +71,11 @@ class TelegramProfileRadioCell @JvmOverloads constructor(
         updatePalette()
     }
 
+    fun setText(text: CharSequence) {
+        labelView.text = text
+        contentDescription = text
+    }
+
     fun updatePalette(palette: TelegramThemeEngine.ResolvedPalette =
         TelegramThemeEngine.resolveCurrentPalette(context)) {
         background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(

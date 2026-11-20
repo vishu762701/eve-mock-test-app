@@ -251,8 +251,8 @@ class ProfileTelegramViewTree(context: Context) {
 
         // Avatar header block
         avatarContainer.addView(ivProfilePhoto, LayoutHelper.createFrame(100, 100, Gravity.CENTER))
-        avatarContainer.addView(profilePhotoScrim, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
-        avatarOuterContainer.addView(avatarGooey, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        avatarContainer.addView(profilePhotoScrim, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
+        avatarOuterContainer.addView(avatarGooey, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
         avatarOuterContainer.addView(avatarContainer, FrameLayout.LayoutParams(dp(100f), dp(100f), Gravity.TOP or Gravity.CENTER_HORIZONTAL).apply {
             topMargin = dp(35f)
         })
@@ -317,7 +317,7 @@ class ProfileTelegramViewTree(context: Context) {
             FrameLayout.LayoutParams.MATCH_PARENT,
             FrameLayout.LayoutParams.WRAP_CONTENT
         ))
-        root.addView(profileScrollView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        root.addView(profileScrollView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
 
         // 2. Top overlay toolbar
         val barRow = LinearLayout(context).apply {
@@ -338,7 +338,7 @@ class ProfileTelegramViewTree(context: Context) {
         barRow.addView(btnProfileQr, LinearLayout.LayoutParams(dp(48f), dp(48f)))
         barRow.addView(btnProfileMenu, LinearLayout.LayoutParams(dp(48f), dp(48f)))
 
-        glassToolbar.addView(barRow, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 56))
+        glassToolbar.addView(barRow, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 56f))
         root.addView(glassToolbar, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP))
 
         applyTelegramTheme()
