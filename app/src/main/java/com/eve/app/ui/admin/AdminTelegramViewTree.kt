@@ -174,8 +174,8 @@ class AdminTelegramViewTree(context: Context) {
         ))
 
         val centerHost = FrameLayout(context)
-        centerHost.addView(scrollAdminHub, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
-        centerHost.addView(rvAdminSearch, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        centerHost.addView(scrollAdminHub, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
+        centerHost.addView(rvAdminSearch, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
         centerHost.addView(progressBarAdmin, LayoutHelper.createFrame(48, 48, Gravity.CENTER))
         root.addView(centerHost, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
 

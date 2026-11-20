@@ -134,7 +134,7 @@ class ManageQuestionsTelegramViewTree(context: Context) {
         scrollContent.addView(body, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT))
 
         val centerHost = FrameLayout(context)
-        centerHost.addView(scrollContent, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        centerHost.addView(scrollContent, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
         centerHost.addView(progressBar, LayoutHelper.createFrame(48, 48, Gravity.CENTER))
         root.addView(centerHost, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
 
