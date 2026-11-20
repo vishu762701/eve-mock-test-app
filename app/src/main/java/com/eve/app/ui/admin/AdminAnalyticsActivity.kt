@@ -14,7 +14,6 @@ import com.eve.app.R
 import com.eve.app.data.model.QuestionAnalytics
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.ExamRepository
-import com.eve.app.databinding.ActivityAdminAnalyticsBinding
 import com.eve.app.designsystem.TelegramNativeAlertDialog
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.Constants
@@ -28,7 +27,7 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 class AdminAnalyticsActivity : EveBaseActivity() {
-    private lateinit var binding: ActivityAdminAnalyticsBinding
+    private lateinit var binding: AdminAnalyticsTelegramViewTree
     private val viewModel: AdminAnalyticsViewModel by viewModels()
     private val adminRepo = AdminRepository()
     private val examRepo = ExamRepository()
@@ -118,7 +117,7 @@ class AdminAnalyticsActivity : EveBaseActivity() {
         }
         openingUid = startingUser.uid
         openingEmail = startingUser.email.orEmpty()
-        binding = ActivityAdminAnalyticsBinding.inflate(layoutInflater)
+        binding = AdminAnalyticsTelegramViewTree(this)
         setContentView(binding.root)
         binding.btnBack.setOnClickListener { finish() }
 
@@ -315,6 +314,11 @@ class AdminAnalyticsActivity : EveBaseActivity() {
                 }
             }
         }
+    }
+
+    override fun onApplyThemePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+        super.onApplyThemePalette(palette)
+        if (::binding.isInitialized) binding.applyTelegramTheme()
     }
 
     override fun onDestroy() {
