@@ -170,7 +170,7 @@
     <string name="UsernameHelp">You can choose a username on EVE. Other people can find you by this username.\n\nYou can use a–z, 0–9 and underscores. Minimum length is 5 characters.</string>
     <string name="UsernameHelpLink">This link opens your EVE profile: %1$s</string>
     <string name="UsernameAvailable">%1$s is available.</string>
-    <string name="UsernameChecking">Checking username…</string>
+    <string name="UsernameChecking">Checking username...</string>
     <string name="UsernameInUse">Sorry, this username is already taken.</string>
     <string name="UsernameInvalid">Sorry, this username is invalid.</string>
     <string name="UsernameInvalidShort">A username must have at least 5 characters.</string>
@@ -178,21 +178,21 @@
     <string name="UsernameInvalidStartNumber">Sorry, a username can\'t start with a number.</string>
 
     <!-- Telegram C6 PasscodeActivity -->
-    <string name="AutoLock">Auto-Lock</string>
+    <string name="AutoLock">Auto-lock</string>
     <string name="AutoLockDisabled">Disabled</string>
     <string name="AutoLockInTime">in %1$s</string>
     <string name="AutoLockInfo">Require passcode if away for a time.</string>
     <string name="ChangePasscode">Change Passcode</string>
     <string name="ConfirmCreatePasscode">Re-enter your passcode</string>
-    <string name="CreatePasscode">Create a Passcode</string>
+    <string name="CreatePasscode">Create a passcode</string>
     <string name="CreatePasscodeInfoPIN">Enter any 4 digits that you will use to unlock EVE.</string>
     <string name="CreatePasscodeInfoPassword">Enter any password that you will use to unlock EVE.</string>
     <string name="DisablePasscode">Turn Passcode Off</string>
-    <string name="DisablePasscodeConfirmMessage">Are you sure you want to disable passcode lock?</string>
+    <string name="DisablePasscodeConfirmMessage">Are you sure you want to turn off passcode?</string>
     <string name="DisablePasscodeTurnOff">Turn Off</string>
-    <string name="EnterNewPasscode">Enter a new passcode</string>
-    <string name="EnterPassword">Password</string>
-    <string name="EnterYourPasscode">Enter Your Passcode</string>
+    <string name="EnterNewPasscode">Enter your new passcode</string>
+    <string name="EnterPassword">Enter password</string>
+    <string name="EnterYourPasscode">Enter your passcode</string>
     <string name="EnterYourPasscodeInfo">Enter your current passcode to manage passcode settings.</string>
     <string name="ForgotPasscode">Forgot passcode?</string>
     <string name="Next">Next</string>
@@ -200,14 +200,14 @@
     <string name="Passcode">Passcode Lock</string>
     <string name="PasscodeReinstallNotice">If you forget your passcode, you will need to reinstall EVE and sign in again.</string>
     <string name="PasscodeScreenHint">When a passcode is set, a lock icon appears on the home screen. Tap it to lock the app.</string>
-    <string name="PasscodeSwitchToPIN">Switch to 4-digit PIN</string>
-    <string name="PasscodeSwitchToPassword">Switch to Password</string>
-    <string name="PasscodesDoNotMatchTryAgain">Passcodes do not match. Try again.</string>
+    <string name="PasscodeSwitchToPIN">Switch to PIN</string>
+    <string name="PasscodeSwitchToPassword">Switch to password</string>
+    <string name="PasscodesDoNotMatchTryAgain">Passcodes don\'t match. Please try again.</string>
     <string name="ScreenCaptureAlert">Restart the app for this change to take effect.</string>
-    <string name="ScreenCaptureHeader">App Content</string>
+    <string name="ScreenCaptureHeader">App Content in Task Switcher</string>
     <string name="ScreenCaptureInfo">Allow screenshots and show app content in the task switcher.</string>
-    <string name="ScreenCaptureShowContent">Show App Content in Task Switcher</string>
-    <string name="TooManyTries">Too many attempts. Try again in %1$s.</string>
+    <string name="ScreenCaptureShowContent">Show Content</string>
+    <string name="TooManyTries">Too many tries.\nPlease try again in %1$s.</string>
     <string name="UnlockFingerprint">Unlock with Fingerprint</string>
     <string name="WalletAuthorizeTransactionPasscode">Enter passcode to authorize</string>
     <string name="WalletLock">Lock</string>
@@ -228,14 +228,14 @@
     <string name="ChannelAlertCreate2">Create</string>
     <string name="ChannelAlertText">Broadcast updates to your audience.</string>
     <string name="ChannelAlertTitle">What is a Channel?</string>
-    <string name="ContactsPermissionAlertNotNow">Not Now</string>
-    <string name="EnablePasscode">Enable Passcode</string>
+    <string name="ContactsPermissionAlertNotNow">Not now</string>
+    <string name="EnablePasscode">Enable passcode</string>
     <string name="PassportScanPassport">Scan Document</string>
     <string name="PassportScanPassportInfo">Align the document inside the frame.</string>
-    <string name="PermissionOpenSettings">Settings</string>
+    <string name="PermissionOpenSettings">SETTINGS</string>
     <string name="PhoneNumberAlert">Are you sure you want to change your phone number?</string>
     <string name="PhoneNumberChange2">Change Number</string>
-    <string name="PhoneNumberChangeTitle">Change Number</string>
+    <string name="PhoneNumberChangeTitle">Change number</string>
     <string name="PhoneNumberHelp">You can change your EVE phone number here. Your account and test history will stay intact.</string>
     <string name="QRCodePermissionNoCameraWithHint">EVE needs camera access to scan QR codes. Enable Camera permission in Settings.</string>
 
