@@ -500,9 +500,9 @@ class HomeTelegramViewTree(context: Context) {
         searchTopBar.addView(btnSearchBack, LinearLayout.LayoutParams(dp(48f), dp(48f)))
         searchTopBar.addView(layoutSearchFieldContainer, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
 
-        topBarContainer.addView(homeGlassToolbar, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 56))
-        topBarContainer.addView(normalTopBar, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 56))
-        topBarContainer.addView(searchTopBar, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 56))
+        topBarContainer.addView(homeGlassToolbar, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 56f))
+        topBarContainer.addView(normalTopBar, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 56f))
+        topBarContainer.addView(searchTopBar, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 56f))
 
         topBarDivider = View(context)
 
@@ -514,9 +514,9 @@ class HomeTelegramViewTree(context: Context) {
 
         // 3. Assemble Home Banner
         panelHomeBanner.addView(blurHomeBannerMaterial, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
-        panelHomeBanner.addView(vpHomeBanners, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 152))
+        panelHomeBanner.addView(vpHomeBanners, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 152f))
         panelHomeBanner.addView(btnHomeBannerCta, LayoutHelper.createFrame(
-            LayoutHelper.WRAP_CONTENT, 34, Gravity.BOTTOM or Gravity.END, 0f, 0f, 12f, 10f
+            LayoutHelper.WRAP_CONTENT, 34f, Gravity.BOTTOM or Gravity.END, 0f, 0f, 12f, 10f
         ))
 
         // 4. Assemble Poll Card
