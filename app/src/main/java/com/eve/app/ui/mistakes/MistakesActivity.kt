@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.R
 import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.MistakeItem
-import com.eve.app.designsystem.TelegramSegmentedTabs
+import com.eve.app.ui.admin.tg.TelegramSegmentedTabs
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.LanguageManager

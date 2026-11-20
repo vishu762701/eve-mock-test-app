@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.R
 import com.eve.app.data.model.Exam
 import com.eve.app.data.model.PyqSet
-import com.eve.app.designsystem.TelegramSegmentedTabs
+import com.eve.app.ui.admin.tg.TelegramSegmentedTabs
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.AppBulletin

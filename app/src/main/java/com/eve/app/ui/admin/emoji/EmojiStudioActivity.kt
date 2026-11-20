@@ -23,7 +23,7 @@ import com.eve.app.databinding.BottomSheetEmojiPackManagerBinding
 import com.eve.app.databinding.BottomSheetEmojiPlacementBinding
 import com.eve.app.designsystem.TelegramBottomSheet
 import com.eve.app.designsystem.TelegramNativeAlertDialog
-import com.eve.app.designsystem.TelegramSegmentedTabs
+import com.eve.app.ui.admin.tg.TelegramSegmentedTabs
 import com.eve.app.designsystem.TelegramSwitch
 import com.eve.app.ui.admin.tg.TextCheckCell
 import com.eve.app.ui.common.EveBaseActivity
