@@ -26,7 +26,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.data.model.AdminUser
 import com.eve.app.data.repository.AdminRepository
-import com.eve.app.databinding.ActivityManageUsersBinding
 import com.eve.app.ui.common.TelegramHorizontalScrollLayoutManager
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.AdminAccessGate
@@ -40,7 +39,7 @@ import com.eve.app.data.repository.AuditLogRepository
 
 class ManageUsersActivity : EveBaseActivity() {
 
-    private lateinit var binding: ActivityManageUsersBinding
+    private lateinit var binding: ManageUsersTelegramViewTree
     private val adminRepo = AdminRepository()
     private val auditLogRepo = AuditLogRepository()
     private lateinit var adapter: UserAdminAdapter
@@ -86,7 +85,7 @@ class ManageUsersActivity : EveBaseActivity() {
         val canRestore = !restoredOwner.isNullOrBlank() && restoredOwner == currentOwner
         currentPage = (if (canRestore) savedInstanceState?.getInt("users_page") else null).let { it ?: 1 }.coerceAtLeast(1)
         restoredQuery = if (canRestore) savedInstanceState?.getString("users_query").orEmpty() else ""
-        binding = ActivityManageUsersBinding.inflate(layoutInflater)
+        binding = ManageUsersTelegramViewTree(this)
         setContentView(binding.root)
         binding.btnBack.setOnClickListener { finish() }
         binding.progressBar.visibility = View.VISIBLE
@@ -485,6 +484,11 @@ class ManageUsersActivity : EveBaseActivity() {
         dialog.setOnDismissListener {
             if (statusDialog === dialog) statusDialog = null
         }
+    }
+
+    override fun onApplyThemePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+        super.onApplyThemePalette(palette)
+        if (::binding.isInitialized) binding.applyTelegramTheme()
     }
 
     override fun onDestroy() {

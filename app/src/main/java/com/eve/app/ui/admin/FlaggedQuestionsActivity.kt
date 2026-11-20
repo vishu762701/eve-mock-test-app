@@ -15,7 +15,6 @@ import com.eve.app.data.model.AggregatedFlaggedQuestion
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.data.repository.FlaggedQuestionRepository
-import com.eve.app.databinding.ActivityFlaggedQuestionsBinding
 import com.eve.app.util.AdminAccessGate
 import com.eve.app.util.AdminIdentityGuard
 import com.eve.app.util.AdminPermissionSnapshot
@@ -28,7 +27,7 @@ import kotlinx.coroutines.launch
 
 class FlaggedQuestionsActivity : EveBaseActivity() {
 
-    private lateinit var binding: ActivityFlaggedQuestionsBinding
+    private lateinit var binding: FlaggedQuestionsTelegramViewTree
     private val adminRepo = AdminRepository()
     private val flagRepo = FlaggedQuestionRepository()
     private val examRepo = ExamRepository()
@@ -130,7 +129,7 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
         }
         openingUid = user.uid
         openingEmail = user.email.orEmpty()
-        binding = ActivityFlaggedQuestionsBinding.inflate(layoutInflater)
+        binding = FlaggedQuestionsTelegramViewTree(this)
         setContentView(binding.root)
         binding.btnBack.setOnClickListener { finish() }
         binding.progressBar.visibility = View.VISIBLE
@@ -432,6 +431,11 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
                 }
             }
         }
+    }
+
+    override fun onApplyThemePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+        super.onApplyThemePalette(palette)
+        if (::binding.isInitialized) binding.applyTelegramTheme()
     }
 
     override fun onDestroy() {

@@ -13,7 +13,8 @@
 | **Pass 3c** | `TestActivity` + `ResultActivity` rebuilt programmatically (`TestTelegramViewTree`, `ResultTelegramViewTree`, `RecyclerListView`, `RadialProgressView`, `BottomSheet`, `CheckBox2`, `HeaderCell`, `Theme.getColor`) | **DONE (pending CI confirmation)** |
 | **Pass 3d** | `BookmarksActivity`, `QrShareActivity`, `UsernameCardActivity` rebuilt with upstream `BottomSheet`, `ActionBarPopupWindow`, `RecyclerListView`, `RadialProgressView`, `HeaderCell`, `TextCell`, `Theme.getColor` | **DONE (pending CI confirmation)** |
 | **Pass 4a** | `AdminRightsEditActivity`, `AppConfigActivity`, `EditAboutActivity` (verified pure programmatic `org.telegram.ui.*`) + `AdminAnalyticsActivity` rebuilt (`AdminAnalyticsTelegramViewTree`, `RecyclerListView`, `RadialProgressView`, `HeaderCell`, `Theme.getColor`) | **DONE (pending CI confirmation)** |
-| **Pass 4b–4d** | Remaining Admin Screens (`ActivityLogActivity`, `FlaggedQuestionsActivity`, `SendNotificationActivity`, `ManageUsersActivity`, `ManagePremiumActivity`, `ManageSyllabusActivity`, `EditExamActivity`, `AdminActivity`, `ManageExamsActivity`, `ManageQuestionsActivity`) | PENDING |
+| **Pass 4b** | `ActivityLogActivity`, `FlaggedQuestionsActivity`, `SendNotificationActivity`, `ManageUsersActivity` rebuilt programmatically (`RecyclerListView`, `RadialProgressView`, `BottomSheet`, `TextCell`, `HeaderCell`, `Theme.getColor`) | **DONE (pending CI confirmation)** |
+| **Pass 4c–4d** | Remaining 6 Admin Screens (`ManagePremiumActivity`, `ManageSyllabusActivity`, `EditExamActivity`, `AdminActivity`, `ManageExamsActivity`, `ManageQuestionsActivity`) | PENDING |
 | **Pass 5** | Final Dead-File & Legacy XML/Shadow Purge | PENDING |
 
 ## SHADOW CLASS MAP

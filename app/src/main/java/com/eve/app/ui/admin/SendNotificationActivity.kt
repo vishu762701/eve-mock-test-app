@@ -24,13 +24,12 @@ import com.eve.app.data.model.BroadcastMessage
 import com.eve.app.data.remote.ApiResponse
 import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.EveApiService
-import com.eve.app.databinding.ActivitySendNotificationBinding
 import com.eve.app.ui.common.ErrorStateView
 import kotlinx.coroutines.launch
 
 class SendNotificationActivity : EveBaseActivity() {
 
-    private lateinit var binding: ActivitySendNotificationBinding
+    private lateinit var binding: SendNotificationTelegramViewTree
     private lateinit var sentAdapter: SentBroadcastAdapter
     private val api: EveApiService = ApiClient.apiService
     private val adminRepo = AdminRepository()
@@ -81,6 +80,11 @@ class SendNotificationActivity : EveBaseActivity() {
         super.onStop()
     }
 
+    override fun onApplyThemePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+        super.onApplyThemePalette(palette)
+        if (::binding.isInitialized) binding.applyTelegramTheme()
+    }
+
     override fun onDestroy() {
         activeDialog?.dismiss()
         activeDialog = null
@@ -122,7 +126,7 @@ class SendNotificationActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivitySendNotificationBinding.inflate(layoutInflater)
+        binding = SendNotificationTelegramViewTree(this)
         setContentView(binding.root)
         com.eve.app.util.SystemBarHelper.syncSystemBars(this)
 

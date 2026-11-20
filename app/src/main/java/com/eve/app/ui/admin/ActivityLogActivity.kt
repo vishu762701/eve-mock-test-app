@@ -16,12 +16,12 @@ import com.eve.app.data.model.AdminAuditLog
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.AuditLogRepository
 import com.eve.app.data.repository.AuditLogTimeRange
-import com.eve.app.databinding.ActivityActivityLogBinding
 import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AdminAccessGate
 import com.eve.app.util.AppBulletin
-import com.eve.app.designsystem.TelegramBottomSheet
+import org.telegram.ui.ActionBar.BottomSheet
+import org.telegram.ui.Cells.TextCell
 import com.google.firebase.auth.FirebaseAuth
 import androidx.lifecycle.Lifecycle
 import kotlinx.coroutines.CancellationException
@@ -34,7 +34,7 @@ import java.util.Locale
 
 class ActivityLogActivity : EveBaseActivity() {
 
-    private lateinit var binding: ActivityActivityLogBinding
+    private lateinit var binding: ActivityLogTelegramViewTree
     private val adminRepo = AdminRepository()
     private val auditRepo = AuditLogRepository()
     private lateinit var adapter: AuditLogAdapter
@@ -55,7 +55,7 @@ class ActivityLogActivity : EveBaseActivity() {
     private var accessReady = false
     private var reauthorizeOnResume = false
     private var viewsPrepared = false
-    private var filterDialog: TelegramBottomSheet? = null
+    private var filterDialog: BottomSheet? = null
     private var filterAdminJob: Job? = null
     private var filterTypeJob: Job? = null
     private var logDialog: AlertDialog? = null
@@ -143,7 +143,7 @@ class ActivityLogActivity : EveBaseActivity() {
         }
         activeUid = user.uid
         activeEmail = user.email
-        binding = ActivityActivityLogBinding.inflate(layoutInflater)
+        binding = ActivityLogTelegramViewTree(this)
         setContentView(binding.root)
 
         binding.actionBar.setTitle("Recent Actions")
@@ -334,12 +334,11 @@ class ActivityLogActivity : EveBaseActivity() {
             setBackgroundColor(palette.surface)
         }
 
-        val dialog = TelegramBottomSheet.Builder(this)
+        val dialog = BottomSheet.Builder(this)
             .setCustomView(root)
             .create()
         filterDialog = dialog
         // Theme_Eve_BottomSheetDialog
-        com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, this)
         fun validFilter(): Boolean =
             isCurrentOwner(ownerUid, ownerEmail) && filterDialog === dialog && dialog.isShowing
         dialog.setOnDismissListener {
@@ -375,7 +374,7 @@ class ActivityLogActivity : EveBaseActivity() {
         }
         root.addView(adminSectionTv)
 
-        val btnAllAdmins = com.eve.app.ui.admin.tg.TextCell(this).apply {
+        val btnAllAdmins = TextCell(this).apply {
             setShowArrow(false)
             val isSelected = (selectedAdminEmail == null)
             setTextAndValue("All Admins", if (isSelected) "✓" else "", false)
@@ -395,7 +394,7 @@ class ActivityLogActivity : EveBaseActivity() {
                 if (!validFilter()) return@launch
                 for (admin in admins) {
                     val isSelected = selectedAdminEmail.equals(admin.email, ignoreCase = true)
-                    val cell = com.eve.app.ui.admin.tg.TextCell(this@ActivityLogActivity).apply {
+                    val cell = TextCell(this@ActivityLogActivity).apply {
                         setShowArrow(false)
                         setTextAndValue(admin.email, if (isSelected) "✓" else "", false)
                         if (isSelected) setValueColor(palette.accent)
@@ -425,7 +424,7 @@ class ActivityLogActivity : EveBaseActivity() {
         }
         root.addView(typeSectionTv)
 
-        val btnAllTypes = com.eve.app.ui.admin.tg.TextCell(this).apply {
+        val btnAllTypes = TextCell(this).apply {
             setShowArrow(false)
             val isSelected = (selectedActionType == null)
             setTextAndValue("All Actions", if (isSelected) "✓" else "", false)
@@ -445,7 +444,7 @@ class ActivityLogActivity : EveBaseActivity() {
                 if (!validFilter()) return@launch
                 for (type in types) {
                     val isSelected = selectedActionType.equals(type, ignoreCase = true)
-                    val cell = com.eve.app.ui.admin.tg.TextCell(this@ActivityLogActivity).apply {
+                    val cell = TextCell(this@ActivityLogActivity).apply {
                         setShowArrow(false)
                         setTextAndValue(type, if (isSelected) "✓" else "", false)
                         if (isSelected) setValueColor(palette.accent)
@@ -507,6 +506,11 @@ class ActivityLogActivity : EveBaseActivity() {
     }
 
     private fun dp(v: Float): Int = (v * resources.displayMetrics.density).toInt()
+
+    override fun onApplyThemePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+        super.onApplyThemePalette(palette)
+        if (::binding.isInitialized) binding.applyTelegramTheme()
+    }
 
     override fun onDestroy() {
         searchJob?.cancel()
