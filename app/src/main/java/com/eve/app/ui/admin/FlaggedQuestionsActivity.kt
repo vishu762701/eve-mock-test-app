@@ -1,6 +1,7 @@
 package com.eve.app.ui.admin
 
 import org.telegram.ui.ActionBar.AlertDialog
+import com.eve.app.designsystem.TelegramNativeAlertDialog
 import com.eve.app.ui.common.EveBaseActivity
 
 import android.content.Intent
@@ -48,7 +49,7 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
     private var reauthorizeOnResume = false
     private var editorLoadInFlight = false
     private var loadedReports: List<AggregatedFlaggedQuestion> = emptyList()
-    private var questionEditor: AlertDialog? = null
+    private var questionEditor: TelegramNativeAlertDialog? = null
     private var dismissDialog: AlertDialog? = null
     private var openingUid = ""
     private var openingEmail = ""

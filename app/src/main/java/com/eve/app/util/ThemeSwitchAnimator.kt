@@ -84,7 +84,7 @@ object ThemeSwitchAnimator {
         persistThemePreference(activity, target)
         org.telegram.ui.ActionBar.Theme.syncFromEvePalette(activity)
         org.telegram.messenger.AndroidUtilities.setLightStatusBar(activity.window, !target)
-        org.telegram.messenger.AndroidUtilities.setLightNavigationBar(activity.window, !target)
+        org.telegram.messenger.AndroidUtilities.setLightNavigationBar(activity, !target)
         val mode = if (target) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
         if (AppCompatDelegate.getDefaultNightMode() == mode) return
         activity.overridePendingTransition(0, 0)
