@@ -513,7 +513,7 @@ class HomeTelegramViewTree(context: Context) {
         ))
 
         // 3. Assemble Home Banner
-        panelHomeBanner.addView(blurHomeBannerMaterial, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        panelHomeBanner.addView(blurHomeBannerMaterial, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
         panelHomeBanner.addView(vpHomeBanners, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 152f))
         panelHomeBanner.addView(btnHomeBannerCta, LayoutHelper.createFrame(
             LayoutHelper.WRAP_CONTENT, 34f, Gravity.BOTTOM or Gravity.END, 0f, 0f, 12f, 10f
@@ -531,7 +531,7 @@ class HomeTelegramViewTree(context: Context) {
         pollCardInner.addView(btnSubmitHomeVote, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 42, 0f, 6f, 0f, 4f))
         pollCardInner.addView(layoutHomePollResults, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0f, 6f, 0f, 4f))
         pollCardInner.addView(tvHomePollTotalVotes)
-        cardPoll.addView(pollCardInner, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT))
+        cardPoll.addView(pollCardInner, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT.toFloat()))
 
         // 5. Assemble Body + PullRefresh + Overlays
         val contentHost = FrameLayout(context)
@@ -544,16 +544,16 @@ class HomeTelegramViewTree(context: Context) {
         bodyCol.addView(cardPoll, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 16f, 4f, 16f, 8f))
 
         val listFrame = FrameLayout(context)
-        listFrame.addView(rvExams, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        listFrame.addView(rvExams, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
         progressGroup.addView(RadialProgressView(context), LayoutHelper.createLinear(44, 44))
-        listFrame.addView(progressGroup, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
-        listFrame.addView(loadingHome, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        listFrame.addView(progressGroup, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
+        listFrame.addView(loadingHome, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
 
         messageGroup.addView(ivMessageIcon, LayoutHelper.createLinear(112, 112, Gravity.CENTER_HORIZONTAL))
         messageGroup.addView(tvMessage, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0f, 12f, 0f, 4f))
         messageGroup.addView(tvMessageSub, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0f, 0f, 0f, 14f))
         messageGroup.addView(btnRetry, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, 42, Gravity.CENTER_HORIZONTAL))
-        listFrame.addView(messageGroup, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        listFrame.addView(messageGroup, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
 
         pullRefreshLayout.addView(listFrame, ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
@@ -563,7 +563,7 @@ class HomeTelegramViewTree(context: Context) {
             LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f
         ))
 
-        contentHost.addView(bodyCol, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        contentHost.addView(bodyCol, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
 
         // Floating airplane button
         cardFloatingAirplane.addView(lottieFloatingAirplane, LayoutHelper.createFrame(56, 56, Gravity.CENTER))
@@ -576,7 +576,7 @@ class HomeTelegramViewTree(context: Context) {
             RadialProgressView(context),
             LayoutHelper.createFrame(44, 44, Gravity.CENTER)
         )
-        contentHost.addView(availabilityCheckingOverlay, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        contentHost.addView(availabilityCheckingOverlay, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
 
         // Maintenance overlay
         val maintCol = LinearLayout(context).apply {
@@ -591,7 +591,7 @@ class HomeTelegramViewTree(context: Context) {
             FrameLayout.LayoutParams.MATCH_PARENT,
             FrameLayout.LayoutParams.MATCH_PARENT
         ))
-        contentHost.addView(maintenanceOverlay, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        contentHost.addView(maintenanceOverlay, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
 
         // Force update overlay
         val forceCol = LinearLayout(context).apply {
@@ -602,7 +602,7 @@ class HomeTelegramViewTree(context: Context) {
         forceCol.addView(tvForceUpdateMessage, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0f, 0f, 0f, 20f))
         forceCol.addView(btnForceUpdateNow, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, 44, Gravity.CENTER_HORIZONTAL))
         forceUpdateOverlay.addView(forceCol, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER))
-        contentHost.addView(forceUpdateOverlay, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        contentHost.addView(forceUpdateOverlay, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
 
         mainContentContainer.addView(topBarContainer, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 56))
         mainContentContainer.addView(topBarDivider, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 1))
@@ -611,7 +611,7 @@ class HomeTelegramViewTree(context: Context) {
         ))
 
         // 6. Assemble Side Navigation Drawer (Telegram Drawer Style)
-        navDrawerPanel.addView(ivDrawerGlassBlurBackground, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        navDrawerPanel.addView(ivDrawerGlassBlurBackground, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
         val drawerScroll = ScrollView(context).apply { isVerticalScrollBarEnabled = false }
         val drawerCol = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
@@ -690,7 +690,7 @@ class HomeTelegramViewTree(context: Context) {
             FrameLayout.LayoutParams.MATCH_PARENT,
             FrameLayout.LayoutParams.WRAP_CONTENT
         ))
-        navDrawerPanel.addView(drawerScroll, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        navDrawerPanel.addView(drawerScroll, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
 
         drawerLayout.addView(mainContentContainer)
         drawerLayout.addView(navDrawerPanel)
