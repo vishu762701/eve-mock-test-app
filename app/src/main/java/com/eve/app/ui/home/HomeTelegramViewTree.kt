@@ -568,7 +568,7 @@ class HomeTelegramViewTree(context: Context) {
         // Floating airplane button
         cardFloatingAirplane.addView(lottieFloatingAirplane, LayoutHelper.createFrame(56, 56, Gravity.CENTER))
         contentHost.addView(cardFloatingAirplane, LayoutHelper.createFrame(
-            64, 64, Gravity.BOTTOM or Gravity.END, 0f, 0f, 16f, 20f
+            64, 64f, Gravity.BOTTOM or Gravity.END, 0f, 0f, 16f, 20f
         ))
 
         // Availability overlay
