@@ -15,6 +15,8 @@ abstract class EveBaseActivity : AppCompatActivity() {
         highContrast = com.eve.app.util.DesignContrast.apply(this)
         androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
+        org.telegram.messenger.AndroidUtilities.checkDisplaySize(this, resources.configuration)
+        org.telegram.ui.ActionBar.Theme.syncFromEvePalette(this)
         com.eve.app.util.SystemBarHelper.syncSystemBars(this)
         hookFirstFrameTracer()
     }
@@ -98,6 +100,7 @@ abstract class EveBaseActivity : AppCompatActivity() {
             return
         }
         lastAppliedPalette = palette
+        org.telegram.ui.ActionBar.Theme.syncFromEvePalette(this)
         com.eve.app.theme.TelegramThemeApplier.applyToActivity(this, palette)
         com.eve.app.util.SystemBarHelper.syncSystemBars(this)
     }

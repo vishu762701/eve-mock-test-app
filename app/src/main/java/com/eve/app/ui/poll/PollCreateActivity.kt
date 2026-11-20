@@ -6,30 +6,44 @@
 package com.eve.app.ui.poll
 
 import android.animation.LayoutTransition
-import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.LayoutInflater
+import android.util.TypedValue
 import android.view.View
-import android.widget.ArrayAdapter
-import android.widget.EditText
-import android.widget.ImageButton
+import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.R
 import com.eve.app.data.repository.PollRepository
-import com.eve.app.databinding.ActivityPollCreateBinding
 import com.eve.app.databinding.ItemPollOptionEditableBinding
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AppBulletin
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
+import org.telegram.messenger.AndroidUtilities
+import org.telegram.ui.ActionBar.ActionBar
+import org.telegram.ui.ActionBar.AlertDialog
+import org.telegram.ui.ActionBar.Theme
+import org.telegram.ui.Cells.HeaderCell
+import org.telegram.ui.Cells.ShadowSectionCell
+import org.telegram.ui.Cells.TextCell
+import org.telegram.ui.Cells.TextCheckCell
+import org.telegram.ui.Cells.TextInfoPrivacyCell
+import org.telegram.ui.Components.EditTextBoldCursor
+import org.telegram.ui.Components.IconBackgroundColors
 
+/**
+ * Poll & Quiz Creation screen powered by real ported Telegram UI components:
+ * ActionBar (with Done checkmark), HeaderCell, EditTextBoldCursor, TextCheckCell,
+ * TextCell, AlertDialog (duration picker), ShadowSectionCell, and TextInfoPrivacyCell.
+ */
 class PollCreateActivity : EveBaseActivity() {
 
     companion object {
+        private const val MENU_DONE = 1
         const val MAX_QUESTION_LENGTH = 255
         const val MAX_ANSWER_LENGTH = 100
         const val MAX_SOLUTION_LENGTH = 200
@@ -37,92 +51,203 @@ class PollCreateActivity : EveBaseActivity() {
         const val MIN_OPTIONS = 2
     }
 
-    private lateinit var binding: ActivityPollCreateBinding
     private val pollRepository = PollRepository()
-
     private val optionRows = mutableListOf<ItemPollOptionEditableBinding>()
     private var isQuizMode = false
     private var isAnonymous = true
     private var isMultipleAnswers = false
     private var selectedCorrectIndex = -1
     private var calculatedEndsAt = 0L
+    private var selectedDurationLabel = "No Expiry"
+
+    private lateinit var actionBar: ActionBar
+    private lateinit var etQuestion: EditTextBoldCursor
+    private lateinit var tvQuestionCounter: TextView
+    private lateinit var optionsContainer: LinearLayout
+    private lateinit var btnAddOption: TextCell
+    private lateinit var cellAnonymous: TextCheckCell
+    private lateinit var cellMultipleAnswers: TextCheckCell
+    private lateinit var cellQuizMode: TextCheckCell
+    private lateinit var layoutQuizSection: LinearLayout
+    private lateinit var etExplanation: EditTextBoldCursor
+    private lateinit var tvExplanationCounter: TextView
+    private lateinit var cellDuration: TextCell
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityPollCreateBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
-        binding.layoutOptionsContainer.layoutTransition = LayoutTransition()
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundGray))
+        }
+        setContentView(root)
 
-        setupActionBar()
-        setupHeaders()
-        setupQuestionInput()
-        setupOptions()
-        setupSettings()
-        setupQuizExplanation()
-        setupDurationSpinner()
+        actionBar = ActionBar(this).apply {
+            setBackgroundColor(Theme.getColor(Theme.key_actionBarDefault))
+            setItemsBackgroundColor(Theme.getColor(Theme.key_actionBarDefaultSelector), false)
+            setItemsColor(Theme.getColor(Theme.key_actionBarDefaultIcon), false)
+            setTitleColor(Theme.getColor(Theme.key_actionBarDefaultTitle))
+            setBackButtonImage(R.drawable.ic_ab_back)
+            setTitle("New Poll")
+            createMenu().addItem(MENU_DONE, R.drawable.ic_ab_done)
+            setActionBarMenuOnItemClick(object : ActionBar.ActionBarMenuOnItemClick() {
+                override fun onItemClick(id: Int) {
+                    when (id) {
+                        -1 -> finish()
+                        MENU_DONE -> submitPoll()
+                    }
+                }
+            })
+        }
+        root.addView(actionBar, matchWrap())
+
+        val scrollView = ScrollView(this).apply { isFillViewport = true }
+        val list = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(0, 0, 0, AndroidUtilities.dp(24f))
+        }
+        scrollView.addView(list, matchWrap())
+        root.addView(scrollView, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
+
+        // 1. Poll Question
+        list.addView(headerCell("POLL QUESTION"), matchWrap())
+        val qWrap = inputWrap()
+        etQuestion = styledEditText("Ask a question", singleLine = false)
+        tvQuestionCounter = counterText(MAX_QUESTION_LENGTH.toString())
+        qWrap.addView(etQuestion, matchWrap())
+        qWrap.addView(tvQuestionCounter, matchWrap())
+        list.addView(qWrap, matchWrap())
+        list.addView(ShadowSectionCell(this), matchWrap())
+
+        // 2. Poll Options
+        list.addView(headerCell("POLL OPTIONS"), matchWrap())
+        optionsContainer = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+            layoutTransition = LayoutTransition()
+        }
+        list.addView(optionsContainer, matchWrap())
+
+        btnAddOption = TextCell(this).apply {
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+            foreground = Theme.getSelectorDrawable(false)
+            setTextAndColorfulIcon("Add an Option", R.drawable.msg_info, IconBackgroundColors.BLUE.bottom, false)
+            setOnClickListener {
+                if (optionRows.size < MAX_OPTIONS) {
+                    addOptionRow("Option ${optionRows.size + 1}")
+                }
+            }
+        }
+        list.addView(btnAddOption, matchWrap())
+        list.addView(ShadowSectionCell(this), matchWrap())
+
+        // 3. Poll Settings
+        list.addView(headerCell("POLL SETTINGS"), matchWrap())
+        cellAnonymous = TextCheckCell(this).apply {
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+            foreground = Theme.getSelectorDrawable(false)
+            setTextAndCheck("Anonymous Voting", isAnonymous, true)
+            setOnClickListener {
+                isAnonymous = !isAnonymous
+                setChecked(isAnonymous)
+            }
+        }
+        list.addView(cellAnonymous, matchWrap())
+
+        cellMultipleAnswers = TextCheckCell(this).apply {
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+            foreground = Theme.getSelectorDrawable(false)
+            setTextAndCheck("Multiple Answers", isMultipleAnswers, true)
+            setOnClickListener {
+                if (!isQuizMode) {
+                    isMultipleAnswers = !isMultipleAnswers
+                    setChecked(isMultipleAnswers)
+                }
+            }
+        }
+        list.addView(cellMultipleAnswers, matchWrap())
+
+        cellQuizMode = TextCheckCell(this).apply {
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+            foreground = Theme.getSelectorDrawable(false)
+            setTextAndCheck("Quiz Mode", isQuizMode, false)
+            setOnClickListener { setQuizModeEnabled(!isQuizMode) }
+        }
+        list.addView(cellQuizMode, matchWrap())
+        list.addView(ShadowSectionCell(this), matchWrap())
+
+        // 4. Quiz Explanation (hidden unless quiz mode)
+        layoutQuizSection = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            visibility = View.GONE
+        }
+        layoutQuizSection.addView(headerCell("QUIZ EXPLANATION"), matchWrap())
+        val expWrap = inputWrap()
+        etExplanation = styledEditText("Add an explanation (optional)", singleLine = false)
+        tvExplanationCounter = counterText(MAX_SOLUTION_LENGTH.toString())
+        expWrap.addView(etExplanation, matchWrap())
+        expWrap.addView(tvExplanationCounter, matchWrap())
+        layoutQuizSection.addView(expWrap, matchWrap())
+        layoutQuizSection.addView(TextInfoPrivacyCell(this).apply {
+            setText("Users will see this explanation after choosing an option.")
+        }, matchWrap())
+        list.addView(layoutQuizSection, matchWrap())
+
+        // 5. Poll Duration
+        list.addView(headerCell("POLL DURATION"), matchWrap())
+        cellDuration = TextCell(this).apply {
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+            foreground = Theme.getSelectorDrawable(false)
+            setTextAndValue("Duration", selectedDurationLabel, false)
+            setOnClickListener { showDurationPicker() }
+        }
+        list.addView(cellDuration, matchWrap())
+
+        setupCounters()
+        addOptionRow("Option 1")
+        addOptionRow("Option 2")
     }
 
-    private fun setupActionBar() {
-        binding.actionBar.setTitle(if (isQuizMode) "New Quiz" else "New Poll")
-        binding.actionBar.onBackPressed = { finish() }
-        binding.actionBar.showDoneAction { submitPoll() }
-        binding.actionBar.bindSystemBack(this)
-    }
-
-    private fun setupHeaders() {
-        binding.headerQuestion.setText("POLL QUESTION")
-        binding.headerOptions.setText("POLL OPTIONS")
-        binding.headerSettings.setText("POLL SETTINGS")
-        binding.headerExplanation.setText("QUIZ EXPLANATION")
-        binding.infoPrivacyExplanation.setText("Users will see this explanation after choosing an option.")
-        binding.headerDuration.setText("POLL DURATION")
-    }
-
-    private fun setupQuestionInput() {
-        binding.etQuestion.addTextChangedListener(object : TextWatcher {
+    private fun setupCounters() {
+        etQuestion.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val len = s?.length ?: 0
-                val left = MAX_QUESTION_LENGTH - len
-                binding.tvQuestionCounter.text = left.toString()
-                binding.tvQuestionCounter.setTextColor(
+                val left = MAX_QUESTION_LENGTH - (s?.length ?: 0)
+                tvQuestionCounter.text = left.toString()
+                tvQuestionCounter.setTextColor(
                     if (left < 0) 0xFFFF3B30.toInt()
-                    else com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(this@PollCreateActivity).textSecondary
+                    else Theme.getColor(Theme.key_windowBackgroundWhiteGrayText)
+                )
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        etExplanation.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val left = MAX_SOLUTION_LENGTH - (s?.length ?: 0)
+                tvExplanationCounter.text = left.toString()
+                tvExplanationCounter.setTextColor(
+                    if (left < 0) 0xFFFF3B30.toInt()
+                    else Theme.getColor(Theme.key_windowBackgroundWhiteGrayText)
                 )
             }
             override fun afterTextChanged(s: Editable?) {}
         })
     }
 
-    private fun setupOptions() {
-        addOptionRow("Option 1")
-        addOptionRow("Option 2")
-
-        binding.btnAddOption.setOnClickListener {
-            if (optionRows.size < MAX_OPTIONS) {
-                addOptionRow("Option ${optionRows.size + 1}")
-            }
-        }
-    }
-
     private fun addOptionRow(hintText: String) {
-        val rowBinding = ItemPollOptionEditableBinding.inflate(
-            layoutInflater,
-            binding.layoutOptionsContainer,
-            false
-        )
+        val rowBinding = ItemPollOptionEditableBinding.inflate(layoutInflater, optionsContainer, false)
         rowBinding.etOptionText.hint = hintText
 
         rowBinding.etOptionText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val len = s?.length ?: 0
-                val left = MAX_ANSWER_LENGTH - len
+                val left = MAX_ANSWER_LENGTH - (s?.length ?: 0)
                 rowBinding.tvOptionCounter.text = left.toString()
                 rowBinding.tvOptionCounter.setTextColor(
                     if (left < 0) 0xFFFF3B30.toInt()
-                    else com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(this@PollCreateActivity).textSecondary
+                    else Theme.getColor(Theme.key_windowBackgroundWhiteGrayText)
                 )
             }
             override fun afterTextChanged(s: Editable?) {}
@@ -137,13 +262,10 @@ class PollCreateActivity : EveBaseActivity() {
         rowBinding.btnDeleteOption.setOnClickListener {
             if (optionRows.size > MIN_OPTIONS) {
                 val idx = optionRows.indexOf(rowBinding)
-                binding.layoutOptionsContainer.removeView(rowBinding.root)
+                optionsContainer.removeView(rowBinding.root)
                 optionRows.removeAt(idx)
-                if (selectedCorrectIndex == idx) {
-                    selectedCorrectIndex = -1
-                } else if (selectedCorrectIndex > idx) {
-                    selectedCorrectIndex--
-                }
+                if (selectedCorrectIndex == idx) selectedCorrectIndex = -1
+                else if (selectedCorrectIndex > idx) selectedCorrectIndex--
                 updateOptionDeleteVisibility()
                 updateOptionAddButtonVisibility()
             } else {
@@ -151,7 +273,7 @@ class PollCreateActivity : EveBaseActivity() {
             }
         }
 
-        binding.layoutOptionsContainer.addView(rowBinding.root)
+        optionsContainer.addView(rowBinding.root)
         optionRows.add(rowBinding)
         updateOptionDeleteVisibility()
         updateOptionAddButtonVisibility()
@@ -165,7 +287,7 @@ class PollCreateActivity : EveBaseActivity() {
     }
 
     private fun updateOptionAddButtonVisibility() {
-        binding.btnAddOption.visibility = if (optionRows.size < MAX_OPTIONS) View.VISIBLE else View.GONE
+        btnAddOption.visibility = if (optionRows.size < MAX_OPTIONS) View.VISIBLE else View.GONE
     }
 
     private fun selectCorrectOption(index: Int) {
@@ -175,95 +297,51 @@ class PollCreateActivity : EveBaseActivity() {
         }
     }
 
-    private fun setupSettings() {
-        binding.cellAnonymous.setTextAndCheck("Anonymous Voting", isAnonymous, true)
-        binding.cellAnonymous.setOnClickListener {
-            isAnonymous = !isAnonymous
-            binding.cellAnonymous.isChecked = isAnonymous
-        }
-
-        binding.cellMultipleAnswers.setTextAndCheck("Multiple Answers", isMultipleAnswers, true)
-        binding.cellMultipleAnswers.setOnClickListener {
-            if (!isQuizMode) {
-                isMultipleAnswers = !isMultipleAnswers
-                binding.cellMultipleAnswers.isChecked = isMultipleAnswers
-            }
-        }
-
-        binding.cellQuizMode.setTextAndCheck("Quiz Mode", isQuizMode, false)
-        binding.cellQuizMode.setOnClickListener {
-            setQuizModeEnabled(!isQuizMode)
-        }
-    }
-
     private fun setQuizModeEnabled(enabled: Boolean) {
         isQuizMode = enabled
-        binding.cellQuizMode.isChecked = enabled
-        binding.actionBar.setTitle(if (isQuizMode) "New Quiz" else "New Poll")
+        cellQuizMode.setChecked(enabled)
+        actionBar.setTitle(if (isQuizMode) "New Quiz" else "New Poll")
 
         if (isQuizMode) {
             isMultipleAnswers = false
-            binding.cellMultipleAnswers.isChecked = false
-            binding.cellMultipleAnswers.alpha = 0.5f
-            binding.cellMultipleAnswers.isEnabled = false
-            binding.layoutQuizSection.visibility = View.VISIBLE
-            for (row in optionRows) {
-                row.radioQuizCorrect.visibility = View.VISIBLE
-            }
+            cellMultipleAnswers.setChecked(false)
+            cellMultipleAnswers.alpha = 0.5f
+            cellMultipleAnswers.isEnabled = false
+            layoutQuizSection.visibility = View.VISIBLE
+            for (row in optionRows) row.radioQuizCorrect.visibility = View.VISIBLE
         } else {
-            binding.cellMultipleAnswers.alpha = 1f
-            binding.cellMultipleAnswers.isEnabled = true
-            binding.layoutQuizSection.visibility = View.GONE
-            for (row in optionRows) {
-                row.radioQuizCorrect.visibility = View.GONE
-            }
+            cellMultipleAnswers.alpha = 1f
+            cellMultipleAnswers.isEnabled = true
+            layoutQuizSection.visibility = View.GONE
+            for (row in optionRows) row.radioQuizCorrect.visibility = View.GONE
             selectedCorrectIndex = -1
         }
     }
 
-    private fun setupQuizExplanation() {
-        binding.etExplanation.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val len = s?.length ?: 0
-                val left = MAX_SOLUTION_LENGTH - len
-                binding.tvExplanationCounter.text = left.toString()
-                binding.tvExplanationCounter.setTextColor(
-                    if (left < 0) 0xFFFF3B30.toInt()
-                    else com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(this@PollCreateActivity).textSecondary
-                )
-            }
-            override fun afterTextChanged(s: Editable?) {}
-        })
-    }
-
-    private fun setupDurationSpinner() {
-        val durations = listOf("No Expiry", "1 Day", "3 Days", "7 Days")
-        binding.spDuration.adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_dropdown_item,
-            durations
-        )
-        binding.spDuration.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, position: Int, id: Long) {
+    private fun showDurationPicker() {
+        val labels = arrayOf<CharSequence>("No Expiry", "1 Day", "3 Days", "7 Days")
+        AlertDialog.Builder(this)
+            .setTitle("Poll Duration")
+            .setItems(labels) { _, position ->
                 val now = System.currentTimeMillis()
+                selectedDurationLabel = labels[position].toString()
                 calculatedEndsAt = when (position) {
-                    0 -> 0L
                     1 -> now + 1L * 24 * 60 * 60 * 1000
                     2 -> now + 3L * 24 * 60 * 60 * 1000
                     3 -> now + 7L * 24 * 60 * 60 * 1000
                     else -> 0L
                 }
+                cellDuration.setTextAndValue("Duration", selectedDurationLabel, false)
             }
-            override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {}
-        }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun submitPoll() {
-        val question = binding.etQuestion.text.toString().trim()
+        val question = etQuestion.text.toString().trim()
         if (question.isBlank()) {
             AppBulletin.showError(this, "Please enter a question")
-            binding.etQuestion.requestFocus()
+            etQuestion.requestFocus()
             return
         }
         if (question.length > MAX_QUESTION_LENGTH) {
@@ -283,7 +361,7 @@ class PollCreateActivity : EveBaseActivity() {
             }
         }
 
-        val explanation = binding.etExplanation.text.toString().trim()
+        val explanation = etExplanation.text.toString().trim()
         if (isQuizMode) {
             if (selectedCorrectIndex < 0 || selectedCorrectIndex >= options.size) {
                 AppBulletin.showError(this, "Please choose the correct answer for the quiz")
@@ -296,7 +374,6 @@ class PollCreateActivity : EveBaseActivity() {
         }
 
         val userEmail = FirebaseAuth.getInstance().currentUser?.email ?: "admin"
-
         lifecycleScope.launch {
             try {
                 pollRepository.createPoll(
@@ -319,4 +396,41 @@ class PollCreateActivity : EveBaseActivity() {
             }
         }
     }
+
+    private fun headerCell(title: String) = HeaderCell(this).apply {
+        setText(title)
+        setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+    }
+
+    private fun inputWrap() = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+        val padH = AndroidUtilities.dp(21f)
+        val padV = AndroidUtilities.dp(10f)
+        setPadding(padH, padV, padH, padV)
+    }
+
+    private fun styledEditText(hintText: String, singleLine: Boolean) = EditTextBoldCursor(this).apply {
+        hint = hintText
+        setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16f)
+        setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText))
+        setHintTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteHintText))
+        setCursorColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText))
+        setCursorSize(AndroidUtilities.dp(20f))
+        setCursorWidth(1.5f)
+        isSingleLine = singleLine
+        if (!singleLine) minLines = 2
+    }
+
+    private fun counterText(initial: String) = TextView(this).apply {
+        text = initial
+        setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12f)
+        setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText))
+        setPadding(0, AndroidUtilities.dp(4f), 0, 0)
+    }
+
+    private fun matchWrap() = LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    )
 }

@@ -2831,7 +2831,7 @@ public class Theme {
                 new int[]    {          0,                             52,                            46,                            57,                            45,                            64,                            52,                            35,                            36,                            41,                            50,                            50,                            35,                            38,                            37,                            30 }
                 );
         sortAccents(themeInfo);
-        themes.add(currentDayTheme = defaultTheme = themeInfo);
+        themes.add(currentTheme = currentDayTheme = defaultTheme = themeInfo); // EVE-PATCH: initialize currentTheme in static block to prevent NPE
         themesDict.put("Blue", themeInfo);
 
         themeInfo = new ThemeInfo();
@@ -4361,7 +4361,7 @@ public class Theme {
     }
 
     public static boolean isCurrentThemeDark() {
-        return currentTheme.isDark();
+        return currentTheme != null ? currentTheme.isDark() : (currentDayTheme != null && currentDayTheme.isDark()); // EVE-PATCH: guard null currentTheme in isCurrentThemeDark
     }
 
     public static ThemeInfo getActiveTheme() {
@@ -4692,7 +4692,7 @@ public class Theme {
         return currentColors.get(key);
     }
 
-    public static void syncFromEvePalette(android.content.Context context) { if (context == null) return; try { com.eve.app.theme.TelegramThemeEngine.ResolvedPalette palette = com.eve.app.theme.TelegramThemeEngine.INSTANCE.resolveCurrentPalette(context); if (palette != null) { currentColors.put(key_windowBackgroundGray, palette.getWindowBackground()); currentColors.put(key_windowBackgroundWhite, palette.getSurface()); currentColors.put(key_windowBackgroundWhiteBlackText, palette.getTextPrimary()); currentColors.put(key_windowBackgroundWhiteGrayText, palette.getTextSecondary()); currentColors.put(key_actionBarDefault, palette.getSurface()); currentColors.put(key_actionBarDefaultTitle, palette.getTextPrimary()); currentColors.put(key_actionBarDefaultIcon, palette.getTextPrimary()); currentColors.put(key_actionBarDefaultSelector, palette.getActionSelector()); currentColors.put(key_divider, palette.getHairline()); } } catch (Throwable ignored) {} if (dividerPaint == null) { dividerPaint = new Paint(); dividerPaint.setStrokeWidth(1); } dividerPaint.setColor(getColor(key_divider)); } public static int getColor(int key) { // EVE-PATCH: sync Telegram theme colors from Eve palette
+    public static void syncFromEvePalette(android.content.Context context) { if (currentTheme == null) { currentTheme = currentDayTheme != null ? currentDayTheme : defaultTheme; } if (context == null) return; try { com.eve.app.theme.TelegramThemeEngine.ResolvedPalette palette = com.eve.app.theme.TelegramThemeEngine.INSTANCE.resolveCurrentPalette(context); if (palette != null) { if (palette.isDark() && currentNightTheme != null) { currentTheme = currentNightTheme; } else if (currentDayTheme != null) { currentTheme = currentDayTheme; } else { currentTheme = defaultTheme; } currentColors.put(key_windowBackgroundGray, palette.getWindowBackground()); currentColors.put(key_windowBackgroundWhite, palette.getSurface()); currentColors.put(key_windowBackgroundWhiteBlackText, palette.getTextPrimary()); currentColors.put(key_windowBackgroundWhiteGrayText, palette.getTextSecondary()); currentColors.put(key_actionBarDefault, palette.getSurface()); currentColors.put(key_actionBarDefaultTitle, palette.getTextPrimary()); currentColors.put(key_actionBarDefaultIcon, palette.getTextPrimary()); currentColors.put(key_actionBarDefaultSelector, palette.getActionSelector()); currentColors.put(key_divider, palette.getHairline()); } } catch (Throwable ignored) {} if (dividerPaint == null) { dividerPaint = new Paint(); dividerPaint.setStrokeWidth(1); } dividerPaint.setColor(getColor(key_divider)); } public static int getColor(int key) { // EVE-PATCH: sync Telegram theme colors and active currentTheme from Eve palette
         return getColor(key, null, false);
     }
 

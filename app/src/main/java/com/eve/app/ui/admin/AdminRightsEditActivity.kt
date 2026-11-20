@@ -9,31 +9,52 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.View
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.ScrollView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
 import com.eve.app.R
 import com.eve.app.data.remote.DynamicAdminItem
 import com.eve.app.data.remote.toUserFriendlyMessage
-import com.eve.app.databinding.ActivityAdminRightsEditBinding
+import com.eve.app.data.repository.AdminRepository
 import com.eve.app.designsystem.TelegramNativeAlertDialog
-import com.eve.app.ui.admin.tg.TextCheckCell
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AdminAccessGate
-import com.eve.app.util.AppBulletin
-import com.eve.app.util.AvatarDrawable
 import com.eve.app.util.AdminIdentityGuard
 import com.eve.app.util.AdminPermissionSnapshot
-import com.eve.app.data.repository.AdminRepository
+import com.eve.app.util.AppBulletin
 import com.google.firebase.auth.FirebaseAuth
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
+import org.telegram.messenger.AndroidUtilities
+import org.telegram.ui.ActionBar.ActionBar
+import org.telegram.ui.ActionBar.Theme
+import org.telegram.ui.Cells.HeaderCell
+import org.telegram.ui.Cells.ShadowSectionCell
+import org.telegram.ui.Cells.TextCell
+import org.telegram.ui.Cells.TextCheckCell
+import org.telegram.ui.Cells.TextDetailSettingsCell
+import org.telegram.ui.Cells.TextInfoPrivacyCell
+import org.telegram.ui.Components.EditTextBoldCursor
+import org.telegram.ui.Components.EmptyTextProgressView
+import org.telegram.ui.Components.IconBackgroundColors
+import org.telegram.ui.Components.LayoutHelper
 
+/**
+ * Admin Rights Edit screen powered by real ported Telegram UI components:
+ * ActionBar (with Done checkmark), HeaderCell, TextDetailSettingsCell, EditTextBoldCursor,
+ * org.telegram.ui.Cells.TextCheckCell, TextCell, ShadowSectionCell, TextInfoPrivacyCell,
+ * and EmptyTextProgressView.
+ */
 class AdminRightsEditActivity : EveBaseActivity() {
 
     companion object {
+        private const val MENU_DONE = 1
         const val EXTRA_EMAIL = "extra_email"
         const val EXTRA_IS_OWNER = "extra_is_owner"
         const val EXTRA_RIGHTS = "extra_rights"
@@ -55,7 +76,6 @@ class AdminRightsEditActivity : EveBaseActivity() {
         }
     }
 
-    private lateinit var binding: ActivityAdminRightsEditBinding
     private val viewModel: AdminViewModel by viewModels()
     private val adminRepo = AdminRepository()
     private var activeUid = ""
@@ -65,6 +85,19 @@ class AdminRightsEditActivity : EveBaseActivity() {
     private var actionEpoch = 0L
     private var reauthorizeOnResume = false
     private var activeDialog: TelegramNativeAlertDialog? = null
+
+    private var targetEmail: String = ""
+    private var isOwner: Boolean = false
+    private var canEdit: Boolean = true
+    private var initialRights = setOf<String>()
+    private var initialCustomTitle: String = ""
+
+    private lateinit var rootView: LinearLayout
+    private lateinit var scrollRightsEdit: ScrollView
+    private lateinit var listContainer: LinearLayout
+    private lateinit var loadingView: EmptyTextProgressView
+    private lateinit var etCustomTitle: EditTextBoldCursor
+    private val rightCells = mutableMapOf<String, TextCheckCell>()
 
     private fun ownerCurrent(): Boolean {
         val user = FirebaseAuth.getInstance().currentUser
@@ -86,7 +119,6 @@ class AdminRightsEditActivity : EveBaseActivity() {
         if (rights == null) throw SecurityException("Admin rights permission is unavailable")
     }
 
-    /** One current-owner UI action at a time; Worker remains authoritative. */
     private fun runAuthorizedMutation(
         operation: ((Result<Unit>) -> Unit) -> Unit,
         success: () -> Unit
@@ -123,7 +155,6 @@ class AdminRightsEditActivity : EveBaseActivity() {
     override fun onStop() {
         activeDialog?.dismiss()
         activeDialog = null
-        // Any permission reply from a prior visible window loses its UI authority.
         ++actionEpoch
         mutationPending = false
         reauthorizeOnResume = true
@@ -140,7 +171,7 @@ class AdminRightsEditActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (reauthorizeOnResume && ::binding.isInitialized) {
+        if (reauthorizeOnResume && ::rootView.isInitialized) {
             reauthorizeOnResume = false
             val live = FirebaseAuth.getInstance().currentUser
             if (live == null || live.uid != activeUid || live.email != activeEmail) {
@@ -148,12 +179,12 @@ class AdminRightsEditActivity : EveBaseActivity() {
                 return
             }
             if (!gateReady) {
-                binding.progressBar.visibility = View.VISIBLE
-                binding.scrollRightsEdit.visibility = View.GONE
+                loadingView.visibility = View.VISIBLE
+                scrollRightsEdit.visibility = View.GONE
             }
             AdminAccessGate.requireAdmin(
                 this,
-                binding.root,
+                rootView,
                 requireFreshServer = true,
                 requiredRight = "manage_admins_rights"
             ) {
@@ -161,155 +192,192 @@ class AdminRightsEditActivity : EveBaseActivity() {
                     finish()
                     return@requireAdmin
                 }
-                binding.progressBar.visibility = View.GONE
-                binding.scrollRightsEdit.visibility = View.VISIBLE
+                loadingView.visibility = View.GONE
+                scrollRightsEdit.visibility = View.VISIBLE
                 activeUid = live.uid
                 activeEmail = live.email.orEmpty()
             }
         }
     }
 
-
-    private var targetEmail: String = ""
-    private var isOwner: Boolean = false
-    private var canEdit: Boolean = true
-
-    private var initialRights = setOf<String>()
-    private var initialCustomTitle: String = ""
-
-    private val rightCells = mutableMapOf<String, TextCheckCell>()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityAdminRightsEditBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
         targetEmail = intent.getStringExtra(EXTRA_EMAIL).orEmpty()
         isOwner = intent.getBooleanExtra(EXTRA_IS_OWNER, false)
         canEdit = intent.getBooleanExtra(EXTRA_CAN_EDIT, true)
-
         val rightsList = intent.getStringArrayListExtra(EXTRA_RIGHTS) ?: arrayListOf()
         initialRights = rightsList.toSet()
         initialCustomTitle = intent.getStringExtra(EXTRA_CUSTOM_TITLE) ?: (if (isOwner) "Owner" else "Admin")
 
-        setupActionBar()
+        rootView = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundGray))
+        }
+        setContentView(rootView)
+
+        val actionBar = ActionBar(this).apply {
+            setBackgroundColor(Theme.getColor(Theme.key_actionBarDefault))
+            setItemsBackgroundColor(Theme.getColor(Theme.key_actionBarDefaultSelector), false)
+            setItemsColor(Theme.getColor(Theme.key_actionBarDefaultIcon), false)
+            setTitleColor(Theme.getColor(Theme.key_actionBarDefaultTitle))
+            setBackButtonImage(R.drawable.ic_ab_back)
+            setTitle(if (isOwner) "Owner Permissions" else "Edit Admin")
+            if (canEdit && !isOwner) {
+                createMenu().addItem(MENU_DONE, R.drawable.ic_ab_done)
+            }
+            setActionBarMenuOnItemClick(object : ActionBar.ActionBarMenuOnItemClick() {
+                override fun onItemClick(id: Int) {
+                    when (id) {
+                        -1 -> handleBackOrDiscard()
+                        MENU_DONE -> saveChanges()
+                    }
+                }
+            })
+        }
+        rootView.addView(actionBar, matchWrap())
+
+        val contentFrame = FrameLayout(this)
+        rootView.addView(
+            contentFrame,
+            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f)
+        )
+
+        scrollRightsEdit = ScrollView(this).apply {
+            isFillViewport = true
+            visibility = View.GONE
+        }
+        listContainer = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(0, 0, 0, AndroidUtilities.dp(24f))
+        }
+        scrollRightsEdit.addView(listContainer, matchWrap())
+        contentFrame.addView(
+            scrollRightsEdit,
+            LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat())
+        )
+
+        loadingView = EmptyTextProgressView(this).apply {
+            setShowAtCenter(true)
+            setTextColor(Theme.getColor(Theme.key_emptyListPlaceholder))
+            setProgressBarColor(Theme.getColor(Theme.key_progressCircle))
+            showProgress()
+        }
+        contentFrame.addView(
+            loadingView,
+            LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat())
+        )
+
         setupBackPressHandling()
 
-        binding.progressBar.visibility = View.VISIBLE
-        binding.scrollRightsEdit.visibility = View.GONE
-
-        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_admins_rights") {
+        AdminAccessGate.requireAdmin(this, rootView, requireFreshServer = true, requiredRight = "manage_admins_rights") {
             val principal = FirebaseAuth.getInstance().currentUser ?: return@requireAdmin
             activeUid = principal.uid
             activeEmail = principal.email.orEmpty()
             gateReady = true
             if (!ownerCurrent()) return@requireAdmin
-            binding.progressBar.visibility = View.GONE
-            binding.scrollRightsEdit.visibility = View.VISIBLE
-            setupIdentityHeader()
-            setupCustomTitleSection()
-            setupRightsSection()
-            setupDismissSection()
+            loadingView.visibility = View.GONE
+            scrollRightsEdit.visibility = View.VISIBLE
+            buildSections()
         }
     }
 
-    private fun setupActionBar() {
-        val title = if (isOwner) "Owner Permissions" else "Edit Admin"
-        binding.telegramActionBar.setTitle(title)
-        binding.telegramActionBar.onBackPressed = { handleBackOrDiscard() }
+    private fun buildSections() {
+        listContainer.removeAllViews()
+        rightCells.clear()
 
-        if (canEdit && !isOwner) {
-            binding.telegramActionBar.showDoneAction { saveChanges() }
+        // 1. Identity Header
+        addHeader("Administrator")
+        listContainer.addView(TextDetailSettingsCell(this).apply {
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+            setTextAndValue(targetEmail, if (isOwner) "Owner" else "Administrator", false)
+        }, matchWrap())
+        addShadow()
+
+        // 2. Custom Title
+        addHeader("CUSTOM TITLE")
+        val titleWrap = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+            val padH = AndroidUtilities.dp(21f)
+            val padV = AndroidUtilities.dp(8f)
+            setPadding(padH, padV, padH, padV)
         }
-    }
-
-    private fun setupIdentityHeader() {
-        binding.tvEmail.text = targetEmail
-        binding.tvRoleSubtitle.text = if (isOwner) "Owner" else "Administrator"
-
-        val initials = AvatarDrawable.extractInitials(targetEmail)
-        val colorIndex = AvatarDrawable.getColorIndex(targetEmail)
-        binding.ivAvatar.setImageDrawable(AvatarDrawable(this, initials, colorIndex))
-    }
-
-    private fun setupCustomTitleSection() {
-        binding.headerCustomTitle.setText("CUSTOM TITLE")
-        binding.etCustomTitle.setText(initialCustomTitle)
-        binding.privacyCustomTitle.setText("A custom title will be shown next to this admin's name.")
-
-        if (isOwner || !canEdit) {
-            binding.etCustomTitle.isEnabled = false
-            binding.etCustomTitle.isFocusable = false
+        etCustomTitle = EditTextBoldCursor(this).apply {
+            hint = "Custom title"
+            setText(initialCustomTitle)
+            setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16f)
+            setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText))
+            setHintTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteHintText))
+            setCursorColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText))
+            setCursorSize(AndroidUtilities.dp(20f))
+            setCursorWidth(1.5f)
+            isSingleLine = true
+            if (isOwner || !canEdit) {
+                isEnabled = false
+                isFocusable = false
+            }
         }
-    }
+        titleWrap.addView(
+            etCustomTitle,
+            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, AndroidUtilities.dp(44f))
+        )
+        listContainer.addView(titleWrap, matchWrap())
+        addInfo("A custom title will be shown next to this admin's name.")
 
-    private fun setupRightsSection() {
-        binding.headerRights.setText("WHAT CAN THIS ADMIN DO?")
-
-        setupCheck(binding.checkManageExams, "manage_exams", "Manage Exams", "Create, edit, rename, and manage exams")
-        setupCheck(binding.checkManageQuestions, "manage_questions", "Manage Questions", "Add, edit, batch import, and delete questions")
-        setupCheck(binding.checkManageGeneratedTests, "manage_generated_tests", "Manage Generated Tests", "Trigger AI tests, update status and schedule")
-        setupCheck(binding.checkManageSyllabus, "manage_syllabus", "Manage Syllabus", "Update and remove exam syllabus")
-        setupCheck(binding.checkManageUsers, "manage_users", "Manage Users", "View user attempts, stats, ban and unban accounts")
-        setupCheck(binding.checkManageAdminsRights, "manage_admins_rights", "Manage Admins & Rights", "Add administrators and edit their permissions")
-        setupCheck(binding.checkManagePremium, "manage_premium", "Manage Premium", "Grant, extend, revoke premium, configure plans")
-        setupCheck(binding.checkSendBroadcasts, "send_broadcasts", "Send Broadcasts", "Publish and delete broadcast notifications")
-        setupCheck(binding.checkModerateFeedback, "moderate_feedback", "Moderate Feedback", "Reply to feedback messages, manage posts and polls")
-        setupCheck(binding.checkManageConfigMaintenance, "manage_config_maintenance", "App Config & Maintenance", "Configure app settings and maintenance mode")
-        setupCheck(binding.checkManageContent, "manage_content", "Manage Content", "Manage home banners and floating community links")
-        setupCheck(binding.checkViewAnalyticsLogs, "view_analytics_logs", "View Analytics & Logs", "Inspect exam analytics, API usage, and system monitor")
-        setupCheck(binding.checkExportData, "export_data", "Export Data", "Export question banks and exam records", needDivider = false)
-
-        val privacyText = if (isOwner) {
-            "Built-in owner permissions and role cannot be modified."
-        } else {
-            "Administrators will only have access to features and endpoints enabled above."
+        // 3. Rights Toggles
+        addHeader("WHAT CAN THIS ADMIN DO?")
+        val rightsSpec = listOf(
+            Triple("manage_exams", "Manage Exams", "Create, edit, rename, and manage exams"),
+            Triple("manage_questions", "Manage Questions", "Add, edit, batch import, and delete questions"),
+            Triple("manage_generated_tests", "Manage Generated Tests", "Trigger AI tests, update status and schedule"),
+            Triple("manage_syllabus", "Manage Syllabus", "Update and remove exam syllabus"),
+            Triple("manage_users", "Manage Users", "View user attempts, stats, ban and unban accounts"),
+            Triple("manage_admins_rights", "Manage Admins & Rights", "Add administrators and edit their permissions"),
+            Triple("manage_premium", "Manage Premium", "Grant, extend, revoke premium, configure plans"),
+            Triple("send_broadcasts", "Send Broadcasts", "Publish and delete broadcast notifications"),
+            Triple("moderate_feedback", "Moderate Feedback", "Reply to feedback messages, manage posts and polls"),
+            Triple("manage_config_maintenance", "App Config & Maintenance", "Configure app settings and maintenance mode"),
+            Triple("manage_content", "Manage Content", "Manage home banners and floating community links"),
+            Triple("view_analytics_logs", "View Analytics & Logs", "Inspect exam analytics, API usage, and system monitor"),
+            Triple("export_data", "Export Data", "Export question banks and exam records")
+        )
+        rightsSpec.forEachIndexed { idx, (perm, title, sub) ->
+            val cell = TextCheckCell(this).apply {
+                setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+                foreground = Theme.getSelectorDrawable(false)
+                val checked = isOwner || initialRights.contains(perm)
+                setTextAndValueAndCheck(title, sub, checked, true, idx < rightsSpec.lastIndex)
+                if (isOwner || !canEdit) {
+                    setEnabled(false, null)
+                } else {
+                    setOnClickListener { setChecked(!isChecked) }
+                }
+            }
+            rightCells[perm] = cell
+            listContainer.addView(cell, matchWrap())
         }
-        binding.privacyRights.setText(privacyText)
-    }
+        addInfo(
+            if (isOwner) "Built-in owner permissions and role cannot be modified."
+            else "Administrators will only have access to features and endpoints enabled above."
+        )
 
-    private fun setupCheck(
-        cell: TextCheckCell,
-        permission: String,
-        title: String,
-        subtitle: String,
-        needDivider: Boolean = true
-    ) {
-        val checked = isOwner || initialRights.contains(permission)
-        cell.setTextAndCheck(title, checked, needDivider)
-        cell.setSubtitle(subtitle)
-
-        if (isOwner || !canEdit) {
-            cell.isEnabled = false
-            cell.checkBox.isEnabled = false
-            cell.setOnClickListener(null)
+        // 4. Dismiss Section
+        if (!isOwner && canEdit) {
+            val dismissCell = TextCell(this).apply {
+                setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+                foreground = Theme.getSelectorDrawable(false)
+                setTextAndColorfulIcon("Dismiss Admin", R.drawable.ic_delete, IconBackgroundColors.RED.bottom, false)
+                setTextColor(Theme.getColor(Theme.key_text_RedRegular))
+                setOnClickListener { confirmDismissAdmin() }
+            }
+            listContainer.addView(dismissCell, matchWrap())
+            addInfo("Revoke administrator privileges and remove from admin list.")
         }
-
-        rightCells[permission] = cell
-    }
-
-    private fun setupDismissSection() {
-        if (isOwner || !canEdit) {
-            binding.shadowDismiss.visibility = View.GONE
-            binding.btnDismissAdmin.visibility = View.GONE
-            binding.privacyDismiss.visibility = View.GONE
-            return
-        }
-
-        binding.shadowDismiss.visibility = View.VISIBLE
-        binding.btnDismissAdmin.visibility = View.VISIBLE
-        binding.privacyDismiss.visibility = View.VISIBLE
-
-        binding.btnDismissAdmin.setTextAndIcon("Dismiss Admin", R.drawable.ic_delete, needDivider = false)
-        binding.btnDismissAdmin.makeRed()
-        binding.btnDismissAdmin.setOnClickListener { confirmDismissAdmin() }
-
-        binding.privacyDismiss.setText("Revoke administrator privileges and remove from admin list.")
     }
 
     private fun confirmDismissAdmin() {
-        if (!canAct() || mutationPending || !canEdit || isOwner ||
-            targetEmail.isBlank()) return
+        if (!canAct() || mutationPending || !canEdit || isOwner || targetEmail.isBlank()) return
         activeDialog?.dismiss()
         val dialog = TelegramNativeAlertDialog.Builder(this)
             .setTitle("Dismiss Admin?")
@@ -332,20 +400,13 @@ class AdminRightsEditActivity : EveBaseActivity() {
         dialog.setOnDismissListener { if (activeDialog === dialog) activeDialog = null }
     }
 
-    private fun getCurrentSelectedRights(): List<String> {
-        val list = mutableListOf<String>()
-        for ((permission, cell) in rightCells) {
-            if (cell.isChecked) {
-                list.add(permission)
-            }
-        }
-        return list
-    }
+    private fun getCurrentSelectedRights(): List<String> =
+        rightCells.entries.filter { it.value.isChecked }.map { it.key }
 
     private fun hasUnsavedChanges(): Boolean {
-        if (isOwner || !canEdit) return false
+        if (isOwner || !canEdit || !::etCustomTitle.isInitialized) return false
         val currentRights = getCurrentSelectedRights().toSet()
-        val currentTitle = binding.etCustomTitle.text?.toString()?.trim().orEmpty()
+        val currentTitle = etCustomTitle.text?.toString()?.trim().orEmpty()
         return currentRights != initialRights || currentTitle != initialCustomTitle
     }
 
@@ -376,10 +437,9 @@ class AdminRightsEditActivity : EveBaseActivity() {
     }
 
     private fun saveChanges() {
-        if (!canAct() || mutationPending || isOwner || !canEdit ||
-            targetEmail.isBlank()) return
+        if (!canAct() || mutationPending || isOwner || !canEdit || targetEmail.isBlank() || !::etCustomTitle.isInitialized) return
         val selectedRights = getCurrentSelectedRights()
-        val customTitle = binding.etCustomTitle.text?.toString()?.trim().takeIf { !it.isNullOrBlank() }
+        val customTitle = etCustomTitle.text?.toString()?.trim().takeIf { !it.isNullOrBlank() }
         runAuthorizedMutation(
             operation = { callback ->
                 viewModel.updateAdminRights(targetEmail, selectedRights, customTitle, callback)
@@ -396,4 +456,26 @@ class AdminRightsEditActivity : EveBaseActivity() {
         activeDialog = null
         super.onDestroy()
     }
+
+    private fun addHeader(title: String) {
+        listContainer.addView(HeaderCell(this).apply {
+            setText(title)
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+        }, matchWrap())
+    }
+
+    private fun addShadow() {
+        listContainer.addView(ShadowSectionCell(this), matchWrap())
+    }
+
+    private fun addInfo(text: String) {
+        listContainer.addView(TextInfoPrivacyCell(this).apply {
+            setText(text)
+        }, matchWrap())
+    }
+
+    private fun matchWrap() = LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    )
 }
