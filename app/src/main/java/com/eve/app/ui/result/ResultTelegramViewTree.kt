@@ -19,6 +19,8 @@ import com.eve.app.R
 import com.eve.app.designsystem.TelegramButton
 import com.eve.app.designsystem.TelegramChip
 import com.eve.app.designsystem.TelegramChipGroup
+import com.eve.app.designsystem.TelegramTabsView
+import com.eve.app.ui.common.TelegramBadgeView
 import com.eve.app.ui.common.TelegramSlotTextView
 import org.telegram.messenger.AndroidUtilities
 import org.telegram.ui.ActionBar.Theme
@@ -37,6 +39,18 @@ class ResultTelegramViewTree(context: Context) {
     private fun dp(v: Float): Int = AndroidUtilities.dp(v)
     private fun mediumFont(): Typeface =
         AndroidUtilities.getTypeface("fonts/rmedium.ttf") ?: Typeface.DEFAULT_BOLD
+
+    val tabLayoutResult: TelegramTabsView = TelegramTabsView(context).apply { id = R.id.tabLayoutResult }
+    val scrollResultContent: ScrollView = ScrollView(context).apply { isFillViewport = true }
+    val sectionReview: LinearLayout = LinearLayout(context).apply {
+        orientation = LinearLayout.VERTICAL
+        setPadding(dp(12f), dp(8f), dp(12f), dp(12f))
+        visibility = View.GONE
+    }
+    val scrollLeaderboard: ScrollView = ScrollView(context).apply {
+        isFillViewport = true
+        visibility = View.GONE
+    }
 
     val root: LinearLayout = LinearLayout(context).apply {
         orientation = LinearLayout.VERTICAL
@@ -131,6 +145,24 @@ class ResultTelegramViewTree(context: Context) {
         id = R.id.tvCutoffSelectedCategory
         setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14f)
         typeface = mediumFont()
+    }
+    val tvCutoffVerdict: TelegramBadgeView = TelegramBadgeView(context).apply {
+        id = R.id.tvCutoffVerdict
+        setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13f)
+    }
+    val tvCutoffValue: TextView = TextView(context).apply {
+        id = R.id.tvCutoffValue
+        text = "Cutoff unavailable"
+        setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13f)
+    }
+    val tvCutoffScore: TextView = TextView(context).apply {
+        id = R.id.tvCutoffScore
+        text = "Score: --"
+        setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13f)
+    }
+    val tvCutoffRelationship: TextView = TextView(context).apply {
+        id = R.id.tvCutoffRelationship
+        setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13f)
     }
     val tvHistoryBestAvg: TextView = TextView(context).apply {
         id = R.id.tvHistoryBestAvg
@@ -268,7 +300,6 @@ class ResultTelegramViewTree(context: Context) {
         root.addView(topDivider, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 1))
 
         // 2. Scrollable Overview + Review Body
-        val scroll = ScrollView(context).apply { isFillViewport = true }
         val body = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(14f), dp(12f), dp(14f), dp(24f))
@@ -313,6 +344,12 @@ class ResultTelegramViewTree(context: Context) {
         perfInner.addView(tvCutoffSelectedCategory)
         perfInner.addView(tvHistoryBestAvg, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0f, 6f, 0f, 2f))
         perfInner.addView(tvTopperAvg)
+        perfInner.addView(tvCutoffVerdict, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0f, 8f, 0f, 4f))
+        val cutoffValues = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL }
+        cutoffValues.addView(tvCutoffValue, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+        cutoffValues.addView(tvCutoffScore, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+        perfInner.addView(cutoffValues)
+        perfInner.addView(tvCutoffRelationship, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0f, 8f, 0f, 0f))
         cardPerformanceStanding.addView(perfInner)
         sectionCards.add(cardPerformanceStanding)
         body.addView(cardPerformanceStanding, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0f, 0f, 0f, 12f))
@@ -347,25 +384,28 @@ class ResultTelegramViewTree(context: Context) {
         layoutLeaderboardChips.addView(tvLeaderboardPercentileChip)
         lbCard.addView(layoutLeaderboardChips, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0f, 0f, 0f, 10f))
         lbCard.addView(btnOpenLeaderboard, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 42))
-        body.addView(lbCard, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0f, 0f, 0f, 14f))
+        scrollLeaderboard.addView(lbCard, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT))
 
         // Review filter chips + palette + isolated answers list
         chipGroupFilter.addView(chipCorrect)
         chipGroupFilter.addView(chipWrong)
         chipGroupFilter.addView(chipNotAttempted)
-        body.addView(chipGroupFilter, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0f, 0f, 0f, 8f))
-        body.addView(rvResultPalette, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 52, 0f, 0f, 0f, 8f))
+        sectionReview.addView(rvResultPalette, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 52, 0f, 0f, 0f, 8f))
+        sectionReview.addView(chipGroupFilter, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0f, 0f, 0f, 8f))
 
         layoutEmptyFilter.addView(tvEmptyFilterTitle)
         layoutEmptyFilter.addView(tvEmptyFilterSub, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0f, 4f, 0f, 0f))
-        body.addView(layoutEmptyFilter)
-        body.addView(rvAnswers, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 480))
+        sectionReview.addView(layoutEmptyFilter)
+        sectionReview.addView(rvAnswers, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
 
-        scroll.addView(body, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT))
-        root.addView(scroll, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
+        scrollResultContent.addView(body, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT))
+        root.addView(tabLayoutResult, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(48f)))
+        root.addView(scrollResultContent, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
+        root.addView(sectionReview, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
+        root.addView(scrollLeaderboard, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
 
         primaryTexts.addAll(listOf(tvScore, tvRank, tvPercentile, tvAccuracy, tvCutoffSelectedCategory, tvAnalysisAccuracy, tvLeaderboardTabRank, tvLeaderboardScoreChip, tvLeaderboardPercentileChip, tvEmptyFilterTitle))
-        secondaryTexts.addAll(listOf(tvResultSubtitle, tvStats, tvHistoryBestAvg, tvTopperAvg, tvAnalysisAttempted, tvAnalysisAvgTime, tvLeaderboardTabSubtitle, tvEmptyFilterSub))
+        secondaryTexts.addAll(listOf(tvResultSubtitle, tvStats, tvHistoryBestAvg, tvTopperAvg, tvCutoffValue, tvCutoffScore, tvCutoffRelationship, tvAnalysisAttempted, tvAnalysisAvgTime, tvLeaderboardTabSubtitle, tvEmptyFilterSub))
 
         applyTelegramTheme()
     }

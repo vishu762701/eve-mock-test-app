@@ -175,17 +175,17 @@ class TestTelegramViewTree(context: Context) {
 
         // 2. Center content (ViewPager2 + loading/progress/message overlays)
         val centerFrame = FrameLayout(context)
-        centerFrame.addView(viewPager, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        centerFrame.addView(viewPager, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
         centerFrame.addView(loadingTest, LayoutHelper.createFrame(48, 48, Gravity.CENTER))
 
         progressGroup.addView(RadialProgressView(context), LayoutHelper.createLinear(44, 44))
-        centerFrame.addView(progressGroup, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        centerFrame.addView(progressGroup, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
 
         messageGroup.addView(ivMessageIcon, LayoutHelper.createLinear(112, 112, Gravity.CENTER_HORIZONTAL))
         messageGroup.addView(tvMessage, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0f, 12f, 0f, 4f))
         messageGroup.addView(tvMessageSub, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0f, 0f, 0f, 14f))
         messageGroup.addView(btnRetry, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, 44, Gravity.CENTER_HORIZONTAL))
-        centerFrame.addView(messageGroup, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        centerFrame.addView(messageGroup, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
 
         root.addView(centerFrame, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
 

@@ -711,9 +711,9 @@ class ResultActivity : EveBaseActivity() {
             .setCustomView(container)
             .create()
         categoryBottomSheet = dialog
-        dialog.setOnDismissListener {
+        dialog.setOnDismissListener(Runnable {
             if (categoryBottomSheet === dialog) categoryBottomSheet = null
-        }
+        })
 
         val categories = listOf("General", "OBC", "SC", "ST", "EWS")
         for (cat in categories) {

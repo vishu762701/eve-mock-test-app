@@ -3,10 +3,9 @@ package com.eve.app.ui.result
 import android.view.View
 import androidx.core.content.ContextCompat
 import com.eve.app.R
-import com.eve.app.databinding.ActivityResultBinding
 
 object ResultCutoffPresentation {
-    fun bind(binding: ActivityResultBinding, category: String, score: Double, cutoffs: Map<String, Double>) {
+    fun bind(binding: ResultTelegramViewTree, category: String, score: Double, cutoffs: Map<String, Double>) {
         // Update Hero Card
         binding.tvCutoffSelectedCategory.text = category
         val cutoff = cutoffs[category]
