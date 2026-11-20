@@ -373,7 +373,7 @@ public class UniversalAdapter extends AdapterWithDiffUtils {
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view;
+        View view = null; // EVE-PATCH: initialize view to avoid definite assignment error
         final int key_background = dialog ? Theme.key_dialogBackground : Theme.key_windowBackgroundWhite;
         if (viewType >= UItem.factoryViewTypeStartsWith) {
             UItem.UItemFactory<?> factory = UItem.findFactory(viewType);

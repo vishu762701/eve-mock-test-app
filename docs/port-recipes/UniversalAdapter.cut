@@ -104,6 +104,7 @@ remove-statement "userCheckBoxCell.setNeedDivider(divider);"
 remove-statement "((QuickRepliesActivity.QuickReplyView) holder.itemView).setReorder(allowReorder);"
 
 # Direct Theme colors without ThemeBind
+patch-line "        View view;" "        View view = null;" "initialize view to avoid definite assignment error"
 patch-line "ThemeBind.backgroundColor(view, key_background, themedColors);" "if (view != null) view.setBackgroundColor(getThemedColor(key_background));" "direct item background without ThemeBind"
 patch-line "ThemeBind.backgroundColor(holder.itemView, item.checked ? Theme.key_windowBackgroundChecked : Theme.key_windowBackgroundUnchecked);" "holder.itemView.setBackgroundColor(getThemedColor(item.checked ? Theme.key_windowBackgroundChecked : Theme.key_windowBackgroundUnchecked));" "direct checkripple background without ThemeBind"
 remove-statement "ThemeBind.clear(holder.itemView); // custom (non-theme) background" all
