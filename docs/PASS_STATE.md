@@ -15,7 +15,7 @@
 | **Pass 4a** | `AdminRightsEditActivity`, `AppConfigActivity`, `EditAboutActivity` (verified pure programmatic `org.telegram.ui.*`) + `AdminAnalyticsActivity` rebuilt (`AdminAnalyticsTelegramViewTree`, `RecyclerListView`, `RadialProgressView`, `HeaderCell`, `Theme.getColor`) | **DONE (pending CI confirmation)** |
 | **Pass 4b** | `ActivityLogActivity`, `FlaggedQuestionsActivity`, `SendNotificationActivity`, `ManageUsersActivity` rebuilt programmatically (`RecyclerListView`, `RadialProgressView`, `BottomSheet`, `TextCell`, `HeaderCell`, `Theme.getColor`) | **DONE (pending CI confirmation)** |
 | **Pass 4c** | `ManagePremiumActivity`, `ManageSyllabusActivity`, `EditExamActivity` rebuilt programmatically (`EditTextBoldCursor`, `HeaderCell`, `ShadowSectionCell`, `DividerCell`, `RecyclerListView`, `RadialProgressView`, `Theme.getColor`) | **DONE (pending CI confirmation)** |
-| **Pass 4d** | Remaining 3 Admin Screens (`AdminActivity`, `ManageExamsActivity`, `ManageQuestionsActivity`) | PENDING |
+| **Pass 4d** | `AdminActivity`, `ManageExamsActivity`, `ManageQuestionsActivity` rebuilt programmatically (`RecyclerListView`, `RadialProgressView`, `HeaderCell`, `ShadowSectionCell`, `Theme.getColor`) | **DONE (pending CI confirmation)** |
 | **Pass 5** | Final Dead-File & Legacy XML/Shadow Purge | PENDING |
 
 ## SHADOW CLASS MAP

@@ -38,7 +38,7 @@ import com.eve.app.util.AdminPermissionSnapshot
 import com.google.firebase.auth.FirebaseAuth
 import androidx.lifecycle.Lifecycle
 import kotlinx.coroutines.CancellationException
-import com.eve.app.databinding.ActivityManageExamsBinding
+import org.telegram.ui.ActionBar.Theme
 import com.eve.app.util.AppBulletin
 import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.timepicker.MaterialTimePicker
@@ -50,7 +50,7 @@ import java.util.Locale
 
 class ManageExamsActivity : EveBaseActivity() {
 
-    private lateinit var binding: ActivityManageExamsBinding
+    private lateinit var binding: ManageExamsTelegramViewTree
     private val examRepo = ExamRepository()
     private val adminRepo = AdminRepository()
     private val auditLogRepo = AuditLogRepository()
@@ -166,8 +166,8 @@ class ManageExamsActivity : EveBaseActivity() {
             val view = super.getView(position, convertView, parent) as TextView
             val item = getItem(position)
             view.text = item?.displayLabel.orEmpty()
-            view.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.text_primary))
-            view.setBackgroundColor(androidx.core.content.ContextCompat.getColor(context, R.color.surface))
+            view.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText))
+            view.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
             return view
         }
 
@@ -204,7 +204,7 @@ class ManageExamsActivity : EveBaseActivity() {
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityManageExamsBinding.inflate(layoutInflater)
+        binding = ManageExamsTelegramViewTree(this)
         setContentView(binding.root)
         if (savedInstanceState != null &&
             savedInstanceState.getString("generation_owner_uid") != null &&
@@ -251,6 +251,11 @@ class ManageExamsActivity : EveBaseActivity() {
         generationEpoch++
         reauthorizeOnResume = true
         super.onStop()
+    }
+
+    override fun onApplyThemePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+        super.onApplyThemePalette(palette)
+        if (::binding.isInitialized) binding.applyTelegramTheme()
     }
 
     override fun onDestroy() {
@@ -765,7 +770,7 @@ class ManageExamsActivity : EveBaseActivity() {
     private fun updateTimePickerState(enabled: Boolean) {
         binding.btnPickTime.isEnabled = enabled
         binding.btnPickTime.alpha = 1f
-        val labelColor = androidx.core.content.ContextCompat.getColor(this, R.color.text_primary)
+        val labelColor = Theme.getColor(Theme.key_windowBackgroundWhiteBlackText)
         binding.btnPickTime.setTextColor(androidx.core.graphics.ColorUtils.setAlphaComponent(labelColor, if (enabled) 255 else 128))
     }
 
@@ -1161,7 +1166,7 @@ class ManageExamsActivity : EveBaseActivity() {
         val tvMsg = android.widget.TextView(context).apply {
             text = friendlyMessage
             com.eve.app.designsystem.DesignType.apply(this, com.eve.app.designsystem.DesignType.Role.BODY)
-            setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.text_primary))
+            setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText))
         }
         container.addView(tvMsg)
 
@@ -1175,7 +1180,7 @@ class ManageExamsActivity : EveBaseActivity() {
         val tvDetails = android.widget.TextView(context).apply {
             text = techLine
             com.eve.app.designsystem.DesignType.apply(this, com.eve.app.designsystem.DesignType.Role.SECONDARY)
-            setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.text_secondary))
+            setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText))
             setTextIsSelectable(true)
             val topMargin = resources.getDimensionPixelSize(R.dimen.design_section_gap)
             layoutParams = android.widget.LinearLayout.LayoutParams(

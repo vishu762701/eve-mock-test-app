@@ -39,7 +39,6 @@ import com.eve.app.data.repository.ExamRepository
 import com.eve.app.data.repository.FeedbackRepository
 import com.eve.app.data.repository.FloatingLinkRepository
 import com.eve.app.data.repository.HomeBannerRepository
-import com.eve.app.databinding.ActivityAdminBinding
 import com.eve.app.databinding.DialogCreateFeedbackPostBinding
 import com.eve.app.databinding.DialogManageBannersBinding
 import com.eve.app.databinding.DialogPostRepliesBinding
@@ -71,7 +70,7 @@ import java.util.Locale
 
 class AdminActivity : EveBaseActivity() {
 
-    private lateinit var binding: ActivityAdminBinding
+    private lateinit var binding: AdminTelegramViewTree
     private val viewModel: AdminViewModel by viewModels()
     private val adminRepo = AdminRepository()
     private val bannerRepo = HomeBannerRepository()
@@ -132,7 +131,7 @@ class AdminActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityAdminBinding.inflate(layoutInflater)
+        binding = AdminTelegramViewTree(this)
         setContentView(binding.root)
 
         setupActionBar()
@@ -167,6 +166,7 @@ class AdminActivity : EveBaseActivity() {
     }
 
     override fun onApplyThemePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+        if (::binding.isInitialized) binding.applyTelegramTheme()
         super.onApplyThemePalette(palette)
         dashboardPager?.refreshTheme()
     }

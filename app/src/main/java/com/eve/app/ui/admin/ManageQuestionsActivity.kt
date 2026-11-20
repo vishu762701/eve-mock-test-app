@@ -24,7 +24,6 @@ import com.eve.app.data.model.Question
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.util.AdminPermissionSnapshot
-import com.eve.app.databinding.ActivityManageQuestionsBinding
 import com.eve.app.designsystem.TelegramNativeAlertDialog
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AdminIdentityGuard
@@ -43,7 +42,7 @@ import androidx.core.view.doOnLayout
 
 class ManageQuestionsActivity : EveBaseActivity() {
 
-    private lateinit var binding: ActivityManageQuestionsBinding
+    private lateinit var binding: ManageQuestionsTelegramViewTree
     private val viewModel: AdminViewModel by viewModels()
     private val examRepo = ExamRepository()
 
@@ -150,7 +149,7 @@ class ManageQuestionsActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityManageQuestionsBinding.inflate(layoutInflater)
+        binding = ManageQuestionsTelegramViewTree(this)
         setContentView(binding.root)
         restoredSelectedExam = savedInstanceState?.getString("questions:selected-exam")
         val restoredOwner = QuestionBulkImportOrigin(
@@ -677,6 +676,11 @@ class ManageQuestionsActivity : EveBaseActivity() {
         pendingBulkUri?.let { outState.putString("bulk:uri", it.toString()) }
         outState.putBoolean("bulk:write-in-flight", bulkWriteInFlight)
         super.onSaveInstanceState(outState)
+    }
+
+    override fun onApplyThemePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+        super.onApplyThemePalette(palette)
+        if (::binding.isInitialized) binding.applyTelegramTheme()
     }
 
     override fun onDestroy() {
