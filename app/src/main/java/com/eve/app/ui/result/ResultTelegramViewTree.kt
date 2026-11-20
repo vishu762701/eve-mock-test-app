@@ -384,7 +384,7 @@ class ResultTelegramViewTree(context: Context) {
         layoutLeaderboardChips.addView(tvLeaderboardPercentileChip)
         lbCard.addView(layoutLeaderboardChips, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0f, 0f, 0f, 10f))
         lbCard.addView(btnOpenLeaderboard, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 42))
-        scrollLeaderboard.addView(lbCard, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT))
+        scrollLeaderboard.addView(lbCard, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT.toFloat()))
 
         // Review filter chips + palette + isolated answers list
         chipGroupFilter.addView(chipCorrect)
