@@ -115,6 +115,12 @@ android {
             assets.srcDirs("src/androidTest/assets", "../docs")
         }
     }
+
+    lint {
+        lintConfig = file("lint.xml")
+        disable.add("AppCompatCustomView")
+        textReport = true
+    }
 }
 
 dependencies {
