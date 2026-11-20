@@ -1,6 +1,6 @@
 package com.eve.app.ui.admin
 
-import com.eve.app.designsystem.TelegramNativeAlertDialog
+import org.telegram.ui.ActionBar.AlertDialog
 import android.content.DialogInterface
 
 import android.content.ClipData
@@ -20,7 +20,7 @@ import retrofit2.HttpException
 class AdminDeleteFlow(private val activity: AppCompatActivity, private val api: com.eve.app.data.remote.EveApiService = ApiClient.apiService) {
     private val pending = mutableSetOf<String>()
     private val repository = ExamRepository(api)
-    private var activeDialog: TelegramNativeAlertDialog? = null
+    private var activeDialog: AlertDialog? = null
 
     init {
         activity.lifecycle.addObserver(object : androidx.lifecycle.DefaultLifecycleObserver {
@@ -51,7 +51,7 @@ class AdminDeleteFlow(private val activity: AppCompatActivity, private val api: 
                     return@launch
                 }
                 var processing = false
-                val dialog = TelegramNativeAlertDialog.Builder(activity)
+                val dialog = AlertDialog.Builder(activity)
                     .setTitle(if (info.canDelete) "Permanently delete $name?" else "Deletion blocked")
                     .setMessage(info.message ?: "No saved attempts, sessions or dependent sub-exams were found. This permanently deletes the record and its questions. It cannot be undone.")
                     .setNegativeButton("Cancel", null)
@@ -96,7 +96,7 @@ class AdminDeleteFlow(private val activity: AppCompatActivity, private val api: 
         if (activity.isFinishing || activity.isDestroyed || !pending.add(key)) return
         var processing = false
         activeDialog?.dismiss()
-        val dlg = TelegramNativeAlertDialog.Builder(activity)
+        val dlg = AlertDialog.Builder(activity)
             .setTitle("Permanently delete $name?")
             .setMessage("This removes the record after server confirmation. It cannot be undone.")
             .setNegativeButton("Cancel", null)
@@ -136,7 +136,7 @@ class AdminDeleteFlow(private val activity: AppCompatActivity, private val api: 
         if (activity.isFinishing || activity.isDestroyed) return
         val requestId = (error as? HttpException)?.response()?.headers()?.get("X-Request-ID")
             ?.takeIf { it.matches(Regex("[a-fA-F0-9-]{36}")) }
-        val dialog = TelegramNativeAlertDialog.Builder(activity)
+        val dialog = AlertDialog.Builder(activity)
             .setTitle("Operation could not be completed")
             .setMessage(error.toUserFriendlyMessage(false) + (requestId?.let { "\nRequest ID: $it" } ?: ""))
             .setPositiveButton("OK", null)

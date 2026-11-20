@@ -10,7 +10,7 @@ class FeedbackReplySourceDialogContractTest {
         val source = File("src/main/java/com/eve/app/ui/admin/FeedbackMessagesActivity.kt").readText()
         val reply = source.substringAfter("private fun showReplyDialog(message: FeedbackMessage)")
             .substringBefore("override fun onDestroy()")
-        assertTrue(reply.contains("TelegramNativeAlertDialog.Builder(this)"))
+        assertTrue(reply.contains("AlertDialog.Builder(this)"))
         assertTrue(reply.contains(".setView(dialogBinding.root)"))
         assertTrue(reply.contains(".create()"))
         assertTrue(reply.contains("dialog.show()"))
@@ -21,7 +21,7 @@ class FeedbackReplySourceDialogContractTest {
 
     @Test fun dialogCanNeverStackOrOutliveItsActivityAndPayloadRemainsUnchanged() {
         val source = File("src/main/java/com/eve/app/ui/admin/FeedbackMessagesActivity.kt").readText()
-        assertTrue(source.contains("private var replyDialog: TelegramNativeAlertDialog? = null"))
+        assertTrue(source.contains("private var replyDialog: AlertDialog? = null"))
         assertTrue(source.contains("if (isFinishing || isDestroyed || replyDialog?.isShowing == true) return"))
         assertTrue(source.contains("dialog.setOnDismissListener"))
         assertTrue(source.contains("if (replyDialog === dialog) replyDialog = null"))

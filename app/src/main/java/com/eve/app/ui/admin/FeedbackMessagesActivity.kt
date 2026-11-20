@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.R
 import com.eve.app.data.model.FeedbackMessage
 import com.eve.app.data.repository.FeedbackRepository
-import com.eve.app.designsystem.TelegramNativeAlertDialog
+import org.telegram.ui.ActionBar.AlertDialog
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AdminAccessGate
 import com.eve.app.util.AppBulletin
@@ -39,8 +39,8 @@ class FeedbackMessagesActivity : EveBaseActivity() {
 
     private val repo = FeedbackRepository()
     private lateinit var adapter: FeedbackMessagesAdapter
-    private var replyDialog: TelegramNativeAlertDialog? = null
-    private var deleteDialog: TelegramNativeAlertDialog? = null
+    private var replyDialog: AlertDialog? = null
+    private var deleteDialog: AlertDialog? = null
 
     private var authorizedUid: String? = null
     private var authorizedEmail: String? = null
@@ -252,7 +252,7 @@ class FeedbackMessagesActivity : EveBaseActivity() {
     private fun confirmDeleteMessage(message: FeedbackMessage) {
         if (isFinishing || isDestroyed) return
         deleteDialog?.dismiss()
-        val dialog = TelegramNativeAlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle("Delete Feedback")
             .setMessage("Are you sure you want to delete this message? This action cannot be undone.")
             .setPositiveButton("Delete") { _, _ ->
@@ -306,7 +306,7 @@ class FeedbackMessagesActivity : EveBaseActivity() {
     private fun showReplyDialog(message: FeedbackMessage) {
         if (isFinishing || isDestroyed || replyDialog?.isShowing == true) return
         val dialogBinding = com.eve.app.databinding.DialogReplyFeedbackBinding.inflate(layoutInflater)
-        val dialog = TelegramNativeAlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setView(dialogBinding.root)
             .create()
 

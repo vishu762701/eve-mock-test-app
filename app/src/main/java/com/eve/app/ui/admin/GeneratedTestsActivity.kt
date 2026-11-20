@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.R
 import com.eve.app.data.model.GeneratedTest
 import com.eve.app.data.repository.ExamRepository
-import com.eve.app.designsystem.TelegramNativeAlertDialog
+import org.telegram.ui.ActionBar.AlertDialog
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AdminAccessGate
 import com.eve.app.util.AppBulletin
@@ -368,7 +368,7 @@ class GeneratedTestsActivity : EveBaseActivity() {
             formattedText.append("\n--------------------\n\n")
         }
 
-        previewDialog = TelegramNativeAlertDialog.Builder(this)
+        previewDialog = AlertDialog.Builder(this)
             .setTitle("${test.examName} (${test.questionCount} Questions)")
             .setMessage(formattedText.toString())
             .setPositiveButton("Close", null)

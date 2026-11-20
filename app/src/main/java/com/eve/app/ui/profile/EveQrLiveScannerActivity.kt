@@ -7,7 +7,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.net.Uri
 import android.provider.Settings
-import com.eve.app.designsystem.TelegramNativeAlertDialog
+import org.telegram.ui.ActionBar.AlertDialog
 import android.os.Bundle
 import android.os.SystemClock
 import android.view.Gravity
@@ -75,7 +75,7 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
     private var foundNavigation: Runnable? = null
     private var galleryGeneration = 0L
     private var galleryRequested = false
-    private var permissionDialog: TelegramNativeAlertDialog? = null
+    private var permissionDialog: AlertDialog? = null
     private val torchState = QrTorchGate()
     private lateinit var torchButton: QrScannerControl
     private var lastScanAt = 0L
@@ -100,7 +100,7 @@ class EveQrLiveScannerActivity : EveBaseActivity() {
         if (closing || completed.get() || isFinishing || isDestroyed ||
             permissionDialog?.isShowing == true) return
         val settings = !shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)
-        permissionDialog = TelegramNativeAlertDialog.Builder(this)
+        permissionDialog = AlertDialog.Builder(this)
             .setTitle("Camera permission")
             .setMessage(if (settings)
                 "Camera access is unavailable. Enable it in Android App Settings or scan an image from Gallery."

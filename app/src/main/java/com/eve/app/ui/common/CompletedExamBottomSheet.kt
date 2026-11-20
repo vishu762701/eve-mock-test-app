@@ -3,7 +3,7 @@ package com.eve.app.ui.common
 import android.content.Intent
 import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
-import com.eve.app.designsystem.TelegramNativeAlertDialog
+import org.telegram.ui.ActionBar.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.R
 import com.eve.app.data.model.TestAttempt
@@ -103,7 +103,7 @@ object CompletedExamBottomSheet {
         }
 
         var reattemptCheckPending = false
-        var reattemptConfirmDialog: TelegramNativeAlertDialog? = null
+        var reattemptConfirmDialog: AlertDialog? = null
         binding.btnReattempt.setOnClickListener {
             // One attempt-limit lookup and one confirmation window per tap sequence.
             if (reattemptCheckPending || reattemptConfirmDialog?.isShowing == true ||
@@ -120,12 +120,12 @@ object CompletedExamBottomSheet {
                     if (activity.isFinishing || activity.isDestroyed || !dialog.isShowing ||
                         FirebaseAuth.getInstance().currentUser?.uid != ownerUid) return@launch
                     val builder = if (!canReattempt) {
-                        TelegramNativeAlertDialog.Builder(activity)
+                        AlertDialog.Builder(activity)
                             .setTitle("Attempt Limit Reached")
                             .setMessage("You have reached the maximum limit of 3 attempts for this test. Normal users can attempt each test at most 3 times.")
                             .setPositiveButton("OK", null)
                     } else {
-                        TelegramNativeAlertDialog.Builder(activity)
+                        AlertDialog.Builder(activity)
                             .setTitle(activity.getString(R.string.reattempt_confirm_title))
                             .setMessage("Are you sure you want to start a new attempt for this test? Each test can be attempted up to 3 times.")
                             .setNegativeButton(activity.getString(R.string.cancel), null)

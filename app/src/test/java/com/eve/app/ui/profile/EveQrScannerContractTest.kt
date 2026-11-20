@@ -39,7 +39,7 @@ class EveQrScannerContractTest {
         assertTrue(scanner.contains("group.setViewPort(viewPort)"))
         assertTrue(scanner.contains("QrScanFound.FOUND_DELAY_MS"))
         assertTrue(scanner.contains("shouldShowRequestPermissionRationale"))
-        assertTrue(scanner.contains("TelegramNativeAlertDialog.Builder(this)"))
+        assertTrue(scanner.contains("AlertDialog.Builder(this)"))
         assertTrue(scanner.contains("Settings.ACTION_APPLICATION_DETAILS_SETTINGS"))
         assertTrue(scanner.contains("override fun onResume()"))
         assertTrue(scanner.contains("if (cameraBinding || provider != null"))

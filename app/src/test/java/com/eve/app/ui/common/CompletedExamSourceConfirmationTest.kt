@@ -42,7 +42,7 @@ class CompletedExamSourceConfirmationTest {
 
     @Test fun originalDialogSourceIsAppliedWithoutChangingAttemptGuardOrCallbacks() {
         assertTrue(code.contains("val canReattempt = com.eve.app.util.AttemptLimitManager.canAttempt(activity, examId)"))
-        assertTrue(code.contains("TelegramNativeAlertDialog.Builder(activity)"))
+        assertTrue(code.contains("AlertDialog.Builder(activity)"))
         assertTrue(!code.contains("TelegramDialogSourceBackground.apply(confirmation)"))
         assertTrue(code.contains("TelegramBottomSheetSourceBackdrop.install(dialog, activity)"))
         assertTrue(code.contains(".setTitle(\"Attempt Limit Reached\")"))

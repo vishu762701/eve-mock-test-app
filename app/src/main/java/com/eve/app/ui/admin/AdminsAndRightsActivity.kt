@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.R
 import com.eve.app.data.remote.DynamicAdminItem
 import com.eve.app.data.remote.toUserFriendlyMessage
-import com.eve.app.designsystem.TelegramNativeAlertDialog
+import org.telegram.ui.ActionBar.AlertDialog
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AdminAccessGate
 import com.eve.app.util.AppBulletin
@@ -46,7 +46,7 @@ class AdminsAndRightsActivity : EveBaseActivity() {
     private var authorizedUid: String = ""
     private var authorizedEmail: String = ""
     private var reauthorizeOnResume: Boolean = false
-    private var removeAdminDialog: TelegramNativeAlertDialog? = null
+    private var removeAdminDialog: AlertDialog? = null
 
     private lateinit var rootView: LinearLayout
     private lateinit var scrollContent: ScrollView
@@ -264,7 +264,7 @@ class AdminsAndRightsActivity : EveBaseActivity() {
     private fun confirmRemoveAdmin(admin: DynamicAdminItem) {
         val email = admin.email
         removeAdminDialog?.dismiss()
-        val dialog = TelegramNativeAlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle("Remove Admin?")
             .setMessage("Remove $email? This will revoke admin privileges and cannot be undone.")
             .setPositiveButton("Remove") { _, _ ->

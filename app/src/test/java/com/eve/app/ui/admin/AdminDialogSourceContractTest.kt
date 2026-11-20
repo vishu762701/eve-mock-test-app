@@ -42,8 +42,8 @@ class AdminDialogSourceContractTest {
 
     @Test fun adminDeleteFlowAppliesDestructiveAndSourceStyling() {
         val source = File("src/main/java/com/eve/app/ui/admin/AdminDeleteFlow.kt").readText()
-        assertTrue(source.contains("import com.eve.app.designsystem.TelegramNativeAlertDialog"))
-        assertTrue(source.contains("TelegramNativeAlertDialog.Builder(activity)"))
+        assertTrue(source.contains("import org.telegram.ui.ActionBar.AlertDialog"))
+        assertTrue(source.contains("AlertDialog.Builder(activity)"))
         assertTrue(source.contains(".makeRed(DialogInterface.BUTTON_POSITIVE).show()"))
         assertTrue(source.contains("if (!pending.add(key)) return"))
         assertTrue(source.contains("repository.deleteExam(id)"))
@@ -60,14 +60,14 @@ class AdminDialogSourceContractTest {
         // The read-only generated-test preview now uses the actual source-derived
         // native message scroll host instead of the previous Material adapter.
         val preview = File("src/main/java/com/eve/app/ui/admin/GeneratedTestsActivity.kt").readText()
-        assertTrue(preview.contains("TelegramNativeAlertDialog.Builder(this)"))
+        assertTrue(preview.contains("AlertDialog.Builder(this)"))
         assertTrue(preview.contains(".setMessage(formattedText.toString())"))
         assertTrue(preview.contains(".setPositiveButton(\"Close\", null)"))
         assertTrue(preview.contains(".show()"))
         val editAbout = File("src/main/java/com/eve/app/ui/admin/EditAboutActivity.kt").readText()
-        assertTrue(editAbout.contains("import com.eve.app.designsystem.TelegramNativeAlertDialog"))
+        assertTrue(editAbout.contains("import org.telegram.ui.ActionBar.AlertDialog"))
         assertEquals("Both unsaved flows share one canonical native dialog host",
-            1, editAbout.split("TelegramNativeAlertDialog.Builder(").size - 1)
+            1, editAbout.split("AlertDialog.Builder(").size - 1)
         val tabSelection = editAbout.substringAfter("override fun onTabSelected(")
             .substringBefore("override fun onTabUnselected(")
         assertTrue("Dirty tab navigation must still reach the native unsaved confirmation",
@@ -78,7 +78,7 @@ class AdminDialogSourceContractTest {
             back.contains("showUnsavedConfirmation(leaving = true) { finish() }"))
         val unsaved = editAbout.substringAfter("private fun showUnsavedConfirmation(")
             .substringBefore("private fun handleBack()")
-        assertTrue(unsaved.contains("TelegramNativeAlertDialog.Builder(this)"))
+        assertTrue(unsaved.contains("AlertDialog.Builder(this)"))
         for (action in listOf("PositiveButton(\"Save\"", "NegativeButton(\"Discard\"", "NeutralButton(\"Cancel\"")) {
             assertTrue("Both flows retain $action on the native host", unsaved.contains(".set$action"))
         }
@@ -129,7 +129,7 @@ class AdminDialogSourceContractTest {
             assertTrue("$name must no longer open the legacy Material adapter", !src.contains("showTelegramSourceDialog()"))
         }
         val notify = File("src/main/java/com/eve/app/ui/admin/SendNotificationActivity.kt").readText()
-        assertEquals(3, notify.split("TelegramNativeAlertDialog.Builder(this)").size - 1)
+        assertEquals(3, notify.split("AlertDialog.Builder(this)").size - 1)
         assertEquals(2, notify.split(".makeRed(DialogInterface.BUTTON_POSITIVE)").size - 1)
         assertTrue(notify.contains("deleteSelectedBroadcasts()"))
         assertTrue(notify.contains("deleteBroadcast(broadcast)"))
@@ -143,7 +143,7 @@ class AdminDialogSourceContractTest {
         assertTrue(flagged.contains("flagRepo.dismissFlags("))
         assertTrue(flagged.contains("examRepo.updateQuestion(updated)"))
         assertTrue(flagged.contains("createQuestionEditorDialog(this@FlaggedQuestionsActivity,"))
-        assertTrue("Flag dismissal still uses the native confirmation host", flagged.contains("TelegramNativeAlertDialog.Builder(this)"))
+        assertTrue("Flag dismissal still uses the native confirmation host", flagged.contains("AlertDialog.Builder(this)"))
         assertTrue("Combined success needs confirmed report resolution", flagged.contains("confirmed = flagRepo.dismissFlags(item.flagIds)"))
         assertCanonicalQuestionEditorUsesNativeHost()
     }
@@ -151,7 +151,7 @@ class AdminDialogSourceContractTest {
         val shared = File("src/main/java/com/eve/app/ui/admin/ManageQuestionsActivity.kt")
             .readText().substringAfter("internal fun createQuestionEditorDialog(")
             .substringBefore("internal fun createRenameExamDialog(")
-        assertTrue(shared.contains("TelegramNativeAlertDialog.Builder(activity)"))
+        assertTrue(shared.contains("AlertDialog.Builder(activity)"))
         assertTrue(shared.contains(".setView(dialogView)"))
         assertTrue(shared.contains("dialog.setDismissDialogByButtons(false)"))
         assertTrue(shared.contains(".setNegativeButton(\"Cancel\"") )

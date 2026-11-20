@@ -196,9 +196,6 @@ object TelegramThemeApplier {
             is com.eve.app.designsystem.RadioCell -> {
                 view.updatePalette(palette)
             }
-            is com.eve.app.ui.admin.tg.TextDetailCell -> {
-                view.updatePalette(palette)
-            }
             is com.eve.app.ui.admin.tg.HeaderCell -> {
                 view.updatePalette(palette)
             }
@@ -206,9 +203,6 @@ object TelegramThemeApplier {
                 view.updatePalette(palette)
             }
             is com.eve.app.ui.admin.tg.ShadowSectionCell -> {
-                view.updatePalette(palette)
-            }
-            is com.eve.app.ui.admin.tg.DividerCell -> {
                 view.updatePalette(palette)
             }
             is com.eve.app.ui.admin.tg.TelegramSegmentedTabs -> {

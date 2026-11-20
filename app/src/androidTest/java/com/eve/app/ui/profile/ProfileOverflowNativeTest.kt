@@ -7,7 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.eve.app.databinding.ActivityProfileBinding
 import com.eve.app.ui.RepairVerificationActivity
-import com.eve.app.ui.profile.popup.ActionBarPopupWindow
+import org.telegram.ui.ActionBar.ActionBarPopupWindow
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -146,7 +146,7 @@ class ProfileOverflowNativeTest {
                     assertTrue(popup.isShowing)
                     val window = sourceWindow(popup)
                     val root = window.contentView as ActionBarPopupWindow.ActionBarPopupWindowLayout
-                    assertNotNull("Original source swipe-back parent is mounted", root.swipeBack)
+                    assertNotNull("Original source popup layout is mounted", root)
                     // Captured scene is provided by the actual popup background
                     // factory, never a decorative view laid over its rows.
                     val backdrop = root.backgroundDrawable

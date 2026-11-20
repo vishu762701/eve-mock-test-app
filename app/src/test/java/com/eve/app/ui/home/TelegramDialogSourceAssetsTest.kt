@@ -112,7 +112,7 @@ class TelegramDialogSourceAssetsTest {
         assertTrue(premium.contains("TelegramNativeAlertDialog.Builder(this)"))
         assertTrue(premium.contains(".makeRed(DialogInterface.BUTTON_POSITIVE).show()"))
         val adminDelete = File("src/main/java/com/eve/app/ui/admin/AdminDeleteFlow.kt").readText()
-        assertTrue(adminDelete.contains("TelegramNativeAlertDialog.Builder(activity)"))
+        assertTrue(adminDelete.contains("AlertDialog.Builder(activity)"))
         assertTrue(adminDelete.contains(".makeRed(DialogInterface.BUTTON_POSITIVE).show()"))
         assertTrue(adminDelete.contains("if (!processing) pending.remove(key)"))
         assertTrue(adminDelete.contains("repository.deleteExam(id)"))

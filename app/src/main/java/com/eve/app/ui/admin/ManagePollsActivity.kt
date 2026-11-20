@@ -17,7 +17,7 @@ import com.eve.app.R
 import com.eve.app.data.model.Poll
 import com.eve.app.data.repository.PollRepository
 import com.eve.app.databinding.DialogCreatePollBinding
-import com.eve.app.designsystem.TelegramNativeAlertDialog
+import org.telegram.ui.ActionBar.AlertDialog
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AdminAccessGate
 import com.eve.app.util.AppBulletin
@@ -46,7 +46,7 @@ class ManagePollsActivity : EveBaseActivity() {
 
     private val pollRepository = PollRepository()
     private lateinit var adapter: PollsAdminAdapter
-    private var createPollDialog: TelegramNativeAlertDialog? = null
+    private var createPollDialog: AlertDialog? = null
     private var customDatePickerDialog: DatePickerDialog? = null
     private var customTimePickerDialog: TimePickerDialog? = null
     private var reauthorizeOnResume = false
@@ -312,7 +312,7 @@ class ManagePollsActivity : EveBaseActivity() {
     private fun showCreatePollDialog() {
         if (isFinishing || isDestroyed || createPollDialog?.isShowing == true) return
         val dialogBinding = DialogCreatePollBinding.inflate(layoutInflater)
-        val dialog = TelegramNativeAlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setView(dialogBinding.root)
             .create()
 

@@ -9,7 +9,7 @@ import android.widget.TextView
 import com.eve.app.R
 import com.eve.app.data.remote.AdminMeData
 import com.eve.app.data.remote.ApiResponse
-import com.eve.app.designsystem.TelegramNativeAlertDialog
+import org.telegram.ui.ActionBar.AlertDialog
 import com.eve.app.ui.profile.ProfileEditorAuthFixture
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
@@ -65,7 +65,7 @@ class SystemMonitorOwnershipTest {
     private fun button(a: SystemMonitorActivity, label: String) = texts(root(a)).single { it.text.toString()==label }
     private fun confirm(a: SystemMonitorActivity): View {
         button(a,"Retry Exam").performClick(); idle()
-        val dialog = ShadowDialog.getLatestDialog() as TelegramNativeAlertDialog
+        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
         assertTrue(dialog.isShowing)
         return requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_POSITIVE))
     }
@@ -105,7 +105,7 @@ class SystemMonitorOwnershipTest {
     }
     @Test fun cancelledConfirmationDoesNotDispatch() = exercise { a,_ ->
         confirm(a)
-        val dialog=ShadowDialog.getLatestDialog() as TelegramNativeAlertDialog
+        val dialog=ShadowDialog.getLatestDialog() as AlertDialog
         dialog.getActionButton(DialogInterface.BUTTON_NEGATIVE)?.performClick(); idle()
         assertEquals(0,SystemMonitorBoundaryFixture.retries.size)
     }
@@ -114,7 +114,7 @@ class SystemMonitorOwnershipTest {
         confirm(a).performClick(); idle()
         SystemMonitorBoundaryFixture.retries.last().resumeWithException(java.io.IOException("Offline")); idle()
         assertEquals(before,SystemMonitorBoundaryFixture.operationReads)
-        assertTrue((ShadowDialog.getLatestDialog() as TelegramNativeAlertDialog).isShowing)
+        assertTrue((ShadowDialog.getLatestDialog() as AlertDialog).isShowing)
     }
     @Test fun accountSwitchDuringSuspendedPermissionCannotDispatch() = exercise { a,_ ->
         val retry=confirm(a); EditExamBoundaryFixture.holdMembership=true
@@ -156,14 +156,14 @@ class SystemMonitorOwnershipTest {
         val before=SystemMonitorBoundaryFixture.operationReads
         confirm(a).performClick(); idle()
         SystemMonitorBoundaryFixture.retries.last().resume(ApiResponse<JsonObject>(success=false,error="Worker denied")); idle()
-        val denied=ShadowDialog.getLatestDialog() as TelegramNativeAlertDialog
+        val denied=ShadowDialog.getLatestDialog() as AlertDialog
         assertTrue(denied.isShowing)
         assertTrue(texts(requireNotNull(denied.window).decorView).any { it.text.toString().contains("Worker denied") })
         denied.dismiss(); idle()
         assertEquals(before,SystemMonitorBoundaryFixture.operationReads)
         confirm(a).performClick(); idle()
         SystemMonitorBoundaryFixture.retries.last().resume(response("{}")); idle()
-        val malformed=ShadowDialog.getLatestDialog() as TelegramNativeAlertDialog
+        val malformed=ShadowDialog.getLatestDialog() as AlertDialog
         assertTrue(malformed.isShowing)
         assertEquals(before,SystemMonitorBoundaryFixture.operationReads)
     }

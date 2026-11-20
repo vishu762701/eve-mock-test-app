@@ -12,7 +12,7 @@ import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.ApiResponse
 import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.data.repository.AdminRepository
-import com.eve.app.designsystem.TelegramNativeAlertDialog
+import org.telegram.ui.ActionBar.AlertDialog
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AdminAccessGate
 import com.eve.app.util.AdminIdentityGuard
@@ -72,8 +72,8 @@ class SystemMonitorActivity : EveBaseActivity() {
     private var reloadAfterStop = true
     private var reauthorizeOnResume = false
     private val confirmedRetries = mutableSetOf<String>()
-    private var retryConfirmationDialog: TelegramNativeAlertDialog? = null
-    private var retryErrorDialog: TelegramNativeAlertDialog? = null
+    private var retryConfirmationDialog: AlertDialog? = null
+    private var retryErrorDialog: AlertDialog? = null
 
     private fun ownerCurrent(): Boolean {
         val current = FirebaseAuth.getInstance().currentUser
@@ -408,7 +408,7 @@ class SystemMonitorActivity : EveBaseActivity() {
         if (!canRetryGeneration || loading || !canPublish() || retryPending || id.isBlank() ||
             id in confirmedRetries || retryConfirmationDialog?.isShowing == true
         ) return
-        val dialog = TelegramNativeAlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle("Retry generation?")
             .setMessage("Uses the current exam syllabus and settings. A complete validated test will be created only if generation succeeds.")
             .setNegativeButton("Cancel", null)
@@ -438,7 +438,7 @@ class SystemMonitorActivity : EveBaseActivity() {
                     } catch (e: Exception) {
                         if (epoch == stopEpoch && canPublish()) {
                             retryErrorDialog?.dismiss()
-                            retryErrorDialog = TelegramNativeAlertDialog.Builder(this@SystemMonitorActivity)
+                            retryErrorDialog = AlertDialog.Builder(this@SystemMonitorActivity)
                                 .setMessage(e.toUserFriendlyMessage())
                                 .setPositiveButton("OK", null)
                                 .show()

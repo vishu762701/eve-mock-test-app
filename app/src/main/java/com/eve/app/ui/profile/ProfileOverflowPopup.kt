@@ -10,10 +10,10 @@ import android.view.WindowManager
 import android.widget.LinearLayout
 import com.eve.app.R
 import com.eve.app.theme.TelegramThemeEngine
-import com.eve.app.ui.profile.popup.ActionBarMenuSubItem
-import com.eve.app.ui.profile.popup.ActionBarPopupWindow
-import com.eve.app.ui.profile.popup.PopupPlatform
-import com.eve.app.ui.profile.popup.Theme
+import org.telegram.messenger.AndroidUtilities
+import org.telegram.ui.ActionBar.ActionBarMenuSubItem
+import org.telegram.ui.ActionBar.ActionBarPopupWindow
+import org.telegram.ui.ActionBar.Theme
 import kotlin.math.ceil
 
 /** EVE destinations around the actual Telegram normal ActionBar popup renderer. */
@@ -24,22 +24,25 @@ internal class ProfileOverflowPopup(private val anchor: View) {
     fun show(usernameEnabled: Boolean, onUsername: () -> Unit, onCopyLink: () -> Unit, onShareQr: (() -> Unit)? = null, canEdit: Boolean = true, onChangeColor: (() -> Unit)? = null) {
         if (isShowing) return
         val context = anchor.context
-        PopupPlatform.density = context.resources.displayMetrics.density
-        fun dp(value: Float) = PopupPlatform.dp(value)
+        AndroidUtilities.checkDisplaySize(context, context.resources.configuration)
+        fun dp(value: Float) = AndroidUtilities.dp(value)
         val palette = TelegramThemeEngine.resolveCurrentPalette(context)
-        val provider = Theme.ResourcesProvider { key ->
-            when (key) {
+        val provider = object : Theme.ResourcesProvider {
+            override fun getColor(key: Int): Int = when (key) {
                 Theme.key_actionBarDefaultSubmenuBackground -> palette.submenuBackground
                 Theme.key_actionBarDefaultSubmenuItem -> palette.submenuText
                 Theme.key_actionBarDefaultSubmenuItemIcon -> palette.submenuIcon
                 Theme.key_dialogButtonSelector -> palette.submenuSelector
                 Theme.key_actionBarDefaultSubmenuSeparator -> palette.submenuSeparator
-                else -> Color.BLACK
+                else -> Theme.getColor(key)
             }
         }
-        val layout = ActionBarPopupWindow.ActionBarPopupWindowLayout(context,
-            R.drawable.telegram_dialog_popup_fixed_alert4, provider,
-            ActionBarPopupWindow.ActionBarPopupWindowLayout.FLAG_USE_SWIPEBACK)
+        val layout = ActionBarPopupWindow.ActionBarPopupWindowLayout(
+            context,
+            R.drawable.telegram_dialog_popup_fixed_alert4,
+            provider,
+            ActionBarPopupWindow.ActionBarPopupWindowLayout.FLAG_USE_SWIPEBACK
+        )
         layout.setFitItems(true)
         // Capture the scene before the popup enters the window. This isolates
         // Telegram's scrim bitmap/colors from EVE's account and network code.
@@ -77,7 +80,8 @@ internal class ProfileOverflowPopup(private val anchor: View) {
                 action()
             }
             val textHeight = item.textView.paint.fontMetricsInt.let { it.bottom - it.top }
-            item.setItemHeight(ceil(maxOf(dp(48f), textHeight).toFloat() / PopupPlatform.density).toInt())
+            val density = AndroidUtilities.density.takeIf { it > 0f } ?: context.resources.displayMetrics.density
+            item.setItemHeight(ceil(maxOf(dp(48f), textHeight).toFloat() / density).toInt())
             layout.addView(item, LinearLayout.LayoutParams(-1, -2))
         }
         if (onChangeColor != null) {
@@ -90,8 +94,10 @@ internal class ProfileOverflowPopup(private val anchor: View) {
         }
         val frame = android.graphics.Rect()
         anchor.getWindowVisibleDisplayFrame(frame)
-        layout.measure(View.MeasureSpec.makeMeasureSpec((frame.width() - dp(40f)).coerceAtLeast(dp(48f)), View.MeasureSpec.AT_MOST),
-            View.MeasureSpec.makeMeasureSpec(frame.height(), View.MeasureSpec.AT_MOST))
+        layout.measure(
+            View.MeasureSpec.makeMeasureSpec((frame.width() - dp(40f)).coerceAtLeast(dp(48f)), View.MeasureSpec.AT_MOST),
+            View.MeasureSpec.makeMeasureSpec(frame.height(), View.MeasureSpec.AT_MOST)
+        )
         popup.width = layout.measuredWidth
         popup.height = layout.measuredHeight
         popup.setOnDismissListener {
