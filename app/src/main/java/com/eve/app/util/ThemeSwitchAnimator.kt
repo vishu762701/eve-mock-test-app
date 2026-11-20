@@ -18,7 +18,7 @@ object ThemeSwitchAnimator {
     const val TAG = "ThemeSwitchAnimator"
     const val PREFS = "eve_prefs"
     const val KEY_DARK_MODE = "key_dark_mode"
-    const val ANIMATION_DURATION = 400L
+    const val ANIMATION_DURATION = 450L // Telegram: LaunchActivity.java @ 21f7d109 (anim.setDuration(450))
 
     private var inTransitionForTest = false
 
@@ -82,6 +82,9 @@ object ThemeSwitchAnimator {
         if (activity.isFinishing || activity.isDestroyed) return
         ensureLifecycleRegistered(activity.application)
         persistThemePreference(activity, target)
+        org.telegram.ui.ActionBar.Theme.syncFromEvePalette(activity)
+        org.telegram.messenger.AndroidUtilities.setLightStatusBar(activity.window, !target)
+        org.telegram.messenger.AndroidUtilities.setLightNavigationBar(activity.window, !target)
         val mode = if (target) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
         if (AppCompatDelegate.getDefaultNightMode() == mode) return
         activity.overridePendingTransition(0, 0)

@@ -13,7 +13,7 @@ import com.eve.app.R
 import com.eve.app.data.model.AppContent
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.AppContentRepository
-import com.eve.app.designsystem.TelegramNativeAlertDialog
+import org.telegram.ui.ActionBar.AlertDialog
 import com.eve.app.ui.admin.tg.TelegramSegmentedTabs
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AdminAccessGate
@@ -62,7 +62,7 @@ class EditAboutActivity : EveBaseActivity() {
     private var retainedDraft: AppContent? = null
     private var tabContentLoaded = false
     private var suppressTabSelection = false
-    private var unsavedDialog: TelegramNativeAlertDialog? = null
+    private var unsavedDialog: AlertDialog? = null
 
     private lateinit var rootView: LinearLayout
     private lateinit var tabLayout: TelegramSegmentedTabs
@@ -477,7 +477,7 @@ class EditAboutActivity : EveBaseActivity() {
         if (!current(epoch) || unsavedDialog?.isShowing == true) return
         val requestEpoch = epoch
         val type = currentType
-        val dialog = TelegramNativeAlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle("Unsaved Changes")
             .setMessage(
                 if (leaving) "You have unsaved changes. Do you want to save before leaving?"

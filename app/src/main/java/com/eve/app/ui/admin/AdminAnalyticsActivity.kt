@@ -15,7 +15,7 @@ import com.eve.app.data.model.QuestionAnalytics
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.ExamRepository
 import com.eve.app.databinding.ActivityAdminAnalyticsBinding
-import com.eve.app.designsystem.TelegramNativeAlertDialog
+import org.telegram.ui.ActionBar.AlertDialog
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.Constants
 import com.eve.app.util.UiState
@@ -44,7 +44,7 @@ class AdminAnalyticsActivity : EveBaseActivity() {
     private var reauthorizeOnResume = false
     private var openingUid = ""
     private var openingEmail = ""
-    private var questionEditor: TelegramNativeAlertDialog? = null
+    private var questionEditor: AlertDialog? = null
 
     private fun currentIdentity(): Boolean {
         val current = FirebaseAuth.getInstance().currentUser

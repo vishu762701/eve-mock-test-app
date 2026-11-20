@@ -19,7 +19,7 @@ class TelegramRadioButton @JvmOverloads constructor(
     internal var indicator: TelegramRadioIndicator? = null
         private set
     private var palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette? = null
-    private val bounce = com.eve.app.designsystem.ButtonBounce(this)
+    private val bounce = org.telegram.ui.Components.ButtonBounce(this)
 
     init { applyChoiceStyle() }
 

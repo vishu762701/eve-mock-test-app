@@ -1,6 +1,6 @@
 package com.eve.app.ui.admin
 
-import com.eve.app.designsystem.TelegramNativeAlertDialog
+import org.telegram.ui.ActionBar.AlertDialog
 import com.eve.app.ui.common.EveBaseActivity
 
 import android.annotation.SuppressLint
@@ -96,11 +96,11 @@ class ManageExamsActivity : EveBaseActivity() {
     private var authorizedUid: String? = null
     private var authorizedEmail: String? = null
 
-    private var activeExamDialog: TelegramNativeAlertDialog? = null
+    private var activeExamDialog: AlertDialog? = null
 
     private val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
 
-    private fun showManagedDialog(dialog: TelegramNativeAlertDialog): TelegramNativeAlertDialog {
+    private fun showManagedDialog(dialog: AlertDialog): AlertDialog {
         if (isFinishing || isDestroyed) return dialog
         activeExamDialog?.dismiss()
         activeExamDialog = dialog
@@ -117,7 +117,7 @@ class ManageExamsActivity : EveBaseActivity() {
         onCancel: (() -> Unit)? = null
     ) {
         if (isFinishing || isDestroyed) return
-        val builder = TelegramNativeAlertDialog.Builder(this)
+        val builder = AlertDialog.Builder(this)
             .setTitle("Unsaved Changes")
             .setMessage("You have unsaved changes. Do you want to save before leaving?")
             .setPositiveButton("Save") { _, _ ->
@@ -886,7 +886,7 @@ class ManageExamsActivity : EveBaseActivity() {
         val examName = if (selectedSubExam != null) selectedSubExam!!.examName else selectedMainExam?.examName ?: targetExam.examName
         val targetId = currentExamId
 
-        val confirmDialog = TelegramNativeAlertDialog.Builder(this)
+        val confirmDialog = AlertDialog.Builder(this)
             .setTitle("Generate Test Now?")
             .setMessage("This will trigger AI to generate a fresh test for '$examName' immediately using the configured prompt and question count.")
             .setPositiveButton("Generate") { _, _ ->
@@ -957,7 +957,7 @@ class ManageExamsActivity : EveBaseActivity() {
                             pendingGenerateExam = null
                             pendingGenerateCount = 0
                             pendingGenerateNumber = null
-                            val successDialog = TelegramNativeAlertDialog.Builder(this@ManageExamsActivity)
+                            val successDialog = AlertDialog.Builder(this@ManageExamsActivity)
                                 .setTitle("Generation Successful")
                                 .setMessage("Successfully generated ${confirmed.questionCount} questions for '$examName'.\n\nYou can review or publish them in the Generated Tests section below.")
                                 .setPositiveButton("OK", null)
@@ -1068,7 +1068,7 @@ class ManageExamsActivity : EveBaseActivity() {
             formattedText.append("\n--------------------\n\n")
         }
 
-        val dialog = TelegramNativeAlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle(test.displayTitle)
             .setMessage(formattedText.toString())
             .setPositiveButton("Close", null)
@@ -1194,7 +1194,7 @@ class ManageExamsActivity : EveBaseActivity() {
             appendLine("Correlation ID: ${correlationId.ifBlank { "N/A" }}")
         }.trim()
 
-        val dialog = TelegramNativeAlertDialog.Builder(context)
+        val dialog = AlertDialog.Builder(context)
             .setTitle("Generation failed")
             .setView(container)
             .setPositiveButton("OK", null)

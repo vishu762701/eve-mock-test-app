@@ -7,7 +7,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
-import com.eve.app.designsystem.TelegramNativeAlertDialog
+import org.telegram.ui.ActionBar.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -57,9 +57,9 @@ class TestActivity : EveBaseActivity() {
     private var submitted = false
     // Confirmation windows are owned by this Activity, never by the ViewModel.
     // Prevent rapid Back/Submit taps from stacking duplicate windows.
-    private var leaveConfirmDialog: TelegramNativeAlertDialog? = null
-    private var submitConfirmDialog: TelegramNativeAlertDialog? = null
-    private var statusDialog: TelegramNativeAlertDialog? = null
+    private var leaveConfirmDialog: AlertDialog? = null
+    private var submitConfirmDialog: AlertDialog? = null
+    private var statusDialog: AlertDialog? = null
     private var completedExamDialog: com.eve.app.designsystem.TelegramBottomSheet? = null
     private var isLeavingTest = false
     private var adminRepository = AdminRepository()
@@ -169,12 +169,11 @@ class TestActivity : EveBaseActivity() {
                     return@launch
                 }
                 if (!canAttempt) {
-                    TelegramNativeAlertDialog.Builder(this@TestActivity)
+                    AlertDialog.Builder(this@TestActivity)
                         .setTitle("Attempt Limit Reached")
                         .setMessage("You have reached the maximum limit of 3 attempts for this test. Normal users can attempt each test at most 3 times.")
                         .setPositiveButton("OK") { _, _ -> finish() }
-                        .setCancelable(false)
-                        .let(::showExamNotice)
+                        .let { showExamNotice(it, cancelable = false) }
                     return@launch
                 }
             }
@@ -314,7 +313,7 @@ class TestActivity : EveBaseActivity() {
             override fun handleOnBackPressed() {
                 if (isFinishing || isDestroyed || isLeavingTest ||
                     leaveConfirmDialog?.isShowing == true) return
-                TelegramNativeAlertDialog.Builder(this@TestActivity)
+                AlertDialog.Builder(this@TestActivity)
                     .setTitle("Leave Test?")
                     .setMessage("Your progress is saved. You can resume this test anytime.")
                     .setPositiveButton("Leave") { _, _ ->
@@ -563,7 +562,7 @@ class TestActivity : EveBaseActivity() {
                 "Marked for review: ${counts.markedForReview}\n" +
                 "Not visited: ${counts.notVisited}"
 
-        val dialog = TelegramNativeAlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle("Submit test?")
             .setMessage(message)
             .setPositiveButton("Submit") { _, _ -> submit() }
@@ -739,10 +738,10 @@ class TestActivity : EveBaseActivity() {
      * Source-isolated Telegram-native exam status window: only one live notice.
      * All existing retry/offline callbacks remain server-authoritative.
      */
-    private fun showExamNotice(builder: TelegramNativeAlertDialog.Builder): TelegramNativeAlertDialog? {
+    private fun showExamNotice(builder: AlertDialog.Builder, cancelable: Boolean = true): AlertDialog? {
         if (isFinishing || isDestroyed) return null
         statusDialog?.takeIf { it.isShowing }?.dismiss()
-        val dialog = builder.create()
+        val dialog = builder.create().apply { setCancelable(cancelable) }
         dialog.setOnDismissListener { dismissed ->
             if (statusDialog === dismissed) statusDialog = null
         }
@@ -757,7 +756,7 @@ class TestActivity : EveBaseActivity() {
         binding.btnClear.isEnabled = true
         viewModel.resumeTimerAfterFailure()
         com.eve.app.util.HapticHelper.performSubmitFailure(binding.root)
-        TelegramNativeAlertDialog.Builder(this)
+        AlertDialog.Builder(this)
             .setTitle("Submission Failed")
             .setMessage(message)
             .setPositiveButton("Retry") { _, _ ->
@@ -805,12 +804,11 @@ class TestActivity : EveBaseActivity() {
         com.eve.app.worker.SubmitWorker.enqueue(this, viewModel.clientAttemptId)
 
 
-        TelegramNativeAlertDialog.Builder(this)
+        AlertDialog.Builder(this)
             .setTitle("Submission Saved Offline")
             .setMessage("Your test responses have been stored securely on your device. They will be submitted automatically when network connectivity is restored.")
             .setPositiveButton("OK") { _, _ -> finish() }
-            .setCancelable(false)
-            .let(::showExamNotice)
+            .let { showExamNotice(it, cancelable = false) }
     }
 
     private fun sessionTitle(): String = when {

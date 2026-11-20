@@ -1,6 +1,6 @@
 package com.eve.app.ui.admin
 
-import com.eve.app.designsystem.TelegramNativeAlertDialog
+import org.telegram.ui.ActionBar.AlertDialog
 import android.content.DialogInterface
 
 import com.eve.app.ui.common.EveBaseActivity
@@ -78,7 +78,7 @@ class EditExamActivity : EveBaseActivity() {
 
     private var canManageQuestions = false
     private var canManageContent = false
-    private var questionDialog: TelegramNativeAlertDialog? = null
+    private var questionDialog: AlertDialog? = null
     private data class ParsedImport(val uri: Uri, val fileName: String, val result: QuestionImportHelper.ImportResult)
     private var awaitingPickerResult = false
     private var pendingImportUri: Uri? = null
@@ -515,7 +515,7 @@ class EditExamActivity : EveBaseActivity() {
         return uri.lastPathSegment
     }
 
-    private fun showOwnedQuestionDialog(dialog: TelegramNativeAlertDialog, importUri: Uri? = null) {
+    private fun showOwnedQuestionDialog(dialog: AlertDialog, importUri: Uri? = null) {
         if (closingEditor || !questionActionsAllowed || questionDialog?.isShowing == true) return
         questionDialog = dialog
         dialog.setOnDismissListener {
@@ -559,7 +559,7 @@ class EditExamActivity : EveBaseActivity() {
             }
         }
 
-        val builder = TelegramNativeAlertDialog.Builder(this)
+        val builder = AlertDialog.Builder(this)
             .setTitle("Bulk Question Import Preview")
             .setMessage(message)
 
@@ -738,7 +738,7 @@ class EditExamActivity : EveBaseActivity() {
             }
         }
 
-        val dialog = TelegramNativeAlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle("Edit Question")
             .setView(dialogView)
             .setPositiveButton("Save") { _, _ ->
@@ -891,7 +891,7 @@ class EditExamActivity : EveBaseActivity() {
 
     private fun confirmDeleteQuestion(q: Question) {
         if (!questionActionsAllowed || questionWindowBusy || q.examId != examId || currentQuestions.none { it.id == q.id }) return
-        val dialog = TelegramNativeAlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle(getString(R.string.question_delete_title))
             .setMessage(getString(R.string.question_delete_with_undo_confirmation) + "\n\n\"${q.questionText}\"")
             .setPositiveButton(getString(R.string.question_delete_action)) { _, _ ->

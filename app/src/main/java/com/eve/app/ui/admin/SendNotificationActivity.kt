@@ -1,6 +1,6 @@
 package com.eve.app.ui.admin
 
-import com.eve.app.designsystem.TelegramNativeAlertDialog
+import org.telegram.ui.ActionBar.AlertDialog
 import android.content.DialogInterface
 
 import com.eve.app.ui.common.EveBaseActivity
@@ -40,9 +40,9 @@ class SendNotificationActivity : EveBaseActivity() {
     private var mutationPending = false
     private var listGeneration = 0L
     private var reauthorizeOnResume = false
-    private var activeDialog: TelegramNativeAlertDialog? = null
+    private var activeDialog: AlertDialog? = null
 
-    private fun showManagedDialog(dialog: TelegramNativeAlertDialog): TelegramNativeAlertDialog {
+    private fun showManagedDialog(dialog: AlertDialog): AlertDialog {
         if (isFinishing || isDestroyed) return dialog
         activeDialog?.dismiss()
         activeDialog = dialog
@@ -251,7 +251,7 @@ class SendNotificationActivity : EveBaseActivity() {
 
         val originallySelected = sentAdapter.selectedIds.toList()
         showManagedDialog(
-            TelegramNativeAlertDialog.Builder(this)
+            AlertDialog.Builder(this)
                 .setTitle("Delete Broadcasts?")
                 .setMessage("Delete $count broadcasts? They will be removed from all students' notification lists.")
                 .setPositiveButton("Delete") { _, _ ->
@@ -360,7 +360,7 @@ class SendNotificationActivity : EveBaseActivity() {
             sentAdapter.currentList.none { it.id == broadcast.id }) return
         val titleText = if (broadcast.title.isNotBlank()) "'${broadcast.title}'" else "this broadcast"
         showManagedDialog(
-            TelegramNativeAlertDialog.Builder(this)
+            AlertDialog.Builder(this)
                 .setTitle("Delete Broadcast?")
                 .setMessage("Are you sure you want to delete $titleText?\n\n💬 Message:\n${broadcast.message}\n\nThis removes the notice from the server inbox. It cannot recall copies already cached on devices.")
                 .setPositiveButton("Delete") { _, _ ->
@@ -441,7 +441,7 @@ class SendNotificationActivity : EveBaseActivity() {
             return
         }
         showManagedDialog(
-            TelegramNativeAlertDialog.Builder(this)
+            AlertDialog.Builder(this)
                 .setTitle("Confirm In-App Notice")
                 .setMessage("Publish this message to every student's in-app Notifications inbox?\n\nDevice push delivery is not confirmed by this action.\n\nTitle: $title\n\nMessage: $message")
                 .setPositiveButton("Publish to Inbox") { _, _ ->

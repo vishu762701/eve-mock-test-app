@@ -10,7 +10,7 @@ import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.activity.viewModels
 import android.content.DialogInterface
-import com.eve.app.designsystem.TelegramNativeAlertDialog
+import org.telegram.ui.ActionBar.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -46,8 +46,8 @@ class ResultActivity : EveBaseActivity() {
     private val viewModel: ResultViewModel by viewModels()
     private lateinit var allItems: List<AnswerItem>
     private lateinit var binding: ActivityResultBinding
-    private var reattemptLimitDialog: TelegramNativeAlertDialog? = null
-    private var reattemptConfirmDialog: TelegramNativeAlertDialog? = null
+    private var reattemptLimitDialog: AlertDialog? = null
+    private var reattemptConfirmDialog: AlertDialog? = null
     private var categoryBottomSheet: com.eve.app.designsystem.TelegramBottomSheet? = null
 
     private var currentExamName: String = ""
@@ -799,7 +799,7 @@ class ResultActivity : EveBaseActivity() {
             if (isFinishing || isDestroyed) return@launch
             if (!resultIdentityCurrent) return@launch
             if (!canReattempt) {
-                val limitDialog = TelegramNativeAlertDialog.Builder(this@ResultActivity)
+                val limitDialog = AlertDialog.Builder(this@ResultActivity)
                     .setTitle("Attempt Limit Reached")
                     .setMessage("You have reached the maximum limit of 3 attempts for this test. Normal users can attempt each test at most 3 times.")
                     .setPositiveButton("OK", null)
@@ -812,7 +812,7 @@ class ResultActivity : EveBaseActivity() {
                 return@launch
             }
 
-            val dialog = TelegramNativeAlertDialog.Builder(this@ResultActivity)
+            val dialog = AlertDialog.Builder(this@ResultActivity)
                 .setTitle("Reattempt this test?")
                 .setMessage("A new attempt starts with no selected answers. Your previous result and history are preserved.")
                 .setNegativeButton("Cancel", null)
@@ -820,8 +820,8 @@ class ResultActivity : EveBaseActivity() {
                 .create()
 
             dialog.setOnShowListener {
-                val confirmBtn = requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_POSITIVE))
-                val cancelBtn = requireNotNull(dialog.getActionButton(DialogInterface.BUTTON_NEGATIVE))
+                val confirmBtn = dialog.getButton(DialogInterface.BUTTON_POSITIVE) as? android.widget.TextView ?: return@setOnShowListener
+                val cancelBtn = dialog.getButton(DialogInterface.BUTTON_NEGATIVE) as? android.widget.TextView ?: return@setOnShowListener
                 confirmBtn.setTextColor(ContextCompat.getColor(this@ResultActivity, R.color.system_red_text))
 
                 cancelBtn.setOnClickListener {

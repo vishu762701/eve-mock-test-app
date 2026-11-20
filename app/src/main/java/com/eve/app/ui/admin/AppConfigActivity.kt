@@ -15,7 +15,7 @@ import com.eve.app.data.model.AppConfig
 import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.data.repository.AdminRepository
-import com.eve.app.designsystem.TelegramNativeAlertDialog
+import org.telegram.ui.ActionBar.AlertDialog
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AdminAccessGate
 import com.eve.app.util.AdminIdentityGuard
@@ -47,8 +47,8 @@ class AppConfigActivity : EveBaseActivity() {
     private val adminRepo = AdminRepository()
     private var confirmedConfig: AppConfig? = null
     private var configBusy = false
-    private var maintenanceConfirmationDialog: TelegramNativeAlertDialog? = null
-    private var healthDialog: TelegramNativeAlertDialog? = null
+    private var maintenanceConfirmationDialog: AlertDialog? = null
+    private var healthDialog: AlertDialog? = null
     private var configOwnerUid = ""
     private var configOwnerEmail = ""
     private var adminAuthorized = false
@@ -369,7 +369,7 @@ class AppConfigActivity : EveBaseActivity() {
 
         if (maintenanceMode && confirmedConfig?.maintenance_mode != true) {
             if (isFinishing || isDestroyed || maintenanceConfirmationDialog?.isShowing == true) return
-            val dialog = TelegramNativeAlertDialog.Builder(this)
+            val dialog = AlertDialog.Builder(this)
                 .setTitle("Enable Maintenance Mode?")
                 .setMessage("Are you sure? When maintenance mode is active, students opening the app will be blocked by a full-screen maintenance notice.")
                 .setPositiveButton("Enable Maintenance") { _, _ -> saveConfig(configToSave) }
@@ -486,7 +486,7 @@ class AppConfigActivity : EveBaseActivity() {
 
     private fun showHealthDialog(title: String, message: String) {
         healthDialog?.dismiss()
-        healthDialog = TelegramNativeAlertDialog.Builder(this)
+        healthDialog = AlertDialog.Builder(this)
             .setTitle(title)
             .setMessage(message)
             .setPositiveButton("OK", null)

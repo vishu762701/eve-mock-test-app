@@ -87,7 +87,7 @@ import com.eve.app.util.AvatarDrawable
 import com.eve.app.data.repository.FloatingLinkData
 import com.eve.app.util.ReminderScheduler
 import com.eve.app.util.ThemeManager
-import com.eve.app.designsystem.ButtonBounce
+import org.telegram.ui.Components.ButtonBounce
 import com.eve.app.util.ThemeSwitchAnimator
 import com.eve.app.theme.TelegramThemeEngine
 import com.eve.app.util.SessionManager

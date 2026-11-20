@@ -1,6 +1,6 @@
 package com.eve.app.ui.admin
 
-import com.eve.app.designsystem.TelegramNativeAlertDialog
+import org.telegram.ui.ActionBar.AlertDialog
 import android.content.DialogInterface
 import com.eve.app.ui.common.EveBaseActivity
 
@@ -61,8 +61,8 @@ class ManageUsersActivity : EveBaseActivity() {
     private var detailsJob: Job? = null
     private var detailsTarget: String? = null
     private var detailsEpoch = 0L
-    private var detailsDialog: TelegramNativeAlertDialog? = null
-    private var statusDialog: TelegramNativeAlertDialog? = null
+    private var detailsDialog: AlertDialog? = null
+    private var statusDialog: AlertDialog? = null
 
     private fun isCurrentOwner(uid: String?): Boolean {
         val user = FirebaseAuth.getInstance().currentUser
@@ -399,7 +399,7 @@ class ManageUsersActivity : EveBaseActivity() {
                 """.trimIndent()
 
                 if (!requestIsCurrent()) return@launch
-                val dialog = TelegramNativeAlertDialog.Builder(this@ManageUsersActivity)
+                val dialog = AlertDialog.Builder(this@ManageUsersActivity)
                     .setTitle(user.displayName.ifBlank { "Student Details" })
                     .setMessage(message)
                     .setPositiveButton("Close", null)
@@ -442,7 +442,7 @@ class ManageUsersActivity : EveBaseActivity() {
             "Enable and restore full access for ${user.displayName} (${user.email})?"
         }
 
-        val dialog = TelegramNativeAlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle(actionTitle)
             .setMessage(actionWarning)
             .setPositiveButton(if (disable) "Disable Account" else "Enable Account") { _, _ ->

@@ -129,11 +129,12 @@ open class TelegramActionBar @JvmOverloads constructor(
         titlesContainer.orientation = LinearLayout.VERTICAL
         titlesContainer.gravity = Gravity.CENTER_VERTICAL
 
-        val mediumTypeface = try {
-            Typeface.create("sans-serif-medium", Typeface.NORMAL)
-        } catch (_: Exception) {
-            Typeface.DEFAULT_BOLD
-        }
+        val mediumTypeface = org.telegram.messenger.AndroidUtilities.getTypeface("fonts/rmedium.ttf")
+            ?: try {
+                Typeface.create("sans-serif-medium", Typeface.NORMAL)
+            } catch (_: Exception) {
+                Typeface.DEFAULT_BOLD
+            }
 
         titleTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20f)
         titleTextView.typeface = mediumTypeface

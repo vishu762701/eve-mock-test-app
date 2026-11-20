@@ -99,3 +99,4 @@ patch-line "        return isTabletInternal() && !SharedConfig.forceDisableTable
 patch-line "    public static void applyPendingOrientationUnlock(Activity activity) {" "    @SuppressLint(\"WrongConstant\") public static void applyPendingOrientationUnlock(Activity activity) {" "suppress wrong constant lint"
 
 prune-imports
+patch-line "        synchronized (typefaceCache) {" "        if (ApplicationLoader.applicationContext == null) { return null; } synchronized (typefaceCache) {" "guard null ApplicationLoader.applicationContext in getTypeface"

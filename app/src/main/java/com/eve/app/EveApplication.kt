@@ -18,6 +18,7 @@ class EveApplication : Application() {
         org.telegram.messenger.ApplicationLoader.applicationContext = this
         org.telegram.messenger.AndroidUtilities.checkDisplaySize(this, resources.configuration)
         com.eve.app.theme.TelegramThemeEngine.init(this)
+        org.telegram.ui.ActionBar.Theme.syncFromEvePalette(this)
         com.eve.app.util.DebugCrashReporter.init(this)
         com.eve.app.util.ThemeSwitchAnimator.ensureLifecycleRegistered(this)
         com.eve.app.util.SystemBarHelper.init(this)

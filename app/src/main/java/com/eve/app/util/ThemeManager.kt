@@ -976,7 +976,7 @@ object ThemeManager {
             return
         }
 
-        anim.duration = 400L
+        anim.duration = 450L // Telegram: LaunchActivity.java @ 21f7d109
         anim.interpolator = TelegramThemeEasing
 
         var completed = false

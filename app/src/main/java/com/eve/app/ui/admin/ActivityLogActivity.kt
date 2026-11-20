@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.eve.app.designsystem.TelegramNativeAlertDialog
+import org.telegram.ui.ActionBar.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -58,7 +58,7 @@ class ActivityLogActivity : EveBaseActivity() {
     private var filterDialog: TelegramBottomSheet? = null
     private var filterAdminJob: Job? = null
     private var filterTypeJob: Job? = null
-    private var logDialog: TelegramNativeAlertDialog? = null
+    private var logDialog: AlertDialog? = null
 
     private fun isCurrentOwner(
         uid: String? = activeUid, email: String? = activeEmail
@@ -495,7 +495,7 @@ class ActivityLogActivity : EveBaseActivity() {
         }
 
         logDialog?.dismiss()
-        val dialog = TelegramNativeAlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle(log.actionBadge)
             .setMessage(msg.toString().trimEnd())
             .setPositiveButton("Close", null)

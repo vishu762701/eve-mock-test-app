@@ -89,7 +89,10 @@ object TelegramThemeEngine {
     val NIGHT_ACCENTS = listOf(ThemeAccentOption(0, 0xFF229AF0.toInt(), "Telegram"))
     val BUILT_IN_THEMES = listOf(
         ThemeDefinition("day", "Day", false, "day.attheme", 0xFF229AF0.toInt(), 0, DAY_ACCENTS),
-        ThemeDefinition("night", "Night", true, "night.attheme", 0xFF229AF0.toInt(), 0, NIGHT_ACCENTS)
+        ThemeDefinition("night", "Night", true, "night.attheme", 0xFF64B5EF.toInt(), 0, NIGHT_ACCENTS),
+        ThemeDefinition("darkblue", "Dark Blue", true, "darkblue.attheme", 0xFF64B5EF.toInt(), 0, NIGHT_ACCENTS),
+        ThemeDefinition("arctic", "Arctic", false, "arctic.attheme", 0xFF229AF0.toInt(), 0, DAY_ACCENTS),
+        ThemeDefinition("bluebubbles", "Classic", false, "bluebubbles.attheme", 0xFF229AF0.toInt(), 0, DAY_ACCENTS)
     )
 
     private const val MAX_CUSTOM_THEME_BYTES = 256 * 1024
@@ -380,6 +383,31 @@ object TelegramThemeEngine {
                 val nightMask = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
                 nightMask == Configuration.UI_MODE_NIGHT_YES
             }
+        }
+    }
+
+    fun resolveCurrentBaseRawColors(context: Context): Map<String, Int> {
+        if (!initialized) init(context)
+        val isDark = isDarkActive(context)
+        val themeId = if (isDark) getNightThemeId() else getDayThemeId()
+        val themeDef = getTheme(themeId, isDark)
+        val raw = loadThemeRawColors(context, themeDef)
+        return if (raw.isEmpty()) loadThemeRawColors(context, BUILT_IN_THEMES[if (isDark) 1 else 0]) else raw
+    }
+
+    fun resolveCurrentRawColors(context: Context): Map<String, Int> {
+        if (!initialized) init(context)
+        val isDark = isDarkActive(context)
+        val themeId = if (isDark) getNightThemeId() else getDayThemeId()
+        val accentId = if (isDark) getNightAccentId() else getDayAccentId()
+        val themeDef = getTheme(themeId, isDark)
+        val raw = loadThemeRawColors(context, themeDef)
+        val active = if (raw.isEmpty()) loadThemeRawColors(context, BUILT_IN_THEMES[if (isDark) 1 else 0]) else raw
+        val targetAccent = themeDef.accentOptions.firstOrNull { it.id == accentId }?.color ?: 0
+        return if (accentId != 0 && targetAccent != 0 && !themeDef.isCustom) {
+            applyAccentShift(active, themeDef.baseAccentColor, targetAccent, isDark)
+        } else {
+            active
         }
     }
 

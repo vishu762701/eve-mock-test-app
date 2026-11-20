@@ -101,6 +101,8 @@ abstract class EveBaseActivity : AppCompatActivity() {
         }
         lastAppliedPalette = palette
         org.telegram.ui.ActionBar.Theme.syncFromEvePalette(this)
+        org.telegram.messenger.AndroidUtilities.setLightStatusBar(window, !palette.isDark)
+        org.telegram.messenger.AndroidUtilities.setLightNavigationBar(window, !palette.isDark)
         com.eve.app.theme.TelegramThemeApplier.applyToActivity(this, palette)
         com.eve.app.util.SystemBarHelper.syncSystemBars(this)
     }

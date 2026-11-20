@@ -1,6 +1,6 @@
 package com.eve.app.ui.admin
 
-import com.eve.app.designsystem.TelegramNativeAlertDialog
+import org.telegram.ui.ActionBar.AlertDialog
 import android.content.DialogInterface
 
 import com.eve.app.ui.common.EveBaseActivity
@@ -39,7 +39,7 @@ class ManagePremiumActivity : EveBaseActivity() {
     private var usersGeneration = 0L
     private var stoppedOnce = false
     private var reauthorizeOnResume = false
-    private var activeDialog: TelegramNativeAlertDialog? = null
+    private var activeDialog: AlertDialog? = null
 
     private fun ownerCurrent(): Boolean {
         val live = FirebaseAuth.getInstance().currentUser
@@ -402,7 +402,7 @@ class ManagePremiumActivity : EveBaseActivity() {
         switchLifetime.setOnCheckedChangeListener { _, isChecked ->
             etDays.visibility = if (isChecked) View.GONE else View.VISIBLE
         }
-        val dialog = TelegramNativeAlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle("Grant Premium Manually")
             .setView(dialogView)
             .setPositiveButton("Grant") { _, _ ->
@@ -415,7 +415,7 @@ class ManagePremiumActivity : EveBaseActivity() {
                     return@setPositiveButton
                 }
                 if (isLife) {
-                    val lifeDialog = TelegramNativeAlertDialog.Builder(this@ManagePremiumActivity)
+                    val lifeDialog = AlertDialog.Builder(this@ManagePremiumActivity)
                         .setTitle("Confirm Lifetime Grant")
                         .setMessage("Grant permanent Lifetime Premium to '$target'? This entitlement will never expire.")
                         .setPositiveButton("Grant Lifetime") { _, _ ->
@@ -466,7 +466,7 @@ class ManagePremiumActivity : EveBaseActivity() {
 
     private fun confirmRevokeUserPremium(user: AdminPremiumUserDto) {
         if (!canPublish() || mutationPending || user.userId.isBlank()) return
-        val dialog = TelegramNativeAlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle("Revoke Premium?")
             .setMessage("Are you sure you want to revoke Premium access for ${user.email.ifBlank { user.userId }}? They will revert to the standard 3-attempt restriction.")
             .setPositiveButton("Revoke") { _, _ ->

@@ -49,7 +49,7 @@ object TargetExamsBottomSheet {
 
             applyChipVisualState(this, checked)
 
-            val bounce = com.eve.app.designsystem.ButtonBounce(this)
+            val bounce = org.telegram.ui.Components.ButtonBounce(this)
             setOnCheckedChangeListener { _, isNowChecked ->
                 applyChipVisualState(this, isNowChecked)
                 bounce.bounce()

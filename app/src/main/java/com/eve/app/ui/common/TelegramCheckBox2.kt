@@ -55,7 +55,7 @@ class TelegramCheckBox2 @JvmOverloads constructor(
     private fun dp(v: Float): Float = v * density
     private fun dp(v: Int): Int = (v * density + 0.5f).toInt()
 
-    private val bounce = com.eve.app.designsystem.ButtonBounce(this)
+    private val bounce = org.telegram.ui.Components.ButtonBounce(this)
 
     override fun setPressed(pressed: Boolean) {
         super.setPressed(pressed)

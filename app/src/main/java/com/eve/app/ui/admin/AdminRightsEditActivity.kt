@@ -22,7 +22,7 @@ import com.eve.app.R
 import com.eve.app.data.remote.DynamicAdminItem
 import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.data.repository.AdminRepository
-import com.eve.app.designsystem.TelegramNativeAlertDialog
+import org.telegram.ui.ActionBar.AlertDialog
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AdminAccessGate
 import com.eve.app.util.AdminIdentityGuard
@@ -84,7 +84,7 @@ class AdminRightsEditActivity : EveBaseActivity() {
     private var mutationPending = false
     private var actionEpoch = 0L
     private var reauthorizeOnResume = false
-    private var activeDialog: TelegramNativeAlertDialog? = null
+    private var activeDialog: AlertDialog? = null
 
     private var targetEmail: String = ""
     private var isOwner: Boolean = false
@@ -379,7 +379,7 @@ class AdminRightsEditActivity : EveBaseActivity() {
     private fun confirmDismissAdmin() {
         if (!canAct() || mutationPending || !canEdit || isOwner || targetEmail.isBlank()) return
         activeDialog?.dismiss()
-        val dialog = TelegramNativeAlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle("Dismiss Admin?")
             .setMessage("Are you sure you want to dismiss $targetEmail? This will revoke all administrative privileges.")
             .setPositiveButton("Dismiss") { _, _ ->
@@ -414,7 +414,7 @@ class AdminRightsEditActivity : EveBaseActivity() {
         if (mutationPending) return
         if (hasUnsavedChanges()) {
             activeDialog?.dismiss()
-            val dialog = TelegramNativeAlertDialog.Builder(this)
+            val dialog = AlertDialog.Builder(this)
                 .setTitle("Discard Changes?")
                 .setMessage("You have unsaved changes. Do you want to discard them?")
                 .setPositiveButton("Discard") { _, _ -> finish() }

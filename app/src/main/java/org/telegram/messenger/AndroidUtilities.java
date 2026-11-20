@@ -1515,7 +1515,7 @@ public class AndroidUtilities {
     }
 
     public static Typeface getTypeface(String assetPath) {
-        synchronized (typefaceCache) {
+        if (ApplicationLoader.applicationContext == null) { return null; } synchronized (typefaceCache) { // EVE-PATCH: guard null ApplicationLoader.applicationContext in getTypeface
             if (!typefaceCache.containsKey(assetPath)) {
                 try {
                     Typeface t;

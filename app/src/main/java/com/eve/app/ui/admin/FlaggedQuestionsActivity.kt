@@ -1,6 +1,6 @@
 package com.eve.app.ui.admin
 
-import com.eve.app.designsystem.TelegramNativeAlertDialog
+import org.telegram.ui.ActionBar.AlertDialog
 import com.eve.app.ui.common.EveBaseActivity
 
 import android.content.Intent
@@ -48,8 +48,8 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
     private var reauthorizeOnResume = false
     private var editorLoadInFlight = false
     private var loadedReports: List<AggregatedFlaggedQuestion> = emptyList()
-    private var questionEditor: TelegramNativeAlertDialog? = null
-    private var dismissDialog: TelegramNativeAlertDialog? = null
+    private var questionEditor: AlertDialog? = null
+    private var dismissDialog: AlertDialog? = null
     private var openingUid = ""
     private var openingEmail = ""
 
@@ -300,7 +300,7 @@ class FlaggedQuestionsActivity : EveBaseActivity() {
         } else {
             "Dismiss " + item.flagCount + " flag(s) for this question? It will be marked as resolved."
         }
-        val dialog = TelegramNativeAlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle(title)
             .setMessage(message)
             .setPositiveButton("Dismiss") { _, _ ->
