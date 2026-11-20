@@ -140,7 +140,7 @@ class TelegramDialogSourceAssetsTest {
         val helper = File("src/main/java/com/eve/app/ui/home/TelegramDialogSourceBackground.kt").readText()
         assertTrue(block.contains("adminRepo.isAdmin(email)"))
         assertTrue(block.contains("adminDeleteFlow.removeConfirmed"))
-        assertTrue(block.contains("TelegramNativeAlertDialog.Builder(this@MainActivity)"))
+        assertTrue(block.contains("AlertDialog.Builder(this@MainActivity)"))
         assertTrue(block.contains(".makeRed(android.content.DialogInterface.BUTTON_POSITIVE)"))
         assertTrue("No duplicated direct adapter after shared source integration",
             !block.contains("TelegramDialogSourceBackground.apply(dialog)"))

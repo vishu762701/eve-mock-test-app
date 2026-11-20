@@ -27,7 +27,7 @@ class HomeLayoutDiagnosticReachabilityTest {
     @Test fun unauthenticatedHomeCleanupMustGuardUninitializedBinding() {
         val main = source("src/main/java/com/eve/app/ui/home/MainActivity.kt")
         val earlyReturn = main.substringAfter("val user = FirebaseAuth.getInstance().currentUser")
-            .substringBefore("binding = ActivityMainBinding.inflate(layoutInflater)")
+            .substringBefore("binding = HomeTelegramViewTree(this)")
         assertTrue("Signed-out flow must return before binding inflation", earlyReturn.contains("goToLogin()") && earlyReturn.contains("return"))
         val cleanup = main.substringAfter("private fun cancelSearchVisualAnimations()")
             .substringBefore("private fun openSearch()")

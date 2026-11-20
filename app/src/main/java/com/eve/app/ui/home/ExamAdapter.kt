@@ -1,17 +1,39 @@
 package com.eve.app.ui.home
 
 import android.content.Context
-import android.view.LayoutInflater
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
+import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
+import android.provider.Settings
+import android.text.TextUtils
+import android.util.TypedValue
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import com.eve.app.util.AppBulletin
+import android.widget.FrameLayout
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.airbnb.lottie.LottieAnimationView
+import com.airbnb.lottie.LottieProperty
+import com.airbnb.lottie.model.KeyPath
+import com.eve.app.R
 import com.eve.app.data.model.Exam
 import com.eve.app.data.model.FeedbackPost
-import com.eve.app.databinding.ItemCategoryHeaderBinding
-import com.eve.app.databinding.ItemExamBinding
-import com.eve.app.databinding.ItemFeedbackPostBinding
+import com.eve.app.data.model.TestAttempt
+import com.eve.app.util.AppBulletin
+import org.telegram.messenger.AndroidUtilities
+import org.telegram.ui.ActionBar.Theme
+import org.telegram.ui.Cells.HeaderCell
+import org.telegram.ui.Components.EditTextBoldCursor
+import org.telegram.ui.Components.LayoutHelper
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -20,8 +42,14 @@ private const val VIEW_TYPE_HEADER = 0
 private const val VIEW_TYPE_EXAM = 1
 private const val VIEW_TYPE_FEEDBACK_POST = 2
 
+/**
+ * Programmatic Telegram-native Home list adapter (Pass 3a).
+ * Uses upstream org.telegram.ui.Cells.HeaderCell, EditTextBoldCursor,
+ * Theme.getColor(Theme.key_*), Theme.getSelectorDrawable, and AndroidUtilities.dp/getTypeface.
+ * Zero XML layout inflation.
+ */
 class ExamAdapter(
-    private val onClick: (Exam, Boolean, com.eve.app.data.model.TestAttempt?) -> Unit,
+    private val onClick: (Exam, Boolean, TestAttempt?) -> Unit,
     private val onLongClick: ((Exam, Boolean, View) -> Unit)? = null,
     private val onFeedbackPostLongClick: ((FeedbackPost, View) -> Unit)? = null,
     private val onSendReply: ((post: FeedbackPost, replyText: String, onComplete: (Boolean) -> Unit) -> Unit)? = null
@@ -43,7 +71,7 @@ class ExamAdapter(
     }
 
     fun submit(list: List<HomeListItem>) {
-        val diffCallback = object : androidx.recyclerview.widget.DiffUtil.Callback() {
+        val diffCallback = object : DiffUtil.Callback() {
             override fun getOldListSize(): Int = items.size
             override fun getNewListSize(): Int = list.size
             override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
@@ -60,69 +88,71 @@ class ExamAdapter(
                 return items[oldItemPosition] == list[newItemPosition]
             }
         }
-        val diffResult = androidx.recyclerview.widget.DiffUtil.calculateDiff(diffCallback)
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
         items = list
         diffResult.dispatchUpdatesTo(this)
     }
 
-    inner class HeaderVH(private val b: ItemCategoryHeaderBinding) : RecyclerView.ViewHolder(b.root) {
+    private fun dp(v: Float): Int = AndroidUtilities.dp(v)
+    private fun mediumFont(): Typeface =
+        AndroidUtilities.getTypeface("fonts/rmedium.ttf") ?: Typeface.DEFAULT_BOLD
+
+    inner class HeaderVH(private val cell: HeaderCell) : RecyclerView.ViewHolder(cell) {
         fun bind(header: HomeListItem.Header) {
+            cell.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+            cell.setText(header.title)
             val categoryEmoji = com.eve.app.ui.admin.emoji.EmojiRenderer.getCategoryEmoji(header.title)
-            com.eve.app.ui.admin.emoji.EmojiRenderer.attachEmoji(b.tvCategoryHeader, header.title, categoryEmoji)
-            b.tvCategoryHeader.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Token_Secondary)
-            b.tvCategoryHeader.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.homeTextSecondary(b.root.context))
+            com.eve.app.ui.admin.emoji.EmojiRenderer.attachEmoji(cell.textView, header.title, categoryEmoji)
         }
     }
 
-    inner class ExamVH(private val b: ItemExamBinding) : RecyclerView.ViewHolder(b.root) {
+    inner class ExamVH(
+        val container: LinearLayout,
+        val iconFrame: FrameLayout,
+        val ivExamImage: ImageView,
+        val lottieExamIcon: LottieAnimationView,
+        val tvExamName: TextView,
+        val tvExamTime: TextView,
+        val ivPinned: ImageView,
+        val divider: View
+    ) : RecyclerView.ViewHolder(container) {
         private var currentExamId: String? = null
         private var isLottieMode: Boolean = false
 
-        init {
-            val ctx = b.root.context
-            b.examIconContainer.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, com.eve.app.R.color.surface_inset))
-            b.examIconContainer.strokeColor = com.eve.app.designsystem.EveDesignSystem.Colors.shapeBorder(ctx)
-            b.examIconContainer.strokeWidth = 0
-            HomeAppearance.applyCard(b.root)
-            com.eve.app.designsystem.DesignPress.bind(b.root)
-        }
-
-        fun bind(exam: Exam, attempted: Boolean, isPinned: Boolean, attempt: com.eve.app.data.model.TestAttempt?, position: Int) {
+        fun bind(exam: Exam, attempted: Boolean, isPinned: Boolean, attempt: TestAttempt?, position: Int) {
             currentExamId = exam.id
-            com.eve.app.ui.admin.emoji.EmojiRenderer.attachEmoji(b.tvExamName, exam.examName, exam.emoji)
-            b.tvExamTime.text = if (attempted) {
-                b.root.context.getString(com.eve.app.R.string.exam_submitted_tap_to_view)
+            val ctx = container.context
+            container.background = Theme.getSelectorDrawable(true)
+
+            com.eve.app.ui.admin.emoji.EmojiRenderer.attachEmoji(tvExamName, exam.examName, exam.emoji)
+            tvExamTime.text = if (attempted) {
+                ctx.getString(R.string.exam_submitted_tap_to_view)
             } else {
-                b.root.context.getString(
-                    com.eve.app.R.string.exam_time_category,
-                    exam.timeLimitMinutes,
-                    exam.categoryOrOther
-                )
+                ctx.getString(R.string.exam_time_category, exam.timeLimitMinutes, exam.categoryOrOther)
             }
 
-            val ctx = b.root.context
-            HomeAppearance.applyCard(b.root)
-            b.tvExamName.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Telegram_ListTitle)
-            b.tvExamName.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.homeTextPrimary(ctx))
-            b.tvExamTime.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Telegram_ListPreview)
-            if (attempted) {
-                b.tvExamTime.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.statusRightText(ctx))
-            } else {
-                b.tvExamTime.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.homeTextSecondary(ctx))
+            tvExamName.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText))
+            tvExamTime.setTextColor(
+                if (attempted) Theme.getColor(Theme.key_windowBackgroundWhiteGreenText2)
+                else Theme.getColor(Theme.key_windowBackgroundWhiteGrayText)
+            )
+            divider.setBackgroundColor(Theme.getColor(Theme.key_divider))
+            ivPinned.imageTintList = ColorStateList.valueOf(Theme.getColor(Theme.key_chats_pinnedIcon))
+
+            val accentBg = Theme.getColor(Theme.key_avatar_backgroundBlue)
+            val accentFg = Theme.getColor(Theme.key_avatar_text)
+            iconFrame.background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(accentBg)
             }
-            val categoryTint = com.eve.app.util.ExamCategoryTintHelper.getTintForCategory(exam.categoryOrOther)
-            b.examIconContainer.setCardBackgroundColor(androidx.core.content.ContextCompat.getColor(ctx, categoryTint.bgRes))
-            b.examIconContainer.strokeColor = com.eve.app.designsystem.EveDesignSystem.Colors.shapeBorder(ctx)
-            b.ivExamImage.setColorFilter(androidx.core.content.ContextCompat.getColor(ctx, categoryTint.fgRes))
-            val iconColor = androidx.core.content.ContextCompat.getColor(ctx, categoryTint.fgRes)
-            b.lottieExamIcon.addValueCallback(com.airbnb.lottie.model.KeyPath("**"), com.airbnb.lottie.LottieProperty.COLOR_FILTER) {
-                android.graphics.PorterDuffColorFilter(iconColor, android.graphics.PorterDuff.Mode.SRC_ATOP)
+            ivExamImage.setColorFilter(accentFg)
+            lottieExamIcon.addValueCallback(KeyPath("**"), LottieProperty.COLOR_FILTER) {
+                PorterDuffColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteBlueText4), PorterDuff.Mode.SRC_ATOP)
             }
 
-            val hasLogo = exam.imageUrl.isNotBlank()
-            if (hasLogo) {
+            if (exam.imageUrl.isNotBlank()) {
                 showLogoMode()
-                com.eve.app.util.ExamImageHelper.loadExamImage(b.ivExamImage, exam.imageUrl) {
+                com.eve.app.util.ExamImageHelper.loadExamImage(ivExamImage, exam.imageUrl) {
                     if (currentExamId == exam.id) {
                         showLottieMode()
                         if (itemView.isAttachedToWindow) {
@@ -134,24 +164,19 @@ class ExamAdapter(
                 showLottieMode()
             }
 
-            b.ivPinned.visibility = if (isPinned) View.VISIBLE else View.GONE
-            // Keep one actionable TalkBack node for the exam card: title, test
-            // duration/submission state and optional pinned status. Icons/Lottie
-            // and child TextViews are decorative within that parent action.
-            b.root.contentDescription = HomeExamAccessibility.describe(
-                b.tvExamName.text, b.tvExamTime.text,
-                if (isPinned) b.ivPinned.contentDescription else null
+            ivPinned.visibility = if (isPinned) View.VISIBLE else View.GONE
+            container.contentDescription = HomeExamAccessibility.describe(
+                tvExamName.text, tvExamTime.text,
+                if (isPinned) ivPinned.contentDescription else null
             )
-            b.root.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
-            listOf(b.examIconContainer, b.ivExamImage, b.lottieExamIcon, b.ivPinned,
-                b.tvExamName, b.tvExamTime).forEach { child ->
+            container.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
+            listOf(iconFrame, ivExamImage, lottieExamIcon, ivPinned, tvExamName, tvExamTime).forEach { child ->
                 child.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
             }
-            b.root.isEnabled = true
-            b.root.alpha = 1f
-            b.root.setOnClickListener { onClick(exam, attempted, attempt) }
-
-            b.root.setOnLongClickListener { view ->
+            container.isEnabled = true
+            container.alpha = 1f
+            container.setOnClickListener { onClick(exam, attempted, attempt) }
+            container.setOnLongClickListener { view ->
                 onLongClick?.invoke(exam, isPinned, view)
                 true
             }
@@ -159,82 +184,97 @@ class ExamAdapter(
 
         private fun showLogoMode() {
             isLottieMode = false
-            b.ivExamImage.visibility = View.VISIBLE
-            b.lottieExamIcon.visibility = View.GONE
-            b.lottieExamIcon.cancelAnimation()
+            ivExamImage.visibility = View.VISIBLE
+            lottieExamIcon.visibility = View.GONE
+            lottieExamIcon.cancelAnimation()
         }
 
         private fun showLottieMode() {
-            b.examIconContainer.setCardBackgroundColor(android.graphics.Color.TRANSPARENT)
+            iconFrame.setBackgroundColor(Color.TRANSPARENT)
             isLottieMode = true
-            b.ivExamImage.visibility = View.GONE
-            b.lottieExamIcon.visibility = View.VISIBLE
+            ivExamImage.visibility = View.GONE
+            lottieExamIcon.visibility = View.VISIBLE
             val examId = currentExamId
             if (examId != null && playedExamIds.contains(examId)) {
-                b.lottieExamIcon.progress = 1f
+                lottieExamIcon.progress = 1f
             }
         }
 
         fun playLottieIfEligible() {
             val examId = currentExamId ?: return
             if (!isLottieMode) return
-
-            val animScale = android.provider.Settings.Global.getFloat(
-                b.root.context.contentResolver,
-                android.provider.Settings.Global.ANIMATOR_DURATION_SCALE,
+            val animScale = Settings.Global.getFloat(
+                container.context.contentResolver,
+                Settings.Global.ANIMATOR_DURATION_SCALE,
                 1.0f
             )
             if (animScale == 0f) {
-                b.lottieExamIcon.progress = 1f
+                lottieExamIcon.progress = 1f
                 playedExamIds.add(examId)
                 return
             }
-
             if (!playedExamIds.contains(examId)) {
                 playedExamIds.add(examId)
-                b.lottieExamIcon.progress = 0f
-                b.lottieExamIcon.playAnimation()
+                lottieExamIcon.progress = 0f
+                lottieExamIcon.playAnimation()
             } else {
-                b.lottieExamIcon.progress = 1f
+                lottieExamIcon.progress = 1f
             }
         }
 
         fun cancelAnimation() {
-            b.lottieExamIcon.cancelAnimation()
+            lottieExamIcon.cancelAnimation()
         }
     }
 
-    inner class FeedbackPostVH(private val b: ItemFeedbackPostBinding) : RecyclerView.ViewHolder(b.root) {
+    inner class FeedbackPostVH(
+        val container: LinearLayout,
+        val tvTitle: TextView,
+        val tvDate: TextView,
+        val tvMessage: TextView,
+        val etReply: EditTextBoldCursor,
+        val btnSend: ImageButton,
+        val divider: View
+    ) : RecyclerView.ViewHolder(container) {
         fun bind(post: FeedbackPost) {
-            HomeAppearance.applyCard(b.root)
-            b.tvFeedbackPostTitle.text = post.title
-            b.tvFeedbackPostTitle.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Telegram_ListTitle)
-            b.tvFeedbackPostTitle.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.homeTextPrimary(b.root.context))
-            b.tvFeedbackPostMessage.text = post.message
-            b.tvFeedbackPostMessage.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Telegram_ListPreview)
-            b.tvFeedbackPostMessage.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.homeTextPrimary(b.root.context))
-            b.tvFeedbackPostDate.text = formatTimestamp(post.timestamp)
-            b.tvFeedbackPostDate.setTextAppearance(com.eve.app.R.style.TextAppearance_Eve_Telegram_ListTime)
-            b.tvFeedbackPostDate.setTextColor(com.eve.app.designsystem.EveDesignSystem.Colors.homeTextSecondary(b.root.context))
+            val ctx = container.context
+            container.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+            tvTitle.text = post.title
+            tvTitle.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText))
+            tvMessage.text = post.message
+            tvMessage.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText))
+            tvDate.text = formatTimestamp(post.timestamp)
+            tvDate.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText))
+            etReply.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText))
+            etReply.setHintTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteHintText))
+            etReply.setCursorColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText))
+            etReply.setLineColors(
+                Theme.getColor(Theme.key_windowBackgroundWhiteInputField),
+                Theme.getColor(Theme.key_windowBackgroundWhiteInputFieldActivated),
+                Theme.getColor(Theme.key_text_RedRegular)
+            )
+            btnSend.imageTintList = ColorStateList.valueOf(Theme.getColor(Theme.key_windowBackgroundWhiteBlueText4))
+            btnSend.background = Theme.createSelectorDrawable(Theme.getColor(Theme.key_listSelector), Theme.RIPPLE_MASK_CIRCLE_20DP)
+            divider.setBackgroundColor(Theme.getColor(Theme.key_divider))
 
-            b.btnSendReply.setOnClickListener {
-                val text = b.etReplyText.text?.toString()?.trim().orEmpty()
+            btnSend.setOnClickListener {
+                val text = etReply.text?.toString()?.trim().orEmpty()
                 if (text.isEmpty()) {
-                    AppBulletin.showError(b.root.context, "Please enter your reply")
+                    AppBulletin.showError(ctx, "Please enter your reply")
                     return@setOnClickListener
                 }
-                b.btnSendReply.isEnabled = false
+                btnSend.isEnabled = false
                 onSendReply?.invoke(post, text) { success ->
-                    b.btnSendReply.isEnabled = true
+                    btnSend.isEnabled = true
                     if (success) {
-                        b.etReplyText.text?.clear()
-                        val imm = b.root.context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-                        imm?.hideSoftInputFromWindow(b.etReplyText.windowToken, 0)
+                        etReply.text?.clear()
+                        val imm = ctx.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+                        imm?.hideSoftInputFromWindow(etReply.windowToken, 0)
                     }
                 }
             }
 
-            b.root.setOnLongClickListener { view ->
+            container.setOnLongClickListener { view ->
                 view.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
                 onFeedbackPostLongClick?.invoke(post, view)
                 true
@@ -248,10 +288,7 @@ class ExamAdapter(
                 diff < 60_000L -> "Just now"
                 diff < 3600_000L -> "${diff / 60_000L}m ago"
                 diff < 86400_000L -> "${diff / 3600_000L}h ago"
-                else -> {
-                    val sdf = SimpleDateFormat("dd MMM", Locale.getDefault())
-                    sdf.format(Date(time))
-                }
+                else -> SimpleDateFormat("dd MMM", Locale.getDefault()).format(Date(time))
             }
         }
     }
@@ -263,13 +300,139 @@ class ExamAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
+        val ctx = parent.context
         return when (viewType) {
-            VIEW_TYPE_HEADER -> HeaderVH(ItemCategoryHeaderBinding.inflate(inflater, parent, false))
-            VIEW_TYPE_EXAM -> ExamVH(ItemExamBinding.inflate(inflater, parent, false))
-            VIEW_TYPE_FEEDBACK_POST -> FeedbackPostVH(ItemFeedbackPostBinding.inflate(inflater, parent, false))
+            VIEW_TYPE_HEADER -> {
+                val cell = HeaderCell(ctx)
+                cell.layoutParams = RecyclerView.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                HeaderVH(cell)
+            }
+            VIEW_TYPE_EXAM -> createExamVH(ctx)
+            VIEW_TYPE_FEEDBACK_POST -> createFeedbackPostVH(ctx)
             else -> throw IllegalArgumentException("Unknown viewType $viewType")
         }
+    }
+
+    private fun createExamVH(ctx: Context): ExamVH {
+        val root = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = RecyclerView.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            isClickable = true
+            isFocusable = true
+        }
+        val row = LinearLayout(ctx).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(dp(14f), dp(10f), dp(16f), dp(10f))
+        }
+        val iconFrame = FrameLayout(ctx)
+        val ivExam = ImageView(ctx).apply {
+            scaleType = ImageView.ScaleType.CENTER_CROP
+        }
+        val lottie = LottieAnimationView(ctx).apply {
+            setAnimation(R.raw.pencil_writing_on_book)
+        }
+        iconFrame.addView(ivExam, LayoutHelper.createFrame(48, 48, Gravity.CENTER))
+        iconFrame.addView(lottie, LayoutHelper.createFrame(48, 48, Gravity.CENTER))
+
+        val textCol = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(12f), 0, dp(8f), 0)
+        }
+        val tvName = TextView(ctx).apply {
+            setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16f)
+            typeface = mediumFont()
+            maxLines = 1
+            ellipsize = TextUtils.TruncateAt.END
+        }
+        val tvTime = TextView(ctx).apply {
+            setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14f)
+            maxLines = 1
+            ellipsize = TextUtils.TruncateAt.END
+        }
+        textCol.addView(tvName)
+        textCol.addView(tvTime, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0f, 2f, 0f, 0f))
+
+        val ivPinned = ImageView(ctx).apply {
+            setImageResource(R.drawable.ic_pin)
+            contentDescription = "Pinned"
+            visibility = View.GONE
+        }
+
+        row.addView(iconFrame, LayoutHelper.createLinear(50, 50))
+        row.addView(textCol, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+        row.addView(ivPinned, LayoutHelper.createLinear(18, 18))
+
+        val divider = View(ctx)
+        root.addView(row, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT))
+        root.addView(divider, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1).apply {
+            marginStart = dp(76f)
+        })
+        return ExamVH(root, iconFrame, ivExam, lottie, tvName, tvTime, ivPinned, divider)
+    }
+
+    private fun createFeedbackPostVH(ctx: Context): FeedbackPostVH {
+        val root = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(16f), dp(12f), dp(16f), dp(10f))
+            layoutParams = RecyclerView.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        }
+        val topRow = LinearLayout(ctx).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+        val tvTitle = TextView(ctx).apply {
+            setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16f)
+            typeface = mediumFont()
+            maxLines = 1
+            ellipsize = TextUtils.TruncateAt.END
+        }
+        val tvDate = TextView(ctx).apply {
+            setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12f)
+        }
+        topRow.addView(tvTitle, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+        topRow.addView(tvDate)
+
+        val tvMessage = TextView(ctx).apply {
+            setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14f)
+        }
+
+        val replyRow = LinearLayout(ctx).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+        val etReply = EditTextBoldCursor(ctx).apply {
+            hint = "Write a reply..."
+            setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15f)
+            setCursorSize(dp(18f))
+            setCursorWidth(1.5f)
+            background = null
+        }
+        val btnSend = ImageButton(ctx).apply {
+            setImageResource(R.drawable.ic_send_plane)
+            contentDescription = "Send reply"
+            scaleType = ImageView.ScaleType.CENTER_INSIDE
+        }
+        replyRow.addView(etReply, LinearLayout.LayoutParams(0, dp(42f), 1f))
+        replyRow.addView(btnSend, LayoutHelper.createLinear(42, 42))
+
+        val divider = View(ctx)
+        root.addView(topRow)
+        root.addView(tvMessage, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0f, 4f, 0f, 8f))
+        root.addView(replyRow)
+        root.addView(divider, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1).apply {
+            topMargin = dp(8f)
+        })
+        return FeedbackPostVH(root, tvTitle, tvDate, tvMessage, etReply, btnSend, divider)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -282,23 +445,17 @@ class ExamAdapter(
 
     override fun onViewAttachedToWindow(holder: RecyclerView.ViewHolder) {
         super.onViewAttachedToWindow(holder)
-        if (holder is ExamVH) {
-            holder.playLottieIfEligible()
-        }
+        if (holder is ExamVH) holder.playLottieIfEligible()
     }
 
     override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
         super.onViewDetachedFromWindow(holder)
-        if (holder is ExamVH) {
-            holder.cancelAnimation()
-        }
+        if (holder is ExamVH) holder.cancelAnimation()
     }
 
     override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
         super.onViewRecycled(holder)
-        if (holder is ExamVH) {
-            holder.cancelAnimation()
-        }
+        if (holder is ExamVH) holder.cancelAnimation()
     }
 
     override fun getItemCount() = items.size

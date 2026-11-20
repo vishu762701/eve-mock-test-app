@@ -59,7 +59,10 @@ import com.eve.app.data.model.Exam
 import com.eve.app.data.model.HomeBanner
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.FeedbackRepository
-import com.eve.app.databinding.ActivityMainBinding
+import org.telegram.ui.ActionBar.ActionBarMenuSubItem
+import org.telegram.ui.ActionBar.ActionBarPopupWindow
+import org.telegram.ui.ActionBar.AlertDialog
+import org.telegram.ui.ActionBar.Theme
 import com.eve.app.ui.admin.AdminActivity
 import com.eve.app.ui.bookmarks.BookmarksActivity
 import com.eve.app.ui.history.HistoryActivity
@@ -121,7 +124,7 @@ class MainActivity : EveBaseActivity() {
         Log.e("MainActivity", "Uncaught exception in lifecycleScope:\n$stackTrace", throwable)
     }
 
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var binding: HomeTelegramViewTree
     private val viewModel: HomeViewModel by viewModels()
     private val adminRepo = AdminRepository()
     private var isAdminUser: Boolean = false
@@ -129,7 +132,7 @@ class MainActivity : EveBaseActivity() {
     // ActionBarMenuItem.java:779-782: a second tap toggles the SAME popup closed.
     // Do not stack separate focusable windows on repeated overflow taps.
     private var homeOverflowPopup: TelegramMenuPopup? = null
-    private var pinPopupMenu: com.eve.app.designsystem.TelegramPopupMenu? = null
+    private var pinPopupMenu: ActionBarPopupWindow? = null
     private var homeOwnerUid = ""
     private val searchOwnerCurrent: Boolean
         get() = homeOwnerUid.isNotBlank() && FirebaseAuth.getInstance().currentUser?.uid == homeOwnerUid
@@ -343,7 +346,7 @@ class MainActivity : EveBaseActivity() {
         homeOwnerUid = user.uid
 
         Log.e("EVE_STARTUP", "stage: inflate")
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = HomeTelegramViewTree(this)
         setContentView(binding.root)
         TelegramThemeEngine.addThemeChangeListener(categoryPaletteListener)
         setupHomeBannerSurface()
@@ -1263,17 +1266,26 @@ class MainActivity : EveBaseActivity() {
         val user = FirebaseAuth.getInstance().currentUser ?: return
         pinPopupMenu?.dismiss()
         val title = if (isPinned) "Unpin" else "Pin"
-        val popup = com.eve.app.designsystem.TelegramPopupMenu(this).apply {
-            addItem(1, title, R.drawable.ic_pin) {
-                viewModel.togglePin(user.uid, exam.id, isPinned)
-                com.eve.app.util.VibrationHelper.vibrateLightHaptic(this@MainActivity)
-                val msg = if (isPinned) "Test unpinned" else "Test pinned to top"
-                com.eve.app.util.AppBulletin.showSuccess(this@MainActivity, msg)
-            }
+        val layout = ActionBarPopupWindow.ActionBarPopupWindowLayout(this)
+        layout.setFitItems(true)
+        val popup = ActionBarPopupWindow(layout, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, true)
+        val item = ActionBarMenuSubItem(this, true, true)
+        item.setTextAndIcon(title, R.drawable.ic_pin)
+        item.setOnClickListener {
+            popup.dismiss()
+            viewModel.togglePin(user.uid, exam.id, isPinned)
+            com.eve.app.util.VibrationHelper.vibrateLightHaptic(this@MainActivity)
+            val msg = if (isPinned) "Test unpinned" else "Test pinned to top"
+            com.eve.app.util.AppBulletin.showSuccess(this@MainActivity, msg)
         }
+        layout.addView(item)
+        popup.isOutsideTouchable = true
+        popup.isClippingEnabled = true
+        popup.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
         pinPopupMenu = popup
         popup.setOnDismissListener { if (pinPopupMenu === popup) pinPopupMenu = null }
-        popup.show(anchorView)
+        popup.showAsDropDown(anchorView)
+        popup.startAnimation()
     }
 
     private fun openFeedbackForPost(post: com.eve.app.data.model.FeedbackPost) {
@@ -1294,7 +1306,7 @@ class MainActivity : EveBaseActivity() {
             // AndroidUtilities.java:6255-6267 => !isDestroyed && !isFinishing.
             // The admin lookup is asynchronous; never open a window during teardown.
             if (adminRepo.isAdmin(email) && !isDestroyed && !isFinishing) {
-                com.eve.app.designsystem.TelegramNativeAlertDialog.Builder(this@MainActivity)
+                AlertDialog.Builder(this@MainActivity)
                     .setTitle("Delete Feedback Post?")
                     .setMessage("Are you sure you want to delete '${post.title}'?")
                     .setPositiveButton("Delete") { _, _ ->
@@ -1698,9 +1710,9 @@ class MainActivity : EveBaseActivity() {
 
         // Preserve the existing artwork palette through shared lookup tokens.
         val targetColor = if (isDark) {
-            ContextCompat.getColor(this, R.color.text_primary)
+            Theme.getColor(Theme.key_windowBackgroundWhiteBlackText)
         } else {
-            ContextCompat.getColor(this, R.color.hairline)
+            Theme.getColor(Theme.key_divider)
         }
 
         val callback = SimpleLottieValueCallback<Int> { frameInfo ->
@@ -1873,7 +1885,7 @@ class MainActivity : EveBaseActivity() {
                 tag = index
                 minHeight = resources.getDimensionPixelSize(R.dimen.design_touch_min)
                 setTextAppearance(R.style.TextAppearance_Eve_Token_Body)
-                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_primary))
+                setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText))
                 isClickable = true
                 isFocusable = true
                 setOnClickListener {
@@ -2161,8 +2173,8 @@ class MainActivity : EveBaseActivity() {
     }
 
     private fun setupTopBarDepth() {
-        binding.topBarContainer.setBackgroundColor(getColor(R.color.transparent))
-        binding.searchTopBar.setBackgroundColor(getColor(R.color.transparent))
+        binding.topBarContainer.setBackgroundColor(Theme.getColor(Theme.key_actionBarDefault))
+        binding.searchTopBar.setBackgroundColor(Theme.getColor(Theme.key_actionBarDefault))
         // Home only: scrolling enabled the blur and also drew a perimeter stroke.
         // Disable that unwanted hairline without touching shared toolbar behavior.
         binding.homeGlassToolbar.drawHairline = false
@@ -2196,6 +2208,11 @@ class MainActivity : EveBaseActivity() {
                 AppBulletin.showError(this, "No app is available to open this link.")
             }
         }
+    }
+
+    override fun onApplyThemePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+        super.onApplyThemePalette(palette)
+        if (::binding.isInitialized) binding.applyTelegramTheme()
     }
 
     override fun onDestroy() {
@@ -2255,7 +2272,7 @@ class MainActivity : EveBaseActivity() {
         if (!::binding.isInitialized) return
         if (user == null) {
             binding.btnMenu.setImageResource(R.drawable.msg_openprofile)
-            binding.btnMenu.imageTintList = ContextCompat.getColorStateList(this, R.color.telegram_type_primary)
+            binding.btnMenu.imageTintList = android.content.res.ColorStateList.valueOf(Theme.getColor(Theme.key_actionBarDefaultIcon))
             return
         }
 
@@ -2511,11 +2528,11 @@ class MainActivity : EveBaseActivity() {
         finish()
     }
 
-    private var logoutConfirmation: com.eve.app.designsystem.TelegramNativeAlertDialog? = null
+    private var logoutConfirmation: AlertDialog? = null
     private var targetExamsDialog: android.app.Dialog? = null
     private fun confirmLogout() {
         if (logoutPending || isFinishing || isDestroyed || logoutConfirmation?.isShowing == true) return
-        val dialog = com.eve.app.designsystem.TelegramNativeAlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle(getString(R.string.home_menu_logout))
             .setMessage(getString(R.string.home_logout_confirmation))
             .setNegativeButton(getString(android.R.string.cancel), null)
@@ -2562,7 +2579,7 @@ class MainActivity : EveBaseActivity() {
         binding.ivDrawerGlassBlurBackground.setImageDrawable(null)
         // Explicit owner Night override: keep this drawer black; do not change other surfaces.
         binding.ivDrawerGlassBlurBackground.setBackgroundColor(
-            ContextCompat.getColor(this, R.color.home_drawer_background))
+            Theme.getColor(Theme.key_chats_menuBackground))
     }
 
     private var pendingDrawerDestination: Intent? = null
