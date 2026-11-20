@@ -1,13 +1,4 @@
-        val contentView = 
-        val sheet = BottomSheet.Builder(this)
-            .setCustomView(contentView)
-            .create()
-        val sheetHeightPx = (cell * 5) + px(36)
-        scene.setPickerPlacement(1f, (resources.displayMetrics.heightPixels - sheetHeightPx).toFloat())
-        sheet.setOnDismissListener {
-            scene.setPickerPlacement(0f, 0f)
-        }
-        sheet.show()/*
+/*
  * Derived from Telegram Android QrShareActivity.java @ 21f7d109da6ab3506c9e9577f98c6a38771ab335
  * Copyright Nikolai Kudashov, 2013-2023. GNU GPL v2 or later. See THIRD_PARTY_NOTICES.md.
  */

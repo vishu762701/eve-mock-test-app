@@ -192,9 +192,9 @@ class BookmarksTelegramViewTree(context: Context) {
         toolbarSearch.addView(etSearchBookmarks, LinearLayout.LayoutParams(0, dp(40f), 1f))
         toolbarSearch.addView(btnClearSearch, LinearLayout.LayoutParams(dp(40f), dp(40f)))
 
-        topBarHost.addView(toolbarNormal, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 56))
-        topBarHost.addView(toolbarSearch, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 56))
-        topBarHost.addView(selectionBar, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 56))
+        topBarHost.addView(toolbarNormal, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 56f))
+        topBarHost.addView(toolbarSearch, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 56f))
+        topBarHost.addView(selectionBar, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 56f))
 
         root.addView(topBarHost, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 56))
         root.addView(topDivider, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 1))
@@ -207,15 +207,15 @@ class BookmarksTelegramViewTree(context: Context) {
         root.addView(filterScroll, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT))
 
         val listFrame = FrameLayout(context)
-        listFrame.addView(rvBookmarks, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        listFrame.addView(rvBookmarks, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
         progressGroup.addView(RadialProgressView(context), LayoutHelper.createFrame(44, 44, Gravity.CENTER))
-        listFrame.addView(progressGroup, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        listFrame.addView(progressGroup, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
 
         messageGroup.addView(ivMessageIcon, LayoutHelper.createLinear(112, 112, Gravity.CENTER_HORIZONTAL))
         messageGroup.addView(tvMessage, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0f, 12f, 0f, 4f))
         messageGroup.addView(tvMessageSub, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 0f, 0f, 0f, 14f))
         messageGroup.addView(btnRetry, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, 42, Gravity.CENTER_HORIZONTAL))
-        listFrame.addView(messageGroup, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT))
+        listFrame.addView(messageGroup, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
 
         pullRefreshLayout.addView(listFrame, ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
