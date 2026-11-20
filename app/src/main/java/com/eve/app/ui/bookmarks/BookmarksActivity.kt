@@ -20,9 +20,16 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.R
 import com.eve.app.data.model.BookmarkedQuestion
-import com.eve.app.databinding.ActivityBookmarksBinding
-import com.eve.app.designsystem.TelegramPopupMenu
-import com.eve.app.designsystem.TelegramShareAlert
+import android.widget.LinearLayout
+import android.widget.TextView
+import org.telegram.messenger.AndroidUtilities
+import org.telegram.ui.ActionBar.ActionBarMenuSubItem
+import org.telegram.ui.ActionBar.ActionBarPopupWindow
+import org.telegram.ui.ActionBar.BottomSheet
+import org.telegram.ui.ActionBar.Theme
+import org.telegram.ui.Cells.HeaderCell
+import org.telegram.ui.Cells.TextCell
+import org.telegram.ui.Components.LayoutHelper
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.Constants
@@ -38,7 +45,7 @@ import kotlinx.coroutines.launch
 
 class BookmarksActivity : EveBaseActivity() {
 
-    private lateinit var binding: ActivityBookmarksBinding
+    private lateinit var binding: BookmarksTelegramViewTree
     private val viewModel: BookmarksViewModel by viewModels()
     private lateinit var adapter: BookmarkAdapter
     private var hasEmptyPlayed = false
@@ -67,7 +74,7 @@ class BookmarksActivity : EveBaseActivity() {
         if (!hasBookmarksOwner()) { finish(); return }
         hasEmptyPlayed = savedInstanceState?.getBoolean("key_empty_played", false) ?: false
         SecurityHelper.applyScreenProtection(this)
-        binding = ActivityBookmarksBinding.inflate(layoutInflater)
+        binding = BookmarksTelegramViewTree(this)
         setContentView(binding.root)
 
         com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
@@ -272,15 +279,11 @@ class BookmarksActivity : EveBaseActivity() {
 
     private fun shareQuestion(bookmark: BookmarkedQuestion) {
         val hindi = LanguageManager.isHindi(this)
-        val shareAlert = TelegramShareAlert(
-            context = this,
+        showTelegramShareSheet(
             title = bookmark.examName.ifBlank { "Saved Question" },
             subtitle = if (bookmark.questionNumber > 0) "Question ${bookmark.questionNumber}" else null,
-            shareText = "${bookmark.displayQuestionText(hindi)}\n\nShared via Eve",
-            shareUrl = null,
-            previewBitmap = null
+            shareText = "${bookmark.displayQuestionText(hindi)}\n\nShared via Eve"
         )
-        shareAlert.show()
     }
 
     private fun closeSearch() {
@@ -364,15 +367,11 @@ class BookmarksActivity : EveBaseActivity() {
             }
             append("Shared via Eve")
         }
-        val alert = TelegramShareAlert(
-            context = this,
+        showTelegramShareSheet(
             title = "Saved Questions (${selected.size})",
             subtitle = null,
-            shareText = text,
-            shareUrl = null,
-            previewBitmap = null
+            shareText = text
         )
-        alert.show()
     }
 
     private fun deleteSelectedBookmarks() {
@@ -389,23 +388,39 @@ class BookmarksActivity : EveBaseActivity() {
 
     private fun showBookmarkContextMenu(bookmark: BookmarkedQuestion, anchor: View) {
         VibrationHelper.vibrateLightHaptic(this)
-        val popup = TelegramPopupMenu(this)
-        popup.addItem(1, "Select", R.drawable.msg_select) {
-            enterSelectionMode(bookmark.questionId)
+        val layout = ActionBarPopupWindow.ActionBarPopupWindowLayout(this)
+        layout.setFitItems(true)
+        val popup = ActionBarPopupWindow(
+            layout,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+            true
+        )
+        val actions = listOf(
+            Triple("Select", R.drawable.msg_select) { enterSelectionMode(bookmark.questionId) },
+            Triple("Open in Test", R.drawable.ic_back) { openQuestionInTest(bookmark) },
+            Triple("Copy Question", R.drawable.ic_copy) { copyQuestion(bookmark) },
+            Triple("Share Question", R.drawable.ic_share) { shareQuestion(bookmark) },
+            Triple("Remove from Bookmarks", R.drawable.ic_delete) { removeBookmark(bookmark) }
+        )
+        actions.forEachIndexed { idx, (label, icon, act) ->
+            val sub = ActionBarMenuSubItem(this, idx == 0, idx == actions.lastIndex)
+            sub.setTextAndIcon(label, icon)
+            if (idx == actions.lastIndex) {
+                val red = Theme.getColor(Theme.key_text_RedRegular)
+                sub.setColors(red, red)
+            }
+            sub.setOnClickListener {
+                popup.dismiss()
+                act()
+            }
+            layout.addView(sub)
         }
-        popup.addItem(2, "Open in Test", R.drawable.ic_back) {
-            openQuestionInTest(bookmark)
-        }
-        popup.addItem(3, "Copy Question", R.drawable.ic_copy) {
-            copyQuestion(bookmark)
-        }
-        popup.addItem(4, "Share Question", R.drawable.ic_share) {
-            shareQuestion(bookmark)
-        }
-        popup.addItem(5, "Remove from Bookmarks", R.drawable.ic_delete, isDestructive = true) {
-            removeBookmark(bookmark)
-        }
+        popup.isOutsideTouchable = true
+        popup.isClippingEnabled = true
+        popup.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
         popup.showAsDropDown(anchor, 0, 0)
+        popup.startAnimation()
     }
 
     private fun removeBookmark(bookmark: BookmarkedQuestion) {
@@ -563,5 +578,51 @@ class BookmarksActivity : EveBaseActivity() {
             putExtra(Constants.EXTRA_FROM_BOOKMARK, true)
         }
         startActivity(intent)
+    }
+
+    private fun showTelegramShareSheet(title: String, subtitle: String?, shareText: String) {
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(0, AndroidUtilities.dp(6f), 0, AndroidUtilities.dp(12f))
+        }
+        container.addView(HeaderCell(this).apply {
+            setText(if (subtitle.isNullOrBlank()) title else "$title • $subtitle")
+        }, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT))
+
+        val sheet = BottomSheet.Builder(this)
+            .setCustomView(container)
+            .create()
+
+        val copyCell = TextCell(this).apply {
+            setTextAndIcon("Copy Text", R.drawable.ic_copy, true)
+            background = Theme.getSelectorDrawable(false)
+            setOnClickListener {
+                val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                cm.setPrimaryClip(ClipData.newPlainText(title, shareText))
+                AppBulletin.showSuccess(this@BookmarksActivity, "Copied to clipboard")
+                sheet.dismiss()
+            }
+        }
+        val shareCell = TextCell(this).apply {
+            setTextAndIcon("Share via...", R.drawable.ic_share, false)
+            background = Theme.getSelectorDrawable(false)
+            setOnClickListener {
+                sheet.dismiss()
+                val intent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_SUBJECT, title)
+                    putExtra(Intent.EXTRA_TEXT, shareText)
+                }
+                startActivity(Intent.createChooser(intent, title))
+            }
+        }
+        container.addView(copyCell, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT))
+        container.addView(shareCell, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT))
+        sheet.show()
+    }
+
+    override fun onApplyThemePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+        super.onApplyThemePalette(palette)
+        if (::binding.isInitialized) binding.applyTelegramTheme()
     }
 }

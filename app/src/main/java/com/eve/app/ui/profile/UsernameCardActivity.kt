@@ -3,6 +3,8 @@ package com.eve.app.ui.profile
 import android.app.Dialog
 import android.content.ClipData
 import android.widget.ScrollView
+import org.telegram.ui.ActionBar.BottomSheet
+import org.telegram.ui.ActionBar.Theme
 import com.eve.app.data.repository.EmojiRepository
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
@@ -193,7 +195,6 @@ class UsernameCardActivity : EveBaseActivity() {
             showAnimatedEmojiPicker()
             return
         }
-        val sheet = BottomSheetDialog(this, R.style.Theme_Eve_BottomSheetDialog)
         val grid = GridLayout(this).apply {
             columnCount = 6
             setPadding(px(10), px(12), px(10), px(16))
@@ -236,15 +237,13 @@ class UsernameCardActivity : EveBaseActivity() {
             })
         }
         updateSwatches()
-        sheet.setContentView(ScrollView(this).apply {
+        val contentView = ScrollView(this).apply {
             background = glassBackground(24)
             addView(grid)
-        })
-        com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(sheet, this)
-        sheet.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)?.apply {
-            backgroundTintList = ColorStateList.valueOf(Color.TRANSPARENT)
-            setBackgroundColor(Color.TRANSPARENT)
         }
+        val sheet = BottomSheet.Builder(this)
+            .setCustomView(contentView)
+            .create()
         val sheetHeightPx = (cell * 5) + px(36)
         scene.setPickerPlacement(1f, (resources.displayMetrics.heightPixels - sheetHeightPx).toFloat())
         sheet.setOnDismissListener {

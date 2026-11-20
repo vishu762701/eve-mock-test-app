@@ -11,7 +11,7 @@
 | **Pass 3a** | `MainActivity` rebuilt programmatically (`HomeTelegramViewTree` + `ExamAdapter` + `HomeBannerAdapter`, `RecyclerListView`, `HeaderCell`, `DividerCell`, `EditTextBoldCursor`, `AlertDialog`, `ActionBarPopupWindow`, `Theme.getColor`) | **DONE (pending CI confirmation)** |
 | **Pass 3b** | `ProfileActivity` rebuilt programmatically (`ProfileTelegramViewTree`, `ProfileHeaderExpansion` overload, `ActionBarPopupWindow`, `AlertDialog`, `RadialProgressView`, `Theme.getColor`) | **DONE (pending CI confirmation)** |
 | **Pass 3c** | `TestActivity` + `ResultActivity` rebuilt programmatically (`TestTelegramViewTree`, `ResultTelegramViewTree`, `RecyclerListView`, `RadialProgressView`, `BottomSheet`, `CheckBox2`, `HeaderCell`, `Theme.getColor`) | **DONE (pending CI confirmation)** |
-| **Pass 3d** | Remaining Student Visible Screens (`BookmarksActivity`, `QrShareActivity`, `UsernameCardActivity`) | PENDING |
+| **Pass 3d** | `BookmarksActivity`, `QrShareActivity`, `UsernameCardActivity` rebuilt with upstream `BottomSheet`, `ActionBarPopupWindow`, `RecyclerListView`, `RadialProgressView`, `HeaderCell`, `TextCell`, `Theme.getColor` | **DONE (pending CI confirmation)** |
 | **Pass 4** | Remaining 14 Admin Screens (3–4 screens/pass) | PENDING |
 | **Pass 5** | Final Dead-File & Legacy XML/Shadow Purge | PENDING |
 

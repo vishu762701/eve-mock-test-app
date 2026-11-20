@@ -1,4 +1,13 @@
-/*
+        val contentView = 
+        val sheet = BottomSheet.Builder(this)
+            .setCustomView(contentView)
+            .create()
+        val sheetHeightPx = (cell * 5) + px(36)
+        scene.setPickerPlacement(1f, (resources.displayMetrics.heightPixels - sheetHeightPx).toFloat())
+        sheet.setOnDismissListener {
+            scene.setPickerPlacement(0f, 0f)
+        }
+        sheet.show()/*
  * Derived from Telegram Android QrShareActivity.java @ 21f7d109da6ab3506c9e9577f98c6a38771ab335
  * Copyright Nikolai Kudashov, 2013-2023. GNU GPL v2 or later. See THIRD_PARTY_NOTICES.md.
  */
@@ -27,8 +36,12 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
-import com.eve.app.designsystem.TelegramBottomSheet
-import com.eve.app.designsystem.TelegramShareAlert
+import org.telegram.messenger.AndroidUtilities
+import org.telegram.ui.ActionBar.BottomSheet
+import org.telegram.ui.ActionBar.Theme
+import org.telegram.ui.Cells.HeaderCell
+import org.telegram.ui.Cells.TextCell
+import org.telegram.ui.Components.LayoutHelper
 import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -50,7 +63,7 @@ open class QrShareActivity : EveBaseActivity() {
     private var qrClosing = false
     private var gallerySaveInProgress = false
     private var gallerySaveJob: kotlinx.coroutines.Job? = null
-    private var emojiPicker: TelegramBottomSheet? = null
+    private var emojiPicker: android.app.Dialog? = null
     private var emojiPickerGrid: QrEmojiPickerGrid? = null
     private var emojiPickerScroll: android.os.Parcelable? = null
     private val galleryPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -205,7 +218,6 @@ open class QrShareActivity : EveBaseActivity() {
             showAnimatedEmojiPicker()
             return
         }
-        val sheet = TelegramBottomSheet(this)
         val grid = GridLayout(this).apply {
             columnCount = 6
             setPadding(px(10), px(12), px(10), px(16))
@@ -484,14 +496,47 @@ open class QrShareActivity : EveBaseActivity() {
         val image = scene.renderShareImage()
         val shareMessage = "Scan this QR code to view my profile on EVE: $qrLink"
 
-        TelegramShareAlert.show(
-            context = this,
-            title = "@$username",
-            subtitle = "Public EVE Username QR",
-            shareText = shareMessage,
-            shareUrl = qrLink,
-            previewBitmap = image
-        )
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(0, AndroidUtilities.dp(6f), 0, AndroidUtilities.dp(12f))
+        }
+        container.addView(HeaderCell(this).apply {
+            setText("@$username • Public EVE Username QR")
+        }, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT))
+        if (image != null) {
+            container.addView(ImageView(this).apply {
+                setImageBitmap(image)
+                scaleType = ImageView.ScaleType.FIT_CENTER
+                setPadding(AndroidUtilities.dp(20f), AndroidUtilities.dp(8f), AndroidUtilities.dp(20f), AndroidUtilities.dp(8f))
+            }, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 180))
+        }
+        val shareSheet = BottomSheet.Builder(this)
+            .setCustomView(container)
+            .create()
+        container.addView(TextCell(this).apply {
+            setTextAndIcon("Copy Profile Link", R.drawable.ic_copy, true)
+            background = Theme.getSelectorDrawable(false)
+            setOnClickListener {
+                val cm = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                cm.setPrimaryClip(android.content.ClipData.newPlainText("EVE Profile", qrLink))
+                com.eve.app.util.AppBulletin.showSuccess(this@QrShareActivity, "Link copied to clipboard")
+                shareSheet.dismiss()
+            }
+        }, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT))
+        container.addView(TextCell(this).apply {
+            setTextAndIcon("Share via...", R.drawable.action_share, false)
+            background = Theme.getSelectorDrawable(false)
+            setOnClickListener {
+                shareSheet.dismiss()
+                val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(android.content.Intent.EXTRA_SUBJECT, "@$username")
+                    putExtra(android.content.Intent.EXTRA_TEXT, shareMessage)
+                }
+                startActivity(android.content.Intent.createChooser(intent, "Share @$username"))
+            }
+        }, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT))
+        shareSheet.show()
     }
 
     private fun applyQrSystemBars() {
