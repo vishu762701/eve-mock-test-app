@@ -13,7 +13,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.data.model.*
 import com.eve.app.data.remote.ApiClient
-import com.eve.app.databinding.ActivityManagePremiumBinding
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.AdminIdentityGuard
 import com.eve.app.util.AdminPermissionSnapshot
@@ -27,7 +26,7 @@ import com.eve.app.data.remote.toUserFriendlyMessage
 
 class ManagePremiumActivity : EveBaseActivity() {
 
-    private lateinit var binding: ActivityManagePremiumBinding
+    private lateinit var binding: ManagePremiumTelegramViewTree
     private val adminRepo = AdminRepository()
     private var authorizedUid = ""
     private var authorizedEmail = ""
@@ -158,7 +157,7 @@ class ManagePremiumActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityManagePremiumBinding.inflate(layoutInflater)
+        binding = ManagePremiumTelegramViewTree(this)
         setContentView(binding.root)
         com.eve.app.util.SystemBarHelper.syncSystemBars(this)
 
@@ -482,6 +481,11 @@ class ManagePremiumActivity : EveBaseActivity() {
             .makeRed(DialogInterface.BUTTON_POSITIVE).show()
         activeDialog = dialog
         dialog.setOnDismissListener { if (activeDialog === dialog) activeDialog = null }
+    }
+
+    override fun onApplyThemePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+        super.onApplyThemePalette(palette)
+        if (::binding.isInitialized) binding.applyTelegramTheme()
     }
 
     override fun onDestroy() {

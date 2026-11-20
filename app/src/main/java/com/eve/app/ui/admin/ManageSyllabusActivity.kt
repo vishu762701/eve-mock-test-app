@@ -20,7 +20,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.eve.app.R
 import com.eve.app.data.model.Exam
 import com.eve.app.data.repository.ExamRepository
-import com.eve.app.databinding.ActivityManageSyllabusBinding
 import com.eve.app.databinding.ItemAdminSyllabusBinding
 import com.eve.app.designsystem.TelegramFileUploadView
 import com.eve.app.designsystem.TelegramMorphSelectView
@@ -44,7 +43,7 @@ import java.util.Locale
 
 class ManageSyllabusActivity : EveBaseActivity() {
 
-    private lateinit var binding: ActivityManageSyllabusBinding
+    private lateinit var binding: ManageSyllabusTelegramViewTree
     private val examRepo = ExamRepository()
     private val adminRepo = AdminRepository()
     private var accessUid = ""
@@ -119,7 +118,7 @@ class ManageSyllabusActivity : EveBaseActivity() {
         super.onCreate(savedInstanceState)
         selectedExamRestoreId = savedInstanceState?.getString("syllabus_selected_exam_id")
         SecurityHelper.applyScreenProtection(this)
-        binding = ActivityManageSyllabusBinding.inflate(layoutInflater)
+        binding = ManageSyllabusTelegramViewTree(this)
         setContentView(binding.root)
 
         binding.btnBack.setOnClickListener { finish() }
@@ -654,6 +653,11 @@ class ManageSyllabusActivity : EveBaseActivity() {
         }) {
             if (activeOwner()) loadExamsAndSyllabuses()
         }
+    }
+
+    override fun onApplyThemePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+        super.onApplyThemePalette(palette)
+        if (::binding.isInitialized) binding.applyTelegramTheme()
     }
 
     override fun onDestroy() {

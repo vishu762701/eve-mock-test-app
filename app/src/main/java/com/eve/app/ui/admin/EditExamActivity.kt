@@ -29,7 +29,6 @@ import com.eve.app.data.model.Exam
 import com.eve.app.data.model.Question
 import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.data.repository.ExamRepository
-import com.eve.app.databinding.ActivityEditExamBinding
 import com.eve.app.util.AppBulletin
 import com.eve.app.util.AppUndoBar
 import com.eve.app.util.Constants
@@ -43,7 +42,7 @@ import com.eve.app.designsystem.TelegramRadialProgressView
 
 class EditExamActivity : EveBaseActivity() {
 
-    private lateinit var binding: ActivityEditExamBinding
+    private lateinit var binding: EditExamTelegramViewTree
     private val examRepo = ExamRepository()
     private val auditLogRepo = AuditLogRepository()
 
@@ -124,7 +123,7 @@ class EditExamActivity : EveBaseActivity() {
         val origin = FirebaseAuth.getInstance().currentUser
         editorOwnerUid = origin?.uid.orEmpty()
         editorOwnerEmail = origin?.email.orEmpty()
-        binding = ActivityEditExamBinding.inflate(layoutInflater)
+        binding = EditExamTelegramViewTree(this)
         setContentView(binding.root)
         metadataViewStateRestored = savedInstanceState == null
         restoreMetadataDraft = savedInstanceState?.getBoolean("edit_exam_metadata_ready") == true
@@ -635,6 +634,11 @@ class EditExamActivity : EveBaseActivity() {
                 loadQuestions()
             }
         }
+    }
+
+    override fun onApplyThemePalette(palette: com.eve.app.theme.TelegramThemeEngine.ResolvedPalette) {
+        super.onApplyThemePalette(palette)
+        if (::binding.isInitialized) binding.applyTelegramTheme()
     }
 
     override fun onDestroy() {
