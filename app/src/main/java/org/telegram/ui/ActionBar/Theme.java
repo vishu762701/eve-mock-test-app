@@ -1157,10 +1157,7 @@ public class Theme {
     private static int patternIntensity;
     private static boolean isPatternWallpaper;
 
-    public static Paint dividerPaint = new Paint();
-    static {
-        dividerPaint.setStrokeWidth(1);
-    }
+    public static Paint dividerPaint = new Paint(); static { dividerPaint.setStrokeWidth(1); } // EVE-PATCH: initialize dividerPaint
     public static Paint dividerExtraPaint;
     public static Paint linkSelectionPaint;
     public static Paint checkboxSquare_eraserPaint;

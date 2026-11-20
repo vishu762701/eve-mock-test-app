@@ -1,36 +1,61 @@
 package com.eve.app.ui.pyq
 
-import com.eve.app.ui.common.EveBaseActivity
-
 import android.content.Intent
 import android.os.Bundle
-import com.google.firebase.auth.FirebaseAuth
 import android.view.View
-import android.widget.ArrayAdapter
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.LinearLayout
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.eve.app.R
 import com.eve.app.data.model.Exam
 import com.eve.app.data.model.PyqSet
-import com.eve.app.databinding.ActivityPyqBinding
+import com.eve.app.designsystem.TelegramSegmentedTabs
+import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.ui.test.TestActivity
+import com.eve.app.util.AppBulletin
 import com.eve.app.util.Constants
 import com.eve.app.util.SubmissionRetryPolicy
 import com.eve.app.util.UiState
-import com.eve.app.designsystem.TelegramChip
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
+import org.telegram.messenger.AndroidUtilities
+import org.telegram.ui.ActionBar.ActionBar
+import org.telegram.ui.ActionBar.AlertDialog
+import org.telegram.ui.ActionBar.Theme
+import org.telegram.ui.Cells.HeaderCell
+import org.telegram.ui.Cells.ShadowSectionCell
+import org.telegram.ui.Cells.TextCell
+import org.telegram.ui.Cells.TextDetailSettingsCell
+import org.telegram.ui.Cells.TextInfoPrivacyCell
+import org.telegram.ui.Components.EmptyTextProgressView
+import org.telegram.ui.Components.IconBackgroundColors
+import org.telegram.ui.Components.LayoutHelper
+import org.telegram.ui.Components.RecyclerListView
 
+/**
+ * Previous Year Questions (PYQ) screen powered by real ported Telegram UI components:
+ * ActionBar, AlertDialog (exam picker), RecyclerListView, HeaderCell, TextCell,
+ * TextDetailSettingsCell, ShadowSectionCell, TextInfoPrivacyCell, EmptyTextProgressView,
+ * and TelegramSegmentedTabs for year selection.
+ */
 class PyqActivity : EveBaseActivity() {
 
-    private lateinit var binding: ActivityPyqBinding
     private val viewModel: PyqViewModel by viewModels()
+    private val adapter = TelegramPyqAdapter()
     private var exams: List<Exam> = emptyList()
     private var selectedExam: Exam? = null
     private var sets: List<PyqSet> = emptyList()
+    private var yearList: List<Int> = emptyList()
     private var selectedYear: Int? = null
+    private var displayedPapers: List<Pair<String, PyqSet>> = emptyList()
     private var restoredExamId: String? = null
+
     private val pyqAuth = FirebaseAuth.getInstance()
     private var pyqOwnerUid: String? = null
     private fun hasPyqOwner(): Boolean =
@@ -39,42 +64,109 @@ class PyqActivity : EveBaseActivity() {
         if (pyqOwnerUid != null && !hasPyqOwner()) finish()
     }
 
+    private lateinit var actionBar: ActionBar
+    private lateinit var yearTabs: TelegramSegmentedTabs
+    private lateinit var listView: RecyclerListView
+    private lateinit var emptyView: EmptyTextProgressView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val liveUid = pyqAuth.currentUser?.uid
         pyqOwnerUid = if (savedInstanceState == null) liveUid
             else savedInstanceState.getString("pyq_owner_uid")
         if (!hasPyqOwner()) { finish(); return }
-        binding = ActivityPyqBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+
         restoredExamId = savedInstanceState?.getString(STATE_EXAM_ID)
         selectedYear = savedInstanceState?.takeIf { it.containsKey(STATE_YEAR) }?.getInt(STATE_YEAR)
 
-        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
-        com.eve.app.ui.common.TelegramHorizontalScrollLayoutManager.install(binding.chipGroupYears.parent as View)
-        binding.spExam.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, position: Int, id: Long) {
-                if (!hasPyqOwner()) { finish(); return }
-                val next = exams.getOrNull(position) ?: return
-                if (viewModel.selectedExamId != next.id) {
-                    selectedYear = null
-                    sets = emptyList()
+        Theme.syncFromEvePalette(this)
+
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundGray))
+        }
+        setContentView(root)
+
+        actionBar = ActionBar(this).apply {
+            setBackgroundColor(Theme.getColor(Theme.key_actionBarDefault))
+            setItemsBackgroundColor(Theme.getColor(Theme.key_actionBarDefaultSelector), false)
+            setItemsColor(Theme.getColor(Theme.key_actionBarDefaultIcon), false)
+            setTitleColor(Theme.getColor(Theme.key_actionBarDefaultTitle))
+            setSubtitleColor(Theme.getColor(Theme.key_actionBarDefaultSubtitle))
+            setBackButtonImage(R.drawable.ic_ab_back)
+            setTitle("Previous Year Papers")
+            createMenu().addItem(MENU_REFRESH, R.drawable.msg_retry)
+            setActionBarMenuOnItemClick(object : ActionBar.ActionBarMenuOnItemClick() {
+                override fun onItemClick(id: Int) {
+                    when (id) {
+                        -1 -> finish()
+                        MENU_REFRESH -> {
+                            val exam = selectedExam
+                            if (exam != null) viewModel.loadSets(exam) else viewModel.loadExams()
+                        }
+                    }
                 }
-                selectedExam = next
-                viewModel.loadSets(next)
-            }
-
-            override fun onNothingSelected(parent: android.widget.AdapterView<*>?) = Unit
+            })
         }
+        root.addView(
+            actionBar,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        )
 
-        binding.pullRefreshLayout.setOnRefreshListener {
-            val exam = selectedExam
-            if (exam != null) {
-                viewModel.loadSets(exam)
-            } else {
-                viewModel.loadExams()
+        yearTabs = TelegramSegmentedTabs(this).apply {
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+            visibility = View.GONE
+            onTabSelectedListener = { pos ->
+                yearList.getOrNull(pos)?.let { year ->
+                    selectedYear = year
+                    renderPapers(year)
+                }
             }
         }
+        root.addView(
+            yearTabs,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        )
+
+        val contentFrame = FrameLayout(this)
+        root.addView(
+            contentFrame,
+            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f)
+        )
+
+        listView = RecyclerListView(this).apply {
+            layoutManager = LinearLayoutManager(this@PyqActivity)
+            adapter = this@PyqActivity.adapter
+            isVerticalScrollBarEnabled = true
+            scrollBarStyle = View.SCROLLBARS_INSIDE_OVERLAY
+            setScrollbarFadingEnabled(true)
+            setScrollBarDefaultDelayBeforeFade(900)
+            clipToPadding = false
+            setPadding(0, 0, 0, AndroidUtilities.dp(24f))
+            visibility = View.GONE
+        }
+        contentFrame.addView(
+            listView,
+            LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat())
+        )
+
+        emptyView = EmptyTextProgressView(this).apply {
+            setShowAtCenter(true)
+            setTextColor(Theme.getColor(Theme.key_emptyListPlaceholder))
+            setProgressBarColor(Theme.getColor(Theme.key_progressCircle))
+            setText("Loading previous year papers…")
+            showProgress()
+        }
+        contentFrame.addView(
+            emptyView,
+            LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat())
+        )
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -100,15 +192,6 @@ class PyqActivity : EveBaseActivity() {
     override fun onResume() {
         super.onResume()
         if (!hasPyqOwner()) { finish(); return }
-        if (!::binding.isInitialized) return
-    }
-
-    override fun onDestroy() {
-        if (::binding.isInitialized) {
-            binding.chipGroupYears.removeAllViews()
-            binding.chipGroupPapers.removeAllViews()
-        }
-        super.onDestroy()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -120,54 +203,73 @@ class PyqActivity : EveBaseActivity() {
         selectedYear?.let { outState.putInt(STATE_YEAR, it) }
     }
 
+    private fun showExamPicker() {
+        if (!hasPyqOwner() || exams.isEmpty()) return
+        val names = exams.map { it.examName as CharSequence }.toTypedArray()
+        AlertDialog.Builder(this)
+            .setTitle("Select Exam")
+            .setItems(names) { _, which ->
+                val next = exams.getOrNull(which) ?: return@setItems
+                if (viewModel.selectedExamId != next.id) {
+                    selectedYear = null
+                    sets = emptyList()
+                    displayedPapers = emptyList()
+                }
+                selectedExam = next
+                actionBar.setSubtitle(next.examName)
+                viewModel.loadSets(next)
+                adapter.notifyDataSetChanged()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
     private fun renderExams(state: UiState<List<Exam>>) {
         if (!isCurrentOwner()) return
         when (state) {
             is UiState.Loading -> {
                 if (exams.isEmpty()) {
-                    binding.progress.visibility = View.VISIBLE
+                    listView.visibility = View.GONE
+                    emptyView.visibility = View.VISIBLE
+                    emptyView.showProgress()
                 }
             }
             is UiState.Error -> {
-                binding.pullRefreshLayout.isRefreshing = false
-                binding.progress.visibility = View.GONE
                 if (exams.isNotEmpty()) {
-                    binding.tvMessage.visibility = View.GONE
-                    com.eve.app.util.AppBulletin.showError(this@PyqActivity, "Couldn't refresh exams: ${state.message}")
+                    AppBulletin.showError(this, "Couldn't refresh exams: ${state.message}")
                 } else {
-                    binding.tvMessage.text = state.message
-                    binding.tvMessage.visibility = View.VISIBLE
+                    listView.visibility = View.GONE
+                    emptyView.visibility = View.VISIBLE
+                    emptyView.setText(state.message)
+                    emptyView.showTextView()
                 }
             }
             is UiState.Success -> {
-                binding.pullRefreshLayout.isRefreshing = false
-                binding.progress.visibility = View.GONE
                 val wantedId = viewModel.selectedExamId ?: restoredExamId ?: selectedExam?.id
                 exams = state.data
-                binding.spExam.adapter = ArrayAdapter(
-                    this,
-                    com.eve.app.R.layout.item_exam_dropdown,
-                    exams.map { it.examName }
-                )
                 if (exams.isEmpty()) {
                     selectedExam = null
                     sets = emptyList()
+                    displayedPapers = emptyList()
+                    yearTabs.visibility = View.GONE
                     viewModel.clearSelection()
-                    binding.chipGroupYears.removeAllViews()
-                    binding.chipGroupPapers.removeAllViews()
-                    binding.tvPapersLabel.visibility = View.GONE
-                    binding.tvMessage.text = "No exams are currently available for previous year questions."
-                    binding.tvMessage.visibility = View.VISIBLE
+                    listView.visibility = View.GONE
+                    emptyView.visibility = View.VISIBLE
+                    emptyView.setText("No exams are currently available for previous year questions.")
+                    emptyView.showTextView()
+                    actionBar.setSubtitle(null)
                     restoredExamId = null
                     return
                 }
                 val index = exams.indexOfFirst { it.id == wantedId }.coerceAtLeast(0)
                 val exam = exams[index]
-                // Restore the year only when restoring the very same exam.
                 if (wantedId != exam.id) selectedYear = null
                 selectedExam = exam
-                binding.spExam.setSelection(index)
+                actionBar.setSubtitle(exam.examName)
+                emptyView.visibility = View.GONE
+                listView.visibility = View.VISIBLE
                 viewModel.loadSets(exam)
+                adapter.notifyDataSetChanged()
                 restoredExamId = null
             }
         }
@@ -178,59 +280,38 @@ class PyqActivity : EveBaseActivity() {
         when (state) {
             is UiState.Loading -> {
                 if (sets.isEmpty()) {
-                    binding.chipGroupYears.removeAllViews()
-                    binding.chipGroupPapers.removeAllViews()
-                    binding.progress.visibility = View.VISIBLE
-                    binding.tvMessage.visibility = View.GONE
-                    binding.tvPapersLabel.visibility = View.GONE
+                    yearTabs.visibility = View.GONE
                 }
             }
             is UiState.Error -> {
-                binding.pullRefreshLayout.isRefreshing = false
-                binding.progress.visibility = View.GONE
                 if (sets.isNotEmpty()) {
-                    com.eve.app.util.AppBulletin.showError(this@PyqActivity, "Couldn't refresh sets: ${state.message}")
+                    AppBulletin.showError(this, "Couldn't refresh sets: ${state.message}")
                 } else {
                     sets = emptyList()
-                    binding.chipGroupYears.removeAllViews()
-                    binding.chipGroupPapers.removeAllViews()
-                    binding.tvMessage.text = state.message
-                    binding.tvMessage.visibility = View.VISIBLE
-                    binding.tvPapersLabel.visibility = View.GONE
+                    displayedPapers = emptyList()
+                    yearTabs.visibility = View.GONE
+                    adapter.notifyDataSetChanged()
+                    AppBulletin.showError(this, state.message)
                 }
             }
             is UiState.Success -> {
-                binding.pullRefreshLayout.isRefreshing = false
-                binding.progress.visibility = View.GONE
-                binding.chipGroupYears.removeAllViews()
-                binding.chipGroupPapers.removeAllViews()
                 sets = state.data
                 if (sets.isEmpty()) {
-                    binding.tvMessage.text =
-                        "No tagged PYQs found for this exam. Please upload questions tagged with Previous Year Question and year."
-                    binding.tvMessage.visibility = View.VISIBLE
-                    binding.tvPapersLabel.visibility = View.GONE
+                    yearList = emptyList()
+                    displayedPapers = emptyList()
+                    yearTabs.visibility = View.GONE
+                    adapter.notifyDataSetChanged()
                     return
                 }
-                binding.tvMessage.visibility = View.GONE
                 val years = sets.groupBy { it.year }.toSortedMap(compareByDescending { it })
-                years.forEach { (year, yearSets) ->
-                    val count = yearSets.sumOf { it.questionCount }
-                    binding.chipGroupYears.addView(com.eve.app.ui.common.StudentSelectionControls.year(this).apply {
-                        text = "$year • $count Qs"
-                        isCheckable = true
-                        isChecked = selectedYear == year
-                        setOnClickListener {
-                            selectedYear = year
-                            renderPapers(year)
-                        }
-                    })
+                yearList = years.keys.toList()
+                val tabLabels = years.map { (year, yearSets) ->
+                    "$year (${yearSets.sumOf { it.questionCount }})"
                 }
+                yearTabs.setTabs(tabLabels)
+                yearTabs.visibility = View.VISIBLE
                 val yearToShow = selectedYear?.takeIf { it in years } ?: years.keys.first()
                 selectedYear = yearToShow
-                for (i in 0 until binding.chipGroupYears.childCount) {
-                    (binding.chipGroupYears.getChildAt(i) as? TelegramChip)?.isChecked = years.keys.elementAt(i) == yearToShow
-                }
                 renderPapers(yearToShow)
             }
         }
@@ -238,55 +319,36 @@ class PyqActivity : EveBaseActivity() {
 
     private fun renderPapers(year: Int) {
         if (!isCurrentOwner() || selectedExam?.id != viewModel.selectedExamId) return
-        binding.chipGroupPapers.removeAllViews()
         val yearSets = sets.filter { it.examId == selectedExam?.id && it.year == year }
-        if (yearSets.isEmpty()) {
-            binding.tvPapersLabel.visibility = View.GONE
-            return
-        }
-        binding.tvPapersLabel.visibility = View.VISIBLE
+        val list = mutableListOf<Pair<String, PyqSet>>()
         yearSets.forEach { set ->
-            binding.chipGroupPapers.addView(com.eve.app.ui.common.StudentSelectionControls.action(this).apply {
-                text = if (set.paper.isBlank()) "Paper • ${set.subtitle}" else "${set.paper} • ${set.subtitle}"
-                isClickable = true
-                com.eve.app.designsystem.DesignPress.bind(this)
-                setOnClickListener {
-                    if (!hasPyqOwner()) { finish(); return@setOnClickListener }
-                    startPyq(set)
-                }
-            })
+            val label = if (set.paper.isBlank()) "Paper" else set.paper
+            list.add(label to set)
         }
-        if (yearSets.size > 1) {
+        val exam = selectedExam
+        if (yearSets.size > 1 && exam != null) {
             val combinedCount = yearSets.sumOf { it.questionCount }
-            val exam = selectedExam
-            if (exam != null) {
-                binding.chipGroupPapers.addView(com.eve.app.ui.common.StudentSelectionControls.action(this).apply {
-                    text = "Saare papers • $combinedCount Qs"
-                    isClickable = true
-                    com.eve.app.designsystem.DesignPress.bind(this)
-                    setOnClickListener {
-                        if (!hasPyqOwner()) { finish(); return@setOnClickListener }
-                        startPyq(
-                            PyqSet(
-                                examId = exam.id,
-                                examName = exam.examName,
-                                category = exam.categoryOrOther,
-                                year = year,
-                                paper = "",
-                                questionCount = combinedCount,
-                                timeLimitMinutes = exam.timeLimitMinutes.coerceAtLeast(1)
-                            )
-                        )
-                    }
-                })
-            }
+            list.add(
+                "Saare papers ($year)" to PyqSet(
+                    examId = exam.id,
+                    examName = exam.examName,
+                    category = exam.categoryOrOther,
+                    year = year,
+                    paper = "",
+                    questionCount = combinedCount,
+                    timeLimitMinutes = exam.timeLimitMinutes.coerceAtLeast(1)
+                )
+            )
         }
+        displayedPapers = list
+        adapter.notifyDataSetChanged()
     }
 
     private fun startPyq(set: PyqSet) {
         val exam = selectedExam ?: return
         if (!isCurrentOwner() || viewModel.selectedExamId != exam.id ||
-            set.examId != exam.id || set.year != selectedYear) return
+            set.examId != exam.id || set.year != selectedYear
+        ) return
         val yearSets = sets.filter { it.examId == exam.id && it.year == set.year }
         val validCombined = yearSets.size > 1 && set.paper.isBlank() &&
             set.examName == exam.examName && set.category == exam.categoryOrOther &&
@@ -305,7 +367,96 @@ class PyqActivity : EveBaseActivity() {
         )
     }
 
+    private inner class TelegramPyqAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+        override fun getItemCount(): Int {
+            if (exams.isEmpty()) return 0
+            return if (displayedPapers.isEmpty()) 5 else 4 + displayedPapers.size + 2
+        }
+
+        override fun getItemViewType(position: Int): Int {
+            if (position == 0 || position == 3) return VIEW_TYPE_HEADER
+            if (position == 1) return VIEW_TYPE_EXAM_PICKER
+            if (position == 2) return VIEW_TYPE_SHADOW
+            if (displayedPapers.isEmpty()) return VIEW_TYPE_INFO
+            val afterPapers = 4 + displayedPapers.size
+            return when {
+                position < afterPapers -> VIEW_TYPE_PAPER
+                position == afterPapers -> VIEW_TYPE_SHADOW
+                else -> VIEW_TYPE_INFO
+            }
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+            val view: View = when (viewType) {
+                VIEW_TYPE_HEADER -> HeaderCell(parent.context).apply {
+                    setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+                }
+                VIEW_TYPE_EXAM_PICKER -> TextCell(parent.context).apply {
+                    setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+                    foreground = Theme.getSelectorDrawable(false)
+                }
+                VIEW_TYPE_PAPER -> TextDetailSettingsCell(parent.context).apply {
+                    setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+                    foreground = Theme.getSelectorDrawable(false)
+                }
+                VIEW_TYPE_SHADOW -> ShadowSectionCell(parent.context)
+                else -> TextInfoPrivacyCell(parent.context)
+            }
+            view.layoutParams = RecyclerView.LayoutParams(
+                RecyclerView.LayoutParams.MATCH_PARENT,
+                RecyclerView.LayoutParams.WRAP_CONTENT
+            )
+            return object : RecyclerView.ViewHolder(view) {}
+        }
+
+        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+            when (getItemViewType(position)) {
+                VIEW_TYPE_HEADER -> {
+                    val header = holder.itemView as HeaderCell
+                    header.setText(if (position == 0) "Exam" else "Papers (${selectedYear ?: "--"})")
+                }
+                VIEW_TYPE_EXAM_PICKER -> {
+                    val cell = holder.itemView as TextCell
+                    cell.setTextAndColorfulIcon(
+                        selectedExam?.examName ?: "Choose Exam",
+                        R.drawable.msg_info,
+                        IconBackgroundColors.BLUE.bottom,
+                        false
+                    )
+                    cell.setOnClickListener { showExamPicker() }
+                }
+                VIEW_TYPE_PAPER -> {
+                    val (label, pyqSet) = displayedPapers[position - 4]
+                    val divider = position - 4 < displayedPapers.lastIndex
+                    val cell = holder.itemView as TextDetailSettingsCell
+                    cell.setTextAndValue(label, pyqSet.subtitle, divider)
+                    cell.setOnClickListener {
+                        if (!hasPyqOwner()) { finish(); return@setOnClickListener }
+                        startPyq(pyqSet)
+                    }
+                }
+                VIEW_TYPE_INFO -> {
+                    val cell = holder.itemView as TextInfoPrivacyCell
+                    cell.setText(
+                        if (displayedPapers.isEmpty()) {
+                            "No tagged PYQs found for this exam. Upload questions tagged with Previous Year Question and year."
+                        } else {
+                            "Tap any paper to start a timed previous-year practice test."
+                        }
+                    )
+                }
+            }
+        }
+    }
+
     private companion object {
+        const val MENU_REFRESH = 1
+        const val VIEW_TYPE_HEADER = 0
+        const val VIEW_TYPE_EXAM_PICKER = 1
+        const val VIEW_TYPE_SHADOW = 2
+        const val VIEW_TYPE_PAPER = 3
+        const val VIEW_TYPE_INFO = 4
         const val STATE_EXAM_ID = "pyq:selected-exam"
         const val STATE_YEAR = "pyq:selected-year"
     }

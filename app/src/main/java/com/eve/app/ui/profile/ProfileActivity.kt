@@ -135,10 +135,10 @@ class ProfileActivity : EveBaseActivity() {
             val data = result.data ?: return@registerForActivityResult
             val uri = IntentCompat.getParcelableExtra(
                 data,
-                AvatarCropActivity.EXTRA_OUTPUT_URI,
+                PhotoCropActivity.EXTRA_OUTPUT_URI,
                 Uri::class.java
             ) ?: data.data ?: return@registerForActivityResult
-            val path = data.getStringExtra(AvatarCropActivity.EXTRA_OUTPUT_PATH)
+            val path = data.getStringExtra(PhotoCropActivity.EXTRA_OUTPUT_PATH)
             discardCroppedPhoto()
             croppedPhotoFile = path?.let(::File)
             previewSelectedPhoto(uri, cropped = true)
@@ -1110,7 +1110,7 @@ class ProfileActivity : EveBaseActivity() {
                 onShareQr = null,
                 canEdit = profileConfirmed,
                 onChangeColor = {
-                    startActivity(Intent(this, com.eve.app.ui.settings.AppearanceActivity::class.java))
+                    startActivity(Intent(this, com.eve.app.ui.settings.ThemeActivity::class.java))
                 }
             )
         }
@@ -1183,7 +1183,7 @@ class ProfileActivity : EveBaseActivity() {
         if (pendingPhotoUri != null) return
         binding.profileScrollView.setExpanded(false, animated = false)
         try {
-            cropPhotoLauncher.launch(AvatarCropActivity.intent(this, uri))
+            cropPhotoLauncher.launch(PhotoCropActivity.intent(this, uri))
         } catch (_: ActivityNotFoundException) {
             clearCameraTemp()
             AppBulletin.showError(this, getString(R.string.profile_crop_load_failed))

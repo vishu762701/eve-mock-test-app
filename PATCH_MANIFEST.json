@@ -1,0 +1,231 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-11-20T03:19:50Z",
+  "starting_commit_sha": "22667c99394ad2163f58ad1dbc0e442c2b3bf47a",
+  "code_commit_sha": null,
+  "upstream_telegram_revision": "21f7d109da6ab3506c9e9577f98c6a38771ab335",
+  "summary": {
+    "added_code_and_ledger_files": 1,
+    "added_handover_files": 3,
+    "modified_files": 22,
+    "deleted_files": 0,
+    "activities_total": 61,
+    "activities_real_tg_frag": 7,
+    "activities_real_tg_views": 31,
+    "activities_kotlin_tg_ds_remaining": 21,
+    "activities_compat_aliases": 2
+  },
+  "verification": {
+    "port_gate_check": "PASS (5 screens, 143 files, exit 0)",
+    "check_no_shortcuts": "PASS (0 violations, exit 0)",
+    "check_no_stubs": "PASS (0 stubs, exit 0)",
+    "static_kotlin_import_resource_audit": "PASS (0 missing imports/drawables/strings)",
+    "gradle_assemble_debug": "NOT_EXECUTED (no Android SDK / javac / internet in VM)",
+    "android_lint": "NOT_EXECUTED (no Android SDK in VM)",
+    "unit_and_ui_tests": "NOT_EXECUTED (no Android SDK / emulator in VM)"
+  },
+  "added": [
+    {
+      "path": "TELEGRAM_PARITY_LEDGER.md",
+      "status": "A",
+      "insertions": 81,
+      "deletions": 0,
+      "sha256": "a44c34c1aa224c3ba333530c2cfe358a23ea98ddd06de5290580d645b4b4d0a8",
+      "bytes": 11575
+    },
+    {
+      "path": "FILE_CHANGES.md",
+      "status": "A"
+    },
+    {
+      "path": "PATCH_MANIFEST.json",
+      "status": "A"
+    },
+    {
+      "path": "BUILD_REPORT.md",
+      "status": "A"
+    }
+  ],
+  "modified": [
+    {
+      "path": "app/src/main/java/com/eve/app/ui/admin/AdminsAndRightsActivity.kt",
+      "status": "M",
+      "insertions": 167,
+      "deletions": 26,
+      "sha256": "b2db45646a17b25360dac6a8a6306466aeef9ababc4e285b72d430340bb54a6e",
+      "bytes": 11705
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/admin/ApiUsageActivity.kt",
+      "status": "M",
+      "insertions": 180,
+      "deletions": 53,
+      "sha256": "3c2b9c9e1dd39792939bfa9268f5ec8d397db45e51033b996d19ad50106d4c0f",
+      "bytes": 12006
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/admin/FeedbackMessagesActivity.kt",
+      "status": "M",
+      "insertions": 153,
+      "deletions": 64,
+      "sha256": "37e22262f296053c9cc834c3c933e2db4a42fcd6a653e4162656e491904a5934",
+      "bytes": 15071
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/admin/GeneratedTestsActivity.kt",
+      "status": "M",
+      "insertions": 157,
+      "deletions": 78,
+      "sha256": "b384b2a5feb07f813ac8ccf01fa64b18ccc6fb94af15cb764da88bdae791d45c",
+      "bytes": 15279
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/admin/ManageExistingExamsActivity.kt",
+      "status": "M",
+      "insertions": 165,
+      "deletions": 71,
+      "sha256": "58e8c0408a472db63762b822f637bb9491ea3083fd67caba0a258862bac92990",
+      "bytes": 13807
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/admin/ManagePollsActivity.kt",
+      "status": "M",
+      "insertions": 184,
+      "deletions": 64,
+      "sha256": "c19d9865d1ca87de0ac1b67fa5aa3ac1fbcd791b2bb309cc7a815fd89fcede56",
+      "bytes": 18861
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/admin/SystemMonitorActivity.kt",
+      "status": "M",
+      "insertions": 206,
+      "deletions": 84,
+      "sha256": "a55bcc4954b152ccad6dff39e5bc857155d6453f427d6d244954b2ccc068aa7d",
+      "bytes": 22089
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/admin/emoji/EmojiGridAdapter.kt",
+      "status": "M",
+      "insertions": 28,
+      "deletions": 35,
+      "sha256": "9e7c1d9c8bbba4c1821d2d1334f455097e75681b362e865c9f143f671ad78263",
+      "bytes": 2393
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/admin/emoji/EmojiRenderer.kt",
+      "status": "M",
+      "insertions": 172,
+      "deletions": 38,
+      "sha256": "65d5f2de8a5999f64c17a9d22eefca2f555e42731b1c2dd37e77fd17b5e02bfc",
+      "bytes": 13503
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/admin/emoji/EmojiStudioActivity.kt",
+      "status": "M",
+      "insertions": 356,
+      "deletions": 153,
+      "sha256": "9f9f24566faca5fc4b668636518971473ae965539bedf7f8631bc5155a7ba768",
+      "bytes": 36589
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/home/ExamTestsActivity.kt",
+      "status": "M",
+      "insertions": 277,
+      "deletions": 90,
+      "sha256": "ce4b2383d96b572798da653bd1c3b6c0d841e2c609f1d8e181065a1a3326a1d7",
+      "bytes": 21245
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/mistakes/MistakesActivity.kt",
+      "status": "M",
+      "insertions": 196,
+      "deletions": 68,
+      "sha256": "4318ed4c18bc620142f7c860405fc296cfe59c32c82c21545750b41bdb7654a7",
+      "bytes": 14728
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/notifications/NotificationsActivity.kt",
+      "status": "M",
+      "insertions": 213,
+      "deletions": 58,
+      "sha256": "f027f8381846f29f81c8c2febde5d98ee833dabf9823061f355b1cde9829b1be",
+      "bytes": 13483
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/practice/PracticeActivity.kt",
+      "status": "M",
+      "insertions": 252,
+      "deletions": 76,
+      "sha256": "60c7c50df0f7d5cb4444009f0b59aa94c2125c3ff080846bfd3059048de03267",
+      "bytes": 15426
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/premium/PaymentCheckoutActivity.kt",
+      "status": "M",
+      "insertions": 260,
+      "deletions": 73,
+      "sha256": "1f480b797dffcc29be2bcaf4a1a7f2b60674edeb9c9abbecef05ffd1af4c4bc0",
+      "bytes": 19217
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/premium/PremiumActivity.kt",
+      "status": "M",
+      "insertions": 204,
+      "deletions": 61,
+      "sha256": "e1ba9ba320b57620d900cd482dea9c94728db54892e5497cd3ec489f9dff58ce",
+      "bytes": 15577
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/profile/ProfileActivity.kt",
+      "status": "M",
+      "insertions": 4,
+      "deletions": 4,
+      "sha256": "6b5e09858fc20ad6d9c4e0c3d0f22eb4b2464676020e148cf80cece7aa53cf04",
+      "bytes": 64223
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/pyq/PyqActivity.kt",
+      "status": "M",
+      "insertions": 285,
+      "deletions": 134,
+      "sha256": "1a1528db6775b54cc024344250409089d90458457eef6d35a4a4d1c644a9f8eb",
+      "bytes": 19409
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/result/ResultDetailActivity.kt",
+      "status": "M",
+      "insertions": 212,
+      "deletions": 92,
+      "sha256": "cfbd5b05d229ff28ccce941ce4b7ca7b30671bd0527472a91c4712ecc5b1fafc",
+      "bytes": 16047
+    },
+    {
+      "path": "app/src/main/java/com/eve/app/ui/syllabus/SyllabusActivity.kt",
+      "status": "M",
+      "insertions": 272,
+      "deletions": 87,
+      "sha256": "6d1e35c5a06a051a8d17d681543f5faa4ce6a11e09c56b9346ac98e9cb5cc073",
+      "bytes": 19412
+    },
+    {
+      "path": "app/src/main/java/org/telegram/ui/ActionBar/Theme.java",
+      "status": "M",
+      "insertions": 1,
+      "deletions": 4,
+      "sha256": "5635ff10ac95f8561fa01d3da75f205c1f2a9abe18193bfda089cc47efc83bb5",
+      "bytes": 290652
+    },
+    {
+      "path": "docs/port-manifest.json",
+      "status": "M",
+      "insertions": 4,
+      "deletions": 4,
+      "sha256": "bc1759999af33d6c12b0c0acb21a7cd3a00952c4f8d868f92bd07b348e9924b3",
+      "bytes": 164684
+    }
+  ],
+  "deleted": [],
+  "source_reported_starting_commit_sha": "258cfb3b10a666601e74fc21fa14c7429b6beec4",
+  "source_reported_code_commit_sha": "6beafaab55c51a0a6d5c6e48a59529e833e87135",
+  "integration_note": "The supplied source archive baseline was verified against all 22 changed-file Git blob hashes on the target main branch. The supplied code_commit_sha was not resolvable as a GitHub commit."
+}

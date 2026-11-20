@@ -1,18 +1,24 @@
 package com.eve.app.ui.mistakes
 
-import com.eve.app.ui.common.EveBaseActivity
-
 import android.content.Context
 import android.os.Bundle
+import android.util.TypedValue
+import android.view.Gravity
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.eve.app.R
 import com.eve.app.data.remote.ApiClient
 import com.eve.app.data.remote.MistakeItem
-import com.eve.app.databinding.ActivityMistakesBinding
+import com.eve.app.designsystem.TelegramSegmentedTabs
+import com.eve.app.ui.common.EveBaseActivity
+import com.eve.app.util.AppBulletin
 import com.eve.app.util.LanguageManager
 import com.eve.app.util.NetworkUtil
 import com.eve.app.util.SecurityHelper
@@ -21,12 +27,26 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import org.telegram.messenger.AndroidUtilities
+import org.telegram.ui.ActionBar.ActionBar
+import org.telegram.ui.ActionBar.Theme
+import org.telegram.ui.Components.EmptyTextProgressView
+import org.telegram.ui.Components.LayoutHelper
+import org.telegram.ui.Components.RecyclerListView
+import org.telegram.ui.Stories.recorder.ButtonWithCounterView
 
+/**
+ * Mistake Notebook screen powered by real ported Telegram UI components:
+ * ActionBar, RecyclerListView, EmptyTextProgressView, ButtonWithCounterView,
+ * and TelegramSegmentedTabs while preserving MistakesAdapter and owner isolation.
+ */
 class MistakesActivity : EveBaseActivity() {
 
-    private lateinit var binding: ActivityMistakesBinding
-    private lateinit var adapter: MistakesAdapter
+    companion object {
+        private const val MENU_REFRESH = 1
+    }
 
+    private lateinit var adapter: MistakesAdapter
     private var allMistakes: List<MistakeItem> = emptyList()
     private val learnedIds = mutableSetOf<String>()
     private var currentFilter: String = "ALL" // "ALL", "WRONG", "SKIPPED"
@@ -35,14 +55,22 @@ class MistakesActivity : EveBaseActivity() {
     private var mistakeLoadJob: Job? = null
     private var mistakeLoadFailed = false
 
+    private lateinit var actionBar: ActionBar
+    private lateinit var offlineBanner: TextView
+    private lateinit var filterTabs: TelegramSegmentedTabs
+    private lateinit var listView: RecyclerListView
+    private lateinit var emptyView: EmptyTextProgressView
+    private lateinit var retryButton: ButtonWithCounterView
+
     private fun hasMistakesOwner(): Boolean =
         SubmissionRetryPolicy.ownsSubmission(mistakesOwnerUid, mistakesAuth.currentUser?.uid)
+
     private val mistakesAccountListener = FirebaseAuth.AuthStateListener {
         if (mistakesOwnerUid != null && !hasMistakesOwner()) {
             mistakeLoadJob?.cancel()
             learnedIds.clear()
             allMistakes = emptyList()
-            if (::binding.isInitialized) binding.rvMistakes.visibility = View.GONE
+            if (::listView.isInitialized) listView.visibility = View.GONE
             if (::adapter.isInitialized) adapter.submitList(emptyList())
             finish()
         }
@@ -55,38 +83,152 @@ class MistakesActivity : EveBaseActivity() {
             else savedInstanceState.getString("mistakes_owner_uid")
         if (!hasMistakesOwner()) { finish(); return }
         SecurityHelper.applyScreenProtection(this)
-        binding = ActivityMistakesBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
-        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
-        binding.messageGroup.setOnClickListener {
-            if (mistakeLoadFailed && hasMistakesOwner()) loadMistakes()
+        Theme.syncFromEvePalette(this)
+
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundGray))
         }
+        setContentView(root)
+
+        actionBar = ActionBar(this).apply {
+            setBackgroundColor(Theme.getColor(Theme.key_actionBarDefault))
+            setItemsBackgroundColor(Theme.getColor(Theme.key_actionBarDefaultSelector), false)
+            setItemsColor(Theme.getColor(Theme.key_actionBarDefaultIcon), false)
+            setTitleColor(Theme.getColor(Theme.key_actionBarDefaultTitle))
+            setSubtitleColor(Theme.getColor(Theme.key_actionBarDefaultSubtitle))
+            setBackButtonImage(R.drawable.ic_ab_back)
+            setTitle("Mistake Notebook")
+            createMenu().addItem(MENU_REFRESH, R.drawable.msg_retry)
+            setActionBarMenuOnItemClick(object : ActionBar.ActionBarMenuOnItemClick() {
+                override fun onItemClick(id: Int) {
+                    when (id) {
+                        -1 -> finish()
+                        MENU_REFRESH -> loadMistakes()
+                    }
+                }
+            })
+        }
+        root.addView(
+            actionBar,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        )
+
+        offlineBanner = TextView(this).apply {
+            text = "You are offline. Mistake Notebook requires a connection."
+            setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13f)
+            setTextColor(ContextCompat.getColor(this@MistakesActivity, R.color.system_orange_text))
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+            gravity = Gravity.CENTER
+            val padH = AndroidUtilities.dp(16f)
+            val padV = AndroidUtilities.dp(8f)
+            setPadding(padH, padV, padH, padV)
+            visibility = View.GONE
+        }
+        root.addView(
+            offlineBanner,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        )
+
+        filterTabs = TelegramSegmentedTabs(this).apply {
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+            setTabs(listOf("All", "Wrong", "Skipped"))
+            onTabSelectedListener = { pos ->
+                if (!hasMistakesOwner()) {
+                    finish()
+                } else {
+                    currentFilter = when (pos) {
+                        1 -> "WRONG"
+                        2 -> "SKIPPED"
+                        else -> "ALL"
+                    }
+                    applyFilter()
+                }
+            }
+        }
+        root.addView(
+            filterTabs,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        )
+
+        val contentFrame = FrameLayout(this)
+        root.addView(
+            contentFrame,
+            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f)
+        )
 
         loadLearnedPreferences()
 
         adapter = MistakesAdapter(
-            onToggleLearned = { item ->
-                toggleLearned(item.questionId)
-            },
-            isLearned = { id ->
-                learnedIds.contains(id)
-            },
-            isHindi = {
-                LanguageManager.isHindi(this)
-            }
+            onToggleLearned = { item -> toggleLearned(item.questionId) },
+            isLearned = { id -> learnedIds.contains(id) },
+            isHindi = { LanguageManager.isHindi(this) }
         )
 
-        binding.rvMistakes.layoutManager = LinearLayoutManager(this)
-        binding.rvMistakes.adapter = adapter
+        listView = RecyclerListView(this).apply {
+            layoutManager = LinearLayoutManager(this@MistakesActivity)
+            adapter = this@MistakesActivity.adapter
+            isVerticalScrollBarEnabled = true
+            scrollBarStyle = View.SCROLLBARS_INSIDE_OVERLAY
+            setScrollbarFadingEnabled(true)
+            setScrollBarDefaultDelayBeforeFade(900)
+            clipToPadding = false
+            setPadding(0, 0, 0, AndroidUtilities.dp(24f))
+            visibility = View.GONE
+        }
+        contentFrame.addView(
+            listView,
+            LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat())
+        )
 
-        setupFilters()
+        emptyView = EmptyTextProgressView(this).apply {
+            setShowAtCenter(true)
+            setTextColor(Theme.getColor(Theme.key_emptyListPlaceholder))
+            setProgressBarColor(Theme.getColor(Theme.key_progressCircle))
+            setText("All Caught Up!\nQuestions you answer incorrectly or skip will appear here.")
+            showProgress()
+        }
+        contentFrame.addView(
+            emptyView,
+            LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat())
+        )
+
+        retryButton = ButtonWithCounterView(this, null).apply {
+            setRound()
+            setText("Retry", false)
+            visibility = View.GONE
+            setOnClickListener {
+                if (hasMistakesOwner()) loadMistakes()
+            }
+        }
+        contentFrame.addView(
+            retryButton,
+            LayoutHelper.createFrame(
+                LayoutHelper.MATCH_PARENT,
+                48f,
+                Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL,
+                24f,
+                0f,
+                24f,
+                32f
+            )
+        )
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     NetworkUtil.observe(this@MistakesActivity).collect { online ->
-                        binding.tvOfflineBanner.visibility = if (online) View.GONE else View.VISIBLE
+                        offlineBanner.visibility = if (online) View.GONE else View.VISIBLE
                     }
                 }
             }
@@ -134,32 +276,17 @@ class MistakesActivity : EveBaseActivity() {
         }
     }
 
-    private fun setupFilters() {
-        com.eve.app.ui.common.TelegramHorizontalScrollLayoutManager.install(binding.scrollFilters)
-        binding.chipGroupFilters.setOnCheckedStateChangeListener { _, checkedIds ->
-            if (!hasMistakesOwner()) { finish(); return@setOnCheckedStateChangeListener }
-            currentFilter = when {
-                checkedIds.contains(binding.chipWrong.id) -> "WRONG"
-                checkedIds.contains(binding.chipSkipped.id) -> "SKIPPED"
-                else -> "ALL"
-            }
-            applyFilter()
-        }
-    }
-
     private fun loadMistakes() {
         if (!hasMistakesOwner()) { finish(); return }
         mistakeLoadJob?.cancel()
         val requestUid = requireNotNull(mistakesOwnerUid)
         mistakeLoadFailed = false
+        retryButton.visibility = View.GONE
         if (allMistakes.isEmpty()) {
-            binding.progressBar.visibility = View.VISIBLE
-            binding.rvMistakes.visibility = View.GONE
+            listView.visibility = View.GONE
+            emptyView.visibility = View.VISIBLE
+            emptyView.showProgress()
         }
-        binding.messageGroup.visibility = View.GONE
-        binding.messageGroup.isClickable = false
-        binding.messageGroup.isFocusable = false
-        binding.messageGroup.contentDescription = null
 
         mistakeLoadJob = lifecycleScope.launch {
             try {
@@ -172,7 +299,6 @@ class MistakesActivity : EveBaseActivity() {
                     throw IllegalStateException(resp.error ?: "Server mistakes response is incomplete")
                 }
                 allMistakes = resp.data
-                binding.progressBar.visibility = View.GONE
                 updateFilterCounts()
                 applyFilter()
             } catch (cancel: CancellationException) {
@@ -189,28 +315,30 @@ class MistakesActivity : EveBaseActivity() {
 
     private fun showMistakeReadFailure() {
         mistakeLoadFailed = true
-        binding.progressBar.visibility = View.GONE
         if (allMistakes.isNotEmpty()) {
-            binding.rvMistakes.visibility = View.VISIBLE
-            binding.messageGroup.visibility = View.GONE
-            com.eve.app.util.AppBulletin.showError(this@MistakesActivity, "Couldn't refresh mistakes")
+            listView.visibility = View.VISIBLE
+            emptyView.visibility = View.GONE
+            retryButton.visibility = View.GONE
+            AppBulletin.showError(this@MistakesActivity, "Couldn't refresh mistakes")
             return
         }
-        binding.rvMistakes.visibility = View.GONE
-        binding.messageGroup.visibility = View.VISIBLE
-        binding.tvEmptyTitle.text = "Couldn't load mistakes"
-        binding.tvEmptySubtitle.text = "Check your connection and tap to retry."
-        binding.messageGroup.isClickable = true
-        binding.messageGroup.isFocusable = true
-        binding.messageGroup.contentDescription = "Retry loading Mistake Notebook"
+        listView.visibility = View.GONE
+        emptyView.visibility = View.VISIBLE
+        emptyView.setText("Couldn't load mistakes\nCheck your connection and tap Retry.")
+        emptyView.showTextView()
+        retryButton.visibility = View.VISIBLE
     }
 
     private fun updateFilterCounts() {
         val wrongCount = allMistakes.count { it.selected.isNotBlank() }
         val skippedCount = allMistakes.count { it.selected.isBlank() }
-        binding.chipAll.text = "All (${allMistakes.size})"
-        binding.chipWrong.text = "Wrong ($wrongCount)"
-        binding.chipSkipped.text = "Skipped ($skippedCount)"
+        filterTabs.setTabs(
+            listOf(
+                "All (${allMistakes.size})",
+                "Wrong ($wrongCount)",
+                "Skipped ($skippedCount)"
+            )
+        )
     }
 
     override fun onStart() {
@@ -227,7 +355,6 @@ class MistakesActivity : EveBaseActivity() {
     override fun onResume() {
         super.onResume()
         if (!hasMistakesOwner()) { finish(); return }
-        if (!::binding.isInitialized) return
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -245,20 +372,21 @@ class MistakesActivity : EveBaseActivity() {
         }
 
         adapter.submitList(filtered)
+        retryButton.visibility = View.GONE
+        actionBar.setSubtitle("${filtered.size} ${if (filtered.size == 1) "question" else "questions"}")
 
         if (filtered.isEmpty()) {
-            binding.messageGroup.visibility = View.VISIBLE
-            binding.rvMistakes.visibility = View.GONE
+            listView.visibility = View.GONE
+            emptyView.visibility = View.VISIBLE
             if (allMistakes.isEmpty()) {
-                binding.tvEmptyTitle.text = "All Caught Up!"
-                binding.tvEmptySubtitle.text = "No mistakes recorded. Questions you answer incorrectly or skip will automatically appear here."
+                emptyView.setText("All Caught Up!\nNo mistakes recorded yet.")
             } else {
-                binding.tvEmptyTitle.text = "No Matching Questions"
-                binding.tvEmptySubtitle.text = "There are no questions in this category."
+                emptyView.setText("No Matching Questions\nThere are no questions in this category.")
             }
+            emptyView.showTextView()
         } else {
-            binding.messageGroup.visibility = View.GONE
-            binding.rvMistakes.visibility = View.VISIBLE
+            emptyView.visibility = View.GONE
+            listView.visibility = View.VISIBLE
         }
     }
 

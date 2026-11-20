@@ -3,21 +3,35 @@ package com.eve.app.ui.result
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import androidx.activity.addCallback
-import androidx.core.content.ContextCompat
 import com.eve.app.R
 import com.eve.app.data.model.AnswerItem
-import com.eve.app.databinding.ActivityResultDetailBinding
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.ui.test.TestActivity
 import com.eve.app.util.Constants
 import com.eve.app.util.SecurityHelper
 import com.eve.app.util.TopicAccuracyHelper
+import org.telegram.messenger.AndroidUtilities
+import org.telegram.ui.ActionBar.ActionBar
+import org.telegram.ui.ActionBar.Theme
+import org.telegram.ui.Cells.HeaderCell
+import org.telegram.ui.Cells.ShadowSectionCell
+import org.telegram.ui.Cells.TextDetailSettingsCell
+import org.telegram.ui.Cells.TextInfoPrivacyCell
+import org.telegram.ui.Stories.recorder.ButtonWithCounterView
 import java.util.Locale
 
+/**
+ * Result Detail (Statistics, Performance Standing, Analytics & Insights) screen
+ * powered by real ported Telegram UI components:
+ * ActionBar, HeaderCell, TextDetailSettingsCell, ShadowSectionCell,
+ * TextInfoPrivacyCell, and ButtonWithCounterView.
+ */
 class ResultDetailActivity : EveBaseActivity() {
 
     companion object {
@@ -62,15 +76,18 @@ class ResultDetailActivity : EveBaseActivity() {
         }
     }
 
-    private lateinit var binding: ActivityResultDetailBinding
+    private lateinit var rootView: LinearLayout
+    private lateinit var actionBar: ActionBar
+    private lateinit var listContainer: LinearLayout
 
     private var resultOwnerUid = ""
     private val resultOwnerListener = com.google.firebase.auth.FirebaseAuth.AuthStateListener { auth ->
         if (resultOwnerUid.isNotBlank() && auth.currentUser?.uid != resultOwnerUid) {
-            if (::binding.isInitialized) binding.root.visibility = android.view.View.INVISIBLE
+            if (::rootView.isInitialized) rootView.visibility = View.INVISIBLE
             finish()
         }
     }
+
     override fun onDestroy() {
         com.google.firebase.auth.FirebaseAuth.getInstance().removeAuthStateListener(resultOwnerListener)
         super.onDestroy()
@@ -84,13 +101,16 @@ class ResultDetailActivity : EveBaseActivity() {
         auth.addAuthStateListener(resultOwnerListener)
         if (isFinishing || auth.currentUser?.uid != resultOwnerUid) { finish(); return }
         SecurityHelper.applyScreenProtection(this)
-        binding = ActivityResultDetailBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+
+        Theme.syncFromEvePalette(this)
+
+        rootView = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundGray))
+        }
+        setContentView(rootView)
 
         onBackPressedDispatcher.addCallback(this) {
-            finish()
-        }
-        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) {
             finish()
         }
 
@@ -107,19 +127,32 @@ class ResultDetailActivity : EveBaseActivity() {
         val percentile = intent.getStringExtra("EXTRA_PERCENTILE").orEmpty()
         val topperAvg = intent.getStringExtra("EXTRA_TOPPER_AVG").orEmpty()
 
-        if (examName.isNotBlank()) {
-            // Telegram ActionBar.java:1445-1452 uses a smaller title when subtitle is shown.
-            androidx.core.widget.TextViewCompat.setTextAppearance(
-                binding.tvDetailTitle, R.style.TextAppearance_Eve_Telegram_NavigationTitle_WithSubtitle
-            )
-            binding.tvDetailSubtitle.visibility = View.VISIBLE
-            binding.tvDetailSubtitle.text = examName
-        } else {
-            androidx.core.widget.TextViewCompat.setTextAppearance(
-                binding.tvDetailTitle, R.style.TextAppearance_Eve_Telegram_NavigationTitle
-            )
-            binding.tvDetailSubtitle.visibility = View.GONE
+        // 1. Real Telegram ActionBar
+        actionBar = ActionBar(this).apply {
+            setBackgroundColor(Theme.getColor(Theme.key_actionBarDefault))
+            setItemsBackgroundColor(Theme.getColor(Theme.key_actionBarDefaultSelector), false)
+            setItemsColor(Theme.getColor(Theme.key_actionBarDefaultIcon), false)
+            setTitleColor(Theme.getColor(Theme.key_actionBarDefaultTitle))
+            setSubtitleColor(Theme.getColor(Theme.key_actionBarDefaultSubtitle))
+            setBackButtonImage(R.drawable.ic_ab_back)
+            if (examName.isNotBlank()) {
+                setSubtitle(examName)
+            }
+            setActionBarMenuOnItemClick(object : ActionBar.ActionBarMenuOnItemClick() {
+                override fun onItemClick(id: Int) {
+                    if (id == -1) finish()
+                }
+            })
         }
+        rootView.addView(actionBar, matchWrap())
+
+        val scrollView = ScrollView(this).apply { isFillViewport = true }
+        listContainer = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(0, 0, 0, AndroidUtilities.dp(24f))
+        }
+        scrollView.addView(listContainer, matchWrap())
+        rootView.addView(scrollView, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
 
         val allItems: List<AnswerItem> = ResultDataHolder.getDetailItems(resultOwnerUid, examId)
 
@@ -139,35 +172,38 @@ class ResultDetailActivity : EveBaseActivity() {
         unattempted: Int,
         accuracy: Double
     ) {
-        binding.tvDetailTitle.text = "Statistics Details"
-        binding.layoutContainerStatistics.visibility = View.VISIBLE
+        actionBar.setTitle("Statistics Details")
 
         val scoreStr = if (score % 1.0 == 0.0) score.toInt().toString() else String.format(Locale.US, "%.2f", score)
-        binding.tvStatHeroScore.text = "$scoreStr / $total"
-
         val scorePct = if (total > 0) (score * 100.0 / total).coerceAtLeast(0.0) else 0.0
-        binding.tvStatHeroPercentage.text = String.format(Locale.US, "%.1f%% Score", scorePct)
-
-        // Marking breakdown
         val correctMarks = correct * 1.0
         val wrongDeduction = (correctMarks - score).coerceAtLeast(0.0)
 
-        binding.tvStatCorrectLabel.text = "Correct Answers ($correct × +1.00)"
-        binding.tvStatCorrectMarks.text = String.format(Locale.US, "+%.2f", correctMarks)
+        addHeader("Score Summary")
+        addDetailRow("$scoreStr / $total", String.format(Locale.US, "%.1f%% Overall Score", scorePct), true)
+        addDetailRow(String.format(Locale.US, "%.1f%%", accuracy), "Accuracy", false)
+        addShadow()
 
-        binding.tvStatWrongLabel.text = "Negative Marks ($wrong incorrect)"
-        binding.tvStatWrongMarks.text = String.format(Locale.US, "-%.2f", wrongDeduction)
+        addHeader("Marking Breakdown")
+        addDetailRow(
+            String.format(Locale.US, "+%.2f", correctMarks),
+            "Correct Answers ($correct × +1.00)",
+            true
+        )
+        addDetailRow(
+            String.format(Locale.US, "-%.2f", wrongDeduction),
+            "Negative Marks ($wrong incorrect)",
+            true
+        )
+        addDetailRow(
+            "0.00",
+            "Unattempted Questions ($unattempted skipped)",
+            true
+        )
+        addDetailRow(scoreStr, "Final Net Score", false)
+        addShadow()
 
-        binding.tvStatUnattemptedLabel.text = "Unattempted Questions ($unattempted skipped)"
-        binding.tvStatUnattemptedCount.text = "0.00"
-
-        binding.tvStatFinalNetScore.text = scoreStr
-
-        // 4 Tiles
-        binding.tvStatRightCount.text = correct.toString()
-        binding.tvStatWrongCount.text = wrong.toString()
-        binding.tvStatUnattemptedTileCount.text = unattempted.toString()
-        binding.tvStatAccuracyPct.text = String.format(Locale.US, "%.1f%%", accuracy)
+        addInfo("Net score reflects positive marks earned minus negative marking deductions.")
     }
 
     private fun setupPerformance(
@@ -176,16 +212,9 @@ class ResultDetailActivity : EveBaseActivity() {
         percentile: String,
         topperAvg: String
     ) {
-        binding.tvDetailTitle.text = "Performance Standing"
-        binding.layoutContainerPerformance.visibility = View.VISIBLE
-
-        binding.tvPerfDetailRank.text = if (rank.isNotBlank()) rank else "Rank: --"
-        binding.tvPerfDetailPercentile.text = if (percentile.isNotBlank()) "Percentile: $percentile" else "Percentile: --%"
+        actionBar.setTitle("Performance Standing")
 
         val scoreStr = if (score % 1.0 == 0.0) score.toInt().toString() else String.format(Locale.US, "%.2f", score)
-        binding.tvPerfYourScore.text = scoreStr
-
-        // Parse topper and avg from topperAvg string if available (e.g. "Topper: 85.0 • Average: 62.0")
         var topperStr = "--"
         var avgStr = "--"
         if (topperAvg.contains("Topper:", ignoreCase = true)) {
@@ -199,8 +228,19 @@ class ResultDetailActivity : EveBaseActivity() {
                 }
             }
         }
-        binding.tvPerfTopperScore.text = topperStr
-        binding.tvPerfAvgScore.text = avgStr
+
+        addHeader("Standing")
+        addDetailRow(if (rank.isNotBlank()) rank else "Rank: --", "Your Rank", true)
+        addDetailRow(if (percentile.isNotBlank()) percentile else "--%", "Percentile", false)
+        addShadow()
+
+        addHeader("Score Comparison")
+        addDetailRow(scoreStr, "Your Score", true)
+        addDetailRow(topperStr, "Topper Score", true)
+        addDetailRow(avgStr, "Average Score", false)
+        addShadow()
+
+        addInfo("Rank and percentile update as more candidates complete this test.")
     }
 
     private fun setupAnalytics(
@@ -208,41 +248,70 @@ class ResultDetailActivity : EveBaseActivity() {
         examName: String,
         allItems: List<AnswerItem>
     ) {
-        binding.tvDetailTitle.text = "Analytics & Insights"
-        binding.layoutContainerAnalytics.visibility = View.VISIBLE
+        actionBar.setTitle("Analytics & Insights")
 
         // 1. Topic Accuracy (Weakest First)
+        addHeader("Topic Accuracy (Weakest First)")
         val topicAccs = TopicAccuracyHelper.aggregate(allItems)
-        binding.layoutTopicList.removeAllViews()
-
         if (topicAccs.isNotEmpty()) {
-            for (ta in topicAccs) binding.layoutTopicList.addView(ResultAnalysisRows.topic(this, ta))
-
+            topicAccs.forEachIndexed { idx, ta ->
+                val pctStr = String.format(Locale.US, "%.1f%%", ta.accuracy)
+                addDetailRow(
+                    ta.topic,
+                    "$pctStr accuracy • ${ta.correct}/${ta.total} correct",
+                    idx < topicAccs.lastIndex
+                )
+            }
             val weakest = topicAccs.first()
             if (weakest.accuracy < 100.0) {
-                binding.btnPracticeWeakest.visibility = View.VISIBLE
-                binding.btnPracticeWeakest.text = "Practice Weakest: ${weakest.topic}"
-                com.eve.app.designsystem.DesignPress.bind(binding.btnPracticeWeakest) {
-                    val practiceIntent = Intent(this, TestActivity::class.java).apply {
-                        putExtra(Constants.EXTRA_EXAM_ID, examId)
-                        putExtra(Constants.EXTRA_EXAM_NAME, examName)
-                        putExtra(Constants.EXTRA_TOPIC, weakest.topic)
-                    }
-                    startActivity(practiceIntent)
+                val btnWrap = LinearLayout(this).apply {
+                    orientation = LinearLayout.VERTICAL
+                    setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+                    val padH = AndroidUtilities.dp(16f)
+                    val padV = AndroidUtilities.dp(12f)
+                    setPadding(padH, padV, padH, padV)
                 }
-            } else {
-                binding.btnPracticeWeakest.visibility = View.GONE
+                val btnPractice = ButtonWithCounterView(this, null).apply {
+                    setRound()
+                    setText("Practice Weakest: ${weakest.topic}", false)
+                    setOnClickListener {
+                        val practiceIntent = Intent(this@ResultDetailActivity, TestActivity::class.java).apply {
+                            putExtra(Constants.EXTRA_EXAM_ID, examId)
+                            putExtra(Constants.EXTRA_EXAM_NAME, examName)
+                            putExtra(Constants.EXTRA_TOPIC, weakest.topic)
+                        }
+                        startActivity(practiceIntent)
+                    }
+                }
+                btnWrap.addView(
+                    btnPractice,
+                    LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        AndroidUtilities.dp(48f)
+                    )
+                )
+                listContainer.addView(btnWrap, matchWrap())
             }
         } else {
-            val emptyTv = TextView(this).apply {
-                text = "No topic metadata recorded for this test."
-                androidx.core.widget.TextViewCompat.setTextAppearance(this, R.style.TextAppearance_Eve_Token_Secondary)
-            }
-            binding.layoutTopicList.addView(emptyTv)
-            binding.btnPracticeWeakest.visibility = View.GONE
+            addInfo("No topic metadata recorded for this test.")
         }
+        addShadow()
 
         // 2. Question Pace Chart
+        addHeader("Question Pace")
+        val chartSection = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+            val padH = AndroidUtilities.dp(16f)
+            val padV = AndroidUtilities.dp(12f)
+            setPadding(padH, padV, padH, padV)
+        }
+        val chartDetail = TextView(this).apply {
+            text = "Tap any bar to inspect time spent"
+            setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13f)
+            setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText))
+            setPadding(0, AndroidUtilities.dp(8f), 0, 0)
+        }
         val barItems = allItems.mapIndexed { index, item ->
             QuestionTimeChartView.BarItem(
                 questionNumber = index + 1,
@@ -251,28 +320,79 @@ class ResultDetailActivity : EveBaseActivity() {
                 isAttempted = item.isAttempted
             )
         }
-        binding.chartTimeView.setItems(barItems)
-        binding.chartTimeView.onBarSelected = { bar ->
-            val status = when {
-                bar.isCorrect -> "Correct"
-                bar.isAttempted -> "Wrong"
-                else -> "Skipped"
+        val chartView = QuestionTimeChartView(this).apply {
+            setItems(barItems)
+            onBarSelected = { bar ->
+                val status = when {
+                    bar.isCorrect -> "Correct"
+                    bar.isAttempted -> "Wrong"
+                    else -> "Skipped"
+                }
+                chartDetail.text = "Question ${bar.questionNumber}: ${bar.timeSeconds}s • $status"
             }
-            binding.tvChartDetail.text = "Question ${bar.questionNumber}: ${bar.timeSeconds}s • $status"
         }
+        chartSection.addView(
+            chartView,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                AndroidUtilities.dp(180f)
+            )
+        )
+        chartSection.addView(chartDetail, matchWrap())
+        listContainer.addView(chartSection, matchWrap())
+        addShadow()
 
         // 3. Slowest Questions
-        val slowest = allItems.filter { it.timeTakenSeconds > 0 }.sortedByDescending { it.timeTakenSeconds }.take(5)
-        binding.layoutSlowestList.removeAllViews()
-
+        addHeader("Slowest Questions")
+        val slowest = allItems.filter { it.timeTakenSeconds > 0 }
+            .sortedByDescending { it.timeTakenSeconds }
+            .take(5)
         if (slowest.isNotEmpty()) {
-            for (item in slowest) binding.layoutSlowestList.addView(ResultAnalysisRows.slowest(this, item))
-        } else {
-            val emptyTv = TextView(this).apply {
-                text = "No timed questions recorded."
-                androidx.core.widget.TextViewCompat.setTextAppearance(this, R.style.TextAppearance_Eve_Token_Secondary)
+            slowest.forEachIndexed { idx, item ->
+                val status = when {
+                    item.isCorrect -> "Correct"
+                    item.isAttempted -> "Wrong"
+                    else -> "Skipped"
+                }
+                val snippet = item.questionText.trim().take(90)
+                addDetailRow(
+                    "${item.timeTakenSeconds}s • $status",
+                    snippet,
+                    idx < slowest.lastIndex
+                )
             }
-            binding.layoutSlowestList.addView(emptyTv)
+        } else {
+            addInfo("No timed questions recorded.")
         }
     }
+
+    private fun addHeader(title: String) {
+        listContainer.addView(HeaderCell(this).apply {
+            setText(title)
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+        }, matchWrap())
+    }
+
+    private fun addDetailRow(text: String, value: String, divider: Boolean) {
+        listContainer.addView(TextDetailSettingsCell(this).apply {
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+            setMultilineDetail(true)
+            setTextAndValue(text, value, divider)
+        }, matchWrap())
+    }
+
+    private fun addShadow() {
+        listContainer.addView(ShadowSectionCell(this), matchWrap())
+    }
+
+    private fun addInfo(text: String) {
+        listContainer.addView(TextInfoPrivacyCell(this).apply {
+            setText(text)
+        }, matchWrap())
+    }
+
+    private fun matchWrap() = LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    )
 }

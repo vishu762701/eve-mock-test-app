@@ -2,35 +2,59 @@ package com.eve.app.ui.admin.emoji
 
 import android.content.DialogInterface
 import android.os.Bundle
+import android.util.TypedValue
+import android.view.Gravity
 import android.view.View
 import android.widget.EditText
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
-import com.eve.app.designsystem.TelegramNativeAlertDialog
-import coil.load
-import com.eve.app.designsystem.TelegramSwitch
-import com.eve.app.data.remote.toUserFriendlyMessage
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.withContext
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
+import com.airbnb.lottie.LottieAnimationView
 import com.eve.app.R
 import com.eve.app.data.model.EmojiItem
 import com.eve.app.data.model.EmojiPack
+import com.eve.app.data.remote.toUserFriendlyMessage
 import com.eve.app.data.repository.EmojiRepository
-import com.eve.app.databinding.ActivityEmojiStudioBinding
 import com.eve.app.databinding.BottomSheetEmojiPackManagerBinding
 import com.eve.app.databinding.BottomSheetEmojiPlacementBinding
+import com.eve.app.designsystem.TelegramBottomSheet
+import com.eve.app.designsystem.TelegramNativeAlertDialog
+import com.eve.app.designsystem.TelegramSegmentedTabs
+import com.eve.app.designsystem.TelegramSwitch
 import com.eve.app.ui.admin.tg.TextCheckCell
 import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AdminAccessGate
 import com.eve.app.util.AppBulletin
-import com.eve.app.designsystem.TelegramBottomSheet
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.telegram.messenger.AndroidUtilities
+import org.telegram.ui.ActionBar.ActionBar
+import org.telegram.ui.ActionBar.ActionBarMenuItem
+import org.telegram.ui.ActionBar.Theme
+import org.telegram.ui.Components.EmptyTextProgressView
+import org.telegram.ui.Components.LayoutHelper
+import org.telegram.ui.Components.RecyclerListView
+import org.telegram.ui.Stories.recorder.ButtonWithCounterView
 
+/**
+ * Motion Emoji & Sticker Studio powered by real ported Telegram UI components:
+ * ActionBar (with live ActionBarMenuItem search + refresh), RecyclerListView (4-col grid),
+ * EmptyTextProgressView, ButtonWithCounterView, plus Recent category, live looping
+ * long-press ContentPreview dialog, and full placement/pack/import workflows.
+ */
 class EmojiStudioActivity : EveBaseActivity() {
 
-    private lateinit var binding: ActivityEmojiStudioBinding
+    companion object {
+        private const val MENU_SEARCH = 1
+        private const val MENU_REFRESH = 2
+    }
+
     private val emojiRepo = EmojiRepository()
     private lateinit var adapter: EmojiGridAdapter
 
@@ -38,6 +62,7 @@ class EmojiStudioActivity : EveBaseActivity() {
     private var allItems: List<EmojiItem> = emptyList()
     private var serverItemIds: Set<String> = emptySet()
     private var displayedItems: List<EmojiItem> = emptyList()
+    private var tabTitles: List<String> = listOf("All")
 
     private var currentTabIndex = 0
     private var searchQuery = ""
@@ -54,6 +79,16 @@ class EmojiStudioActivity : EveBaseActivity() {
     private var importOptionsDialog: TelegramNativeAlertDialog? = null
     private var itemDetailsDialog: TelegramNativeAlertDialog? = null
     private var pendingUpload: android.net.Uri? = null
+
+    private lateinit var rootView: LinearLayout
+    private lateinit var actionBar: ActionBar
+    private lateinit var segmentedTabs: TelegramSegmentedTabs
+    private lateinit var listView: RecyclerListView
+    private lateinit var emptyView: EmptyTextProgressView
+    private lateinit var bottomBar: LinearLayout
+    private lateinit var btnManagePacks: ButtonWithCounterView
+    private lateinit var btnImport: ButtonWithCounterView
+
     private val uploadPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
             if (authorized) uploadCustom(uri) else pendingUpload = uri
@@ -66,28 +101,157 @@ class EmojiStudioActivity : EveBaseActivity() {
         authorizedUid = live?.uid
         authorizedEmail = live?.email
 
-        binding = ActivityEmojiStudioBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        Theme.syncFromEvePalette(this)
 
-        binding.actionBar.setTitle("Animated Emoji")
-        binding.actionBar.setSubtitle("Emoji Studio & Placements")
-        binding.actionBar.onBackPressed = { finish() }
-        binding.actionBar.bindSystemBack(this)
+        rootView = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundGray))
+        }
+        setContentView(rootView)
 
-        binding.progressLoading.visibility = View.VISIBLE
-        binding.rvEmojiGrid.visibility = View.GONE
-        binding.segmentedTabs.visibility = View.GONE
-        binding.bottomActionContainer.visibility = View.GONE
+        // 1. Real Telegram ActionBar with live Search + Refresh
+        actionBar = ActionBar(this).apply {
+            setBackgroundColor(Theme.getColor(Theme.key_actionBarDefault))
+            setItemsBackgroundColor(Theme.getColor(Theme.key_actionBarDefaultSelector), false)
+            setItemsColor(Theme.getColor(Theme.key_actionBarDefaultIcon), false)
+            setTitleColor(Theme.getColor(Theme.key_actionBarDefaultTitle))
+            setSubtitleColor(Theme.getColor(Theme.key_actionBarDefaultSubtitle))
+            setBackButtonImage(R.drawable.ic_ab_back)
+            setTitle("Animated Emoji")
+            setSubtitle("Emoji Studio & Placements")
+            val menu = createMenu()
+            val searchItem = menu.addItem(MENU_SEARCH, R.drawable.msg_search)
+                .setIsSearchField(true)
+                .setActionBarMenuItemSearchListener(object : ActionBarMenuItem.ActionBarMenuItemSearchListener() {
+                    override fun onSearchCollapse() {
+                        searchQuery = ""
+                        if (authorized) filterAndDisplayItems()
+                    }
 
-        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_content") {
+                    override fun onTextChanged(editText: EditText?) {
+                        searchQuery = editText?.text?.toString()?.trim()?.lowercase().orEmpty()
+                        if (authorized) filterAndDisplayItems()
+                    }
+                })
+            searchItem.setSearchFieldHint("Search emoji, pack or source…")
+            menu.addItem(MENU_REFRESH, R.drawable.msg_retry)
+            setActionBarMenuOnItemClick(object : ActionBar.ActionBarMenuOnItemClick() {
+                override fun onItemClick(id: Int) {
+                    when (id) {
+                        -1 -> finish()
+                        MENU_REFRESH -> if (authorized) loadData()
+                    }
+                }
+            })
+        }
+        rootView.addView(
+            actionBar,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        )
+
+        // 2. Category tabs (Recent, All, Noto, Telegram UI, Custom Packs)
+        segmentedTabs = TelegramSegmentedTabs(this).apply {
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+            visibility = View.GONE
+        }
+        rootView.addView(
+            segmentedTabs,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        )
+
+        // 3. Content frame with RecyclerListView + EmptyTextProgressView
+        val contentFrame = FrameLayout(this)
+        rootView.addView(
+            contentFrame,
+            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f)
+        )
+
+        listView = RecyclerListView(this).apply {
+            layoutManager = GridLayoutManager(this@EmojiStudioActivity, 4)
+            clipToPadding = false
+            val pad = AndroidUtilities.dp(8f)
+            setPadding(pad, pad, pad, AndroidUtilities.dp(16f))
+            visibility = View.GONE
+        }
+        contentFrame.addView(
+            listView,
+            LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat())
+        )
+
+        emptyView = EmptyTextProgressView(this).apply {
+            setShowAtCenter(true)
+            setTextColor(Theme.getColor(Theme.key_emptyListPlaceholder))
+            setProgressBarColor(Theme.getColor(Theme.key_progressCircle))
+            setText("No motion emojis match this filter")
+            showProgress()
+        }
+        contentFrame.addView(
+            emptyView,
+            LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat())
+        )
+
+        // 4. Bottom action bar with Telegram ButtonWithCounterView buttons
+        bottomBar = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+            val padH = AndroidUtilities.dp(12f)
+            val padV = AndroidUtilities.dp(10f)
+            setPadding(padH, padV, padH, padV)
+            visibility = View.GONE
+        }
+        btnManagePacks = ButtonWithCounterView(this, false, null).apply {
+            setRound()
+            setNeutral()
+            setText("Manage Packs", false)
+            setOnClickListener { showPackManagerBottomSheet() }
+        }
+        btnImport = ButtonWithCounterView(this, null).apply {
+            setRound()
+            setText("Import Emoji", false)
+            setOnClickListener { showImportOptionsDialog() }
+        }
+        bottomBar.addView(
+            btnManagePacks,
+            LinearLayout.LayoutParams(0, AndroidUtilities.dp(44f), 1f).apply {
+                marginEnd = AndroidUtilities.dp(8f)
+            }
+        )
+        bottomBar.addView(
+            btnImport,
+            LinearLayout.LayoutParams(0, AndroidUtilities.dp(44f), 1f)
+        )
+        rootView.addView(
+            bottomBar,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        )
+
+        adapter = EmojiGridAdapter(
+            onItemClick = { item ->
+                EmojiRenderer.recordRecent(this, item.id)
+                showPlacementBottomSheet(item)
+            },
+            onItemLongClick = { item ->
+                EmojiRenderer.recordRecent(this, item.id)
+                showAnimatedPreviewDialog(item)
+            }
+        )
+        listView.adapter = adapter
+
+        AdminAccessGate.requireAdmin(this, rootView, requireFreshServer = true, requiredRight = "manage_content") {
             authorized = true
             authorizedUid = live?.uid
             authorizedEmail = live?.email
-            binding.progressLoading.visibility = View.GONE
-            binding.rvEmojiGrid.visibility = View.VISIBLE
-            binding.segmentedTabs.visibility = View.VISIBLE
-            binding.bottomActionContainer.visibility = View.VISIBLE
-            setupViews()
+            segmentedTabs.visibility = View.VISIBLE
+            bottomBar.visibility = View.VISIBLE
             loadData()
             pendingUpload?.let { pendingUpload = null; uploadCustom(it) }
         }
@@ -95,28 +259,33 @@ class EmojiStudioActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (reauthorizeOnResume && ::binding.isInitialized) {
+        EmojiRenderer.resumeAll()
+        if (reauthorizeOnResume && ::rootView.isInitialized) {
             reauthorizeOnResume = false
             val live = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
             if (live == null || live.uid != authorizedUid || live.email != authorizedEmail) {
                 finish()
                 return
             }
-            binding.progressLoading.visibility = View.VISIBLE
-            binding.rvEmojiGrid.visibility = View.GONE
-            binding.segmentedTabs.visibility = View.GONE
-            binding.bottomActionContainer.visibility = View.GONE
-            AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "manage_content") {
+            listView.visibility = View.GONE
+            emptyView.visibility = View.VISIBLE
+            emptyView.showProgress()
+            segmentedTabs.visibility = View.GONE
+            bottomBar.visibility = View.GONE
+            AdminAccessGate.requireAdmin(this, rootView, requireFreshServer = true, requiredRight = "manage_content") {
                 authorized = true
                 authorizedUid = live.uid
                 authorizedEmail = live.email
-                binding.progressLoading.visibility = View.GONE
-                binding.rvEmojiGrid.visibility = View.VISIBLE
-                binding.segmentedTabs.visibility = View.VISIBLE
-                binding.bottomActionContainer.visibility = View.VISIBLE
+                segmentedTabs.visibility = View.VISIBLE
+                bottomBar.visibility = View.VISIBLE
                 loadData()
             }
         }
+    }
+
+    override fun onPause() {
+        EmojiRenderer.pauseAll()
+        super.onPause()
     }
 
     override fun onStop() {
@@ -146,48 +315,23 @@ class EmojiStudioActivity : EveBaseActivity() {
         super.onDestroy()
     }
 
-    private fun setupViews() {
-        // Setup Telegram Action Bar
-        binding.actionBar.setTitle("Animated Emoji")
-        binding.actionBar.setSubtitle("Emoji Studio & Placements")
-        binding.actionBar.onBackPressed = { finish() }
-        binding.actionBar.bindSystemBack(this)
-        binding.actionBar.onSearchTextChanged = { query ->
-            searchQuery = query.trim().lowercase()
-            filterAndDisplayItems()
-        }
-        binding.actionBar.onSearchCollapsed = {
-            searchQuery = ""
-            filterAndDisplayItems()
-        }
-
-        // Setup Grid RecyclerView
-        adapter = EmojiGridAdapter(
-            onItemClick = { item -> showPlacementBottomSheet(item) },
-            onItemLongClick = { item -> showItemDetailsDialog(item) }
-        )
-        binding.rvEmojiGrid.layoutManager = GridLayoutManager(this, 4)
-        binding.rvEmojiGrid.adapter = adapter
-
-        // Setup Buttons
-        binding.btnManagePacks.setOnClickListener { showPackManagerBottomSheet() }
-        binding.btnImport.setOnClickListener { showImportOptionsDialog() }
-    }
-
     private fun loadData() {
         dataJob?.cancel()
-        binding.progressLoading.visibility = View.VISIBLE
-        binding.emptyState.visibility = View.GONE
+        listView.visibility = View.GONE
+        emptyView.visibility = View.VISIBLE
+        emptyView.showProgress()
 
         dataJob = lifecycleScope.launch {
             val packsResult = emojiRepo.getPacks()
             val itemsResult = emojiRepo.getAllItems()
 
-            binding.progressLoading.visibility = View.GONE
-
             if (packsResult.isFailure || itemsResult.isFailure) {
-                AppBulletin.showError(this@EmojiStudioActivity,
-                    (packsResult.exceptionOrNull() ?: itemsResult.exceptionOrNull())!!.toUserFriendlyMessage())
+                emptyView.setText("Failed to load motion emojis")
+                emptyView.showTextView()
+                AppBulletin.showError(
+                    this@EmojiStudioActivity,
+                    (packsResult.exceptionOrNull() ?: itemsResult.exceptionOrNull())!!.toUserFriendlyMessage()
+                )
                 return@launch
             }
             if (packsResult.isSuccess) {
@@ -210,8 +354,6 @@ class EmojiStudioActivity : EveBaseActivity() {
             }
 
             val serverItems = itemsResult.getOrDefault(emptyList())
-            // Older Workers may omit bundled IDs. Preview remains available, placement
-            // requires an actual server item; never resurrect a deleted pack.
             val bundledUiItems = if (allPacks.any { it.id == "pack_tg_ui" }) getBundledTelegramUiItems() else emptyList()
             serverItemIds = serverItems.map { it.id }.toSet()
             allItems = (serverItems + bundledUiItems).distinctBy { it.id }
@@ -222,49 +364,67 @@ class EmojiStudioActivity : EveBaseActivity() {
     }
 
     private fun setupTabs() {
-        val tabTitles = mutableListOf("All", "Noto", "Telegram UI")
+        val titles = mutableListOf("All", "Recent", "Noto", "Telegram UI")
         allPacks.forEach { pack ->
-            if (pack.source != "telegram-ui" && pack.source != "noto" && !tabTitles.contains(pack.title)) {
-                tabTitles.add(pack.title)
+            if (pack.source != "telegram-ui" && pack.source != "noto" && !titles.contains(pack.title)) {
+                titles.add(pack.title)
             }
         }
-        currentTabIndex = 0
-        binding.segmentedTabs.setTabs(tabTitles)
-        binding.segmentedTabs.onTabSelectedListener = { pos ->
+        tabTitles = titles
+        if (currentTabIndex !in tabTitles.indices) currentTabIndex = 0
+        segmentedTabs.setTabs(tabTitles)
+        segmentedTabs.onTabSelectedListener = { pos ->
             currentTabIndex = pos
             filterAndDisplayItems()
         }
     }
 
     private fun filterAndDisplayItems() {
-        val tabName = when (currentTabIndex) {
-            0 -> "All"
-            1 -> "Noto"
-            2 -> "Telegram UI"
-            else -> {
-                val extraPacks = allPacks.filter { it.source != "telegram-ui" && it.source != "noto" }
-                val idx = currentTabIndex - 3
-                if (idx in extraPacks.indices) extraPacks[idx].title else "All"
-            }
-        }
+        val tabName = tabTitles.getOrElse(currentTabIndex) { "All" }
+        val recentOrder = if (tabName == "Recent") EmojiRenderer.getRecentIds(this) else emptyList()
+        val recentSet = recentOrder.toSet()
 
-        displayedItems = allItems.filter { item ->
+        val filtered = allItems.filter { item ->
             val matchesTab = when (tabName) {
                 "All" -> true
+                "Recent" -> item.id in recentSet
                 "Noto" -> item.source == "noto" || item.packSlug == "noto_animated_emoji"
                 "Telegram UI" -> item.source == "telegram-ui"
                 else -> item.packTitle.equals(tabName, ignoreCase = true)
             }
             val matchesSearch = if (searchQuery.isBlank()) true else {
                 item.altEmoji.contains(searchQuery) ||
-                (item.packTitle?.lowercase()?.contains(searchQuery) == true) ||
-                (item.source.lowercase().contains(searchQuery))
+                    (item.packTitle?.lowercase()?.contains(searchQuery) == true) ||
+                    (item.packSlug?.lowercase()?.contains(searchQuery) == true) ||
+                    item.source.lowercase().contains(searchQuery) ||
+                    item.id.lowercase().contains(searchQuery)
             }
             matchesTab && matchesSearch
         }
 
+        displayedItems = if (tabName == "Recent") {
+            filtered.sortedBy { recentOrder.indexOf(it.id).let { idx -> if (idx < 0) Int.MAX_VALUE else idx } }
+        } else {
+            filtered
+        }
+
         adapter.submitList(displayedItems)
-        binding.emptyState.visibility = if (displayedItems.isEmpty()) View.VISIBLE else View.GONE
+        actionBar.setSubtitle("${displayedItems.size} ${if (displayedItems.size == 1) "emoji" else "emojis"} • $tabName")
+        if (displayedItems.isEmpty()) {
+            listView.visibility = View.GONE
+            emptyView.visibility = View.VISIBLE
+            emptyView.setText(
+                when {
+                    searchQuery.isNotBlank() -> "No emojis match \"$searchQuery\""
+                    tabName == "Recent" -> "No recent emojis yet\nTap any motion emoji to preview or place it."
+                    else -> "No emojis in $tabName"
+                }
+            )
+            emptyView.showTextView()
+        } else {
+            emptyView.visibility = View.GONE
+            listView.visibility = View.VISIBLE
+        }
     }
 
     private fun getBundledTelegramUiItems(): List<EmojiItem> {
@@ -291,7 +451,7 @@ class EmojiStudioActivity : EveBaseActivity() {
             Triple("tg_tab_poll", "🗳️", "Poll")
         )
 
-        return rawIcons.map { (resName, alt, name) ->
+        return rawIcons.map { (resName, alt, _) ->
             EmojiItem(
                 id = "bundled_$resName",
                 packId = "pack_tg_ui",
@@ -312,32 +472,83 @@ class EmojiStudioActivity : EveBaseActivity() {
         }
     }
 
+    /**
+     * Telegram ContentPreviewViewer-style large looping animated preview on long-press,
+     * with direct Apply Placement action and full metadata inspection.
+     */
+    private fun showAnimatedPreviewDialog(item: EmojiItem) {
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER_HORIZONTAL
+            val pad = AndroidUtilities.dp(20f)
+            setPadding(pad, pad, pad, AndroidUtilities.dp(8f))
+        }
+        val previewBox = FrameLayout(this)
+        val lottie = LottieAnimationView(this)
+        val staticImg = ImageView(this).apply { scaleType = ImageView.ScaleType.FIT_CENTER }
+        val altTv = TextView(this).apply {
+            gravity = Gravity.CENTER
+            setTextSize(TypedValue.COMPLEX_UNIT_DIP, 52f)
+        }
+        val boxSize = AndroidUtilities.dp(132f)
+        previewBox.addView(lottie, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
+        previewBox.addView(staticImg, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
+        previewBox.addView(altTv, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat()))
+        EmojiRenderer.bindPreview(lottie, staticImg, altTv, item, loop = true)
+        container.addView(previewBox, LinearLayout.LayoutParams(boxSize, boxSize))
+
+        val metaTv = TextView(this).apply {
+            setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13f)
+            setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText))
+            setPadding(0, AndroidUtilities.dp(12f), 0, 0)
+            text = buildString {
+                append("Alt: ${item.altEmoji}  •  Kind: ${item.kind}\n")
+                append("Pack: ${item.packTitle ?: item.packSlug ?: "N/A"}\n")
+                append("Source: ${item.source}  •  Size: ${if (item.byteSize > 0) "${item.byteSize} B" else "Bundled"}\n")
+                append("Premium Origin: ${if (item.premiumOrigin) "Yes (Telegram)" else "No"}")
+            }
+        }
+        container.addView(
+            metaTv,
+            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        )
+
+        val dialog = TelegramNativeAlertDialog.Builder(this)
+            .setTitle("${item.altEmoji} Motion Preview")
+            .setView(container)
+            .setPositiveButton("Apply Placement") { _, _ -> showPlacementBottomSheet(item) }
+            .setNegativeButton("Close", null)
+            .create()
+        itemDetailsDialog = dialog
+        dialog.setOnDismissListener {
+            lottie.cancelAnimation()
+            if (itemDetailsDialog === dialog) itemDetailsDialog = null
+        }
+        dialog.show()
+    }
+
     private fun showPlacementBottomSheet(item: EmojiItem) {
         val sheetBinding = BottomSheetEmojiPlacementBinding.inflate(layoutInflater)
         val dialog = TelegramBottomSheet.Builder(this)
             .setCustomView(sheetBinding.root)
             .create()
         placementDialog = dialog
-        // Theme_Eve_BottomSheetDialog
         com.eve.app.ui.home.TelegramBottomSheetSourceBackdrop.install(dialog, this)
-        dialog.setOnDismissListener { if (placementDialog === dialog) placementDialog = null }
+        dialog.setOnDismissListener {
+            sheetBinding.ivPlacementPreview.cancelAnimation()
+            if (placementDialog === dialog) placementDialog = null
+        }
 
         sheetBinding.tvPlacementEmojiTitle.text = "${item.altEmoji} Placement"
         sheetBinding.tvPlacementPackName.text = item.packTitle ?: item.source
 
-        if (item.kind == "static") {
-            sheetBinding.ivPlacementPreview.load(item.url)
-        } else if (item.url.startsWith("res:raw/")) {
-            val resName = item.url.removePrefix("res:raw/")
-            val resId = resources.getIdentifier(resName, "raw", packageName)
-            if (resId != 0) {
-                sheetBinding.ivPlacementPreview.setAnimation(resId)
-                sheetBinding.ivPlacementPreview.playAnimation()
-            }
-        } else if (item.url.isNotBlank()) {
-            sheetBinding.ivPlacementPreview.setAnimationFromUrl(item.url)
-            sheetBinding.ivPlacementPreview.playAnimation()
-        }
+        EmojiRenderer.bindPreview(
+            lottieView = sheetBinding.ivPlacementPreview,
+            staticView = null,
+            altView = null,
+            item = item,
+            loop = true
+        )
 
         sheetBinding.rgSlotType.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
@@ -347,8 +558,6 @@ class EmojiStudioActivity : EveBaseActivity() {
             }
         }
 
-        // This source-derived TextCell makes the existing Worker DELETE route
-        // reachable without bypassing permission checks or claiming early success.
         sheetBinding.rowRemovePlacement.setText("Remove Placement", needDivider = false)
         sheetBinding.rowRemovePlacement.setShowArrow(false)
         sheetBinding.rowRemovePlacement.makeRed()
@@ -388,8 +597,10 @@ class EmojiStudioActivity : EveBaseActivity() {
                                     dialog.dismiss()
                                     AppBulletin.showSuccess(this@EmojiStudioActivity, "Emoji placement removed.")
                                 } else {
-                                    AppBulletin.showError(this@EmojiStudioActivity,
-                                        result.exceptionOrNull()?.toUserFriendlyMessage() ?: "Unable to remove placement.")
+                                    AppBulletin.showError(
+                                        this@EmojiStudioActivity,
+                                        result.exceptionOrNull()?.toUserFriendlyMessage() ?: "Unable to remove placement."
+                                    )
                                 }
                             } finally {
                                 setRequestRunning(false)
@@ -421,11 +632,14 @@ class EmojiStudioActivity : EveBaseActivity() {
                 try {
                     val res = emojiRepo.setPlacement(slotType, targetId, item.id)
                     if (res.isSuccess) {
+                        EmojiRenderer.recordRecent(this@EmojiStudioActivity, item.id)
                         dialog.dismiss()
                         AppBulletin.showSuccess(this@EmojiStudioActivity, "Placed ${item.altEmoji} on $slotType!")
                     } else {
-                        AppBulletin.showError(this@EmojiStudioActivity,
-                            res.exceptionOrNull()?.toUserFriendlyMessage() ?: "Failed to set placement")
+                        AppBulletin.showError(
+                            this@EmojiStudioActivity,
+                            res.exceptionOrNull()?.toUserFriendlyMessage() ?: "Failed to set placement"
+                        )
                     }
                 } finally {
                     setRequestRunning(false)
@@ -444,31 +658,34 @@ class EmojiStudioActivity : EveBaseActivity() {
         packManagerDialog = dialog
         dialog.setOnDismissListener { if (packManagerDialog === dialog) packManagerDialog = null }
 
-        // Global Telegram Kill Switch
         sheetBinding.cellGlobalTelegramSwitch.setTextAndCheck(
             "Global Telegram Emoji Switch",
             globalTelegramEnabled,
             needDivider = true
         )
-        bindPersistedSwitch(sheetBinding.cellGlobalTelegramSwitch, globalTelegramEnabled,
+        bindPersistedSwitch(
+            sheetBinding.cellGlobalTelegramSwitch,
+            globalTelegramEnabled,
             save = { emojiRepo.toggleGlobalTelegramStatus(it) },
-            onSaved = { globalTelegramEnabled = it })
+            onSaved = { globalTelegramEnabled = it }
+        )
 
         sheetBinding.cellTelegramBotStatus.visibility = if (telegramBotConfigured) View.VISIBLE else View.GONE
         if (telegramBotConfigured) sheetBinding.cellTelegramBotStatus.setText("Telegram sticker imports are available.")
 
         sheetBinding.headerPacksList.setText("INSTALLED PACKS")
 
-        // Render Packs List
         sheetBinding.containerPacks.removeAllViews()
         allPacks.forEach { pack ->
             val cell = TextCheckCell(this)
             cell.setTextAndCheck(pack.title, pack.enabled, needDivider = true)
-            bindPersistedSwitch(cell, pack.enabled,
+            bindPersistedSwitch(
+                cell,
+                pack.enabled,
                 save = { emojiRepo.togglePackStatus(pack.id, it) },
-                onSaved = { enabled -> allPacks = allPacks.map { if (it.id == pack.id) it.copy(enabled = enabled) else it } })
+                onSaved = { enabled -> allPacks = allPacks.map { if (it.id == pack.id) it.copy(enabled = enabled) else it } }
+            )
 
-            // Long press to delete pack
             cell.setOnLongClickListener {
                 TelegramNativeAlertDialog.Builder(this)
                     .setTitle("Delete Pack")
@@ -570,18 +787,16 @@ class EmojiStudioActivity : EveBaseActivity() {
     private fun runImport(action: suspend () -> String) {
         if (importRunning) return
         importRunning = true
-        binding.btnImport.isEnabled = false
-        binding.progressLoading.visibility = View.VISIBLE
+        btnImport.setLoading(true)
         lifecycleScope.launch {
             try { AppBulletin.showSuccess(this@EmojiStudioActivity, action()) }
             catch (e: kotlinx.coroutines.CancellationException) { throw e }
             catch (e: Exception) { AppBulletin.showError(this@EmojiStudioActivity, e.toUserFriendlyMessage()) }
             finally {
                 importRunning = false
-                binding.btnImport.isEnabled = true
-                binding.progressLoading.visibility = View.GONE
+                btnImport.setLoading(false)
             }
-            loadData() // Partial imports also need honest readback.
+            loadData()
         }
     }
 
@@ -596,8 +811,12 @@ class EmojiStudioActivity : EveBaseActivity() {
         "Emoji uploaded."
     }
 
-    private fun bindPersistedSwitch(cell: TextCheckCell, initial: Boolean,
-        save: suspend (Boolean) -> Result<Unit>, onSaved: (Boolean) -> Unit) {
+    private fun bindPersistedSwitch(
+        cell: TextCheckCell,
+        initial: Boolean,
+        save: suspend (Boolean) -> Result<Unit>,
+        onSaved: (Boolean) -> Unit
+    ) {
         var confirmed = initial
         lateinit var listener: TelegramSwitch.OnCheckedChangeListener
         listener = TelegramSwitch.OnCheckedChangeListener { _, checked ->
@@ -605,38 +824,22 @@ class EmojiStudioActivity : EveBaseActivity() {
             cell.checkBox.isEnabled = false
             lifecycleScope.launch {
                 val result = save(checked)
-                if (result.isSuccess) { confirmed = checked; onSaved(checked) }
-                else {
+                if (result.isSuccess) {
+                    confirmed = checked
+                    onSaved(checked)
+                } else {
                     cell.setOnCheckedChangeListener(null)
                     cell.isChecked = confirmed
                     cell.setOnCheckedChangeListener(listener)
-                    AppBulletin.showError(this@EmojiStudioActivity,
-                        result.exceptionOrNull()?.toUserFriendlyMessage() ?: "Update failed.")
+                    AppBulletin.showError(
+                        this@EmojiStudioActivity,
+                        result.exceptionOrNull()?.toUserFriendlyMessage() ?: "Update failed."
+                    )
                 }
                 cell.isEnabled = true
                 cell.checkBox.isEnabled = true
             }
         }
         cell.setOnCheckedChangeListener(listener)
-    }
-
-    private fun showItemDetailsDialog(item: EmojiItem) {
-        val details = StringBuilder()
-            .append("Alt Emoji: ${item.altEmoji}\n")
-            .append("Source: ${item.source}\n")
-            .append("Pack: ${item.packTitle ?: item.packSlug ?: "N/A"}\n")
-            .append("Kind: ${item.kind}\n")
-            .append("Size: ${if (item.byteSize > 0) "${item.byteSize} bytes" else "Not registered on server"}\n")
-            .append("Premium Origin: ${if (item.premiumOrigin) "Yes (Telegram)" else "No"}\n")
-            .append("Storage: ${item.storageKey ?: item.url}")
-
-        val dialog = TelegramNativeAlertDialog.Builder(this)
-            .setTitle("Emoji Details")
-            .setMessage(details.toString())
-            .setPositiveButton("OK", null)
-            .create()
-        itemDetailsDialog = dialog
-        dialog.setOnDismissListener { if (itemDetailsDialog === dialog) itemDetailsDialog = null }
-        dialog.show()
     }
 }

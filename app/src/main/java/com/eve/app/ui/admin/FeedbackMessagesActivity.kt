@@ -1,31 +1,42 @@
 package com.eve.app.ui.admin
 
-import com.eve.app.designsystem.TelegramNativeAlertDialog
 import android.content.DialogInterface
-
-import com.eve.app.ui.common.EveBaseActivity
-
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
-import com.eve.app.util.AppBulletin
-import com.eve.app.util.AppUndoBar
-import androidx.appcompat.app.AppCompatActivity
+import android.widget.FrameLayout
+import android.widget.LinearLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.eve.app.R
 import com.eve.app.data.model.FeedbackMessage
 import com.eve.app.data.repository.FeedbackRepository
-import com.eve.app.databinding.ActivityFeedbackMessagesBinding
-import com.eve.app.ui.common.ErrorStateView
+import com.eve.app.designsystem.TelegramNativeAlertDialog
+import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AdminAccessGate
+import com.eve.app.util.AppBulletin
+import com.eve.app.util.AppUndoBar
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
+import org.telegram.messenger.AndroidUtilities
+import org.telegram.ui.ActionBar.ActionBar
+import org.telegram.ui.ActionBar.Theme
+import org.telegram.ui.Components.EmptyTextProgressView
+import org.telegram.ui.Components.LayoutHelper
+import org.telegram.ui.Components.RecyclerListView
+import org.telegram.ui.Stories.recorder.ButtonWithCounterView
 
 /**
- * Task 2: Admin activity to review and manage all student feedback messages.
+ * Admin Feedback Messages screen powered by real ported Telegram UI components:
+ * ActionBar (with refresh), RecyclerListView, EmptyTextProgressView, and ButtonWithCounterView,
+ * while preserving FeedbackMessagesAdapter, AppUndoBar, reply persistence, and RBAC.
  */
 class FeedbackMessagesActivity : EveBaseActivity() {
 
-    private lateinit var binding: ActivityFeedbackMessagesBinding
+    companion object {
+        private const val MENU_REFRESH = 1
+    }
+
     private val repo = FeedbackRepository()
     private lateinit var adapter: FeedbackMessagesAdapter
     private var replyDialog: TelegramNativeAlertDialog? = null
@@ -35,15 +46,102 @@ class FeedbackMessagesActivity : EveBaseActivity() {
     private var authorizedEmail: String? = null
     private var reauthorizeOnResume = false
 
+    private lateinit var rootView: LinearLayout
+    private lateinit var actionBar: ActionBar
+    private lateinit var listView: RecyclerListView
+    private lateinit var emptyView: EmptyTextProgressView
+    private lateinit var retryButton: ButtonWithCounterView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityFeedbackMessagesBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
-        binding.btnBack.setOnClickListener { finish() }
-        binding.progressBar.visibility = View.VISIBLE
+        Theme.syncFromEvePalette(this)
 
-        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "moderate_feedback") {
+        rootView = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundGray))
+        }
+        setContentView(rootView)
+
+        actionBar = ActionBar(this).apply {
+            setBackgroundColor(Theme.getColor(Theme.key_actionBarDefault))
+            setItemsBackgroundColor(Theme.getColor(Theme.key_actionBarDefaultSelector), false)
+            setItemsColor(Theme.getColor(Theme.key_actionBarDefaultIcon), false)
+            setTitleColor(Theme.getColor(Theme.key_actionBarDefaultTitle))
+            setSubtitleColor(Theme.getColor(Theme.key_actionBarDefaultSubtitle))
+            setBackButtonImage(R.drawable.ic_ab_back)
+            setTitle("Feedback Messages")
+            createMenu().addItem(MENU_REFRESH, R.drawable.msg_retry)
+            setActionBarMenuOnItemClick(object : ActionBar.ActionBarMenuOnItemClick() {
+                override fun onItemClick(id: Int) {
+                    when (id) {
+                        -1 -> finish()
+                        MENU_REFRESH -> if (::adapter.isInitialized) loadMessages()
+                    }
+                }
+            })
+        }
+        rootView.addView(
+            actionBar,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        )
+
+        val contentFrame = FrameLayout(this)
+        rootView.addView(
+            contentFrame,
+            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f)
+        )
+
+        listView = RecyclerListView(this).apply {
+            layoutManager = LinearLayoutManager(this@FeedbackMessagesActivity)
+            isVerticalScrollBarEnabled = true
+            scrollBarStyle = View.SCROLLBARS_INSIDE_OVERLAY
+            setScrollbarFadingEnabled(true)
+            setScrollBarDefaultDelayBeforeFade(900)
+            clipToPadding = false
+            setPadding(0, 0, 0, AndroidUtilities.dp(24f))
+            visibility = View.GONE
+        }
+        contentFrame.addView(
+            listView,
+            LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat())
+        )
+
+        emptyView = EmptyTextProgressView(this).apply {
+            setShowAtCenter(true)
+            setTextColor(Theme.getColor(Theme.key_emptyListPlaceholder))
+            setProgressBarColor(Theme.getColor(Theme.key_progressCircle))
+            setText("No feedback messages yet\nMessages sent by students will appear here.")
+            showProgress()
+        }
+        contentFrame.addView(
+            emptyView,
+            LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat())
+        )
+
+        retryButton = ButtonWithCounterView(this, null).apply {
+            setRound()
+            setText("Retry", false)
+            visibility = View.GONE
+            setOnClickListener { loadMessages() }
+        }
+        contentFrame.addView(
+            retryButton,
+            LayoutHelper.createFrame(
+                LayoutHelper.MATCH_PARENT,
+                48f,
+                Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL,
+                24f,
+                0f,
+                24f,
+                32f
+            )
+        )
+
+        AdminAccessGate.requireAdmin(this, rootView, requireFreshServer = true, requiredRight = "moderate_feedback") {
             authorizedUid = FirebaseAuth.getInstance().currentUser?.uid
             authorizedEmail = FirebaseAuth.getInstance().currentUser?.email
             setupAdminControls()
@@ -52,10 +150,6 @@ class FeedbackMessagesActivity : EveBaseActivity() {
     }
 
     private fun setupAdminControls() {
-        binding.btnBack.setOnClickListener { finish() }
-        binding.btnRefresh.setOnClickListener { loadMessages() }
-        binding.swipeRefresh.setOnRefreshListener { loadMessages() }
-
         adapter = FeedbackMessagesAdapter(
             onItemClick = { message ->
                 markMessageRead(message)
@@ -66,9 +160,7 @@ class FeedbackMessagesActivity : EveBaseActivity() {
             },
             onDeleteClick = { message -> confirmDeleteMessage(message) }
         )
-
-        binding.rvFeedbackMessages.layoutManager = LinearLayoutManager(this)
-        binding.rvFeedbackMessages.adapter = adapter
+        listView.adapter = adapter
     }
 
     override fun onStop() {
@@ -82,9 +174,7 @@ class FeedbackMessagesActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (!::binding.isInitialized) return
-        binding.emptyStateView.resetPlayOnNextShow()
-        if (reauthorizeOnResume && ::binding.isInitialized) {
+        if (reauthorizeOnResume && ::rootView.isInitialized) {
             reauthorizeOnResume = false
             val live = FirebaseAuth.getInstance().currentUser
             if (live == null || live.uid != authorizedUid || live.email != authorizedEmail) {
@@ -93,10 +183,11 @@ class FeedbackMessagesActivity : EveBaseActivity() {
             }
             val hasItems = ::adapter.isInitialized && adapter.itemCount > 0
             if (!hasItems) {
-                binding.progressBar.visibility = View.VISIBLE
-                binding.swipeRefresh.visibility = View.GONE
+                listView.visibility = View.GONE
+                emptyView.visibility = View.VISIBLE
+                emptyView.showProgress()
             }
-            AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "moderate_feedback") {
+            AdminAccessGate.requireAdmin(this, rootView, requireFreshServer = true, requiredRight = "moderate_feedback") {
                 authorizedUid = live.uid
                 authorizedEmail = live.email
                 loadMessages(showProgress = !hasItems)
@@ -106,42 +197,43 @@ class FeedbackMessagesActivity : EveBaseActivity() {
 
     private fun loadMessages(showProgress: Boolean = true) {
         val hasItems = ::adapter.isInitialized && adapter.itemCount > 0
-        if (showProgress || !hasItems) {
-            binding.progressBar.visibility = View.VISIBLE
-            if (!hasItems) binding.swipeRefresh.visibility = View.GONE
+        retryButton.visibility = View.GONE
+        if (showProgress && !hasItems) {
+            listView.visibility = View.GONE
+            emptyView.visibility = View.VISIBLE
+            emptyView.showProgress()
         }
-        binding.emptyStateView.hide()
-        binding.errorStateView.hide()
 
         lifecycleScope.launch {
             try {
                 val messages = repo.getFeedbackMessages()
-                binding.progressBar.visibility = View.GONE
-                binding.swipeRefresh.visibility = View.VISIBLE
-                binding.swipeRefresh.isRefreshing = false
-
                 if (messages.isEmpty()) {
                     adapter.submitList(emptyList())
-                    binding.emptyStateView.show(
-                        title = "No feedback messages yet",
-                        message = "Messages sent by students will appear here."
-                    )
+                    listView.visibility = View.GONE
+                    emptyView.visibility = View.VISIBLE
+                    emptyView.setText("No feedback messages yet\nMessages sent by students will appear here.")
+                    emptyView.showTextView()
+                    actionBar.setSubtitle(null)
                 } else {
-                    binding.emptyStateView.hide()
+                    emptyView.visibility = View.GONE
+                    listView.visibility = View.VISIBLE
                     adapter.submitList(messages)
+                    actionBar.setSubtitle("${messages.size} ${if (messages.size == 1) "message" else "messages"}")
                 }
             } catch (e: Exception) {
-                binding.progressBar.visibility = View.GONE
-                binding.swipeRefresh.isRefreshing = false
                 if (::adapter.isInitialized && adapter.itemCount > 0) {
-                    binding.swipeRefresh.visibility = View.VISIBLE
-                    AppBulletin.showError(this@FeedbackMessagesActivity, "Failed to refresh messages: ${e.localizedMessage.orEmpty()}")
-                } else {
-                    binding.errorStateView.show(
-                        type = ErrorStateView.ErrorType.SERVER_ERROR,
-                        customMessage = "Failed to load messages: ${e.localizedMessage.orEmpty()}",
-                        onRetry = { loadMessages() }
+                    listView.visibility = View.VISIBLE
+                    emptyView.visibility = View.GONE
+                    AppBulletin.showError(
+                        this@FeedbackMessagesActivity,
+                        "Failed to refresh messages: ${e.localizedMessage.orEmpty()}"
                     )
+                } else {
+                    listView.visibility = View.GONE
+                    emptyView.visibility = View.VISIBLE
+                    emptyView.setText("Failed to load messages\n${e.localizedMessage.orEmpty()}")
+                    emptyView.showTextView()
+                    retryButton.visibility = View.VISIBLE
                 }
             }
         }
@@ -152,7 +244,7 @@ class FeedbackMessagesActivity : EveBaseActivity() {
         lifecycleScope.launch {
             try {
                 repo.markAsRead(message.id)
-                loadMessages()
+                loadMessages(showProgress = false)
             } catch (_: Exception) { }
         }
     }
@@ -168,10 +260,10 @@ class FeedbackMessagesActivity : EveBaseActivity() {
                 val filtered = originalList.filter { it.id != message.id }
                 adapter.submitList(filtered)
                 if (filtered.isEmpty()) {
-                    binding.emptyStateView.show(
-                        title = "No feedback messages yet",
-                        message = "Messages sent by students will appear here."
-                    )
+                    listView.visibility = View.GONE
+                    emptyView.visibility = View.VISIBLE
+                    emptyView.setText("No feedback messages yet\nMessages sent by students will appear here.")
+                    emptyView.showTextView()
                 }
 
                 AppUndoBar.show(
@@ -180,7 +272,8 @@ class FeedbackMessagesActivity : EveBaseActivity() {
                     timeLeftMs = AppUndoBar.TIME_IMPORTANT,
                     onUndo = {
                         adapter.submitList(originalList)
-                        binding.emptyStateView.hide()
+                        emptyView.visibility = View.GONE
+                        listView.visibility = View.VISIBLE
                         AppBulletin.show(this@FeedbackMessagesActivity, "Delete cancelled")
                     },
                     onExecuteDelete = {
@@ -200,7 +293,7 @@ class FeedbackMessagesActivity : EveBaseActivity() {
                 val result = repo.deleteFeedbackMessage(id)
                 result.onSuccess {
                     AppBulletin.showSuccess(this@FeedbackMessagesActivity, "Message deleted")
-                    loadMessages()
+                    loadMessages(showProgress = false)
                 }.onFailure { err ->
                     AppBulletin.showError(this@FeedbackMessagesActivity, "Failed to delete: ${err.message}")
                 }
@@ -211,8 +304,6 @@ class FeedbackMessagesActivity : EveBaseActivity() {
     }
 
     private fun showReplyDialog(message: FeedbackMessage) {
-        // Original AlertDialog.show(): Activity must be alive. An in-progress
-        // reply owns one modal window, not a stack of duplicate confirmations.
         if (isFinishing || isDestroyed || replyDialog?.isShowing == true) return
         val dialogBinding = com.eve.app.databinding.DialogReplyFeedbackBinding.inflate(layoutInflater)
         val dialog = TelegramNativeAlertDialog.Builder(this)
@@ -252,7 +343,7 @@ class FeedbackMessagesActivity : EveBaseActivity() {
                     result.onSuccess {
                         AppBulletin.showSuccess(this@FeedbackMessagesActivity, "Reply saved.")
                         dialog.dismiss()
-                        loadMessages()
+                        loadMessages(showProgress = false)
                     }.onFailure { err ->
                         dialogBinding.btnSendReply.isEnabled = true
                         AppBulletin.showError(this@FeedbackMessagesActivity, "Failed to save reply: ${err.message}")
@@ -269,8 +360,6 @@ class FeedbackMessagesActivity : EveBaseActivity() {
         }
         dialog.show()
         replyDialog = dialog
-        // The dependency-isolated Telegram host keeps the original custom form,
-        // confirmation and asynchronous reply callback intact.
     }
 
     override fun onDestroy() {

@@ -4,10 +4,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
-import com.eve.app.R
 import com.eve.app.data.model.EmojiItem
 import com.eve.app.databinding.ItemEmojiGridBinding
+import org.telegram.messenger.AndroidUtilities
+import org.telegram.ui.ActionBar.Theme
+import org.telegram.ui.Components.ButtonBounce
 
 class EmojiGridAdapter(
     private val onItemClick: (EmojiItem) -> Unit,
@@ -24,9 +25,10 @@ class EmojiGridAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EmojiViewHolder {
         val binding = ItemEmojiGridBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        binding.root.background = com.eve.app.designsystem.TelegramThemeSelectors.getRoundRectSelectorDrawable(
-            8 * parent.resources.displayMetrics.density,
-            com.eve.app.theme.TelegramThemeEngine.resolveCurrentPalette(parent.context).actionSelector
+        binding.root.background = Theme.createRadSelectorDrawable(
+            Theme.getColor(Theme.key_listSelector),
+            AndroidUtilities.dp(8f),
+            AndroidUtilities.dp(8f)
         )
         return EmojiViewHolder(binding)
     }
@@ -35,49 +37,40 @@ class EmojiGridAdapter(
         holder.bind(items[position])
     }
 
+    override fun onViewRecycled(holder: EmojiViewHolder) {
+        holder.recycle()
+        super.onViewRecycled(holder)
+    }
+
     override fun getItemCount(): Int = items.size
 
     inner class EmojiViewHolder(private val b: ItemEmojiGridBinding) : RecyclerView.ViewHolder(b.root) {
 
+        private val bounce = ButtonBounce(b.root)
+
         fun bind(item: EmojiItem) {
-            b.tvAltEmoji.text = item.altEmoji
             b.ivPremiumBadge.visibility = if (item.premiumOrigin) View.VISIBLE else View.GONE
 
-            b.root.setOnClickListener { onItemClick(item) }
+            b.root.setOnClickListener {
+                bounce.setPressed(false)
+                onItemClick(item)
+            }
             b.root.setOnLongClickListener {
                 onItemLongClick(item)
                 true
             }
 
-            // Reset views
-            b.lottieView.visibility = View.GONE
-            b.ivStaticEmoji.visibility = View.GONE
-            b.tvAltEmoji.visibility = View.VISIBLE
+            EmojiRenderer.bindPreview(
+                lottieView = b.lottieView,
+                staticView = b.ivStaticEmoji,
+                altView = b.tvAltEmoji,
+                item = item,
+                loop = true
+            )
+        }
 
-            if (item.kind == "static" && item.url.isNotBlank()) {
-                b.ivStaticEmoji.visibility = View.VISIBLE
-                b.ivStaticEmoji.load(item.url) {
-                    listener(onSuccess = { _, _ ->
-                        if (bindingAdapterPosition != RecyclerView.NO_POSITION && items[bindingAdapterPosition].id == item.id) {
-                            b.tvAltEmoji.visibility = View.GONE
-                        }
-                    })
-                }
-            } else if (item.url.startsWith("res:raw/")) {
-                val rawName = item.url.removePrefix("res:raw/")
-                val resId = b.root.context.resources.getIdentifier(rawName, "raw", b.root.context.packageName)
-                if (resId != 0) {
-                    b.lottieView.visibility = View.VISIBLE
-                    b.tvAltEmoji.visibility = View.GONE
-                    b.lottieView.setAnimation(resId)
-                    b.lottieView.playAnimation()
-                }
-            } else if (item.kind == "lottie" && item.url.isNotBlank()) {
-                b.lottieView.visibility = View.VISIBLE
-                b.tvAltEmoji.visibility = View.GONE
-                b.lottieView.setAnimationFromUrl(item.url)
-                b.lottieView.playAnimation()
-            }
+        fun recycle() {
+            b.lottieView.cancelAnimation()
         }
     }
 }

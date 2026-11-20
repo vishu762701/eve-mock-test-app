@@ -1,34 +1,49 @@
 package com.eve.app.ui.admin
 
-import com.eve.app.ui.common.EveBaseActivity
-
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Bundle
-import android.view.LayoutInflater
+import android.view.Gravity
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.ImageButton
-import com.eve.app.util.AppBulletin
-import com.eve.app.designsystem.TelegramNativeAlertDialog
-import com.eve.app.util.AdminAccessGate
-import androidx.appcompat.app.AppCompatActivity
+import android.widget.LinearLayout
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.eve.app.R
 import com.eve.app.data.model.Poll
 import com.eve.app.data.repository.PollRepository
-import com.eve.app.databinding.ActivityManagePollsBinding
 import com.eve.app.databinding.DialogCreatePollBinding
+import com.eve.app.designsystem.TelegramNativeAlertDialog
+import com.eve.app.ui.common.EveBaseActivity
+import com.eve.app.util.AdminAccessGate
+import com.eve.app.util.AppBulletin
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
+import org.telegram.messenger.AndroidUtilities
+import org.telegram.ui.ActionBar.ActionBar
+import org.telegram.ui.ActionBar.Theme
+import org.telegram.ui.Components.EmptyTextProgressView
+import org.telegram.ui.Components.LayoutHelper
+import org.telegram.ui.Components.RecyclerListView
+import org.telegram.ui.Stories.recorder.ButtonWithCounterView
 import java.util.Calendar
 
+/**
+ * Admin Manage Polls screen powered by real ported Telegram UI components:
+ * ActionBar (with refresh), RecyclerListView, EmptyTextProgressView, and ButtonWithCounterView,
+ * while preserving PollsAdminAdapter, AdminDeleteFlow, poll creation dialog, and RBAC.
+ */
 class ManagePollsActivity : EveBaseActivity() {
 
-    private lateinit var binding: ActivityManagePollsBinding
+    companion object {
+        private const val MENU_REFRESH = 1
+    }
+
     private val pollRepository = PollRepository()
     private lateinit var adapter: PollsAdminAdapter
     private var createPollDialog: TelegramNativeAlertDialog? = null
@@ -38,8 +53,15 @@ class ManagePollsActivity : EveBaseActivity() {
     private var authorizedUid: String? = null
     private var authorizedEmail: String? = null
 
+    private lateinit var rootView: LinearLayout
+    private lateinit var actionBar: ActionBar
+    private lateinit var listView: RecyclerListView
+    private lateinit var emptyView: EmptyTextProgressView
+    private lateinit var retryButton: ButtonWithCounterView
+    private lateinit var btnCreatePoll: ButtonWithCounterView
+
     private val pollCreateLauncher = registerForActivityResult(
-        androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
+        ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == RESULT_OK) {
             loadPolls()
@@ -48,13 +70,119 @@ class ManagePollsActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityManagePollsBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
-        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) { finish() }
-        binding.progressBar.visibility = View.VISIBLE
+        Theme.syncFromEvePalette(this)
 
-        AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "moderate_feedback") {
+        rootView = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundGray))
+        }
+        setContentView(rootView)
+
+        actionBar = ActionBar(this).apply {
+            setBackgroundColor(Theme.getColor(Theme.key_actionBarDefault))
+            setItemsBackgroundColor(Theme.getColor(Theme.key_actionBarDefaultSelector), false)
+            setItemsColor(Theme.getColor(Theme.key_actionBarDefaultIcon), false)
+            setTitleColor(Theme.getColor(Theme.key_actionBarDefaultTitle))
+            setSubtitleColor(Theme.getColor(Theme.key_actionBarDefaultSubtitle))
+            setBackButtonImage(R.drawable.ic_ab_back)
+            setTitle("Manage Polls")
+            createMenu().addItem(MENU_REFRESH, R.drawable.msg_retry)
+            setActionBarMenuOnItemClick(object : ActionBar.ActionBarMenuOnItemClick() {
+                override fun onItemClick(id: Int) {
+                    when (id) {
+                        -1 -> finish()
+                        MENU_REFRESH -> if (::adapter.isInitialized) loadPolls()
+                    }
+                }
+            })
+        }
+        rootView.addView(
+            actionBar,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        )
+
+        val contentFrame = FrameLayout(this)
+        rootView.addView(
+            contentFrame,
+            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f)
+        )
+
+        listView = RecyclerListView(this).apply {
+            layoutManager = LinearLayoutManager(this@ManagePollsActivity)
+            isVerticalScrollBarEnabled = true
+            scrollBarStyle = View.SCROLLBARS_INSIDE_OVERLAY
+            setScrollbarFadingEnabled(true)
+            setScrollBarDefaultDelayBeforeFade(900)
+            clipToPadding = false
+            setPadding(0, 0, 0, AndroidUtilities.dp(24f))
+            visibility = View.GONE
+        }
+        contentFrame.addView(
+            listView,
+            LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat())
+        )
+
+        emptyView = EmptyTextProgressView(this).apply {
+            setShowAtCenter(true)
+            setTextColor(Theme.getColor(Theme.key_emptyListPlaceholder))
+            setProgressBarColor(Theme.getColor(Theme.key_progressCircle))
+            setText("No polls created yet\nTap '+ New Poll' to create your first community poll.")
+            showProgress()
+        }
+        contentFrame.addView(
+            emptyView,
+            LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat())
+        )
+
+        retryButton = ButtonWithCounterView(this, null).apply {
+            setRound()
+            setText("Retry", false)
+            visibility = View.GONE
+            setOnClickListener { loadPolls() }
+        }
+        contentFrame.addView(
+            retryButton,
+            LayoutHelper.createFrame(
+                LayoutHelper.MATCH_PARENT,
+                48f,
+                Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL,
+                24f,
+                0f,
+                24f,
+                24f
+            )
+        )
+
+        val bottomBar = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+            val padH = AndroidUtilities.dp(16f)
+            val padV = AndroidUtilities.dp(10f)
+            setPadding(padH, padV, padH, padV)
+        }
+        btnCreatePoll = ButtonWithCounterView(this, null).apply {
+            setRound()
+            setText("+ New Poll", false)
+            isEnabled = false
+            setOnClickListener { showCreatePollDialog() }
+        }
+        bottomBar.addView(
+            btnCreatePoll,
+            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, AndroidUtilities.dp(48f))
+        )
+        rootView.addView(
+            bottomBar,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        )
+
+        AdminAccessGate.requireAdmin(this, rootView, requireFreshServer = true, requiredRight = "moderate_feedback") {
             authorizedUid = FirebaseAuth.getInstance().currentUser?.uid
             authorizedEmail = FirebaseAuth.getInstance().currentUser?.email
             setupAdminControls()
@@ -67,13 +195,8 @@ class ManagePollsActivity : EveBaseActivity() {
             onToggleStatus = { poll -> togglePollStatus(poll) },
             onDelete = { poll -> confirmDeletePoll(poll) }
         )
-
-        binding.rvPolls.layoutManager = LinearLayoutManager(this)
-        binding.rvPolls.adapter = adapter
-
-        binding.swipeRefresh.setOnRefreshListener { loadPolls() }
-        binding.btnCreatePollDialog.isEnabled = true
-        com.eve.app.designsystem.DesignPress.bind(binding.btnCreatePollDialog) { showCreatePollDialog() }
+        listView.adapter = adapter
+        btnCreatePoll.isEnabled = true
     }
 
     override fun onStop() {
@@ -83,8 +206,8 @@ class ManagePollsActivity : EveBaseActivity() {
         customDatePickerDialog = null
         customTimePickerDialog?.dismiss()
         customTimePickerDialog = null
-        if (::binding.isInitialized) {
-            binding.btnCreatePollDialog.isEnabled = false
+        if (::btnCreatePoll.isInitialized) {
+            btnCreatePoll.isEnabled = false
         }
         reauthorizeOnResume = true
         super.onStop()
@@ -92,8 +215,7 @@ class ManagePollsActivity : EveBaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        binding.emptyStateView.resetPlayOnNextShow()
-        if (reauthorizeOnResume && ::binding.isInitialized) {
+        if (reauthorizeOnResume && ::rootView.isInitialized) {
             reauthorizeOnResume = false
             val live = FirebaseAuth.getInstance().currentUser
             if (live == null || live.uid != authorizedUid || live.email != authorizedEmail) {
@@ -102,13 +224,14 @@ class ManagePollsActivity : EveBaseActivity() {
             }
             val hasItems = ::adapter.isInitialized && adapter.itemCount > 0
             if (!hasItems) {
-                binding.progressBar.visibility = View.VISIBLE
-                binding.swipeRefresh.visibility = View.GONE
+                listView.visibility = View.GONE
+                emptyView.visibility = View.VISIBLE
+                emptyView.showProgress()
             }
-            AdminAccessGate.requireAdmin(this, binding.root, requireFreshServer = true, requiredRight = "moderate_feedback") {
+            AdminAccessGate.requireAdmin(this, rootView, requireFreshServer = true, requiredRight = "moderate_feedback") {
                 authorizedUid = live.uid
                 authorizedEmail = live.email
-                binding.btnCreatePollDialog.isEnabled = true
+                btnCreatePoll.isEnabled = true
                 loadPolls(showProgress = false)
             }
         }
@@ -116,45 +239,45 @@ class ManagePollsActivity : EveBaseActivity() {
 
     private fun loadPolls(showProgress: Boolean = true) {
         val hasItems = ::adapter.isInitialized && adapter.itemCount > 0
-        if (showProgress || !hasItems) {
-            binding.progressBar.visibility = View.VISIBLE
-            if (!hasItems) binding.swipeRefresh.visibility = View.GONE
+        retryButton.visibility = View.GONE
+        if (showProgress && !hasItems) {
+            listView.visibility = View.GONE
+            emptyView.visibility = View.VISIBLE
+            emptyView.showProgress()
         }
-        binding.emptyStateView.hide()
-        binding.errorStateView.hide()
 
         lifecycleScope.launch {
             try {
                 val list = pollRepository.getPolls()
-                binding.progressBar.visibility = View.GONE
-                binding.swipeRefresh.visibility = View.VISIBLE
-                binding.swipeRefresh.isRefreshing = false
-
                 if (list.isEmpty()) {
                     adapter.submitList(emptyList())
-                    binding.emptyStateView.show(
-                        title = "No polls created yet",
-                        message = "Tap '+ New Poll' to create your first community poll."
-                    )
+                    listView.visibility = View.GONE
+                    emptyView.visibility = View.VISIBLE
+                    emptyView.setText("No polls created yet\nTap '+ New Poll' to create your first community poll.")
+                    emptyView.showTextView()
+                    actionBar.setSubtitle(null)
                 } else {
-                    binding.emptyStateView.hide()
+                    emptyView.visibility = View.GONE
+                    listView.visibility = View.VISIBLE
                     adapter.submitList(list)
+                    actionBar.setSubtitle("${list.size} ${if (list.size == 1) "poll" else "polls"}")
                 }
             } catch (cancel: CancellationException) {
                 throw cancel
             } catch (e: Exception) {
-                binding.progressBar.visibility = View.GONE
-                binding.swipeRefresh.isRefreshing = false
                 if (hasItems) {
-                    binding.swipeRefresh.visibility = View.VISIBLE
-                    com.eve.app.util.AppBulletin.showError(this@ManagePollsActivity, "Failed to refresh polls: ${e.localizedMessage.orEmpty()}")
-                } else {
-                    binding.swipeRefresh.visibility = View.GONE
-                    binding.errorStateView.show(
-                        type = com.eve.app.ui.common.ErrorStateView.ErrorType.SERVER_ERROR,
-                        customMessage = "Failed to load polls. ${e.localizedMessage.orEmpty()}",
-                        onRetry = { loadPolls() }
+                    listView.visibility = View.VISIBLE
+                    emptyView.visibility = View.GONE
+                    AppBulletin.showError(
+                        this@ManagePollsActivity,
+                        "Failed to refresh polls: ${e.localizedMessage.orEmpty()}"
                     )
+                } else {
+                    listView.visibility = View.GONE
+                    emptyView.visibility = View.VISIBLE
+                    emptyView.setText("Failed to load polls\n${e.localizedMessage.orEmpty()}")
+                    emptyView.showTextView()
+                    retryButton.visibility = View.VISIBLE
                 }
             }
         }
@@ -169,7 +292,7 @@ class ManagePollsActivity : EveBaseActivity() {
                     this@ManagePollsActivity,
                     if (newStatus) "Poll reopened" else "Poll closed"
                 )
-                loadPolls()
+                loadPolls(showProgress = false)
             } catch (cancel: CancellationException) {
                 throw cancel
             } catch (e: Exception) {
@@ -181,15 +304,15 @@ class ManagePollsActivity : EveBaseActivity() {
     private val deleteFlow by lazy { AdminDeleteFlow(this) }
 
     private fun confirmDeletePoll(poll: Poll) {
-        deleteFlow.confirmRemoval("poll:${poll.id}", "Poll and its votes", { pollRepository.deletePoll(poll.id); null }) { loadPolls() }
+        deleteFlow.confirmRemoval("poll:${poll.id}", "Poll and its votes", { pollRepository.deletePoll(poll.id); null }) {
+            loadPolls(showProgress = false)
+        }
     }
 
     private fun showCreatePollDialog() {
-        // Original Telegram AlertDialog.java:325-328/AndroidUtilities.java:6255-6267:
-        // never show a window after Activity teardown; don't stack create dialogs.
         if (isFinishing || isDestroyed || createPollDialog?.isShowing == true) return
-        val dialogBinding = com.eve.app.databinding.DialogCreatePollBinding.inflate(layoutInflater)
-        val dialog = com.eve.app.designsystem.TelegramNativeAlertDialog.Builder(this)
+        val dialogBinding = DialogCreatePollBinding.inflate(layoutInflater)
+        val dialog = TelegramNativeAlertDialog.Builder(this)
             .setView(dialogBinding.root)
             .create()
 
@@ -221,7 +344,6 @@ class ManagePollsActivity : EveBaseActivity() {
             return row
         }
 
-        // Add 2 initial options
         addOptionRow("Option 1")
         addOptionRow("Option 2")
 
@@ -231,7 +353,6 @@ class ManagePollsActivity : EveBaseActivity() {
             }
         }
 
-        // Duration options
         val durations = listOf("No Expiry", "1 Day", "3 Days", "7 Days", "Custom Date & Time")
         dialogBinding.spDuration.adapter = ArrayAdapter(
             this,
@@ -288,7 +409,7 @@ class ManagePollsActivity : EveBaseActivity() {
                     )
                     AppBulletin.showSuccess(this@ManagePollsActivity, "Poll created successfully")
                     dialog.dismiss()
-                    loadPolls()
+                    loadPolls(showProgress = false)
                 } catch (e: Exception) {
                     dialogBinding.btnSubmitPoll.isEnabled = true
                     AppBulletin.showError(this@ManagePollsActivity, "Failed to create poll: ${e.message}")
@@ -301,7 +422,6 @@ class ManagePollsActivity : EveBaseActivity() {
         }
         dialog.show()
         createPollDialog = dialog
-        // EVE's admin-only poll form remains unchanged inside native source-derived dialog UI.
     }
 
     override fun onDestroy() {

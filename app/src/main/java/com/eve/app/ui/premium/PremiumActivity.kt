@@ -1,28 +1,46 @@
 package com.eve.app.ui.premium
 
-import com.eve.app.ui.common.EveBaseActivity
-
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.ScrollView
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.eve.app.R
 import com.eve.app.data.model.PremiumPlanDto
 import com.eve.app.data.model.PremiumStatusDto
 import com.eve.app.data.repository.PremiumRepository
-import com.google.firebase.auth.FirebaseAuth
-import com.eve.app.databinding.ActivityPremiumBinding
+import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AppBulletin
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
+import org.telegram.messenger.AndroidUtilities
+import org.telegram.ui.ActionBar.ActionBar
+import org.telegram.ui.ActionBar.Theme
+import org.telegram.ui.Cells.HeaderCell
+import org.telegram.ui.Cells.ShadowSectionCell
+import org.telegram.ui.Cells.TextCell
+import org.telegram.ui.Cells.TextDetailSettingsCell
+import org.telegram.ui.Cells.TextInfoPrivacyCell
+import org.telegram.ui.Components.EmptyTextProgressView
+import org.telegram.ui.Components.IconBackgroundColors
+import org.telegram.ui.Components.LayoutHelper
+import org.telegram.ui.Stories.recorder.ButtonWithCounterView
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
+/**
+ * EVE Premium screen powered by real ported Telegram UI components:
+ * ActionBar, HeaderCell, TextCell with IconBackgroundColors, TextDetailSettingsCell,
+ * ShadowSectionCell, TextInfoPrivacyCell, EmptyTextProgressView, and ButtonWithCounterView.
+ * Telegram counterpart: PremiumPreviewFragment.java.
+ */
 class PremiumActivity : EveBaseActivity() {
-
-    private lateinit var binding: ActivityPremiumBinding
 
     private var currentPlan: PremiumPlanDto? = null
     private var currentStatus: PremiumStatusDto? = null
@@ -31,6 +49,12 @@ class PremiumActivity : EveBaseActivity() {
     private var loadJob: kotlinx.coroutines.Job? = null
     private var checkoutJob: kotlinx.coroutines.Job? = null
     private var paymentSheet: PaymentMethodBottomSheet? = null
+
+    private lateinit var actionBar: ActionBar
+    private lateinit var scrollView: ScrollView
+    private lateinit var listContainer: LinearLayout
+    private lateinit var loadingView: EmptyTextProgressView
+    private var actionCtaButton: ButtonWithCounterView? = null
 
     private fun hasOriginalAccount(): Boolean =
         !premiumOwnerUid.isNullOrBlank() &&
@@ -53,8 +77,6 @@ class PremiumActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityPremiumBinding.inflate(layoutInflater)
-        setContentView(binding.root)
         val currentUid = FirebaseAuth.getInstance().currentUser?.uid
         val restoredUid = savedInstanceState?.getString("premium_owner_uid")
         if (currentUid.isNullOrBlank() || (restoredUid != null && restoredUid != currentUid)) {
@@ -62,20 +84,68 @@ class PremiumActivity : EveBaseActivity() {
             return
         }
         premiumOwnerUid = currentUid
+
+        Theme.syncFromEvePalette(this)
+
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundGray))
+        }
+        setContentView(root)
         com.eve.app.util.SystemBarHelper.syncSystemBars(this)
 
-        com.eve.app.designsystem.DesignPress.bind(binding.btnBack) {
-            finish()
+        // 1. Real Telegram ActionBar
+        actionBar = ActionBar(this).apply {
+            setBackgroundColor(Theme.getColor(Theme.key_actionBarDefault))
+            setItemsBackgroundColor(Theme.getColor(Theme.key_actionBarDefaultSelector), false)
+            setItemsColor(Theme.getColor(Theme.key_actionBarDefaultIcon), false)
+            setTitleColor(Theme.getColor(Theme.key_actionBarDefaultTitle))
+            setSubtitleColor(Theme.getColor(Theme.key_actionBarDefaultSubtitle))
+            setBackButtonImage(R.drawable.ic_ab_back)
+            setTitle("EVE Premium")
+            setActionBarMenuOnItemClick(object : ActionBar.ActionBarMenuOnItemClick() {
+                override fun onItemClick(id: Int) {
+                    if (id == -1) finish()
+                }
+            })
         }
+        root.addView(actionBar, matchWrap())
 
-        com.eve.app.designsystem.DesignPress.bind(binding.btnBuyPremium) {
-            showPaymentMethodPicker()
+        // 2. Content frame with ScrollView + EmptyTextProgressView
+        val contentFrame = FrameLayout(this)
+        root.addView(
+            contentFrame,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                1f
+            )
+        )
+
+        scrollView = ScrollView(this).apply {
+            isFillViewport = true
+            visibility = View.GONE
         }
-
-        com.eve.app.designsystem.DesignPress.bind(binding.btnExtendPlan) {
-            showPaymentMethodPicker()
+        listContainer = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(0, 0, 0, AndroidUtilities.dp(24f))
         }
+        scrollView.addView(listContainer, matchWrap())
+        contentFrame.addView(
+            scrollView,
+            LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat())
+        )
 
+        loadingView = EmptyTextProgressView(this).apply {
+            setShowAtCenter(true)
+            setTextColor(Theme.getColor(Theme.key_emptyListPlaceholder))
+            setProgressBarColor(Theme.getColor(Theme.key_progressCircle))
+            showProgress()
+        }
+        contentFrame.addView(
+            loadingView,
+            LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT.toFloat())
+        )
 
         loadData()
     }
@@ -101,7 +171,6 @@ class PremiumActivity : EveBaseActivity() {
     override fun onResume() {
         super.onResume()
         if (!hasOriginalAccount()) { finish(); return }
-        if (!::binding.isInitialized) return
     }
 
     override fun onDestroy() {
@@ -119,8 +188,9 @@ class PremiumActivity : EveBaseActivity() {
         val requestUid = premiumOwnerUid
         val hasData = currentPlan != null || currentStatus != null
         if (!hasData) {
-            binding.progressBar.visibility = View.VISIBLE
-            binding.scrollView.visibility = View.GONE
+            loadingView.visibility = View.VISIBLE
+            loadingView.showProgress()
+            scrollView.visibility = View.GONE
         }
 
         loadJob?.cancel()
@@ -130,8 +200,8 @@ class PremiumActivity : EveBaseActivity() {
             val statusRes = PremiumRepository.refreshStatus(this@PremiumActivity)
             if (!hasOriginalAccount() || requestUid != premiumOwnerUid) return@launch
 
-            binding.progressBar.visibility = View.GONE
-            binding.scrollView.visibility = View.VISIBLE
+            loadingView.visibility = View.GONE
+            scrollView.visibility = View.VISIBLE
 
             if (planRes.isSuccess) {
                 currentPlan = planRes.getOrNull()
@@ -140,7 +210,7 @@ class PremiumActivity : EveBaseActivity() {
                 currentStatus = statusRes.getOrNull()
             }
             if (planRes.isFailure && statusRes.isFailure && hasData) {
-                com.eve.app.util.AppBulletin.showError(this@PremiumActivity, "Couldn't refresh premium status")
+                AppBulletin.showError(this@PremiumActivity, "Couldn't refresh premium status")
             }
 
             renderUi()
@@ -148,52 +218,47 @@ class PremiumActivity : EveBaseActivity() {
     }
 
     private fun renderUi() {
+        listContainer.removeAllViews()
+        actionCtaButton = null
+
         val status = currentStatus
         val plan = currentPlan ?: PremiumPlanDto()
 
         if (status != null && status.isPremium) {
-            // User is already Premium
-            binding.layoutNotPremium.visibility = View.GONE
-            binding.layoutPremiumActive.visibility = View.VISIBLE
-            binding.tvActiveTitle.text = "Premium Active"
-
-            if (status.isLifetime) {
-                binding.tvActiveExpiry.text = "Lifetime Premium Active"
-            } else if (status.expiresAt != null && status.expiresAt > 0) {
-                val dateStr = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date(status.expiresAt))
-                binding.tvActiveExpiry.text = "Expires on: $dateStr"
-            } else {
-                binding.tvActiveExpiry.text = "Premium Active"
+            actionBar.setSubtitle("Active")
+            val expiryText = when {
+                status.isLifetime -> "Lifetime Premium Active"
+                status.expiresAt != null && status.expiresAt > 0 -> {
+                    val dateStr = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date(status.expiresAt))
+                    "Expires on $dateStr"
+                }
+                else -> "Premium Active"
             }
+
+            addHeader("Subscription Status")
+            addDetailRow("Premium Active", expiryText, false)
+            addShadow()
+
+            addCtaButton("Extend Plan") { showPaymentMethodPicker() }
+            addInfo("Extending your plan adds validity on top of your existing Premium period.")
         } else {
-            // User is not Premium
-            binding.layoutNotPremium.visibility = View.VISIBLE
-            binding.layoutPremiumActive.visibility = View.GONE
-
-            binding.tvPlanTitle.text = plan.planName.ifBlank { "EVE Premium" }
-            if (plan.description.isNotBlank()) {
-                binding.tvPlanDescription.text = plan.description
-            }
-
-            binding.tvPrice.text = "₹${plan.priceInr}"
-            binding.tvValidity.text = if (plan.isLifetime) {
-                "Lifetime Validity"
-            } else {
-                "Validity: ${plan.durationDays} Days"
-            }
-
+            val planTitle = plan.planName.ifBlank { "EVE Premium" }
+            val validityText = if (plan.isLifetime) "Lifetime Validity" else "Validity: ${plan.durationDays} Days"
             val methodsText = buildList {
                 if (plan.upiEnabled) add("UPI App")
                 if (plan.qrEnabled) add("QR Code")
             }.joinToString(" • ")
 
-            binding.tvPaymentMethodsNote.text = if (methodsText.isNotBlank()) {
-                "Supported: $methodsText"
-            } else {
-                "Instant Automatic Verification"
-            }
+            actionBar.setSubtitle("₹${plan.priceInr}")
 
-            // Dynamically populate benefits from backend configuration
+            addHeader(planTitle)
+            addDetailRow("₹${plan.priceInr}", validityText, plan.description.isNotBlank())
+            if (plan.description.isNotBlank()) {
+                addDetailRow("Plan Details", plan.description, false)
+            }
+            addShadow()
+
+            addHeader("Included Benefits")
             val benefitsList = if (plan.benefits.isNotEmpty()) {
                 plan.benefits
             } else {
@@ -203,7 +268,31 @@ class PremiumActivity : EveBaseActivity() {
                     "No normal 3-attempt restriction while Premium is active"
                 )
             }
-            PremiumBenefitRows.bind(binding.layoutBenefitsList, benefitsList)
+            val colors = listOf(
+                IconBackgroundColors.BLUE.bottom,
+                IconBackgroundColors.PURPLE.bottom,
+                IconBackgroundColors.GREEN.bottom,
+                IconBackgroundColors.ORANGE.bottom
+            )
+            benefitsList.forEachIndexed { idx, benefit ->
+                val cell = TextCell(this).apply {
+                    setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+                    setTextAndColorfulIcon(
+                        benefit,
+                        R.drawable.msg_fave,
+                        colors[idx % colors.size],
+                        idx < benefitsList.lastIndex
+                    )
+                }
+                listContainer.addView(cell, matchWrap())
+            }
+            addShadow()
+
+            addCtaButton("Get Premium • ₹${plan.priceInr}") { showPaymentMethodPicker() }
+            addInfo(
+                if (methodsText.isNotBlank()) "Supported payment methods: $methodsText • Instant automatic verification."
+                else "Instant automatic verification after payment."
+            )
         }
     }
 
@@ -224,12 +313,12 @@ class PremiumActivity : EveBaseActivity() {
     private fun createOrderAndCheckout(method: String) {
         if (!hasOriginalAccount()) { finish(); return }
         val requestUid = premiumOwnerUid
-        binding.progressBar.visibility = View.VISIBLE
+        actionCtaButton?.setLoading(true)
         checkoutJob?.cancel()
         checkoutJob = lifecycleScope.launch {
             val res = PremiumRepository.createOrder(method)
             if (!hasOriginalAccount() || requestUid != premiumOwnerUid) return@launch
-            binding.progressBar.visibility = View.GONE
+            actionCtaButton?.setLoading(false)
 
             if (res.isSuccess) {
                 val order = res.getOrNull()!!
@@ -253,4 +342,58 @@ class PremiumActivity : EveBaseActivity() {
             }
         }
     }
+
+    private fun addHeader(title: String) {
+        listContainer.addView(HeaderCell(this).apply {
+            setText(title)
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+        }, matchWrap())
+    }
+
+    private fun addDetailRow(text: String, value: String, divider: Boolean) {
+        listContainer.addView(TextDetailSettingsCell(this).apply {
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+            setMultilineDetail(true)
+            setTextAndValue(text, value, divider)
+        }, matchWrap())
+    }
+
+    private fun addShadow() {
+        listContainer.addView(ShadowSectionCell(this), matchWrap())
+    }
+
+    private fun addInfo(text: String) {
+        listContainer.addView(TextInfoPrivacyCell(this).apply {
+            setText(text)
+        }, matchWrap())
+    }
+
+    private fun addCtaButton(label: String, onClick: () -> Unit) {
+        val wrap = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
+            val padH = AndroidUtilities.dp(16f)
+            val padV = AndroidUtilities.dp(14f)
+            setPadding(padH, padV, padH, padV)
+        }
+        val btn = ButtonWithCounterView(this, null).apply {
+            setRound()
+            setText(label, false)
+            setOnClickListener { onClick() }
+        }
+        actionCtaButton = btn
+        wrap.addView(
+            btn,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                AndroidUtilities.dp(48f)
+            ).apply { gravity = Gravity.CENTER_HORIZONTAL }
+        )
+        listContainer.addView(wrap, matchWrap())
+    }
+
+    private fun matchWrap() = LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    )
 }
