@@ -121,7 +121,7 @@ class MistakesActivity : EveBaseActivity() {
         offlineBanner = TextView(this).apply {
             text = "You are offline. Mistake Notebook requires a connection."
             setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13f)
-            setTextColor(ContextCompat.getColor(this@MistakesActivity, R.color.system_orange_text))
+            setTextColor(Theme.getColor(Theme.key_statisticChartLine_orange))
             setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
             gravity = Gravity.CENTER
             val padH = AndroidUtilities.dp(16f)

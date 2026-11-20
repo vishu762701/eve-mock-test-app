@@ -402,12 +402,11 @@ class PerformanceActivity : EveBaseActivity() {
         }
         topLine.addView(tvTopic, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
 
-        val colorRes = when {
-            stat.accuracy >= 70 -> R.color.system_green
-            stat.accuracy >= 40 -> R.color.system_orange
-            else -> R.color.system_red
+        val accentColor = when {
+            stat.accuracy >= 70 -> Theme.getColor(Theme.key_windowBackgroundWhiteGreenText2)
+            stat.accuracy >= 40 -> Theme.getColor(Theme.key_statisticChartLine_orange)
+            else -> Theme.getColor(Theme.key_text_RedRegular)
         }
-        val accentColor = ContextCompat.getColor(this, colorRes)
 
         val tvPercent = TextView(this).apply {
             text = "${stat.accuracy}%"

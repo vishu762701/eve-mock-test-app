@@ -24,7 +24,7 @@ import org.telegram.ui.Components.RecyclerListView
 
 /**
  * Programmatic Telegram-native view hierarchy for ManageQuestionsActivity (Pass 4d).
- * Replaces activity_manage_questions.xml inflation using upstream RecyclerListView,
+ * Replaces legacy XML inflation using upstream RecyclerListView,
  * RadialProgressView, HeaderCell, ShadowSectionCell, Theme.getColor(Theme.key_*),
  * and AndroidUtilities.
  */

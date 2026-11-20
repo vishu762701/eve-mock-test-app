@@ -16,7 +16,7 @@
 | **Pass 4b** | `ActivityLogActivity`, `FlaggedQuestionsActivity`, `SendNotificationActivity`, `ManageUsersActivity` rebuilt programmatically (`RecyclerListView`, `RadialProgressView`, `BottomSheet`, `TextCell`, `HeaderCell`, `Theme.getColor`) | **DONE (pending CI confirmation)** |
 | **Pass 4c** | `ManagePremiumActivity`, `ManageSyllabusActivity`, `EditExamActivity` rebuilt programmatically (`EditTextBoldCursor`, `HeaderCell`, `ShadowSectionCell`, `DividerCell`, `RecyclerListView`, `RadialProgressView`, `Theme.getColor`) | **DONE (pending CI confirmation)** |
 | **Pass 4d** | `AdminActivity`, `ManageExamsActivity`, `ManageQuestionsActivity` rebuilt programmatically (`RecyclerListView`, `RadialProgressView`, `HeaderCell`, `ShadowSectionCell`, `Theme.getColor`) | **DONE (pending CI confirmation)** |
-| **Pass 5** | Final Dead-File & Legacy XML/Shadow Purge | PENDING |
+| **Pass 5** | Final Dead-File Purge (7 proven 0-caller files deleted), `0` `R.color.*` across all 61 Activities, ProGuard verified, honest 61-screen ledger | **DONE (pending CI confirmation)** |
 
 ## SHADOW CLASS MAP
 
@@ -39,6 +39,6 @@
 | `com.eve.app.designsystem.TelegramBottomSheet` | `org.telegram.ui.ActionBar.BottomSheet` | 17 | Pass 3, Pass 4 & Pass 5 |
 | `com.eve.app.designsystem.TelegramSwitch` | `org.telegram.ui.Components.Switch` | 16 | Pass 3, Pass 4 & Pass 5 |
 | `com.eve.app.designsystem.TelegramRadialProgressView` | `org.telegram.ui.Components.RadialProgressView` | 53 | Pass 3, Pass 4 & Pass 5 |
-| `com.eve.app.designsystem.ButtonBounce` | `org.telegram.ui.Components.ButtonBounce` | 0 | Pass 5 (0 callers; retained until Pass 5 purge) |
-| `com.eve.app.designsystem.MenuDrawable` | `org.telegram.ui.ActionBar.MenuDrawable` | 0 | Pass 5 (0 callers; retained until Pass 5 purge) |
-| `com.eve.app.designsystem.TelegramEmptyTextProgressView` | `org.telegram.ui.Components.EmptyTextProgressView` | 0 | Pass 5 (0 callers; retained until Pass 5 purge) |
+| `com.eve.app.designsystem.ButtonBounce` | `org.telegram.ui.Components.ButtonBounce` | 0 | Pass 5 (DELETED) |
+| `com.eve.app.designsystem.MenuDrawable` | `org.telegram.ui.ActionBar.MenuDrawable` | 0 | Pass 5 (DELETED) |
+| `com.eve.app.designsystem.TelegramEmptyTextProgressView` | `org.telegram.ui.Components.EmptyTextProgressView` | 0 | Pass 5 (DELETED) |

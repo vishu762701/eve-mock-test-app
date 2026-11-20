@@ -121,7 +121,7 @@ class HistoryActivity : EveBaseActivity() {
         offlineBanner = TextView(this).apply {
             text = "You are offline. Showing cached test history."
             setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13f)
-            setTextColor(ContextCompat.getColor(this@HistoryActivity, R.color.system_orange_text))
+            setTextColor(Theme.getColor(Theme.key_statisticChartLine_orange))
             setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite))
             gravity = Gravity.CENTER
             val padH = AndroidUtilities.dp(16f)

@@ -2,7 +2,7 @@
 
 > Honest, code-verified audit and implementation ledger for transforming the EVE Android app (`com.eve.app`) onto the official Telegram Android UI (`Telegram-Android-master` @ `21f7d109da6ab3506c9e9577f98c6a38771ab335`).
 
-## 1. Environment & Verification Results (Pass 1 — Foundation Lock)
+## 1. Environment & Verification Results (Passes 1–5 Complete — Verified by Static Review)
 
 - **Telegram Official Source**: `Telegram-Android-master` (`21f7d109da6ab3506c9e9577f98c6a38771ab335`, LITE copy without native/jni, media3, jlatexmath).
 - **Gate & Static Review Results (Verified by Static Review — NOT compiled or tested locally)**:
@@ -51,3 +51,15 @@
    - Confirmed `.github/workflows/build.yml` & `release.yml` install `platforms;android-36` + `build-tools;36.0.0` with JDK 21 and Gradle 8.7 (matching `compileSdk = 36` + AGP `8.5.2`; no Gradle version changes required).
 7. **Zero Deletions in Pass 1**:
    - No legacy XML layouts, tests, or shadow classes were deleted in Pass 1.
+
+---
+
+## 4. Pass 5 — Final Dead-File Purge & Single-Source-of-Truth Verification
+
+- **`R.color.*` across all 61 `*Activity.kt` files**: **0** (final 5 lines in `HistoryActivity`, `MistakesActivity`, and `PerformanceActivity` migrated to `Theme.getColor(Theme.key_*)`).
+- **ProGuard (`app/proguard-rules.pro`)**: Confirmed `-keep class org.telegram.** { *; }` present.
+- **Deleted (7 proven 0-caller files, grep = 0 matches across `app/src/`)**:
+  - `app/src/main/java/com/eve/app/designsystem/{ButtonBounce,MenuDrawable,TelegramEmptyTextProgressView}.kt`
+  - `app/src/main/res/layout/{activity_admins_and_rights,activity_emoji_studio,activity_poll_create,activity_manage_questions}.xml`
+- **Retained Safely (Non-Zero Live Callers — Not Deleted to Keep CI Green)**:
+  - `activity_login.xml` (`LoginActivity` is out of scope per owner rules), `design_colors.xml` / `themes.xml` (referenced by `LoginActivity` + `AndroidManifest.xml` + tests), `TelegramActionBar` / `TelegramBottomSheet` / `TelegramNativeAlertDialog` / `TelegramSwitch` / `TelegramRadialProgressView` / `ui/admin/tg/*` (still referenced by shared adapters/dialogs/XML tests), and `TelegramThemeEngine.kt` (feeds `Theme.java.syncFromEvePalette` with parsed upstream `.attheme` palettes).
