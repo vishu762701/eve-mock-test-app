@@ -21,7 +21,7 @@ import com.eve.app.ui.common.EveBaseActivity
 import com.eve.app.util.AdminAccessGate
 import com.eve.app.util.AppBulletin
 import org.telegram.ui.ActionBar.BottomSheet
-import org.telegram.ui.Cells.TextCell
+import com.eve.app.ui.admin.tg.TextCell
 import com.google.firebase.auth.FirebaseAuth
 import androidx.lifecycle.Lifecycle
 import kotlinx.coroutines.CancellationException
