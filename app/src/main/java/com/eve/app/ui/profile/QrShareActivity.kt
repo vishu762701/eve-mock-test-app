@@ -251,15 +251,18 @@ open class QrShareActivity : EveBaseActivity() {
             })
         }
         updateSwatches()
-        sheet.setCustomView(ScrollView(this).apply {
+        val contentView = ScrollView(this).apply {
             background = glassBackground(24)
             addView(grid)
-        })
+        }
+        val sheet = BottomSheet.Builder(this)
+            .setCustomView(contentView)
+            .create()
         val sheetHeightPx = (cell * 5) + px(36)
         scene.setPickerPlacement(1f, (resources.displayMetrics.heightPixels - sheetHeightPx).toFloat())
-        sheet.setOnDismissListener {
+        sheet.setOnDismissListener(android.content.DialogInterface.OnDismissListener {
             scene.setPickerPlacement(0f, 0f)
-        }
+        })
         sheet.show()
     }
 

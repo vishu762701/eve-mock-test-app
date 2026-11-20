@@ -246,9 +246,9 @@ class UsernameCardActivity : EveBaseActivity() {
             .create()
         val sheetHeightPx = (cell * 5) + px(36)
         scene.setPickerPlacement(1f, (resources.displayMetrics.heightPixels - sheetHeightPx).toFloat())
-        sheet.setOnDismissListener {
+        sheet.setOnDismissListener(android.content.DialogInterface.OnDismissListener {
             scene.setPickerPlacement(0f, 0f)
-        }
+        })
         sheet.show()
     }
 
