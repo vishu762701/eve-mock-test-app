@@ -27,11 +27,15 @@ class ChangeUsernameActivity : TelegramHostActivity<org.telegram.ui.ChangeUserna
     private var saveInFlight = false
     private var statusRole: Int = TelegramUsernameDelegate.ROLE_NONE
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        editorOwnerUid = ProfileEditorAccountGuard.bind(this, savedInstanceState) ?: return
+    override fun onBeforeCreateFragment(savedInstanceState: Bundle?): Boolean {
+        editorOwnerUid = ProfileEditorAccountGuard.bind(this, savedInstanceState) ?: return false
         currentUsername = (intent.getStringExtra("current_username") ?: "").removePrefix("@")
+        return true
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (currentUsername.isNotEmpty()) {
+        if (editorOwnerUid != null && currentUsername.isNotEmpty()) {
             fragment.fragmentView?.post {
                 if (!isFinishing && !isDestroyed) {
                     fragment.recheckUsername()
