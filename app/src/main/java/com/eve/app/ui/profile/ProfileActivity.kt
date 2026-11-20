@@ -50,12 +50,14 @@ import com.eve.app.data.remote.UserProfileResponse
 import com.eve.app.data.remote.ProfileRequestOwner
 import com.eve.app.data.repository.AdminRepository
 import com.eve.app.data.repository.PremiumRepository
-import com.eve.app.databinding.ActivityProfileBinding
+import org.telegram.ui.ActionBar.ActionBarMenuSubItem
+import org.telegram.ui.ActionBar.ActionBarPopupWindow
+import org.telegram.ui.ActionBar.AlertDialog
+import org.telegram.ui.ActionBar.Theme
+import org.telegram.ui.Components.RadialProgressView
 import com.eve.app.theme.TelegramThemeEngine
-import com.eve.app.designsystem.TelegramNativeAlertDialog
 import com.eve.app.designsystem.TelegramRadialProgressView
 import org.telegram.ui.ActionBar.BackDrawable
-import com.eve.app.designsystem.TelegramPopupMenu
 import com.eve.app.util.VibrationHelper
 import org.telegram.ui.Components.CubicBezierInterpolator
 import com.eve.app.ui.common.EveBaseActivity
@@ -82,10 +84,10 @@ private const val STATE_CROP_FILE = "profile_photo_crop_file"
 
 class ProfileActivity : EveBaseActivity() {
 
-    private lateinit var binding: ActivityProfileBinding
+    private lateinit var binding: ProfileTelegramViewTree
     private val backDrawable = BackDrawable(false)
     private val adminRepo = AdminRepository()
-    private var progressDialog: TelegramNativeAlertDialog? = null
+    private var progressDialog: AlertDialog? = null
     private var pendingPhotoUri: Uri? = null
     private var pendingPhotoCropped = false
     private var croppedPhotoFile: File? = null
@@ -182,7 +184,7 @@ class ProfileActivity : EveBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityProfileBinding.inflate(layoutInflater)
+        binding = ProfileTelegramViewTree(this)
         setContentView(binding.root)
         binding.glassToolbar.bringToFront()
         binding.btnBack.setImageDrawable(backDrawable)
@@ -502,6 +504,7 @@ class ProfileActivity : EveBaseActivity() {
      * active action, not to the entire scrolling container.
      */
     override fun onApplyThemePalette(palette: TelegramThemeEngine.ResolvedPalette) {
+        if (::binding.isInitialized) binding.applyTelegramTheme()
         super.onApplyThemePalette(palette)
         if (::binding.isInitialized) {
             profileOptionsPopup?.dismiss(immediate = true)
@@ -517,9 +520,7 @@ class ProfileActivity : EveBaseActivity() {
             } else {
                 TelegramThemeEngine.multAlpha(TelegramThemeEngine.adaptProfileEmojiColor(baseColor), 0.15f)
             }
-            val surface = if (btnColor != 0) btnColor else androidx.core.content.ContextCompat.getColor(
-                this, R.color.category_pill_unselected_bg
-            )
+            val surface = if (btnColor != 0) btnColor else Theme.getColor(Theme.key_windowBackgroundGray)
             binding.layoutActions.setActionColor(surface)
             ProfileActionIcons.applyTo(
                 listOf(binding.btnSetPhoto, binding.btnEditInfo, binding.btnSettings),
@@ -535,7 +536,7 @@ class ProfileActivity : EveBaseActivity() {
             backDrawable.setRotatedColor(palette.textPrimary)
             binding.cardPersonalInfo.updatePalette(palette)
             binding.cardCategory.updatePalette(palette)
-            val sectionColor = ContextCompat.getColor(this, R.color.telegram_type_section)
+            val sectionColor = Theme.getColor(Theme.key_windowBackgroundWhiteBlueHeader)
             binding.tvAccountHeader.setTextColor(sectionColor)
             binding.tvStudyHeader.setTextColor(sectionColor)
             binding.dividerMobile.setBackgroundColor(palette.hairline)
@@ -600,14 +601,13 @@ class ProfileActivity : EveBaseActivity() {
             launchPhoneEditor()
             return true
         }
-        TelegramPopupMenu(this)
-            .addItem(1, "Copy", R.drawable.ic_copy) {
-                copyToClipboard("Phone", phone, "Phone copied to clipboard")
-            }
-            .addItem(2, "Replace number", R.drawable.telegram_profile_outline_edit) {
-                launchPhoneEditor()
-            }
-            .show(binding.cellMobile)
+        showTelegramContextMenu(
+            binding.cellMobile,
+            listOf(
+                Triple("Copy", R.drawable.ic_copy) { copyToClipboard("Phone", phone, "Phone copied to clipboard") },
+                Triple("Replace number", R.drawable.telegram_profile_outline_edit) { launchPhoneEditor() }
+            )
+        )
         return true
     }
 
@@ -618,14 +618,13 @@ class ProfileActivity : EveBaseActivity() {
             launchUsernameEditor()
             return true
         }
-        TelegramPopupMenu(this)
-            .addItem(1, getString(R.string.copy_username), R.drawable.ic_copy) {
-                copyToClipboard("Username", "@$uname", "Username copied to clipboard")
-            }
-            .addItem(2, "Change username", R.drawable.telegram_profile_outline_edit) {
-                launchUsernameEditor()
-            }
-            .show(binding.cellUsername)
+        showTelegramContextMenu(
+            binding.cellUsername,
+            listOf(
+                Triple(getString(R.string.copy_username), R.drawable.ic_copy) { copyToClipboard("Username", "@$uname", "Username copied to clipboard") },
+                Triple("Change username", R.drawable.telegram_profile_outline_edit) { launchUsernameEditor() }
+            )
+        )
         return true
     }
 
@@ -637,17 +636,15 @@ class ProfileActivity : EveBaseActivity() {
             return true
         }
         val formatted = binding.tvBirthdayValue.text.toString().ifBlank { formatTelegramBirthday(dob) }
-        TelegramPopupMenu(this)
-            .addItem(1, "Copy", R.drawable.ic_copy) {
-                copyToClipboard("Birthday", formatted, getString(R.string.birthday_copied))
-            }
-            .addItem(2, "Change", R.drawable.telegram_profile_outline_edit) {
-                showBirthdayPicker(currentDob)
-            }
-            .addItem(3, "Remove", R.drawable.ic_delete, isDestructive = true) {
-                removeBirthday()
-            }
-            .show(binding.cellBirthday)
+        showTelegramContextMenu(
+            binding.cellBirthday,
+            listOf(
+                Triple("Copy", R.drawable.ic_copy) { copyToClipboard("Birthday", formatted, getString(R.string.birthday_copied)) },
+                Triple("Change", R.drawable.telegram_profile_outline_edit) { showBirthdayPicker(currentDob) },
+                Triple("Remove", R.drawable.ic_delete) { removeBirthday() }
+            ),
+            destructiveLast = true
+        )
         return true
     }
 
@@ -1391,26 +1388,62 @@ class ProfileActivity : EveBaseActivity() {
         outState.putString(STATE_CROP_FILE, croppedPhotoFile?.absolutePath)
     }
 
+    private fun showTelegramContextMenu(
+        anchor: View,
+        items: List<Triple<String, Int, () -> Unit>>,
+        destructiveLast: Boolean = false
+    ) {
+        val layout = ActionBarPopupWindow.ActionBarPopupWindowLayout(this)
+        layout.setFitItems(true)
+        val popup = ActionBarPopupWindow(
+            layout,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            true
+        )
+        items.forEachIndexed { idx, (label, icon, action) ->
+            val sub = ActionBarMenuSubItem(this, idx == 0, idx == items.lastIndex)
+            sub.setTextAndIcon(label, icon)
+            if (destructiveLast && idx == items.lastIndex) {
+                val red = Theme.getColor(Theme.key_text_RedRegular)
+                sub.setColors(red, red)
+            }
+            sub.setOnClickListener {
+                popup.dismiss()
+                action()
+            }
+            layout.addView(sub)
+        }
+        popup.isOutsideTouchable = true
+        popup.isClippingEnabled = true
+        popup.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+        popup.showAsDropDown(anchor)
+        popup.startAnimation()
+    }
+
     private fun showProgress(msg: String) {
         dismissProgress()
-        val builder = TelegramNativeAlertDialog.Builder(this)
+        val builder = AlertDialog.Builder(this)
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
-            val space = resources.getDimensionPixelSize(R.dimen.design_card_padding)
+            val space = org.telegram.messenger.AndroidUtilities.dp(20f)
             setPadding(space, space, space, space)
             gravity = android.view.Gravity.CENTER_VERTICAL
-            addView(TelegramRadialProgressView(this@ProfileActivity), LinearLayout.LayoutParams(
-                resources.getDimensionPixelSize(R.dimen.design_ring_size),
-                resources.getDimensionPixelSize(R.dimen.design_ring_size)))
+            addView(RadialProgressView(this@ProfileActivity), LinearLayout.LayoutParams(
+                org.telegram.messenger.AndroidUtilities.dp(32f),
+                org.telegram.messenger.AndroidUtilities.dp(32f)))
             addView(TextView(this@ProfileActivity).apply {
                 text = msg
-                setPadding(resources.getDimensionPixelSize(R.dimen.design_section_gap), 0, 0, 0)
-                TextViewCompat.setTextAppearance(this, R.style.TextAppearance_Eve_Token_Body)
+                setPadding(org.telegram.messenger.AndroidUtilities.dp(16f), 0, 0, 0)
+                setTextColor(Theme.getColor(Theme.key_dialogTextBlack))
+                setTextSize(android.util.TypedValue.COMPLEX_UNIT_DIP, 16f)
             })
         }
         builder.setView(layout)
-        builder.setCancelable(false)
-        progressDialog = builder.create().apply { show() }
+        progressDialog = builder.create().apply {
+            setCancelable(false)
+            show()
+        }
     }
 
     private fun dismissProgress() {

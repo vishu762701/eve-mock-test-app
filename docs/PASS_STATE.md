@@ -9,7 +9,8 @@
 | **Pass 1** | Foundation Lock (`Theme.java` 929 keys + `currentColorsNoAccent`, upstream `.attheme`/fonts/selectors/`colors.xml`, `AndroidUtilities.getTypeface` null guard, `450L` theme switch, `ResultActivity` null-safe `getButton`, `TELEGRAM_PARITY_LEDGER.md`) | **DONE** (present in baseline) |
 | **Pass 2** | Forked/Shadow Component Cleanup (`ui/profile/popup/*` -> `org.telegram.ui.ActionBar.*`, 8 clean `AlertDialog` migrations + tests, purge 0-caller `Cells.kt` & `ui/admin/tg/{DividerCell,TextDetailCell}`) | **DONE (pending CI confirmation)** |
 | **Pass 3a** | `MainActivity` rebuilt programmatically (`HomeTelegramViewTree` + `ExamAdapter` + `HomeBannerAdapter`, `RecyclerListView`, `HeaderCell`, `DividerCell`, `EditTextBoldCursor`, `AlertDialog`, `ActionBarPopupWindow`, `Theme.getColor`) | **DONE (pending CI confirmation)** |
-| **Pass 3b–3d** | Remaining Student Visible Screens (`ProfileActivity`, `TestActivity`, `ResultActivity`, `BookmarksActivity`, `QrShareActivity`, `UsernameCardActivity`) | PENDING |
+| **Pass 3b** | `ProfileActivity` rebuilt programmatically (`ProfileTelegramViewTree`, `ProfileHeaderExpansion` overload, `ActionBarPopupWindow`, `AlertDialog`, `RadialProgressView`, `Theme.getColor`) | **DONE (pending CI confirmation)** |
+| **Pass 3c–3d** | Remaining Student Visible Screens (`TestActivity`, `ResultActivity`, `BookmarksActivity`, `QrShareActivity`, `UsernameCardActivity`) | PENDING |
 | **Pass 4** | Remaining 14 Admin Screens (3–4 screens/pass) | PENDING |
 | **Pass 5** | Final Dead-File & Legacy XML/Shadow Purge | PENDING |
 

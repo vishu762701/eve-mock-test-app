@@ -161,7 +161,7 @@ class TelegramDialogSourceAssetsTest {
         val profile = File("src/main/java/com/eve/app/ui/profile/ProfileActivity.kt").readText()
         val progress = profile.substringAfter("private fun showProgress(msg: String)")
             .substringBefore("private fun dismissProgress()")
-        assertTrue(progress.contains("TelegramNativeAlertDialog.Builder(this)"))
+        assertTrue(progress.contains("AlertDialog.Builder(this)"))
         assertTrue(progress.contains("builder.setView(layout)"))
         assertTrue(progress.contains("builder.setCancelable(false)"))
         assertTrue(progress.contains("TelegramRadialProgressView(this@ProfileActivity)"))
