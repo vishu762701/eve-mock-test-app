@@ -46,6 +46,8 @@ abstract class TelegramHostActivity<F : BaseFragment> : EveBaseActivity(), INavi
         }
 
         AndroidUtilities.checkDisplaySize(this, resources.configuration)
+        Theme.syncFromEvePalette(this)
+        Theme.createCommonResources(this)
 
         rootOverlay = FrameLayout(this).apply {
             layoutParams = ViewGroup.LayoutParams(
