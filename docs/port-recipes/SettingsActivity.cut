@@ -1,0 +1,14 @@
+upstream org/telegram/ui/SettingsActivity.java
+to app/src/main/java/org/telegram/ui/SettingsActivity.java
+
+remove-method presentSettingFragment
+remove-method checkUi_menuItems
+remove-method updateAvatarHide
+remove-method snapAvatarHide
+remove-method updateActionBarVisible
+remove-method updateActionBarFadeHeight
+remove-method didReceivedNotification
+remove-method onApplyWindowInsets
+patch-line "public class SettingsActivity extends BaseFragment" "public class SettingsActivity extends BaseFragment { private com.eve.app.ui.settings.TelegramSettingsDelegate eveDelegate; // EVE-PATCH: wire Eve CUT-INTERFACE TelegramSettingsDelegate" "wire Eve CUT-INTERFACE TelegramSettingsDelegate"
+cut-backend "Cut TLRPC, MessagesController, UserConfig, ConnectionsManager, StarsController, and GramWallet backend services in favor of com.eve.app.ui.settings.TelegramSettingsDelegate CUT-INTERFACE; preserved full Telegram SettingsActivity layout, UniversalRecyclerView, UniversalAdapter, SettingCell with linear gradient rounded icon chips, header avatar and user title/subtitle, ActionBar QR button, search field, more options menu, and subscreen click routing"
+prune-imports

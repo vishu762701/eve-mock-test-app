@@ -79,6 +79,7 @@ abstract class TelegramHostActivity<F : BaseFragment> : EveBaseActivity(), INavi
 
         if (actionBar != null) {
             (actionBar.parent as? ViewGroup)?.removeView(actionBar)
+            actionBar.setOccupyStatusBar(false)
             val actionBarHeight = ActionBar.getCurrentActionBarHeight()
             container.addView(
                 actionBar,
