@@ -141,7 +141,7 @@
         <activity android:name=".ui.admin.GeneratedTestsActivity" android:exported="false" />
         <activity android:name=".ui.admin.ManagePollsActivity" android:exported="false" />
         <activity android:name=".ui.about.AboutActivity" android:exported="false" />
-        <activity android:name=".ui.settings.SettingsActivity" android:exported="false" />
+        <activity android:name=".ui.settings.SettingsActivity" android:exported="true" />
         <activity android:name=".ui.settings.AppearanceActivity" android:exported="false" />
         <activity android:name=".ui.settings.ThemeActivity" android:exported="false" />
         <activity android:name=".ui.settings.LanguageSelectActivity" android:exported="false" />
