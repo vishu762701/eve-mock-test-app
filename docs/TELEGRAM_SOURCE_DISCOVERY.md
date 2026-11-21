@@ -6,72 +6,67 @@ verification for the current EVE work is BLOCKED in this environment (no Java,
 Gradle, Android SDK, adb or emulator). This document is discovery evidence, not a
 claim of screen-level parity.
 
-## Archive identity
+## Current owner-supplied authoritative archive
 
-| Property | Value |
+| Property | Verified value |
 | --- | --- |
-| Device path | `/sdcard/Download/Telegrammaster.zip` |
-| Archive name | `Telegrammaster.zip` |
-| Size | `115,700,719` bytes (about 110 MiB; 441,045,194 uncompressed bytes) |
-| SHA-256 | `4b65e10b8fc63b4cbcb7377026a5da470782547fc0c0575bf0b71da676028c10` |
-| Entries | `14,794` files (`unzip -l` total line) |
-| Extraction root | `/tmp/eve-telegram-source/Telegram-master` |
-| Extraction size | `460 MiB` |
-| Java sources | `2,268` `.java` files in the extracted tree |
-| Resource files | `5,266` files under `TMessagesProj/src/main/res` |
-| Original archive handling | Read-only. The ZIP was listed, hashed and extracted; it was not modified, moved or deleted. The SHA-256 was rechecked after extraction and is unchanged. |
+| Uploaded archive | `Telegram-Android-master (1).zip` |
+| ZIP SHA-256 | `768df2b468c589bc1b44e19cc023a8f0a4def1f4033d93c800d71016908202e4` |
+| Compressed size | `116,850,881` bytes |
+| Archive root | `Telegram-Android-master/` |
+| File entries | `14,160` |
+| Total entries, including directories | `14,886` |
+| Uncompressed file payload | `443,628,854` bytes |
+| `.git` directory | Absent; archive identity must be checked by Git blob hashes |
 
-The archive has no `.git` directory. To verify revision identity directly, a
-partial Git checkout was fetched into `/tmp/eve-telegram-git` with
-`git fetch --depth 1 --filter=blob:none origin
-21f7d109da6ab3506c9e9577f98c6a38771ab335` and `HEAD` was set to that commit.
-No working tree was checked out and no EVE repository or archive file was
-modified. Sixteen representative source/resource files were hashed locally and
-compared with `git show HEAD:<path>`; all matched, including `gradle.properties`,
-`ImageUpdater.java`, `BottomSheet.java`, the three profile editors,
-`CodepointsLengthInputFilter.java`, `AndroidUtilities.java`,
-`BotWebViewVibrationEffect.java`, `ButtonBounce.java`, `ProfileActionsView.java`,
-`ProfileGooeyView.java`, `NotchInfoUtils.java`, `ThemeColors.java`,
-`msg_photos.webp` and `msg_delete.png`. The recorded 16-asset import manifest
-also passes `verify_telegram_imports.py --upstream /tmp/eve-telegram-git`.
+This archive is the read-only working snapshot for Telegram screen ports. It is not to be edited in place or committed into EVE.
 
-## Source version
+## Official source revision and app version
 
-| Property | Value |
+| Property | Verified value |
 | --- | --- |
-| Application | Telegram Android (`TMessagesProj` + variant app modules) |
-| Version name | `13.1.1` (`gradle.properties:APP_VERSION_NAME`) |
-| Version code | `7237` (`gradle.properties:APP_VERSION_CODE`) |
-| Upstream repository | `https://github.com/DrKLO/Telegram` |
-| Revision | `21f7d109da6ab3506c9e9577f98c6a38771ab335` |
-| License | GNU GPL v2 or later. Root `LICENSE` is GPLv2; Java file headers state "GNU GPL v. 2 or later" and retain Telegram contributor copyright. |
+| Official repository | `https://github.com/TelegramMessenger/Telegram-Android` |
+| Branch | `master` |
+| Pinned commit | `21f7d109da6ab3506c9e9577f98c6a38771ab335` |
+| Commit message | `update to 13.2.2 (7303)` |
+| Commit date | `2026-11-12T02:43:03Z` |
+| `APP_VERSION_NAME` | `13.2.2` |
+| `APP_VERSION_CODE` | `7303` |
+| License file | Root `LICENSE`: GPL-2.0; preserve individual file headers and third-party notices |
 
-The revision was independently checked against GitHub's immutable commit objects in
-the earlier verified profile mission, which also recorded the root tree
-`cc3c6ccf48e4167fdec764dfd04e765043f55093`. This archive's content agrees with that
-pin: `gradle.properties` reports 13.1.1/7237 and the inspected component files match
-the pinned Git blobs byte-for-byte as described above.
-`EVE_MANIFEST.sha256` is **ABSENT**; no archive-wide manifest verification is
-claimed.
+The official GitHub `master` head was checked on 2026-11-21 and resolved to the same pinned commit. The GitHub Releases page still has an older tagged release entry; do not mistake the latest release tag for the current source branch head. The source-of-truth pin is the immutable commit above, not a moving branch name or a locally remembered version.
 
-## Pinned Git Blob SHA-1 Verification (10 Blobs)
+## Pinned Git blob verification (19 files)
 
-The 10 Git blob SHA-1 values computed via `sha1("blob " + length + "\0" + bytes)` from `/storage/emulated/0/Download/Telegrammaster.zip`:
+For each path below, the Git blob SHA-1 calculated from the uploaded ZIP matches the blob SHA returned by the official repository at the pinned commit.
 
-| Archive-relative path | Expected official Git blob SHA-1 | Verified local blob SHA-1 | Match |
-|---|---|---|---|
-| `README.md` | `f42b0063a7986cfa1242e9441fcce7e0e8c0de89` | `f42b0063a7986cfa1242e9441fcce7e0e8c0de89` | PASS |
-| `gradle.properties` | `4a5efa191b482ab30bf34dbd85df2b201d6757a5` | `4a5efa191b482ab30bf34dbd85df2b201d6757a5` | PASS |
-| `.gitmodules` | `88430c54b62eb74c2e5266a8ae2bf8d8453ea450` | `88430c54b62eb74c2e5266a8ae2bf8d8453ea450` | PASS |
-| `LICENSE` | `d159169d1050894d3ea3b98e1c965c4058208fe1` | `d159169d1050894d3ea3b98e1c965c4058208fe1` | PASS |
-| `TMessagesProj/build.gradle` | `f9a3639a17b128527a65a6a15a6bc17b4bd9620d` | `f9a3639a17b128527a65a6a15a6bc17b4bd9620d` | PASS |
-| `TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java` | `4ed7e6491cefa3bc19611e1f7db2cd41d67e8f04` | `4ed7e6491cefa3bc19611e1f7db2cd41d67e8f04` | PASS |
-| `TMessagesProj/src/main/java/org/telegram/ui/ProfileActivity.java` | `7805f9d6d3a216972a18f9e367ad7199f2624555` | `7805f9d6d3a216972a18f9e367ad7199f2624555` | PASS |
-| `TMessagesProj/src/main/java/org/telegram/ui/Components/RecyclerListView.java` | `e53a830224256333be38baa47dcb462b53b92e44` | `e53a830224256333be38baa47dcb462b53b92e44` | PASS |
-| `TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBar.java` | `8d3b92d6a680224b9cc7b80f620b656f1184ee3a` | `8d3b92d6a680224b9cc7b80f620b656f1184ee3a` | PASS |
-| `TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarMenu.java` | `49c4c96c20a07e773f332aa158ada3c0807372fc` | `49c4c96c20a07e773f332aa158ada3c0807372fc` | PASS |
+| Archive-relative path | Official Git blob SHA-1 | Result |
+| --- | --- | --- |
+| `.gitmodules` | `2a8c3dfa4f71be61f27e66648cddf1df5dd63fa4` | PASS |
+| `LICENSE` | `d159169d1050894d3ea3b98e1c965c4058208fe1` | PASS |
+| `README.md` | `f42b0063a7986cfa1242e9441fcce7e0e8c0de89` | PASS |
+| `gradle.properties` | `17bb1dca2c58cc29eef16dd4ec48c3ec17ac2d19` | PASS |
+| `TMessagesProj/build.gradle` | `4450811549815776d5832811e363c33f2638d9f1` | PASS |
+| `TMessagesProj/src/main/AndroidManifest.xml` | `99f64adbf76f4501355e463489df4963ce8bd55b` | PASS |
+| `TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java` | `ca821813f7de19064ee4510e61ed438d1566b5b4` | PASS |
+| `TMessagesProj/src/main/java/org/telegram/messenger/AndroidUtilities.java` | `d59b29a66c618169c229d2f16f847cb2d5a2300b` | PASS |
+| `TMessagesProj/src/main/java/org/telegram/ui/SettingsActivity.java` | `e2b917be30918744a2c1c8a09c92cc60758419b9` | PASS |
+| `TMessagesProj/src/main/java/org/telegram/ui/ProfileActivity.java` | `9656ebaf5c40097e8f42de2f224f4897d8ccda9c` | PASS |
+| `TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareActivity.java` | `34892736506aa6bc5b15f6e9f0175a1330df9da8` | PASS |
+| `TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrShareView.java` | `50bc0a5c64da4cb6a471dff35ba1fda1ded8be32` | PASS |
+| `TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrCodeLayer.java` | `703de92bb9158a7e936603ee02c6776f379213bd` | PASS |
+| `TMessagesProj/src/main/java/org/telegram/ui/QrShare/QrRender.java` | `f9d47be54503024733f7868a6add2d32b936f89a` | PASS |
+| `TMessagesProj/src/main/java/org/telegram/ui/ActionBar/Theme.java` | `7fc7292d12a05631ecf5af68fb2d00c368c37adc` | PASS |
+| `TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBar.java` | `b8c83792e71f4d1acdecbf9f1227d476aa28917b` | PASS |
+| `TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarMenu.java` | `49c4c96c20a07e773f332aa158ada3c0807372fc` | PASS |
+| `TMessagesProj/src/main/java/org/telegram/ui/Components/RecyclerListView.java` | `57293d468ded3d1a1bd7780d9431d8825e3ca8bf` | PASS |
+| `TMessagesProj/src/main/res/values/strings.xml` | `e4f8cf67bbbc891cd3c893372f4d63e25d0319f2` | PASS |
 
-All 10 Git blobs match the official Git tree at commit `21f7d109da6ab3506c9e9577f98c6a38771ab335`.
+This is a representative source-identity check across the build metadata, manifest, screen entry points, QR renderer, theme, list framework, and strings. It does not claim that every one of the 14,160 archive files was independently compared.
+
+## ZIP limitations
+
+The archive contains `.gitmodules` entries for 21 submodules, but their working trees are not expanded in this ZIP (for example, the Telegram native/media/widget submodule paths are empty). Therefore this ZIP is a source reference snapshot, **not a fully self-contained reproducible build checkout**. For a complete upstream build, clone the exact commit with recursive submodules as prescribed by the official README. For EVE screen porting, import only the verified dependency closure needed by the target screen.
 
 ## GitHub Governance Verification
 
