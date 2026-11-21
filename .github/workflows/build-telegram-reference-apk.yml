@@ -1,0 +1,124 @@
+name: Build Telegram Reference APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_source:
+        description: "Build only the pinned official Telegram source revision"
+        required: true
+        type: choice
+        options:
+          - "YES"
+      upload_retention_days:
+        description: "APK artifact retention (days)"
+        required: false
+        default: "7"
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: telegram-reference-apk-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-reference:
+    name: Build pinned Telegram AFAT debug APK
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      TELEGRAM_REPOSITORY: https://github.com/DrKLO/Telegram.git
+      TELEGRAM_COMMIT: 21f7d109da6ab3506c9e9577f98c6a38771ab335
+      ANDROID_NDK_VERSION: 27.2.12479018
+      ANDROID_CMAKE_VERSION: 3.22.1
+
+    steps:
+      - name: Checkout pinned official Telegram source with submodules
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --no-checkout "${TELEGRAM_REPOSITORY}" Telegram-Android
+          cd Telegram-Android
+          git checkout --detach "${TELEGRAM_COMMIT}"
+          git submodule sync --recursive
+          git submodule update --init --recursive --depth 1
+          test "$(git rev-parse HEAD)" = "${TELEGRAM_COMMIT}"
+          echo "TELEGRAM_HEAD=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "Pinned Telegram source: $(git rev-parse HEAD)"
+          git submodule status --recursive
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install pinned Android SDK, NDK and CMake
+        shell: bash
+        run: |
+          set -euo pipefail
+          yes | sdkmanager --licenses >/dev/null
+          sdkmanager \
+            "platforms;android-36" \
+            "build-tools;36.0.0" \
+            "platform-tools" \
+            "ndk;${ANDROID_NDK_VERSION}" \
+            "cmake;${ANDROID_CMAKE_VERSION}"
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/${ANDROID_NDK_VERSION}" >> "$GITHUB_ENV"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Verify source build configuration
+        working-directory: Telegram-Android
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'distributionUrl=.*gradle-8.13-' gradle/wrapper/gradle-wrapper.properties
+          grep -q 'ndkVersion "27.2.12479018"' TMessagesProj/build.gradle
+          test -f TMessagesProj/config/release.keystore
+          test -f TMessagesProj/google-services.json
+          test -f TMessagesProj_App/google-services.json
+          echo "Gradle wrapper, NDK, debug signing keystore and Firebase config are present."
+
+      - name: Build isolated Telegram debug reference APK
+        working-directory: Telegram-Android
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./gradlew --no-daemon --stacktrace --max-workers=2 :TMessagesProj_App:assembleAfatDebug
+
+      - name: Verify APK identity and record build metadata
+        working-directory: Telegram-Android
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="TMessagesProj_App/build/outputs/apk/afat/debug/app.apk"
+          test -s "$APK"
+          mkdir -p reference-output
+          cp "$APK" reference-output/Telegram-Reference-AFAT-Debug.apk
+          sha256sum reference-output/Telegram-Reference-AFAT-Debug.apk > reference-output/SHA256SUMS.txt
+          {
+            echo "Telegram repository: $TELEGRAM_REPOSITORY"
+            echo "Telegram commit: $TELEGRAM_HEAD"
+            echo "Build task: :TMessagesProj_App:assembleAfatDebug"
+            echo "Variant: AFAT Debug (applicationId suffix .beta)"
+            echo "JDK: 17"
+            echo "Android SDK: 36"
+            echo "NDK: $ANDROID_NDK_VERSION"
+            echo "CMake: $ANDROID_CMAKE_VERSION"
+          } > reference-output/BUILD-INFO.txt
+          cat reference-output/BUILD-INFO.txt
+          cat reference-output/SHA256SUMS.txt
+
+      - name: Upload Telegram reference APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Telegram-Reference-AFAT-Debug-${{ env.TELEGRAM_COMMIT }}
+          path: Telegram-Android/reference-output/*
+          if-no-files-found: error
+          retention-days: ${{ inputs.upload_retention_days }}
