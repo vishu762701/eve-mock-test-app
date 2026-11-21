@@ -29,7 +29,7 @@ The 9 Laws are defined once, in `ENGINEERING_STANDARD.md` section 1: Law 5 (red 
 ## 2. Architecture and module boundaries
 
 ### A. Native Android client (`app/`)
-- Technology: Kotlin, AndroidX, Telegram Source-Derived UI Architecture (`TelegramActionBar`, `TelegramBottomSheet`, `TextCell`, `HeaderCell`, `ShadowSectionCell`, `DialogCell`, `TelegramThemeEngine`), ViewBinding, MVVM.
+- EVE host/orchestration technology: Kotlin, AndroidX, ViewBinding, MVVM. Existing Kotlin/XML and source-derived adapters describe current implementation, not Telegram acceptance. On Telegram-target screens, the original pinned Telegram Java Activity/Fragment/custom View hierarchy and resources must own visible rendering and interaction. Kotlin is for EVE adapters and minimum host bridge only.
 - Test engine: `TestActivity.kt`, `CircularTimerView.kt`, `QuestionAdapter.kt` (scrollable question/options content, 2x2 action button grid, question palette, server-evaluated submissions).
 - Result and analytics: `ResultActivity.kt`, `ResultDetailActivity.kt` (single-screen summary cards, Statistics, Performance, Analytics, Review tab with isolated scroll, Leaderboard).
 - Home and discovery: `MainActivity.kt`, `HomeAppearance.kt` (themed Home canvas, exam discovery/search, category filtering, rotating content banner and drawer navigation; obsolete streak pill and bottom tabs were removed).
@@ -38,7 +38,7 @@ The 9 Laws are defined once, in `ENGINEERING_STANDARD.md` section 1: Law 5 (red 
 - Admin Typography Studio editor and draft/publish/write routes were retired, but the owner may safely redesign or restore them. Runtime `TypographyRepository`, fallback fonts and public published config GET may serve installed clients; investigate compatibility before altering. Retain the D1 migration and production records.
 - Admin Activity privileged views and data loads must be initialized **after** fresh `AdminAccessGate` authorization. Backend authorization is independently required for mutations.
 - Notification inbox merges local reminders/FCM and server broadcasts without discarding either; only the inbox acknowledges unread, never Home.
-- Profile: `ProfileActivity`, `ProfilePullScrollView` and `ProfileHeaderExpansion` host the EVE-adapted Telegram profile. User-visible identity uses the editable server username; immutable Firebase/D1 IDs and legacy API fields remain internal compatibility contracts. The registered `eve-mock-test://username/<username>` route opens a username-only card, never authentication or a private profile lookup. Profile/presence requests carry local `ProfileRequestOwner` metadata to bind queued work to their initiating account. `ConfirmedProfileStore` retains only the active identity’s confirmed data and position in process memory, coalesces revalidation/presence reads and clears on account changes. The profile overflow uses the source-derived normal ActionBar popup renderer with EVE destinations. Category and Daily Practice Reminder share one source-derived section surface.
+- Profile: current `ProfileActivity`, `ProfilePullScrollView` and `ProfileHeaderExpansion` contain an EVE-adapted implementation; it is not source-exact. `docs/telegram-profile-fidelity.json` is the acceptance contract and its current targets remain OPEN until the evidence gate passes. User-visible identity uses the editable server username; immutable Firebase/D1 IDs and legacy API fields remain internal compatibility contracts. The registered `eve-mock-test://username/<username>` route opens a username-only card, never authentication or a private profile lookup. Profile/presence requests carry local `ProfileRequestOwner` metadata to bind queued work to their initiating account. `ConfirmedProfileStore` retains only the active identity’s confirmed data and position in process memory, coalesces revalidation/presence reads and clears on account changes. The profile overflow uses the source-derived ActionBar popup renderer with EVE destinations. Category and Daily Practice Reminder share one source-derived section surface.
 - Maintenance enforcement is scoped to Home startup/resume/retry, with fresh Worker authorization for admin bypass; active exams and other activities are not server-wide blocked. Admin maintenance writes are partial, and success requires server readback. Unavailable configuration is not a confirmed maintenance-off state.
 
 ### B. Cloudflare Worker backend (`backend/`)
@@ -54,6 +54,13 @@ The 9 Laws are defined once, in `ENGINEERING_STANDARD.md` section 1: Law 5 (red 
 - `firestore.rules` enforces admin write authorization through `isAdmin()`.
 - Admin authority comes from Worker-verified Firebase identity and D1 `admins` membership. Android has no email allowlist or offline grant. Existing owner protection is server-side and still requires D1 membership; migration 0027 stages existing owner membership. Optional Firebase privileged callables verify identity/rights through the Worker. Legacy Firestore rules remain a separate compatibility surface, never an Android admin authority. Do not copy admin emails into docs.
 - Lockfile rule: `functions/package-lock.json` is untracked and ignored. Never stage, commit, overwrite or delete it.
+
+### D. Telegram screen-port boundary and current acceptance
+
+- Telegram owns target-screen rendering; EVE owns product state. The original pinned Telegram Java screen/view implementation owns visible hierarchy, measurement, drawing, touch dispatch, and motion. EVE adapters own authentication, API calls, permissions, persistence, scoring, admin authority, and EVE navigation.
+- An EVE Kotlin/XML imitation is not a final Telegram-target implementation, even if it uses Telegram colors, dimensions, assets, or shared widgets.
+- `docs/port-manifest.json` is the source provenance ledger. `docs/telegram-profile-fidelity.json` is the screenshot/motion/device acceptance contract. Historical reports and green builds do not override these files.
+- Current profile/QR status must be described from the current acceptance manifest, not historical DONE labels.
 
 ## 3. Safety and functional invariants (not UI freezes)
 1. Scoring, rank, exam submission, authorization and answers remain server-authoritative. Changes must preserve these protections and safe data migration behavior.

@@ -15,6 +15,10 @@ Read `ENGINEERING_STANDARD.md` (the single workflow policy) and `SOURCE_OF_TRUTH
 
 When the owner asks for Telegram, the only source is the official `DrKLO/Telegram` repository pinned to a full commit SHA (see `ENGINEERING_STANDARD.md` section 2); no alternative implementation is permitted without explicit owner approval. Agents delete only files made provably obsolete by the authorized change. Preserve uncertain assets, migrations, licenses and production data. Most files in `docs/` are historical evidence, not instructions.
 
+## Telegram screen implementation contract
+
+For Telegram-target screens, the original pinned Telegram Java implementation must own active rendering and interaction. EVE Kotlin code may connect authentication, state, APIs, permissions, navigation and persistence, but must not recreate the screen in Kotlin/XML/Compose/Material. A screen is complete only after the original renderer is active, EVE state works, and matched-device visual/motion and acceptance checks pass. See `ENGINEERING_STANDARD.md`.
+
 ## Downloading an installable Android APK
 - **FAST** (every push to `main`): compiles the debug APK only (ARM64). It does not run tests and does not publish an APK. A green FAST status means buildable, not tested, and is not an APK download link.
 - **FULL** (manual `workflow_dispatch` run by the owner): runs lint, unit tests, signing safeguards, both emulator navigation modes (gesture and three-button), backend and Functions checks. Only after all gates pass, and only if the `publish_verified_apk` input is true, does GitHub Actions upload the **Eve-debug-apk** artifact.

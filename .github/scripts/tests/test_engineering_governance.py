@@ -16,6 +16,14 @@ class EngineeringGovernanceTest(unittest.TestCase):
             self.assertIn("ENGINEERING_STANDARD.md", read(path))
         self.assertIn("1 screen or 1 feature at a time", standard)
 
+    def test_telegram_screen_requires_original_renderer_and_acceptance(self):
+        standard = read("ENGINEERING_STANDARD.md")
+        self.assertIn("original pinned Telegram Java Activity/Fragment", standard)
+        self.assertIn("Do not begin another screen until accepted", standard)
+        self.assertIn("NO KOTLIN/XML/COMPOSE SCREEN RECREATION", standard)
+        self.assertIn("docs/telegram-profile-fidelity.json", standard)
+        self.assertIn("TelegramMessenger/Telegram-Android", standard)
+
     def test_main_push_is_compile_only_and_manual_full_is_available(self):
         workflow = read(".github/workflows/build.yml")
         self.assertIn("branches: [ main ]", workflow)

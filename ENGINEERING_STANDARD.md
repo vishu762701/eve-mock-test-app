@@ -13,19 +13,26 @@ Old prompts, reports, checkpoints and chat summaries are historical context, not
 ## 1. The 9 Permanent Core Laws
 
 ### LAW 1 — SCREEN-LEVEL ACCEPTANCE, HONEST STATUS
-Work on the requested screen or feature as a complete unit. Its acceptance checklist must cover the applicable items: real UI and state behavior, navigation and back handling, gestures and animation, Day/Night, RTL, Hindi/localization, accessibility, backend/data behavior, and relevant tests.
 
-Do not silently omit an applicable requirement. For each item, report evidence or mark it `NOT YET — <specific reason>`. An unfinished item must never be described as complete, but it does not automatically block work from proceeding to the next requested screen or feature. Continue in the owner's requested order and keep remaining work visible.
+Work on exactly the requested screen or feature as a complete unit. For Telegram-target screens, acceptance covers the original Telegram renderer, real interactions/state, EVE backend wiring, navigation/back handling, gestures/animation, Day/Night, RTL, Hindi/localization, accessibility, and relevant tests.
+
+Record evidence for every applicable requirement or mark it `NOT YET — <specific reason>`. An unfinished screen remains `OPEN`; copied source, a Kotlin/XML recreation, or a green build does not make it complete.
+
+**Do not begin the next screen until the current screen is ACCEPTED**, unless the owner explicitly changes priority or authorizes parallel work. An unfinished screen must remain OPEN.
 
 ### LAW 2 — OFFICIAL TELEGRAM SOURCE AND SINGLE PROVENANCE LEDGER
-The only permitted Telegram source is the official repository `https://github.com/DrKLO/Telegram` at pinned commit `21f7d109da6ab3506c9e9577f98c6a38771ab335`. Do not substitute another Telegram repository, mirror, branch head, fork, or remembered implementation.
 
-All Telegram provenance belongs exclusively in `docs/port-manifest.json`: upstream repository, pinned revision, upstream paths, source/result hashes, port mode, and patch metadata. Never add Telegram provenance comments, source URLs, commit IDs, or path/line annotations to copied source or resource files.
+Use the official Telegram Android source at immutable commit `21f7d109da6ab3506c9e9577f98c6a38771ab335`. Canonical URL: `https://github.com/TelegramMessenger/Telegram-Android`. The legacy `https://github.com/DrKLO/Telegram` URL is an official alias only when verified to resolve to the same source tree and commit. Never use a fork, mirror, branch head, remembered code, or different revision.
 
-### LAW 3 — REAL TELEGRAM IMPLEMENTATIONS, NO PERMANENT KOTLIN LOOKALIKES
-Telegram UI and framework classes must come from the pinned Java source and real Telegram resources. Existing Kotlin `Telegram*` approximations are temporary migration scaffolding only. When a screen or foundation component using one is ported, replace it with the real Java implementation and remove the obsolete approximation in that same scoped change once it has no callers.
+All source provenance belongs in `docs/port-manifest.json`: repository, revision, upstream paths, source/result hashes, port mode, and patches. `docs/telegram-profile-fidelity.json` is the separate per-screen acceptance contract. Historical reports do not override either.
 
-Do not create a permanent Kotlin lookalike, wrapper, forwarding class, or parallel implementation to avoid porting the actual dependency.
+### LAW 3 — ORIGINAL TELEGRAM SCREEN OWNS RENDERING
+
+For each Telegram-target screen, the original pinned Telegram Java Activity/Fragment and its original custom View hierarchy must own visible rendering and interaction. Preserve source packages, classes, view construction, measurement, drawing, input dispatch, gestures, animations, and resources.
+
+Kotlin may connect EVE authentication, domain state, repositories, APIs, persistence, permissions, navigation adapters, and the minimum lifecycle host. Kotlin/XML/Compose/Material must **not** recreate the visible Telegram screen or replace original views with lookalikes.
+
+Existing EVE Kotlin/XML screens are migration scaffolding only. The active EVE route must launch the original Telegram implementation. A copied source class that is never launched is not a port.
 
 ### LAW 4 — OWNER AUTHORITY WITH SECURITY AND DATA INTEGRITY PRESERVED
 The owner may add, remove, redesign, or change any UI, screen, component, or product behavior. No historical visual decision is permanently locked against an explicit owner request.
@@ -41,15 +48,15 @@ Use the execution-mode rules in section 6:
 
 A passing build proves only the checks that actually ran. It does not prove visual parity, device behavior, production Worker/D1 state, or release readiness.
 
-### LAW 6 — ONE SCREEN OR ONE FEATURE PER WORK UNIT
-Keep each implementation unit scoped to one requested screen or one feature, including directly required shared dependencies and affected tests. Do not silently expand into unrelated screens. Record adjacent issues under `Noticed but not touched`.
+### LAW 6 — ONE SCREEN AT A TIME, ACCEPT BEFORE ADVANCING
 
-A screen can carry explicit `NOT YET` acceptance items without blocking the next screen when the owner has asked to continue. Never relabel that screen as fully complete.
+Work on `1 screen or 1 feature at a time`, including directly required dependencies, EVE adapters, resources, and tests. For Telegram parity, finish and ACCEPT the current screen before starting the next. The owner may explicitly change priority; this does not turn an unfinished screen into a completed one.
 
-### LAW 7 — ZERO-SHORTCUT / ANTI-WRAPPER
-No fake subclasses, no-op stubs, forwarding wrappers, typealiases used to disguise missing implementations, placeholder UI, TODO-based completion, or "inspired by" approximations presented as source-exact ports.
+### LAW 7 — ZERO-SHORTCUT / NO SCREEN RECREATIONS
 
-Do not hardcode UI colors or invent a second theme system. Do not alter tests or checks simply to bypass a legitimate failure.
+No fake subclasses, no-op stubs, forwarding wrappers, placeholder UI, TODO-based completion, or "inspired by" implementations presented as source-exact.
+
+**NO KOTLIN/XML/COMPOSE SCREEN RECREATION** for Telegram-target screens. Do not replace the original renderer with a new EVE view tree, Material widget, hand-drawn Kotlin Canvas clone, or screenshot imitation. Owner-approved differences must be documented as `ADAPTED`, never `EXACT`. Do not weaken legitimate tests or checks.
 
 ### LAW 8 — BACKEND, SECURITY RULES AND CLIENT CONTRACTS STAY SYNCHRONIZED
 When a requested change touches backend fields, permissions, API flows, persistence, or authorization, inspect the corresponding Cloudflare Worker routes, D1 migrations, Firebase Functions, Firestore/Storage rules, and tests. Update all directly affected layers together where required.
@@ -64,19 +71,18 @@ Never delete a file merely because it appears unused from its filename or becaus
 ## 2. Telegram Porting Rules (R1–R10)
 
 ### R1 — PINNED OFFICIAL SOURCE
-Use only `https://github.com/DrKLO/Telegram` at `21f7d109da6ab3506c9e9577f98c6a38771ab335`. Verify that the supplied archive corresponds to the pinned revision using its available metadata and source hashes. If the source cannot be inspected or its revision cannot be established, stop the affected source-exact claim and report `BLOCKED`; do not guess or silently use another revision.
 
-### R2 — COPY THE REAL IMPLEMENTATION
-Copy the required Java classes and Telegram resources from the pinned archive, preserving their original package, class name, implementation, and resource identity. Do not translate Java to Kotlin or rewrite source from memory.
+Use `https://github.com/TelegramMessenger/Telegram-Android` at `21f7d109da6ab3506c9e9577f98c6a38771ab335`. The legacy `DrKLO/Telegram` alias is acceptable only after verifying the same official tree and pinned commit. Verify source archives using metadata and hashes. If source identity cannot be established, report `BLOCKED`; never guess.
 
-A source file may be classified `EXACT` only when the source comparison supports that claim. Any necessary EVE-specific source change must be explicit and limited to the allowed patch rules below.
+### R2 — PORT THE REAL SCREEN ENTRY POINT AND DEPENDENCY CLOSURE
+
+Port the actual upstream screen entry point and its complete required closure: Java Activities/Fragments, custom Views, base classes, upstream layouts, drawables, fonts, styles, dimensions, strings, selectors, animations, theme keys, resource qualifiers, and runtime dependencies. Preserve original package, class, implementation, and resource identity. Do not translate or rebuild the screen in Kotlin/XML or from memory/screenshots.
+
+Classify a file `EXACT` only when source comparison proves it. Copying shared widgets alone does not make the containing screen source-exact.
 
 ### R3 — ALLOWED EVE PATCHES
-Only make the minimum EVE integration changes required to connect the source implementation to EVE-owned behavior, resource IDs, or host lifecycle. Mark each changed source-code location with:
 
-`// EVE-PATCH: <specific reason>`
-
-Do not use this marker for Telegram provenance. Record provenance and patch metadata only in `docs/port-manifest.json`. Preserve source constants, durations, thresholds, interpolators, state branches, drawing operations, and matrix/physics behavior unless a specific EVE integration conflict makes a change unavoidable; explain every such change in the manifest and report.
+Prefer separate `com.eve.app` adapters for EVE operations. Patch Telegram source only for a concrete integration conflict. Mark changed source locations with `// EVE-PATCH: <specific reason>`. Record patches in `docs/port-manifest.json`. Preserve the original screen tree, geometry, typography, colors, drawing, constants, durations, thresholds, interpolators, state branches, and physics. Material deviations are `ADAPTED`, never `EXACT`.
 
 ### R4 — REAL FRAMEWORK AND THEME FOUNDATION
 Use the real Telegram framework classes and resources needed by the migrated screen. Do not create replacements bearing Telegram class names.
@@ -89,16 +95,19 @@ For a visual/framework class retaining less than 50% of its upstream implementat
 EVE-owned data, authentication, admin permissions, APIs, persistence, and product navigation belong in `com.eve.app` adapters and host code. Do not put EVE business logic inside `org.telegram`. Telegram classes should retain Telegram behavior and receive only the minimum host integration they need.
 
 ### R6 — FULL BEHAVIOR, NOT A STATIC LOOKALIKE
-Port the full applicable behavior, not just the visible appearance: touch handling, gestures, spring/fling/overscroll physics, Canvas/Matrix math, animation timing, haptics, state transitions, keyboard and inset handling, back navigation, Day/Night, RTL, and Hindi/localization behavior. Verify each applicable item on the target screen; mark unverified behavior `NOT YET`.
+
+Port and wire applicable touch handling, gestures, spring/fling/overscroll physics, Canvas/Matrix math, animation timing, haptics, state transitions, keyboard/insets, back navigation, Day/Night, RTL, Hindi, accessibility, loading/empty/error states, and EVE data persistence. Every visible control must perform its intended EVE operation. Unverified behavior remains `NOT YET`.
 
 ### R7 — SCOPE AND REUSE
 Search the repository and the pinned source before creating or copying a class. Reuse the real existing owner of state, navigation, rendering, and shared components. Add only dependencies required by the requested closure. Do not create duplicate classes, duplicate resources, unrelated helpers, or unrequested features.
 
 ### R8 — NO SHIMS OR FAKES
-No `SHIM` classification. No fake subclasses, no-op methods, forwarding wrappers, placeholder resources, typealiases, or simplified substitutes presented as Telegram ports. Use only the classifications `EXACT`, `ADAPTED`, `NOT FOUND`, and `BLOCKED` in the final element-status report.
 
-### R9 — REPLACE AND REMOVE WITH PROOF
-When a Telegram implementation replaces an EVE approximation, switch the actual owner/call sites to the ported implementation. Remove the obsolete EVE implementation only after proving it has no remaining callers. Keep a search/grep proof in the final report. Do not leave both implementations active as parallel UI systems.
+No `SHIM`, fake subclasses, no-op methods, forwarding wrappers, placeholder resources, typealiases, simplified substitutes, or screenshot recreations presented as Telegram ports. Use only `EXACT`, `ADAPTED`, `NOT FOUND`, and `BLOCKED`. An adapted component does not make its containing screen exact.
+
+### R9 — REPLACE THE ACTIVE OWNER, THEN REMOVE WITH PROOF
+
+The active EVE navigation/manifest route must launch the original Telegram screen. A source class present but never launched is not a port. Delete a superseded EVE implementation only after searching Kotlin/Java callers, XML, manifest, resources, tests, reflection/DI, and build wiring; include proof. Never leave competing screen renderers active.
 
 ### R10 — SOURCE ARCHIVE AND LITE ZIP HANDLING
 The Telegram source archive is external working material, not part of the EVE repository. In CLI/Termux mode, extract it under `~/tg-src` and inspect the archive to discover its actual top-level directory; do not assume a fixed nested folder name.
@@ -107,22 +116,36 @@ A supplied LITE archive is permitted to omit `native/jni`, `media3`, and `jlatex
 
 ## 2B. Porting Workflow (S0–S6)
 
-Execute these steps in order for each porting work unit. Do not start implementation before the source closure is understood.
+Run these steps for each Telegram screen before advancing.
 
-- **S0 — PREFLIGHT:** Inspect the archive with `unzip -l`; inspect available revision metadata and verify the pinned revision. Record the archive root, relevant source paths, line counts, and hashes. If the supplied archive is LITE, record the known omitted directories without changing build files.
-- **S1 — CLOSURE TABLE:** Trace the entry class and its transitive imports, layouts, drawables, styles, strings, animations, and shared components. Table columns: element | pinned upstream path/lines | status (`EXACT` / `ADAPTED` / `NOT FOUND` / `BLOCKED`) | current EVE owner/path | required EVE integration. Do not use `SHIM`.
-- **S2 — BEHAVIOR / PHYSICS SHEET:** For each applicable gesture, animation, Canvas/Matrix operation, and state transition, record the source file/line and literal constants or formulas. Identify what can and cannot be verified in the available environment.
-- **S3 — IMPLEMENT:** Port the smallest complete closure. Use the real Java/resources, add only required EVE adapters, wire the real entry point, and remove proven-dead approximations. Preserve the owner’s product behavior and backend contracts.
-- **S4 — VERIFY:** Run only checks available in the current execution mode. In CLI mode, push a coherent change to `main` and inspect the exact-SHA workflow result. In Chat mode, perform static review and return the changed files; the owner runs GitHub Actions.
-- **S5 — PROOF:** Compare source and result hashes for every claimed `EXACT` file. List every `EVE-PATCH`, every removed dependency/method and its reason, and all `NOT FOUND` / `BLOCKED` items. Do not infer visual or runtime parity from a hash alone.
-- **S6 — REPORT:** Use the single Final Report format in section 4. No external agent-specific report template is required.
+- **S0 — PREFLIGHT:** Verify the official pinned source/archive and screen entry point. Collect Telegram reference screenshots for required states; record device, Android version, resolution, density, font scale, theme, navigation mode, and interaction/motion evidence. Missing evidence stays UNKNOWN/BLOCKED; do not invent it.
+- **S1 — COMPLETE SOURCE CLOSURE:** Trace the Activity/Fragment, custom Views, base classes, layouts, drawables, fonts, styles, dimensions, strings, themes, selectors, animations, qualifiers, and runtime dependencies. Mark each edge included, EVE adapter, excluded with reason, or unresolved.
+- **S2 — STATE/BEHAVIOR MAP:** Map each screenshot to its source state. Record empty/loading/populated/error states, selected/disabled states, taps, long press, swipe, scroll, sheets/dialogs, keyboard, back, animation/cancellation, and EVE persistence.
+- **S3 — ORIGINAL RENDERER:** Wire the real Telegram entry point and complete required source closure into EVE's active route. Put Firebase/Worker/domain logic in `com.eve.app` adapters. No Kotlin/XML/Compose/Material screen recreation.
+- **S4 — VERIFY:** Run source/hash checks, compilation, targeted tests, exact-SHA CI, and actual device/emulator interactions. Compare Telegram/EVE captures on the same device/viewport; verify state, motion, theme, RTL, font scale, insets, and accessibility. FAST compilation is not visual acceptance.
+- **S5 — PROOF:** Record import hashes, patches, cuts/exclusions, and gaps. Attach matched reference/EVE captures, motion trace, native test report, human comparison report, and license disposition.
+- **S6 — ACCEPT OR KEEP OPEN:** Mark ACCEPTED only when the original renderer is active, EVE actions persist/read back correctly, and applicable runtime/visual/motion/accessibility/CI/license evidence passes human review. Otherwise keep OPEN. Do not begin another screen until accepted unless the owner changes priority.
+
+## 2C. NON-NEGOTIABLE TELEGRAM SCREEN-PORT CONTRACT
+
+The original pinned Telegram Java Activity/Fragment/custom View implementation owns the target screen's visible hierarchy, drawing, measurement, input dispatch, and motion. EVE Kotlin code is limited to authentication, state/domain mapping, API calls, persistence, permissions, navigation adapters, and the minimum host bridge. The active EVE route must launch the imported Telegram renderer. Merely copying Telegram source while continuing to launch an EVE Kotlin/XML screen does not count as a port.
+
+A screen is ACCEPTED only when:
+1. The original entry point and required dependency closure are integrated and active.
+2. Every visible action is connected to its EVE operation, with persistence/readback verified.
+3. Source hashes, patches, exclusions, and remaining gaps are documented.
+4. Same-device/same-viewport Telegram references and EVE captures exist, with human-reviewed comparison.
+5. Relevant motion, lifecycle, back, Day/Night, RTL, font scale, inset/cutout, and accessibility checks have runtime evidence.
+6. Targeted tests, exact-SHA CI, and licensing disposition pass.
+
+`verify_telegram_acceptance.py` validates evidence paths/hashes and claim consistency only. It does not itself compare pixels, inspect full source completeness, or certify runtime behavior. Build success, unit tests, or imported assets never establish screen acceptance.
 
 ## 3. Core Workflow Rules
 
-1. Follow the latest explicit owner request. Work on one screen or feature per unit; include directly affected dependencies and tests, not unrelated cleanup.
+1. Follow the latest explicit owner request. Work on `1 screen or 1 feature at a time`; do not advance a Telegram screen until ACCEPTED unless the owner explicitly changes priority.
 2. Preserve the existing owner of state, navigation, and mutations. Search before adding a class or resource. Replace old implementations instead of stacking duplicates.
 3. Authorized implementation work does not require repeated approval. Escalate only genuinely unresolved owner-only product, security, data, or legal decisions.
-4. Never fake evidence. Separate implementation status from static review, compilation, unit tests, CI, device/visual verification, and release acceptance.
+4. Never fake evidence. Separate source identity, static review, compilation, unit tests, exact-SHA CI, device behavior, visual/motion comparison, licensing, and screen acceptance. FAST build success is not screen parity.
 5. Commit coherent changes to `main` only when operating in CLI/direct-repository mode. Do not create feature branches or force-push. Reconcile the current remote `main` before writing.
 6. When batching sequential commits, use `[skip ci]` on intermediate commits and allow the final commit to trigger the normal workflow. Do not use this to hide a failing app build or bypass required checks.
 7. Never commit secrets, access tokens, private keys, admin emails, or credential contents. Never stage, commit, overwrite, or delete `functions/package-lock.json`.
@@ -172,7 +195,7 @@ Do not use an external `~/.gemini/AGENTS.md` report format. Keep the report conc
 ## 5. Build Modes and LITE Archive Safety
 
 - Normal main pushes use the repository's configured FAST workflow. Treat its actual workflow definition as authoritative; do not assume it runs tests that are not configured.
-- The current development FAST path is intended for rapid debug APK compilation and ARM64 native packaging. A successful FAST run is not a substitute for manual FULL verification.
+- The current development FAST path is a rapid debug APK compile/package gate. A successful FAST run is not a substitute for manual FULL verification or screen-level device/visual acceptance.
 - Manual FULL validation remains owner-triggered and covers all four native ABIs, both supported emulator navigation modes, and the configured signing/release checks.
 - Do not remove or modify Gradle/CMake references to `native/jni`, `media3`, or `jlatexmath` merely because those directories are absent from a supplied LITE source ZIP.
 - Record exact commands, workflow names, commit SHAs, and outcomes. Distinguish an infrastructure/environment failure from an application compile or test failure.
@@ -224,4 +247,4 @@ Do not use Telegram's name, logo, branding, identity, API credentials, or servic
 
 ## 9. Questions and Blockers
 
-Do not invent missing source, behavior, permissions, test results, or product requirements. Resolve routine technical questions by inspecting the repository and pinned source. When a required detail cannot be established, mark the affected item `NOT FOUND` or `BLOCKED`, state the concrete reason and impact, and continue with independent authorized work.
+Do not invent missing source, behavior, permissions, test results, screenshots, or product requirements. Resolve routine technical questions by inspecting the repository and pinned source. When a required detail cannot be established, mark the affected item `NOT FOUND` or `BLOCKED`, state the concrete reason and impact, and do not falsely advance or accept the blocked screen.
