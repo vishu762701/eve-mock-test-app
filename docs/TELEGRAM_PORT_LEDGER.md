@@ -15,6 +15,8 @@
 >   Confirmed via live command `grep -rn "DesignCardView\|MaterialCardView\|UiArc" app/src/main/res/layout/` returns **strictly 0 matches** across the entire repository. All 53 layouts completely converted to pure Telegram surfaces and components with 100% CI green builds on `main`.
 
 
+> **HISTORICAL RECORD — NOT CURRENT PARITY ACCEPTANCE.** DONE/COMPLETE labels below record previous implementation claims; they do not prove that current EVE navigation launches the original Telegram renderer or that matched-device visual/motion checks passed. Current source provenance is in `docs/port-manifest.json`; current per-screen acceptance is in `docs/telegram-profile-fidelity.json`. Follow `ENGINEERING_STANDARD.md`.
+
 ## F1 ActionBar on every screen - DONE (commit cf4989af)
 Parity checklist: geometry [x] colours [x] typography [x] states [x] animation [x] gestures [x] haptics [x] a11y [x] RTL [x] tablet [x]
 | value | Telegram (File.java:line) | Eve before | Eve after |

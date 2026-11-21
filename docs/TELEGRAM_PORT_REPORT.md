@@ -7,6 +7,8 @@ Every feature across **F1 to F15** has been ported directly from the official Te
 
 ---
 
+> **HISTORICAL REPORT — NOT CURRENT SCREEN ACCEPTANCE.** Its DONE/verified labels do not certify the current active renderer, EVE state wiring, or matched-device visual/runtime parity. Current authority is `ENGINEERING_STANDARD.md`, `docs/port-manifest.json`, and `docs/telegram-profile-fidelity.json`.
+
 ## Pinned Source of Truth
 - **Upstream Repository:** Official Telegram Android (`DrKLO/Telegram`)
 - **Pinned Commit SHA:** `21f7d109da6ab3506c9e9577f98c6a38771ab335`
