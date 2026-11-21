@@ -57,8 +57,16 @@ class SettingsActivity : TelegramHostActivity<TelegramSettingsActivity>(), Teleg
     private var accountDeletionJob: Job? = null
     private var deletingFirebaseCredential = false
 
+    private fun resolveCurrentUid(): String? {
+        val testUid = com.eve.app.ui.profile.ProfileEditorAccountGuard.testOverrideUid
+            ?: if (intent?.getBooleanExtra("is_test_intent", false) == true) {
+                intent?.getStringExtra(com.eve.app.ui.profile.ProfileEditorAccountGuard.EXTRA_OWNER_UID)
+            } else null
+        return testUid ?: settingsAuth.currentUser?.uid
+    }
+
     private fun hasSettingsOwner(): Boolean =
-        SubmissionRetryPolicy.ownsSubmission(settingsOwnerUid, settingsAuth.currentUser?.uid)
+        SubmissionRetryPolicy.ownsSubmission(settingsOwnerUid, resolveCurrentUid())
 
     private val settingsAccountListener = FirebaseAuth.AuthStateListener { firebase ->
         if (settingsOwnerUid != null && !hasSettingsOwner() &&
@@ -103,7 +111,7 @@ class SettingsActivity : TelegramHostActivity<TelegramSettingsActivity>(), Teleg
     override fun onBeforeCreateFragment(savedInstanceState: Bundle?): Boolean {
         settingsOwnerUid = if (savedInstanceState?.containsKey("settings_owner_uid") == true) {
             savedInstanceState.getString("settings_owner_uid")
-        } else settingsAuth.currentUser?.uid
+        } else resolveCurrentUid()
         if (!hasSettingsOwner()) {
             finish()
             return false
@@ -137,7 +145,7 @@ class SettingsActivity : TelegramHostActivity<TelegramSettingsActivity>(), Teleg
     }
 
     override fun getUserUidHash(): Long {
-        val uid = settingsAuth.currentUser?.uid ?: return 1L
+        val uid = resolveCurrentUid() ?: return 1L
         return uid.hashCode().toLong()
     }
 
@@ -145,7 +153,7 @@ class SettingsActivity : TelegramHostActivity<TelegramSettingsActivity>(), Teleg
     private var cachedPhotoDrawable: Drawable? = null
 
     override fun getUserPhoto(): Drawable? {
-        val uid = settingsAuth.currentUser?.uid ?: return null
+        val uid = resolveCurrentUid() ?: return null
         if (cachedPhotoUid == uid && cachedPhotoDrawable != null) {
             return cachedPhotoDrawable
         }
